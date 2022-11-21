@@ -289,7 +289,7 @@ export class WebARSystem {
 
   /**
    * Pre process for rendering
-   * @private
+   * @internal
    * @param xrFrame XRFrame object
    */
   _preRender(time: number, xrFrame: XRFrame) {
@@ -300,7 +300,7 @@ export class WebARSystem {
 
   /**
    * Post process for rendering
-   * @private
+   * @internal
    */
   _postRender() {
     if (this.isWebARMode) {

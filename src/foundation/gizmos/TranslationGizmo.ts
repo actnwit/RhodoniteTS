@@ -198,7 +198,7 @@ export class TranslationGizmo extends Gizmo {
   ///
 
   /**
-   * @private
+   * @internal
    * setup entities of Gizmo if not done yet
    */
   _setup(): void {
@@ -449,7 +449,7 @@ export class TranslationGizmo extends Gizmo {
   }
 
   /**
-   * @private
+   * @internal
    * update the transform and etc of the gizmo
    */
   _update(): void {

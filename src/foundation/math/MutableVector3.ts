@@ -14,7 +14,7 @@ import {Vector3d, Vector3_} from './Vector3';
 import {IQuaternion} from './IQuaternion';
 
 /**
- * @private
+ * @internal
  */
 export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
@@ -221,6 +221,9 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   }
 }
 
+/**
+ * Mutable 3D(x,y,z) Vector class with 32bit float components
+ */
 export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
     super(v, {type: Float32Array});
@@ -302,6 +305,9 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
   }
 }
 
+/**
+ * Mutable 3D(x,y,z) Vector class with 64bit float components
+ */
 export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float64Array});

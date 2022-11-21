@@ -7,7 +7,7 @@ import {
 } from '../../types/CommonTypes';
 
 /**
- * @private
+ * @internal
  */
 export class MutableVector2_<
   T extends FloatTypedArrayConstructor
@@ -144,6 +144,9 @@ export class MutableVector2_<
   }
 }
 
+/**
+ * Mutable 2D(x,y) Vector class with 32bit float components
+ */
 export class MutableVector2
   extends MutableVector2_<Float32ArrayConstructor>
   implements IMutableVector, IMutableVector2
@@ -217,6 +220,9 @@ export class MutableVector2
   }
 }
 
+/**
+ * Mutable 2D(x,y) Vector class with 64bit float components
+ */
 export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float64Array});

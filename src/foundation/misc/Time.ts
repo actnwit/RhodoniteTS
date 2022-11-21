@@ -5,7 +5,7 @@ export class Time {
   private static __systemStartTime = 0;
 
   /**
-   * @private
+   * @internal
    */
   static _processBegin() {
     if (Time.__currentProcessBeginTime === 0) {
@@ -15,7 +15,7 @@ export class Time {
   }
 
   /**
-   * @private
+   * @internal
    */
   static _processEnd() {
     Time.__lastProcessEndTime = performance.now();

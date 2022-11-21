@@ -51,7 +51,7 @@ export function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
 }
 
 /**
- * @private
+ * @internal
  */
 export function _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
   const propertyIndex = semanticInfo.semantic.index;

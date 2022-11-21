@@ -3,7 +3,7 @@ import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 
 /**
- * @private
+ * @internal
  */
 export class MutableScalar_<
   T extends TypedArrayConstructor
@@ -55,6 +55,9 @@ export class MutableScalar_<
   }
 }
 
+/**
+ * Mutable Scalar class with 32bit float components
+ */
 export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float32Array});
@@ -81,6 +84,9 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
   }
 }
 
+/**
+ * Mutable Scalar class with 64bit float components
+ */
 export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float64Array});

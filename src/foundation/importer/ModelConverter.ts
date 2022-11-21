@@ -271,7 +271,7 @@ export class ModelConverter {
   }
 
   /**
-   * @private
+   * @internal
    */
   static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
     if (gltfModel.animations) {

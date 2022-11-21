@@ -133,7 +133,7 @@ export class Component extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * set the Max number of components
    * this method is called by the ***Component classes only
    */
@@ -748,7 +748,7 @@ export class Component extends RnObject {
   }
 
   /**
-   * @private
+   * @internal
    * Mark the component as destroyed
    */
   _destroy(): void {

@@ -68,6 +68,9 @@ const ChangeAnimationInfo = Symbol(
 );
 const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 
+/**
+ * A component that manages animation.
+ */
 export class AnimationComponent extends Component {
   /// inner states ///
   private __backupDefaultValues: Map<

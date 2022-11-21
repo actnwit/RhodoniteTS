@@ -311,7 +311,7 @@ export class MaterialRepository {
   }
 
   /**
-   * @private
+   * @internal
    */
   static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
     const propertyIndex = semanticInfo.semantic.index;

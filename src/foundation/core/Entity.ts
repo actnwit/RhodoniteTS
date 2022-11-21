@@ -41,6 +41,9 @@ export interface IEntity extends IRnObject {
 }
 
 /**
+ * The class that represents an entity.
+ *
+ * @remarks
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
  */
@@ -59,11 +62,14 @@ export class Entity extends RnObject implements IEntity {
 
   /**
    * The constructor of the Entity class.
+   *
+   * @remarks
    * When creating an Entity, use the createEntity method of the EntityRepository class
    * instead of directly calling this constructor.
-   * @param entityUID The unique ID of the entity
-   * @param isAlive Whether this entity alive or not
-   * @param entityComponent The instance of EntityComponent (Dependency Injection)
+   *
+   * @param entityUID - The unique ID of the entity
+   * @param isAlive - Whether this entity alive or not
+   * @param entityComponent - The instance of EntityComponent (Dependency Injection)
    */
   constructor(
     entityUID: EntityUID,
@@ -85,9 +91,10 @@ export class Entity extends RnObject implements IEntity {
   }
 
   /**
-   * @private
    * Sets a component to this entity.
    * @param component The component to set.
+   *
+   * @internal
    */
   _setComponent(componentType: typeof Component, component: Component): void {
     this.__components.set(componentType.componentTID, component);
@@ -95,7 +102,7 @@ export class Entity extends RnObject implements IEntity {
 
   /**
    * return whether this entity has the component or not
-   * @param componentType The component to check
+   * @param componentType - The component to check
    * @returns
    */
   hasComponent(componentType: typeof Component): boolean {
@@ -112,7 +119,7 @@ export class Entity extends RnObject implements IEntity {
 
   /**
    * Gets the component corresponding to the ComponentTID.
-   * @param componentTID The ComponentTID to get the component.
+   * @param componentTID - The ComponentTID to get the component.
    */
   getComponentByComponentTID(
     componentTID: ComponentTID
@@ -121,8 +128,9 @@ export class Entity extends RnObject implements IEntity {
   }
 
   /**
-   * @private
    * @param componentTID
+   *
+   * @internal
    */
   _removeComponent(componentTID: ComponentTID) {
     this.__components.delete(componentTID);

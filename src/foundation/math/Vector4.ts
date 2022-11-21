@@ -9,7 +9,8 @@ import {CompositionType} from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 
 /**
- * @private
+ *
+ * @internal
  */
 export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
@@ -476,6 +477,9 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   }
 }
 
+/**
+ * Immutable 4D(x,y,z,w) Vector class with 32bit float components
+ */
 export class Vector4 extends Vector4_<Float32ArrayConstructor> {
   constructor(x: Float32Array) {
     super(x, {type: Float32Array});
@@ -558,6 +562,9 @@ export class Vector4 extends Vector4_<Float32ArrayConstructor> {
   }
 }
 
+/**
+ * Immutable 4D(x,y,z,w) Vector class with 64bit float components
+ */
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   private constructor(x: Float64Array) {
     super(x, {type: Float64Array});

@@ -19,6 +19,9 @@ import {
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 
+/**
+ * The Component that controls camera posture.
+ */
 export class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;
   private __cameraController: ICameraController;

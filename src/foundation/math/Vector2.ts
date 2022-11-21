@@ -15,7 +15,7 @@ import {CompositionType} from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 
 /**
- * @private
+ * @internal
  */
 export class Vector2_<
   T extends FloatTypedArrayConstructor
@@ -392,6 +392,9 @@ export class Vector2_<
   }
 }
 
+/**
+ * Immutable 2D(x,y) Vector class with 32bit float components
+ */
 export class Vector2
   extends Vector2_<Float32ArrayConstructor>
   implements IVector, IVector2
@@ -469,6 +472,9 @@ export class Vector2
   }
 }
 
+/**
+ * Immutable 2D(x,y) Vector class with 64bit float components
+ */
 export class Vector2d extends Vector2_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
     super(x, {type: Float64Array});

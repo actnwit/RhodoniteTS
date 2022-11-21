@@ -296,7 +296,7 @@ export class WebXRSystem {
   /**
    * Getter of the view matrix of right eye
    * @param index (0: left, 1: right)
-   * @private
+   * @internal
    * @returns The view matrix vector of right eye
    */
   _getViewMatrixAt(index: Index) {
@@ -310,7 +310,7 @@ export class WebXRSystem {
   /**
    * Getter of the project matrix of right eye
    * @param index (0: left, 1: right)
-   * @private
+   * @internal
    * @returns The project matrix of right eye
    */
   _getProjectMatrixAt(index: Index) {
@@ -324,7 +324,7 @@ export class WebXRSystem {
   /**
    * Getter of the viewport vector
    * @param index (0: left, 1: right)
-   * @private
+   * @internal
    * @returns the viewport vector
    */
   _getViewportAt(index: Index) {
@@ -337,7 +337,7 @@ export class WebXRSystem {
 
   /**
    * Getter of the viewport vector of left eye
-   * @private
+   * @internal
    * @returns The viewport vector of left eye
    */
   _getLeftViewport() {
@@ -351,7 +351,7 @@ export class WebXRSystem {
 
   /**
    * Getter of the viewport vector of right eye
-   * @private
+   * @internal
    * @returns The viewport vector of right eye
    */
   _getRightViewport() {
@@ -374,7 +374,7 @@ export class WebXRSystem {
 
   /**
    * Getter of the position of the VR camera in world space
-   * @private
+   * @internal
    * @param displayIdx (0: left, 1: right)
    * @returns The position of the VR camera in world space
    */
@@ -400,7 +400,7 @@ export class WebXRSystem {
 
   /**
    * Getter of the CameraComponent SID of left/right eye
-   * @private
+   * @internal
    * @param index (0: left, 1: right)
    * @returns the SID of the CameraComponent of left/right eye
    */
@@ -414,7 +414,7 @@ export class WebXRSystem {
 
   /**
    * Pre process for rendering
-   * @private
+   * @internal
    * @param xrFrame XRFrame object
    */
   _preRender(time: number, xrFrame: XRFrame) {
@@ -432,7 +432,7 @@ export class WebXRSystem {
 
   /**
    * Post process for rendering
-   * @private
+   * @internal
    */
   _postRender() {
     if (this.__isWebXRMode) {
