@@ -56,6 +56,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       componentType.index === 5126 || // FLOAT
       componentType.index === 5127 || // DOUBLE
       this === CompositionType.Texture2D ||
+      this === CompositionType.Texture2DShadow ||
       this === CompositionType.TextureCube
     ) {
       return this.__glslStr;
@@ -291,6 +292,14 @@ const Mat2Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 2,
   isArray: true,
 });
+const Texture2DShadow: CompositionTypeEnum = new CompositionTypeClass({
+  index: 16,
+  str: 'TEXTURE_2D_SHADOW',
+  glslStr: 'highp sampler2DShadow',
+  hlslStr: 'Texture2D',
+  numberOfComponents: 1,
+  vec4SizeOfProperty: 1,
+});
 
 const typeList = [
   Unknown,
@@ -309,6 +318,7 @@ const typeList = [
   Mat3Array,
   Mat4Array,
   Texture2D,
+  Texture2DShadow,
   TextureCube,
 ];
 
@@ -372,7 +382,7 @@ function fromGlslString(str_: string): CompositionTypeEnum {
       str = 'TEXTURE_2D';
       break;
     case 'sampler2DShadow':
-      str = 'TEXTURE_2D';
+      str = 'TEXTURE_2D_SHADOW';
       break;
     case 'samplerCube':
       str = 'TEXTURE_CUBE_MAP';
@@ -483,7 +493,11 @@ function isArray(compositionType: CompositionTypeEnum) {
 }
 
 function isTexture(compositionType: CompositionTypeEnum) {
-  if (compositionType === Texture2D || compositionType === TextureCube) {
+  if (
+    compositionType === Texture2D ||
+    compositionType === TextureCube ||
+    compositionType === Texture2DShadow
+  ) {
     return true;
   } else {
     return false;
@@ -507,6 +521,7 @@ export const CompositionType = Object.freeze({
   Mat3Array,
   Mat4Array,
   Texture2D,
+  Texture2DShadow,
   TextureCube,
   from,
   fromString,

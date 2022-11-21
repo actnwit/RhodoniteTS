@@ -312,10 +312,7 @@ export class Material extends RnObject {
             value.value
           );
         } else {
-          if (
-            info.compositionType === CompositionType.Texture2D ||
-            info.compositionType === CompositionType.TextureCube
-          ) {
+          if (CompositionType.isTexture(info.compositionType)) {
             webglResourceRepository.bindTexture(info, value.value);
           }
         }
@@ -323,10 +320,7 @@ export class Material extends RnObject {
     } else {
       this._autoFieldVariablesOnly.forEach(value => {
         const info = value.info;
-        if (
-          info.compositionType === CompositionType.Texture2D ||
-          info.compositionType === CompositionType.TextureCube
-        ) {
+        if (CompositionType.isTexture(info.compositionType)) {
           if (
             firstTime ||
             info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly
@@ -361,11 +355,7 @@ export class Material extends RnObject {
     if (map == null) return;
     map.forEach((value, key) => {
       const info = value.info;
-      if (
-        args.setUniform ||
-        info.compositionType === CompositionType.Texture2D ||
-        info.compositionType === CompositionType.TextureCube
-      ) {
+      if (args.setUniform || CompositionType.isTexture(info.compositionType)) {
         if (!info.isCustomSetting) {
           if (
             firstTime ||
