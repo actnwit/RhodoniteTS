@@ -311,7 +311,8 @@ export class ShaderityUtility {
           break;
         case 2:
           if (
-            shaderSemanticsInfo.compositionType === CompositionType.Texture2D
+            shaderSemanticsInfo.compositionType === CompositionType.Texture2D ||
+            shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
           ) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
@@ -428,6 +429,10 @@ export class ShaderityUtility {
       return MutableMatrix44.identity();
     } else if (
       shaderSemanticsInfo.compositionType === CompositionType.Texture2D
+    ) {
+      return [0, AbstractMaterialContent.dummyWhiteTexture];
+    } else if (
+      shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
     ) {
       return [0, AbstractMaterialContent.dummyWhiteTexture];
     } else if (

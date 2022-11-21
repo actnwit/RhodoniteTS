@@ -124,11 +124,19 @@ void main ()
   // Shadow
 #ifdef RN_USE_SHADOW_MAPPING
   float visibility = 1.0;
-  float bias = 0.005;
-  if ( textureProj( u_depthTexture, v_shadowCoord ).r  < (v_shadowCoord.z - bias) / v_shadowCoord.w ) {
-    visibility = 0.5;
-  }
-  shadingColor *= visibility;
+  float bias = 0.001;
+
+  // Non PCF
+  // if ( textureProj( u_depthTexture, v_shadowCoord ).r  < (v_shadowCoord.z - bias) / v_shadowCoord.w ) {
+  //   visibility = 0.5;
+  // }
+  // shadingColor *= visibility;
+
+  // Hardware PCF
+  vec4 shadowCoord = v_shadowCoord;
+  shadowCoord.z -= bias;
+  shadingColor *= textureProj( u_depthTexture, shadowCoord ) * 0.5 + 0.5;
+
   // shadingColor.rgb = texture( u_depthTexture, v_shadowCoord.xy ).rrr;
   // shadingColor.rgb = vec3(v_shadowCoord.xy, 0.0);
   // shadingColor.rgb = vec3(diffuseColorTexUv, 0.0);

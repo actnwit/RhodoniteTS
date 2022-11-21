@@ -110,8 +110,8 @@ function createDepthBuffer2(
     type = ComponentType.Float,
     magFilter = TextureParameter.Nearest,
     minFilter = TextureParameter.Nearest,
-    wrapS = TextureParameter.Repeat,
-    wrapT = TextureParameter.Repeat,
+    wrapS = TextureParameter.ClampToEdge,
+    wrapT = TextureParameter.ClampToEdge,
   }
 ) {
   const frameBuffer = new FrameBuffer();

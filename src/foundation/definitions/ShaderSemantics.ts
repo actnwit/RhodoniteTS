@@ -643,9 +643,7 @@ const getShaderProperty: getShaderPropertyFunc = (
 
   let funcDef = '';
 
-  const isTexture =
-    info.compositionType === CompositionType.Texture2D ||
-    info.compositionType === CompositionType.TextureCube;
+  const isTexture = CompositionType.isTexture(info.compositionType);
 
   if (!isTexture) {
     funcDef = `

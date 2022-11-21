@@ -219,9 +219,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     const indexArray: IndexOf16Bytes[] = [];
     let indexStr;
 
-    const isTexture =
-      info.compositionType === CompositionType.Texture2D ||
-      info.compositionType === CompositionType.TextureCube;
+    const isTexture = CompositionType.isTexture(info.compositionType);
 
     const methodName = info.semantic.str.replace('.', '_');
 

@@ -53,7 +53,7 @@ import {Material} from '../foundation/materials/core/Material';
 import {System} from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import {Config} from '../foundation/core/Config';
-import {GL_TEXTURE_2D} from '../types/WebGLConstants';
+import {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_TEXTURE_2D} from '../types/WebGLConstants';
 import {AttributeNames} from './types';
 import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
 
@@ -601,9 +601,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       info.compositionType === CompositionType.Vec4Array ||
       info.compositionType === CompositionType.Vec3Array ||
       info.compositionType === CompositionType.Vec2Array;
-    const isCompositionTypeTexture =
-      info.compositionType === CompositionType.Texture2D ||
-      info.compositionType === CompositionType.TextureCube;
+    const isCompositionTypeTexture = CompositionType.isTexture(
+      info.compositionType
+    );
     const key = semanticStr;
 
     let updated = false;
@@ -696,7 +696,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
    * @param value
    */
   bindTexture(info: ShaderSemanticsInfo, value: any) {
-    if (info.compositionType === CompositionType.Texture2D) {
+    if (
+      info.compositionType === CompositionType.Texture2D ||
+      info.compositionType === CompositionType.Texture2DShadow
+    ) {
       this.bindTexture2D(
         value[0],
         value[1] instanceof AbstractTexture
@@ -1666,10 +1669,10 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
     if (
       // if DEPTH_COMPONENT
-      internalFormat.index === 6402 ||
-      internalFormat.index === 33189 ||
-      internalFormat.index === 33190 ||
-      internalFormat.index === 33191
+      internalFormat.index === GL_DEPTH_COMPONENT ||
+      internalFormat.index === GL_DEPTH_COMPONENT16 ||
+      internalFormat.index === GL_DEPTH_COMPONENT24 ||
+      internalFormat.index === GL_DEPTH_COMPONENT32F
     ) {
       gl.texParameteri(
         gl.TEXTURE_2D,
