@@ -1,5 +1,4 @@
 import {Vector3} from './Vector3';
-import {Quaternion} from './Quaternion';
 import {Vector4} from './Vector4';
 import {IMatrix, IMatrix33, IMatrix44} from './IMatrix';
 import {CompositionType} from '../definitions/CompositionType';
