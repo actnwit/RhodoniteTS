@@ -151,7 +151,7 @@ export class ModelConverter {
     this._setupTransform(gltfModel, rnEntities);
 
     // Animation
-    this._setupAnimation(gltfModel, rnEntities);
+    this._setupAnimation(gltfModel, rnEntities, rnBuffers);
 
     // Skeleton
     this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
