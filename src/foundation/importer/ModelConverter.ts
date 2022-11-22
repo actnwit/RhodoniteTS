@@ -705,9 +705,6 @@ export class ModelConverter {
               rnm2attribute,
               rnBufferView
             ).unwrapForce();
-            if (Is.exist(rnm2attribute.sparse)) {
-              this.setSparseAccessor(rnm2attribute, attributeRnAccessor);
-            }
 
             const joinedString =
               VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
@@ -718,8 +715,6 @@ export class ModelConverter {
         }
 
         rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
-
-
 
         // morph targets
         if (primitive.targets != null) {
@@ -776,7 +771,10 @@ export class ModelConverter {
     return meshEntity;
   }
 
-  static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor) {
+  /**
+   *
+   */
+  static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void {
     const uint8Array: Uint8Array =
       accessor.bufferViewObject!.bufferObject!.buffer!;
     const count = accessor.sparse!.count;
@@ -1830,6 +1828,9 @@ export class ModelConverter {
       normalized: accessor.normalized,
     });
 
+    if (Is.exist(accessor.sparse)) {
+      this.setSparseAccessor(accessor, rnAccessor.unwrapForce());
+    }
     return rnAccessor;
   }
 
