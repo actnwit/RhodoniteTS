@@ -1612,6 +1612,7 @@ export class ModelConverter {
     const bufferView = accessor.bufferViewObject!;
     const rnBuffer = rnBuffers[accessor.bufferViewObject!.buffer!];
 
+
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.bufferObject!;
@@ -1857,14 +1858,7 @@ export class ModelConverter {
     rnBuffer: Buffer
   ) {
     const gltfBufferView = accessor.bufferViewObject!;
-    const rnBufferView = rnBuffer
-      .takeBufferViewWithByteOffset({
-        byteLengthToNeed: gltfBufferView.byteLength,
-        byteStride: gltfBufferView.byteStride ?? 0,
-        byteOffset: gltfBufferView.byteOffset ?? 0,
-      })
-      .unwrapForce();
-
+    const rnBufferView = this.__getRnBufferView(gltfBufferView, rnBuffer);
     const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
     return rnAccessor;
   }
@@ -1899,30 +1893,17 @@ export class ModelConverter {
 
   private static __takeRnBufferViewAndRnAccessorForDraco(
     accessor: RnM2Accessor,
-    numOfAttributes: Count,
     compositionNum: Count,
     rnBuffer: Buffer
   ) {
     const rnBufferView = rnBuffer
       .takeBufferView({
-        byteLengthToNeed: numOfAttributes * compositionNum * 4,
+        byteLengthToNeed: accessor.count * compositionNum * 4,
         byteStride: 0,
       })
       .unwrapForce();
 
-    const rnAccessor = rnBufferView
-      .takeAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: numOfAttributes,
-        byteStride: accessor.byteStride,
-        byteOffsetInBufferView: accessor.byteOffset ?? 0,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      })
-      .unwrapForce();
-
+    const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
     return rnAccessor;
   }
 
@@ -2068,7 +2049,6 @@ export class ModelConverter {
     )!;
     const indicesRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
       primitive.indicesObject!,
-      indices.length,
       1,
       rnBufferForDraco
     );
@@ -2102,7 +2082,6 @@ export class ModelConverter {
         ).getNumberOfComponents();
         attributeRnAccessor = this.__takeRnBufferViewAndRnAccessorForDraco(
           attributeGltf2Accessor!,
-          numPoints,
           compositionNum,
           rnBufferForDraco
         );
