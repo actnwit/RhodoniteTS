@@ -710,7 +710,7 @@ export class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(
               rnm2attribute,
               rnBufferView
-            ).unwrapForce();
+            );
 
             const joinedString =
               VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
@@ -777,9 +777,6 @@ export class ModelConverter {
     return meshEntity;
   }
 
-  /**
-   *
-   */
   static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void {
     const uint8Array: Uint8Array =
       accessor.bufferViewObject!.bufferObject!.buffer!;
@@ -1607,18 +1604,13 @@ export class ModelConverter {
 
   static _readBinaryFromAccessorAndSetItToAccessorExtras(
     accessor: RnM2Accessor,
-    rnBuffers: Buffer[]
+    rnBuffers?: Buffer[]
   ): Float32Array {
     const bufferView = accessor.bufferViewObject!;
-    const rnBuffer = rnBuffers[accessor.bufferViewObject!.buffer!];
-    const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
-    const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
-    const uint8Array = rnAccessor.getUint8Array();
-
-    const byteOffsetFromBuffer: number =
+    let byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.bufferObject!;
-    // const uint8Array: Uint8Array = buffer.buffer!;
+    let uint8Array: Uint8Array = buffer.buffer!;
 
     const componentN = this._checkComponentNumber(accessor);
     const componentBytes = this._checkBytesPerComponent(accessor);
@@ -1643,6 +1635,14 @@ export class ModelConverter {
 
     const byteLength = componentBytes * componentN * accessor.count;
 
+    if (Is.exist(rnBuffers)) {
+      const rnBuffer = rnBuffers[accessor.bufferViewObject!.buffer!];
+      const rnBufferView = this.__getRnBufferView(bufferView, rnBuffer);
+      const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
+      uint8Array = rnAccessor.getUint8Array();
+      byteOffsetFromBuffer = 0;
+    }
+
     let float32Array = new Float32Array();
     const numberArray: number[] = [];
 
@@ -1654,56 +1654,48 @@ export class ModelConverter {
         typedDataArray = this.__rewrapWithTypedArray(
           Float32Array,
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getInt8') {
         typedDataArray = new Int8Array(
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getUint8') {
         typedDataArray = new Uint8Array(
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getInt16') {
         typedDataArray = this.__rewrapWithTypedArray(
           Int16Array,
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
-          // byteOffsetFromBuffer,
-          // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getUint16') {
         typedDataArray = this.__rewrapWithTypedArray(
           Uint16Array,
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
-          // byteOffsetFromBuffer,
-          // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getInt32') {
         typedDataArray = this.__rewrapWithTypedArray(
           Int32Array,
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
-          // byteOffsetFromBuffer,
-          // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getUint32') {
         typedDataArray = this.__rewrapWithTypedArray(
           Uint32Array,
           uint8Array,
-          0, // byteOffsetFromBuffer,
-          0 // byteLength / componentBytes
-          // byteOffsetFromBuffer,
-          // byteLength / componentBytes
+          byteOffsetFromBuffer,
+          byteLength / componentBytes
         );
       }
       float32Array = this.__normalizeTypedArrayToFloat32Array(
@@ -1714,10 +1706,8 @@ export class ModelConverter {
       // for BigEndian process
       const dataView: any = new DataView(
         uint8Array.buffer,
-        0,
-        0
-        // byteOffsetFromBuffer + uint8Array.byteOffset,
-        // byteLength
+        byteOffsetFromBuffer + uint8Array.byteOffset,
+        byteLength
       );
       const byteDelta = componentBytes * componentN;
       const littleEndian = true;
