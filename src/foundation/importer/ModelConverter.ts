@@ -154,7 +154,7 @@ export class ModelConverter {
     this._setupHierarchy(gltfModel, rnEntities);
 
     // Animation
-    this._setupAnimation(gltfModel, rnEntities);
+    this._setupAnimation(gltfModel, rnEntities, rnBuffers);
 
     // Root Group
     const rootGroup = this.__generateGroupEntity(gltfModel);
@@ -273,15 +273,21 @@ export class ModelConverter {
   /**
    * @internal
    */
-  static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
+  static _setupAnimation(
+    gltfModel: RnM2,
+    rnEntities: ISceneGraphEntity[],
+    rnBuffers: Buffer[]
+  ) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
           this._readBinaryFromAccessorAndSetItToAccessorExtras(
-            sampler.inputObject!
+            sampler.inputObject!,
+            rnBuffers
           );
           this._readBinaryFromAccessorAndSetItToAccessorExtras(
-            sampler.outputObject!
+            sampler.outputObject!,
+            rnBuffers
           );
         }
       }
@@ -1600,9 +1606,12 @@ export class ModelConverter {
   }
 
   static _readBinaryFromAccessorAndSetItToAccessorExtras(
-    accessor: RnM2Accessor
+    accessor: RnM2Accessor,
+    rnBuffers: Buffer[]
   ): Float32Array {
     const bufferView = accessor.bufferViewObject!;
+    const rnBuffer = rnBuffers[accessor.bufferViewObject!.buffer!];
+
     const byteOffsetFromBuffer: number =
       (bufferView.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
     const buffer = bufferView.bufferObject!;
@@ -1817,19 +1826,21 @@ export class ModelConverter {
     accessor: RnM2Accessor,
     rnBufferView: BufferView
   ) {
-    const rnAccessor = rnBufferView.takeAccessorWithByteOffset({
-      compositionType: CompositionType.fromString(accessor.type),
-      componentType: ComponentType.from(accessor.componentType),
-      count: accessor.count,
-      byteOffsetInBufferView: accessor.byteOffset ?? 0,
-      byteStride: accessor.byteStride,
-      max: accessor.max,
-      min: accessor.min,
-      normalized: accessor.normalized,
-    });
+    const rnAccessor = rnBufferView
+      .takeAccessorWithByteOffset({
+        compositionType: CompositionType.fromString(accessor.type),
+        componentType: ComponentType.from(accessor.componentType),
+        count: accessor.count,
+        byteOffsetInBufferView: accessor.byteOffset ?? 0,
+        byteStride: accessor.byteStride,
+        max: accessor.max,
+        min: accessor.min,
+        normalized: accessor.normalized,
+      })
+      .unwrapForce();
 
     if (Is.exist(accessor.sparse)) {
-      this.setSparseAccessor(accessor, rnAccessor.unwrapForce());
+      this.setSparseAccessor(accessor, rnAccessor);
     }
     return rnAccessor;
   }
@@ -1854,19 +1865,7 @@ export class ModelConverter {
       })
       .unwrapForce();
 
-    const rnAccessor = rnBufferView
-      .takeAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
-        byteOffsetInBufferView: accessor.byteOffset ?? 0,
-        byteStride: accessor.byteStride,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      })
-      .unwrapForce();
-
+    const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
     return rnAccessor;
   }
 
