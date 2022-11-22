@@ -509,4 +509,16 @@ export class Texture extends AbstractTexture {
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
+
+  destroy3DAPIResources() {
+    AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
+    const webGLResourceRepository =
+      CGAPIResourceRepository.getWebGLResourceRepository();
+    webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
+    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.__isTextureReady = false;
+    this.__startedToLoad = false;
+
+    return true;
+  }
 }
