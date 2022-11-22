@@ -117,7 +117,7 @@ export class AnimationAssigner {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
           ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
-            sampler.inputObject!,
+            sampler.inputObject!
           );
           ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
             sampler.outputObject!
