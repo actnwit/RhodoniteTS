@@ -330,7 +330,7 @@ export type RnM2Accessor = {
 export type RnM2Buffer = {
   uri?: string;
   byteLength: number;
-  buffer?: Uint8Array; // Uint8Array is needed insted of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
+  buffer?: Uint8Array; // Uint8Array is needed instead of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
   dataUri?: string;
   bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
