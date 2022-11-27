@@ -785,6 +785,14 @@ export class Mesh implements IMesh {
     }
   }
 
+  getVariantNames() {
+    const variants: string[] = [];
+    for (const primitive of this.primitives) {
+      Array.prototype.push.apply(variants, primitive.getVariantNames());
+    }
+    return variants;
+  }
+
   // makeVerticesSeparated() {
   //   for (let primitive of this.__primitives) {
   //     if (primitive.hasIndices()) {
