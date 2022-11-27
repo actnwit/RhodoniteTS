@@ -774,6 +774,17 @@ export class Mesh implements IMesh {
   getPrimitiveIndexInMesh(primitive: Primitive) {
     return this.primitives.indexOf(primitive);
   }
+
+  /**
+   * Apply a material variant to the mesh
+   * @param variantName a variant name
+   */
+  applyMaterialVariant(variantName: string) {
+    for (const primitive of this.primitives) {
+      primitive.applyMaterialVariant(variantName);
+    }
+  }
+
   // makeVerticesSeparated() {
   //   for (let primitive of this.__primitives) {
   //     if (primitive.hasIndices()) {
