@@ -4,7 +4,7 @@ export * from './CommonTypes';
 export * from './KTX2Texture';
 export * from './TypeConverter';
 export * from './TypeGenerators';
-export * from './VRM';
+export * from './VRM0x';
 export * from './WebGLConstants';
 export * from './glTF1';
 export * from './glTF2';

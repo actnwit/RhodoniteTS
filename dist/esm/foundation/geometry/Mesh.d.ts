@@ -79,12 +79,12 @@ export declare class Mesh implements IMesh {
     getPrimitiveAt(i: number): Primitive;
     getPrimitiveNumber(): number;
     /**
-     * @private
+     * @internal
      * @returns true: updated, false: not changed (not dirty)
      */
     updateVariationVBO(): boolean;
     /**
-     * @private
+     * @internal
      * @returns true: updated, false: not changed (not dirty)
      */
     deleteVariationVBO(): boolean;
@@ -94,7 +94,7 @@ export declare class Mesh implements IMesh {
     get primitives(): Primitive[];
     get meshUID(): number;
     /**
-     * @private
+     * @internal
      */
     get _variationVBOUid(): CGAPIResourceHandle;
     /**
@@ -103,23 +103,28 @@ export declare class Mesh implements IMesh {
     get AABB(): AABB;
     private __calcMorphPrimitives;
     /**
-     * @private
+     * @internal
      */
     _calcTangents(): void;
     /**
-     * @private
+     * @internal
      */
     private __calcTangentFor3Vertices;
     private __calcTangentPerVertex;
     private __usePreCalculatedTangent;
     /**
-     * @private
+     * @internal
      */
     _calcBaryCentricCoord(): void;
     /**
-     * @private
+     * @internal
      */
     _calcFaceNormalsIfNonNormal(): void;
     private __calcFaceNormalFor3Vertices;
     getPrimitiveIndexInMesh(primitive: Primitive): number;
+    /**
+     * Apply a material variant to the mesh
+     * @param variantName a variant name
+     */
+    applyMaterialVariant(variantName: string): void;
 }

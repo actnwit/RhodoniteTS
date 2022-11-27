@@ -1,6 +1,9 @@
 import { IVector4, IMutableVector, IMutableVector4 } from './IVector';
 import { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
 import { Vector4_ } from './Vector4';
+/**
+ * @internal
+ */
 export declare class MutableVector4_<T extends FloatTypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
     constructor(x: FloatTypedArray, { type }: {
         type: T;
@@ -52,6 +55,9 @@ export declare class MutableVector4_<T extends FloatTypedArrayConstructor> exten
     get _updateCount(): number;
     private __updateCount;
 }
+/**
+ * Mutable 4D(x,y,z,w) Vector class with 32bit float components
+ */
 export declare class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
     constructor(x: Float32Array);
     static fromCopyArray(array: Array<number>): MutableVector4;
@@ -69,6 +75,9 @@ export declare class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     get className(): string;
     clone(): any;
 }
+/**
+ * Mutable 4D(x,y,z,w) Vector class with 64bit float components
+ */
 export declare class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
     constructor(x: Float64Array);
     static zero(): MutableVector4d;

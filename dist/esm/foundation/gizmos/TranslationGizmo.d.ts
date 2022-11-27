@@ -54,12 +54,12 @@ export declare class TranslationGizmo extends Gizmo {
     setSpace(space: 'local' | 'world'): void;
     get isVisible(): boolean;
     /**
-     * @private
+     * @internal
      * setup entities of Gizmo if not done yet
      */
     _setup(): void;
     /**
-     * @private
+     * @internal
      * update the transform and etc of the gizmo
      */
     _update(): void;

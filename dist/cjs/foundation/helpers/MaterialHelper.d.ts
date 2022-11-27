@@ -8,6 +8,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import { Count } from '../../types/CommonTypes';
 import { ShaderityObject } from 'shaderity';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import { Vrm0xMaterialProperty } from '../../types';
 declare function createMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createEmptyMaterial(): Material;
@@ -129,7 +130,7 @@ declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, i
     isLighting?: boolean;
     useTangentAttribute?: boolean;
     isOutline?: boolean;
-    materialProperties?: any[];
+    materialProperties?: Vrm0xMaterialProperty;
     textures?: any[];
     debugMode?: any;
     maxInstancesNumber?: Count;

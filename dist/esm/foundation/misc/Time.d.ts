@@ -4,11 +4,11 @@ export declare class Time {
     private static __lastTickTimeInterval;
     private static __systemStartTime;
     /**
-     * @private
+     * @internal
      */
     static _processBegin(): void;
     /**
-     * @private
+     * @internal
      */
     static _processEnd(): void;
     static get timeFromSystemStart(): number;

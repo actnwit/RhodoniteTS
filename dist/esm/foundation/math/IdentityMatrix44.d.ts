@@ -1,6 +1,6 @@
 import { AbstractMatrix } from './AbstractMatrix';
 import { IMatrix, IMatrix44 } from './IMatrix';
-import { IVector, IMutableVector, IVector3 } from './IVector';
+import { IVector, IVector4, IMutableVector, IVector3 } from './IVector';
 export declare class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     static readonly __v: Float32Array;
     constructor();
@@ -13,7 +13,8 @@ export declare class IdentityMatrix44 extends AbstractMatrix implements IMatrix,
     at(row_i: number, column_i: number): number;
     v(i: number): number;
     determinant(): number;
-    multiplyVector(vec: IVector): IVector;
+    multiplyVector(vec: IVector4): IVector4;
+    multiplyVector3(vec: IVector3): IVector3;
     multiplyVectorTo(vec: IVector, outVec: IMutableVector): IMutableVector;
     getScale(): IVector3;
     getScaleTo(outVec: IMutableVector): IMutableVector;

@@ -1,7 +1,8 @@
 import { Matrix44 } from './Matrix44';
-import { IMutableMatrix33, IMutableMatrix, IMatrix33 } from './IMatrix';
+import { IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44 } from './IMatrix';
 import { Matrix33 } from './Matrix33';
 import { Vector3 } from './Vector3';
+import { IVector3 } from './IVector';
 import { Array9, Index } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 export declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
@@ -37,11 +38,11 @@ export declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
     /**
      * Create transpose matrix
      */
-    static transpose(mat: Matrix33): MutableMatrix33;
+    static transpose(mat: IMatrix33): MutableMatrix33;
     /**
      * Create invert matrix
      */
-    static invert(mat: Matrix33): MutableMatrix33;
+    static invert(mat: IMatrix33): MutableMatrix33;
     /**
    * Create X oriented Rotation Matrix
    */
@@ -55,20 +56,20 @@ export declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
      */
     static rotateZ(radian: number): MutableMatrix33;
     static rotateXYZ(x: number, y: number, z: number): MutableMatrix33;
-    static rotate(vec: Vector3): MutableMatrix33;
+    static rotate(vec: IVector3): MutableMatrix33;
     /**
      * Create Scale Matrix
      */
-    static scale(vec: Vector3): MutableMatrix33;
+    static scale(vec: IVector3): MutableMatrix33;
     /**
      * multiply matrixes
      */
-    static multiply(l_mat: Matrix33, r_mat: Matrix33): MutableMatrix33;
+    static multiply(l_mat: IMatrix33, r_mat: IMatrix33): MutableMatrix33;
     clone(): MutableMatrix33;
     raw(): Float32Array;
     setAt(row_i: number, column_i: number, value: number): this;
     setComponents(m00: number, m01: number, m02: number, m10: number, m11: number, m12: number, m20: number, m21: number, m22: number): MutableMatrix33;
-    copyComponents(mat: Matrix33 | Matrix44): this;
+    copyComponents(mat: IMatrix33 | IMatrix44): this;
     /**
      * zero matrix
      */

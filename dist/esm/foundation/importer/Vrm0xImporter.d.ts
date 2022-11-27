@@ -1,4 +1,4 @@
-import { VRM } from '../../types/VRM';
+import { Vrm0x } from '../../types/VRM0x';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { GltfLoadOption, RnM2 } from '../../types';
 import { RenderPass } from '../renderer/RenderPass';
@@ -18,10 +18,10 @@ export declare class Vrm0xImporter {
      * For VRM file only
      * Generate JSON.
      */
-    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<IResult<VRM, Err<RnM2, undefined>>>;
+    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<IResult<Vrm0x, Err<RnM2, undefined>>>;
     static __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
-    static _readVRMHumanoidInfo(gltfModel: VRM, rootEntity?: ISceneGraphEntity): void;
-    static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void;
+    static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void;
+    static _readSpringBone(gltfModel: Vrm0x): void;
     private static __addPhysicsComponentRecursively;
     static _createTextures(gltfModel: RnM2): Texture[];
     static _existOutlineMaterial(extensionsVRM: any): boolean;

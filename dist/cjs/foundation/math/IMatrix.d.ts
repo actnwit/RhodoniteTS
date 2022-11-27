@@ -159,6 +159,8 @@ export interface IMatrix44 extends IMatrix {
     getRotate(): IMatrix44;
     getTranslate(): IVector3;
     getScale(): IVector3;
+    multiplyVector3(vec: IVector3): IVector3;
+    multiplyVector(vec: IVector4): IVector4;
 }
 export interface IMutableMatrix44 extends IMatrix {
     m00: number;

@@ -1,11 +1,10 @@
 import { Vector3 } from './Vector3';
-import { Quaternion } from './Quaternion';
-import { Vector4 } from './Vector4';
 import { IMatrix, IMatrix33, IMatrix44 } from './IMatrix';
 import { MutableVector3 } from './MutableVector3';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableVector4 } from './MutableVector4';
 import { IVector3 } from './IVector';
+import { IVector4 } from './IVector';
 import { IdentityMatrix44 } from './IdentityMatrix44';
 import { AbstractMatrix } from './AbstractMatrix';
 import { Array16, ArrayType } from '../../types/CommonTypes';
@@ -46,12 +45,12 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
     /**
      * Create transpose matrix
      */
-    static transpose(mat: Matrix44): Matrix44;
+    static transpose(mat: IMatrix44): IMatrix44 | Matrix44;
     /**
      * Create invert matrix
      */
-    static invert(mat: Matrix44): Matrix44;
-    static invertTo(mat: Matrix44, outMat: MutableMatrix44): MutableMatrix44;
+    static invert(mat: IMatrix44): IMatrix44;
+    static invertTo(mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
     /**
      * Create translation Matrix
      */
@@ -69,33 +68,33 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
      */
     static rotateZ(radian: number): Matrix44;
     static rotateXYZ(x: number, y: number, z: number): Matrix44;
-    static rotate(vec: Vector3): Matrix44;
+    static rotate(vec: IVector3): Matrix44;
     /**
      * Create Scale Matrix
      */
-    static scale(vec: Vector3): Matrix44;
+    static scale(vec: IVector3): Matrix44;
     /**
      * multiply matrixes
      */
-    static multiply(l_mat: Matrix44, r_mat: Matrix44): Matrix44;
+    static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44;
     /**
      * multiply matrixes
      */
     static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44): MutableMatrix44;
     static multiplyTypedArrayTo(l_mat: IMatrix44, r_array: ArrayType, outMat: MutableMatrix44, offsetAsComposition: number): MutableMatrix44;
-    static fromQuaternionTo(quat: Quaternion, outMat: MutableMatrix44): MutableMatrix44;
+    static fromQuaternionTo(quat: IQuaternion, outMat: MutableMatrix44): MutableMatrix44;
     toString(): string;
     toStringApproximately(): string;
     flattenAsArray(): number[];
     isDummy(): boolean;
     isEqual(mat: IMatrix44, delta?: number): boolean;
-    isStrictEqual(mat: Matrix44): boolean;
+    isStrictEqual(mat: IMatrix44): boolean;
     at(row_i: number, column_i: number): number;
     determinant(): number;
-    multiplyVector(vec: Vector4): Vector4;
-    multiplyVectorTo(vec: Vector4, outVec: MutableVector4): MutableVector4;
-    multiplyVectorToVec3(vec: Vector4, outVec: MutableVector3): MutableVector3;
-    multiplyVector3(vec: Vector3): Vector3;
+    multiplyVector(vec: IVector4): IVector4;
+    multiplyVectorTo(vec: IVector4, outVec: MutableVector4): MutableVector4;
+    multiplyVectorToVec3(vec: IVector4, outVec: MutableVector3): MutableVector3;
+    multiplyVector3(vec: IVector3): IVector3;
     multiplyVector3To(vec: IVector3, outVec: MutableVector3): MutableVector3;
     getTranslate(): Vector3;
     /**

@@ -40,7 +40,7 @@ export declare class Material extends RnObject {
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
     /**
-     * @private
+     * @internal
      * called from Primitive class only
      * @param primitive
      */
@@ -53,7 +53,7 @@ export declare class Material extends RnObject {
     setTextureParameterByUniformName(uniformName: string, value: any): void;
     getParameter(shaderSemantic: ShaderSemanticsEnum): any;
     /**
-     * @private
+     * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom only
      * @param isUniformOnlyMode
      */
@@ -64,7 +64,7 @@ export declare class Material extends RnObject {
      */
     isShaderProgramReady(): boolean;
     /**
-     * @private
+     * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUnitform only
      */
     _setParametersToGpu({ material, shaderProgram, firstTime, args, }: {
@@ -82,7 +82,7 @@ export declare class Material extends RnObject {
     private __getAttributeInfo;
     private __outputVertexAttributeBindingInfo;
     /**
-     * @private
+     * @internal
      * @param propertySetter
      */
     _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean): {
@@ -91,7 +91,7 @@ export declare class Material extends RnObject {
     };
     private __getTargetShaderSemantics;
     /**
-     * @private
+     * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom
      * @param vertexShaderMethodDefinitions_uniform
      * @param propertySetter
@@ -118,12 +118,12 @@ export declare class Material extends RnObject {
      */
     setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number): void;
     /**
-     * @private
+     * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
     _setupBasicUniformsLocations(): void;
     /**
-     * @private
+     * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
     _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram;

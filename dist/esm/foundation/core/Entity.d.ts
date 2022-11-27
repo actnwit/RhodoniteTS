@@ -37,6 +37,9 @@ export interface IEntity extends IRnObject {
     destroy(): void;
 }
 /**
+ * The class that represents an entity.
+ *
+ * @remarks
  * The Rhodonite Entity Class which are an entities that exists in space.
  * Entities can acquire various functions by having components on themselves.
  */
@@ -51,11 +54,14 @@ export declare class Entity extends RnObject implements IEntity {
     _isAlive: boolean;
     /**
      * The constructor of the Entity class.
+     *
+     * @remarks
      * When creating an Entity, use the createEntity method of the EntityRepository class
      * instead of directly calling this constructor.
-     * @param entityUID The unique ID of the entity
-     * @param isAlive Whether this entity alive or not
-     * @param entityComponent The instance of EntityComponent (Dependency Injection)
+     *
+     * @param entityUID - The unique ID of the entity
+     * @param isAlive - Whether this entity alive or not
+     * @param entityComponent - The instance of EntityComponent (Dependency Injection)
      */
     constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>);
     /**
@@ -63,14 +69,15 @@ export declare class Entity extends RnObject implements IEntity {
      */
     get entityUID(): number;
     /**
-     * @private
      * Sets a component to this entity.
      * @param component The component to set.
+     *
+     * @internal
      */
     _setComponent(componentType: typeof Component, component: Component): void;
     /**
      * return whether this entity has the component or not
-     * @param componentType The component to check
+     * @param componentType - The component to check
      * @returns
      */
     hasComponent(componentType: typeof Component): boolean;
@@ -81,12 +88,13 @@ export declare class Entity extends RnObject implements IEntity {
     getComponent(componentType: typeof Component): Component | undefined;
     /**
      * Gets the component corresponding to the ComponentTID.
-     * @param componentTID The ComponentTID to get the component.
+     * @param componentTID - The ComponentTID to get the component.
      */
     getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
     /**
-     * @private
      * @param componentTID
+     *
+     * @internal
      */
     _removeComponent(componentTID: ComponentTID): void;
     /**

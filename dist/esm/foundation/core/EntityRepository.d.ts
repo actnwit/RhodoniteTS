@@ -51,7 +51,7 @@ export declare class EntityRepository {
      */
     static getEntityByUniqueName(uniqueName: string): IEntity | undefined;
     /**
-     * @private
+     * @internal
      * Gets all entities.
      */
     static _getEntities(): IEntity[];

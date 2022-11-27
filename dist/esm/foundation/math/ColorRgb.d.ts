@@ -1,6 +1,9 @@
 import { Vector3 } from './Vector3';
 import { IVector3 } from './IVector';
 import { IColorRgb } from './IColor';
+/**
+ * A RGB color.
+ */
 export declare class ColorRgb extends Vector3 implements IVector3, IColorRgb {
     constructor(r: Float32Array);
     get x(): number;

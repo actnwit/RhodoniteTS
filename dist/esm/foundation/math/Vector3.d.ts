@@ -2,6 +2,9 @@ import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from './IVecto
 import { IQuaternion } from './IQuaternion';
 import { AbstractVector } from './AbstractVector';
 import { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
+/**
+ * @internal
+ */
 export declare class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVector implements IVector, IVector3 {
     constructor(v: TypedArray, { type }: {
         type: T;
@@ -122,6 +125,9 @@ export declare class Vector3_<T extends FloatTypedArrayConstructor> extends Abst
     static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
     static _fromVector2(vec2: IVector2, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
 }
+/**
+ * Immutable 3D(x,y,z) Vector class with 32bit float components
+ */
 export declare class Vector3 extends Vector3_<Float32ArrayConstructor> {
     constructor(v: TypedArray);
     static fromCopyArray3(array: Array3<number>): Vector3;
@@ -146,6 +152,9 @@ export declare class Vector3 extends Vector3_<Float32ArrayConstructor> {
     static multiplyQuaternion(quat: IQuaternion, vec: IVector3): Vector3;
     static lerp(lhs: IVector3, rhs: IVector3, ratio: number): Vector3;
 }
+/**
+ * Immutable 3D(x,y,z) Vector class with 64bit float components
+ */
 export declare class Vector3d extends Vector3_<Float64ArrayConstructor> {
     private constructor();
     static fromCopyArray3(array: Array3<number>): Vector3d;

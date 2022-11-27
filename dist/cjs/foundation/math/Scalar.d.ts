@@ -1,6 +1,9 @@
 import { IScalar } from './IVector';
 import { FloatTypedArrayConstructor, TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { AbstractVector } from './AbstractVector';
+/**
+ * @internal
+ */
 export declare class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
     constructor(v: TypedArray, { type }: {
         type: T;
@@ -18,6 +21,9 @@ export declare class Scalar_<T extends TypedArrayConstructor> extends AbstractVe
     static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
     get bytesPerComponent(): number;
 }
+/**
+ * Immutable Scalar class with 32bit float components
+ */
 export declare class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar {
     constructor(x: TypedArray);
     static fromCopyNumber(value: number): Scalar;
@@ -31,6 +37,9 @@ export declare class Scalar extends Scalar_<Float32ArrayConstructor> implements 
     toString(): string;
     clone(): Scalar;
 }
+/**
+ * Immutable Scalar class with 64bit float components
+ */
 export declare class Scalard extends Scalar_<Float64ArrayConstructor> {
     constructor(x: TypedArray);
     static fromCopyNumber(value: number): Scalard;

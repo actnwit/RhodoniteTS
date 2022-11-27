@@ -113,11 +113,13 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     __getFovyFromCamera(camera: CameraComponent): number;
     logic(cameraComponent: CameraComponent): void;
     /**
-     * @private update center, eye and up vectors of OrbitCameraController
+     * update center, eye and up vectors of OrbitCameraController
+     * @internal
      */
     __updateTargeting(camera: CameraComponent): void;
     /**
-     * @private calculate up, eye, center and tangent vector with controller influence
+     * calculate up, eye, center and tangent vector with controller influence
+     * @internal
      */
     __calculateInfluenceOfController(): void;
     __updateCameraComponent(camera: CameraComponent): void;

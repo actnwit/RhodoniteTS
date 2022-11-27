@@ -21,9 +21,9 @@ export declare class ModelConverter {
     static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]): void;
     static _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void;
     /**
-     * @private
+     * @internal
      */
-    static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void;
+    static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]): void;
     static _setupSkeleton(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]): void;
     private static __setupObjects;
     private static __isMorphing;
@@ -32,7 +32,8 @@ export declare class ModelConverter {
     private static __setupMesh;
     static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void;
     static setDefaultTextures(material: Material, gltfModel: RnM2): void;
-    private static __setVRMMaterial;
+    private static __setVRM1Material;
+    private static __setVRM0xMaterial;
     private static __generateAppropriateMaterial;
     private static __isLighting;
     private static __isSkinning;
@@ -53,7 +54,7 @@ export declare class ModelConverter {
     static _checkComponentNumber(accessor: RnM2Accessor): number;
     static _checkDataViewMethod(accessor: RnM2Accessor | RnM2SparseIndices): string;
     static _isSystemLittleEndian(): boolean;
-    static _readBinaryFromAccessorAndSetItToAccessorExtras(accessor: RnM2Accessor): Float32Array;
+    static _readBinaryFromAccessorAndSetItToAccessorExtras(accessor: RnM2Accessor, rnBuffers?: Buffer[]): Float32Array;
     /**
      * normalize values of TypedArray to Float32Array
      * See: the last part of 3.11.Animation at https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#animations
@@ -87,4 +88,5 @@ export declare class ModelConverter {
     private static __decodeDraco;
     static _setupTextureTransform(textureJson: RnM2TextureInfo, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum): void;
     private static __createBufferForDecompressedData;
+    private static __generateVrmNormalizedSkeleton;
 }

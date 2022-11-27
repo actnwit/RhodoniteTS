@@ -12,7 +12,7 @@ export declare class AABBGizmo extends Gizmo {
     constructor(target: ISceneGraphEntity);
     get isSetup(): boolean;
     /**
-     * @private
+     * @internal
      * setup entities of Gizmo if not done yet
      */
     _setup(): void;
@@ -22,7 +22,7 @@ export declare class AABBGizmo extends Gizmo {
      */
     private static generatePrimitive;
     /**
-     * @private
+     * @internal
      * update the transform and etc of the gizmo
      */
     _update(): void;

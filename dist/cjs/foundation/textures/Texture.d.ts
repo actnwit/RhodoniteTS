@@ -87,4 +87,5 @@ export declare class Texture extends AbstractTexture {
         anisotropy?: boolean | undefined;
     }): void;
     importWebGLTextureDirectly(webGLTexture: WebGLTexture, width?: number, height?: number): void;
+    destroy3DAPIResources(): boolean;
 }

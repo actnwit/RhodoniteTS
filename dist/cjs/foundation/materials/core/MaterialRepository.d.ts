@@ -38,7 +38,7 @@ export declare class MaterialRepository {
     private static __initialize;
     static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): IndexOf16Bytes;
     /**
-     * @private
+     * @internal
      */
     static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo): number;
 }

@@ -2,6 +2,9 @@ import { IVector3, IMutableVector, IMutableVector3 } from './IVector';
 import { TypedArray, FloatTypedArrayConstructor, Array3 } from '../../types/CommonTypes';
 import { Vector3_ } from './Vector3';
 import { IQuaternion } from './IQuaternion';
+/**
+ * @internal
+ */
 export declare class MutableVector3_<T extends FloatTypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
     constructor(v: TypedArray, { type }: {
         type: T;
@@ -58,6 +61,9 @@ export declare class MutableVector3_<T extends FloatTypedArrayConstructor> exten
     get bytesPerComponent(): number;
     static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): MutableVector3_<FloatTypedArrayConstructor>;
 }
+/**
+ * Mutable 3D(x,y,z) Vector class with 32bit float components
+ */
 export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
     constructor(v: TypedArray);
     static zero(): MutableVector3;
@@ -80,6 +86,9 @@ export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3;
     clone(): MutableVector3;
 }
+/**
+ * Mutable 3D(x,y,z) Vector class with 64bit float components
+ */
 export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
     constructor(x: TypedArray);
     static zero(): MutableVector3d;

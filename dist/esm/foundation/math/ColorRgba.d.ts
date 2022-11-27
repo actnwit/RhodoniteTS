@@ -2,6 +2,9 @@ import { Vector4 } from './Vector4';
 import { IVector4 } from './IVector';
 import { IColorRgba } from './IColor';
 import { Array4 } from '../../types/CommonTypes';
+/**
+ * A RGBA color.
+ */
 export declare class ColorRgba extends Vector4 implements IVector4, IColorRgba {
     constructor(r: Float32Array);
     get x(): number;

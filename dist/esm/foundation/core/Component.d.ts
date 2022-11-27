@@ -52,7 +52,7 @@ export declare class Component extends RnObject {
      */
     moveStageTo(processStage: ProcessStageEnum): void;
     /**
-     * @private
+     * @internal
      * set the Max number of components
      * this method is called by the ***Component classes only
      */
@@ -239,7 +239,7 @@ export declare class Component extends RnObject {
      */
     static getComponentTypeOfMember(memberName: string, componentClass: Function): ComponentTypeEnum | undefined;
     /**
-     * @private
+     * @internal
      * Mark the component as destroyed
      */
     _destroy(): void;

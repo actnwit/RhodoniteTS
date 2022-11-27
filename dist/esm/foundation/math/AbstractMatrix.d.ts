@@ -1,4 +1,7 @@
 import { IMatrix } from './IMatrix';
+/**
+ * the Abstract base class of Matrix classes
+ */
 export declare abstract class AbstractMatrix implements IMatrix {
     _v: Float32Array;
     at(row_i: number, column_i: number): number;

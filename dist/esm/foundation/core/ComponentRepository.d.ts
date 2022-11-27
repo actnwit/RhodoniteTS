@@ -44,13 +44,13 @@ export declare class ComponentRepository {
      */
     static getComponentFromComponentTID(componentTid: ComponentTID, componentSid: ComponentSID): Component | undefined;
     /**
-     * @private
+     * @internal
      * Gets an array of components corresponding to the class object of the component.
      * @param componentClass The class object of the component.
      */
     static _getComponents(componentClass: typeof Component): Array<Component> | undefined;
     /**
-     * @private
+     * @internal
      * Gets an array of components corresponding to the class object of the component (dead components included).
      * @param componentClass The class object of the component.
      */

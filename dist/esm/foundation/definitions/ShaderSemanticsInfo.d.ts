@@ -29,6 +29,6 @@ export declare type ShaderSemanticsInfo = {
 };
 export declare function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo): number;
 /**
- * @private
+ * @internal
  */
 export declare function _getPropertyIndex(semanticInfo: ShaderSemanticsInfo): number;

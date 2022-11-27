@@ -3,6 +3,7 @@ import { Material } from '../core/Material';
 import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { Count } from '../../../types/CommonTypes';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { Vrm0xMaterialProperty } from '../../../types';
 export declare class MToonMaterialContent extends AbstractMaterialContent {
     static readonly _Cutoff: ShaderSemanticsClass;
     static readonly _Color: ShaderSemanticsClass;
@@ -39,7 +40,7 @@ export declare class MToonMaterialContent extends AbstractMaterialContent {
     private __floatProperties;
     private __vectorProperties;
     private __textureProperties;
-    constructor(isOutline: boolean, materialProperties: any, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, debugMode: Count | undefined, makeOutputSrgb: boolean);
+    constructor(isOutline: boolean, materialProperties: Vrm0xMaterialProperty | undefined, textures: any, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, debugMode: Count | undefined, makeOutputSrgb: boolean);
     private __setTextures;
     setMaterialParameters(material: Material, isOutline: boolean): void;
     private static __initializeUsableBlendEquationModeAlpha;

@@ -1,5 +1,8 @@
 import { Scalar_ } from './Scalar';
 import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+/**
+ * @internal
+ */
 export declare class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> {
     constructor(x: TypedArray, { type }: {
         type: T;
@@ -18,6 +21,9 @@ export declare class MutableScalar_<T extends TypedArrayConstructor> extends Sca
     static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
     get bytesPerComponent(): number;
 }
+/**
+ * Mutable Scalar class with 32bit float components
+ */
 export declare class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
     constructor(x: TypedArray);
     clone(): MutableScalar;
@@ -26,6 +32,9 @@ export declare class MutableScalar extends MutableScalar_<Float32ArrayConstructo
     static zero(): MutableScalar;
     get className(): string;
 }
+/**
+ * Mutable Scalar class with 64bit float components
+ */
 export declare class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
     constructor(x: TypedArray);
     clone(): MutableScalard;

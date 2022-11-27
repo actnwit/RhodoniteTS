@@ -32,12 +32,12 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
     /**
      * Create transpose matrix
      */
-    static transpose(mat: Matrix33): Matrix33;
+    static transpose(mat: IMatrix33): IMatrix33;
     /**
      * Create invert matrix
      */
-    static invert(mat: Matrix33): Matrix33;
-    static invertTo(mat: Matrix33, outMat: MutableMatrix33): MutableMatrix33;
+    static invert(mat: IMatrix33): IMatrix33 | Matrix33;
+    static invertTo(mat: IMatrix33, outMat: MutableMatrix33): MutableMatrix33;
     /**
    * Create X oriented Rotation Matrix
    */
@@ -55,20 +55,20 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
     /**
      * Create Scale Matrix
      */
-    static scale(vec: Vector3): Matrix33;
+    static scale(vec: IVector3): Matrix33;
     /**
      * multiply matrixes
      */
-    static multiply(l_mat: Matrix33, r_mat: Matrix33): Matrix33;
+    static multiply(l_mat: IMatrix33, r_mat: IMatrix33): IMatrix33;
     /**
      * multiply matrixes
      */
-    static multiplyTo(l_mat: Matrix33, r_mat: Matrix33, outMat: MutableMatrix33): MutableMatrix33;
+    static multiplyTo(l_mat: IMatrix33, r_mat: IMatrix33, outMat: MutableMatrix33): MutableMatrix33;
     toString(): string;
     toStringApproximately(): string;
     flattenAsArray(): number[];
     isDummy(): boolean;
-    isEqual(mat: Matrix33, delta?: number): boolean;
+    isEqual(mat: IMatrix33, delta?: number): boolean;
     isStrictEqual(mat: Matrix33): boolean;
     at(row_i: number, column_i: number): number;
     v(i: number): number;

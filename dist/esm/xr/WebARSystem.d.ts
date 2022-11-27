@@ -53,13 +53,13 @@ export declare class WebARSystem {
     get projectionMatrix(): MutableMatrix44;
     /**
      * Pre process for rendering
-     * @private
+     * @internal
      * @param xrFrame XRFrame object
      */
     _preRender(time: number, xrFrame: XRFrame): void;
     /**
      * Post process for rendering
-     * @private
+     * @internal
      */
     _postRender(): void;
     get isWebARMode(): boolean;

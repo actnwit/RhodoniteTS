@@ -15,12 +15,12 @@ export declare class LocatorGizmo extends Gizmo {
     set length(val: number);
     get length(): number;
     /**
-     * @private
+     * @internal
      * setup entities of Gizmo if not done yet
      */
     _setup(): void;
     /**
-     * @private
+     * @internal
      * update the transform and etc of the gizmo
      */
     _update(): void;

@@ -26,7 +26,7 @@ declare function fromStringCaseSensitively(str: string): ShaderSemanticsEnum;
 declare function fullSemanticStr(info: ShaderSemanticsInfo): string;
 export declare type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) => string;
 /**
- * @private
+ * @internal
  */
 export declare function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum): number;
 export declare const ShaderSemantics: Readonly<{

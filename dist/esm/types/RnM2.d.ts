@@ -1,5 +1,5 @@
 import { RnPromise } from '../foundation/misc/RnPromise';
-import { Array4 } from './CommonTypes';
+import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
 import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, GltfLoadOption } from './glTF2';
@@ -23,7 +23,11 @@ export declare type RnM2 = {
     skins: RnM2Skin[];
     textures?: RnM2Texture[];
     extensions: Gltf2AnyObject;
-    extras: Gltf2AnyObject;
+    extras: {
+        rnEntities: ISceneGraphEntity[];
+        rnEntitiesByNames: Map<string, ISceneGraphEntity>;
+        [key: string]: any;
+    };
 };
 export declare type RnM2Scene = {
     nodesObjects?: RnM2Node[];
@@ -145,7 +149,7 @@ export declare type RnM2Material = {
     normalTexture?: RnM2NormalTextureInfo;
     occlusionTexture?: RnM2OcclusionTextureInfo;
     emissiveTexture?: RnM2TextureInfo;
-    emissiveFactor?: number[];
+    emissiveFactor?: Array3<number>;
     diffuseTexture?: RnM2TextureInfo;
     diffuseColorFactor?: number[];
     alphaMode?: string;

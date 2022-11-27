@@ -1,8 +1,14 @@
 import { RnTags, ObjectUID } from '../../types/CommonTypes';
+/**
+ * A Tag class
+ */
 export declare type Tag = {
     tag: string;
     value: any;
 };
+/**
+ * The Interface of the RnObject.
+ */
 export interface IRnObject {
     objectUID: ObjectUID;
     uniqueName: string;
@@ -103,7 +109,7 @@ export declare class RnObject implements IRnObject {
      */
     get uniqueName(): string;
     /**
-     * @private
+     * @internal
      */
     static _reset(): void;
     _copyFrom(rnObject: RnObject): void;

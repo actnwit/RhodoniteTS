@@ -11,6 +11,7 @@ import { Matrix33 } from '../math/Matrix33';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Byte, Index, Count, TypedArray, Size, TypedArrayConstructor, Array2, Array3, Array4 } from '../../types/CommonTypes';
+import { Matrix44 } from '../math/Matrix44';
 export declare type IndicesAccessOption = {
     indicesAccessor?: Accessor;
     endian?: boolean;
@@ -100,9 +101,11 @@ export declare class Accessor {
     setVec2(i: Index, x: number, y: number, { indicesAccessor, endian }: IndicesAccessOption): void;
     setVec3(i: Index, x: number, y: number, z: number, { indicesAccessor, endian }: IndicesAccessOption): void;
     setVec4(i: Index, x: number, y: number, z: number, w: number, { indicesAccessor, endian }: IndicesAccessOption): void;
+    setMat4(i: Index, v0: number, v1: number, v2: number, v3: number, v4: number, v5: number, v6: number, v7: number, v8: number, v9: number, v10: number, v11: number, v12: number, v13: number, v14: number, v15: number, { indicesAccessor, endian }: IndicesAccessOption): void;
     setVec2AsVector(i: Index, vec: Vector2, { indicesAccessor, endian }: IndicesAccessOption): void;
     setVec3AsVector(i: Index, vec: Vector3, { indicesAccessor, endian }: IndicesAccessOption): void;
     setVec4AsVector(i: Index, vec: Vector4, { indicesAccessor, endian }: IndicesAccessOption): void;
+    setMat4AsMatrix44(i: Index, mat: Matrix44, { indicesAccessor, endian }: IndicesAccessOption): void;
     copyFromTypedArray(typedArray: TypedArray): void;
     setScalarAt(i: Index, compositionOffset: Index, value: number, { indicesAccessor, endian }: IndicesAccessOption): void;
     setElementFromSameCompositionAccessor(i: Index, accessor: Accessor, secondIdx?: Index): void;

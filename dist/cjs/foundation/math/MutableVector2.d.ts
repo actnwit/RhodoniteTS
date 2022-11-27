@@ -1,6 +1,9 @@
 import { Vector2_ } from './Vector2';
 import { IVector2, IMutableVector, IMutableVector2 } from './IVector';
 import { TypedArray, FloatTypedArrayConstructor, Array2 } from '../../types/CommonTypes';
+/**
+ * @internal
+ */
 export declare class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vector2_<T> {
     constructor(x: TypedArray, { type }: {
         type: T;
@@ -44,6 +47,9 @@ export declare class MutableVector2_<T extends FloatTypedArrayConstructor> exten
     divideVector(vec: IVector2): this;
     get bytesPerComponent(): number;
 }
+/**
+ * Mutable 2D(x,y) Vector class with 32bit float components
+ */
 export declare class MutableVector2 extends MutableVector2_<Float32ArrayConstructor> implements IMutableVector, IMutableVector2 {
     constructor(x: TypedArray);
     static fromCopyArray2(array: Array2<number>): MutableVector2;
@@ -63,6 +69,9 @@ export declare class MutableVector2 extends MutableVector2_<Float32ArrayConstruc
     get className(): string;
     clone(): MutableVector2;
 }
+/**
+ * Mutable 2D(x,y) Vector class with 64bit float components
+ */
 export declare class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
     constructor(x: TypedArray);
     static fromCopyArray(array: Array2<number>): MutableVector2d;

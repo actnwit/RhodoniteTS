@@ -63,7 +63,7 @@ export declare class ScaleGizmo extends Gizmo {
     setSpace(space: 'local' | 'world'): void;
     get isVisible(): boolean;
     /**
-     * @private
+     * @internal
      * setup entities of Gizmo if not done yet
      */
     _setup(): void;
@@ -77,7 +77,7 @@ export declare class ScaleGizmo extends Gizmo {
     private yEdgeMesh;
     private zEdgeMesh;
     /**
-     * @private
+     * @internal
      * update the transform and etc of the gizmo
      */
     _update(): void;
