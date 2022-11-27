@@ -24,6 +24,7 @@ import {
   Array3,
   Array4,
 } from '../../types/CommonTypes';
+import { Matrix44 } from '../math/Matrix44';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (
@@ -795,6 +796,111 @@ export class Accessor {
     this.__version++;
   }
 
+  setMat4(
+    i: Index,
+    v0: number,
+    v1: number,
+    v2: number,
+    v3: number,
+    v4: number,
+    v5: number,
+    v6: number,
+    v7: number,
+    v8: number,
+    v9: number,
+    v10: number,
+    v11: number,
+    v12: number,
+    v13: number,
+    v14: number,
+    v15: number,
+    {indicesAccessor, endian = true}: IndicesAccessOption
+  ) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const sizeInBytes = this.componentSizeInBytes;
+    this.__dataViewSetter(this.__byteStride * index, v0, endian);
+    this.__dataViewSetter(
+      this.__byteStride * index + 1 * sizeInBytes,
+      v1,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 2 * sizeInBytes,
+      v2,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 3 * sizeInBytes,
+      v3,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 4 * sizeInBytes,
+      v4,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 5 * sizeInBytes,
+      v5,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 6 * sizeInBytes,
+      v6,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 7 * sizeInBytes,
+      v7,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 8 * sizeInBytes,
+      v8,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 9 * sizeInBytes,
+      v9,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 10 * sizeInBytes,
+      v10,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 11 * sizeInBytes,
+      v11,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 12 * sizeInBytes,
+      v12,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 13 * sizeInBytes,
+      v13,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 14 * sizeInBytes,
+      v14,
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 15 * sizeInBytes,
+      v15,
+      endian
+    );
+    this.__isMinMixDirty = true;
+    this.__version++;
+  }
+
   setVec2AsVector(
     i: Index,
     vec: Vector2,
@@ -864,6 +970,96 @@ export class Accessor {
     this.__dataViewSetter(
       this.__byteStride * index + 3 * sizeInBytes,
       vec.w,
+      endian
+    );
+    this.__isMinMixDirty = true;
+    this.__version++;
+  }
+
+  setMat4AsMatrix44(
+    i: Index,
+    mat: Matrix44,
+    {indicesAccessor, endian = true}: IndicesAccessOption
+  ) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const sizeInBytes = this.componentSizeInBytes;
+    this.__dataViewSetter(this.__byteStride * index, mat._v[0], endian);
+    this.__dataViewSetter(
+      this.__byteStride * index + 1 * sizeInBytes,
+      mat._v[1],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 2 * sizeInBytes,
+      mat._v[2],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 3 * sizeInBytes,
+      mat._v[3],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 4 * sizeInBytes,
+      mat._v[4],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 5 * sizeInBytes,
+      mat._v[5],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 6 * sizeInBytes,
+      mat._v[6],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 7 * sizeInBytes,
+      mat._v[7],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 8 * sizeInBytes,
+      mat._v[8],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 9 * sizeInBytes,
+      mat._v[9],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 10 * sizeInBytes,
+      mat._v[10],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 11 * sizeInBytes,
+      mat._v[11],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 12 * sizeInBytes,
+      mat._v[12],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 13 * sizeInBytes,
+      mat._v[13],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 14 * sizeInBytes,
+      mat._v[14],
+      endian
+    );
+    this.__dataViewSetter(
+      this.__byteStride * index + 15 * sizeInBytes,
+      mat._v[15],
       endian
     );
     this.__isMinMixDirty = true;

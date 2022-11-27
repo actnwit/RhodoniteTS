@@ -9,7 +9,6 @@ import {VRMColliderGroup} from './VRMColliderGroup';
 import {Index} from '../../types/CommonTypes';
 import {PhysicsStrategy} from './PhysicsStrategy';
 import {MutableQuaternion} from '../math/MutableQuaternion';
-import {IPhysicsEntity} from '../helpers/EntityHelper';
 import {IQuaternion} from '../math';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
@@ -272,15 +271,15 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   ) {
     for (const collisionGroup of collisionGroups) {
       for (const collider of collisionGroup.colliders) {
-        const worldColiderPos =
+        const worldColliderPos =
           collisionGroup.baseSceneGraph!.getWorldPositionOf(collider.position);
         const r = boneHitRadius + collider.radius;
-        const delta = Vector3.subtract(nextTail, worldColiderPos);
+        const delta = Vector3.subtract(nextTail, worldColliderPos);
         const deltaScalar = r - delta.length();
         if (deltaScalar >= 0) {
           const normal = Vector3.normalize(delta);
           const resilienceVec = Vector3.multiply(
-            Vector3.add(worldColiderPos, normal),
+            Vector3.add(worldColliderPos, normal),
             deltaScalar
           );
           nextTail = Vector3.add(nextTail, resilienceVec);

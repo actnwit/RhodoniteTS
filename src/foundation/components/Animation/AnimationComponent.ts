@@ -52,10 +52,14 @@ import {
 } from '../../math/raw/raw_extension';
 import { Vector3 } from '../../math/Vector3';
 import {Is} from '../../misc/Is';
-import {IAnimationEntity} from '../../helpers/EntityHelper';
+import {IAnimationEntity, ISceneGraphEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { IMatrix44, Matrix44, MutableQuaternion } from '../../math';
+import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
+import { SceneGraphComponent } from '../SceneGraph';
 
 const defaultAnimationInfo = {
   name: '',
@@ -89,11 +93,17 @@ export class AnimationComponent extends Component {
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
   private __effekseerComponent?: EffekseerComponent;
-  private __isEffekseerState: number = -1;
+  private __isEffekseerState = -1;
 
   /// flags ///
   private __isAnimating = true;
   static isAnimating = true;
+
+  /**
+   * @private
+   */
+  public __skeletalComponent?: SkeletalComponent;
+  public _animationRetarget?: IAnimationRetarget;
 
   /// Static Members ///
 
@@ -140,10 +150,26 @@ export class AnimationComponent extends Component {
   }
 
   $logic() {
-    if (
-      AnimationComponent.isAnimating && this.isAnimating &&
-      this.__currentActiveAnimationTrackName !== undefined
-    ) {
+    if (!AnimationComponent.isAnimating || !this.isAnimating) {
+      return;
+    }
+
+    const animationRetarget = this._animationRetarget;
+    if (Is.exist(animationRetarget)) {
+      this.__transformComponent!.quaternion =
+        animationRetarget.retargetQuaternion(this.entity);
+      this.__transformComponent!.translate =
+        animationRetarget.retargetTranslate(this.entity);
+      this.__transformComponent!.scale = animationRetarget.retargetScale(
+        this.entity
+      );
+    } else {
+      this.__applyAnimation();
+    }
+  }
+
+  private __applyAnimation() {
+    if (this.__currentActiveAnimationTrackName !== undefined) {
       const animationSet = this.__animationTracks.get(
         this.__currentActiveAnimationTrackName
       );
@@ -285,7 +311,7 @@ export class AnimationComponent extends Component {
     return inputArray.length - 1;
   }
 
-  private restoreDefaultValues() {
+  private __restoreRestValues() {
     this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
@@ -303,31 +329,140 @@ export class AnimationComponent extends Component {
     }
   }
 
-  get defaultTranslate() {
-    return this.__backupDefaultValues.get(
+  get restMatrix() {
+    const scale = this.restScale;
+    const q = this.restQuaternion;
+    const n00 = scale._v[0];
+    const n11 = scale._v[1];
+    const n22 = scale._v[2];
+    const sx = q._v[0] * q._v[0];
+    const sy = q._v[1] * q._v[1];
+    const sz = q._v[2] * q._v[2];
+    const cx = q._v[1] * q._v[2];
+    const cy = q._v[0] * q._v[2];
+    const cz = q._v[0] * q._v[1];
+    const wx = q._v[3] * q._v[0];
+    const wy = q._v[3] * q._v[1];
+    const wz = q._v[3] * q._v[2];
+    const m00 = 1.0 - 2.0 * (sy + sz);
+    const m01 = 2.0 * (cz - wz);
+    const m02 = 2.0 * (cy + wy);
+    // const m03 = 0.0;
+    const m10 = 2.0 * (cz + wz);
+    const m11 = 1.0 - 2.0 * (sx + sz);
+    const m12 = 2.0 * (cx - wx);
+    // const m13 = 0.0;
+    const m20 = 2.0 * (cy - wy);
+    const m21 = 2.0 * (cx + wx);
+    const m22 = 1.0 - 2.0 * (sx + sy);
+
+    const translate = this.restTranslate;
+
+    const matrix = MutableMatrix44.identity();
+    matrix.m00 = m00 * n00;
+    matrix.m01 = m01 * n11;
+    matrix.m02 = m02 * n22;
+    matrix.m03 = translate.x;
+
+    matrix.m10 = m10 * n00;
+    matrix.m11 = m11 * n11;
+    matrix.m12 = m12 * n22;
+    matrix.m13 = translate.y;
+
+    matrix.m20 = m20 * n00;
+    matrix.m21 = m21 * n11;
+    matrix.m22 = m22 * n22;
+    matrix.m23 = translate.z;
+
+    matrix.m30 = 0;
+    matrix.m31 = 0;
+    matrix.m32 = 0;
+    matrix.m33 = 1;
+
+    return matrix;
+  }
+
+  get restTranslate() {
+    const backUpValue = this.__backupDefaultValues.get(
       AnimationAttribute.Translate.str as AnimationPathName
     ) as IVector3;
+
+    if (backUpValue == null) {
+      return this.entity.getTransform().translateInner;
+    }
+
+    return backUpValue;
   }
 
-  get defaultQuaternion() {
-    return this.__backupDefaultValues.get(
+  get restQuaternion() {
+    const backUpValue = this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion;
+
+    if (backUpValue == null) {
+      return this.entity.getTransform().quaternionInner;
+    }
+
+    return backUpValue;
   }
 
-  get defaultRotation() {
-    return (this.__backupDefaultValues.get(
+  get restRotation() {
+    const backupValue = (this.__backupDefaultValues.get(
       AnimationAttribute.Quaternion.str as AnimationPathName
     ) as Quaternion)!.toEulerAngles();
+
+    if (backupValue == null) {
+      return this.entity.getTransform().rotateInner;
+    }
+
+    return backupValue;
   }
 
-  get defaultScale() {
-    return this.__backupDefaultValues.get(
+  get restScale() {
+    const backupValue = this.__backupDefaultValues.get(
       AnimationAttribute.Scale.str as AnimationPathName
     ) as IVector3;
+
+    if (backupValue == null) {
+      return this.entity.getTransform().scaleInner;
+    }
+
+    return backupValue;
   }
 
-  private backupDefaultValues() {
+  get globalRestQuaternion(): IQuaternion {
+    const parent = this.entity.getSceneGraph().parent;
+    if (parent !== undefined) {
+      const parentAnimation = parent.entity.tryToGetAnimation();
+      if (parentAnimation !== undefined) {
+        return Quaternion.multiply(
+          this.restQuaternion,
+          parentAnimation.globalRestQuaternion
+          // parentAnimation.globalRestQuaternion,
+          // this.restQuaternion
+        );
+      }
+    }
+
+    return this.restQuaternion;
+  }
+
+  get globalRestMatrix(): IMatrix44 {
+    const parent = this.entity.getSceneGraph().parent;
+    if (parent !== undefined) {
+      const parentAnimation = parent.entity.tryToGetAnimation();
+      if (parentAnimation !== undefined) {
+        return Matrix44.multiply(
+          parentAnimation.globalRestMatrix,
+          this.restMatrix
+        );
+      }
+    }
+
+    return this.restMatrix;
+  }
+
+  private __backupRestValues() {
     this.__backupDefaultValues.set(
       AnimationAttribute.Quaternion.str as AnimationPathName,
       this.__transformComponent!.quaternion
@@ -353,7 +488,7 @@ export class AnimationComponent extends Component {
   }
 
   setAnimationToRest() {
-    this.restoreDefaultValues();
+    this.__restoreRestValues();
   }
 
   static setIsAnimatingForAll(flg: boolean) {
@@ -478,7 +613,7 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
-    this.backupDefaultValues();
+    this.__backupRestValues();
   }
 
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
@@ -1108,6 +1243,35 @@ export class AnimationComponent extends Component {
 
   static setIsAnimating(flag: boolean) {
     this.isAnimating = flag;
+  }
+
+  private __calcGlobalInverseBindMatrix(sg: SceneGraphComponent): IMatrix44 {
+    const parentSg = sg.parent;
+
+    const inverseBindMatrix = Is.exist(this.inverseBindMatrix)
+      ? this.inverseBindMatrix
+      : Matrix44.identity();
+
+    if (Is.exist(parentSg)) {
+      return Matrix44.multiply(
+        inverseBindMatrix,
+        this.__calcGlobalInverseBindMatrix(parentSg)
+      );
+    } else {
+      return inverseBindMatrix;
+    }
+  }
+
+  get inverseBindMatrix() {
+    const inverseBindMatrix = this.__skeletalComponent?._getInverseBindMatrices(
+      this.entity.getSceneGraph()
+    );
+
+    return inverseBindMatrix;
+  }
+
+  get globalInverseBindMatrix() {
+    return this.__calcGlobalInverseBindMatrix(this.entity.getSceneGraph());
   }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);

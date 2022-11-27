@@ -1,5 +1,5 @@
 import {RnPromise} from '../foundation/misc/RnPromise';
-import {Array4} from './CommonTypes';
+import {Array3, Array4} from './CommonTypes';
 import {Material} from '../foundation/materials/core/Material';
 import {Accessor} from '../foundation/memory/Accessor';
 import {
@@ -29,7 +29,11 @@ export type RnM2 = {
   skins: RnM2Skin[];
   textures?: RnM2Texture[];
   extensions: Gltf2AnyObject;
-  extras: Gltf2AnyObject;
+  extras: {
+    rnEntities: ISceneGraphEntity[];
+    rnEntitiesByNames: Map<string, ISceneGraphEntity>;
+    [key: string]: any;
+  };
 };
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
@@ -160,7 +164,7 @@ export type RnM2Material = {
   normalTexture?: RnM2NormalTextureInfo;
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
-  emissiveFactor?: number[];
+  emissiveFactor?: Array3<number>;
   diffuseTexture?: RnM2TextureInfo;
   diffuseColorFactor?: number[];
   alphaMode?: string;

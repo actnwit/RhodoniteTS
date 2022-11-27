@@ -1,7 +1,7 @@
 import {Gltf2Importer} from './Gltf2Importer';
 import {ModelConverter} from './ModelConverter';
 import {Is} from '../misc/Is';
-import {VRM} from '../../types/VRM';
+import {Vrm0x} from '../../types/VRM0x';
 import {ISceneGraphEntity} from '../helpers/EntityHelper';
 import {GltfLoadOption, RnM2} from '../../types';
 import {RenderPass} from '../renderer/RenderPass';
@@ -70,8 +70,8 @@ export class Vrm0xImporter {
     } else {
       rootGroups = [rootGroupMain];
     }
-    Vrm0xImporter._readSpringBone(rootGroupMain, gltfModel as VRM);
-    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as VRM, rootGroupMain);
+    Vrm0xImporter._readSpringBone(gltfModel as Vrm0x);
+    Vrm0xImporter._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroupMain);
 
     return new Ok(rootGroups);
   }
@@ -83,7 +83,7 @@ export class Vrm0xImporter {
   static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<VRM, Err<RnM2, undefined>>> {
+  ): Promise<IResult<Vrm0x, Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);
@@ -96,9 +96,9 @@ export class Vrm0xImporter {
 
     assertIsOk(result);
     const gltfJson = result.get();
-    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as VRM);
+    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as Vrm0x);
 
-    return new Ok(gltfJson as VRM);
+    return new Ok(gltfJson as Vrm0x);
   }
 
   static async __importVRM0x(
@@ -109,18 +109,14 @@ export class Vrm0xImporter {
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions
         ?.defaultMaterialHelperArgumentArray;
+    const textures = this._createTextures(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
-        defaultMaterialHelperArgumentArray[0].textures ??
-        this._createTextures(gltfModel);
+        defaultMaterialHelperArgumentArray[0].textures ?? textures;
       defaultMaterialHelperArgumentArray[0].isLighting =
         defaultMaterialHelperArgumentArray[0].isLighting ?? true;
-
-      this._initializeMaterialProperties(
-        gltfModel,
-        defaultMaterialHelperArgumentArray[0].textures.length
-      );
     }
+    this._initializeMaterialProperties(gltfModel, textures.length);
 
     // get rootGroup
     let rootGroup;
@@ -143,12 +139,12 @@ export class Vrm0xImporter {
     const renderPassMain = renderPasses[0];
     renderPassMain.addEntities([rootGroup]);
 
-    this._readSpringBone(rootGroup, gltfModel as VRM);
-    this._readVRMHumanoidInfo(gltfModel as VRM, rootGroup);
+    this._readSpringBone(gltfModel as Vrm0x);
+    this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
   }
 
   static _readVRMHumanoidInfo(
-    gltfModel: VRM,
+    gltfModel: Vrm0x,
     rootEntity?: ISceneGraphEntity
   ): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
@@ -165,13 +161,9 @@ export class Vrm0xImporter {
         value: mapNameNodeId,
       });
     }
-    // rootEntity.tryToSetTag({
-    //   tag: 'humanoid_map_name_nodeName',
-    //   value: mapNameNodeName
-    // });
   }
 
-  static _readSpringBone(rootEntity: ISceneGraphEntity, gltfModel: VRM): void {
+  static _readSpringBone(gltfModel: Vrm0x): void {
     const boneGroups: VRMSpringBoneGroup[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
       .boneGroups) {
@@ -500,7 +492,7 @@ export class Vrm0xImporter {
       }
 
       //set default values
-      options.__isImportVRM = true;
+      options.__isImportVRM0x = true;
       if (options.defaultMaterialHelperArgumentArray == null) {
         options.defaultMaterialHelperArgumentArray = [{}];
       }
@@ -528,7 +520,8 @@ export class Vrm0xImporter {
             isTextureImageToLoadPreMultipliedAlpha: false,
           },
         ],
-        __isImportVRM: true,
+        __isImportVRM0x: true,
+        __importedType: 'vrm0x',
       };
     }
 

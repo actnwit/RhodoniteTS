@@ -12,6 +12,7 @@ import {GltfFileBuffers, GltfLoadOption} from '../../types';
 import {RnPromiseCallback} from '../misc/RnPromise';
 import {Vrm0xImporter} from './Vrm0xImporter';
 import {assertIsErr, assertIsOk, Err, IResult, Ok} from '../misc/Result';
+import { VrmImporter } from './VrmImporter';
 
 /**
  * Importer class which can import GLTF and VRM.
@@ -228,7 +229,7 @@ export class GltfImporter {
     );
 
     const fileArrayBuffer = options.files![fileName];
-    options.__isImportVRM = false;
+    options.__isImportVRM0x = false;
     let glTFVer = 0; // 0: not glTF, 1: glTF1, 2: glTF2
     switch (fileType) {
       case FileType.Gltf: {
@@ -245,6 +246,7 @@ export class GltfImporter {
         );
         const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
+        options.__importedType = 'gltf2';
         return new Ok();
       }
       case FileType.GltfBinary: {
@@ -257,6 +259,7 @@ export class GltfImporter {
         );
         const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
+        options.__importedType = 'glb2';
         return new Ok();
       }
       case FileType.Draco: {
@@ -273,13 +276,14 @@ export class GltfImporter {
             error: undefined,
           });
         } else {
+          options.__importedType = 'draco';
           const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
           renderPasses[0].addEntities([rootGroup]);
           return new Ok();
         }
       }
       case FileType.VRM: {
-        options.__isImportVRM = true;
+        options.__isImportVRM0x = true;
         const result = await Gltf2Importer._importGltfOrGlbFromArrayBuffers(
           fileArrayBuffer,
           options.files!,
@@ -289,9 +293,12 @@ export class GltfImporter {
         if (result.isOk()) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
-            // TODO: support VRM1.0
-            console.error('VRM1.0 is not supported yet');
+            options.__isImportVRM0x = false;
+            gltfModel.asset.extras!.rnLoaderOptions!.__isImportVRM0x = false;
+            options.__importedType = 'vrm1';
+            await VrmImporter.__importVRM(gltfModel, renderPasses);
           } else if (gltfModel.extensionsUsed.indexOf('VRM') > 0) {
+            options.__importedType = 'vrm0x';
             await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);
           }
           return new Ok();

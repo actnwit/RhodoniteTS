@@ -77,7 +77,8 @@ declare const window: any;
   animationAssigner.assignAnimation(
     vrmRootEntity,
     animGltf2Result.unwrapForce(),
-    vrmModelResult.unwrapForce()
+    vrmModelResult.unwrapForce(),
+    false
   );
 
   //set default camera

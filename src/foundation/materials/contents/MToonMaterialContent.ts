@@ -25,6 +25,7 @@ import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingl
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 import {RenderingArg} from '../../../webgl/types/CommonTypes';
 import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import {Vrm0xMaterialProperty} from '../../../types';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
@@ -105,7 +106,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
 
   constructor(
     isOutline: boolean,
-    materialProperties: any,
+    materialProperties: Vrm0xMaterialProperty | undefined,
     textures: any,
     isMorphing: boolean,
     isSkinning: boolean,
