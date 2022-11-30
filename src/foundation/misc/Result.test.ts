@@ -86,6 +86,9 @@ test(`Result.unwrapForce`, () => {
 test(`Result.isOk`, () => {
   const result0 = succeedIfValueEven(0);
   expect(result0.isOk()).toBe(true);
+  if (result0.isOk()) {
+    expect(result0.get()).toBe(0);
+  }
 });
 
 test(`wrapped Err`, () => {
