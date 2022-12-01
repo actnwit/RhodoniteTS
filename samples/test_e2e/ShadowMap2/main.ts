@@ -140,7 +140,7 @@ declare const window: any;
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createDepthBuffer2(
+    const framebuffer = Rn.RenderableHelper.createDepthBuffer(
       height,
       width,
       {}

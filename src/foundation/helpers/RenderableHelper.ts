@@ -72,65 +72,14 @@ function createDepthBuffer(
     internalFormat = TextureParameter.Depth32F,
     format = PixelFormat.DepthComponent,
     type = ComponentType.Float,
-    magFilter = TextureParameter.Nearest,
-    minFilter = TextureParameter.Nearest,
-    wrapS = TextureParameter.Repeat,
-    wrapT = TextureParameter.Repeat,
-  }
-) {
-  const frameBuffer = new FrameBuffer();
-  frameBuffer.create(width, height);
-
-  const depthTexture = new RenderTargetTexture();
-  depthTexture.create({
-    width,
-    height,
-    level,
-    type,
-    internalFormat,
-    format,
-    magFilter,
-    minFilter,
-    wrapS,
-    wrapT,
-  });
-
-  frameBuffer.setDepthAttachment(depthTexture);
-
-  return frameBuffer;
-}
-
-function createDepthBuffer2(
-  width: number,
-  height: number,
-  {
-    level = 0,
-    internalFormat = TextureParameter.Depth32F,
-    format = PixelFormat.DepthComponent,
-    type = ComponentType.Float,
-    magFilter = TextureParameter.Nearest,
-    minFilter = TextureParameter.Nearest,
+    magFilter = TextureParameter.Linear,
+    minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.ClampToEdge,
     wrapT = TextureParameter.ClampToEdge,
   }
 ) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
-
-  const renderTargetTexture = new RenderTargetTexture();
-  renderTargetTexture.create({
-    width,
-    height,
-    level,
-    internalFormat: TextureParameter.RGBA8,
-    format: PixelFormat.RGBA,
-    type: ComponentType.UnsignedByte,
-    magFilter,
-    minFilter,
-    wrapS,
-    wrapT,
-  });
-  frameBuffer.setColorAttachmentAt(0, renderTargetTexture);
 
   const depthTexture = new RenderTargetTexture();
   depthTexture.create({
@@ -154,5 +103,4 @@ function createDepthBuffer2(
 export const RenderableHelper = Object.freeze({
   createTexturesForRenderTarget,
   createDepthBuffer,
-  createDepthBuffer2,
 });
