@@ -300,6 +300,14 @@ const Texture2DShadow: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
+const Texture2DRect: CompositionTypeEnum = new CompositionTypeClass({
+  index: 17,
+  str: 'TEXTURE_2D_RECT',
+  glslStr: 'sampler2DRect',
+  hlslStr: 'Texture2D',
+  numberOfComponents: 1,
+  vec4SizeOfProperty: 1,
+});
 
 const typeList = [
   Unknown,
@@ -319,6 +327,7 @@ const typeList = [
   Mat4Array,
   Texture2D,
   Texture2DShadow,
+  Texture2DRect,
   TextureCube,
 ];
 
@@ -383,6 +392,9 @@ function fromGlslString(str_: string): CompositionTypeEnum {
       break;
     case 'sampler2DShadow':
       str = 'TEXTURE_2D_SHADOW';
+      break;
+    case 'sampler2DRect':
+      str = 'TEXTURE_2D_RECT';
       break;
     case 'samplerCube':
       str = 'TEXTURE_CUBE_MAP';
