@@ -6,7 +6,7 @@ import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export declare class CustomMaterialContent extends AbstractMaterialContent {
     private static __globalDataRepository;
-    constructor({ name, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isShadow, alphaMode, useTangentAttribute, useNormalTexture, vertexShader, pixelShader, additionalShaderSemanticInfo, }: {
+    constructor({ name, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isShadow, alphaMode, useTangentAttribute, useNormalTexture, vertexShader, pixelShader, noUseCameraTransform, additionalShaderSemanticInfo, }: {
         name: string;
         isMorphing: boolean;
         isSkinning: boolean;
@@ -23,6 +23,7 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         useNormalTexture: boolean;
         vertexShader: ShaderityObject;
         pixelShader: ShaderityObject;
+        noUseCameraTransform: boolean;
         additionalShaderSemanticInfo: ShaderSemanticsInfo[];
     });
     setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {

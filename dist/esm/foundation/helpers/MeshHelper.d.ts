@@ -8,7 +8,9 @@ import { SphereDescriptor } from '../geometry/shapes/Sphere';
 import { JointDescriptor } from '../geometry/shapes/Joint';
 declare function createShape(primitive: IShape): import("./EntityHelper").IMeshEntity;
 export declare const MeshHelper: Readonly<{
-    createPlane: (desc?: PlaneDescriptor) => import("./EntityHelper").IMeshEntity;
+    createPlane: (desc?: PlaneDescriptor & {
+        direction?: 'xz' | 'xy' | 'yz';
+    }) => import("./EntityHelper").IMeshEntity;
     createLine: (desc?: LineDescriptor) => import("./EntityHelper").IMeshEntity;
     createGrid: (desc?: GridDescriptor) => import("./EntityHelper").IMeshEntity;
     createCube: (desc?: CubeDescriptor) => import("./EntityHelper").IMeshEntity;

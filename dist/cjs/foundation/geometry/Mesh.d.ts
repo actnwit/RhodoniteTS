@@ -127,4 +127,5 @@ export declare class Mesh implements IMesh {
      * @param variantName a variant name
      */
     applyMaterialVariant(variantName: string): void;
+    getVariantNames(): string[];
 }
