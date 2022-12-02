@@ -18,7 +18,6 @@ import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
 import {Plane} from '../../geometry/shapes/Plane';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
 import {Mesh} from '../../geometry/Mesh';
 import {
   EntityHelper,
@@ -66,7 +65,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __opaqueExpressions: Expression[] = [];
   private __transparentExpressions: Expression[] = [];
   private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
-  private __oGammaCameraEntity: IOption<ICameraEntity> = new None();
   private __oWebXRSystem: IOption<any> = new None();
   private __oDrawFunc: IOption<DrawFunc> = new None();
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
@@ -206,7 +204,6 @@ export class ForwardRenderPipeline extends RnObject {
     assertHas(this.__oFrameBufferResolveForReference);
     assertHas(this.__oGammaExpression);
     assertHas(this.__oGammaBoardEntity);
-    assertHas(this.__oGammaCameraEntity);
 
     const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
@@ -221,11 +218,6 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oFrameBufferResolve.get().resize(width, height);
     this.__oFrameBufferResolveForReference.get().resize(width, height);
 
-    const aspect = width / height;
-
-    this.__oGammaBoardEntity.get().getTransform().scale =
-      Vector3.fromCopyArray3([aspect, 1, 1]);
-    this.__oGammaCameraEntity.get().getCamera().xMag = aspect;
     this.__oGammaExpression
       .get()
       .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
@@ -568,7 +560,9 @@ export class ForwardRenderPipeline extends RnObject {
     aspect: number
   ) {
     const expressionGammaEffect = new Expression();
-    const materialGamma = MaterialHelper.createGammaCorrectionMaterial();
+    const materialGamma = MaterialHelper.createGammaCorrectionMaterial({
+      noUseCameraTransform: true,
+    });
     const entityGamma = MeshHelper.createPlane({
       width: 2,
       height: 2,
@@ -584,7 +578,6 @@ export class ForwardRenderPipeline extends RnObject {
       tag: 'type',
       value: 'background-assets',
     });
-    entityGamma.getTransform().scale = Vector3.fromCopyArray3([aspect, 1, 1]);
 
     materialGamma.setTextureParameter(
       ShaderSemantics.BaseColorTexture,
@@ -592,25 +585,6 @@ export class ForwardRenderPipeline extends RnObject {
     );
 
     this.__oGammaBoardEntity = new Some(entityGamma);
-
-    const cameraEntityGamma = EntityHelper.createCameraEntity();
-    cameraEntityGamma.tryToSetUniqueName('Gamma Expression Camera', true);
-    cameraEntityGamma.tryToSetTag({
-      tag: 'type',
-      value: 'background-assets',
-    });
-    const cameraComponentGamma = cameraEntityGamma.getComponent(
-      CameraComponent
-    ) as CameraComponent;
-    cameraEntityGamma.getTransform().translate = Vector3.fromCopyArray3([
-      0.0, 0.0, 1.0,
-    ]);
-    cameraComponentGamma.type = CameraType.Orthographic;
-    cameraComponentGamma.zNear = 0.01;
-    cameraComponentGamma.zFar = 1000;
-    cameraComponentGamma.xMag = aspect;
-    cameraComponentGamma.yMag = 1;
-    this.__oGammaCameraEntity = new Some(cameraEntityGamma);
 
     // Rendering for Canvas Frame Buffer
     const renderPassGamma = new RenderPass();
@@ -620,7 +594,6 @@ export class ForwardRenderPipeline extends RnObject {
     renderPassGamma.isDepthTest = false;
     renderPassGamma.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     renderPassGamma.addEntities([entityGamma]);
-    renderPassGamma.cameraComponent = cameraComponentGamma;
     renderPassGamma.isVrRendering = false;
     renderPassGamma.isOutputForVr = false;
 
@@ -632,7 +605,6 @@ export class ForwardRenderPipeline extends RnObject {
     renderPassGammaVr.isDepthTest = false;
     renderPassGammaVr.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     renderPassGammaVr.addEntities([entityGamma]);
-    renderPassGammaVr.cameraComponent = cameraComponentGamma;
     renderPassGammaVr.isVrRendering = false;
     renderPassGammaVr.isOutputForVr = true;
 
