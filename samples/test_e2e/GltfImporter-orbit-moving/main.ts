@@ -1,3 +1,4 @@
+import { RenderPassHelper } from '../../../dist/esm/index.js';
 import Rn from '../../../dist/esm/index.mjs';
 
 const p = document.createElement('p');
@@ -63,9 +64,8 @@ document.body.appendChild(p);
       noUseCameraTransform: true,
     });
   gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Translucent;
-  const gammaCorrectionRenderPass = createPostEffectRenderPass(
-    gammaCorrectionMaterial
-  );
+  const gammaCorrectionRenderPass =
+    Rn.RenderPassHelper.createScreenDrawRenderPass(gammaCorrectionMaterial);
 
   setTextureParameterForMeshComponents(
     gammaCorrectionRenderPass.meshComponents,
@@ -174,24 +174,6 @@ function setIBL(baseUri) {
     meshRendererComponent.specularCubeMap = specularCubeTexture;
     meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
   }
-}
-
-function createPostEffectRenderPass(material: Rn.Material) {
-  const boardEntity = Rn.MeshHelper.createPlane({
-    width: 2,
-    height: 2,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    direction: 'xy',
-    material,
-  });
-
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = false;
-  renderPass.addEntities([boardEntity]);
-
-  return renderPass;
 }
 
 function setTextureParameterForMeshComponents(
