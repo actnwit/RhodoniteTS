@@ -53,6 +53,8 @@ type IBLCubeTextureParameter = {
  * (like the URP (Universal Render Pipeline) in the Unity engine).
  */
 export class ForwardRenderPipeline extends RnObject {
+  private __width = 0;
+  private __height = 0;
   private __oFrame: IOption<Frame> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
@@ -79,6 +81,8 @@ export class ForwardRenderPipeline extends RnObject {
    * @param canvasHeight - The height of the canvas.
    */
   async setup(canvasWidth: number, canvasHeight: number) {
+    this.__width = canvasWidth;
+    this.__height = canvasHeight;
     if (this.__oFrame.has()) {
       return new Err({
         message: 'Already setup',
@@ -420,10 +424,14 @@ export class ForwardRenderPipeline extends RnObject {
   __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
+
+    // render pass to clear buffers of render texture
     const initialRenderPass = new RenderPass();
     initialRenderPass.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
+
+    // render pass to clear buffers of framebuffer
     const initialRenderPassForFrameBuffer = new RenderPass();
     initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([
       0.0, 0.0, 0.0, 0.0,
@@ -643,6 +651,35 @@ export class ForwardRenderPipeline extends RnObject {
     expressionGammaEffect.addRenderPasses([renderPassGamma, renderPassGammaVr]);
 
     return expressionGammaEffect;
+  }
+
+  __setupSATExpression() {
+    const primitiveSAT = new Plane();
+    primitiveSAT.generate({
+      width: 2,
+      height: 2,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: false,
+      flipTextureCoordinateY: false,
+    });
+
+    const meshSAT = new Mesh();
+    meshSAT.addPrimitive(primitiveSAT);
+
+    const cameraEntitySAT = EntityHelper.createCameraEntity();
+    cameraEntitySAT.tryToSetUniqueName('SAT Expression Camera', true);
+    cameraEntitySAT.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    });
+    const cameraComponentSAT = cameraEntitySAT.getCamera();
+    cameraEntitySAT.getTransform().translate = Vector3.fromCopyArray3([0.0, 0.0, 1.0])
+    cameraComponentSAT.type = CameraType.Orthographic;
+    cameraComponentSAT.zNear = 0.01;
+    cameraComponentSAT.zFar = 1000;
+    cameraComponentSAT.xMag = this.__width / this.__height;
+    cameraComponentSAT.yMag = 1;
   }
 
   __setTextureParameterForMeshComponents(
