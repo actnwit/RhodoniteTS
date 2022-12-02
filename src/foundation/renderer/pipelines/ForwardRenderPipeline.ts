@@ -35,6 +35,7 @@ import {RnObject} from '../../core/RnObject';
 import {CameraType} from '../../definitions/CameraType';
 import {ModuleManager} from '../../system/ModuleManager';
 import {HdriFormatEnum} from '../../definitions';
+import { MeshHelper } from '../../helpers';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -567,43 +568,30 @@ export class ForwardRenderPipeline extends RnObject {
     aspect: number
   ) {
     const expressionGammaEffect = new Expression();
-
-    const entityGamma = EntityHelper.createMeshEntity();
-    entityGamma.tryToSetUniqueName('Gamma Plane', true);
-    entityGamma.tryToSetTag({
-      tag: 'type',
-      value: 'background-assets',
-    });
-    entityGamma.getTransform().scale = Vector3.fromCopyArray3([aspect, 1, 1]);
-    entityGamma.getTransform().rotate = Vector3.fromCopyArray3([
-      Math.PI / 2,
-      0,
-      0,
-    ]);
-
-    const primitiveGamma = new Plane();
-    primitiveGamma.generate({
+    const materialGamma = MaterialHelper.createGammaCorrectionMaterial();
+    const entityGamma = MeshHelper.createPlane({
       width: 2,
       height: 2,
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
       flipTextureCoordinateY: false,
+      direction: 'xy',
+      material: materialGamma,
     });
-    primitiveGamma.material = MaterialHelper.createGammaCorrectionMaterial();
-    primitiveGamma.material.setTextureParameter(
+    entityGamma.tryToSetUniqueName('Gamma Plane', true);
+    entityGamma.tryToSetTag({
+      tag: 'type',
+      value: 'background-assets',
+    });
+    entityGamma.getTransform().scale = Vector3.fromCopyArray3([aspect, 1, 1]);
+
+    materialGamma.setTextureParameter(
       ShaderSemantics.BaseColorTexture,
       gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
     );
 
-    const meshGamma = new Mesh();
-    meshGamma.addPrimitive(primitiveGamma);
     this.__oGammaBoardEntity = new Some(entityGamma);
-
-    const meshComponentGamma = entityGamma.getComponent(
-      MeshComponent
-    ) as MeshComponent;
-    meshComponentGamma.setMesh(meshGamma);
 
     const cameraEntityGamma = EntityHelper.createCameraEntity();
     cameraEntityGamma.tryToSetUniqueName('Gamma Expression Camera', true);
