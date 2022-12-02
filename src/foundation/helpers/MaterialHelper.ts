@@ -516,6 +516,7 @@ function createEnvConstantMaterial({
 function createFXAA3QualityMaterial({
   additionalName = '',
   maxInstancesNumber = 1,
+  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
@@ -529,7 +530,7 @@ function createFXAA3QualityMaterial({
     useNormalTexture: true,
     vertexShader: FXAA3QualityShaderVertex,
     pixelShader: FXAA3QualityShaderFragment,
-    noUseCameraTransform: false,
+    noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
