@@ -170,14 +170,7 @@ export class System {
     }
 
     if (CameraComponent.current === Component.InvalidObjectUID) {
-      const cameraEntity = EntityHelper.createCameraEntity();
-      cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
-      cameraEntity.getCamera().type = CameraType.Orthographic;
-      cameraEntity.getCamera().zNear = 0.1;
-      cameraEntity.getCamera().zFar = 10000;
-      const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      cameraEntity.getCamera().xMag = wgl.width / wgl.height;
-      cameraEntity.getCamera().yMag = 1;
+      System.createCamera();
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -293,6 +286,17 @@ export class System {
     }
 
     Time._processEnd();
+  }
+
+  private static createCamera() {
+    const cameraEntity = EntityHelper.createCameraEntity();
+    cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
+    cameraEntity.getCamera().type = CameraType.Orthographic;
+    cameraEntity.getCamera().zNear = 0.1;
+    cameraEntity.getCamera().zFar = 10000;
+    const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    cameraEntity.getCamera().xMag = wgl.width / wgl.height;
+    cameraEntity.getCamera().yMag = 1;
   }
 
   private static setViewportForNormalRendering(
