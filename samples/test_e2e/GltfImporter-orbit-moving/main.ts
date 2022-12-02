@@ -58,15 +58,13 @@ document.body.appendChild(p);
     0, 0, 0, 0,
   ]);
 
-  const postEffectCameraEntity = createPostEffectCameraEntity();
-  const postEffectCameraComponent = postEffectCameraEntity.getCamera();
-
   const gammaCorrectionMaterial =
-    Rn.MaterialHelper.createGammaCorrectionMaterial();
+    Rn.MaterialHelper.createGammaCorrectionMaterial({
+      noUseCameraTransform: true,
+    });
   gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Translucent;
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
-    gammaCorrectionMaterial,
-    postEffectCameraComponent
+    gammaCorrectionMaterial
   );
 
   setTextureParameterForMeshComponents(
@@ -178,49 +176,22 @@ function setIBL(baseUri) {
   }
 }
 
-function createPostEffectRenderPass(
-  material: Rn.Material,
-  cameraComponent: Rn.CameraComponent
-) {
-  const boardPrimitive = new Rn.Plane();
-  boardPrimitive.generate({
-    width: 1,
-    height: 1,
+function createPostEffectRenderPass(material: Rn.Material) {
+  const boardEntity = Rn.MeshHelper.createPlane({
+    width: 2,
+    height: 2,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
+    direction: 'xy',
     material,
   });
 
-  const boardMesh = new Rn.Mesh();
-  boardMesh.addPrimitive(boardPrimitive);
-
-  const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0.0,
-    0.0,
-  ]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0.0, -0.5,
-  ]);
-  const boardMeshComponent = boardEntity.getMesh();
-  boardMeshComponent.setMesh(boardMesh);
-
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = false;
-  renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([boardEntity]);
 
   return renderPass;
-}
-
-function createPostEffectCameraEntity() {
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zNearInner = 0.5;
-  cameraComponent.zFarInner = 2.0;
-  return cameraEntity;
 }
 
 function setTextureParameterForMeshComponents(
