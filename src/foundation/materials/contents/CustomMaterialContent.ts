@@ -32,6 +32,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     useNormalTexture,
     vertexShader,
     pixelShader,
+    noUseCameraTransform,
     additionalShaderSemanticInfo,
   }: {
     name: string;
@@ -50,6 +51,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     useNormalTexture: boolean;
     vertexShader: ShaderityObject;
     pixelShader: ShaderityObject;
+    noUseCameraTransform: boolean;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
   }) {
     super(
@@ -147,6 +149,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
     if (useNormalTexture) {
       this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
+    }
+
+    if (noUseCameraTransform) {
+      this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }
 
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';

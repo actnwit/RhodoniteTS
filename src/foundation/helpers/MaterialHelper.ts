@@ -391,6 +391,7 @@ function createPbrUberMaterial({
     useNormalTexture,
     vertexShader: pbrSingleShaderVertex,
     pixelShader: pbrSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
 
@@ -432,6 +433,7 @@ function createClassicUberMaterial({
     useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -468,6 +470,7 @@ function createFlatMaterial({
     useNormalTexture: true,
     vertexShader: FlatSingleShaderVertex,
     pixelShader: FlatSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -497,6 +500,7 @@ function createEnvConstantMaterial({
     useNormalTexture: false,
     vertexShader: EnvConstantSingleShaderVertex,
     pixelShader: EnvConstantSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -525,6 +529,7 @@ function createFXAA3QualityMaterial({
     useNormalTexture: true,
     vertexShader: FXAA3QualityShaderVertex,
     pixelShader: FXAA3QualityShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -789,6 +794,7 @@ function createColorGradingUsingLUTsMaterial(
 function createGammaCorrectionMaterial({
   additionalName = '',
   maxInstancesNumber = 1,
+  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
@@ -802,6 +808,7 @@ function createGammaCorrectionMaterial({
     useNormalTexture: true,
     vertexShader: GammaCorrectionShaderVertex,
     pixelShader: GammaCorrectionShaderFragment,
+    noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -954,6 +961,7 @@ function recreateCustomMaterial(
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
