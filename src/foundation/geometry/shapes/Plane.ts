@@ -3,6 +3,7 @@ import {VertexAttribute} from '../../definitions/VertexAttribute';
 import {PrimitiveMode} from '../../definitions/PrimitiveMode';
 import {Size} from '../../../types/CommonTypes';
 import {IShape} from './IShape';
+import { Is } from '../../misc/Is';
 
 export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of U(X)-axis direction */
@@ -17,6 +18,8 @@ export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
   isUVRepeat: boolean;
   /** draw textures by flipping on the V(Y)-axis */
   flipTextureCoordinateY?: boolean;
+  /** */
+  planeDirection?: 'xz' | 'xy' | 'yz'; // default is 'xz'
 }
 
 /**
@@ -29,13 +32,35 @@ export class Plane extends IShape {
    * @param desc a descriptor object of a Plane
    */
   public generate(desc: PlaneDescriptor): void {
+    if (Is.not.exist(desc.planeDirection)) {
+      desc.planeDirection = 'xz';
+    }
+
     const positions = [];
 
-    for (let i = 0; i <= desc.vSpan; i++) {
-      for (let j = 0; j <= desc.uSpan; j++) {
-        positions.push((j / desc.uSpan - 1 / 2) * desc.width);
-        positions.push(0);
-        positions.push((i / desc.vSpan - 1 / 2) * desc.height);
+    if (desc.planeDirection === 'xz') {
+      for (let i = 0; i <= desc.vSpan; i++) {
+        for (let j = 0; j <= desc.uSpan; j++) {
+          positions.push((j / desc.uSpan - 1 / 2) * desc.width);
+          positions.push(0);
+          positions.push((i / desc.vSpan - 1 / 2) * desc.height);
+        }
+      }
+    } else if (desc.planeDirection === 'xy') {
+      for (let i = 0; i <= desc.vSpan; i++) {
+        for (let j = 0; j <= desc.uSpan; j++) {
+          positions.push((j / desc.uSpan - 1 / 2) * desc.width);
+          positions.push((i / desc.vSpan - 1 / 2) * desc.height);
+          positions.push(0);
+        }
+      }
+    } else if (desc.planeDirection === 'yz') {
+      for (let i = 0; i <= desc.vSpan; i++) {
+        for (let j = 0; j <= desc.uSpan; j++) {
+          positions.push(0);
+          positions.push((j / desc.uSpan - 1 / 2) * desc.width);
+          positions.push((i / desc.vSpan - 1 / 2) * desc.height);
+        }
       }
     }
 
