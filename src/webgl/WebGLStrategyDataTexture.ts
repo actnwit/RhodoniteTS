@@ -755,8 +755,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         WellKnownComponentTIDs.CameraComponentTID
       ] = cameraComponentSid;
     } else {
+      // Non-VR Rendering
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
+        // if the renderPass has no cameraComponent, try to get the current cameraComponent
         cameraComponent = ComponentRepository.getComponent(
           CameraComponent,
           CameraComponent.current
