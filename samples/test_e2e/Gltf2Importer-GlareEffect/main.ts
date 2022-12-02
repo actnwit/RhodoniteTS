@@ -202,30 +202,19 @@ declare const window: any;
     material: Rn.Material,
     cameraComponent: Rn.CameraComponent
   ) {
-    const boardPrimitive = new Rn.Plane();
-    boardPrimitive.generate({
+    const boardEntity = Rn.MeshHelper.createPlane({
       width: 1,
       height: 1,
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
+      direction: 'xy',
       material,
     });
 
-    const boardMesh = new Rn.Mesh();
-    boardMesh.addPrimitive(boardPrimitive);
-
-    const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
     boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
       0.0, 0.0, -0.5,
     ]);
-    const boardMeshComponent = boardEntity.getMesh();
-    boardMeshComponent.setMesh(boardMesh);
 
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = false;
