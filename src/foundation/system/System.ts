@@ -27,7 +27,7 @@ import {Vector4} from '../math/Vector4';
 import {RenderPass} from '../renderer/RenderPass';
 import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
 
 declare const spector: any;
 
@@ -179,23 +179,20 @@ export class System {
       | undefined;
 
     const componentTids = ComponentRepository.getComponentTIDs();
+    const renderingComponentTids =
+      ComponentRepository.getRenderingComponentTIDs();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
       if (stage === ProcessStage.Render) {
         for (const exp of expressions) {
-          for (const componentTid of componentTids) {
+          for (const componentTid of renderingComponentTids) {
             const componentClass: typeof Component =
               ComponentRepository.getComponentClass(componentTid)!;
-            let renderPassN = 0;
-            if (!(componentTid === WellKnownComponentTIDs.MeshRendererComponentTID ||
-              componentTid === WellKnownComponentTIDs.EffekseerComponentTID)) {
-              continue;
-            }
-            renderPassN = exp!.renderPasses.length;
+            const renderPassN = exp.renderPasses.length;
 
             for (let i = 0; i < renderPassN; i++) {
-              const renderPass = exp!.renderPasses[i];
+              const renderPass = exp.renderPasses[i];
               if (typeof spector !== 'undefined') {
                 spector.setMarker(
                   `| ${exp.uniqueName}: ${renderPass.uniqueName}#`
@@ -203,7 +200,9 @@ export class System {
               }
               renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
-              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+              if (
+                componentTid === WellKnownComponentTIDs.MeshRendererComponentTID
+              ) {
                 // bind Framebuffer
                 System.bindFramebuffer(renderPass, rnXRModule);
 
@@ -328,9 +327,7 @@ export class System {
       this.__webglResourceRepository.bindFramebuffer(
         renderPass.getFramebuffer()
       );
-      this.__webglResourceRepository.setDrawTargets(
-        renderPass
-      );
+      this.__webglResourceRepository.setDrawTargets(renderPass);
     }
   }
 
