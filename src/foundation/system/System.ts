@@ -76,7 +76,7 @@ export class System {
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
 
-  private static __renderLoopFunc?: (time: number, ...args: unknown[]) => void;
+  private static __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private static __args: unknown[] = [];
   private static __stageMethods: Map<
     typeof Component,
@@ -99,8 +99,8 @@ export class System {
    * @param args - arguments you want to be passed to renderLoopFunc
    */
   public static startRenderLoop(
-    renderLoopFunc: (time: number, ...args: unknown[]) => void,
-    ...args: unknown[]
+    renderLoopFunc: (time: number, ...args: any[]) => void,
+    ...args: any[]
   ) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
