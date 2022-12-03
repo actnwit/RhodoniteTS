@@ -169,7 +169,7 @@ export class System {
    * @remarks
    * You need to call this method for rendering.
    *
-   * @param frame/expressions - a frame object
+   * @param frame/expression - a frame/expression object
    */
   public static process(frame: Frame): void;
   public static process(expressions: Expression[]): void;
