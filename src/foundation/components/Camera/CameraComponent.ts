@@ -687,7 +687,7 @@ export class CameraComponent extends Component {
   }
 
   get worldPosition() {
-    this.__sceneGraphComponent!.worldMatrixInner.multiplyVector3To(
+    this.__sceneGraphComponent?.worldMatrixInner.multiplyVector3To(
       this.eyeInner,
       CameraComponent.returnVector3
     );
