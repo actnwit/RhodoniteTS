@@ -134,6 +134,15 @@ export class System {
     }
   }
 
+  /**
+   * A Simple version of process method
+   *
+   * @remarks
+   * No need to create expressions and renderPasses and to register entities, etc...
+   * It's suitable for simple use cases like sample apps.
+   *
+   * @param clearColor - color to clear the canvas
+   */
   public static processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
     if (Is.not.exist(System.__expressionForProcessAuto)) {
       const expression = new Expression();
@@ -154,6 +163,14 @@ export class System {
     this.process([System.__expressionForProcessAuto]);
   }
 
+  /**
+   * A process method to render a scene
+   *
+   * @remarks
+   * You need to call this method for rendering.
+   *
+   * @param frame/expressions - a frame object
+   */
   public static process(frame: Frame): void;
   public static process(expressions: Expression[]): void;
   public static process(value: any) {
