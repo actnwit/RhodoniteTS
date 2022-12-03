@@ -41,6 +41,8 @@ import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3Quality
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
+import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
@@ -822,6 +824,36 @@ function createGammaCorrectionMaterial({
   return material;
 }
 
+function createSummedAreaTableMaterial({
+  additionalName = '',
+  maxInstancesNumber = 1,
+  noUseCameraTransform = false,
+} = {}) {
+  const materialName = 'SummedAreaTable' + `_${additionalName}`;
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    alphaMode: AlphaMode.Opaque,
+    useTangentAttribute: false,
+    useNormalTexture: true,
+    vertexShader: SummedAreaTableShaderVertex,
+    pixelShader: SummedAreaTableShaderFragment,
+    noUseCameraTransform: noUseCameraTransform,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    materialNode,
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
 function createMatCapMaterial({
   additionalName = '',
   isSkinning = false,
@@ -1022,6 +1054,7 @@ export const MaterialHelper = Object.freeze({
   createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial,
   createGammaCorrectionMaterial,
+  createSummedAreaTableMaterial,
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
   createMToonMaterial,
