@@ -17,11 +17,8 @@ import {Expression} from '../Expression';
 import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
-import {Plane} from '../../geometry/shapes/Plane';
-import {Mesh} from '../../geometry/Mesh';
 import {
   EntityHelper,
-  ICameraEntity,
   IMeshEntity,
 } from '../../helpers/EntityHelper';
 import {Vector3} from '../../math/Vector3';
@@ -31,10 +28,9 @@ import {Size} from '../../../types';
 import {Err, Ok} from '../../misc/Result';
 import {System} from '../../system/System';
 import {RnObject} from '../../core/RnObject';
-import {CameraType} from '../../definitions/CameraType';
 import {ModuleManager} from '../../system/ModuleManager';
 import {HdriFormatEnum} from '../../definitions';
-import { MeshHelper } from '../../helpers';
+import { MeshHelper, RenderPassHelper } from '../../helpers';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -613,33 +609,12 @@ export class ForwardRenderPipeline extends RnObject {
     return expressionGammaEffect;
   }
 
-  __setupSATExpression() {
-    const primitiveSAT = new Plane();
-    primitiveSAT.generate({
-      width: 2,
-      height: 2,
-      uSpan: 1,
-      vSpan: 1,
-      isUVRepeat: false,
-      flipTextureCoordinateY: false,
+  __setupSatExpression() {
+    const satMaterial = MaterialHelper.createSummedAreaTableMaterial({
+      noUseCameraTransform: true,
     });
-
-    const meshSAT = new Mesh();
-    meshSAT.addPrimitive(primitiveSAT);
-
-    const cameraEntitySAT = EntityHelper.createCameraEntity();
-    cameraEntitySAT.tryToSetUniqueName('SAT Expression Camera', true);
-    cameraEntitySAT.tryToSetTag({
-      tag: 'type',
-      value: 'background-assets',
-    });
-    const cameraComponentSAT = cameraEntitySAT.getCamera();
-    cameraEntitySAT.getTransform().translate = Vector3.fromCopyArray3([0.0, 0.0, 1.0])
-    cameraComponentSAT.type = CameraType.Orthographic;
-    cameraComponentSAT.zNear = 0.01;
-    cameraComponentSAT.zFar = 1000;
-    cameraComponentSAT.xMag = this.__width / this.__height;
-    cameraComponentSAT.yMag = 1;
+    const renderPassSat =
+      RenderPassHelper.createScreenDrawRenderPass(satMaterial);
   }
 
   __setTextureParameterForMeshComponents(
