@@ -1,8 +1,9 @@
 {
   "test_e2e": [
     "ColorGradingUsingLUTs",
-    "DepthEncode",
     "DataTextureInstancedDrawing",
+    "DepthEncode",
+    "EffekseerTest",
     "FurnaceTest-weakWhiteFurnaceResult",
     "FurnaceTest-whiteFurnace",
     "FXAA",
@@ -47,9 +48,9 @@
     "ShadowMapDebugMode",
     "ShadowMapVariance",
     "Simple",
+    "SummedAreaTable",
     "VRMAnimation",
-    "VRMImporter",
-    "EffekseerTest"
+    "VRMImporter"
   ],
   "simple": [
     "4DViews",
