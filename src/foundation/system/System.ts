@@ -31,6 +31,9 @@ import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent
 
 declare const spector: any;
 
+/**
+ * The argument type for System.init() method.
+ */
 interface SystemInitDescription {
   approach: ProcessApproachEnum;
   canvas: HTMLCanvasElement;
@@ -46,6 +49,23 @@ interface SystemInitDescription {
 
 type ComponentMethodName = string;
 
+/**
+ * The system class is the entry point of the Rhodonite library.
+ *
+ * @example
+ * ```
+ * await Rn.System.init({
+ *   approach: Rn.ProcessApproach.DataTexture,
+ *   canvas: document.getElementById('world') as HTMLCanvasElement,
+ * });
+ *
+ * ... (create something) ...
+ *
+ * Rn.System.startRenderLoop((time, _myArg1, _myArg2) => {
+ *   Rn.System.process([expression]);
+ * }, myArg1, myArg2);
+ * ```
+ */
 export class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
@@ -56,7 +76,7 @@ export class System {
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
 
-  private static __renderLoopFunc?: Function;
+  private static __renderLoopFunc?: (time: number, ...args: unknown[]) => void;
   private static __args: unknown[] = [];
   private static __stageMethods: Map<
     typeof Component,
@@ -65,7 +85,23 @@ export class System {
 
   private constructor() {}
 
-  static startRenderLoop(renderLoopFunc: Function, ...args: unknown[]) {
+  /**
+   * Starts a render loop.
+   *
+   * @example
+   * ```
+   * Rn.System.startRenderLoop((time, _myArg1, _myArg2) => {
+   *   Rn.System.process([expression]);
+   * }, myArg1, myArg2);
+   * ```
+   *
+   * @param renderLoopFunc - function to be called in each frame
+   * @param args - arguments you want to be passed to renderLoopFunc
+   */
+  public static startRenderLoop(
+    renderLoopFunc: (time: number, ...args: unknown[]) => void,
+    ...args: unknown[]
+  ) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
@@ -122,12 +158,18 @@ export class System {
     return animationFrameObject;
   }
 
+  /**
+   * Stops a existing render loop.
+   */
   public static stopRenderLoop() {
     const animationFrameObject = this.__getAnimationFrameObject();
     animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
     this.__animationFrameId = -1;
   }
 
+  /**
+   * Restart a render loop.
+   */
   public static restartRenderLoop() {
     if (this.__renderLoopFunc != null) {
       this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
@@ -348,6 +390,23 @@ export class System {
     }
   }
 
+  /**
+   * Initialize the Rhodonite system.
+   *
+   * @remarks
+   * Don't forget `await` to use this method.
+   *
+   * @example
+   * ```
+   * await Rn.System.init({
+   *   approach: Rn.ProcessApproach.DataTexture,
+   *   canvas: document.getElementById('world') as HTMLCanvasElement,
+   * });
+   * ```
+   *
+   * @param desc
+   * @returns
+   */
   public static async init(desc: SystemInitDescription) {
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('pbr');
@@ -411,38 +470,12 @@ export class System {
       this.restartRenderLoop();
     });
 
-    // this.detectComponentMethods();
     await AbstractMaterialContent.initDefaultTextures();
 
     return gl;
   }
 
-  static detectComponentMethods() {
-    const wellKnownComponentTIDs = Array.from(
-      Object.values(WellKnownComponentTIDs)
-    );
-    for (const componentTid of wellKnownComponentTIDs) {
-      const methods = [];
-      for (const stage of Component._processStages) {
-        const componentClass: typeof Component =
-          ComponentRepository.getComponentClass(componentTid)!;
-        const exist = componentClass.doesTheProcessStageMethodExist(
-          componentClass,
-          stage
-        );
-        if (exist) {
-          const map = valueWithCompensation({
-            value: this.__stageMethods.get(componentClass),
-            compensation: () => new Map(),
-          });
-          // map.set()
-          // this.__stageMethods.set(componentClass, stage.methodName);
-        }
-      }
-    }
-  }
-
-  static get processApproach() {
+  public static get processApproach() {
     return this.__processApproach;
   }
 
@@ -454,17 +487,5 @@ export class System {
   public static getCanvasSize() {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     return repo.getCanvasSize();
-  }
-
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new System();
-    }
-
-    return this.__instance;
-  }
-
-  static getCurrentWebGLContextWrapper() {
-    return this.__webglResourceRepository?.currentWebGLContextWrapper;
   }
 }
