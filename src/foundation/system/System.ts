@@ -488,4 +488,8 @@ export class System {
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     return repo.getCanvasSize();
   }
+
+  public static getCurrentWebGLContextWrapper() {
+    return this.__webglResourceRepository?.currentWebGLContextWrapper;
+  }
 }
