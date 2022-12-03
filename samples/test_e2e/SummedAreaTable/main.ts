@@ -1,5 +1,5 @@
-// import Rn from '../../../dist/esm/index.mjs';
-import Rn from '../../../dist/cjs';
+import Rn from '../../../dist/esm/index.mjs';
+// import Rn from '../../../dist/cjs';
 
 declare const window: any;
 
@@ -49,6 +49,16 @@ async function initRn() {
   ).unwrapForce();
   expressions.push(mainExpression);
 
+  // cameraController
+  const mainRenderPass = mainExpression.renderPasses[0];
+  const mainCameraControllerComponent = cameraEntity.getCameraController();
+  const controller =
+    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+
+  // lighting
+  setIBL('./../../../assets/ibl/papermill');
+
   Rn.System.startRenderLoop(() => {
     Rn.System.process(expressions);
   });
@@ -58,7 +68,7 @@ function createEnvCubeExpression(baseUri: string) {
   const environmentCubeTexture = new Rn.CubeTexture();
   environmentCubeTexture.baseUriToLoad = baseUri + '/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
-  environmentCubeTexture.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
+  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   environmentCubeTexture.mipmapLevelNumber = 1;
   environmentCubeTexture.loadTextureImagesAsync();
 
@@ -69,7 +79,7 @@ function createEnvCubeExpression(baseUri: string) {
   );
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
-    Rn.HdriFormat.HDR_LINEAR.index
+    Rn.HdriFormat.LDR_SRGB.index
   );
 
   const sphereEntity = Rn.MeshHelper.createSphere({
@@ -88,4 +98,27 @@ function createEnvCubeExpression(baseUri: string) {
   sphereExpression.addRenderPasses([sphereRenderPass]);
 
   return sphereExpression;
+}
+
+function setIBL(baseUri: string) {
+  const specularCubeTexture = new Rn.CubeTexture();
+  specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
+  specularCubeTexture.isNamePosNeg = true;
+  specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+  specularCubeTexture.mipmapLevelNumber = 10;
+
+  const diffuseCubeTexture = new Rn.CubeTexture();
+  diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
+  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+  diffuseCubeTexture.mipmapLevelNumber = 1;
+  diffuseCubeTexture.isNamePosNeg = true;
+
+  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+    Rn.MeshRendererComponent
+  ) as Rn.MeshRendererComponent[];
+  for (let i = 0; i < meshRendererComponents.length; i++) {
+    const meshRendererComponent = meshRendererComponents[i];
+    meshRendererComponent.specularCubeMap = specularCubeTexture;
+    meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
+  }
 }
