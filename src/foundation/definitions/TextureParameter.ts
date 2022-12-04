@@ -1,3 +1,4 @@
+import { GL_RG16F, GL_RG32F } from '../../types';
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
 import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
@@ -93,6 +94,14 @@ const RGB10_A2: TextureParameterEnum = new TextureParameterClass({
   index: 0x8059,
   str: 'RGB10_A2',
 });
+const RG16F: TextureParameterEnum = new TextureParameterClass({
+  index: GL_RG16F,
+  str: 'RG16F',
+});
+const RG32F: TextureParameterEnum = new TextureParameterClass({
+  index: GL_RG32F,
+  str: 'RG32F',
+});
 const RGB16F: TextureParameterEnum = new TextureParameterClass({
   index: 0x881b,
   str: 'RGB16F',
@@ -152,6 +161,8 @@ const typeList = [
   RGB8,
   RGBA8,
   RGB10_A2,
+  RG16F,
+  RG32F,
   RGB16F,
   RGB32F,
   RGBA16F,
@@ -167,7 +178,9 @@ function from(index: number): TextureParameterEnum {
   return _from({typeList, index}) as TextureParameterEnum;
 }
 
-function migrateToWebGL1InternalFormat(tp: TextureParameterEnum): TextureParameterEnum {
+function migrateToWebGL1InternalFormat(
+  tp: TextureParameterEnum
+): TextureParameterEnum {
   if (tp.index === RGBA8.index) {
     return PixelFormat.RGBA;
   } else if (tp.index === RGB8.index) {
@@ -198,6 +211,8 @@ export const TextureParameter = Object.freeze({
   RGB8,
   RGBA8,
   RGB10_A2,
+  RG16F,
+  RG32F,
   RGB16F,
   RGB32F,
   RGBA16F,
