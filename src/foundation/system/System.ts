@@ -257,7 +257,6 @@ export class System {
                   `| ${exp.uniqueName}: ${renderPass.uniqueName}#`
                 );
               }
-              renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
               if (
                 componentTid === WellKnownComponentTIDs.MeshRendererComponentTID
