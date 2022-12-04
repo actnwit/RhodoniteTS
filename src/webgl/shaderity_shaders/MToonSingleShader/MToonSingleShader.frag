@@ -41,7 +41,7 @@ vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
 
-#pragma shaderity: require(../common/normal.glsl)
+#pragma shaderity: require(../common/perturbedNormal.glsl)
 
 void main (){
   #ifdef RN_MTOON_IS_OUTLINE
@@ -100,7 +100,8 @@ void main (){
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
-    normal_inWorld = perturb_normal(normal_inWorld, viewVector, v_texcoord_0);
+    vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
+    normal_inWorld = perturb_normal(normal_inWorld, viewVector, v_texcoord_0, normal);
   #endif
 
   #ifdef RN_MTOON_IS_OUTLINE
