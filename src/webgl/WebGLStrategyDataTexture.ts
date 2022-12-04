@@ -811,9 +811,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   common_$render(
     primitiveUids: Int32Array,
-    meshComponents: MeshComponent[],
-    viewMatrix: Matrix44,
-    projectionMatrix: Matrix44,
     renderPass: RenderPass,
     renderPassTickCount: Count
   ) {

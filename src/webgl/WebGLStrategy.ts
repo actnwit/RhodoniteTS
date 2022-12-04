@@ -43,9 +43,6 @@ export interface WebGLStrategy {
   common_$prerender(): void;
   common_$render(
     primitiveUids: Int32Array,
-    meshComponents: MeshComponent[],
-    viewMatrix: IMatrix44,
-    projectionMatrix: IMatrix44,
     renderPass: RenderPass,
     renderPassTickCount: Count
   ): boolean;

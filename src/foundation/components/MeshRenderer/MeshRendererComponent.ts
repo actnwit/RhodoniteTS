@@ -274,31 +274,11 @@ export class MeshRendererComponent extends Component {
     processStage: ProcessStageEnum;
     renderPassTickCount: Count;
   }) {
-    let cameraComponent = renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
-    }
-    let viewMatrix = MeshRendererComponent.__tmp_identityMatrix;
-    let projectionMatrix = MeshRendererComponent.__tmp_identityMatrix;
-    if (cameraComponent != null) {
-      viewMatrix = cameraComponent.viewMatrix;
-      projectionMatrix = cameraComponent.projectionMatrix;
-    }
-
     // Call common_$render of WebGLRenderingStrategy
     const primitiveUids =
       Component.__componentsOfProcessStages.get(processStage)!;
-    const meshComponents = ComponentRepository._getComponents(
-      MeshComponent
-    ) as MeshComponent[];
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
       primitiveUids,
-      meshComponents,
-      viewMatrix,
-      projectionMatrix,
       renderPass,
       renderPassTickCount
     );

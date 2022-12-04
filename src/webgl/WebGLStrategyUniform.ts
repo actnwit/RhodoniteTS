@@ -410,15 +410,9 @@ bool get_isBillboard(float instanceId) {
 
   common_$render(
     primitiveUids: Int32Array,
-    meshComponents: MeshComponent[],
-    viewMatrix: Matrix44,
-    projectionMatrix: Matrix44,
     renderPass: RenderPass,
     renderPassTickCount: Count
   ) {
-    if (meshComponents.length === 0) {
-      return false;
-    }
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  Uniform:$render#');
     }
