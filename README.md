@@ -25,7 +25,7 @@ For example, Rhodonite can handle and blend all morph targets (38 targets) of VR
 
 ## Viewer
 
-You can try our library via https://editor.librn.com/ .
+You can try our library via https://editor.librn.com/.
 This viewer supports glTF/VRM files Drag & Drop to display.
 (Drag & Drop all files if glTF data is consists of multiple files.)
 
@@ -44,13 +44,13 @@ You can install the esm version of Rhodonite easily.
 $ yarn add rhodonite
 ```
 
-You can install yarn as following,
+You can install yarn as follows,
 
 ```bash
 $ npm install -g yarn
 ```
 
-You can use npm of course, but we recommend yarn because we use it usually.
+You can use npm of course, but we recommend yarn because we usually use it.
 
 ```bash
 $ npm install rhodonite
@@ -86,11 +86,11 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 
 ### In TypeScript
 
-There are three package versions of Rhodonite: CommmonJS, ESModule and UMD.
+There are three package versions of Rhodonite: CommmonJS, ESModule, and UMD.
 
 #### Using CommonJS package
 
-You need a bundler (e.g. Webpack) to import the Rhodonite CommonJS package.
+You need a bundler (e.g., Webpack) to import the Rhodonite CommonJS package.
 
 ```typescript
 import Rn from 'rhodonite';
@@ -274,7 +274,7 @@ After a new dev container window opens, You can work in the Debian Linux contain
 2. Start the local server with `$ yarn start`.
 3. Push the run icon by choosing "Launch Chrome to debug Rhodonite samples" in the RUN tab of VSCode's left pane to start debugging.
 
-If you use the VSCode devcontainer environment, You should open the another RhodoniteTS VSCode window locally and do debug ops on it instead of the devcontainer VSCode window.
+If you use the VSCode devcontainer environment, You should open another RhodoniteTS VSCode window locally and do debug ops on it instead of the devcontainer VSCode window.
 
 ## License
 

@@ -158,43 +158,19 @@ function setupRenderPassFxaa(
   width: number,
   height: number
 ) {
-  const renderPassFxaa = new Rn.RenderPass();
-  const entityFxaa = Rn.EntityHelper.createMeshEntity();
-  const primitiveFxaa = new Rn.Plane();
-  primitiveFxaa.generate({
-    width: 2,
-    height: 2,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    flipTextureCoordinateY: false,
+  const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial({
+    noUseCameraTransform: true,
   });
-  primitiveFxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
-  primitiveFxaa.material.setTextureParameterAsPromise(
+  const renderPassFxaa =
+    Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
+  fxaaMaterial.setTextureParameterAsPromise(
     Rn.ShaderSemantics.BaseColorTexture,
     renderable
   );
-  primitiveFxaa.material.setParameter(
+  fxaaMaterial.setParameter(
     Rn.ShaderSemantics.ScreenInfo,
     Rn.Vector2.fromCopyArray2([width, height])
   );
-  const meshComponentFxaa = entityFxaa.getMesh() as Rn.MeshComponent;
-  const meshFxaa = new Rn.Mesh();
-  meshFxaa.addPrimitive(primitiveFxaa);
-  meshComponentFxaa.setMesh(meshFxaa);
-  entityFxaa.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0,
-    0,
-  ]);
-  renderPassFxaa.addEntities([entityFxaa]);
-  const cameraEntityFxaa = Rn.EntityHelper.createCameraEntity();
-  const cameraComponentFxaa = cameraEntityFxaa.getCamera() as Rn.CameraComponent;
-  cameraEntityFxaa.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0.0, 1.0,
-  ]);
-  cameraComponentFxaa.type = Rn.CameraType.Orthographic;
-  renderPassFxaa.cameraComponent = cameraComponentFxaa;
 
   return renderPassFxaa;
 }

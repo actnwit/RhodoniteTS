@@ -26,6 +26,8 @@ declare type IBLCubeTextureParameter = {
  * (like the URP (Universal Render Pipeline) in the Unity engine).
  */
 export declare class ForwardRenderPipeline extends RnObject {
+    private __width;
+    private __height;
     private __oFrame;
     private __oFrameBufferMsaa;
     private __oFrameBufferResolve;
@@ -36,7 +38,6 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __opaqueExpressions;
     private __transparentExpressions;
     private __oGammaBoardEntity;
-    private __oGammaCameraEntity;
     private __oWebXRSystem;
     private __oDrawFunc;
     private __oDiffuseCubeTexture;
@@ -128,6 +129,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     __setupMsaaResolveExpression(sFrame: Some<Frame>, framebufferTargetOfGammaMsaa: FrameBuffer, framebufferTargetOfGammaResolve: FrameBuffer, framebufferTargetOfGammaResolveForReference: FrameBuffer): Expression;
     __createPostEffectCameraEntity(): ICameraEntity;
     __setupGammaExpression(sFrame: Some<Frame>, gammaTargetFramebuffer: FrameBuffer, aspect: number): Expression;
+    __setupSATExpression(): void;
     __setTextureParameterForMeshComponents(meshComponents: MeshComponent[], shaderSemantic: ShaderSemanticsEnum, value: RenderTargetTexture): void;
     private __setIblInnerForOpaque;
     private __setIblInnerForTransparent;

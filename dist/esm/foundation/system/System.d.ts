@@ -34,6 +34,7 @@ export declare class System {
     static processAuto(clearColor?: Vector4): void;
     static process(frame: Frame): void;
     static process(expressions: Expression[]): void;
+    private static createCamera;
     private static setViewportForNormalRendering;
     private static bindFramebuffer;
     static init(desc: SystemInitDescription): Promise<WebGL2RenderingContext>;

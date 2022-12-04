@@ -755,8 +755,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         WellKnownComponentTIDs.CameraComponentTID
       ] = cameraComponentSid;
     } else {
+      // Non-VR Rendering
       let cameraComponent = renderPass.cameraComponent;
       if (cameraComponent == null) {
+        // if the renderPass has no cameraComponent, try to get the current cameraComponent
         cameraComponent = ComponentRepository.getComponent(
           CameraComponent,
           CameraComponent.current
@@ -809,9 +811,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   common_$render(
     primitiveUids: Int32Array,
-    meshComponents: MeshComponent[],
-    viewMatrix: Matrix44,
-    projectionMatrix: Matrix44,
     renderPass: RenderPass,
     renderPassTickCount: Count
   ) {
@@ -889,9 +888,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
-    if (!entity.getSceneGraph().isVisible) {
-      return false;
-    }
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
       return false;
@@ -964,21 +960,25 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       },
     });
 
-    if (primitive.indicesAccessor) {
-      glw.drawElementsInstanced(
-        primitive.primitiveMode.index,
-        primitive.indicesAccessor.elementCount,
-        primitive.indicesAccessor.componentType.index,
-        0,
-        mesh.meshEntitiesInner.length
-      );
-    } else {
-      glw.drawArraysInstanced(
-        primitive.primitiveMode.index,
-        0,
-        primitive.getVertexCountAsVerticesBased(),
-        mesh.meshEntitiesInner.length
-      );
+    for (let i = 0; i < renderPass.drawCount; i++) {
+      renderPass.doPreEachDraw(i);
+
+      if (primitive.indicesAccessor) {
+        glw.drawElementsInstanced(
+          primitive.primitiveMode.index,
+          primitive.indicesAccessor.elementCount,
+          primitive.indicesAccessor.componentType.index,
+          0,
+          mesh.meshEntitiesInner.length
+        );
+      } else {
+        glw.drawArraysInstanced(
+          primitive.primitiveMode.index,
+          0,
+          primitive.getVertexCountAsVerticesBased(),
+          mesh.meshEntitiesInner.length
+        );
+      }
     }
 
     this.__lastShader = shaderProgramUid;

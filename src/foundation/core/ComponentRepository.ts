@@ -1,8 +1,9 @@
-import { Component } from './Component';
+import {Component} from './Component';
 import {Is} from '../misc/Is';
-import { EntityRepository } from './EntityRepository';
+import {EntityRepository} from './EntityRepository';
 import {Config} from './Config';
 import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
+import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
 
 /**
  * The class that generates and manages all kinds of components.
@@ -179,6 +180,22 @@ export class ComponentRepository {
   public static getComponentTIDs(): Array<ComponentTID> {
     const componentTids = Array.from(this.__components.keys());
     componentTids.sort((a, b) => a - b);
+    return componentTids;
+  }
+
+  /**
+   * Gets all rendering componentTIDs.
+   */
+  public static getRenderingComponentTIDs(): Array<ComponentTID> {
+    const componentTids: ComponentTID[] = [];
+    if (
+      this.__components.has(WellKnownComponentTIDs.MeshRendererComponentTID)
+    ) {
+      componentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID);
+    }
+    if (this.__components.has(WellKnownComponentTIDs.EffekseerComponentTID)) {
+      componentTids.push(WellKnownComponentTIDs.EffekseerComponentTID);
+    }
     return componentTids;
   }
 }

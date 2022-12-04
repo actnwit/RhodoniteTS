@@ -425,7 +425,7 @@ export type GltfLoadOption = {
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
   transmission?: boolean; // Set to true by the importer if the KHS_material_transmission extension is used.
   __isImportVRM0x?: boolean; // internal use only
-  __importedType: 'gltf2' | 'glb2' | 'vrm0x' | 'vrm1' | 'draco' | 'undefined';
+  __importedType?: 'gltf2' | 'glb2' | 'vrm0x' | 'vrm1' | 'draco' | 'undefined';
 };
 
 export const TagGltf2NodeIndex = 'gltf_node_index';

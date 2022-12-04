@@ -27,10 +27,13 @@ import {Vector4} from '../math/Vector4';
 import {RenderPass} from '../renderer/RenderPass';
 import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
 import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
 
 declare const spector: any;
 
+/**
+ * The argument type for System.init() method.
+ */
 interface SystemInitDescription {
   approach: ProcessApproachEnum;
   canvas: HTMLCanvasElement;
@@ -46,6 +49,23 @@ interface SystemInitDescription {
 
 type ComponentMethodName = string;
 
+/**
+ * The system class is the entry point of the Rhodonite library.
+ *
+ * @example
+ * ```
+ * await Rn.System.init({
+ *   approach: Rn.ProcessApproach.DataTexture,
+ *   canvas: document.getElementById('world') as HTMLCanvasElement,
+ * });
+ *
+ * ... (create something) ...
+ *
+ * Rn.System.startRenderLoop((time, _myArg1, _myArg2) => {
+ *   Rn.System.process([expression]);
+ * }, myArg1, myArg2);
+ * ```
+ */
 export class System {
   private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
@@ -56,7 +76,7 @@ export class System {
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
 
-  private static __renderLoopFunc?: Function;
+  private static __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private static __args: unknown[] = [];
   private static __stageMethods: Map<
     typeof Component,
@@ -65,7 +85,23 @@ export class System {
 
   private constructor() {}
 
-  static startRenderLoop(renderLoopFunc: Function, ...args: unknown[]) {
+  /**
+   * Starts a render loop.
+   *
+   * @example
+   * ```
+   * Rn.System.startRenderLoop((time, _myArg1, _myArg2) => {
+   *   Rn.System.process([expression]);
+   * }, myArg1, myArg2);
+   * ```
+   *
+   * @param renderLoopFunc - function to be called in each frame
+   * @param args - arguments you want to be passed to renderLoopFunc
+   */
+  public static startRenderLoop(
+    renderLoopFunc: (time: number, ...args: any[]) => void,
+    ...args: any[]
+  ) {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
@@ -122,18 +158,33 @@ export class System {
     return animationFrameObject;
   }
 
+  /**
+   * Stops a existing render loop.
+   */
   public static stopRenderLoop() {
     const animationFrameObject = this.__getAnimationFrameObject();
     animationFrameObject.cancelAnimationFrame(this.__animationFrameId);
     this.__animationFrameId = -1;
   }
 
+  /**
+   * Restart a render loop.
+   */
   public static restartRenderLoop() {
     if (this.__renderLoopFunc != null) {
       this.startRenderLoop(this.__renderLoopFunc, 0, this.__args);
     }
   }
 
+  /**
+   * A Simple version of process method
+   *
+   * @remarks
+   * No need to create expressions and renderPasses and to register entities, etc...
+   * It's suitable for simple use cases like sample apps.
+   *
+   * @param clearColor - color to clear the canvas
+   */
   public static processAuto(clearColor = Vector4.fromCopy4(0, 0, 0, 1)) {
     if (Is.not.exist(System.__expressionForProcessAuto)) {
       const expression = new Expression();
@@ -154,6 +205,14 @@ export class System {
     this.process([System.__expressionForProcessAuto]);
   }
 
+  /**
+   * A process method to render a scene
+   *
+   * @remarks
+   * You need to call this method for rendering.
+   *
+   * @param frame/expression - a frame/expression object
+   */
   public static process(frame: Frame): void;
   public static process(expressions: Expression[]): void;
   public static process(value: any) {
@@ -170,14 +229,7 @@ export class System {
     }
 
     if (CameraComponent.current === Component.InvalidObjectUID) {
-      const cameraEntity = EntityHelper.createCameraEntity();
-      cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
-      cameraEntity.getCamera().type = CameraType.Orthographic;
-      cameraEntity.getCamera().zNear = 0.1;
-      cameraEntity.getCamera().zFar = 10000;
-      const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      cameraEntity.getCamera().xMag = wgl.width / wgl.height;
-      cameraEntity.getCamera().yMag = 1;
+      System.createCamera();
     }
 
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -186,31 +238,29 @@ export class System {
       | undefined;
 
     const componentTids = ComponentRepository.getComponentTIDs();
+    const renderingComponentTids =
+      ComponentRepository.getRenderingComponentTIDs();
     for (const stage of Component._processStages) {
       const methodName = stage.methodName;
       const commonMethodName = 'common_' + methodName;
       if (stage === ProcessStage.Render) {
         for (const exp of expressions) {
-          for (const componentTid of componentTids) {
+          for (const componentTid of renderingComponentTids) {
             const componentClass: typeof Component =
               ComponentRepository.getComponentClass(componentTid)!;
-            let renderPassN = 0;
-            if (!(componentTid === WellKnownComponentTIDs.MeshRendererComponentTID ||
-              componentTid === WellKnownComponentTIDs.EffekseerComponentTID)) {
-              continue;
-            }
-            renderPassN = exp!.renderPasses.length;
+            const renderPassN = exp.renderPasses.length;
 
             for (let i = 0; i < renderPassN; i++) {
-              const renderPass = exp!.renderPasses[i];
+              const renderPass = exp.renderPasses[i];
               if (typeof spector !== 'undefined') {
                 spector.setMarker(
                   `| ${exp.uniqueName}: ${renderPass.uniqueName}#`
                 );
               }
-              renderPass.doPreRender();
               repo.switchDepthTest(renderPass.isDepthTest);
-              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+              if (
+                componentTid === WellKnownComponentTIDs.MeshRendererComponentTID
+              ) {
                 // bind Framebuffer
                 System.bindFramebuffer(renderPass, rnXRModule);
 
@@ -295,6 +345,17 @@ export class System {
     Time._processEnd();
   }
 
+  private static createCamera() {
+    const cameraEntity = EntityHelper.createCameraEntity();
+    cameraEntity.getTransform()!.translate = Vector3.fromCopyArray([0, 0, 1]);
+    cameraEntity.getCamera().type = CameraType.Orthographic;
+    cameraEntity.getCamera().zNear = 0.1;
+    cameraEntity.getCamera().zFar = 10000;
+    const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
+    cameraEntity.getCamera().xMag = wgl.width / wgl.height;
+    cameraEntity.getCamera().yMag = 1;
+  }
+
   private static setViewportForNormalRendering(
     renderPass: RenderPass,
     rnXRModule?: RnXR
@@ -324,12 +385,27 @@ export class System {
       this.__webglResourceRepository.bindFramebuffer(
         renderPass.getFramebuffer()
       );
-      this.__webglResourceRepository.setDrawTargets(
-        renderPass
-      );
+      this.__webglResourceRepository.setDrawTargets(renderPass);
     }
   }
 
+  /**
+   * Initialize the Rhodonite system.
+   *
+   * @remarks
+   * Don't forget `await` to use this method.
+   *
+   * @example
+   * ```
+   * await Rn.System.init({
+   *   approach: Rn.ProcessApproach.DataTexture,
+   *   canvas: document.getElementById('world') as HTMLCanvasElement,
+   * });
+   * ```
+   *
+   * @param desc
+   * @returns
+   */
   public static async init(desc: SystemInitDescription) {
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('pbr');
@@ -393,38 +469,12 @@ export class System {
       this.restartRenderLoop();
     });
 
-    // this.detectComponentMethods();
     await AbstractMaterialContent.initDefaultTextures();
 
     return gl;
   }
 
-  static detectComponentMethods() {
-    const wellKnownComponentTIDs = Array.from(
-      Object.values(WellKnownComponentTIDs)
-    );
-    for (const componentTid of wellKnownComponentTIDs) {
-      const methods = [];
-      for (const stage of Component._processStages) {
-        const componentClass: typeof Component =
-          ComponentRepository.getComponentClass(componentTid)!;
-        const exist = componentClass.doesTheProcessStageMethodExist(
-          componentClass,
-          stage
-        );
-        if (exist) {
-          const map = valueWithCompensation({
-            value: this.__stageMethods.get(componentClass),
-            compensation: () => new Map(),
-          });
-          // map.set()
-          // this.__stageMethods.set(componentClass, stage.methodName);
-        }
-      }
-    }
-  }
-
-  static get processApproach() {
+  public static get processApproach() {
     return this.__processApproach;
   }
 
@@ -438,15 +488,7 @@ export class System {
     return repo.getCanvasSize();
   }
 
-  static getInstance() {
-    if (!this.__instance) {
-      this.__instance = new System();
-    }
-
-    return this.__instance;
-  }
-
-  static getCurrentWebGLContextWrapper() {
+  public static getCurrentWebGLContextWrapper() {
     return this.__webglResourceRepository?.currentWebGLContextWrapper;
   }
 }

@@ -57,6 +57,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       componentType.index === 5127 || // DOUBLE
       this === CompositionType.Texture2D ||
       this === CompositionType.Texture2DShadow ||
+      this === CompositionType.Texture2DRect ||
       this === CompositionType.TextureCube
     ) {
       return this.__glslStr;
@@ -300,6 +301,14 @@ const Texture2DShadow: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
+const Texture2DRect: CompositionTypeEnum = new CompositionTypeClass({
+  index: 17,
+  str: 'TEXTURE_2D_RECT',
+  glslStr: 'sampler2DRect',
+  hlslStr: 'Texture2D',
+  numberOfComponents: 1,
+  vec4SizeOfProperty: 1,
+});
 
 const typeList = [
   Unknown,
@@ -319,6 +328,7 @@ const typeList = [
   Mat4Array,
   Texture2D,
   Texture2DShadow,
+  Texture2DRect,
   TextureCube,
 ];
 
@@ -352,7 +362,7 @@ function vectorFrom(componentN: number): CompositionTypeEnum {
       str = 'vec4';
       break;
     default:
-      console.error('not found appropreate Vectors');
+      console.error('not found appropriate Vectors');
   }
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
@@ -383,6 +393,9 @@ function fromGlslString(str_: string): CompositionTypeEnum {
       break;
     case 'sampler2DShadow':
       str = 'TEXTURE_2D_SHADOW';
+      break;
+    case 'sampler2DRect':
+      str = 'TEXTURE_2D_RECT';
       break;
     case 'samplerCube':
       str = 'TEXTURE_CUBE_MAP';
@@ -496,7 +509,8 @@ function isTexture(compositionType: CompositionTypeEnum) {
   if (
     compositionType === Texture2D ||
     compositionType === TextureCube ||
-    compositionType === Texture2DShadow
+    compositionType === Texture2DShadow ||
+    compositionType === Texture2DRect
   ) {
     return true;
   } else {
@@ -523,6 +537,7 @@ export const CompositionType = Object.freeze({
   Texture2D,
   Texture2DShadow,
   TextureCube,
+  Texture2DRect,
   from,
   fromString,
   vectorFrom,

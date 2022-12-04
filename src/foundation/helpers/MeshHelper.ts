@@ -12,17 +12,25 @@ import { Sphere, SphereDescriptor } from '../geometry/shapes/Sphere';
 import { Joint, JointDescriptor } from '../geometry/shapes/Joint';
 
 const createPlane = (
-  desc: PlaneDescriptor = {
+  desc: PlaneDescriptor & {
+    direction?: 'xz' | 'xy' | 'yz';
+  } = {
     width: 1,
     height: 1,
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
+    direction: 'xz',
   }
 ) => {
   const primitive = new Plane();
   primitive.generate(desc);
   const entity = createShape(primitive);
+  if (desc.direction === 'xy') {
+    entity.rotate = Vector3.fromCopy3(Math.PI / 2, 0, 0);
+  } else if (desc.direction === 'yz') {
+    entity.rotate = Vector3.fromCopy3(0, 0, Math.PI / 2);
+  }
   return entity;
 };
 

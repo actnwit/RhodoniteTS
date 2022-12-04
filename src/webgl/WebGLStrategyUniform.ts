@@ -4,7 +4,6 @@ import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
 import {WebGLContextWrapper} from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
 import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
-import {Matrix44} from '../foundation/math/Matrix44';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {ComponentRepository} from '../foundation/core/ComponentRepository';
 import {LightComponent} from '../foundation/components/Light/LightComponent';
@@ -410,15 +409,9 @@ bool get_isBillboard(float instanceId) {
 
   common_$render(
     primitiveUids: Int32Array,
-    meshComponents: MeshComponent[],
-    viewMatrix: Matrix44,
-    projectionMatrix: Matrix44,
     renderPass: RenderPass,
     renderPassTickCount: Count
   ) {
-    if (meshComponents.length === 0) {
-      return false;
-    }
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  Uniform:$render#');
     }

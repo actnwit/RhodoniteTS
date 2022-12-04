@@ -41,6 +41,8 @@ import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3Quality
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
+import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
@@ -391,6 +393,7 @@ function createPbrUberMaterial({
     useNormalTexture,
     vertexShader: pbrSingleShaderVertex,
     pixelShader: pbrSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
 
@@ -432,6 +435,7 @@ function createClassicUberMaterial({
     useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -468,6 +472,7 @@ function createFlatMaterial({
     useNormalTexture: true,
     vertexShader: FlatSingleShaderVertex,
     pixelShader: FlatSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -497,6 +502,7 @@ function createEnvConstantMaterial({
     useNormalTexture: false,
     vertexShader: EnvConstantSingleShaderVertex,
     pixelShader: EnvConstantSingleShaderFragment,
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -512,6 +518,7 @@ function createEnvConstantMaterial({
 function createFXAA3QualityMaterial({
   additionalName = '',
   maxInstancesNumber = 1,
+  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
@@ -525,6 +532,7 @@ function createFXAA3QualityMaterial({
     useNormalTexture: true,
     vertexShader: FXAA3QualityShaderVertex,
     pixelShader: FXAA3QualityShaderFragment,
+    noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -789,6 +797,7 @@ function createColorGradingUsingLUTsMaterial(
 function createGammaCorrectionMaterial({
   additionalName = '',
   maxInstancesNumber = 1,
+  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
@@ -802,6 +811,37 @@ function createGammaCorrectionMaterial({
     useNormalTexture: true,
     vertexShader: GammaCorrectionShaderVertex,
     pixelShader: GammaCorrectionShaderFragment,
+    noUseCameraTransform: noUseCameraTransform,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    materialNode,
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createSummedAreaTableMaterial({
+  additionalName = '',
+  maxInstancesNumber = 1,
+  noUseCameraTransform = false,
+} = {}) {
+  const materialName = 'SummedAreaTable' + `_${additionalName}`;
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    alphaMode: AlphaMode.Opaque,
+    useTangentAttribute: false,
+    useNormalTexture: true,
+    vertexShader: SummedAreaTableShaderVertex,
+    pixelShader: SummedAreaTableShaderFragment,
+    noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -954,6 +994,7 @@ function recreateCustomMaterial(
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
+    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -1013,6 +1054,7 @@ export const MaterialHelper = Object.freeze({
   createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial,
   createGammaCorrectionMaterial,
+  createSummedAreaTableMaterial,
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
   createMToonMaterial,

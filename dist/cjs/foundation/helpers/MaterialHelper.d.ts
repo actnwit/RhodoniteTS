@@ -108,9 +108,10 @@ declare function createColorGradingUsingLUTsMaterial({ additionalName, colorAtta
     texture?: Texture;
     maxInstancesNumber?: Count;
 }, targetRenderPass: RenderPass): Material;
-declare function createGammaCorrectionMaterial({ additionalName, maxInstancesNumber, }?: {
+declare function createGammaCorrectionMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
+    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture, maxInstancesNumber, }: {
     additionalName?: string;
