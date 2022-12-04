@@ -1,5 +1,5 @@
-// import Rn from '../../../dist/esm/index.mjs';
-import Rn from '../../../dist/cjs';
+import Rn from '../../../dist/esm/index.mjs';
+// import Rn from '../../../dist/cjs';
 
 declare const window: any;
 
@@ -22,6 +22,9 @@ let renderPassMain: Rn.RenderPass;
   // setup the Main RenderPass
   await createMainExpression(expressions);
 
+  // setup the SAT RenderPass
+  // createSat(expressions);
+
   // lighting
   setIBL('./../../../assets/ibl/papermill');
 
@@ -34,10 +37,20 @@ let renderPassMain: Rn.RenderPass;
 async function initRn() {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
+    approach: Rn.ProcessApproach.DataTexture,
     canvas,
     webglOption: {antialias: false},
   });
+}
+
+function createSat(expressions: Rn.Expression[]) {
+  const expressionSat = new Rn.Expression();
+  const materialSat = Rn.MaterialHelper.createSummedAreaTableMaterial({
+    noUseCameraTransform: true,
+  });
+  const renderPassSat = Rn.RenderPassHelper.createScreenDrawRenderPass(materialSat);
+  expressionSat.addRenderPasses([renderPassSat]);
+  expressions.push(expressionSat);
 }
 
 async function createMainExpression(expressions: Rn.Expression[]) {
