@@ -7,7 +7,6 @@
 #pragma shaderity: require(../common/prerequisites.glsl)
 
 in vec2 v_texcoord_0;
-in vec4 gl_FragCoord;
 
 uniform sampler2DRect u_baseColorTexture; // initialValue=(0,white)
 uniform float u_count; // initialValue=0.0
