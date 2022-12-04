@@ -115,6 +115,7 @@ float v_SmithGGXCorrelated(float roughness, float NV, float NL) {
   return 0.5 / (GGXV + GGXL);
 }
 
+// this is from https://learnopengl.com/PBR/IBL/Specular-IBL
 float vanDerCorpus(int n, int base)
 {
     float invBase = 1.0 / float(base);
@@ -135,10 +136,24 @@ float vanDerCorpus(int n, int base)
     return result;
 }
 
-// this is from https://learnopengl.com/PBR/IBL/Specular-IBL
 vec2 hammersleyNoBitOps(int i, int N)
 {
   return vec2(float(i)/float(N), vanDerCorpus(i, 2));
+}
+
+float radicalInverse_VdC(uint bits)
+{
+    bits = (bits << 16u) | (bits >> 16u);
+    bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+    bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+    bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+    bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+    return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+// ----------------------------------------------------------------------------
+vec2 hammersley(uint i, uint N)
+{
+    return vec2(float(i)/float(N), radicalInverse_VdC(i));
 }
 
 vec3 sampleHemisphereGGX(vec2 Xi, float roughness) {
@@ -161,10 +176,10 @@ float weakWhiteFurnaceTest(float roughness, float NoV, float f0, int g_type, int
 	float vz = NoV;
 
 	float integral = 0.0;
-	const int sampleNum = 2048;
-	for (int i = 0; i < sampleNum; ++i)
+	const uint sampleNum = 2048u;
+	for (uint i = 0u; i < sampleNum; ++i)
 	{
-    vec2 Xi = hammersleyNoBitOps(i, sampleNum);
+    vec2 Xi = hammersley(i, sampleNum);
 
     vec3 hvec = sampleHemisphereGGX(Xi, roughness);
 
@@ -208,11 +223,11 @@ float whiteFurnaceTest(float roughness, float NoV, float f0, int g_type, int dis
 	float vz = NoV;
 
 	float integral = 0.0;
-	const int sampleNum = 4096;
-	for (int i = 0; i < sampleNum; ++i)
+	const uint sampleNum = 4096u;
+	for (uint i = 0u; i < sampleNum; ++i)
 	{
 
-    vec2 Xi = hammersleyNoBitOps(i, sampleNum);
+    vec2 Xi = hammersley(i, sampleNum);
 
     vec3 hvec = sampleHemisphereGGX(Xi, roughness);
 
