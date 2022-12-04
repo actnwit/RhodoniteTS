@@ -57,6 +57,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       componentType.index === 5127 || // DOUBLE
       this === CompositionType.Texture2D ||
       this === CompositionType.Texture2DShadow ||
+      this === CompositionType.Texture2DRect ||
       this === CompositionType.TextureCube
     ) {
       return this.__glslStr;
@@ -361,7 +362,7 @@ function vectorFrom(componentN: number): CompositionTypeEnum {
       str = 'vec4';
       break;
     default:
-      console.error('not found appropreate Vectors');
+      console.error('not found appropriate Vectors');
   }
   return _fromString({typeList, str}) as CompositionTypeEnum;
 }
@@ -508,7 +509,8 @@ function isTexture(compositionType: CompositionTypeEnum) {
   if (
     compositionType === Texture2D ||
     compositionType === TextureCube ||
-    compositionType === Texture2DShadow
+    compositionType === Texture2DShadow ||
+    compositionType === Texture2DRect
   ) {
     return true;
   } else {
@@ -535,6 +537,7 @@ export const CompositionType = Object.freeze({
   Texture2D,
   Texture2DShadow,
   TextureCube,
+  Texture2DRect,
   from,
   fromString,
   vectorFrom,

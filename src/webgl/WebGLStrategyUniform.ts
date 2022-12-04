@@ -4,7 +4,6 @@ import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
 import {WebGLContextWrapper} from './WebGLContextWrapper';
 import {Primitive} from '../foundation/geometry/Primitive';
 import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
-import {Matrix44} from '../foundation/math/Matrix44';
 import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
 import {ComponentRepository} from '../foundation/core/ComponentRepository';
 import {LightComponent} from '../foundation/components/Light/LightComponent';
