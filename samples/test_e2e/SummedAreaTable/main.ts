@@ -1,10 +1,35 @@
-import Rn from '../../../dist/esm/index.mjs';
-// import Rn from '../../../dist/cjs';
+// import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/cjs';
 
 declare const window: any;
 
 let framebuffer: Rn.FrameBuffer;
 let renderPassMain: Rn.RenderPass;
+
+(async () => {
+  // Init Rhodonite
+  await initRn();
+
+  // expressions
+  const expressions: Rn.Expression[] = [];
+
+  // Background Env Cube Map Expression
+  const envExpression = createBackgroundEnvCubeExpression(
+    './../../../assets/ibl/papermill'
+  );
+  expressions.push(envExpression);
+
+  // setup the Main RenderPass
+  await createMainExpression(expressions);
+
+  // lighting
+  setIBL('./../../../assets/ibl/papermill');
+
+  // Render Loop
+  Rn.System.startRenderLoop(() => {
+    Rn.System.process(expressions);
+  });
+})();
 
 async function initRn() {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
@@ -15,21 +40,7 @@ async function initRn() {
   });
 }
 
-(async () => {
-  // Init Rhodonite
-  await initRn();
-
-  // expressions
-  const expressions = [];
-
-  // env
-  const envExpression = createEnvCubeExpression(
-    './../../../assets/ibl/papermill'
-  );
-  expressions.push(envExpression);
-
-  // setup the Main RenderPass
-
+async function createMainExpression(expressions: Rn.Expression[]) {
   // Main Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
@@ -52,19 +63,11 @@ async function initRn() {
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+}
 
-  // lighting
-  setIBL('./../../../assets/ibl/papermill');
-
-  Rn.System.startRenderLoop(() => {
-    Rn.System.process(expressions);
-  });
-})();
-
-function createEnvCubeExpression(baseUri: string) {
+function createBackgroundEnvCubeExpression(baseUri: string) {
   const environmentCubeTexture = new Rn.CubeTexture();
   environmentCubeTexture.baseUriToLoad = baseUri + '/environment/environment';
   environmentCubeTexture.isNamePosNeg = true;
@@ -101,18 +104,21 @@ function createEnvCubeExpression(baseUri: string) {
 }
 
 function setIBL(baseUri: string) {
+  // Specular IBL Cube Texture
   const specularCubeTexture = new Rn.CubeTexture();
   specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
   specularCubeTexture.isNamePosNeg = true;
   specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
   specularCubeTexture.mipmapLevelNumber = 10;
 
+  // Diffuse IBL Cube Texture
   const diffuseCubeTexture = new Rn.CubeTexture();
   diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
   diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
   diffuseCubeTexture.mipmapLevelNumber = 1;
   diffuseCubeTexture.isNamePosNeg = true;
 
+  // Get all meshRenderComponents and set IBL cube maps to them
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
