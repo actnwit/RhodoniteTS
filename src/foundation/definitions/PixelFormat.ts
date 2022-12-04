@@ -1,3 +1,4 @@
+import { GL_RG, GL_RGB } from '../../types';
 import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
 
 export type PixelFormatEnum = EnumIO;
@@ -16,7 +17,14 @@ const Alpha: PixelFormatEnum = new PixelFormatClass({
   index: 0x1906,
   str: 'ALPHA',
 });
-const RGB: PixelFormatEnum = new PixelFormatClass({index: 0x1907, str: 'RGB'});
+const RG: PixelFormatEnum = new PixelFormatClass({
+  index: GL_RG,
+  str: 'RG',
+});
+const RGB: PixelFormatEnum = new PixelFormatClass({
+  index: 0x1907,
+  str: 'RGB',
+});
 const RGBA: PixelFormatEnum = new PixelFormatClass({
   index: 0x1908,
   str: 'RGBA',
@@ -30,7 +38,15 @@ const LuminanceAlpha: PixelFormatEnum = new PixelFormatClass({
   str: 'LUMINANCE_ALPHA',
 });
 
-const typeList = [DepthComponent, Alpha, RGB, RGBA, Luminance, LuminanceAlpha];
+const typeList = [
+  DepthComponent,
+  Alpha,
+  RG,
+  RGB,
+  RGBA,
+  Luminance,
+  LuminanceAlpha,
+];
 
 function from(index: number): PixelFormatEnum {
   return _from({typeList, index}) as PixelFormatEnum;
@@ -39,6 +55,7 @@ function from(index: number): PixelFormatEnum {
 export const PixelFormat = Object.freeze({
   DepthComponent,
   Alpha,
+  RG,
   RGB,
   RGBA,
   Luminance,

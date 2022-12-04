@@ -144,9 +144,9 @@ declare const window: any;
       1,
       {
         level: 0,
-        internalFormat: Rn.TextureParameter.RGBA8,
-        format: Rn.PixelFormat.RGBA,
-        type: Rn.ComponentType.UnsignedByte,
+        internalFormat: Rn.TextureParameter.RG16F,
+        format: Rn.PixelFormat.RG,
+        type: Rn.ComponentType.HalfFloat,
         magFilter: Rn.TextureParameter.Linear,
         minFilter: Rn.TextureParameter.Linear,
         wrapS: Rn.TextureParameter.ClampToEdge,
