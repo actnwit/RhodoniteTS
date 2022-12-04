@@ -261,7 +261,7 @@ export class Material extends RnObject {
 
   /**
    * @internal
-   * called from WebGLStrategyDataTexture and WebGLStrategyUnitform only
+   * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setParametersToGpu({
     material,
