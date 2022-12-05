@@ -26,6 +26,9 @@ out float v_instanceInfo;
   out vec3 v_tangent_inWorld;
   out vec3 v_binormal_inWorld;
 #endif
+#ifdef RN_USE_SHADOW_MAPPING
+  out vec4 v_shadowCoord;
+#endif
 
 uniform float u_pointSize; // initialValue=30, soloDatum=true
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
@@ -35,6 +38,9 @@ uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDa
 // uniform int u_dataTextureMorphOffsetPosition[];
 // uniform int u_morphWeights[]; //
 #endif
+
+// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+uniform mat4 u_depthBiasPV; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -96,6 +102,10 @@ void main()
   {
     gl_Position = vec4(0.0);
   }
+
+#ifdef RN_USE_SHADOW_MAPPING
+  v_shadowCoord = get_depthBiasPV(materialSID, 0) * v_position_inWorld;
+#endif
 
 #pragma shaderity: require(../common/pointSprite.glsl)
 

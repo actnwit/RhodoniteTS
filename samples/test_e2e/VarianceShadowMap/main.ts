@@ -1,6 +1,5 @@
-import {ICameraEntityMethods, ILightEntity} from '../../../dist/esm/index.js';
-// import Rn from '../../../dist/esm/index.mjs';
-import Rn from '../../../dist/cjs';
+import Rn from '../../../dist/esm/index.mjs';
+// import Rn from '../../../dist/cjs';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -36,10 +35,11 @@ declare const window: any;
   // Expression
   const expression = new Rn.Expression();
   // expression.addRenderPasses([renderPassDepth]);
+  // expression.addRenderPasses([renderPassMain]);
   expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
   // Scene Objects
-  const entitySmallBoard = createBoardEntityWithMaterial();
+  const entitySmallBoard = createBallEntityWithMaterial();
   const entityLargeBoard = createBoardEntityWithMaterial();
 
   // set Transforms
@@ -50,6 +50,7 @@ declare const window: any;
   entitySmallBoard.getTransform().translate = translateSmallBoard;
   // entitySmallBoard.getTransform().rotate = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
   entityLargeBoard.getTransform().translate = translateBigBoard;
+  entityLargeBoard.getTransform().scale = Rn.Vector3.fromCopy3(1.5, 1.5, 1.5);
   // entityLargeBoard.getTransform().rotate = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 
   // set entities to render passes
@@ -57,30 +58,32 @@ declare const window: any;
   renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
   // set depth shader to depth render pass
-  renderPassDepth.setMaterial(Rn.MaterialHelper.createFlatMaterial());
+  renderPassDepth.setMaterial(
+    Rn.MaterialHelper.createDepthMomentEncodeMaterial()
+  );
 
-  // set parameters
+  // set material parameters
   const meshComponentSmallBoard = entitySmallBoard.getMesh();
   const meshComponentLargeBoard = entityLargeBoard.getMesh();
   setParameterForMeshComponent(
     meshComponentSmallBoard,
-    Rn.ShaderSemantics.DiffuseColorFactor,
+    Rn.ShaderSemantics.BaseColorFactor,
     Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShaderSemantics.DiffuseColorFactor,
+    Rn.ShaderSemantics.BaseColorFactor,
     Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
   );
   setTextureParameterForMeshComponent(
     meshComponentSmallBoard,
     Rn.ShaderSemantics.DepthTexture,
-    renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
+    renderPassDepth.getFramebuffer().getColorAttachedRenderTargetTexture(0)
   );
   setTextureParameterForMeshComponent(
     meshComponentLargeBoard,
     Rn.ShaderSemantics.DepthTexture,
-    renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
+    renderPassDepth.getFramebuffer().getColorAttachedRenderTargetTexture(0)
   );
 
   window.download = function () {
@@ -115,25 +118,30 @@ declare const window: any;
 
   draw();
 
-  function createBoardEntityWithMaterial() {
-    const entity = Rn.EntityHelper.createMeshEntity();
+  function createBallEntityWithMaterial() {
+    const ballEntity = Rn.MeshHelper.createSphere({
+      radius: 1.0,
+      widthSegments: 40,
+      heightSegments: 40,
+      material: Rn.MaterialHelper.createPbrUberMaterial({
+        isShadow: true,
+      }),
+    });
 
-    const primitive = new Rn.Plane();
-    primitive.generate({
+    return ballEntity;
+  }
+
+  function createBoardEntityWithMaterial() {
+    const entity = Rn.MeshHelper.createPlane({
       width: 1,
       height: 1,
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
-      material: Rn.MaterialHelper.createClassicUberMaterial({
+      material: Rn.MaterialHelper.createPbrUberMaterial({
         isShadow: true,
       }),
     });
-
-    const meshComponent = entity.getMesh();
-    const mesh = new Rn.Mesh();
-    mesh.addPrimitive(primitive);
-    meshComponent.setMesh(mesh);
     return entity;
   }
 
@@ -144,11 +152,11 @@ declare const window: any;
       1,
       {
         level: 0,
-        internalFormat: Rn.TextureParameter.RG16F,
+        internalFormat: Rn.TextureParameter.RG32F,
         format: Rn.PixelFormat.RG,
-        type: Rn.ComponentType.HalfFloat,
-        magFilter: Rn.TextureParameter.Linear,
-        minFilter: Rn.TextureParameter.Linear,
+        type: Rn.ComponentType.Float,
+        magFilter: Rn.TextureParameter.LINEAR,
+        minFilter: Rn.TextureParameter.LINEAR,
         wrapS: Rn.TextureParameter.ClampToEdge,
         wrapT: Rn.TextureParameter.ClampToEdge,
         createDepthBuffer: true,
@@ -161,7 +169,7 @@ declare const window: any;
   }
 
   function createRenderPassSpecifyingCameraComponent(
-    lightWithCameraEntity: ILightEntity & ICameraEntityMethods
+    lightWithCameraEntity: Rn.ICameraEntityMethods
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;

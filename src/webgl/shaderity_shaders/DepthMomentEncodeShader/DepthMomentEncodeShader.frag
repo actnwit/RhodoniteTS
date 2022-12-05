@@ -6,9 +6,14 @@
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
+in vec3 v_color;
+in vec3 v_normal_inWorld;
+in vec4 v_position_inWorld;
+
 #pragma shaderity: require(../common/rt0.glsl)
 
 /* shaderity: @{getters} */
+
 
 void main (){
 
@@ -18,8 +23,8 @@ void main (){
   float dx = dFdx(depth);
   float dy = dFdy(depth);
 
-  dt0.x = depth; // M1
-  dt0.y = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
+  rt0.x = depth; // M1
+  rt0.y = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }

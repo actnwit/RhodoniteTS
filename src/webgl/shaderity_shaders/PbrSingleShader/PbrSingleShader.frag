@@ -20,6 +20,10 @@ in float v_instanceInfo;
   in vec3 v_binormal_inWorld;
 #endif
 
+#ifdef RN_USE_SHADOW_MAPPING
+in vec4 v_shadowCoord;
+#endif
+
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform vec2 u_metallicRoughnessFactor; // initialValue=(1,1)
@@ -113,6 +117,8 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 /* shaderity: @{getters} */
 
 /* shaderity: @{matricesGetters} */
+
+#pragma shaderity: require(../common/shadow.glsl)
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
 
@@ -754,6 +760,11 @@ void main ()
 #endif // RN_USE_CLEARCOAT
   }
 
+#ifdef RN_USE_SHADOW_MAPPING
+  float shadowContribusion = varianceShadowContribution(v_shadowCoord.xy/v_shadowCoord.w, v_shadowCoord.z/v_shadowCoord.w);
+  rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
+#endif
+
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
@@ -818,6 +829,8 @@ void main ()
       discard;
     }
   }
+
+  // rt0.rgb = vec3(texture2D(u_depthTexture, v_shadowCoord.xy/v_shadowCoord.w).r);
 
   // premultiplied alpha
   // rt0.rgb /= alpha;

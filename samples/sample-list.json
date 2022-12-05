@@ -49,6 +49,7 @@
     "ShadowMapVariance",
     "Simple",
     "SummedAreaTable",
+    "VarianceShadowMap",
     "VRMAnimation",
     "VRMImporter"
   ],
