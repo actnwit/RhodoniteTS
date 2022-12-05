@@ -42,6 +42,8 @@ export class WebGLContextWrapper {
 
   public readonly webgl2ExtTFL?: OES_texture_float_linear;
   public readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
+  public readonly webgl2ExtCBF?: EXT_color_buffer_float;
+  public readonly webgl2ExtCBHF?: EXT_color_buffer_half_float;
   public readonly webgl2ExtCTAstc?: WEBGL_compressed_texture_astc;
   public readonly webgl2ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
   public readonly webgl2ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;
@@ -95,6 +97,12 @@ export class WebGLContextWrapper {
       );
       this.webgl2ExtTFA = this.__getExtension(
         WebGLExtension.TextureFilterAnisotropic
+      );
+      this.webgl2ExtCBF = this.__getExtension(
+        WebGLExtension.ColorBufferFloatWebGL2
+      );
+      this.webgl2ExtCBHF = this.__getExtension(
+        WebGLExtension.ColorBufferHalfFloatWebGL2
       );
       this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureAstc

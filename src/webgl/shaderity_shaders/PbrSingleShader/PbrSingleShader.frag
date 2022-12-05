@@ -20,6 +20,10 @@ in float v_instanceInfo;
   in vec3 v_binormal_inWorld;
 #endif
 
+#ifdef RN_USE_SHADOW_MAPPING
+in vec4 v_shadowCoord;
+#endif
+
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform vec2 u_metallicRoughnessFactor; // initialValue=(1,1)
@@ -113,6 +117,8 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 /* shaderity: @{getters} */
 
 /* shaderity: @{matricesGetters} */
+
+#pragma shaderity: require(../common/shadow.glsl)
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
 
@@ -547,7 +553,7 @@ void main ()
   float clearcoat = clearcoatFactor * clearcoatTexture;
 #else
   float clearcoat = 0.0;
-#endif
+#endif // RN_USE_CLEARCOAT
 
   // Transmission
 #ifdef RN_USE_TRANSMISSION
@@ -557,7 +563,7 @@ void main ()
   // alpha *= transmission;
 #else
   float transmission = 0.0;
-#endif
+#endif // RN_USE_TRANSMISSION
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
@@ -586,7 +592,7 @@ void main ()
 #else
   float specular = 1.0;
   vec3 specularColor = vec3(1.0, 1.0, 1.0);
-#endif
+#endif // RN_USE_SPECULAR
 
   // F0, F90
   float ior = get_ior(materialSID, 0);
@@ -623,7 +629,7 @@ void main ()
   float iridescence = 0.0;
   vec3 iridescenceFresnel = vec3(0.0);
   vec3 iridescenceF0 = F0;
-#endif
+#endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
   // Clearcoat
@@ -648,7 +654,7 @@ void main ()
   float clearcoatRoughness = 0.0;
   vec3 clearcoatNormal_inWorld = vec3(0.0);
   float VdotNc = 0.0;
-#endif
+#endif // RN_USE_CLEARCOAT
 
 #ifdef RN_USE_VOLUME
   // Volume
@@ -661,7 +667,7 @@ void main ()
   float thickness = 0.0;
   vec3 attenuationColor = vec3(0.0);
   float attenuationDistance = 0.000001;
-#endif
+#endif // RN_USE_VOLUME
 
 #ifdef RN_USE_SHEEN
   // Sheen
@@ -676,7 +682,7 @@ void main ()
   vec3 sheenColor = vec3(0.0);
   float sheenRoughness = 0.000001;
   float albedoSheenScalingNdotV = 1.0;
-#endif
+#endif // RN_USE_SHEEN
 
   // Lighting
   vec3 diffuse = vec3(0.0, 0.0, 0.0);
@@ -716,12 +722,12 @@ void main ()
     vec3 attenuationColor = get_attenuationColor(materialSID, 0);
     float attenuationDistance = get_attenuationDistance(materialSID, 0);
     transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
-#endif
+#endif // RN_USE_VOLUME
 
     vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
 #else
     vec3 diffuseContrib = pureDiffuse;
-#endif
+#endif // RN_USE_TRANSMISSION
 
     // Specular
     float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
@@ -740,7 +746,7 @@ void main ()
 #else
     vec3 color = baseLayer;
     float albedoSheenScaling = 1.0;
-#endif
+#endif // RN_USE_SHEEN
 
 #ifdef RN_USE_CLEARCOAT
     // Clear Coat Layer
@@ -751,8 +757,13 @@ void main ()
     rt0.xyz += coated;
 #else
     rt0.xyz += color;
-#endif
+#endif // RN_USE_CLEARCOAT
   }
+
+#ifdef RN_USE_SHADOW_MAPPING
+  float shadowContribusion = varianceShadowContribution(v_shadowCoord.xy/v_shadowCoord.w, v_shadowCoord.z/v_shadowCoord.w);
+  rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
+#endif
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
@@ -771,7 +782,7 @@ void main ()
   rt0.xyz += mix(ibl, ibl * occlusion, occlusionStrength);
 #else
   rt0 = vec4(baseColor, alpha);
-#endif
+#endif // RN_IS_LIGHTING
 
   // Emissive
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
@@ -786,7 +797,7 @@ void main ()
   rt0.xyz += coated_emissive;
 #else
   rt0.xyz += emissive;
-#endif
+#endif // RN_USE_CLEARCOAT
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
   if(isOutputHDR){
@@ -818,6 +829,8 @@ void main ()
       discard;
     }
   }
+
+  // rt0.rgb = vec3(texture2D(u_depthTexture, v_shadowCoord.xy/v_shadowCoord.w).r);
 
   // premultiplied alpha
   // rt0.rgb /= alpha;

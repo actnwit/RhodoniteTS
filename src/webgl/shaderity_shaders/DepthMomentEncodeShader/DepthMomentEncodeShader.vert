@@ -12,35 +12,16 @@ in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;
 in vec4 a_joint;
 in vec4 a_weight;
-in vec4 a_baryCentricCoord;
 out vec3 v_color;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
-out vec2 v_texcoord_0;
-out vec2 v_texcoord_1;
-out vec2 v_texcoord_2;
-out vec3 v_baryCentricCoord;
-out float v_instanceInfo;
-#ifdef RN_USE_TANGENT_ATTRIBUTE
-  in vec4 a_tangent;
-  out vec3 v_tangent_inWorld;
-  out vec3 v_binormal_inWorld;
-#endif
-#ifdef RN_USE_SHADOW_MAPPING
-  out vec4 v_shadowCoord;
-#endif
 
 uniform float u_pointSize; // initialValue=30, soloDatum=true
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
 
 #ifdef RN_IS_MORPHING
 uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=true, needUniformInDataTextureMode=true
-// uniform int u_dataTextureMorphOffsetPosition[];
-// uniform int u_morphWeights[]; //
 #endif
-
-// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-uniform mat4 u_depthBiasPV; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
@@ -85,28 +66,13 @@ void main()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-  v_texcoord_0 = a_texcoord_0;
-  v_texcoord_1 = a_texcoord_1;
-  v_texcoord_2 = a_texcoord_2;
-
-  #ifdef RN_USE_TANGENT_ATTRIBUTE
-    v_tangent_inWorld = normalMatrix * a_tangent.xyz;
-    v_binormal_inWorld = cross(v_tangent_inWorld, v_normal_inWorld) * a_tangent.w;
-  #endif
-  v_baryCentricCoord = a_baryCentricCoord.xyz;
-
-  v_instanceInfo = a_instanceInfo;
-
   bool visibility = get_isVisible(a_instanceInfo);
   if (!visibility)
   {
     gl_Position = vec4(0.0);
   }
 
-#ifdef RN_USE_SHADOW_MAPPING
-  v_shadowCoord = get_depthBiasPV(materialSID, 0) * v_position_inWorld;
-#endif
-
 #pragma shaderity: require(../common/pointSprite.glsl)
 
 }
+

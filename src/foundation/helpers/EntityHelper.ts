@@ -113,7 +113,7 @@ function createLightEntity(): ILightEntity {
   return entityAddedComponent;
 }
 
-function createLightWithCameraEntity(): ILightEntity {
+function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods {
   const entity = createGroupEntity();
   const entityAddedComponent = EntityRepository.addComponentToEntity(
     LightComponent,

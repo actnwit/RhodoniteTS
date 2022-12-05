@@ -56,7 +56,7 @@ const BlendMinmax: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 12,
   str: 'EXT_blend_minmax',
 });
-const ColorBufferFloat: WebGLExtensionEnum = new WebGLExtensionClass({
+const ColorBufferFloatWebGL1: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 13,
   str: 'WEBGL_color_buffer_float',
 });
@@ -92,6 +92,14 @@ const GMAN_WEBGL_MEMORY: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 21,
   str: 'GMAN_webgl_memory',
 });
+const ColorBufferFloatWebGL2: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 22,
+  str: 'EXT_color_buffer_float',
+});
+const ColorBufferHalfFloatWebGL2: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 23,
+  str: 'EXT_color_buffer_half_float',
+});
 
 const typeList = [
   VertexArrayObject,
@@ -106,7 +114,7 @@ const typeList = [
   ShaderDerivatives,
   DrawBuffers,
   BlendMinmax,
-  ColorBufferFloat,
+  ColorBufferFloatWebGL1,
   CompressedTextureAstc,
   CompressedTextureS3tc,
   CompressedTexturePvrtc,
@@ -114,6 +122,8 @@ const typeList = [
   CompressedTextureEtc,
   CompressedTextureEtc1,
   CompressedTextureBptc,
+  ColorBufferFloatWebGL2,
+  ColorBufferHalfFloatWebGL2,
 ];
 
 function from({index}: {index: number}): WebGLExtensionEnum {
@@ -133,7 +143,7 @@ export const WebGLExtension = Object.freeze({
   ShaderDerivatives,
   DrawBuffers,
   BlendMinmax,
-  ColorBufferFloat,
+  ColorBufferFloatWebGL1,
   CompressedTextureAstc,
   CompressedTextureS3tc,
   CompressedTexturePvrtc,
@@ -141,5 +151,7 @@ export const WebGLExtension = Object.freeze({
   CompressedTextureEtc,
   CompressedTextureEtc1,
   CompressedTextureBptc,
+  ColorBufferFloatWebGL2,
+  ColorBufferHalfFloatWebGL2,
   GMAN_WEBGL_MEMORY,
 });

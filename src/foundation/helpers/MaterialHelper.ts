@@ -45,6 +45,8 @@ import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAre
 import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
+import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
 import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
 import {MaterialRepository} from '../materials/core/MaterialRepository';
 import { Vrm0xMaterialProperty } from '../../types';
@@ -112,6 +114,7 @@ function createPbrUberMaterial({
   isSheen = false,
   isSpecular = false,
   isIridescence = false,
+  isShadow = false,
   useTangentAttribute = false,
   useNormalTexture = true,
   alphaMode = AlphaMode.Opaque,
@@ -377,6 +380,24 @@ function createPbrUberMaterial({
     });
   }
 
+  if (isShadow) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.DepthTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [
+        textureSlotIdx++,
+        AbstractMaterialContent.dummyWhiteTexture,
+      ],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
+
   const materialNode = new CustomMaterialContent({
     name: 'PbrUber',
     isSkinning,
@@ -388,6 +409,7 @@ function createPbrUberMaterial({
     isSheen,
     isSpecular,
     isIridescence,
+    isShadow,
     alphaMode,
     useTangentAttribute,
     useNormalTexture,
@@ -435,6 +457,42 @@ function createClassicUberMaterial({
     useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    noUseCameraTransform: false,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(
+    materialName,
+    materialNode,
+    maxInstancesNumber
+  );
+
+  return material;
+}
+
+function createDepthMomentEncodeMaterial({
+  additionalName = '',
+  isSkinning = true,
+  isMorphing = false,
+  alphaMode = AlphaMode.Opaque,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+} = {}) {
+  const materialName =
+    'DepthMomentEncode' +
+    `_${additionalName}_` +
+    ' alpha_' +
+    alphaMode.str.toLowerCase();
+
+  const materialNode = new CustomMaterialContent({
+    name: 'DepthMomentEncode',
+    isSkinning,
+    isLighting: false,
+    isMorphing,
+    alphaMode,
+    useTangentAttribute: false,
+    useNormalTexture: true,
+    vertexShader: DepthMomentEncodeShaderVertex,
+    pixelShader: DepthMomentEncodeShaderFragment,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
@@ -1047,6 +1105,7 @@ export const MaterialHelper = Object.freeze({
   recreateShaderityMaterial,
   createEmptyMaterial,
   createClassicUberMaterial,
+  createDepthMomentEncodeMaterial,
   createFlatMaterial,
   createPbrUberMaterial,
   createEnvConstantMaterial,
