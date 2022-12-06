@@ -46,7 +46,7 @@ type IBLCubeTextureParameter = {
  * const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
  * // Set up the render pipeline
  * forwardRenderPipeline.setup(1024, 1024, {isShadow: true});
- * // Set the expressions to be rendered before other setter methods
+ * // Set expressions before calling other setter methods
  * forwardRenderPipeline.setExpressions(expressions);
  * // Set IBLs
  * forwardRenderPipeline.setIBL(
