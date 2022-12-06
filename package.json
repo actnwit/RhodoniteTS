@@ -64,7 +64,7 @@
     "jest-image-snapshot": "^6.1.0",
     "jest-puppeteer": "^6.1.1",
     "json-loader": "^0.5.7",
-    "puppeteer": "19.3.0",
+    "puppeteer": "13.7.0",
     "shaderity-loader": "0.0.18",
     "shx": "0.3.4",
     "ts-jest": "^28.0.4",
