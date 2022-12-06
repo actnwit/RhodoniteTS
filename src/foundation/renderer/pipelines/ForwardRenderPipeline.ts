@@ -55,8 +55,8 @@ export class ForwardRenderPipeline extends RnObject {
   private __oInitialExpression: IOption<Expression> = new None();
   private __oMsaaResolveExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
-  private __opaqueExpressions: Expression[] = [];
-  private __transparentExpressions: Expression[] = [];
+  private __expressions: Expression[] = [];
+  private __transparentOnlyExpressions: Expression[] = [];
   private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
   private __oWebXRSystem: IOption<any> = new None();
   private __oDrawFunc: IOption<DrawFunc> = new None();
@@ -131,7 +131,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param expressions - expressions to draw
    * @param options - option parameters
    */
-  setExpressions(
+  public setExpressions(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -242,8 +242,8 @@ export class ForwardRenderPipeline extends RnObject {
     specularCubeTexture.loadTextureImagesAsync();
     this.__oSpecularCubeTexture = new Some(specularCubeTexture);
 
-    this.__setIblInnerForOpaque();
-    this.__setIblInnerForTransparent();
+    this.__setIblInner();
+    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -254,8 +254,8 @@ export class ForwardRenderPipeline extends RnObject {
   setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
     this.__oSpecularCubeTexture = new Some(specular);
-    this.__setIblInnerForOpaque();
-    this.__setIblInnerForTransparent();
+    this.__setIblInner();
+    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -284,7 +284,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param value - 0.0 ~ 1.0 or greater
    */
   setDiffuseIBLContribution(value: number) {
-    for (const expression of this.__opaqueExpressions) {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -294,7 +294,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     }
-    for (const expression of this.__transparentExpressions) {
+    for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -311,7 +311,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param value - 0.0 ~ 1.0 or greater
    */
   setSpecularIBLContribution(value: number) {
-    for (const expression of this.__opaqueExpressions) {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -321,7 +321,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     }
-    for (const expression of this.__transparentExpressions) {
+    for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -338,7 +338,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param radian - rotation in radian
    */
   setIBLRotation(radian: number) {
-    for (const expression of this.__opaqueExpressions) {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -362,16 +362,19 @@ export class ForwardRenderPipeline extends RnObject {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = true;
         if (options.isTransmission) {
+          // if options.isTransmission is true, set toRenderTransparentPrimitives to false,
+          // because transparent primitives are rendered in later expression.
           rp.toRenderTransparentPrimitives = false;
         } else {
+          // if options.isTransmission is false, set toRenderTransparentPrimitives to true.
           rp.toRenderTransparentPrimitives = true;
         }
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
       }
     }
-    this.__opaqueExpressions = expressions;
-    this.__setIblInnerForOpaque();
+    this.__expressions = expressions;
+    this.__setIblInner();
   }
 
   __setTransparentExpressionsForTransmission(expressions: Expression[]) {
@@ -403,8 +406,8 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     }
-    this.__transparentExpressions = expressions;
-    this.__setIblInnerForTransparent();
+    this.__transparentOnlyExpressions = expressions;
+    this.__setIblInnerForTransparentOnly();
   }
 
   __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
@@ -631,8 +634,8 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private __setIblInnerForOpaque() {
-    for (const expression of this.__opaqueExpressions) {
+  private __setIblInner() {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -647,8 +650,8 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private __setIblInnerForTransparent() {
-    for (const expression of this.__transparentExpressions) {
+  private __setIblInnerForTransparentOnly() {
+    for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -663,15 +666,21 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  __setExpressions() {
+  /**
+   * setUp Frame
+   *
+   * @remarks
+   * This method adds expressions to the frame.
+   */
+  private __setExpressions() {
     const frame = this.__oFrame.unwrapForce();
     frame.clearExpressions();
     frame.addExpression(this.getInitialExpression()!);
-    for (const exp of this.__opaqueExpressions) {
+    for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
     frame.addExpression(this.getMsaaResolveExpression()!);
-    for (const exp of this.__transparentExpressions) {
+    for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
     frame.addExpression(this.getMsaaResolveExpression()!);
