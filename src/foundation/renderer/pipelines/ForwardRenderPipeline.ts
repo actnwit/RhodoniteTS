@@ -18,7 +18,6 @@ import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
 import {EntityHelper, IMeshEntity} from '../../helpers/EntityHelper';
-import {Vector3} from '../../math/Vector3';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
 import {RenderTargetTexture} from '../../textures';
 import {Size} from '../../../types';
@@ -350,7 +349,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  __setExpressionsInner(
+  private __setExpressionsInner(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -367,8 +366,11 @@ export class ForwardRenderPipeline extends RnObject {
           rp.toRenderTransparentPrimitives = false;
         } else {
           // if options.isTransmission is false, set toRenderTransparentPrimitives to true.
+          // because transparent primitives are rendered in this expression as well as opaque primitives.
           rp.toRenderTransparentPrimitives = true;
         }
+
+        // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
       }
@@ -377,15 +379,16 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInner();
   }
 
-  __setTransparentExpressionsForTransmission(expressions: Expression[]) {
+  private __setTransparentExpressionsForTransmission(
+    expressions: Expression[]
+  ) {
     for (const expression of expressions) {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
-        rp.toRenderOpaquePrimitives = false;
+        rp.toRenderOpaquePrimitives = false; // not to render opaque primitives in transmission expression.
         rp.toRenderTransparentPrimitives = true;
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-        // rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -410,7 +413,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInnerForTransparentOnly();
   }
 
-  __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
+  private __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
 
@@ -437,7 +440,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expression;
   }
 
-  __createRenderTargets(canvasWidth: number, canvasHeight: number) {
+  private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     // MSAA depth
     const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
       canvasWidth,
@@ -486,7 +489,7 @@ export class ForwardRenderPipeline extends RnObject {
     };
   }
 
-  __attachIBLTextureToAllMeshComponents(
+  private __attachIBLTextureToAllMeshComponents(
     diffuseCubeTexture: CubeTexture,
     specularCubeTexture: CubeTexture,
     rotation: number
@@ -519,7 +522,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  __setupMsaaResolveExpression(
+  private __setupMsaaResolveExpression(
     sFrame: Some<Frame>,
     framebufferTargetOfGammaMsaa: FrameBuffer,
     framebufferTargetOfGammaResolve: FrameBuffer,
@@ -542,7 +545,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expressionForResolve;
   }
 
-  __createPostEffectCameraEntity() {
+  private __createPostEffectCameraEntity() {
     const cameraEntity = EntityHelper.createCameraEntity();
     const cameraComponent = cameraEntity.getCamera();
     cameraComponent.zNearInner = 0.5;
@@ -550,7 +553,7 @@ export class ForwardRenderPipeline extends RnObject {
     return cameraEntity;
   }
 
-  __setupGammaExpression(
+  private __setupGammaExpression(
     sFrame: Some<Frame>,
     gammaTargetFramebuffer: FrameBuffer,
     aspect: number
@@ -609,7 +612,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expressionGammaEffect;
   }
 
-  __setupSatExpression() {
+  private __setupSatExpression() {
     const satMaterial = MaterialHelper.createSummedAreaTableMaterial({
       noUseCameraTransform: true,
     });
@@ -617,7 +620,7 @@ export class ForwardRenderPipeline extends RnObject {
       RenderPassHelper.createScreenDrawRenderPass(satMaterial);
   }
 
-  __setTextureParameterForMeshComponents(
+  private __setTextureParameterForMeshComponents(
     meshComponents: MeshComponent[],
     shaderSemantic: ShaderSemanticsEnum,
     value: RenderTargetTexture
