@@ -96,7 +96,7 @@ declare const window: any;
   let count = 0;
 
   const draw = function () {
-    if (count > 0) {
+    if (count > 50) {
       p.id = 'rendered';
       p.innerText = 'Rendered.';
     }
