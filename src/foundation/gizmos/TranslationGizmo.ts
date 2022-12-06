@@ -458,7 +458,11 @@ export class TranslationGizmo extends Gizmo {
     }
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
-    this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+    if (aabb.isVanilla()) {
+      this.__topEntity.getTransform()!.translate = sg.translate;
+    } else {
+      this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+    }
     const max = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
     this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
