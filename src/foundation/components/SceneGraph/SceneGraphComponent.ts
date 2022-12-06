@@ -468,6 +468,12 @@ export class SceneGraphComponent extends Component {
           meshComponent.mesh.AABB,
           elem.__worldAABB
         );
+      } else {
+        AABB.multiplyMatrixTo(
+          elem.entityWorldMatrixInner,
+          elem.__worldAABB,
+          elem.__worldAABB
+        );
       }
 
       const children = elem.children;
