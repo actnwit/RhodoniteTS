@@ -89,9 +89,9 @@ export class LocatorGizmo extends Gizmo {
     const aabb = sg.worldAABB;
     this.__topEntity.getTransform()!.translate = aabb.centerPoint;
     this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
-      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
-      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
-      Math.min(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),
+      Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
+      Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
+      Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),
     ]);
   }
 
