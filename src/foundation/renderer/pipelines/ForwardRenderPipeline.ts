@@ -195,7 +195,7 @@ export class ForwardRenderPipeline extends RnObject {
 
   private __setDepthTextureToEntityMaterials() {
     if (this.__isShadow) {
-      for (const expression of this.__depthMomentExpressions) {
+      for (const expression of this.__expressions) {
         for (const renderPass of expression.renderPasses) {
           const entities = renderPass.entities;
           for (const entity of entities) {
@@ -425,6 +425,29 @@ export class ForwardRenderPipeline extends RnObject {
 
   setBiasViewProjectionMatrixForShadow(matrix: IMatrix44) {
     this.__oBiasViewProjectionMatrix = new Some(matrix);
+    if (this.__isShadow) {
+      for (const expression of this.__expressions) {
+        for (const renderPass of expression.renderPasses) {
+          const entities = renderPass.entities;
+          for (const entity of entities) {
+            const meshComponent = entity.tryToGetMesh();
+            if (Is.exist(meshComponent)) {
+              const mesh = meshComponent.mesh;
+              if (Is.exist(mesh)) {
+                const primitives = mesh.primitives;
+                for (const primitive of primitives) {
+                  const material = primitive.material;
+                  material.setParameter(
+                    ShaderSemantics.DepthBiasPV,
+                    this.__oBiasViewProjectionMatrix.unwrapForce()
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   private __setExpressionsInner(
