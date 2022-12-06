@@ -44,8 +44,13 @@ export class RenderPass extends RnObject {
   private __webglRenderingStrategy?: WebGLStrategy;
   public isVrRendering = true;
   public isOutputForVr = false;
+
+  /** Whether or not to draw opaque primitives contained in this render pass. */
   public toRenderOpaquePrimitives = true;
+
+  /** Whether or not to draw transparent primitives contained in this render pass. */
   public toRenderTransparentPrimitives = true;
+
   public toRenderEffekseerEffects = false;
   public drawCount = 1;
   public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
