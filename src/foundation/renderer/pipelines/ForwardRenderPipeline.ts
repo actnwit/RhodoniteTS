@@ -37,6 +37,39 @@ type IBLCubeTextureParameter = {
  * A render pipeline is a class of complex multi-pass setups already built in,
  * which allows users to easily benefit from advanced expressions such as refraction and MSAA.
  * (like the URP (Universal Render Pipeline) in the Unity engine).
+ *
+ * @example
+ * ```
+ * const expressions = ...;
+ * const matrix = ...;
+ * // Create a render pipeline
+ * const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
+ * // Set up the render pipeline
+ * forwardRenderPipeline.setup(1024, 1024, {isShadow: true});
+ * // Set the expressions to be rendered before other setter methods
+ * forwardRenderPipeline.setExpressions(expressions);
+ * // Set IBLs
+ * forwardRenderPipeline.setIBL(
+ *     diffuse: {
+ *     baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *     isNamePosNeg: true,
+ *     mipmapLevelNumber: 1,
+ *   },
+ *   specular: {
+ *     baseUri: './../../../assets/ibl/papermill/specular/specular',
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *     isNamePosNeg: true,
+ *     mipmapLevelNumber: 10,
+ *   },
+ * );
+ * // Set BiasViewProjectionMatrix for Shadow
+ * forwardRenderPipeline.setBiasViewProjectionMatrixForShadow(matrix);
+ * // Start Render Loop
+ * forwardRenderPipeline.startRenderLoop((frame) => {
+ *   Rn.System.process(frame);
+ * });
+ * ```
  */
 export class ForwardRenderPipeline extends RnObject {
   private __width = 0;
