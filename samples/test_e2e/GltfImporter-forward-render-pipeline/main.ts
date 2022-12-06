@@ -17,7 +17,7 @@ declare const window: any;
 
   // create ForwardRenderPipeline
   const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
-  forwardRenderPipeline.beginSetup(canvas.width, canvas.height);
+  forwardRenderPipeline.setup(canvas.width, canvas.height);
 
   // camera
   const {cameraComponent, cameraEntity} = createCamera();
@@ -66,8 +66,6 @@ declare const window: any;
       mipmapLevelNumber: 10,
     },
   });
-
-  forwardRenderPipeline.endSetup();
 
   let count = 0;
   let startTime = Date.now();
