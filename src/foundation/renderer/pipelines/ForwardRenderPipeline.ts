@@ -71,7 +71,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param canvasWidth - The width of the canvas.
    * @param canvasHeight - The height of the canvas.
    */
-  async setup(
+  async beginSetup(
     canvasWidth: number,
     canvasHeight: number,
     {isShadow = false} = {}
@@ -132,6 +132,11 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     return new Ok();
+  }
+
+  public endSetup() {
+    this.__setIblInner();
+    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -249,9 +254,6 @@ export class ForwardRenderPipeline extends RnObject {
     specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
     specularCubeTexture.loadTextureImagesAsync();
     this.__oSpecularCubeTexture = new Some(specularCubeTexture);
-
-    this.__setIblInner();
-    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -262,8 +264,6 @@ export class ForwardRenderPipeline extends RnObject {
   setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
     this.__oSpecularCubeTexture = new Some(specular);
-    this.__setIblInner();
-    this.__setIblInnerForTransparentOnly();
   }
 
   /**
