@@ -1,14 +1,8 @@
-import {MeshComponent} from '../../components/Mesh/MeshComponent';
-import {MeshRendererComponent} from '../../components/MeshRenderer/MeshRendererComponent';
-import {ComponentRepository} from '../../core/ComponentRepository';
 import {
   ShaderSemantics,
-  ShaderSemanticsEnum,
 } from '../../definitions/ShaderSemantics';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import {RenderableHelper} from '../../helpers/RenderableHelper';
-import {MathUtil} from '../../math/MathUtil';
-import {Scalar} from '../../math/Scalar';
 import {Vector4} from '../../math/Vector4';
 import {assertHas, IOption, None, Some} from '../../misc/Option';
 import {Is} from '../../misc/Is';
@@ -19,14 +13,14 @@ import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
 import {EntityHelper, IMeshEntity} from '../../helpers/EntityHelper';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
-import {RenderTargetTexture} from '../../textures';
 import {Size} from '../../../types';
 import {Err, Ok} from '../../misc/Result';
 import {System} from '../../system/System';
 import {RnObject} from '../../core/RnObject';
 import {ModuleManager} from '../../system/ModuleManager';
-import {HdriFormatEnum} from '../../definitions';
+import {ComponentType, HdriFormatEnum, PixelFormat} from '../../definitions';
 import {MeshHelper, RenderPassHelper} from '../../helpers';
+import { IMatrix44 } from '../../math/IMatrix';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -48,13 +42,19 @@ export class ForwardRenderPipeline extends RnObject {
   private __width = 0;
   private __height = 0;
   private __oFrame: IOption<Frame> = new None();
+  private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
+  private __oBiasViewProjectionMatrix: IOption<IMatrix44> = new None();
   private __oInitialExpression: IOption<Expression> = new None();
+
+  /** main expressions */
+  private __expressions: Expression[] = [];
+
+  private __depthMomentExpressions: Expression[] = [];
   private __oMsaaResolveExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
-  private __expressions: Expression[] = [];
   private __transparentOnlyExpressions: Expression[] = [];
   private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
   private __oWebXRSystem: IOption<any> = new None();
@@ -71,7 +71,11 @@ export class ForwardRenderPipeline extends RnObject {
    * @param canvasWidth - The width of the canvas.
    * @param canvasHeight - The height of the canvas.
    */
-  async setup(canvasWidth: number, canvasHeight: number) {
+  async setup(
+    canvasWidth: number,
+    canvasHeight: number,
+    {isShadow = false} = {}
+  ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
     if (this.__oFrame.has()) {
@@ -116,6 +120,11 @@ export class ForwardRenderPipeline extends RnObject {
       canvasWidth / canvasHeight
     );
     this.__oGammaExpression = new Some(gammaExpression);
+
+    // depth moment Expression
+    if (isShadow) {
+      this.__setupDepthMomentExpression(canvasWidth, canvasHeight);
+    }
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
     if (Is.exist(rnXRModule)) {
@@ -349,6 +358,10 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  setBiasViewProjectionMatrixForShadow(matrix: IMatrix44) {
+    this.__oBiasViewProjectionMatrix = new Some(matrix);
+  }
+
   private __setExpressionsInner(
     expressions: Expression[],
     options: {
@@ -577,6 +590,53 @@ export class ForwardRenderPipeline extends RnObject {
     });
     const renderPassSat =
       RenderPassHelper.createScreenDrawRenderPass(satMaterial);
+  }
+
+  private __setupDepthMomentExpression(
+    canvasWidth: number,
+    canvasHeight: number
+  ) {
+    this.__oFrameDepthMoment = new Some(
+      RenderableHelper.createTexturesForRenderTarget(
+        canvasWidth,
+        canvasHeight,
+        1,
+        {
+          level: 0,
+          internalFormat: TextureParameter.RG32F,
+          format: PixelFormat.RG,
+          type: ComponentType.Float,
+          magFilter: TextureParameter.Linear,
+          minFilter: TextureParameter.Linear,
+          wrapS: TextureParameter.ClampToEdge,
+          wrapT: TextureParameter.ClampToEdge,
+          createDepthBuffer: true,
+          isMSAA: false,
+          sampleCountMSAA: 1,
+        }
+      )
+    );
+
+    this.__depthMomentExpressions = [];
+    for (const expression of this.__expressions) {
+      this.__depthMomentExpressions.push(expression.clone());
+    }
+
+    const depthMomentMaterial =
+      MaterialHelper.createDepthMomentEncodeMaterial();
+
+    for (const expression of this.__depthMomentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        renderPass.setFramebuffer(
+          this.__oFrameBufferResolveForReference.unwrapForce()
+        );
+
+        // No need to render transparent primitives to depth buffer.
+        renderPass.toRenderTransparentPrimitives = false;
+
+        renderPass.setMaterial(depthMomentMaterial);
+      }
+    }
   }
 
   private __setIblInner() {
