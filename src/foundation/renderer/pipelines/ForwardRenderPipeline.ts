@@ -17,10 +17,7 @@ import {Expression} from '../Expression';
 import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
-import {
-  EntityHelper,
-  IMeshEntity,
-} from '../../helpers/EntityHelper';
+import {EntityHelper, IMeshEntity} from '../../helpers/EntityHelper';
 import {Vector3} from '../../math/Vector3';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
 import {RenderTargetTexture} from '../../textures';
@@ -30,7 +27,7 @@ import {System} from '../../system/System';
 import {RnObject} from '../../core/RnObject';
 import {ModuleManager} from '../../system/ModuleManager';
 import {HdriFormatEnum} from '../../definitions';
-import { MeshHelper, RenderPassHelper } from '../../helpers';
+import {MeshHelper, RenderPassHelper} from '../../helpers';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
