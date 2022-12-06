@@ -489,39 +489,6 @@ export class ForwardRenderPipeline extends RnObject {
     };
   }
 
-  private __attachIBLTextureToAllMeshComponents(
-    diffuseCubeTexture: CubeTexture,
-    specularCubeTexture: CubeTexture,
-    rotation: number
-  ) {
-    const meshRendererComponents = ComponentRepository.getComponentsWithType(
-      MeshRendererComponent
-    ) as MeshRendererComponent[];
-    for (let i = 0; i < meshRendererComponents.length; i++) {
-      const meshRendererComponent = meshRendererComponents[i];
-      meshRendererComponent.specularCubeMap = specularCubeTexture;
-      meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
-      meshRendererComponent.rotationOfCubeMap =
-        MathUtil.degreeToRadian(rotation);
-    }
-    const meshComponents = ComponentRepository.getComponentsWithType(
-      MeshComponent
-    ) as MeshComponent[];
-    for (let i = 0; i < meshComponents.length; i++) {
-      const meshComponent = meshComponents[i];
-      const mesh = meshComponent.mesh;
-      if (Is.exist(mesh)) {
-        for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
-          const primitive = mesh.getPrimitiveAt(i);
-          primitive.material.setParameter(
-            ShaderSemantics.InverseEnvironment,
-            Scalar.fromCopyNumber(0)
-          );
-        }
-      }
-    }
-  }
-
   private __setupMsaaResolveExpression(
     sFrame: Some<Frame>,
     framebufferTargetOfGammaMsaa: FrameBuffer,
@@ -543,14 +510,6 @@ export class ForwardRenderPipeline extends RnObject {
     sFrame.unwrapForce().addExpression(expressionForResolve);
 
     return expressionForResolve;
-  }
-
-  private __createPostEffectCameraEntity() {
-    const cameraEntity = EntityHelper.createCameraEntity();
-    const cameraComponent = cameraEntity.getCamera();
-    cameraComponent.zNearInner = 0.5;
-    cameraComponent.zFarInner = 2.0;
-    return cameraEntity;
   }
 
   private __setupGammaExpression(
@@ -618,23 +577,6 @@ export class ForwardRenderPipeline extends RnObject {
     });
     const renderPassSat =
       RenderPassHelper.createScreenDrawRenderPass(satMaterial);
-  }
-
-  private __setTextureParameterForMeshComponents(
-    meshComponents: MeshComponent[],
-    shaderSemantic: ShaderSemanticsEnum,
-    value: RenderTargetTexture
-  ) {
-    for (let i = 0; i < meshComponents.length; i++) {
-      const mesh = meshComponents[i].mesh;
-      if (!mesh) continue;
-
-      const primitiveNumber = mesh.getPrimitiveNumber();
-      for (let j = 0; j < primitiveNumber; j++) {
-        const primitive = mesh.getPrimitiveAt(j);
-        primitive.material.setTextureParameter(shaderSemantic, value);
-      }
-    }
   }
 
   private __setIblInner() {
