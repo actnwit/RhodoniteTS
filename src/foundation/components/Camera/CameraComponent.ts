@@ -35,6 +35,11 @@ import { MiscUtil } from '../../misc';
 
 /**
  * The Component that represents a camera.
+ *
+ * @remarks
+ * The camera is defined such that the local +X axis is to the right,
+ * the “lens” looks towards the local -Z axis,
+ * and the top of the camera is aligned with the local +Y axis.
  */
 export class CameraComponent extends Component {
   private static readonly _eye: Vector3 = Vector3.zero();

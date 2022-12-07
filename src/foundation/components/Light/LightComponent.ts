@@ -19,8 +19,13 @@ import {VectorN} from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import {Matrix44} from '../../math';
 
+/**
+ * The Component that represents a light.
+ *
+ * @remarks
+ * the light looks towards the local -Z axis,
+ */
 export class LightComponent extends Component {
   public type = LightType.Point;
   private __intensity = Vector3.fromCopyArray([1, 1, 1]);
