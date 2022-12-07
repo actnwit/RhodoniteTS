@@ -18,7 +18,6 @@ import {RnObject} from '../../core/RnObject';
 import {ModuleManager} from '../../system/ModuleManager';
 import {ComponentType, HdriFormatEnum, PixelFormat} from '../../definitions';
 import {MeshHelper, RenderPassHelper} from '../../helpers';
-import {IMatrix44} from '../../math/IMatrix';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 
 type DrawFunc = (frame: Frame) => void;
@@ -305,7 +304,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oFrameDepthMoment
       .get()
       .resize(
-        parseInt(this.__shadowMapSize * (this.__width / this.__height)),
+        Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
         this.__shadowMapSize
       );
     this.__oFrameBufferMsaa.get().resize(width, height);
@@ -715,14 +714,14 @@ export class ForwardRenderPipeline extends RnObject {
   private __setupDepthMomentExpression(shadowMapSize: number) {
     this.__oFrameDepthMoment = new Some(
       RenderableHelper.createTexturesForRenderTarget(
-        parseInt(shadowMapSize * (this.__width / this.__height)),
+        Math.floor(shadowMapSize * (this.__width / this.__height)),
         shadowMapSize,
         1,
         {
           level: 0,
-          internalFormat: TextureParameter.RG32F,
-          format: PixelFormat.RG,
-          type: ComponentType.Float,
+          internalFormat: TextureParameter.RGBA8,
+          format: PixelFormat.RGBA,
+          type: ComponentType.UnsignedByte,
           magFilter: TextureParameter.Linear,
           minFilter: TextureParameter.Linear,
           wrapS: TextureParameter.ClampToEdge,

@@ -763,8 +763,10 @@ void main ()
   }
 
 #ifdef RN_USE_SHADOW_MAPPING
-  float shadowContribusion = varianceShadowContribution(v_shadowCoord.xy/v_shadowCoord.w, v_shadowCoord.z/v_shadowCoord.w);
-  rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
+  float bias = 0.001;
+  float shadowContribusion = varianceShadowContribution(v_shadowCoord.xy/v_shadowCoord.w, (v_shadowCoord.z - bias)/v_shadowCoord.w);
+  // rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
+  rt0.rgb = rt0.rgb * shadowContribusion;
 #endif
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,

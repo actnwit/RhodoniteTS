@@ -31,7 +31,7 @@ import {ICameraEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import { Is } from '../../misc/Is';
-import { MiscUtil } from '../../misc';
+import { LightType } from '../../definitions/LightType';
 
 /**
  * The Component that represents a camera.
@@ -717,19 +717,33 @@ export class CameraComponent extends Component {
 
   $logic({renderPass}: {renderPass: RenderPass}) {
     const lightComponent = this.entity.tryToGetLight();
+
     if (this.isSyncToLight && Is.exist(lightComponent)) {
+      // for Shadow Mapping
       this._eyeInner.copyComponents(CameraComponent._eye);
       this._directionInner.copyComponents(this._direction);
-      // this._directionInner.copyComponents(lightComponent.direction);
       this._upInner.copyComponents(this._up);
-      this.setFovyAndChangeFilmSize(
-        MathUtil.radianToDegree(lightComponent.outerConeAngle)
-      );
-      this._cornerInner.copyComponents(this._corner);
-      this.aspect = 1;
-      this.zNear = 0.1;
-      this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
-      this._parametersInner.copyComponents(this._parameters);
+      if (lightComponent.type === LightType.Spot) {
+        this.type = CameraType.Perspective;
+        this.setFovyAndChangeFilmSize(
+          MathUtil.radianToDegree(lightComponent.outerConeAngle)
+        );
+        this._cornerInner.copyComponents(this._corner);
+        this.aspect = 1;
+        this.zNear = 0.1;
+        this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
+        this._parametersInner.copyComponents(this._parameters);
+      } else if (lightComponent.type === LightType.Directional) {
+        this.type = CameraType.Orthographic;
+        const areaSize = lightComponent.shadowAreaSizeForDirectionalLight;
+        this._cornerInner.copyComponents(
+          Vector4.fromCopy4(-areaSize, areaSize, areaSize, -areaSize)
+        );
+        this.aspect = 1;
+        this.zNear = 0.1;
+        this.zFar = lightComponent.range !== -1 ? lightComponent.range : 10000;
+        this._parametersInner.copyComponents(this._parameters);
+      }
     } else {
       const cameraControllerComponent = this.entity.tryToGetCameraController();
       if (Is.exist(cameraControllerComponent)) {
