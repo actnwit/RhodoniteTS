@@ -74,6 +74,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __width = 0;
   private __height = 0;
   private __isShadow = false;
+  private __shadowMapSize = 1024;
   private __oFrame: IOption<Frame> = new None();
   private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
@@ -110,6 +111,7 @@ export class ForwardRenderPipeline extends RnObject {
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
+    this.__shadowMapSize = shadowMapSize;
     if (this.__oFrame.has()) {
       return new Err({
         message: 'Already setup',
@@ -206,7 +208,8 @@ export class ForwardRenderPipeline extends RnObject {
     for (const expression of this.__depthMomentExpressions) {
       for (const renderPass of expression.renderPasses) {
         renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
-
+        renderPass.toClearColorBuffer = true;
+        renderPass.toClearDepthBuffer = true;
         // No need to render transparent primitives to depth buffer.
         renderPass.toRenderTransparentPrimitives = false;
 
@@ -283,6 +286,7 @@ export class ForwardRenderPipeline extends RnObject {
       });
     }
     assertHas(this.__oFrame);
+    assertHas(this.__oFrameDepthMoment);
     assertHas(this.__oFrameBufferMsaa);
     assertHas(this.__oFrameBufferResolve);
     assertHas(this.__oFrameBufferResolveForReference);
@@ -298,6 +302,12 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__oFrame.get().setViewport(Vector4.fromCopy4(0, 0, width, height));
 
+    this.__oFrameDepthMoment
+      .get()
+      .resize(
+        parseInt(this.__shadowMapSize * (this.__width / this.__height)),
+        this.__shadowMapSize
+      );
     this.__oFrameBufferMsaa.get().resize(width, height);
     this.__oFrameBufferResolve.get().resize(width, height);
     this.__oFrameBufferResolveForReference.get().resize(width, height);
@@ -705,7 +715,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __setupDepthMomentExpression(shadowMapSize: number) {
     this.__oFrameDepthMoment = new Some(
       RenderableHelper.createTexturesForRenderTarget(
-        shadowMapSize,
+        parseInt(shadowMapSize * (this.__width / this.__height)),
         shadowMapSize,
         1,
         {
