@@ -19,6 +19,7 @@ import {ModuleManager} from '../../system/ModuleManager';
 import {ComponentType, HdriFormatEnum, PixelFormat} from '../../definitions';
 import {MeshHelper, RenderPassHelper} from '../../helpers';
 import {IMatrix44} from '../../math/IMatrix';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -78,7 +79,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
-  private __oBiasViewProjectionMatrix: IOption<IMatrix44> = new None();
   private __oInitialExpression: IOption<Expression> = new None();
 
   /** main expressions */
@@ -106,7 +106,7 @@ export class ForwardRenderPipeline extends RnObject {
   async setup(
     canvasWidth: number,
     canvasHeight: number,
-    {isShadow = false, ShadowMapSize = 1024} = {}
+    {isShadow = false, shadowMapSize = 1024} = {}
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
@@ -156,7 +156,7 @@ export class ForwardRenderPipeline extends RnObject {
     // depth moment Expression
     if (isShadow) {
       this.__isShadow = true;
-      this.__setupDepthMomentExpression(ShadowMapSize);
+      this.__setupDepthMomentExpression(shadowMapSize);
     }
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
@@ -441,9 +441,13 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  setBiasViewProjectionMatrixForShadow(matrix: IMatrix44) {
-    this.__oBiasViewProjectionMatrix = new Some(matrix);
+  setCameraComponentOfLight(cameraComponent: CameraComponent) {
     if (this.__isShadow) {
+      for (const expression of this.__depthMomentExpressions) {
+        for (const renderPass of expression.renderPasses) {
+          renderPass.cameraComponent = cameraComponent;
+        }
+      }
       for (const expression of this.__expressions) {
         for (const renderPass of expression.renderPasses) {
           const entities = renderPass.entities;
@@ -457,7 +461,7 @@ export class ForwardRenderPipeline extends RnObject {
                   const material = primitive.material;
                   material.setParameter(
                     ShaderSemantics.DepthBiasPV,
-                    this.__oBiasViewProjectionMatrix.unwrapForce()
+                    cameraComponent.biasViewProjectionMatrix
                   );
                 }
               }
