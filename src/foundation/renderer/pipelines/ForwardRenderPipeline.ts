@@ -1,6 +1,4 @@
-import {
-  ShaderSemantics,
-} from '../../definitions/ShaderSemantics';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import {RenderableHelper} from '../../helpers/RenderableHelper';
 import {Vector4} from '../../math/Vector4';
@@ -108,7 +106,7 @@ export class ForwardRenderPipeline extends RnObject {
   async setup(
     canvasWidth: number,
     canvasHeight: number,
-    {isShadow = false} = {}
+    {isShadow = false, ShadowMapSize = 1024} = {}
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
@@ -158,7 +156,7 @@ export class ForwardRenderPipeline extends RnObject {
     // depth moment Expression
     if (isShadow) {
       this.__isShadow = true;
-      this.__setupDepthMomentExpression(canvasWidth, canvasHeight);
+      this.__setupDepthMomentExpression(ShadowMapSize);
     }
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
@@ -194,25 +192,45 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   private __setDepthTextureToEntityMaterials() {
-    if (this.__isShadow) {
-      for (const expression of this.__expressions) {
-        for (const renderPass of expression.renderPasses) {
-          const entities = renderPass.entities;
-          for (const entity of entities) {
-            const meshComponent = entity.tryToGetMesh();
-            if (Is.exist(meshComponent)) {
-              const mesh = meshComponent.mesh;
-              if (Is.exist(mesh)) {
-                const primitives = mesh.primitives;
-                for (const primitive of primitives) {
-                  const material = primitive.material;
-                  material.setTextureParameter(
-                    ShaderSemantics.DepthTexture,
-                    this.__oFrameDepthMoment
-                      .unwrapForce()
-                      .getColorAttachedRenderTargetTexture(0)!
-                  );
-                }
+    if (Is.false(this.__isShadow)) {
+      return;
+    }
+    this.__depthMomentExpressions = [];
+    for (const expression of this.__expressions) {
+      this.__depthMomentExpressions.push(expression.clone());
+    }
+
+    const depthMomentMaterial =
+      MaterialHelper.createDepthMomentEncodeMaterial();
+
+    for (const expression of this.__depthMomentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
+
+        // No need to render transparent primitives to depth buffer.
+        renderPass.toRenderTransparentPrimitives = false;
+
+        renderPass.setMaterial(depthMomentMaterial);
+      }
+    }
+
+    for (const expression of this.__expressions) {
+      for (const renderPass of expression.renderPasses) {
+        const entities = renderPass.entities;
+        for (const entity of entities) {
+          const meshComponent = entity.tryToGetMesh();
+          if (Is.exist(meshComponent)) {
+            const mesh = meshComponent.mesh;
+            if (Is.exist(mesh)) {
+              const primitives = mesh.primitives;
+              for (const primitive of primitives) {
+                const material = primitive.material;
+                material.setTextureParameter(
+                  ShaderSemantics.DepthTexture,
+                  this.__oFrameDepthMoment
+                    .unwrapForce()
+                    .getColorAttachedRenderTargetTexture(0)!
+                );
               }
             }
           }
@@ -680,14 +698,11 @@ export class ForwardRenderPipeline extends RnObject {
       RenderPassHelper.createScreenDrawRenderPass(satMaterial);
   }
 
-  private __setupDepthMomentExpression(
-    canvasWidth: number,
-    canvasHeight: number
-  ) {
+  private __setupDepthMomentExpression(shadowMapSize: number) {
     this.__oFrameDepthMoment = new Some(
       RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
+        shadowMapSize,
+        shadowMapSize,
         1,
         {
           level: 0,
@@ -704,25 +719,6 @@ export class ForwardRenderPipeline extends RnObject {
         }
       )
     );
-
-    this.__depthMomentExpressions = [];
-    for (const expression of this.__expressions) {
-      this.__depthMomentExpressions.push(expression.clone());
-    }
-
-    const depthMomentMaterial =
-      MaterialHelper.createDepthMomentEncodeMaterial();
-
-    for (const expression of this.__depthMomentExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
-
-        // No need to render transparent primitives to depth buffer.
-        renderPass.toRenderTransparentPrimitives = false;
-
-        renderPass.setMaterial(depthMomentMaterial);
-      }
-    }
   }
 
   private __setIblInner() {
@@ -773,6 +769,9 @@ export class ForwardRenderPipeline extends RnObject {
     const frame = this.__oFrame.unwrapForce();
     frame.clearExpressions();
     frame.addExpression(this.getInitialExpression()!);
+    for (const exp of this.__depthMomentExpressions) {
+      frame.addExpression(exp);
+    }
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }

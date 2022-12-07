@@ -1212,6 +1212,7 @@ export class ModelConverter {
         isIridescence: Is.exist(
           materialJson?.extensions?.KHR_materials_iridescence
         ),
+        isShadow: true,
         alphaMode,
         useTangentAttribute,
         useNormalTexture,
