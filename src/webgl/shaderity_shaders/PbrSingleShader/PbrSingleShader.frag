@@ -146,7 +146,9 @@ float scaleForLod(float perceptualRoughness, float ior)
   // Scale roughness to the range [0, 1],
   // ior=1.0 will be scale 0,
   // ior=1.5 will be scale 1.0,
-  // ior=2 will be scale 1.0 (clamped),
+  // ior=2 will be scale 1.0 (clamped)
+  //
+
   float scale = clamp(ior * 2.0 - 2.0, 0.0, 1.0);
   return perceptualRoughness * scale;
 }
