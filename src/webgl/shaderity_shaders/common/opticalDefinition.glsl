@@ -15,7 +15,8 @@ struct Light {
 float getRangeAttenuation(Light light)
 {
   float distance = length(light.pointToLight);
-  if (light.effectiveRange <= 0.0) // means no range limit
+  // means no range limit
+  if (light.effectiveRange <= 0.0)
   {
     return 1.0 / pow(distance, 2.0);
   }
@@ -36,11 +37,14 @@ void getLightAttenuated(Light light) {
   // if (light.type == 0) { // Directional Light
     // Directional Light don't attenuate geometically
   // }
-  if (light.type != 0) // Point Light and Spot Light
+
+  // Point Light and Spot Light
+  if (light.type != 0)
   {
     light.attenuatedIntensity *= getRangeAttenuation(light);
   }
-  if (light.type == 2) // Spot light
+  // Spot light
+  if (light.type == 2)
   {
     light.attenuatedIntensity *= getSpotAttenuation(light);
   }
