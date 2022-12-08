@@ -53,7 +53,13 @@ import {Material} from '../foundation/materials/core/Material';
 import {System} from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import {Config} from '../foundation/core/Config';
-import {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_TEXTURE_2D} from '../types/WebGLConstants';
+import {
+  GL_DEPTH_COMPONENT,
+  GL_DEPTH_COMPONENT16,
+  GL_DEPTH_COMPONENT24,
+  GL_DEPTH_COMPONENT32F,
+  GL_TEXTURE_2D,
+} from '../types/WebGLConstants';
 import {AttributeNames} from './types';
 import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
 
@@ -377,12 +383,14 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     fragmentShaderStr,
     attributeNames,
     attributeSemantics,
+    onError,
   }: {
     material: Material;
     vertexShaderStr: string;
     fragmentShaderStr: string;
     attributeNames: AttributeNames;
     attributeSemantics: Array<VertexAttributeEnum>;
+    onError?: (message: string) => void;
   }) {
     const gl = this.__glw!.getRawContext();
 
@@ -395,11 +403,16 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.shaderSource(vertexShader, vertexShaderStr);
     gl.compileShader(vertexShader);
     if (isDebugMode) {
-      this.__checkShaderCompileStatus(
+      const result = this.__checkShaderCompileStatus(
         material.materialTypeName,
         vertexShader,
-        vertexShaderStr
+        vertexShaderStr,
+        onError
       );
+
+      if (!result) {
+        return CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
     }
 
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
@@ -409,7 +422,8 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       this.__checkShaderCompileStatus(
         material.materialTypeName,
         fragmentShader,
-        fragmentShaderStr
+        fragmentShaderStr,
+        onError
       );
     }
 
@@ -433,17 +447,22 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     });
 
     gl.linkProgram(shaderProgram);
-    shaderProgram.__SPECTOR_rebuildProgram =
-      this.rebuildProgram.bind(shaderProgram);
 
     if (isDebugMode) {
-      this.__checkShaderProgramLinkStatus(
+      const result = this.__checkShaderProgramLinkStatus(
         material.materialTypeName,
         shaderProgram,
         vertexShaderStr,
         fragmentShaderStr
       );
+
+      if (!result) {
+        return CGAPIResourceRepository.InvalidCGAPIResourceUid;
+      }
     }
+
+    shaderProgram.__SPECTOR_rebuildProgram =
+      this.rebuildProgram.bind(shaderProgram);
 
     const resourceHandle = this.__registerResource(shaderProgram);
 
@@ -456,8 +475,9 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
   private __checkShaderCompileStatus(
     materialTypeName: string,
     shader: WebGLShader,
-    shaderText: string
-  ) {
+    shaderText: string,
+    onError?: (message: string) => void
+  ): boolean {
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
     if (
@@ -465,11 +485,18 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       Is.false(gl.isContextLost())
     ) {
       console.log('MaterialTypeName: ' + materialTypeName);
-      console.log(MiscUtil.addLineNumberToCode(shaderText));
-      console.error(
-        'An error occurred compiling the shaders:' + gl.getShaderInfoLog(shader)
-      );
+      const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
+      console.log(lineNumberedShaderText);
+      const log = gl.getShaderInfoLog(shader);
+      if (onError === undefined) {
+        console.error('An error occurred compiling the shaders:' + log);
+        return false;
+      } else {
+        onError(log!);
+        return false;
+      }
     }
+    return true;
   }
 
   private __checkShaderProgramLinkStatus(
@@ -477,7 +504,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     shaderProgram: WebGLProgram,
     vertexShaderText: string,
     fragmentShaderText: string
-  ) {
+  ): boolean {
     const glw = this.__glw!;
     const gl = glw!.getRawContext();
 
@@ -491,11 +518,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       console.log(MiscUtil.addLineNumberToCode(vertexShaderText));
       console.log(MiscUtil.addLineNumberToCode('Fragment Shader:'));
       console.log(MiscUtil.addLineNumberToCode(fragmentShaderText));
-      console.error(
-        'Unable to initialize the shader program: ' +
-          gl.getProgramInfoLog(shaderProgram)
-      );
+      const log = gl.getProgramInfoLog(shaderProgram);
+      console.error('Unable to initialize the shader program: ' + log);
+      return false;
     }
+
+    return true;
   }
 
   /**
@@ -2665,15 +2693,22 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       '!='
     );
 
-    const programUid = renderingStrategy.setupShaderForMaterial(material, {
-      vertex: modifiedVertexSourceCode,
-      pixel: modifiedPixelSourceCode,
-    });
+    const programUid = renderingStrategy.setupShaderForMaterial(
+      material,
+      {
+        vertex: modifiedVertexSourceCode,
+        pixel: modifiedPixelSourceCode,
+      },
+      onError
+    );
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const program = webglResourceRepository.getWebGLResource(
       programUid
     ) as RnWebGLProgram;
-    onCompiled(program);
+
+    if (programUid > 0) {
+      onCompiled(program);
+    }
 
     return true;
   }
