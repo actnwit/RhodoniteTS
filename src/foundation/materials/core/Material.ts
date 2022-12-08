@@ -497,7 +497,8 @@ export class Material extends RnObject {
   }
 
   private __createProgramAsSingleOperationByUpdatedSources(
-    updatedShaderSources: ShaderSources
+    updatedShaderSources: ShaderSources,
+    onError?: (message: string) => void
   ) {
     const materialNode = this._materialContent;
     const {attributeNames, attributeSemantics} =
@@ -507,7 +508,8 @@ export class Material extends RnObject {
       updatedShaderSources.vertex,
       updatedShaderSources.pixel,
       attributeNames,
-      attributeSemantics
+      attributeSemantics,
+      onError
     );
   }
 
@@ -515,7 +517,8 @@ export class Material extends RnObject {
     vertexShader: string,
     pixelShader: string,
     attributeNames: AttributeNames,
-    attributeSemantics: VertexAttributeEnum[]
+    attributeSemantics: VertexAttributeEnum[],
+    onError?: (message: string) => void
   ) {
     // Cache
     const wholeShaderText = vertexShader + pixelShader;
@@ -538,6 +541,7 @@ export class Material extends RnObject {
         fragmentShaderStr: pixelShader,
         attributeNames: attributeNames,
         attributeSemantics: attributeSemantics,
+        onError,
       });
       Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
       Material.__shaderHashMap.set(hash, this._shaderProgramUid);
@@ -649,12 +653,13 @@ export class Material extends RnObject {
   }
 
   createProgramByUpdatedSources(
-    updatedShaderSources: ShaderSources
+    updatedShaderSources: ShaderSources,
+    onError?: (message: string) => void
   ): CGAPIResourceHandle {
-    const programUid =
-      this.__createProgramAsSingleOperationByUpdatedSources(
-        updatedShaderSources
-      );
+    const programUid = this.__createProgramAsSingleOperationByUpdatedSources(
+      updatedShaderSources,
+      onError
+    );
 
     if (programUid > 0) {
       this.__updatedShaderSources = updatedShaderSources;

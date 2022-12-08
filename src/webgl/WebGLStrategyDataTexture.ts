@@ -170,12 +170,13 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
 
   /**
    * setup shader program for the material in this WebGL strategy
-   * @param material
-   * @param isPointSprite
+   * @param material - a material to setup shader program
+   * @param updatedShaderSources - updated shader sources if exists
    */
   public setupShaderForMaterial(
     material: Material,
-    updatedShaderSources?: ShaderSources
+    updatedShaderSources?: ShaderSources,
+    onError?: (message: string) => void
   ): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
@@ -188,7 +189,10 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
         glw.isWebGL2
       );
     } else {
-      programUid = material.createProgramByUpdatedSources(updatedShaderSources);
+      programUid = material.createProgramByUpdatedSources(
+        updatedShaderSources,
+        onError
+      );
     }
 
     material._setupBasicUniformsLocations();

@@ -57,6 +57,7 @@ export interface WebGLStrategy {
   attachShaderProgram(material: Material): void;
   setupShaderForMaterial(
     material: Material,
-    updatedShaderSources?: ShaderSources
+    updatedShaderSources?: ShaderSources,
+    onError?: (message: string) => void
   ): CGAPIResourceHandle;
 }
