@@ -1190,6 +1190,7 @@ export class ModelConverter {
     }
 
     if (parseFloat(gltfModel.asset?.version) >= 2) {
+      const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
       const useTangentAttribute = this.__useTangentAttribute(
         gltfModel,
@@ -1212,6 +1213,7 @@ export class ModelConverter {
         isIridescence: Is.exist(
           materialJson?.extensions?.KHR_materials_iridescence
         ),
+        isShadow: rnLoaderOptions.shadow ? true : false,
         alphaMode,
         useTangentAttribute,
         useNormalTexture,

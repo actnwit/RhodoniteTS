@@ -19,8 +19,13 @@ import {VectorN} from '../../math/VectorN';
 import {ILightEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import {Matrix44} from '../../math';
 
+/**
+ * The Component that represents a light.
+ *
+ * @remarks
+ * the light looks towards the local -Z axis,
+ */
 export class LightComponent extends Component {
   public type = LightType.Point;
   private __intensity = Vector3.fromCopyArray([1, 1, 1]);
@@ -30,6 +35,7 @@ export class LightComponent extends Component {
   public outerConeAngle = Math.PI / 4.0; // in radian
   public range = -1;
   public enable = true;
+  public shadowAreaSizeForDirectionalLight = 10;
   private __sceneGraphComponent?: SceneGraphComponent;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();

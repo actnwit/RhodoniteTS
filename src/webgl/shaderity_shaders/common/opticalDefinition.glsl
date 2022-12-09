@@ -73,7 +73,7 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
     light.type = 1;
   } else { // is Directional Light
     light.type = 0;
-    light.direction = normalize(light.directionOfLightObject);
+    light.direction = normalize(light.directionOfLightObject * -1.0);
   }
 
   if (lightType > 1.75) { // is spotlight

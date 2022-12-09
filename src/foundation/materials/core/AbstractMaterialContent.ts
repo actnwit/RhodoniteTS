@@ -660,11 +660,11 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightIntensities[i * 3 + 2] =
           worldLightIntensity.z;
 
-        AbstractMaterialContent.__lightProperties[i * 4 + 0] =
+        AbstractMaterialContent.__lightProperties[i * 4 + 0] = // LightType
           lightComponent.enable ? lightComponent.type.index : -1;
-        AbstractMaterialContent.__lightProperties[i * 4 + 1] =
+        AbstractMaterialContent.__lightProperties[i * 4 + 1] = // Light Range
           lightComponent.range;
-        AbstractMaterialContent.__lightDirections[i * 4 + 2] = lightAngleScale;
+        AbstractMaterialContent.__lightProperties[i * 4 + 2] = lightAngleScale;
         AbstractMaterialContent.__lightProperties[i * 4 + 3] = lightAngleOffset;
       }
       if (length > 0) {

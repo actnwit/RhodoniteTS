@@ -1,14 +1,6 @@
-import {MeshComponent} from '../../components/Mesh/MeshComponent';
-import {MeshRendererComponent} from '../../components/MeshRenderer/MeshRendererComponent';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {
-  ShaderSemantics,
-  ShaderSemanticsEnum,
-} from '../../definitions/ShaderSemantics';
+import {ShaderSemantics} from '../../definitions/ShaderSemantics';
 import {TextureParameter} from '../../definitions/TextureParameter';
 import {RenderableHelper} from '../../helpers/RenderableHelper';
-import {MathUtil} from '../../math/MathUtil';
-import {Scalar} from '../../math/Scalar';
 import {Vector4} from '../../math/Vector4';
 import {assertHas, IOption, None, Some} from '../../misc/Option';
 import {Is} from '../../misc/Is';
@@ -17,20 +9,16 @@ import {Expression} from '../Expression';
 import {Frame} from '../Frame';
 import {FrameBuffer} from '../FrameBuffer';
 import {RenderPass} from '../RenderPass';
-import {
-  EntityHelper,
-  IMeshEntity,
-} from '../../helpers/EntityHelper';
-import {Vector3} from '../../math/Vector3';
+import {EntityHelper, IMeshEntity} from '../../helpers/EntityHelper';
 import {MaterialHelper} from '../../helpers/MaterialHelper';
-import {RenderTargetTexture} from '../../textures';
 import {Size} from '../../../types';
 import {Err, Ok} from '../../misc/Result';
 import {System} from '../../system/System';
 import {RnObject} from '../../core/RnObject';
 import {ModuleManager} from '../../system/ModuleManager';
-import {HdriFormatEnum} from '../../definitions';
-import { MeshHelper, RenderPassHelper } from '../../helpers';
+import {ComponentType, HdriFormatEnum, PixelFormat} from '../../definitions';
+import {MeshHelper, RenderPassHelper} from '../../helpers';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -47,19 +35,59 @@ type IBLCubeTextureParameter = {
  * A render pipeline is a class of complex multi-pass setups already built in,
  * which allows users to easily benefit from advanced expressions such as refraction and MSAA.
  * (like the URP (Universal Render Pipeline) in the Unity engine).
+ *
+ * @example
+ * ```
+ * const expressions = ...;
+ * const matrix = ...;
+ * // Create a render pipeline
+ * const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
+ * // Set up the render pipeline
+ * forwardRenderPipeline.setup(1024, 1024, {isShadow: true});
+ * // Set expressions before calling other setter methods
+ * forwardRenderPipeline.setExpressions(expressions);
+ * // Set IBLs
+ * forwardRenderPipeline.setIBL(
+ *     diffuse: {
+ *     baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *     isNamePosNeg: true,
+ *     mipmapLevelNumber: 1,
+ *   },
+ *   specular: {
+ *     baseUri: './../../../assets/ibl/papermill/specular/specular',
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *     isNamePosNeg: true,
+ *     mipmapLevelNumber: 10,
+ *   },
+ * );
+ * // Set BiasViewProjectionMatrix for Shadow
+ * forwardRenderPipeline.setBiasViewProjectionMatrixForShadow(matrix);
+ * // Start Render Loop
+ * forwardRenderPipeline.startRenderLoop((frame) => {
+ *   Rn.System.process(frame);
+ * });
+ * ```
  */
 export class ForwardRenderPipeline extends RnObject {
   private __width = 0;
   private __height = 0;
+  private __isShadow = false;
+  private __shadowMapSize = 1024;
   private __oFrame: IOption<Frame> = new None();
+  private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
   private __oInitialExpression: IOption<Expression> = new None();
+
+  /** main expressions */
+  private __expressions: Expression[] = [];
+
+  private __depthMomentExpressions: Expression[] = [];
   private __oMsaaResolveExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
-  private __opaqueExpressions: Expression[] = [];
-  private __transparentExpressions: Expression[] = [];
+  private __transparentOnlyExpressions: Expression[] = [];
   private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
   private __oWebXRSystem: IOption<any> = new None();
   private __oDrawFunc: IOption<DrawFunc> = new None();
@@ -75,9 +103,14 @@ export class ForwardRenderPipeline extends RnObject {
    * @param canvasWidth - The width of the canvas.
    * @param canvasHeight - The height of the canvas.
    */
-  async setup(canvasWidth: number, canvasHeight: number) {
+  async setup(
+    canvasWidth: number,
+    canvasHeight: number,
+    {isShadow = false, shadowMapSize = 1024} = {}
+  ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
+    this.__shadowMapSize = shadowMapSize;
     if (this.__oFrame.has()) {
       return new Err({
         message: 'Already setup',
@@ -121,6 +154,12 @@ export class ForwardRenderPipeline extends RnObject {
     );
     this.__oGammaExpression = new Some(gammaExpression);
 
+    // depth moment Expression
+    if (isShadow) {
+      this.__isShadow = true;
+      this.__setupDepthMomentExpression(shadowMapSize);
+    }
+
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
     if (Is.exist(rnXRModule)) {
       this.__oWebXRSystem = new Some(rnXRModule.WebXRSystem.getInstance());
@@ -134,7 +173,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param expressions - expressions to draw
    * @param options - option parameters
    */
-  setExpressions(
+  public setExpressions(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -148,6 +187,57 @@ export class ForwardRenderPipeline extends RnObject {
     const clonedExpressions = expressions.map(expression => expression.clone());
     if (options.isTransmission) {
       this.__setTransparentExpressionsForTransmission(clonedExpressions);
+    }
+
+    this.__setDepthTextureToEntityMaterials();
+  }
+
+  private __setDepthTextureToEntityMaterials() {
+    if (Is.false(this.__isShadow)) {
+      return;
+    }
+    this.__depthMomentExpressions = [];
+    for (const expression of this.__expressions) {
+      this.__depthMomentExpressions.push(expression.clone());
+    }
+
+    const depthMomentMaterial =
+      MaterialHelper.createDepthMomentEncodeMaterial();
+
+    for (const expression of this.__depthMomentExpressions) {
+      for (const renderPass of expression.renderPasses) {
+        renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
+        renderPass.toClearColorBuffer = true;
+        renderPass.toClearDepthBuffer = true;
+        // No need to render transparent primitives to depth buffer.
+        renderPass.toRenderTransparentPrimitives = false;
+
+        renderPass.setMaterial(depthMomentMaterial);
+      }
+    }
+
+    for (const expression of this.__expressions) {
+      for (const renderPass of expression.renderPasses) {
+        const entities = renderPass.entities;
+        for (const entity of entities) {
+          const meshComponent = entity.tryToGetMesh();
+          if (Is.exist(meshComponent)) {
+            const mesh = meshComponent.mesh;
+            if (Is.exist(mesh)) {
+              const primitives = mesh.primitives;
+              for (const primitive of primitives) {
+                const material = primitive.material;
+                material.setTextureParameter(
+                  ShaderSemantics.DepthTexture,
+                  this.__oFrameDepthMoment
+                    .unwrapForce()
+                    .getColorAttachedRenderTargetTexture(0)!
+                );
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -210,6 +300,14 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__oFrame.get().setViewport(Vector4.fromCopy4(0, 0, width, height));
 
+    if (this.__oFrameDepthMoment.has()) {
+      this.__oFrameDepthMoment
+        .get()
+        .resize(
+          Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
+          this.__shadowMapSize
+        );
+    }
     this.__oFrameBufferMsaa.get().resize(width, height);
     this.__oFrameBufferResolve.get().resize(width, height);
     this.__oFrameBufferResolveForReference.get().resize(width, height);
@@ -245,8 +343,8 @@ export class ForwardRenderPipeline extends RnObject {
     specularCubeTexture.loadTextureImagesAsync();
     this.__oSpecularCubeTexture = new Some(specularCubeTexture);
 
-    this.__setIblInnerForOpaque();
-    this.__setIblInnerForTransparent();
+    this.__setIblInner();
+    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -257,8 +355,8 @@ export class ForwardRenderPipeline extends RnObject {
   setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
     this.__oSpecularCubeTexture = new Some(specular);
-    this.__setIblInnerForOpaque();
-    this.__setIblInnerForTransparent();
+    this.__setIblInner();
+    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -287,7 +385,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param value - 0.0 ~ 1.0 or greater
    */
   setDiffuseIBLContribution(value: number) {
-    for (const expression of this.__opaqueExpressions) {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -297,7 +395,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     }
-    for (const expression of this.__transparentExpressions) {
+    for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -314,7 +412,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param value - 0.0 ~ 1.0 or greater
    */
   setSpecularIBLContribution(value: number) {
-    for (const expression of this.__opaqueExpressions) {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -324,7 +422,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     }
-    for (const expression of this.__transparentExpressions) {
+    for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -341,7 +439,7 @@ export class ForwardRenderPipeline extends RnObject {
    * @param radian - rotation in radian
    */
   setIBLRotation(radian: number) {
-    for (const expression of this.__opaqueExpressions) {
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -353,7 +451,38 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  __setExpressionsInner(
+  setCameraComponentOfLight(cameraComponent: CameraComponent) {
+    if (this.__isShadow) {
+      for (const expression of this.__depthMomentExpressions) {
+        for (const renderPass of expression.renderPasses) {
+          renderPass.cameraComponent = cameraComponent;
+        }
+      }
+      for (const expression of this.__expressions) {
+        for (const renderPass of expression.renderPasses) {
+          const entities = renderPass.entities;
+          for (const entity of entities) {
+            const meshComponent = entity.tryToGetMesh();
+            if (Is.exist(meshComponent)) {
+              const mesh = meshComponent.mesh;
+              if (Is.exist(mesh)) {
+                const primitives = mesh.primitives;
+                for (const primitive of primitives) {
+                  const material = primitive.material;
+                  material.setParameter(
+                    ShaderSemantics.DepthBiasPV,
+                    cameraComponent.biasViewProjectionMatrix
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private __setExpressionsInner(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -365,27 +494,34 @@ export class ForwardRenderPipeline extends RnObject {
       for (const rp of expression.renderPasses) {
         rp.toRenderOpaquePrimitives = true;
         if (options.isTransmission) {
+          // if options.isTransmission is true, set toRenderTransparentPrimitives to false,
+          // because transparent primitives are rendered in later expression.
           rp.toRenderTransparentPrimitives = false;
         } else {
+          // if options.isTransmission is false, set toRenderTransparentPrimitives to true.
+          // because transparent primitives are rendered in this expression as well as opaque primitives.
           rp.toRenderTransparentPrimitives = true;
         }
+
+        // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
       }
     }
-    this.__opaqueExpressions = expressions;
-    this.__setIblInnerForOpaque();
+    this.__expressions = expressions;
+    this.__setIblInner();
   }
 
-  __setTransparentExpressionsForTransmission(expressions: Expression[]) {
+  private __setTransparentExpressionsForTransmission(
+    expressions: Expression[]
+  ) {
     for (const expression of expressions) {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
-        rp.toRenderOpaquePrimitives = false;
+        rp.toRenderOpaquePrimitives = false; // not to render opaque primitives in transmission expression.
         rp.toRenderTransparentPrimitives = true;
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-        // rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -406,11 +542,11 @@ export class ForwardRenderPipeline extends RnObject {
         }
       }
     }
-    this.__transparentExpressions = expressions;
-    this.__setIblInnerForTransparent();
+    this.__transparentOnlyExpressions = expressions;
+    this.__setIblInnerForTransparentOnly();
   }
 
-  __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
+  private __setupInitialExpression(framebufferTargetOfGammaMsaa: FrameBuffer) {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
 
@@ -437,7 +573,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expression;
   }
 
-  __createRenderTargets(canvasWidth: number, canvasHeight: number) {
+  private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     // MSAA depth
     const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
       canvasWidth,
@@ -486,40 +622,7 @@ export class ForwardRenderPipeline extends RnObject {
     };
   }
 
-  __attachIBLTextureToAllMeshComponents(
-    diffuseCubeTexture: CubeTexture,
-    specularCubeTexture: CubeTexture,
-    rotation: number
-  ) {
-    const meshRendererComponents = ComponentRepository.getComponentsWithType(
-      MeshRendererComponent
-    ) as MeshRendererComponent[];
-    for (let i = 0; i < meshRendererComponents.length; i++) {
-      const meshRendererComponent = meshRendererComponents[i];
-      meshRendererComponent.specularCubeMap = specularCubeTexture;
-      meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
-      meshRendererComponent.rotationOfCubeMap =
-        MathUtil.degreeToRadian(rotation);
-    }
-    const meshComponents = ComponentRepository.getComponentsWithType(
-      MeshComponent
-    ) as MeshComponent[];
-    for (let i = 0; i < meshComponents.length; i++) {
-      const meshComponent = meshComponents[i];
-      const mesh = meshComponent.mesh;
-      if (Is.exist(mesh)) {
-        for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
-          const primitive = mesh.getPrimitiveAt(i);
-          primitive.material.setParameter(
-            ShaderSemantics.InverseEnvironment,
-            Scalar.fromCopyNumber(0)
-          );
-        }
-      }
-    }
-  }
-
-  __setupMsaaResolveExpression(
+  private __setupMsaaResolveExpression(
     sFrame: Some<Frame>,
     framebufferTargetOfGammaMsaa: FrameBuffer,
     framebufferTargetOfGammaResolve: FrameBuffer,
@@ -542,15 +645,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expressionForResolve;
   }
 
-  __createPostEffectCameraEntity() {
-    const cameraEntity = EntityHelper.createCameraEntity();
-    const cameraComponent = cameraEntity.getCamera();
-    cameraComponent.zNearInner = 0.5;
-    cameraComponent.zFarInner = 2.0;
-    return cameraEntity;
-  }
-
-  __setupGammaExpression(
+  private __setupGammaExpression(
     sFrame: Some<Frame>,
     gammaTargetFramebuffer: FrameBuffer,
     aspect: number
@@ -609,7 +704,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expressionGammaEffect;
   }
 
-  __setupSatExpression() {
+  private __setupSatExpression() {
     const satMaterial = MaterialHelper.createSummedAreaTableMaterial({
       noUseCameraTransform: true,
     });
@@ -617,25 +712,37 @@ export class ForwardRenderPipeline extends RnObject {
       RenderPassHelper.createScreenDrawRenderPass(satMaterial);
   }
 
-  __setTextureParameterForMeshComponents(
-    meshComponents: MeshComponent[],
-    shaderSemantic: ShaderSemanticsEnum,
-    value: RenderTargetTexture
-  ) {
-    for (let i = 0; i < meshComponents.length; i++) {
-      const mesh = meshComponents[i].mesh;
-      if (!mesh) continue;
-
-      const primitiveNumber = mesh.getPrimitiveNumber();
-      for (let j = 0; j < primitiveNumber; j++) {
-        const primitive = mesh.getPrimitiveAt(j);
-        primitive.material.setTextureParameter(shaderSemantic, value);
-      }
-    }
+  private __setupDepthMomentExpression(shadowMapSize: number) {
+    this.__oFrameDepthMoment = new Some(
+      RenderableHelper.createTexturesForRenderTarget(
+        Math.floor(shadowMapSize * (this.__width / this.__height)),
+        shadowMapSize,
+        1,
+        {
+          level: 0,
+          internalFormat: TextureParameter.RGBA8,
+          format: PixelFormat.RGBA,
+          type: ComponentType.UnsignedByte,
+          magFilter: TextureParameter.Linear,
+          minFilter: TextureParameter.Linear,
+          wrapS: TextureParameter.ClampToEdge,
+          wrapT: TextureParameter.ClampToEdge,
+          createDepthBuffer: true,
+          isMSAA: false,
+          sampleCountMSAA: 1,
+        }
+      )
+    );
   }
 
-  private __setIblInnerForOpaque() {
-    for (const expression of this.__opaqueExpressions) {
+  private __setIblInner() {
+    if (this.__expressions.length === 0) {
+      console.warn(
+        'No effect because there are no expressions to set IBL yet. call setExpressions before this method.'
+      );
+    }
+
+    for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -650,8 +757,8 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private __setIblInnerForTransparent() {
-    for (const expression of this.__transparentExpressions) {
+  private __setIblInnerForTransparentOnly() {
+    for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
@@ -666,15 +773,24 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  __setExpressions() {
+  /**
+   * setUp Frame
+   *
+   * @remarks
+   * This method adds expressions to the frame.
+   */
+  private __setExpressions() {
     const frame = this.__oFrame.unwrapForce();
     frame.clearExpressions();
     frame.addExpression(this.getInitialExpression()!);
-    for (const exp of this.__opaqueExpressions) {
+    for (const exp of this.__depthMomentExpressions) {
+      frame.addExpression(exp);
+    }
+    for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
     frame.addExpression(this.getMsaaResolveExpression()!);
-    for (const exp of this.__transparentExpressions) {
+    for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
     frame.addExpression(this.getMsaaResolveExpression()!);

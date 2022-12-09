@@ -96,7 +96,7 @@ declare const window: any;
   let count = 0;
 
   const draw = function () {
-    if (count > 0) {
+    if (count > 50) {
       p.id = 'rendered';
       p.innerText = 'Rendered.';
     }
@@ -155,8 +155,8 @@ declare const window: any;
         internalFormat: Rn.TextureParameter.RG32F,
         format: Rn.PixelFormat.RG,
         type: Rn.ComponentType.Float,
-        magFilter: Rn.TextureParameter.LINEAR,
-        minFilter: Rn.TextureParameter.LINEAR,
+        magFilter: Rn.TextureParameter.Linear,
+        minFilter: Rn.TextureParameter.Linear,
         wrapS: Rn.TextureParameter.ClampToEdge,
         wrapT: Rn.TextureParameter.ClampToEdge,
         createDepthBuffer: true,

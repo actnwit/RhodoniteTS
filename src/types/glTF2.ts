@@ -424,6 +424,7 @@ export type GltfLoadOption = {
   fileType?: string;
   expression?: Expression; // If specified, GltfImporter set render passes including loaded model to this expression
   transmission?: boolean; // Set to true by the importer if the KHS_material_transmission extension is used.
+  shadow?: boolean; // Set to true if you want to cast shadows.
   __isImportVRM0x?: boolean; // internal use only
   __importedType?: 'gltf2' | 'glb2' | 'vrm0x' | 'vrm1' | 'draco' | 'undefined';
 };

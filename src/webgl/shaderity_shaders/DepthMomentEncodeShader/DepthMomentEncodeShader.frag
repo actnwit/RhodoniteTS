@@ -25,6 +25,8 @@ void main (){
 
   rt0.x = depth; // M1
   rt0.y = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
+  rt0.z = 0.0;
+  rt0.w = 1.0;
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }
