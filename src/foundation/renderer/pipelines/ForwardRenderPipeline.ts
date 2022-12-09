@@ -285,7 +285,6 @@ export class ForwardRenderPipeline extends RnObject {
       });
     }
     assertHas(this.__oFrame);
-    assertHas(this.__oFrameDepthMoment);
     assertHas(this.__oFrameBufferMsaa);
     assertHas(this.__oFrameBufferResolve);
     assertHas(this.__oFrameBufferResolveForReference);
@@ -301,12 +300,14 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__oFrame.get().setViewport(Vector4.fromCopy4(0, 0, width, height));
 
-    this.__oFrameDepthMoment
-      .get()
-      .resize(
-        Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
-        this.__shadowMapSize
-      );
+    if (this.__oFrameDepthMoment.has()) {
+      this.__oFrameDepthMoment
+        .get()
+        .resize(
+          Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
+          this.__shadowMapSize
+        );
+    }
     this.__oFrameBufferMsaa.get().resize(width, height);
     this.__oFrameBufferResolve.get().resize(width, height);
     this.__oFrameBufferResolveForReference.get().resize(width, height);
