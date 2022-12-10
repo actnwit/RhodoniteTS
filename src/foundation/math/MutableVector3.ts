@@ -300,6 +300,14 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
     return new MutableVector3(new Float32Array(float32Array.buffer.slice(0)));
   }
 
+  static fromCopyVector3(vec: IVector3): MutableVector3 {
+    return super._fromCopyVector3(vec, Float32Array) as MutableVector3;
+  }
+
+  static fromCopyVector4(vec: IVector4): MutableVector3 {
+    return super._fromCopyVector4(vec, Float32Array) as MutableVector3;
+  }
+
   clone() {
     return super.clone() as MutableVector3;
   }
