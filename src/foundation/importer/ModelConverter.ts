@@ -1388,6 +1388,14 @@ export class ModelConverter {
       }
     }
 
+    const emissiveFactor = materialJson.emissiveFactor;
+    if (emissiveFactor != null) {
+      material.setParameter(
+        ShaderSemantics.EmissiveFactor,
+        Vector3.fromCopyArray3(emissiveFactor)
+      );
+    }
+
     const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null) {
       const rnTexture = ModelConverter._createTexture(

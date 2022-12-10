@@ -29,6 +29,7 @@ uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform vec2 u_metallicRoughnessFactor; // initialValue=(1,1)
 uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
 uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
+uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
 uniform sampler2D u_emissiveTexture; // initialValue=(4,black)
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
 uniform bool u_isOutputHDR; // initialValue=0
@@ -789,12 +790,13 @@ void main ()
 #endif // RN_IS_LIGHTING
 
   // Emissive
+  vec3 emissiveFactor = get_emissiveFactor(materialSID, 0);
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
   vec4 emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
   float emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
   vec2 emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
-  vec3 emissive = srgbToLinear(texture2D(u_emissiveTexture, emissiveTexUv).xyz);
+  vec3 emissive = emissiveFactor * srgbToLinear(texture2D(u_emissiveTexture, emissiveTexUv).xyz);
 
 #ifdef RN_USE_CLEARCOAT
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
