@@ -24,10 +24,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private __length = 0;
   private __currentTail = Vector3.zero();
   private __prevTail = Vector3.zero();
-  private __localDir = Vector3.zero();
   private __localRotation = Quaternion.fromCopy4(0, 0, 0, 1) as IQuaternion;
   private __initalized = false;
-  private __localChildPosition = Vector3.zero();
 
   constructor() {}
 
@@ -45,9 +43,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     this.__prevTail = this.__currentTail;
     this.__localRotation = transform.entity.getTransform()!.quaternion;
     this.__boneAxis = Vector3.normalize(localChildPosition);
-    // this.__boneAxis = Vector3.normalize(Vector3.subtract(this.__currentTail, transform.worldPosition));
     this.__length = localChildPosition.length();
-    this.__localChildPosition = localChildPosition;
 
     this.__initalized = true;
   }
@@ -133,6 +129,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {
       const transform = children[0].entity.getTransform();
+      const childPositionInLocal = Matrix44.invert(
+        sceneGraph.worldMatrixInner
+      ).multiplyVector3(children[0].worldPosition);
       vrmSpringBone.initialize(
         sceneGraph,
         //   new Vector3(
@@ -140,9 +139,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         //   transform.translate.y * transform.scale.y,
         //   transform.translate.z * transform.scale.z
         // ),
-        Matrix44.invert(sceneGraph.worldMatrixInner).multiplyVector3(
-          children[0].worldPosition
-        ),
+        childPositionInLocal,
         void 0
       );
     } else {
@@ -157,13 +154,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           Vector3.multiply(Vector3.normalize(delta), 0.07)
         );
       }
-      vrmSpringBone.initialize(
-        sceneGraph,
-        Matrix44.invert(sceneGraph.worldMatrixInner).multiplyVector3(
-          childPosition
-        ),
-        void 0
-      );
+      const childPositionInLocal = Matrix44.invert(
+        sceneGraph.worldMatrixInner
+      ).multiplyVector3(childPosition);
+      vrmSpringBone.initialize(sceneGraph, childPositionInLocal, void 0);
     }
   }
 
