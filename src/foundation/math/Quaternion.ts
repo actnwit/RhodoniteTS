@@ -262,17 +262,6 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return out;
   }
 
-  static setAxisAngle(axis: IVector3, rad: number) {
-    rad = rad * 0.5;
-    const s = Math.sin(rad);
-    return Quaternion.fromCopy4(
-      s * axis.x,
-      s * axis.y,
-      s * axis.z,
-      Math.cos(rad)
-    );
-  }
-
   static lookFromTo(
     fromDirection: IVector3,
     toDirection: IVector3
@@ -632,6 +621,37 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return out;
   }
 
+  /**
+   * divide(static version)
+   */
+  private static _divide(vec: IQuaternion, value: number) {
+    let x;
+    let y;
+    let z;
+    let w;
+    if (value !== 0) {
+      x = vec._v[0] / value;
+      y = vec._v[1] / value;
+      z = vec._v[2] / value;
+      w = vec._v[3] / value;
+    } else {
+      console.error('0 division occurred!');
+      x = Infinity;
+      y = Infinity;
+      z = Infinity;
+      w = Infinity;
+    }
+    return Quaternion.fromCopy4(x, y, z, w);
+  }
+
+  /**
+   * normalize(static version)
+   */
+  static normalize(vec: IQuaternion) {
+    const length = vec.length();
+    return this._divide(vec, length);
+  }
+
   fromToRotation(from: IVector3, to: IVector3) {
     const v0 = MutableVector3.fromCopyVector3(from);
     const v1 = MutableVector3.fromCopyVector3(to);
@@ -655,7 +675,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
         axis2 = v0.cross(axis);
       }
       axis2.normalize();
-      return Quaternion.setAxisAngle(axis2, Math.PI);
+      return Quaternion.fromAxisAngle(axis2, Math.PI);
     }
   }
 
@@ -678,11 +698,11 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
         axis2 = v0.cross(axis);
       }
       axis2.normalize();
-      return Quaternion.setAxisAngle(axis2, Math.PI);
+      return Quaternion.fromAxisAngle(axis2, Math.PI);
     }
   }
 
-  multiplyVector3(v: IVector3) {
+  transformVector3(v: IVector3) {
     // let uvx = this.y * vec.z - this.z * vec.y;
     // let uvy = this.z * vec.x - this.x * vec.z;
     // let uvz = this.x * vec.y - this.y * vec.x;
@@ -763,5 +783,16 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     v[2] = x._v[2] * (sin / theta);
     v[3] = Math.cos(theta);
     return new Quaternion(v);
+  }
+
+  static fromAxisAngle(axis: IVector3, rad: number) {
+    rad = rad * 0.5;
+    const s = Math.sin(rad);
+    return Quaternion.fromCopy4(
+      s * axis.x,
+      s * axis.y,
+      s * axis.z,
+      Math.cos(rad)
+    );
   }
 }
