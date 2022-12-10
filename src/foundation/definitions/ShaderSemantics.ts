@@ -103,6 +103,9 @@ const MetallicRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const OcclusionTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'occlusionTexture',
 });
+const EmissiveFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'emissiveFactor',
+});
 const EmissiveTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'emissiveTexture',
 });
@@ -429,6 +432,7 @@ const typeList = [
   NormalTexture,
   MetallicRoughnessTexture,
   OcclusionTexture,
+  EmissiveFactor,
   EmissiveTexture,
   LightNumber,
   LightPosition,
@@ -680,6 +684,7 @@ export const ShaderSemantics = Object.freeze({
   NormalTexture,
   MetallicRoughnessTexture,
   OcclusionTexture,
+  EmissiveFactor,
   EmissiveTexture,
   LightNumber,
   LightPosition,
