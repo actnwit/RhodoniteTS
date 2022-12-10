@@ -703,25 +703,6 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   transformVector3(v: IVector3) {
-    // let uvx = this.y * vec.z - this.z * vec.y;
-    // let uvy = this.z * vec.x - this.x * vec.z;
-    // let uvz = this.x * vec.y - this.y * vec.x;
-    // let uuvx = this.y * uvz - this.z * uvy;
-    // let uuvy = this.z * uvx - this.x * uvz;
-    // let uuvz = this.x * uvy - this.y * uvx;
-    // const w2 = this.w * 2;
-    // uvx *= w2;
-    // uvy *= w2;
-    // uvz *= w2;
-    // uuvx *= 2;
-    // uuvy *= 2;
-    // uuvz *= 2;
-
-    // return Vector3.fromCopy3(
-    //   vec.x + uvx + uuvx,
-    //   vec.y + uvy + uuvy,
-    //   vec.z + uvz + uuvz
-    // );
     const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
     const uv = Vector3.cross(u, v);
     const uuv = Vector3.cross(u, uv);
@@ -731,8 +712,13 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Vector3.add(v, uuv_uvw_2);
   }
 
-  clone() {
-    return new (this.constructor as any)(
+  transformVector3Inverse(v: IVector3) {
+    const inv = Quaternion.invert(this);
+    return inv.transformVector3(v);
+  }
+
+  clone(): IQuaternion {
+    return Quaternion.fromCopy4(
       this._v[0],
       this._v[1],
       this._v[2],

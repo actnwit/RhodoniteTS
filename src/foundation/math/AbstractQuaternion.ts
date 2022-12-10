@@ -1,6 +1,6 @@
 import {TypedArray} from '../../types/CommonTypes';
 import {IQuaternion} from './IQuaternion';
-import {IMutableVector3} from './IVector';
+import {IMutableVector3, IVector3} from './IVector';
 
 export abstract class AbstractQuaternion implements IQuaternion {
   get className() {
@@ -55,6 +55,12 @@ export abstract class AbstractQuaternion implements IQuaternion {
     throw new Error('Method not implemented.');
   }
   toEulerAnglesTo(out: IMutableVector3): IMutableVector3 {
+    throw new Error('Method not implemented.');
+  }
+  transformVector3(vec: IVector3): IVector3 {
+    throw new Error('Method not implemented.');
+  }
+  transformVector3Inverse(vec: IVector3): IVector3 {
     throw new Error('Method not implemented.');
   }
 
