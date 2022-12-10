@@ -8,6 +8,7 @@ import {IMatrix44} from './IMatrix';
 import {LogQuaternion} from './LogQuaternion';
 import {AbstractQuaternion} from './AbstractQuaternion';
 import { Vector3 } from './Vector3';
+import { MutableVector3 } from './MutableVector3';
 
 export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_upVec: any = undefined;
@@ -620,6 +621,116 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return out;
   }
 
+  /**
+   * divide(static version)
+   */
+  private static _divide(vec: IQuaternion, value: number) {
+    let x;
+    let y;
+    let z;
+    let w;
+    if (value !== 0) {
+      x = vec._v[0] / value;
+      y = vec._v[1] / value;
+      z = vec._v[2] / value;
+      w = vec._v[3] / value;
+    } else {
+      console.error('0 division occurred!');
+      x = Infinity;
+      y = Infinity;
+      z = Infinity;
+      w = Infinity;
+    }
+    return Quaternion.fromCopy4(x, y, z, w);
+  }
+
+  /**
+   * normalize(static version)
+   */
+  static normalize(vec: IQuaternion) {
+    const length = vec.length();
+    return this._divide(vec, length);
+  }
+
+  fromToRotation(from: IVector3, to: IVector3) {
+    const v0 = MutableVector3.fromCopyVector3(from);
+    const v1 = MutableVector3.fromCopyVector3(to);
+    v0.normalize();
+    v1.normalize();
+    const d = v0.dot(v1);
+    if (d > -1.0 + Number.EPSILON) {
+      const s = Math.sqrt((1.0 + d) * 2.0);
+      const invs = 1.0 / s;
+      const c = Vector3.multiply(v0.cross(v1), invs);
+      this._v[0] = c.x;
+      this._v[1] = c.y;
+      this._v[2] = c.z;
+      this._v[3] = s * 0.5;
+      return Quaternion.normalize(this);
+    } else {
+      let axis = Vector3.fromCopy3(0, 1, 0);
+      let axis2 = v0.cross(axis);
+      if (axis2.length() < Number.EPSILON) {
+        axis = Vector3.fromCopy3(1, 0, 0);
+        axis2 = v0.cross(axis);
+      }
+      axis2.normalize();
+      return Quaternion.fromAxisAngle(axis2, Math.PI);
+    }
+  }
+
+  static fromToRotation(from: IVector3, to: IVector3) {
+    const v0 = MutableVector3.fromCopyVector3(from);
+    const v1 = MutableVector3.fromCopyVector3(to);
+    v0.normalize();
+    v1.normalize();
+    const d = v0.dot(v1);
+    if (d > -1.0 + Number.EPSILON) {
+      const s = Math.sqrt((1.0 + d) * 2.0);
+      const invs = 1.0 / s;
+      const c = Vector3.multiply(v0.cross(v1), invs);
+      return Quaternion.fromCopy4(c.x, c.y, c.z, s * 0.5);
+    } else {
+      let axis = Vector3.fromCopy3(0, 1, 0);
+      let axis2 = v0.cross(axis);
+      if (axis2.length() < Number.EPSILON) {
+        axis = Vector3.fromCopy3(1, 0, 0);
+        axis2 = v0.cross(axis);
+      }
+      axis2.normalize();
+      return Quaternion.fromAxisAngle(axis2, Math.PI);
+    }
+  }
+
+  transformVector3(v: IVector3) {
+    // let uvx = this.y * vec.z - this.z * vec.y;
+    // let uvy = this.z * vec.x - this.x * vec.z;
+    // let uvz = this.x * vec.y - this.y * vec.x;
+    // let uuvx = this.y * uvz - this.z * uvy;
+    // let uuvy = this.z * uvx - this.x * uvz;
+    // let uuvz = this.x * uvy - this.y * uvx;
+    // const w2 = this.w * 2;
+    // uvx *= w2;
+    // uvy *= w2;
+    // uvz *= w2;
+    // uuvx *= 2;
+    // uuvy *= 2;
+    // uuvz *= 2;
+
+    // return Vector3.fromCopy3(
+    //   vec.x + uvx + uuvx,
+    //   vec.y + uvy + uuvy,
+    //   vec.z + uvz + uuvz
+    // );
+    const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
+    const uv = Vector3.cross(u, v);
+    const uuv = Vector3.cross(u, uv);
+    const uvw = Vector3.multiply(uv, this._v[3]);
+    const uuv_uvw = Vector3.add(uuv, uvw);
+    const uuv_uvw_2 = Vector3.multiply(uuv_uvw, 2);
+    return Vector3.add(v, uuv_uvw_2);
+  }
+
   clone() {
     return new (this.constructor as any)(
       this._v[0],
@@ -672,5 +783,16 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     v[2] = x._v[2] * (sin / theta);
     v[3] = Math.cos(theta);
     return new Quaternion(v);
+  }
+
+  static fromAxisAngle(axis: IVector3, rad: number) {
+    rad = rad * 0.5;
+    const s = Math.sin(rad);
+    return Quaternion.fromCopy4(
+      s * axis.x,
+      s * axis.y,
+      s * axis.z,
+      Math.cos(rad)
+    );
   }
 }
