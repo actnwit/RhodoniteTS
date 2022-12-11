@@ -31,6 +31,7 @@ export * from './MutableVector3';
 export * from './MutableVector4';
 export * from './Quaternion';
 export * from './Scalar';
+export * from './Transform3D';
 export * from './Vector2';
 export * from './Vector3';
 export * from './Vector4';
