@@ -54,6 +54,10 @@ export class TransformComponent extends Component {
     }
   }
 
+  _backupTransformAsRest() {
+    this.__rest = this.__pose.clone();
+  }
+
   set translate(vec: IVector3) {
     this.__pose.translate = vec;
   }

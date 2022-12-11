@@ -13,12 +13,12 @@ import {MutableQuaternion} from './MutableQuaternion';
 import {MutableVector3} from './MutableVector3';
 
 export class Transform3D {
-  private __translate: MutableVector3 = MutableVector3.zero();
-  private __scale: MutableVector3 = MutableVector3.one();
-  private __quaternion: MutableQuaternion = MutableQuaternion.identity();
-  private __matrix: MutableMatrix44 = MutableMatrix44.identity();
-  private _invMatrix: MutableMatrix44 = MutableMatrix44.identity();
-  private _normalMatrix: MutableMatrix33 = MutableMatrix33.identity();
+  private __translate: MutableVector3;
+  private __scale: MutableVector3;
+  private __quaternion: MutableQuaternion;
+  private __matrix: MutableMatrix44;
+  private _invMatrix: MutableMatrix44;
+  private _normalMatrix: MutableMatrix33;
 
   private __is_translate_updated = true;
   private __is_scale_updated = true;
@@ -35,6 +35,38 @@ export class Transform3D {
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
   private static __tmpQuaternion_0: MutableQuaternion =
     MutableQuaternion.identity();
+
+  constructor();
+  constructor(Transform3D: Transform3D);
+  constructor(x?: Transform3D) {
+    this.__translate = MutableVector3.dummy();
+    this.__scale = MutableVector3.dummy();
+    this.__quaternion = MutableQuaternion.dummy();
+    this.__matrix = MutableMatrix44.dummy();
+    this._invMatrix = MutableMatrix44.dummy();
+    this._normalMatrix = MutableMatrix33.dummy();
+    if (x) {
+      this.setTransform(
+        x.translateInner,
+        x.rotateInner,
+        x.scaleInner,
+        x.quaternionInner,
+        x.matrixInner
+      );
+    } else {
+      this.__translate = MutableVector3.zero();
+      this.__scale = MutableVector3.one();
+      this.__quaternion = MutableQuaternion.identity();
+      this.__matrix = MutableMatrix44.identity();
+      this._invMatrix = MutableMatrix44.identity();
+      this._normalMatrix = MutableMatrix33.identity();
+    }
+  }
+
+  clone() {
+    const clone = new Transform3D(this);
+    return clone;
+  }
 
   set translate(vec: IVector3) {
     this.__translate.copyComponents(vec);
