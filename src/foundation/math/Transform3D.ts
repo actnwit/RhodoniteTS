@@ -17,15 +17,15 @@ export class Transform3D {
   private __scale: MutableVector3;
   private __quaternion: MutableQuaternion;
   private __matrix: MutableMatrix44;
-  private _invMatrix: MutableMatrix44;
-  private _normalMatrix: MutableMatrix33;
+  // private _invMatrix: MutableMatrix44;
+  // private _normalMatrix: MutableMatrix33;
 
   private __is_translate_updated = true;
   private __is_scale_updated = true;
   private __is_quaternion_updated = true;
   private __is_trs_matrix_updated = true;
-  private __is_inverse_trs_matrix_updated = true;
-  private __is_normal_trs_matrix_updated = true;
+  // private __is_inverse_trs_matrix_updated = true;
+  // private __is_normal_trs_matrix_updated = true;
 
   private __updateCount = 0;
 
@@ -43,8 +43,8 @@ export class Transform3D {
     this.__scale = MutableVector3.dummy();
     this.__quaternion = MutableQuaternion.dummy();
     this.__matrix = MutableMatrix44.dummy();
-    this._invMatrix = MutableMatrix44.dummy();
-    this._normalMatrix = MutableMatrix33.dummy();
+    // this._invMatrix = MutableMatrix44.dummy();
+    // this._normalMatrix = MutableMatrix33.dummy();
     if (x) {
       this.setTransform(
         x.translateInner,
@@ -58,8 +58,8 @@ export class Transform3D {
       this.__scale = MutableVector3.one();
       this.__quaternion = MutableQuaternion.identity();
       this.__matrix = MutableMatrix44.identity();
-      this._invMatrix = MutableMatrix44.identity();
-      this._normalMatrix = MutableMatrix33.identity();
+      // this._invMatrix = MutableMatrix44.identity();
+      // this._normalMatrix = MutableMatrix33.identity();
     }
   }
 
@@ -72,8 +72,8 @@ export class Transform3D {
     this.__translate.copyComponents(vec);
     this.__is_translate_updated = true;
     this.__is_trs_matrix_updated = false;
-    this.__is_inverse_trs_matrix_updated = false;
-    this.__is_normal_trs_matrix_updated = false;
+    // this.__is_inverse_trs_matrix_updated = false;
+    // this.__is_normal_trs_matrix_updated = false;
 
     this.__updateTransform();
   }
@@ -126,8 +126,8 @@ export class Transform3D {
     this.__scale.copyComponents(vec);
     this.__is_scale_updated = true;
     this.__is_trs_matrix_updated = false;
-    this.__is_inverse_trs_matrix_updated = false;
-    this.__is_normal_trs_matrix_updated = false;
+    // this.__is_inverse_trs_matrix_updated = false;
+    // this.__is_normal_trs_matrix_updated = false;
 
     this.__updateTransform();
   }
@@ -157,8 +157,8 @@ export class Transform3D {
     this.__quaternion.copyComponents(quat);
     this.__is_quaternion_updated = true;
     this.__is_trs_matrix_updated = false;
-    this.__is_inverse_trs_matrix_updated = false;
-    this.__is_normal_trs_matrix_updated = false;
+    // this.__is_inverse_trs_matrix_updated = false;
+    // this.__is_normal_trs_matrix_updated = false;
 
     this.__updateTransform();
   }
@@ -238,8 +238,8 @@ export class Transform3D {
     this.__is_translate_updated = false;
     this.__is_quaternion_updated = false;
     this.__is_scale_updated = false;
-    this.__is_inverse_trs_matrix_updated = false;
-    this.__is_normal_trs_matrix_updated = false;
+    // this.__is_inverse_trs_matrix_updated = false;
+    // this.__is_normal_trs_matrix_updated = false;
 
     this.__updateTransform();
   }
@@ -343,39 +343,47 @@ export class Transform3D {
     return this.__matrix;
   }
 
-  /**
-   * return a copy of an inverse local transform matrix
-   */
-  get inverseMatrix(): Matrix44 {
-    return this.inverseMatrixInner.clone();
+  // /**
+  //  * return a copy of an inverse local transform matrix
+  //  */
+  // get inverseMatrix(): Matrix44 {
+  //   return this.inverseMatrixInner.clone();
+  // }
+
+  // /**
+  //  * return an inverse local transform matrix
+  //  */
+  // get inverseMatrixInner() {
+  //   if (!this.__is_inverse_trs_matrix_updated) {
+  //     MutableMatrix44.invertTo(this.matrixInner, this._invMatrix);
+  //     this.__is_inverse_trs_matrix_updated = true;
+  //   }
+  //   return this._invMatrix;
+  // }
+
+  // get normalMatrix() {
+  //   return this.normalMatrixInner.clone();
+  // }
+
+  // get normalMatrixInner() {
+  //   if (!this.__is_normal_trs_matrix_updated) {
+  //     const invertedMatrix44 = MutableMatrix44.invertTo(
+  //       this.matrixInner,
+  //       Transform3D.__tmpMatrix44_0
+  //     );
+  //     const newNormalMatrix = invertedMatrix44.transpose();
+  //     this._normalMatrix.copyComponents(newNormalMatrix);
+  //     this.__is_normal_trs_matrix_updated = true;
+  //   }
+  //   return this._normalMatrix;
+  // }
+
+  __needUpdate() {
+    this.__updateCount++;
   }
 
-  /**
-   * return an inverse local transform matrix
-   */
-  get inverseMatrixInner() {
-    if (!this.__is_inverse_trs_matrix_updated) {
-      MutableMatrix44.invertTo(this.matrixInner, this._invMatrix);
-      this.__is_inverse_trs_matrix_updated = true;
-    }
-    return this._invMatrix;
-  }
-
-  get normalMatrix() {
-    return this.normalMatrixInner.clone();
-  }
-
-  get normalMatrixInner() {
-    if (!this.__is_normal_trs_matrix_updated) {
-      const invertedMatrix44 = MutableMatrix44.invertTo(
-        this.matrixInner,
-        Transform3D.__tmpMatrix44_0
-      );
-      const newNormalMatrix = invertedMatrix44.transpose();
-      this._normalMatrix.copyComponents(newNormalMatrix);
-      this.__is_normal_trs_matrix_updated = true;
-    }
-    return this._normalMatrix;
+  get updateCount() {
+    return this.__updateCount;
   }
 
   set rotateMatrix44(rotateMatrix: IMatrix44) {
@@ -384,14 +392,6 @@ export class Transform3D {
 
   get rotateMatrix44() {
     return Matrix44.fromCopyQuaternion(this.quaternion);
-  }
-
-  __needUpdate() {
-    this.__updateCount++;
-  }
-
-  get updateCount() {
-    return this.__updateCount;
   }
 
   setPropertiesFromJson(arg: JSON) {
@@ -494,8 +494,8 @@ export class Transform3D {
     matrix: IMatrix44
   ) {
     this.__is_trs_matrix_updated = false;
-    this.__is_inverse_trs_matrix_updated = false;
-    this.__is_normal_trs_matrix_updated = false;
+    // this.__is_inverse_trs_matrix_updated = false;
+    // this.__is_normal_trs_matrix_updated = false;
 
     // Matrix
     if (matrix != null) {

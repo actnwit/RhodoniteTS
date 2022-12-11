@@ -58,6 +58,14 @@ export class TransformComponent extends Component {
     this.__rest = this.__pose.clone();
   }
 
+  get transform() {
+    return this.__pose;
+  }
+
+  get transformRest() {
+    return this.restOrPose;
+  }
+
   set translate(vec: IVector3) {
     this.__pose.translate = vec;
   }
@@ -74,6 +82,20 @@ export class TransformComponent extends Component {
    */
   get translateInner(): MutableVector3 {
     return this.__pose.translateInner;
+  }
+
+  /**
+   * return a copy of a local translate vector
+   */
+  get translateRest() {
+    return this.restOrPose.translate;
+  }
+
+  /**
+   * return a local translate vector
+   */
+  get translateRestInner(): MutableVector3 {
+    return this.restOrPose.translateInner;
   }
 
   set rotate(vec: IVector3) {
@@ -94,6 +116,20 @@ export class TransformComponent extends Component {
     return this.__pose.rotateInner;
   }
 
+  /**
+   * return a copy of a local rotation (XYZ euler) vector
+   */
+  get rotateRest() {
+    return this.restOrPose.rotate;
+  }
+
+  /**
+   * return a local rotation (XYZ euler) vector
+   */
+  get rotateRestInner() {
+    return this.restOrPose.rotateInner;
+  }
+
   set scale(vec: IVector3) {
     this.__pose.scale = vec;
   }
@@ -112,6 +148,20 @@ export class TransformComponent extends Component {
     return this.__pose.scaleInner;
   }
 
+  /**
+   * return a copy of a local scale vector
+   */
+  get scaleRest() {
+    return this.restOrPose.scale;
+  }
+
+  /**
+   * return a local scale vector
+   */
+  get scaleRestInner() {
+    return this.restOrPose.scaleInner;
+  }
+
   set quaternion(quat: IQuaternion) {
     this.__pose.quaternion = quat;
   }
@@ -128,6 +178,20 @@ export class TransformComponent extends Component {
    */
   get quaternionInner(): Quaternion {
     return this.__pose.quaternionInner;
+  }
+
+  /**
+   * return a copy of a local quaternion vector
+   */
+  get quaternionRest() {
+    return this.restOrPose.quaternion;
+  }
+
+  /**
+   * return a local quaternion vector
+   */
+  get quaternionRestInner(): Quaternion {
+    return this.restOrPose.quaternionInner;
   }
 
   set matrix(mat: IMatrix44) {
@@ -149,33 +213,17 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * return a copy of an inverse local transform matrix
+   * return a copy of local transform matrix
    */
-  get inverseMatrix(): Matrix44 {
-    return this.__pose.inverseMatrix;
+  get matrixRest() {
+    return this.restOrPose.matrix;
   }
 
   /**
-   * return an inverse local transform matrix
+   * return a local transform matrix
    */
-  get inverseMatrixInner() {
-    return this.__pose.inverseMatrixInner;
-  }
-
-  get normalMatrix() {
-    return this.__pose.normalMatrix;
-  }
-
-  get normalMatrixInner() {
-    return this.__pose.normalMatrixInner;
-  }
-
-  set rotateMatrix44(rotateMatrix: IMatrix44) {
-    this.__pose.rotateMatrix44 = rotateMatrix;
-  }
-
-  get rotateMatrix44() {
-    return this.__pose.rotateMatrix44;
+  get matrixRestInner() {
+    return this.restOrPose.matrixInner;
   }
 
   $logic() {
@@ -240,6 +288,14 @@ export class TransformComponent extends Component {
         const transform = this.getTransform();
         return transform.translateInner;
       }
+      get translateRest() {
+        const transform = this.getTransform();
+        return transform.translateRest;
+      }
+      get translateRestInner() {
+        const transform = this.getTransform();
+        return transform.translateRestInner;
+      }
       set scale(vec: IVector3) {
         const transform = this.getTransform();
         transform.scale = vec;
@@ -250,6 +306,14 @@ export class TransformComponent extends Component {
       get scaleInner() {
         const transform = this.getTransform();
         return transform.scaleInner;
+      }
+      get scaleRest() {
+        const transform = this.getTransform();
+        return transform.scaleRest;
+      }
+      get scaleRestInner() {
+        const transform = this.getTransform();
+        return transform.scaleRestInner;
       }
       set rotate(vec: IVector3) {
         const transform = this.getTransform();
@@ -262,6 +326,13 @@ export class TransformComponent extends Component {
         const transform = this.getTransform();
         return transform.rotateInner;
       }
+      get rotateRest() {
+        return this.rotateRestInner.clone();
+      }
+      get rotateRestInner() {
+        const transform = this.getTransform();
+        return transform.rotateRestInner;
+      }
       set quaternion(quat: IQuaternion) {
         const transform = this.getTransform();
         transform.quaternion = quat;
@@ -273,6 +344,13 @@ export class TransformComponent extends Component {
         const transform = this.getTransform();
         return transform.quaternionInner;
       }
+      get quaternionRest() {
+        return this.quaternionRestInner.clone();
+      }
+      get quaternionRestInner() {
+        const transform = this.getTransform();
+        return transform.quaternionRestInner;
+      }
       set matrix(mat: IMatrix44) {
         const transform = this.getTransform();
         transform.matrix = mat;
@@ -283,6 +361,13 @@ export class TransformComponent extends Component {
       get matrixInner() {
         const transform = this.getTransform();
         return transform.matrixInner;
+      }
+      get matrixRest() {
+        return this.matrixRestInner.clone();
+      }
+      get matrixRestInner() {
+        const transform = this.getTransform();
+        return transform.matrixRestInner;
       }
     }
     applyMixins(base, TransformEntity);
