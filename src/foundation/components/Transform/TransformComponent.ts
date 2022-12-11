@@ -58,6 +58,19 @@ export class TransformComponent extends Component {
     this.__rest = this.__pose.clone();
   }
 
+  _restoreTransformFromRest() {
+    if (this.__rest === undefined) {
+      return;
+    }
+    this.__pose.setTransform(
+      this.__rest.translateInner,
+      this.__rest.rotateInner,
+      this.__rest.scaleInner,
+      this.__rest.quaternionInner,
+      this.__rest.matrixInner
+    );
+  }
+
   get transform() {
     return this.__pose;
   }

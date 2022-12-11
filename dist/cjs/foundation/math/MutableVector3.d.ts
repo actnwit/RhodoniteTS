@@ -1,4 +1,4 @@
-import { IVector3, IMutableVector, IMutableVector3 } from './IVector';
+import { IVector3, IVector4, IMutableVector, IMutableVector3 } from './IVector';
 import { TypedArray, FloatTypedArrayConstructor, Array3 } from '../../types/CommonTypes';
 import { Vector3_ } from './Vector3';
 import { IQuaternion } from './IQuaternion';
@@ -84,6 +84,8 @@ export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     static fromCopyArray(array: Array<number>): MutableVector3;
     static fromFloat32Array(float32Array: Float32Array): MutableVector3;
     static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3;
+    static fromCopyVector3(vec: IVector3): MutableVector3;
+    static fromCopyVector4(vec: IVector4): MutableVector3;
     clone(): MutableVector3;
 }
 /**

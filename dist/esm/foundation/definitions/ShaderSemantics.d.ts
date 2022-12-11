@@ -45,6 +45,7 @@ export declare const ShaderSemantics: Readonly<{
     NormalTexture: ShaderSemanticsEnum;
     MetallicRoughnessTexture: ShaderSemanticsEnum;
     OcclusionTexture: ShaderSemanticsEnum;
+    EmissiveFactor: ShaderSemanticsEnum;
     EmissiveTexture: ShaderSemanticsEnum;
     LightNumber: ShaderSemanticsEnum;
     LightPosition: ShaderSemanticsEnum;

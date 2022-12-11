@@ -47,6 +47,7 @@ export declare const CompositionType: Readonly<{
     Texture2D: CompositionTypeEnum;
     Texture2DShadow: CompositionTypeEnum;
     TextureCube: CompositionTypeEnum;
+    Texture2DRect: CompositionTypeEnum;
     from: typeof from;
     fromString: typeof fromString;
     vectorFrom: typeof vectorFrom;

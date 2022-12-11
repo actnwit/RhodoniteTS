@@ -37,17 +37,20 @@ export declare class RenderPass extends RnObject {
     private __webglRenderingStrategy?;
     isVrRendering: boolean;
     isOutputForVr: boolean;
+    /** Whether or not to draw opaque primitives contained in this render pass. */
     toRenderOpaquePrimitives: boolean;
+    /** Whether or not to draw transparent primitives contained in this render pass. */
     toRenderTransparentPrimitives: boolean;
     toRenderEffekseerEffects: boolean;
+    drawCount: number;
     __renderTargetColorAttachments?: RenderBufferTargetEnum[];
-    private __preRenderFunc?;
+    private __preEachDrawFunc?;
     private static __tmp_Vector4_0;
     constructor();
     clone(): RenderPass;
-    setPreRenderFunction(func: Function): void;
+    setPreRenderFunction(func: (drawCount: number) => void): void;
     unsetPreRenderFunction(): void;
-    doPreRender(): void;
+    doPreEachDraw(drawCount: number): void;
     /**
      * Add entities to draw.
      * @param entities An array of entities.

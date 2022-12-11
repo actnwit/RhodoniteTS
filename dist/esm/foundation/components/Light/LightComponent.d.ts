@@ -5,6 +5,12 @@ import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { ComponentTID, EntityUID, ComponentSID } from '../../../types/CommonTypes';
 import { ILightEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
+/**
+ * The Component that represents a light.
+ *
+ * @remarks
+ * the light looks towards the local -Z axis,
+ */
 export declare class LightComponent extends Component {
     type: import("../..").EnumIO;
     private __intensity;
@@ -14,6 +20,7 @@ export declare class LightComponent extends Component {
     outerConeAngle: number;
     range: number;
     enable: boolean;
+    shadowAreaSizeForDirectionalLight: number;
     private __sceneGraphComponent?;
     private static __globalDataRepository;
     private static __tmp_vec4;

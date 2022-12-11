@@ -49,6 +49,18 @@ export declare class Quaternion extends AbstractQuaternion implements IQuaternio
     isStrictEqual(quat: IQuaternion): boolean;
     toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
     toEulerAngles(): Vector3;
+    /**
+     * divide(static version)
+     */
+    private static _divide;
+    /**
+     * normalize(static version)
+     */
+    static normalize(vec: IQuaternion): Quaternion;
+    fromToRotation(from: IVector3, to: IVector3): Quaternion;
+    static fromToRotation(from: IVector3, to: IVector3): Quaternion;
+    transformVector3(v: IVector3): Vector3;
+    transformVector3Inverse(v: IVector3): IVector3;
     clone(): IQuaternion;
     static fromFloat32Array(array: Float32Array): Quaternion;
     static fromCopyArray4(array: Array4<number>): Quaternion;
@@ -57,4 +69,5 @@ export declare class Quaternion extends AbstractQuaternion implements IQuaternio
     static fromCopyQuaternion(quat: IQuaternion): Quaternion;
     static fromCopyVector4(vec: IVector4): Quaternion;
     static fromCopyLogQuaternion(x: ILogQuaternion): Quaternion;
+    static fromAxisAngle(axis: IVector3, rad: number): Quaternion;
 }

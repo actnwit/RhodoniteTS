@@ -83,12 +83,13 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository {
      * @param param0
      * @returns
      */
-    createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, }: {
+    createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
         material: Material;
         vertexShaderStr: string;
         fragmentShaderStr: string;
         attributeNames: AttributeNames;
         attributeSemantics: Array<VertexAttributeEnum>;
+        onError?: (message: string) => void;
     }): number;
     private __checkShaderCompileStatus;
     private __checkShaderProgramLinkStatus;

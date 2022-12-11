@@ -2,7 +2,6 @@ import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { Matrix44 } from '../foundation/math/Matrix44';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
@@ -24,10 +23,10 @@ export declare class WebGLStrategyUniform implements WebGLStrategy {
     setupShaderProgram(meshComponent: MeshComponent): void;
     /**
      * setup shader program for the material in this WebGL strategy
-     * @param material
-     * @param isPointSprite
+     * @param material - a material to setup shader program
+     * @param updatedShaderSources - updated shader sources if exists
      */
-    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources): CGAPIResourceHandle;
+    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
     $load(meshComponent: MeshComponent): void;
     isMeshSetup(mesh: Mesh): boolean;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
@@ -38,7 +37,7 @@ export declare class WebGLStrategyUniform implements WebGLStrategy {
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveUid: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     dettachVertexData(glw: WebGLContextWrapper): void;
     static getInstance(): WebGLStrategyUniform;
-    common_$render(primitiveUids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, renderPassTickCount: Count, isVRMainPass: boolean, displayIdx: Index): boolean;
     $render(): void;
 }

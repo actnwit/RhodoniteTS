@@ -24,6 +24,8 @@ export declare const TextureParameter: Readonly<{
     RGB8: EnumIO;
     RGBA8: EnumIO;
     RGB10_A2: EnumIO;
+    RG16F: EnumIO;
+    RG32F: EnumIO;
     RGB16F: EnumIO;
     RGB32F: EnumIO;
     RGBA16F: EnumIO;

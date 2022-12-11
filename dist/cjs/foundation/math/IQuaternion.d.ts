@@ -20,6 +20,8 @@ export interface IQuaternion {
     dot(vec: IQuaternion): number;
     toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
     clone(): IQuaternion;
+    transformVector3(vec: IVector3): IVector3;
+    transformVector3Inverse(vec: IVector3): IVector3;
 }
 export interface IMutableQuaternion extends IQuaternion {
     readonly className: string;

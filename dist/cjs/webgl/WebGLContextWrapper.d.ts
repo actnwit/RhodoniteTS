@@ -38,6 +38,8 @@ export declare class WebGLContextWrapper {
     readonly webgl1ExtCTBptc?: WEBGL_compressed_texture_bptc;
     readonly webgl2ExtTFL?: OES_texture_float_linear;
     readonly webgl2ExtTFA?: EXT_texture_filter_anisotropic;
+    readonly webgl2ExtCBF?: EXT_color_buffer_float;
+    readonly webgl2ExtCBHF?: EXT_color_buffer_half_float;
     readonly webgl2ExtCTAstc?: WEBGL_compressed_texture_astc;
     readonly webgl2ExtCTS3tc?: WEBGL_compressed_texture_s3tc;
     readonly webgl2ExtCTPvrtc?: WEBKIT_WEBGL_compressed_texture_pvrtc;

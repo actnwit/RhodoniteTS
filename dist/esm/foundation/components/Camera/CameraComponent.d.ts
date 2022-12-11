@@ -15,6 +15,11 @@ import { ICameraEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 /**
  * The Component that represents a camera.
+ *
+ * @remarks
+ * The camera is defined such that the local +X axis is to the right,
+ * the “lens” looks towards the local -Z axis,
+ * and the top of the camera is aligned with the local +Y axis.
  */
 export declare class CameraComponent extends Component {
     private static readonly _eye;

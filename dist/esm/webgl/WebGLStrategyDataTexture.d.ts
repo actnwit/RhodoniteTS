@@ -2,7 +2,6 @@ import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { Matrix44 } from '../foundation/math/Matrix44';
 import { Material } from '../foundation/materials/core/Material';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
@@ -29,10 +28,10 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void;
     /**
      * setup shader program for the material in this WebGL strategy
-     * @param material
-     * @param isPointSprite
+     * @param material - a material to setup shader program
+     * @param updatedShaderSources - updated shader sources if exists
      */
-    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources): CGAPIResourceHandle;
+    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
     private __getShaderProperty;
     private static getOffsetOfPropertyInShader;
     private getOffsetOfTheOffsetVariableOfPropertyInShader;
@@ -53,7 +52,7 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     private __setCurrentComponentSIDsForEachRenderPass;
     private __setCurrentComponentSIDsForEachEntity;
     private __setCurrentComponentSIDsForEachPrimitive;
-    common_$render(primitiveUids: Int32Array, meshComponents: MeshComponent[], viewMatrix: Matrix44, projectionMatrix: Matrix44, renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, isVRMainPass: boolean, displayIdx: Index): boolean;
     $render(): void;
 }

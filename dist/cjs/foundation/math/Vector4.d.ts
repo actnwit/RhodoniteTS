@@ -109,6 +109,13 @@ export declare class Vector4_<T extends FloatTypedArrayConstructor> extends Abst
 }
 /**
  * Immutable 4D(x,y,z,w) Vector class with 32bit float components
+ *
+ * @example
+ * ```
+ * const vec1 = Rn.Vector4.fromCopy4(1, 2, 3, 1);
+ * const vec2 = Rn.Vector4.fromCopyArray4([2, 3, 3, 1]);
+ * const dotProduct = vec1.dot(vec2);
+ * ```
  */
 export declare class Vector4 extends Vector4_<Float32ArrayConstructor> {
     constructor(x: Float32Array);
