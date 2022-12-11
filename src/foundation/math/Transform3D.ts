@@ -435,4 +435,68 @@ export class Transform3D {
       theta
     );
   }
+
+  /**
+   * Set multiple transform information at once. By using this method,
+   * we reduce the cost of automatically updating other transform components inside this class.
+   * This method may be useful for animation processing and so on.
+   *
+   * The transform components of these arguments must not be mutually discrepant.
+   * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)
+   * must be equal to translate, rotate, scale, quaternion arguments.
+   * And both rotate and quaternion arguments must be same rotation.
+   * If there is an argument passed with null or undefined, it is interpreted as unchanged.
+   *
+   * @param {*} translate
+   * @param {*} rotate
+   * @param {*} scale
+   * @param {*} quaternion
+   * @param {*} matrix
+   */
+
+  setTransform(
+    translate: IVector3,
+    rotate: IVector3,
+    scale: IVector3,
+    quaternion: IQuaternion,
+    matrix: IMatrix44
+  ) {
+    this.__is_trs_matrix_updated = false;
+    this.__is_inverse_trs_matrix_updated = false;
+    this.__is_normal_trs_matrix_updated = false;
+
+    // Matrix
+    if (matrix != null) {
+      this.__matrix.copyComponents(matrix);
+      this.__is_trs_matrix_updated = true;
+      this.__is_translate_updated = false;
+      this.__is_quaternion_updated = false;
+      this.__is_scale_updated = false;
+    }
+
+    // Translate
+    if (translate != null) {
+      this.__translate.copyComponents(translate);
+      this.__is_translate_updated = true;
+    }
+
+    // Rotation
+    if (rotate != null && quaternion != null) {
+      this.__quaternion = MutableQuaternion.fromCopyQuaternion(quaternion);
+      this.__is_quaternion_updated = true;
+    } else if (rotate != null) {
+      this.__is_quaternion_updated = false;
+    } else if (quaternion != null) {
+      this.__quaternion.copyComponents(quaternion);
+      this.__is_quaternion_updated = true;
+    }
+
+    // Scale
+    if (scale != null) {
+      this.__scale.copyComponents(scale);
+      this.__is_scale_updated = true;
+    }
+
+    this.__updateTransform();
+  }
 }
