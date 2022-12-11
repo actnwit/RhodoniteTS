@@ -14,6 +14,8 @@ import {SkeletalComponent} from '../components/Skeletal/SkeletalComponent';
 import {TransformComponent} from '../components/Transform/TransformComponent';
 import {AnimationComponent} from '../components/Animation/AnimationComponent';
 import {CameraComponent} from '../components/Camera/CameraComponent';
+import { IQuaternion, Quaternion } from '../math';
+import { ISceneGraphEntity } from '../helpers';
 
 /**
  * The Interface for an Entity.
@@ -37,6 +39,7 @@ export interface IEntity extends IRnObject {
   tryToGetSkeletal(): SkeletalComponent | undefined;
   tryToGetTransform(): TransformComponent | undefined;
   tryToGetAnimation(): AnimationComponent | undefined;
+  getGlobalRestQuaternion(): IQuaternion;
   destroy(): void;
 }
 
@@ -208,6 +211,43 @@ export class Entity extends RnObject implements IEntity {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.TransformComponentTID
     ) as TransformComponent | undefined;
+  }
+
+  getParentGlobalRestQuaternion(parent: SceneGraphComponent): IQuaternion {
+    const parentAnimation = parent.entity.tryToGetAnimation();
+    if (Is.exist(parentAnimation)) {
+      return parentAnimation.globalRestQuaternion;
+    } else {
+      if (parent.parent) {
+        return Quaternion.multiply(
+          this.getParentGlobalRestQuaternion(parent.parent),
+          parent.quaternion
+        );
+      } else {
+        return parent.quaternion;
+      }
+    }
+  }
+
+  getGlobalRestQuaternion(): IQuaternion {
+    const scenegraph = this.tryToGetSceneGraph();
+    if (Is.not.exist(scenegraph)) {
+      return Quaternion.identity();
+    }
+
+    const animation = this.tryToGetAnimation();
+    if (Is.exist(animation)) {
+      return animation.globalRestQuaternion;
+    } else {
+      if (scenegraph.parent) {
+        return Quaternion.multiply(
+          this.getParentGlobalRestQuaternion(scenegraph.parent),
+          scenegraph.quaternion
+        );
+      } else {
+        return scenegraph.quaternion;
+      }
+    }
   }
 
   /**

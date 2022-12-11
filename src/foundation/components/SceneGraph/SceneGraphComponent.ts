@@ -334,6 +334,17 @@ export class SceneGraphComponent extends Component {
     return this.worldMatrixInner.clone();
   }
 
+  get worldQuaternion(): IQuaternion {
+    const parent = this.parent;
+    if (parent != null) {
+      return Quaternion.multiply(
+        parent.worldQuaternion,
+        this.quaternion
+      ) as IQuaternion;
+    }
+    return this.quaternion;
+  }
+
   get normalMatrixInner() {
     if (!this.__isNormalMatrixUpToDate) {
       Matrix44.invertTo(
