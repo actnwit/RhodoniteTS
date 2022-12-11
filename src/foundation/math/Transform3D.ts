@@ -45,12 +45,12 @@ export class Transform3D {
     this.__matrix = MutableMatrix44.dummy();
     // this._invMatrix = MutableMatrix44.dummy();
     // this._normalMatrix = MutableMatrix33.dummy();
-    if (x) {
+    if (x !== undefined) {
       this.setTransform(
         x.translateInner,
-        x.rotateInner,
+        MutableVector3.fromCopyVector3(x.rotateInner),
         x.scaleInner,
-        x.quaternionInner,
+        MutableQuaternion.fromCopyQuaternion(x.quaternionInner),
         x.matrixInner
       );
     } else {
@@ -487,11 +487,11 @@ export class Transform3D {
    */
 
   setTransform(
-    translate: IVector3,
-    rotate: IVector3,
-    scale: IVector3,
-    quaternion: IQuaternion,
-    matrix: IMatrix44
+    translate: MutableVector3,
+    rotate: MutableVector3,
+    scale: MutableVector3,
+    quaternion: MutableQuaternion,
+    matrix: MutableMatrix44
   ) {
     this.__is_trs_matrix_updated = false;
     // this.__is_inverse_trs_matrix_updated = false;
@@ -499,7 +499,7 @@ export class Transform3D {
 
     // Matrix
     if (matrix != null) {
-      this.__matrix.copyComponents(matrix);
+      this.__matrix = matrix.clone();
       this.__is_trs_matrix_updated = true;
       this.__is_translate_updated = false;
       this.__is_quaternion_updated = false;
@@ -508,24 +508,24 @@ export class Transform3D {
 
     // Translate
     if (translate != null) {
-      this.__translate.copyComponents(translate);
+      this.__translate = translate.clone();
       this.__is_translate_updated = true;
     }
 
     // Rotation
     if (rotate != null && quaternion != null) {
-      this.__quaternion = MutableQuaternion.fromCopyQuaternion(quaternion);
+      this.__quaternion = quaternion.clone() as MutableQuaternion;
       this.__is_quaternion_updated = true;
     } else if (rotate != null) {
       this.__is_quaternion_updated = false;
     } else if (quaternion != null) {
-      this.__quaternion.copyComponents(quaternion);
+      this.__quaternion = quaternion.clone() as MutableQuaternion;
       this.__is_quaternion_updated = true;
     }
 
     // Scale
     if (scale != null) {
-      this.__scale.copyComponents(scale);
+      this.__scale = scale.clone();
       this.__is_scale_updated = true;
     }
 

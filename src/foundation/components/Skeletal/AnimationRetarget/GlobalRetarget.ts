@@ -12,12 +12,6 @@ export class GlobalRetarget implements IAnimationRetarget {
     this.__srcEntity = srcEntity;
   }
 
-  getSrcRestQ(srcEntity: ISceneGraphEntity) {
-    const srcRestQ = srcEntity.getTransform().quaternionRestInner;
-
-    return srcRestQ;
-  }
-
   getSrcPGRestQ(srcEntity: ISceneGraphEntity) {
     let srcPGRestQ: IQuaternion;
     const parent = srcEntity.getSceneGraph().parent;
@@ -49,7 +43,7 @@ export class GlobalRetarget implements IAnimationRetarget {
 
     // extract global retarget quaternion
     const srcPoseQ = srcEntity.getTransform().quaternionInner;
-    const srcRestQ = this.getSrcRestQ(srcEntity);
+    const srcRestQ = srcEntity.getTransform().quaternionRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
 
     const animQ =
@@ -80,7 +74,7 @@ export class GlobalRetarget implements IAnimationRetarget {
           )
       );
 
-    return (tgtPoseQ);
+    return tgtPoseQ;
   }
 
   retargetTranslate(

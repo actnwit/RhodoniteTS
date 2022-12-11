@@ -17,7 +17,7 @@ import {IVector3} from '../../math/IVector';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
 import {ITransformEntity} from '../../helpers';
-import {Transform3D} from '../../math';
+import {MutableQuaternion, Transform3D} from '../../math';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -64,9 +64,9 @@ export class TransformComponent extends Component {
     }
     this.__pose.setTransform(
       this.__rest.translateInner,
-      this.__rest.rotateInner,
+      MutableVector3.fromCopyVector3(this.__rest.rotateInner),
       this.__rest.scaleInner,
-      this.__rest.quaternionInner,
+      MutableQuaternion.fromCopyQuaternion(this.__rest.quaternionInner),
       this.__rest.matrixInner
     );
   }
