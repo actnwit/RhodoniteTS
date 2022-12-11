@@ -16,10 +16,8 @@ export declare class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     private __length;
     private __currentTail;
     private __prevTail;
-    private __localDir;
     private __localRotation;
     private __initalized;
-    private __localChildPosition;
     constructor();
     initialize(transform: SceneGraphComponent, localChildPosition: Vector3, center?: SceneGraphComponent): void;
     get isInitialized(): boolean;

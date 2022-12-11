@@ -1,5 +1,5 @@
 import { IQuaternion } from './IQuaternion';
-import { IMutableVector3 } from './IVector';
+import { IMutableVector3, IVector3 } from './IVector';
 export declare abstract class AbstractQuaternion implements IQuaternion {
     get className(): string;
     get x(): number;
@@ -16,6 +16,8 @@ export declare abstract class AbstractQuaternion implements IQuaternion {
     isEqual(vec: IQuaternion, delta?: number): boolean;
     isStrictEqual(vec: IQuaternion): boolean;
     toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
+    transformVector3(vec: IVector3): IVector3;
+    transformVector3Inverse(vec: IVector3): IVector3;
     /**
      * dot product
      */

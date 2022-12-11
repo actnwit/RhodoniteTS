@@ -13,7 +13,7 @@ export declare const WebGLExtension: Readonly<{
     ShaderDerivatives: EnumIO;
     DrawBuffers: EnumIO;
     BlendMinmax: EnumIO;
-    ColorBufferFloat: EnumIO;
+    ColorBufferFloatWebGL1: EnumIO;
     CompressedTextureAstc: EnumIO;
     CompressedTextureS3tc: EnumIO;
     CompressedTexturePvrtc: EnumIO;
@@ -21,5 +21,7 @@ export declare const WebGLExtension: Readonly<{
     CompressedTextureEtc: EnumIO;
     CompressedTextureEtc1: EnumIO;
     CompressedTextureBptc: EnumIO;
+    ColorBufferFloatWebGL2: EnumIO;
+    ColorBufferHalfFloatWebGL2: EnumIO;
     GMAN_WEBGL_MEMORY: EnumIO;
 }>;

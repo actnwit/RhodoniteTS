@@ -12,7 +12,7 @@ import { Vrm0xMaterialProperty } from '../../types';
 declare function createMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createEmptyMaterial(): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, useTangentAttribute, useNormalTexture, alphaMode, maxInstancesNumber, }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isShadow, useTangentAttribute, useNormalTexture, alphaMode, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
@@ -23,6 +23,7 @@ declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning,
     isSheen?: boolean | undefined;
     isSpecular?: boolean | undefined;
     isIridescence?: boolean | undefined;
+    isShadow?: boolean | undefined;
     useTangentAttribute?: boolean | undefined;
     useNormalTexture?: boolean | undefined;
     alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
@@ -34,6 +35,13 @@ declare function createClassicUberMaterial({ additionalName, isSkinning, isLight
     isLighting?: boolean | undefined;
     isMorphing?: boolean | undefined;
     isShadow?: boolean | undefined;
+    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
+    maxInstancesNumber?: number | undefined;
+}): Material;
+declare function createDepthMomentEncodeMaterial({ additionalName, isSkinning, isMorphing, alphaMode, maxInstancesNumber, }?: {
+    additionalName?: string | undefined;
+    isSkinning?: boolean | undefined;
+    isMorphing?: boolean | undefined;
     alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
@@ -49,9 +57,10 @@ declare function createEnvConstantMaterial({ additionalName, maxInstancesNumber,
     maxInstancesNumber?: number | undefined;
     makeOutputSrgb?: boolean | undefined;
 }): Material;
-declare function createFXAA3QualityMaterial({ additionalName, maxInstancesNumber, }?: {
+declare function createFXAA3QualityMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
+    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createFurnaceTestMaterial({ additionalName, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
@@ -113,6 +122,11 @@ declare function createGammaCorrectionMaterial({ additionalName, maxInstancesNum
     maxInstancesNumber?: number | undefined;
     noUseCameraTransform?: boolean | undefined;
 }): Material;
+declare function createSummedAreaTableMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
+    additionalName?: string | undefined;
+    maxInstancesNumber?: number | undefined;
+    noUseCameraTransform?: boolean | undefined;
+}): Material;
 declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture, maxInstancesNumber, }: {
     additionalName?: string;
     isSkinning?: boolean;
@@ -157,6 +171,7 @@ export declare const MaterialHelper: Readonly<{
     recreateShaderityMaterial: typeof recreateShaderityMaterial;
     createEmptyMaterial: typeof createEmptyMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
+    createDepthMomentEncodeMaterial: typeof createDepthMomentEncodeMaterial;
     createFlatMaterial: typeof createFlatMaterial;
     createPbrUberMaterial: typeof createPbrUberMaterial;
     createEnvConstantMaterial: typeof createEnvConstantMaterial;
@@ -164,6 +179,7 @@ export declare const MaterialHelper: Readonly<{
     createDepthEncodeMaterial: typeof createDepthEncodeMaterial;
     createShadowMapDecodeClassicSingleMaterial: typeof createShadowMapDecodeClassicSingleMaterial;
     createGammaCorrectionMaterial: typeof createGammaCorrectionMaterial;
+    createSummedAreaTableMaterial: typeof createSummedAreaTableMaterial;
     createVarianceShadowMapDecodeClassicSingleMaterial: typeof createVarianceShadowMapDecodeClassicSingleMaterial;
     createEntityUIDOutputMaterial: typeof createEntityUIDOutputMaterial;
     createMToonMaterial: typeof createMToonMaterial;

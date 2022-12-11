@@ -65,7 +65,7 @@ export declare class Material extends RnObject {
     isShaderProgramReady(): boolean;
     /**
      * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUnitform only
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
     _setParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
@@ -99,7 +99,7 @@ export declare class Material extends RnObject {
      * @returns
      */
     _createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): CGAPIResourceHandle;
-    createProgramByUpdatedSources(updatedShaderSources: ShaderSources): CGAPIResourceHandle;
+    createProgramByUpdatedSources(updatedShaderSources: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
     /**
      * Change the blendEquations
      * This method works only if this alphaMode is the translucent

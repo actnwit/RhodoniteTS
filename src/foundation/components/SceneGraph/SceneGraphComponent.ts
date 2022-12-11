@@ -42,8 +42,10 @@ export class SceneGraphComponent extends Component {
   private __children: Array<SceneGraphComponent> = [];
   private __gizmoChildren: Array<SceneGraphComponent> = [];
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
+  private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate = false;
+  private __isWorldMatrixRestUpToDate = false;
   private __isNormalMatrixUpToDate = false;
   private __tmpMatrix = MutableMatrix44.identity();
   private __worldAABB = new AABB();
@@ -334,6 +336,32 @@ export class SceneGraphComponent extends Component {
     return this.worldMatrixInner.clone();
   }
 
+  get worldMatrixRestInner() {
+    if (!this.__isWorldMatrixRestUpToDate) {
+      this._worldMatrixRest.copyComponents(
+        this.__calcWorldMatrixRestRecursively()
+      );
+      this.__isWorldMatrixRestUpToDate = true;
+    }
+
+    return this._worldMatrix;
+  }
+
+  get worldMatrixRest() {
+    return this.worldMatrixRestInner.clone();
+  }
+
+  get worldQuaternionRest(): IQuaternion {
+    const parent = this.parent;
+    if (parent != null) {
+      return Quaternion.multiply(
+        parent.worldQuaternionRest,
+        this.quaternion
+      ) as IQuaternion;
+    }
+    return this.quaternion;
+  }
+
   get normalMatrixInner() {
     if (!this.__isNormalMatrixUpToDate) {
       Matrix44.invertTo(
@@ -397,6 +425,29 @@ export class SceneGraphComponent extends Component {
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
       transform.matrixInner,
+      this.__tmpMatrix
+    );
+  }
+
+  private __calcWorldMatrixRestRecursively(): MutableMatrix44 {
+    if (this.__isWorldMatrixRestUpToDate) {
+      return this._worldMatrixRest;
+    }
+
+    const entity = EntityRepository.getEntity(
+      this.__entityUid
+    ) as ITransformEntity;
+    const transform = entity.getTransform()!;
+
+    if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
+      return transform.matrixRestInner;
+    }
+
+    const matrixFromAncestorToParent =
+      this.__parent.__calcWorldMatrixRestRecursively();
+    return MutableMatrix44.multiplyTo(
+      matrixFromAncestorToParent,
+      transform.matrixRestInner,
       this.__tmpMatrix
     );
   }
@@ -660,6 +711,9 @@ export class SceneGraphComponent extends Component {
 
   $logic() {
     this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
+    this._worldMatrixRest.copyComponents(
+      this.__calcWorldMatrixRestRecursively()
+    );
 
     this.__updateGizmos();
 
@@ -732,6 +786,10 @@ export class SceneGraphComponent extends Component {
     return this.worldMatrixInner.getTranslate();
   }
 
+  get translateRest(): IVector3 {
+    return this.worldMatrixRestInner.getTranslate();
+  }
+
   set rotate(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().rotate = vec;
@@ -765,8 +823,26 @@ export class SceneGraphComponent extends Component {
     }
   }
 
-  get quaternion() {
-    return Quaternion.fromMatrix(this.worldMatrixInner);
+  get quaternion(): IQuaternion {
+    const parent = this.parent;
+    if (parent != null) {
+      return Quaternion.multiply(
+        parent.quaternion,
+        this.entity.getTransform().quaternionInner
+      ) as IQuaternion;
+    }
+    return this.entity.getTransform().quaternionInner;
+  }
+
+  get quaternionRest(): IQuaternion {
+    const parent = this.parent;
+    if (parent != null) {
+      return Quaternion.multiply(
+        parent.quaternionRest,
+        this.entity.getTransform().quaternionRestInner
+      ) as IQuaternion;
+    }
+    return this.entity.getTransform().quaternionRestInner;
   }
 
   set scale(vec: IVector3) {

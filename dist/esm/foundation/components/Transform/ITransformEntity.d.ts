@@ -14,4 +14,14 @@ export interface ITransformEntityMethods {
     rotateInner: IVector3;
     quaternionInner: IQuaternion;
     matrixInner: IMatrix22;
+    translateRest: IVector3;
+    scaleRest: IVector3;
+    rotateRest: IVector3;
+    quaternionRest: IQuaternion;
+    matrixRest: IMatrix22;
+    translateRestInner: IVector3;
+    scaleRestInner: IVector3;
+    rotateRestInner: IVector3;
+    quaternionRestInner: IQuaternion;
+    matrixRestInner: IMatrix22;
 }

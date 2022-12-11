@@ -65,4 +65,8 @@ export declare class ComponentRepository {
      * Gets all componentTIDs.
      */
     static getComponentTIDs(): Array<ComponentTID>;
+    /**
+     * Gets all rendering componentTIDs.
+     */
+    static getRenderingComponentTIDs(): Array<ComponentTID>;
 }

@@ -1,10 +1,6 @@
-import { Vector3 } from '../../math/Vector3';
 import { Quaternion } from '../../math/Quaternion';
-import { Matrix44 } from '../../math/Matrix44';
 import { Component } from '../../core/Component';
 import { EntityRepository } from '../../core/EntityRepository';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
 import { IQuaternion } from '../../math/IQuaternion';
@@ -12,31 +8,20 @@ import { IMatrix44 } from '../../math/IMatrix';
 import { IVector3 } from '../../math/IVector';
 import { IEntity } from '../../core/Entity';
 import { ITransformEntity } from '../../helpers';
+import { Transform3D } from '../../math';
 export declare class TransformComponent extends Component {
-    private _translate;
-    private _scale;
-    private _quaternion;
-    private _matrix;
-    private _invMatrix;
-    private _normalMatrix;
-    private _is_translate_updated;
-    private _is_scale_updated;
-    private _is_quaternion_updated;
-    private _is_trs_matrix_updated;
-    private _is_inverse_trs_matrix_updated;
-    private _is_normal_trs_matrix_updated;
-    private static __tmpMatrix44_0;
-    private static __tmpVector3_0;
-    private static __tmpVector3_1;
-    private static __tmpVector3_2;
-    private static __tmpQuaternion_0;
-    private _updateCount;
+    private __rest;
+    private __pose;
     private __updateCountAtLastLogic;
     private _dependentAnimationComponentId;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository);
     static get renderedPropertyCount(): null;
     static get componentTID(): ComponentTID;
-    _needUpdate(): void;
+    get restOrPose(): Transform3D;
+    _backupTransformAsRest(): void;
+    _restoreTransformFromRest(): void;
+    get transform(): Transform3D;
+    get transformRest(): Transform3D;
     set translate(vec: IVector3);
     /**
      * return a copy of a local translate vector
@@ -46,6 +31,14 @@ export declare class TransformComponent extends Component {
      * return a local translate vector
      */
     get translateInner(): MutableVector3;
+    /**
+     * return a copy of a local translate vector
+     */
+    get translateRest(): IVector3;
+    /**
+     * return a local translate vector
+     */
+    get translateRestInner(): MutableVector3;
     set rotate(vec: IVector3);
     /**
      * return a copy of a local rotation (XYZ euler) vector
@@ -54,7 +47,15 @@ export declare class TransformComponent extends Component {
     /**
      * return a local rotation (XYZ euler) vector
      */
-    get rotateInner(): Vector3;
+    get rotateInner(): import("../../math").Vector3;
+    /**
+     * return a copy of a local rotation (XYZ euler) vector
+     */
+    get rotateRest(): IVector3;
+    /**
+     * return a local rotation (XYZ euler) vector
+     */
+    get rotateRestInner(): import("../../math").Vector3;
     set scale(vec: IVector3);
     /**
      * return a copy of a local scale vector
@@ -64,6 +65,14 @@ export declare class TransformComponent extends Component {
      * return a local scale vector
      */
     get scaleInner(): MutableVector3;
+    /**
+     * return a copy of a local scale vector
+     */
+    get scaleRest(): IVector3;
+    /**
+     * return a local scale vector
+     */
+    get scaleRestInner(): MutableVector3;
     set quaternion(quat: IQuaternion);
     /**
      * return a copy of a local quaternion vector
@@ -73,6 +82,14 @@ export declare class TransformComponent extends Component {
      * return a local quaternion vector
      */
     get quaternionInner(): Quaternion;
+    /**
+     * return a copy of a local quaternion vector
+     */
+    get quaternionRest(): IQuaternion;
+    /**
+     * return a local quaternion vector
+     */
+    get quaternionRestInner(): Quaternion;
     set matrix(mat: IMatrix44);
     /**
      * return a copy of local transform matrix
@@ -81,45 +98,15 @@ export declare class TransformComponent extends Component {
     /**
      * return a local transform matrix
      */
-    get matrixInner(): MutableMatrix44;
+    get matrixInner(): import("../../math").MutableMatrix44;
     /**
-     * return a copy of an inverse local transform matrix
+     * return a copy of local transform matrix
      */
-    get inverseMatrix(): Matrix44;
+    get matrixRest(): IMatrix44;
     /**
-     * return an inverse local transform matrix
+     * return a local transform matrix
      */
-    get inverseMatrixInner(): MutableMatrix44;
-    get normalMatrix(): MutableMatrix33;
-    get normalMatrixInner(): MutableMatrix33;
-    /**
-     * Set multiple transform information at once. By using this method,
-     * we reduce the cost of automatically updating other transform components inside this class.
-     * This method may be useful for animation processing and so on.
-     *
-     * The transform components of these arguments must not be mutually discrepant.
-     * for example. The transform components of matrix argument (translate, rotate/quaternion, scale)
-     * must be equal to translate, rotate, scale, quaternion arguments.
-     * And both rotate and quaternion arguments must be same rotation.
-     * If there is an argument passed with null or undefined, it is interpreted as unchanged.
-     *
-     * @param {*} translate
-     * @param {*} rotate
-     * @param {*} scale
-     * @param {*} quaternion
-     * @param {*} matrix
-     */
-    setTransform(translate: IVector3, rotate: IVector3, scale: IVector3, quaternion: IQuaternion, matrix: IMatrix44): void;
-    __updateTransform(): void;
-    __updateRotation(): void;
-    __updateTranslate(): void;
-    __updateScale(): void;
-    __updateMatrix(): void;
-    setPropertiesFromJson(arg: JSON): void;
-    setRotationFromNewUpAndFront(UpVec: IVector3, FrontVec: IVector3): void;
-    headToDirection(fromVec: Vector3, toVec: Vector3): void;
-    set rotateMatrix44(rotateMatrix: IMatrix44);
-    get rotateMatrix44(): IMatrix44;
+    get matrixRestInner(): import("../../math").MutableMatrix44;
     $logic(): void;
     /**
      * get the entity which has this component.

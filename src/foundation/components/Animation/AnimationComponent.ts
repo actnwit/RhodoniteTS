@@ -1,5 +1,5 @@
-import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
+import {Component} from '../../core/Component';
+import {ComponentRepository} from '../../core/ComponentRepository';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 import {
@@ -7,9 +7,9 @@ import {
   AnimationInterpolation,
 } from '../../definitions/AnimationInterpolation';
 import {AnimationAttribute} from '../../definitions/AnimationAttribute';
-import { TransformComponent } from '../Transform/TransformComponent';
+import {TransformComponent} from '../Transform/TransformComponent';
 import {ProcessStage} from '../../definitions/ProcessStage';
-import { MeshComponent } from '../Mesh/MeshComponent';
+import {MeshComponent} from '../Mesh/MeshComponent';
 import {
   ComponentTID,
   ComponentSID,
@@ -32,7 +32,7 @@ import {valueWithDefault, greaterThan, lessThan} from '../../misc/MiscUtil';
 import {EventPubSub, EventHandler} from '../../system/EventPubSub';
 import {IVector, IVector3} from '../../math/IVector';
 import {IQuaternion} from '../../math/IQuaternion';
-import { Quaternion } from '../../math/Quaternion';
+import {Quaternion} from '../../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
@@ -50,16 +50,20 @@ import {
   normalizeArray4,
   qlerp_offsetAsComposition,
 } from '../../math/raw/raw_extension';
-import { Vector3 } from '../../math/Vector3';
+import {Vector3} from '../../math/Vector3';
 import {Is} from '../../misc/Is';
 import {IAnimationEntity, ISceneGraphEntity} from '../../helpers/EntityHelper';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
-import { EffekseerComponent } from '../../../effekseer';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { IMatrix44, Matrix44, MutableQuaternion } from '../../math';
-import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
-import { SceneGraphComponent } from '../SceneGraph';
+import {EffekseerComponent} from '../../../effekseer';
+import {MutableMatrix44} from '../../math/MutableMatrix44';
+import {IMatrix44, Matrix44, MutableQuaternion} from '../../math';
+import {
+  IAnimationRetarget,
+  ISkeletalEntityMethods,
+  SkeletalComponent,
+} from '../Skeletal';
+import {SceneGraphComponent} from '../SceneGraph';
 
 const defaultAnimationInfo = {
   name: '',
@@ -311,184 +315,8 @@ export class AnimationComponent extends Component {
     return inputArray.length - 1;
   }
 
-  private __restoreRestValues() {
-    this.__transformComponent!.quaternion = this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str as AnimationPathName
-    ) as Quaternion;
-
-    this.__transformComponent!.translate = this.__backupDefaultValues.get(
-      AnimationAttribute.Translate.str as AnimationPathName
-    ) as IVector3;
-    this.__transformComponent!.scale = this.__backupDefaultValues.get(
-      AnimationAttribute.Scale.str as AnimationPathName
-    ) as IVector3;
-    if (this.__meshComponent != null) {
-      this.__meshComponent!.weights = this.__backupDefaultValues.get(
-        AnimationAttribute.Weights.str as AnimationPathName
-      ) as number[];
-    }
-  }
-
-  get restMatrix() {
-    const scale = this.restScale;
-    const q = this.restQuaternion;
-    const n00 = scale._v[0];
-    const n11 = scale._v[1];
-    const n22 = scale._v[2];
-    const sx = q._v[0] * q._v[0];
-    const sy = q._v[1] * q._v[1];
-    const sz = q._v[2] * q._v[2];
-    const cx = q._v[1] * q._v[2];
-    const cy = q._v[0] * q._v[2];
-    const cz = q._v[0] * q._v[1];
-    const wx = q._v[3] * q._v[0];
-    const wy = q._v[3] * q._v[1];
-    const wz = q._v[3] * q._v[2];
-    const m00 = 1.0 - 2.0 * (sy + sz);
-    const m01 = 2.0 * (cz - wz);
-    const m02 = 2.0 * (cy + wy);
-    // const m03 = 0.0;
-    const m10 = 2.0 * (cz + wz);
-    const m11 = 1.0 - 2.0 * (sx + sz);
-    const m12 = 2.0 * (cx - wx);
-    // const m13 = 0.0;
-    const m20 = 2.0 * (cy - wy);
-    const m21 = 2.0 * (cx + wx);
-    const m22 = 1.0 - 2.0 * (sx + sy);
-
-    const translate = this.restTranslate;
-
-    const matrix = MutableMatrix44.identity();
-    matrix.m00 = m00 * n00;
-    matrix.m01 = m01 * n11;
-    matrix.m02 = m02 * n22;
-    matrix.m03 = translate.x;
-
-    matrix.m10 = m10 * n00;
-    matrix.m11 = m11 * n11;
-    matrix.m12 = m12 * n22;
-    matrix.m13 = translate.y;
-
-    matrix.m20 = m20 * n00;
-    matrix.m21 = m21 * n11;
-    matrix.m22 = m22 * n22;
-    matrix.m23 = translate.z;
-
-    matrix.m30 = 0;
-    matrix.m31 = 0;
-    matrix.m32 = 0;
-    matrix.m33 = 1;
-
-    return matrix;
-  }
-
-  get restTranslate() {
-    const backUpValue = this.__backupDefaultValues.get(
-      AnimationAttribute.Translate.str as AnimationPathName
-    ) as IVector3;
-
-    if (backUpValue == null) {
-      return this.entity.getTransform().translateInner;
-    }
-
-    return backUpValue;
-  }
-
-  get restQuaternion() {
-    const backUpValue = this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str as AnimationPathName
-    ) as Quaternion;
-
-    if (backUpValue == null) {
-      return this.entity.getTransform().quaternionInner;
-    }
-
-    return backUpValue;
-  }
-
-  get restRotation() {
-    const backupValue = (this.__backupDefaultValues.get(
-      AnimationAttribute.Quaternion.str as AnimationPathName
-    ) as Quaternion)!.toEulerAngles();
-
-    if (backupValue == null) {
-      return this.entity.getTransform().rotateInner;
-    }
-
-    return backupValue;
-  }
-
-  get restScale() {
-    const backupValue = this.__backupDefaultValues.get(
-      AnimationAttribute.Scale.str as AnimationPathName
-    ) as IVector3;
-
-    if (backupValue == null) {
-      return this.entity.getTransform().scaleInner;
-    }
-
-    return backupValue;
-  }
-
-  get globalRestQuaternion(): IQuaternion {
-    const parent = this.entity.getSceneGraph().parent;
-    if (parent !== undefined) {
-      const parentAnimation = parent.entity.tryToGetAnimation();
-      if (parentAnimation !== undefined) {
-        return Quaternion.multiply(
-          this.restQuaternion,
-          parentAnimation.globalRestQuaternion
-          // parentAnimation.globalRestQuaternion,
-          // this.restQuaternion
-        );
-      }
-    }
-
-    return this.restQuaternion;
-  }
-
-  get globalRestMatrix(): IMatrix44 {
-    const parent = this.entity.getSceneGraph().parent;
-    if (parent !== undefined) {
-      const parentAnimation = parent.entity.tryToGetAnimation();
-      if (parentAnimation !== undefined) {
-        return Matrix44.multiply(
-          parentAnimation.globalRestMatrix,
-          this.restMatrix
-        );
-      }
-    }
-
-    return this.restMatrix;
-  }
-
-  private __backupRestValues() {
-    this.__backupDefaultValues.set(
-      AnimationAttribute.Quaternion.str as AnimationPathName,
-      this.__transformComponent!.quaternion
-    );
-    this.__backupDefaultValues.set(
-      AnimationAttribute.Translate.str as AnimationPathName,
-      this.__transformComponent!.translate
-    );
-    this.__backupDefaultValues.set(
-      AnimationAttribute.Scale.str as AnimationPathName,
-      this.__transformComponent!.scale
-    );
-    if (this.__meshComponent != null) {
-      this.__backupDefaultValues.set(
-        AnimationAttribute.Weights.str as AnimationPathName,
-        this.__meshComponent?.weights
-      );
-    }
-  }
-
   setIsAnimating(flg: boolean) {
     this.__isAnimating = flg;
-  }
-
-  setAnimationToRest() {
-    this.__restoreRestValues();
   }
 
   static setIsAnimatingForAll(flg: boolean) {
@@ -613,7 +441,8 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
-    this.__backupRestValues();
+
+    this.__transformComponent?._backupTransformAsRest();
   }
 
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
@@ -1068,23 +897,26 @@ export class AnimationComponent extends Component {
       } else if (existedInput < secBegin) {
         channel.sampler.input.push(input);
         channel.sampler.output.push(...output);
-      } else { // secBegin <= existedInput <= secEnd
+      } else {
+        // secBegin <= existedInput <= secEnd
         channel.sampler.input.splice(0, 0, input);
         channel.sampler.output.splice(0, 0, ...output);
       }
-    } else { // channel.sampler.input.length >= 2
+    } else {
+      // channel.sampler.input.length >= 2
       for (let i = 0; i < channel.sampler.input.length; i++) {
         const existedInput = channel.sampler.input[i];
         if (secBegin <= existedInput) {
           if (secBegin <= existedInput && existedInput <= secEnd) {
             channel.sampler.input[i] = input;
             for (let j = 0; j < channel.sampler.outputComponentN; j++) {
-              channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
+              channel.sampler.output[i * channel.sampler.outputComponentN + j] =
+                output[j];
             }
           } else {
             channel.sampler.input.splice(i, 0, input);
             channel.sampler.output.splice(
-              (i) * channel.sampler.outputComponentN,
+              i * channel.sampler.outputComponentN,
               0,
               ...output
             );
@@ -1139,23 +971,26 @@ export class AnimationComponent extends Component {
       } else if (existedInput < secBegin) {
         channel.sampler.input.push(input);
         channel.sampler.output.push(...output);
-      } else { // secBegin <= existedInput <= secEnd
+      } else {
+        // secBegin <= existedInput <= secEnd
         channel.sampler.input.splice(0, 0, input);
         channel.sampler.output.splice(0, 0, ...output);
       }
-    } else { // channel.sampler.input.length >= 2
+    } else {
+      // channel.sampler.input.length >= 2
       for (let i = 0; i < channel.sampler.input.length; i++) {
         const existedInput = channel.sampler.input[i];
         if (secBegin <= existedInput) {
           if (secBegin <= existedInput && existedInput <= secEnd) {
             channel.sampler.input[i] = input;
             for (let j = 0; j < channel.sampler.outputComponentN; j++) {
-              channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
+              channel.sampler.output[i * channel.sampler.outputComponentN + j] =
+                output[j];
             }
           } else {
             channel.sampler.input.splice(i, 0, input);
             channel.sampler.output.splice(
-              (i) * channel.sampler.outputComponentN,
+              i * channel.sampler.outputComponentN,
               0,
               ...output
             );

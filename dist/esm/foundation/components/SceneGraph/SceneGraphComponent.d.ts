@@ -19,8 +19,10 @@ export declare class SceneGraphComponent extends Component {
     private __children;
     private __gizmoChildren;
     private _worldMatrix;
+    private _worldMatrixRest;
     private _normalMatrix;
     private __isWorldMatrixUpToDate;
+    private __isWorldMatrixRestUpToDate;
     private __isNormalMatrixUpToDate;
     private __tmpMatrix;
     private __worldAABB;
@@ -82,12 +84,16 @@ export declare class SceneGraphComponent extends Component {
     get parent(): SceneGraphComponent | undefined;
     get worldMatrixInner(): MutableMatrix44;
     get worldMatrix(): MutableMatrix44;
+    get worldMatrixRestInner(): MutableMatrix44;
+    get worldMatrixRest(): MutableMatrix44;
+    get worldQuaternionRest(): IQuaternion;
     get normalMatrixInner(): MutableMatrix33;
     get entityWorldMatrix(): MutableMatrix44;
     get entityWorldMatrixInner(): MutableMatrix44;
     get normalMatrix(): MutableMatrix33;
     isWorldMatrixUpToDateRecursively(): boolean;
     private __calcWorldMatrixRecursively;
+    private __calcWorldMatrixRestRecursively;
     getQuaternionRecursively(): IQuaternion;
     /**
      * Collects children and itself from specified sceneGraphComponent.
@@ -128,10 +134,12 @@ export declare class SceneGraphComponent extends Component {
     private __updateGizmos;
     set translate(vec: IVector3);
     get translate(): IVector3;
+    get translateRest(): IVector3;
     set rotate(vec: IVector3);
     get rotate(): IVector3;
     set quaternion(quat: IQuaternion);
     get quaternion(): IQuaternion;
+    get quaternionRest(): IQuaternion;
     set scale(vec: IVector3);
     get scale(): IVector3;
     /**
