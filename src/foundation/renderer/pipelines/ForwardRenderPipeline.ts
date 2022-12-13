@@ -727,6 +727,7 @@ export class ForwardRenderPipeline extends RnObject {
           createDepthBuffer: true,
           isMSAA: false,
           sampleCountMSAA: 1,
+          anisotropy: false,
         }
       )
     );

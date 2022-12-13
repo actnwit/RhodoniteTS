@@ -21,6 +21,7 @@ function createTexturesForRenderTarget(
     createDepthBuffer = true,
     isMSAA = false,
     sampleCountMSAA = 4,
+    anisotropy = false,
   }
 ) {
   const frameBuffer = new FrameBuffer();
@@ -39,6 +40,7 @@ function createTexturesForRenderTarget(
       minFilter,
       wrapS,
       wrapT,
+      anisotropy,
     });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
@@ -93,6 +95,7 @@ function createDepthBuffer(
     minFilter,
     wrapS,
     wrapT,
+    anisotropy: false,
   });
 
   frameBuffer.setDepthAttachment(depthTexture);

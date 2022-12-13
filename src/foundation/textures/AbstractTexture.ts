@@ -24,6 +24,7 @@ export abstract class AbstractTexture extends RnObject {
   protected __minFilter: TextureParameterEnum = TextureParameter.Linear;
   protected __wrapS: TextureParameterEnum = TextureParameter.ClampToEdge;
   protected __wrapT: TextureParameterEnum = TextureParameter.ClampToEdge;
+  protected __anisotropy = false;
 
   protected __hasTransparentPixels = false;
 
