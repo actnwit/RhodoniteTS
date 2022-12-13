@@ -614,6 +614,15 @@ export class ForwardRenderPipeline extends RnObject {
     renderPassForResolve.setResolveFramebuffer(framebufferTargetOfGammaResolve);
     renderPassForResolve.setResolveFramebuffer2(framebufferTargetOfGammaResolveForReference);
 
+    // Generate Mipmap of resolve Framebuffer 2
+    renderPassForResolve.setPostRenderFunction(function (
+      this: RenderPass
+    ): void {
+      const renderTargetTexture =
+        this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!;
+      renderTargetTexture.generateMipmap();
+    });
+
     sFrame.unwrapForce().addExpression(expressionForResolve);
 
     return expressionForResolve;

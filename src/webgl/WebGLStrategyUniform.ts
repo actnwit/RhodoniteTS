@@ -408,45 +408,49 @@ bool get_isBillboard(float instanceId) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
 
-      // For opaque primitives
-      if (renderPass.toRenderOpaquePrimitives) {
-        for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
-          const primitiveUid = primitiveUids[i];
-          this.renderInner(
-            primitiveUid,
-            glw,
-            renderPass,
-            renderPassTickCount,
-            isVrMainPass,
-            displayIdx
-          );
-        }
-      }
+      for (let j = 0; j < renderPass.drawCount; j++) {
+        renderPass.doPreEachDraw(j);
 
-      // For translucent primitives
-      if (renderPass.toRenderTransparentPrimitives) {
-        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-          // disable depth write for transparent primitives
-          gl.depthMask(false);
+        // For opaque primitives
+        if (renderPass.toRenderOpaquePrimitives) {
+          for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+            const primitiveUid = primitiveUids[i];
+            this.renderInner(
+              primitiveUid,
+              glw,
+              renderPass,
+              renderPassTickCount,
+              isVrMainPass,
+              displayIdx
+            );
+          }
         }
 
-        for (
-          let i = MeshRendererComponent._lastOpaqueIndex + 1;
-          i <= MeshRendererComponent._lastTransparentIndex;
-          i++
-        ) {
-          const primitiveUid = primitiveUids[i];
-          this.renderInner(
-            primitiveUid,
-            glw,
-            renderPass,
-            renderPassTickCount,
-            isVrMainPass,
-            displayIdx
-          );
+        // For translucent primitives
+        if (renderPass.toRenderTransparentPrimitives) {
+          if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+            // disable depth write for transparent primitives
+            gl.depthMask(false);
+          }
+
+          for (
+            let i = MeshRendererComponent._lastOpaqueIndex + 1;
+            i <= MeshRendererComponent._lastTransparentIndex;
+            i++
+          ) {
+            const primitiveUid = primitiveUids[i];
+            this.renderInner(
+              primitiveUid,
+              glw,
+              renderPass,
+              renderPassTickCount,
+              isVrMainPass,
+              displayIdx
+            );
+          }
+          gl.depthMask(true);
         }
       }
-      gl.depthMask(true);
     }
 
     return false;

@@ -280,12 +280,9 @@ export class System {
 
               this.__renderPassTickCount++;
 
-              if (renderPass.getResolveFramebuffer()) {
-                renderPass.copyFramebufferToResolveFramebuffer();
-              }
-              if (renderPass.getResolveFramebuffer2()) {
-                renderPass.copyFramebufferToResolveFramebuffer2();
-              }
+              renderPass._copyFramebufferToResolveFramebuffers();
+
+              renderPass.doPostRender();
             }
           }
         }
