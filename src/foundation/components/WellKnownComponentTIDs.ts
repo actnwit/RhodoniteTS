@@ -12,8 +12,9 @@ const BlendShapeComponentTID = 10;
 const PhysicsComponentTID = 11;
 const SparkGearComponentTID = 12;
 const EffekseerComponentTID = 13;
+const VrmComponentTID = 14;
 
-const maxWellKnownTidNumber = 13;
+const maxWellKnownTidNumber = 14;
 
 export const WellKnownComponentTIDs = Object.freeze({
   AnimationComponentTID,
@@ -29,5 +30,6 @@ export const WellKnownComponentTIDs = Object.freeze({
   PhysicsComponentTID,
   SparkGearComponentTID,
   EffekseerComponentTID,
+  VrmComponentTID,
   maxWellKnownTidNumber,
 });
