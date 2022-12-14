@@ -557,6 +557,8 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
     initialRenderPassForFrameBuffer.setFramebuffer(framebufferTargetOfGammaMsaa);
 
+    expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
+
     if (oFrameDepthMoment.has()) {
       const frameDepthMoment = oFrameDepthMoment.unwrapForce();
       const initialRenderPassForDepthMoment = new RenderPass();
@@ -564,9 +566,10 @@ export class ForwardRenderPipeline extends RnObject {
       initialRenderPassForDepthMoment.toClearColorBuffer = true;
       initialRenderPassForDepthMoment.toClearDepthBuffer = true;
       initialRenderPassForDepthMoment.setFramebuffer(frameDepthMoment);
+
+      expression.addRenderPasses([initialRenderPassForDepthMoment]);
     }
 
-    expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
     return expression;
   }
 
