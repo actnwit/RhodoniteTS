@@ -27,6 +27,9 @@ declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 
+/**
+ * WebXRSystem class manages WebXR session and rendering
+ */
 export class WebXRSystem {
   private static __instance: WebXRSystem;
   private __xrSession?: XRSession;
