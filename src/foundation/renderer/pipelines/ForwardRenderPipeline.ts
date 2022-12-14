@@ -453,23 +453,26 @@ export class ForwardRenderPipeline extends RnObject {
       }
       for (const expression of this.__expressions) {
         for (const renderPass of expression.renderPasses) {
-          const entities = renderPass.entities;
-          for (const entity of entities) {
-            const meshComponent = entity.tryToGetMesh();
-            if (Is.exist(meshComponent)) {
-              const mesh = meshComponent.mesh;
-              if (Is.exist(mesh)) {
-                const primitives = mesh.primitives;
-                for (const primitive of primitives) {
-                  const material = primitive.material;
-                  material.setParameter(
-                    ShaderSemantics.DepthBiasPV,
-                    cameraComponent.biasViewProjectionMatrix
-                  );
+          // eslint-disable-next-line prefer-arrow-callback
+          renderPass.setPostRenderFunction(function (this: RenderPass) {
+            const entities = renderPass.entities;
+            for (const entity of entities) {
+              const meshComponent = entity.tryToGetMesh();
+              if (Is.exist(meshComponent)) {
+                const mesh = meshComponent.mesh;
+                if (Is.exist(mesh)) {
+                  const primitives = mesh.primitives;
+                  for (const primitive of primitives) {
+                    const material = primitive.material;
+                    material.setParameter(
+                      ShaderSemantics.DepthBiasPV,
+                      cameraComponent.biasViewProjectionMatrix
+                    );
+                  }
                 }
               }
             }
-          }
+          });
         }
       }
     }
@@ -714,26 +717,21 @@ export class ForwardRenderPipeline extends RnObject {
 
   private __setupDepthMomentFramebuffer(shadowMapSize: number) {
     return new Some(
-      RenderableHelper.createTexturesForRenderTarget(
-        Math.floor(shadowMapSize * (this.__width / this.__height)),
-        shadowMapSize,
-        1,
-        {
-          level: 0,
-          internalFormat: TextureParameter.RGBA8,
-          format: PixelFormat.RGBA,
-          type: ComponentType.UnsignedByte,
-          magFilter: TextureParameter.Linear,
-          // minFilter: TextureParameter.Linear,
-          minFilter: TextureParameter.LinearMipmapLinear,
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge,
-          createDepthBuffer: true,
-          isMSAA: false,
-          sampleCountMSAA: 1,
-          anisotropy: false,
-        }
-      )
+      RenderableHelper.createTexturesForRenderTarget(shadowMapSize, shadowMapSize, 1, {
+        level: 0,
+        internalFormat: TextureParameter.RGBA8,
+        format: PixelFormat.RGBA,
+        type: ComponentType.UnsignedByte,
+        magFilter: TextureParameter.Linear,
+        minFilter: TextureParameter.Linear,
+        // minFilter: TextureParameter.LinearMipmapLinear,
+        wrapS: TextureParameter.ClampToEdge,
+        wrapT: TextureParameter.ClampToEdge,
+        createDepthBuffer: true,
+        isMSAA: false,
+        sampleCountMSAA: 1,
+        anisotropy: false,
+      })
     );
   }
 
@@ -819,10 +817,11 @@ export class ForwardRenderPipeline extends RnObject {
         renderPass.toRenderTransparentPrimitives = false;
 
         renderPass.setMaterial(depthMomentMaterial);
+        // eslint-disable-next-line prefer-arrow-callback
         renderPass.setPostRenderFunction(function (this: RenderPass) {
-          this.getFramebuffer()!
-            .getColorAttachedRenderTargetTexture(0)!
-            .generateMipmap();
+          // this.getFramebuffer()!
+          //   .getColorAttachedRenderTargetTexture(0)!
+          //   .generateMipmap();
         });
       }
     }
