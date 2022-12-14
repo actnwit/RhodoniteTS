@@ -724,7 +724,8 @@ export class ForwardRenderPipeline extends RnObject {
           format: PixelFormat.RGBA,
           type: ComponentType.UnsignedByte,
           magFilter: TextureParameter.Linear,
-          minFilter: TextureParameter.Linear,
+          // minFilter: TextureParameter.Linear,
+          minFilter: TextureParameter.LinearMipmapLinear,
           wrapS: TextureParameter.ClampToEdge,
           wrapT: TextureParameter.ClampToEdge,
           createDepthBuffer: true,
@@ -818,6 +819,11 @@ export class ForwardRenderPipeline extends RnObject {
         renderPass.toRenderTransparentPrimitives = false;
 
         renderPass.setMaterial(depthMomentMaterial);
+        renderPass.setPostRenderFunction(function (this: RenderPass) {
+          this.getFramebuffer()!
+            .getColorAttachedRenderTargetTexture(0)!
+            .generateMipmap();
+        });
       }
     }
 
