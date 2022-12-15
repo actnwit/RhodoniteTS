@@ -795,10 +795,6 @@ export class ModelConverter {
         rnMesh.addPrimitive(rnPrimitive);
       }
 
-      if (mesh.weights) {
-        rnMesh.weights = mesh.weights;
-      }
-
       meshComponent.setMesh(rnMesh);
       (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = rnMesh;
     }
