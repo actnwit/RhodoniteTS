@@ -64,6 +64,7 @@ import {
   SkeletalComponent,
 } from '../Skeletal';
 import {SceneGraphComponent} from '../SceneGraph';
+import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 
 const defaultAnimationInfo = {
   name: '',
@@ -96,6 +97,7 @@ export class AnimationComponent extends Component {
   /// cache references of other components
   private __transformComponent?: TransformComponent;
   private __meshComponent?: MeshComponent;
+  private __blendShapeComponent?: BlendShapeComponent;
   private __effekseerComponent?: EffekseerComponent;
   private __isEffekseerState = -1;
 
@@ -145,6 +147,10 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       MeshComponent
     ) as MeshComponent;
+    this.__blendShapeComponent = EntityRepository.getComponentOfEntity(
+      this.__entityUid,
+      BlendShapeComponent
+    ) as BlendShapeComponent;
     this.__effekseerComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       EffekseerComponent
@@ -198,7 +204,7 @@ export class AnimationComponent extends Component {
               value as Array3<number>
             );
           } else if (i === AnimationAttribute.Weights.index) {
-            this.__meshComponent!.weights = value;
+            this.__blendShapeComponent!.weights = value;
           } else if (i === AnimationAttribute.Effekseer.index) {
             if (value[0] > 0.5) {
               if (this.__isEffekseerState === 0) {

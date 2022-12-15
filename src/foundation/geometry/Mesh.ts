@@ -33,7 +33,6 @@ export class Mesh implements IMesh {
   private __opaquePrimitives: Array<Primitive> = [];
   private __transparentPrimitives: Array<Primitive> = [];
   private __morphPrimitives: Array<Primitive> = [];
-  public weights: number[] = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle =

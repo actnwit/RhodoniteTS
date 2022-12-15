@@ -73,14 +73,6 @@ export class MeshComponent extends Component {
     return this.__mesh;
   }
 
-  set weights(value: number[]) {
-    if (this.__mesh == null) {
-      return;
-    }
-    //    this.__mesh!.makeVerticesSeparated();
-    this.__mesh.weights = value;
-  }
-
   calcViewDepth(cameraComponent: CameraComponent) {
     const centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
     const skeletal = this.entity.tryToGetSkeletal();

@@ -476,6 +476,17 @@ export class ModelConverter {
           weights = node.weights;
         } else if (node.meshObject?.weights) {
           weights = node.meshObject.weights;
+        } else {
+          let targetNum = 0;
+          // get maximum target num
+          for (const primitive of node.meshObject!.primitives) {
+            if (Is.exist(primitive.targets)) {
+              if (primitive.targets.length > targetNum) {
+                targetNum = primitive.targets.length;
+              }
+            }
+          }
+          weights = new Array(targetNum).fill(0);
         }
         entity = EntityRepository.addComponentToEntity(
           BlendShapeComponent,
@@ -782,10 +793,6 @@ export class ModelConverter {
           rnPrimitive.setBlendShapeTargets(targets);
         }
         rnMesh.addPrimitive(rnPrimitive);
-      }
-
-      if (mesh.weights) {
-        rnMesh.weights = mesh.weights;
       }
 
       meshComponent.setMesh(rnMesh);
