@@ -2,16 +2,33 @@ import {
   ComponentSID,
   ComponentTID,
   EntityUID,
+  Index,
 } from '../../../types/CommonTypes';
 import {Component} from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { IEntity } from '../../core/Entity';
 import {applyMixins, EntityRepository} from '../../core/EntityRepository';
 import {ProcessStage} from '../../definitions/ProcessStage';
+import { Is } from '../../misc';
+import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
 
+export type VrmExpressionName = string;
+export type VrmExpression = {
+  name: VrmExpressionName;
+  isBinary: boolean;
+  binds: {
+    entityIdx: Index; //
+    blendShapeIdx: Index; // morph target index in primitive
+    weight: number; // [0,1]
+  }[];
+};
+
 export class VrmComponent extends Component {
+  private __expressions: Map<VrmExpressionName, VrmExpression> = new Map();
+  private __weights: Map<VrmExpressionName, number> = new Map();
+  private __blendShapeComponent?: BlendShapeComponent;
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -25,7 +42,36 @@ export class VrmComponent extends Component {
     return WellKnownComponentTIDs.VrmComponentTID;
   }
 
-  getVrm() {}
+  public setVrmExpressions(expressions: VrmExpression[]) {
+    for (const exp of expressions) {
+      this.__expressions.set(exp.name, exp);
+      this.__weights.set(exp.name, 0);
+    }
+  }
+
+  public setExpressionWeight(
+    expressionName: VrmExpressionName,
+    weight: number
+  ): void {
+    const expression = this.__expressions.get(expressionName);
+    if (Is.not.exist(expression)) {
+      return;
+    }
+    this.__weights.set(expressionName, weight);
+    for (const bind of expression.binds) {
+      const entity = EntityRepository.getEntity(bind.entityIdx);
+      const blendShapeComponent = entity.tryToGetBlendShape();
+      if (Is.exist(blendShapeComponent)) {
+        blendShapeComponent.setWeightByIndex(bind.blendShapeIdx, weight);
+      }
+    }
+  }
+
+  public getExpressionWeight(
+    expressionName: VrmExpressionName
+  ): number | undefined {
+    return this.__weights.get(expressionName);
+  }
 
   /**
    * @override
