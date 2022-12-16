@@ -1,13 +1,10 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type AnimationAttributeEnum = EnumIO;
 
-class AnimationAttributeClass
-  extends EnumClass
-  implements AnimationAttributeEnum
-{
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+class AnimationAttributeClass extends EnumClass implements AnimationAttributeEnum {
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -35,11 +32,11 @@ const Effekseer: AnimationAttributeEnum = new AnimationAttributeClass({
 const typeList = [Quaternion, Translate, Scale, Weights, Effekseer];
 
 function from(index: number): AnimationAttributeEnum {
-  return _from({typeList, index}) as AnimationAttributeEnum;
+  return _from({ typeList, index }) as AnimationAttributeEnum;
 }
 
 function fromString(str: string): AnimationAttributeEnum {
-  return _fromString({typeList, str}) as AnimationAttributeEnum;
+  return _fromString({ typeList, str }) as AnimationAttributeEnum;
 }
 
 export const AnimationAttribute = Object.freeze({

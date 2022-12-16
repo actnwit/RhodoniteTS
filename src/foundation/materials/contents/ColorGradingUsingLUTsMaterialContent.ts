@@ -1,24 +1,21 @@
-import {AbstractTexture} from '../../textures/AbstractTexture';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {ComponentType} from '../../definitions/ComponentType';
-import {Count} from '../../../types/CommonTypes';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {Texture} from '../../textures/Texture';
-import {TextureParameter} from '../../definitions/TextureParameter';
-import {RenderPass} from '../../renderer/RenderPass';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {Material} from '../core/Material';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { Count } from '../../../types/CommonTypes';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { Texture } from '../../textures/Texture';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { RenderPass } from '../../renderer/RenderPass';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { Material } from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({
@@ -41,18 +38,13 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
 
     let targetTexture;
     const framebuffer = targetRenderPass.getFramebuffer();
-    if (
-      framebuffer != null &&
-      framebuffer.colorAttachments[colorAttachmentsNumber] != null
-    ) {
+    if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
     } else {
       targetTexture = AbstractMaterialContent.__dummyBlackTexture;
       if (framebuffer != null) {
         console.warn(
-          'renderPass does not have framebuffer.colorAttachments[' +
-            colorAttachmentsNumber +
-            ']'
+          'renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']'
         );
       } else {
         console.warn('renderPass does not have framebuffer');
@@ -131,18 +123,8 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
       ) as CameraComponent;
     }
     if (cameraComponent) {
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
     }
   }
 }

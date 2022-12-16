@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { CompositionType } from '../definitions/CompositionType';
 import { AbstractMatrix } from './AbstractMatrix';
-import {IMatrix, IMatrix44} from './IMatrix';
+import { IMatrix, IMatrix44 } from './IMatrix';
 import { IVector, IVector4, IMutableVector, IVector3 } from './IVector';
 import { Matrix44 } from './Matrix44';
 import { MutableVector4 } from './MutableVector4';
@@ -9,10 +9,7 @@ import { Vector3 } from './Vector3';
 import { Vector4 } from './Vector4';
 
 export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
-  static readonly __v = new Float32Array([1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1]);
+  static readonly __v = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   constructor() {
     super();
     this._v = IdentityMatrix44.__v;
@@ -25,20 +22,18 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
 `;
   }
   toStringApproximately(): string {
-    return this.toString()
+    return this.toString();
   }
   flattenAsArray(): number[] {
-    return [1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1];
+    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   }
   isDummy(): boolean {
     return false;
   }
 
   isEqual(mat: IMatrix44, delta: number = Number.EPSILON): boolean {
-    if (Math.abs(mat.m00 - 1) < delta &&
+    if (
+      Math.abs(mat.m00 - 1) < delta &&
       Math.abs(mat.m10) < delta &&
       Math.abs(mat.m20) < delta &&
       Math.abs(mat.m30) < delta &&
@@ -53,7 +48,8 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
       Math.abs(mat.m03) < delta &&
       Math.abs(mat.m13) < delta &&
       Math.abs(mat.m23) < delta &&
-      Math.abs(mat.m33 - 1) < delta) {
+      Math.abs(mat.m33 - 1) < delta
+    ) {
       return true;
     } else {
       return false;
@@ -63,10 +59,22 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
   isStrictEqual(mat: IMatrix): boolean {
     const v = (mat as Matrix44)._v;
     if (
-      v[0] === 1 && v[1] === 0 && v[2] === 0 && v[3] === 0 &&
-      v[4] === 0 && v[5] === 1 && v[6] === 0 && v[7] === 0 &&
-      v[8] === 0 && v[9] === 0 && v[10] === 1 && v[11] === 0 &&
-      v[12] === 0 && v[13] === 0 && v[14] === 0 && v[15] === 1
+      v[0] === 1 &&
+      v[1] === 0 &&
+      v[2] === 0 &&
+      v[3] === 0 &&
+      v[4] === 0 &&
+      v[5] === 1 &&
+      v[6] === 0 &&
+      v[7] === 0 &&
+      v[8] === 0 &&
+      v[9] === 0 &&
+      v[10] === 1 &&
+      v[11] === 0 &&
+      v[12] === 0 &&
+      v[13] === 0 &&
+      v[14] === 0 &&
+      v[15] === 1
     ) {
       return true;
     } else {
@@ -75,11 +83,11 @@ export class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatrix
   }
 
   at(row_i: number, column_i: number): number {
-    return (row_i === column_i) ? 1 : 0;
+    return row_i === column_i ? 1 : 0;
   }
 
   v(i: number): number {
-    return (i%5 === 0) ? 1 : 0;
+    return i % 5 === 0 ? 1 : 0;
   }
 
   determinant(): number {

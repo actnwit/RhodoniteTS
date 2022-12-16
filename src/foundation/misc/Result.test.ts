@@ -1,4 +1,4 @@
-import {IResult, Ok, Err, RnError, RnException} from './Result';
+import { IResult, Ok, Err, RnError, RnException } from './Result';
 
 function succeedIfValueEven(val: number): IResult<number, number> {
   if (val % 2 === 0) {
@@ -104,7 +104,7 @@ test(`wrapped Err`, () => {
   }
 
   const result = wrapper();
-  result.unwrap(err => {
+  result.unwrap((err) => {
     expect(err.message).toBe('Error 2');
     console.log(err.error.toString());
   });

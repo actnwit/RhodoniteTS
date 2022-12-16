@@ -1,7 +1,7 @@
-import {FloatTypedArrayConstructor} from '../../../types/CommonTypes';
-import {IMutableVector3, IVector3} from '../IVector';
-import {MutableVector3_} from '../MutableVector3';
-import {Vector3_} from '../Vector3';
+import { FloatTypedArrayConstructor } from '../../../types/CommonTypes';
+import { IMutableVector3, IVector3 } from '../IVector';
+import { MutableVector3_ } from '../MutableVector3';
+import { Vector3_ } from '../Vector3';
 
 export class MathSphere_<T extends FloatTypedArrayConstructor> {
   private __position: MutableVector3_<T>;

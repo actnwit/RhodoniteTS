@@ -1,8 +1,8 @@
 import { Vector3 } from '../../math/Vector3';
-import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
-import {PrimitiveMode} from '../../definitions/PrimitiveMode';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {IShape} from './IShape';
+import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { IShape } from './IShape';
 
 export type JointDescriptor = IAnyPrimitiveDescriptor;
 
@@ -33,10 +33,7 @@ export class Joint extends IShape {
     let directionToParent = Vector3.fromCopyArray3([0, 1, 0]);
     if (!deltaVec.isEqual(Vector3.zero())) {
       directionToParent = Vector3.normalize(
-        Vector3.subtract(
-          this.__worldPositionOfParentJoint,
-          this.__worldPositionOfThisJoint
-        )
+        Vector3.subtract(this.__worldPositionOfParentJoint, this.__worldPositionOfThisJoint)
       );
     }
     const arrowStickPosition = Vector3.add(
@@ -116,7 +113,7 @@ export class Joint extends IShape {
     pos.push(crossPosition4);
 
     const positions: number[] = [];
-    pos.map(vec => {
+    pos.map((vec) => {
       Array.prototype.push.apply(positions, vec.flattenAsArray());
     });
 

@@ -3,20 +3,25 @@ export class ModuleManager {
   private __modules: Map<string, any> = new Map();
   private constructor() {}
 
-/* eslint-disable prettier/prettier */
-  async loadModule(moduleName: string, options?: {
-    wasm?: string
-  }): Promise<any> {
+  /* eslint-disable prettier/prettier */
+  async loadModule(
+    moduleName: string,
+    options?: {
+      wasm?: string;
+    }
+  ): Promise<any> {
     let module: any;
     if (moduleName.toLowerCase() === 'webgl') {
-      module = await (await import(/* webpackChunkName: "webgl" */'../../webgl/main')).default;
+      module = await (await import(/* webpackChunkName: "webgl" */ '../../webgl/main')).default;
     } else if (moduleName.toLowerCase() === 'effekseer') {
-      module = await (await import(/* webpackChunkName: "effekseer" */'../../effekseer/main')).Effekseer;
+      module = await (
+        await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')
+      ).Effekseer;
       module.EffekseerComponent.wasmModuleUri = options?.wasm;
     } else if (moduleName.toLowerCase() === 'pbr') {
-      module = await (await import(/* webpackChunkName: "pbr" */'../../pbr/main')).default;
+      module = await (await import(/* webpackChunkName: "pbr" */ '../../pbr/main')).default;
     } else if (moduleName.toLowerCase() === 'xr') {
-      module = await (await import(/* webpackChunkName: "xr" */'../../xr/main')).default;
+      module = await (await import(/* webpackChunkName: "xr" */ '../../xr/main')).default;
     }
     this.__modules.set(moduleName, module);
     // console.log('Module Loaded:', module);

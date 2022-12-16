@@ -1,26 +1,26 @@
-import {Material} from '../foundation/materials/core/Material';
-import {RenderPass} from '../foundation/renderer/RenderPass';
-import {AlphaMode} from '../foundation/definitions/AlphaMode';
-import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
-import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
-import {Index, IndexOf16Bytes} from '../types/CommonTypes';
-import {Mesh} from '../foundation/geometry/Mesh';
-import {Is, Is as is} from '../foundation/misc/Is';
-import {ModuleManager} from '../foundation/system/ModuleManager';
-import {WebGLResourceRepository} from './WebGLResourceRepository';
-import {RnXR} from '../xr/main';
-import {Vector4} from '../foundation/math/Vector4';
-import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
-import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
-import {CompositionType} from '../foundation/definitions/CompositionType';
-import {ComponentType} from '../foundation/definitions/ComponentType';
-import {ShaderType} from '../foundation/definitions/ShaderType';
-import {Scalar} from '../foundation/math/Scalar';
-import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
-import {Vector3} from '../foundation/math/Vector3';
-import {Primitive} from '../foundation/geometry/Primitive';
-import {MaterialRepository} from '../foundation/materials/core/MaterialRepository';
+import { Material } from '../foundation/materials/core/Material';
+import { RenderPass } from '../foundation/renderer/RenderPass';
+import { AlphaMode } from '../foundation/definitions/AlphaMode';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { Index, IndexOf16Bytes } from '../types/CommonTypes';
+import { Mesh } from '../foundation/geometry/Mesh';
+import { Is, Is as is } from '../foundation/misc/Is';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import { RnXR } from '../xr/main';
+import { Vector4 } from '../foundation/math/Vector4';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { ShaderType } from '../foundation/definitions/ShaderType';
+import { Scalar } from '../foundation/math/Scalar';
+import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
+import { Vector3 } from '../foundation/math/Vector3';
+import { Primitive } from '../foundation/geometry/Primitive';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -74,11 +74,7 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   }
 
   if (material.alphaMode === AlphaMode.Translucent) {
-    setBlendEquationMode(
-      material.blendEquationMode,
-      material.blendEquationModeAlpha,
-      gl
-    );
+    setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha, gl);
     setBlendFuncSrcFactor(
       material.blendFuncSrcFactor,
       material.blendFuncDstFactor,
@@ -108,13 +104,9 @@ function setBlendEquationMode(
   }
 }
 
-function differentWithLastBlendEquation(
-  equationMode: number,
-  equationModeAlpha: number
-) {
+function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
   const result =
-    lastBlendEquationMode !== equationMode ||
-    lastBlendEquationModeAlpha !== equationModeAlpha;
+    lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
   return result;
 }
 
@@ -201,10 +193,7 @@ function updateVBOAndVAO(mesh: Mesh) {
 }
 
 function isMaterialsSetup(meshComponent: MeshComponent) {
-  if (
-    meshComponent.mesh!._variationVBOUid !==
-    CGAPIResourceRepository.InvalidCGAPIResourceUid
-  ) {
+  if (meshComponent.mesh!._variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
     const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
     let count = 0;
     for (let i = 0; i < primitiveNum; i++) {
@@ -233,19 +222,16 @@ function isSkipDrawing(material: Material) {
 }
 
 function getViewport(renderPass: RenderPass) {
-  const webglResourceRepository: WebGLResourceRepository =
-    WebGLResourceRepository.getInstance();
+  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
   if (viewport == null) {
-    viewport =
-      webglResourceRepository.currentWebGLContextWrapper!.defaultViewport;
+    viewport = webglResourceRepository.currentWebGLContextWrapper!.defaultViewport;
   }
   return viewport!;
 }
 
 function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
-  const webglResourceRepository: WebGLResourceRepository =
-    WebGLResourceRepository.getInstance();
+  const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const webxrSystem = rnXRModule.WebXRSystem.getInstance();
   if (webxrSystem.isWebXRMode) {
@@ -264,8 +250,7 @@ function getDisplayNumber(isVRMainPass: boolean) {
 function isVrMainPass(renderPass: RenderPass) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const isVRMainPass =
-    rnXRModule?.WebXRSystem.getInstance().isWebXRMode &&
-    renderPass.isVrRendering;
+    rnXRModule?.WebXRSystem.getInstance().isWebXRMode && renderPass.isVrRendering;
   return isVRMainPass;
 }
 
@@ -281,8 +266,7 @@ function getLocationOffsetOfProperty(
     return dataBeginPos;
   } else {
     const globalDataRepository = GlobalDataRepository.getInstance();
-    const dataBeginPos =
-      globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
+    const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
     return dataBeginPos;
   }
 }

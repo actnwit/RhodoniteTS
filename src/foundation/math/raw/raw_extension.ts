@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type {
-  Array1,
-  Array2,
-  Array3,
-  Array4,
-  ArrayType,
-} from '../../../types/CommonTypes';
+import type { Array1, Array2, Array3, Array4, ArrayType } from '../../../types/CommonTypes';
 export const get1 = Symbol('get1');
 export const get1_offset = Symbol('get1_offset');
 export const get1_offsetAsComposition = Symbol('get1_offsetAsComposition');
@@ -34,48 +28,26 @@ export const mulThatAndThisToOutAsMat44_offsetAsComposition = Symbol(
 );
 export const add4_offset = Symbol('add4_offset');
 export const qlerp_offsetAsComposition = Symbol('qlerp_offsetAsComposition');
-export const scalar_lerp_offsetAsComposition = Symbol(
-  'scalar_lerp_offsetAsComposition'
-);
-export const array3_lerp_offsetAsComposition = Symbol(
-  'array3_lerp_offsetAsComposition'
-);
-export const arrayN_lerp_offsetAsComposition = Symbol(
-  'arrayN_lerp_offsetAsComposition'
-);
+export const scalar_lerp_offsetAsComposition = Symbol('scalar_lerp_offsetAsComposition');
+export const array3_lerp_offsetAsComposition = Symbol('array3_lerp_offsetAsComposition');
+export const arrayN_lerp_offsetAsComposition = Symbol('arrayN_lerp_offsetAsComposition');
 export const normalizeArray4 = Symbol('normalizeArray4');
 
 declare global {
   interface Extension {
     [get1](this: ArrayType): Array1<number>;
     [get1_offset](this: ArrayType, offset: number): Array1<number>;
-    [get1_offsetAsComposition](
-      this: ArrayType,
-      offsetAsComposition: number
-    ): Array1<number>;
+    [get1_offsetAsComposition](this: ArrayType, offsetAsComposition: number): Array1<number>;
     [get2](this: ArrayType): Array2<number>;
     [get2_offset](this: ArrayType, offset: number): Array2<number>;
-    [get2_offsetAsComposition](
-      this: ArrayType,
-      offsetAsComposition: number
-    ): Array2<number>;
+    [get2_offsetAsComposition](this: ArrayType, offsetAsComposition: number): Array2<number>;
     [get3](this: ArrayType): Array3<number>;
     [get3_offset](this: ArrayType, offset: number): Array3<number>;
-    [get3_offsetAsComposition](
-      this: ArrayType,
-      offsetAsComposition: number
-    ): Array3<number>;
+    [get3_offsetAsComposition](this: ArrayType, offsetAsComposition: number): Array3<number>;
     [get4](this: ArrayType): Array4<number>;
     [get4_offset](this: ArrayType, offset: number): Array4<number>;
-    [get4_offsetAsComposition](
-      this: ArrayType,
-      offsetAsComposition: number
-    ): Array4<number>;
-    [getN_offset](
-      this: ArrayType,
-      offset: number,
-      componentN: number
-    ): Array<number>;
+    [get4_offsetAsComposition](this: ArrayType, offsetAsComposition: number): Array4<number>;
+    [getN_offset](this: ArrayType, offset: number, componentN: number): Array<number>;
     [getN_offsetAsComposition](
       this: ArrayType,
       offsetAsComposition: number,
@@ -102,16 +74,8 @@ declare global {
       selfOffset: number,
       argOffset: number
     ): ArrayType;
-    [mulArray3WithScalar_offset](
-      this: ArrayType,
-      offset: number,
-      value: number
-    ): Array4<number>;
-    [mulArray4WithScalar_offset](
-      this: ArrayType,
-      offset: number,
-      value: number
-    ): Array4<number>;
+    [mulArray3WithScalar_offset](this: ArrayType, offset: number, value: number): Array4<number>;
+    [mulArray4WithScalar_offset](this: ArrayType, offset: number, value: number): Array4<number>;
     [mulArrayNWithScalar_offset](
       this: ArrayType,
       offset: number,
@@ -169,10 +133,7 @@ const get1_fn = function (this: ArrayType): Array1<number> {
   return [this[0]];
 };
 
-const get1_offset_fn = function (
-  this: ArrayType,
-  offset: number
-): Array1<number> {
+const get1_offset_fn = function (this: ArrayType, offset: number): Array1<number> {
   return [this[offset]];
 };
 
@@ -187,10 +148,7 @@ const get2_fn = function (this: ArrayType): Array2<number> {
   return [this[0], this[1]];
 };
 
-const get2_offset_fn = function (
-  this: ArrayType,
-  offset: number
-): Array2<number> {
+const get2_offset_fn = function (this: ArrayType, offset: number): Array2<number> {
   return [this[offset], this[offset + 1]];
 };
 
@@ -205,10 +163,7 @@ const get3_fn = function (this: ArrayType): Array3<number> {
   return [this[0], this[1], this[2]];
 };
 
-const get3_offset_fn = function (
-  this: ArrayType,
-  offset: number
-): Array3<number> {
+const get3_offset_fn = function (this: ArrayType, offset: number): Array3<number> {
   return [this[offset], this[offset + 1], this[offset + 2]];
 };
 
@@ -227,10 +182,7 @@ const get4_fn = function (this: ArrayType): Array4<number> {
   return [this[0], this[1], this[2], this[3]];
 };
 
-const get4_offset_fn = function (
-  this: ArrayType,
-  offset: number
-): Array4<number> {
+const get4_offset_fn = function (this: ArrayType, offset: number): Array4<number> {
   return [this[offset], this[offset + 1], this[offset + 2], this[offset + 3]];
 };
 
@@ -333,11 +285,7 @@ const add4_offset_fn = function (
   return this;
 };
 
-const mulArray3WithScalar_offset_fn = function (
-  this: ArrayType,
-  offset: number,
-  value: number
-) {
+const mulArray3WithScalar_offset_fn = function (this: ArrayType, offset: number, value: number) {
   this[offset] *= value;
   this[offset + 1] *= value;
   this[offset + 2] *= value;
@@ -345,11 +293,7 @@ const mulArray3WithScalar_offset_fn = function (
   return this;
 };
 
-const mulArray4WithScalar_offset_fn = function (
-  this: ArrayType,
-  offset: number,
-  value: number
-) {
+const mulArray4WithScalar_offset_fn = function (this: ArrayType, offset: number, value: number) {
   this[offset] *= value;
   this[offset + 1] *= value;
   this[offset + 2] *= value;
@@ -415,14 +359,10 @@ const qlerp_offsetAsComposition_fn = function (
 ) {
   const out = new Array(4);
   let dotProduct =
-    this[0 + selfOffsetAsComposition * 4] *
-      array[0 + argOffsetAsComposition * 4] +
-    this[1 + selfOffsetAsComposition * 4] *
-      array[1 + argOffsetAsComposition * 4] +
-    this[2 + selfOffsetAsComposition * 4] *
-      array[2 + argOffsetAsComposition * 4] +
-    this[3 + selfOffsetAsComposition * 4] *
-      array[3 + argOffsetAsComposition * 4];
+    this[0 + selfOffsetAsComposition * 4] * array[0 + argOffsetAsComposition * 4] +
+    this[1 + selfOffsetAsComposition * 4] * array[1 + argOffsetAsComposition * 4] +
+    this[2 + selfOffsetAsComposition * 4] * array[2 + argOffsetAsComposition * 4] +
+    this[3 + selfOffsetAsComposition * 4] * array[3 + argOffsetAsComposition * 4];
   const ss = 1.0 - dotProduct * dotProduct;
 
   if (ss === 0.0) {
@@ -451,17 +391,13 @@ const qlerp_offsetAsComposition_fn = function (
     const s1 = Math.sin(theta * (1.0 - ratio)) / sinTheta;
 
     out[0] =
-      this[0 + selfOffsetAsComposition * 4] * s1 +
-      array[0 + argOffsetAsComposition * 4] * s2;
+      this[0 + selfOffsetAsComposition * 4] * s1 + array[0 + argOffsetAsComposition * 4] * s2;
     out[1] =
-      this[1 + selfOffsetAsComposition * 4] * s1 +
-      array[1 + argOffsetAsComposition * 4] * s2;
+      this[1 + selfOffsetAsComposition * 4] * s1 + array[1 + argOffsetAsComposition * 4] * s2;
     out[2] =
-      this[2 + selfOffsetAsComposition * 4] * s1 +
-      array[2 + argOffsetAsComposition * 4] * s2;
+      this[2 + selfOffsetAsComposition * 4] * s1 + array[2 + argOffsetAsComposition * 4] * s2;
     out[3] =
-      this[3 + selfOffsetAsComposition * 4] * s1 +
-      array[3 + argOffsetAsComposition * 4] * s2;
+      this[3 + selfOffsetAsComposition * 4] * s1 + array[3 + argOffsetAsComposition * 4] * s2;
   }
 
   return out;

@@ -1,26 +1,23 @@
-import {PrimitiveMode, PrimitiveModeEnum} from '../definitions/PrimitiveMode';
+import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import {Accessor} from '../memory/Accessor';
-import {RnObject} from '../core/RnObject';
-import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
-import {MemoryManager} from '../core/MemoryManager';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../definitions/CompositionType';
-import {AABB} from '../math/AABB';
-import {Material} from '../materials/core/Material';
-import {MaterialHelper} from '../helpers/MaterialHelper';
-import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
-import {PrimitiveUID, TypedArray, Count, Index} from '../../types/CommonTypes';
-import {Vector3} from '../math/Vector3';
-import {MutableVector3} from '../math/MutableVector3';
-import {Is} from '../misc/Is';
-import {IVector3} from '../math/IVector';
+import { Accessor } from '../memory/Accessor';
+import { RnObject } from '../core/RnObject';
+import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
+import { MemoryManager } from '../core/MemoryManager';
+import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import { AABB } from '../math/AABB';
+import { Material } from '../materials/core/Material';
+import { MaterialHelper } from '../helpers/MaterialHelper';
+import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
+import { Vector3 } from '../math/Vector3';
+import { MutableVector3 } from '../math/MutableVector3';
+import { Is } from '../misc/Is';
+import { IVector3 } from '../math/IVector';
 import {
   IMesh,
   PrimitiveSortKey,
@@ -31,8 +28,8 @@ import {
   RaycastResult,
   RaycastResultEx1,
 } from './types/GeometryTypes';
-import {IWeakOption, WeakNone, WeakSome} from '../misc/WeakOption';
-import {IOption, None, Some, Option} from '../misc/Option';
+import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
+import { IOption, None, Some, Option } from '../misc/Option';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -98,10 +95,7 @@ export class Primitive extends RnObject {
   set material(mat: Material) {
     this.__material = mat;
     this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
-    this.setSortKey(
-      PrimitiveSortKey_BitOffset_TranslucencyType,
-      mat.alphaMode.index
-    );
+    this.setSortKey(PrimitiveSortKey_BitOffset_TranslucencyType, mat.alphaMode.index);
     mat._addBelongPrimitive(this);
   }
 
@@ -179,7 +173,7 @@ export class Primitive extends RnObject {
     material,
   }: PrimitiveDescriptor) {
     let sumOfAttributesByteSize = 0;
-    attributes.forEach(attribute => {
+    attributes.forEach((attribute) => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
 
@@ -188,11 +182,7 @@ export class Primitive extends RnObject {
       bufferSize += indices.byteLength;
     }
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(
-      bufferSize,
-      this,
-      4
-    );
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, 4);
 
     let indicesComponentType;
     let indicesBufferView;
@@ -213,11 +203,7 @@ export class Primitive extends RnObject {
         })
         .unwrapForce();
       // copy indices
-      for (
-        let i = 0;
-        i < indices!.byteLength / indicesAccessor!.componentSizeInBytes;
-        i++
-      ) {
+      for (let i = 0; i < indices!.byteLength / indicesAccessor!.componentSizeInBytes; i++) {
         indicesAccessor!.setScalar(i, indices![i], {});
       }
     }
@@ -251,8 +237,7 @@ export class Primitive extends RnObject {
       attributeAccessors.push(accessor);
     });
 
-    const attributeMap: Map<VertexAttributeSemanticsJoinedString, Accessor> =
-      new Map();
+    const attributeMap: Map<VertexAttributeSemanticsJoinedString, Accessor> = new Map();
     for (let i = 0; i < attributeSemantics.length; i++) {
       const attributeSemantic = attributeSemantics[i];
       attributeMap.set(attributeSemantic, attributeAccessors[i]);
@@ -377,9 +362,7 @@ export class Primitive extends RnObject {
     if (this.__cachePositionAccessor != null) {
       return this.__cachePositionAccessor.version;
     } else {
-      const positionAccessor = this.__attributes.get(
-        VertexAttribute.Position.XYZ
-      );
+      const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ);
       if (positionAccessor != null) {
         this.__cachePositionAccessor = positionAccessor;
         return positionAccessor.version;
@@ -394,34 +377,21 @@ export class Primitive extends RnObject {
       this.__aabb.isVanilla() ||
       this.positionAccessorVersion !== this.__latestPositionAccessorVersion
     ) {
-      const positionAccessor = this.__attributes.get(
-        VertexAttribute.Position.XYZ
-      )!;
+      const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
 
       positionAccessor.calcMinMax();
 
       const min = positionAccessor.min as number[];
-      this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(
-        min[0],
-        min[1],
-        min[2]
-      );
+      this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(min[0], min[1], min[2]);
       const max = positionAccessor.max as number[];
-      this.__aabb.maxPoint = Primitive.__tmpVec3_0.setComponents(
-        max[0],
-        max[1],
-        max[2]
-      );
+      this.__aabb.maxPoint = Primitive.__tmpVec3_0.setComponents(max[0], max[1], max[2]);
       this.__latestPositionAccessorVersion = positionAccessor.version;
     }
 
     return this.__aabb;
   }
 
-  setVertexAttribute(
-    accessor: Accessor,
-    vertexSemantic: VertexAttributeSemanticsJoinedString
-  ) {
+  setVertexAttribute(accessor: Accessor, vertexSemantic: VertexAttributeSemanticsJoinedString) {
     this.__attributes.set(vertexSemantic, accessor);
   }
 
@@ -460,10 +430,8 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles != null) {
       return false;
     }
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    this.__vertexHandles =
-      webglResourceRepository.createVertexBufferAndIndexBuffer(this);
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(this);
 
     return true;
   }
@@ -474,12 +442,8 @@ export class Primitive extends RnObject {
       return false;
     }
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.updateVertexBufferAndIndexBuffer(
-      this,
-      vertexHandles
-    );
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.updateVertexBufferAndIndexBuffer(this, vertexHandles);
 
     return true;
   }
@@ -488,8 +452,7 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles == null) {
       return false;
     }
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
     this.__vertexHandles = undefined;
 
@@ -648,9 +611,7 @@ export class Primitive extends RnObject {
       }
     }
 
-    const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZ
-    )!;
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
@@ -732,9 +693,7 @@ export class Primitive extends RnObject {
   ): IVector3 {
     const fDat = 1.0 - u - v;
 
-    const positionAccessor = this.__attributes.get(
-      VertexAttribute.Position.XYZ
-    )!;
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
     const pos0Vec3 = positionAccessor.getVec3(pos0IndexBase, {});
     const pos1Vec3 = positionAccessor.getVec3(pos1IndexBase, {});
     const pos2Vec3 = positionAccessor.getVec3(pos2IndexBase, {});
@@ -742,10 +701,7 @@ export class Primitive extends RnObject {
     const pos0 = Vector3.multiply(pos0Vec3, fDat);
     const pos1 = Vector3.multiply(pos1Vec3, u);
     const pos2 = Vector3.multiply(pos2Vec3, v);
-    const intersectedPosVec3 = MutableVector3.zero()
-      .add(pos0)
-      .add(pos1)
-      .add(pos2);
+    const intersectedPosVec3 = MutableVector3.zero().add(pos0).add(pos1).add(pos2);
     return intersectedPosVec3;
   }
 }

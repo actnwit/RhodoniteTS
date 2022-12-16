@@ -1,7 +1,4 @@
-import {
-  ProcessApproachEnum,
-  ProcessApproach,
-} from '../definitions/ProcessApproach';
+import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
 
 const currentProcessApproach: ProcessApproachEnum = ProcessApproach.None;
 

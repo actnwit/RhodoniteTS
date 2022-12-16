@@ -1,10 +1,10 @@
 import { Gizmo } from './Gizmo';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {Primitive} from '../geometry/Primitive';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import { Primitive } from '../geometry/Primitive';
 import { Vector3 } from '../math/Vector3';
 import { Mesh } from '../geometry/Mesh';
-import {EntityHelper, ISceneGraphEntity} from '../helpers/EntityHelper';
+import { EntityHelper, ISceneGraphEntity } from '../helpers/EntityHelper';
 
 /**
  * AABB Gizmo class
@@ -50,15 +50,9 @@ export class AABBGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity!.tryToSetUniqueName(
-      `AABBGizmo_of_${this.__target.uniqueName}`,
-      true
-    );
-    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
-      true;
-    this.__target
-      .getSceneGraph()!
-      ._addGizmoChild(this.__topEntity!.getSceneGraph()!);
+    this.__topEntity!.tryToSetUniqueName(`AABBGizmo_of_${this.__target.uniqueName}`, true);
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    this.__target.getSceneGraph()!._addGizmoChild(this.__topEntity!.getSceneGraph()!);
 
     const meshComponent = this.__topEntity!.tryToGetMesh()!;
     AABBGizmo.__mesh = new Mesh();

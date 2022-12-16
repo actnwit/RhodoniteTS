@@ -1,6 +1,6 @@
-import {ModuleManager} from '../../system/ModuleManager';
-import {MemoryManager} from '../../core/MemoryManager';
-import {MaterialRepository} from './MaterialRepository';
+import { ModuleManager } from '../../system/ModuleManager';
+import { MemoryManager } from '../../core/MemoryManager';
+import { MaterialRepository } from './MaterialRepository';
 
 test('MaterialTID are processed correctly', () => {
   ModuleManager.getInstance().loadModule('webgl');

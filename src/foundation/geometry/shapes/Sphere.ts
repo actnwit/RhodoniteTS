@@ -1,9 +1,9 @@
-import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {PrimitiveMode} from '../../definitions/PrimitiveMode';
+import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { Vector3 } from '../../math/Vector3';
-import {Count} from '../../../types/CommonTypes';
-import {IShape} from './IShape';
+import { Count } from '../../../types/CommonTypes';
+import { IShape } from './IShape';
 
 /**
  * The argument descriptor for Plane primitives
@@ -25,12 +25,7 @@ export class Sphere extends IShape {
     super();
   }
 
-  generate({
-    radius,
-    widthSegments,
-    heightSegments,
-    material,
-  }: SphereDescriptor) {
+  generate({ radius, widthSegments, heightSegments, material }: SphereDescriptor) {
     const positions = [];
     const texcoords = [];
     const normals = [];

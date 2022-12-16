@@ -6,48 +6,36 @@ import {
   MaterialTID,
   MaterialUID,
 } from '../../../types/CommonTypes';
-import {Config} from '../../core/Config';
-import {MemoryManager} from '../../core/MemoryManager';
-import {BufferUse} from '../../definitions/BufferUse';
-import {ComponentType} from '../../definitions/ComponentType';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ShaderSemanticsIndex} from '../../definitions/ShaderSemantics';
-import {
-  calcAlignedByteLength,
-  ShaderSemanticsInfo,
-} from '../../definitions/ShaderSemanticsInfo';
-import {MathClassUtil} from '../../math/MathClassUtil';
-import {Accessor} from '../../memory/Accessor';
-import {BufferView} from '../../memory/BufferView';
-import {Is} from '../../misc/Is';
-import {AbstractMaterialContent} from './AbstractMaterialContent';
-import {Material} from './Material';
-import {MaterialTypeName} from './MaterialTypes';
+import { Config } from '../../core/Config';
+import { MemoryManager } from '../../core/MemoryManager';
+import { BufferUse } from '../../definitions/BufferUse';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ShaderSemanticsIndex } from '../../definitions/ShaderSemantics';
+import { calcAlignedByteLength, ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { MathClassUtil } from '../../math/MathClassUtil';
+import { Accessor } from '../../memory/Accessor';
+import { BufferView } from '../../memory/BufferView';
+import { Is } from '../../misc/Is';
+import { AbstractMaterialContent } from './AbstractMaterialContent';
+import { Material } from './Material';
+import { MaterialTypeName } from './MaterialTypes';
 
 export class MaterialRepository {
   ///
   /// static members
   ///
   private static __materialMap: Map<MaterialUID, Material> = new Map();
-  private static __instances: Map<
-    MaterialTypeName,
-    Map<MaterialSID, Material>
-  > = new Map();
-  private static __instancesByTypes: Map<MaterialTypeName, Material> =
-    new Map();
+  private static __instances: Map<MaterialTypeName, Map<MaterialSID, Material>> = new Map();
+  private static __instancesByTypes: Map<MaterialTypeName, Material> = new Map();
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
-  private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> =
+  private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
+  private static __materialTypes: Map<MaterialTypeName, AbstractMaterialContent | undefined> =
     new Map();
-  private static __materialTypes: Map<
-    MaterialTypeName,
-    AbstractMaterialContent | undefined
-  > = new Map();
   private static __maxInstances: Map<MaterialTypeName, MaterialSID> = new Map();
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
-  private static __accessors: Map<
-    MaterialTypeName,
-    Map<ShaderSemanticsIndex, Accessor>
-  > = new Map();
+  private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> =
+    new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -67,10 +55,7 @@ export class MaterialRepository {
 
       const materialTid = ++MaterialRepository.__materialTidCount;
       MaterialRepository.__materialTids.set(materialTypeName, materialTid);
-      MaterialRepository.__maxInstances.set(
-        materialTypeName,
-        maxInstanceNumber
-      );
+      MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
 
       if (Is.exist(materialNode)) {
         MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
@@ -125,9 +110,7 @@ export class MaterialRepository {
       this.__accessors.set(materialTypeName, new Map());
     }
 
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(
-      BufferUse.GPUInstanceData
-    );
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
     let bufferView;
     if (this.__bufferViews.has(materialTypeName)) {
       bufferView = this.__bufferViews.get(materialTypeName);
@@ -142,18 +125,14 @@ export class MaterialRepository {
 
     for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
       const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
-      const semanticInfo =
-        alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
+      const semanticInfo = alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
 
       let count = 1;
       if (!semanticInfo.soloDatum) {
         count = MaterialRepository.__maxInstances.get(materialTypeName)!;
       }
       let maxArrayLength = semanticInfo.arrayLength;
-      if (
-        CompositionType.isArray(semanticInfo.compositionType) &&
-        maxArrayLength == null
-      ) {
+      if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
         maxArrayLength = 100;
       }
       const accessor = bufferView!
@@ -210,10 +189,7 @@ export class MaterialRepository {
    * @param materialTypeName The material type to create.
    * @param materialNodes_ The material nodes to add to the created material.
    */
-  static createMaterial(
-    materialTypeName: string,
-    materialNode_?: AbstractMaterialContent
-  ) {
+  static createMaterial(materialTypeName: string, materialNode_?: AbstractMaterialContent) {
     let materialNode = materialNode_;
     if (!materialNode) {
       materialNode = MaterialRepository.__materialTypes.get(materialTypeName)!;
@@ -240,10 +216,7 @@ export class MaterialRepository {
    */
   private static __initialize(material: Material, countOfThisType: Count) {
     MaterialRepository.__materialMap.set(material.materialUID, material);
-    MaterialRepository.__instancesByTypes.set(
-      material.materialTypeName,
-      material
-    );
+    MaterialRepository.__instancesByTypes.set(material.materialTypeName, material);
 
     material.tryToSetUniqueName(material.__materialTypeName, true);
 
@@ -263,12 +236,9 @@ export class MaterialRepository {
 
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
-      const accessorMap = MaterialRepository.__accessors.get(
-        material.materialTypeName
-      );
-      semanticsInfoArray.forEach(semanticsInfo => {
-        const propertyIndex =
-          MaterialRepository._getPropertyIndex(semanticsInfo);
+      const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName);
+      semanticsInfoArray.forEach((semanticsInfo) => {
+        const propertyIndex = MaterialRepository._getPropertyIndex(semanticsInfo);
         material._allFieldsInfo.set(propertyIndex, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
           const accessor = accessorMap!.get(propertyIndex) as Accessor;
@@ -295,13 +265,10 @@ export class MaterialRepository {
     materialTypeName: string,
     propertyIndex: Index
   ): IndexOf16Bytes {
-    const material =
-      MaterialRepository.__instancesByTypes.get(materialTypeName)!;
+    const material = MaterialRepository.__instancesByTypes.get(materialTypeName)!;
     const info = material._allFieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
-      const value = Material._soloDatumFields
-        .get(material.materialTypeName)!
-        .get(propertyIndex);
+      const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyIndex);
       return (value!.value._v as Float32Array).byteOffset / 4 / 4;
     } else {
       const properties = this.__accessors.get(materialTypeName);

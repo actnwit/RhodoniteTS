@@ -1,12 +1,12 @@
-import {IVector2, IVector3, IVector4} from './IVector';
-import {Array4, TypedArray} from '../../types/CommonTypes';
-import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
-import {IQuaternion, ILogQuaternion, IMutableQuaternion} from './IQuaternion';
-import {IMutableVector3} from './IVector';
-import {IMatrix44} from './IMatrix';
-import {LogQuaternion} from './LogQuaternion';
-import {AbstractQuaternion} from './AbstractQuaternion';
+import { IVector2, IVector3, IVector4 } from './IVector';
+import { Array4, TypedArray } from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
+import { IQuaternion, ILogQuaternion, IMutableQuaternion } from './IQuaternion';
+import { IMutableVector3 } from './IVector';
+import { IMatrix44 } from './IMatrix';
+import { LogQuaternion } from './LogQuaternion';
+import { AbstractQuaternion } from './AbstractQuaternion';
 import { Vector3 } from './Vector3';
 import { MutableVector3 } from './MutableVector3';
 
@@ -63,11 +63,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   /**
    * Compute spherical linear interpolation
    */
-  static qlerp(
-    l_quat: IQuaternion,
-    r_quat: IQuaternion,
-    ratio: number
-  ): IQuaternion {
+  static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): IQuaternion {
     let dotProduct =
       l_quat._v[0] * r_quat._v[0] +
       l_quat._v[1] * r_quat._v[1] +
@@ -116,12 +112,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   /**
    *  Compute the spherical linear interpolation and output it as the fourth argument
    */
-  static qlerpTo(
-    l_quat: IQuaternion,
-    r_quat: IQuaternion,
-    ratio: number,
-    out: IMutableQuaternion
-  ) {
+  static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
     let dotProduct =
       l_quat._v[0] * r_quat._v[0] +
       l_quat._v[1] * r_quat._v[1] +
@@ -168,12 +159,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Quaternion.fromCopy4(x, y, z, w);
   }
 
-  static lerpTo(
-    l_quat: IQuaternion,
-    r_quat: IQuaternion,
-    ratio: number,
-    out: IMutableQuaternion
-  ) {
+  static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion) {
     out._v[0] = l_quat._v[0] * (1 - ratio) + r_quat._v[0] * ratio;
     out._v[1] = l_quat._v[1] * (1 - ratio) + r_quat._v[1] * ratio;
     out._v[2] = l_quat._v[2] * (1 - ratio) + r_quat._v[2] * ratio;
@@ -262,18 +248,11 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return out;
   }
 
-  static lookFromTo(
-    fromDirection: IVector3,
-    toDirection: IVector3
-  ): IQuaternion {
+  static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IQuaternion {
     if (fromDirection.isEqual(toDirection)) {
       return Quaternion.fromCopy4(0, 0, 0, 1) as IQuaternion;
     }
-    return this.qlerp(
-      this.lookForward(fromDirection),
-      this.lookForward(toDirection),
-      1
-    );
+    return this.qlerp(this.lookForward(fromDirection), this.lookForward(toDirection), 1);
   }
 
   static lookForward(forward: IVector3) {
@@ -284,10 +263,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return this.lookForwardAccordingToThisUp(forward, Quaternion.__tmp_upVec);
   }
 
-  static lookForwardAccordingToThisUp(
-    forward: IVector3,
-    up: IVector3
-  ): IQuaternion {
+  static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion {
     const forwardLength = forward.length();
     if (forwardLength === 0) {
       console.error('0 division occurred!');
@@ -381,11 +357,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Quaternion.fromCopy4(x, y, z, w);
   }
 
-  static addTo(
-    l_quat: IQuaternion,
-    r_quat: IQuaternion,
-    out: IMutableQuaternion
-  ) {
+  static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
     out._v[0] = l_quat._v[0] + r_quat._v[0];
     out._v[1] = l_quat._v[1] + r_quat._v[1];
     out._v[2] = l_quat._v[2] + r_quat._v[2];
@@ -401,11 +373,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Quaternion.fromCopy4(x, y, z, w);
   }
 
-  static subtractTo(
-    l_quat: IQuaternion,
-    r_quat: IQuaternion,
-    out: IMutableQuaternion
-  ) {
+  static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
     out._v[0] = l_quat._v[0] - r_quat._v[0];
     out._v[1] = l_quat._v[1] - r_quat._v[1];
     out._v[2] = l_quat._v[2] - r_quat._v[2];
@@ -437,11 +405,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Quaternion.fromCopy4(x, y, z, w);
   }
 
-  static multiplyTo(
-    l_quat: IQuaternion,
-    r_quat: IQuaternion,
-    out: IMutableQuaternion
-  ) {
+  static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion) {
     const x =
       r_quat._v[3] * l_quat._v[0] +
       r_quat._v[2] * l_quat._v[1] -
@@ -473,11 +437,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Quaternion.fromCopy4(x, y, z, w);
   }
 
-  static multiplyNumberTo(
-    quat: IQuaternion,
-    value: number,
-    out: IMutableQuaternion
-  ) {
+  static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
     out._v[0] = quat._v[0] * value;
     out._v[1] = quat._v[1] * value;
     out._v[2] = quat._v[2] * value;
@@ -496,11 +456,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     return Quaternion.fromCopy4(x, y, z, w);
   }
 
-  static divideNumberTo(
-    quat: IQuaternion,
-    value: number,
-    out: IMutableQuaternion
-  ) {
+  static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
     if (value === 0) {
       console.error('0 division occurred!');
     }
@@ -512,17 +468,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   toString() {
-    return (
-      '(' +
-      this._v[0] +
-      ', ' +
-      this._v[1] +
-      ', ' +
-      this._v[2] +
-      ', ' +
-      this._v[3] +
-      ')'
-    );
+    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ', ' + this._v[3] + ')';
   }
 
   toStringApproximately() {
@@ -579,8 +525,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   toEulerAnglesTo(out: IMutableVector3) {
     // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
     const sinr_cosp = 2.0 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
-    const cosr_cosp =
-      1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    const cosr_cosp = 1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
     out._v[0] = Math.atan2(sinr_cosp, cosr_cosp);
 
     const sinp = 2.0 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
@@ -591,8 +536,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     }
 
     const siny_cosp = 2.0 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
-    const cosy_cosp =
-      1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    const cosy_cosp = 1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
     out._v[2] = Math.atan2(siny_cosp, cosy_cosp);
 
     return out;
@@ -602,8 +546,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const out = new Vector3(new Float32Array(3));
     // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
     const sinr_cosp = 2.0 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
-    const cosr_cosp =
-      1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    const cosr_cosp = 1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
     out._v[0] = Math.atan2(sinr_cosp, cosr_cosp);
 
     const sinp = 2.0 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
@@ -614,8 +557,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     }
 
     const siny_cosp = 2.0 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
-    const cosy_cosp =
-      1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    const cosy_cosp = 1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
     out._v[2] = Math.atan2(siny_cosp, cosy_cosp);
 
     return out;
@@ -718,12 +660,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   clone(): IQuaternion {
-    return Quaternion.fromCopy4(
-      this._v[0],
-      this._v[1],
-      this._v[2],
-      this._v[3]
-    ) as IQuaternion;
+    return Quaternion.fromCopy4(this._v[0], this._v[1], this._v[2], this._v[3]) as IQuaternion;
   }
 
   static fromFloat32Array(array: Float32Array) {
@@ -774,11 +711,6 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   static fromAxisAngle(axis: IVector3, rad: number) {
     rad = rad * 0.5;
     const s = Math.sin(rad);
-    return Quaternion.fromCopy4(
-      s * axis.x,
-      s * axis.y,
-      s * axis.z,
-      Math.cos(rad)
-    );
+    return Quaternion.fromCopy4(s * axis.x, s * axis.y, s * axis.z, Math.cos(rad));
   }
 }

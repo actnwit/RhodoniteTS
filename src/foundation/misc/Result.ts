@@ -1,4 +1,4 @@
-import {Is} from './Is';
+import { Is } from './Is';
 
 export interface RnError<ErrObj> {
   message: string;
@@ -52,10 +52,7 @@ abstract class Result<T, ErrObj> {
 /**
  * a class indicating that the result is Ok (Succeeded).
  */
-export class Ok<T, ErrObj>
-  extends Result<T, ErrObj>
-  implements IResult<T, ErrObj>
-{
+export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
   constructor(val?: T) {
     super(val);
   }
@@ -98,10 +95,7 @@ export class Ok<T, ErrObj>
 /**
  * a class indicating that the result is Error (Failed).
  */
-export class Err<T, ErrObj>
-  extends Result<T, ErrObj>
-  implements IResult<T, ErrObj>
-{
+export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
   private __rnException: RnException<ErrObj>;
 
   constructor(val: RnError<ErrObj>) {
@@ -168,7 +162,9 @@ export class RnException<ErrObj> extends Error {
   constructor(private err: RnError<ErrObj>) {
     super(`
   message: ${err.message}
-  error: ${(err.error instanceof Err<unknown, unknown>) ? 'see below Exception ↓' + err.error : err.error}
+  error: ${
+    err.error instanceof Err<unknown, unknown> ? 'see below Exception ↓' + err.error : err.error
+  }
 `);
     this.name = RnException._prefix;
   }

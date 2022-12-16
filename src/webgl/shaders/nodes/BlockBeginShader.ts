@@ -1,7 +1,7 @@
-import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
+import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { GLSLShader } from '../GLSLShader';
-import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
-import {ShaderSocket} from '../../../foundation/materials/core/AbstractMaterialContent';
+import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import { ShaderSocket } from '../../../foundation/materials/core/AbstractMaterialContent';
 import { AttributeNames } from '../../types/CommonTypes';
 
 export class BlockBeginShader extends GLSLShader {
@@ -30,8 +30,7 @@ in bool context,
       const type = output.compositionType.getGlslStr(output.componentType);
       funcStr +=
         `
-        out ${type} outValue${i}` +
-        (i === this.__valueOutputs.length - 1 ? '' : ',');
+        out ${type} outValue${i}` + (i === this.__valueOutputs.length - 1 ? '' : ',');
     }
 
     funcStr += ') {\n';

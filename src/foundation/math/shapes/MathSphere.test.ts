@@ -1,5 +1,5 @@
-import {MutableVector3} from '../MutableVector3';
-import {MathSphere} from './MathSphere';
+import { MutableVector3 } from '../MutableVector3';
+import { MathSphere } from './MathSphere';
 
 test('MathSphere collision success 1', () => {
   const sphere = new MathSphere(MutableVector3.fromCopy3(0, 0, 0), 1);

@@ -1,5 +1,5 @@
-import {CompositionTypeEnum} from '../../definitions/CompositionType';
-import {ComponentTypeEnum} from '../../definitions/ComponentType';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { BlockEndShader } from '../../../webgl/shaders/nodes/BlockEndShader';
 
@@ -9,17 +9,10 @@ export class BlockEndShaderNode extends AbstractShaderNode {
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__shader = new BlockEndShader(
-      this.__shaderFunctionName,
-      this.__inputs,
-      this.__outputs
-    );
+    this.__shader = new BlockEndShader(this.__shaderFunctionName, this.__inputs, this.__outputs);
   }
 
-  addInputAndOutput(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  addInputAndOutput(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     const input = {
       compositionType: compositionType,
       componentType: componentType,

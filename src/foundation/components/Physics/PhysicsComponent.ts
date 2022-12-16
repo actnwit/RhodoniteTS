@@ -1,13 +1,9 @@
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {ProcessStage} from '../../definitions/ProcessStage';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../../types/CommonTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
 import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpringBonePhysicsStrategy';
 import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
@@ -16,11 +12,7 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 export class PhysicsComponent extends Component {
   private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
 
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -46,10 +38,10 @@ export class PhysicsComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class PhysicsEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -66,8 +58,7 @@ export class PhysicsComponent extends Component {
       }
     }
     applyMixins(base, PhysicsEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 

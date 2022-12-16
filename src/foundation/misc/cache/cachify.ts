@@ -3,7 +3,7 @@
  * Thank you!
  */
 
-import {primitives} from '../../../types/CommonTypes';
+import { primitives } from '../../../types/CommonTypes';
 
 type ObjectFnType = (arg: object) => unknown;
 

@@ -1,21 +1,21 @@
-import {Vector2} from './Vector2';
-import {Vector3} from './Vector3';
-import {Vector4} from './Vector4';
-import {Quaternion} from './Quaternion';
-import {Matrix33} from './Matrix33';
-import {Matrix44} from './Matrix44';
-import {CompositionTypeEnum} from '../definitions/CompositionType';
-import {CompositionType} from '../definitions/CompositionType';
-import {MutableMatrix44} from './MutableMatrix44';
-import {MutableMatrix33} from './MutableMatrix33';
-import {MutableVector4} from './MutableVector4';
-import {MutableVector3} from './MutableVector3';
-import {MutableVector2} from './MutableVector2';
-import {Scalar} from './Scalar';
-import {MutableQuaternion} from './MutableQuaternion';
-import {MutableScalar} from './MutableScalar';
-import {VectorN} from './VectorN';
-import {TypedArray} from '../../types/CommonTypes';
+import { Vector2 } from './Vector2';
+import { Vector3 } from './Vector3';
+import { Vector4 } from './Vector4';
+import { Quaternion } from './Quaternion';
+import { Matrix33 } from './Matrix33';
+import { Matrix44 } from './Matrix44';
+import { CompositionTypeEnum } from '../definitions/CompositionType';
+import { CompositionType } from '../definitions/CompositionType';
+import { MutableMatrix44 } from './MutableMatrix44';
+import { MutableMatrix33 } from './MutableMatrix33';
+import { MutableVector4 } from './MutableVector4';
+import { MutableVector3 } from './MutableVector3';
+import { MutableVector2 } from './MutableVector2';
+import { Scalar } from './Scalar';
+import { MutableQuaternion } from './MutableQuaternion';
+import { MutableScalar } from './MutableScalar';
+import { VectorN } from './VectorN';
+import { TypedArray } from '../../types/CommonTypes';
 
 export class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
@@ -26,12 +26,7 @@ export class MathClassUtil {
   static arrayToVector(element: Array<number>) {
     if (Array.isArray(element)) {
       if (typeof element[3] !== 'undefined') {
-        return Vector4.fromCopyArray([
-          element[0],
-          element[1],
-          element[2],
-          element[3],
-        ]);
+        return Vector4.fromCopyArray([element[0], element[1], element[2], element[3]]);
       } else if (typeof element[2] !== 'undefined') {
         return Vector3.fromCopyArray([element[0], element[1], element[2]]);
       } else {
@@ -49,12 +44,7 @@ export class MathClassUtil {
       } else if (typeof element[8] !== 'undefined') {
         return Matrix33.fromCopyArrayRowMajor(element);
       } else if (typeof element[3] !== 'undefined') {
-        return Vector4.fromCopyArray([
-          element[0],
-          element[1],
-          element[2],
-          element[3],
-        ]);
+        return Vector4.fromCopyArray([element[0], element[1], element[2], element[3]]);
       } else if (typeof element[2] !== 'undefined') {
         return Vector3.fromCopyArray([element[0], element[1], element[2]]);
       } else {
@@ -65,9 +55,7 @@ export class MathClassUtil {
     }
   }
 
-  static getImmutableValueClass(
-    compositionType: CompositionTypeEnum
-  ): Function | undefined {
+  static getImmutableValueClass(compositionType: CompositionTypeEnum): Function | undefined {
     if (compositionType === CompositionType.Vec2) {
       return Vector2;
     } else if (compositionType === CompositionType.Vec3) {
@@ -82,9 +70,7 @@ export class MathClassUtil {
     return void 0;
   }
 
-  static getMutableValueClass(
-    compositionType: CompositionTypeEnum
-  ): Function | undefined {
+  static getMutableValueClass(compositionType: CompositionTypeEnum): Function | undefined {
     if (compositionType === CompositionType.Vec2) {
       return MutableVector2;
     } else if (compositionType === CompositionType.Vec3) {
@@ -175,13 +161,7 @@ export class MathClassUtil {
   }
 
   // values range must be [-1, 1]
-  static packNormalizedVec4ToVec2(
-    x: number,
-    y: number,
-    z: number,
-    w: number,
-    criteria: number
-  ) {
+  static packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number) {
     let v0 = 0.0;
     let v1 = 0.0;
 
@@ -218,19 +198,12 @@ export class MathClassUtil {
       1.0
     );
 
-    const outNonNormalized = inversePVMat44.multiplyVectorTo(
-      input,
-      this.__tmpVector4_1
-    );
+    const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.__tmpVector4_1);
     if (outNonNormalized.w === 0) {
       console.error('0 division occurred!');
     }
 
-    return MutableVector3.multiplyTo(
-      outNonNormalized,
-      1.0 / outNonNormalized.w,
-      out
-    );
+    return MutableVector3.multiplyTo(outNonNormalized, 1.0 / outNonNormalized.w, out);
   }
 
   static add(lhs: any, rhs: any) {
@@ -365,31 +338,19 @@ export class MathClassUtil {
       (floatArray as any)._v = void 0;
       array[0] = val;
       return new Scalar(array);
-    } else if (
-      objForDetectType instanceof Scalar ||
-      objForDetectType instanceof MutableScalar
-    ) {
+    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       floatArray[0] = val.x;
       obj = new MutableScalar(floatArray);
-    } else if (
-      objForDetectType instanceof Vector2 ||
-      objForDetectType instanceof MutableVector2
-    ) {
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       obj = new MutableVector2(floatArray);
-    } else if (
-      objForDetectType instanceof Vector3 ||
-      objForDetectType instanceof MutableVector3
-    ) {
+    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
       obj = MutableVector3.fromFloat32Array(floatArray);
-    } else if (
-      objForDetectType instanceof Vector4 ||
-      objForDetectType instanceof MutableVector4
-    ) {
+    } else if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
       floatArray[0] = val.x;
       floatArray[1] = val.y;
       floatArray[2] = val.z;
@@ -480,31 +441,19 @@ export class MathClassUtil {
   static _setForce(objForDetectType: any, val: any): void {
     const obj = objForDetectType as any;
 
-    if (
-      objForDetectType instanceof Vector4 ||
-      objForDetectType instanceof MutableVector4
-    ) {
+    if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
       objForDetectType._v[3] = val._v[3];
-    } else if (
-      objForDetectType instanceof Vector3 ||
-      objForDetectType instanceof MutableVector3
-    ) {
+    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
-    } else if (
-      objForDetectType instanceof Vector2 ||
-      objForDetectType instanceof MutableVector2
-    ) {
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
-    } else if (
-      objForDetectType instanceof Scalar ||
-      objForDetectType instanceof MutableScalar
-    ) {
+    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       if (typeof val._v === 'undefined') {
         objForDetectType._v[0] = val;
       } else {

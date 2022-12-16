@@ -79,5 +79,12 @@
     ],
     "eslint.format.enable": true,
     "bookmarks.saveBookmarksInProject": true,
-    "nuxt.isNuxtApp": false
+    "nuxt.isNuxtApp": false,
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode" // フォーマッタをprettierに指定
+    },
+    "editor.formatOnSave": true, // ファイル保存時にPrettierでフォーマット
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true // ファイル保存時にESLintでフォーマット
+    }
 }

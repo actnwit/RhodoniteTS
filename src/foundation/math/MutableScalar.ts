@@ -1,15 +1,13 @@
-import {Scalar_} from './Scalar';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
+import { Scalar_ } from './Scalar';
+import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { CompositionType } from '../definitions/CompositionType';
 
 /**
  * @internal
  */
-export class MutableScalar_<
-  T extends TypedArrayConstructor
-> extends Scalar_<T> {
-  constructor(x: TypedArray, {type}: {type: T}) {
-    super(x, {type});
+export class MutableScalar_<T extends TypedArrayConstructor> extends Scalar_<T> {
+  constructor(x: TypedArray, { type }: { type: T }) {
+    super(x, { type });
   }
 
   copyComponents(vec: Scalar_<T>) {
@@ -60,7 +58,7 @@ export class MutableScalar_<
  */
 export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
   constructor(x: TypedArray) {
-    super(x, {type: Float32Array});
+    super(x, { type: Float32Array });
   }
 
   clone() {
@@ -89,7 +87,7 @@ export class MutableScalar extends MutableScalar_<Float32ArrayConstructor> {
  */
 export class MutableScalard extends MutableScalar_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
-    super(x, {type: Float64Array});
+    super(x, { type: Float64Array });
   }
 
   clone() {

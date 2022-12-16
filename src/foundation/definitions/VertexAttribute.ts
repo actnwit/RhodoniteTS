@@ -1,7 +1,7 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {Count, Index} from '../../types/CommonTypes';
-import {RnException} from '../misc/Result';
-import {VectorComponentN} from '../../types/CommonTypes';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { Count, Index } from '../../types/CommonTypes';
+import { RnException } from '../misc/Result';
+import { VectorComponentN } from '../../types/CommonTypes';
 
 type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
 
@@ -21,8 +21,7 @@ export type VertexAttributeTypeName =
   'FACE_NORMAL' |
   'BARY_CENTRIC_COORD';
 
-export type VertexAttributeComponent =
-  `${VertexAttributeTypeName}.${ComponentChar}`;
+export type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
 
 // prettier-ignore
 export type VertexAttributeSemanticsJoinedString =
@@ -49,10 +48,7 @@ type VertexAttributeDescriptor = {
   attributeSlot: Index;
   gltfComponentN: Count;
 };
-export class VertexAttributeClass
-  extends EnumClass
-  implements VertexAttributeEnum
-{
+export class VertexAttributeClass extends EnumClass implements VertexAttributeEnum {
   private static __indexCount = -1;
   private __attributeSlot: Index;
   private __shaderStr: string;
@@ -63,7 +59,7 @@ export class VertexAttributeClass
     attributeSlot,
     gltfComponentN,
   }: VertexAttributeDescriptor) {
-    super({index: VertexAttributeClass.__indexCount++, str});
+    super({ index: VertexAttributeClass.__indexCount++, str });
     this.__attributeSlot = attributeSlot;
     this.__shaderStr = shaderStr;
     this.__gltfComponentN = gltfComponentN;
@@ -129,97 +125,84 @@ export class VertexAttributeClass
   }
 }
 
-const Unknown: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'UNKNOWN',
-    shaderStr: 'a_unknown',
-    attributeSlot: -1,
-    gltfComponentN: 0,
-  });
-const Position: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'POSITION',
-    shaderStr: 'a_position',
-    attributeSlot: 0,
-    gltfComponentN: 3,
-  });
-const Normal: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'NORMAL',
-    shaderStr: 'a_normal',
-    attributeSlot: 1,
-    gltfComponentN: 3,
-  });
-const Tangent: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'TANGENT',
-    shaderStr: 'a_tangent',
-    attributeSlot: 2,
-    gltfComponentN: 3,
-  });
-const Texcoord0: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'TEXCOORD_0',
-    shaderStr: 'a_texcoord_0',
-    attributeSlot: 3,
-    gltfComponentN: 2,
-  });
-const Texcoord1: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'TEXCOORD_1',
-    shaderStr: 'a_texcoord_1',
-    attributeSlot: 4,
-    gltfComponentN: 2,
-  });
-const Color0: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'COLOR_0',
-    shaderStr: 'a_color_0',
-    attributeSlot: 5,
-    gltfComponentN: 4,
-  });
-const Joints0: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'JOINTS_0',
-    shaderStr: 'a_joints_0',
-    attributeSlot: 6,
-    gltfComponentN: 4,
-  });
-const Weights0: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'WEIGHTS_0',
-    shaderStr: 'a_weights_0',
-    attributeSlot: 7,
-    gltfComponentN: 4,
-  });
-const Instance: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'INSTANCE',
-    shaderStr: 'a_instanceInfo',
-    attributeSlot: 8,
-    gltfComponentN: 1,
-  });
-const FaceNormal: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'FACE_NORMAL',
-    shaderStr: 'a_faceNormal',
-    attributeSlot: 9,
-    gltfComponentN: 3,
-  });
-const BaryCentricCoord: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'BARY_CENTRIC_COORD',
-    shaderStr: 'a_baryCentricCoord',
-    attributeSlot: 10,
-    gltfComponentN: 3,
-  });
-const Texcoord2: VertexAttributeEnum =
-  VertexAttributeClass.__createVertexAttributeClass({
-    str: 'TEXCOORD_2',
-    shaderStr: 'a_texcoord_2',
-    attributeSlot: 11,
-    gltfComponentN: 2,
-  });
+const Unknown: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'UNKNOWN',
+  shaderStr: 'a_unknown',
+  attributeSlot: -1,
+  gltfComponentN: 0,
+});
+const Position: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'POSITION',
+  shaderStr: 'a_position',
+  attributeSlot: 0,
+  gltfComponentN: 3,
+});
+const Normal: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'NORMAL',
+  shaderStr: 'a_normal',
+  attributeSlot: 1,
+  gltfComponentN: 3,
+});
+const Tangent: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'TANGENT',
+  shaderStr: 'a_tangent',
+  attributeSlot: 2,
+  gltfComponentN: 3,
+});
+const Texcoord0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'TEXCOORD_0',
+  shaderStr: 'a_texcoord_0',
+  attributeSlot: 3,
+  gltfComponentN: 2,
+});
+const Texcoord1: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'TEXCOORD_1',
+  shaderStr: 'a_texcoord_1',
+  attributeSlot: 4,
+  gltfComponentN: 2,
+});
+const Color0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'COLOR_0',
+  shaderStr: 'a_color_0',
+  attributeSlot: 5,
+  gltfComponentN: 4,
+});
+const Joints0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'JOINTS_0',
+  shaderStr: 'a_joints_0',
+  attributeSlot: 6,
+  gltfComponentN: 4,
+});
+const Weights0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'WEIGHTS_0',
+  shaderStr: 'a_weights_0',
+  attributeSlot: 7,
+  gltfComponentN: 4,
+});
+const Instance: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'INSTANCE',
+  shaderStr: 'a_instanceInfo',
+  attributeSlot: 8,
+  gltfComponentN: 1,
+});
+const FaceNormal: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'FACE_NORMAL',
+  shaderStr: 'a_faceNormal',
+  attributeSlot: 9,
+  gltfComponentN: 3,
+});
+const BaryCentricCoord: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'BARY_CENTRIC_COORD',
+  shaderStr: 'a_baryCentricCoord',
+  attributeSlot: 10,
+  gltfComponentN: 3,
+});
+const Texcoord2: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
+  str: 'TEXCOORD_2',
+  shaderStr: 'a_texcoord_2',
+  attributeSlot: 11,
+  gltfComponentN: 2,
+});
 
 const typeList = [
   Unknown, // -1
@@ -239,14 +222,12 @@ const typeList = [
 
 const AttributeTypeNumber = typeList.length - 1;
 
-function isInstanceOfVertexAttributeClass(
-  obj: unknown
-): obj is VertexAttributeClass {
+function isInstanceOfVertexAttributeClass(obj: unknown): obj is VertexAttributeClass {
   return obj instanceof VertexAttributeClass;
 }
 
 function from(index: number): VertexAttributeEnum {
-  return _from({typeList, index}) as VertexAttributeEnum;
+  return _from({ typeList, index }) as VertexAttributeEnum;
 }
 
 function fromString(str: string): VertexAttributeEnum {
@@ -260,7 +241,7 @@ function fromString(str: string): VertexAttributeEnum {
   } else if (str === 'WEIGHTS') {
     newStr = 'WEIGHTS_0';
   }
-  return _fromString({typeList, str: newStr}) as VertexAttributeEnum;
+  return _fromString({ typeList, str: newStr }) as VertexAttributeEnum;
 }
 
 type Gltf2VertexAttributeEnums =
@@ -306,9 +287,7 @@ function toVertexAttributeSemanticJoinedStringAsGltfStyle(
   }
 }
 
-function toAttributeSlotFromJoinedString(
-  str: VertexAttributeSemanticsJoinedString
-): Index {
+function toAttributeSlotFromJoinedString(str: VertexAttributeSemanticsJoinedString): Index {
   switch (str) {
     case Position.XYZ:
       return Position.getAttributeSlot();
@@ -339,9 +318,7 @@ function toAttributeSlotFromJoinedString(
   }
 }
 
-function toVectorComponentN(
-  joinedString: VertexAttributeSemanticsJoinedString
-): VectorComponentN {
+function toVectorComponentN(joinedString: VertexAttributeSemanticsJoinedString): VectorComponentN {
   return joinedString.split(',').length as VectorComponentN;
 }
 

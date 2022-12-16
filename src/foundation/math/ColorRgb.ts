@@ -1,6 +1,6 @@
 import { Vector3 } from './Vector3';
-import {IVector3} from './IVector';
-import {IColorRgb} from './IColor';
+import { IVector3 } from './IVector';
+import { IColorRgb } from './IColor';
 
 /**
  * A RGB color.

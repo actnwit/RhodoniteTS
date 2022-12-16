@@ -1,14 +1,11 @@
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 import Vector3AndScalarToVector4ShaderityObject from '../../../webgl/shaderity_shaders/nodes/Vector3AndScalarToVector4.glsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class Vector3AndScalarToVector4ShaderNode extends AbstractShaderNode {
   constructor() {
-    super(
-      'vector3AndScalarToVector4',
-      Vector3AndScalarToVector4ShaderityObject.code
-    );
+    super('vector3AndScalarToVector4', Vector3AndScalarToVector4ShaderityObject.code);
 
     this.__inputs.push({
       compositionType: CompositionType.Vec3,

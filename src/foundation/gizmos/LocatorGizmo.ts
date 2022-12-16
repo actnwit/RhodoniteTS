@@ -1,9 +1,9 @@
 import { Entity } from '../core/Entity';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {VertexAttribute} from '../definitions/VertexAttribute';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
-import {Primitive} from '../geometry/Primitive';
-import {EntityHelper, IMeshEntity} from '../helpers/EntityHelper';
+import { Primitive } from '../geometry/Primitive';
+import { EntityHelper, IMeshEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Gizmo } from './Gizmo';
 
@@ -59,15 +59,9 @@ export class LocatorGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity!.tryToSetUniqueName(
-      `LocatorGizmo_of_${this.__target.uniqueName}`,
-      true
-    );
-    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
-      true;
-    this.__target
-      .getSceneGraph()!
-      ._addGizmoChild(this.__topEntity!.getSceneGraph());
+    this.__topEntity!.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    this.__target.getSceneGraph()!._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     const sceneGraphComponent = this.__topEntity!.tryToGetMesh()!;
     LocatorGizmo.__mesh = new Mesh();
@@ -144,10 +138,7 @@ export class LocatorGizmo extends Gizmo {
     ]);
 
     const primitive = Primitive.createPrimitive({
-      attributeSemantics: [
-        VertexAttribute.Position.XYZ,
-        VertexAttribute.Color0.XYZ,
-      ],
+      attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
       attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,
     });

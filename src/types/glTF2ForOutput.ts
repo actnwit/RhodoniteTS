@@ -1,5 +1,5 @@
 import { Gltf2Camera } from '.';
-import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
+import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { Texture } from '../foundation/textures/Texture';
 import { Byte, Index } from './CommonTypes';
 import {

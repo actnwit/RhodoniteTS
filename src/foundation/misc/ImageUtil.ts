@@ -1,9 +1,9 @@
 import { Vector3 } from '../math/Vector3';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
-import {MathUtil} from '../math/MathUtil';
+import { MathUtil } from '../math/MathUtil';
 import { MutableVector3 } from '../math/MutableVector3';
-import {ColorRgb} from '../math/ColorRgb';
-import { ColorComponentLetter, Index, Size} from '../../types/CommonTypes';
+import { ColorRgb } from '../math/ColorRgb';
+import { ColorComponentLetter, Index, Size } from '../../types/CommonTypes';
 import { MutableVector2 } from '../math/MutableVector2';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
 import { Is } from './Is';
@@ -70,11 +70,7 @@ function computeEigenVectors(input: TextureDataFloat, eigenVectors: Vector3[]) {
   // Find eigen values and vectors using Jacobi algorithm
   const eigenVectorsTemp = MutableMatrix33.zero();
   const eigenValuesTemp = MutableVector3.zero();
-  MathUtil.computeEigenValuesAndVectors(
-    covarMat,
-    eigenVectorsTemp,
-    eigenValuesTemp
-  );
+  MathUtil.computeEigenValuesAndVectors(covarMat, eigenVectorsTemp, eigenValuesTemp);
 
   // Set return values
   eigenVectors[0] = Vector3.fromCopyArray([
@@ -104,11 +100,7 @@ function decorrelateColorSpace(
 ) {
   // output: color space origin
   // Compute the eigenvectors of the histogram
-  const eigenvectors = [
-    MutableVector3.zero(),
-    MutableVector3.zero(),
-    MutableVector3.zero(),
-  ];
+  const eigenvectors = [MutableVector3.zero(), MutableVector3.zero(), MutableVector3.zero()];
   computeEigenVectors(input, eigenvectors);
 
   // Rotate to eigenvector space and
@@ -118,10 +110,7 @@ function decorrelateColorSpace(
         // Get current color
         const color: ColorRgb = input.getPixelAs(x, y, 3, ColorRgb);
         // Project on eigenvector
-        const new_channel_value: number = Vector3.dot(
-          color,
-          eigenvectors[channel]
-        );
+        const new_channel_value: number = Vector3.dot(color, eigenvectors[channel]);
         // Store
         input_decorrelated.setPixelAtChannel(x, y, channel, new_channel_value);
       }
@@ -176,24 +165,15 @@ function decorrelateColorSpace(
     colorSpaceRanges[0].x * eigenvectors[0].z +
     colorSpaceRanges[1].x * eigenvectors[1].z +
     colorSpaceRanges[2].x * eigenvectors[2].z;
-  colorSpaceVector1.x =
-    eigenvectors[0].x * (colorSpaceRanges[0].y - colorSpaceRanges[0].x);
-  colorSpaceVector1.y =
-    eigenvectors[0].y * (colorSpaceRanges[0].y - colorSpaceRanges[0].x);
-  colorSpaceVector1.z =
-    eigenvectors[0].z * (colorSpaceRanges[0].y - colorSpaceRanges[0].x);
-  colorSpaceVector2.x =
-    eigenvectors[1].x * (colorSpaceRanges[1].y - colorSpaceRanges[1].x);
-  colorSpaceVector2.y =
-    eigenvectors[1].y * (colorSpaceRanges[1].y - colorSpaceRanges[1].x);
-  colorSpaceVector2.z =
-    eigenvectors[1].z * (colorSpaceRanges[1].y - colorSpaceRanges[1].x);
-  colorSpaceVector3.x =
-    eigenvectors[2].x * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
-  colorSpaceVector3.y =
-    eigenvectors[2].y * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
-  colorSpaceVector3.z =
-    eigenvectors[2].z * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
+  colorSpaceVector1.x = eigenvectors[0].x * (colorSpaceRanges[0].y - colorSpaceRanges[0].x);
+  colorSpaceVector1.y = eigenvectors[0].y * (colorSpaceRanges[0].y - colorSpaceRanges[0].x);
+  colorSpaceVector1.z = eigenvectors[0].z * (colorSpaceRanges[0].y - colorSpaceRanges[0].x);
+  colorSpaceVector2.x = eigenvectors[1].x * (colorSpaceRanges[1].y - colorSpaceRanges[1].x);
+  colorSpaceVector2.y = eigenvectors[1].y * (colorSpaceRanges[1].y - colorSpaceRanges[1].x);
+  colorSpaceVector2.z = eigenvectors[1].z * (colorSpaceRanges[1].y - colorSpaceRanges[1].x);
+  colorSpaceVector3.x = eigenvectors[2].x * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
+  colorSpaceVector3.y = eigenvectors[2].y * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
+  colorSpaceVector3.z = eigenvectors[2].z * (colorSpaceRanges[2].y - colorSpaceRanges[2].x);
 }
 
 // Compute average subpixel variance at a given LOD
@@ -227,8 +207,7 @@ function computeLODAverageSubpixelVariance(
 
       // Update average
       average_window_variance +=
-        window_variance /
-        ((image.width * image.height) / windowWidth / windowWidth);
+        window_variance / ((image.width * image.height) / windowWidth / windowWidth);
     }
   }
 
@@ -254,10 +233,7 @@ function filterLUTValueAtx(
     // Sample the Gaussian
     const sample_x = MathUtil.invGaussianCdf(U, x, std);
     // Find sample texel in LUT (the LUT covers the domain [0, 1])
-    const sample_texel = Math.max(
-      0,
-      Math.min(LUT_WIDTH - 1, Math.floor(sample_x * LUT_WIDTH))
-    );
+    const sample_texel = Math.max(0, Math.min(LUT_WIDTH - 1, Math.floor(sample_x * LUT_WIDTH)));
     // Fetch LUT at level 0
     const sample_value = LUT.getPixelAsArray(sample_texel, 0)[channel];
     // Accumulate
@@ -276,11 +252,7 @@ function prefilterLUT(
   // Prefilter
   for (let LOD = 1; LOD < LUT_Tinv.height; LOD++) {
     // Compute subpixel variance at LOD
-    const window_variance = computeLODAverageSubpixelVariance(
-      image_T_Input,
-      LOD,
-      channel
-    );
+    const window_variance = computeLODAverageSubpixelVariance(image_T_Input, LOD, channel);
     const window_std = Math.sqrt(window_variance);
 
     // Prefilter LUT with Gaussian kernel of this variance
@@ -288,12 +260,7 @@ function prefilterLUT(
       // Texel position in [0, 1]
       const x_texel: number = (i + 0.5) / LUT_Tinv.width;
       // Filter look-up table around this position with Gaussian kernel
-      const filteredValue = filterLUTValueAtx(
-        LUT_Tinv,
-        x_texel,
-        window_std,
-        channel
-      );
+      const filteredValue = filterLUTValueAtx(LUT_Tinv, x_texel, window_std, channel);
       // Store filtered value
       LUT_Tinv.setPixelAtChannel(i, LOD, channel, filteredValue);
     }
@@ -316,18 +283,12 @@ function computeTinput(
   GAUSSIAN_STD = 0.16666
 ) {
   // Sort pixels of example image
-  const sortedInputValues = generatePixelSortTypeArray(
-    input.height * input.width
-  );
+  const sortedInputValues = generatePixelSortTypeArray(input.height * input.width);
   for (let y = 0; y < input.height; y++) {
     for (let x = 0; x < input.width; x++) {
       sortedInputValues[y * input.width + x].x = x;
       sortedInputValues[y * input.width + x].y = y;
-      sortedInputValues[y * input.width + x].value = input.getPixel(
-        x,
-        y,
-        channel
-      );
+      sortedInputValues[y * input.width + x].value = input.getPixel(x, y, channel);
     }
   }
 
@@ -440,11 +401,7 @@ function precomputations(
 
   // Section 1.5 Improvement: prefiltering the look-up table
   // Compute number of prefiltered levels and resize LUT
-  Tinv.resize(
-    Tinv.width,
-    Math.floor(Math.log(Tinput.width) / Math.log(2.0)),
-    3
-  );
+  Tinv.resize(Tinv.width, Math.floor(Math.log(Tinput.width) / Math.log(2.0)), 3);
   for (let channel = 0; channel < 3; channel++) {
     prefilterLUT(Tinput, Tinv, channel);
   }
@@ -452,29 +409,28 @@ function precomputations(
   return retVal as SeamlessTextureData;
 }
 
-export function convertHTMLImageElementToCanvas(image: HTMLImageElement, width: number, height: number) {
+export function convertHTMLImageElementToCanvas(
+  image: HTMLImageElement,
+  width: number,
+  height: number
+) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d')!;
-  ctx.drawImage(image,
-    0, 0, image.width, image.height,
-    0, 0, width, height);
+  ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);
 
   return canvas;
 }
 
-export function combineImages(
-  data:
-  {
-    r_image?: HTMLCanvasElement,
-    g_image?: HTMLCanvasElement,
-    b_image?: HTMLCanvasElement,
-    a_image?: HTMLCanvasElement,
-    width: number,
-    height: number,
-  })
-{
+export function combineImages(data: {
+  r_image?: HTMLCanvasElement;
+  g_image?: HTMLCanvasElement;
+  b_image?: HTMLCanvasElement;
+  a_image?: HTMLCanvasElement;
+  width: number;
+  height: number;
+}) {
   const width = data.width;
   const height = data.height;
 
@@ -537,4 +493,4 @@ export function combineImages(
   return outputCanvas;
 }
 
-export const ImageUtil = Object.freeze({precomputations});
+export const ImageUtil = Object.freeze({ precomputations });

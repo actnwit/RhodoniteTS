@@ -2,18 +2,9 @@ import Rn from '../../../../';
 
 function generateEntity() {
   const entity = Rn.EntityRepository.createEntity();
-  const entity1 = Rn.EntityRepository.addComponentToEntity(
-    Rn.TransformComponent,
-    entity
-  );
-  const entity2 = Rn.EntityRepository.addComponentToEntity(
-    Rn.SceneGraphComponent,
-    entity1
-  );
-  const entity3 = Rn.EntityRepository.addComponentToEntity(
-    Rn.MeshComponent,
-    entity2
-  );
+  const entity1 = Rn.EntityRepository.addComponentToEntity(Rn.TransformComponent, entity);
+  const entity2 = Rn.EntityRepository.addComponentToEntity(Rn.SceneGraphComponent, entity1);
+  const entity3 = Rn.EntityRepository.addComponentToEntity(Rn.MeshComponent, entity2);
   return entity3;
 }
 

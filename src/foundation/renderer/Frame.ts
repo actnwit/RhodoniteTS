@@ -1,12 +1,12 @@
-import {RequireOne} from '../../types/TypeGenerators';
-import {RnObject} from '../core/RnObject';
-import {IVector4} from '../math/IVector';
-import {assertExist} from '../misc/MiscUtil';
-import {Is} from '../misc/Is';
-import {RenderTargetTexture} from '../textures/RenderTargetTexture';
-import {Expression} from './Expression';
-import {FrameBuffer} from './FrameBuffer';
-import {RenderPass} from './RenderPass';
+import { RequireOne } from '../../types/TypeGenerators';
+import { RnObject } from '../core/RnObject';
+import { IVector4 } from '../math/IVector';
+import { assertExist } from '../misc/MiscUtil';
+import { Is } from '../misc/Is';
+import { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import { Expression } from './Expression';
+import { FrameBuffer } from './FrameBuffer';
+import { RenderPass } from './RenderPass';
 
 type ColorAttachmentIndex = number;
 type InputRenderPassIndex = number;
@@ -17,8 +17,7 @@ type ExpressionInputs = {
   inputRenderPasses: RenderPass[];
 };
 
-type GeneratorOfRenderTargetTexturePromise =
-  IterableIterator<RenderTargetTexture>;
+type GeneratorOfRenderTargetTexturePromise = IterableIterator<RenderTargetTexture>;
 
 /**
  * Frame manages expressions and input/output dependencies between them
@@ -29,18 +28,17 @@ export class Frame extends RnObject {
   public static readonly ResolveFrameBuffer = 'ResolveFrameBuffer';
   public static readonly ResolveFrameBuffer2 = 'ResolveFrameBuffer2';
 
-  private __expressionQueries:
-    [
-      Expression,
-      RequireOne<{
-        index?: InputRenderPassIndex;
-        uniqueName?: string;
-        instance?: RenderPass;
-      }>,
-      ColorAttachmentIndex,
-      GeneratorOfRenderTargetTexturePromise,
-      'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2'
-    ][] = [];
+  private __expressionQueries: [
+    Expression,
+    RequireOne<{
+      index?: InputRenderPassIndex;
+      uniqueName?: string;
+      instance?: RenderPass;
+    }>,
+    ColorAttachmentIndex,
+    GeneratorOfRenderTargetTexturePromise,
+    'FrameBuffer' | 'ResolveFrameBuffer' | 'ResolveFrameBuffer2'
+  ][] = [];
   constructor() {
     super();
   }
@@ -76,9 +74,7 @@ export class Frame extends RnObject {
         } else if (Is.exist(output.renderPass.index)) {
           renderPass = expression.renderPasses[output.renderPass.index];
         } else if (Is.exist(output.renderPass.uniqueName)) {
-          renderPass = RnObject.getRnObjectByName(
-            output.renderPass.uniqueName
-          ) as RenderPass;
+          renderPass = RnObject.getRnObjectByName(output.renderPass.uniqueName) as RenderPass;
         }
         if (Is.exist(renderPass)) {
           renderPass.setFramebuffer(output.frameBuffer);
@@ -116,11 +112,7 @@ export class Frame extends RnObject {
     }
   ): Promise<RenderTargetTexture> {
     const promise = new Promise<RenderTargetTexture>(
-      (
-        resolve: (
-          value: RenderTargetTexture | PromiseLike<RenderTargetTexture>
-        ) => void
-      ) => {
+      (resolve: (value: RenderTargetTexture | PromiseLike<RenderTargetTexture>) => void) => {
         function* generatorFunc() {
           const renderTargetTexture = (yield) as unknown as RenderTargetTexture;
           resolve(renderTargetTexture);
@@ -149,16 +141,13 @@ export class Frame extends RnObject {
       .__expressionQueries) {
       for (const expData of this.__expressions) {
         if (exp === expData.expression) {
-
           let renderPassObj = renderPassArg.instance;
           if (Is.exist(renderPassArg.instance)) {
             renderPassObj = renderPassArg.instance;
           } else if (Is.exist(renderPassArg.index)) {
             renderPassObj = expData.inputRenderPasses[renderPassArg.index];
           } else if (Is.exist(renderPassArg.uniqueName)) {
-            renderPassObj = RnObject.getRnObjectByName(
-              renderPassArg.uniqueName
-            ) as RenderPass;
+            renderPassObj = RnObject.getRnObjectByName(renderPassArg.uniqueName) as RenderPass;
           }
 
           let framebuffer: FrameBuffer | undefined;
@@ -172,9 +161,7 @@ export class Frame extends RnObject {
 
           if (Is.exist(framebuffer)) {
             const renderTargetTexture =
-              framebuffer.getColorAttachedRenderTargetTexture(
-                colorAttachmentIndex
-              );
+              framebuffer.getColorAttachedRenderTargetTexture(colorAttachmentIndex);
             if (Is.exist(renderTargetTexture)) {
               generator.next(renderTargetTexture as any);
               generator.next(renderTargetTexture as any);
@@ -196,7 +183,7 @@ export class Frame extends RnObject {
    * Get expressions
    */
   get expressions() {
-    return this.__expressions.map(exp => exp.expression);
+    return this.__expressions.map((exp) => exp.expression);
   }
 
   setViewport(viewport: IVector4) {

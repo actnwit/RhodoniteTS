@@ -1,23 +1,23 @@
-import {Primitive} from './Primitive';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {MemoryManager} from '../core/MemoryManager';
-import {BufferUse} from '../definitions/BufferUse';
-import {ComponentType} from '../definitions/ComponentType';
-import {CompositionType} from '../definitions/CompositionType';
-import {Vector3} from '../math/Vector3';
-import {Accessor} from '../memory/Accessor';
-import {Vector2} from '../math/Vector2';
-import {AABB} from '../math/AABB';
-import {CGAPIResourceRepository} from '../renderer/CGAPIResourceRepository';
-import {Index, CGAPIResourceHandle, MeshUID} from '../../types/CommonTypes';
-import {MutableVector3} from '../math/MutableVector3';
-import {VertexHandles} from '../../webgl/WebGLResourceRepository';
-import {Is} from '../misc/Is';
-import {IVector3} from '../math/IVector';
-import {IMesh, RaycastResultEx1} from './types/GeometryTypes';
-import {IMeshEntity} from '../helpers/EntityHelper';
-import {MeshComponent} from '../..';
+import { Primitive } from './Primitive';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { MemoryManager } from '../core/MemoryManager';
+import { BufferUse } from '../definitions/BufferUse';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import { Vector3 } from '../math/Vector3';
+import { Accessor } from '../memory/Accessor';
+import { Vector2 } from '../math/Vector2';
+import { AABB } from '../math/AABB';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { Index, CGAPIResourceHandle, MeshUID } from '../../types/CommonTypes';
+import { MutableVector3 } from '../math/MutableVector3';
+import { VertexHandles } from '../../webgl/WebGLResourceRepository';
+import { Is } from '../misc/Is';
+import { IVector3 } from '../math/IVector';
+import { IMesh, RaycastResultEx1 } from './types/GeometryTypes';
+import { IMeshEntity } from '../helpers/EntityHelper';
+import { MeshComponent } from '../..';
 
 /**
  * The Mesh class.
@@ -35,8 +35,7 @@ export class Mesh implements IMesh {
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
-  private __variationVBOUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __latestPrimitivePositionAccessorVersion = 0;
   private __belongToEntities: IMeshEntity[] = [];
 
@@ -88,7 +87,7 @@ export class Mesh implements IMesh {
 
   public getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle {
     const index = this.__primitives.findIndex(
-      primitive => primitive.primitiveUid === primitiveUid
+      (primitive) => primitive.primitiveUid === primitiveUid
     );
 
     return this.__vaoUids[index];
@@ -113,9 +112,7 @@ export class Mesh implements IMesh {
     } else {
       this.__transparentPrimitives.push(primitive);
     }
-    this.__setPrimitives(
-      this.__opaquePrimitives.concat(this.__transparentPrimitives)
-    );
+    this.__setPrimitives(this.__opaquePrimitives.concat(this.__transparentPrimitives));
   }
 
   private __setPrimitives(primitives: Primitive[]) {
@@ -126,10 +123,7 @@ export class Mesh implements IMesh {
    * Gets true if these primitives are all 'Blend' type
    */
   public isAllBlend(): boolean {
-    if (
-      this.__transparentPrimitives.length > 0 &&
-      this.__opaquePrimitives.length === 0
-    ) {
+    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length === 0) {
       return true;
     } else {
       return false;
@@ -140,10 +134,7 @@ export class Mesh implements IMesh {
    * Gets true if some primitives are 'Blend' type
    */
   public isBlendPartially(): boolean {
-    if (
-      this.__transparentPrimitives.length > 0 &&
-      this.__opaquePrimitives.length > 0
-    ) {
+    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length > 0) {
       return true;
     } else {
       return false;
@@ -154,10 +145,7 @@ export class Mesh implements IMesh {
    * Gets true if these primitives are all 'Opaque' type
    */
   public isOpaque(): boolean {
-    if (
-      this.__transparentPrimitives.length === 0 &&
-      this.__opaquePrimitives.length > 0
-    ) {
+    if (this.__transparentPrimitives.length === 0 && this.__opaquePrimitives.length > 0) {
       return true;
     } else {
       return false;
@@ -181,12 +169,9 @@ export class Mesh implements IMesh {
    * @returns true: updated, false: not changed (not dirty)
    */
   updateVariationVBO(): boolean {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    if (
-      this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
+    if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
     }
 
@@ -201,8 +186,7 @@ export class Mesh implements IMesh {
       //   ? 1
       //   : 0;
     }
-    this.__variationVBOUid =
-      webglResourceRepository.createVertexBufferFromTypedArray(entityInfo);
+    this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityInfo);
 
     return true;
   }
@@ -216,11 +200,8 @@ export class Mesh implements IMesh {
    * @returns true: updated, false: not changed (not dirty)
    */
   deleteVariationVBO(): boolean {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    if (
-      this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
       this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -230,8 +211,7 @@ export class Mesh implements IMesh {
   }
 
   public updateVAO(): void {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -245,8 +225,7 @@ export class Mesh implements IMesh {
       if (
         isNaN(this.__vaoUids[i]) ||
         this.__vaoUids[i] === CGAPIResourceRepository.InvalidCGAPIResourceUid ||
-        vertexHandles.vaoHandle ===
-          CGAPIResourceRepository.InvalidCGAPIResourceUid
+        vertexHandles.vaoHandle === CGAPIResourceRepository.InvalidCGAPIResourceUid
       ) {
         this.__vaoUids[i] = webglResourceRepository.createVertexArray()!;
         vertexHandles.vaoHandle = this.__vaoUids[i];
@@ -269,8 +248,7 @@ export class Mesh implements IMesh {
   }
 
   public deleteVAO() {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
       webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -346,13 +324,9 @@ export class Mesh implements IMesh {
    */
   get AABB(): AABB {
     for (const primitive of this.__primitives) {
-      if (
-        primitive.positionAccessorVersion !==
-        this.__latestPrimitivePositionAccessorVersion
-      ) {
+      if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
         this.__localAABB.initialize();
-        this.__latestPrimitivePositionAccessorVersion =
-          primitive.positionAccessorVersion!;
+        this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
         break;
       }
     }
@@ -387,10 +361,7 @@ export class Mesh implements IMesh {
         const morphAccessor = morphPrimitive.getAttribute(semantic)!;
         const elementCount = morphAccessor.elementCount;
         for (let j = 0; j < elementCount; j++) {
-          morphAccessor.setElementFromSameCompositionAccessor(
-            j,
-            primitive.getAttribute(semantic)!
-          );
+          morphAccessor.setElementFromSameCompositionAccessor(j, primitive.getAttribute(semantic)!);
         }
       });
 
@@ -414,22 +385,14 @@ export class Mesh implements IMesh {
       return;
     }
     for (const primitive of this.__primitives) {
-      const tangentIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Tangent.XYZ
-      );
+      const tangentIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Tangent.XYZ);
       if (tangentIdx !== -1 && this.tangentCalculationMode === 2) {
         continue;
       }
-      const texcoordIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Texcoord0.XY
-      );
-      const normalIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Normal.XYZ
-      );
+      const texcoordIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Texcoord0.XY);
+      const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal.XYZ);
       if (texcoordIdx !== -1 && normalIdx !== -1) {
-        const positionIdx = primitive.attributeSemantics.indexOf(
-          VertexAttribute.Position.XYZ
-        );
+        const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
 
         const positionAccessor = primitive.attributeAccessors[positionIdx];
         const texcoordAccessor = primitive.attributeAccessors[texcoordIdx];
@@ -445,9 +408,7 @@ export class Mesh implements IMesh {
         }
 
         const vertexNum = primitive.getVertexCountAsIndicesBased();
-        const buffer = MemoryManager.getInstance().createOrGetBuffer(
-          BufferUse.CPUGeneric
-        );
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
 
         const tangentAttributeByteSize = (positionAccessor.byteLength * 4) / 3;
         const tangentBufferView = buffer
@@ -464,13 +425,13 @@ export class Mesh implements IMesh {
           })
           .unwrapForce();
         for (let i = 0; i < vertexNum - 2; i += incrementNum) {
-          const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
-          const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});
-          const pos2 = positionAccessor.getVec3(i + 2, {indicesAccessor});
-          const uv0 = texcoordAccessor.getVec2(i, {indicesAccessor});
-          const uv1 = texcoordAccessor.getVec2(i + 1, {indicesAccessor});
-          const uv2 = texcoordAccessor.getVec2(i + 2, {indicesAccessor});
-          const norm0 = normalAccessor.getVec3(i, {indicesAccessor});
+          const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
+          const pos1 = positionAccessor.getVec3(i + 1, { indicesAccessor });
+          const pos2 = positionAccessor.getVec3(i + 2, { indicesAccessor });
+          const uv0 = texcoordAccessor.getVec2(i, { indicesAccessor });
+          const uv1 = texcoordAccessor.getVec2(i + 1, { indicesAccessor });
+          const uv2 = texcoordAccessor.getVec2(i + 2, { indicesAccessor });
+          const norm0 = normalAccessor.getVec3(i, { indicesAccessor });
 
           this.__calcTangentFor3Vertices(
             i,
@@ -485,10 +446,7 @@ export class Mesh implements IMesh {
             indicesAccessor
           );
         }
-        primitive.setVertexAttribute(
-          tangentAccessor,
-          VertexAttribute.Tangent.XYZ
-        );
+        primitive.setVertexAttribute(tangentAccessor, VertexAttribute.Tangent.XYZ);
       }
     }
   }
@@ -628,18 +586,13 @@ export class Mesh implements IMesh {
         return;
       }
 
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(
-        BufferUse.CPUGeneric
-      );
-      const positionIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Position.XYZ
-      );
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
+      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const vertexNum = positionAccessor.elementCount;
       const num = vertexNum;
 
-      const baryCentricCoordAttributeByteSize =
-        num * 4 /* vec4 */ * 4; /* bytes */
+      const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4; /* bytes */
       const baryCentricCoordBufferView = buffer
         .takeBufferView({
           byteLengthToNeed: baryCentricCoordAttributeByteSize,
@@ -664,10 +617,7 @@ export class Mesh implements IMesh {
           {}
         );
       }
-      primitive.setVertexAttribute(
-        baryCentricCoordAccessor,
-        VertexAttribute.BaryCentricCoord.XYZ
-      );
+      primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord.XYZ);
     }
   }
 
@@ -676,18 +626,14 @@ export class Mesh implements IMesh {
    */
   _calcFaceNormalsIfNonNormal() {
     for (const primitive of this.__primitives) {
-      const normalIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Normal.XYZ
-      );
+      const normalIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Normal.XYZ);
       if (normalIdx !== -1) {
         return;
       }
 
       this.__hasFaceNormal = true;
 
-      const positionIdx = primitive.attributeSemantics.indexOf(
-        VertexAttribute.Position.XYZ
-      );
+      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
       const positionAccessor = primitive.attributeAccessors[positionIdx];
       const indicesAccessor = primitive.indicesAccessor;
 
@@ -700,9 +646,7 @@ export class Mesh implements IMesh {
       }
 
       const vertexNum = primitive.getVertexCountAsIndicesBased();
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(
-        BufferUse.CPUGeneric
-      );
+      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
 
       const normalAttributeByteSize = positionAccessor.byteLength;
       const normalBufferView = buffer
@@ -719,18 +663,11 @@ export class Mesh implements IMesh {
         })
         .unwrapForce();
       for (let i = 0; i < vertexNum - 2; i += incrementNum) {
-        const pos0 = positionAccessor.getVec3(i, {indicesAccessor});
-        const pos1 = positionAccessor.getVec3(i + 1, {indicesAccessor});
-        const pos2 = positionAccessor.getVec3(i + 2, {indicesAccessor});
+        const pos0 = positionAccessor.getVec3(i, { indicesAccessor });
+        const pos1 = positionAccessor.getVec3(i + 1, { indicesAccessor });
+        const pos2 = positionAccessor.getVec3(i + 2, { indicesAccessor });
 
-        this.__calcFaceNormalFor3Vertices(
-          i,
-          pos0,
-          pos1,
-          pos2,
-          normalAccessor,
-          indicesAccessor
-        );
+        this.__calcFaceNormalFor3Vertices(i, pos0, pos1, pos2, normalAccessor, indicesAccessor);
       }
       primitive.setVertexAttribute(normalAccessor, VertexAttribute.Normal.XYZ);
     }
@@ -765,9 +702,9 @@ export class Mesh implements IMesh {
     ny *= da;
     nz *= da;
 
-    normalAccessor.setVec3(i, nx, ny, nz, {indicesAccessor});
-    normalAccessor.setVec3(i + 1, nx, ny, nz, {indicesAccessor});
-    normalAccessor.setVec3(i + 2, nx, ny, nz, {indicesAccessor});
+    normalAccessor.setVec3(i, nx, ny, nz, { indicesAccessor });
+    normalAccessor.setVec3(i + 1, nx, ny, nz, { indicesAccessor });
+    normalAccessor.setVec3(i + 2, nx, ny, nz, { indicesAccessor });
   }
 
   getPrimitiveIndexInMesh(primitive: Primitive) {

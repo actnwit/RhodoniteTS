@@ -1,7 +1,7 @@
-import {MeshComponent} from '../components/Mesh/MeshComponent';
-import {MemoryManager} from '../core/MemoryManager';
-import {EntityHelper} from '../helpers/EntityHelper';
-import {ArrayAsRn, enhanceArray} from './Array';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { MemoryManager } from '../core/MemoryManager';
+import { EntityHelper } from '../helpers/EntityHelper';
+import { ArrayAsRn, enhanceArray } from './Array';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

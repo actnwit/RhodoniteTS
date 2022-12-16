@@ -1,10 +1,10 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type BufferUseEnum = EnumIO;
 
 class BufferUseClass extends EnumClass implements BufferUseEnum {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -28,11 +28,11 @@ const CPUGeneric: BufferUseEnum = new BufferUseClass({
 const typeList = [GPUInstanceData, GPUVertexData, UBOGeneric, CPUGeneric];
 
 function from(index: number): BufferUseEnum {
-  return _from({typeList, index}) as BufferUseEnum;
+  return _from({ typeList, index }) as BufferUseEnum;
 }
 
 function fromString(str: string): BufferUseEnum {
-  return _fromString({typeList, str}) as BufferUseEnum;
+  return _fromString({ typeList, str }) as BufferUseEnum;
 }
 
 export const BufferUse = Object.freeze({

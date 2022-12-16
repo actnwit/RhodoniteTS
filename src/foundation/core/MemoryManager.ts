@@ -1,9 +1,9 @@
 import { Buffer } from '../memory/Buffer';
-import {BufferUse, BufferUseEnum} from '../definitions/BufferUse';
-import {Size, Byte, ObjectUID} from '../../types/CommonTypes';
-import {Config} from './Config';
+import { BufferUse, BufferUseEnum } from '../definitions/BufferUse';
+import { Size, Byte, ObjectUID } from '../../types/CommonTypes';
+import { Config } from './Config';
 import { RnObject } from './RnObject';
-import {MiscUtil} from '../misc/MiscUtil';
+import { MiscUtil } from '../misc/MiscUtil';
 
 /**
  * Usage
@@ -15,15 +15,11 @@ import {MiscUtil} from '../misc/MiscUtil';
 export class MemoryManager {
   private static __instance: MemoryManager;
   //__entityMaxCount: number;
-  private __buffers: {[s: string]: Buffer} = {};
+  private __buffers: { [s: string]: Buffer } = {};
   private __buffersOnDemand: Map<ObjectUID, Buffer> = new Map();
-  private __memorySizeRatios: {[s: string]: number} = {};
+  private __memorySizeRatios: { [s: string]: number } = {};
 
-  private constructor(
-    cpuGeneric: number,
-    gpuInstanceData: number,
-    gpuVertexData: number
-  ) {
+  private constructor(cpuGeneric: number, gpuInstanceData: number, gpuVertexData: number) {
     this.__memorySizeRatios[BufferUse.CPUGeneric.str] = cpuGeneric;
     this.__memorySizeRatios[BufferUse.GPUInstanceData.str] = gpuInstanceData;
     this.__memorySizeRatios[BufferUse.GPUVertexData.str] = gpuVertexData;
@@ -39,11 +35,7 @@ export class MemoryManager {
     gpuVertexData: number;
   }) {
     if (!this.__instance) {
-      this.__instance = new MemoryManager(
-        cpuGeneric,
-        gpuInstanceData,
-        gpuVertexData
-      );
+      this.__instance = new MemoryManager(cpuGeneric, gpuInstanceData, gpuVertexData);
       return this.__instance;
     }
     return this.__instance;
@@ -64,15 +56,10 @@ export class MemoryManager {
       4 /*rgba*/ *
       4 /*byte*/ *
       this.__memorySizeRatios[bufferUse.str];
-    const arrayBuffer = new ArrayBuffer(
-      this.__makeMultipleOf4byteSize(memorySize)
-    );
+    const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
 
     let byteAlign = 4;
-    if (
-      bufferUse === BufferUse.GPUInstanceData ||
-      bufferUse === BufferUse.GPUVertexData
-    ) {
+    if (bufferUse === BufferUse.GPUInstanceData || bufferUse === BufferUse.GPUVertexData) {
       byteAlign = 16;
     }
 
@@ -126,33 +113,26 @@ export class MemoryManager {
 
   public printMemoryUsage() {
     const cpuGeneric = this.__buffers[BufferUse.CPUGeneric.toString()];
-    const gpuInstanceData =
-      this.__buffers[BufferUse.GPUInstanceData.toString()];
+    const gpuInstanceData = this.__buffers[BufferUse.GPUInstanceData.toString()];
     const gpuVertexData = this.__buffers[BufferUse.GPUVertexData.toString()];
     // const uboGeneric = this.__buffers[BufferUse.UBOGeneric.toString()];
 
     console.log('Memory Usage in Memory Manager:');
     console.log(
-      `CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${
-        cpuGeneric.byteLength
-      } bytes. (${
+      `CPUGeneric: ${cpuGeneric.takenSizeInByte} byte of ${cpuGeneric.byteLength} bytes. (${
         (cpuGeneric.takenSizeInByte / cpuGeneric.byteLength) * 100
       } %) `
     );
     console.log(
       `GPUInstanceData: ${gpuInstanceData.takenSizeInByte} byte of ${
         gpuInstanceData.byteLength
-      } bytes. (${
-        (gpuInstanceData.takenSizeInByte / gpuInstanceData.byteLength) * 100
-      } %) `
+      } bytes. (${(gpuInstanceData.takenSizeInByte / gpuInstanceData.byteLength) * 100} %) `
     );
     if (gpuVertexData != null) {
       console.log(
         `GPUVertexData: ${gpuVertexData.takenSizeInByte} byte of ${
           gpuVertexData.byteLength
-        } bytes. (${
-          (gpuVertexData.takenSizeInByte / gpuVertexData.byteLength) * 100
-        } %) `
+        } bytes. (${(gpuVertexData.takenSizeInByte / gpuVertexData.byteLength) * 100} %) `
       );
     }
     // console.log(`UBOGeneric: ${uboGeneric.takenSizeInByte} byte of ${uboGeneric.byteLength} bytes. (${uboGeneric.takenSizeInByte / uboGeneric.byteLength * 100} %) `);

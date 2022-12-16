@@ -6,11 +6,7 @@ declare class _BasisFile {
   getNumLevels(imageIndex: number): number;
   getImageWidth(imageIndex: number, levelIndex: number): number;
   getImageHeight(imageIndex: number, levelIndex: number): number;
-  getImageTranscodedSizeInBytes(
-    imageIndex: number,
-    levelImdex: number,
-    format: number
-  ): number;
+  getImageTranscodedSizeInBytes(imageIndex: number, levelImdex: number, format: number): number;
   startTranscoding(): number;
   transcodeImage(
     dst: Uint8Array,

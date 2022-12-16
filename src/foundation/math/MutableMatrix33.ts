@@ -1,15 +1,14 @@
-import {Matrix44} from './Matrix44';
-import {Quaternion} from './Quaternion';
-import {IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44} from './IMatrix';
-import {Matrix33} from './Matrix33';
-import {Vector3} from './Vector3';
-import {IVector3} from './IVector';
-import {Array9, Index} from '../../types/CommonTypes';
+import { Matrix44 } from './Matrix44';
+import { Quaternion } from './Quaternion';
+import { IMutableMatrix33, IMutableMatrix, IMatrix33, IMatrix44 } from './IMatrix';
+import { Matrix33 } from './Matrix33';
+import { Vector3 } from './Vector3';
+import { IVector3 } from './IVector';
+import { Array9, Index } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 
 /* eslint-disable prettier/prettier */
 export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
-
   constructor(m: Float32Array) {
     super(m);
   }
@@ -123,8 +122,8 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   /**
- * Create X oriented Rotation Matrix
- */
+   * Create X oriented Rotation Matrix
+   */
   static rotateX(radian: number) {
     return super.rotateX(radian) as MutableMatrix33;
   }
@@ -180,21 +179,39 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   setComponents(
-    m00: number, m01: number, m02: number,
-    m10: number, m11: number, m12: number,
-    m20: number, m21: number, m22: number
+    m00: number,
+    m01: number,
+    m02: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m20: number,
+    m21: number,
+    m22: number
   ): MutableMatrix33 {
-    this._v[0] = m00; this._v[3] = m01; this._v[6] = m02;
-    this._v[1] = m10; this._v[4] = m11; this._v[7] = m12;
-    this._v[2] = m20; this._v[5] = m21; this._v[8] = m22;
+    this._v[0] = m00;
+    this._v[3] = m01;
+    this._v[6] = m02;
+    this._v[1] = m10;
+    this._v[4] = m11;
+    this._v[7] = m12;
+    this._v[2] = m20;
+    this._v[5] = m21;
+    this._v[8] = m22;
 
     return this;
   }
 
   copyComponents(mat: IMatrix33 | IMatrix44) {
-    this._v[0] = mat.m00; this._v[3] = mat.m01; this._v[6] = mat.m02; // mat.m01 is mat._v[3 or 4]
-    this._v[1] = mat.m10; this._v[4] = mat.m11; this._v[7] = mat.m12;
-    this._v[2] = mat.m20; this._v[5] = mat.m21; this._v[8] = mat.m22;
+    this._v[0] = mat.m00;
+    this._v[3] = mat.m01;
+    this._v[6] = mat.m02; // mat.m01 is mat._v[3 or 4]
+    this._v[1] = mat.m10;
+    this._v[4] = mat.m11;
+    this._v[7] = mat.m12;
+    this._v[2] = mat.m20;
+    this._v[5] = mat.m21;
+    this._v[8] = mat.m22;
 
     return this;
   }
@@ -207,15 +224,11 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   identity() {
-    return this.setComponents(
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1
-    );
+    return this.setComponents(1, 0, 0, 0, 1, 0, 0, 0, 1);
   }
 
   _swap(l: Index, r: Index) {
-    this._v[r] = [this._v[l], this._v[l] = this._v[r]][0];
+    this._v[r] = [this._v[l], (this._v[l] = this._v[r])][0];
   }
 
   /**
@@ -245,11 +258,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     const m21 = (this._v[3] * this._v[2] - this._v[0] * this._v[5]) / det;
     const m22 = (this._v[0] * this._v[4] - this._v[3] * this._v[1]) / det;
 
-    return this.setComponents(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
@@ -258,11 +267,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   rotateX(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return this.setComponents(
-      1, 0, 0,
-      0, cos, -sin,
-      0, sin, cos
-    );
+    return this.setComponents(1, 0, 0, 0, cos, -sin, 0, sin, cos);
   }
 
   /**
@@ -271,11 +276,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   rotateY(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return this.setComponents(
-      cos, 0, sin,
-      0, 1, 0,
-      -sin, 0, cos
-    );
+    return this.setComponents(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
   }
 
   /**
@@ -284,11 +285,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   rotateZ(radian: number): MutableMatrix33 {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return this.setComponents(
-      cos, -sin, 0,
-      sin, cos, 0,
-      0, 0, 1
-    );
+    return this.setComponents(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
   }
 
   rotateXYZ(x: number, y: number, z: number) {
@@ -351,11 +348,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     const m21 = yx21;
     const m22 = yx22;
 
-    return this.setComponents(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   rotate(vec: Vector3) {
@@ -363,11 +356,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   }
 
   scale(vec: Vector3) {
-    return this.setComponents(
-      vec._v[0], 0, 0,
-      0, vec._v[1], 0,
-      0, 0, vec._v[2]
-    );
+    return this.setComponents(vec._v[0], 0, 0, 0, vec._v[1], 0, 0, 0, vec._v[2]);
   }
 
   multiplyScale(vec: Vector3) {
@@ -406,11 +395,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     const m21 = this._v[2] * mat._v[3] + this._v[5] * mat._v[4] + this._v[8] * mat._v[5];
     const m22 = this._v[2] * mat._v[6] + this._v[5] * mat._v[7] + this._v[8] * mat._v[8];
 
-    return this.setComponents(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   multiplyByLeft(mat: Matrix33) {
@@ -430,11 +415,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     const m21 = mat._v[2] * this._v[3] + mat._v[5] * this._v[4] + mat._v[8] * this._v[5];
     const m22 = mat._v[2] * this._v[6] + mat._v[5] * this._v[7] + mat._v[8] * this._v[8];
 
-    return this.setComponents(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return this.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
@@ -445,14 +426,26 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @returns
    */
   static fromCopy9RowMajor(
-    m00: number, m01: number, m02: number,
-    m10: number, m11: number, m12: number,
-    m20: number, m21: number, m22: number)
-  {
+    m00: number,
+    m01: number,
+    m02: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m20: number,
+    m21: number,
+    m22: number
+  ) {
     const v = new Float32Array(9);
-    v[0] = m00; v[3] = m01; v[6] = m02;
-    v[1] = m10; v[4] = m11; v[7] = m12;
-    v[2] = m20; v[5] = m21; v[8] = m22;
+    v[0] = m00;
+    v[3] = m01;
+    v[6] = m02;
+    v[1] = m10;
+    v[4] = m11;
+    v[7] = m12;
+    v[2] = m20;
+    v[5] = m21;
+    v[8] = m22;
     return new MutableMatrix33(v);
   }
 
@@ -462,17 +455,28 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
    * @returns
    */
   static fromCopy9ColumnMajor(
-    m00: number, m10: number, m20: number,
-    m01: number, m11: number, m21: number,
-    m02: number, m12: number, m22: number)
-  {
+    m00: number,
+    m10: number,
+    m20: number,
+    m01: number,
+    m11: number,
+    m21: number,
+    m02: number,
+    m12: number,
+    m22: number
+  ) {
     const v = new Float32Array(9);
-    v[0] = m00; v[3] = m01; v[6] = m02;
-    v[1] = m10; v[4] = m11; v[7] = m12;
-    v[2] = m20; v[5] = m21; v[8] = m22;
+    v[0] = m00;
+    v[3] = m01;
+    v[6] = m02;
+    v[1] = m10;
+    v[4] = m11;
+    v[7] = m12;
+    v[2] = m20;
+    v[5] = m21;
+    v[8] = m22;
     return new MutableMatrix33(v);
   }
-
 
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(9);
@@ -492,18 +496,30 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
 
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
     const v = new Float32Array(9);
-    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
-    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
-    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[6] = array[2];
+    v[1] = array[3];
+    v[4] = array[4];
+    v[7] = array[5];
+    v[2] = array[6];
+    v[5] = array[7];
+    v[8] = array[8];
 
     return new MutableMatrix33(v);
   }
 
   static fromCopyMatrix33(mat: IMatrix33) {
     const v = new Float32Array(9);
-    v[0] = mat._v[0]; v[3] = mat._v[3]; v[6] = mat._v[6];
-    v[1] = mat._v[1]; v[4] = mat._v[4]; v[7] = mat._v[7];
-    v[2] = mat._v[2]; v[5] = mat._v[5]; v[8] = mat._v[8];
+    v[0] = mat._v[0];
+    v[3] = mat._v[3];
+    v[6] = mat._v[6];
+    v[1] = mat._v[1];
+    v[4] = mat._v[4];
+    v[7] = mat._v[7];
+    v[2] = mat._v[2];
+    v[5] = mat._v[5];
+    v[8] = mat._v[8];
     return new MutableMatrix33(v);
   }
 
@@ -521,17 +537,29 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
 
   static fromCopyArray9RowMajor(array: Array9<number>) {
     const v = new Float32Array(9);
-    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
-    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
-    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[6] = array[2];
+    v[1] = array[3];
+    v[4] = array[4];
+    v[7] = array[5];
+    v[2] = array[6];
+    v[5] = array[7];
+    v[8] = array[8];
     return new MutableMatrix33(v);
   }
 
   static fromCopyArrayRowMajor(array: Array<number>) {
     const v = new Float32Array(9);
-    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
-    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
-    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[6] = array[2];
+    v[1] = array[3];
+    v[4] = array[4];
+    v[7] = array[5];
+    v[2] = array[6];
+    v[5] = array[7];
+    v[8] = array[8];
     return new MutableMatrix33(v);
   }
 
@@ -545,10 +573,16 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
     const wx = q._v[3] * q._v[0];
     const wy = q._v[3] * q._v[1];
     const wz = q._v[3] * q._v[2];
-    const v = new Float32Array(9)
-    v[0] = 1.0 - 2.0 * (sy + sz); v[3] = 2.0 * (cz - wz); v[6] = 2.0 * (cy + wy);
-    v[1] = 2.0 * (cz + wz); v[4] = 1.0 - 2.0 * (sx + sz); v[7] = 2.0 * (cx - wx);
-    v[2] = 2.0 * (cy - wy); v[5] = 2.0 * (cx + wx); v[8] = 1.0 - 2.0 * (sx + sy);
+    const v = new Float32Array(9);
+    v[0] = 1.0 - 2.0 * (sy + sz);
+    v[3] = 2.0 * (cz - wz);
+    v[6] = 2.0 * (cy + wy);
+    v[1] = 2.0 * (cz + wz);
+    v[4] = 1.0 - 2.0 * (sx + sz);
+    v[7] = 2.0 * (cx - wx);
+    v[2] = 2.0 * (cy - wy);
+    v[5] = 2.0 * (cx + wx);
+    v[8] = 1.0 - 2.0 * (sx + sy);
 
     return new MutableMatrix33(v);
   }

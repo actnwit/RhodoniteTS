@@ -1,9 +1,9 @@
-import {Count} from '../../types/CommonTypes';
-import {ComponentTypeEnum} from './ComponentType';
-import {CompositionType, CompositionTypeEnum} from './CompositionType';
-import {ShaderSemanticsEnum} from './ShaderSemantics';
-import {ShaderTypeEnum} from './ShaderType';
-import {ShaderVariableUpdateIntervalEnum} from './ShaderVariableUpdateInterval';
+import { Count } from '../../types/CommonTypes';
+import { ComponentTypeEnum } from './ComponentType';
+import { CompositionType, CompositionTypeEnum } from './CompositionType';
+import { ShaderSemanticsEnum } from './ShaderSemantics';
+import { ShaderTypeEnum } from './ShaderType';
+import { ShaderVariableUpdateIntervalEnum } from './ShaderVariableUpdateInterval';
 
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum;
@@ -30,8 +30,7 @@ export type ShaderSemanticsInfo = {
 };
 
 export function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
-  const compositionNumber =
-    semanticInfo.compositionType.getNumberOfComponents();
+  const compositionNumber = semanticInfo.compositionType.getNumberOfComponents();
   const componentSizeInByte = semanticInfo.componentType.getSizeInBytes();
   const semanticInfoByte = compositionNumber * componentSizeInByte;
   let alignedByteLength = semanticInfoByte;

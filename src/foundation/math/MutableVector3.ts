@@ -1,17 +1,7 @@
-import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IMutableVector,
-  IMutableVector3,
-} from './IVector';
-import {
-  TypedArray,
-  FloatTypedArrayConstructor,
-  Array3,
-} from '../../types/CommonTypes';
-import {Vector3d, Vector3_} from './Vector3';
-import {IQuaternion} from './IQuaternion';
+import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from './IVector';
+import { TypedArray, FloatTypedArrayConstructor, Array3 } from '../../types/CommonTypes';
+import { Vector3d, Vector3_ } from './Vector3';
+import { IQuaternion } from './IQuaternion';
 
 /**
  * @internal
@@ -20,8 +10,8 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
   extends Vector3_<T>
   implements IMutableVector, IMutableVector3
 {
-  constructor(v: TypedArray, {type}: {type: T}) {
-    super(v, {type});
+  constructor(v: TypedArray, { type }: { type: T }) {
+    super(v, { type });
   }
 
   set x(x: number) {
@@ -192,17 +182,11 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
     const num12 = quat._v[3] * num3;
 
     const x =
-      (1 - (num5 + num6)) * this._v[0] +
-      (num7 - num12) * this._v[1] +
-      (num8 + num11) * this._v[2];
+      (1 - (num5 + num6)) * this._v[0] + (num7 - num12) * this._v[1] + (num8 + num11) * this._v[2];
     const y =
-      (num7 + num12) * this._v[0] +
-      (1 - (num4 + num6)) * this._v[1] +
-      (num9 - num10) * this._v[2];
+      (num7 + num12) * this._v[0] + (1 - (num4 + num6)) * this._v[1] + (num9 - num10) * this._v[2];
     const z =
-      (num8 - num11) * this._v[0] +
-      (num9 + num10) * this._v[1] +
-      (1 - (num4 + num5)) * this._v[2];
+      (num8 - num11) * this._v[0] + (num9 + num10) * this._v[1] + (1 - (num4 + num5)) * this._v[2];
 
     return this.setComponents(x, y, z);
   }
@@ -211,13 +195,8 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
     return this._v.BYTES_PER_ELEMENT;
   }
 
-  static _fromCopy3(
-    x: number,
-    y: number,
-    z: number,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type([x, y, z]), {type});
+  static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor) {
+    return new this(new type([x, y, z]), { type });
   }
 }
 
@@ -226,7 +205,7 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
  */
 export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
-    super(v, {type: Float32Array});
+    super(v, { type: Float32Array });
   }
 
   static zero() {
@@ -318,7 +297,7 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
  */
 export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
-    super(x, {type: Float64Array});
+    super(x, { type: Float64Array });
   }
 
   static zero() {
@@ -366,11 +345,7 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
   }
 
   static multiplyQuaternion(quat: IQuaternion, vec: IVector3) {
-    return super._multiplyQuaternion(
-      quat,
-      vec,
-      Float64Array
-    ) as MutableVector3d;
+    return super._multiplyQuaternion(quat, vec, Float64Array) as MutableVector3d;
   }
 
   static fromCopy3(x: number, y: number, z: number): MutableVector3d {

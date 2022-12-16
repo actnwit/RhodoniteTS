@@ -1,37 +1,28 @@
-import {ComponentType} from '../../definitions/ComponentType';
-import {CompositionType} from '../../definitions/CompositionType';
-import {Scalar} from '../../math/Scalar';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {Vector2} from '../../math/Vector2';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {Material} from '../core/Material';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Scalar } from '../../math/Scalar';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { Vector2 } from '../../math/Vector2';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Material } from '../core/Material';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class FurnaceTestMaterialContent extends AbstractMaterialContent {
-  static mode = new ShaderSemanticsClass({str: 'mode'});
-  static debugView = new ShaderSemanticsClass({str: 'debugView'});
-  static g_type = new ShaderSemanticsClass({str: 'g_type'});
-  static disable_fresnel = new ShaderSemanticsClass({str: 'disable_fresnel'});
-  static f0 = new ShaderSemanticsClass({str: 'f0'});
+  static mode = new ShaderSemanticsClass({ str: 'mode' });
+  static debugView = new ShaderSemanticsClass({ str: 'debugView' });
+  static g_type = new ShaderSemanticsClass({ str: 'g_type' });
+  static disable_fresnel = new ShaderSemanticsClass({ str: 'disable_fresnel' });
+  static f0 = new ShaderSemanticsClass({ str: 'f0' });
 
   constructor() {
-    super(
-      null,
-      'FurnaceTestShading',
-      {},
-      FurnaceTestShaderVertex,
-      FurnaceTestShaderFragment
-    );
+    super(null, 'FurnaceTestShading', {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
@@ -157,26 +148,11 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
             CameraComponent.current
           ) as CameraComponent;
         }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-        this.setProjection(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
+        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
         // Lights
-        this.setLightsInfo(
-          shaderProgram,
-          args.lightComponents,
-          material,
-          args.setUniform
-        );
+        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
       }
     }
   }

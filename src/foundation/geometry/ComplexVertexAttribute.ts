@@ -1,15 +1,14 @@
-import {VertexAttributeEnum} from '../definitions/VertexAttribute';
-import {PrimitiveModeEnum} from '../definitions/PrimitiveMode';
-import {Attributes} from './Primitive';
-import {IndicesAccessOption, Accessor} from '../memory/Accessor';
-import {Index, Array1to4} from '../../types/CommonTypes';
-import {Array1, Array2, Array3, Array4} from '../../types/CommonTypes';
-import {ISemanticVertexAttribute} from './ISemanticVertexAttribute';
+import { VertexAttributeEnum } from '../definitions/VertexAttribute';
+import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
+import { Attributes } from './Primitive';
+import { IndicesAccessOption, Accessor } from '../memory/Accessor';
+import { Index, Array1to4 } from '../../types/CommonTypes';
+import { Array1, Array2, Array3, Array4 } from '../../types/CommonTypes';
+import { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
 
 export class ComplexVertexAttribute implements ISemanticVertexAttribute {
   private __semantic: PrimitiveModeEnum;
-  private __components: Array1to4<Accessor> =
-    [] as unknown as Array1to4<Accessor>;
+  private __components: Array1to4<Accessor> = [] as unknown as Array1to4<Accessor>;
   private __offsets: Array1to4<Index> = [] as unknown as Array1to4<Index>;
 
   constructor(semanticAttribute: VertexAttributeEnum, attributes: Attributes) {
@@ -44,10 +43,7 @@ export class ComplexVertexAttribute implements ISemanticVertexAttribute {
     return this.__semantic;
   }
 
-  public getScalarAsArray(
-    i: Index,
-    option: IndicesAccessOption
-  ): Array1<number> {
+  public getScalarAsArray(i: Index, option: IndicesAccessOption): Array1<number> {
     return [this.__components[0].getScalarAt(i, this.__offsets[0], option)];
   }
   public getVec2AsArray(i: Index, option: IndicesAccessOption): Array2<number> {

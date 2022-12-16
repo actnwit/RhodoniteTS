@@ -1,27 +1,24 @@
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {CompositionType} from '../../definitions/CompositionType';
-import {Vector2} from '../../math/Vector2';
-import {ComponentType} from '../../definitions/ComponentType';
-import {Vector4} from '../../math/Vector4';
-import {Vector3} from '../../math/Vector3';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {Material} from '../core/Material';
-import {HdriFormat} from '../../definitions/HdriFormat';
-import {Scalar} from '../../math/Scalar';
-import {Config} from '../../core/Config';
-import {VectorN} from '../../math/VectorN';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Vector2 } from '../../math/Vector2';
+import { ComponentType } from '../../definitions/ComponentType';
+import { Vector4 } from '../../math/Vector4';
+import { Vector3 } from '../../math/Vector3';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Material } from '../core/Material';
+import { HdriFormat } from '../../definitions/HdriFormat';
+import { Scalar } from '../../math/Scalar';
+import { Config } from '../../core/Config';
+import { VectorN } from '../../math/VectorN';
 
 import pbrSingleShaderVertex from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
-import {AlphaModeEnum, AlphaMode} from '../../definitions/AlphaMode';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { AlphaModeEnum, AlphaMode } from '../../definitions/AlphaMode';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 /**
  * No longer used.
@@ -63,7 +60,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
   static readonly EmissiveTexcoordIndex = new ShaderSemanticsClass({
     str: 'emissiveTexcoordIndex',
   });
-  static readonly NormalScale = new ShaderSemanticsClass({str: 'normalScale'});
+  static readonly NormalScale = new ShaderSemanticsClass({ str: 'normalScale' });
   static readonly OcclusionStrength = new ShaderSemanticsClass({
     str: 'occlusionStrength',
   });
@@ -92,7 +89,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
-      {isMorphing, isSkinning, isLighting},
+      { isMorphing, isSkinning, isLighting },
       pbrSingleShaderVertex,
       pbrSingleShaderFragment
     );
@@ -458,9 +455,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
           soloDatum: true,
-          initialValue: new VectorN(
-            new Int32Array(Config.maxVertexMorphNumberInShader)
-          ),
+          initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
           needUniformInDataTextureMode: true,
@@ -473,9 +468,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
           soloDatum: true,
-          initialValue: new VectorN(
-            new Float32Array(Config.maxVertexMorphNumberInShader)
-          ),
+          initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
           needUniformInDataTextureMode: true,
@@ -579,13 +572,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    this.setupBasicInfo(
-      args,
-      shaderProgram,
-      firstTime,
-      material,
-      CameraComponent
-    );
+    this.setupBasicInfo(args, shaderProgram, firstTime, material, CameraComponent);
 
     // // PBR maps
     // this.__webglResourceRepository.setUniformValue(
@@ -610,12 +597,8 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
   ) {
     if (args.setUniform) {
       if (firstTime) {
-        const {
-          mipmapLevelNumber,
-          meshRenderComponent,
-          diffuseHdriType,
-          specularHdriType,
-        } = this.setupHdriParameters(args);
+        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+          this.setupHdriParameters(args);
         this.__webglResourceRepository.setUniformValue(
           shaderProgram,
           ShaderSemantics.IBLParameter.str,
@@ -631,16 +614,12 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,
-          {x: diffuseHdriType, y: specularHdriType}
+          { x: diffuseHdriType, y: specularHdriType }
         );
       }
     } else {
-      const {
-        mipmapLevelNumber,
-        meshRenderComponent,
-        diffuseHdriType,
-        specularHdriType,
-      } = this.setupHdriParameters(args);
+      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+        this.setupHdriParameters(args);
       const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
@@ -654,11 +633,7 @@ export class PbrShadingMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  private setupIBL(
-    args: RenderingArg,
-    shaderProgram: WebGLProgram,
-    firstTime: boolean
-  ) {
+  private setupIBL(args: RenderingArg, shaderProgram: WebGLProgram, firstTime: boolean) {
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
       this.__webglResourceRepository.setUniformValue(
         shaderProgram,

@@ -1,23 +1,20 @@
-import {DataUtil} from '../misc/DataUtil';
-import {Primitive} from '../geometry/Primitive';
-import {MaterialHelper} from '../helpers/MaterialHelper';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../definitions/CompositionType';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
+import { DataUtil } from '../misc/DataUtil';
+import { Primitive } from '../geometry/Primitive';
+import { MaterialHelper } from '../helpers/MaterialHelper';
+import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import {
   VertexAttribute,
   VertexAttributeSemanticsJoinedString,
 } from '../definitions/VertexAttribute';
-import {TypedArray} from '../../types/CommonTypes';
-import {RnM2, RnM2Image, RnM2Accessor} from '../../types/RnM2';
-import {RnPromise} from '../misc/RnPromise';
-import {Is} from '../misc/Is';
-import {ifDefinedThen} from '../misc/MiscUtil';
-import {ifUndefinedThen} from '../misc/MiscUtil';
-import {GltfLoadOption} from '../../types';
-import {Err, IResult, Ok} from '../misc/Result';
+import { TypedArray } from '../../types/CommonTypes';
+import { RnM2, RnM2Image, RnM2Accessor } from '../../types/RnM2';
+import { RnPromise } from '../misc/RnPromise';
+import { Is } from '../misc/Is';
+import { ifDefinedThen } from '../misc/MiscUtil';
+import { ifUndefinedThen } from '../misc/MiscUtil';
+import { GltfLoadOption } from '../../types';
+import { Err, IResult, Ok } from '../misc/Result';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -87,19 +84,10 @@ export class DrcPointCloudImporter {
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  importArrayBuffer(
-    uri: string,
-    arrayBuffer: ArrayBuffer,
-    options?: GltfLoadOption
-  ) {
+  importArrayBuffer(uri: string, arrayBuffer: ArrayBuffer, options?: GltfLoadOption) {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
-    return this.__decodeDraco(
-      arrayBuffer,
-      defaultOptions,
-      basePath,
-      options
-    ).catch(err => {
+    return this.__decodeDraco(arrayBuffer, defaultOptions, basePath, options).catch((err) => {
       console.log('__loadFromArrayBuffer error', err);
     });
   }
@@ -125,7 +113,7 @@ export class DrcPointCloudImporter {
         options as GltfLoadOption,
         defaultOptions,
         basePath
-      ).catch(err => {
+      ).catch((err) => {
         console.log('this.__loadAsTextJson error', err);
       });
     } else {
@@ -136,7 +124,7 @@ export class DrcPointCloudImporter {
         options as GltfLoadOption,
         defaultOptions,
         basePath
-      ).catch(err => {
+      ).catch((err) => {
         console.log('this.__loadAsBinaryJson error', err);
       });
     }
@@ -146,9 +134,7 @@ export class DrcPointCloudImporter {
   _getOptions(defaultOptions: any, json: RnM2, options: any): GltfLoadOption {
     if (json.asset && json.asset.extras && json.asset.extras.rnLoaderOptions) {
       for (const optionName in json.asset.extras.rnLoaderOptions) {
-        defaultOptions[optionName] = (json.asset.extras.rnLoaderOptions as any)[
-          optionName
-        ];
+        defaultOptions[optionName] = (json.asset.extras.rnLoaderOptions as any)[optionName];
       }
     }
 
@@ -156,14 +142,9 @@ export class DrcPointCloudImporter {
       defaultOptions[optionName] = options[optionName];
     }
 
-    if (
-      options &&
-      options.loaderExtensionName &&
-      typeof options.loaderExtensionName === 'string'
-    ) {
+    if (options && options.loaderExtensionName && typeof options.loaderExtensionName === 'string') {
       if (Rn[options.loaderExtensionName] != null) {
-        defaultOptions.loaderExtension =
-          Rn[options.loaderExtensionName].getInstance();
+        defaultOptions.loaderExtension = Rn[options.loaderExtensionName].getInstance();
       } else {
         console.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
@@ -187,21 +168,14 @@ export class DrcPointCloudImporter {
     if (chunkType !== 0x4e4f534a) {
       throw new Error('invalid chunkType of chunk0 in this binary glTF file.');
     }
-    const uint8ArrayJSonContent = new Uint8Array(
-      arrayBuffer,
-      20,
-      lengthOfJSonChunkData
-    );
+    const uint8ArrayJSonContent = new Uint8Array(arrayBuffer, 20, lengthOfJSonChunkData);
     const gotText = DataUtil.uint8ArrayToString(uint8ArrayJSonContent);
     const gltfJson = JSON.parse(gotText);
     options = this._getOptions(defaultOptions, gltfJson, options);
-    const uint8array = new Uint8Array(
-      arrayBuffer,
-      20 + lengthOfJSonChunkData + 8
-    );
+    const uint8array = new Uint8Array(arrayBuffer, 20 + lengthOfJSonChunkData + 8);
 
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = {fileType: 'glTF', version: '2'};
+      gltfJson.asset.extras = { fileType: 'glTF', version: '2' };
     }
     this._mergeExtendedJson(gltfJson, options.extendedJson);
     gltfJson.asset.extras.rnLoaderOptions = options;
@@ -221,7 +195,7 @@ export class DrcPointCloudImporter {
     basePath: string
   ) {
     if (gltfJson.asset.extras === undefined) {
-      gltfJson.asset.extras = {fileType: 'glTF', version: '2'};
+      gltfJson.asset.extras = { fileType: 'glTF', version: '2' };
     }
 
     options = this._getOptions(defaultOptions, gltfJson, options);
@@ -250,9 +224,7 @@ export class DrcPointCloudImporter {
       buffers: [],
       images: [],
     };
-    promises.push(
-      this._loadResources(uint8array!, basePath, gltfJson, options, resources)
-    );
+    promises.push(this._loadResources(uint8array!, basePath, gltfJson, options, resources));
     promises.push(
       new Promise((resolve, reject) => {
         this._loadJsonContent(gltfJson, options);
@@ -341,8 +313,7 @@ export class DrcPointCloudImporter {
         gltfJson.extensions !== void 0 &&
         gltfJson.extensions.KHR_lights_punctual !== void 0
       ) {
-        node.extensions.KHR_lights_punctual.lightIndex =
-          node.extensions.KHR_lights_punctual.light;
+        node.extensions.KHR_lights_punctual.lightIndex = node.extensions.KHR_lights_punctual.light;
         node.extensions.KHR_lights_punctual.light =
           gltfJson.extensions.KHR_lights_punctual.lights[
             node.extensions.KHR_lights_punctual.lightIndex
@@ -376,12 +347,11 @@ export class DrcPointCloudImporter {
         if (primitive.targets != null) {
           primitive.targetsObjects = [];
           for (const target of primitive.targets) {
-            const attributes = {} as unknown as {[s: string]: RnM2Accessor};
+            const attributes = {} as unknown as { [s: string]: RnM2Accessor };
             for (const attributeName in target) {
               const targetShapeTargetAccessorId = target[attributeName];
               if (targetShapeTargetAccessorId >= 0) {
-                const accessor =
-                  gltfJson.accessors[targetShapeTargetAccessorId];
+                const accessor = gltfJson.accessors[targetShapeTargetAccessorId];
                 accessor.extras = {
                   toGetAsTypedArray: true,
                   attributeName: attributeName,
@@ -411,17 +381,13 @@ export class DrcPointCloudImporter {
     if (gltfJson.materials) {
       for (const material of gltfJson.materials) {
         if (material.pbrMetallicRoughness) {
-          const baseColorTexture =
-            material.pbrMetallicRoughness.baseColorTexture;
+          const baseColorTexture = material.pbrMetallicRoughness.baseColorTexture;
           if (baseColorTexture !== void 0) {
-            baseColorTexture.texture =
-              gltfJson.textures[baseColorTexture.index];
+            baseColorTexture.texture = gltfJson.textures[baseColorTexture.index];
           }
-          const metallicRoughnessTexture =
-            material.pbrMetallicRoughness.metallicRoughnessTexture;
+          const metallicRoughnessTexture = material.pbrMetallicRoughness.metallicRoughnessTexture;
           if (metallicRoughnessTexture !== void 0) {
-            metallicRoughnessTexture.texture =
-              gltfJson.textures[metallicRoughnessTexture.index];
+            metallicRoughnessTexture.texture = gltfJson.textures[metallicRoughnessTexture.index];
           }
         }
 
@@ -445,10 +411,7 @@ export class DrcPointCloudImporter {
           gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension &&
           gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures
         ) {
-          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures(
-            gltfJson,
-            material
-          );
+          gltfJson.asset.extras!.rnLoaderOptions!.loaderExtension.setTextures(gltfJson, material);
         }
       }
     }
@@ -458,7 +421,7 @@ export class DrcPointCloudImporter {
     // Texture
     if (gltfJson.textures) {
       for (const texture of gltfJson.textures) {
-        ifDefinedThen(v => {
+        ifDefinedThen((v) => {
           texture.samplerObject = gltfJson.samplers[v];
         }, texture.sampler);
 
@@ -476,7 +439,7 @@ export class DrcPointCloudImporter {
           skin.skeletonObject = gltfJson.nodes[skin.skeleton];
 
           ifDefinedThen(
-            v => (skin.inverseBindMatricesObject = gltfJson.accessors[v]),
+            (v) => (skin.inverseBindMatricesObject = gltfJson.accessors[v]),
             skin.inverseBindMatrices
           );
 
@@ -504,23 +467,18 @@ export class DrcPointCloudImporter {
         }
         for (const channel of animation.channels) {
           if (Is.exist(channel.samplerObject)) {
-            channel.samplerObject.inputObject =
-              gltfJson.accessors[channel.samplerObject.input];
-            channel.samplerObject.outputObject =
-              gltfJson.accessors[channel.samplerObject.output];
+            channel.samplerObject.inputObject = gltfJson.accessors[channel.samplerObject.input];
+            channel.samplerObject.outputObject = gltfJson.accessors[channel.samplerObject.output];
             if (channel.samplerObject.outputObject.extras === void 0) {
               channel.samplerObject.outputObject.extras = {} as any;
             }
             if (channel.target!.path === 'rotation') {
-              channel.samplerObject.outputObject.extras!.quaternionIfVec4 =
-                true;
+              channel.samplerObject.outputObject.extras!.quaternionIfVec4 = true;
             }
             if (channel.target!.path === 'weights') {
               const weightsArrayLength =
-                channel.samplerObject.outputObject.count /
-                channel.samplerObject.inputObject.count;
-              channel.samplerObject.outputObject.extras!.weightsArrayLength =
-                weightsArrayLength;
+                channel.samplerObject.outputObject.count / channel.samplerObject.inputObject.count;
+              channel.samplerObject.outputObject.extras!.weightsArrayLength = weightsArrayLength;
             }
           }
         }
@@ -538,10 +496,8 @@ export class DrcPointCloudImporter {
 
       if (accessor.sparse != null) {
         const sparse = accessor.sparse;
-        sparse.indices!.bufferViewObject =
-          gltfJson.bufferViews[sparse.indices!.bufferView];
-        sparse.values!.bufferViewObject =
-          gltfJson.bufferViews[sparse.values!.bufferView];
+        sparse.indices!.bufferViewObject = gltfJson.bufferViews[sparse.indices!.bufferView];
+        sparse.values!.bufferViewObject = gltfJson.bufferViews[sparse.values!.bufferView];
       }
     }
   }
@@ -704,10 +660,7 @@ export class DrcPointCloudImporter {
           imageJson.bufferView!,
           uint8Array
         );
-        imageUri = DataUtil.createBlobImageUriFromUint8Array(
-          imageUint8Array,
-          imageJson.mimeType!
-        );
+        imageUri = DataUtil.createBlobImageUriFromUint8Array(imageUint8Array, imageJson.mimeType!);
       } else {
         const imageFileStr = imageJson.uri;
         const splitted = imageFileStr.split('/');
@@ -729,10 +682,7 @@ export class DrcPointCloudImporter {
       //   options.extensionLoader.setUVTransformToTexture(texture, samplerJson);
       // }
 
-      const promise = DataUtil.createImageFromUri(
-        imageUri,
-        imageJson.mimeType!
-      ).then(image => {
+      const promise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then((image) => {
         image.crossOrigin = 'Anonymous';
         resources.images[i] = image;
         imageJson.image = image;
@@ -750,18 +700,16 @@ export class DrcPointCloudImporter {
 
         const fileExtension = DataUtil.getExtension(fileName);
         const mimeType = DataUtil.getMimeTypeFromExtension(fileExtension);
-        const promise = DataUtil.createImageFromUri(uri, mimeType).then(
-          image => {
-            image.crossOrigin = 'Anonymous';
-            textureInfo.image = {image: image};
-          }
-        );
+        const promise = DataUtil.createImageFromUri(uri, mimeType).then((image) => {
+          image.crossOrigin = 'Anonymous';
+          textureInfo.image = { image: image };
+        });
 
         promisesToLoadResources.push(promise);
       }
     }
 
-    return Promise.all(promisesToLoadResources).catch(err => {
+    return Promise.all(promisesToLoadResources).catch((err) => {
       console.log('Promise.all error', err);
     });
   }
@@ -787,7 +735,7 @@ export class DrcPointCloudImporter {
         options as GltfLoadOption,
         defaultOptions,
         basePath
-      ).catch(err => {
+      ).catch((err) => {
         console.log('this.__loadAsTextJson error', err);
       });
     });
@@ -796,11 +744,7 @@ export class DrcPointCloudImporter {
   private __decodeBuffer(arrayBuffer: ArrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
-    const dracoGeometry = this.__getGeometryFromDracoBuffer(
-      draco,
-      decoder,
-      arrayBuffer
-    );
+    const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arrayBuffer);
     if (dracoGeometry == null) {
       throw new Error('invalid dracoGeometry.');
     }
@@ -815,23 +759,14 @@ export class DrcPointCloudImporter {
       throw new Error('Draco: No position attribute found.');
     }
 
-    const attributeNames = [
-      'POSITION',
-      'NORMAL',
-      'COLOR',
-      'TEX_COORD',
-      'GENERIC',
-    ];
+    const attributeNames = ['POSITION', 'NORMAL', 'COLOR', 'TEX_COORD', 'GENERIC'];
     const numPoints = dracoGeometry.num_points();
 
     const attributeDataAll: any[] = [];
     const attributeComponents: number[] = [];
     let bufferLength = 0;
     for (let i = 0; i < attributeNames.length; i++) {
-      const attId = decoder.GetAttributeId(
-        dracoGeometry,
-        draco[attributeNames[i]]
-      );
+      const attId = decoder.GetAttributeId(dracoGeometry, draco[attributeNames[i]]);
       if (attId === -1) {
         attributeNames.splice(i, 1);
         i--;
@@ -840,11 +775,7 @@ export class DrcPointCloudImporter {
 
       const attribute = decoder.GetAttribute(dracoGeometry, attId);
       const attributeData = new draco.DracoFloat32Array();
-      decoder.GetAttributeFloatForAllPoints(
-        dracoGeometry,
-        attribute,
-        attributeData
-      );
+      decoder.GetAttributeFloatForAllPoints(dracoGeometry, attribute, attributeData);
       attributeDataAll[i] = attributeData;
 
       const numComponent = attribute.num_components();
@@ -868,15 +799,10 @@ export class DrcPointCloudImporter {
       } else if (attributeNames[i] === 'TEX_COORD') {
         for (let j = 0; j < numPoints; currentBufferIndex += 2, j++) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(2 * j);
-          buffer[currentBufferIndex + 1] =
-            1.0 - attributeDataAll[i].GetValue(2 * j + 1);
+          buffer[currentBufferIndex + 1] = 1.0 - attributeDataAll[i].GetValue(2 * j + 1);
         }
       } else {
-        for (
-          let j = 0;
-          j < numPoints * attributeComponents[i];
-          currentBufferIndex++, j++
-        ) {
+        for (let j = 0; j < numPoints * attributeComponents[i]; currentBufferIndex++, j++) {
           buffer[currentBufferIndex] = attributeDataAll[i].GetValue(j);
         }
       }
@@ -885,12 +811,7 @@ export class DrcPointCloudImporter {
     draco.destroy(decoder);
     draco.destroy(dracoGeometry);
 
-    return this.__decodedBufferToJSON(
-      buffer,
-      numPoints,
-      attributeNames,
-      attributeComponents
-    );
+    return this.__decodedBufferToJSON(buffer, numPoints, attributeNames, attributeComponents);
   }
 
   private async __decodedBufferToJSON(
@@ -930,12 +851,7 @@ export class DrcPointCloudImporter {
     };
 
     await this.__setBuffersToJSON(buffer, json);
-    this.__setAccessorsAndBufferViewsToJSON(
-      numPoints,
-      attributeNames,
-      attributeComponents,
-      json
-    );
+    this.__setAccessorsAndBufferViewsToJSON(numPoints, attributeNames, attributeComponents, json);
     this.__setMeshesToJSON(attributeNames, json);
 
     return new Promise((resolve, reject) => {
@@ -945,7 +861,7 @@ export class DrcPointCloudImporter {
 
   private __setBuffersToJSON(buffer: Float32Array, json: any) {
     return this.__convertBufferToURI(buffer.buffer)
-      .then(uri => {
+      .then((uri) => {
         json['buffers'] = [
           {
             name: 'input',
@@ -954,14 +870,14 @@ export class DrcPointCloudImporter {
           },
         ];
       })
-      .catch(err => {
+      .catch((err) => {
         console.log('this.__convertBufferToURI error:', err);
       });
   }
 
   private __convertBufferToURI(arrayBuffer: ArrayBuffer) {
     return new Promise((resolve, reject) => {
-      const blob = new Blob([arrayBuffer], {type: 'application/octet-stream'});
+      const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
       const fr = new FileReader();
 
       fr.onload = () => {
@@ -984,11 +900,7 @@ export class DrcPointCloudImporter {
     const bufferViews = [];
 
     let byteOffsetOfBufferView = 0;
-    for (
-      let i = 0, indexOfBufferView = 0;
-      i < attributeNames.length;
-      indexOfBufferView++
-    ) {
+    for (let i = 0, indexOfBufferView = 0; i < attributeNames.length; indexOfBufferView++) {
       const numOfComponents = attributeComponents[i];
 
       let type;
@@ -1079,11 +991,7 @@ export class DrcPointCloudImporter {
   private __decodeDracoToPrimitive(arrayBuffer: ArrayBuffer) {
     const draco = new DracoDecoderModule();
     const decoder = new draco.Decoder();
-    const dracoGeometry = this.__getGeometryFromDracoBuffer(
-      draco,
-      decoder,
-      arrayBuffer
-    );
+    const dracoGeometry = this.__getGeometryFromDracoBuffer(draco, decoder, arrayBuffer);
     if (dracoGeometry == null) {
       throw new Error('invalid dracoGeometry.');
     }
@@ -1144,11 +1052,7 @@ export class DrcPointCloudImporter {
     return primitive;
   }
 
-  private __getGeometryFromDracoBuffer(
-    draco: any,
-    decoder: any,
-    arrayBuffer: ArrayBuffer
-  ) {
+  private __getGeometryFromDracoBuffer(draco: any, decoder: any, arrayBuffer: ArrayBuffer) {
     const buffer = new draco.DecoderBuffer();
     buffer.Init(new Int8Array(arrayBuffer), arrayBuffer.byteLength);
     const geometryType = decoder.GetEncodedGeometryType(buffer);
@@ -1197,11 +1101,7 @@ export class DrcPointCloudImporter {
 
     const posAttribute = decoder.GetAttribute(dracoGeometry, posAttId);
     const posAttributeData = new draco.DracoFloat32Array();
-    decoder.GetAttributeFloatForAllPoints(
-      dracoGeometry,
-      posAttribute,
-      posAttributeData
-    );
+    decoder.GetAttributeFloatForAllPoints(dracoGeometry, posAttribute, posAttributeData);
 
     const numPoints = dracoGeometry.num_points();
     const numVertices = numPoints * 3;
@@ -1236,11 +1136,7 @@ export class DrcPointCloudImporter {
 
       const colAttribute = decoder.GetAttribute(dracoGeometry, colorAttId);
       const colAttributeData = new draco.DracoFloat32Array();
-      decoder.GetAttributeFloatForAllPoints(
-        dracoGeometry,
-        colAttribute,
-        colAttributeData
-      );
+      decoder.GetAttributeFloatForAllPoints(dracoGeometry, colAttribute, colAttributeData);
 
       const numPoints = dracoGeometry.num_points();
       const numComponents = colAttribute.num_components();
@@ -1283,11 +1179,7 @@ export class DrcPointCloudImporter {
 
       const norAttribute = decoder.GetAttribute(dracoGeometry, normalAttId);
       const norAttributeData = new draco.DracoFloat32Array();
-      decoder.GetAttributeFloatForAllPoints(
-        dracoGeometry,
-        norAttribute,
-        norAttributeData
-      );
+      decoder.GetAttributeFloatForAllPoints(dracoGeometry, norAttribute, norAttributeData);
 
       const numPoints = dracoGeometry.num_points();
       const numVertices = numPoints * 3;
@@ -1313,17 +1205,11 @@ export class DrcPointCloudImporter {
     attributes: Array<TypedArray>
   ) {
     // Get texture coordinate attributes if exists.
-    const texCoordAttId = decoder.GetAttributeId(
-      dracoGeometry,
-      draco.TEX_COORD
-    );
+    const texCoordAttId = decoder.GetAttributeId(dracoGeometry, draco.TEX_COORD);
     if (texCoordAttId === -1) {
       return null;
     } else {
-      const texCoordAttribute = decoder.GetAttribute(
-        dracoGeometry,
-        texCoordAttId
-      );
+      const texCoordAttribute = decoder.GetAttribute(dracoGeometry, texCoordAttId);
       const texCoordAttributeData = new draco.DracoFloat32Array();
       decoder.GetAttributeFloatForAllPoints(
         dracoGeometry,

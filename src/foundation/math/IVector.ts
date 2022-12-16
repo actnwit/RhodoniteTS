@@ -1,5 +1,5 @@
-import {TypedArray} from '../../types/CommonTypes';
-import {IQuaternion} from './IQuaternion';
+import { TypedArray } from '../../types/CommonTypes';
+import { IQuaternion } from './IQuaternion';
 
 export interface IVector {
   readonly _v: TypedArray;

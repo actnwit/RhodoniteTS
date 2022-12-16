@@ -1,19 +1,16 @@
-import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
-import {ComponentType} from '../definitions/ComponentType';
-import {
-  TextureParameter,
-  TextureParameterEnum,
-} from '../definitions/TextureParameter';
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentType } from '../definitions/ComponentType';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import {Size, TypedArray, Count} from '../../types/CommonTypes';
-import {Config} from '../core/Config';
-import {BasisFile, BasisTranscoder, BASIS} from '../../types/BasisTexture';
-import {ComponentTypeEnum} from '../../foundation/definitions/ComponentType';
+import { Size, TypedArray, Count } from '../../types/CommonTypes';
+import { Config } from '../core/Config';
+import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
+import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { DataUtil } from '../misc/DataUtil';
-import {CompressionTextureTypeEnum} from '../definitions/CompressionTextureType';
+import { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
-import {TextureData} from '../../webgl/WebGLResourceRepository';
+import { TextureData } from '../../webgl/WebGLResourceRepository';
 
 declare const BASIS: BASIS;
 
@@ -50,18 +47,16 @@ export class Texture extends AbstractTexture {
     this.__wrapS = options.wrapS;
     this.__wrapT = options.wrapT;
     if (typeof BASIS === 'undefined') {
-      console.error(
-        'Failed to call BASIS() function. Please check to import basis_transcoder.js.'
-      );
+      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
 
     // download basis_transcoder.wasm once
     if (!Texture.__loadedBasisFunc) {
       Texture.__loadedBasisFunc = true;
 
-      Texture.__basisLoadPromise = new Promise(resolve => {
+      Texture.__basisLoadPromise = new Promise((resolve) => {
         BASIS().then((basisTransCoder: BasisTranscoder) => {
-          const {initializeBasis} = basisTransCoder;
+          const { initializeBasis } = basisTransCoder;
           initializeBasis();
           Texture.__BasisFile = basisTransCoder.BasisFile;
 
@@ -112,22 +107,18 @@ export class Texture extends AbstractTexture {
       return;
     }
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createCompressedTextureFromBasis(
-      basisFile,
-      {
-        border: 0,
-        format,
-        type,
-        magFilter,
-        minFilter,
-        wrapS,
-        wrapT,
-        anisotropy,
-        isPremultipliedAlpha,
-      }
-    );
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
+      border: 0,
+      format,
+      type,
+      magFilter,
+      minFilter,
+      wrapS,
+      wrapT,
+      anisotropy,
+      isPremultipliedAlpha,
+    });
 
     this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
@@ -197,11 +188,10 @@ export class Texture extends AbstractTexture {
     let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
 
     if (this.autoResize) {
-      const [resizedCanvas, resizedWidth, resizedHeight] =
-        DataUtil.getResizedCanvas(
-          img,
-          Config.maxSizeLimitOfNonCompressedTexture
-        );
+      const [resizedCanvas, resizedWidth, resizedHeight] = DataUtil.getResizedCanvas(
+        img,
+        Config.maxSizeLimitOfNonCompressedTexture
+      );
       img = resizedCanvas;
       this.__width = resizedWidth;
       this.__height = resizedHeight;
@@ -209,15 +199,13 @@ export class Texture extends AbstractTexture {
     }
 
     if (this.autoDetectTransparency) {
-      this.__hasTransparentPixels =
-        DataUtil.detectTransparentPixelExistence(img);
+      this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(img);
     }
 
     this.__width = img.width;
     this.__height = img.height;
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTexture(img, {
       level,
       internalFormat,
@@ -271,11 +259,10 @@ export class Texture extends AbstractTexture {
         let img: HTMLImageElement | HTMLCanvasElement = this.__img!;
 
         if (this.autoResize) {
-          const [resizedCanvas, resizedWidth, resizedHeight] =
-            DataUtil.getResizedCanvas(
-              img,
-              Config.maxSizeLimitOfNonCompressedTexture
-            );
+          const [resizedCanvas, resizedWidth, resizedHeight] = DataUtil.getResizedCanvas(
+            img,
+            Config.maxSizeLimitOfNonCompressedTexture
+          );
           img = resizedCanvas;
           this.__width = resizedWidth;
           this.__height = resizedHeight;
@@ -283,15 +270,13 @@ export class Texture extends AbstractTexture {
         }
 
         if (this.autoDetectTransparency) {
-          this.__hasTransparentPixels =
-            DataUtil.detectTransparentPixelExistence(img);
+          this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(img);
         }
 
         this.__width = img.width;
         this.__height = img.height;
 
-        const webGLResourceRepository =
-          CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
         const texture = webGLResourceRepository.createTexture(img, {
           level,
           internalFormat,
@@ -330,8 +315,7 @@ export class Texture extends AbstractTexture {
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTexture(canvas, {
       level: 0,
       internalFormat: TextureParameter.RGBA8,
@@ -375,8 +359,7 @@ export class Texture extends AbstractTexture {
     this.__wrapT = wrapT;
     const type = ComponentType.fromTypedArray(typedArray);
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTexture(typedArray, {
       level,
       internalFormat,
@@ -427,8 +410,7 @@ export class Texture extends AbstractTexture {
       buffer: typedArray,
     } as TextureData;
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
       [textureData],
       compressionTextureType,
@@ -463,9 +445,7 @@ export class Texture extends AbstractTexture {
     this.__minFilter = minFilter;
     this.__wrapS = wrapS;
     this.__wrapT = wrapT;
-    const originalTextureData = textureDataArray.find(
-      textureData => textureData.level === 0
-    );
+    const originalTextureData = textureDataArray.find((textureData) => textureData.level === 0);
     if (originalTextureData == null) {
       throw new Error('texture data with level 0 is not found');
     }
@@ -473,8 +453,7 @@ export class Texture extends AbstractTexture {
     this.__width = originalTextureData.width;
     this.__height = originalTextureData.height;
 
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
       textureDataArray,
       compressionTextureType,
@@ -493,17 +472,11 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  importWebGLTextureDirectly(
-    webGLTexture: WebGLTexture,
-    width = 0,
-    height = 0
-  ) {
+  importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture =
-      webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
     this.cgApiResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;
@@ -512,8 +485,7 @@ export class Texture extends AbstractTexture {
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;

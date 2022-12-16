@@ -1,52 +1,43 @@
-import {RnObject} from '../../core/RnObject';
-import {
-  ShaderSemanticsEnum,
-  ShaderSemanticsName,
-} from '../../definitions/ShaderSemantics';
-import {CompositionTypeEnum} from '../../definitions/CompositionType';
-import {ComponentType, ComponentTypeEnum} from '../../definitions/ComponentType';
-import {GLSLShader} from '../../../webgl/shaders/GLSLShader';
-import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
-import {Matrix44} from '../../math/Matrix44';
-import {WebGLResourceRepository} from '../../../webgl/WebGLResourceRepository';
-import {Texture} from '../../textures/Texture';
-import {CubeTexture} from '../../textures/CubeTexture';
-import {Config} from '../../core/Config';
-import {SkeletalComponent} from '../../components/Skeletal/SkeletalComponent';
-import {Material} from './Material';
-import {MutableVector2} from '../../math/MutableVector2';
-import {MutableVector4} from '../../math/MutableVector4';
-import {Vector3} from '../../math/Vector3';
-import {MutableMatrix44} from '../../math/MutableMatrix44';
-import {MeshComponent} from '../../components/Mesh/MeshComponent';
-import {Primitive, Attributes} from '../../geometry/Primitive';
-import {Accessor} from '../../memory/Accessor';
-import {
-  VertexAttribute,
-  VertexAttributeEnum,
-} from '../../definitions/VertexAttribute';
-import {BlendShapeComponent} from '../../components/BlendShape/BlendShapeComponent';
-import {ProcessApproach} from '../../definitions/ProcessApproach';
-import {ShaderityObject} from 'shaderity';
-import {BoneDataType} from '../../definitions/BoneDataType';
+import { RnObject } from '../../core/RnObject';
+import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Matrix44 } from '../../math/Matrix44';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
+import { Texture } from '../../textures/Texture';
+import { CubeTexture } from '../../textures/CubeTexture';
+import { Config } from '../../core/Config';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
+import { Material } from './Material';
+import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { Vector3 } from '../../math/Vector3';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MeshComponent } from '../../components/Mesh/MeshComponent';
+import { Primitive, Attributes } from '../../geometry/Primitive';
+import { Accessor } from '../../memory/Accessor';
+import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderityObject } from 'shaderity';
+import { BoneDataType } from '../../definitions/BoneDataType';
 import SystemState from '../../system/SystemState';
-import {ShaderTypeEnum, ShaderType} from '../../definitions/ShaderType';
-import {IVector3} from '../../math/IVector';
-import {ModuleManager} from '../../system/ModuleManager';
-import {RnXR} from '../../../xr/main';
-import {LightComponent} from '../../components/Light/LightComponent';
-import {IMatrix33} from '../../math/IMatrix';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { ShaderTypeEnum, ShaderType } from '../../definitions/ShaderType';
+import { IVector3 } from '../../math/IVector';
+import { ModuleManager } from '../../system/ModuleManager';
+import { RnXR } from '../../../xr/main';
+import { LightComponent } from '../../components/Light/LightComponent';
+import { IMatrix33 } from '../../math/IMatrix';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { PixelFormat } from '../../definitions/PixelFormat';
 
-export type ShaderAttributeOrSemanticsOrString =
-  | string
-  | VertexAttributeEnum
-  | ShaderSemanticsEnum;
+export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
 export type ShaderSocket = {
   compositionType: CompositionTypeEnum;
@@ -111,42 +102,28 @@ export abstract class AbstractMaterialContent extends RnObject {
   constructor(
     shader: GLSLShader | null,
     shaderFunctionName: string,
-    {isMorphing = false, isSkinning = false, isLighting = false} = {},
+    { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject,
     pixelShaderityObject?: ShaderityObject
   ) {
     super();
     this.__shaderFunctionName = shaderFunctionName;
-    this.__materialNodeUid =
-      ++AbstractMaterialContent.__invalidMaterialNodeCount;
-    AbstractMaterialContent.materialNodes[
-      AbstractMaterialContent.__invalidMaterialNodeCount
-    ] = this;
+    this.__materialNodeUid = ++AbstractMaterialContent.__invalidMaterialNodeCount;
+    AbstractMaterialContent.materialNodes[AbstractMaterialContent.__invalidMaterialNodeCount] =
+      this;
 
     this.__isMorphing = isMorphing;
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
-    AbstractMaterialContent.__dummyBlackTexture.tryToSetUniqueName(
-      'dummyBlackTexture',
-      true
-    );
-    AbstractMaterialContent.__dummyWhiteTexture.tryToSetUniqueName(
-      'dummyWhiteTexture',
-      true
-    );
-    AbstractMaterialContent.__dummyBlueTexture.tryToSetUniqueName(
-      'dummyBlueTexture',
-      true
-    );
+    AbstractMaterialContent.__dummyBlackTexture.tryToSetUniqueName('dummyBlackTexture', true);
+    AbstractMaterialContent.__dummyWhiteTexture.tryToSetUniqueName('dummyWhiteTexture', true);
+    AbstractMaterialContent.__dummyBlueTexture.tryToSetUniqueName('dummyBlueTexture', true);
     AbstractMaterialContent.__dummyBlackCubeTexture.tryToSetUniqueName(
       'dummyBlackCubeTexture',
       true
     );
-    AbstractMaterialContent.__dummySRGBGrayTexture.tryToSetUniqueName(
-      'dummySRGBGrayTexture',
-      true
-    );
+    AbstractMaterialContent.__dummySRGBGrayTexture.tryToSetUniqueName('dummySRGBGrayTexture', true);
     AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
       'dummyPbrKelemenSzirmayKalosBrdfLutTexture',
       true
@@ -155,8 +132,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
-    this.__webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
 
     AbstractMaterialContent.initDefaultTextures();
@@ -208,23 +184,16 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__semantics = infoArray;
 
     if (!AbstractMaterialContent.__semanticsMap.has(this.shaderFunctionName)) {
-      AbstractMaterialContent.__semanticsMap.set(
-        this.shaderFunctionName,
-        new Map()
-      );
+      AbstractMaterialContent.__semanticsMap.set(this.shaderFunctionName, new Map());
     }
-    const map = AbstractMaterialContent.__semanticsMap.get(
-      this.shaderFunctionName
-    )!;
+    const map = AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)!;
     for (const semantic of this.__semantics) {
       map.set(semantic.semantic.str, semantic);
     }
   }
 
   getShaderSemanticInfoFromName(name: string) {
-    const map = AbstractMaterialContent.__semanticsMap.get(
-      this.shaderFunctionName
-    )!;
+    const map = AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)!;
     return map.get(name);
   }
 
@@ -318,40 +287,34 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
 
     this.__dummyWhiteTexture.generate1x1TextureFrom();
-    this.__dummyBlueTexture.generate1x1TextureFrom(
-      'rgba(127.5, 127.5, 255, 1)'
-    );
+    this.__dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
     this.__dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     this.__dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
-    this.__dummySRGBGrayTexture.generate1x1TextureFrom(
-      'rgba(186, 186, 186, 1)'
-    );
+    this.__dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
 
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
 
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    this.__sheenLutTextureUid =
-      await webglResourceRepository!.createTextureFromDataUri(
-        pbrModule.sheen_E_and_DGTerm,
-        {
-          level: 0,
-          internalFormat: TextureParameter.RGBA8,
-          border: 0,
-          format: PixelFormat.RGBA,
-          type: ComponentType.UnsignedByte,
-          magFilter: TextureParameter.Linear,
-          minFilter: TextureParameter.Linear,
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge,
-          generateMipmap: false,
-          anisotropy: false,
-          isPremultipliedAlpha: false,
-        }
-      );
+    this.__sheenLutTextureUid = await webglResourceRepository!.createTextureFromDataUri(
+      pbrModule.sheen_E_and_DGTerm,
+      {
+        level: 0,
+        internalFormat: TextureParameter.RGBA8,
+        border: 0,
+        format: PixelFormat.RGBA,
+        type: ComponentType.UnsignedByte,
+        magFilter: TextureParameter.Linear,
+        minFilter: TextureParameter.Linear,
+        wrapS: TextureParameter.ClampToEdge,
+        wrapT: TextureParameter.ClampToEdge,
+        generateMipmap: false,
+        anisotropy: false,
+        isPremultipliedAlpha: false,
+      }
+    );
   }
 
   static get dummyWhiteTexture() {
@@ -389,27 +352,12 @@ export abstract class AbstractMaterialContent extends RnObject {
             CameraComponentClass.current
           ) as CameraComponent;
         }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-        this.setProjection(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
+        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       }
       if (firstTime) {
         // Lights
-        this.setLightsInfo(
-          shaderProgram,
-          args.lightComponents,
-          material,
-          args.setUniform
-        );
+        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
         /// Skinning
         const skeletalComponent = args.entity.tryToGetSkeletal();
         this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
@@ -418,12 +366,7 @@ export abstract class AbstractMaterialContent extends RnObject {
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
+    this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
   }
 
   protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44) {
@@ -434,10 +377,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     );
   }
 
-  protected setNormalMatrix(
-    shaderProgram: WebGLProgram,
-    normalMatrix: IMatrix33
-  ) {
+  protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33) {
     (shaderProgram as any)._gl.uniformMatrix3fv(
       (shaderProgram as any).normalMatrix,
       false,
@@ -446,10 +386,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   }
 
   protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean) {
-    (shaderProgram as any)._gl.uniform1i(
-      (shaderProgram as any).isBillboard,
-      isBillboard ? 1 : 0
-    );
+    (shaderProgram as any)._gl.uniform1i((shaderProgram as any).isBillboard, isBillboard ? 1 : 0);
   }
 
   protected setViewInfo(
@@ -480,10 +417,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       false,
       viewMatrix!._v
     );
-    (shaderProgram as any)._gl.uniform3fv(
-      (shaderProgram as any).viewPosition,
-      cameraPosition!._v
-    );
+    (shaderProgram as any)._gl.uniform3fv((shaderProgram as any).viewPosition, cameraPosition!._v);
   }
 
   protected setProjection(
@@ -529,8 +463,7 @@ export abstract class AbstractMaterialContent extends RnObject {
             jointMatricesArray
           );
         } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-          const jointTranslatePackedQuat =
-            skeletalComponent.jointTranslatePackedQuat;
+          const jointTranslatePackedQuat = skeletalComponent.jointTranslatePackedQuat;
           const jointScalePackedQuat = skeletalComponent.jointScalePackedQuat;
           (shaderProgram as any)._gl.uniform4fv(
             (shaderProgram as any).boneTranslatePackedQuat,
@@ -542,8 +475,7 @@ export abstract class AbstractMaterialContent extends RnObject {
           );
         } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
           const jointQuaternionArray = skeletalComponent.jointQuaternionArray;
-          const jointTranslateScaleArray =
-            skeletalComponent.jointTranslateScaleArray;
+          const jointTranslateScaleArray = skeletalComponent.jointTranslateScaleArray;
           (shaderProgram as any)._gl.uniform4fv(
             (shaderProgram as any).boneQuaternion,
             jointQuaternionArray
@@ -572,10 +504,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       }
     } else {
       if (setUniform) {
-        (shaderProgram as any)._gl.uniform1i(
-          (shaderProgram as any).skinningMode,
-          -1
-        );
+        (shaderProgram as any)._gl.uniform1i((shaderProgram as any).skinningMode, -1);
       }
     }
   }
@@ -591,7 +520,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
     if (setUniform) {
       const lightComponentsEnabled = lightComponents.filter(
-        lightComponent => lightComponent.enable
+        (lightComponent) => lightComponent.enable
       );
 
       (shaderProgram as any)._gl.uniform1i(
@@ -599,21 +528,12 @@ export abstract class AbstractMaterialContent extends RnObject {
         lightComponentsEnabled!.length
       );
 
-      const length = Math.min(
-        lightComponentsEnabled!.length,
-        Config.maxLightNumberInShader
-      );
+      const length = Math.min(lightComponentsEnabled!.length, Config.maxLightNumberInShader);
       if (AbstractMaterialContent.__lightPositions.length !== 3 * length) {
         AbstractMaterialContent.__lightPositions = new Float32Array(3 * length);
-        AbstractMaterialContent.__lightDirections = new Float32Array(
-          3 * length
-        );
-        AbstractMaterialContent.__lightIntensities = new Float32Array(
-          3 * length
-        );
-        AbstractMaterialContent.__lightProperties = new Float32Array(
-          4 * length
-        );
+        AbstractMaterialContent.__lightDirections = new Float32Array(3 * length);
+        AbstractMaterialContent.__lightIntensities = new Float32Array(3 * length);
+        AbstractMaterialContent.__lightProperties = new Float32Array(4 * length);
       }
       for (let i = 0; i < lightComponentsEnabled!.length; i++) {
         if (i >= Config.maxLightNumberInShader) {
@@ -629,41 +549,29 @@ export abstract class AbstractMaterialContent extends RnObject {
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
 
-        AbstractMaterialContent.__lightPositions[i * 3 + 0] =
-          worldLightPosition.x;
-        AbstractMaterialContent.__lightPositions[i * 3 + 1] =
-          worldLightPosition.y;
-        AbstractMaterialContent.__lightPositions[i * 3 + 2] =
-          worldLightPosition.z;
+        AbstractMaterialContent.__lightPositions[i * 3 + 0] = worldLightPosition.x;
+        AbstractMaterialContent.__lightPositions[i * 3 + 1] = worldLightPosition.y;
+        AbstractMaterialContent.__lightPositions[i * 3 + 2] = worldLightPosition.z;
 
         const lightAngleScale =
           1.0 /
           Math.max(
             0.001,
-            Math.cos(lightComponent.innerConeAngle) -
-              Math.cos(lightComponent.outerConeAngle)
+            Math.cos(lightComponent.innerConeAngle) - Math.cos(lightComponent.outerConeAngle)
           );
-        const lightAngleOffset =
-          -Math.cos(lightComponent.outerConeAngle) * lightAngleScale;
+        const lightAngleOffset = -Math.cos(lightComponent.outerConeAngle) * lightAngleScale;
 
-        AbstractMaterialContent.__lightDirections[i * 3 + 0] =
-          worldLightDirection.x;
-        AbstractMaterialContent.__lightDirections[i * 3 + 1] =
-          worldLightDirection.y;
-        AbstractMaterialContent.__lightDirections[i * 3 + 2] =
-          worldLightDirection.z;
+        AbstractMaterialContent.__lightDirections[i * 3 + 0] = worldLightDirection.x;
+        AbstractMaterialContent.__lightDirections[i * 3 + 1] = worldLightDirection.y;
+        AbstractMaterialContent.__lightDirections[i * 3 + 2] = worldLightDirection.z;
 
-        AbstractMaterialContent.__lightIntensities[i * 3 + 0] =
-          worldLightIntensity.x;
-        AbstractMaterialContent.__lightIntensities[i * 3 + 1] =
-          worldLightIntensity.y;
-        AbstractMaterialContent.__lightIntensities[i * 3 + 2] =
-          worldLightIntensity.z;
+        AbstractMaterialContent.__lightIntensities[i * 3 + 0] = worldLightIntensity.x;
+        AbstractMaterialContent.__lightIntensities[i * 3 + 1] = worldLightIntensity.y;
+        AbstractMaterialContent.__lightIntensities[i * 3 + 2] = worldLightIntensity.z;
 
         AbstractMaterialContent.__lightProperties[i * 4 + 0] = // LightType
           lightComponent.enable ? lightComponent.type.index : -1;
-        AbstractMaterialContent.__lightProperties[i * 4 + 1] = // Light Range
-          lightComponent.range;
+        AbstractMaterialContent.__lightProperties[i * 4 + 1] = lightComponent.range; // Light Range
         AbstractMaterialContent.__lightProperties[i * 4 + 2] = lightAngleScale;
         AbstractMaterialContent.__lightProperties[i * 4 + 3] = lightAngleOffset;
       }
@@ -698,10 +606,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
     if (primitive.targets.length === 0) {
-      (shaderProgram as any)._gl.uniform1i(
-        (shaderProgram as any).morphTargetNumber,
-        0
-      );
+      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
     }
 
@@ -709,18 +614,17 @@ export abstract class AbstractMaterialContent extends RnObject {
       (shaderProgram as any).morphTargetNumber,
       primitive.targets.length
     );
-    const dataTextureMorphOffsetPositionOfTargets: number[] =
-      primitive.targets.map((target: Attributes) => {
+    const dataTextureMorphOffsetPositionOfTargets: number[] = primitive.targets.map(
+      (target: Attributes) => {
         const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
         let offset = 0;
 
-        if (
-          ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)
-        ) {
+        if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
           offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
         }
         return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
-      });
+      }
+    );
     (shaderProgram as any)._gl.uniform1iv(
       (shaderProgram as any).dataTextureMorphOffsetPosition,
       dataTextureMorphOffsetPositionOfTargets
@@ -731,10 +635,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     } else {
       weights = new Float32Array(primitive.targets.length);
     }
-    (shaderProgram as any)._gl.uniform1fv(
-      (shaderProgram as any).morphWeights,
-      weights
-    );
+    (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
   }
 
   setCustomSettingParametersToGpu({

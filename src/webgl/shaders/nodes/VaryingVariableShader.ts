@@ -1,7 +1,7 @@
-import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
+import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { GLSLShader } from '../GLSLShader';
-import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
-import {ComponentTypeEnum} from '../../../foundation/definitions/ComponentType';
+import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types';
 
 export class VaryingVariableShader extends GLSLShader {
@@ -20,9 +20,7 @@ export class VaryingVariableShader extends GLSLShader {
 
   get vertexShaderDefinitions() {
     return `
-    out ${this.__compositionType.getGlslStr(this.__componentType)} ${
-      this.__variableName
-    };
+    out ${this.__compositionType.getGlslStr(this.__componentType)} ${this.__variableName};
     void ${this.__functionName}(
       in ${this.__compositionType.getGlslStr(this.__componentType)} value) {
       ${this.__variableName} = value;
@@ -32,9 +30,7 @@ export class VaryingVariableShader extends GLSLShader {
 
   get pixelShaderDefinitions() {
     return `
-    in ${this.__compositionType.getGlslStr(this.__componentType)} ${
-      this.__variableName
-    };
+    in ${this.__compositionType.getGlslStr(this.__componentType)} ${this.__variableName};
     void ${this.__functionName}(
       out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
       outValue = ${this.__variableName};

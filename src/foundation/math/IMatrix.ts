@@ -7,8 +7,8 @@ import {
   IVector4,
   IMutableVector4,
 } from './IVector';
-import {TypedArray, Index} from '../../types/CommonTypes';
-import {IQuaternion} from './IQuaternion';
+import { TypedArray, Index } from '../../types/CommonTypes';
+import { IQuaternion } from './IQuaternion';
 
 export interface IMatrix {
   _v: Float32Array;
@@ -81,12 +81,7 @@ export interface IMutableMatrix22 {
   clone(): IMutableMatrix22; // override
   raw(): TypedArray;
   setAt(row_i: number, column_i: number, value: number): IMutableMatrix22;
-  setComponents(
-    m00: number,
-    m01: number,
-    m10: number,
-    m11: number
-  ): IMutableMatrix22;
+  setComponents(m00: number, m01: number, m10: number, m11: number): IMutableMatrix22;
   copyComponents(mat: IMatrix22 | IMatrix33 | IMatrix44): IMutableMatrix22;
   zero(): IMutableMatrix22;
   identity(): IMutableMatrix22;

@@ -1,9 +1,7 @@
 import { DataUtil } from '../misc/DataUtil';
-import {FileType, FileTypeEnum} from '../../foundation/definitions/FileType';
+import { FileType, FileTypeEnum } from '../../foundation/definitions/FileType';
 
-export function detectFormatByArrayBuffers(files: {
-  [s: string]: ArrayBuffer;
-}): FileTypeEnum {
+export function detectFormatByArrayBuffers(files: { [s: string]: ArrayBuffer }): FileTypeEnum {
   for (const fileName in files) {
     const fileExtension = DataUtil.getExtension(fileName);
 

@@ -11,12 +11,12 @@ import {
 } from 'ktx-parse';
 import { CGAPIResourceRepository } from '../../foundation/renderer/CGAPIResourceRepository';
 import { WebGLContextWrapper } from '../WebGLContextWrapper';
-import {TextureData} from '../WebGLResourceRepository';
+import { TextureData } from '../WebGLResourceRepository';
 import {
   CompressionTextureType,
   CompressionTextureTypeEnum,
 } from '../../foundation/definitions/CompressionTextureType';
-import {ZSTDDecoder} from 'zstddec';
+import { ZSTDDecoder } from 'zstddec';
 import {
   BasisLzEtc1sImageTranscoder,
   MscTranscoderModule,
@@ -29,8 +29,7 @@ const CompressedTextureFormat = {
   ETC1S: 0,
   UASTC4x4: 1,
 } as const;
-type CompressedTextureFormat =
-  typeof CompressedTextureFormat[keyof typeof CompressedTextureFormat];
+type CompressedTextureFormat = typeof CompressedTextureFormat[keyof typeof CompressedTextureFormat];
 
 const TranscodeTarget = {
   ETC1_RGB: 'ETC1_RGB',
@@ -108,9 +107,7 @@ export class KTX2TextureLoader {
       throw new Error('Cube textures are not currently supported');
     }
 
-    if (
-      ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD
-    ) {
+    if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD) {
       if (KTX2TextureLoader.__zstdDecoder == null) {
         KTX2TextureLoader.__zstdDecoder = new ZSTDDecoder();
       }
@@ -131,7 +128,7 @@ export class KTX2TextureLoader {
 
   private __loadMSCTranscoder(): Promise<void> {
     // load msc_basis_transcoder once
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (KTX2TextureLoader.__mscTranscoderModule) {
         resolve();
       }
@@ -145,10 +142,8 @@ export class KTX2TextureLoader {
   }
 
   private __getDeviceDependentParameters(hasAlpha: boolean) {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw =
-      webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
 
     const astc = glw.webgl2ExtCTAstc || glw.webgl1ExtCTAstc;
     const bptc = glw.webgl2ExtCTBptc || glw.webgl1ExtCTBptc;
@@ -197,7 +192,7 @@ export class KTX2TextureLoader {
       compressionTextureType = CompressionTextureType.RGBA8_EXT;
     }
 
-    return {transcodeTargetStr, compressionTextureType};
+    return { transcodeTargetStr, compressionTextureType };
   }
 
   private __parse(uint8Array: Uint8Array): KTX2Container {
@@ -231,11 +226,10 @@ export class KTX2TextureLoader {
         ? transcoderModule.TextureFormat.UASTC4x4
         : transcoderModule.TextureFormat.ETC1S;
 
-    const {transcodeTargetStr, compressionTextureType} =
+    const { transcodeTargetStr, compressionTextureType } =
       this.__getDeviceDependentParameters(hasAlpha);
 
-    const transcodeTarget =
-      transcoderModule.TranscodeTarget[transcodeTargetStr];
+    const transcodeTarget = transcoderModule.TranscodeTarget[transcodeTargetStr];
 
     const mipmapData: TextureData[] = [];
     const transcodedData = {
@@ -258,14 +252,10 @@ export class KTX2TextureLoader {
       );
 
       let levelBuffer = ktx2Container.levels[level].levelData;
-      const levelUncompressedByteLength =
-        ktx2Container.levels[level].uncompressedByteLength;
-      const levelBufferByteLength =
-        imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
+      const levelUncompressedByteLength = ktx2Container.levels[level].uncompressedByteLength;
+      const levelBufferByteLength = imageInfo.numBlocksX * imageInfo.numBlocksY * dfd.bytesPlane[0];
 
-      if (
-        ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD
-      ) {
+      if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.ZSTD) {
         levelBuffer = KTX2TextureLoader.__zstdDecoder.decode(
           levelBuffer,
           levelUncompressedByteLength
@@ -282,10 +272,7 @@ export class KTX2TextureLoader {
       for (let faceIndex = 0; faceIndex < faceCount; faceIndex++) {
         let imageDesc: KTX2GlobalDataBasisLZImageDesc | null = null;
         let faceBuffer: Uint8Array;
-        if (
-          ktx2Container.supercompressionScheme ===
-          KTX2SupercompressionScheme.BASISLZ
-        ) {
+        if (ktx2Container.supercompressionScheme === KTX2SupercompressionScheme.BASISLZ) {
           imageDesc = imageDescs?.[
             firstImageDescIndexInLevel + faceIndex
           ] as KTX2GlobalDataBasisLZImageDesc;
@@ -296,11 +283,7 @@ export class KTX2TextureLoader {
             imageDesc.rgbSliceByteLength + imageDesc.alphaSliceByteLength
           );
         } else {
-          faceBuffer = new Uint8Array(
-            levelBuffer,
-            faceBufferByteOffset,
-            levelBufferByteLength
-          );
+          faceBuffer = new Uint8Array(levelBuffer, faceBufferByteOffset, levelBufferByteLength);
           faceBufferByteOffset += levelBufferByteLength;
         }
 
@@ -335,9 +318,7 @@ export class KTX2TextureLoader {
           imageInfo.rgbByteOffset = 0;
           imageInfo.rgbByteLength = imageDesc!.rgbSliceByteLength;
           imageInfo.alphaByteOffset =
-            imageDesc!.alphaSliceByteOffset > 0
-              ? imageDesc!.rgbSliceByteLength
-              : 0;
+            imageDesc!.alphaSliceByteOffset > 0 ? imageDesc!.rgbSliceByteLength : 0;
           imageInfo.alphaByteLength = imageDesc!.alphaSliceByteLength;
 
           result = basisTranscoder.transcodeImage(
@@ -350,9 +331,7 @@ export class KTX2TextureLoader {
         }
 
         if (result?.transcodedImage != null) {
-          const transcodedTextureBuffer = result.transcodedImage
-            .get_typed_memory_view()
-            .slice();
+          const transcodedTextureBuffer = result.transcodedImage.get_typed_memory_view().slice();
           result.transcodedImage.delete();
 
           const mipmap = {

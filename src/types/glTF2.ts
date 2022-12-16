@@ -1,12 +1,12 @@
-import {Entity} from '../foundation/core/Entity';
-import {RnPromise} from '../foundation/misc/RnPromise';
-import {Array3, Index} from './CommonTypes';
-import {ShaderSemanticsEnum} from '../foundation/definitions/ShaderSemantics';
-import {CameraComponent} from '../foundation/components/Camera/CameraComponent';
-import {Material} from '../foundation/materials/core/Material';
-import {Expression} from '../foundation/renderer/Expression';
-import {ILoaderExtension} from '../foundation/importer/ILoaderExtension';
-import {Accessor} from '../foundation/memory/Accessor';
+import { Entity } from '../foundation/core/Entity';
+import { RnPromise } from '../foundation/misc/RnPromise';
+import { Array3, Index } from './CommonTypes';
+import { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { Material } from '../foundation/materials/core/Material';
+import { Expression } from '../foundation/renderer/Expression';
+import { ILoaderExtension } from '../foundation/importer/ILoaderExtension';
+import { Accessor } from '../foundation/memory/Accessor';
 import {
   GL_DATA_BYTE,
   GL_DATA_UNSIGNED_BYTE,
@@ -26,7 +26,7 @@ export type Gltf2 = {
     extras?: {
       rnLoaderOptions?: GltfLoadOption;
       rnEntities?: Entity[];
-      rnMaterials?: {[s: string]: Material};
+      rnMaterials?: { [s: string]: Material };
       version?: string;
       fileType?: string;
     };
@@ -80,11 +80,7 @@ export type Gltf2AccessorComponentTypeNumber =
   | typeof GL_DATA_UNSIGNED_INT
   | typeof GL_DATA_FLOAT;
 
-export type Gltf2AnimationAccessorCompositionTypeString =
-  | 'SCALAR'
-  | 'VEC2'
-  | 'VEC3'
-  | 'VEC4';
+export type Gltf2AnimationAccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4';
 
 export type Gltf2AccessorCompositionTypeString =
   | 'SCALAR'
@@ -97,7 +93,7 @@ export type Gltf2AccessorCompositionTypeString =
 
 export type Gltf2AccessorIndex = number;
 
-export type Gltf2Attributes = {[s: string]: number};
+export type Gltf2Attributes = { [s: string]: number };
 export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
 export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
 export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
@@ -235,12 +231,7 @@ export type Gltf2Image = {
   extras?: Gltf2AnyObject;
 };
 
-export type Gltf2AnimationPathName =
-  | 'translation'
-  | 'rotation'
-  | 'scale'
-  | 'weights'
-  | 'effekseer';
+export type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'effekseer';
 
 export type Gltf2AnimationChannelTarget = {
   node?: number;
@@ -258,10 +249,7 @@ export type Gltf2AnimationChannel = {
   extras?: Gltf2AnyObject;
 };
 
-export type Gltf2AnimationSamplerInterpolation =
-  | 'LINEAR'
-  | 'STEP'
-  | 'CUBICSPLINE';
+export type Gltf2AnimationSamplerInterpolation = 'LINEAR' | 'STEP' | 'CUBICSPLINE';
 
 export type Gltf2AnimationSampler = {
   input: Gltf2AccessorIndex;
@@ -431,10 +419,7 @@ export type GltfLoadOption = {
 
 export const TagGltf2NodeIndex = 'gltf_node_index';
 
-export function isSameGlTF2TextureSampler(
-  lhs: Gltf2TextureSampler,
-  rhs: Gltf2TextureSampler
-) {
+export function isSameGlTF2TextureSampler(lhs: Gltf2TextureSampler, rhs: Gltf2TextureSampler) {
   return (
     lhs.magFilter === rhs.magFilter &&
     lhs.minFilter === rhs.minFilter &&

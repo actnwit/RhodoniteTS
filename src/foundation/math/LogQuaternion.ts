@@ -1,7 +1,7 @@
-import {IVector3, IVector4} from './IVector';
-import {Quaternion} from './Quaternion';
-import {Array3, TypedArray} from '../../types/CommonTypes';
-import {ILogQuaternion, IQuaternion} from './IQuaternion';
+import { IVector3, IVector4 } from './IVector';
+import { Quaternion } from './Quaternion';
+import { Array3, TypedArray } from '../../types/CommonTypes';
+import { ILogQuaternion, IQuaternion } from './IQuaternion';
 
 export class LogQuaternion implements ILogQuaternion {
   _v: Float32Array;

@@ -1,8 +1,8 @@
-import {MemoryManager} from '../../core/MemoryManager';
-import {EntityHelper} from '../../helpers/EntityHelper';
-import {Matrix44} from '../../math/Matrix44';
-import {Vector3} from '../../math/Vector3';
-import {SceneGraphComponent} from './SceneGraphComponent';
+import { MemoryManager } from '../../core/MemoryManager';
+import { EntityHelper } from '../../helpers/EntityHelper';
+import { Matrix44 } from '../../math/Matrix44';
+import { Vector3 } from '../../math/Vector3';
+import { SceneGraphComponent } from './SceneGraphComponent';
 
 describe('SceneGraphComponent', () => {
   function generateEntity() {
@@ -51,11 +51,7 @@ describe('SceneGraphComponent', () => {
       childEntity
         .getSceneGraph()
         .worldMatrix.isEqual(
-          Matrix44.fromCopy16RowMajor(
-            1, 0, 0, 3,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1),
+          Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
           0.00001
         )
     ).toBe(true);
@@ -73,10 +69,7 @@ describe('SceneGraphComponent', () => {
     parentEntity.addChild(child2Entity.getSceneGraph());
     sceneEntity.addChild(parentEntity.getSceneGraph());
 
-    const result = SceneGraphComponent.flattenHierarchy(
-      sceneEntity.getSceneGraph(),
-      false
-    );
+    const result = SceneGraphComponent.flattenHierarchy(sceneEntity.getSceneGraph(), false);
 
     expect(result.length).toBe(4);
   });

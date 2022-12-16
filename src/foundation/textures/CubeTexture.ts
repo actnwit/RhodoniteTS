@@ -1,9 +1,9 @@
 import { AbstractTexture } from './AbstractTexture';
-import {HdriFormat} from '../definitions/HdriFormat';
+import { HdriFormat } from '../definitions/HdriFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import {BasisTranscoder, BASIS} from '../../types/BasisTexture';
-import {TextureParameter} from '../definitions/TextureParameter';
-import {Size, TypedArray} from '../../types/CommonTypes';
+import { BasisTranscoder, BASIS } from '../../types/BasisTexture';
+import { TextureParameter } from '../definitions/TextureParameter';
+import { Size, TypedArray } from '../../types/CommonTypes';
 
 declare const BASIS: BASIS;
 
@@ -18,22 +18,19 @@ export class CubeTexture extends AbstractTexture {
 
   async loadTextureImages() {
     this.__startedToLoad = true;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid =
-      await webGLResourceRepository.createCubeTextureFromFiles(
-        this.baseUriToLoad!,
-        this.mipmapLevelNumber!,
-        this.isNamePosNeg,
-        this.hdriFormat
-      );
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.cgApiResourceUid = await webGLResourceRepository.createCubeTextureFromFiles(
+      this.baseUriToLoad!,
+      this.mipmapLevelNumber!,
+      this.isNamePosNeg,
+      this.hdriFormat
+    );
     this.__isTextureReady = true;
   }
 
   loadTextureImagesAsync() {
     this.__startedToLoad = true;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository
       .createCubeTextureFromFiles(
         this.baseUriToLoad!,
@@ -41,7 +38,7 @@ export class CubeTexture extends AbstractTexture {
         this.isNamePosNeg,
         this.hdriFormat
       )
-      .then(cubeTextureUid => {
+      .then((cubeTextureUid) => {
         this.cgApiResourceUid = cubeTextureUid;
       })
       .then(() => {
@@ -61,13 +58,11 @@ export class CubeTexture extends AbstractTexture {
     this.__startedToLoad = true;
 
     if (typeof BASIS === 'undefined') {
-      console.error(
-        'Failed to call BASIS() function. Please check to import basis_transcoder.js.'
-      );
+      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
 
     BASIS().then((basisTransCoder: BasisTranscoder) => {
-      const {initializeBasis} = basisTransCoder;
+      const { initializeBasis } = basisTransCoder;
       initializeBasis();
 
       const BasisFile = basisTransCoder.BasisFile;
@@ -80,17 +75,13 @@ export class CubeTexture extends AbstractTexture {
         return;
       }
 
-      const webGLResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
-      const texture = webGLResourceRepository.createCubeTextureFromBasis(
-        basisFile,
-        {
-          magFilter: magFilter,
-          minFilter: minFilter,
-          wrapS: wrapS,
-          wrapT: wrapT,
-        }
-      );
+      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const texture = webGLResourceRepository.createCubeTextureFromBasis(basisFile, {
+        magFilter: magFilter,
+        minFilter: minFilter,
+        wrapS: wrapS,
+        wrapT: wrapT,
+      });
 
       this.cgApiResourceUid = texture;
       this.__isTextureReady = true;
@@ -107,8 +98,7 @@ export class CubeTexture extends AbstractTexture {
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(
       1,
@@ -146,8 +136,7 @@ export class CubeTexture extends AbstractTexture {
     baseLevelWidth: Size,
     baseLevelHeight: Size
   ) {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     this.cgApiResourceUid = webGLResourceRepository.createCubeTexture(
       typedArrayImages.length,
@@ -161,17 +150,11 @@ export class CubeTexture extends AbstractTexture {
     AbstractTexture.__textureMap.set(this.cgApiResourceUid, this);
   }
 
-  importWebGLTextureDirectly(
-    webGLTexture: WebGLTexture,
-    width = 0,
-    height = 0
-  ) {
+  importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture =
-      webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
     this.cgApiResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;

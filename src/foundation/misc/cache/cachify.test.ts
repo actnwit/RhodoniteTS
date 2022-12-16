@@ -1,4 +1,4 @@
-import {primitiveCachify1} from './cachify';
+import { primitiveCachify1 } from './cachify';
 
 let realCallCount = 0;
 const expensiveFn = (arg: number) => {

@@ -1,29 +1,26 @@
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {ComponentType} from '../../definitions/ComponentType';
-import {Scalar} from '../../math/Scalar';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {Material} from '../core/Material';
-import {VectorN} from '../../math/VectorN';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { Scalar } from '../../math/Scalar';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { Material } from '../core/Material';
+import { VectorN } from '../../math/VectorN';
 import GaussianBlurSingleShaderVertex from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
 import GaussianBlurSingleShaderFragment from '../../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
-import {Texture} from '../../textures/Texture';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { Texture } from '../../textures/Texture';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class GaussianBlurMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
     str: 'gaussianKernelSize',
   });
-  static GaussianRatio = new ShaderSemanticsClass({str: 'gaussianRatio'});
-  static IsHorizontal = new ShaderSemanticsClass({str: 'isHorizontal'});
+  static GaussianRatio = new ShaderSemanticsClass({ str: 'gaussianRatio' });
+  static IsHorizontal = new ShaderSemanticsClass({ str: 'isHorizontal' });
 
   private frameBufferWidth = 0;
 
@@ -128,14 +125,9 @@ export class GaussianBlurMaterialContent extends AbstractMaterialContent {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    const baseColorTexture = material.getParameter(
-      ShaderSemantics.BaseColorTexture
-    )[1] as Texture;
+    const baseColorTexture = material.getParameter(ShaderSemantics.BaseColorTexture)[1] as Texture;
     if (baseColorTexture.width !== this.frameBufferWidth) {
-      material.setParameter(
-        ShaderSemantics.FramebufferWidth,
-        baseColorTexture.width
-      );
+      material.setParameter(ShaderSemantics.FramebufferWidth, baseColorTexture.width);
       this.frameBufferWidth = baseColorTexture.width;
     }
 
@@ -157,18 +149,8 @@ export class GaussianBlurMaterialContent extends AbstractMaterialContent {
       ) as CameraComponent;
     }
     if (cameraComponent) {
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
     }
   }
 }

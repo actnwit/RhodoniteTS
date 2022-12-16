@@ -1,18 +1,13 @@
-import {
-  ComponentSID,
-  ComponentTID,
-  EntityUID,
-  Index,
-} from '../../../types/CommonTypes';
-import {Component} from '../../core/Component';
+import { ComponentSID, ComponentTID, EntityUID, Index } from '../../../types/CommonTypes';
+import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { IEntity } from '../../core/Entity';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import {ProcessStage} from '../../definitions/ProcessStage';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { Is } from '../../misc';
 import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export type VrmExpressionName = string;
 export type VrmExpression = {
@@ -29,11 +24,7 @@ export class VrmComponent extends Component {
   private __expressions: Map<VrmExpressionName, VrmExpression> = new Map();
   private __weights: Map<VrmExpressionName, number> = new Map();
   private __blendShapeComponent?: BlendShapeComponent;
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -49,10 +40,7 @@ export class VrmComponent extends Component {
     }
   }
 
-  public setExpressionWeight(
-    expressionName: VrmExpressionName,
-    weight: number
-  ): void {
+  public setExpressionWeight(expressionName: VrmExpressionName, weight: number): void {
     const expression = this.__expressions.get(expressionName);
     if (Is.not.exist(expression)) {
       return;
@@ -67,9 +55,7 @@ export class VrmComponent extends Component {
     }
   }
 
-  public getExpressionWeight(
-    expressionName: VrmExpressionName
-  ): number | undefined {
+  public getExpressionWeight(expressionName: VrmExpressionName): number | undefined {
     return this.__weights.get(expressionName);
   }
 
@@ -83,10 +69,10 @@ export class VrmComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class VrmEntity extends (base.constructor as any) {
       private __vrmComponent?: VrmComponent;
       constructor(
@@ -107,8 +93,7 @@ export class VrmComponent extends Component {
       }
     }
     applyMixins(base, VrmEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(VrmComponent);

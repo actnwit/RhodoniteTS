@@ -1,16 +1,16 @@
-import {MotionController} from 'webxr-input-profiles/packages/motion-controllers/src/motionController';
-import {fetchProfile} from 'webxr-input-profiles/packages/motion-controllers/src/profiles';
-import {Constants} from 'webxr-input-profiles/packages/motion-controllers';
-import {Component} from 'webxr-input-profiles/packages/motion-controllers/src/component';
+import { MotionController } from 'webxr-input-profiles/packages/motion-controllers/src/motionController';
+import { fetchProfile } from 'webxr-input-profiles/packages/motion-controllers/src/profiles';
+import { Constants } from 'webxr-input-profiles/packages/motion-controllers';
+import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component';
 import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
 import { ModelConverter } from '../foundation/importer/ModelConverter';
-import {Is} from '../foundation/misc/Is';
+import { Is } from '../foundation/misc/Is';
 import { IEntity, Entity } from '../foundation/core/Entity';
 import { Quaternion } from '../foundation/math/Quaternion';
 import { Vector3 } from '../foundation/math/Vector3';
-import {IMutableVector3} from '../foundation/math/IVector';
-import {valueWithDefault} from '../foundation/misc/MiscUtil';
-import {IMutableQuaternion} from '../foundation/math/IQuaternion';
+import { IMutableVector3 } from '../foundation/math/IVector';
+import { valueWithDefault } from '../foundation/misc/MiscUtil';
+import { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableScalar } from '../foundation/math/MutableScalar';
@@ -83,12 +83,8 @@ export async function createMotionController(
   basePath: string,
   profilePriorities: string[]
 ) {
-  const {profile, assetPath} = await fetchProfile(xrInputSource, basePath);
-  const motionController = new MotionController(
-    xrInputSource,
-    profile,
-    assetPath!
-  );
+  const { profile, assetPath } = await fetchProfile(xrInputSource, basePath);
+  const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const result = await addMotionControllerToScene(motionController);
   if (result.isOk()) {
@@ -114,22 +110,18 @@ export function updateGamePad(
 ) {
   // Other frame-loop stuff ...
 
-  Array.from(motionControllers.values()).forEach(
-    (motionController: MotionController) => {
-      motionController.updateFromGamepad();
-      Object.keys(motionController.components).forEach(
-        (componentId: string) => {
-          const component = motionController.components[componentId];
-          processInput(
-            component,
-            (motionController.xrInputSource as XRInputSource).handedness,
-            viewerData,
-            timestamp
-          );
-        }
+  Array.from(motionControllers.values()).forEach((motionController: MotionController) => {
+    motionController.updateFromGamepad();
+    Object.keys(motionController.components).forEach((componentId: string) => {
+      const component = motionController.components[componentId];
+      processInput(
+        component,
+        (motionController.xrInputSource as XRInputSource).handedness,
+        viewerData,
+        timestamp
       );
-    }
-  );
+    });
+  });
 
   // Other frame-loop stuff ...
 }
@@ -194,9 +186,7 @@ function processTriggerInput(
         defaultValue: 0,
       }) * deltaSec;
     // Fire ray gun
-  } else if (
-    triggerComponent.values.state === Constants.ComponentState.TOUCHED
-  ) {
+  } else if (triggerComponent.values.state === Constants.ComponentState.TOUCHED) {
     console.log(componentName, triggerComponent.values.button, handed);
     value =
       valueWithDefault({
@@ -230,9 +220,7 @@ function processSqueezeInput(
   if (squeezeComponent.values.state === Constants.ComponentState.PRESSED) {
     console.log(componentName, squeezeComponent.values.button, handed);
     // Fire ray gun
-  } else if (
-    squeezeComponent.values.state === Constants.ComponentState.TOUCHED
-  ) {
+  } else if (squeezeComponent.values.state === Constants.ComponentState.TOUCHED) {
     console.log(componentName, squeezeComponent.values.button, handed);
     // Show ray gun charging up
   }
@@ -268,9 +256,7 @@ function processThumbstickInput(
         defaultValue: 0,
       }) * deltaSec;
     // Align the world orientation to the user's current orientation
-  } else if (
-    thumbstickComponent.values.state === Constants.ComponentState.TOUCHED
-  ) {
+  } else if (thumbstickComponent.values.state === Constants.ComponentState.TOUCHED) {
     xAxis =
       valueWithDefault({
         value: thumbstickComponent.values.xAxis,
@@ -293,9 +279,7 @@ function processThumbstickInput(
     deltaVector.x += xAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
     deltaVector.z += yAxis * deltaScaleHorizontal * viewerData.viewerScale.x;
   }
-  const orientationMat = MutableMatrix33.fromCopyQuaternion(
-    viewerData.viewerOrientation
-  );
+  const orientationMat = MutableMatrix33.fromCopyQuaternion(viewerData.viewerOrientation);
   const rotateMat = orientationMat.multiply(
     MutableMatrix33.rotateY(viewerData.viewerAzimuthAngle.x)
   );
@@ -311,21 +295,9 @@ function processButtonInput(
 ) {
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
-    console.log(
-      componentName,
-      buttonComponent.values.button,
-      buttonComponent.values.state,
-      handed
-    );
-  } else if (
-    buttonComponent.values.state === Constants.ComponentState.TOUCHED
-  ) {
-    console.log(
-      componentName,
-      buttonComponent.values.button,
-      buttonComponent.values.state,
-      handed
-    );
+    console.log(componentName, buttonComponent.values.button, buttonComponent.values.state, handed);
+  } else if (buttonComponent.values.state === Constants.ComponentState.TOUCHED) {
+    console.log(componentName, buttonComponent.values.button, buttonComponent.values.state, handed);
   }
 }
 
@@ -347,12 +319,9 @@ function processTouchpadInput(
 }
 
 function addTouchPointDots(motionController: MotionController, asset: any) {
-  Object.values(motionController.components).forEach(component => {
+  Object.values(motionController.components).forEach((component) => {
     if (component.touchPointNodeName) {
-      const touchPointRoot = asset.getChildByName(
-        component.touchPointNodeName,
-        true
-      );
+      const touchPointRoot = asset.getChildByName(component.touchPointNodeName, true);
 
       // const sphereGeometry = new THREE.SphereGeometry(0.001);
       // const material = new THREE.MeshBasicMaterial({ color: 0x0000FF });
@@ -362,10 +331,7 @@ function addTouchPointDots(motionController: MotionController, asset: any) {
   });
 }
 
-export function updateMotionControllerModel(
-  entity: IEntity,
-  motionController: MotionController
-) {
+export function updateMotionControllerModel(entity: IEntity, motionController: MotionController) {
   // this codes are from https://immersive-web.github.io/webxr-input-profiles/packages/motion-controllers/#animating-components
 
   // Update the 3D model to reflect the button, thumbstick, and touchpad state
@@ -387,9 +353,7 @@ export function updateMotionControllerModel(
         const minNode = map.get(visualResponse.minNodeName!);
         const maxNode = map.get(visualResponse.maxNodeName!);
         if (Is.not.exist(minNode) || Is.not.exist(maxNode)) {
-          console.warn(
-            "The min/max Node of the component of the controller doesn't exist"
-          );
+          console.warn("The min/max Node of the component of the controller doesn't exist");
           continue;
         }
 

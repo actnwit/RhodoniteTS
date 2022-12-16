@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import {ISceneGraphEntity} from '../../../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../../../helpers/EntityHelper';
 import { IVector3, Matrix44, Quaternion, Vector3 } from '../../../math';
-import {IQuaternion} from '../../../math/IQuaternion';
+import { IQuaternion } from '../../../math/IQuaternion';
 import { Is } from '../../../misc/Is';
-import {IAnimationRetarget} from './AnimationRetarget';
+import { IAnimationRetarget } from './AnimationRetarget';
 
 export class GlobalRetarget implements IAnimationRetarget {
   private __srcEntity: ISceneGraphEntity;
@@ -36,9 +36,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     return dstPGRestQ;
   }
 
-  retargetQuaternion(
-    dstEntity: ISceneGraphEntity
-  ): IQuaternion {
+  retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion {
     const srcEntity = this.__srcEntity;
 
     // extract global retarget quaternion
@@ -46,40 +44,27 @@ export class GlobalRetarget implements IAnimationRetarget {
     const srcRestQ = srcEntity.getTransform().quaternionRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
 
-    const animQ =
+    const animQ = Quaternion.multiply(
+      srcPGRestQ,
       Quaternion.multiply(
-        srcPGRestQ,
-          Quaternion.multiply(
-            srcPoseQ,
-              Quaternion.multiply(
-                Quaternion.invert(srcRestQ),
-                  Quaternion.invert(srcPGRestQ)
-              )
-          )
-      );
+        srcPoseQ,
+        Quaternion.multiply(Quaternion.invert(srcRestQ), Quaternion.invert(srcPGRestQ))
+      )
+    );
 
     // retarget quaternion to local pose
     const dstRestQ = dstEntity.getTransform().quaternionRestInner;
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
-    const tgtPoseQ =
-      Quaternion.multiply(
-        Quaternion.invert(dstPgRestQ),
-          Quaternion.multiply(
-            animQ,
-              Quaternion.multiply(
-                dstPgRestQ,
-                  dstRestQ
-              )
-          )
-      );
+    const tgtPoseQ = Quaternion.multiply(
+      Quaternion.invert(dstPgRestQ),
+      Quaternion.multiply(animQ, Quaternion.multiply(dstPgRestQ, dstRestQ))
+    );
 
     return tgtPoseQ;
   }
 
-  retargetTranslate(
-    dstEntity: ISceneGraphEntity
-  ): IVector3 {
+  retargetTranslate(dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
     // extract global retarget translate
@@ -93,18 +78,12 @@ export class GlobalRetarget implements IAnimationRetarget {
     const dstRestT = dstEntity.getTransform().translateRestInner;
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
-    const dstPoseT =
-      Vector3.add(
-        dstPgRestQ.transformVector3Inverse(AnimT),
-          dstRestT
-        );
+    const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(AnimT), dstRestT);
 
     return dstPoseT;
   }
 
-  retargetScale(
-    dstEntity: ISceneGraphEntity
-  ): IVector3 {
+  retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
     return srcEntity.getTransform().scaleInner;

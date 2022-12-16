@@ -1,4 +1,3 @@
-
 export type TypedArray =
   | Int8Array
   | Uint8Array
@@ -10,11 +9,7 @@ export type TypedArray =
   | Float32Array
   | Float64Array;
 export type FloatTypedArray = Float32Array | Float64Array;
-export type IntegerTypedArray =
-  | Int8Array
-  | Uint8Array
-  | Int16Array
-  | Uint16Array;
+export type IntegerTypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array;
 export type ArrayType = TypedArray | Array<number>;
 
 export type TypedArrayConstructor =
@@ -28,9 +23,7 @@ export type TypedArrayConstructor =
   | Float32ArrayConstructor
   | Float64ArrayConstructor;
 
-export type FloatTypedArrayConstructor =
-  | Float32ArrayConstructor
-  | Float64ArrayConstructor;
+export type FloatTypedArrayConstructor = Float32ArrayConstructor | Float64ArrayConstructor;
 
 export type Array16<T> = [T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T];
 export type Array9<T> = [T, T, T, T, T, T, T, T, T];
@@ -71,6 +64,6 @@ export type WebGLResourceHandle = number;
 
 export type CGAPIResourceHandle = WebGLResourceHandle;
 
-export type RnTags = {[s: string]: string};
+export type RnTags = { [s: string]: string };
 
 export type ColorComponentLetter = 'r' | 'g' | 'b' | 'a';

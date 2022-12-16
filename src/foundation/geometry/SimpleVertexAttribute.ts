@@ -1,9 +1,9 @@
-import {VertexAttributeEnum} from '../definitions/VertexAttribute';
-import {PrimitiveModeEnum} from '../definitions/PrimitiveMode';
+import { VertexAttributeEnum } from '../definitions/VertexAttribute';
+import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { Accessor } from '../memory/Accessor';
-import {Array1, Array2, Array3, Array4, Index} from '../../types/CommonTypes';
-import {IndicesAccessOption} from '../memory/Accessor';
-import {ISemanticVertexAttribute} from './ISemanticVertexAttribute';
+import { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
+import { IndicesAccessOption } from '../memory/Accessor';
+import { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
 
 export class SimpleVertexAttribute implements ISemanticVertexAttribute {
   private __semantic: PrimitiveModeEnum;
@@ -17,10 +17,7 @@ export class SimpleVertexAttribute implements ISemanticVertexAttribute {
     return this.__semantic;
   }
 
-  public getScalarAsArray(
-    i: Index,
-    option: IndicesAccessOption
-  ): Array1<number> {
+  public getScalarAsArray(i: Index, option: IndicesAccessOption): Array1<number> {
     return [this.__accessor.getScalar(i, option)];
   }
   public getVec2AsArray(i: Index, option: IndicesAccessOption): Array2<number> {

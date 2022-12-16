@@ -1,6 +1,6 @@
-import {RnObject} from '../../core/RnObject';
-import {AlphaMode, AlphaModeEnum} from '../../definitions/AlphaMode';
-import {AbstractMaterialContent} from './AbstractMaterialContent';
+import { RnObject } from '../../core/RnObject';
+import { AlphaMode, AlphaModeEnum } from '../../definitions/AlphaMode';
+import { AbstractMaterialContent } from './AbstractMaterialContent';
 import {
   ShaderSemanticsEnum,
   ShaderSemantics,
@@ -8,12 +8,12 @@ import {
   getShaderPropertyFunc,
   _getPropertyIndex2,
 } from '../../definitions/ShaderSemantics';
-import {CompositionType} from '../../definitions/CompositionType';
-import {MathClassUtil} from '../../math/MathClassUtil';
-import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
-import {AbstractTexture} from '../../textures/AbstractTexture';
-import {Config} from '../../core/Config';
-import {ShaderType} from '../../definitions/ShaderType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { MathClassUtil } from '../../math/MathClassUtil';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { Config } from '../../core/Config';
+import { ShaderType } from '../../definitions/ShaderType';
 import {
   Index,
   CGAPIResourceHandle,
@@ -22,26 +22,21 @@ import {
   MaterialTID,
   MaterialUID,
 } from '../../../types/CommonTypes';
-import {DataUtil} from '../../misc/DataUtil';
-import {GlobalDataRepository} from '../../core/GlobalDataRepository';
-import {System} from '../../system/System';
-import {ProcessApproach} from '../../definitions/ProcessApproach';
-import {BoneDataType} from '../../definitions/BoneDataType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {WebGLContextWrapper} from '../../../webgl/WebGLContextWrapper';
-import {ShaderityUtility} from './ShaderityUtility';
-import {Is} from '../../misc/Is';
-import {ShaderSources} from '../../../webgl/WebGLStrategy';
-import {Primitive} from '../../geometry/Primitive';
-import {AttributeNames, RenderingArg} from '../../../webgl/types/CommonTypes';
-import {
-  GL_FUNC_ADD,
-  GL_ONE,
-  GL_ONE_MINUS_SRC_ALPHA,
-  GL_SRC_ALPHA,
-} from '../../../types';
-import {ShaderSemanticsInfo, VertexAttributeEnum} from '../../definitions';
-import {MaterialTypeName, ShaderVariable} from './MaterialTypes';
+import { DataUtil } from '../../misc/DataUtil';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { System } from '../../system/System';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { BoneDataType } from '../../definitions/BoneDataType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
+import { ShaderityUtility } from './ShaderityUtility';
+import { Is } from '../../misc/Is';
+import { ShaderSources } from '../../../webgl/WebGLStrategy';
+import { Primitive } from '../../geometry/Primitive';
+import { AttributeNames, RenderingArg } from '../../../webgl/types/CommonTypes';
+import { GL_FUNC_ADD, GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA } from '../../../types';
+import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
+import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 
 /**
  * The material class.
@@ -52,15 +47,13 @@ export class Material extends RnObject {
   __materialTypeName: MaterialTypeName;
   _materialContent: AbstractMaterialContent;
   _allFieldVariables: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
-  _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> =
-    new Map();
+  _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
   _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
   private __updatedShaderSources?: ShaderSources;
 
   // Ids
-  public _shaderProgramUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
   __materialSid: MaterialSID = -1;
@@ -77,13 +70,11 @@ export class Material extends RnObject {
   private __blendFuncAlphaSrcFactor = GL_ONE; // gl.ONE
   private __blendFuncAlphaDstFactor = GL_ONE; // gl.ONE
 
+  // static fields
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
-  private static __shaderStringMap: Map<string, CGAPIResourceHandle> =
+  private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
+  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
     new Map();
-  static _soloDatumFields: Map<
-    MaterialTypeName,
-    Map<ShaderSemanticsIndex, ShaderVariable>
-  > = new Map();
 
   constructor(
     materialTid: Index,
@@ -100,19 +91,6 @@ export class Material extends RnObject {
     this.__materialTypeName = materialTypeName;
   }
 
-  /**
-   * @internal
-   * called from Primitive class only
-   * @param primitive
-   */
-  _addBelongPrimitive(primitive: Primitive) {
-    this.__belongPrimitives.set(primitive.primitiveUid, primitive);
-  }
-
-  // _belongPrimitives() {
-  //   return Array.from(this.__belongPrimitives.values());
-  // }
-
   ///
   /// Parameter Setters
   ///
@@ -123,9 +101,7 @@ export class Material extends RnObject {
     if (info != null) {
       let valueObj: ShaderVariable | undefined;
       if (info.soloDatum) {
-        valueObj = Material._soloDatumFields
-          .get(this.__materialTypeName)!
-          .get(propertyIndex);
+        valueObj = Material._soloDatumFields.get(this.__materialTypeName)!.get(propertyIndex);
       } else {
         valueObj = this._allFieldVariables.get(propertyIndex);
       }
@@ -133,10 +109,7 @@ export class Material extends RnObject {
     }
   }
 
-  public setTextureParameter(
-    shaderSemantic: ShaderSemanticsEnum,
-    value: AbstractTexture
-  ): void {
+  public setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void {
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const array = this._allFieldVariables.get(shaderSemantic.index)!;
       const shaderVariable = {
@@ -170,7 +143,7 @@ export class Material extends RnObject {
     shaderSemantic: ShaderSemanticsEnum,
     promise: Promise<AbstractTexture>
   ): void {
-    promise.then(texture => {
+    promise.then((texture) => {
       if (this._allFieldsInfo.has(shaderSemantic.index)) {
         const array = this._allFieldVariables.get(shaderSemantic.index)!;
         const shaderVariable = {
@@ -179,10 +152,7 @@ export class Material extends RnObject {
         };
         this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
         if (!array.info.isCustomSetting) {
-          this._autoFieldVariablesOnly.set(
-            shaderSemantic.index,
-            shaderVariable
-          );
+          this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
         }
         if (
           shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
@@ -216,9 +186,8 @@ export class Material extends RnObject {
     const info = this._allFieldsInfo.get(shaderSemantic.index);
     if (info != null) {
       if (info.soloDatum) {
-        return Material._soloDatumFields
-          .get(this.__materialTypeName)!
-          .get(shaderSemantic.index)?.value;
+        return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index)
+          ?.value;
       } else {
         return this._allFieldVariables.get(shaderSemantic.index)?.value;
       }
@@ -228,13 +197,20 @@ export class Material extends RnObject {
   }
 
   /**
+   * return whether the shader program ready or not
+   * @returns is shader program ready or not
+   */
+  public isShaderProgramReady() {
+    return this._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  }
+
+  /**
    * @internal
-   * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom only
+   * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
    * @param isUniformOnlyMode
    */
   _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let array: ShaderSemanticsInfo[] = [];
     if (Is.exist(this._materialContent)) {
@@ -242,20 +218,87 @@ export class Material extends RnObject {
       array = array.concat(semanticsInfoArray);
     }
 
-    webglResourceRepository.setupUniformLocations(
-      this._shaderProgramUid,
-      array,
-      isUniformOnlyMode
-    );
+    webglResourceRepository.setupUniformLocations(this._shaderProgramUid, array, isUniformOnlyMode);
   }
 
   /**
-   * return whether the shader program ready or not
-   * @returns is shader program ready or not
+   * @internal
+   * called from Primitive class only
+   * @param primitive
    */
-  public isShaderProgramReady() {
-    return (
-      this._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
+  _addBelongPrimitive(primitive: Primitive) {
+    this.__belongPrimitives.set(primitive.primitiveUid, primitive);
+  }
+
+  /**
+   * @internal
+   * called from WebGLStrategyDataTexture and WebGLStrategyUniform
+   * @param vertexShaderMethodDefinitions_uniform
+   * @param propertySetter
+   * @param isWebGL2
+   * @returns
+   */
+  _createProgram(
+    vertexShaderMethodDefinitions_uniform: string,
+    propertySetter: getShaderPropertyFunc,
+    isWebGL2: boolean
+  ): CGAPIResourceHandle {
+    const programUid = this.__createProgramAsSingleOperation(
+      vertexShaderMethodDefinitions_uniform,
+      propertySetter,
+      isWebGL2
+    );
+
+    return programUid;
+  }
+
+  /**
+   * create program by updated shader source code
+   * @internal
+   * called from WebGLStrategyDataTexture and WebGLStrategyUniform
+   *
+   * @param updatedShaderSources - updated shader source code
+   * @param onError
+   * @returns
+   */
+  _createProgramByUpdatedSources(
+    updatedShaderSources: ShaderSources,
+    onError?: (message: string) => void
+  ): CGAPIResourceHandle {
+    const programUid = this.__createProgramAsSingleOperationByUpdatedSources(
+      updatedShaderSources,
+      onError
+    );
+
+    if (programUid > 0) {
+      this.__updatedShaderSources = updatedShaderSources;
+    }
+
+    return programUid;
+  }
+
+  /**
+   * @internal
+   * called WebGLStrategyDataTexture and WebGLStrategyUniform only
+   */
+  _setupBasicUniformsLocations() {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
+  }
+
+  /**
+   * @internal
+   * called WebGLStrategyDataTexture and WebGLStrategyUniform only
+   */
+  _setupAdditionalUniformLocations(
+    shaderSemantics: ShaderSemanticsInfo[],
+    isUniformOnlyMode: boolean
+  ) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    return webglResourceRepository.setupUniformLocations(
+      this._shaderProgramUid,
+      shaderSemantics,
+      isUniformOnlyMode
     );
   }
 
@@ -288,7 +331,55 @@ export class Material extends RnObject {
     }
 
     // For SoloDatum Parameters
-    this.__setSoloDatumParametersToGpu({shaderProgram, firstTime, args});
+    this.__setSoloDatumParametersToGpu({
+      shaderProgram,
+      firstTime,
+      args,
+    });
+  }
+
+  /**
+   * @internal
+   * @param propertySetter
+   */
+  _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
+    let vertexPropertiesStr = '';
+    let pixelPropertiesStr = '';
+    this._allFieldsInfo.forEach((value, propertyIndex: Index) => {
+      const info = this._allFieldsInfo.get(propertyIndex);
+      if (
+        info!.stage === ShaderType.VertexShader ||
+        info!.stage === ShaderType.VertexAndPixelShader
+      ) {
+        vertexPropertiesStr += propertySetter(
+          this.__materialTypeName,
+          info!,
+          propertyIndex,
+          false,
+          isWebGL2
+        );
+      }
+      if (
+        info!.stage === ShaderType.PixelShader ||
+        info!.stage === ShaderType.VertexAndPixelShader
+      ) {
+        pixelPropertiesStr += propertySetter(
+          this.__materialTypeName,
+          info!,
+          propertyIndex,
+          false,
+          isWebGL2
+        );
+      }
+    });
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    [vertexPropertiesStr, pixelPropertiesStr] = globalDataRepository._addPropertiesStr(
+      vertexPropertiesStr,
+      pixelPropertiesStr,
+      propertySetter,
+      isWebGL2
+    );
+    return { vertexPropertiesStr, pixelPropertiesStr };
   }
 
   private __setAutoParametersToGpu(
@@ -296,15 +387,11 @@ export class Material extends RnObject {
     firstTime: boolean,
     shaderProgram: WebGLProgram
   ) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (args.setUniform) {
-      this._autoFieldVariablesOnly.forEach(value => {
+      this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
-        if (
-          firstTime ||
-          info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly
-        ) {
+        if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
           webglResourceRepository.setUniformValue(
             shaderProgram,
             info.semantic.str,
@@ -318,13 +405,10 @@ export class Material extends RnObject {
         }
       });
     } else {
-      this._autoFieldVariablesOnly.forEach(value => {
+      this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
         if (CompositionType.isTexture(info.compositionType)) {
-          if (
-            firstTime ||
-            info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly
-          ) {
+          if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
             webglResourceRepository.setUniformValue(
               shaderProgram,
               info.semantic.str,
@@ -348,8 +432,7 @@ export class Material extends RnObject {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material._soloDatumFields.get(materialTypeName);
     if (map == null) return;
@@ -357,10 +440,7 @@ export class Material extends RnObject {
       const info = value.info;
       if (args.setUniform || CompositionType.isTexture(info.compositionType)) {
         if (!info.isCustomSetting) {
-          if (
-            firstTime ||
-            info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly
-          ) {
+          if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
             webglResourceRepository.setUniformValue(
               shaderProgram,
               info.semantic.str,
@@ -377,10 +457,8 @@ export class Material extends RnObject {
 
   private __setupGlobalShaderDefinition() {
     let definitions = '';
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw =
-      webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
     if (glw.isWebGL2) {
       definitions += '#version 300 es\n#define GLSL_ES3\n';
       if (Config.isUboEnabled) {
@@ -424,11 +502,10 @@ export class Material extends RnObject {
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ): CGAPIResourceHandle {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this._materialContent;
 
-    const {vertexPropertiesStr, pixelPropertiesStr} = this._getProperties(
+    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
       propertySetter,
       isWebGL2
     );
@@ -446,8 +523,7 @@ export class Material extends RnObject {
       {
         getters: vertexPropertiesStr,
         definitions: definitions,
-        dataUBODefinition:
-          webglResourceRepository.getGlslDataUBODefinitionString(),
+        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
         dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
         matricesGetters: vertexShaderMethodDefinitions_uniform,
       }
@@ -457,21 +533,15 @@ export class Material extends RnObject {
       isWebGL2
     ).code;
 
-    const pixelShaderityObject = ShaderityUtility.fillTemplate(
-      materialNode.pixelShaderityObject!,
-      {
-        renderTargetBegin:
-          webglResourceRepository.getGlslRenderTargetBeginString(4),
-        getters: pixelPropertiesStr,
-        definitions: definitions,
-        dataUBODefinition:
-          webglResourceRepository.getGlslDataUBODefinitionString(),
-        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-        matricesGetters: vertexShaderMethodDefinitions_uniform,
-        renderTargetEnd:
-          webglResourceRepository.getGlslRenderTargetEndString(4),
-      }
-    );
+    const pixelShaderityObject = ShaderityUtility.fillTemplate(materialNode.pixelShaderityObject!, {
+      renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
+      getters: pixelPropertiesStr,
+      definitions: definitions,
+      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      matricesGetters: vertexShaderMethodDefinitions_uniform,
+      renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
+    });
     const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
       pixelShaderityObject,
       isWebGL2
@@ -480,8 +550,7 @@ export class Material extends RnObject {
     vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
     pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
 
-    const {attributeNames, attributeSemantics} =
-      this.__getAttributeInfo(materialNode);
+    const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
     const vertexAttributesBinding = this.__outputVertexAttributeBindingInfo(
       attributeNames,
       attributeSemantics
@@ -501,8 +570,7 @@ export class Material extends RnObject {
     onError?: (message: string) => void
   ) {
     const materialNode = this._materialContent;
-    const {attributeNames, attributeSemantics} =
-      this.__getAttributeInfo(materialNode);
+    const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
 
     return this.__createShaderProgramWithCache(
       updatedShaderSources.vertex,
@@ -533,8 +601,7 @@ export class Material extends RnObject {
       this._shaderProgramUid = shaderProgramUid;
       return this._shaderProgramUid;
     } else {
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       this._shaderProgramUid = webglResourceRepository.createShaderProgram({
         material: this,
         vertexShaderStr: vertexShader,
@@ -550,12 +617,10 @@ export class Material extends RnObject {
   }
 
   private __getAttributeInfo(materialNode: AbstractMaterialContent) {
-    const reflection = ShaderityUtility.getAttributeReflection(
-      materialNode.vertexShaderityObject!
-    );
+    const reflection = ShaderityUtility.getAttributeReflection(materialNode.vertexShaderityObject!);
     const attributeNames = reflection.names;
     const attributeSemantics = reflection.semantics;
-    return {attributeNames, attributeSemantics};
+    return { attributeNames, attributeSemantics };
   }
 
   private __outputVertexAttributeBindingInfo(
@@ -569,103 +634,18 @@ export class Material extends RnObject {
     return vertexAttributesBinding;
   }
 
-  /**
-   * @internal
-   * @param propertySetter
-   */
-  _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
-    let vertexPropertiesStr = '';
-    let pixelPropertiesStr = '';
-    this._allFieldsInfo.forEach((value, propertyIndex: Index) => {
-      const info = this._allFieldsInfo.get(propertyIndex);
-      if (
-        info!.stage === ShaderType.VertexShader ||
-        info!.stage === ShaderType.VertexAndPixelShader
-      ) {
-        vertexPropertiesStr += propertySetter(
-          this.__materialTypeName,
-          info!,
-          propertyIndex,
-          false,
-          isWebGL2
-        );
-      }
-      if (
-        info!.stage === ShaderType.PixelShader ||
-        info!.stage === ShaderType.VertexAndPixelShader
-      ) {
-        pixelPropertiesStr += propertySetter(
-          this.__materialTypeName,
-          info!,
-          propertyIndex,
-          false,
-          isWebGL2
-        );
-      }
-    });
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    [vertexPropertiesStr, pixelPropertiesStr] =
-      globalDataRepository._addPropertiesStr(
-        vertexPropertiesStr,
-        pixelPropertiesStr,
-        propertySetter,
-        isWebGL2
-      );
-    return {vertexPropertiesStr, pixelPropertiesStr};
-  }
-
   private __getTargetShaderSemantics(uniformName: string) {
-    const targetFieldsInfo = this.fieldsInfoArray.find(fieldsInfo => {
+    const targetFieldsInfo = this.fieldsInfoArray.find((fieldsInfo) => {
       const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
       return prefix + fieldsInfo.semantic.str === uniformName;
     });
 
     if (targetFieldsInfo == null) {
-      console.error(
-        `Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`
-      );
+      console.error(`Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`);
       return;
     }
 
     return targetFieldsInfo.semantic;
-  }
-
-  /**
-   * @internal
-   * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom
-   * @param vertexShaderMethodDefinitions_uniform
-   * @param propertySetter
-   * @param isWebGL2
-   * @returns
-   */
-  _createProgram(
-    vertexShaderMethodDefinitions_uniform: string,
-    propertySetter: getShaderPropertyFunc,
-    isWebGL2: boolean
-  ): CGAPIResourceHandle {
-    const programUid = this.__createProgramAsSingleOperation(
-      vertexShaderMethodDefinitions_uniform,
-      propertySetter,
-      isWebGL2
-    );
-
-    return programUid;
-  }
-
-  createProgramByUpdatedSources(
-    updatedShaderSources: ShaderSources,
-    onError?: (message: string) => void
-  ): CGAPIResourceHandle {
-    const programUid = this.__createProgramAsSingleOperationByUpdatedSources(
-      updatedShaderSources,
-      onError
-    );
-
-    if (programUid > 0) {
-      this.__updatedShaderSources = updatedShaderSources;
-    }
-
-    return programUid;
   }
 
   /**
@@ -674,10 +654,7 @@ export class Material extends RnObject {
    * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
    * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
    */
-  setBlendEquationMode(
-    blendEquationMode: number,
-    blendEquationModeAlpha?: number
-  ) {
+  public setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha?: number) {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
   }
@@ -686,7 +663,7 @@ export class Material extends RnObject {
    * Change the blendFuncSeparateFactors
    * This method works only if this alphaMode is the translucent
    */
-  setBlendFuncSeparateFactor(
+  public setBlendFuncSeparateFactor(
     blendFuncSrcFactor: number,
     blendFuncDstFactor: number,
     blendFuncAlphaSrcFactor: number,
@@ -702,42 +679,11 @@ export class Material extends RnObject {
    * Change the blendFuncFactors
    * This method works only if this alphaMode is the translucent
    */
-  setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
+  public setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
-  }
-
-  /**
-   * @internal
-   * called WebGLStrategyDataTexture and WebGLStrategyUniform only
-   */
-  _setupBasicUniformsLocations() {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
-  }
-
-  ////////////////
-  /// Setters
-  ////////////////
-
-  /**
-   * @internal
-   * called WebGLStrategyDataTexture and WebGLStrategyUniform only
-   */
-  _setupAdditionalUniformLocations(
-    shaderSemantics: ShaderSemanticsInfo[],
-    isUniformOnlyMode: boolean
-  ) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
-    return webglResourceRepository.setupUniformLocations(
-      this._shaderProgramUid,
-      shaderSemantics,
-      isUniformOnlyMode
-    );
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {
@@ -757,22 +703,12 @@ export class Material extends RnObject {
   }
 
   isBlend() {
-    if (
-      this.alphaMode === AlphaMode.Translucent ||
-      this.alphaMode === AlphaMode.Additive
-    ) {
+    if (this.alphaMode === AlphaMode.Translucent || this.alphaMode === AlphaMode.Additive) {
       return true;
     } else {
       return false;
     }
   }
-
-  // getShaderSemanticInfoFromName(name: string) {
-  //   if (Is.exist(this.__materialNode)) {
-  //     return this.__materialNode.getShaderSemanticInfoFromName(name);
-  //   }
-  //   return undefined;
-  // }
 
   /**
    * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
@@ -858,19 +794,4 @@ export class Material extends RnObject {
   get materialTypeName() {
     return this.__materialTypeName;
   }
-
-  // static getAccessorOfMemberOfMaterial(
-  //   materialTypeName: string,
-  //   propertyIndex: Index
-  // ): Accessor | undefined {
-  //   const material = Material.__instancesByTypes.get(materialTypeName)!;
-  //   const info = material.__fieldsInfo.get(propertyIndex)!;
-  //   if (info.soloDatum) {
-  //     return void 0;
-  //   } else {
-  //     const properties = this.__accessors.get(materialTypeName);
-  //     const accessor = properties!.get(propertyIndex);
-  //     return accessor;
-  //   }
-  // }
 }

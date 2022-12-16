@@ -1,12 +1,23 @@
 import { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
-import {RnM2, RnM2ExtensionsEffekseerEffect, RnM2ExtensionsEffekseerTimeline, RnM2ExtensionsEffekseerTimelineItem} from '../../types/RnM2';
-import { AnimationComponent, IAnimationEntityMethods, ISceneGraphEntityMethods, ITransformEntityMethods, WellKnownComponentTIDs } from '../components';
+import {
+  RnM2,
+  RnM2ExtensionsEffekseerEffect,
+  RnM2ExtensionsEffekseerTimeline,
+  RnM2ExtensionsEffekseerTimelineItem,
+} from '../../types/RnM2';
+import {
+  AnimationComponent,
+  IAnimationEntityMethods,
+  ISceneGraphEntityMethods,
+  ITransformEntityMethods,
+  WellKnownComponentTIDs,
+} from '../components';
 import { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation } from '../definitions';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { DataUtil } from '../misc/DataUtil';
-import {Is} from '../misc/Is';
+import { Is } from '../misc/Is';
 
 export class RhodoniteImportExtension {
   private static __instance: RhodoniteImportExtension;
@@ -15,7 +26,7 @@ export class RhodoniteImportExtension {
     const RHODONITE_billboard = 'RHODONITE_billboard';
     if (
       Is.not.exist(gltfJson.extensionsUsed) ||
-      gltfJson.extensionsUsed.findIndex(extension => {
+      gltfJson.extensionsUsed.findIndex((extension) => {
         return RHODONITE_billboard === extension;
       }) === -1
     ) {
@@ -41,7 +52,7 @@ export class RhodoniteImportExtension {
     if (
       Is.not.exist(gltfJson.extensions) ||
       Is.not.exist(gltfJson.extensions.RHODONITE_effekseer) ||
-      gltfJson.extensionsUsed.findIndex(extension => {
+      gltfJson.extensionsUsed.findIndex((extension) => {
         return RHODONITE_effekseer === extension;
       }) === -1
     ) {
@@ -53,10 +64,7 @@ export class RhodoniteImportExtension {
 
     for (const effect of effects) {
       const entity = entities[effect.node];
-      const effekseerEntity = EntityRepository.addComponentToEntity(
-        EffekseerComponent,
-        entity
-      );
+      const effekseerEntity = EntityRepository.addComponentToEntity(EffekseerComponent, entity);
       const effekseerComponent = effekseerEntity.getEffekseer();
       effekseerComponent.playJustAfterLoaded = true;
       // effekseerComponent.randomSeed = 1;
@@ -90,8 +98,13 @@ export class RhodoniteImportExtension {
   }
 }
 
-function createEffekseerAnimation(entity: IEntity & ITransformEntityMethods & ISceneGraphEntityMethods & IEffekseerEntityMethods, effect: RnM2ExtensionsEffekseerEffect) {
-  const effekseerComponent = entity.getComponentByComponentTID(WellKnownComponentTIDs.EffekseerComponentTID) as EffekseerComponent;
+function createEffekseerAnimation(
+  entity: IEntity & ITransformEntityMethods & ISceneGraphEntityMethods & IEffekseerEntityMethods,
+  effect: RnM2ExtensionsEffekseerEffect
+) {
+  const effekseerComponent = entity.getComponentByComponentTID(
+    WellKnownComponentTIDs.EffekseerComponentTID
+  ) as EffekseerComponent;
   if (Is.exist(effekseerComponent)) {
     effekseerComponent.playJustAfterLoaded = true;
     effekseerComponent.isLoop = true;
@@ -101,37 +114,43 @@ function createEffekseerAnimation(entity: IEntity & ITransformEntityMethods & IS
       for (const timeline of timelines) {
         const values = timeline.values as RnM2ExtensionsEffekseerTimelineItem[];
         const timelineName = timeline.name;
-        const timelineValues = values.map(value => {
+        const timelineValues = values.map((value) => {
           return {
             input: value.input,
-            event: value.event
+            event: value.event,
           };
         });
         let animationComponent = entity.tryToGetAnimation();
-        let animationEntity: (IEntity & ITransformEntityMethods & ISceneGraphEntityMethods & IEffekseerEntityMethods & IAnimationEntityMethods) | undefined;
+        let animationEntity:
+          | (IEntity &
+              ITransformEntityMethods &
+              ISceneGraphEntityMethods &
+              IEffekseerEntityMethods &
+              IAnimationEntityMethods)
+          | undefined;
         if (Is.not.exist(animationComponent)) {
-          animationEntity = EntityRepository.addComponentToEntity(
-            AnimationComponent,
-            entity
-          );
+          animationEntity = EntityRepository.addComponentToEntity(AnimationComponent, entity);
         }
         animationComponent = animationEntity!.getAnimation();
         animationComponent.setAnimation(
           Is.exist(timelineName) ? timelineName : 'Default',
           'effekseer',
-          new Float32Array(timelineValues.map(value => value.input)),
-          new Float32Array(timelineValues.map(value => {
-            if (value.event === 'play') {
-              return 1;
-            } else if (value.event === 'pause') {
-              return 0;
-            } else {
-              return 0;
-            }
-          })),
+          new Float32Array(timelineValues.map((value) => value.input)),
+          new Float32Array(
+            timelineValues.map((value) => {
+              if (value.event === 'play') {
+                return 1;
+              } else if (value.event === 'pause') {
+                return 0;
+              } else {
+                return 0;
+              }
+            })
+          ),
           1,
           AnimationInterpolation.Step,
-          true);
+          true
+        );
       }
     }
   }

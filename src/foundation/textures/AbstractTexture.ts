@@ -1,28 +1,17 @@
 import { RnObject } from '../core/RnObject';
-import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
-import {ComponentType, ComponentTypeEnum} from '../definitions/ComponentType';
-import {
-  TextureParameter,
-  TextureParameterEnum,
-} from '../definitions/TextureParameter';
-import {
-  CGAPIResourceHandle,
-  TextureUID,
-  Size,
-  Index,
-} from '../../types/CommonTypes';
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { CGAPIResourceHandle, TextureUID, Size, Index } from '../../types/CommonTypes';
 import { TextureDataFloat } from './TextureDataFloat';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../definitions/CompositionType';
-import {ColorRgb} from '../math/ColorRgb';
-import {ColorRgba} from '../math/ColorRgba';
+import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
+import { ColorRgb } from '../math/ColorRgb';
+import { ColorRgba } from '../math/ColorRgba';
 import { MutableVector3 } from '../math/MutableVector3';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
-import {Is} from '../misc/Is';
+import { Is } from '../misc/Is';
 
 export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -39,8 +28,7 @@ export abstract class AbstractTexture extends RnObject {
   protected __hasTransparentPixels = false;
 
   private static readonly InvalidTextureUid: TextureUID = -1;
-  private static __textureUidCount: TextureUID =
-    AbstractTexture.InvalidTextureUid;
+  private static __textureUidCount: TextureUID = AbstractTexture.InvalidTextureUid;
   private __textureUid: TextureUID;
   protected __img?: HTMLImageElement;
   public cgApiResourceUid: CGAPIResourceHandle = -1;
@@ -51,8 +39,7 @@ export abstract class AbstractTexture extends RnObject {
   protected __canvasContext?: CanvasRenderingContext2D;
   protected __uri?: string;
   protected __name = 'untitled';
-  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> =
-    new Map();
+  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
 
   constructor() {
     super();
@@ -130,12 +117,7 @@ export abstract class AbstractTexture extends RnObject {
       this.createInternalCanvasContext();
     }
 
-    return (this.__canvasContext as CanvasRenderingContext2D).getImageData(
-      x,
-      y,
-      width,
-      height
-    );
+    return (this.__canvasContext as CanvasRenderingContext2D).getImageData(x, y, width, height);
   }
 
   getPixelAs(
@@ -152,13 +134,9 @@ export abstract class AbstractTexture extends RnObject {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
     if (typeClass.compositionType === CompositionType.Vec4) {
-      return new (typeClass as any)(
-        new Float32Array([data[0], data[1], data[2], data[3]])
-      );
+      return new (typeClass as any)(new Float32Array([data[0], data[1], data[2], data[3]]));
     } else {
-      return new (typeClass as any)(
-        new Float32Array([data[0], data[1], data[2]])
-      );
+      return new (typeClass as any)(new Float32Array([data[0], data[1], data[2]]));
     }
   }
 
@@ -176,13 +154,7 @@ export abstract class AbstractTexture extends RnObject {
   setPixel(
     x: Index,
     y: Index,
-    value:
-      | ColorRgb
-      | ColorRgba
-      | Vector3
-      | MutableVector3
-      | Vector4
-      | MutableVector4
+    value: ColorRgb | ColorRgba | Vector3 | MutableVector3 | Vector4 | MutableVector4
   ) {
     const pixel = this.getImageData(x, y, 1, 1);
     const data = pixel.data;
@@ -190,8 +162,7 @@ export abstract class AbstractTexture extends RnObject {
       compositionType: CompositionTypeEnum; // value.constructor needs to have compositionType only
     };
 
-    const numberOfComponents =
-      classOfValue.compositionType.getNumberOfComponents();
+    const numberOfComponents = classOfValue.compositionType.getNumberOfComponents();
     for (let i = 0; i < numberOfComponents; i++) {
       data[i] = value.at(i);
     }
@@ -224,21 +195,12 @@ export abstract class AbstractTexture extends RnObject {
 
   getTextureDataFloat(channels: Size): TextureDataFloat {
     const pixel = this.getImageData(0, 0, this.width, this.height);
-    const textureDataFloat = new TextureDataFloat(
-      this.width,
-      this.height,
-      channels
-    );
+    const textureDataFloat = new TextureDataFloat(this.width, this.height, channels);
     const data = pixel.data;
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
         for (let k = 0; k < channels; k++) {
-          textureDataFloat.setPixelAtChannel(
-            j,
-            i,
-            k,
-            data[i * this.width * 4 + j * 4 + k] / 255
-          );
+          textureDataFloat.setPixelAtChannel(j, i, k, data[i * this.width * 4 + j * 4 + k] / 255);
         }
       }
     }

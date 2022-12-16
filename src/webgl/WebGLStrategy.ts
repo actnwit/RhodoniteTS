@@ -1,6 +1,6 @@
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
-import {Primitive} from '../foundation/geometry/Primitive';
+import { Primitive } from '../foundation/geometry/Primitive';
 import { Matrix44 } from '../foundation/math/Matrix44';
 import { Matrix33 } from '../foundation/math/Matrix33';
 import { Entity } from '../foundation/core/Entity';
@@ -8,14 +8,9 @@ import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import {
-  WebGLResourceHandle,
-  Index,
-  Count,
-  CGAPIResourceHandle,
-} from '../types/CommonTypes';
-import {IMatrix44} from '../foundation/math/IMatrix';
-import {IMeshEntity} from '../foundation/helpers/EntityHelper';
+import { WebGLResourceHandle, Index, Count, CGAPIResourceHandle } from '../types/CommonTypes';
+import { IMatrix44 } from '../foundation/math/IMatrix';
+import { IMeshEntity } from '../foundation/helpers/EntityHelper';
 
 export type ShaderSources = {
   vertex: string;

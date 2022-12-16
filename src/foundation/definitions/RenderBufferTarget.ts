@@ -1,15 +1,12 @@
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
 export interface RenderBufferTargetEnum extends EnumIO {
   webGLConstantValue(): number;
 }
 
-class RenderBufferTargetClass
-  extends EnumClass
-  implements RenderBufferTargetEnum
-{
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+class RenderBufferTargetClass extends EnumClass implements RenderBufferTargetEnum {
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 
   webGLConstantValue() {
@@ -117,7 +114,7 @@ const typeList = [
 ];
 
 function from(index: number): RenderBufferTargetEnum {
-  return _from({typeList, index}) as RenderBufferTargetEnum;
+  return _from({ typeList, index }) as RenderBufferTargetEnum;
 }
 
 export const RenderBufferTarget = Object.freeze({

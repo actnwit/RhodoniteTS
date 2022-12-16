@@ -1,4 +1,4 @@
-import {EventPubSub} from './EventPubSub';
+import { EventPubSub } from './EventPubSub';
 
 test('Basic Usage', () => {
   const pubsub = new EventPubSub();

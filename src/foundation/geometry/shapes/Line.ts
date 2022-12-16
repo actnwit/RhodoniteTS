@@ -1,8 +1,8 @@
-import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {PrimitiveMode} from '../../definitions/PrimitiveMode';
-import {IVector3} from '../../math/IVector';
-import {IShape} from './IShape';
+import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { IVector3 } from '../../math/IVector';
+import { IShape } from './IShape';
 
 export interface LineDescriptor extends IAnyPrimitiveDescriptor {
   /** the start position */
@@ -21,12 +21,7 @@ export class Line extends IShape {
    * Generates a line object
    * @param desc a descriptor object of a Line
    */
-  public generate({
-    startPos,
-    endPos,
-    hasTerminalMark,
-    material,
-  }: LineDescriptor): void {
+  public generate({ startPos, endPos, hasTerminalMark, material }: LineDescriptor): void {
     const positions: number[] = [];
 
     positions.push(...startPos.flattenAsArray());

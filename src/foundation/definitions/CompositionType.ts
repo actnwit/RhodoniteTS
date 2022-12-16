@@ -1,4 +1,4 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 import {
   Count,
   IndexOf16Bytes,
@@ -6,8 +6,8 @@ import {
   VectorAndSquareMatrixComponentN,
   VectorComponentN,
 } from '../../types/CommonTypes';
-import type {ComponentTypeEnum} from './ComponentType';
-import {Gltf2AccessorCompositionTypeString} from '../../types/glTF2';
+import type { ComponentTypeEnum } from './ComponentType';
+import { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
 
 export interface CompositionTypeEnum extends EnumIO {
   getNumberOfComponents(): Count;
@@ -39,7 +39,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     vec4SizeOfProperty: IndexOf16Bytes;
     isArray?: boolean;
   }) {
-    super({index, str});
+    super({ index, str });
     this.__numberOfComponents = numberOfComponents;
     this.__glslStr = glslStr;
     this.__hlslStr = hlslStr;
@@ -66,16 +66,14 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
       componentType.index === 5122 || // SHORT
       componentType.index === 5124 // INT
     ) {
-      if (
-        this === CompositionType.Scalar ||
-        this === CompositionType.ScalarArray
-      ) {
+      if (this === CompositionType.Scalar || this === CompositionType.ScalarArray) {
         return 'int';
       } else {
         return 'i' + this.__glslStr;
       }
       // eslint-disable-next-line prettier/prettier
-    } else if (componentType.index === 35670) { // BOOL
+    } else if (componentType.index === 35670) {
+      // BOOL
       return 'bool';
     }
     return 'unknown';
@@ -96,9 +94,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
         } else if (this.__numberOfComponents === 4) {
           return this.__glslStr + '(0.0, 0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 9) {
-          return (
-            this.__glslStr + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
-          );
+          return this.__glslStr + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 16) {
           return (
             this.__glslStr +
@@ -123,13 +119,12 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
         } else if (this.__numberOfComponents === 9) {
           return this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
         } else if (this.__numberOfComponents === 16) {
-          return (
-            this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)'
-          );
+          return this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
         }
       }
       // eslint-disable-next-line prettier/prettier
-    } else if (componentType.index === 35670) { // BOOL
+    } else if (componentType.index === 35670) {
+      // BOOL
       if (this === CompositionType.Scalar) {
         return 'false';
       } else {
@@ -332,18 +327,14 @@ const typeList = [
   TextureCube,
 ];
 
-export type VectorCompositionTypes =
-  | typeof Scalar
-  | typeof Vec2
-  | typeof Vec3
-  | typeof Vec4;
+export type VectorCompositionTypes = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
 
 function from(index: number): CompositionTypeEnum {
-  return _from({typeList, index}) as CompositionTypeEnum;
+  return _from({ typeList, index }) as CompositionTypeEnum;
 }
 
 function fromString(str: string): CompositionTypeEnum {
-  return _fromString({typeList, str}) as CompositionTypeEnum;
+  return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
 
 function vectorFrom(componentN: number): CompositionTypeEnum {
@@ -364,7 +355,7 @@ function vectorFrom(componentN: number): CompositionTypeEnum {
     default:
       console.error('not found appropriate Vectors');
   }
-  return _fromString({typeList, str}) as CompositionTypeEnum;
+  return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
 
 function fromGlslString(str_: string): CompositionTypeEnum {
@@ -401,7 +392,7 @@ function fromGlslString(str_: string): CompositionTypeEnum {
       str = 'TEXTURE_CUBE_MAP';
       break;
   }
-  return _fromString({typeList, str}) as CompositionTypeEnum;
+  return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
 
 function toGltf2AccessorCompositionTypeString(

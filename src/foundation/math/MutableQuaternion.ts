@@ -1,13 +1,10 @@
 import { Quaternion } from './Quaternion';
-import {IVector3, IVector4} from './IVector';
-import {Array4, TypedArray} from '../../types/CommonTypes';
-import {IMutableQuaternion, ILogQuaternion, IQuaternion} from './IQuaternion';
-import {IMatrix44} from './IMatrix';
+import { IVector3, IVector4 } from './IVector';
+import { Array4, TypedArray } from '../../types/CommonTypes';
+import { IMutableQuaternion, ILogQuaternion, IQuaternion } from './IQuaternion';
+import { IMatrix44 } from './IMatrix';
 
-export class MutableQuaternion
-  extends Quaternion
-  implements IMutableQuaternion
-{
+export class MutableQuaternion extends Quaternion implements IMutableQuaternion {
   constructor(x: Float32Array) {
     super(x);
   }

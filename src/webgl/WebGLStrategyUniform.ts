@@ -1,24 +1,24 @@
-import {WebGLResourceRepository} from './WebGLResourceRepository';
-import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
-import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
-import {WebGLContextWrapper} from './WebGLContextWrapper';
-import {Primitive} from '../foundation/geometry/Primitive';
-import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
-import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
-import {ComponentRepository} from '../foundation/core/ComponentRepository';
-import {LightComponent} from '../foundation/components/Light/LightComponent';
-import {Config} from '../foundation/core/Config';
-import {PixelFormat} from '../foundation/definitions/PixelFormat';
-import {ComponentType} from '../foundation/definitions/ComponentType';
-import {TextureParameter} from '../foundation/definitions/TextureParameter';
-import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import {CompositionType} from '../foundation/definitions/CompositionType';
-import {Material} from '../foundation/materials/core/Material';
-import {RenderPass} from '../foundation/renderer/RenderPass';
-import {ShaderVariableUpdateInterval} from '../foundation/definitions/ShaderVariableUpdateInterval';
-import {Mesh} from '../foundation/geometry/Mesh';
-import {MemoryManager} from '../foundation/core/MemoryManager';
-import {ShaderType} from '../foundation/definitions/ShaderType';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
+import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
+import { Primitive } from '../foundation/geometry/Primitive';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
+import { Config } from '../foundation/core/Config';
+import { PixelFormat } from '../foundation/definitions/PixelFormat';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { Material } from '../foundation/materials/core/Material';
+import { RenderPass } from '../foundation/renderer/RenderPass';
+import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
+import { Mesh } from '../foundation/geometry/Mesh';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { ShaderType } from '../foundation/definitions/ShaderType';
 import {
   CGAPIResourceHandle,
   WebGLResourceHandle,
@@ -26,12 +26,12 @@ import {
   Count,
   PrimitiveUID,
 } from '../types/CommonTypes';
-import {BufferUse} from '../foundation/definitions/BufferUse';
-import {Buffer} from '../foundation/memory/Buffer';
-import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
-import {MiscUtil} from '../foundation/misc/MiscUtil';
+import { BufferUse } from '../foundation/definitions/BufferUse';
+import { Buffer } from '../foundation/memory/Buffer';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import {Is} from '../foundation/misc/Is';
+import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation';
 
 declare const spector: any;
@@ -40,8 +40,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
-  private __dataTextureUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastMaterial?: Material;
   private __lastRenderPassTickCount = -1;
@@ -173,10 +172,7 @@ bool get_isBillboard(float instanceId) {
         continue;
       }
 
-      if (
-        material._shaderProgramUid !==
-        CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
+      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
         continue;
       }
 
@@ -216,10 +212,7 @@ bool get_isBillboard(float instanceId) {
         glw.isWebGL2
       );
     } else {
-      programUid = material.createProgramByUpdatedSources(
-        updatedShaderSources,
-        onError
-      );
+      programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
     }
 
     material._setupBasicUniformsLocations();
@@ -265,9 +258,7 @@ bool get_isBillboard(float instanceId) {
   }
 
   isMeshSetup(mesh: Mesh) {
-    if (
-      mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
+    if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return false;
     }
 
@@ -302,13 +293,9 @@ bool get_isBillboard(float instanceId) {
     ) as LightComponent[];
 
     // Setup Data Texture
-    if (
-      this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
+    if (this.__dataTextureUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const memoryManager: MemoryManager = MemoryManager.getInstance();
-      const buffer: Buffer | undefined = memoryManager.getBuffer(
-        BufferUse.GPUVertexData
-      );
+      const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUVertexData);
       if (buffer == null) {
         return;
       }
@@ -320,10 +307,7 @@ bool get_isBillboard(float instanceId) {
         console.warn('The buffer size exceeds the size of the data texture.');
       }
       const dataTextureByteSize =
-        MemoryManager.bufferWidthLength *
-        MemoryManager.bufferHeightLength *
-        4 *
-        4;
+        MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
       const concatArrayBuffer = MiscUtil.concatArrayBuffers2({
         finalSize: dataTextureByteSize,
         srcs: [buffer.getArrayBuffer()],
@@ -332,25 +316,22 @@ bool get_isBillboard(float instanceId) {
       });
       const floatDataTextureBuffer = new Float32Array(concatArrayBuffer);
 
-      this.__dataTextureUid = this.__webglResourceRepository.createTexture(
-        floatDataTextureBuffer,
-        {
-          level: 0,
-          internalFormat: TextureParameter.RGBA32F,
-          width: MemoryManager.bufferWidthLength,
-          height: MemoryManager.bufferHeightLength,
-          border: 0,
-          format: PixelFormat.RGBA,
-          type: ComponentType.Float,
-          magFilter: TextureParameter.Nearest,
-          minFilter: TextureParameter.Nearest,
-          wrapS: TextureParameter.Repeat,
-          wrapT: TextureParameter.Repeat,
-          generateMipmap: false,
-          anisotropy: false,
-          isPremultipliedAlpha: true,
-        }
-      );
+      this.__dataTextureUid = this.__webglResourceRepository.createTexture(floatDataTextureBuffer, {
+        level: 0,
+        internalFormat: TextureParameter.RGBA32F,
+        width: MemoryManager.bufferWidthLength,
+        height: MemoryManager.bufferHeightLength,
+        border: 0,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
+        magFilter: TextureParameter.Nearest,
+        minFilter: TextureParameter.Nearest,
+        wrapS: TextureParameter.Repeat,
+        wrapT: TextureParameter.Repeat,
+        generateMipmap: false,
+        anisotropy: false,
+        isPremultipliedAlpha: true,
+      });
     }
   }
 
@@ -411,11 +392,7 @@ bool get_isBillboard(float instanceId) {
     return this.__instance;
   }
 
-  common_$render(
-    primitiveUids: Int32Array,
-    renderPass: RenderPass,
-    renderPassTickCount: Count
-  ) {
+  common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  Uniform:$render#');
     }
@@ -424,8 +401,7 @@ bool get_isBillboard(float instanceId) {
     const gl = glw.getRawContext();
 
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayNumber =
-      WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
+    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
 
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVrMainPass) {
@@ -558,11 +534,7 @@ bool get_isBillboard(float instanceId) {
           0
         );
       } else {
-        gl.drawArrays(
-          primitive.primitiveMode.index,
-          0,
-          primitive.getVertexCountAsVerticesBased()
-        );
+        gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
       }
     }
 

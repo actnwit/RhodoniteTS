@@ -1,8 +1,10 @@
-import {Byte, Size, TypedArray} from '../../types/CommonTypes';
-import {Is} from './Is';
+import { Byte, Size, TypedArray } from '../../types/CommonTypes';
+import { Is } from './Is';
 
 const isMobileVr = function () {
-  return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(window.navigator.userAgent)
+  return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
+    window.navigator.userAgent
+  );
 };
 
 const isMobile = function () {
@@ -26,10 +28,7 @@ const isSafari = function () {
   const toBe = 'Safari';
   const noToBe = 'Chrome';
 
-  if (
-    navigator.userAgent.indexOf(toBe) > 0 &&
-    navigator.userAgent.indexOf(noToBe) === -1
-  ) {
+  if (navigator.userAgent.indexOf(toBe) > 0 && navigator.userAgent.indexOf(noToBe) === -1) {
     return true;
   }
 
@@ -53,9 +52,7 @@ const isIOS = function () {
 };
 
 const isIPad = function () {
-  return (
-    navigator.userAgent.indexOf('Macintosh') > -1 && 'ontouchend' in document
-  );
+  return navigator.userAgent.indexOf('Macintosh') > -1 && 'ontouchend' in document;
 };
 
 const preventDefaultForDesktopOnly = function (e: Event) {
@@ -105,17 +102,11 @@ const concatArrayBuffers = function (
   const addData = (sizeToAdd: Size, i: number) => {
     const exceededSize = getExceededSize(sizeToAdd);
     if (exceededSize) {
-      whole.set(
-        new Uint8Array(segments[i], offsets[i], exceededSize),
-        offsetOfBase
-      );
+      whole.set(new Uint8Array(segments[i], offsets[i], exceededSize), offsetOfBase);
       offsetOfBase += exceededSize;
       return true;
     } else {
-      whole.set(
-        new Uint8Array(segments[i], offsets[i], sizeToAdd),
-        offsetOfBase
-      );
+      whole.set(new Uint8Array(segments[i], offsets[i], sizeToAdd), offsetOfBase);
       offsetOfBase += sizeToAdd;
       return false;
     }
@@ -174,13 +165,7 @@ const concatArrayBuffers2 = ({
   return dstBuf.buffer;
 };
 
-export const valueWithDefault = <T>({
-  value,
-  defaultValue,
-}: {
-  value?: T;
-  defaultValue: T;
-}): T => {
+export const valueWithDefault = <T>({ value, defaultValue }: { value?: T; defaultValue: T }): T => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return defaultValue;
@@ -188,10 +173,7 @@ export const valueWithDefault = <T>({
   return value;
 };
 
-export const ifExistsThen = <T>(
-  callback: (value: T) => void,
-  value?: T
-): value is T => {
+export const ifExistsThen = <T>(callback: (value: T) => void, value?: T): value is T => {
   if (Is.exist(value)) {
     callback(value);
     return true;
@@ -199,20 +181,14 @@ export const ifExistsThen = <T>(
   return false;
 };
 
-export const ifExistsThenWithReturn = <T>(
-  callback: (value: T) => T,
-  value?: T
-): T | undefined => {
+export const ifExistsThenWithReturn = <T>(callback: (value: T) => T, value?: T): T | undefined => {
   if (Is.exist(value)) {
     return callback(value);
   }
   return value;
 };
 
-export const ifDefinedThen = <T>(
-  callback: (value: T) => void,
-  value?: T
-): value is T => {
+export const ifDefinedThen = <T>(callback: (value: T) => void, value?: T): value is T => {
   if (Is.exist(value)) {
     callback(value);
     return true;
@@ -220,20 +196,14 @@ export const ifDefinedThen = <T>(
   return false;
 };
 
-export const ifDefinedThenWithReturn = <T>(
-  callback: (value: T) => T,
-  value?: T
-): T | undefined => {
+export const ifDefinedThenWithReturn = <T>(callback: (value: T) => T, value?: T): T | undefined => {
   if (Is.exist(value)) {
     return callback(value);
   }
   return value;
 };
 
-export const ifUndefinedThen = <T>(
-  callback: () => void,
-  value?: T
-): value is T => {
+export const ifUndefinedThen = <T>(callback: () => void, value?: T): value is T => {
   if (Is.undefined(value)) {
     callback();
     return false;
@@ -241,10 +211,7 @@ export const ifUndefinedThen = <T>(
   return true;
 };
 
-export const ifUndefinedThenWithReturn = <T>(
-  callback: () => T,
-  value?: T
-): T => {
+export const ifUndefinedThenWithReturn = <T>(callback: () => T, value?: T): T => {
   if (Is.undefined(value)) {
     return callback();
   }
@@ -257,10 +224,7 @@ export const ifNotExistsThen = <T>(callback: () => void, value?: T): void => {
   }
 };
 
-export const ifNotExistsThenWithReturn = <T>(
-  callback: () => T,
-  value?: T
-): T => {
+export const ifNotExistsThenWithReturn = <T>(callback: () => T, value?: T): T => {
   if (Is.undefined(value)) {
     return callback();
   }
@@ -297,9 +261,7 @@ export const nullishToEmptyArray = <T>(value?: T[] | null): T[] => {
   return value;
 };
 
-export const nullishToEmptyMap = <M, N>(
-  value?: Map<M, N> | null
-): Map<M, N> => {
+export const nullishToEmptyMap = <M, N>(value?: Map<M, N> | null): Map<M, N> => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return new Map();
@@ -315,17 +277,17 @@ interface CompareResult {
 
 export const greaterThan = (it: number, than: number): CompareResult => {
   if (it > than) {
-    return {result: true, greater: it, less: than};
+    return { result: true, greater: it, less: than };
   } else {
-    return {result: false, greater: than, less: it};
+    return { result: false, greater: than, less: it };
   }
 };
 
 export const lessThan = (it: number, than: number): CompareResult => {
   if (it < than) {
-    return {result: true, greater: than, less: it};
+    return { result: true, greater: than, less: it };
   } else {
-    return {result: false, greater: it, less: than};
+    return { result: false, greater: it, less: than };
   }
 };
 
@@ -340,8 +302,7 @@ export const addLineNumberToCode = (shaderString: string) => {
     } else if (lineIndex >= 100) {
       splitter = ': ';
     }
-    shaderTextWithLineNumber +=
-      lineIndex + splitter + shaderTextLines[i] + '\n';
+    shaderTextWithLineNumber += lineIndex + splitter + shaderTextLines[i] + '\n';
   }
 
   return shaderTextWithLineNumber;
@@ -353,17 +314,14 @@ export function assertExist<T>(val: T): asserts val is NonNullable<T> {
   }
 }
 
-export function deepCopyUsingJsonStringify(obj: {[k: string]: any}) {
+export function deepCopyUsingJsonStringify(obj: { [k: string]: any }) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-export function downloadArrayBuffer(
-  fileNameToDownload: string,
-  arrayBuffer: ArrayBuffer
-) {
+export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: ArrayBuffer) {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
-  const blob = new Blob([arrayBuffer], {type: 'octet/stream'});
+  const blob = new Blob([arrayBuffer], { type: 'octet/stream' });
   const url = URL.createObjectURL(blob);
   a.href = url;
   const e = new MouseEvent('click');
@@ -371,13 +329,10 @@ export function downloadArrayBuffer(
   URL.revokeObjectURL(url);
 }
 
-export function downloadTypedArray(
-  fileNameToDownload: string,
-  typedArray: TypedArray
-) {
+export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray) {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
-  const blob = new Blob([typedArray], {type: 'octet/stream'});
+  const blob = new Blob([typedArray], { type: 'octet/stream' });
   const url = URL.createObjectURL(blob);
   a.href = url;
   const e = new MouseEvent('click');

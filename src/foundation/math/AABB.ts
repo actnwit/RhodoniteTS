@@ -1,8 +1,8 @@
 import { Vector3 } from './Vector3';
 import { Matrix44 } from './Matrix44';
 import { MutableVector3 } from './MutableVector3';
-import {Index} from '../../types/CommonTypes';
-import {MathUtil} from './MathUtil';
+import { Index } from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
 
 /**
  * A 3D axis-aligned bounding box.
@@ -64,16 +64,8 @@ export class AABB {
    * initialize this AABB.
    */
   initialize() {
-    this.__min.setComponents(
-      Number.MAX_VALUE,
-      Number.MAX_VALUE,
-      Number.MAX_VALUE
-    );
-    this.__max.setComponents(
-      -Number.MAX_VALUE,
-      -Number.MAX_VALUE,
-      -Number.MAX_VALUE
-    );
+    this.__min.setComponents(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+    this.__max.setComponents(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
     this.__centerPoint.zero();
     this.__lengthCenterToCorner = 0;
     this.__isCenterPointDirty = false;
@@ -120,19 +112,13 @@ export class AABB {
    * @returns given positionVector.
    */
   addPosition(positionVector: Vector3) {
-    this.__min.x =
-      positionVector.x < this.__min.x ? positionVector.x : this.__min.x;
-    this.__min.y =
-      positionVector.y < this.__min.y ? positionVector.y : this.__min.y;
-    this.__min.z =
-      positionVector.z < this.__min.z ? positionVector.z : this.__min.z;
+    this.__min.x = positionVector.x < this.__min.x ? positionVector.x : this.__min.x;
+    this.__min.y = positionVector.y < this.__min.y ? positionVector.y : this.__min.y;
+    this.__min.z = positionVector.z < this.__min.z ? positionVector.z : this.__min.z;
 
-    this.__max.x =
-      this.__max.x < positionVector.x ? positionVector.x : this.__max.x;
-    this.__max.y =
-      this.__max.y < positionVector.y ? positionVector.y : this.__max.y;
-    this.__max.z =
-      this.__max.z < positionVector.z ? positionVector.z : this.__max.z;
+    this.__max.x = this.__max.x < positionVector.x ? positionVector.x : this.__max.x;
+    this.__max.y = this.__max.y < positionVector.y ? positionVector.y : this.__max.y;
+    this.__max.z = this.__max.z < positionVector.z ? positionVector.z : this.__max.z;
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
@@ -149,18 +135,12 @@ export class AABB {
    * @returns given array.
    */
   addPositionWithArray(array: number[], index: Index) {
-    this.__min.x =
-      array[index + 0] < this.__min.x ? array[index + 0] : this.__min.x;
-    this.__min.y =
-      array[index + 1] < this.__min.y ? array[index + 1] : this.__min.y;
-    this.__min.z =
-      array[index + 2] < this.__min.z ? array[index + 2] : this.__min.z;
-    this.__max.x =
-      this.__max.x < array[index + 0] ? array[index + 0] : this.__max.x;
-    this.__max.y =
-      this.__max.y < array[index + 1] ? array[index + 1] : this.__max.y;
-    this.__max.z =
-      this.__max.z < array[index + 2] ? array[index + 2] : this.__max.z;
+    this.__min.x = array[index + 0] < this.__min.x ? array[index + 0] : this.__min.x;
+    this.__min.y = array[index + 1] < this.__min.y ? array[index + 1] : this.__min.y;
+    this.__min.z = array[index + 2] < this.__min.z ? array[index + 2] : this.__min.z;
+    this.__max.x = this.__max.x < array[index + 0] ? array[index + 0] : this.__max.x;
+    this.__max.y = this.__max.y < array[index + 1] ? array[index + 1] : this.__max.y;
+    this.__max.z = this.__max.z < array[index + 2] ? array[index + 2] : this.__max.z;
 
     this.__isCenterPointDirty = true;
     this.__isLengthCenterToCornerDirty = true;
@@ -217,9 +197,7 @@ export class AABB {
    */
   get centerPoint() {
     if (this.__isCenterPointDirty) {
-      MutableVector3.addTo(this.__min, this.__max, this.__centerPoint).divide(
-        2
-      );
+      MutableVector3.addTo(this.__min, this.__max, this.__centerPoint).divide(2);
       this.__isCenterPointDirty = false;
     }
     return this.__centerPoint;
@@ -230,10 +208,7 @@ export class AABB {
    */
   get lengthCenterToCorner() {
     if (this.__isLengthCenterToCornerDirty) {
-      this.__lengthCenterToCorner = Vector3.lengthBtw(
-        this.centerPoint,
-        this.maxPoint
-      );
+      this.__lengthCenterToCorner = Vector3.lengthBtw(this.centerPoint, this.maxPoint);
       this.__isLengthCenterToCornerDirty = false;
     }
     return this.__lengthCenterToCorner;

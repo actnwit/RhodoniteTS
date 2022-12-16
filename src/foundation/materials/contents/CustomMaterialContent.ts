@@ -1,17 +1,17 @@
-import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {Material} from '../core/Material';
-import {HdriFormat} from '../../definitions/HdriFormat';
-import {ShaderityObject} from 'shaderity';
-import {AlphaModeEnum} from '../../definitions/AlphaMode';
-import {ShaderityUtility} from '../core/ShaderityUtility';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
-import {Vector2} from '../../math';
-import {GlobalDataRepository} from '../../core/GlobalDataRepository';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Material } from '../core/Material';
+import { HdriFormat } from '../../definitions/HdriFormat';
+import { ShaderityObject } from 'shaderity';
+import { AlphaModeEnum } from '../../definitions/AlphaMode';
+import { ShaderityUtility } from '../core/ShaderityUtility';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { Vector2 } from '../../math';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -69,7 +69,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (useTangentAttribute ? '+tangentAttribute' : '') +
         ' alpha_' +
         alphaMode.str.toLowerCase(),
-      {isMorphing, isSkinning, isLighting}
+      { isMorphing, isSkinning, isLighting }
     );
 
     // Shader Reflection
@@ -93,9 +93,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
       const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
         (vertexInfo: ShaderSemanticsInfo) => {
-          if (
-            vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str
-          ) {
+          if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
             return true;
           } else {
             return false;
@@ -157,9 +155,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 
-    this.setShaderSemanticsInfoArray(
-      shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo)
-    );
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 
   setCustomSettingParametersToGpu({
@@ -185,28 +181,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
             CameraComponent.current
           ) as CameraComponent;
         }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-        this.setProjection(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
+        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       }
 
       if (firstTime) {
         // Lights
-        this.setLightsInfo(
-          shaderProgram,
-          args.lightComponents,
-          material,
-          args.setUniform
-        );
+        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
       }
 
       /// Skinning
@@ -249,12 +230,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     // IBL Parameters
     if (args.setUniform) {
       if (firstTime) {
-        const {
-          mipmapLevelNumber,
-          meshRenderComponent,
-          diffuseHdriType,
-          specularHdriType,
-        } = this.setupHdriParameters(args);
+        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+          this.setupHdriParameters(args);
         this.__webglResourceRepository.setUniformValue(
           shaderProgram,
           ShaderSemantics.IBLParameter.str,
@@ -270,16 +247,12 @@ export class CustomMaterialContent extends AbstractMaterialContent {
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,
-          {x: diffuseHdriType, y: specularHdriType}
+          { x: diffuseHdriType, y: specularHdriType }
         );
       }
     } else {
-      const {
-        mipmapLevelNumber,
-        meshRenderComponent,
-        diffuseHdriType,
-        specularHdriType,
-      } = this.setupHdriParameters(args);
+      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+        this.setupHdriParameters(args);
       const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
@@ -294,20 +267,14 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
+    this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
 
     const width = args.glw.canvas.width;
     const height = args.glw.canvas.height;
-    const backBufferTextureSize =
-      CustomMaterialContent.__globalDataRepository.getValue(
-        ShaderSemantics.BackBufferTextureSize,
-        0
-      ) as Vector2;
+    const backBufferTextureSize = CustomMaterialContent.__globalDataRepository.getValue(
+      ShaderSemantics.BackBufferTextureSize,
+      0
+    ) as Vector2;
     backBufferTextureSize._v[0] = width;
     backBufferTextureSize._v[1] = height;
     (shaderProgram as any)._gl.uniform2fv(
@@ -321,10 +288,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     ) as Vector2;
     vrState._v[0] = args.isVr ? 1 : 0;
     vrState._v[1] = args.displayIdx;
-    (shaderProgram as any)._gl.uniform2iv(
-      (shaderProgram as any).vrState,
-      vrState._v
-    );
+    (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
   }
 
   private setupHdriParameters(args: RenderingArg) {

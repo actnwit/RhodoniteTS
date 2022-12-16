@@ -1,27 +1,27 @@
-import {WebGLResourceRepository} from './WebGLResourceRepository';
-import {MemoryManager} from '../foundation/core/MemoryManager';
-import {Buffer} from '../foundation/memory/Buffer';
-import {PixelFormat} from '../foundation/definitions/PixelFormat';
-import {ComponentType} from '../foundation/definitions/ComponentType';
-import {TextureParameter} from '../foundation/definitions/TextureParameter';
-import {BufferUse} from '../foundation/definitions/BufferUse';
-import {ShaderSources, WebGLStrategy} from './WebGLStrategy';
-import {MeshComponent} from '../foundation/components/Mesh/MeshComponent';
-import {Primitive} from '../foundation/geometry/Primitive';
-import {WebGLContextWrapper} from './WebGLContextWrapper';
-import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
-import {Matrix44} from '../foundation/math/Matrix44';
-import {ShaderSemantics} from '../foundation/definitions/ShaderSemantics';
-import {Material} from '../foundation/materials/core/Material';
-import {CompositionType} from '../foundation/definitions/CompositionType';
-import {Component} from '../foundation/core/Component';
-import {SceneGraphComponent} from '../foundation/components/SceneGraph/SceneGraphComponent';
-import {Mesh} from '../foundation/geometry/Mesh';
-import {MeshRendererComponent} from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import {ComponentRepository} from '../foundation/core/ComponentRepository';
-import {Config} from '../foundation/core/Config';
-import {RenderPass} from '../foundation/renderer/RenderPass';
-import {CameraComponent} from '../foundation/components/Camera/CameraComponent';
+import { WebGLResourceRepository } from './WebGLResourceRepository';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { Buffer } from '../foundation/memory/Buffer';
+import { PixelFormat } from '../foundation/definitions/PixelFormat';
+import { ComponentType } from '../foundation/definitions/ComponentType';
+import { TextureParameter } from '../foundation/definitions/TextureParameter';
+import { BufferUse } from '../foundation/definitions/BufferUse';
+import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
+import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
+import { Primitive } from '../foundation/geometry/Primitive';
+import { WebGLContextWrapper } from './WebGLContextWrapper';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { Matrix44 } from '../foundation/math/Matrix44';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { Material } from '../foundation/materials/core/Material';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { Component } from '../foundation/core/Component';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { Mesh } from '../foundation/geometry/Mesh';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { Config } from '../foundation/core/Config';
+import { RenderPass } from '../foundation/renderer/RenderPass';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import {
   WebGLResourceHandle,
   Index,
@@ -31,17 +31,17 @@ import {
   IndexOf4Bytes,
   PrimitiveUID,
 } from '../types/CommonTypes';
-import {GlobalDataRepository} from '../foundation/core/GlobalDataRepository';
-import {VectorN} from '../foundation/math/VectorN';
-import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
-import {MiscUtil} from '../foundation/misc/MiscUtil';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { VectorN } from '../foundation/math/VectorN';
+import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
-import {ModuleManager} from '../foundation/system/ModuleManager';
-import {RnXR} from '../xr/main';
-import {Is} from '../foundation/misc/Is';
-import {ISkeletalEntity} from '../foundation/helpers/EntityHelper';
-import {LightComponent} from '../foundation/components/Light/LightComponent';
-import {ShaderSemanticsInfo} from '../foundation/definitions/ShaderSemanticsInfo';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { RnXR } from '../xr/main';
+import { Is } from '../foundation/misc/Is';
+import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
+import { LightComponent } from '../foundation/components/Light/LightComponent';
+import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 
 declare const spector: any;
 
@@ -49,12 +49,9 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
-  private __dataTextureUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __dataUBOUid: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __lastShader: CGAPIResourceHandle =
-    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: Material;
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
@@ -189,10 +186,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
         glw.isWebGL2
       );
     } else {
-      programUid = material.createProgramByUpdatedSources(
-        updatedShaderSources,
-        onError
-      );
+      programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
     }
 
     material._setupBasicUniformsLocations();
@@ -239,17 +233,14 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     }
 
     // inner contents of 'get_' shader function
-    const vec4SizeOfProperty: IndexOf16Bytes =
-      info.compositionType.getVec4SizeOfProperty();
+    const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
     // for non-`index` property (this is general case)
-    const scalarSizeOfProperty: IndexOf4Bytes =
-      info.compositionType.getNumberOfComponents();
-    const offsetOfProperty: IndexOf16Bytes =
-      WebGLStrategyDataTexture.getOffsetOfPropertyInShader(
-        isGlobalData,
-        propertyIndex,
-        materialTypeName
-      );
+    const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyInShader(
+      isGlobalData,
+      propertyIndex,
+      materialTypeName
+    );
 
     if (offsetOfProperty === -1) {
       console.error('Could not get the location offset of the property.');
@@ -258,8 +249,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
     indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
     if (CompositionType.isArray(info.compositionType)) {
-      const instanceSizeInScalar =
-        scalarSizeOfProperty * (info.arrayLength ?? 1);
+      const instanceSizeInScalar = scalarSizeOfProperty * (info.arrayLength ?? 1);
       indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
       indexStr += `int scalar_idx = ${
         // IndexOf4Bytes
@@ -302,8 +292,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           str += `        highp ${intStr}vec2 val = ${intStr}vec2(col0.xy);`;
           break;
         case CompositionType.Vec2Array:
-          str +=
-            '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
+          str += '        highp vec2 val = fetchVec2No16BytesAligned(scalar_idx);\n';
           break;
         case CompositionType.Scalar:
           str += '        vec4 col0 = fetchElement(vec4_idx);\n';
@@ -316,8 +305,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           }
           break;
         case CompositionType.ScalarArray:
-          str +=
-            '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+          str += '        float col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
           if (info.componentType === ComponentType.Int) {
             str += '        int val = int(col0);';
           } else if (info.componentType === ComponentType.Bool) {
@@ -379,20 +367,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     materialTypeName: string
   ) {
     if (isGlobalData) {
-      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
-        propertyIndex
-      );
+      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex);
     } else {
-      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(
-        propertyIndex,
-        materialTypeName
-      );
+      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex, materialTypeName);
     }
   }
 
-  private getOffsetOfTheOffsetVariableOfPropertyInShader(
-    propertyIndex: number
-  ) {}
+  private getOffsetOfTheOffsetVariableOfPropertyInShader(propertyIndex: number) {}
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
@@ -425,9 +406,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   isMeshSetup(mesh: Mesh) {
-    if (
-      mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
+    if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return false;
     }
 
@@ -473,9 +452,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper;
     const uboTotalSize = glw!.getAlignedMaxUniformBlockSize();
 
-    const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse()
-      ? uboTotalSize
-      : 0;
+    const startOffsetOfDataTextureOnGPUInstanceData = this.__isUboUse() ? uboTotalSize : 0;
     if (gpuInstanceDataBuffer == null) {
       return;
     }
@@ -491,23 +468,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     // }
 
     const dataTextureByteSize =
-      MemoryManager.bufferWidthLength *
-      MemoryManager.bufferHeightLength *
-      4 *
-      4;
-    if (
-      this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
-    ) {
+      MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+    if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       const bufferSizeForDataTextureInByte =
-        gpuInstanceDataBuffer.takenSizeInByte -
-        startOffsetOfDataTextureOnGPUInstanceData;
+        gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
       const height = Math.min(
-        Math.ceil(
-          bufferSizeForDataTextureInByte /
-            MemoryManager.bufferWidthLength /
-            4 /
-            4
-        ),
+        Math.ceil(bufferSizeForDataTextureInByte / MemoryManager.bufferWidthLength / 4 / 4),
         MemoryManager.bufferHeightLength
       );
       const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
@@ -519,26 +485,19 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         startOffsetOfDataTextureOnGPUInstanceData,
         updateByteSize / 4
       );
-      this.__webglResourceRepository.updateTexture(
-        this.__dataTextureUid,
-        floatDataTextureBuffer,
-        {
-          level: 0,
-          xoffset: 0,
-          yoffset: 0,
-          width: MemoryManager.bufferWidthLength,
-          height: height,
-          format: PixelFormat.RGBA,
-          type: ComponentType.Float,
-        }
-      );
+      this.__webglResourceRepository.updateTexture(this.__dataTextureUid, floatDataTextureBuffer, {
+        level: 0,
+        xoffset: 0,
+        yoffset: 0,
+        width: MemoryManager.bufferWidthLength,
+        height: height,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
+      });
 
       // debug
       if (!WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone) {
-        MiscUtil.downloadTypedArray(
-          'Rhodonite_dataTextureBuffer.bin',
-          floatDataTextureBuffer
-        );
+        MiscUtil.downloadTypedArray('Rhodonite_dataTextureBuffer.bin', floatDataTextureBuffer);
         WebGLStrategyDataTexture.__isDebugOperationToDataTextureBufferDone = true;
       }
     } else {
@@ -567,22 +526,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         // the DataTexture size (GPU global storage size - UBO space size)
         const actualSpaceForDataTextureInByte =
-          gpuInstanceDataBuffer.takenSizeInByte -
-          startOffsetOfDataTextureOnGPUInstanceData;
+          gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
 
         // spare padding texel for texture alignment (to edge of the width of texture)
         const paddingSpaceTexel =
           MemoryManager.bufferWidthLength -
-          ((actualSpaceForDataTextureInByte / 4 / 4) %
-            MemoryManager.bufferWidthLength);
+          ((actualSpaceForDataTextureInByte / 4 / 4) % MemoryManager.bufferWidthLength);
         const paddingSpaceBytes = paddingSpaceTexel * 4 * 4;
 
         const finalArrayBuffer = MiscUtil.concatArrayBuffers2({
           finalSize: dataTextureByteSize,
-          srcs: [
-            gpuInstanceDataBuffer.getArrayBuffer(),
-            morphBufferArrayBuffer,
-          ],
+          srcs: [gpuInstanceDataBuffer.getArrayBuffer(), morphBufferArrayBuffer],
           srcsCopySize: [
             // final size =
             actualSpaceForDataTextureInByte + paddingSpaceBytes,
@@ -593,9 +547,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         // warning if the used memory exceeds the size of the data texture.
         if (
-          actualSpaceForDataTextureInByte +
-            paddingSpaceBytes +
-            morphBufferTakenSizeInByte >
+          actualSpaceForDataTextureInByte + paddingSpaceBytes + morphBufferTakenSizeInByte >
           dataTextureByteSize
         ) {
           console.warn('The buffer size exceeds the size of the data texture.');
@@ -641,15 +593,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     this.__createAndUpdateDataTexture();
     this.__createAndUpdateUBO();
 
-    this.__lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[] | undefined;
+    this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as
+      | LightComponent[]
+      | undefined;
   }
 
   private __isUboUse() {
     return (
-      this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 &&
-      Config.isUboEnabled
+      this.__webglResourceRepository.currentWebGLContextWrapper!.isWebGL2 && Config.isUboEnabled
     );
   }
 
@@ -659,16 +610,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const alignedMaxUniformBlockSize = glw!.getAlignedMaxUniformBlockSize();
       const maxConventionBlocks = glw!.getMaxConventionUniformBlocks();
       const memoryManager: MemoryManager = MemoryManager.getInstance();
-      const buffer: Buffer | undefined = memoryManager.getBuffer(
-        BufferUse.GPUInstanceData
-      );
-      if (
-        this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
-      ) {
-        this.__dataUBOUid =
-          this.__webglResourceRepository.setupUniformBufferDataArea(
-            new Float32Array(buffer!.getArrayBuffer())
-          );
+      const buffer: Buffer | undefined = memoryManager.getBuffer(BufferUse.GPUInstanceData);
+      if (this.__dataUBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+        this.__dataUBOUid = this.__webglResourceRepository.setupUniformBufferDataArea(
+          new Float32Array(buffer!.getArrayBuffer())
+        );
       } else {
         const array = new Float32Array(buffer!.getArrayBuffer());
         this.__webglResourceRepository.updateUniformBuffer(
@@ -813,11 +759,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  common_$render(
-    primitiveUids: Int32Array,
-    renderPass: RenderPass,
-    renderPassTickCount: Count
-  ) {
+  common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  DataTexture:common_$render#');
     }
@@ -825,29 +767,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const gl = glw.getRawContext();
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayNumber =
-      WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
+    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
-      this.__setCurrentComponentSIDsForEachRenderPass(
-        renderPass,
-        displayIdx,
-        isVRMainPass
-      );
+      this.__setCurrentComponentSIDsForEachRenderPass(renderPass, displayIdx, isVRMainPass);
 
       // For opaque primitives
       if (renderPass.toRenderOpaquePrimitives) {
         for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
           const primitiveUid = primitiveUids[i];
-          this.renderInner(
-            primitiveUid,
-            glw,
-            renderPass,
-            isVRMainPass,
-            displayIdx
-          );
+          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
         }
       }
 
@@ -864,13 +795,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           i++
         ) {
           const primitiveUid = primitiveUids[i];
-          this.renderInner(
-            primitiveUid,
-            glw,
-            renderPass,
-            isVRMainPass,
-            displayIdx
-          );
+          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
         }
       }
 
@@ -910,13 +835,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const shaderProgramUid = material._shaderProgramUid;
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
 
-    this.attachVertexDataInner(
-      mesh,
-      primitive,
-      primitiveIndex,
-      glw,
-      mesh._variationVBOUid
-    );
+    this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
     if (shaderProgramUid !== this.__lastShader) {
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(
         shaderProgramUid

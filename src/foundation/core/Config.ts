@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
-import {BoneDataType} from '../definitions/BoneDataType';
-import {MiscUtil} from '../misc';
+import { BoneDataType } from '../definitions/BoneDataType';
+import { MiscUtil } from '../misc';
 
 let maxEntityNumber = 5000;
 let maxLightNumberInShader = 4;

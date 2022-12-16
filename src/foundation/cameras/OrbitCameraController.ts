@@ -1,28 +1,22 @@
-import {Vector3} from '../math/Vector3';
-import {MutableVector3} from '../math/MutableVector3';
-import {MathUtil} from '../math/MathUtil';
-import {CameraComponent} from '../components/Camera/CameraComponent';
-import {MutableMatrix33} from '../math/MutableMatrix33';
-import {Matrix44} from '../math/Matrix44';
-import {Count, Size} from '../../types/CommonTypes';
-import {ICameraController} from './ICameraController';
-import {MutableMatrix44} from '../math/MutableMatrix44';
-import {AABB} from '../math/AABB';
-import {AbstractCameraController} from './AbstractCameraController';
-import {Is} from '../misc/Is';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import {
-  InputManager,
-  INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
-} from '../system/InputManager';
-import {Config} from '../core/Config';
+import { Vector3 } from '../math/Vector3';
+import { MutableVector3 } from '../math/MutableVector3';
+import { MathUtil } from '../math/MathUtil';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { Matrix44 } from '../math/Matrix44';
+import { Count, Size } from '../../types/CommonTypes';
+import { ICameraController } from './ICameraController';
+import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { AABB } from '../math/AABB';
+import { AbstractCameraController } from './AbstractCameraController';
+import { Is } from '../misc/Is';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER } from '../system/InputManager';
+import { Config } from '../core/Config';
 
 declare let window: any;
 
-export class OrbitCameraController
-  extends AbstractCameraController
-  implements ICameraController
-{
+export class OrbitCameraController extends AbstractCameraController implements ICameraController {
   public dollyScale = 2.0;
   public scaleOfLengthCenterToCamera = 1.0;
   public moveSpeed = 1;
@@ -102,10 +96,8 @@ export class OrbitCameraController
   private static __tmp_rotateM_X: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM_Y: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_rotateM: MutableMatrix33 = MutableMatrix33.identity();
-  private static __tmp_rotateM_Reset: MutableMatrix33 =
-    MutableMatrix33.identity();
-  private static __tmp_rotateM_Revert: MutableMatrix33 =
-    MutableMatrix33.identity();
+  private static __tmp_rotateM_Reset: MutableMatrix33 = MutableMatrix33.identity();
+  private static __tmp_rotateM_Revert: MutableMatrix33 = MutableMatrix33.identity();
 
   private static __tmpMat44_0: MutableMatrix44 = MutableMatrix44.identity();
 
@@ -119,7 +111,7 @@ export class OrbitCameraController
     this.__mouse_translate_x = 0;
     this.__mouse_translate_y = 0;
     this.__mouseTranslateVec = MutableVector3.zero();
-}
+  }
 
   setTarget(targetEntity: ISceneGraphEntity) {
     this.__targetEntity = targetEntity;
@@ -176,12 +168,7 @@ export class OrbitCameraController
             currentMouseY
           );
         } else {
-          this.__rotateControl(
-            this.__originalX,
-            this.__originalY,
-            currentMouseX,
-            currentMouseY
-          );
+          this.__rotateControl(this.__originalX, this.__originalY, currentMouseX, currentMouseY);
           this.__rot_bgn_x = this.__rot_x;
           this.__rot_bgn_y = this.__rot_y;
         }
@@ -239,12 +226,7 @@ export class OrbitCameraController
     if (e.touches.length === 1) {
       currentTouchX = e.touches[0].clientX;
       currentTouchY = e.touches[0].clientY;
-      this.__rotateControl(
-        this.__originalX,
-        this.__originalY,
-        currentTouchX,
-        currentTouchY
-      );
+      this.__rotateControl(this.__originalX, this.__originalY, currentTouchX, currentTouchY);
       this.__rot_bgn_x = this.__rot_x;
       this.__rot_bgn_y = this.__rot_y;
     } else {
@@ -303,12 +285,7 @@ export class OrbitCameraController
     this.__minimum_y = minimum_y;
   }
 
-  __rotateControl(
-    originalX: Size,
-    originalY: Size,
-    currentX: Size,
-    currentY: Size
-  ) {
+  __rotateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     // calc rotation angle
     const delta_x = (currentX - originalX) * this.__efficiency * 0.3;
     const delta_y = (currentY - originalY) * this.__efficiency * 0.3;
@@ -340,22 +317,13 @@ export class OrbitCameraController
     this.dolly -= ((currentValue - originalValue) / 1000) * this.__efficiency;
   }
 
-  __parallelTranslateControl(
-    originalX: Size,
-    originalY: Size,
-    currentX: Size,
-    currentY: Size
-  ) {
-    this.__mouse_translate_y =
-      ((currentY - originalY) / 1000) * this.__efficiency;
-    this.__mouse_translate_x =
-      ((currentX - originalX) / 1000) * this.__efficiency;
+  __parallelTranslateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
+    this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
+    this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
 
     const scale = this.__fixedDolly
       ? 1.0
-      : this.__lengthOfCenterToEye *
-        this.__fovyBias *
-        this.__scaleOfTranslation;
+      : this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
 
     const upDirTranslateVec = OrbitCameraController.__tmpVec3_0;
     upDirTranslateVec
@@ -743,16 +711,11 @@ export class OrbitCameraController
       if (Math.abs(lengthCenterToCamera) < 0.00001) {
         lengthCenterToCamera = 1;
       }
-      centerToCameraVecNormalized
-        .multiply(lengthCenterToCamera)
-        .add(newCenterVec);
+      centerToCameraVecNormalized.multiply(lengthCenterToCamera).add(newCenterVec);
 
       const sg = camera.entity.tryToGetSceneGraph();
       if (sg != null) {
-        const invMat = Matrix44.invertTo(
-          sg.worldMatrixInner,
-          OrbitCameraController.__tmpMat44_0
-        );
+        const invMat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmpMat44_0);
 
         invMat.multiplyVector3To(newCenterVec, newCenterVec);
         invMat.multiplyVector3To(newEyeVec, newEyeVec);
@@ -786,11 +749,7 @@ export class OrbitCameraController
 
     if (this.__isSymmetryMode) {
       const projectedCenterToEyeVec = OrbitCameraController.__tmpVec3_1;
-      projectedCenterToEyeVec.setComponents(
-        centerToEyeVec.x,
-        0,
-        centerToEyeVec.z
-      );
+      projectedCenterToEyeVec.setComponents(centerToEyeVec.x, 0, centerToEyeVec.z);
 
       let horizontalAngleOfVectors = Vector3.angleOfVectors(
         projectedCenterToEyeVec,
@@ -809,9 +768,7 @@ export class OrbitCameraController
       rotateM_X.rotateX(MathUtil.degreeToRadian(this.__rot_y));
       rotateM_Y.rotateY(MathUtil.degreeToRadian(this.__rot_x));
       rotateM_Reset.rotateY(MathUtil.degreeToRadian(horizontalAngleOfVectors));
-      rotateM_Revert.rotateY(
-        MathUtil.degreeToRadian(-horizontalAngleOfVectors)
-      );
+      rotateM_Revert.rotateY(MathUtil.degreeToRadian(-horizontalAngleOfVectors));
 
       const rotateM = OrbitCameraController.__tmp_rotateM;
       MutableMatrix33.multiplyTo(rotateM_X, rotateM_Reset, rotateM);
@@ -863,9 +820,7 @@ export class OrbitCameraController
   }
 
   __updateCameraComponent(camera: CameraComponent) {
-    const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(
-      this.__newCenterVec
-    );
+    const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec);
     eyeDirection.subtract(this.__newEyeVec).normalize();
     this._calcZNearInner(camera, this.__newEyeVec, eyeDirection);
     this._calcZFarInner(camera);

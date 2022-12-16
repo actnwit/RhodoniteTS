@@ -1,15 +1,12 @@
 import DotProductShaderityObject from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl';
-import {ComponentTypeEnum} from '../../../foundation/definitions/ComponentType';
-import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
+import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 
 export class DotProductShaderNode extends AbstractShaderNode {
-  constructor(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('dotProduct', DotProductShaderityObject.code);
 
     this.__inputs.push({

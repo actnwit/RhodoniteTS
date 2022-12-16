@@ -15,12 +15,7 @@ describe('Frame Test', () => {
     const expression0 = new Rn.Expression();
     const renderPass0_0 = new Rn.RenderPass();
     expression0.addRenderPasses([renderPass0_0]);
-    const framebuffer_0 = Rn.RenderableHelper.createTexturesForRenderTarget(
-      800,
-      600,
-      1,
-      {}
-    );
+    const framebuffer_0 = Rn.RenderableHelper.createTexturesForRenderTarget(800, 600, 1, {});
     renderPass0_0.setFramebuffer(framebuffer_0);
 
     const expression1 = new Rn.Expression();
@@ -50,8 +45,6 @@ describe('Frame Test', () => {
     const renderTargetTexture = planePrimitive.material.getTextureParameter(
       Rn.ShaderSemantics.DiffuseColorTexture
     );
-    expect(framebuffer_0.getColorAttachedRenderTargetTexture(0)).toBe(
-      renderTargetTexture
-    );
+    expect(framebuffer_0.getColorAttachedRenderTargetTexture(0)).toBe(renderTargetTexture);
   });
 });

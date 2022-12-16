@@ -1,7 +1,7 @@
 import { IEntity, Entity } from '../foundation/core/Entity';
-import {AnimationInterpolationEnum} from '../foundation/definitions/AnimationInterpolation';
+import { AnimationInterpolationEnum } from '../foundation/definitions/AnimationInterpolation';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
-import {Second, VectorComponentN} from './CommonTypes';
+import { Second, VectorComponentN } from './CommonTypes';
 
 /**
  * animation path name

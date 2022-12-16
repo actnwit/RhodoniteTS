@@ -1,29 +1,27 @@
-import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
-import {Vector3} from '../../math/Vector3';
-import {ShaderType} from '../../definitions/ShaderType';
-import {Scalar} from '../../math/Scalar';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {Material} from '../core/Material';
-import {MutableMatrix44} from '../../math/MutableMatrix44';
-import {MutableMatrix33} from '../../math/MutableMatrix33';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { Vector3 } from '../../math/Vector3';
+import { ShaderType } from '../../definitions/ShaderType';
+import { Scalar } from '../../math/Scalar';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Material } from '../core/Material';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
   constructor() {
     super(
       null,
-      'entityUidOutputShading' +
-        (true ? '+skinning' : '') +
-        (false ? '' : '-lighting'),
-      {isMorphing: false, isSkinning: true, isLighting: false},
+      'entityUidOutputShading' + (true ? '+skinning' : '') + (false ? '' : '-lighting'),
+      { isMorphing: false, isSkinning: true, isLighting: false },
       entityUIDOutputSingleShaderVertex,
       entityUIDOutputSingleShaderFragment
     );
@@ -126,29 +124,14 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
         CameraComponent.current
       ) as CameraComponent;
     }
-    this.setViewInfo(
-      shaderProgram,
-      cameraComponent,
-      args.isVr,
-      args.displayIdx
-    );
-    this.setProjection(
-      shaderProgram,
-      cameraComponent,
-      args.isVr,
-      args.displayIdx
-    );
+    this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+    this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();
     this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
     // Lights
-    this.setLightsInfo(
-      shaderProgram,
-      args.lightComponents,
-      material,
-      args.setUniform
-    );
+    this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
   }
 }

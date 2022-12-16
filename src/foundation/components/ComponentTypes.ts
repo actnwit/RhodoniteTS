@@ -1,33 +1,30 @@
-import {MixinBase} from '../../types/TypeGenerators';
-import {Component} from '../core/Component';
-import {AnimationComponent} from './Animation/AnimationComponent';
-import {IAnimationEntityMethods} from './Animation/IAnimationEntity';
-import {BlendShapeComponent} from './BlendShape/BlendShapeComponent';
-import {IBlendShapeEntityMethods} from './BlendShape/IBlendShapeEntity';
-import {ICameraEntityMethods} from './Camera/ICameraEntity';
-import {CameraControllerComponent} from './CameraController/CameraControllerComponent';
-import {ICameraControllerEntityMethods} from './CameraController/ICameraControllerEntity';
-import {ILightEntityMethods} from './Light/ILightEntity';
-import {LightComponent} from './Light/LightComponent';
-import {IMeshEntityMethods} from './Mesh/IMeshEntity';
-import {MeshComponent} from './Mesh/MeshComponent';
-import {IMeshRendererEntityMethods} from './MeshRenderer/IMeshRendererEntity';
-import {MeshRendererComponent} from './MeshRenderer/MeshRendererComponent';
-import {IPhysicsEntityMethods} from './Physics/IPhysicsEntity';
-import {PhysicsComponent} from './Physics/PhysicsComponent';
-import {ISceneGraphEntityMethods} from './SceneGraph/ISceneGraphEntity';
-import {SceneGraphComponent} from './SceneGraph/SceneGraphComponent';
-import {ISkeletalEntityMethods} from './Skeletal/ISkeletalEntity';
-import {SkeletalComponent} from './Skeletal/SkeletalComponent';
-import {ITransformEntityMethods} from './Transform/ITransformEntity';
-import {TransformComponent} from './Transform/TransformComponent';
-import {
-  IEffekseerEntityMethods,
-  EffekseerComponent,
-} from '../../effekseer/EffekseerComponent';
-import {CameraComponent} from './Camera/CameraComponent';
-import {VrmComponent} from './Vrm/VrmComponent';
-import {IVrmEntityMethods} from './Vrm/IVrmEntity';
+import { MixinBase } from '../../types/TypeGenerators';
+import { Component } from '../core/Component';
+import { AnimationComponent } from './Animation/AnimationComponent';
+import { IAnimationEntityMethods } from './Animation/IAnimationEntity';
+import { BlendShapeComponent } from './BlendShape/BlendShapeComponent';
+import { IBlendShapeEntityMethods } from './BlendShape/IBlendShapeEntity';
+import { ICameraEntityMethods } from './Camera/ICameraEntity';
+import { CameraControllerComponent } from './CameraController/CameraControllerComponent';
+import { ICameraControllerEntityMethods } from './CameraController/ICameraControllerEntity';
+import { ILightEntityMethods } from './Light/ILightEntity';
+import { LightComponent } from './Light/LightComponent';
+import { IMeshEntityMethods } from './Mesh/IMeshEntity';
+import { MeshComponent } from './Mesh/MeshComponent';
+import { IMeshRendererEntityMethods } from './MeshRenderer/IMeshRendererEntity';
+import { MeshRendererComponent } from './MeshRenderer/MeshRendererComponent';
+import { IPhysicsEntityMethods } from './Physics/IPhysicsEntity';
+import { PhysicsComponent } from './Physics/PhysicsComponent';
+import { ISceneGraphEntityMethods } from './SceneGraph/ISceneGraphEntity';
+import { SceneGraphComponent } from './SceneGraph/SceneGraphComponent';
+import { ISkeletalEntityMethods } from './Skeletal/ISkeletalEntity';
+import { SkeletalComponent } from './Skeletal/SkeletalComponent';
+import { ITransformEntityMethods } from './Transform/ITransformEntity';
+import { TransformComponent } from './Transform/TransformComponent';
+import { IEffekseerEntityMethods, EffekseerComponent } from '../../effekseer/EffekseerComponent';
+import { CameraComponent } from './Camera/CameraComponent';
+import { VrmComponent } from './Vrm/VrmComponent';
+import { IVrmEntityMethods } from './Vrm/IVrmEntity';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
@@ -76,9 +73,7 @@ type IsThisSceneGraph<
 type IsThisMesh<
   T extends typeof Component,
   Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof MeshComponent
-  ? IMeshEntityMethods
-  : Exclude<Possibles, IMeshEntityMethods>;
+> = T extends typeof MeshComponent ? IMeshEntityMethods : Exclude<Possibles, IMeshEntityMethods>;
 
 type IsThisMeshRenderer<
   T extends typeof Component,
@@ -104,9 +99,7 @@ type IsThisCamera<
 type IsThisLight<
   T extends typeof Component,
   Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof LightComponent
-  ? ILightEntityMethods
-  : Exclude<Possibles, ILightEntityMethods>;
+> = T extends typeof LightComponent ? ILightEntityMethods : Exclude<Possibles, ILightEntityMethods>;
 
 type IsThisSkeletal<
   T extends typeof Component,
@@ -139,9 +132,7 @@ type IsThisEffekseer<
 type IsThisVrm<
   T extends typeof Component,
   Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof VrmComponent
-  ? IVrmEntityMethods
-  : Exclude<Possibles, IVrmEntityMethods>;
+> = T extends typeof VrmComponent ? IVrmEntityMethods : Exclude<Possibles, IVrmEntityMethods>;
 
 export type ComponentToComponentMethods<T extends typeof Component> = IsThisVrm<
   T,
@@ -165,10 +156,7 @@ export type ComponentToComponentMethods<T extends typeof Component> = IsThisVrm<
                     T,
                     IsThisSceneGraph<
                       T,
-                      IsThisTransform<
-                        T,
-                        IsThisAnimation<T, AllWellKnownComponentMethodsTypes>
-                      >
+                      IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>
                     >
                   >
                 >

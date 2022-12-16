@@ -1,26 +1,14 @@
-import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IVector,
-  IMutableVector2,
-} from './IVector';
-import type {
-  Array2,
-  FloatTypedArrayConstructor,
-  TypedArray,
-} from '../../types/CommonTypes';
-import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
+import { IVector2, IVector3, IVector4, IVector, IMutableVector2 } from './IVector';
+import type { Array2, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 
 /**
  * @internal
  */
-export class Vector2_<
-  T extends FloatTypedArrayConstructor
-> extends AbstractVector {
-  constructor(v: TypedArray, {type}: {type: T}) {
+export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVector {
+  constructor(v: TypedArray, { type }: { type: T }) {
     super();
     this._v = v;
   }
@@ -77,7 +65,7 @@ export class Vector2_<
   }
 
   static _dummy(type: FloatTypedArrayConstructor) {
-    return new this(new type(), {type});
+    return new this(new type(), { type });
   }
 
   /**
@@ -91,11 +79,7 @@ export class Vector2_<
   /**
    * add value（static version）
    */
-  static _add(
-    l_vec: IVector2,
-    r_vec: IVector2,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _add(l_vec: IVector2, r_vec: IVector2, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] + r_vec._v[0];
     const y = l_vec._v[1] + r_vec._v[1];
     return this._fromCopyArray2([x, y], type);
@@ -113,11 +97,7 @@ export class Vector2_<
   /**
    * subtract value(static version)
    */
-  static _subtract(
-    l_vec: IVector2,
-    r_vec: IVector2,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _subtract(l_vec: IVector2, r_vec: IVector2, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] - r_vec._v[0];
     const y = l_vec._v[1] - r_vec._v[1];
     return this._fromCopyArray2([x, y], type);
@@ -135,11 +115,7 @@ export class Vector2_<
   /**
    * multiply value(static version)
    */
-  static _multiply(
-    vec: IVector2,
-    value: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiply(vec: IVector2, value: number, type: FloatTypedArrayConstructor) {
     const x = vec._v[0] * value;
     const y = vec._v[1] * value;
     return this._fromCopyArray2([x, y], type);
@@ -157,11 +133,7 @@ export class Vector2_<
   /**
    * multiply vector(static version)
    */
-  static _multiplyVector(
-    l_vec: IVector2,
-    r_vec: IVector2,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiplyVector(l_vec: IVector2, r_vec: IVector2, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] * r_vec._v[0];
     const y = l_vec._v[1] * r_vec._v[1];
     return this._fromCopyArray2([x, y], type);
@@ -170,11 +142,7 @@ export class Vector2_<
   /**
    * multiply vector(static version)
    */
-  static multiplyVectorTo(
-    l_vec: IVector2,
-    r_vec: IVector2,
-    out: IMutableVector2
-  ) {
+  static multiplyVectorTo(l_vec: IVector2, r_vec: IVector2, out: IMutableVector2) {
     out._v[0] = l_vec._v[0] * r_vec._v[0];
     out._v[1] = l_vec._v[1] * r_vec._v[1];
     return out;
@@ -183,11 +151,7 @@ export class Vector2_<
   /**
    * divide by value(static version)
    */
-  static _divide(
-    vec: IVector2,
-    value: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _divide(vec: IVector2, value: number, type: FloatTypedArrayConstructor) {
     let x;
     let y;
     if (value !== 0) {
@@ -219,11 +183,7 @@ export class Vector2_<
   /**
    * divide by vector(static version)
    */
-  static _divideVector(
-    l_vec: IVector2,
-    r_vec: IVector2,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _divideVector(l_vec: IVector2, r_vec: IVector2, type: FloatTypedArrayConstructor) {
     let x;
     let y;
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0) {
@@ -240,11 +200,7 @@ export class Vector2_<
   /**
    * divide by vector(static version)
    */
-  static divideVectorTo(
-    l_vec: IVector2,
-    r_vec: IVector2,
-    out: IMutableVector2
-  ) {
+  static divideVectorTo(l_vec: IVector2, r_vec: IVector2, out: IMutableVector2) {
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0) {
       out._v[0] = l_vec._v[0] / r_vec._v[0];
       out._v[1] = l_vec._v[1] / r_vec._v[1];
@@ -271,12 +227,7 @@ export class Vector2_<
   }
 
   toStringApproximately() {
-    return (
-      MathUtil.financial(this._v[0]) +
-      ' ' +
-      MathUtil.financial(this._v[1]) +
-      '\n'
-    );
+    return MathUtil.financial(this._v[0]) + ' ' + MathUtil.financial(this._v[1]) + '\n';
   }
 
   flattenAsArray() {
@@ -292,10 +243,7 @@ export class Vector2_<
   }
 
   isEqual(vec: IVector2, delta: number = Number.EPSILON) {
-    if (
-      Math.abs(vec._v[0] - this._v[0]) < delta &&
-      Math.abs(vec._v[1] - this._v[1]) < delta
-    ) {
+    if (Math.abs(vec._v[0] - this._v[0]) < delta && Math.abs(vec._v[1] - this._v[1]) < delta) {
       return true;
     } else {
       return false;
@@ -341,22 +289,16 @@ export class Vector2_<
     );
   }
 
-  static _fromCopyArray2(
-    array: Array2<number>,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type(array), {type});
+  static _fromCopyArray2(array: Array2<number>, type: FloatTypedArrayConstructor) {
+    return new this(new type(array), { type });
   }
 
   static _fromCopy2(x: number, y: number, type: FloatTypedArrayConstructor) {
-    return new this(new type([x, y]), {type});
+    return new this(new type([x, y]), { type });
   }
 
-  static _fromCopyArray(
-    array: Array<number>,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type(array.slice(0, 2)), {type});
+  static _fromCopyArray(array: Array<number>, type: FloatTypedArrayConstructor) {
+    return new this(new type(array.slice(0, 2)), { type });
   }
 
   static _fromVector2(vec2: IVector2, type: FloatTypedArrayConstructor) {
@@ -395,12 +337,9 @@ export class Vector2_<
 /**
  * Immutable 2D(x,y) Vector class with 32bit float components
  */
-export class Vector2
-  extends Vector2_<Float32ArrayConstructor>
-  implements IVector, IVector2
-{
+export class Vector2 extends Vector2_<Float32ArrayConstructor> implements IVector, IVector2 {
   constructor(x: TypedArray) {
-    super(x, {type: Float32Array});
+    super(x, { type: Float32Array });
   }
 
   static fromCopyArray2(array: Array2<number>): Vector2 {
@@ -477,7 +416,7 @@ export class Vector2
  */
 export class Vector2d extends Vector2_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
-    super(x, {type: Float64Array});
+    super(x, { type: Float64Array });
   }
 
   static fromCopyArray2(array: Array2<number>): Vector2d {

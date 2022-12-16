@@ -1,20 +1,14 @@
 import { AbstractTexture } from './AbstractTexture';
-import {
-  TextureParameter,
-  TextureParameterEnum,
-} from '../definitions/TextureParameter';
-import {PixelFormat, PixelFormatEnum} from '../definitions/PixelFormat';
-import {ComponentTypeEnum, ComponentType} from '../definitions/ComponentType';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import {Size, Index} from '../../types/CommonTypes';
+import { Size, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { Vector4 } from '../math/Vector4';
 
-export class RenderTargetTexture
-  extends AbstractTexture
-  implements IRenderable
-{
+export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
 
   constructor() {
@@ -67,8 +61,7 @@ export class RenderTargetTexture
   }
 
   private __createRenderTargetTexture() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createRenderTargetTexture({
       width: this.__width,
       height: this.__height,
@@ -95,8 +88,7 @@ export class RenderTargetTexture
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -104,8 +96,7 @@ export class RenderTargetTexture
   }
 
   getTexturePixelData() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext() as WebGLRenderingContext;
 
@@ -120,19 +111,9 @@ export class RenderTargetTexture
     // Read the contents of the framebuffer (data stores the pixel data)
     const data = new Uint8Array(this.width * this.height * 4);
     if ((gl as WebGL2RenderingContext).readBuffer != null) {
-      (gl as WebGL2RenderingContext).readBuffer(
-        36064 + this.__fbo!.whichColorAttachment(this)
-      ); // 36064 means gl.COLOR_ATTACHMENT0
+      (gl as WebGL2RenderingContext).readBuffer(36064 + this.__fbo!.whichColorAttachment(this)); // 36064 means gl.COLOR_ATTACHMENT0
     }
-    gl.readPixels(
-      0,
-      0,
-      this.width,
-      this.height,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      data
-    );
+    gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -185,13 +166,10 @@ export class RenderTargetTexture
   }
 
   generateMipmap() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext() as WebGLRenderingContext;
-    const texture = webGLResourceRepository.getWebGLResource(
-      this.cgApiResourceUid
-    ) as WebGLTexture;
+    const texture = webGLResourceRepository.getWebGLResource(this.cgApiResourceUid) as WebGLTexture;
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindTexture(gl.TEXTURE_2D, null);

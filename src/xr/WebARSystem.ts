@@ -1,15 +1,15 @@
-import {EntityHelper, ICameraEntity} from '../foundation/helpers/EntityHelper';
-import {MutableMatrix44} from '../foundation/math/MutableMatrix44';
-import {MutableQuaternion} from '../foundation/math/MutableQuaternion';
-import {MutableScalar} from '../foundation/math/MutableScalar';
-import {MutableVector3} from '../foundation/math/MutableVector3';
-import {Vector3} from '../foundation/math/Vector3';
-import {Is} from '../foundation/misc/Is';
-import {IOption, None, Some} from '../foundation/misc/Option';
-import {CGAPIResourceRepository} from '../foundation/renderer/CGAPIResourceRepository';
-import {ModuleManager} from '../foundation/system/ModuleManager';
-import {System} from '../foundation/system/System';
-import {WebGLContextWrapper} from '../webgl/WebGLContextWrapper';
+import { EntityHelper, ICameraEntity } from '../foundation/helpers/EntityHelper';
+import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
+import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
+import { MutableScalar } from '../foundation/math/MutableScalar';
+import { MutableVector3 } from '../foundation/math/MutableVector3';
+import { Vector3 } from '../foundation/math/Vector3';
+import { Is } from '../foundation/misc/Is';
+import { IOption, None, Some } from '../foundation/misc/Option';
+import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { System } from '../foundation/system/System';
+import { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 declare const window: any;
@@ -59,9 +59,7 @@ export class WebARSystem {
   async readyForWebAR(requestButtonDom: HTMLElement) {
     await ModuleManager.getInstance().loadModule('xr');
 
-    const glw =
-      CGAPIResourceRepository.getWebGLResourceRepository()
-        .currentWebGLContextWrapper;
+    const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
     if (glw == null) {
       throw new Error('WebGL Context is not ready yet.');
     }
@@ -107,14 +105,11 @@ export class WebARSystem {
     callbackOnXrSessionStart: Function;
     callbackOnXrSessionEnd: Function;
   }) {
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
     if (glw != null && this.__isReadyForWebAR) {
-      const session = (await navigator.xr!.requestSession(
-        'immersive-vr'
-      )) as XRSession;
+      const session = (await navigator.xr!.requestSession('immersive-vr')) as XRSession;
       this.__oArSession = new Some(session);
 
       session.addEventListener('end', () => {
@@ -136,8 +131,7 @@ export class WebARSystem {
 
       const referenceSpace = await session.requestReferenceSpace('local');
       this.__spaceType = 'local';
-      this.__defaultPositionInLocalSpaceMode =
-        initialUserPosition ?? defaultUserPositionInVR;
+      this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
       this.__oArReferenceSpace = new Some(referenceSpace);
       System.stopRenderLoop();
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
@@ -151,10 +145,7 @@ export class WebARSystem {
     }
   }
 
-  private async __setupWebGLLayer(
-    xrSession: XRSession,
-    callbackOnXrSessionStart: Function
-  ) {
+  private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: Function) {
     const gl = this.__oGlw.unwrapForce().getRawContext();
 
     if (gl != null) {
@@ -163,25 +154,19 @@ export class WebARSystem {
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
 
-      this.__oWebglLayer = new Some(
-        window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer
-      );
+      this.__oWebglLayer = new Some(window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer);
       const webglLayer = this.__oWebglLayer.unwrapForce();
       xrSession.updateRenderState({
         baseLayer: webglLayer,
         depthNear: 0.1,
         depthFar: 10000,
       });
-      const webglResourceRepository =
-        CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       this.__canvasWidthForAR = webglLayer.framebufferWidth;
       this.__canvasHeightForAR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForAR);
       console.log(this.__canvasHeightForAR);
-      webglResourceRepository.resizeCanvas(
-        this.__canvasWidthForAR,
-        this.__canvasHeightForAR
-      );
+      webglResourceRepository.resizeCanvas(this.__canvasWidthForAR, this.__canvasHeightForAR);
       this.__isWebARMode = true;
       callbackOnXrSessionStart();
     } else {
@@ -214,9 +199,7 @@ export class WebARSystem {
   }
 
   private __updateView(xrFrame: XRFrame) {
-    this.__oArViewerPose = new Some(
-      xrFrame.getViewerPose(this.__oArReferenceSpace.unwrapForce())!
-    );
+    this.__oArViewerPose = new Some(xrFrame.getViewerPose(this.__oArReferenceSpace.unwrapForce())!);
     this.__setCameraInfoFromXRViews(this.__oArViewerPose.unwrapForce());
   }
 
@@ -264,11 +247,7 @@ export class WebARSystem {
       viewerTranslateScaledZ,
     ]);
     viewerTransform.scale = Vector3.fromCopyArray([scale, scale, scale]);
-    viewerTransform.rotate = Vector3.fromCopyArray([
-      0,
-      this.__viewerAzimuthAngle.x,
-      0,
-    ]);
+    viewerTransform.rotate = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
 
     rotateMat.translateY = translate.y;
     rotateMat.translateX = translate.x - viewerTranslateX;
@@ -329,7 +308,6 @@ export class WebARSystem {
   }
 
   get framebuffer() {
-    return this.__oArSession.unwrapOrUndefined()?.renderState.baseLayer
-      ?.framebuffer;
+    return this.__oArSession.unwrapOrUndefined()?.renderState.baseLayer?.framebuffer;
   }
 }

@@ -1,10 +1,10 @@
-import {IScalar} from './IVector';
+import { IScalar } from './IVector';
 import {
   FloatTypedArrayConstructor,
   TypedArray,
   TypedArrayConstructor,
 } from '../../types/CommonTypes';
-import {MathUtil} from './MathUtil';
+import { MathUtil } from './MathUtil';
 import { AbstractVector } from './AbstractVector';
 import { CompositionType } from '../definitions/CompositionType';
 
@@ -12,7 +12,7 @@ import { CompositionType } from '../definitions/CompositionType';
  * @internal
  */
 export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
-  constructor(v: TypedArray, {type}: {type: T}) {
+  constructor(v: TypedArray, { type }: { type: T }) {
     super();
     this._v = v;
   }
@@ -58,11 +58,11 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
   }
 
   static _fromCopyNumber(value: number, type: FloatTypedArrayConstructor) {
-    return new this(new type([value]), {type});
+    return new this(new type([value]), { type });
   }
 
   static _dummy(type: FloatTypedArrayConstructor) {
-    return new this(new type(), {type});
+    return new this(new type(), { type });
   }
 
   static get compositionType() {
@@ -77,12 +77,9 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
 /**
  * Immutable Scalar class with 32bit float components
  */
-export class Scalar
-  extends Scalar_<Float32ArrayConstructor>
-  implements IScalar
-{
+export class Scalar extends Scalar_<Float32ArrayConstructor> implements IScalar {
   constructor(x: TypedArray) {
-    super(x, {type: Float32Array});
+    super(x, { type: Float32Array });
   }
 
   static fromCopyNumber(value: number): Scalar {
@@ -122,7 +119,7 @@ export class Scalar
  */
 export class Scalard extends Scalar_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
-    super(x, {type: Float64Array});
+    super(x, { type: Float64Array });
   }
 
   static fromCopyNumber(value: number): Scalard {

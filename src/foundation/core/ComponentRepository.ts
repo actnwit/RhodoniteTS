@@ -1,16 +1,15 @@
-import {Component} from './Component';
-import {Is} from '../misc/Is';
-import {EntityRepository} from './EntityRepository';
-import {Config} from './Config';
-import {ComponentTID, ComponentSID, EntityUID} from '../../types/CommonTypes';
-import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import { Component } from './Component';
+import { Is } from '../misc/Is';
+import { EntityRepository } from './EntityRepository';
+import { Config } from './Config';
+import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 
 /**
  * The class that generates and manages all kinds of components.
  */
 export class ComponentRepository {
-  private static __component_sid_count_map: Map<ComponentTID, number> =
-    new Map();
+  private static __component_sid_count_map: Map<ComponentTID, number> = new Map();
   private static __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID
   static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
 
@@ -22,10 +21,7 @@ export class ComponentRepository {
    */
   public static registerComponentClass(componentClass: typeof Component) {
     const thisClass = ComponentRepository;
-    thisClass.__componentClasses.set(
-      componentClass.componentTID,
-      componentClass
-    );
+    thisClass.__componentClasses.set(componentClass.componentTID, componentClass);
   }
 
   /**
@@ -60,8 +56,7 @@ export class ComponentRepository {
     const componentClass = thisClass.__componentClasses.get(componentTid);
     if (Is.exist(componentClass)) {
       // Update __component_sid_count_map
-      let component_sid_count =
-        this.__component_sid_count_map.get(componentTid);
+      let component_sid_count = this.__component_sid_count_map.get(componentTid);
       if (Is.not.exist(component_sid_count)) {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = Component.invalidComponentSID;
@@ -92,14 +87,8 @@ export class ComponentRepository {
    * @param componentClass The class object to get the component.
    * @param componentSid The componentSID to get the component.
    */
-  public static getComponent(
-    componentClass: typeof Component,
-    componentSid: ComponentSID
-  ) {
-    return this.getComponentFromComponentTID(
-      componentClass.componentTID,
-      componentSid
-    );
+  public static getComponent(componentClass: typeof Component, componentSid: ComponentSID) {
+    return this.getComponentFromComponentTID(componentClass.componentTID, componentSid);
   }
 
   /**
@@ -128,11 +117,9 @@ export class ComponentRepository {
    * Gets an array of components corresponding to the class object of the component.
    * @param componentClass The class object of the component.
    */
-  public static _getComponents(
-    componentClass: typeof Component
-  ): Array<Component> | undefined {
+  public static _getComponents(componentClass: typeof Component): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
-    return components?.filter(component => component._isAlive);
+    return components?.filter((component) => component._isAlive);
   }
 
   /**
@@ -164,14 +151,12 @@ export class ComponentRepository {
    * Gets an array of components corresponding to the class object of the component.
    * @param componentType The class object of the component.
    */
-  public static getComponentsWithType(
-    componentType: typeof Component
-  ): Array<Component> {
+  public static getComponentsWithType(componentType: typeof Component): Array<Component> {
     const components = this.__components.get(componentType.componentTID);
     if (components == null) {
       return [];
     }
-    return components.filter(component => component._isAlive);
+    return components.filter((component) => component._isAlive);
   }
 
   /**
@@ -188,9 +173,7 @@ export class ComponentRepository {
    */
   public static getRenderingComponentTIDs(): Array<ComponentTID> {
     const componentTids: ComponentTID[] = [];
-    if (
-      this.__components.has(WellKnownComponentTIDs.MeshRendererComponentTID)
-    ) {
+    if (this.__components.has(WellKnownComponentTIDs.MeshRendererComponentTID)) {
       componentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID);
     }
     if (this.__components.has(WellKnownComponentTIDs.EffekseerComponentTID)) {

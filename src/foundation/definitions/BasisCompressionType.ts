@@ -1,13 +1,10 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type BasisCompressionTypeEnum = EnumIO;
 
-class BasisCompressionTypeClass
-  extends EnumClass
-  implements BasisCompressionTypeEnum
-{
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+class BasisCompressionTypeClass extends EnumClass implements BasisCompressionTypeEnum {
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -101,11 +98,11 @@ const typeList = [
 ];
 
 function from(index: number): BasisCompressionTypeEnum {
-  return _from({typeList, index}) as BasisCompressionTypeEnum;
+  return _from({ typeList, index }) as BasisCompressionTypeEnum;
 }
 
 function fromString(str: string): BasisCompressionTypeEnum {
-  return _fromString({typeList, str}) as BasisCompressionTypeEnum;
+  return _fromString({ typeList, str }) as BasisCompressionTypeEnum;
 }
 
 export const BasisCompressionType = Object.freeze({

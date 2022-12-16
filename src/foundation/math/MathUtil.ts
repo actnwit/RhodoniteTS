@@ -1,6 +1,6 @@
 import { MutableMatrix33 } from './MutableMatrix33';
 import { MutableVector3 } from './MutableVector3';
-import {Count, Size} from '../../types/CommonTypes';
+import { Count, Size } from '../../types/CommonTypes';
 
 function radianToDegree(rad: number) {
   return (rad * 180) / Math.PI;
@@ -72,13 +72,7 @@ function isPowerOfTwoTexture(width: Size, height: Size) {
 }
 
 // values range must be [-1, 1]
-function packNormalizedVec4ToVec2(
-  x: number,
-  y: number,
-  z: number,
-  w: number,
-  criteria: number
-) {
+function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number) {
   // range to [0, s1]
   x = (x + 1) / 2.0;
   y = (y + 1) / 2.0;
@@ -107,9 +101,7 @@ function erf(x: number) {
   const t: number = 1 / (1 + 0.3275911 * x);
   const y: number =
     1 -
-    ((((1.061405429 * t + -1.453152027) * t + 1.421413741) * t + -0.284496736) *
-      t +
-      0.254829592) *
+    ((((1.061405429 * t + -1.453152027) * t + 1.421413741) * t + -0.284496736) * t + 0.254829592) *
       t *
       Math.exp(-x * x);
 
@@ -156,11 +148,7 @@ function invGaussianCdf(U: number, mu: number, sigma: number) {
   return x;
 }
 
-function computeEigenValuesAndVectors(
-  A: MutableMatrix33,
-  Q: MutableMatrix33,
-  w: MutableVector3
-) {
+function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w: MutableVector3) {
   const n = 3;
   let sd = 0;
   let so = 0; // Sums of diagonal resp. off-diagonal elements
@@ -219,8 +207,7 @@ function computeEigenValuesAndVectors(
             t = A.at(p, q) / h;
           } else {
             theta = (0.5 * h) / A.at(p, q);
-            if (theta < 0.0)
-              t = -1.0 / (Math.sqrt(1.0 + theta * theta) - theta);
+            if (theta < 0.0) t = -1.0 / (Math.sqrt(1.0 + theta * theta) - theta);
             else t = 1.0 / (Math.sqrt(1.0 + theta * theta) + theta);
           }
           c = 1.0 / Math.sqrt(1.0 + t * t);
@@ -319,9 +306,7 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
 
   // above mean side and center
   for (let i = 0; i < ceiledHalfKernelSize; i++) {
-    gaussianDistributionRatio[i] = Math.exp(
-      -((i - mean) ** 2) / (2.0 * variance)
-    );
+    gaussianDistributionRatio[i] = Math.exp(-((i - mean) ** 2) / (2.0 * variance));
 
     totalSize += gaussianDistributionRatio[i];
   }
@@ -339,8 +324,7 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
   const changeDigitParam = Math.pow(10, effectiveDigit);
 
   for (let i = 0; i < ceiledHalfKernelSize - 1; i++) {
-    let ratio =
-      gaussianDistributionRatio[ceiledHalfKernelSize - 1 - i] / totalSize;
+    let ratio = gaussianDistributionRatio[ceiledHalfKernelSize - 1 - i] / totalSize;
 
     ratio *= changeDigitParam;
     ratio = Math.round(ratio);

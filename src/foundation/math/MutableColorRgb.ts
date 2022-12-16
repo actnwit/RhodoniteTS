@@ -1,11 +1,8 @@
 import { MutableVector3 } from './MutableVector3';
-import {IVector3, IVector4, IMutableVector3} from './IVector';
-import {IMutableColorRgb} from './IColor';
+import { IVector3, IVector4, IMutableVector3 } from './IVector';
+import { IMutableColorRgb } from './IColor';
 
-export class MutableColorRgb
-  extends MutableVector3
-  implements IMutableVector3, IMutableColorRgb
-{
+export class MutableColorRgb extends MutableVector3 implements IMutableVector3, IMutableColorRgb {
   constructor(r: Float32Array) {
     super(r);
   }

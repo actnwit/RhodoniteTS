@@ -1,22 +1,22 @@
-import {RnObject} from '../core/RnObject';
-import {IEntity} from '../core/Entity';
-import {FrameBuffer} from './FrameBuffer';
-import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
-import {MeshComponent} from '../components/Mesh/MeshComponent';
-import {Vector4} from '../math/Vector4';
-import {EntityUID, Index} from '../../types/CommonTypes';
-import {Material} from '../materials/core/Material';
-import {WebGLStrategy} from '../../webgl/main';
-import {System} from '../system/System';
-import {ModuleManager} from '../system/ModuleManager';
-import {WebGLResourceRepository} from '../../webgl/WebGLResourceRepository';
-import {Primitive} from '../geometry/Primitive';
-import {MutableVector4} from '../math/MutableVector4';
-import {IVector4} from '../math/IVector';
-import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
-import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import {CameraComponent} from '../components/Camera/CameraComponent';
-import {RenderBufferTargetEnum} from '../definitions';
+import { RnObject } from '../core/RnObject';
+import { IEntity } from '../core/Entity';
+import { FrameBuffer } from './FrameBuffer';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { Vector4 } from '../math/Vector4';
+import { EntityUID, Index } from '../../types/CommonTypes';
+import { Material } from '../materials/core/Material';
+import { WebGLStrategy } from '../../webgl/main';
+import { System } from '../system/System';
+import { ModuleManager } from '../system/ModuleManager';
+import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import { Primitive } from '../geometry/Primitive';
+import { MutableVector4 } from '../math/MutableVector4';
+import { IVector4 } from '../math/IVector';
+import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { RenderBufferTargetEnum } from '../definitions';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -64,10 +64,8 @@ export class RenderPass extends RnObject {
   clone() {
     const renderPass = new RenderPass();
     renderPass.__entities = this.__entities.concat();
-    renderPass.__sceneGraphDirectlyAdded =
-      this.__sceneGraphDirectlyAdded.concat();
-    renderPass.__topLevelSceneGraphComponents =
-      this.__topLevelSceneGraphComponents?.concat();
+    renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
+    renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents?.concat();
     renderPass.__meshComponents = this.__meshComponents?.concat();
     renderPass.__frameBuffer = this.__frameBuffer;
     renderPass.__resolveFrameBuffer = this.__resolveFrameBuffer;
@@ -88,8 +86,7 @@ export class RenderPass extends RnObject {
     renderPass.isVrRendering = this.isVrRendering;
     renderPass.isOutputForVr = this.isOutputForVr;
     renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
-    renderPass.toRenderTransparentPrimitives =
-      this.toRenderTransparentPrimitives;
+    renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
     renderPass.__preEachDrawFunc = this.__preEachDrawFunc;
 
     return renderPass;
@@ -121,26 +118,23 @@ export class RenderPass extends RnObject {
         sceneGraphComponent,
         false
       );
-      const collectedEntities = collectedSgComponents.map(
-        (sg: SceneGraphComponent) => {
-          return sg.entity;
-        }
-      );
+      const collectedEntities = collectedSgComponents.map((sg: SceneGraphComponent) => {
+        return sg.entity;
+      });
 
       // Eliminate duplicates
-      const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> =
-        this.__entities
-          .concat(collectedEntities)
-          .reduce(
-            (
-              map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>,
-              entity: IMeshEntity | ISceneGraphEntity
-            ) => {
-              map.set(entity.entityUID, entity);
-              return map;
-            },
-            new Map()
-          );
+      const map: Map<EntityUID, IMeshEntity | ISceneGraphEntity> = this.__entities
+        .concat(collectedEntities)
+        .reduce(
+          (
+            map: Map<EntityUID, IMeshEntity | ISceneGraphEntity>,
+            entity: IMeshEntity | ISceneGraphEntity
+          ) => {
+            map.set(entity.entityUID, entity);
+            return map;
+          },
+          new Map()
+        );
 
       this.__entities = Array.from(map.values());
     }
@@ -189,7 +183,7 @@ export class RenderPass extends RnObject {
   private __collectMeshComponents() {
     if (this.__meshComponents == null) {
       this.__meshComponents = [];
-      this.__entities.filter(entity => {
+      this.__entities.filter((entity) => {
         const meshComponent = entity.getComponentByComponentTID(
           WellKnownComponentTIDs.MeshComponentTID
         ) as MeshComponent | undefined;
@@ -215,9 +209,7 @@ export class RenderPass extends RnObject {
    */
   get sceneTopLevelGraphComponents(): SceneGraphComponent[] {
     this.__collectTopLevelSceneGraphComponents();
-    return this.__topLevelSceneGraphComponents != null
-      ? this.__topLevelSceneGraphComponents
-      : [];
+    return this.__topLevelSceneGraphComponents != null ? this.__topLevelSceneGraphComponents : [];
   }
 
   /**
@@ -228,9 +220,7 @@ export class RenderPass extends RnObject {
   setFramebuffer(framebuffer: FrameBuffer) {
     this.__frameBuffer = framebuffer;
     if (framebuffer != null) {
-      this.setViewport(
-        Vector4.fromCopyArray([0, 0, framebuffer.width, framebuffer.height])
-      );
+      this.setViewport(Vector4.fromCopyArray([0, 0, framebuffer.width, framebuffer.height]));
     } else {
       this.__viewport = undefined;
     }
@@ -267,12 +257,7 @@ export class RenderPass extends RnObject {
     if (this.__viewport != null) {
       this.__viewport.copyComponents(vec);
     } else {
-      this.__viewport = MutableVector4.fromCopyArray([
-        vec.x,
-        vec.y,
-        vec.z,
-        vec.w,
-      ]);
+      this.__viewport = MutableVector4.fromCopyArray([vec.x, vec.y, vec.z, vec.w]);
     }
   }
 
@@ -428,8 +413,7 @@ export class RenderPass extends RnObject {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    const newWebglRenderingStrategyRef =
-      webglModule.getRenderingStrategy(processApproach);
+    const newWebglRenderingStrategyRef = webglModule.getRenderingStrategy(processApproach);
     this.__webglRenderingStrategy = newWebglRenderingStrategyRef;
 
     return newWebglRenderingStrategyRef;

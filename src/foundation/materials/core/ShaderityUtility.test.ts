@@ -1,6 +1,6 @@
 import Rn from '../../../../';
-import {ShaderityObject} from 'shaderity';
-import {ShaderityUtility} from './ShaderityUtility';
+import { ShaderityObject } from 'shaderity';
+import { ShaderityUtility } from './ShaderityUtility';
 
 test.skip('ShaderityUtility parse rn_data correctly', async () => {
   const shaderText = `
@@ -28,24 +28,18 @@ void main() {
 
 }
 `;
-  const shaderityObject = {code: shaderText} as ShaderityObject;
+  const shaderityObject = { code: shaderText } as ShaderityObject;
 
   const array = ShaderityUtility.getShaderDataReflection(shaderityObject);
   expect(array.shaderSemanticsInfoArray[0].semantic.str).toBe('worldMatrix');
-  expect(array.shaderSemanticsInfoArray[0].componentType).toBe(
-    Rn.ComponentType.Float
-  );
-  expect(array.shaderSemanticsInfoArray[0].compositionType).toBe(
-    Rn.CompositionType.Scalar
-  );
+  expect(array.shaderSemanticsInfoArray[0].componentType).toBe(Rn.ComponentType.Float);
+  expect(array.shaderSemanticsInfoArray[0].compositionType).toBe(Rn.CompositionType.Scalar);
   expect(array.shaderSemanticsInfoArray[0].soloDatum).toBe(false);
   expect(array.shaderSemanticsInfoArray[0].none_u_prefix).toBe(false);
   expect(array.shaderSemanticsInfoArray[1].semantic.str).toBe('shadingModel');
   expect(array.shaderSemanticsInfoArray[1].soloDatum).toBe(false);
   expect(
-    array.shaderSemanticsInfoArray[1].initialValue.isStrictEqual(
-      Rn.MutableScalar.zero()
-    )
+    array.shaderSemanticsInfoArray[1].initialValue.isStrictEqual(Rn.MutableScalar.zero())
   ).toBe(true);
   expect(array.shaderSemanticsInfoArray[1].none_u_prefix).toBe(true);
   expect(array.shaderSemanticsInfoArray[2].semantic.str).toBe('screenInfo');
@@ -56,12 +50,8 @@ void main() {
     )
   ).toBe(true);
   expect(array.shaderSemanticsInfoArray[2].none_u_prefix).toBe(false);
-  expect(array.shaderSemanticsInfoArray[3].semantic.str).toBe(
-    'diffuseColorTexture'
-  );
-  expect(array.shaderSemanticsInfoArray[3].compositionType).toBe(
-    Rn.CompositionType.Texture2D
-  );
+  expect(array.shaderSemanticsInfoArray[3].semantic.str).toBe('diffuseColorTexture');
+  expect(array.shaderSemanticsInfoArray[3].compositionType).toBe(Rn.CompositionType.Texture2D);
   expect(array.shaderSemanticsInfoArray[3].initialValue[0]).toBe(7);
   expect(array.shaderSemanticsInfoArray[3].initialValue[1]).toBe(
     Rn.AbstractMaterialContent.dummyWhiteTexture
