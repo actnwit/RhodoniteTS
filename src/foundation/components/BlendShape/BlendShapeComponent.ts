@@ -7,6 +7,7 @@ import {
   ComponentTID,
   ComponentSID,
   EntityUID,
+  Index,
 } from '../../../types/CommonTypes';
 import {IEntity} from '../../core/Entity';
 import {ComponentToComponentMethods} from '../ComponentTypes';
@@ -46,6 +47,10 @@ export class BlendShapeComponent extends Component {
 
   get targetNames() {
     return this.__targetNames;
+  }
+
+  setWeightByIndex(index: Index, weight: number) {
+    this.__weights[index] = weight;
   }
 
   $logic() {}

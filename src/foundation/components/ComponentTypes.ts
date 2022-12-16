@@ -25,11 +25,9 @@ import {
   IEffekseerEntityMethods,
   EffekseerComponent,
 } from '../../effekseer/EffekseerComponent';
-import {
-  ISparkGearEntityMethods,
-  SparkGearComponent,
-} from '../../sparkgear/SparkGearComponent';
 import {CameraComponent} from './Camera/CameraComponent';
+import {VrmComponent} from './Vrm/VrmComponent';
+import {IVrmEntityMethods} from './Vrm/IVrmEntity';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
@@ -39,34 +37,20 @@ export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   components: typeof Component[];
 };
 
-// export type AllWellKnownomponents =
-//   | Component
-//   | AnimationComponent
-//   | TransformComponent
-//   | SceneGraphComponent
-//   | MeshComponent
-//   | MeshRendererComponent
-//   | CameraComponent
-//   | CameraControllerComponent
-//   | LightComponent
-//   | SkeletalComponent
-//   | BlendShapeComponent
-//   | PhysicsComponent;
-
 type AllWellKnownComponentMethodsTypes =
   | IAnimationEntityMethods
   | ITransformEntityMethods
   | ISceneGraphEntityMethods
   | IMeshEntityMethods
   | IMeshRendererEntityMethods
+  | ILightEntityMethods
   | ICameraEntityMethods
   | ICameraControllerEntityMethods
-  | ILightEntityMethods
   | ISkeletalEntityMethods
   | IBlendShapeEntityMethods
   | IPhysicsEntityMethods
   | IEffekseerEntityMethods
-  | ISparkGearEntityMethods;
+  | IVrmEntityMethods;
 
 type IsThisAnimation<
   T extends typeof Component,
@@ -152,40 +136,38 @@ type IsThisEffekseer<
   ? IEffekseerEntityMethods
   : Exclude<Possibles, IEffekseerEntityMethods>;
 
-type IsThisSparkGear<
+type IsThisVrm<
   T extends typeof Component,
   Possibles extends AllWellKnownComponentMethodsTypes
-> = T extends typeof SparkGearComponent
-  ? ISparkGearEntityMethods
-  : Exclude<Possibles, ISparkGearEntityMethods>;
+> = T extends typeof VrmComponent
+  ? IVrmEntityMethods
+  : Exclude<Possibles, IVrmEntityMethods>;
 
-export type ComponentToComponentMethods<T extends typeof Component> =
-  IsThisSparkGear<
+export type ComponentToComponentMethods<T extends typeof Component> = IsThisVrm<
+  T,
+  IsThisEffekseer<
     T,
-    IsThisEffekseer<
+    IsThisPhysics<
       T,
-      IsThisPhysics<
+      IsThisBlendShape<
         T,
-        IsThisBlendShape<
+        IsThisSkeletal<
           T,
-          IsThisSkeletal<
+          IsThisLight<
             T,
-            IsThisLight<
+            IsThisCamera<
               T,
-              IsThisCamera<
+              IsThisCameraController<
                 T,
-                IsThisCameraController<
+                IsThisMeshRenderer<
                   T,
-                  IsThisMeshRenderer<
+                  IsThisMesh<
                     T,
-                    IsThisMesh<
+                    IsThisSceneGraph<
                       T,
-                      IsThisSceneGraph<
+                      IsThisTransform<
                         T,
-                        IsThisTransform<
-                          T,
-                          IsThisAnimation<T, AllWellKnownComponentMethodsTypes>
-                        >
+                        IsThisAnimation<T, AllWellKnownComponentMethodsTypes>
                       >
                     >
                   >
@@ -196,6 +178,7 @@ export type ComponentToComponentMethods<T extends typeof Component> =
         >
       >
     >
-  >;
+  >
+>;
 
 type Foo = ComponentToComponentMethods<typeof TransformComponent>;

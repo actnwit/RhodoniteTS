@@ -23,6 +23,7 @@ export type Vrm0xBlendShapeBind = {
 export type Vrm0xBlendShapeGroup = {
   name: string;
   presetName: string;
+  isBinary: boolean;
   binds: Vrm0xBlendShapeBind[];
   materialValues: [];
 };

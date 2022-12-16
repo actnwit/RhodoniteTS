@@ -14,6 +14,7 @@ import {SkeletalComponent} from '../components/Skeletal/SkeletalComponent';
 import {TransformComponent} from '../components/Transform/TransformComponent';
 import {AnimationComponent} from '../components/Animation/AnimationComponent';
 import {CameraComponent} from '../components/Camera/CameraComponent';
+import { VrmComponent } from '../components/Vrm/VrmComponent';
 
 /**
  * The Interface for an Entity.
@@ -37,6 +38,7 @@ export interface IEntity extends IRnObject {
   tryToGetSkeletal(): SkeletalComponent | undefined;
   tryToGetTransform(): TransformComponent | undefined;
   tryToGetAnimation(): AnimationComponent | undefined;
+  tryToGetVrm(): VrmComponent | undefined;
   destroy(): void;
 }
 
@@ -208,6 +210,12 @@ export class Entity extends RnObject implements IEntity {
     return this.getComponentByComponentTID(
       WellKnownComponentTIDs.TransformComponentTID
     ) as TransformComponent | undefined;
+  }
+
+  tryToGetVrm() {
+    return this.getComponentByComponentTID(
+      WellKnownComponentTIDs.VrmComponentTID
+    ) as VrmComponent | undefined;
   }
 
   /**

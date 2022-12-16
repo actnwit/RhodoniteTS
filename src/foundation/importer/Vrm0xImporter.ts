@@ -15,6 +15,7 @@ import {Vector3} from '../math/Vector3';
 import {VRMColliderGroup} from '../physics/VRMColliderGroup';
 import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
 import {assertIsOk, Err, IResult, Ok} from '../misc/Result';
+import { VrmComponent, VrmExpression } from '../components/Vrm/VrmComponent';
 
 /**
  * The VRM Importer class.
@@ -141,6 +142,42 @@ export class Vrm0xImporter {
 
     this._readSpringBone(gltfModel as Vrm0x);
     this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
+    this._readBlendShapeGroup(gltfModel as Vrm0x, rootGroup);
+  }
+
+  static _readBlendShapeGroup(
+    gltfModel: Vrm0x,
+    rootEntity: ISceneGraphEntity
+  ): void {
+    const vrmExpressions: VrmExpression[] = [];
+
+    const blendShapeGroups =
+      gltfModel.extensions.VRM.blendShapeMaster.blendShapeGroups;
+    for (const blendShapeGroup of blendShapeGroups) {
+      const vrmExpression: VrmExpression = {
+        name: blendShapeGroup.presetName,
+        isBinary: blendShapeGroup.isBinary,
+        binds: blendShapeGroup.binds.map(bind => {
+          for (let i = 0; i < gltfModel.nodes.length; i++) {
+            const node = gltfModel.nodes[i];
+            if (node.mesh === bind.mesh) {
+              const rnEntity = gltfModel.extras.rnEntities[i];
+              return {
+                entityIdx: rnEntity.entityUID,
+                blendShapeIdx: bind.index,
+                weight: bind.weight / 100,
+              };
+            }
+          }
+          throw new Error('Not Found node in blendShapeGroup Process');
+        }),
+      };
+      vrmExpressions.push(vrmExpression);
+    }
+    const vrmEntity = EntityRepository.addComponentToEntity(
+      VrmComponent,
+      rootEntity
+    );
   }
 
   static _readVRMHumanoidInfo(
