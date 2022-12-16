@@ -189,7 +189,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
         glw.isWebGL2
       );
     } else {
-      programUid = material.createProgramByUpdatedSources(
+      programUid = material._createProgramByUpdatedSources(
         updatedShaderSources,
         onError
       );

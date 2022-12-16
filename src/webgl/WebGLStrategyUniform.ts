@@ -216,7 +216,7 @@ bool get_isBillboard(float instanceId) {
         glw.isWebGL2
       );
     } else {
-      programUid = material.createProgramByUpdatedSources(
+      programUid = material._createProgramByUpdatedSources(
         updatedShaderSources,
         onError
       );
