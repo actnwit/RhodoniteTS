@@ -1,16 +1,10 @@
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import {CompositionTypeEnum} from '../../definitions/CompositionType';
-import {
-  ComponentType,
-  ComponentTypeEnum,
-} from '../../definitions/ComponentType';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
 import AddShaderityObject from '../../../webgl/shaderity_shaders/nodes/Add.glsl';
 
 export class AddShaderNode extends AbstractShaderNode {
-  constructor(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('add', AddShaderityObject.code);
 
     this.__inputs.push({

@@ -1,4 +1,4 @@
-import {SymbolWeakMap} from './SymbolWeakMap';
+import { SymbolWeakMap } from './SymbolWeakMap';
 
 export class Cache<T> {
   private __symbolWeakMap = new SymbolWeakMap();

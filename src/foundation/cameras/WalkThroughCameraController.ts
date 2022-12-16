@@ -1,6 +1,6 @@
 import { Matrix44 } from '../math/Matrix44';
 import { MathClassUtil } from '../math/MathClassUtil';
-import {MiscUtil} from '../misc/MiscUtil';
+import { MiscUtil } from '../misc/MiscUtil';
 import { ICameraController } from './ICameraController';
 import { MutableVector3 } from '../math/MutableVector3';
 import { CameraComponent } from '../components/Camera/CameraComponent';
@@ -8,10 +8,14 @@ import { Entity } from '../core/Entity';
 import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { AbstractCameraController } from './AbstractCameraController';
-import {MathUtil} from '../math/MathUtil';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import {Is} from '../misc/Is';
-import {InputHandlerInfo, InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER} from '../system/InputManager';
+import { MathUtil } from '../math/MathUtil';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Is } from '../misc/Is';
+import {
+  InputHandlerInfo,
+  InputManager,
+  INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
+} from '../system/InputManager';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -84,12 +88,12 @@ export class WalkThroughCameraController
 
     this.reset();
 
-    this._onKeydown = e => {
+    this._onKeydown = (e) => {
       this._isKeyDown = true;
       this._lastKeyCode = e.keyCode;
     };
 
-    this._onKeyup = e => {
+    this._onKeyup = (e) => {
       this._isKeyDown = false;
       this._lastKeyCode = -1;
     };
@@ -205,10 +209,7 @@ export class WalkThroughCameraController
       });
     }
 
-    InputManager.register(
-      INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
-      inputHandlerInfos
-    );
+    InputManager.register(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, inputHandlerInfos);
   }
 
   unregisterEventListeners() {
@@ -226,14 +227,9 @@ export class WalkThroughCameraController
       return;
     }
     const delta =
-      -1 *
-      Math.sign((e as any).deltaY) *
-      this._mouseWheelSpeedScale *
-      this._horizontalSpeed;
+      -1 * Math.sign((e as any).deltaY) * this._mouseWheelSpeedScale * this._horizontalSpeed;
     const horizontalDir = WalkThroughCameraController.__tmp_Vec3_0;
-    horizontalDir
-      .setComponents(this._currentDir.x, 0, this._currentDir.z)
-      .normalize();
+    horizontalDir.setComponents(this._currentDir.x, 0, this._currentDir.z).normalize();
 
     const deltaVec = MutableVector3.multiplyTo(
       horizontalDir,
@@ -245,7 +241,7 @@ export class WalkThroughCameraController
   }
 
   _mouseDown(evt: MouseEvent) {
-    this.__tryToPreventDefault(evt)
+    this.__tryToPreventDefault(evt);
     this._isMouseDown = true;
 
     const rect = (evt.target! as any).getBoundingClientRect();
@@ -265,10 +261,8 @@ export class WalkThroughCameraController
     this._draggedMouseXOnCanvas = evt.clientX - rect.left;
     this._draggedMouseYOnCanvas = evt.clientY - rect.top;
 
-    this._deltaMouseXOnCanvas =
-      this._draggedMouseXOnCanvas - this._clickedMouseXOnCanvas;
-    this._deltaMouseYOnCanvas =
-      this._draggedMouseYOnCanvas - this._clickedMouseYOnCanvas;
+    this._deltaMouseXOnCanvas = this._draggedMouseXOnCanvas - this._clickedMouseXOnCanvas;
+    this._deltaMouseYOnCanvas = this._draggedMouseYOnCanvas - this._clickedMouseYOnCanvas;
 
     this._isMouseDrag = true;
   }
@@ -470,8 +464,7 @@ export class WalkThroughCameraController
   }
 
   setTarget(targetEntity: ISceneGraphEntity) {
-    const speed =
-      targetEntity.tryToGetSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
+    const speed = targetEntity.tryToGetSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 

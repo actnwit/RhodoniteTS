@@ -1,5 +1,5 @@
 import { Vector3 } from '.';
-import {Quaternion} from './Quaternion';
+import { Quaternion } from './Quaternion';
 
 test('Quaternion is immutable', () => {
   const vec = Quaternion.fromCopyArray([0, 3, 4, 0]);

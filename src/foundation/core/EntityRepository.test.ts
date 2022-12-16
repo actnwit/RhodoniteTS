@@ -1,7 +1,7 @@
-import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
-import {EntityHelper} from '../helpers/EntityHelper';
-import {EntityRepository} from './EntityRepository';
-import {MemoryManager} from './MemoryManager';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { EntityHelper } from '../helpers/EntityHelper';
+import { EntityRepository } from './EntityRepository';
+import { MemoryManager } from './MemoryManager';
 
 function generateEntity() {
   const entity = EntityHelper.createGroupEntity();

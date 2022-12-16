@@ -1,5 +1,5 @@
-import {RnTags, ObjectUID} from '../../types/CommonTypes';
-import {deepCopyUsingJsonStringify} from '../misc/MiscUtil';
+import { RnTags, ObjectUID } from '../../types/CommonTypes';
+import { deepCopyUsingJsonStringify } from '../misc/MiscUtil';
 
 /**
  * A Tag class

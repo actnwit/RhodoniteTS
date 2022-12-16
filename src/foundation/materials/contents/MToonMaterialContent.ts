@@ -1,42 +1,39 @@
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {AlphaMode} from '../../definitions/AlphaMode';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {CGAPIResourceRepository} from '../../renderer/CGAPIResourceRepository';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {ComponentType} from '../../definitions/ComponentType';
-import {CompositionType} from '../../definitions/CompositionType';
-import {Config} from '../../core/Config';
-import {Material} from '../core/Material';
-import {Scalar} from '../../math/Scalar';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {Vector3} from '../../math/Vector3';
-import {Vector4} from '../../math/Vector4';
-import {VectorN} from '../../math/VectorN';
-import {Array3, Array4, Count} from '../../../types/CommonTypes';
-import {WebGLResourceRepository} from '../../../webgl/WebGLResourceRepository';
-import {WebGLContextWrapper} from '../../../webgl/WebGLContextWrapper';
-import {Texture} from '../../textures/Texture';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { AlphaMode } from '../../definitions/AlphaMode';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Config } from '../../core/Config';
+import { Material } from '../core/Material';
+import { Scalar } from '../../math/Scalar';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
+import { VectorN } from '../../math/VectorN';
+import { Array3, Array4, Count } from '../../../types/CommonTypes';
+import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
+import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
+import { Texture } from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
-import {Vrm0xMaterialProperty} from '../../../types';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { Vrm0xMaterialProperty } from '../../../types';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
-  static readonly _Cutoff = new ShaderSemanticsClass({str: 'cutoff'});
-  static readonly _Color = new ShaderSemanticsClass({str: 'litColor'});
-  static readonly _ShadeColor = new ShaderSemanticsClass({str: 'shadeColor'});
-  static readonly _MainTex = new ShaderSemanticsClass({str: 'litColorTexture'});
+  static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
+  static readonly _Color = new ShaderSemanticsClass({ str: 'litColor' });
+  static readonly _ShadeColor = new ShaderSemanticsClass({ str: 'shadeColor' });
+  static readonly _MainTex = new ShaderSemanticsClass({ str: 'litColorTexture' });
   static readonly _ShadeTexture = new ShaderSemanticsClass({
     str: 'shadeColorTexture',
   });
-  static readonly _BumpScale = new ShaderSemanticsClass({str: 'normalScale'});
-  static readonly _BumpMap = new ShaderSemanticsClass({str: 'normalTexture'});
+  static readonly _BumpScale = new ShaderSemanticsClass({ str: 'normalScale' });
+  static readonly _BumpMap = new ShaderSemanticsClass({ str: 'normalTexture' });
   static readonly _ReceiveShadowRate = new ShaderSemanticsClass({
     str: 'receiveShadowRate',
   });
@@ -49,8 +46,8 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _ShadingGradeTexture = new ShaderSemanticsClass({
     str: 'shadingGradeTexture',
   });
-  static readonly _ShadeShift = new ShaderSemanticsClass({str: 'shadeShift'});
-  static readonly _ShadeToony = new ShaderSemanticsClass({str: 'shadeToony'});
+  static readonly _ShadeShift = new ShaderSemanticsClass({ str: 'shadeShift' });
+  static readonly _ShadeToony = new ShaderSemanticsClass({ str: 'shadeToony' });
   static readonly _LightColorAttenuation = new ShaderSemanticsClass({
     str: 'lightColorAttenuation',
   });
@@ -58,16 +55,16 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'ambientColor',
   });
   // static readonly _IndirectLightIntensity = new ShaderSemanticsClass({ str: 'indirectLightIntensity' });
-  static readonly _RimTexture = new ShaderSemanticsClass({str: 'rimTexture'});
-  static readonly _RimColor = new ShaderSemanticsClass({str: 'rimColor'});
+  static readonly _RimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
+  static readonly _RimColor = new ShaderSemanticsClass({ str: 'rimColor' });
   static readonly _RimLightingMix = new ShaderSemanticsClass({
     str: 'rimLightingMix',
   });
   static readonly _RimFresnelPower = new ShaderSemanticsClass({
     str: 'rimFresnelPower',
   });
-  static readonly _RimLift = new ShaderSemanticsClass({str: 'rimLift'});
-  static readonly _SphereAdd = new ShaderSemanticsClass({str: 'matCapTexture'});
+  static readonly _RimLift = new ShaderSemanticsClass({ str: 'rimLift' });
+  static readonly _SphereAdd = new ShaderSemanticsClass({ str: 'matCapTexture' });
   static readonly _EmissionColor = new ShaderSemanticsClass({
     str: 'emissionColor',
   });
@@ -90,8 +87,8 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'outlineLightingMix',
   });
 
-  static readonly Aspect = new ShaderSemanticsClass({str: 'aspect'});
-  static readonly CameraUp = new ShaderSemanticsClass({str: 'cameraUp'});
+  static readonly Aspect = new ShaderSemanticsClass({ str: 'aspect' });
+  static readonly CameraUp = new ShaderSemanticsClass({ str: 'cameraUp' });
 
   static usableBlendEquationModeAlpha?: number;
   private __OutlineWidthModeIsScreen = false;
@@ -122,7 +119,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
         (useTangentAttribute ? '+tangentAttribute' : ''),
-      {isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting},
+      { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting },
       mToonSingleShaderVertex,
       mToonSingleShaderFragment
     );
@@ -218,9 +215,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Vector4.fromCopyArray(
-          this.__vectorProperties._Color as Array4<number>
-        ),
+        initialValue: Vector4.fromCopyArray(this.__vectorProperties._Color as Array4<number>),
         min: 0,
         max: 1,
       },
@@ -232,9 +227,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Vector3.fromCopyArray(
-          this.__vectorProperties._ShadeColor
-        ),
+        initialValue: Vector3.fromCopyArray(this.__vectorProperties._ShadeColor),
         min: 0,
         max: 1,
       },
@@ -258,9 +251,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(
-          this.__floatProperties._ReceiveShadowRate
-        ),
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._ReceiveShadowRate),
         min: 0,
         max: 1,
       },
@@ -272,9 +263,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(
-          this.__floatProperties._ShadingGradeRate
-        ),
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._ShadingGradeRate),
         min: 0,
         max: 1,
       },
@@ -310,9 +299,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(
-          this.__floatProperties._LightColorAttenuation
-        ),
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._LightColorAttenuation),
         min: 0,
         max: 1,
       },
@@ -341,9 +328,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Vector3.fromCopyArray(
-          this.__vectorProperties._RimColor as Array3<number>
-        ),
+        initialValue: Vector3.fromCopyArray(this.__vectorProperties._RimColor as Array3<number>),
         min: 0,
         max: 1,
       },
@@ -355,9 +340,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(
-          this.__floatProperties._RimLightingMix
-        ),
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimLightingMix),
         min: 0,
         max: 1,
       },
@@ -369,9 +352,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
-        initialValue: Scalar.fromCopyNumber(
-          this.__floatProperties._RimFresnelPower
-        ),
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimFresnelPower),
         min: 0,
         max: 1,
       },
@@ -499,9 +480,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
-          initialValue: Scalar.fromCopyNumber(
-            this.__floatProperties._OutlineWidth
-          ),
+          initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineWidth),
           min: 0,
           max: 1,
         },
@@ -513,9 +492,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
-          initialValue: Scalar.fromCopyNumber(
-            this.__floatProperties._OutlineScaledMaxDistance
-          ),
+          initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineScaledMaxDistance),
           min: 0,
           max: 1,
         },
@@ -541,9 +518,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
-          initialValue: Scalar.fromCopyNumber(
-            this.__floatProperties._OutlineLightingMix
-          ),
+          initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineLightingMix),
           min: 0,
           max: 1,
         },
@@ -593,9 +568,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
           soloDatum: true,
-          initialValue: new VectorN(
-            new Int32Array(Config.maxVertexMorphNumberInShader)
-          ),
+          initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
           needUniformInDataTextureMode: true,
@@ -608,9 +581,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
           soloDatum: true,
-          initialValue: new VectorN(
-            new Float32Array(Config.maxVertexMorphNumberInShader)
-          ),
+          initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
           needUniformInDataTextureMode: true,
@@ -663,10 +634,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          2,
-          textures[this.__textureProperties._ReceiveShadowTexture],
-        ],
+        initialValue: [2, textures[this.__textureProperties._ReceiveShadowTexture]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -677,10 +645,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          3,
-          textures[this.__textureProperties._ShadingGradeTexture],
-        ],
+        initialValue: [3, textures[this.__textureProperties._ShadingGradeTexture]],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -722,9 +687,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     const glw = WebGLResourceRepository.getInstance()
       .currentWebGLContextWrapper as WebGLContextWrapper;
     const gl = glw.getRawContext();
-    const maxUsableTextureNumber = gl.getParameter(
-      gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS
-    );
+    const maxUsableTextureNumber = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
     const support10UnitsOfTextures = maxUsableTextureNumber > 9;
 
     if (support10UnitsOfTextures) {
@@ -761,18 +724,12 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.VertexShader,
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [
-            9,
-            textures[this.__textureProperties._OutlineWidthTexture],
-          ],
+          initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]],
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
         });
 
-        if (
-          this.__textureProperties._OutlineWidthTexture !==
-          textures.length - 2
-        ) {
+        if (this.__textureProperties._OutlineWidthTexture !== textures.length - 2) {
           //textures.length - 2 is dummyTexture
           this.__definitions += '#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n';
         }
@@ -802,16 +759,13 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       }
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
-      const blendEquationModeAlpha =
-        MToonMaterialContent.usableBlendEquationModeAlpha;
-      const blendFuncSrcFactor =
-        MToonMaterialContent.unityBlendEnumCorrespondence(
-          this.__floatProperties._SrcBlend
-        );
-      const blendFuncDstFactor =
-        MToonMaterialContent.unityBlendEnumCorrespondence(
-          this.__floatProperties._DstBlend
-        );
+      const blendEquationModeAlpha = MToonMaterialContent.usableBlendEquationModeAlpha;
+      const blendFuncSrcFactor = MToonMaterialContent.unityBlendEnumCorrespondence(
+        this.__floatProperties._SrcBlend
+      );
+      const blendFuncDstFactor = MToonMaterialContent.unityBlendEnumCorrespondence(
+        this.__floatProperties._DstBlend
+      );
 
       material.setBlendEquationMode(blendEquationMode, blendEquationModeAlpha);
       material.setBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor);
@@ -849,15 +803,13 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContextAsWebGL2();
     if (glw!.isWebGL2) {
       MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
     } else if (glw!.webgl1ExtBM) {
-      MToonMaterialContent.usableBlendEquationModeAlpha =
-        glw!.webgl1ExtBM.MAX_EXT;
+      MToonMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
     } else {
       MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
     }
@@ -886,30 +838,15 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       /// Matrices
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();
       this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
 
       // Lights
-      this.setLightsInfo(
-        shaderProgram,
-        args.lightComponents,
-        material,
-        args.setUniform
-      );
+      this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
 
       (shaderProgram as any)._gl.uniform3fv(
         (shaderProgram as any).cameraUp,
@@ -917,38 +854,23 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       );
 
       if (this.__OutlineWidthModeIsScreen) {
-        (shaderProgram as any)._gl.uniform1f(
-          (shaderProgram as any).aspect,
-          cameraComponent.aspect
-        );
+        (shaderProgram as any)._gl.uniform1f((shaderProgram as any).aspect, cameraComponent.aspect);
       }
     } else {
-      material.setParameter(
-        MToonMaterialContent.CameraUp,
-        cameraComponent.upInner
-      );
+      material.setParameter(MToonMaterialContent.CameraUp, cameraComponent.upInner);
 
       if (this.__OutlineWidthModeIsScreen) {
-        material.setParameter(
-          MToonMaterialContent.Aspect,
-          cameraComponent.aspect
-        );
+        material.setParameter(MToonMaterialContent.Aspect, cameraComponent.aspect);
       }
     }
 
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
+    this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
 

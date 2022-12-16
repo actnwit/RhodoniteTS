@@ -1,6 +1,6 @@
 import { Vector4 } from './Vector4';
-import {IVector4} from './IVector';
-import {IColorRgba} from './IColor';
+import { IVector4 } from './IVector';
+import { IColorRgba } from './IColor';
 import { Array4 } from '../../types/CommonTypes';
 
 /**

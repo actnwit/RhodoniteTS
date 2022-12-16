@@ -1,5 +1,5 @@
-import {Is} from '../misc/Is';
-import {nullishToEmptyArray} from '../misc/MiscUtil';
+import { Is } from '../misc/Is';
+import { nullishToEmptyArray } from '../misc/MiscUtil';
 
 export type EventType = string | symbol;
 export type EventSubscriberIndex = number;

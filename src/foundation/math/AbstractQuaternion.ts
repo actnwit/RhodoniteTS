@@ -1,6 +1,6 @@
-import {TypedArray} from '../../types/CommonTypes';
-import {IQuaternion} from './IQuaternion';
-import {IMutableVector3, IVector3} from './IVector';
+import { TypedArray } from '../../types/CommonTypes';
+import { IQuaternion } from './IQuaternion';
+import { IMutableVector3, IVector3 } from './IVector';
 
 export abstract class AbstractQuaternion implements IQuaternion {
   get className() {
@@ -31,9 +31,7 @@ export abstract class AbstractQuaternion implements IQuaternion {
   }
 
   lengthSquared(): number {
-    return (
-      this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2
-    );
+    return this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2;
   }
 
   toString(): string {

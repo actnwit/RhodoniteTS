@@ -1,6 +1,6 @@
 import { RnObject } from '../core/RnObject';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import {ISceneGraphEntity, IMeshEntity} from '../helpers/EntityHelper';
+import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 
 /**
  * Abstract Gizmo class
@@ -75,15 +75,15 @@ export abstract class Gizmo extends RnObject {
 
   protected setGizmoTag() {
     if (this.__topEntity) {
-      this.__topEntity.tryToSetTag({tag: 'Being', value: 'gizmo'});
-      this.__topEntity.tryToSetTag({tag: 'Gizmo', value: 'top'});
+      this.__topEntity.tryToSetTag({ tag: 'Being', value: 'gizmo' });
+      this.__topEntity.tryToSetTag({ tag: 'Gizmo', value: 'top' });
 
       const sceneGraphs = SceneGraphComponent.flattenHierarchy(
         this.__topEntity.getSceneGraph()!,
         false
       );
       for (const sg of sceneGraphs) {
-        sg.entity.tryToSetTag({tag: 'Being', value: 'gizmo'});
+        sg.entity.tryToSetTag({ tag: 'Being', value: 'gizmo' });
       }
 
       this.__topEntity.tryToSetTag({

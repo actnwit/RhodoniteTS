@@ -7,10 +7,10 @@ import {
   Quaternion,
   Vector3,
 } from '.';
-import {Array16, Array3, Array4} from '../../types';
-import {MutableMatrix44} from './MutableMatrix44';
-import {MutableQuaternion} from './MutableQuaternion';
-import {MutableVector3} from './MutableVector3';
+import { Array16, Array3, Array4 } from '../../types';
+import { MutableMatrix44 } from './MutableMatrix44';
+import { MutableQuaternion } from './MutableQuaternion';
+import { MutableVector3 } from './MutableVector3';
 
 export class Transform3D {
   private __translate: MutableVector3;
@@ -33,8 +33,7 @@ export class Transform3D {
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
-  private static __tmpQuaternion_0: MutableQuaternion =
-    MutableQuaternion.identity();
+  private static __tmpQuaternion_0: MutableQuaternion = MutableQuaternion.identity();
 
   constructor();
   constructor(Transform3D: Transform3D);
@@ -402,17 +401,11 @@ export class Transform3D {
     for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
         if (key === 'quaternion') {
-          this[key] = Quaternion.fromCopyArray4(
-            (json as any)[key] as Array4<number>
-          );
+          this[key] = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
         } else if (key === 'matrix') {
-          this[key] = Matrix44.fromCopyArray16RowMajor(
-            (json as any)[key] as Array16<number>
-          );
+          this[key] = Matrix44.fromCopyArray16RowMajor((json as any)[key] as Array16<number>);
         } else {
-          (this as any)[key] = Vector3.fromCopyArray(
-            (json as any)[key] as Array3<number>
-          );
+          (this as any)[key] = Vector3.fromCopyArray((json as any)[key] as Array3<number>);
         }
       }
     }
@@ -420,11 +413,7 @@ export class Transform3D {
 
   setRotationFromNewUpAndFront(UpVec: IVector3, FrontVec: IVector3) {
     const yDir = UpVec;
-    const xDir = MutableVector3.crossTo(
-      yDir,
-      FrontVec,
-      Transform3D.__tmpVector3_0
-    );
+    const xDir = MutableVector3.crossTo(yDir, FrontVec, Transform3D.__tmpVector3_0);
     const zDir = MutableVector3.crossTo(xDir, yDir, Transform3D.__tmpVector3_1);
 
     const rotateMatrix = Transform3D.__tmpMatrix44_0.setComponents(
@@ -450,22 +439,13 @@ export class Transform3D {
   }
 
   headToDirection(fromVec: Vector3, toVec: Vector3) {
-    const fromDir = Transform3D.__tmpVector3_0
-      .copyComponents(fromVec)
-      .normalize();
+    const fromDir = Transform3D.__tmpVector3_0.copyComponents(fromVec).normalize();
     const toDir = Transform3D.__tmpVector3_1.copyComponents(toVec).normalize();
-    const rotationDir = MutableVector3.crossTo(
-      fromDir,
-      toDir,
-      Transform3D.__tmpVector3_2
-    );
+    const rotationDir = MutableVector3.crossTo(fromDir, toDir, Transform3D.__tmpVector3_2);
     const cosTheta = Vector3.dot(fromDir, toDir);
     const theta = Math.acos(cosTheta);
 
-    this.quaternion = Transform3D.__tmpQuaternion_0.axisAngle(
-      rotationDir,
-      theta
-    );
+    this.quaternion = Transform3D.__tmpQuaternion_0.axisAngle(rotationDir, theta);
   }
 
   /**

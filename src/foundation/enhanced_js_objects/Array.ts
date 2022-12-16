@@ -34,16 +34,12 @@ class EnhancedArrayMethods {
 }
 
 const enhanceInner = () => {
-  Object.defineProperty(
-    EnhancedArrayMethods.prototype,
-    getComponentFromEntitiesStr,
-    {
-      enumerable: false,
-      writable: false,
-      configurable: true,
-      value: getComponentFromEntities,
-    }
-  );
+  Object.defineProperty(EnhancedArrayMethods.prototype, getComponentFromEntitiesStr, {
+    enumerable: false,
+    writable: false,
+    configurable: true,
+    value: getComponentFromEntities,
+  });
 };
 
 enhanceInner();

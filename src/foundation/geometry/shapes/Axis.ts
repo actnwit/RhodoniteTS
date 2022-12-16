@@ -1,8 +1,8 @@
-import {IAnyPrimitiveDescriptor} from '../Primitive';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {PrimitiveMode} from '../../definitions/PrimitiveMode';
-import {Size} from '../../../types/CommonTypes';
-import {IShape} from '../shapes/IShape';
+import { IAnyPrimitiveDescriptor } from '../Primitive';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { Size } from '../../../types/CommonTypes';
+import { IShape } from '../shapes/IShape';
 
 export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of axis */
@@ -51,10 +51,7 @@ export class Axis extends IShape {
     const attributes = [new Float32Array(positions), new Float32Array(colors)];
 
     // Check Size
-    const attributeSemantics = [
-      VertexAttribute.Position.XYZ,
-      VertexAttribute.Color0.XYZ,
-    ];
+    const attributeSemantics = [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ];
 
     this.copyVertexData({
       attributes,

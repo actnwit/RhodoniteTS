@@ -1,10 +1,10 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type ShaderTypeEnum = EnumIO;
 
 class ShaderTypeClass extends EnumClass implements ShaderTypeEnum {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -25,19 +25,14 @@ const ComputeShader: ShaderTypeEnum = new ShaderTypeClass({
   str: 'ComputeShader',
 });
 
-const typeList = [
-  VertexShader,
-  PixelShader,
-  VertexAndPixelShader,
-  ComputeShader,
-];
+const typeList = [VertexShader, PixelShader, VertexAndPixelShader, ComputeShader];
 
 function from(index: number): ShaderTypeEnum {
-  return _from({typeList, index}) as ShaderTypeEnum;
+  return _from({ typeList, index }) as ShaderTypeEnum;
 }
 
 function fromString(str: string): ShaderTypeEnum {
-  return _fromString({typeList, str}) as ShaderTypeEnum;
+  return _fromString({ typeList, str }) as ShaderTypeEnum;
 }
 
 export const ShaderType = Object.freeze({

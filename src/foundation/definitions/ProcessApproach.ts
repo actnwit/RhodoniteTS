@@ -1,8 +1,8 @@
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
 export class ProcessApproachClass extends EnumClass implements EnumIO {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 
   get webGLVersion() {
@@ -34,7 +34,7 @@ const DataTexture: ProcessApproachEnum = new ProcessApproachClass({
 const typeList = [None, Uniform, DataTexture];
 
 function from(index: number): ProcessApproachEnum | undefined {
-  return _from({typeList, index}) as ProcessApproachEnum;
+  return _from({ typeList, index }) as ProcessApproachEnum;
 }
 
 const isDataTextureApproach = (processApproach: ProcessApproachEnum) => {

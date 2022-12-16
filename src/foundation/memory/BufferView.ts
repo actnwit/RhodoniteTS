@@ -1,8 +1,8 @@
 import { Buffer } from '../memory/Buffer';
-import {CompositionTypeEnum} from '../definitions/CompositionType';
-import {ComponentTypeEnum} from '../definitions/ComponentType';
+import { CompositionTypeEnum } from '../definitions/CompositionType';
+import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { Accessor } from './Accessor';
-import {Byte, Count, Size} from '../../types/CommonTypes';
+import { Byte, Count, Size } from '../../types/CommonTypes';
 import { Err, IResult, Ok } from '../misc';
 
 export class BufferView {
@@ -50,10 +50,7 @@ export class BufferView {
    * byteOffset in Buffer (includes byteOffset of Buffer in it's inner arraybuffer)
    */
   get byteOffsetInBuffer(): Byte {
-    return (
-      this.__byteOffsetInRawArrayBufferOfBuffer -
-      this.__buffer.byteOffsetInRawArrayBuffer
-    );
+    return this.__byteOffsetInRawArrayBufferOfBuffer - this.__buffer.byteOffsetInRawArrayBuffer;
   }
 
   /**
@@ -84,11 +81,7 @@ export class BufferView {
    * get memory buffer as Uint8Array of this BufferView memory area data
    */
   getUint8Array(): Uint8Array {
-    return new Uint8Array(
-      this.__raw,
-      this.__byteOffsetInRawArrayBufferOfBuffer,
-      this.__byteLength
-    );
+    return new Uint8Array(this.__raw, this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteLength);
   }
 
   takeAccessor({
@@ -110,7 +103,6 @@ export class BufferView {
     arrayLength?: Size;
     normalized?: boolean;
   }): IResult<Accessor, undefined> {
-
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -181,18 +173,25 @@ export class BufferView {
     let actualByteStride = byteStride;
     if (actualByteStride === 0) {
       actualByteStride =
-        compositionType.getNumberOfComponents() *
-        componentType.getSizeInBytes() *
-        arrayLength;
+        compositionType.getNumberOfComponents() * componentType.getSizeInBytes() * arrayLength;
     }
 
     // Each accessor MUST fit its bufferView, i.e.,
     // accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
     // See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
-    if (this.__takenByte + actualByteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
+    if (
+      this.__takenByte +
+        actualByteStride * (count - 1) +
+        componentType.getSizeInBytes() * compositionType.getNumberOfComponents() >
+      this.byteLength
+    ) {
       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
-BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${
+        this.__takenByte
+      }, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer: ${
+        this.byteLength - this.__takenByte
+      }`;
       // console.error(message);
       return new Err({
         message,
@@ -243,10 +242,19 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
     // Each accessor MUST fit its bufferView, i.e.,
     // accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
     // See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
-    if (this.__takenByte + byteStride * (count - 1) + componentType.getSizeInBytes() * compositionType.getNumberOfComponents() > this.byteLength) {
+    if (
+      this.__takenByte +
+        byteStride * (count - 1) +
+        componentType.getSizeInBytes() * compositionType.getNumberOfComponents() >
+      this.byteLength
+    ) {
       const message = `The size of the Accessor you are trying to take exceeds the byte length left in the BufferView.
-BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${this.__takenByte}, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
-byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${this.byteLength - this.__takenByte}`;
+BufferView.byteLength: ${this.byteLength}, BufferView.takenSizeInByte: ${
+        this.__takenByte
+      }, Accessor.byteStride: ${byteStride}, Accessor.count: ${count};
+byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${
+        this.byteLength - this.__takenByte
+      }`;
       return new Err({
         message,
         error: undefined,
@@ -275,8 +283,7 @@ byteSizeToTake: ${byteStride * count}, the byte length left in the Buffer: ${thi
   isSame(rnBufferView: BufferView) {
     return (
       this.byteLength === rnBufferView.byteLength &&
-      this.byteOffsetInRawArrayBufferOfBuffer ===
-        rnBufferView.byteOffsetInRawArrayBufferOfBuffer &&
+      this.byteOffsetInRawArrayBufferOfBuffer === rnBufferView.byteOffsetInRawArrayBufferOfBuffer &&
       this.defaultByteStride === rnBufferView.defaultByteStride &&
       this.buffer.getArrayBuffer() === rnBufferView.buffer.getArrayBuffer()
     );

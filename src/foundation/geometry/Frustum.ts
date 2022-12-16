@@ -3,7 +3,7 @@ import { Matrix44 } from '../math/Matrix44';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
-import {Visibility} from '../definitions/Visibility';
+import { Visibility } from '../definitions/Visibility';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 
 /**
@@ -118,13 +118,7 @@ export class Frustum {
       return Visibility.Invisible;
     }
 
-    const sum =
-      top.index +
-      bottom.index +
-      right.index +
-      left.index +
-      zNear.index +
-      zFar.index;
+    const sum = top.index + bottom.index + right.index + left.index + zNear.index + zFar.index;
     if (sum === 6) {
       return Visibility.Visible;
     }

@@ -1,11 +1,8 @@
 import { MutableVector4 } from './MutableVector4';
-import {IVector4, IMutableVector4} from './IVector';
-import {IMutableColorRgba} from './IColor';
+import { IVector4, IMutableVector4 } from './IVector';
+import { IMutableColorRgba } from './IColor';
 
-export class MutableColorRgba
-  extends MutableVector4
-  implements IMutableVector4, IMutableColorRgba
-{
+export class MutableColorRgba extends MutableVector4 implements IMutableVector4, IMutableColorRgba {
   constructor(r: Float32Array) {
     super(r);
   }
@@ -103,11 +100,7 @@ export class MutableColorRgba
   }
 
   static multiplyVector(l_vec: IVector4, r_vec: IVector4) {
-    return super._multiplyVector(
-      l_vec,
-      r_vec,
-      Float32Array
-    ) as MutableColorRgba;
+    return super._multiplyVector(l_vec, r_vec, Float32Array) as MutableColorRgba;
   }
 
   static divide(vec: IVector4, value: number) {

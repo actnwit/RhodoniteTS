@@ -1,6 +1,6 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
-import {TypedArray, TypedArrayConstructor} from '../../types/CommonTypes';
-import {Gltf2AccessorComponentTypeNumber} from '../../types/glTF2';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
+import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
+import { Gltf2AccessorComponentTypeNumber } from '../../types/glTF2';
 
 export interface ComponentTypeEnum extends EnumIO {
   getSizeInBytes(): number;
@@ -10,16 +10,8 @@ export interface ComponentTypeEnum extends EnumIO {
 
 class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   readonly __sizeInBytes: number;
-  constructor({
-    index,
-    str,
-    sizeInBytes,
-  }: {
-    index: number;
-    str: string;
-    sizeInBytes: number;
-  }) {
-    super({index, str});
+  constructor({ index, str, sizeInBytes }: { index: number; str: string; sizeInBytes: number }) {
+    super({ index, str });
     this.__sizeInBytes = sizeInBytes;
   }
 
@@ -126,20 +118,17 @@ const typeList = [
 ];
 
 function from(index: number): ComponentTypeEnum {
-  return _from({typeList, index}) as ComponentTypeEnum;
+  return _from({ typeList, index }) as ComponentTypeEnum;
 }
 
 function fromString(str: string): ComponentTypeEnum {
-  return _fromString({typeList, str}) as ComponentTypeEnum;
+  return _fromString({ typeList, str }) as ComponentTypeEnum;
 }
 
 function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   if (typedArray instanceof Int8Array) {
     return Byte;
-  } else if (
-    typedArray instanceof Uint8Array ||
-    typedArray instanceof Uint8ClampedArray
-  ) {
+  } else if (typedArray instanceof Uint8Array || typedArray instanceof Uint8ClampedArray) {
     return UnsignedByte;
   } else if (typedArray instanceof Int16Array) {
     return Short;
@@ -158,9 +147,7 @@ function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum {
   return Unknown;
 }
 
-function toTypedArray(
-  componentType: ComponentTypeEnum
-): TypedArrayConstructor | undefined {
+function toTypedArray(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined {
   if (componentType === Byte) {
     return Int8Array;
   } else if (componentType === UnsignedByte) {
@@ -237,7 +224,7 @@ function fromGlslString(str_: string): ComponentTypeEnum {
       str = 'INT';
       break;
   }
-  return _fromString({typeList, str}) as ComponentTypeEnum;
+  return _fromString({ typeList, str }) as ComponentTypeEnum;
 }
 
 export type Gltf2AccessorComponentType =

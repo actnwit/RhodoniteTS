@@ -1,17 +1,17 @@
-import {detectFormatByArrayBuffers} from './FormatDetector';
-import {Gltf2Importer} from './Gltf2Importer';
-import {RnM2} from '../../types/RnM2';
-import {ModelConverter} from './ModelConverter';
-import {DrcPointCloudImporter} from './DrcPointCloudImporter';
-import {Expression} from '../renderer/Expression';
-import {RenderPass} from '../renderer/RenderPass';
-import {DataUtil} from '../misc/DataUtil';
-import {FileType} from '../definitions/FileType';
-import {glTF1} from '../../types/glTF1';
-import {GltfFileBuffers, GltfLoadOption} from '../../types';
-import {RnPromiseCallback} from '../misc/RnPromise';
-import {Vrm0xImporter} from './Vrm0xImporter';
-import {assertIsErr, assertIsOk, Err, IResult, Ok} from '../misc/Result';
+import { detectFormatByArrayBuffers } from './FormatDetector';
+import { Gltf2Importer } from './Gltf2Importer';
+import { RnM2 } from '../../types/RnM2';
+import { ModelConverter } from './ModelConverter';
+import { DrcPointCloudImporter } from './DrcPointCloudImporter';
+import { Expression } from '../renderer/Expression';
+import { RenderPass } from '../renderer/RenderPass';
+import { DataUtil } from '../misc/DataUtil';
+import { FileType } from '../definitions/FileType';
+import { glTF1 } from '../../types/glTF1';
+import { GltfFileBuffers, GltfLoadOption } from '../../types';
+import { RnPromiseCallback } from '../misc/RnPromise';
+import { Vrm0xImporter } from './Vrm0xImporter';
+import { assertIsErr, assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -51,13 +51,7 @@ export class GltfImporter {
     assertIsOk(r_arrayBuffer);
     options.files![uri] = r_arrayBuffer.get();
 
-    await this.__detectTheModelFileTypeAndImport(
-      uri,
-      renderPasses,
-      options,
-      uri,
-      callback
-    );
+    await this.__detectTheModelFileTypeAndImport(uri, renderPasses, options, uri, callback);
 
     if (options && options.cameraComponent) {
       for (const renderPass of renderPasses) {
@@ -65,10 +59,7 @@ export class GltfImporter {
       }
     }
 
-    const expression = this.__setRenderPassesToExpression(
-      renderPasses,
-      options
-    );
+    const expression = this.__setRenderPassesToExpression(renderPasses, options);
     return new Ok(expression);
   }
 
@@ -113,10 +104,7 @@ export class GltfImporter {
       }
     }
 
-    const expression = this.__setRenderPassesToExpression(
-      renderPasses,
-      options
-    );
+    const expression = this.__setRenderPassesToExpression(renderPasses, options);
 
     return new Ok(expression);
   }
@@ -146,9 +134,7 @@ export class GltfImporter {
         options.defaultMaterialHelperArgumentArray = [{}];
       } else {
         // avoid needless processing
-        if (
-          options.defaultMaterialHelperArgumentArray![0].isMorphing === false
-        ) {
+        if (options.defaultMaterialHelperArgumentArray![0].isMorphing === false) {
           options.maxMorphTargetNumber = 0;
         }
       }
@@ -222,11 +208,7 @@ export class GltfImporter {
   ): Promise<IResult<void, undefined>> {
     const optionalFileType = options.fileType;
 
-    const fileType = this.__getFileTypeFromFilePromise(
-      fileName,
-      options,
-      optionalFileType
-    );
+    const fileType = this.__getFileTypeFromFilePromise(fileName, options, optionalFileType);
 
     const fileArrayBuffer = options.files![fileName];
     options.__isImportVRM0x = false;
@@ -252,24 +234,15 @@ export class GltfImporter {
       case FileType.GltfBinary: {
         glTFVer = this.__getGlbVersion(fileArrayBuffer);
         const importer = Gltf2Importer;
-        const gltfModel = await importer._importGlb(
-          fileArrayBuffer,
-          options.files!,
-          options
-        );
+        const gltfModel = await importer._importGlb(fileArrayBuffer, options.files!, options);
         const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
         options.__importedType = 'glb2';
         return new Ok();
       }
       case FileType.Draco: {
-        const importer =
-          DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
-        const gltfModel = await importer.importArrayBuffer(
-          uri,
-          fileArrayBuffer,
-          options
-        );
+        const importer = DrcPointCloudImporter.getInstance() as DrcPointCloudImporter;
+        const gltfModel = await importer.importArrayBuffer(uri, fileArrayBuffer, options);
         if (gltfModel == null) {
           return new Err({
             message: 'importArrayBuffer error is occurred',

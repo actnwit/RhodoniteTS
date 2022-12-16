@@ -1,14 +1,14 @@
-import {ModuleManager} from '../../system/ModuleManager';
-import {MemoryManager} from '../../core/MemoryManager';
-import {ConstantVariableShaderNode} from './ConstantVariableShaderNode';
-import {VaryingInVariableShaderNode} from './VaryingInVariableShaderNode';
-import {VaryingOutVariableShaderNode} from './VaryingOutVariableShaderNode';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
-import {OutPositionShaderNode} from './OutPositionShaderNode';
-import {OutColorShaderNode} from './OutColorShaderNode';
-import {Vector4} from '../../math/Vector4';
-import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
+import { ModuleManager } from '../../system/ModuleManager';
+import { MemoryManager } from '../../core/MemoryManager';
+import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
+import { VaryingInVariableShaderNode } from './VaryingInVariableShaderNode';
+import { VaryingOutVariableShaderNode } from './VaryingOutVariableShaderNode';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { OutPositionShaderNode } from './OutPositionShaderNode';
+import { OutColorShaderNode } from './OutColorShaderNode';
+import { Vector4 } from '../../math/Vector4';
+import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 
 test('VaryingVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -18,20 +18,11 @@ test('VaryingVariable works correctly 1', async () => {
     gpuVertexData: 1,
   });
 
-  const varyingOut1 = new VaryingOutVariableShaderNode(
-    CompositionType.Vec4,
-    ComponentType.Float
-  );
+  const varyingOut1 = new VaryingOutVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   varyingOut1.setVaryingVariableName('v_position');
-  const varyingIn1 = new VaryingInVariableShaderNode(
-    CompositionType.Vec4,
-    ComponentType.Float
-  );
+  const varyingIn1 = new VaryingInVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   varyingIn1.setVaryingVariableName('v_position');
-  const constant1 = new ConstantVariableShaderNode(
-    CompositionType.Vec4,
-    ComponentType.Float
-  );
+  const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   constant1.setDefaultInputValue('value', Vector4.fromCopyArray([4, 3, 2, 1]));
   const outPositionNode = new OutPositionShaderNode();
   const outColorNode = new OutColorShaderNode();
@@ -46,15 +37,10 @@ test('VaryingVariable works correctly 1', async () => {
     varyingOut1,
     constant1,
   ]);
-  const pixelRet = ShaderGraphResolver.createPixelShaderCode([
-    outColorNode,
-    varyingIn1,
-  ]);
+  const pixelRet = ShaderGraphResolver.createPixelShaderCode([outColorNode, varyingIn1]);
 
   // console.log(vertexRet.shaderBody + pixelRet.shaderBody);
-  expect(
-    (vertexRet.shaderBody + pixelRet.shaderBody).replace(/\s+/g, '')
-  ).toEqual(
+  expect((vertexRet.shaderBody + pixelRet.shaderBody).replace(/\s+/g, '')).toEqual(
     `
 
     void constantVariable_2(

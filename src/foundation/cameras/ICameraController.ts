@@ -1,5 +1,5 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 
 export interface ICameraController {
   logic(cameraComponent: CameraComponent): void;

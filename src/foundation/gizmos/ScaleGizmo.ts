@@ -1,37 +1,29 @@
-import {CameraComponent} from '../components/Camera/CameraComponent';
-import {ComponentRepository} from '../core/ComponentRepository';
-import {Config} from '../core/Config';
-import {AlphaMode} from '../definitions/AlphaMode';
-import {PrimitiveMode} from '../definitions/PrimitiveMode';
-import {ShaderSemantics} from '../definitions/ShaderSemantics';
-import {VertexAttribute} from '../definitions/VertexAttribute';
-import {Mesh} from '../geometry/Mesh';
-import {Primitive} from '../geometry/Primitive';
-import {Cube} from '../geometry/shapes/Cube';
-import {Plane} from '../geometry/shapes/Plane';
-import {
-  EntityHelper,
-  IMeshEntity,
-  ISceneGraphEntity,
-} from '../helpers/EntityHelper';
-import {MaterialHelper} from '../helpers/MaterialHelper';
-import {Material} from '../materials/core/Material';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { ComponentRepository } from '../core/ComponentRepository';
+import { Config } from '../core/Config';
+import { AlphaMode } from '../definitions/AlphaMode';
+import { PrimitiveMode } from '../definitions/PrimitiveMode';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { VertexAttribute } from '../definitions/VertexAttribute';
+import { Mesh } from '../geometry/Mesh';
+import { Primitive } from '../geometry/Primitive';
+import { Cube } from '../geometry/shapes/Cube';
+import { Plane } from '../geometry/shapes/Plane';
+import { EntityHelper, IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { MaterialHelper } from '../helpers/MaterialHelper';
+import { Material } from '../materials/core/Material';
 import { IQuaternion } from '../math/IQuaternion';
-import {MathUtil} from '../math/MathUtil';
-import {Matrix33} from '../math/Matrix33';
-import {Matrix44} from '../math/Matrix44';
-import {MutableMatrix33} from '../math/MutableMatrix33';
-import {Quaternion} from '../math/Quaternion';
-import {Vector3} from '../math/Vector3';
-import {Vector4} from '../math/Vector4';
-import {Is} from '../misc/Is';
-import {assertExist} from '../misc/MiscUtil';
-import {
-  getEvent,
-  InputManager,
-  INPUT_HANDLING_STATE_GIZMO_SCALE,
-} from '../system/InputManager';
-import {Gizmo} from './Gizmo';
+import { MathUtil } from '../math/MathUtil';
+import { Matrix33 } from '../math/Matrix33';
+import { Matrix44 } from '../math/Matrix44';
+import { MutableMatrix33 } from '../math/MutableMatrix33';
+import { Quaternion } from '../math/Quaternion';
+import { Vector3 } from '../math/Vector3';
+import { Vector4 } from '../math/Vector4';
+import { Is } from '../misc/Is';
+import { assertExist } from '../misc/MiscUtil';
+import { getEvent, InputManager, INPUT_HANDLING_STATE_GIZMO_SCALE } from '../system/InputManager';
+import { Gizmo } from './Gizmo';
 
 declare let window: any;
 
@@ -153,9 +145,7 @@ export class ScaleGizmo extends Gizmo {
           eventTargetDom: eventTargetDom,
         },
       ]);
-      this.__topEntity!.getSceneGraph().addChild(
-        ScaleGizmo.__groupEntity.getSceneGraph()
-      );
+      this.__topEntity!.getSceneGraph().addChild(ScaleGizmo.__groupEntity.getSceneGraph());
       ScaleGizmo.__latestTargetEntity = this.__target;
       if (ScaleGizmo.__space === 'local') {
         const parent = this.__target.getSceneGraph();
@@ -164,10 +154,8 @@ export class ScaleGizmo extends Gizmo {
           quaternion = parent.getQuaternionRecursively();
         }
         ScaleGizmo.__groupEntity.getTransform().quaternion = quaternion;
-
       } else if (ScaleGizmo.__space === 'world') {
-        ScaleGizmo.__groupEntity.getTransform().quaternion =
-          Quaternion.fromCopy4(0, 0, 0, 1);
+        ScaleGizmo.__groupEntity.getTransform().quaternion = Quaternion.fromCopy4(0, 0, 0, 1);
       }
     }
 
@@ -216,17 +204,11 @@ export class ScaleGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createGroupEntity();
-    this.__topEntity!.tryToSetUniqueName(
-      `ScaleGizmo_of_${this.__target.uniqueName}`,
-      true
-    );
-    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix =
-      true;
+    this.__topEntity!.tryToSetUniqueName(`ScaleGizmo_of_${this.__target.uniqueName}`, true);
+    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
 
     // add this topEntity to the target as gizmo
-    this.__target
-      .getSceneGraph()
-      ._addGizmoChild(this.__topEntity!.getSceneGraph());
+    this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
     // setup the mesh
     // x
@@ -266,19 +248,11 @@ export class ScaleGizmo extends Gizmo {
       ScaleGizmo.__groupEntity = EntityHelper.createGroupEntity();
     }
 
-    this.__topEntity!.getSceneGraph().addChild(
-      ScaleGizmo.__groupEntity.getSceneGraph()
-    );
+    this.__topEntity!.getSceneGraph().addChild(ScaleGizmo.__groupEntity.getSceneGraph());
 
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .addChild(ScaleGizmo.__xCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .addChild(ScaleGizmo.__yCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .addChild(ScaleGizmo.__zCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__xCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__yCubeEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__zCubeEntity.getSceneGraph());
     // ScaleGizmo.__groupEntity
     //   .getSceneGraph()
     //   .addChild(ScaleGizmo.__xEdgeCubeEntity.getSceneGraph());
@@ -288,15 +262,9 @@ export class ScaleGizmo extends Gizmo {
     // ScaleGizmo.__groupEntity
     //   .getSceneGraph()
     //   .addChild(ScaleGizmo.__zEdgeCubeEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .addChild(ScaleGizmo.__xyPlaneEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .addChild(ScaleGizmo.__yzPlaneEntity.getSceneGraph());
-    ScaleGizmo.__groupEntity
-      .getSceneGraph()
-      .addChild(ScaleGizmo.__zxPlaneEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__xyPlaneEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__yzPlaneEntity.getSceneGraph());
+    ScaleGizmo.__groupEntity.getSceneGraph().addChild(ScaleGizmo.__zxPlaneEntity.getSceneGraph());
 
     ScaleGizmo.__latestTargetEntity = this.__target;
 
@@ -396,11 +364,7 @@ export class ScaleGizmo extends Gizmo {
   private zMesh() {
     ScaleGizmo.__zCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
-    ScaleGizmo.__zCubeEntity.getTransform().translate = Vector3.fromCopy3(
-      0,
-      0,
-      1
-    );
+    ScaleGizmo.__zCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 0, 1);
     ScaleGizmo.__zCubeMesh = new Mesh();
     ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zCubeMaterial.setParameter(
@@ -419,11 +383,7 @@ export class ScaleGizmo extends Gizmo {
   private yMesh() {
     ScaleGizmo.__yCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
-    ScaleGizmo.__yCubeEntity.getTransform().translate = Vector3.fromCopy3(
-      0,
-      1,
-      0
-    );
+    ScaleGizmo.__yCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 1, 0);
     ScaleGizmo.__yCubeMesh = new Mesh();
     ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yCubeMaterial.setParameter(
@@ -442,11 +402,7 @@ export class ScaleGizmo extends Gizmo {
   private xMesh() {
     ScaleGizmo.__xCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
-    ScaleGizmo.__xCubeEntity.getTransform().translate = Vector3.fromCopy3(
-      1,
-      0,
-      0
-    );
+    ScaleGizmo.__xCubeEntity.getTransform().translate = Vector3.fromCopy3(1, 0, 0);
     ScaleGizmo.__xCubeMesh = new Mesh();
     ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xCubeMaterial.setParameter(
@@ -464,15 +420,8 @@ export class ScaleGizmo extends Gizmo {
 
   private xEdgeMesh() {
     ScaleGizmo.__xEdgeCubeEntity = EntityHelper.createMeshEntity();
-    ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName(
-      'ScaleGizmo_xEdgeCube',
-      true
-    );
-    ScaleGizmo.__xEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(
-      1,
-      0,
-      0
-    );
+    ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
+    ScaleGizmo.__xEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(1, 0, 0);
     ScaleGizmo.__xEdgeCubeMesh = new Mesh();
     ScaleGizmo.__xEdgeCubePrimitive = new Cube();
     ScaleGizmo.__xEdgeCubePrimitive.generate({
@@ -487,15 +436,8 @@ export class ScaleGizmo extends Gizmo {
 
   private yEdgeMesh() {
     ScaleGizmo.__yEdgeCubeEntity = EntityHelper.createMeshEntity();
-    ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName(
-      'ScaleGizmo_yEdgeCube',
-      true
-    );
-    ScaleGizmo.__yEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(
-      0,
-      1,
-      0
-    );
+    ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
+    ScaleGizmo.__yEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 1, 0);
     ScaleGizmo.__yEdgeCubeMesh = new Mesh();
     ScaleGizmo.__yEdgeCubePrimitive = new Cube();
     ScaleGizmo.__yEdgeCubePrimitive.generate({
@@ -510,15 +452,8 @@ export class ScaleGizmo extends Gizmo {
 
   private zEdgeMesh() {
     ScaleGizmo.__zEdgeCubeEntity = EntityHelper.createMeshEntity();
-    ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName(
-      'ScaleGizmo_zEdgeCube',
-      true
-    );
-    ScaleGizmo.__zEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(
-      0,
-      0,
-      1
-    );
+    ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
+    ScaleGizmo.__zEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 0, 1);
     ScaleGizmo.__zEdgeCubeMesh = new Mesh();
     ScaleGizmo.__zEdgeCubePrimitive = new Cube();
     ScaleGizmo.__zEdgeCubePrimitive.generate({
@@ -530,7 +465,6 @@ export class ScaleGizmo extends Gizmo {
 
     ScaleGizmo.__zCubeEntity.addChild(ScaleGizmo.__zEdgeCubeEntity.getSceneGraph());
   }
-
 
   /**
    * @internal
@@ -607,10 +541,7 @@ export class ScaleGizmo extends Gizmo {
     ]);
 
     const primitive = Primitive.createPrimitive({
-      attributeSemantics: [
-        VertexAttribute.Position.XYZ,
-        VertexAttribute.Color0.XYZ,
-      ],
+      attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
       attributes: [positions, color],
       primitiveMode: PrimitiveMode.Lines,
     });
@@ -646,35 +577,23 @@ export class ScaleGizmo extends Gizmo {
       rotMat = MutableMatrix33.identity();
     }
 
-    const {xResult, yResult, zResult} = ScaleGizmo.castRay(evt);
+    const { xResult, yResult, zResult } = ScaleGizmo.castRay(evt);
     if (xResult.result) {
       assertExist(xResult.data);
-      this.__pickStatedPoint = rotMat.multiplyVector(
-        xResult.data.position.clone()
-      );
-      console.log(
-        'Down:' + this.__pickStatedPoint.toStringApproximately()
-      );
+      this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
+      console.log('Down:' + this.__pickStatedPoint.toStringApproximately());
       ScaleGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data);
-      this.__pickStatedPoint = rotMat.multiplyVector(
-        yResult.data.position.clone()
-      );
-      console.log(
-        'Down:' + this.__pickStatedPoint.toStringApproximately()
-      );
+      this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
+      console.log('Down:' + this.__pickStatedPoint.toStringApproximately());
       ScaleGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data);
-      this.__pickStatedPoint = rotMat.multiplyVector(
-        zResult.data.position.clone()
-      );
-      console.log(
-        'Down:' + this.__pickStatedPoint.toStringApproximately()
-      );
+      this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
+      console.log('Down:' + this.__pickStatedPoint.toStringApproximately());
       ScaleGizmo.__activeAxis = 'z';
     }
 
@@ -726,11 +645,7 @@ export class ScaleGizmo extends Gizmo {
       if (xResult.result) {
         assertExist(xResult.data);
         const position = rotMat.multiplyVector(xResult.data.position);
-        pickInMovingPoint = Vector3.fromCopy3(
-          position.x,
-          pickInMovingPoint.y,
-          pickInMovingPoint.z
-        );
+        pickInMovingPoint = Vector3.fromCopy3(position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         // pickInMovingPoint = Vector3.fromCopy3(xResult.data.position.x, pickInMovingPoint.y, pickInMovingPoint.z);
         console.log('Move:' + xResult.data.position.toStringApproximately());
       }
@@ -743,11 +658,7 @@ export class ScaleGizmo extends Gizmo {
       if (yResult.result) {
         assertExist(yResult.data);
         const position = rotMat.multiplyVector(yResult.data.position);
-        pickInMovingPoint = Vector3.fromCopy3(
-          pickInMovingPoint.x,
-          position.y,
-          pickInMovingPoint.z
-        );
+        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, position.y, pickInMovingPoint.z);
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, yResult.data.position.y, pickInMovingPoint.z);
         console.log('Move:' + yResult.data.position.toStringApproximately());
       }
@@ -760,11 +671,7 @@ export class ScaleGizmo extends Gizmo {
       if (zResult.result) {
         assertExist(zResult.data);
         const position = rotMat.multiplyVector(zResult.data.position);
-        pickInMovingPoint = Vector3.fromCopy3(
-          pickInMovingPoint.x,
-          pickInMovingPoint.y,
-          position.z
-        );
+        pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, position.z);
         // pickInMovingPoint = Vector3.fromCopy3(pickInMovingPoint.x, pickInMovingPoint.y, zResult.data.position.z);
         console.log('Move:' + zResult.data.position.toStringApproximately());
       }
@@ -781,17 +688,16 @@ export class ScaleGizmo extends Gizmo {
     console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
 
     if (ScaleGizmo.__space === 'local') {
-      this.__deltaPoint = Vector3.add(
-        this.__targetScaleBackup,
-        deltaVector3
-      );
+      this.__deltaPoint = Vector3.add(this.__targetScaleBackup, deltaVector3);
       this.__deltaPoint = Vector3.fromCopy3(
         Math.max(this.__deltaPoint.x, 0.01),
         Math.max(this.__deltaPoint.y, 0.01),
         Math.max(this.__deltaPoint.z, 0.01)
       );
     } else if (ScaleGizmo.__space === 'world') {
-      const worldMat = Matrix44.fromCopyQuaternion(this.__target.getSceneGraph().getQuaternionRecursively());
+      const worldMat = Matrix44.fromCopyQuaternion(
+        this.__target.getSceneGraph().getQuaternionRecursively()
+      );
       const existedScale = Matrix44.multiply(
         worldMat,
         Matrix44.scale(this.__targetScaleBackup)
@@ -802,7 +708,7 @@ export class ScaleGizmo extends Gizmo {
         Math.max(scale.y, 0.01),
         Math.max(scale.z, 0.01),
         Math.max(scale.w, 0.01)
-      )
+      );
       this.__deltaPoint = Matrix44.multiply(
         Matrix44.invert(worldMat),
         Matrix44.scale(scale)
@@ -884,12 +790,15 @@ export class ScaleGizmo extends Gizmo {
       CameraComponent,
       CameraComponent.current
     ) as CameraComponent | undefined;
-    const xResult = ScaleGizmo.__xCubeEntity.getSceneGraph()
+    const xResult = ScaleGizmo.__xCubeEntity
+      .getSceneGraph()
       .castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    const yResult = ScaleGizmo.__yCubeEntity.getSceneGraph()
+    const yResult = ScaleGizmo.__yCubeEntity
+      .getSceneGraph()
       .castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    const zResult = ScaleGizmo.__zCubeEntity.getSceneGraph()
+    const zResult = ScaleGizmo.__zCubeEntity
+      .getSceneGraph()
       .castRayFromScreen(x, y, activeCamera!, viewport, 0.0);
-    return {xResult, yResult, zResult};
+    return { xResult, yResult, zResult };
   }
 }

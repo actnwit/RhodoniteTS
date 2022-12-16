@@ -1,13 +1,10 @@
-import {CompositionTypeEnum} from '../../definitions/CompositionType';
-import {ComponentTypeEnum} from '../../definitions/ComponentType';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { VaryingVariableShader } from '../../../webgl/shaders/nodes/VaryingVariableShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class VaryingOutVariableShaderNode extends AbstractShaderNode {
-  constructor(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('varyingOutVariable');
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;

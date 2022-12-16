@@ -1,7 +1,7 @@
-import {Buffer} from './Buffer';
-import {CompositionType} from '../definitions/CompositionType';
-import {ComponentType} from '../definitions/ComponentType';
-import {Accessor} from './Accessor';
+import { Buffer } from './Buffer';
+import { CompositionType } from '../definitions/CompositionType';
+import { ComponentType } from '../definitions/ComponentType';
+import { Accessor } from './Accessor';
 
 function createBuffer(byteSize: number) {
   const arrayBuffer = new ArrayBuffer(byteSize);
@@ -37,8 +37,7 @@ test('An bufferView can take an accessor from itself', () => {
 test('take BufferView and Accessor, the Accessor byteLength is correct', () => {
   const compositionType = CompositionType.Vec3;
   const componentType = ComponentType.Float;
-  const bytes =
-    compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+  const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
   const count = 5;
   const buffer = createBuffer(bytes * count);
 
@@ -64,8 +63,7 @@ test('take BufferView and Accessor, the Accessor byteLength is correct', () => {
 test('take BufferView and Accessor, but the count is too much', () => {
   const compositionType = CompositionType.Vec3;
   const componentType = ComponentType.Float;
-  const bytes =
-    compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+  const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
   const count = 5;
   const buffer = createBuffer(bytes * count);
 
@@ -92,8 +90,7 @@ test('take BufferView and Accessor, but the count is too much', () => {
 test('take BufferView, but the byteLength is too much', () => {
   const compositionType = CompositionType.Vec3;
   const componentType = ComponentType.Float;
-  const bytes =
-    compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
+  const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
   const count = 5;
   const buffer = createBuffer(bytes * count);
 

@@ -68,9 +68,7 @@ export class RnPromise<T> extends Promise<T> {
       };
 
       for (const promise of promises) {
-        const rnPromise = RnPromise.resolve(
-          promise
-        ) as unknown as RnPromise<any>;
+        const rnPromise = RnPromise.resolve(promise) as unknown as RnPromise<any>;
         rnPromise.__callback = callback;
         rnPromise.__callbackObj = callbackObj;
         rnPromises.push(rnPromise);
@@ -86,14 +84,8 @@ export class RnPromise<T> extends Promise<T> {
   }
 
   then<TResult1 = T, TResult2 = never>(
-    onfulfilled?:
-      | ((value: T) => TResult1 | PromiseLike<TResult1>)
-      | undefined
-      | null,
-    onrejected?:
-      | ((reason: any) => TResult2 | PromiseLike<TResult2>)
-      | undefined
-      | null
+    onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null,
+    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): RnPromise<TResult1 | TResult2> {
     let onFulfilledWrapper;
     if (onfulfilled) {
@@ -112,9 +104,7 @@ export class RnPromise<T> extends Promise<T> {
         return onfulfilled(value!);
       };
     }
-    return this.__promise.then(onFulfilledWrapper, onrejected) as RnPromise<
-      TResult1 | TResult2
-    >;
+    return this.__promise.then(onFulfilledWrapper, onrejected) as RnPromise<TResult1 | TResult2>;
   }
 
   catch(onRejected?: any): RnPromise<T> {

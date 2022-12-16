@@ -1,23 +1,23 @@
-import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import {TextureParameter} from '../../definitions/TextureParameter';
-import {RenderableHelper} from '../../helpers/RenderableHelper';
-import {Vector4} from '../../math/Vector4';
-import {assertHas, IOption, None, Some} from '../../misc/Option';
-import {Is} from '../../misc/Is';
-import {CubeTexture} from '../../textures/CubeTexture';
-import {Expression} from '../Expression';
-import {Frame} from '../Frame';
-import {FrameBuffer} from '../FrameBuffer';
-import {RenderPass} from '../RenderPass';
-import {EntityHelper, IMeshEntity} from '../../helpers/EntityHelper';
-import {MaterialHelper} from '../../helpers/MaterialHelper';
-import {Size} from '../../../types';
-import {Err, Ok} from '../../misc/Result';
-import {System} from '../../system/System';
-import {RnObject} from '../../core/RnObject';
-import {ModuleManager} from '../../system/ModuleManager';
-import {ComponentType, HdriFormatEnum, PixelFormat} from '../../definitions';
-import {MeshHelper, RenderPassHelper} from '../../helpers';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { RenderableHelper } from '../../helpers/RenderableHelper';
+import { Vector4 } from '../../math/Vector4';
+import { assertHas, IOption, None, Some } from '../../misc/Option';
+import { Is } from '../../misc/Is';
+import { CubeTexture } from '../../textures/CubeTexture';
+import { Expression } from '../Expression';
+import { Frame } from '../Frame';
+import { FrameBuffer } from '../FrameBuffer';
+import { RenderPass } from '../RenderPass';
+import { EntityHelper, IMeshEntity } from '../../helpers/EntityHelper';
+import { MaterialHelper } from '../../helpers/MaterialHelper';
+import { Size } from '../../../types';
+import { Err, Ok } from '../../misc/Result';
+import { System } from '../../system/System';
+import { RnObject } from '../../core/RnObject';
+import { ModuleManager } from '../../system/ModuleManager';
+import { ComponentType, HdriFormatEnum, PixelFormat } from '../../definitions';
+import { MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 
 type DrawFunc = (frame: Frame) => void;
@@ -106,7 +106,7 @@ export class ForwardRenderPipeline extends RnObject {
   async setup(
     canvasWidth: number,
     canvasHeight: number,
-    {isShadow = false, shadowMapSize = 1024} = {}
+    { isShadow = false, shadowMapSize = 1024 } = {}
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
@@ -122,11 +122,8 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oFrame = sFrame;
 
     // create Frame Buffers
-    const {
-      framebufferMsaa,
-      framebufferResolve,
-      framebufferResolveForReference,
-    } = this.__createRenderTargets(canvasWidth, canvasHeight);
+    const { framebufferMsaa, framebufferResolve, framebufferResolveForReference } =
+      this.__createRenderTargets(canvasWidth, canvasHeight);
 
     // Initial Expression
     const initialExpression = this.__setupInitialExpression(framebufferMsaa);
@@ -142,9 +139,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oMsaaResolveExpression = new Some(msaaResolveExpression);
     this.__oFrameBufferMsaa = new Some(framebufferMsaa);
     this.__oFrameBufferResolve = new Some(framebufferResolve);
-    this.__oFrameBufferResolveForReference = new Some(
-      framebufferResolveForReference
-    );
+    this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
 
     // gamma Expression
     const gammaExpression = this.__setupGammaExpression(
@@ -184,7 +179,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setExpressionsInner(expressions, {
       isTransmission: options.isTransmission,
     });
-    const clonedExpressions = expressions.map(expression => expression.clone());
+    const clonedExpressions = expressions.map((expression) => expression.clone());
     if (options.isTransmission) {
       this.__setTransparentExpressionsForTransmission(clonedExpressions);
     }
@@ -201,8 +196,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__depthMomentExpressions.push(expression.clone());
     }
 
-    const depthMomentMaterial =
-      MaterialHelper.createDepthMomentEncodeMaterial();
+    const depthMomentMaterial = MaterialHelper.createDepthMomentEncodeMaterial();
 
     for (const expression of this.__depthMomentExpressions) {
       for (const renderPass of expression.renderPasses) {
@@ -229,9 +223,7 @@ export class ForwardRenderPipeline extends RnObject {
                 const material = primitive.material;
                 material.setTextureParameter(
                   ShaderSemantics.DepthTexture,
-                  this.__oFrameDepthMoment
-                    .unwrapForce()
-                    .getColorAttachedRenderTargetTexture(0)!
+                  this.__oFrameDepthMoment.unwrapForce().getColorAttachedRenderTargetTexture(0)!
                 );
               }
             }
@@ -323,10 +315,7 @@ export class ForwardRenderPipeline extends RnObject {
    * set IBL textures from uri
    * @param arg - argument for diffuse and specular IBL
    */
-  setIBL(arg: {
-    diffuse: IBLCubeTextureParameter;
-    specular: IBLCubeTextureParameter;
-  }) {
+  setIBL(arg: { diffuse: IBLCubeTextureParameter; specular: IBLCubeTextureParameter }) {
     const diffuseCubeTexture = new CubeTexture();
     diffuseCubeTexture.baseUriToLoad = arg.diffuse.baseUri;
     diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
@@ -512,9 +501,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInner();
   }
 
-  private __setTransparentExpressionsForTransmission(
-    expressions: Expression[]
-  ) {
+  private __setTransparentExpressionsForTransmission(expressions: Expression[]) {
     for (const expression of expressions) {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
@@ -558,18 +545,11 @@ export class ForwardRenderPipeline extends RnObject {
 
     // render pass to clear buffers of framebuffer
     const initialRenderPassForFrameBuffer = new RenderPass();
-    initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([
-      0.0, 0.0, 0.0, 0.0,
-    ]);
+    initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPassForFrameBuffer.toClearColorBuffer = true;
     initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
-    initialRenderPassForFrameBuffer.setFramebuffer(
-      framebufferTargetOfGammaMsaa
-    );
-    expression.addRenderPasses([
-      initialRenderPass,
-      initialRenderPassForFrameBuffer,
-    ]);
+    initialRenderPassForFrameBuffer.setFramebuffer(framebufferTargetOfGammaMsaa);
+    expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
     return expression;
   }
 
@@ -595,22 +575,18 @@ export class ForwardRenderPipeline extends RnObject {
         createDepthBuffer: true,
       }
     );
-    framebufferResolve.tryToSetUniqueName(
-      'FramebufferTargetOfGammaResolve',
-      true
-    );
+    framebufferResolve.tryToSetUniqueName('FramebufferTargetOfGammaResolve', true);
 
     // Resolve Color 2
-    const framebufferResolveForReference =
-      RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        1,
-        {
-          createDepthBuffer: false,
-          minFilter: TextureParameter.LinearMipmapLinear,
-        }
-      );
+    const framebufferResolveForReference = RenderableHelper.createTexturesForRenderTarget(
+      canvasWidth,
+      canvasHeight,
+      1,
+      {
+        createDepthBuffer: false,
+        minFilter: TextureParameter.LinearMipmapLinear,
+      }
+    );
     framebufferResolveForReference.tryToSetUniqueName(
       'FramebufferTargetOfGammaResolveForReference',
       true
@@ -636,9 +612,7 @@ export class ForwardRenderPipeline extends RnObject {
     renderPassForResolve.toClearDepthBuffer = false;
     renderPassForResolve.setFramebuffer(framebufferTargetOfGammaMsaa);
     renderPassForResolve.setResolveFramebuffer(framebufferTargetOfGammaResolve);
-    renderPassForResolve.setResolveFramebuffer2(
-      framebufferTargetOfGammaResolveForReference
-    );
+    renderPassForResolve.setResolveFramebuffer2(framebufferTargetOfGammaResolveForReference);
 
     sFrame.unwrapForce().addExpression(expressionForResolve);
 
@@ -708,8 +682,7 @@ export class ForwardRenderPipeline extends RnObject {
     const satMaterial = MaterialHelper.createSummedAreaTableMaterial({
       noUseCameraTransform: true,
     });
-    const renderPassSat =
-      RenderPassHelper.createScreenDrawRenderPass(satMaterial);
+    const renderPassSat = RenderPassHelper.createScreenDrawRenderPass(satMaterial);
   }
 
   private __setupDepthMomentExpression(shadowMapSize: number) {
@@ -747,10 +720,8 @@ export class ForwardRenderPipeline extends RnObject {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.specularCubeMap =
-              this.__oSpecularCubeTexture.unwrapOrUndefined();
-            meshRendererComponent.diffuseCubeMap =
-              this.__oDiffuseCubeTexture.unwrapOrUndefined();
+            meshRendererComponent.specularCubeMap = this.__oSpecularCubeTexture.unwrapOrUndefined();
+            meshRendererComponent.diffuseCubeMap = this.__oDiffuseCubeTexture.unwrapOrUndefined();
           }
         }
       }
@@ -763,10 +734,8 @@ export class ForwardRenderPipeline extends RnObject {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.specularCubeMap =
-              this.__oSpecularCubeTexture.unwrapOrUndefined();
-            meshRendererComponent.diffuseCubeMap =
-              this.__oDiffuseCubeTexture.unwrapOrUndefined();
+            meshRendererComponent.specularCubeMap = this.__oSpecularCubeTexture.unwrapOrUndefined();
+            meshRendererComponent.diffuseCubeMap = this.__oDiffuseCubeTexture.unwrapOrUndefined();
           }
         }
       }

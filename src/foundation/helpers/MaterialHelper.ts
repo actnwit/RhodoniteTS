@@ -1,36 +1,36 @@
-import {Config} from '../core/Config';
-import {Material} from '../materials/core/Material';
-import {RenderPass} from '../renderer/RenderPass';
-import {AbstractMaterialContent} from '../materials/core/AbstractMaterialContent';
-import {DepthEncodeMaterialContent} from '../materials/contents/DepthEncodeMaterialContent';
-import {ShadowMapDecodeClassicMaterialContent} from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
-import {EntityUIDOutputMaterialContent} from '../materials/contents/EntityUIDOutputMaterialContent';
-import {MToonMaterialContent} from '../materials/contents/MToonMaterialContent';
-import {CustomMaterialContent} from '../materials/contents/CustomMaterialContent';
-import {Primitive} from '../geometry/Primitive';
-import {ProcessStage} from '../definitions/ProcessStage';
-import {AlphaMode} from '../definitions/AlphaMode';
-import {AbstractTexture} from '../textures/AbstractTexture';
-import {FurnaceTestMaterialContent} from '../materials/contents/FurnaceTestMaterialContent';
-import {GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent} from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
-import {GaussianBlurMaterialContent as GaussianBlurMaterialContent} from '../materials/contents/GaussianBlurMaterialContent';
-import {DetectHighLuminanceMaterialContent} from '../materials/contents/DetectHighLuminanceMaterialContent';
-import {SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent} from '../materials/contents/SynthesizeHdrMaterialContent';
-import {ColorGradingUsingLUTsMaterialContent} from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
-import {MatCapMaterialContent} from '../materials/contents/MatCapMaterialContent';
-import {VarianceShadowMapDecodeClassicMaterialContent} from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
-import {Texture} from '../textures/Texture';
-import {CameraComponent} from '../components/Camera/CameraComponent';
-import {Count} from '../../types/CommonTypes';
-import {ShaderityObject} from 'shaderity';
-import {ShaderityMaterialContent} from '../materials/contents/ShaderityMaterialContent';
-import {IMeshRendererEntityMethods} from '../components/MeshRenderer/IMeshRendererEntity';
-import {ShaderSemantics} from '../definitions/ShaderSemantics';
-import {ComponentType} from '../definitions/ComponentType';
-import {CompositionType} from '../definitions/CompositionType';
-import {ShaderType} from '../definitions/ShaderType';
-import {VectorN} from '../math/VectorN';
-import {ShaderSemanticsInfo} from '../definitions/ShaderSemanticsInfo';
+import { Config } from '../core/Config';
+import { Material } from '../materials/core/Material';
+import { RenderPass } from '../renderer/RenderPass';
+import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
+import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
+import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
+import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
+import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
+import { Primitive } from '../geometry/Primitive';
+import { ProcessStage } from '../definitions/ProcessStage';
+import { AlphaMode } from '../definitions/AlphaMode';
+import { AbstractTexture } from '../textures/AbstractTexture';
+import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
+import { GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent } from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
+import { GaussianBlurMaterialContent as GaussianBlurMaterialContent } from '../materials/contents/GaussianBlurMaterialContent';
+import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
+import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
+import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
+import { MatCapMaterialContent } from '../materials/contents/MatCapMaterialContent';
+import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/contents/VarianceShadowMapDecodeClassicMaterialContent';
+import { Texture } from '../textures/Texture';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import { Count } from '../../types/CommonTypes';
+import { ShaderityObject } from 'shaderity';
+import { ShaderityMaterialContent } from '../materials/contents/ShaderityMaterialContent';
+import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { ComponentType } from '../definitions/ComponentType';
+import { CompositionType } from '../definitions/CompositionType';
+import { ShaderType } from '../definitions/ShaderType';
+import { VectorN } from '../math/VectorN';
+import { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
@@ -47,8 +47,8 @@ import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShad
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
-import {ShaderVariableUpdateInterval} from '../definitions/ShaderVariableUpdateInterval';
-import {MaterialRepository} from '../materials/core/MaterialRepository';
+import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
+import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { Vrm0xMaterialProperty } from '../../types';
 
 function createMaterial(
@@ -56,21 +56,13 @@ function createMaterial(
   materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
-  const isRegisteredMaterialType =
-    MaterialRepository.isRegisteredMaterialType(materialName);
+  const isRegisteredMaterialType = MaterialRepository.isRegisteredMaterialType(materialName);
 
   if (!isRegisteredMaterialType) {
-    MaterialRepository.registerMaterial(
-      materialName,
-      materialNode,
-      maxInstancesNumber!
-    );
+    MaterialRepository.registerMaterial(materialName, materialNode, maxInstancesNumber!);
   }
 
-  const material = MaterialRepository.createMaterial(
-    materialName,
-    materialNode
-  );
+  const material = MaterialRepository.createMaterial(materialName, materialNode);
   return material;
 }
 
@@ -79,26 +71,15 @@ function recreateMaterial(
   materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
-  MaterialRepository.forceRegisterMaterial(
-    materialName,
-    materialNode!,
-    maxInstancesNumber!
-  );
+  MaterialRepository.forceRegisterMaterial(materialName, materialNode!, maxInstancesNumber!);
 
-  const material = MaterialRepository.createMaterial(
-    materialName,
-    materialNode
-  );
+  const material = MaterialRepository.createMaterial(materialName, materialNode);
   return material;
 }
 
 function createEmptyMaterial() {
   const materialName = 'Empty';
-  const material = createMaterial(
-    materialName,
-    undefined,
-    Config.maxMaterialInstanceForEachType
-  );
+  const material = createMaterial(materialName, undefined, Config.maxMaterialInstanceForEachType);
   material.tryToSetUniqueName('EmptyMaterial', true);
   return material;
 }
@@ -148,9 +129,7 @@ function createPbrUberMaterial({
         stage: ShaderType.VertexShader,
         isCustomSetting: true,
         soloDatum: true,
-        initialValue: new VectorN(
-          new Int32Array(Config.maxVertexMorphNumberInShader)
-        ),
+        initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
         needUniformInDataTextureMode: true,
@@ -163,9 +142,7 @@ function createPbrUberMaterial({
         stage: ShaderType.VertexShader,
         isCustomSetting: true,
         soloDatum: true,
-        initialValue: new VectorN(
-          new Float32Array(Config.maxVertexMorphNumberInShader)
-        ),
+        initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
         min: -Number.MAX_VALUE,
         max: Number.MAX_VALUE,
         needUniformInDataTextureMode: true,
@@ -182,10 +159,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -196,10 +170,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -210,10 +181,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyBlueTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyBlueTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -227,10 +195,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -241,10 +206,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyBlackTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyBlackTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -258,10 +220,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -275,10 +234,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       soloDatum: false,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -290,10 +246,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -305,10 +258,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.__sheenLutTextureUid,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.__sheenLutTextureUid],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -323,10 +273,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -338,10 +285,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -356,10 +300,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -371,10 +312,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -389,10 +327,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [
-        textureSlotIdx++,
-        AbstractMaterialContent.dummyWhiteTexture,
-      ],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.dummyWhiteTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -420,11 +355,7 @@ function createPbrUberMaterial({
   });
 
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -461,11 +392,7 @@ function createClassicUberMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -478,10 +405,7 @@ function createDepthMomentEncodeMaterial({
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
   const materialName =
-    'DepthMomentEncode' +
-    `_${additionalName}_` +
-    ' alpha_' +
-    alphaMode.str.toLowerCase();
+    'DepthMomentEncode' + `_${additionalName}_` + ' alpha_' + alphaMode.str.toLowerCase();
 
   const materialNode = new CustomMaterialContent({
     name: 'DepthMomentEncode',
@@ -497,11 +421,7 @@ function createDepthMomentEncodeMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -534,11 +454,7 @@ function createFlatMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -564,11 +480,7 @@ function createEnvConstantMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   material.setParameter(ShaderSemantics.MakeOutputSrgb, makeOutputSrgb ? 1 : 0);
   return material;
 }
@@ -594,28 +506,17 @@ function createFXAA3QualityMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
 
-function createFurnaceTestMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-} = {}) {
+function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'FurnaceTest' + `_${additionalName}`;
 
   const materialNode = new FurnaceTestMaterialContent();
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -626,18 +527,13 @@ function createDepthEncodeMaterial({
   depthPow = 1.0,
   maxInstancesNumber = 10,
 } = {}) {
-  const materialName =
-    'DepthEncode' + `_${additionalName}_` + (isSkinning ? '+skinning' : '');
+  const materialName = 'DepthEncode' + `_${additionalName}_` + (isSkinning ? '+skinning' : '');
 
   const materialNode = new DepthEncodeMaterialContent(depthPow, {
     isSkinning,
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -671,11 +567,7 @@ function createShadowMapDecodeClassicSingleMaterial(
     depthEncodeRenderPass
   );
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -689,11 +581,7 @@ function createGaussianBlurForEncodedDepthMaterial({
   const materialNode = new GaussianBlurForEncodedDepthMaterialContent();
   materialNode.isSingleOperation = true;
 
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -743,20 +631,12 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
     encodedDepthRenderPasses
   );
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   return material;
 }
 
 function createDetectHighLuminanceMaterial(
-  {
-    additionalName = '',
-    colorAttachmentsNumber = 0,
-    maxInstancesNumber = 5,
-  } = {},
+  { additionalName = '', colorAttachmentsNumber = 0, maxInstancesNumber = 5 } = {},
   HDRRenderPass: RenderPass
 ) {
   const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
@@ -765,27 +645,16 @@ function createDetectHighLuminanceMaterial(
     colorAttachmentsNumber
   );
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   return material;
 }
 
-function createGaussianBlurMaterial({
-  additionalName = '',
-  maxInstancesNumber = 10,
-} = {}) {
+function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
   const materialNode = new GaussianBlurMaterialContent();
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -804,16 +673,9 @@ function createSynthesizeHDRMaterial(
 ) {
   const materialName = 'SynthesizeHDR' + `_${additionalName}`;
 
-  const materialNode = new SynthesizeHDRMaterialContent(
-    synthesizeTextures,
-    targetRegionTexture!
-  );
+  const materialNode = new SynthesizeHDRMaterialContent(synthesizeTextures, targetRegionTexture!);
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -843,11 +705,7 @@ function createColorGradingUsingLUTsMaterial(
     texture
   );
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -873,11 +731,7 @@ function createGammaCorrectionMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -903,11 +757,7 @@ function createSummedAreaTableMaterial({
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -925,33 +775,21 @@ function createMatCapMaterial({
   texture?: Texture;
   maxInstancesNumber?: Count;
 }) {
-  const materialName =
-    'MatCap' + `_${additionalName}` + (isSkinning ? '+skinning' : '');
+  const materialName = 'MatCap' + `_${additionalName}` + (isSkinning ? '+skinning' : '');
 
   const materialNode = new MatCapMaterialContent(isSkinning, uri, texture);
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
 
-function createEntityUIDOutputMaterial({
-  additionalName = '',
-  maxInstancesNumber = 10,
-} = {}) {
+function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
   const materialName = 'EntityUIDOutput' + `_${additionalName}`;
 
   const materialNode = new EntityUIDOutputMaterialContent();
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -1003,11 +841,7 @@ function createMToonMaterial({
   );
 
   materialNode.isSingleOperation = true;
-  const material = createMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   materialNode.setMaterialParameters(material, isOutline);
 
   return material;
@@ -1056,11 +890,7 @@ function recreateCustomMaterial(
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = recreateMaterial(
-    materialName,
-    materialNode,
-    maxInstancesNumber
-  );
+  const material = recreateMaterial(materialName, materialNode, maxInstancesNumber);
 
   return material;
 }
@@ -1069,10 +899,7 @@ function recreateCustomMaterial(
 function recreateShaderityMaterial(
   vertexShaderityObj: ShaderityObject,
   pixelShaderityObj: ShaderityObject,
-  {
-    additionalName = '',
-    maxInstancesNumber = Config.maxMaterialInstanceForEachType,
-  } = {}
+  { additionalName = '', maxInstancesNumber = Config.maxMaterialInstanceForEachType } = {}
 ) {
   const name = `Shaderity_${additionalName}`;
 

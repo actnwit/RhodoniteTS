@@ -1,15 +1,15 @@
-import {Vector3} from './Vector3';
-import {Matrix44} from './Matrix44';
-import {Quaternion} from './Quaternion';
-import {IMatrix, IMatrix33} from './IMatrix';
-import {MutableMatrix33} from './MutableMatrix33';
-import {CompositionType} from '../definitions/CompositionType';
-import {MathUtil} from './MathUtil';
-import {MutableVector3} from './MutableVector3';
-import {AbstractMatrix} from './AbstractMatrix';
-import {IdentityMatrix33} from './IdentityMatrix33';
-import {IMutableVector3, IVector3} from './IVector';
-import {Array9} from '../../types';
+import { Vector3 } from './Vector3';
+import { Matrix44 } from './Matrix44';
+import { Quaternion } from './Quaternion';
+import { IMatrix, IMatrix33 } from './IMatrix';
+import { MutableMatrix33 } from './MutableMatrix33';
+import { CompositionType } from '../definitions/CompositionType';
+import { MathUtil } from './MathUtil';
+import { MutableVector3 } from './MutableVector3';
+import { AbstractMatrix } from './AbstractMatrix';
+import { IdentityMatrix33 } from './IdentityMatrix33';
+import { IMutableVector3, IVector3 } from './IVector';
+import { Array9 } from '../../types';
 /* eslint-disable prettier/prettier */
 
 export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
@@ -95,9 +95,15 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     }
 
     return Matrix33.fromCopy9RowMajor(
-      mat._v[0], mat._v[1], mat._v[2],
-      mat._v[3], mat._v[4], mat._v[5],
-      mat._v[6], mat._v[7], mat._v[8]
+      mat._v[0],
+      mat._v[1],
+      mat._v[2],
+      mat._v[3],
+      mat._v[4],
+      mat._v[5],
+      mat._v[6],
+      mat._v[7],
+      mat._v[8]
     );
   }
 
@@ -123,11 +129,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) / det;
     const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) / det;
 
-    return Matrix33.fromCopy9RowMajor(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return Matrix33.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   static invertTo(mat: IMatrix33, outMat: MutableMatrix33) {
@@ -149,24 +151,16 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = (mat._v[3] * mat._v[2] - mat._v[0] * mat._v[5]) / det;
     const m22 = (mat._v[0] * mat._v[4] - mat._v[3] * mat._v[1]) / det;
 
-    return outMat.setComponents(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return outMat.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
- * Create X oriented Rotation Matrix
- */
+   * Create X oriented Rotation Matrix
+   */
   static rotateX(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix33.fromCopy9RowMajor(
-      1, 0, 0,
-      0, cos, -sin,
-      0, sin, cos
-    );
+    return Matrix33.fromCopy9RowMajor(1, 0, 0, 0, cos, -sin, 0, sin, cos);
   }
 
   /**
@@ -175,11 +169,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateY(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix33.fromCopy9RowMajor(
-      cos, 0, sin,
-      0, 1, 0,
-      -sin, 0, cos
-    );
+    return Matrix33.fromCopy9RowMajor(cos, 0, sin, 0, 1, 0, -sin, 0, cos);
   }
 
   /**
@@ -188,11 +178,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   static rotateZ(radian: number) {
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
-    return Matrix33.fromCopy9RowMajor(
-      cos, -sin, 0,
-      sin, cos, 0,
-      0, 0, 1
-    );
+    return Matrix33.fromCopy9RowMajor(cos, -sin, 0, sin, cos, 0, 0, 0, 1);
   }
 
   static rotateXYZ(x: number, y: number, z: number) {
@@ -255,11 +241,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m21 = yx21;
     const m22 = yx22;
 
-    return Matrix33.fromCopy9RowMajor(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return Matrix33.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   static rotate(vec: Vector3) {
@@ -270,11 +252,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * Create Scale Matrix
    */
   static scale(vec: IVector3) {
-    return Matrix33.fromCopy9RowMajor(
-      vec._v[0], 0, 0,
-      0, vec._v[1], 0,
-      0, 0, vec._v[2]
-    );
+    return Matrix33.fromCopy9RowMajor(vec._v[0], 0, 0, 0, vec._v[1], 0, 0, 0, vec._v[2]);
   }
 
   /**
@@ -299,11 +277,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m12 = l_mat._v[1] * r_mat._v[6] + l_mat._v[4] * r_mat._v[7] + l_mat._v[7] * r_mat._v[8];
     const m22 = l_mat._v[2] * r_mat._v[6] + l_mat._v[5] * r_mat._v[7] + l_mat._v[8] * r_mat._v[8];
 
-    return Matrix33.fromCopy9RowMajor(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return Matrix33.fromCopy9RowMajor(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   /**
@@ -328,29 +302,67 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const m12 = l_mat._v[1] * r_mat._v[6] + l_mat._v[4] * r_mat._v[7] + l_mat._v[7] * r_mat._v[8];
     const m22 = l_mat._v[2] * r_mat._v[6] + l_mat._v[5] * r_mat._v[7] + l_mat._v[8] * r_mat._v[8];
 
-    return outMat.setComponents(
-      m00, m01, m02,
-      m10, m11, m12,
-      m20, m21, m22
-    );
+    return outMat.setComponents(m00, m01, m02, m10, m11, m12, m20, m21, m22);
   }
 
   toString() {
-    return this._v[0] + ' ' + this._v[3] + ' ' + this._v[6] + '\n' +
-      this._v[1] + ' ' + this._v[4] + ' ' + this._v[7] + '\n' +
-      this._v[2] + ' ' + this._v[5] + ' ' + this._v[8] + '\n';
+    return (
+      this._v[0] +
+      ' ' +
+      this._v[3] +
+      ' ' +
+      this._v[6] +
+      '\n' +
+      this._v[1] +
+      ' ' +
+      this._v[4] +
+      ' ' +
+      this._v[7] +
+      '\n' +
+      this._v[2] +
+      ' ' +
+      this._v[5] +
+      ' ' +
+      this._v[8] +
+      '\n'
+    );
   }
 
   toStringApproximately() {
-    return MathUtil.financial(this._v[0]) + ' ' + MathUtil.financial(this._v[3]) + ' ' + MathUtil.financial(this._v[6]) + '\n' +
-      MathUtil.financial(this._v[1]) + ' ' + MathUtil.financial(this._v[4]) + ' ' + MathUtil.financial(this._v[7]) + ' \n' +
-      MathUtil.financial(this._v[2]) + ' ' + MathUtil.financial(this._v[5]) + ' ' + MathUtil.financial(this._v[8]) + '\n';
+    return (
+      MathUtil.financial(this._v[0]) +
+      ' ' +
+      MathUtil.financial(this._v[3]) +
+      ' ' +
+      MathUtil.financial(this._v[6]) +
+      '\n' +
+      MathUtil.financial(this._v[1]) +
+      ' ' +
+      MathUtil.financial(this._v[4]) +
+      ' ' +
+      MathUtil.financial(this._v[7]) +
+      ' \n' +
+      MathUtil.financial(this._v[2]) +
+      ' ' +
+      MathUtil.financial(this._v[5]) +
+      ' ' +
+      MathUtil.financial(this._v[8]) +
+      '\n'
+    );
   }
 
   flattenAsArray() {
-    return [this._v[0], this._v[1], this._v[2],
-    this._v[3], this._v[4], this._v[5],
-    this._v[6], this._v[7], this._v[8]];
+    return [
+      this._v[0],
+      this._v[1],
+      this._v[2],
+      this._v[3],
+      this._v[4],
+      this._v[5],
+      this._v[6],
+      this._v[7],
+      this._v[8],
+    ];
   }
 
   isDummy() {
@@ -362,7 +374,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   }
 
   isEqual(mat: IMatrix33, delta: number = Number.EPSILON) {
-    if (Math.abs(mat._v[0] - this._v[0]) < delta &&
+    if (
+      Math.abs(mat._v[0] - this._v[0]) < delta &&
       Math.abs(mat._v[1] - this._v[1]) < delta &&
       Math.abs(mat._v[2] - this._v[2]) < delta &&
       Math.abs(mat._v[3] - this._v[3]) < delta &&
@@ -370,7 +383,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
       Math.abs(mat._v[5] - this._v[5]) < delta &&
       Math.abs(mat._v[6] - this._v[6]) < delta &&
       Math.abs(mat._v[7] - this._v[7]) < delta &&
-      Math.abs(mat._v[8] - this._v[8]) < delta) {
+      Math.abs(mat._v[8] - this._v[8]) < delta
+    ) {
       return true;
     } else {
       return false;
@@ -379,9 +393,15 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
 
   isStrictEqual(mat: Matrix33) {
     if (
-      mat._v[0] === this._v[0] && mat._v[1] === this._v[1] && mat._v[2] === this._v[2] &&
-      mat._v[3] === this._v[3] && mat._v[4] === this._v[4] && mat._v[5] === this._v[5] &&
-      mat._v[6] === this._v[6] && mat._v[7] === this._v[7] && mat._v[8] === this._v[8]
+      mat._v[0] === this._v[0] &&
+      mat._v[1] === this._v[1] &&
+      mat._v[2] === this._v[2] &&
+      mat._v[3] === this._v[3] &&
+      mat._v[4] === this._v[4] &&
+      mat._v[5] === this._v[5] &&
+      mat._v[6] === this._v[6] &&
+      mat._v[7] === this._v[7] &&
+      mat._v[8] === this._v[8]
     ) {
       return true;
     } else {
@@ -398,8 +418,14 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
   }
 
   determinant() {
-    return this._v[0] * this._v[4] * this._v[8] + this._v[1] * this._v[5] * this._v[6] + this._v[2] * this._v[3] * this._v[7]
-      - this._v[0] * this._v[5] * this._v[7] - this._v[2] * this._v[4] * this._v[6] - this._v[1] * this._v[3] * this._v[8];
+    return (
+      this._v[0] * this._v[4] * this._v[8] +
+      this._v[1] * this._v[5] * this._v[6] +
+      this._v[2] * this._v[3] * this._v[7] -
+      this._v[0] * this._v[5] * this._v[7] -
+      this._v[2] * this._v[4] * this._v[6] -
+      this._v[1] * this._v[3] * this._v[8]
+    );
   }
 
   multiplyVector(vec: IVector3) {
@@ -423,8 +449,8 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     return Vector3.fromCopyArray([
       Math.hypot(this._v[0], this._v[3], this._v[6]),
       Math.hypot(this._v[1], this._v[4], this._v[7]),
-      Math.hypot(this._v[2], this._v[5], this._v[8])]
-    );
+      Math.hypot(this._v[2], this._v[5], this._v[8]),
+    ]);
   }
 
   getScaleTo(outVec: MutableVector3) {
@@ -436,9 +462,15 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
 
   clone() {
     return (this.constructor as any).fromCopy9RowMajor(
-      this._v[0], this._v[3], this._v[6],
-      this._v[1], this._v[4], this._v[7],
-      this._v[2], this._v[5], this._v[8]
+      this._v[0],
+      this._v[3],
+      this._v[6],
+      this._v[1],
+      this._v[4],
+      this._v[7],
+      this._v[2],
+      this._v[5],
+      this._v[8]
     );
   }
 
@@ -450,14 +482,26 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns
    */
   static fromCopy9RowMajor(
-    m00: number, m01: number, m02: number,
-    m10: number, m11: number, m12: number,
-    m20: number, m21: number, m22: number)
-  {
+    m00: number,
+    m01: number,
+    m02: number,
+    m10: number,
+    m11: number,
+    m12: number,
+    m20: number,
+    m21: number,
+    m22: number
+  ) {
     const v = new Float32Array(9);
-    v[0] = m00; v[3] = m01; v[6] = m02;
-    v[1] = m10; v[4] = m11; v[7] = m12;
-    v[2] = m20; v[5] = m21; v[8] = m22;
+    v[0] = m00;
+    v[3] = m01;
+    v[6] = m02;
+    v[1] = m10;
+    v[4] = m11;
+    v[7] = m12;
+    v[2] = m20;
+    v[5] = m21;
+    v[8] = m22;
     return new Matrix33(v);
   }
 
@@ -467,17 +511,28 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
    * @returns
    */
   static fromCopy9ColumnMajor(
-    m00: number, m10: number, m20: number,
-    m01: number, m11: number, m21: number,
-    m02: number, m12: number, m22: number)
-  {
+    m00: number,
+    m10: number,
+    m20: number,
+    m01: number,
+    m11: number,
+    m21: number,
+    m02: number,
+    m12: number,
+    m22: number
+  ) {
     const v = new Float32Array(9);
-    v[0] = m00; v[3] = m01; v[6] = m02;
-    v[1] = m10; v[4] = m11; v[7] = m12;
-    v[2] = m20; v[5] = m21; v[8] = m22;
+    v[0] = m00;
+    v[3] = m01;
+    v[6] = m02;
+    v[1] = m10;
+    v[4] = m11;
+    v[7] = m12;
+    v[2] = m20;
+    v[5] = m21;
+    v[8] = m22;
     return new Matrix33(v);
   }
-
 
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(9);
@@ -505,18 +560,30 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
 
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
     const v = new Float32Array(9);
-    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
-    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
-    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[6] = array[2];
+    v[1] = array[3];
+    v[4] = array[4];
+    v[7] = array[5];
+    v[2] = array[6];
+    v[5] = array[7];
+    v[8] = array[8];
 
     return new Matrix33(v);
   }
 
   static fromCopyMatrix33(mat: IMatrix33) {
     const v = new Float32Array(9);
-    v[0] = mat._v[0]; v[3] = mat._v[3]; v[6] = mat._v[6];
-    v[1] = mat._v[1]; v[4] = mat._v[4]; v[7] = mat._v[7];
-    v[2] = mat._v[2]; v[5] = mat._v[5]; v[8] = mat._v[8];
+    v[0] = mat._v[0];
+    v[3] = mat._v[3];
+    v[6] = mat._v[6];
+    v[1] = mat._v[1];
+    v[4] = mat._v[4];
+    v[7] = mat._v[7];
+    v[2] = mat._v[2];
+    v[5] = mat._v[5];
+    v[8] = mat._v[8];
     return new Matrix33(v);
   }
 
@@ -534,17 +601,29 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
 
   static fromCopyArray9RowMajor(array: Array9<number>) {
     const v = new Float32Array(9);
-    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
-    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
-    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[6] = array[2];
+    v[1] = array[3];
+    v[4] = array[4];
+    v[7] = array[5];
+    v[2] = array[6];
+    v[5] = array[7];
+    v[8] = array[8];
     return new Matrix33(v);
   }
 
   static fromCopyArrayRowMajor(array: Array<number>) {
     const v = new Float32Array(9);
-    v[0] = array[0]; v[3] = array[1]; v[6] = array[2];
-    v[1] = array[3]; v[4] = array[4]; v[7] = array[5];
-    v[2] = array[6]; v[5] = array[7]; v[8] = array[8];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[6] = array[2];
+    v[1] = array[3];
+    v[4] = array[4];
+    v[7] = array[5];
+    v[2] = array[6];
+    v[5] = array[7];
+    v[8] = array[8];
     return new Matrix33(v);
   }
 
@@ -558,10 +637,16 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     const wx = q._v[3] * q._v[0];
     const wy = q._v[3] * q._v[1];
     const wz = q._v[3] * q._v[2];
-    const v = new Float32Array(9)
-    v[0] = 1.0 - 2.0 * (sy + sz); v[3] = 2.0 * (cz - wz); v[6] = 2.0 * (cy + wy);
-    v[1] = 2.0 * (cz + wz); v[4] = 1.0 - 2.0 * (sx + sz); v[7] = 2.0 * (cx - wx);
-    v[2] = 2.0 * (cy - wy); v[5] = 2.0 * (cx + wx); v[8] = 1.0 - 2.0 * (sx + sy);
+    const v = new Float32Array(9);
+    v[0] = 1.0 - 2.0 * (sy + sz);
+    v[3] = 2.0 * (cz - wz);
+    v[6] = 2.0 * (cy + wy);
+    v[1] = 2.0 * (cz + wz);
+    v[4] = 1.0 - 2.0 * (sx + sz);
+    v[7] = 2.0 * (cx - wx);
+    v[2] = 2.0 * (cy - wy);
+    v[5] = 2.0 * (cx + wx);
+    v[8] = 1.0 - 2.0 * (sx + sy);
 
     return new Matrix33(v);
   }

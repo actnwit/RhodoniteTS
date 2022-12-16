@@ -1,11 +1,8 @@
 import { RnObject } from '../core/RnObject';
 import { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import {
-  TextureParameter,
-  TextureParameterEnum,
-} from '../definitions/TextureParameter';
-import {Size, CGAPIResourceHandle} from '../../types/CommonTypes';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export class RenderBuffer extends RnObject implements IRenderable {
@@ -33,15 +30,14 @@ export class RenderBuffer extends RnObject implements IRenderable {
     width: Size,
     height: Size,
     internalFormat: TextureParameterEnum,
-    {isMSAA = false, sampleCountMSAA = this.__sampleCountMSAA} = {}
+    { isMSAA = false, sampleCountMSAA = this.__sampleCountMSAA } = {}
   ) {
     this.width = width;
     this.height = height;
     this.__isMSAA = isMSAA;
     this.__sampleCountMSAA = sampleCountMSAA;
     this.__internalFormat = internalFormat;
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(
       width,
       height,
@@ -53,14 +49,13 @@ export class RenderBuffer extends RnObject implements IRenderable {
 
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();
-    this.create(width, height, this.__internalFormat, {isMSAA: this.__isMSAA});
+    this.create(width, height, this.__internalFormat, { isMSAA: this.__isMSAA });
   }
 
   destroy3DAPIResources() {
     this.width = 0;
     this.height = 0;
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.deleteRenderBuffer(this.cgApiResourceUid);
     this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     return true;

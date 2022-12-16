@@ -1,13 +1,10 @@
-import {CompositionTypeEnum} from '../../definitions/CompositionType';
-import {ComponentTypeEnum} from '../../definitions/ComponentType';
-import {UniformDataShader} from '../../../webgl/shaders/nodes/UniformDataShader';
-import {AbstractShaderNode} from '../core/AbstractShaderNode';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import { UniformDataShader } from '../../../webgl/shaders/nodes/UniformDataShader';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class UniformDataShaderNode extends AbstractShaderNode {
-  constructor(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('uniformData');
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;

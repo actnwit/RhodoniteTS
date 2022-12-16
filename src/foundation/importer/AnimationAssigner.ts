@@ -1,13 +1,18 @@
-import {RnM2} from '../../types/RnM2';
-import {ModelConverter} from './ModelConverter';
-import {EntityRepository} from '../core/EntityRepository';
-import {AnimationComponent} from '../components/Animation/AnimationComponent';
-import {AnimationInterpolation} from '../definitions/AnimationInterpolation';
-import {Index} from '../../types/CommonTypes';
-import {Vrm0x} from '../../types/VRM0x';
-import {Is} from '../misc/Is';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import { AbsoluteAnimation, GlobalRetarget, GlobalRetarget2, IAnimationRetarget } from '../components';
+import { RnM2 } from '../../types/RnM2';
+import { ModelConverter } from './ModelConverter';
+import { EntityRepository } from '../core/EntityRepository';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { AnimationInterpolation } from '../definitions/AnimationInterpolation';
+import { Index } from '../../types/CommonTypes';
+import { Vrm0x } from '../../types/VRM0x';
+import { Is } from '../misc/Is';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import {
+  AbsoluteAnimation,
+  GlobalRetarget,
+  GlobalRetarget2,
+  IAnimationRetarget,
+} from '../components';
 import { Vrm1 } from '../../types/VRM1';
 
 type RetargetMode = 'none' | 'global' | 'global2' | 'absolute';
@@ -83,14 +88,13 @@ export class AnimationAssigner {
             humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
           }
         }
-        const dstMapNameNodeId = rootEntity.getTagValue(
-          'humanoid_map_name_nodeId'
-        )! as Map<string, number>;
+        const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
+          string,
+          number
+        >;
         const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
         if (dstBoneNodeId != null) {
-          const rnEntities = rootEntity.getTagValue(
-            'rnEntities'
-          )! as ISceneGraphEntity[];
+          const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
           console.log(
@@ -110,14 +114,13 @@ export class AnimationAssigner {
         if (nodeName != null) {
           humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
         }
-        const dstMapNameNodeId = rootEntity.getTagValue(
-          'humanoid_map_name_nodeId'
-        )! as Map<string, number>;
+        const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
+          string,
+          number
+        >;
         const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
         if (dstBoneNodeId != null) {
-          const rnEntities = rootEntity.getTagValue(
-            'rnEntities'
-          )! as ISceneGraphEntity[];
+          const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
           console.log(
@@ -130,11 +133,7 @@ export class AnimationAssigner {
     }
   }
 
-  private __isHips(
-    rootEntity: ISceneGraphEntity,
-    vrmModel: Vrm0x | Vrm1,
-    nodeIndex: Index
-  ) {
+  private __isHips(rootEntity: ISceneGraphEntity, vrmModel: Vrm0x | Vrm1, nodeIndex: Index) {
     const srcMapNodeIdName: Map<number, string> = new Map();
     if (Is.exist(vrmModel.extensions.VRM)) {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
@@ -148,9 +147,10 @@ export class AnimationAssigner {
         srcMapNodeIdName.set(bone.node, boneName);
       }
     }
-    const dstMapNameNodeId = rootEntity.getTagValue(
-      'humanoid_map_name_nodeId'
-    )! as Map<string, number>;
+    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
+      string,
+      number
+    >;
     const humanoidBoneName = srcMapNodeIdName.get(nodeIndex)!;
     if (humanoidBoneName === 'hips') {
       return true;
@@ -170,12 +170,8 @@ export class AnimationAssigner {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
-            sampler.inputObject!
-          );
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(
-            sampler.outputObject!
-          );
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
         }
       }
     }
@@ -184,10 +180,8 @@ export class AnimationAssigner {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
           // get animation data
-          const animInputArray =
-            channel.samplerObject?.inputObject?.extras!.typedDataArray;
-          const animOutputArray =
-            channel.samplerObject?.outputObject?.extras!.typedDataArray;
+          const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
+          const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
           const interpolation =
             channel.samplerObject!.interpolation != null
               ? channel.samplerObject!.interpolation
@@ -204,10 +198,7 @@ export class AnimationAssigner {
             isSameSkeleton
           );
           if (rnEntity) {
-            const newRnEntity = EntityRepository.addComponentToEntity(
-              AnimationComponent,
-              rnEntity
-            );
+            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
 
             // apply animation data to the target joint entity
@@ -243,8 +234,7 @@ export class AnimationAssigner {
             }
 
             if (retargetMode !== 'none' && Is.exist(srcRootEntityForRetarget)) {
-              const gltfEntity =
-                gltfModel.extras.rnEntities[channel.target!.node!];
+              const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
               let retarget: IAnimationRetarget | undefined;
               if (retargetMode === 'global') {
                 retarget = new GlobalRetarget(gltfEntity);

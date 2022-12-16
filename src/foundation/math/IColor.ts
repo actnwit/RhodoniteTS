@@ -1,5 +1,5 @@
-import {IVector3} from './IVector';
-import {TypedArray} from '../../types/CommonTypes';
+import { IVector3 } from './IVector';
+import { TypedArray } from '../../types/CommonTypes';
 
 export interface IColorRgb {
   readonly r: number;

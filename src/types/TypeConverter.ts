@@ -1,4 +1,4 @@
-import {CompositionType} from '../foundation/definitions/CompositionType';
+import { CompositionType } from '../foundation/definitions/CompositionType';
 
 export function fromTensorToCompositionType(vec: any) {
   switch (vec.className) {

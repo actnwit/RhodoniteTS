@@ -82,10 +82,7 @@ const NotObj = {
     return val === null || val === undefined;
   },
 
-  function(
-    val: unknown,
-    ...args: unknown[]
-  ): val is Exclude<unknown, Function> {
+  function(val: unknown, ...args: unknown[]): val is Exclude<unknown, Function> {
     return typeof val !== 'function';
   },
 
@@ -116,13 +113,9 @@ for (const subFn in Derivatives) {
     for (const fn in IsObj) {
       if (Object.prototype.hasOwnProperty.call(IsObj, fn)) {
         if (subFn === 'not') {
-          (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn](
-            (NotObj as never)[fn]
-          );
+          (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn]((NotObj as never)[fn]);
         } else {
-          (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn](
-            (IsObj as never)[fn]
-          );
+          (IsObj as any)[subFn][fn] = (Derivatives as any)[subFn]((IsObj as never)[fn]);
         }
       }
     }

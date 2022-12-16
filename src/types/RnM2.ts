@@ -1,13 +1,9 @@
-import {RnPromise} from '../foundation/misc/RnPromise';
-import {Array3, Array4} from './CommonTypes';
-import {Material} from '../foundation/materials/core/Material';
-import {Accessor} from '../foundation/memory/Accessor';
-import {
-  Gltf2AnimationSamplerInterpolation,
-  Gltf2AnyObject,
-  GltfLoadOption,
-} from './glTF2';
-import {ISceneGraphEntity} from '../foundation/helpers/EntityHelper';
+import { RnPromise } from '../foundation/misc/RnPromise';
+import { Array3, Array4 } from './CommonTypes';
+import { Material } from '../foundation/materials/core/Material';
+import { Accessor } from '../foundation/memory/Accessor';
+import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, GltfLoadOption } from './glTF2';
+import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
 export type RnM2 = {
@@ -51,8 +47,8 @@ export type RnM2AttributesObject = {
   [s: string]: RnM2Accessor;
 };
 
-export type RnM2Attributes = {[s: string]: number};
-export type RnM2AttributeAccessors = {[s: string]: RnM2Accessor};
+export type RnM2Attributes = { [s: string]: number };
+export type RnM2AttributeAccessors = { [s: string]: RnM2Accessor };
 export type RnM2AttributeBlendShapes = RnM2Attributes[];
 export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
 
@@ -64,8 +60,8 @@ export type RnM2MaterialVariant = {
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
 export type RnM2Primitive = {
   attributesObjects?: RnM2AttributeAccessors;
-  attributesNames?: {[s: string]: string};
-  attributes?: {[s: string]: number};
+  attributesNames?: { [s: string]: string };
+  attributes?: { [s: string]: number };
   indicesObject?: RnM2Accessor;
   indices?: number;
   materialObject?: RnM2Material;
@@ -254,7 +250,7 @@ export type RnM2Animation = {
   extras?: Gltf2AnyObject;
 
   // RnM2 Properties
-  parameters: {[s: string]: any};
+  parameters: { [s: string]: any };
 };
 
 export type RnM2Texture = {
@@ -365,7 +361,7 @@ export type RnM2Asset = {
   extras?: {
     rnLoaderOptions?: GltfLoadOption;
     rnEntities?: ISceneGraphEntity[];
-    rnMaterials?: {[s: string]: Material};
+    rnMaterials?: { [s: string]: Material };
     version?: string;
     fileType?: string;
   };

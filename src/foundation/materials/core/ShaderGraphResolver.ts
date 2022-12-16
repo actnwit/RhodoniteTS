@@ -1,11 +1,11 @@
-import {ShaderNodeUID, AbstractShaderNode} from './AbstractShaderNode';
-import {Index} from '../../../types/CommonTypes';
+import { ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
+import { Index } from '../../../types/CommonTypes';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {ShaderType, ShaderTypeEnum} from '../../definitions/ShaderType';
-import {ShaderSocket} from './AbstractMaterialContent';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
+import { ShaderSocket } from './AbstractMaterialContent';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
 import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
@@ -15,19 +15,14 @@ export class ShaderGraphResolver {
     const shaderNodes = vertexNodes.concat();
 
     // Find Start Node
-    const firstShaderNode: AbstractShaderNode =
-      this.__findBeginNode(shaderNodes);
+    const firstShaderNode: AbstractShaderNode = this.__findBeginNode(shaderNodes);
 
     // Topological Sorting
-    const sortedShaderNodes = this.__sortTopologically(
-      firstShaderNode,
-      shaderNodes
-    );
+    const sortedShaderNodes = this.__sortTopologically(firstShaderNode, shaderNodes);
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
-    const webglResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let in_ = 'attribute';
     if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
       in_ = 'in';
@@ -54,26 +49,21 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     );
 
     // main process
-    shaderBody +=
-      ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
-    return {shader, shaderBody};
+    return { shader, shaderBody };
   }
 
   static createPixelShaderCode(pixelNodes: AbstractShaderNode[]) {
     const shaderNodes = pixelNodes.concat();
 
     // Find Start Node
-    const firstShaderNode: AbstractShaderNode =
-      this.__findBeginNode(shaderNodes);
+    const firstShaderNode: AbstractShaderNode = this.__findBeginNode(shaderNodes);
 
     // Topological Sorting
-    const sortedShaderNodes = this.__sortTopologically(
-      firstShaderNode,
-      shaderNodes
-    );
+    const sortedShaderNodes = this.__sortTopologically(firstShaderNode, shaderNodes);
 
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
@@ -95,12 +85,11 @@ ${prerequisitesShaderityObject.code}
     );
 
     // main process
-    shaderBody +=
-      ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
 
     const shader = pixelShaderPrerequisites + shaderBody;
 
-    return {shader, shaderBody};
+    return { shader, shaderBody };
   }
 
   private static __findBeginNode(shaderNodes: AbstractShaderNode[]) {
@@ -125,7 +114,7 @@ ${prerequisitesShaderityObject.code}
     shaderNodes.splice(shaderNodes.indexOf(firstShaderNode!), 1);
     do {
       let shaderNodeWhichHasNoInputs: AbstractShaderNode;
-      shaderNodes.forEach(shaderNode => {
+      shaderNodes.forEach((shaderNode) => {
         let inputCount = 0;
         for (const inputConnection of shaderNode.inputConnections) {
           if (ignoredInputUids.indexOf(inputConnection.shaderNodeUid) === -1) {
@@ -144,17 +133,12 @@ ${prerequisitesShaderityObject.code}
     return sortedNodeArray;
   }
 
-  static getFunctionDefinition(
-    shaderNodes: AbstractShaderNode[],
-    shaderType: ShaderTypeEnum
-  ) {
+  static getFunctionDefinition(shaderNodes: AbstractShaderNode[], shaderType: ShaderTypeEnum) {
     let shaderText = '';
     const existVertexFunctions: string[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
       const materialNode = shaderNodes[i];
-      if (
-        existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1
-      ) {
+      if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
       if (materialNode.shaderCode) {
@@ -172,9 +156,7 @@ ${prerequisitesShaderityObject.code}
     return shaderText;
   }
 
-  private static __constructShaderWithNodes(
-    materialNodes: AbstractShaderNode[]
-  ) {
+  private static __constructShaderWithNodes(materialNodes: AbstractShaderNode[]) {
     let shaderBody = '';
     const isAnyTypeInput = function (input: ShaderSocket) {
       return (
@@ -208,37 +190,29 @@ ${prerequisitesShaderityObject.code}
         // Collects ExistingInputs
         for (let j = 0; j < inputConnections.length; j++) {
           const inputConnection = inputConnections[j];
-          const inputNode =
-            AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+          const inputNode = AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
           if (isAnyTypeInput(materialNode.getInputs()[j])) {
             continue;
           }
 
-          const outputSocketOfPrev = inputNode.getOutput(
-            inputConnection.outputNameOfPrev
-          );
-          const inputSocketOfThis = materialNode.getInput(
-            inputConnection.inputNameOfThis
-          );
-          const varName = `${outputSocketOfPrev!.name}_${
-            inputConnection.shaderNodeUid
-          }_to_${materialNode.shaderNodeUid}`;
+          const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
+          const inputSocketOfThis = materialNode.getInput(inputConnection.inputNameOfThis);
+          const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
+            materialNode.shaderNodeUid
+          }`;
 
           //
           if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
             const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(
               inputSocketOfThis!.componentType
             );
-            const glslInitialValue =
-              inputSocketOfThis!.compositionType.getGlslInitialValue(
-                inputSocketOfThis!.componentType
-              );
+            const glslInitialValue = inputSocketOfThis!.compositionType.getGlslInitialValue(
+              inputSocketOfThis!.componentType
+            );
             const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
             shaderBody += rowStr;
           }
-          const existVarName = existingOutputsVarName.get(
-            inputNode.shaderNodeUid
-          );
+          const existVarName = existingOutputsVarName.get(inputNode.shaderNodeUid);
           varInputNames[i].push(existVarName ? existVarName : varName);
           existingInputs.push(inputConnection.shaderNodeUid);
         }
@@ -247,34 +221,24 @@ ${prerequisitesShaderityObject.code}
         for (let j = i; j < materialNodes.length; j++) {
           const targetMaterialNode = materialNodes[j];
           const prevMaterialNodeInner = materialNodes[i - 1];
-          const targetNodeInputConnections =
-            targetMaterialNode.inputConnections;
+          const targetNodeInputConnections = targetMaterialNode.inputConnections;
           for (let k = 0; k < targetNodeInputConnections.length; k++) {
             const inputConnection = targetNodeInputConnections[k];
-            if (
-              prevMaterialNodeInner?.shaderNodeUid !==
-              inputConnection.shaderNodeUid
-            ) {
+            if (prevMaterialNodeInner?.shaderNodeUid !== inputConnection.shaderNodeUid) {
               continue;
             }
-            const inputNode =
-              AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+            const inputNode = AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
             if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
               if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
-                const outputSocketOfPrev = inputNode.getOutput(
-                  inputConnection.outputNameOfPrev
-                );
-                const varName = `${outputSocketOfPrev!.name}_${
-                  inputConnection.shaderNodeUid
-                }_to_${targetMaterialNode.shaderNodeUid}`;
+                const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
+                const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
+                  targetMaterialNode.shaderNodeUid
+                }`;
 
                 if (i - 1 >= 0) {
                   varOutputNames[i - 1].push(varName);
                 }
-                existingOutputsVarName.set(
-                  inputConnection.shaderNodeUid,
-                  varName
-                );
+                existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
               }
               existingOutputs.push(inputConnection.shaderNodeUid);
             }

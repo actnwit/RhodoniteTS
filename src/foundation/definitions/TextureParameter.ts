@@ -1,12 +1,12 @@
 import { GL_RG16F, GL_RG32F } from '../../types';
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
 export type TextureParameterEnum = EnumIO;
 
 class TextureParameterClass extends EnumClass implements TextureParameterEnum {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -175,12 +175,10 @@ const typeList = [
 ];
 
 function from(index: number): TextureParameterEnum {
-  return _from({typeList, index}) as TextureParameterEnum;
+  return _from({ typeList, index }) as TextureParameterEnum;
 }
 
-function migrateToWebGL1InternalFormat(
-  tp: TextureParameterEnum
-): TextureParameterEnum {
+function migrateToWebGL1InternalFormat(tp: TextureParameterEnum): TextureParameterEnum {
   if (tp.index === RGBA8.index) {
     return PixelFormat.RGBA;
   } else if (tp.index === RGB8.index) {

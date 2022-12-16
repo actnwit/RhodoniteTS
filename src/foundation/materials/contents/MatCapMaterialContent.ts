@@ -1,33 +1,30 @@
-import {AbstractTexture} from '../../textures/AbstractTexture';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {ComponentType} from '../../definitions/ComponentType';
-import {CompositionType} from '../../definitions/CompositionType';
-import {Scalar} from '../../math/Scalar';
-import {
-  ShaderSemanticsClass,
-  ShaderSemantics,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {Texture} from '../../textures/Texture';
-import {TextureParameter} from '../../definitions/TextureParameter';
-import {Vector3} from '../../math/Vector3';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {Material} from '../core/Material';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Scalar } from '../../math/Scalar';
+import { ShaderSemanticsClass, ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { Texture } from '../../textures/Texture';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { Vector3 } from '../../math/Vector3';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { Material } from '../core/Material';
 import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.vert';
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class MatCapMaterialContent extends AbstractMaterialContent {
-  static MatCapTexture = new ShaderSemanticsClass({str: 'matCapTexture'});
+  static MatCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
 
   constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture) {
     super(
       null,
       'MatCapShading' + (isSkinning ? '+skinning' : ''),
-      {isSkinning: isSkinning},
+      { isSkinning: isSkinning },
       MatCapShaderVertex,
       MatCapShaderFragment
     );
@@ -138,18 +135,8 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         CameraComponent.current
       ) as CameraComponent;
     }
-    this.setViewInfo(
-      shaderProgram,
-      cameraComponent,
-      args.isVr,
-      args.displayIdx
-    );
-    this.setProjection(
-      shaderProgram,
-      cameraComponent,
-      args.isVr,
-      args.displayIdx
-    );
+    this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+    this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
     /// Skinning
     const skeletalComponent = args.entity.tryToGetSkeletal();

@@ -1,38 +1,35 @@
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {ComponentType} from '../../definitions/ComponentType';
-import {CompositionType} from '../../definitions/CompositionType';
-import {Material} from '../core/Material';
-import {Scalar} from '../../math/Scalar';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {SkeletalComponent} from '../../components/Skeletal/SkeletalComponent';
-import {Vector3} from '../../math/Vector3';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Material } from '../core/Material';
+import { Scalar } from '../../math/Scalar';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
+import { Vector3 } from '../../math/Vector3';
 import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
 import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {Is} from '../../misc/Is';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { Is } from '../../misc/Is';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class DepthEncodeMaterialContent extends AbstractMaterialContent {
-  static zNearInner = new ShaderSemanticsClass({str: 'zNearInner'});
-  static zFarInner = new ShaderSemanticsClass({str: 'zFarInner'});
-  static isPointLight = new ShaderSemanticsClass({str: 'isPointLight'});
-  static depthPow = new ShaderSemanticsClass({str: 'depthPow'});
+  static zNearInner = new ShaderSemanticsClass({ str: 'zNearInner' });
+  static zFarInner = new ShaderSemanticsClass({ str: 'zFarInner' });
+  static isPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });
+  static depthPow = new ShaderSemanticsClass({ str: 'depthPow' });
 
   private __lastZNear = 0.0;
   private __lastZFar = 0.0;
 
-  constructor(depthPow: number, {isSkinning}: {isSkinning: boolean}) {
+  constructor(depthPow: number, { isSkinning }: { isSkinning: boolean }) {
     super(
       null,
       'depthEncodeShading' + (isSkinning ? '+skinning' : ''),
-      {isMorphing: false, isSkinning, isLighting: false},
+      { isMorphing: false, isSkinning, isLighting: false },
       DepthEncodeSingleShaderVertex,
       DepthEncodeSingleShaderFragment
     );
@@ -141,18 +138,8 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
       if (firstTime || this.__lastZNear !== cameraComponent.zNearInner) {
         (shaderProgram as any)._gl.uniform1f(
@@ -170,14 +157,8 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         this.__lastZFar = cameraComponent.zFarInner;
       }
     } else {
-      material.setParameter(
-        DepthEncodeMaterialContent.zNearInner,
-        cameraComponent.zNearInner
-      );
-      material.setParameter(
-        DepthEncodeMaterialContent.zFarInner,
-        cameraComponent.zFarInner
-      );
+      material.setParameter(DepthEncodeMaterialContent.zNearInner, cameraComponent.zNearInner);
+      material.setParameter(DepthEncodeMaterialContent.zFarInner, cameraComponent.zFarInner);
     }
 
     /// Skinning

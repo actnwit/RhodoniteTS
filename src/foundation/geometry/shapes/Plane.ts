@@ -1,8 +1,8 @@
-import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {PrimitiveMode} from '../../definitions/PrimitiveMode';
-import {Size} from '../../../types/CommonTypes';
-import {IShape} from './IShape';
+import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { Size } from '../../../types/CommonTypes';
+import { IShape } from './IShape';
 
 export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of U(X)-axis direction */

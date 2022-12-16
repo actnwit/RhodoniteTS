@@ -1,18 +1,18 @@
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {Component} from '../../core/Component';
-import {MeshComponent} from '../Mesh/MeshComponent';
-import {WebGLStrategy} from '../../../webgl/WebGLStrategy';
-import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
-import {ProcessStage, ProcessStageEnum} from '../../definitions/ProcessStage';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import {SceneGraphComponent} from '../SceneGraph/SceneGraphComponent';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {CameraComponent} from '../Camera/CameraComponent';
-import {Matrix44} from '../../math/Matrix44';
-import {ModuleManager} from '../../system/ModuleManager';
-import {CubeTexture} from '../../textures/CubeTexture';
-import {RenderPass} from '../../renderer/RenderPass';
-import {Visibility} from '../../definitions/Visibility';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Component } from '../../core/Component';
+import { MeshComponent } from '../Mesh/MeshComponent';
+import { WebGLStrategy } from '../../../webgl/WebGLStrategy';
+import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { ProcessStage, ProcessStageEnum } from '../../definitions/ProcessStage';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { CameraComponent } from '../Camera/CameraComponent';
+import { Matrix44 } from '../../math/Matrix44';
+import { ModuleManager } from '../../system/ModuleManager';
+import { CubeTexture } from '../../textures/CubeTexture';
+import { RenderPass } from '../../renderer/RenderPass';
+import { Visibility } from '../../definitions/Visibility';
 import {
   ComponentSID,
   CGAPIResourceHandle,
@@ -22,21 +22,19 @@ import {
   ComponentTID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import {AbstractMaterialContent} from '../../materials/core/AbstractMaterialContent';
-import {IMatrix44} from '../../math/IMatrix';
-import {IEntity} from '../../core/Entity';
-import {ComponentToComponentMethods} from '../ComponentTypes';
-import {Is} from '../../misc/Is';
-import {Primitive} from '../../..';
-import {PrimitiveSortKey_BitOffset_TranslucencyType} from '../../geometry/types/GeometryTypes';
+import { AbstractMaterialContent } from '../../materials/core/AbstractMaterialContent';
+import { IMatrix44 } from '../../math/IMatrix';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import { Is } from '../../misc/Is';
+import { Primitive } from '../../..';
+import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/types/GeometryTypes';
 import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
 
 export class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
-  static __shaderProgramHandleOfPrimitiveObjectUids: Map<
-    ObjectUID,
-    CGAPIResourceHandle
-  > = new Map();
+  static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
+    new Map();
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
   public diffuseCubeMapContribution = 1.0;
@@ -74,11 +72,7 @@ export class MeshRendererComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  static common_$load({
-    processApproach,
-  }: {
-    processApproach: ProcessApproachEnum;
-  }) {
+  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
     const webglModule = moduleManager.getModule(moduleName)! as any;
@@ -86,13 +80,10 @@ export class MeshRendererComponent extends Component {
     // Strategy
     MeshRendererComponent.__webglRenderingStrategy =
       webglModule.getRenderingStrategy(processApproach);
-
   }
 
   $load() {
-    MeshRendererComponent.__webglRenderingStrategy!.$load(
-      this.__meshComponent!
-    );
+    MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
 
     if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
       this.diffuseCubeMap.loadTextureImagesAsync();
@@ -151,7 +142,7 @@ export class MeshRendererComponent extends Component {
       }
     });
 
-    const primitiveUids = primitives.map(primitive => primitive.primitiveUid);
+    const primitiveUids = primitives.map((primitive) => primitive.primitiveUid);
     primitiveUids.push(-1);
 
     MeshRendererComponent._lastOpaqueIndex = -1;
@@ -174,8 +165,7 @@ export class MeshRendererComponent extends Component {
 
     if (primitives.length > 0) {
       MeshRendererComponent._lastTransparentIndex = primitives.length - 1;
-      MeshRendererComponent._lastTransparentSortKey =
-        primitives[primitives.length - 1]._sortkey;
+      MeshRendererComponent._lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
     }
 
     return primitiveUids;
@@ -204,10 +194,7 @@ export class MeshRendererComponent extends Component {
       };
 
       const frustum = cameraComponent.frustum;
-      const doAsVisible = (
-        sg: SceneGraphComponent,
-        meshComponents: MeshComponent[]
-      ) => {
+      const doAsVisible = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
         const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
         for (const sg of sgs) {
           const mesh = sg.entity.tryToGetMesh();
@@ -223,10 +210,7 @@ export class MeshRendererComponent extends Component {
         const result = frustum.culling(sg);
         if (result === Visibility.Visible) {
           doAsVisible(sg, meshComponents);
-        } else if (
-          result === Visibility.Neutral ||
-          whetherContainsSkeletal(sg)
-        ) {
+        } else if (result === Visibility.Neutral || whetherContainsSkeletal(sg)) {
           const children = sg.children;
           const mesh = sg.entity.tryToGetMesh();
           if (mesh) {
@@ -275,8 +259,7 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount: Count;
   }) {
     // Call common_$render of WebGLRenderingStrategy
-    const primitiveUids =
-      Component.__componentsOfProcessStages.get(processStage)!;
+    const primitiveUids = Component.__componentsOfProcessStages.get(processStage)!;
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
       primitiveUids,
       renderPass,
@@ -300,10 +283,10 @@ export class MeshRendererComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class MeshRendererEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -320,8 +303,7 @@ export class MeshRendererComponent extends Component {
       }
     }
     applyMixins(base, MeshRendererEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);

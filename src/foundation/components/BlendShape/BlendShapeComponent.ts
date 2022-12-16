@@ -1,16 +1,11 @@
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {ProcessStage} from '../../definitions/ProcessStage';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-  Index,
-} from '../../../types/CommonTypes';
-import {IEntity} from '../../core/Entity';
-import {ComponentToComponentMethods} from '../ComponentTypes';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 /**
  * The Component that manages the blend shape.
@@ -19,11 +14,7 @@ export class BlendShapeComponent extends Component {
   private __weights: number[] = [];
   private __targetNames: string[] = [];
 
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
 
     this.moveStageTo(ProcessStage.Logic);
@@ -61,10 +52,10 @@ export class BlendShapeComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class BlendShapeEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -81,8 +72,7 @@ export class BlendShapeComponent extends Component {
       }
     }
     applyMixins(base, BlendShapeEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 

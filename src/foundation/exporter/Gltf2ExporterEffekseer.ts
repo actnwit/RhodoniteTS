@@ -1,5 +1,5 @@
 import { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
-import {Gltf2Ex} from '../../types/glTF2ForOutput';
+import { Gltf2Ex } from '../../types/glTF2ForOutput';
 import {
   RnM2ExtensionEffekseer,
   RnM2ExtensionsEffekseerEffect,
@@ -7,11 +7,11 @@ import {
   RnM2ExtensionsEffekseerTimelineItem,
 } from '../../types/RnM2';
 import { defaultAnimationTrackName } from '../components/Animation/AnimationConstants';
-import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { IEntity } from '../core';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import {Is} from '../misc/Is';
-import {createAndAddGltf2BufferView} from './Gltf2Exporter';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Is } from '../misc/Is';
+import { createAndAddGltf2BufferView } from './Gltf2Exporter';
 
 export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
   let effekseerExists = false;
@@ -65,8 +65,7 @@ function __createEffekseerTimeline(entity: IEntity, effekseer: RnM2ExtensionsEff
     const timelines: RnM2ExtensionsEffekseerTimeline[] = [];
     for (const trackName of trackNames) {
       if (animationComponent.hasAnimation(trackName, 'effekseer')) {
-        const rnAnimationTrack =
-          animationComponent.getAnimationChannelsOfTrack(trackName);
+        const rnAnimationTrack = animationComponent.getAnimationChannelsOfTrack(trackName);
         if (Is.exist(rnAnimationTrack)) {
           const rnChannels = rnAnimationTrack.values();
           for (const rnChannel of rnChannels) {
@@ -86,7 +85,7 @@ function __createEffekseerTimeline(entity: IEntity, effekseer: RnM2ExtensionsEff
               const timeline: RnM2ExtensionsEffekseerTimeline = {
                 name: trackName,
                 values: values,
-              }
+              };
               timelines.push(timeline);
             }
           }

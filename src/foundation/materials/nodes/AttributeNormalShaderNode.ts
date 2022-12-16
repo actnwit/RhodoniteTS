@@ -1,5 +1,5 @@
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 import AttributeNormalShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributeNormal.vert';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 

@@ -1,11 +1,7 @@
-import {IVector2, IVector3, IVector4, IMutableVector4} from './IVector';
-import {
-  Array4,
-  FloatTypedArray,
-  FloatTypedArrayConstructor,
-} from '../../types/CommonTypes';
-import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
+import { IVector2, IVector3, IVector4, IMutableVector4 } from './IVector';
+import { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
+import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
 import { AbstractVector } from './AbstractVector';
 
 /**
@@ -16,7 +12,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
   implements IVector4
 {
-  protected constructor(v: FloatTypedArray, {type}: {type: T}) {
+  protected constructor(v: FloatTypedArray, { type }: { type: T }) {
     super();
     this._v = v;
   }
@@ -40,48 +36,31 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   get glslStrAsFloat() {
     return `vec4(${MathUtil.convertToStringAsGLSLFloat(
       this._v[0]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(
-      this._v[1]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(
       this._v[2]
     )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])})`;
   }
 
   get glslStrAsInt() {
-    return `ivec4(${Math.floor(this._v[0])}, ${Math.floor(
-      this._v[1]
-    )}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])})`;
+    return `ivec4(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(
+      this._v[2]
+    )}, ${Math.floor(this._v[3])})`;
   }
 
-  static _fromCopyArray4(
-    array: Array4<number>,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type(array), {type});
+  static _fromCopyArray4(array: Array4<number>, type: FloatTypedArrayConstructor) {
+    return new this(new type(array), { type });
   }
 
-  static _fromCopy4(
-    x: number,
-    y: number,
-    z: number,
-    w: number,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type([x, y, z, w]), {type});
+  static _fromCopy4(x: number, y: number, z: number, w: number, type: FloatTypedArrayConstructor) {
+    return new this(new type([x, y, z, w]), { type });
   }
 
-  static _fromCopyArray(
-    array: Array<number>,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type(array.slice(0, 4)), {type});
+  static _fromCopyArray(array: Array<number>, type: FloatTypedArrayConstructor) {
+    return new this(new type(array.slice(0, 4)), { type });
   }
 
   static _fromCopyVector4(vec4: IVector4, type: FloatTypedArrayConstructor) {
-    const vec = new this(
-      new type([vec4._v[0], vec4._v[1], vec4._v[2], vec4._v[3]]),
-      {type}
-    );
+    const vec = new this(new type([vec4._v[0], vec4._v[1], vec4._v[2], vec4._v[3]]), { type });
     return vec;
   }
 
@@ -118,15 +97,15 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
    * Zero Vector
    */
   static _zero(type: FloatTypedArrayConstructor) {
-    return new this(new type([0, 0, 0, 0]), {type});
+    return new this(new type([0, 0, 0, 0]), { type });
   }
 
   static _one(type: FloatTypedArrayConstructor) {
-    return new this(new type([1, 1, 1, 1]), {type});
+    return new this(new type([1, 1, 1, 1]), { type });
   }
 
   static _dummy(type: FloatTypedArrayConstructor) {
-    return new this(new type([]), {type});
+    return new this(new type([]), { type });
   }
 
   /**
@@ -140,16 +119,12 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   /**
    * add value（static version）
    */
-  static _add(
-    l_vec: IVector4,
-    r_vec: IVector4,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _add(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] + r_vec._v[0];
     const y = l_vec._v[1] + r_vec._v[1];
     const z = l_vec._v[2] + r_vec._v[2];
     const w = l_vec._v[3] + r_vec._v[3];
-    return new this(new type([x, y, z, w]), {type});
+    return new this(new type([x, y, z, w]), { type });
   }
 
   /**
@@ -166,16 +141,12 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   /**
    * subtract(static version)
    */
-  static _subtract(
-    l_vec: IVector4,
-    r_vec: IVector4,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _subtract(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] - r_vec._v[0];
     const y = l_vec._v[1] - r_vec._v[1];
     const z = l_vec._v[2] - r_vec._v[2];
     const w = l_vec._v[3] - r_vec._v[3];
-    return new this(new type([x, y, z, w]), {type});
+    return new this(new type([x, y, z, w]), { type });
   }
 
   /**
@@ -192,16 +163,12 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   /**
    * multiply(static version)
    */
-  static _multiply(
-    vec: IVector4,
-    value: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiply(vec: IVector4, value: number, type: FloatTypedArrayConstructor) {
     const x = vec._v[0] * value;
     const y = vec._v[1] * value;
     const z = vec._v[2] * value;
     const w = vec._v[3] * value;
-    return new this(new type([x, y, z, w]), {type});
+    return new this(new type([x, y, z, w]), { type });
   }
 
   /**
@@ -218,26 +185,18 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   /**
    * multiply vector(static version)
    */
-  static _multiplyVector(
-    l_vec: IVector4,
-    r_vec: IVector4,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiplyVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] * r_vec._v[0];
     const y = l_vec._v[1] * r_vec._v[1];
     const z = l_vec._v[2] * r_vec._v[2];
     const w = l_vec._v[3] * r_vec._v[3];
-    return new this(new type([x, y, z, w]), {type});
+    return new this(new type([x, y, z, w]), { type });
   }
 
   /**
    * multiply vector(static version)
    */
-  static multiplyVectorTo(
-    l_vec: IVector4,
-    r_vec: IVector4,
-    out: IMutableVector4
-  ) {
+  static multiplyVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
     out._v[0] = l_vec._v[0] * r_vec._v[0];
     out._v[1] = l_vec._v[1] * r_vec._v[1];
     out._v[2] = l_vec._v[2] * r_vec._v[2];
@@ -248,11 +207,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   /**
    * divide(static version)
    */
-  static _divide(
-    vec: IVector4,
-    value: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _divide(vec: IVector4, value: number, type: FloatTypedArrayConstructor) {
     let x;
     let y;
     let z;
@@ -269,7 +224,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       z = Infinity;
       w = Infinity;
     }
-    return new this(new type([x, y, z, w]), {type});
+    return new this(new type([x, y, z, w]), { type });
   }
 
   /**
@@ -294,21 +249,12 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   /**
    * divide vector(static version)
    */
-  static _divideVector(
-    l_vec: IVector4,
-    r_vec: IVector4,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _divideVector(l_vec: IVector4, r_vec: IVector4, type: FloatTypedArrayConstructor) {
     let x;
     let y;
     let z;
     let w;
-    if (
-      r_vec._v[0] !== 0 &&
-      r_vec._v[1] !== 0 &&
-      r_vec._v[2] !== 0 &&
-      r_vec._v[3] !== 0
-    ) {
+    if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0 && r_vec._v[2] !== 0 && r_vec._v[3] !== 0) {
       x = l_vec._v[0] / r_vec._v[0];
       y = l_vec._v[1] / r_vec._v[1];
       z = l_vec._v[2] / r_vec._v[2];
@@ -320,23 +266,14 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
       z = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
       w = r_vec._v[3] === 0 ? Infinity : l_vec._v[3] / r_vec._v[3];
     }
-    return new this(new type([x, y, z, w]), {type});
+    return new this(new type([x, y, z, w]), { type });
   }
 
   /**
    * divide by vector(static version)
    */
-  static divideVectorTo(
-    l_vec: IVector4,
-    r_vec: IVector4,
-    out: IMutableVector4
-  ) {
-    if (
-      r_vec._v[0] !== 0 &&
-      r_vec._v[1] !== 0 &&
-      r_vec._v[2] !== 0 &&
-      r_vec._v[3] !== 0
-    ) {
+  static divideVectorTo(l_vec: IVector4, r_vec: IVector4, out: IMutableVector4) {
+    if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0 && r_vec._v[2] !== 0 && r_vec._v[3] !== 0) {
       out._v[0] = l_vec._v[0] / r_vec._v[0];
       out._v[1] = l_vec._v[1] / r_vec._v[1];
       out._v[2] = l_vec._v[2] / r_vec._v[2];
@@ -359,17 +296,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   }
 
   toString() {
-    return (
-      '(' +
-      this._v[0] +
-      ', ' +
-      this._v[1] +
-      ', ' +
-      this._v[2] +
-      ', ' +
-      this._v[3] +
-      ')'
-    );
+    return '(' + this._v[0] + ', ' + this._v[1] + ', ' + this._v[2] + ', ' + this._v[3] + ')';
   }
 
   toStringApproximately() {
@@ -432,9 +359,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
   }
 
   lengthSquared(): number {
-    return (
-      this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2
-    );
+    return this._v[0] ** 2 + this._v[1] ** 2 + this._v[2] ** 2 + this._v[3] ** 2;
   }
 
   lengthTo(vec: IVector4) {
@@ -463,12 +388,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
 
   clone() {
     return new (this.constructor as any)(
-      new (this._v.constructor as any)([
-        this._v[0],
-        this._v[1],
-        this._v[2],
-        this._v[3],
-      ])
+      new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2], this._v[3]])
     );
   }
 
@@ -489,7 +409,7 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
  */
 export class Vector4 extends Vector4_<Float32ArrayConstructor> {
   constructor(x: Float32Array) {
-    super(x, {type: Float32Array});
+    super(x, { type: Float32Array });
   }
 
   static fromCopyArray(array: Array<number>): Vector4 {
@@ -574,7 +494,7 @@ export class Vector4 extends Vector4_<Float32ArrayConstructor> {
  */
 export class Vector4d extends Vector4_<Float64ArrayConstructor> {
   private constructor(x: Float64Array) {
-    super(x, {type: Float64Array});
+    super(x, { type: Float64Array });
   }
 
   static fromCopyArray4(array: Array4<number>): Vector4d {

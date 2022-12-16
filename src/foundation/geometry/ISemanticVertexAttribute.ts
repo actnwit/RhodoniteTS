@@ -1,6 +1,6 @@
-import {PrimitiveModeEnum} from '../../foundation/definitions/PrimitiveMode';
-import {Array1, Array2, Array3, Array4, Index} from '../../types/CommonTypes';
-import {IndicesAccessOption} from '../memory/Accessor';
+import { PrimitiveModeEnum } from '../../foundation/definitions/PrimitiveMode';
+import { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
+import { IndicesAccessOption } from '../memory/Accessor';
 
 export interface ISemanticVertexAttribute {
   semantic: PrimitiveModeEnum;

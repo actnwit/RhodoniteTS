@@ -1,4 +1,4 @@
-import {CGAPIResourceHandle, Size} from '../../types/CommonTypes';
+import { CGAPIResourceHandle, Size } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export interface IRenderable {

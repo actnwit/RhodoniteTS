@@ -1,14 +1,10 @@
 import { Component } from '../../core/Component';
-import {
-  EntityUID,
-  ComponentSID,
-  ComponentTID,
-} from '../../../types/CommonTypes';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
+import { EntityUID, ComponentSID, ComponentTID } from '../../../types/CommonTypes';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { CameraComponent } from '../Camera/CameraComponent';
-import {ProcessStage} from '../../definitions/ProcessStage';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { ComponentRepository } from '../../core/ComponentRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { ICameraController } from '../../cameras/ICameraController';
 import { WalkThroughCameraController } from '../../cameras/WalkThroughCameraController';
@@ -16,8 +12,8 @@ import {
   CameraControllerTypeEnum,
   CameraControllerType,
 } from '../../definitions/CameraControllerType';
-import {IEntity} from '../../core/Entity';
-import {ComponentToComponentMethods} from '../ComponentTypes';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 
 /**
  * The Component that controls camera posture.
@@ -77,10 +73,10 @@ export class CameraControllerComponent extends Component {
     }
   }
 
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class CameraControllerEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -97,8 +93,7 @@ export class CameraControllerComponent extends Component {
       }
     }
     applyMixins(base, CameraControllerEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(CameraControllerComponent);

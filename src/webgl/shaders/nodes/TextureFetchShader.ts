@@ -1,7 +1,7 @@
-import {VertexAttributeEnum} from '../../../foundation/definitions/VertexAttribute';
-import {GLSLShader} from '../GLSLShader';
-import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
-import {MaterialNodeUID} from '../../../types/CommonTypes';
+import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+import { GLSLShader } from '../GLSLShader';
+import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
+import { MaterialNodeUID } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../types';
 
 export class TextureFetchShader extends GLSLShader {

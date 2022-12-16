@@ -1,10 +1,10 @@
-import {IEntity, Entity} from './Entity';
-import {Component} from './Component';
-import {ComponentRepository} from './ComponentRepository';
-import {RnTags, EntityUID, ComponentTID} from '../../types/CommonTypes';
-import {valueWithCompensation} from '../misc/MiscUtil';
-import {ComponentToComponentMethods} from '../components/ComponentTypes';
-import {Is} from '../misc/Is';
+import { IEntity, Entity } from './Entity';
+import { Component } from './Component';
+import { ComponentRepository } from './ComponentRepository';
+import { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
+import { valueWithCompensation } from '../misc/MiscUtil';
+import { ComponentToComponentMethods } from '../components/ComponentTypes';
+import { Is } from '../misc/Is';
 
 /**
  * The class that generates and manages entities.
@@ -62,10 +62,7 @@ export class EntityRepository {
     map.set(componentClass.componentTID, component);
 
     // add this component to the entity
-    const entityClass = component.addThisComponentToEntity(
-      entity,
-      componentClass
-    );
+    const entityClass = component.addThisComponentToEntity(entity, componentClass);
     entity._setComponent(componentClass, component);
 
     return entity as unknown as typeof entityClass;
@@ -159,26 +156,25 @@ export class EntityRepository {
    * Gets all entities.
    */
   public static _getEntities(): IEntity[] {
-    return this.__entities.filter(entity => entity._isAlive);
+    return this.__entities.filter((entity) => entity._isAlive);
   }
 
   /**
    * Gets the number of all entities.
    */
   public static getEntitiesNumber(): number {
-    const entities = this.__entities.filter(entity => entity._isAlive);
+    const entities = this.__entities.filter((entity) => entity._isAlive);
     return entities.length;
   }
 }
 
 // This can live anywhere in your codebase:
 export function applyMixins(derivedCtor: IEntity, baseCtor: any) {
-  Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
+  Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
     Object.defineProperty(
       derivedCtor,
       name,
-      Object.getOwnPropertyDescriptor(baseCtor.prototype, name) ||
-        Object.create(null)
+      Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null)
     );
   });
 }

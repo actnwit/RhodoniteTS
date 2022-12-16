@@ -1,4 +1,4 @@
-import {IOption, None, Option, Some} from './Option';
+import { IOption, None, Option, Some } from './Option';
 
 test('Basic usage of Option', () => {
   const val: Option<number> = new Option();

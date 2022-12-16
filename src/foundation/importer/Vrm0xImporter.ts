@@ -1,20 +1,20 @@
-import {Gltf2Importer} from './Gltf2Importer';
-import {ModelConverter} from './ModelConverter';
-import {Is} from '../misc/Is';
-import {Vrm0x} from '../../types/VRM0x';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
-import {GltfLoadOption, RnM2} from '../../types';
-import {RenderPass} from '../renderer/RenderPass';
-import {Texture} from '../textures/Texture';
-import {EntityRepository} from '../core/EntityRepository';
-import {VRMSpringBonePhysicsStrategy} from '../physics/VRMSpringBonePhysicsStrategy';
-import {PhysicsComponent} from '../components/Physics/PhysicsComponent';
-import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
-import {SphereCollider} from '../physics/SphereCollider';
-import {Vector3} from '../math/Vector3';
-import {VRMColliderGroup} from '../physics/VRMColliderGroup';
-import {VRMSpringBoneGroup} from '../physics/VRMSpringBoneGroup';
-import {assertIsOk, Err, IResult, Ok} from '../misc/Result';
+import { Gltf2Importer } from './Gltf2Importer';
+import { ModelConverter } from './ModelConverter';
+import { Is } from '../misc/Is';
+import { Vrm0x } from '../../types/VRM0x';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { GltfLoadOption, RnM2 } from '../../types';
+import { RenderPass } from '../renderer/RenderPass';
+import { Texture } from '../textures/Texture';
+import { EntityRepository } from '../core/EntityRepository';
+import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpringBonePhysicsStrategy';
+import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { SphereCollider } from '../physics/SphereCollider';
+import { Vector3 } from '../math/Vector3';
+import { VRMColliderGroup } from '../physics/VRMColliderGroup';
+import { VRMSpringBoneGroup } from '../physics/VRMSpringBoneGroup';
+import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { VrmComponent, VrmExpression } from '../components/Vrm/VrmComponent';
 
 /**
@@ -45,8 +45,7 @@ export class Vrm0xImporter {
     const gltfModel = result.get();
     const textures = Vrm0xImporter._createTextures(gltfModel);
     const defaultMaterialHelperArgumentArray =
-      gltfModel.asset.extras?.rnLoaderOptions
-        ?.defaultMaterialHelperArgumentArray;
+      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures = textures;
     }
@@ -57,15 +56,12 @@ export class Vrm0xImporter {
     let rootGroups;
     const rootGroupMain = ModelConverter.convertToRhodoniteObject(gltfModel!);
 
-    const existOutline = Vrm0xImporter._existOutlineMaterial(
-      gltfModel.extensions.VRM
-    );
+    const existOutline = Vrm0xImporter._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       if (Is.exist(defaultMaterialHelperArgumentArray)) {
         defaultMaterialHelperArgumentArray[0].isOutline = true;
       }
-      const rootGroupOutline =
-        ModelConverter.convertToRhodoniteObject(gltfModel);
+      const rootGroupOutline = ModelConverter.convertToRhodoniteObject(gltfModel);
 
       rootGroups = [rootGroupMain, rootGroupOutline];
     } else {
@@ -102,14 +98,10 @@ export class Vrm0xImporter {
     return new Ok(gltfJson as Vrm0x);
   }
 
-  static async __importVRM0x(
-    gltfModel: RnM2,
-    renderPasses: RenderPass[]
-  ): Promise<void> {
+  static async __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
     // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray =
-      gltfModel.asset.extras?.rnLoaderOptions
-        ?.defaultMaterialHelperArgumentArray;
+      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     const textures = this._createTextures(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
@@ -145,19 +137,15 @@ export class Vrm0xImporter {
     this._readBlendShapeGroup(gltfModel as Vrm0x, rootGroup);
   }
 
-  static _readBlendShapeGroup(
-    gltfModel: Vrm0x,
-    rootEntity: ISceneGraphEntity
-  ): void {
+  static _readBlendShapeGroup(gltfModel: Vrm0x, rootEntity: ISceneGraphEntity): void {
     const vrmExpressions: VrmExpression[] = [];
 
-    const blendShapeGroups =
-      gltfModel.extensions.VRM.blendShapeMaster.blendShapeGroups;
+    const blendShapeGroups = gltfModel.extensions.VRM.blendShapeMaster.blendShapeGroups;
     for (const blendShapeGroup of blendShapeGroups) {
       const vrmExpression: VrmExpression = {
         name: blendShapeGroup.presetName,
         isBinary: blendShapeGroup.isBinary,
-        binds: blendShapeGroup.binds.map(bind => {
+        binds: blendShapeGroup.binds.map((bind) => {
           for (let i = 0; i < gltfModel.nodes.length; i++) {
             const node = gltfModel.nodes[i];
             if (node.mesh === bind.mesh) {
@@ -174,16 +162,10 @@ export class Vrm0xImporter {
       };
       vrmExpressions.push(vrmExpression);
     }
-    const vrmEntity = EntityRepository.addComponentToEntity(
-      VrmComponent,
-      rootEntity
-    );
+    const vrmEntity = EntityRepository.addComponentToEntity(VrmComponent, rootEntity);
   }
 
-  static _readVRMHumanoidInfo(
-    gltfModel: Vrm0x,
-    rootEntity?: ISceneGraphEntity
-  ): void {
+  static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void {
     const humanBones = gltfModel.extensions.VRM.humanoid.humanBones;
     const mapNameNodeId: Map<string, number> = new Map();
     // const mapNameNodeName: Map<string, string> = new Map();
@@ -202,8 +184,7 @@ export class Vrm0xImporter {
 
   static _readSpringBone(gltfModel: Vrm0x): void {
     const boneGroups: VRMSpringBoneGroup[] = [];
-    for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation
-      .boneGroups) {
+    for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
       const vrmSpringBoneGroup = new VRMSpringBoneGroup();
       vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
       vrmSpringBoneGroup.dragForce = boneGroup.dragForce;
@@ -235,12 +216,9 @@ export class Vrm0xImporter {
     }
 
     const colliderGroups: VRMColliderGroup[] = [];
-    for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation
-      .colliderGroups) {
+    for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
       const colliderGroup =
-        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[
-          colliderGroupIdx
-        ];
+        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx];
       const vrmColliderGroup = new VRMColliderGroup();
       colliderGroups.push(vrmColliderGroup);
       const colliders: SphereCollider[] = [];
@@ -255,13 +233,9 @@ export class Vrm0xImporter {
         colliders.push(sphereCollider);
       }
       vrmColliderGroup.colliders = colliders;
-      const baseSg =
-        gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
+      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
       vrmColliderGroup.baseSceneGraph = baseSg;
-      VRMSpringBonePhysicsStrategy.addColliderGroup(
-        parseInt(colliderGroupIdx),
-        vrmColliderGroup
-      );
+      VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
     }
   }
 
@@ -285,10 +259,7 @@ export class Vrm0xImporter {
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture(
-        gltfTextures[i],
-        gltfModel
-      );
+      const rnTexture = ModelConverter._createTexture(gltfTextures[i], gltfModel);
       rnTextures[i] = rnTexture;
     }
 
@@ -315,10 +286,7 @@ export class Vrm0xImporter {
     return false;
   }
 
-  static _initializeMaterialProperties(
-    gltfModel: RnM2,
-    texturesLength: number
-  ): void {
+  static _initializeMaterialProperties(gltfModel: RnM2, texturesLength: number): void {
     const materialProperties = gltfModel.extensions.VRM.materialProperties;
 
     for (const materialProperty of materialProperties) {
@@ -346,77 +314,21 @@ export class Vrm0xImporter {
       this.__initializeForUndefinedProperty(floatProperties, '_Cutoff', 0.5);
       this.__initializeForUndefinedProperty(floatProperties, '_DebugMode', 0.0);
       this.__initializeForUndefinedProperty(floatProperties, '_DstBlend', 0.0);
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_IndirectLightIntensity',
-        0.1
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_LightColorAttenuation',
-        0.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_OutlineColorMode',
-        0.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_OutlineCullMode',
-        1.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_OutlineLightingMix',
-        1.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_OutlineScaledMaxDistance',
-        1.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_OutlineWidth',
-        0.5
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_OutlineWidthMode',
-        0.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_ReceiveShadowRate',
-        1.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_RimFresnelPower',
-        1.0
-      );
+      this.__initializeForUndefinedProperty(floatProperties, '_IndirectLightIntensity', 0.1);
+      this.__initializeForUndefinedProperty(floatProperties, '_LightColorAttenuation', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_OutlineColorMode', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_OutlineCullMode', 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_OutlineLightingMix', 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_OutlineScaledMaxDistance', 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_OutlineWidth', 0.5);
+      this.__initializeForUndefinedProperty(floatProperties, '_OutlineWidthMode', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_ReceiveShadowRate', 1.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_RimFresnelPower', 1.0);
       this.__initializeForUndefinedProperty(floatProperties, '_RimLift', 0.0);
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_RimLightingMix',
-        0.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_ShadeShift',
-        0.0
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_ShadeToony',
-        0.9
-      );
-      this.__initializeForUndefinedProperty(
-        floatProperties,
-        '_ShadingGradeRate',
-        1.0
-      );
+      this.__initializeForUndefinedProperty(floatProperties, '_RimLightingMix', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_ShadeShift', 0.0);
+      this.__initializeForUndefinedProperty(floatProperties, '_ShadeToony', 0.9);
+      this.__initializeForUndefinedProperty(floatProperties, '_ShadingGradeRate', 1.0);
       this.__initializeForUndefinedProperty(floatProperties, '_SrcBlend', 1.0);
       this.__initializeForUndefinedProperty(floatProperties, '_ZWrite', 1.0);
       // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimScrollX", 0.0);
@@ -424,31 +336,11 @@ export class Vrm0xImporter {
       // this.__initializeForUndefinedProperty(floatProperties,"_UvAnimRotation", 0.0);
 
       const vectorProperties = materialProperties[i].vectorProperties;
-      this.__initializeForUndefinedProperty(
-        vectorProperties,
-        '_Color',
-        [1, 1, 1, 1]
-      );
-      this.__initializeForUndefinedProperty(
-        vectorProperties,
-        '_EmissionColor',
-        [0, 0, 0]
-      );
-      this.__initializeForUndefinedProperty(
-        vectorProperties,
-        '_OutlineColor',
-        [0, 0, 0, 1]
-      );
-      this.__initializeForUndefinedProperty(
-        vectorProperties,
-        '_ShadeColor',
-        [0.97, 0.81, 0.86, 1]
-      );
-      this.__initializeForUndefinedProperty(
-        vectorProperties,
-        '_RimColor',
-        [0, 0, 0]
-      );
+      this.__initializeForUndefinedProperty(vectorProperties, '_Color', [1, 1, 1, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_EmissionColor', [0, 0, 0]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_OutlineColor', [0, 0, 0, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_ShadeColor', [0.97, 0.81, 0.86, 1]);
+      this.__initializeForUndefinedProperty(vectorProperties, '_RimColor', [0, 0, 0]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_BumpMap", [0, 0, 1, 1]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_EmissionMap", [0, 0, 1, 1]);
       // this.__initializeForUndefinedProperty(vectorProperties, "_MainTex", [0, 0, 1, 1]);
@@ -460,21 +352,13 @@ export class Vrm0xImporter {
 
       // set num of texture array
       const textureProperties = materialProperties[i].textureProperties;
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_BumpMap',
-        dummyWhiteTextureNumber
-      );
+      this.__initializeForUndefinedProperty(textureProperties, '_BumpMap', dummyWhiteTextureNumber);
       this.__initializeForUndefinedProperty(
         textureProperties,
         '_EmissionMap',
         dummyBlackTextureNumber
       );
-      this.__initializeForUndefinedProperty(
-        textureProperties,
-        '_MainTex',
-        dummyWhiteTextureNumber
-      );
+      this.__initializeForUndefinedProperty(textureProperties, '_MainTex', dummyWhiteTextureNumber);
       this.__initializeForUndefinedProperty(
         textureProperties,
         '_OutlineWidthTexture',
@@ -543,7 +427,7 @@ export class Vrm0xImporter {
         loaderExtension: undefined,
         defaultMaterialHelperName: undefined,
         defaultMaterialHelperArgumentArray: [
-          {isLighting: true, isMorphing: true, isSkinning: true},
+          { isLighting: true, isMorphing: true, isSkinning: true },
         ],
         statesOfElements: [
           {

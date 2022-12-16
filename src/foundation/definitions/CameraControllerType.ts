@@ -1,13 +1,10 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type CameraControllerTypeEnum = EnumIO;
 
-class CameraControllerTypeClass
-  extends EnumClass
-  implements CameraControllerTypeEnum
-{
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+class CameraControllerTypeClass extends EnumClass implements CameraControllerTypeEnum {
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -23,11 +20,11 @@ const WalkThrough: CameraControllerTypeEnum = new CameraControllerTypeClass({
 const typeList = [Orbit, WalkThrough];
 
 function from(index: number): CameraControllerTypeEnum {
-  return _from({typeList, index}) as CameraControllerTypeEnum;
+  return _from({ typeList, index }) as CameraControllerTypeEnum;
 }
 
 function fromString(str: string): CameraControllerTypeEnum {
-  return _fromString({typeList, str}) as CameraControllerTypeEnum;
+  return _fromString({ typeList, str }) as CameraControllerTypeEnum;
 }
 
 export const CameraControllerType = Object.freeze({

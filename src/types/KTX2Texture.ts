@@ -1,10 +1,10 @@
-export type TextureFormat = {value: number};
+export type TextureFormat = { value: number };
 type _TextureFormat = {
   ETC1S: TextureFormat;
   UASTC4x4: TextureFormat;
 };
 
-export type TranscodeTarget = {value: number};
+export type TranscodeTarget = { value: number };
 type _TranscodeTarget = {
   ETC1_RGB: TranscodeTarget;
   BC1_RGB: TranscodeTarget;
@@ -29,12 +29,7 @@ type _TranscodeTarget = {
 };
 
 export declare class ImageInfo {
-  constructor(
-    textureFormat: TextureFormat,
-    levelWidth: number,
-    levelHeight: number,
-    level: number
-  );
+  constructor(textureFormat: TextureFormat, levelWidth: number, levelHeight: number, level: number);
   numBlocksX: number;
   numBlocksY: number;
   flags: number;

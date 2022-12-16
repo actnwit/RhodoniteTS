@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { Matrix33 } from './Matrix33';
 import { Matrix44 } from './Matrix44';
-import {IMatrix, IMatrix22} from './IMatrix';
-import {CompositionType} from '../definitions/CompositionType';
+import { IMatrix, IMatrix22 } from './IMatrix';
+import { CompositionType } from '../definitions/CompositionType';
 import { Vector2 } from './Vector2';
 import { MutableMatrix22 } from './MutableMatrix22';
-import {MathUtil} from './MathUtil';
+import { MathUtil } from './MathUtil';
 import { MutableVector2 } from './MutableVector2';
 import { AbstractMatrix } from './AbstractMatrix';
 import { Array4 } from '../../types';
@@ -62,12 +62,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * Create transpose matrix
    */
   static transpose(mat: Matrix22) {
-    return Matrix22.fromCopy4RowMajor(
-      mat._v[0],
-      mat._v[1],
-      mat._v[2],
-      mat._v[3]
-    );
+    return Matrix22.fromCopy4RowMajor(mat._v[0], mat._v[1], mat._v[2], mat._v[3]);
   }
 
   /**
@@ -144,16 +139,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   }
 
   toString() {
-    return (
-      this._v[0] +
-      ' ' +
-      this._v[2] +
-      '\n' +
-      this._v[1] +
-      ' ' +
-      this._v[3] +
-      ' \n'
-    );
+    return this._v[0] + ' ' + this._v[2] + '\n' + this._v[1] + ' ' + this._v[3] + ' \n';
   }
 
   toStringApproximately() {
@@ -230,10 +216,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   }
 
   getScale() {
-    return Vector2.fromCopyArray2([
-      Math.hypot(this.m00, this.m01),
-      Math.hypot(this.m10, this.m11),
-    ]);
+    return Vector2.fromCopyArray2([Math.hypot(this.m00, this.m01), Math.hypot(this.m10, this.m11)]);
   }
 
   getScaleTo(outVec: MutableVector2) {
@@ -258,13 +241,12 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    *   It will becomes an intuitive handling.
    * @returns
    */
-  static fromCopy4RowMajor(
-    m00: number, m01: number,
-    m10: number, m11: number)
-  {
+  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number) {
     const v = new Float32Array(4);
-    v[0] = m00; v[2] = m01;
-    v[1] = m10; v[3] = m11;
+    v[0] = m00;
+    v[2] = m01;
+    v[1] = m10;
+    v[3] = m11;
     return new Matrix22(v);
   }
 
@@ -273,13 +255,12 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
    * Note that WebGL matrix keeps the values in column major.
    * @returns
    */
-  static fromCopy4ColumnMajor(
-    m00: number, m10: number,
-    m01: number, m11: number)
-  {
+  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number) {
     const v = new Float32Array(4);
-    v[0] = m00; v[2] = m01;
-    v[1] = m10; v[3] = m11;
+    v[0] = m00;
+    v[2] = m01;
+    v[1] = m10;
+    v[3] = m11;
     return new Matrix22(v);
   }
 
@@ -295,16 +276,20 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
 
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
     const v = new Float32Array(4);
-    v[0] = array[0]; v[3] = array[1];
-    v[1] = array[2]; v[4] = array[3];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[1] = array[2];
+    v[4] = array[3];
 
     return new Matrix22(v);
   }
 
   static fromCopyMatrix22(mat: IMatrix22) {
     const v = new Float32Array(4);
-    v[0] = mat._v[0]; v[3] = mat._v[1];
-    v[1] = mat._v[2]; v[4] = mat._v[3];
+    v[0] = mat._v[0];
+    v[3] = mat._v[1];
+    v[1] = mat._v[2];
+    v[4] = mat._v[3];
     return new Matrix22(v);
   }
 
@@ -322,15 +307,19 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
 
   static fromCopyArray9RowMajor(array: Array4<number>) {
     const v = new Float32Array(4);
-    v[0] = array[0]; v[3] = array[1];
-    v[1] = array[2]; v[4] = array[3];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[1] = array[2];
+    v[4] = array[3];
     return new Matrix22(v);
   }
 
   static fromCopyArrayRowMajor(array: Array<number>) {
     const v = new Float32Array(4);
-    v[0] = array[0]; v[3] = array[1];
-    v[1] = array[2]; v[4] = array[3];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[1] = array[2];
+    v[4] = array[3];
     return new Matrix22(v);
   }
 }

@@ -1,23 +1,19 @@
-import {Quaternion} from '../../math/Quaternion';
-import {Matrix44} from '../../math/Matrix44';
-import {Component} from '../../core/Component';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {ProcessStage} from '../../definitions/ProcessStage';
-import {MutableVector3} from '../../math/MutableVector3';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../../types/CommonTypes';
-import {IQuaternion} from '../../math/IQuaternion';
-import {IMatrix44} from '../../math/IMatrix';
-import {IVector3} from '../../math/IVector';
-import {IEntity} from '../../core/Entity';
-import {ComponentToComponentMethods} from '../ComponentTypes';
-import {ITransformEntity} from '../../helpers';
-import {MutableQuaternion, Transform3D} from '../../math';
+import { Quaternion } from '../../math/Quaternion';
+import { Matrix44 } from '../../math/Matrix44';
+import { Component } from '../../core/Component';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
+import { IQuaternion } from '../../math/IQuaternion';
+import { IMatrix44 } from '../../math/IMatrix';
+import { IVector3 } from '../../math/IVector';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import { ITransformEntity } from '../../helpers';
+import { MutableQuaternion, Transform3D } from '../../math';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -29,11 +25,7 @@ export class TransformComponent extends Component {
   // dependencies
   private _dependentAnimationComponentId = 0;
 
-  constructor(
-    entityUid: EntityUID,
-    componentSid: ComponentSID,
-    entityComponent: EntityRepository
-  ) {
+  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -257,9 +249,7 @@ export class TransformComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ITransformEntity {
-    return EntityRepository.getEntity(
-      this.__entityUid
-    ) as unknown as ITransformEntity;
+    return EntityRepository.getEntity(this.__entityUid) as unknown as ITransformEntity;
   }
 
   /**
@@ -268,10 +258,10 @@ export class TransformComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class TransformEntity extends (base.constructor as any) {
       private __transformComponent?: TransformComponent;
       constructor(
@@ -384,8 +374,7 @@ export class TransformComponent extends Component {
       }
     }
     applyMixins(base, TransformEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 

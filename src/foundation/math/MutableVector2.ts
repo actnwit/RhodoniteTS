@@ -1,19 +1,13 @@
-import {Vector2_} from './Vector2';
-import {IVector2, IMutableVector, IMutableVector2} from './IVector';
-import {
-  TypedArray,
-  FloatTypedArrayConstructor,
-  Array2,
-} from '../../types/CommonTypes';
+import { Vector2_ } from './Vector2';
+import { IVector2, IMutableVector, IMutableVector2 } from './IVector';
+import { TypedArray, FloatTypedArrayConstructor, Array2 } from '../../types/CommonTypes';
 
 /**
  * @internal
  */
-export class MutableVector2_<
-  T extends FloatTypedArrayConstructor
-> extends Vector2_<T> {
-  constructor(x: TypedArray, {type}: {type: T}) {
-    super(x, {type});
+export class MutableVector2_<T extends FloatTypedArrayConstructor> extends Vector2_<T> {
+  constructor(x: TypedArray, { type }: { type: T }) {
+    super(x, { type });
   }
 
   set x(x: number) {
@@ -152,7 +146,7 @@ export class MutableVector2
   implements IMutableVector, IMutableVector2
 {
   constructor(x: TypedArray) {
-    super(x, {type: Float32Array});
+    super(x, { type: Float32Array });
   }
 
   static fromCopyArray2(array: Array2<number>): MutableVector2 {
@@ -225,7 +219,7 @@ export class MutableVector2
  */
 export class MutableVector2d extends MutableVector2_<Float64ArrayConstructor> {
   constructor(x: TypedArray) {
-    super(x, {type: Float64Array});
+    super(x, { type: Float64Array });
   }
 
   static fromCopyArray(array: Array2<number>): MutableVector2d {

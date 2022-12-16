@@ -1,14 +1,8 @@
-import {
-  EnumClass,
-  EnumIO,
-  _from,
-  _fromString,
-  _fromStringCaseSensitively,
-} from '../misc/EnumIO';
-import {CompositionType} from './CompositionType';
-import type {Material} from '../materials/core/Material';
-import {Index} from '../../types/CommonTypes';
-import {ShaderSemanticsInfo} from './ShaderSemanticsInfo';
+import { EnumClass, EnumIO, _from, _fromString, _fromStringCaseSensitively } from '../misc/EnumIO';
+import { CompositionType } from './CompositionType';
+import type { Material } from '../materials/core/Material';
+import { Index } from '../../types/CommonTypes';
+import { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
 
 export type ShaderSemanticsIndex = number;
 export type ShaderSemanticsName = string;
@@ -17,14 +11,11 @@ export interface ShaderSemanticsEnum extends EnumIO {
   str: string;
 }
 
-export class ShaderSemanticsClass
-  extends EnumClass
-  implements ShaderSemanticsEnum
-{
+export class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
   private static __indexCount = -1;
   static readonly _scale = 10000;
   private static __classes: ShaderSemanticsClass[] = [];
-  constructor({str}: {index?: number; str: string}) {
+  constructor({ str }: { index?: number; str: string }) {
     super({
       index: ++ShaderSemanticsClass.__indexCount * ShaderSemanticsClass._scale,
       str,
@@ -53,9 +44,7 @@ export class ShaderSemanticsClass
     }
   }
 
-  static isArrayAndNonZeroIndexShaderSemanticIndex(
-    index: ShaderSemanticsIndex
-  ) {
+  static isArrayAndNonZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex) {
     if (index < 0 && Math.abs(index) % ShaderSemanticsClass._scale !== 0) {
       return true;
     } else {
@@ -166,8 +155,9 @@ const SkinningMode: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const GeneralTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'generalTexture',
 });
-const VertexAttributesExistenceArray: ShaderSemanticsEnum =
-  new ShaderSemanticsClass({str: 'vertexAttributesExistenceArray'});
+const VertexAttributesExistenceArray: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'vertexAttributesExistenceArray',
+});
 const BoneQuaternion: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'boneQuaternion',
 });
@@ -204,9 +194,9 @@ const ScreenInfo: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'depthTexture',
 });
-const LightViewProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass(
-  {str: 'lightViewProjectionMatrix'}
-);
+const LightViewProjectionMatrix: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'lightViewProjectionMatrix',
+});
 const Anisotropy: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'anisotropy',
 });
@@ -231,9 +221,9 @@ const SheenLutTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const SpecularGlossinessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'specularGlossinessFactor',
 });
-const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass(
-  {str: 'specularGlossinessTexture'}
-);
+const SpecularGlossinessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'specularGlossinessTexture',
+});
 const EntityUID: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'entityUID',
 });
@@ -242,8 +232,9 @@ const MorphTargetNumber: ShaderSemanticsEnum = new ShaderSemanticsClass({
 });
 
 // the 16byteoffset (16byte unit offset) of MorphData in DataTexture
-const DataTextureMorphOffsetPosition: ShaderSemanticsEnum =
-  new ShaderSemanticsClass({str: 'dataTextureMorphOffsetPosition'});
+const DataTextureMorphOffsetPosition: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'dataTextureMorphOffsetPosition',
+});
 
 const MorphWeights: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'morphWeights',
@@ -272,11 +263,9 @@ const ClearCoatTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const ClearCoatRoughnessFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatRoughnessFactor',
 });
-const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass(
-  {
-    str: 'clearCoatRoughnessTexture',
-  }
-);
+const ClearCoatRoughnessTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'clearCoatRoughnessTexture',
+});
 const ClearCoatNormalTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatNormalTexture',
 });
@@ -353,26 +342,26 @@ const EmissiveTextureTransform = new ShaderSemanticsClass({
 const EmissiveTextureRotation = new ShaderSemanticsClass({
   str: 'emissiveTextureRotation',
 });
-const NormalScale = new ShaderSemanticsClass({str: 'normalScale'});
+const NormalScale = new ShaderSemanticsClass({ str: 'normalScale' });
 const OcclusionStrength = new ShaderSemanticsClass({
   str: 'occlusionStrength',
 });
-const envRotation = new ShaderSemanticsClass({str: 'envRotation'});
-const EnvHdriFormat = new ShaderSemanticsClass({str: 'envHdriFormat'});
-const VrState = new ShaderSemanticsClass({str: 'vrState'});
+const envRotation = new ShaderSemanticsClass({ str: 'envRotation' });
+const EnvHdriFormat = new ShaderSemanticsClass({ str: 'envHdriFormat' });
+const VrState = new ShaderSemanticsClass({ str: 'vrState' });
 const EnableLinearToSrgb = new ShaderSemanticsClass({
   str: 'enableLinearToSrgb',
 });
-const SpecularFactor = new ShaderSemanticsClass({str: 'specularFactor'});
-const SpecularTexture = new ShaderSemanticsClass({str: 'specularTexture'});
+const SpecularFactor = new ShaderSemanticsClass({ str: 'specularFactor' });
+const SpecularTexture = new ShaderSemanticsClass({ str: 'specularTexture' });
 const SpecularColorFactor = new ShaderSemanticsClass({
   str: 'specularColorFactor',
 });
 const SpecularColorTexture = new ShaderSemanticsClass({
   str: 'specularColorTexture',
 });
-const Ior = new ShaderSemanticsClass({str: 'ior'});
-const DepthBiasPV = new ShaderSemanticsClass({str: 'depthBiasPV'});
+const Ior = new ShaderSemanticsClass({ str: 'ior' });
+const DepthBiasPV = new ShaderSemanticsClass({ str: 'depthBiasPV' });
 const ClearCoatTextureTransform = new ShaderSemanticsClass({
   str: 'clearCoatTextureTransform',
 });
@@ -544,14 +533,14 @@ const typeList = [
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
-  return _from({typeList, index}) as ShaderSemanticsEnum;
+  return _from({ typeList, index }) as ShaderSemanticsEnum;
 }
 
 function fromString(str: string): ShaderSemanticsEnum {
-  return _fromString({typeList, str}) as ShaderSemanticsEnum;
+  return _fromString({ typeList, str }) as ShaderSemanticsEnum;
 }
 function fromStringCaseSensitively(str: string): ShaderSemanticsEnum {
-  return _fromStringCaseSensitively({typeList, str}) as ShaderSemanticsEnum;
+  return _fromStringCaseSensitively({ typeList, str }) as ShaderSemanticsEnum;
 }
 
 type UpdateFunc = ({

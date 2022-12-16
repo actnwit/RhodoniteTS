@@ -1,4 +1,4 @@
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
 export interface ProcessStageEnum extends EnumIO {
   methodName: string;
@@ -7,16 +7,8 @@ export interface ProcessStageEnum extends EnumIO {
 class ProcessStageClass extends EnumClass implements ProcessStageEnum {
   readonly methodName: string;
 
-  constructor({
-    index,
-    str,
-    methodName,
-  }: {
-    index: number;
-    str: string;
-    methodName: string;
-  }) {
-    super({index, str});
+  constructor({ index, str, methodName }: { index: number; str: string; methodName: string }) {
+    super({ index, str });
 
     this.methodName = methodName;
   }
@@ -68,20 +60,10 @@ const Discard: ProcessStageEnum = new ProcessStageClass({
   methodName: '$discard',
 });
 
-const typeList = [
-  Unknown,
-  Create,
-  Load,
-  Mount,
-  Logic,
-  PreRender,
-  Render,
-  Unmount,
-  Discard,
-];
+const typeList = [Unknown, Create, Load, Mount, Logic, PreRender, Render, Unmount, Discard];
 
 function from(index: number): ProcessStageEnum {
-  return _from({typeList, index}) as ProcessStageEnum;
+  return _from({ typeList, index }) as ProcessStageEnum;
 }
 
 export const ProcessStage = Object.freeze({

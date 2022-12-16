@@ -1,5 +1,5 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import {ISceneGraphEntity} from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 
@@ -11,17 +11,10 @@ export abstract class AbstractCameraController {
 
   constructor() {}
 
-  protected _calcZNearInner(
-    camera: CameraComponent,
-    eyePosition: Vector3,
-    eyeDirection: Vector3
-  ) {
+  protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3) {
     if (this.autoCalculateZNearAndZFar && Is.exist(this.__targetEntity)) {
       const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
-      const lengthOfCenterToEye = Vector3.lengthBtw(
-        eyePosition,
-        targetAABB.centerPoint
-      );
+      const lengthOfCenterToEye = Vector3.lengthBtw(eyePosition, targetAABB.centerPoint);
 
       // calc cos between eyeToTarget and eye direction
       const eyeToTargetDirectionX = targetAABB.centerPoint.x - eyePosition.x;
@@ -31,17 +24,13 @@ export abstract class AbstractCameraController {
         (eyeToTargetDirectionX * eyeDirection.x +
           eyeToTargetDirectionY * eyeDirection.y +
           eyeToTargetDirectionZ * eyeDirection.z) /
-        (Math.hypot(
-          eyeToTargetDirectionX,
-          eyeToTargetDirectionY,
-          eyeToTargetDirectionZ
-        ) *
+        (Math.hypot(eyeToTargetDirectionX, eyeToTargetDirectionY, eyeToTargetDirectionZ) *
           eyeDirection.length());
 
-      camera.zNearInner = Math.max(Math.min(
-        lengthOfCenterToEye * cos - targetAABB.lengthCenterToCorner,
-        this.zNearMax
-      ), 0.01);
+      camera.zNearInner = Math.max(
+        Math.min(lengthOfCenterToEye * cos - targetAABB.lengthCenterToCorner, this.zNearMax),
+        0.01
+      );
     } else {
       camera.zNearInner = camera.zNear;
     }

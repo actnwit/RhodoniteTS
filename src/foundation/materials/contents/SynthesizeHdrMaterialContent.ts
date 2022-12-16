@@ -1,15 +1,12 @@
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
-import {ComponentType} from '../../definitions/ComponentType';
-import {CompositionType} from '../../definitions/CompositionType';
-import {Count} from '../../../types/CommonTypes';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-} from '../../definitions/ShaderSemantics';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Count } from '../../../types/CommonTypes';
+import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { VectorN } from '../../math/VectorN';
@@ -112,10 +109,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          0,
-          synthesizeTextures[0] ?? AbstractMaterialContent.dummyBlackTexture,
-        ],
+        initialValue: [0, synthesizeTextures[0] ?? AbstractMaterialContent.dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -126,10 +120,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          1,
-          synthesizeTextures[1] ?? AbstractMaterialContent.dummyBlackTexture,
-        ],
+        initialValue: [1, synthesizeTextures[1] ?? AbstractMaterialContent.dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -140,10 +131,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          2,
-          synthesizeTextures[2] ?? AbstractMaterialContent.dummyBlackTexture,
-        ],
+        initialValue: [2, synthesizeTextures[2] ?? AbstractMaterialContent.dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -154,10 +142,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          3,
-          synthesizeTextures[3] ?? AbstractMaterialContent.dummyBlackTexture,
-        ],
+        initialValue: [3, synthesizeTextures[3] ?? AbstractMaterialContent.dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -168,10 +153,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          4,
-          synthesizeTextures[4] ?? AbstractMaterialContent.dummyBlackTexture,
-        ],
+        initialValue: [4, synthesizeTextures[4] ?? AbstractMaterialContent.dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -182,10 +164,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [
-          5,
-          synthesizeTextures[5] ?? AbstractMaterialContent.dummyBlackTexture,
-        ],
+        initialValue: [5, synthesizeTextures[5] ?? AbstractMaterialContent.dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -221,8 +200,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     } else {
       (shaderProgram as any)._gl.uniform1fv(
         (shaderProgram as any).synthesizeCoefficient,
-        material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)
-          ._v
+        material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)._v
       );
     }
 
@@ -235,18 +213,8 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
       ) as CameraComponent;
     }
     if (cameraComponent) {
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
     }
   }
 

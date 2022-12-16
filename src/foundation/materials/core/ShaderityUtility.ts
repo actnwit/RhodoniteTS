@@ -1,39 +1,26 @@
-import Shaderity, {
-  Reflection,
-  ShaderityObject,
-  TemplateObject,
-} from 'shaderity';
-import {
-  ComponentType,
-  ComponentTypeEnum,
-} from '../../definitions/ComponentType';
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../../definitions/CompositionType';
-import {
-  VertexAttribute,
-  VertexAttributeEnum,
-} from '../../definitions/VertexAttribute';
-import {MemoryManager} from '../../core/MemoryManager';
-import {WellKnownComponentTIDs} from '../../components/WellKnownComponentTIDs';
-import {Config} from '../../core/Config';
+import Shaderity, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
+import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { MemoryManager } from '../../core/MemoryManager';
+import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
+import { Config } from '../../core/Config';
 import {
   ShaderSemantics,
   ShaderSemanticsClass,
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {AbstractMaterialContent} from './AbstractMaterialContent';
-import {MutableVector2} from '../../math/MutableVector2';
-import {MutableVector3} from '../../math/MutableVector3';
-import {MutableVector4} from '../../math/MutableVector4';
-import {MutableMatrix33} from '../../math/MutableMatrix33';
-import {MutableMatrix44} from '../../math/MutableMatrix44';
-import {MutableScalar} from '../../math/MutableScalar';
-import {MutableMatrix22} from '../../math/MutableMatrix22';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { AbstractMaterialContent } from './AbstractMaterialContent';
+import { MutableVector2 } from '../../math/MutableVector2';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableMatrix33 } from '../../math/MutableMatrix33';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { MutableScalar } from '../../math/MutableScalar';
+import { MutableMatrix22 } from '../../math/MutableMatrix22';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -72,22 +59,20 @@ export class ShaderityUtility {
     }
   }
 
-  public static getAttributeReflection(
-    shaderityObject: ShaderityObject
-  ): VertexAttributesLayout {
+  public static getAttributeReflection(shaderityObject: ShaderityObject): VertexAttributesLayout {
     const reflection = Shaderity.createReflectionObject(shaderityObject);
     this.__setDefaultAttributeSemanticMap(reflection);
 
     reflection.reflect();
 
     const names = reflection.attributesNames;
-    const semantics = reflection.attributesSemantics.map(semantic => {
+    const semantics = reflection.attributesSemantics.map((semantic) => {
       return VertexAttribute.fromString(semantic);
     });
-    const compositions = reflection.attributesTypes.map(type => {
+    const compositions = reflection.attributesTypes.map((type) => {
       return CompositionType.fromGlslString(type);
     });
-    const components = reflection.attributesTypes.map(type => {
+    const components = reflection.attributesTypes.map((type) => {
       return ComponentType.fromGlslString(type);
     });
 
@@ -121,8 +106,7 @@ export class ShaderityUtility {
 
     const shaderSemanticsInfoArray = [];
     for (const row of splitCode) {
-      const reg =
-        /^(?![/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
+      const reg = /^(?![/])[\t ]*uniform[\t ]+(\w+)[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const matchUniformDeclaration = row.match(reg);
 
       if (matchUniformDeclaration) {
@@ -184,9 +168,7 @@ export class ShaderityUtility {
   ): ShaderSemanticsInfo {
     const componentType = ComponentType.fromGlslString(type);
     const compositionType = CompositionType.fromGlslString(type);
-    const stage = isFragmentShader
-      ? ShaderType.PixelShader
-      : ShaderType.VertexShader;
+    const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
     let none_u_prefix = true;
     const u_prefixedName = variableName.match(/u_(\w+)/);
@@ -201,7 +183,7 @@ export class ShaderityUtility {
       if (semanticInfo != null) {
         semantic = semanticInfo.semantic;
       } else {
-        semantic = new ShaderSemanticsClass({str: variableName});
+        semantic = new ShaderSemanticsClass({ str: variableName });
       }
     }
 
@@ -232,18 +214,14 @@ export class ShaderityUtility {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isCustomSetting = info.match(
-      /isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/
-    );
+    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let isCustomSettingFlg = false;
     if (isCustomSetting?.[1] === 'true') {
       isCustomSettingFlg = true;
     }
     shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
 
-    const updateInterval = info.match(
-      /updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/
-    );
+    const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;
     if (updateInterval?.[1]?.toLowerCase() === 'everytime') {
       updateIntervalObj = ShaderVariableUpdateInterval.EveryTime;
@@ -258,8 +236,7 @@ export class ShaderityUtility {
         initialValueText
       );
     } else {
-      shaderSemanticsInfo.initialValue =
-        this.__getDefaultInitialValue(shaderSemanticsInfo);
+      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
     }
 
     const needUniformInDataTextureMode = info.match(
@@ -282,8 +259,7 @@ export class ShaderityUtility {
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
         console.error(
-          'component number of initialValue is invalid:' +
-            shaderSemanticsInfo.semantic.str
+          'component number of initialValue is invalid:' + shaderSemanticsInfo.semantic.str
         );
       }
     };
@@ -296,17 +272,11 @@ export class ShaderityUtility {
         case 1:
           checkCompositionNumber(CompositionType.Scalar);
           if (split[0] === 'true') {
-            initialValue = new MutableScalar(
-              new Float32Array([1])
-            );
+            initialValue = new MutableScalar(new Float32Array([1]));
           } else if (split[0] === 'false') {
-            initialValue = new MutableScalar(
-              new Float32Array([0])
-            );
+            initialValue = new MutableScalar(new Float32Array([0]));
           } else {
-            initialValue = new MutableScalar(
-              new Float32Array([parseFloat(split[0])])
-            );
+            initialValue = new MutableScalar(new Float32Array([parseFloat(split[0])]));
           }
           break;
         case 2:
@@ -319,9 +289,7 @@ export class ShaderityUtility {
               parseInt(split[0]),
               (AbstractMaterialContent as any)[`dummy${color}Texture`],
             ];
-          } else if (
-            shaderSemanticsInfo.compositionType === CompositionType.TextureCube
-          ) {
+          } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
               parseInt(split[0]),
@@ -393,26 +361,18 @@ export class ShaderityUtility {
     } else {
       checkCompositionNumber(CompositionType.Scalar);
       if (initialValueText === 'true') {
-        initialValue = new MutableScalar(
-          new Float32Array([1])
-        );
+        initialValue = new MutableScalar(new Float32Array([1]));
       } else if (initialValueText === 'false') {
-        initialValue = new MutableScalar(
-          new Float32Array([0])
-        );
+        initialValue = new MutableScalar(new Float32Array([0]));
       } else {
-        initialValue = new MutableScalar(
-          new Float32Array([parseFloat(initialValueText)])
-        );
+        initialValue = new MutableScalar(new Float32Array([parseFloat(initialValueText)]));
       }
     }
 
     return initialValue;
   }
 
-  private static __getDefaultInitialValue(
-    shaderSemanticsInfo: ShaderSemanticsInfo
-  ) {
+  private static __getDefaultInitialValue(shaderSemanticsInfo: ShaderSemanticsInfo) {
     if (shaderSemanticsInfo.compositionType === CompositionType.Scalar) {
       return new MutableScalar(new Float32Array([0]));
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Vec2) {
@@ -427,17 +387,11 @@ export class ShaderityUtility {
       return MutableMatrix33.identity();
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
       return MutableMatrix44.identity();
-    } else if (
-      shaderSemanticsInfo.compositionType === CompositionType.Texture2D
-    ) {
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
       return [0, AbstractMaterialContent.dummyWhiteTexture];
-    } else if (
-      shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
-    ) {
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
       return [0, AbstractMaterialContent.dummyWhiteTexture];
-    } else if (
-      shaderSemanticsInfo.compositionType === CompositionType.TextureCube
-    ) {
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
       return [0, AbstractMaterialContent.dummyBlackTexture];
     }
 

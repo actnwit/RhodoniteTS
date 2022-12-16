@@ -1,10 +1,10 @@
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
 export type PrimitiveModeEnum = EnumIO;
 
 class PrimitiveModeClass extends EnumClass implements PrimitiveModeEnum {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -53,7 +53,7 @@ const typeList = [
 ];
 
 function from(index: number): PrimitiveModeEnum | undefined {
-  return _from({typeList, index});
+  return _from({ typeList, index });
 }
 
 export const PrimitiveMode = Object.freeze({

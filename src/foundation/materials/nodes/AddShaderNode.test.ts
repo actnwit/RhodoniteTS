@@ -1,9 +1,9 @@
-import {ModuleManager} from '../../system/ModuleManager';
-import {MemoryManager} from '../../core/MemoryManager';
-import {OutPositionShaderNode} from './OutPositionShaderNode';
-import {AttributePositionShaderNode} from './AttributePositionShaderNode';
-import {ShaderGraphResolver} from '../core/ShaderGraphResolver';
-import {MaterialRepository} from '../core/MaterialRepository';
+import { ModuleManager } from '../../system/ModuleManager';
+import { MemoryManager } from '../../core/MemoryManager';
+import { OutPositionShaderNode } from './OutPositionShaderNode';
+import { AttributePositionShaderNode } from './AttributePositionShaderNode';
+import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
+import { MaterialRepository } from '../core/MaterialRepository';
 
 test('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -22,10 +22,7 @@ test('AttributePosition works correctly 1', async () => {
   outPositionNode.addInputConnection(a_position, 'outValue', 'value');
 
   // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode([
-    outPositionNode,
-    a_position,
-  ]);
+  const retVal = ShaderGraphResolver.createVertexShaderCode([outPositionNode, a_position]);
 
   expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
     `

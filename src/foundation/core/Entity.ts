@@ -1,19 +1,19 @@
-import {Component} from './Component';
-import {IRnObject, RnObject} from './RnObject';
-import {ComponentTID, EntityUID} from '../../types/CommonTypes';
-import {Is} from '../misc/Is';
-import {BlendShapeComponent} from '../components/BlendShape/BlendShapeComponent';
-import {WellKnownComponentTIDs} from '../components/WellKnownComponentTIDs';
-import {CameraControllerComponent} from '../components/CameraController/CameraControllerComponent';
-import {LightComponent} from '../components/Light/LightComponent';
-import {MeshComponent} from '../components/Mesh/MeshComponent';
-import {MeshRendererComponent} from '../components/MeshRenderer/MeshRendererComponent';
-import {PhysicsComponent} from '../components/Physics/PhysicsComponent';
-import {SceneGraphComponent} from '../components/SceneGraph/SceneGraphComponent';
-import {SkeletalComponent} from '../components/Skeletal/SkeletalComponent';
-import {TransformComponent} from '../components/Transform/TransformComponent';
-import {AnimationComponent} from '../components/Animation/AnimationComponent';
-import {CameraComponent} from '../components/Camera/CameraComponent';
+import { Component } from './Component';
+import { IRnObject, RnObject } from './RnObject';
+import { ComponentTID, EntityUID } from '../../types/CommonTypes';
+import { Is } from '../misc/Is';
+import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { LightComponent } from '../components/Light/LightComponent';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
+import { TransformComponent } from '../components/Transform/TransformComponent';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import { VrmComponent } from '../components/Vrm/VrmComponent';
 
 /**
@@ -73,11 +73,7 @@ export class Entity extends RnObject implements IEntity {
    * @param isAlive - Whether this entity alive or not
    * @param entityComponent - The instance of EntityComponent (Dependency Injection)
    */
-  constructor(
-    entityUID: EntityUID,
-    isAlive: boolean,
-    components?: Map<ComponentTID, Component>
-  ) {
+  constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
     super();
     this.__entity_uid = entityUID;
     this._isAlive = isAlive;
@@ -123,9 +119,7 @@ export class Entity extends RnObject implements IEntity {
    * Gets the component corresponding to the ComponentTID.
    * @param componentTID - The ComponentTID to get the component.
    */
-  getComponentByComponentTID(
-    componentTID: ComponentTID
-  ): Component | undefined {
+  getComponentByComponentTID(componentTID: ComponentTID): Component | undefined {
     return this.__components.get(componentTID);
   }
 
@@ -147,82 +141,82 @@ export class Entity extends RnObject implements IEntity {
    * @returns AnimationComponent | undefined
    */
   tryToGetAnimation() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.AnimationComponentTID
-    ) as AnimationComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.AnimationComponentTID) as
+      | AnimationComponent
+      | undefined;
   }
 
   tryToGetBlendShape() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.BlendShapeComponentTID
-    ) as BlendShapeComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.BlendShapeComponentTID) as
+      | BlendShapeComponent
+      | undefined;
   }
 
   tryToGetCamera() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.CameraComponentTID
-    ) as CameraComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraComponentTID) as
+      | CameraComponent
+      | undefined;
   }
 
   tryToGetCameraController() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.CameraControllerComponentTID
-    ) as CameraControllerComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.CameraControllerComponentTID) as
+      | CameraControllerComponent
+      | undefined;
   }
 
   tryToGetLight() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.LightComponentTID
-    ) as LightComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.LightComponentTID) as
+      | LightComponent
+      | undefined;
   }
 
   tryToGetMesh() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.MeshComponentTID
-    ) as MeshComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshComponentTID) as
+      | MeshComponent
+      | undefined;
   }
 
   tryToGetMeshRenderer() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.MeshRendererComponentTID
-    ) as MeshRendererComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.MeshRendererComponentTID) as
+      | MeshRendererComponent
+      | undefined;
   }
 
   tryToGetPhysics() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.PhysicsComponentTID
-    ) as PhysicsComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.PhysicsComponentTID) as
+      | PhysicsComponent
+      | undefined;
   }
 
   tryToGetSceneGraph() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.SceneGraphComponentTID
-    ) as SceneGraphComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.SceneGraphComponentTID) as
+      | SceneGraphComponent
+      | undefined;
   }
 
   tryToGetSkeletal() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.SkeletalComponentTID
-    ) as SkeletalComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.SkeletalComponentTID) as
+      | SkeletalComponent
+      | undefined;
   }
 
   tryToGetTransform() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.TransformComponentTID
-    ) as TransformComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.TransformComponentTID) as
+      | TransformComponent
+      | undefined;
   }
 
   tryToGetVrm() {
-    return this.getComponentByComponentTID(
-      WellKnownComponentTIDs.VrmComponentTID
-    ) as VrmComponent | undefined;
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as
+      | VrmComponent
+      | undefined;
   }
 
   /**
    * Mark the entity as destroyed
    */
   destroy() {
-    this.__components.forEach(component => {
+    this.__components.forEach((component) => {
       component._destroy();
     });
     this._isAlive = false;

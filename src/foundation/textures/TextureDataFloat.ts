@@ -4,8 +4,8 @@ import {
   FloatTypedArrayConstructor,
   TypedArrayConstructor,
 } from '../../types/CommonTypes';
-import {ColorRgb} from '../math/ColorRgb';
-import {ColorRgba} from '../math/ColorRgba';
+import { ColorRgb } from '../math/ColorRgb';
+import { ColorRgba } from '../math/ColorRgba';
 
 export class TextureDataFloat {
   private __data: Float32Array;
@@ -25,17 +25,12 @@ export class TextureDataFloat {
     this.__height = height;
     this.__channels = channels;
     this.__data = new Float32Array(
-      TextureDataFloat.transfer(
-        this.__data.buffer,
-        width * height * channels * 4
-      )
+      TextureDataFloat.transfer(this.__data.buffer, width * height * channels * 4)
     );
   }
 
   setPixelAtChannel(x: Index, y: Index, channelIdx: Index, value: number) {
-    this.__data[
-      y * this.__width * this.__channels + x * this.__channels + channelIdx
-    ] = value;
+    this.__data[y * this.__width * this.__channels + x * this.__channels + channelIdx] = value;
   }
 
   get width() {
@@ -51,46 +46,25 @@ export class TextureDataFloat {
   }
 
   getPixel(x: Index, y: Index, channelIdx: Index) {
-    return this.__data[
-      y * this.__width * this.__channels + x * this.__channels + channelIdx
-    ];
+    return this.__data[y * this.__width * this.__channels + x * this.__channels + channelIdx];
   }
 
-  getPixelAs(
-    x: Index,
-    y: Index,
-    channels: Size,
-    typeClass: typeof ColorRgb | typeof ColorRgba
-  ) {
+  getPixelAs(x: Index, y: Index, channels: Size, typeClass: typeof ColorRgb | typeof ColorRgba) {
     if (channels === 3) {
       return new (typeClass as any)(
         new Float32Array([
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 0
-          ],
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 1
-          ],
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 2
-          ],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 0],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 1],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 2],
         ])
       );
     } else if (channels === 4) {
       return new (typeClass as any)(
         new Float32Array([
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 0
-          ],
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 1
-          ],
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 2
-          ],
-          this.__data[
-            y * this.__width * this.__channels + x * this.__channels + 3
-          ],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 0],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 1],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 2],
+          this.__data[y * this.__width * this.__channels + x * this.__channels + 3],
         ])
       );
     }
@@ -99,11 +73,7 @@ export class TextureDataFloat {
   getPixelAsArray(x: Index, y: Index) {
     const array = [];
     for (let i = 0; i < this.__channels; i++) {
-      array.push(
-        this.__data[
-          y * this.__width * this.__channels + x * this.__channels + i
-        ]
-      );
+      array.push(this.__data[y * this.__width * this.__channels + x * this.__channels + i]);
     }
     return array;
   }
@@ -119,23 +89,15 @@ export class TextureDataFloat {
     source = Object(source);
     const dest = new ArrayBuffer(length);
     if (!(source instanceof ArrayBuffer) || !(dest instanceof ArrayBuffer)) {
-      throw new TypeError(
-        'Source and destination must be ArrayBuffer instances'
-      );
+      throw new TypeError('Source and destination must be ArrayBuffer instances');
     }
     if (dest.byteLength >= source.byteLength) {
       let nextOffset = 0;
       let leftBytes = source.byteLength;
       const wordSizes = [8, 4, 2, 1];
-      wordSizes.forEach(_wordSize_ => {
+      wordSizes.forEach((_wordSize_) => {
         if (leftBytes >= _wordSize_) {
-          const done = transferWith(
-            _wordSize_,
-            source,
-            dest,
-            nextOffset,
-            leftBytes
-          );
+          const done = transferWith(_wordSize_, source, dest, nextOffset, leftBytes);
           nextOffset = done.nextOffset;
           leftBytes = done.leftBytes;
         }
@@ -167,23 +129,14 @@ export class TextureDataFloat {
           ViewClass = Uint8Array;
           break;
       }
-      const view_source = new ViewClass(
-        source,
-        nextOffset,
-        Math.trunc(leftBytes / wordSize)
-      );
-      const view_dest = new ViewClass(
-        dest,
-        nextOffset,
-        Math.trunc(leftBytes / wordSize)
-      );
+      const view_source = new ViewClass(source, nextOffset, Math.trunc(leftBytes / wordSize));
+      const view_dest = new ViewClass(dest, nextOffset, Math.trunc(leftBytes / wordSize));
       for (let i = 0; i < view_dest.length; i++) {
         view_dest[i] = view_source[i];
       }
       return {
         nextOffset: view_source.byteOffset + view_source.byteLength,
-        leftBytes:
-          source.byteLength - (view_source.byteOffset + view_source.byteLength),
+        leftBytes: source.byteLength - (view_source.byteOffset + view_source.byteLength),
       };
     }
   }

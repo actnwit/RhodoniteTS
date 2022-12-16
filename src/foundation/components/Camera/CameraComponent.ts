@@ -1,35 +1,31 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
-import {CameraTypeEnum, CameraType} from '../../definitions/CameraType';
+import { CameraTypeEnum, CameraType } from '../../definitions/CameraType';
 import { Matrix44 } from '../../math/Matrix44';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
-import {BufferUse} from '../../definitions/BufferUse';
-import {ComponentType} from '../../definitions/ComponentType';
+import { BufferUse } from '../../definitions/BufferUse';
+import { ComponentType } from '../../definitions/ComponentType';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import {ProcessStage} from '../../definitions/ProcessStage';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector3 } from '../../math/MutableVector3';
-import {Frustum} from '../../geometry/Frustum';
-import {Config} from '../../core/Config';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-} from '../../../types/CommonTypes';
+import { Frustum } from '../../geometry/Frustum';
+import { Config } from '../../core/Config';
+import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import {MathUtil} from '../../math/MathUtil';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { MathUtil } from '../../math/MathUtil';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { ModuleManager } from '../../system/ModuleManager';
-import {RnXR} from '../../../xr/main';
+import { RnXR } from '../../../xr/main';
 import { RenderPass } from '../../renderer/RenderPass';
-import {ICameraEntity} from '../../helpers/EntityHelper';
-import {IEntity} from '../../core/Entity';
-import {ComponentToComponentMethods} from '../ComponentTypes';
+import { ICameraEntity } from '../../helpers/EntityHelper';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc/Is';
 import { LightType } from '../../definitions/LightType';
 
@@ -78,10 +74,22 @@ export class CameraComponent extends Component {
   private static __tmpMatrix44_0 = MutableMatrix44.zero();
   private static __tmpMatrix44_1 = MutableMatrix44.zero();
   private static __biasMatrix = Matrix44.fromCopy16ColumnMajor(
-    0.5, 0.0, 0.0, 0.0,
-    0.0, 0.5, 0.0, 0.0,
-    0.0, 0.0, 0.5, 0.0,
-    0.5, 0.5, 0.5, 1.0
+    0.5,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.5,
+    0.0,
+    0.5,
+    0.5,
+    0.5,
+    1.0
   );
   _xrLeft = false;
   _xrRight = false;
@@ -96,9 +104,7 @@ export class CameraComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository);
 
-    this._setMaxNumberOfComponent(
-      Math.max(10, Math.floor(Config.maxEntityNumber / 100))
-    );
+    this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
 
     this.registerMember(
       BufferUse.CPUGeneric,
@@ -114,13 +120,7 @@ export class CameraComponent extends Component {
       ComponentType.Float,
       [0, 0, -1]
     );
-    this.registerMember(
-      BufferUse.CPUGeneric,
-      'up',
-      MutableVector3,
-      ComponentType.Float,
-      [0, 1, 0]
-    );
+    this.registerMember(BufferUse.CPUGeneric, 'up', MutableVector3, ComponentType.Float, [0, 1, 0]);
     this.registerMember(
       BufferUse.CPUGeneric,
       'directionInner',
@@ -268,8 +268,7 @@ export class CameraComponent extends Component {
       oldUp,
       CameraComponent.__tmpVector3_0
     );
-    const isOrthogonalNewDirectionAndOldUp =
-      orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
+    const isOrthogonalNewDirectionAndOldUp = orthogonalVectorNewDirectionAndOldUp.length() === 0.0;
 
     let newUpNonNormalize;
     if (isOrthogonalNewDirectionAndOldUp) {
@@ -410,8 +409,7 @@ export class CameraComponent extends Component {
 
   set focalLength(val: number) {
     this._focalLength = val;
-    this._parameters.z =
-      2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
+    this._parameters.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
   }
   get focalLength() {
     return this._focalLength;
@@ -435,15 +433,13 @@ export class CameraComponent extends Component {
 
   setFovyAndChangeFilmSize(degree: number) {
     this._parameters.z = degree;
-    this._filmHeight =
-      2 * this.focalLength * Math.tan(MathUtil.degreeToRadian(degree) / 2);
+    this._filmHeight = 2 * this.focalLength * Math.tan(MathUtil.degreeToRadian(degree) / 2);
     this._filmWidth = this._filmHeight * this.aspect;
   }
 
   setFovyAndChangeFocalLength(degree: number) {
     this._parameters.z = degree;
-    this._focalLength =
-      this._filmHeight / 2 / Math.tan(MathUtil.degreeToRadian(degree) / 2);
+    this._focalLength = this._filmHeight / 2 / Math.tan(MathUtil.degreeToRadian(degree) / 2);
   }
 
   get fovy() {
@@ -574,11 +570,7 @@ export class CameraComponent extends Component {
       eye,
       CameraComponent.__tmpVector3_0
     ).normalize();
-    const s = MutableVector3.crossTo(
-      f,
-      this._upInner,
-      CameraComponent.__tmpVector3_1
-    ).normalize();
+    const s = MutableVector3.crossTo(f, this._upInner, CameraComponent.__tmpVector3_1).normalize();
     const u = MutableVector3.crossTo(s, f, CameraComponent.__tmpVector3_2);
 
     this._viewMatrix.setComponents(
@@ -715,7 +707,7 @@ export class CameraComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic({renderPass}: {renderPass: RenderPass}) {
+  $logic({ renderPass }: { renderPass: RenderPass }) {
     const lightComponent = this.entity.tryToGetLight();
 
     if (this.isSyncToLight && Is.exist(lightComponent)) {
@@ -725,9 +717,7 @@ export class CameraComponent extends Component {
       this._upInner.copyComponents(this._up);
       if (lightComponent.type === LightType.Spot) {
         this.type = CameraType.Perspective;
-        this.setFovyAndChangeFilmSize(
-          MathUtil.radianToDegree(lightComponent.outerConeAngle)
-        );
+        this.setFovyAndChangeFilmSize(MathUtil.radianToDegree(lightComponent.outerConeAngle));
         this._cornerInner.copyComponents(this._corner);
         this.aspect = 1;
         this.zNear = 0.1;
@@ -780,9 +770,7 @@ export class CameraComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ICameraEntity {
-    return EntityRepository.getEntity(
-      this.__entityUid
-    ) as unknown as ICameraEntity;
+    return EntityRepository.getEntity(this.__entityUid) as unknown as ICameraEntity;
   }
 
   /**
@@ -811,8 +799,7 @@ export class CameraComponent extends Component {
       }
     }
     applyMixins(base, CameraEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBaseClass;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
 }
 ComponentRepository.registerComponentClass(CameraComponent);

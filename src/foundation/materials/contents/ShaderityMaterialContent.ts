@@ -1,14 +1,14 @@
-import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {Material} from '../core/Material';
-import {ShaderityObject} from 'shaderity';
-import {ShaderityUtility} from '../core/ShaderityUtility';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {GlobalDataRepository} from '../../core/GlobalDataRepository';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
-import {ShaderSemanticsInfo} from '../../definitions/ShaderSemanticsInfo';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { Material } from '../core/Material';
+import { ShaderityObject } from 'shaderity';
+import { ShaderityUtility } from '../core/ShaderityUtility';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class ShaderityMaterialContent extends AbstractMaterialContent {
   constructor({
@@ -49,9 +49,7 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
       }
     }
 
-    ShaderityMaterialContent.__removeUselessShaderSemantics(
-      shaderSemanticsInfoArray
-    );
+    ShaderityMaterialContent.__removeUselessShaderSemantics(shaderSemanticsInfoArray);
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
@@ -79,27 +77,12 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
             CameraComponent.current
           ) as CameraComponent;
         }
-        this.setViewInfo(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
-        this.setProjection(
-          shaderProgram,
-          cameraComponent,
-          args.isVr,
-          args.displayIdx
-        );
+        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       }
 
       if (firstTime) {
-        this.setLightsInfo(
-          shaderProgram,
-          args.lightComponents,
-          material,
-          args.setUniform
-        );
+        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
       }
 
       const skeletalComponent = args.entity.tryToGetSkeletal();
@@ -107,28 +90,18 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
     }
 
     const blendShapeComponent = args.entity.tryToGetBlendShape();
-    this.setMorphInfo(
-      shaderProgram,
-      args.entity.getMesh(),
-      args.primitive,
-      blendShapeComponent
-    );
+    this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
   }
 
-  private static __removeUselessShaderSemantics(
-    shaderSemanticsInfoArray: ShaderSemanticsInfo[]
-  ) {
-    const globalPropertyStructs =
-      GlobalDataRepository.getInstance().getGlobalProperties();
+  private static __removeUselessShaderSemantics(shaderSemanticsInfoArray: ShaderSemanticsInfo[]) {
+    const globalPropertyStructs = GlobalDataRepository.getInstance().getGlobalProperties();
 
     for (const globalPropertyStruct of globalPropertyStructs) {
-      const globalShaderSemanticsInfo =
-        globalPropertyStruct.shaderSemanticsInfo;
+      const globalShaderSemanticsInfo = globalPropertyStruct.shaderSemanticsInfo;
 
       const duplicateElemId = shaderSemanticsInfoArray.findIndex(
-        shaderSemanticsInfo =>
-          shaderSemanticsInfo.semantic.str ===
-          globalShaderSemanticsInfo.semantic.str
+        (shaderSemanticsInfo) =>
+          shaderSemanticsInfo.semantic.str === globalShaderSemanticsInfo.semantic.str
       );
 
       if (duplicateElemId !== -1) {
@@ -146,8 +119,7 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
 
     for (const shaderSemantic of defaultShaderSemantics) {
       const duplicateElemId = shaderSemanticsInfoArray.findIndex(
-        shaderSemanticsInfo =>
-          shaderSemanticsInfo.semantic.str === shaderSemantic.str
+        (shaderSemanticsInfo) => shaderSemanticsInfo.semantic.str === shaderSemantic.str
       );
 
       if (duplicateElemId !== -1) {

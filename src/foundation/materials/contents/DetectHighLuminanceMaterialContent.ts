@@ -3,20 +3,20 @@ import {
   ShaderSemanticsEnum,
   ShaderSemanticsClass,
 } from '../../definitions/ShaderSemantics';
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
-import {ShaderType} from '../../definitions/ShaderType';
-import {ShaderVariableUpdateInterval} from '../../definitions/ShaderVariableUpdateInterval';
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {CameraComponent} from '../../components/Camera/CameraComponent';
-import {Scalar} from '../../math/Scalar';
-import {RenderPass} from '../../renderer/RenderPass';
-import {Count} from '../../../types/CommonTypes';
-import {AbstractMaterialContent} from '../core/AbstractMaterialContent';
-import {Material} from '../core/Material';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
+import { ShaderType } from '../../definitions/ShaderType';
+import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Scalar } from '../../math/Scalar';
+import { RenderPass } from '../../renderer/RenderPass';
+import { Count } from '../../../types/CommonTypes';
+import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
+import { Material } from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
-import {RenderingArg} from '../../../webgl/types/CommonTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
@@ -70,10 +70,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     let framebufferWidth;
 
     const framebuffer = HDRRenderPass.getFramebuffer();
-    if (
-      framebuffer != null &&
-      framebuffer.colorAttachments[colorAttachmentsNumber] != null
-    ) {
+    if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
       framebufferWidth = framebuffer.width;
     } else {
@@ -82,9 +79,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
 
       if (framebuffer != null) {
         console.warn(
-          'renderPass does not have framebuffer.colorAttachments[' +
-            colorAttachmentsNumber +
-            ']'
+          'renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']'
         );
       } else {
         console.warn('renderPass does not have framebuffer');
@@ -144,18 +139,8 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       ) as CameraComponent;
     }
     if (cameraComponent) {
-      this.setViewInfo(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
-      this.setProjection(
-        shaderProgram,
-        cameraComponent,
-        args.isVr,
-        args.displayIdx
-      );
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
     }
   }
 }

@@ -1,14 +1,11 @@
 import { Matrix44 } from './Matrix44';
-import {IMutableMatrix22, IMutableMatrix, IMatrix22} from './IMatrix';
+import { IMutableMatrix22, IMutableMatrix, IMatrix22 } from './IMatrix';
 import { Matrix22 } from './Matrix22';
-import {Array4, Index} from '../../types/CommonTypes';
+import { Array4, Index } from '../../types/CommonTypes';
 import { Matrix33 } from './Matrix33';
 import { Vector2 } from './Vector2';
 
-export class MutableMatrix22
-  extends Matrix22
-  implements IMutableMatrix, IMutableMatrix22
-{
+export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutableMatrix22 {
   constructor(m: Float32Array) {
     super(m);
   }
@@ -116,12 +113,7 @@ export class MutableMatrix22
     return this;
   }
 
-  setComponents(
-    m00: number,
-    m01: number,
-    m10: number,
-    m11: number
-  ): MutableMatrix22 {
+  setComponents(m00: number, m01: number, m10: number, m11: number): MutableMatrix22 {
     this._v[0] = m00;
     this._v[2] = m01;
     this._v[1] = m10;
@@ -230,13 +222,12 @@ export class MutableMatrix22
    *   It will becomes an intuitive handling.
    * @returns
    */
-  static fromCopy4RowMajor(
-    m00: number, m01: number,
-    m10: number, m11: number)
-  {
+  static fromCopy4RowMajor(m00: number, m01: number, m10: number, m11: number) {
     const v = new Float32Array(4);
-    v[0] = m00; v[2] = m01;
-    v[1] = m10; v[3] = m11;
+    v[0] = m00;
+    v[2] = m01;
+    v[1] = m10;
+    v[3] = m11;
     return new MutableMatrix22(v);
   }
 
@@ -245,13 +236,12 @@ export class MutableMatrix22
    * Note that WebGL matrix keeps the values in column major.
    * @returns
    */
-  static fromCopy4ColumnMajor(
-    m00: number, m10: number,
-    m01: number, m11: number)
-  {
+  static fromCopy4ColumnMajor(m00: number, m10: number, m01: number, m11: number) {
     const v = new Float32Array(4);
-    v[0] = m00; v[2] = m01;
-    v[1] = m10; v[3] = m11;
+    v[0] = m00;
+    v[2] = m01;
+    v[1] = m10;
+    v[3] = m11;
     return new MutableMatrix22(v);
   }
 
@@ -267,16 +257,20 @@ export class MutableMatrix22
 
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
     const v = new Float32Array(4);
-    v[0] = array[0]; v[3] = array[1];
-    v[1] = array[2]; v[4] = array[3];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[1] = array[2];
+    v[4] = array[3];
 
     return new MutableMatrix22(v);
   }
 
   static fromCopyMatrix22(mat: IMatrix22) {
     const v = new Float32Array(4);
-    v[0] = mat._v[0]; v[3] = mat._v[1];
-    v[1] = mat._v[2]; v[4] = mat._v[3];
+    v[0] = mat._v[0];
+    v[3] = mat._v[1];
+    v[1] = mat._v[2];
+    v[4] = mat._v[3];
     return new MutableMatrix22(v);
   }
 
@@ -294,15 +288,19 @@ export class MutableMatrix22
 
   static fromCopyArray9RowMajor(array: Array4<number>) {
     const v = new Float32Array(4);
-    v[0] = array[0]; v[3] = array[1];
-    v[1] = array[2]; v[4] = array[3];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[1] = array[2];
+    v[4] = array[3];
     return new MutableMatrix22(v);
   }
 
   static fromCopyArrayRowMajor(array: Array<number>) {
     const v = new Float32Array(4);
-    v[0] = array[0]; v[3] = array[1];
-    v[1] = array[2]; v[4] = array[3];
+    v[0] = array[0];
+    v[3] = array[1];
+    v[1] = array[2];
+    v[4] = array[3];
     return new MutableMatrix22(v);
   }
 }

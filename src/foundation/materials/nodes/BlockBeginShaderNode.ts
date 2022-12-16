@@ -1,14 +1,8 @@
-import {
-  CompositionType,
-  CompositionTypeEnum,
-} from '../../definitions/CompositionType';
-import {
-  ComponentType,
-  ComponentTypeEnum,
-} from '../../definitions/ComponentType';
+import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
 import { BlockBeginShader } from '../../../webgl/shaders/nodes/BlockBeginShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import {ShaderSocket} from '../core/AbstractMaterialContent';
+import { ShaderSocket } from '../core/AbstractMaterialContent';
 
 export class BlockBeginShaderNode extends AbstractShaderNode {
   private __valueInputs: ShaderSocket[] = [];
@@ -31,10 +25,7 @@ export class BlockBeginShaderNode extends AbstractShaderNode {
     });
   }
 
-  addInputAndOutput(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  addInputAndOutput(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     const input = {
       compositionType: compositionType,
       componentType: componentType,

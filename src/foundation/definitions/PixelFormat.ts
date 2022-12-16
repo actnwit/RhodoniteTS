@@ -1,11 +1,11 @@
 import { GL_RG, GL_RGB } from '../../types';
-import {EnumClass, EnumIO, _from} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
 export type PixelFormatEnum = EnumIO;
 
 class PixelFormatClass extends EnumClass implements PixelFormatEnum {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -38,18 +38,10 @@ const LuminanceAlpha: PixelFormatEnum = new PixelFormatClass({
   str: 'LUMINANCE_ALPHA',
 });
 
-const typeList = [
-  DepthComponent,
-  Alpha,
-  RG,
-  RGB,
-  RGBA,
-  Luminance,
-  LuminanceAlpha,
-];
+const typeList = [DepthComponent, Alpha, RG, RGB, RGBA, Luminance, LuminanceAlpha];
 
 function from(index: number): PixelFormatEnum {
-  return _from({typeList, index}) as PixelFormatEnum;
+  return _from({ typeList, index }) as PixelFormatEnum;
 }
 
 export const PixelFormat = Object.freeze({

@@ -1,32 +1,27 @@
-import {ComponentRepository} from '../../core/ComponentRepository';
-import {Component} from '../../core/Component';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {Matrix44} from '../../math/Matrix44';
-import {SceneGraphComponent} from '../SceneGraph/SceneGraphComponent';
-import {ProcessStage} from '../../definitions/ProcessStage';
-import {MutableVector3} from '../../math/MutableVector3';
-import {MutableQuaternion} from '../../math/MutableQuaternion';
-import {MathUtil} from '../../math/MathUtil';
-import {MutableVector4} from '../../math/MutableVector4';
-import {MutableMatrix44} from '../../math/MutableMatrix44';
-import {
-  ComponentTID,
-  ComponentSID,
-  EntityUID,
-  Index,
-} from '../../../types/CommonTypes';
-import {ShaderSemantics} from '../../definitions/ShaderSemantics';
-import {GlobalDataRepository} from '../../core/GlobalDataRepository';
-import {Config} from '../../core/Config';
-import {BoneDataType} from '../../definitions/BoneDataType';
-import {IMatrix44} from '../../math/IMatrix';
-import {Accessor} from '../../memory/Accessor';
-import {ISkeletalEntity} from '../../helpers/EntityHelper';
-import {IEntity} from '../../core/Entity';
-import {ComponentToComponentMethods} from '../ComponentTypes';
-import {Is} from '../../misc';
-import {IAnimationRetarget} from './AnimationRetarget/AnimationRetarget';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Component } from '../../core/Component';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { Matrix44 } from '../../math/Matrix44';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { ProcessStage } from '../../definitions/ProcessStage';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MathUtil } from '../../math/MathUtil';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { ComponentTID, ComponentSID, EntityUID, Index } from '../../../types/CommonTypes';
+import { ShaderSemantics } from '../../definitions/ShaderSemantics';
+import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { Config } from '../../core/Config';
+import { BoneDataType } from '../../definitions/BoneDataType';
+import { IMatrix44 } from '../../math/IMatrix';
+import { Accessor } from '../../memory/Accessor';
+import { ISkeletalEntity } from '../../helpers/EntityHelper';
+import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import { Is } from '../../misc';
+import { IAnimationRetarget } from './AnimationRetarget/AnimationRetarget';
 
 export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -38,12 +33,7 @@ export class SkeletalComponent extends Component {
   public isSkinning = true;
   private static __tmpVec3_0 = MutableVector3.zero();
   private static __tmp_mat4 = MutableMatrix44.identity();
-  private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(
-    0,
-    0,
-    0,
-    1
-  );
+  private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
   private static __identityMat = MutableMatrix44.identity();
   private __qArray = new Float32Array(0);
   private __tsArray = new Float32Array(0);
@@ -66,36 +56,20 @@ export class SkeletalComponent extends Component {
     super(entityUid, componentSid, entityRepository);
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
       if (Config.boneDataType === BoneDataType.Mat44x1) {
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneMatrix
-        );
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneMatrix);
       } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneTranslatePackedQuat
-        );
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneScalePackedQuat
-        );
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslatePackedQuat);
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneScalePackedQuat);
       } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneQuaternion
-        );
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneTranslateScale
-        );
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
       } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneTranslateScale
-        );
-        SkeletalComponent.__globalDataRepository.takeOne(
-          ShaderSemantics.BoneCompressedChunk
-        );
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneCompressedChunk);
       }
       SkeletalComponent.__tookGlobalDataNum++;
     } else {
-      console.warn(
-        'The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.'
-      );
+      console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
     }
 
     this.moveStageTo(ProcessStage.Logic);
@@ -415,9 +389,7 @@ export class SkeletalComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): ISkeletalEntity {
-    return EntityRepository.getEntity(
-      this.__entityUid
-    ) as unknown as ISkeletalEntity;
+    return EntityRepository.getEntity(this.__entityUid) as unknown as ISkeletalEntity;
   }
 
   /**
@@ -426,10 +398,10 @@ export class SkeletalComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class SkeletalEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -446,14 +418,12 @@ export class SkeletalComponent extends Component {
       }
     }
     applyMixins(base, SkeletalEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 
   _getInverseBindMatrices(sg: SceneGraphComponent): IMatrix44 {
     const index = this.__joints.indexOf(sg);
-    const float32Array =
-      this.__inverseBindMatricesAccessor!.getTypedArray() as Float32Array;
+    const float32Array = this.__inverseBindMatricesAccessor!.getTypedArray() as Float32Array;
     const m = new Matrix44(float32Array.slice(index * 16, index * 16 + 16));
     return m;
   }

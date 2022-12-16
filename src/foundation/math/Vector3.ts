@@ -1,19 +1,9 @@
-import {
-  IVector2,
-  IVector3,
-  IVector4,
-  IVector,
-  IMutableVector3,
-} from './IVector';
-import {MathUtil} from './MathUtil';
-import {CompositionType} from '../definitions/CompositionType';
-import {IQuaternion} from './IQuaternion';
+import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from './IVector';
+import { MathUtil } from './MathUtil';
+import { CompositionType } from '../definitions/CompositionType';
+import { IQuaternion } from './IQuaternion';
 import { AbstractVector } from './AbstractVector';
-import {
-  Array3,
-  FloatTypedArrayConstructor,
-  TypedArray,
-} from '../../types/CommonTypes';
+import { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 
 /**
  * @internal
@@ -22,7 +12,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   extends AbstractVector
   implements IVector, IVector3
 {
-  constructor(v: TypedArray, {type}: {type: T}) {
+  constructor(v: TypedArray, { type }: { type: T }) {
     super();
     this._v = v;
   }
@@ -46,15 +36,13 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   get glslStrAsFloat() {
     return `vec3(${MathUtil.convertToStringAsGLSLFloat(
       this._v[0]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(
-      this._v[1]
-    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])})`;
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(
+      this._v[2]
+    )})`;
   }
 
   get glslStrAsInt() {
-    return `ivec3(${Math.floor(this._v[0])}, ${Math.floor(
-      this._v[1]
-    )}, ${Math.floor(this._v[2])})`;
+    return `ivec3(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])})`;
   }
 
   static get compositionType() {
@@ -91,7 +79,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 
   static _dummy(type: FloatTypedArrayConstructor) {
-    return new this(new type([]), {type});
+    return new this(new type([]), { type });
   }
 
   /**
@@ -105,11 +93,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * add value（static version）
    */
-  static _add(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _add(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] + r_vec._v[0];
     const y = l_vec._v[1] + r_vec._v[1];
     const z = l_vec._v[2] + r_vec._v[2];
@@ -129,11 +113,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * subtract(subtract)
    */
-  static _subtract(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _subtract(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] - r_vec._v[0];
     const y = l_vec._v[1] - r_vec._v[1];
     const z = l_vec._v[2] - r_vec._v[2];
@@ -153,11 +133,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * multiply(static version)
    */
-  static _multiply(
-    vec: IVector3,
-    value: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiply(vec: IVector3, value: number, type: FloatTypedArrayConstructor) {
     const x = vec._v[0] * value;
     const y = vec._v[1] * value;
     const z = vec._v[2] * value;
@@ -177,11 +153,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * multiply vector(static version)
    */
-  static _multiplyVector(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiplyVector(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[0] * r_vec._v[0];
     const y = l_vec._v[1] * r_vec._v[1];
     const z = l_vec._v[2] * r_vec._v[2];
@@ -191,11 +163,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * multiply vector(static version)
    */
-  static multiplyVectorTo(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    out: IMutableVector3
-  ) {
+  static multiplyVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
     out._v[0] = l_vec._v[0] * r_vec._v[0];
     out._v[1] = l_vec._v[1] * r_vec._v[1];
     out._v[2] = l_vec._v[2] * r_vec._v[2];
@@ -205,11 +173,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * divide(static version)
    */
-  static _divide(
-    vec: IVector3,
-    value: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _divide(vec: IVector3, value: number, type: FloatTypedArrayConstructor) {
     let x;
     let y;
     let z;
@@ -246,11 +210,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * divide vector(static version)
    */
-  static _divideVector(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _divideVector(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
     let x;
     let y;
     let z;
@@ -270,11 +230,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * divide by vector(static version)
    */
-  static divideVectorTo(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    out: IMutableVector3
-  ) {
+  static divideVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3) {
     if (r_vec._v[0] !== 0 && r_vec._v[1] !== 0 && r_vec._v[2] !== 0) {
       out._v[0] = l_vec._v[0] / r_vec._v[0];
       out._v[1] = l_vec._v[1] / r_vec._v[1];
@@ -298,11 +254,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * cross product(static version)
    */
-  static _cross(
-    l_vec: IVector3,
-    r_vec: IVector3,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _cross(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
     const x = l_vec._v[1] * r_vec._v[2] - l_vec._v[2] * r_vec._v[1];
     const y = l_vec._v[2] * r_vec._v[0] - l_vec._v[0] * r_vec._v[2];
     const z = l_vec._v[0] * r_vec._v[1] - l_vec._v[1] * r_vec._v[0];
@@ -322,11 +274,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * quaternion * vector3
    */
-  static _multiplyQuaternion(
-    quat: IQuaternion,
-    vec: IVector3,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _multiplyQuaternion(quat: IQuaternion, vec: IVector3, type: FloatTypedArrayConstructor) {
     const num = quat._v[0] * 2;
     const num2 = quat._v[1] * 2;
     const num3 = quat._v[2] * 2;
@@ -341,17 +289,11 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     const num12 = quat._v[3] * num3;
 
     const x =
-      (1 - (num5 + num6)) * vec._v[0] +
-      (num7 - num12) * vec._v[1] +
-      (num8 + num11) * vec._v[2];
+      (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
     const y =
-      (num7 + num12) * vec._v[0] +
-      (1 - (num4 + num6)) * vec._v[1] +
-      (num9 - num10) * vec._v[2];
+      (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
     const z =
-      (num8 - num11) * vec._v[0] +
-      (num9 + num10) * vec._v[1] +
-      (1 - (num4 + num5)) * vec._v[2];
+      (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
 
     return this._fromCopyArray([x, y, z], type);
   }
@@ -359,11 +301,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   /**
    * quaternion * vector3
    */
-  static multiplyQuaternionTo(
-    quat: IQuaternion,
-    vec: IVector3,
-    out: IMutableVector3
-  ) {
+  static multiplyQuaternionTo(quat: IQuaternion, vec: IVector3, out: IMutableVector3) {
     const num = quat._v[0] * 2;
     const num2 = quat._v[1] * 2;
     const num3 = quat._v[2] * 2;
@@ -378,17 +316,11 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     const num12 = quat._v[3] * num3;
 
     const x =
-      (1 - (num5 + num6)) * vec._v[0] +
-      (num7 - num12) * vec._v[1] +
-      (num8 + num11) * vec._v[2];
+      (1 - (num5 + num6)) * vec._v[0] + (num7 - num12) * vec._v[1] + (num8 + num11) * vec._v[2];
     const y =
-      (num7 + num12) * vec._v[0] +
-      (1 - (num4 + num6)) * vec._v[1] +
-      (num9 - num10) * vec._v[2];
+      (num7 + num12) * vec._v[0] + (1 - (num4 + num6)) * vec._v[1] + (num9 - num10) * vec._v[2];
     const z =
-      (num8 - num11) * vec._v[0] +
-      (num9 + num10) * vec._v[1] +
-      (1 - (num4 + num5)) * vec._v[2];
+      (num8 - num11) * vec._v[0] + (num9 + num10) * vec._v[1] + (1 - (num4 + num5)) * vec._v[2];
 
     return out.setComponents(x, y, z);
   }
@@ -436,11 +368,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 
   isStrictEqual(vec: IVector3) {
-    if (
-      this._v[0] === vec._v[0] &&
-      this._v[1] === vec._v[1] &&
-      this._v[2] === vec._v[2]
-    ) {
+    if (this._v[0] === vec._v[0] && this._v[1] === vec._v[1] && this._v[2] === vec._v[2]) {
       return true;
     } else {
       return false;
@@ -470,9 +398,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
    * dot product
    */
   dot(vec: IVector3) {
-    return (
-      this._v[0] * vec._v[0] + this._v[1] * vec._v[1] + this._v[2] * vec._v[2]
-    );
+    return this._v[0] * vec._v[0] + this._v[1] * vec._v[1] + this._v[2] * vec._v[2];
   }
 
   get className() {
@@ -481,11 +407,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
 
   clone() {
     return new (this.constructor as any)(
-      new (this._v.constructor as any)(
-        [this._v[0], this._v[1], this._v[2]],
-        0,
-        0
-      )
+      new (this._v.constructor as any)([this._v[0], this._v[1], this._v[2]], 0, 0)
     );
   }
 
@@ -493,43 +415,27 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     return this._v.BYTES_PER_ELEMENT;
   }
 
-  static _lerp(
-    lhs: IVector3,
-    rhs: IVector3,
-    ratio: number,
-    type: FloatTypedArrayConstructor
-  ) {
+  static _lerp(lhs: IVector3, rhs: IVector3, ratio: number, type: FloatTypedArrayConstructor) {
     return new this(
       new type([
         lhs._v[0] * ratio + rhs._v[0] * (1 - ratio),
         lhs._v[1] * ratio + rhs._v[1] * (1 - ratio),
         lhs._v[2] * ratio + rhs._v[2] * (1 - ratio),
       ]),
-      {type}
+      { type }
     );
   }
 
-  static _fromCopyArray3(
-    array: Array3<number>,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type(array), {type});
+  static _fromCopyArray3(array: Array3<number>, type: FloatTypedArrayConstructor) {
+    return new this(new type(array), { type });
   }
 
-  static _fromCopy3(
-    x: number,
-    y: number,
-    z: number,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type([x, y, z]), {type});
+  static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor) {
+    return new this(new type([x, y, z]), { type });
   }
 
-  static _fromCopyArray(
-    array: Array<number>,
-    type: FloatTypedArrayConstructor
-  ) {
-    return new this(new type(array.slice(0, 3)), {type});
+  static _fromCopyArray(array: Array<number>, type: FloatTypedArrayConstructor) {
+    return new this(new type(array.slice(0, 3)), { type });
   }
 
   static _fromCopyVector3(vec3: IVector3, type: FloatTypedArrayConstructor) {
@@ -559,7 +465,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
  */
 export class Vector3 extends Vector3_<Float32ArrayConstructor> {
   constructor(v: TypedArray) {
-    super(v, {type: Float32Array});
+    super(v, { type: Float32Array });
   }
 
   static fromCopyArray3(array: Array3<number>): Vector3 {
@@ -652,7 +558,7 @@ export class Vector3 extends Vector3_<Float32ArrayConstructor> {
  */
 export class Vector3d extends Vector3_<Float64ArrayConstructor> {
   private constructor(v: TypedArray) {
-    super(v, {type: Float64Array});
+    super(v, { type: Float64Array });
   }
 
   static fromCopyArray3(array: Array3<number>): Vector3d {

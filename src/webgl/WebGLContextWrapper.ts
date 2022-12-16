@@ -1,8 +1,8 @@
-import {WebGLExtensionEnum, WebGLExtension} from './WebGLExtension';
-import {RenderBufferTargetEnum} from '../foundation/definitions/RenderBufferTarget';
-import {Index, Size} from '../types/CommonTypes';
+import { WebGLExtensionEnum, WebGLExtension } from './WebGLExtension';
+import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
+import { Index, Size } from '../types/CommonTypes';
 import { Vector4 } from '../foundation/math/Vector4';
-import {Config} from '../foundation/core/Config';
+import { Config } from '../foundation/core/Config';
 
 const INVALID_SIZE = -1;
 
@@ -92,18 +92,10 @@ export class WebGLContextWrapper {
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
-      this.webgl2ExtTFL = this.__getExtension(
-        WebGLExtension.TextureFloatLinear
-      );
-      this.webgl2ExtTFA = this.__getExtension(
-        WebGLExtension.TextureFilterAnisotropic
-      );
-      this.webgl2ExtCBF = this.__getExtension(
-        WebGLExtension.ColorBufferFloatWebGL2
-      );
-      this.webgl2ExtCBHF = this.__getExtension(
-        WebGLExtension.ColorBufferHalfFloatWebGL2
-      );
+      this.webgl2ExtTFL = this.__getExtension(WebGLExtension.TextureFloatLinear);
+      this.webgl2ExtTFA = this.__getExtension(WebGLExtension.TextureFilterAnisotropic);
+      this.webgl2ExtCBF = this.__getExtension(WebGLExtension.ColorBufferFloatWebGL2);
+      this.webgl2ExtCBHF = this.__getExtension(WebGLExtension.ColorBufferHalfFloatWebGL2);
       this.webgl2ExtCTAstc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureAstc
       );
@@ -125,9 +117,7 @@ export class WebGLContextWrapper {
       this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureBptc
       );
-      this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(
-        WebGLExtension.GMAN_WEBGL_MEMORY
-      );
+      this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
     }
     this.__getUniformBufferInfo();
     this.__getMaxUniformVectors();
@@ -179,9 +169,7 @@ export class WebGLContextWrapper {
     return this.__isDebugMode;
   }
 
-  getIsWebGL2(
-    gl: WebGLRenderingContext | WebGL2RenderingContext
-  ): gl is WebGL2RenderingContext {
+  getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext {
     return this.isWebGL2;
   }
 
@@ -205,16 +193,12 @@ export class WebGLContextWrapper {
     }
   }
 
-  deleteVertexArray(
-    vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES
-  ) {
+  deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES) {
     if (this.getIsWebGL2(this.__gl)) {
       this.__gl.deleteVertexArray(vertexArray);
     } else {
       if (this.webgl1ExtVAO != null) {
-        this.webgl1ExtVAO.deleteVertexArrayOES(
-          vertexArray as WebGLVertexArrayObjectOES
-        );
+        this.webgl1ExtVAO.deleteVertexArrayOES(vertexArray as WebGLVertexArrayObjectOES);
       }
     }
   }
@@ -245,13 +229,7 @@ export class WebGLContextWrapper {
     instanceCount: number
   ) {
     if (this.getIsWebGL2(this.__gl)) {
-      this.__gl.drawElementsInstanced(
-        primitiveMode,
-        indexCount,
-        type,
-        offset,
-        instanceCount
-      );
+      this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
     } else {
       this.webgl1ExtIA!.drawElementsInstancedANGLE(
         primitiveMode,
@@ -263,21 +241,11 @@ export class WebGLContextWrapper {
     }
   }
 
-  drawArraysInstanced(
-    primitiveMode: number,
-    first: number,
-    count: number,
-    instanceCount: number
-  ) {
+  drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number) {
     if (this.getIsWebGL2(this.__gl)) {
       this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
     } else {
-      this.webgl1ExtIA!.drawArraysInstancedANGLE(
-        primitiveMode,
-        first,
-        count,
-        instanceCount
-      );
+      this.webgl1ExtIA!.drawArraysInstancedANGLE(primitiveMode, first, count, instanceCount);
     }
   }
 
@@ -293,7 +261,7 @@ export class WebGLContextWrapper {
     }
     const buffer = buffers[0].webGLConstantValue();
     gl.drawBuffers(
-      buffers.map(buf => {
+      buffers.map((buf) => {
         return buf.webGLConstantValue();
       })
     );
@@ -363,7 +331,6 @@ export class WebGLContextWrapper {
   }
 
   bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
-
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
 
@@ -371,7 +338,6 @@ export class WebGLContextWrapper {
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
-
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
 
@@ -484,34 +450,23 @@ export class WebGLContextWrapper {
     }
 
     const gl: any = this.__gl;
-    const offsetAlignment = gl.getParameter(
-      gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT
-    ) as number;
+    const offsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT) as number;
     const maxBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE) as number;
-    this.#maxVertexUniformBlocks = gl.getParameter(
-      gl.MAX_VERTEX_UNIFORM_BLOCKS
-    ) as number;
-    this.#maxFragmentUniformBlocks = gl.getParameter(
-      gl.MAX_FRAGMENT_UNIFORM_BLOCKS
-    ) as number;
+    this.#maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS) as number;
+    this.#maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS) as number;
     this.#maxConventionUniformBlocks = Math.min(
       this.#maxVertexUniformBlocks,
       this.#maxFragmentUniformBlocks
     );
-    this.#alignedMaxUniformBlockSize =
-      maxBlockSize - (maxBlockSize % offsetAlignment);
+    this.#alignedMaxUniformBlockSize = maxBlockSize - (maxBlockSize % offsetAlignment);
     this.#uniformBufferOffsetAlignment = offsetAlignment;
     this.#maxUniformBlockSize = maxBlockSize;
   }
 
   private __getMaxUniformVectors() {
     const gl = this.getRawContext();
-    this.__maxVertexUniformVectors = gl.getParameter(
-      gl.MAX_VERTEX_UNIFORM_VECTORS
-    ) as number;
-    this.__maxVertexUniformVectors = gl.getParameter(
-      gl.MAX_VERTEX_UNIFORM_VECTORS
-    ) as number;
+    this.__maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) as number;
+    this.__maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS) as number;
   }
 
   getMaxConventionUniformBlocks() {

@@ -19,8 +19,7 @@ export class Time {
    */
   static _processEnd() {
     Time.__lastProcessEndTime = performance.now();
-    Time.__lastTickTimeInterval =
-      Time.__lastProcessEndTime - Time.__currentProcessBeginTime;
+    Time.__lastTickTimeInterval = Time.__lastProcessEndTime - Time.__currentProcessBeginTime;
   }
 
   static get timeFromSystemStart() {

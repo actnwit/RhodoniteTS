@@ -1,30 +1,26 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
-import {applyMixins, EntityRepository} from '../../core/EntityRepository';
-import {WellKnownComponentTIDs} from '../WellKnownComponentTIDs';
-import {ProcessStage} from '../../definitions/ProcessStage';
+import { applyMixins, EntityRepository } from '../../core/EntityRepository';
+import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { Vector3 } from '../../math/Vector3';
 import { CameraComponent } from '../Camera/CameraComponent';
 import { Vector4 } from '../../math/Vector4';
 import { Mesh } from '../../geometry/Mesh';
-import {IEntity, Entity} from '../../core/Entity';
-import {
-  ComponentTID,
-  EntityUID,
-  ComponentSID,
-} from '../../../types/CommonTypes';
+import { IEntity, Entity } from '../../core/Entity';
+import { ComponentTID, EntityUID, ComponentSID } from '../../../types/CommonTypes';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import { MutableVector3 } from '../../math/MutableVector3';
-import {ProcessApproachEnum} from '../../definitions/ProcessApproach';
-import {Is} from '../../misc/Is';
-import {IMeshEntity} from '../../helpers/EntityHelper';
+import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { Is } from '../../misc/Is';
+import { IMeshEntity } from '../../helpers/EntityHelper';
 import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
-import {ComponentToComponentMethods} from '../ComponentTypes';
-import {RaycastResultEx1} from '../../geometry/types/GeometryTypes';
-import {assertExist} from '../../misc/MiscUtil';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import { RaycastResultEx1 } from '../../geometry/types/GeometryTypes';
+import { assertExist } from '../../misc/MiscUtil';
 
 export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -104,41 +100,25 @@ export class MeshComponent extends Component {
   }
 
   static alertNoMeshSet(meshComponent: MeshComponent) {
-    console.debug(
-      'No mesh is set on this MeshComponent:' + meshComponent.componentSID
-    );
+    console.debug('No mesh is set on this MeshComponent:' + meshComponent.componentSID);
   }
 
-  castRay(
-    srcPointInWorld: Vector3,
-    directionInWorld: Vector3,
-    dotThreshold = 0
-  ): RaycastResultEx1 {
+  castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold = 0): RaycastResultEx1 {
     if (this.__mesh) {
       let srcPointInLocal = srcPointInWorld;
       let directionInLocal = directionInWorld;
       if (this.__sceneGraphComponent) {
-        const invWorldMatrix = Matrix44.invert(
-          this.__sceneGraphComponent.worldMatrixInner
-        );
+        const invWorldMatrix = Matrix44.invert(this.__sceneGraphComponent.worldMatrixInner);
         srcPointInLocal = Vector3.fromCopyVector4(
-          invWorldMatrix.multiplyVector(
-            Vector4.fromCopyVector3(srcPointInWorld)
-          )
+          invWorldMatrix.multiplyVector(Vector4.fromCopyVector3(srcPointInWorld))
         );
         const distVecInWorld = Vector3.add(srcPointInWorld, directionInWorld);
         const distVecInLocal = Vector3.fromCopyVector4(
           invWorldMatrix.multiplyVector(Vector4.fromCopyVector3(distVecInWorld))
         );
-        directionInLocal = Vector3.normalize(
-          Vector3.subtract(distVecInLocal, srcPointInLocal)
-        );
+        directionInLocal = Vector3.normalize(Vector3.subtract(distVecInLocal, srcPointInLocal));
 
-        const result = this.__mesh.castRay(
-          srcPointInLocal,
-          directionInLocal,
-          dotThreshold
-        );
+        const result = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         let intersectPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
@@ -205,11 +185,7 @@ export class MeshComponent extends Component {
           MeshComponent.__tmpVector3_2
         ).normalize();
 
-        const result = this.__mesh.castRay(
-          srcPointInLocal,
-          directionInLocal,
-          dotThreshold
-        );
+        const result = this.__mesh.castRay(srcPointInLocal, directionInLocal, dotThreshold);
         if (Is.defined(result.data) && result.data.t >= 0) {
           return {
             result: true,
@@ -236,13 +212,7 @@ export class MeshComponent extends Component {
     viewport: Vector4,
     dotThreshold = 0
   ): RaycastResultEx1 {
-    const result = this.castRayFromScreenInLocal(
-      x,
-      y,
-      camera,
-      viewport,
-      dotThreshold
-    );
+    const result = this.castRayFromScreenInLocal(x, y, camera, viewport, dotThreshold);
     if (this.__mesh && this.__sceneGraphComponent && result.result) {
       assertExist(result.data);
 
@@ -279,11 +249,7 @@ export class MeshComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  static common_$load({
-    processApproach,
-  }: {
-    processApproach: ProcessApproachEnum;
-  }) {
+  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     // check for the need to update VBO
     const meshComponents = ComponentRepository.getComponentsWithType(
       MeshComponent
@@ -301,8 +267,7 @@ export class MeshComponent extends Component {
           primitive.positionAccessorVersion !==
           MeshComponent.__latestPrimitivePositionAccessorVersion
         ) {
-          const meshRendererComponent =
-            meshComponent.entity.tryToGetMeshRenderer();
+          const meshRendererComponent = meshComponent.entity.tryToGetMeshRenderer();
           meshRendererComponent?.moveStageTo(ProcessStage.Load);
           MeshComponent.__latestPrimitivePositionAccessorVersion =
             primitive.positionAccessorVersion!;
@@ -319,10 +284,7 @@ export class MeshComponent extends Component {
     this.__mesh._calcTangents();
     // this.__mesh.__initMorphPrimitives();
     this.__mesh!._calcFaceNormalsIfNonNormal();
-    if (
-      this.__blendShapeComponent &&
-      this.__blendShapeComponent.weights.length > 0
-    ) {
+    if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
       this.__mesh!._calcBaryCentricCoord();
     }
     this.moveStageTo(ProcessStage.Logic);
@@ -335,9 +297,7 @@ export class MeshComponent extends Component {
    * @returns the entity which has this component
    */
   get entity(): IMeshEntity {
-    return EntityRepository.getEntity(
-      this.__entityUid
-    ) as unknown as IMeshEntity;
+    return EntityRepository.getEntity(this.__entityUid) as unknown as IMeshEntity;
   }
 
   /**
@@ -346,10 +306,10 @@ export class MeshComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class MeshEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -366,8 +326,7 @@ export class MeshComponent extends Component {
       }
     }
     applyMixins(base, MeshEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 

@@ -1,5 +1,5 @@
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 import ViewMatrixShaderityObject from '../../../webgl/shaderity_shaders/nodes/ViewMatrix.vert';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 

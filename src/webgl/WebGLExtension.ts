@@ -1,10 +1,10 @@
-import {EnumClass, EnumIO, _from} from '../foundation/misc/EnumIO';
+import { EnumClass, EnumIO, _from } from '../foundation/misc/EnumIO';
 
 export type WebGLExtensionEnum = EnumIO;
 
 class WebGLExtensionClass extends EnumClass implements WebGLExtensionEnum {
-  constructor({index, str}: {index: number; str: string}) {
-    super({index, str});
+  constructor({ index, str }: { index: number; str: string }) {
+    super({ index, str });
   }
 }
 
@@ -126,8 +126,8 @@ const typeList = [
   ColorBufferHalfFloatWebGL2,
 ];
 
-function from({index}: {index: number}): WebGLExtensionEnum {
-  return _from({typeList, index}) as WebGLExtensionEnum;
+function from({ index }: { index: number }): WebGLExtensionEnum {
+  return _from({ typeList, index }) as WebGLExtensionEnum;
 }
 
 export const WebGLExtension = Object.freeze({

@@ -1,5 +1,5 @@
-import {CompositionType} from '../../definitions/CompositionType';
-import {ComponentType} from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { ComponentType } from '../../definitions/ComponentType';
 import { EndShader } from '../../../webgl/shaders/nodes/EndShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 

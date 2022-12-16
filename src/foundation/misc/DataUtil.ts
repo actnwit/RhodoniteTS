@@ -1,7 +1,7 @@
 import { GltfLoadOption } from '../../types';
-import {Byte, Size} from '../../types/CommonTypes';
-import {glTF1} from '../../types/glTF1';
-import {RnM2} from '../../types/RnM2';
+import { Byte, Size } from '../../types/CommonTypes';
+import { glTF1 } from '../../types/glTF1';
+import { RnM2 } from '../../types/RnM2';
 import { Err, IResult, Ok } from './Result';
 import { RnPromise } from './RnPromise';
 
@@ -15,9 +15,7 @@ export class DataUtil {
 
   static isNode() {
     const isNode =
-      window === void 0 &&
-      typeof process !== 'undefined' &&
-      typeof require !== 'undefined';
+      window === void 0 && typeof process !== 'undefined' && typeof require !== 'undefined';
     return isNode;
   }
 
@@ -94,11 +92,7 @@ export class DataUtil {
     return bytes.buffer;
   }
 
-  static UInt8ArrayToDataURL(
-    uint8array: Uint8Array,
-    width: number,
-    height: number
-  ) {
+  static UInt8ArrayToDataURL(uint8array: Uint8Array, width: number, height: number) {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -107,29 +101,13 @@ export class DataUtil {
 
     for (let i = 0; i < imageData.data.length; i += 4) {
       imageData.data[i + 0] =
-        uint8array[
-          (height - Math.floor(i / (4 * width))) * (4 * width) +
-            (i % (4 * width)) +
-            0
-        ];
+        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 0];
       imageData.data[i + 1] =
-        uint8array[
-          (height - Math.floor(i / (4 * width))) * (4 * width) +
-            (i % (4 * width)) +
-            1
-        ];
+        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 1];
       imageData.data[i + 2] =
-        uint8array[
-          (height - Math.floor(i / (4 * width))) * (4 * width) +
-            (i % (4 * width)) +
-            2
-        ];
+        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 2];
       imageData.data[i + 3] =
-        uint8array[
-          (height - Math.floor(i / (4 * width))) * (4 * width) +
-            (i % (4 * width)) +
-            3
-        ];
+        uint8array[(height - Math.floor(i / (4 * width))) * (4 * width) + (i % (4 * width)) + 3];
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -172,7 +150,7 @@ export class DataUtil {
       } else {
         const xmlHttp = new XMLHttpRequest();
         if (isBinary) {
-          xmlHttp.onload = oEvent => {
+          xmlHttp.onload = (oEvent) => {
             let response = null;
             if (isBinary) {
               response = xmlHttp.response;
@@ -232,19 +210,12 @@ export class DataUtil {
     buffer: ArrayBuffer | Uint8Array,
     mimeType: string
   ): string {
-    const uint8BufferView = this.takeBufferViewAsUint8Array(
-      json,
-      bufferViewIndex,
-      buffer
-    );
+    const uint8BufferView = this.takeBufferViewAsUint8Array(json, bufferViewIndex, buffer);
     return this.accessArrayBufferAsImage(uint8BufferView, mimeType);
   }
 
-  static createBlobImageUriFromUint8Array(
-    uint8Array: Uint8Array,
-    mimeType: string
-  ): string {
-    const blob = new Blob([uint8Array], {type: mimeType});
+  static createBlobImageUriFromUint8Array(uint8Array: Uint8Array, mimeType: string): string {
+    const blob = new Blob([uint8Array], { type: mimeType });
     const imageUrl = URL.createObjectURL(blob);
     return imageUrl;
   }
@@ -270,9 +241,7 @@ export class DataUtil {
     arrayBuffer: ArrayBuffer | Uint8Array,
     imageType: string
   ): string {
-    const binaryData = this.uint8ArrayToStringInner(
-      new Uint8Array(arrayBuffer)
-    );
+    const binaryData = this.uint8ArrayToStringInner(new Uint8Array(arrayBuffer));
     const imgSrc = this.getImageType(imageType);
     const dataUrl = imgSrc + DataUtil.btoa(binaryData);
     return dataUrl;
@@ -320,10 +289,7 @@ export class DataUtil {
 
   static getMimeTypeFromExtension(extension: string): string {
     let imgSrc = null;
-    if (
-      extension.toLowerCase() === 'jpg' ||
-      extension.toLowerCase() === 'jpeg'
-    ) {
+    if (extension.toLowerCase() === 'jpg' || extension.toLowerCase() === 'jpeg') {
       imgSrc = 'image/jpeg';
     } else if (extension.toLowerCase() === 'png') {
       imgSrc = 'image/png';
@@ -360,11 +326,8 @@ export class DataUtil {
     return uint8BufferView;
   }
 
-  static createImageFromUri(
-    uri: string,
-    mimeType: string
-  ): RnPromise<HTMLImageElement> {
-    return new RnPromise(resolve => {
+  static createImageFromUri(uri: string, mimeType: string): RnPromise<HTMLImageElement> {
+    return new RnPromise((resolve) => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
 
@@ -376,10 +339,7 @@ export class DataUtil {
       } else {
         const load = (img: HTMLImageElement, response: ArrayBuffer) => {
           const bytes = new Uint8Array(response);
-          const imageUri = DataUtil.createBlobImageUriFromUint8Array(
-            bytes,
-            mimeType
-          );
+          const imageUri = DataUtil.createBlobImageUriFromUint8Array(bytes, mimeType);
           img.onload = () => {
             resolve(img);
             URL.revokeObjectURL(imageUri);
@@ -439,11 +399,9 @@ export class DataUtil {
     return defaultOptions;
   }
 
-  static async fetchArrayBuffer(
-    uri: string
-  ): Promise<IResult<ArrayBuffer, unknown>> {
+  static async fetchArrayBuffer(uri: string): Promise<IResult<ArrayBuffer, unknown>> {
     try {
-      const response = await fetch(uri, {mode: 'cors'});
+      const response = await fetch(uri, { mode: 'cors' });
       const arraybuffer = await response.arrayBuffer();
       return new Ok(arraybuffer);
     } catch (e) {
@@ -454,10 +412,7 @@ export class DataUtil {
     }
   }
 
-  static getResizedCanvas(
-    image: HTMLImageElement,
-    maxSize: Size
-  ): [HTMLCanvasElement, Size, Size] {
+  static getResizedCanvas(image: HTMLImageElement, maxSize: Size): [HTMLCanvasElement, Size, Size] {
     const canvas = document.createElement('canvas');
     const potWidth = this.getNearestPowerOfTwo(image.width);
     const potHeight = this.getNearestPowerOfTwo(image.height);
@@ -476,17 +431,7 @@ export class DataUtil {
     canvas.height = dstHeight;
 
     const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(
-      image,
-      0,
-      0,
-      image.width,
-      image.height,
-      0,
-      0,
-      dstWidth,
-      dstHeight
-    );
+    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight);
 
     return [canvas, dstWidth, dstHeight];
   }
@@ -544,9 +489,7 @@ export class DataUtil {
   }
 
   static addPaddingBytes(originalByteLength: Byte, byteAlign: Byte) {
-    return (
-      originalByteLength + this.calcPaddingBytes(originalByteLength, byteAlign)
-    );
+    return originalByteLength + this.calcPaddingBytes(originalByteLength, byteAlign);
   }
 
   static normalizedInt8ArrayToFloat32Array(from: Int8Array | number[]) {
@@ -620,11 +563,7 @@ export class DataUtil {
     copyByteLength: Byte;
     distByteOffset: Byte;
   }): ArrayBuffer {
-    if (
-      srcByteOffset % 4 !== 0 ||
-      copyByteLength % 4 !== 0 ||
-      distByteOffset % 4 !== 0
-    ) {
+    if (srcByteOffset % 4 !== 0 || copyByteLength % 4 !== 0 || distByteOffset % 4 !== 0) {
       throw new Error('Invalid byte align for 4bytes unit copy operation.');
     }
     const dst = new ArrayBuffer(src.byteLength);
@@ -679,9 +618,7 @@ export class DataUtil {
     const dst = new Uint8Array(dist, distByteOffset, copyByteLength);
     const byteDiff = src.byteLength - srcByteOffset - copyByteLength;
     if (byteDiff < 0) {
-      dst.set(
-        new Uint8Array(src, srcByteOffset, src.byteLength - srcByteOffset)
-      );
+      dst.set(new Uint8Array(src, srcByteOffset, src.byteLength - srcByteOffset));
       const byteCount = -byteDiff;
       const paddingArrayBuffer = new Uint8Array(byteCount);
       dst.set(paddingArrayBuffer);
@@ -710,11 +647,7 @@ export class DataUtil {
     copyByteLength: Byte;
     distByteOffset: Byte;
   }): ArrayBuffer {
-    if (
-      srcByteOffset % 4 !== 0 ||
-      copyByteLength % 4 !== 0 ||
-      distByteOffset % 4 !== 0
-    ) {
+    if (srcByteOffset % 4 !== 0 || copyByteLength % 4 !== 0 || distByteOffset % 4 !== 0) {
       throw new Error('Invalid byte align for 4bytes unit copy operation.');
     }
     const dst = new Int32Array(dist, distByteOffset, copyByteLength / 4);
@@ -745,9 +678,7 @@ export class DataUtil {
     const byteDiff = src.byteLength - srcByteOffset - copyByteLength;
 
     if (byteDiff < 0) {
-      dst.set(
-        new Int32Array(src, srcByteOffset, (src.byteLength - srcByteOffset) / 4)
-      );
+      dst.set(new Int32Array(src, srcByteOffset, (src.byteLength - srcByteOffset) / 4));
       const byteCount = -byteDiff;
       const paddingArrayBuffer = new Uint8Array(byteCount);
       dst.set(paddingArrayBuffer);

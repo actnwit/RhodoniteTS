@@ -1,29 +1,21 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import { Component } from '../foundation/core/Component';
-import {
-  applyMixins,
-  EntityRepository,
-} from '../foundation/core/EntityRepository';
+import { applyMixins, EntityRepository } from '../foundation/core/EntityRepository';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import {ProcessStage} from '../foundation/definitions/ProcessStage';
+import { ProcessStage } from '../foundation/definitions/ProcessStage';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
-import {WellKnownComponentTIDs} from '../foundation/components/WellKnownComponentTIDs';
+import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import {
-  ComponentTID,
-  EntityUID,
-  ComponentSID,
-  Second,
-} from '../types/CommonTypes';
-import {Config} from '../foundation/core/Config';
+import { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
+import { Config } from '../foundation/core/Config';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
-import {Is} from '../foundation/misc/Is';
-import {IVector3} from '../foundation/math/IVector';
-import type {Unzip} from 'zlib';
-import {IEntity} from '../foundation/core/Entity';
-import {ComponentToComponentMethods} from '../foundation/components/ComponentTypes';
+import { Is } from '../foundation/misc/Is';
+import { IVector3 } from '../foundation/math/IVector';
+import type { Unzip } from 'zlib';
+import { IEntity } from '../foundation/core/Entity';
+import { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 
 export class EffekseerComponent extends Component {
@@ -48,10 +40,8 @@ export class EffekseerComponent extends Component {
   private __sceneGraphComponent?: SceneGraphComponent;
   private __transformComponent?: TransformComponent;
   private __isInitialized = false;
-  private static __tmp_identityMatrix_0: MutableMatrix44 =
-    MutableMatrix44.identity();
-  private static __tmp_identityMatrix_1: MutableMatrix44 =
-    MutableMatrix44.identity();
+  private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
+  private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
 
   private isLoadEffect = false;
 
@@ -98,11 +88,7 @@ export class EffekseerComponent extends Component {
     this.isPause = false;
 
     this.__handle = this.__context.play(this.__effect, 0, 0, 0);
-    if (
-      Is.exist(this.__handle) &&
-      Is.exist(this.__handle.setRandomSeed) &&
-      this.randomSeed > 0
-    ) {
+    if (Is.exist(this.__handle) && Is.exist(this.__handle.setRandomSeed) && this.randomSeed > 0) {
       this.__handle.setRandomSeed(this.randomSeed);
     }
 
@@ -221,16 +207,13 @@ export class EffekseerComponent extends Component {
       // console.error('Effekseer data not found.');
       return false;
     }
-    effekseer.setImageCrossOrigin(
-      this.isImageLoadWithCredential ? 'use-credentials' : ''
-    );
+    effekseer.setImageCrossOrigin(this.isImageLoadWithCredential ? 'use-credentials' : '');
     this.__context = effekseer.createContext();
     if (Is.not.exist(this.__context)) {
       console.error('Effekseer context creation fails');
       return false;
     }
-    const webGLResourceRepository =
-      CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     this.__isInitialized = true;
     const gl = glw!.getRawContext();
@@ -307,10 +290,9 @@ export class EffekseerComponent extends Component {
     }
 
     if (this.__handle != null) {
-      const worldMatrix =
-        EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
-          this.__sceneGraphComponent!.worldMatrixInner
-        );
+      const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
+        this.__sceneGraphComponent!.worldMatrixInner
+      );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
     }
@@ -378,7 +360,7 @@ export class EffekseerComponent extends Component {
       return [];
     }
     const components = ComponentRepository.getComponentsWithType(EffekseerComponent);
-    return components.map(c => c.componentSID);
+    return components.map((c) => c.componentSID);
   }
 
   /**
@@ -387,10 +369,10 @@ export class EffekseerComponent extends Component {
    * @param base the target entity
    * @param _componentClass the component class to add
    */
-  addThisComponentToEntity<
-    EntityBase extends IEntity,
-    SomeComponentClass extends typeof Component
-  >(base: EntityBase, _componentClass: SomeComponentClass) {
+  addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
+    base: EntityBase,
+    _componentClass: SomeComponentClass
+  ) {
     class EffekseerEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
@@ -407,8 +389,7 @@ export class EffekseerComponent extends Component {
       }
     }
     applyMixins(base, EffekseerEntity);
-    return base as unknown as ComponentToComponentMethods<SomeComponentClass> &
-      EntityBase;
+    return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
 ComponentRepository.registerComponentClass(EffekseerComponent);

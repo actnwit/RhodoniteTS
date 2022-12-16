@@ -1,10 +1,10 @@
-import {PrimitiveMode} from '../../definitions/PrimitiveMode';
-import {VertexAttribute} from '../../definitions/VertexAttribute';
-import {IColorRgba} from '../../math/IColor';
-import {IVector3} from '../../math/IVector';
-import {Is} from '../../misc/Is';
-import {IAnyPrimitiveDescriptor, Primitive} from '../Primitive';
-import {IShape} from './IShape';
+import { PrimitiveMode } from '../../definitions/PrimitiveMode';
+import { VertexAttribute } from '../../definitions/VertexAttribute';
+import { IColorRgba } from '../../math/IColor';
+import { IVector3 } from '../../math/IVector';
+import { Is } from '../../misc/Is';
+import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { IShape } from './IShape';
 
 export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
   /** three width (width, height, depth) in (x, y, z) */

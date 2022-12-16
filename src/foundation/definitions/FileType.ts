@@ -1,4 +1,4 @@
-import {EnumClass, EnumIO, _from, _fromString} from '../misc/EnumIO';
+import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
 export type FileTypeEnum = EnumIO;
 
@@ -16,7 +16,7 @@ class FileTypeClass extends EnumClass implements FileTypeEnum {
     ext: string;
     brand: string;
   }) {
-    super({index, str});
+    super({ index, str });
     this.extension = ext;
     this.brand = brand;
   }
@@ -62,11 +62,11 @@ const EffekseerEffect: FileTypeEnum = new FileTypeClass({
 const typeList = [Unknown, Gltf, GltfBinary, VRM, Draco, EffekseerEffect];
 
 function from(index: number): FileTypeEnum {
-  return _from({typeList, index}) as FileTypeEnum;
+  return _from({ typeList, index }) as FileTypeEnum;
 }
 
 function fromString(str: string): FileTypeEnum {
-  const filetype = _fromString({typeList, str}) as FileTypeEnum;
+  const filetype = _fromString({ typeList, str }) as FileTypeEnum;
   if (filetype != null) {
     return filetype;
   } else {

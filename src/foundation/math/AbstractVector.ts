@@ -1,5 +1,5 @@
-import {TypedArray} from '../../types/CommonTypes';
-import {IVector} from './IVector';
+import { TypedArray } from '../../types/CommonTypes';
+import { IVector } from './IVector';
 
 /**
  * the Abstract base class of Vector classes

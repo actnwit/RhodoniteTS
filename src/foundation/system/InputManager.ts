@@ -1,6 +1,6 @@
 import { TranslationGizmo } from '../gizmos/TranslationGizmo';
-import {Is} from '../misc/Is';
-import {assertExist} from '../misc/MiscUtil';
+import { Is } from '../misc/Is';
+import { assertExist } from '../misc/MiscUtil';
 
 export const EVENT_MOUSE_DOWN = 'mousedown';
 export const EVENT_MOUSE_MOVE = 'mousemove';
@@ -90,7 +90,7 @@ type InputHandlingStateMap = Map<InputHandlingState, InputHandlerInfo[]>;
 type ActiveMap = Map<InputHandlingState, boolean>;
 
 export interface InputHandlerInfo {
-  eventName: string
+  eventName: string;
   handler: (event: any) => void;
   options: AddEventListenerOptions;
   classInstance: ClassInstance;
@@ -120,10 +120,7 @@ export class InputManager {
 
   private static __currentState = INPUT_HANDLING_STATE_NONE;
 
-  static register(
-    inputHandlingState: InputHandlingState,
-    events: InputHandlerInfo[]
-  ) {
+  static register(inputHandlingState: InputHandlingState, events: InputHandlerInfo[]) {
     // add event listeners
     this.__inputHandlingStateMap.set(inputHandlingState, events);
     this.__activeMap.set(inputHandlingState, true);
@@ -149,7 +146,7 @@ export class InputManager {
   }
 
   static __addEventListeners(inputHandlingState: InputHandlingState) {
-      const infos = InputManager.__inputHandlingStateMap.get(inputHandlingState);
+    const infos = InputManager.__inputHandlingStateMap.get(inputHandlingState);
     if (Is.exist(infos)) {
       for (const inputHandlerInfo of infos) {
         inputHandlerInfo.eventTargetDom.addEventListener(
@@ -162,7 +159,7 @@ export class InputManager {
   }
 
   static __removeEventListeners(inputHandlingState: InputHandlingState) {
-      const infos = InputManager.__inputHandlingStateMap.get(inputHandlingState);
+    const infos = InputManager.__inputHandlingStateMap.get(inputHandlingState);
     if (Is.exist(infos)) {
       for (const inputHandlerInfo of infos) {
         inputHandlerInfo.eventTargetDom.removeEventListener(
@@ -175,9 +172,15 @@ export class InputManager {
   }
 
   static __processEventListeners() {
-    const translationGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-    const scaleGizmoActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_GIZMO_SCALE);
-    const cameraControllerActive = InputManager.__inputHandlingStateMap.get(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    const translationGizmoActive = InputManager.__inputHandlingStateMap.get(
+      INPUT_HANDLING_STATE_GIZMO_TRANSLATION
+    );
+    const scaleGizmoActive = InputManager.__inputHandlingStateMap.get(
+      INPUT_HANDLING_STATE_GIZMO_SCALE
+    );
+    const cameraControllerActive = InputManager.__inputHandlingStateMap.get(
+      INPUT_HANDLING_STATE_CAMERA_CONTROLLER
+    );
 
     if (cameraControllerActive) {
       this.__addEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);

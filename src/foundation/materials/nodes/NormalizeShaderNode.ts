@@ -1,13 +1,10 @@
 import NormalizeShaderityObject from '../../../webgl/shaderity_shaders/nodes/Normalize.glsl';
-import {ComponentTypeEnum} from '../../../foundation/definitions/ComponentType';
-import {CompositionTypeEnum} from '../../../foundation/definitions/CompositionType';
+import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class NormalizeShaderNode extends AbstractShaderNode {
-  constructor(
-    compositionType: CompositionTypeEnum,
-    componentType: ComponentTypeEnum
-  ) {
+  constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('normalize', NormalizeShaderityObject.code);
 
     this.__inputs.push({
