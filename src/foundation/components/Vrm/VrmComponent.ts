@@ -73,6 +73,10 @@ export class VrmComponent extends Component {
     return this.__weights.get(expressionName);
   }
 
+  public getExpressionNames(): string[] {
+    return Array.from(this.__expressions.keys());
+  }
+
   /**
    * @override
    * Add this component to the entity
