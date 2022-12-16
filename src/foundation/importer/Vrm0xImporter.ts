@@ -142,6 +142,7 @@ export class Vrm0xImporter {
 
     this._readSpringBone(gltfModel as Vrm0x);
     this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
+    this._readBlendShapeGroup(gltfModel as Vrm0x, rootGroup);
   }
 
   static _readBlendShapeGroup(
