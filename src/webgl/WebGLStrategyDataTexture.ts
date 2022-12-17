@@ -774,32 +774,35 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
       this.__setCurrentComponentSIDsForEachRenderPass(renderPass, displayIdx, isVRMainPass);
 
-      // For opaque primitives
-      if (renderPass.toRenderOpaquePrimitives) {
-        for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
-          const primitiveUid = primitiveUids[i];
-          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
+      for (let j = 0; j < renderPass.drawCount; j++) {
+        renderPass.doPreEachDraw(j);
+
+        // For opaque primitives
+        if (renderPass.toRenderOpaquePrimitives) {
+          for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+            const primitiveUid = primitiveUids[i];
+            this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
+          }
+        }
+
+        // For translucent primitives
+        if (renderPass.toRenderTransparentPrimitives) {
+          if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+            // disable depth write for transparent primitives
+            gl.depthMask(false);
+          }
+
+          for (
+            let i = MeshRendererComponent._lastOpaqueIndex + 1;
+            i <= MeshRendererComponent._lastTransparentIndex;
+            i++
+          ) {
+            const primitiveUid = primitiveUids[i];
+            this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
+          }
+          gl.depthMask(true);
         }
       }
-
-      // For translucent primitives
-      if (renderPass.toRenderTransparentPrimitives) {
-        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-          // disable depth write for transparent primitives
-          gl.depthMask(false);
-        }
-
-        for (
-          let i = MeshRendererComponent._lastOpaqueIndex + 1;
-          i <= MeshRendererComponent._lastTransparentIndex;
-          i++
-        ) {
-          const primitiveUid = primitiveUids[i];
-          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
-        }
-      }
-
-      gl.depthMask(true);
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
@@ -883,25 +886,21 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       },
     });
 
-    for (let i = 0; i < renderPass.drawCount; i++) {
-      renderPass.doPreEachDraw(i);
-
-      if (primitive.indicesAccessor) {
-        glw.drawElementsInstanced(
-          primitive.primitiveMode.index,
-          primitive.indicesAccessor.elementCount,
-          primitive.indicesAccessor.componentType.index,
-          0,
-          mesh.meshEntitiesInner.length
-        );
-      } else {
-        glw.drawArraysInstanced(
-          primitive.primitiveMode.index,
-          0,
-          primitive.getVertexCountAsVerticesBased(),
-          mesh.meshEntitiesInner.length
-        );
-      }
+    if (primitive.indicesAccessor) {
+      glw.drawElementsInstanced(
+        primitive.primitiveMode.index,
+        primitive.indicesAccessor.elementCount,
+        primitive.indicesAccessor.componentType.index,
+        0,
+        mesh.meshEntitiesInner.length
+      );
+    } else {
+      glw.drawArraysInstanced(
+        primitive.primitiveMode.index,
+        0,
+        primitive.getVertexCountAsVerticesBased(),
+        mesh.meshEntitiesInner.length
+      );
     }
 
     this.__lastShader = shaderProgramUid;

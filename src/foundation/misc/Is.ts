@@ -31,9 +31,18 @@ export const IsObj = {
     return val === true;
   },
 
+  truly(val: unknown, ...args: unknown[]): boolean {
+    return val ? true : false;
+  },
+
   false(val: unknown, ...args: unknown[]): boolean {
     return val === false;
   },
+
+  falsy(val: unknown, ...args: unknown[]): boolean {
+    return !val ? true : false;
+  },
+
   stringContaining(thisStr: string, queryStr: string): boolean {
     return thisStr.indexOf(queryStr) !== -1;
   },
@@ -90,8 +99,16 @@ const NotObj = {
     return val !== true;
   },
 
+  truly(val: unknown, ...args: unknown[]): boolean {
+    return val ? false : true;
+  },
+
   false(val: unknown, ...args: unknown[]): boolean {
     return val !== false;
+  },
+
+  falsy(val: unknown, ...args: unknown[]): boolean {
+    return !val ? false : true;
   },
 };
 

@@ -30,6 +30,75 @@ test('Is.null(undefined) return false', () => {
   expect(Is.null(undefined)).toBe(false);
 });
 
+// Is.true
+test('Is.true(true) return true', () => {
+  expect(Is.true(true)).toBe(true);
+});
+
+test('Is.true(false) return false', () => {
+  expect(Is.true(false)).toBe(false);
+});
+
+test('Is.true(obj) return false', () => {
+  const map = new Map();
+  expect(Is.true(map)).toBe(false);
+});
+
+// Is.false
+
+test('Is.false(false) return true', () => {
+  expect(Is.false(false)).toBe(true);
+});
+
+test('Is.false(true) return false', () => {
+  expect(Is.false(true)).toBe(false);
+});
+
+// Is.truly
+test('Is.truly(true) return true', () => {
+  expect(Is.truly(true)).toBe(true);
+});
+
+test('Is.truly(false) return false', () => {
+  expect(Is.truly(false)).toBe(false);
+});
+
+test('Is.truly(obj) return true', () => {
+  const map = new Map();
+  expect(Is.truly(map)).toBe(true);
+});
+
+test('Is.truly(null) return false', () => {
+  expect(Is.truly(null)).toBe(false);
+});
+
+test('Is.truly(undefined) return false', () => {
+  expect(Is.truly(undefined)).toBe(false);
+});
+
+// Is.falsy
+
+test('Is.falsy(false) return true', () => {
+  expect(Is.falsy(false)).toBe(true);
+});
+
+test('Is.falsy(true) return false', () => {
+  expect(Is.falsy(true)).toBe(false);
+});
+
+test('Is.falsy(obj) return false', () => {
+  const map = new Map();
+  expect(Is.falsy(map)).toBe(false);
+});
+
+test('Is.falsy(null) return true', () => {
+  expect(Is.falsy(null)).toBe(true);
+});
+
+test('Is.falsy(undefined) return true', () => {
+  expect(Is.falsy(undefined)).toBe(true);
+});
+
 // Is.exist
 
 test('Is.exist(0) return true', () => {

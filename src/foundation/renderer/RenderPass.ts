@@ -55,6 +55,7 @@ export class RenderPass extends RnObject {
   public drawCount = 1;
   public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
   private __preEachDrawFunc?: (drawCount: number) => void;
+  private __postEachRenderFunc?: () => void;
   private static __tmp_Vector4_0 = MutableVector4.zero();
 
   constructor() {
@@ -88,21 +89,34 @@ export class RenderPass extends RnObject {
     renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
     renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
     renderPass.__preEachDrawFunc = this.__preEachDrawFunc;
+    renderPass.__postEachRenderFunc = this.__postEachRenderFunc;
+    renderPass.__renderTargetColorAttachments =
+      this.__renderTargetColorAttachments?.concat();
 
     return renderPass;
   }
 
-  setPreRenderFunction(func: (drawCount: number) => void) {
+  setPreDrawFunction(func: (drawCount: number) => void) {
     this.__preEachDrawFunc = func;
   }
 
-  unsetPreRenderFunction() {
+  unsetPreDrawFunction() {
     this.__preEachDrawFunc = void 0;
   }
 
   doPreEachDraw(drawCount: number) {
     if (this.__preEachDrawFunc != null) {
       this.__preEachDrawFunc(drawCount);
+    }
+  }
+
+  setPostRenderFunction(func: () => void) {
+    this.__postEachRenderFunc = func;
+  }
+
+  doPostRender() {
+    if (this.__postEachRenderFunc != null) {
+      this.__postEachRenderFunc();
     }
   }
 
@@ -302,13 +316,23 @@ export class RenderPass extends RnObject {
     return this.__resolveFrameBuffer2;
   }
 
-  copyFramebufferToResolveFramebuffer() {
+  _copyFramebufferToResolveFramebuffers() {
+    this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer);
+    this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer2);
+  }
+
+  private __copyFramebufferToResolveFramebufferInner(
+    resolveFrameBuffer?: FrameBuffer
+  ) {
+    if (resolveFrameBuffer == null) {
+      return;
+    }
     const repo = WebGLResourceRepository.getInstance();
     const webGLResourceFrameBuffer = repo.getWebGLResource(
       this.__frameBuffer!.cgApiResourceUid
     ) as WebGLFramebuffer;
     const webGLResourceResolveFramebuffer = repo.getWebGLResource(
-      this.__resolveFrameBuffer!.cgApiResourceUid
+      resolveFrameBuffer!.cgApiResourceUid
     ) as WebGLFramebuffer;
 
     const glw = repo.currentWebGLContextWrapper!;
@@ -322,46 +346,13 @@ export class RenderPass extends RnObject {
       this.__frameBuffer!.height,
       0,
       0,
-      this.__resolveFrameBuffer!.width,
-      this.__resolveFrameBuffer!.height,
+      resolveFrameBuffer!.width,
+      resolveFrameBuffer!.height,
       gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT,
       gl.NEAREST
     );
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-  }
-
-  copyFramebufferToResolveFramebuffer2() {
-    const repo = WebGLResourceRepository.getInstance();
-    const webGLResourceFrameBuffer = repo.getWebGLResource(
-      this.__frameBuffer!.cgApiResourceUid
-    ) as WebGLFramebuffer;
-    const webGLResourceResolveFramebuffer2 = repo.getWebGLResource(
-      this.__resolveFrameBuffer2!.cgApiResourceUid
-    ) as WebGLFramebuffer;
-
-    const glw = repo.currentWebGLContextWrapper!;
-    const gl = glw.getRawContextAsWebGL2();
-    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, webGLResourceFrameBuffer);
-    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, webGLResourceResolveFramebuffer2);
-    gl.blitFramebuffer(
-      0,
-      0,
-      this.__frameBuffer!.width,
-      this.__frameBuffer!.height,
-      0,
-      0,
-      this.__resolveFrameBuffer2!.width,
-      this.__resolveFrameBuffer2!.height,
-      gl.COLOR_BUFFER_BIT,
-      gl.NEAREST
-    );
-    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
-    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-
-    const renderTargetTexture =
-      this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!;
-    renderTargetTexture.generateMipmap();
   }
 
   private __setupMaterial(material: Material) {

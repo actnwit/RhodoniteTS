@@ -45,22 +45,13 @@ export class MaterialRepository {
    * @param materialNodes The material nodes to register.
    * @param maxInstancesNumber The maximum number to create the material instances.
    */
-  static registerMaterial(
+  public static registerMaterial(
     materialTypeName: string,
     materialNode?: AbstractMaterialContent,
     maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
-  ) {
+  ): boolean {
     if (!MaterialRepository.__materialTypes.has(materialTypeName)) {
-      MaterialRepository.__materialTypes.set(materialTypeName, materialNode);
-
-      const materialTid = ++MaterialRepository.__materialTidCount;
-      MaterialRepository.__materialTids.set(materialTypeName, materialTid);
-      MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
-
-      if (Is.exist(materialNode)) {
-        MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
-      }
-      MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
+      MaterialRepository.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
 
       return true;
     } else {
@@ -69,110 +60,16 @@ export class MaterialRepository {
     }
   }
 
-  static forceRegisterMaterial(
+  public static forceRegisterMaterial(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
     maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
-  ) {
-    MaterialRepository.__materialTypes.set(materialTypeName, materialNode);
-
-    const materialTid = ++MaterialRepository.__materialTidCount;
-    MaterialRepository.__materialTids.set(materialTypeName, materialTid);
-    MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
-
-    MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
-    MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
-
+  ): boolean {
+    this.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
     return true;
   }
 
-  private static __allocateBufferView(
-    materialTypeName: string,
-    materialNode: AbstractMaterialContent
-  ) {
-    let totalByteLength = 0;
-    const alignedByteLengthAndSemanticInfoArray = [];
-    for (const semanticInfo of materialNode._semanticsInfoArray) {
-      const alignedByteLength = calcAlignedByteLength(semanticInfo);
-      let dataCount = 1;
-      if (!semanticInfo.soloDatum) {
-        dataCount = MaterialRepository.__maxInstances.get(materialTypeName)!;
-      }
-
-      totalByteLength += alignedByteLength * dataCount;
-      alignedByteLengthAndSemanticInfoArray.push({
-        alignedByte: alignedByteLength,
-        semanticInfo: semanticInfo,
-      });
-    }
-
-    if (!this.__accessors.has(materialTypeName)) {
-      this.__accessors.set(materialTypeName, new Map());
-    }
-
-    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
-    let bufferView;
-    if (this.__bufferViews.has(materialTypeName)) {
-      bufferView = this.__bufferViews.get(materialTypeName);
-    } else {
-      const result = buffer.takeBufferView({
-        byteLengthToNeed: totalByteLength,
-        byteStride: 0,
-      });
-      bufferView = result.unwrapForce();
-      this.__bufferViews.set(materialTypeName, bufferView);
-    }
-
-    for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
-      const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
-      const semanticInfo = alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
-
-      let count = 1;
-      if (!semanticInfo.soloDatum) {
-        count = MaterialRepository.__maxInstances.get(materialTypeName)!;
-      }
-      let maxArrayLength = semanticInfo.arrayLength;
-      if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
-        maxArrayLength = 100;
-      }
-      const accessor = bufferView!
-        .takeAccessor({
-          compositionType: semanticInfo.compositionType,
-          componentType: ComponentType.Float,
-          count: count,
-          byteStride: alignedByte,
-          arrayLength: maxArrayLength,
-        })
-        .unwrapForce();
-
-      const propertyIndex = MaterialRepository._getPropertyIndex(semanticInfo);
-      if (semanticInfo.soloDatum) {
-        const typedArray = accessor.takeOne() as Float32Array;
-        let map = Material._soloDatumFields.get(materialTypeName);
-        if (map == null) {
-          map = new Map();
-          Material._soloDatumFields.set(materialTypeName, map);
-        }
-
-        map.set(MaterialRepository._getPropertyIndex(semanticInfo), {
-          info: semanticInfo,
-          value: MathClassUtil.initWithFloat32Array(
-            semanticInfo.initialValue,
-            semanticInfo.initialValue,
-            typedArray,
-            semanticInfo.compositionType
-          ),
-        });
-      } else {
-        const properties = this.__accessors.get(materialTypeName)!;
-        properties.set(propertyIndex, accessor);
-      }
-    }
-
-    return bufferView;
-  }
-
-  static isRegisteredMaterialType(materialTypeName: string) {
+  public static isRegisteredMaterialType(materialTypeName: string) {
     return MaterialRepository.__materialTypes.has(materialTypeName);
   }
 
@@ -180,7 +77,7 @@ export class MaterialRepository {
     return this.__materialMap.get(materialUid);
   }
 
-  static getAllMaterials() {
+  public static getAllMaterials() {
     return Array.from(MaterialRepository.__materialMap.values());
   }
 
@@ -189,7 +86,7 @@ export class MaterialRepository {
    * @param materialTypeName The material type to create.
    * @param materialNodes_ The material nodes to add to the created material.
    */
-  static createMaterial(materialTypeName: string, materialNode_?: AbstractMaterialContent) {
+  public static createMaterial(materialTypeName: string, materialNode_?: AbstractMaterialContent) {
     let materialNode = materialNode_;
     if (!materialNode) {
       materialNode = MaterialRepository.__materialTypes.get(materialTypeName)!;
@@ -283,5 +180,112 @@ export class MaterialRepository {
   static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
     const propertyIndex = semanticInfo.semantic.index;
     return propertyIndex;
+  }
+
+  private static __registerInner(
+    materialTypeName: string,
+    materialNode: AbstractMaterialContent | undefined,
+    maxInstanceNumber: number
+  ) {
+    const materialTid = ++MaterialRepository.__materialTidCount;
+    MaterialRepository.__materialTypes.set(materialTypeName, materialNode);
+    MaterialRepository.__materialTids.set(materialTypeName, materialTid);
+    MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
+
+    if (Is.exist(materialNode)) {
+      MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
+    }
+    MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
+  }
+
+  private static __allocateBufferView(
+    materialTypeName: string,
+    materialNode: AbstractMaterialContent
+  ) {
+    // Calculate a BufferView size to take
+    let totalByteLength = 0;
+    const alignedByteLengthAndSemanticInfoArray = [];
+    for (const semanticInfo of materialNode._semanticsInfoArray) {
+      const alignedByteLength = calcAlignedByteLength(semanticInfo);
+      let dataCount = 1;
+      if (!semanticInfo.soloDatum) {
+        dataCount = MaterialRepository.__maxInstances.get(materialTypeName)!;
+      }
+
+      totalByteLength += alignedByteLength * dataCount;
+      alignedByteLengthAndSemanticInfoArray.push({
+        alignedByte: alignedByteLength,
+        semanticInfo: semanticInfo,
+      });
+    }
+
+    if (!this.__accessors.has(materialTypeName)) {
+      this.__accessors.set(materialTypeName, new Map());
+    }
+
+    // take A Buffer View from GPUInstanceData buffer, or reuse it if it already exists
+    const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
+    let bufferView;
+    if (this.__bufferViews.has(materialTypeName)) {
+      bufferView = this.__bufferViews.get(materialTypeName);
+    } else {
+      const result = buffer.takeBufferView({
+        byteLengthToNeed: totalByteLength,
+        byteStride: 0,
+      });
+      bufferView = result.unwrapForce();
+      this.__bufferViews.set(materialTypeName, bufferView);
+    }
+
+    // Take Accessors and register it
+    for (let i = 0; i < alignedByteLengthAndSemanticInfoArray.length; i++) {
+      const alignedByte = alignedByteLengthAndSemanticInfoArray[i].alignedByte;
+      const semanticInfo = alignedByteLengthAndSemanticInfoArray[i].semanticInfo;
+
+      let count = 1;
+      if (!semanticInfo.soloDatum) {
+        count = MaterialRepository.__maxInstances.get(materialTypeName)!;
+      }
+      let maxArrayLength = semanticInfo.arrayLength;
+      if (CompositionType.isArray(semanticInfo.compositionType) && maxArrayLength == null) {
+        maxArrayLength = 100;
+      }
+      // take an Accessor
+      const accessor = bufferView!
+        .takeAccessor({
+          compositionType: semanticInfo.compositionType,
+          componentType: ComponentType.Float,
+          count: count,
+          byteStride: alignedByte,
+          arrayLength: maxArrayLength,
+        })
+        .unwrapForce();
+
+      const propertyIndex = MaterialRepository._getPropertyIndex(semanticInfo);
+      if (semanticInfo.soloDatum) {
+        const typedArray = accessor.takeOne() as Float32Array;
+        let map = Material._soloDatumFields.get(materialTypeName);
+        if (map == null) {
+          map = new Map();
+          Material._soloDatumFields.set(materialTypeName, map);
+        }
+
+        map.set(MaterialRepository._getPropertyIndex(semanticInfo), {
+          info: semanticInfo,
+          value: MathClassUtil.initWithFloat32Array(
+            semanticInfo.initialValue,
+            semanticInfo.initialValue,
+            typedArray,
+            semanticInfo.compositionType
+          ),
+        });
+      } else {
+        // Set an accessor to this.__accessors
+        const properties = this.__accessors.get(materialTypeName)!;
+        properties.set(propertyIndex, accessor);
+      }
+    }
+
+    return bufferView;
   }
 }

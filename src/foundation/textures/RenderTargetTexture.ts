@@ -26,6 +26,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     minFilter = TextureParameter.Linear,
     wrapS = TextureParameter.ClampToEdge,
     wrapT = TextureParameter.ClampToEdge,
+    anisotropy = false,
   }: {
     width: Size;
     height: Size;
@@ -37,6 +38,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     minFilter: TextureParameterEnum;
     wrapS: TextureParameterEnum;
     wrapT: TextureParameterEnum;
+    anisotropy: boolean;
   }) {
     this.__width = width;
     this.__height = height;
@@ -48,6 +50,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this.__minFilter = minFilter;
     this.__wrapS = wrapS;
     this.__wrapT = wrapT;
+    this.__anisotropy = anisotropy;
 
     this.__createRenderTargetTexture();
   }
@@ -73,6 +76,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       minFilter: this.__minFilter,
       wrapS: this.__wrapS,
       wrapT: this.__wrapT,
+      anisotropy: this.__anisotropy,
     });
     this.cgApiResourceUid = texture;
 
