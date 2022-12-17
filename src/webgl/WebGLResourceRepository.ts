@@ -2298,7 +2298,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     return text;
   }
 
-  getGlslDataUBODefinitionString() {
+  getGlslDataUBODefinitionString(): string {
     let text = '';
     const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();
     const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
@@ -2327,7 +2327,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return text;
   }
 
-  getGlslDataUBOVec4SizeString() {
+  getGlslDataUBOVec4SizeString(): string {
     const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
     return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
   }

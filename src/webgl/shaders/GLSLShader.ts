@@ -46,9 +46,6 @@ void main() {
   }
 
   get prerequisites() {
-    const webGLResourceRepository = WebGLResourceRepository.getInstance();
-    const dataUboDefinition = webGLResourceRepository.getGlslDataUBODefinitionString();
-    const dataUBOVec4SizeStr = webGLResourceRepository.getGlslDataUBOVec4SizeString();
     return `uniform float u_materialSID;
 `;
   }
