@@ -724,14 +724,14 @@ export class Material extends RnObject {
     }
     this.__alphaToCoverage = alphaToCoverage;
   }
-  get alphaToCoverage() {
+  get alphaToCoverage(): boolean {
     return this.__alphaToCoverage;
   }
 
   /**
    * Gets materialTID.
    */
-  get materialTID() {
+  get materialTID(): MaterialTID {
     return this.__materialTid;
   }
 
@@ -771,27 +771,27 @@ export class Material extends RnObject {
     this.__alphaMode = mode;
   }
 
-  get materialUID() {
+  get materialUID(): MaterialUID {
     return this.__materialUid;
   }
 
-  get materialSID() {
+  get materialSID(): MaterialSID {
     return this.__materialSid;
   }
 
-  get isSkinning() {
+  get isSkinning(): boolean {
     return this._materialContent.isSkinning;
   }
 
-  get isMorphing() {
+  get isMorphing(): boolean {
     return this._materialContent.isMorphing;
   }
 
-  get isLighting() {
+  get isLighting(): boolean {
     return this._materialContent.isLighting;
   }
 
-  get materialTypeName() {
+  get materialTypeName(): string {
     return this.__materialTypeName;
   }
 }
