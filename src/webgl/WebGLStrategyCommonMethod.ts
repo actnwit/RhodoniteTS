@@ -6,12 +6,11 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Index, IndexOf16Bytes } from '../types/CommonTypes';
 import { Mesh } from '../foundation/geometry/Mesh';
-import { Is, Is as is } from '../foundation/misc/Is';
+import { Is } from '../foundation/misc/Is';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
 import { RnXR } from '../xr/main';
 import { Vector4 } from '../foundation/math/Vector4';
-import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
@@ -20,7 +19,6 @@ import { Scalar } from '../foundation/math/Scalar';
 import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -182,7 +180,7 @@ function updateVBOAndVAO(mesh: Mesh) {
   const primitiveNum = mesh.getPrimitiveNumber();
   for (let i = 0; i < primitiveNum; i++) {
     const primitive = mesh.getPrimitiveAt(i);
-    if (is.exist(primitive.vertexHandles)) {
+    if (Is.exist(primitive.vertexHandles)) {
       primitive.update3DAPIVertexData();
     } else {
       primitive.create3DAPIVertexData();
@@ -254,23 +252,6 @@ function isVrMainPass(renderPass: RenderPass) {
   return isVRMainPass;
 }
 
-function getLocationOffsetOfProperty(
-  propertyIndex: Index,
-  materialTypeName?: string
-): IndexOf16Bytes {
-  if (Is.exist(materialTypeName)) {
-    const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
-      materialTypeName,
-      propertyIndex
-    );
-    return dataBeginPos;
-  } else {
-    const globalDataRepository = GlobalDataRepository.getInstance();
-    const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
-    return dataBeginPos;
-  }
-}
-
 function getPointSpriteShaderSemanticsInfoArray() {
   return [
     {
@@ -308,6 +289,5 @@ export default Object.freeze({
   setVRViewport,
   getDisplayNumber,
   isVrMainPass,
-  getLocationOffsetOfProperty,
   getPointSpriteShaderSemanticsInfoArray,
 });
