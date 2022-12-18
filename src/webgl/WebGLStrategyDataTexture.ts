@@ -565,7 +565,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
 
       // write data
-      this.__dataTextureUid = this.__webglResourceRepository.createTexture(
+      this.__dataTextureUid = this.__webglResourceRepository.createTextureFromTypedArray(
         floatDataTextureBuffer!,
         {
           level: 0,

@@ -12,6 +12,8 @@ export type DirectTextureData =
   | HTMLCanvasElement
   | ImageBitmap;
 
+export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
+
 export abstract class CGAPIResourceRepository {
   static readonly InvalidCGAPIResourceUid = -1;
 
@@ -32,8 +34,8 @@ export interface ICGAPIResourceRepository {
    * @param param1
    * @returns
    */
-  createTexture(
-    imageData: DirectTextureData,
+  createTextureFromImageBitmapData(
+    imageData: ImageBitmapData,
     {
       level,
       internalFormat,

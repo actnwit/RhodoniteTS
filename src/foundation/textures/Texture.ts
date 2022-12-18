@@ -3,7 +3,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size, TypedArray, Count } from '../../types/CommonTypes';
+import { Size, TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { Config } from '../core/Config';
 import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -206,22 +206,44 @@ export class Texture extends AbstractTexture {
     this.__height = img.height;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(img, {
-      level,
-      internalFormat,
-      width: this.__width,
-      height: this.__height,
-      border: 0,
-      format,
-      type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
-    });
+    let texture: CGAPIResourceHandle;
+    if (img instanceof HTMLImageElement) {
+      texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+        level,
+        internalFormat,
+        width: this.__width,
+        height: this.__height,
+        border: 0,
+        format,
+        type,
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        generateMipmap,
+        anisotropy,
+        isPremultipliedAlpha,
+      });
+    } else if (img instanceof HTMLCanvasElement) {
+      texture = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+        level,
+        internalFormat,
+        width: this.__width,
+        height: this.__height,
+        border: 0,
+        format,
+        type,
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        generateMipmap,
+        anisotropy,
+        isPremultipliedAlpha,
+      });
+    } else {
+      throw new Error('Unsupported image type.');
+    }
 
     this.cgApiResourceUid = texture;
     this.__isTextureReady = true;
@@ -277,22 +299,45 @@ export class Texture extends AbstractTexture {
         this.__height = img.height;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        const texture = webGLResourceRepository.createTexture(img, {
-          level,
-          internalFormat,
-          width: this.__width,
-          height: this.__height,
-          border: 0,
-          format,
-          type,
-          magFilter,
-          minFilter,
-          wrapS,
-          wrapT,
-          generateMipmap,
-          anisotropy,
-          isPremultipliedAlpha,
-        });
+
+        let texture: CGAPIResourceHandle;
+        if (img instanceof HTMLImageElement) {
+          texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+            level,
+            internalFormat,
+            width: this.__width,
+            height: this.__height,
+            border: 0,
+            format,
+            type,
+            magFilter,
+            minFilter,
+            wrapS,
+            wrapT,
+            generateMipmap,
+            anisotropy,
+            isPremultipliedAlpha,
+          });
+        } else if (img instanceof HTMLCanvasElement) {
+          texture = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+            level,
+            internalFormat,
+            width: this.__width,
+            height: this.__height,
+            border: 0,
+            format,
+            type,
+            magFilter,
+            minFilter,
+            wrapS,
+            wrapT,
+            generateMipmap,
+            anisotropy,
+            isPremultipliedAlpha,
+          });
+        } else {
+          throw new Error('Unsupported image type');
+        }
 
         this.cgApiResourceUid = texture;
         this.__isTextureReady = true;
@@ -316,7 +361,7 @@ export class Texture extends AbstractTexture {
     ctx.fillRect(0, 0, 1, 1);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(canvas, {
+    const texture = webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
       level: 0,
       internalFormat: TextureParameter.RGBA8,
       width: 1,
@@ -360,7 +405,7 @@ export class Texture extends AbstractTexture {
     const type = ComponentType.fromTypedArray(typedArray);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(typedArray, {
+    const texture = webGLResourceRepository.createTextureFromTypedArray(typedArray, {
       level,
       internalFormat,
       width: this.__width,

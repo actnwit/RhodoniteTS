@@ -101,7 +101,7 @@ export class VideoTexture extends AbstractTexture {
     this.__height = img.videoHeight;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(img, {
+    const texture = webGLResourceRepository.createTextureFromImageBitmapData(img, {
       level: level,
       internalFormat: internalFormat,
       width: this.__width,
@@ -153,7 +153,7 @@ export class VideoTexture extends AbstractTexture {
         this.__height = video.videoHeight;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        const texture = webGLResourceRepository.createTexture(video, {
+        const texture = webGLResourceRepository.createTextureFromImageBitmapData(video, {
           level: level,
           internalFormat: internalFormat,
           width: this.__width,
