@@ -10,7 +10,6 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { Matrix44 } from '../foundation/math/Matrix44';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { Material } from '../foundation/materials/core/Material';
 import { CompositionType } from '../foundation/definitions/CompositionType';
@@ -379,8 +378,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  private getOffsetOfTheOffsetVariableOfPropertyInShader(propertyIndex: number) {}
-
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
     if (Is.not.exist(mesh)) {
@@ -435,7 +432,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     meshComponent: MeshComponent,
     meshRendererComponent: MeshRendererComponent,
     instanceIDBufferUid: WebGLResourceHandle
-  ) {
+  ): void {
     if (meshRendererComponent._readyForRendering) {
       return;
     }
@@ -656,7 +653,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     primitive: Primitive,
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
-  ) {}
+  ): void {}
 
   attachVertexDataInner(
     mesh: Mesh,
@@ -664,7 +661,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     primitiveIndex: Index,
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
-  ) {
+  ): void {
     const vertexHandles = primitive.vertexHandles!;
     const gl = glw.getRawContext();
 
@@ -914,5 +911,5 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return true;
   }
 
-  $render() {}
+  // $render(): void {}
 }
