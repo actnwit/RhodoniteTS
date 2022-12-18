@@ -1,5 +1,9 @@
 import { Accessor } from '../foundation/memory/Accessor';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import {
+  CGAPIResourceRepository,
+  DirectTextureData,
+  ICGAPIResourceRepository,
+} from '../foundation/renderer/CGAPIResourceRepository';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { VertexAttributeEnum, VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { TextureParameterEnum, TextureParameter } from '../foundation/definitions/TextureParameter';
@@ -64,8 +68,6 @@ export type VertexHandles = {
   setComplete: boolean;
 };
 
-type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
-
 export type TextureData = {
   level: Count;
   width: Count;
@@ -82,7 +84,10 @@ export type WebGLResource =
   | WebGLTexture
   | WebGLTransformFeedback;
 
-export class WebGLResourceRepository extends CGAPIResourceRepository {
+export class WebGLResourceRepository
+  extends CGAPIResourceRepository
+  implements ICGAPIResourceRepository
+{
   private static __instance: WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;
@@ -981,6 +986,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return resourceHandle;
   }
+
   /**
    * create a Texture
    * @param imageData
