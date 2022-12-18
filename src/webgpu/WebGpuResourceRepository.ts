@@ -5,7 +5,8 @@ import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import {
   CGAPIResourceRepository,
-  DirectTextureData,
+  ICGAPIResourceRepository,
+  ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
 import { Index, Size, WebGLResourceHandle } from '../types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
@@ -28,7 +29,10 @@ export type WebGpuResource =
   | GPURenderPipeline
   | GPUQuerySet;
 
-export class WebGpuResourceRepository extends CGAPIResourceRepository {
+export class WebGpuResourceRepository
+  extends CGAPIResourceRepository
+  implements ICGAPIResourceRepository
+{
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __webGpuDeviceWrapper: WebGpuDeviceWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -56,8 +60,8 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository {
    * @param param1
    * @returns
    */
-  public createTexture(
-    imageData: DirectTextureData,
+  public createTextureFromImageBitmapData(
+    imageData: ImageBitmapData,
     {
       level,
       internalFormat,
@@ -99,6 +103,11 @@ export class WebGpuResourceRepository extends CGAPIResourceRepository {
         GPUTextureUsage.COPY_DST |
         GPUTextureUsage.RENDER_ATTACHMENT,
     });
+
+    gpuDevice.queue.copyExternalImageToTexture({ source: imageData }, { texture: gpuTexture }, [
+      width,
+      height,
+    ]);
 
     const resourceHandle = this.__registerResource(gpuTexture);
 
