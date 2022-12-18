@@ -12,4 +12,6 @@ export abstract class CGAPIResourceRepository {
       webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
   }
+
+  static getWebGPUResourceRepository(): WebGLResourceRepository {}
 }
