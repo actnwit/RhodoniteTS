@@ -112,25 +112,30 @@ export class MaterialRepository {
    * Initialize Method
    */
   private static __initialize(material: Material, countOfThisType: Count) {
-    MaterialRepository.__materialMap.set(material.materialUID, material);
-    MaterialRepository.__instancesByTypes.set(material.materialTypeName, material);
-
+    // Set name
     material.tryToSetUniqueName(material.__materialTypeName, true);
 
-    // set this material instance for the material type
-    let map = MaterialRepository.__instances.get(material.__materialTypeName);
-    if (Is.not.exist(map)) {
-      map = new Map();
-      MaterialRepository.__instances.set(material.materialTypeName, map);
+    // Set Metadata
+    {
+      MaterialRepository.__materialMap.set(material.materialUID, material);
+      MaterialRepository.__instancesByTypes.set(material.materialTypeName, material);
+
+      // set this material instance for the material type
+      let map = MaterialRepository.__instances.get(material.__materialTypeName);
+      if (Is.not.exist(map)) {
+        map = new Map();
+        MaterialRepository.__instances.set(material.materialTypeName, map);
+      }
+      map.set(material.materialSID, material);
+
+      // set the count of instance for the material type
+      MaterialRepository.__materialInstanceCountOfType.set(
+        material.materialTypeName,
+        countOfThisType
+      );
     }
-    map.set(material.materialSID, material);
 
-    // set the count of instance for the material type
-    MaterialRepository.__materialInstanceCountOfType.set(
-      material.materialTypeName,
-      countOfThisType
-    );
-
+    // Set the material's meta data
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
       const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName);

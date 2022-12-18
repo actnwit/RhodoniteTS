@@ -42,6 +42,7 @@ import { Is } from '../foundation/misc/Is';
 import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 
 declare const spector: any;
 
@@ -214,7 +215,6 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
   ) {
     const returnType = info.compositionType.getGlslStr(info.componentType);
 
-    const indexArray: IndexOf16Bytes[] = [];
     let indexStr;
 
     const isTexture = CompositionType.isTexture(info.compositionType);
@@ -367,9 +367,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     materialTypeName: string
   ) {
     if (isGlobalData) {
-      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex);
+      const globalDataRepository = GlobalDataRepository.getInstance();
+      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
+      return dataBeginPos;
     } else {
-      return WebGLStrategyCommonMethod.getLocationOffsetOfProperty(propertyIndex, materialTypeName);
+      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
+        materialTypeName,
+        propertyIndex
+      );
+      return dataBeginPos;
     }
   }
 
