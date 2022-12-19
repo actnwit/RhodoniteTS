@@ -118,7 +118,7 @@ export class VideoTexture extends AbstractTexture {
       isPremultipliedAlpha,
     });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     this.__uri = video.src;
 
@@ -170,7 +170,7 @@ export class VideoTexture extends AbstractTexture {
           isPremultipliedAlpha,
         });
 
-        this.cgApiResourceUid = texture;
+        this._textureResourceUid = texture;
         this.__isTextureReady = true;
 
         resolve();
@@ -219,7 +219,7 @@ export class VideoTexture extends AbstractTexture {
   updateTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      webGLResourceRepository.updateTexture(this.cgApiResourceUid, this.#htmlVideoElement, {
+      webGLResourceRepository.updateTexture(this._textureResourceUid, this.#htmlVideoElement, {
         level: 0,
         xoffset: 0,
         yoffset: 0,
@@ -236,7 +236,7 @@ export class VideoTexture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(
-        this.cgApiResourceUid,
+        this._textureResourceUid,
         0,
         0,
         this.width,

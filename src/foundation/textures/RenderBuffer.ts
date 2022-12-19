@@ -9,7 +9,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
   width = 0;
   height = 0;
   private __internalFormat: TextureParameterEnum = TextureParameter.Depth24;
-  public cgApiResourceUid: CGAPIResourceHandle = -1;
+  public _textureResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
   private __isMSAA = false;
   private __sampleCountMSAA = 4;
@@ -38,7 +38,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
     this.__sampleCountMSAA = sampleCountMSAA;
     this.__internalFormat = internalFormat;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid = webglResourceRepository.createRenderBuffer(
+    this._textureResourceUid = webglResourceRepository.createRenderBuffer(
       width,
       height,
       internalFormat,
@@ -56,8 +56,8 @@ export class RenderBuffer extends RnObject implements IRenderable {
     this.width = 0;
     this.height = 0;
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.deleteRenderBuffer(this.cgApiResourceUid);
-    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    webglResourceRepository.deleteRenderBuffer(this._textureResourceUid);
+    this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     return true;
   }
 }

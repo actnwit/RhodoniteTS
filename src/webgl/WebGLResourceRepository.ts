@@ -681,12 +681,12 @@ export class WebGLResourceRepository
     ) {
       this.bindTexture2D(
         value[0],
-        value[1] instanceof AbstractTexture ? value[1].cgApiResourceUid : value[1]
+        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
     } else if (info.compositionType === CompositionType.TextureCube) {
       this.bindTextureCube(
         value[0],
-        value[1] instanceof AbstractTexture ? value[1].cgApiResourceUid : value[1]
+        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
     }
   }
@@ -1478,7 +1478,7 @@ export class WebGLResourceRepository
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
     const renderableWebGLResource = this.getWebGLResource(
-      renderable.cgApiResourceUid
+      renderable._textureResourceUid
     )! as WebGLTexture;
     const attachmentId = this.__glw!.colorAttachment(index);
     if (renderable instanceof RenderTargetTexture) {
@@ -1542,7 +1542,7 @@ export class WebGLResourceRepository
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
     const renderableWebGLResource = this.getWebGLResource(
-      renderable.cgApiResourceUid
+      renderable._textureResourceUid
     )! as WebGLTexture;
     if (renderable instanceof RenderTargetTexture) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;

@@ -109,8 +109,15 @@ export class WebGpuResourceRepository
       height,
     ]);
 
-    const resourceHandle = this.__registerResource(gpuTexture);
+    const textureHandle = this.__registerResource(gpuTexture);
 
-    return resourceHandle;
+    const gpuSampler = gpuDevice.createSampler({
+      magFilter: 'linear',
+      minFilter: 'linear',
+    });
+
+    const samplerHandle = this.__registerResource(gpuSampler);
+
+    return textureHandle;
   }
 }

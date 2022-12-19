@@ -120,7 +120,7 @@ export class Texture extends AbstractTexture {
       isPremultipliedAlpha,
     });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
 
     AbstractTexture.__textureMap.set(texture, this);
@@ -245,7 +245,7 @@ export class Texture extends AbstractTexture {
       throw new Error('Unsupported image type.');
     }
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     this.__uri = image.src;
 
@@ -339,7 +339,7 @@ export class Texture extends AbstractTexture {
           throw new Error('Unsupported image type');
         }
 
-        this.cgApiResourceUid = texture;
+        this._textureResourceUid = texture;
         this.__isTextureReady = true;
         AbstractTexture.__textureMap.set(texture, this);
 
@@ -378,7 +378,7 @@ export class Texture extends AbstractTexture {
       isPremultipliedAlpha: true,
     });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -422,7 +422,7 @@ export class Texture extends AbstractTexture {
       isPremultipliedAlpha,
     });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -469,7 +469,7 @@ export class Texture extends AbstractTexture {
       }
     );
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -512,7 +512,7 @@ export class Texture extends AbstractTexture {
       }
     );
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -522,17 +522,17 @@ export class Texture extends AbstractTexture {
     this.__height = height;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
 
   destroy3DAPIResources() {
-    AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
+    AbstractTexture.__textureMap.delete(this._textureResourceUid);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
-    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    webGLResourceRepository.deleteTexture(this._textureResourceUid);
+    this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;
     this.__startedToLoad = false;
 
