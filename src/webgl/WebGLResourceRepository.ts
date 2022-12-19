@@ -1028,11 +1028,11 @@ export class WebGLResourceRepository
       anisotropy: boolean;
       isPremultipliedAlpha: boolean;
     }
-  ): WebGLResourceHandle {
+  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
-    const resourceHandle = this.__registerResource(texture);
+    const textureHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
     const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
@@ -1052,7 +1052,7 @@ export class WebGLResourceRepository
       generateMipmap
     );
 
-    return resourceHandle;
+    return { textureHandle, samplerHandle: -1 };
   }
 
   private __createTextureInner(

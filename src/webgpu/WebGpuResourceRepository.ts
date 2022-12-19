@@ -93,7 +93,7 @@ export class WebGpuResourceRepository
       anisotropy: boolean;
       isPremultipliedAlpha: boolean;
     }
-  ): WebGLResourceHandle {
+  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
     const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
     const gpuTexture = gpuDevice.createTexture({
       size: [width, height, 1],
@@ -118,6 +118,6 @@ export class WebGpuResourceRepository
 
     const samplerHandle = this.__registerResource(gpuSampler);
 
-    return textureHandle;
+    return { textureHandle, samplerHandle };
   }
 }

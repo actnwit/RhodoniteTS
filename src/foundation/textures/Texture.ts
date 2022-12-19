@@ -225,22 +225,24 @@ export class Texture extends AbstractTexture {
         isPremultipliedAlpha,
       });
     } else if (img instanceof HTMLCanvasElement) {
-      texture = webGLResourceRepository.createTextureFromImageBitmapData(img, {
-        level,
-        internalFormat,
-        width: this.__width,
-        height: this.__height,
-        border: 0,
-        format,
-        type,
-        magFilter,
-        minFilter,
-        wrapS,
-        wrapT,
-        generateMipmap,
-        anisotropy,
-        isPremultipliedAlpha,
-      });
+      const { textureHandle, samplerHandle } =
+        webGLResourceRepository.createTextureFromImageBitmapData(img, {
+          level,
+          internalFormat,
+          width: this.__width,
+          height: this.__height,
+          border: 0,
+          format,
+          type,
+          magFilter,
+          minFilter,
+          wrapS,
+          wrapT,
+          generateMipmap,
+          anisotropy,
+          isPremultipliedAlpha,
+        });
+      texture = textureHandle;
     } else {
       throw new Error('Unsupported image type.');
     }
@@ -319,22 +321,24 @@ export class Texture extends AbstractTexture {
             isPremultipliedAlpha,
           });
         } else if (img instanceof HTMLCanvasElement) {
-          texture = webGLResourceRepository.createTextureFromImageBitmapData(img, {
-            level,
-            internalFormat,
-            width: this.__width,
-            height: this.__height,
-            border: 0,
-            format,
-            type,
-            magFilter,
-            minFilter,
-            wrapS,
-            wrapT,
-            generateMipmap,
-            anisotropy,
-            isPremultipliedAlpha,
-          });
+          const { textureHandle, samplerHandle } =
+            webGLResourceRepository.createTextureFromImageBitmapData(img, {
+              level,
+              internalFormat,
+              width: this.__width,
+              height: this.__height,
+              border: 0,
+              format,
+              type,
+              magFilter,
+              minFilter,
+              wrapS,
+              wrapT,
+              generateMipmap,
+              anisotropy,
+              isPremultipliedAlpha,
+            });
+          texture = textureHandle;
         } else {
           throw new Error('Unsupported image type');
         }
@@ -361,26 +365,27 @@ export class Texture extends AbstractTexture {
     ctx.fillRect(0, 0, 1, 1);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
-      level: 0,
-      internalFormat: TextureParameter.RGBA8,
-      width: 1,
-      height: 1,
-      border: 0,
-      format: PixelFormat.RGBA,
-      type: ComponentType.UnsignedByte,
-      magFilter: TextureParameter.Nearest,
-      minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
-      generateMipmap: false,
-      anisotropy: false,
-      isPremultipliedAlpha: true,
-    });
+    const { textureHandle, samplerHandle } =
+      webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
+        level: 0,
+        internalFormat: TextureParameter.RGBA8,
+        width: 1,
+        height: 1,
+        border: 0,
+        format: PixelFormat.RGBA,
+        type: ComponentType.UnsignedByte,
+        magFilter: TextureParameter.Nearest,
+        minFilter: TextureParameter.Nearest,
+        wrapS: TextureParameter.ClampToEdge,
+        wrapT: TextureParameter.ClampToEdge,
+        generateMipmap: false,
+        anisotropy: false,
+        isPremultipliedAlpha: true,
+      });
 
-    this._textureResourceUid = texture;
+    this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(texture, this);
+    AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
   generateTextureFromTypedArray(

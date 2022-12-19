@@ -67,5 +67,5 @@ export interface ICGAPIResourceRepository {
       anisotropy: boolean;
       isPremultipliedAlpha: boolean;
     }
-  ): WebGLResourceHandle;
+  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle };
 }
