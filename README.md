@@ -121,7 +121,7 @@ You don't need any bundler.
 
 ```typescript
 // main.ts
-import Rn from 'rhodonite/dist/esm/index.mjs';
+import Rn from 'rhodonite/dist/esm/index.js';
 
 async function load() {
   await Rn.System.init({
@@ -220,40 +220,6 @@ $ yarn test-unit-part -- ./src/foundation/core/Entity.test.ts
 
 ```bash
 $ yarn test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawingWebGL1
-```
-
-### For M1 Mac in E2E test
-
-If you have trouble with the E2E test in your M1 Mac, Try to install Chromium.
-
-```bash
-$ brew install chromium
-```
-Then try these environment variables.
-
-```bashrc
-export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-export PUPPETEER_EXECUTABLE_PATH=`which chromium`
-```
-
-See https://stackoverflow.com/questions/65928783/puppeteer5-5-0-install-node-install-js-on-m1 for more detail.
-
-And you can try to uncomment the "executablePath" line.
-
-```javascript
-// config/test/jest-puppeteer.config.js
-module.exports = {
-
-  ...
-
-  launch: {
-    headless: true,
-    devtools: false,
-    // executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", // Try to uncomment this line if you got error in M1 Mac
-
-    args: ["--start-maximized", "--no-sandbox", "--disable-gpu"],
-  },
-};
 ```
 
 ## Development using VSCode devcontainer
