@@ -38,19 +38,7 @@ IE11 is not supported.
 
 ## Install
 
-You can install the esm version of Rhodonite easily.
-
-```bash
-$ yarn add rhodonite
-```
-
-You can install yarn as follows,
-
-```bash
-$ npm install -g yarn
-```
-
-You can use npm of course, but we recommend yarn because we usually use it.
+You can install Rhodonite easily.
 
 ```bash
 $ npm install rhodonite
@@ -58,7 +46,7 @@ $ npm install rhodonite
 
 ### Note
 
-If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "yarn install again.
+If you get an error like "webxr-input-profiles not found" when building a project using Rhodonite, Try "npm install" or "yarn install" again.
 
 ## Coding with Rhodonite
 
@@ -75,8 +63,9 @@ If you get an error like "webxr-input-profiles not found" when building a projec
     canvas: document.getElementById('world') as HTMLCanvasElement,
   });
 
-  // Plane
+  // create a Plane mesh
   Rn.MeshHelper.createPlane();
+  planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
   // Render Loop
   Rn.System.startRenderLoop(() => {
@@ -103,8 +92,9 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-// Plane
+// create a Plane mesh
 Rn.MeshHelper.createPlane();
+planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
 // Render Loop
 Rn.System.startRenderLoop(() => {
@@ -130,8 +120,9 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-// Plane
+// create a Plane mesh
 Rn.MeshHelper.createPlane();
+planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
 // Render Loop
 Rn.System.startRenderLoop(() => {
