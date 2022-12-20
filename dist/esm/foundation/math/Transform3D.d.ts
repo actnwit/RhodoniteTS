@@ -3,13 +3,13 @@ import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableQuaternion } from './MutableQuaternion';
 import { MutableVector3 } from './MutableVector3';
 export declare class Transform3D {
-    private __translate;
+    private __position;
     private __scale;
-    private __quaternion;
+    private __rotation;
     private __matrix;
-    private __is_translate_updated;
+    private __is_position_updated;
     private __is_scale_updated;
-    private __is_quaternion_updated;
+    private __is_rotation_updated;
     private __is_trs_matrix_updated;
     private __updateCount;
     private static __tmpMatrix44_0;
@@ -20,24 +20,24 @@ export declare class Transform3D {
     constructor();
     constructor(Transform3D: Transform3D);
     clone(): Transform3D;
-    set translate(vec: IVector3);
+    set position(vec: IVector3);
     /**
-     * return a copy of a local translate vector
+     * return a copy of a local position vector
      */
-    get translate(): MutableVector3;
+    get position(): MutableVector3;
     /**
-     * return a local translate vector
+     * return a local position vector
      */
-    get translateInner(): MutableVector3;
-    set rotate(vec: IVector3);
+    get positionInner(): MutableVector3;
+    set eulerAngles(vec: IVector3);
     /**
      * return a copy of a local rotation (XYZ euler) vector
      */
-    get rotate(): IVector3;
+    get eulerAngles(): IVector3;
     /**
      * return a local rotation (XYZ euler) vector
      */
-    get rotateInner(): Vector3;
+    get eulerAnglesInner(): Vector3;
     set scale(vec: IVector3);
     /**
      * return a copy of a local scale vector
@@ -47,18 +47,18 @@ export declare class Transform3D {
      * return a local scale vector
      */
     get scaleInner(): MutableVector3;
-    set quaternion(quat: IQuaternion);
+    set rotation(quat: IQuaternion);
     /**
      * return a copy of a local quaternion vector
      */
-    get quaternion(): IQuaternion;
+    get rotation(): IQuaternion;
     /**
      * return a local quaternion vector
      */
-    get quaternionInner(): Quaternion;
+    get rotationInner(): Quaternion;
     __updateTransform(): void;
-    __updateRotation(): void;
-    __updateTranslate(): void;
+    __updateEulerAngles(): void;
+    __updatePosition(): void;
     __updateScale(): void;
     __updateMatrix(): void;
     set matrix(mat: IMatrix44);
