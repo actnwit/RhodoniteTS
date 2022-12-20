@@ -322,7 +322,7 @@ export class WalkThroughCameraController
       const sceneComponent = camera.entity.tryToGetSceneGraph();
       if (Is.exist(sceneComponent)) {
         const invMat = Matrix44.invertTo(
-          sceneComponent.worldMatrixInner,
+          sceneComponent.matrixInner,
           WalkThroughCameraController.__tmpInvMat
         );
         invMat.multiplyVector3To(this._currentPos, this._currentPos);

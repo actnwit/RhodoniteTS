@@ -594,7 +594,7 @@ export class CameraComponent extends Component {
 
     if (!this.primitiveMode) {
       const invertWorldMatrix = MutableMatrix44.invertTo(
-        this.__sceneGraphComponent!.worldMatrixInner,
+        this.__sceneGraphComponent!.matrixInner,
         CameraComponent.__tmpMatrix44_0
       );
 
@@ -684,7 +684,7 @@ export class CameraComponent extends Component {
   }
 
   get worldPosition() {
-    this.__sceneGraphComponent?.worldMatrixInner.multiplyVector3To(
+    this.__sceneGraphComponent?.matrixInner.multiplyVector3To(
       this.eyeInner,
       CameraComponent.returnVector3
     );

@@ -18,8 +18,8 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = Rn.Vector3.fromCopyArray([4, 3, 4]);
-  cameraTransform.rotate = Rn.Vector3.fromCopyArray([-Math.PI / 6, Math.PI / 4, 0]);
+  cameraTransform.localPosition = Rn.Vector3.fromCopyArray([4, 3, 4]);
+  cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 6, Math.PI / 4, 0]);
 
   // gltf
   const expression = (
@@ -34,7 +34,7 @@ document.body.appendChild(p);
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
-  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
+  lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
   Rn.System.process([expression]);
 

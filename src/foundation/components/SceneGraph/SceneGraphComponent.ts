@@ -311,7 +311,7 @@ export class SceneGraphComponent extends Component {
     return this.__parent;
   }
 
-  get worldMatrixInner() {
+  get matrixInner() {
     if (!this.__isWorldMatrixUpToDate) {
       this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
       this.__isWorldMatrixUpToDate = true;
@@ -320,11 +320,11 @@ export class SceneGraphComponent extends Component {
     return this._worldMatrix;
   }
 
-  get worldMatrix() {
-    return this.worldMatrixInner.clone();
+  get matrix() {
+    return this.matrixInner.clone();
   }
 
-  get worldMatrixRestInner() {
+  get matrixRestInner() {
     if (!this.__isWorldMatrixRestUpToDate) {
       this._worldMatrixRest.copyComponents(this.__calcWorldMatrixRestRecursively());
       this.__isWorldMatrixRestUpToDate = true;
@@ -333,21 +333,13 @@ export class SceneGraphComponent extends Component {
     return this._worldMatrix;
   }
 
-  get worldMatrixRest() {
-    return this.worldMatrixRestInner.clone();
-  }
-
-  get worldQuaternionRest(): IQuaternion {
-    const parent = this.parent;
-    if (parent != null) {
-      return Quaternion.multiply(parent.worldQuaternionRest, this.quaternion) as IQuaternion;
-    }
-    return this.quaternion;
+  get matrixRest() {
+    return this.matrixRestInner.clone();
   }
 
   get normalMatrixInner() {
     if (!this.__isNormalMatrixUpToDate) {
-      Matrix44.invertTo(this.worldMatrixInner, SceneGraphComponent.invertedMatrix44);
+      Matrix44.invertTo(this.matrixInner, SceneGraphComponent.invertedMatrix44);
       this._normalMatrix.copyComponents(SceneGraphComponent.invertedMatrix44.transpose());
       this.__isNormalMatrixUpToDate = true;
     }
@@ -364,7 +356,7 @@ export class SceneGraphComponent extends Component {
       return skeletalComponent.worldMatrixInner;
     } else {
       const sceneGraphComponent = this.entity.getSceneGraph();
-      return sceneGraphComponent.worldMatrixInner;
+      return sceneGraphComponent.matrixInner;
     }
   }
 
@@ -393,13 +385,13 @@ export class SceneGraphComponent extends Component {
     const transform = entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
-      return transform.matrixInner;
+      return transform.localMatrixInner;
     }
 
     const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRecursively();
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
-      transform.matrixInner,
+      transform.localMatrixInner,
       this.__tmpMatrix
     );
   }
@@ -413,24 +405,27 @@ export class SceneGraphComponent extends Component {
     const transform = entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
-      return transform.matrixRestInner;
+      return transform.localMatrixRestInner;
     }
 
     const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRestRecursively();
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
-      transform.matrixRestInner,
+      transform.localMatrixRestInner,
       this.__tmpMatrix
     );
   }
 
   getQuaternionRecursively(): IQuaternion {
     if (Is.not.exist(this.parent)) {
-      return this.entity.getTransform().quaternion;
+      return this.entity.getTransform().localRotation;
     }
 
     const matrixFromAncestorToParent = this.parent.getQuaternionRecursively();
-    return Quaternion.multiply(matrixFromAncestorToParent, this.entity.getTransform().quaternion);
+    return Quaternion.multiply(
+      matrixFromAncestorToParent,
+      this.entity.getTransform().localRotation
+    );
   }
 
   /**
@@ -440,7 +435,7 @@ export class SceneGraphComponent extends Component {
    */
   static flattenHierarchy(
     sceneGraphComponent: SceneGraphComponent,
-    isJointMode: Boolean
+    isJointMode: boolean
   ): SceneGraphComponent[] {
     const results: SceneGraphComponent[] = [];
     if (!isJointMode || sceneGraphComponent.isJoint()) {
@@ -459,16 +454,16 @@ export class SceneGraphComponent extends Component {
 
   get worldPosition(): Vector3 {
     const zeroVector = SceneGraphComponent.__originVector3;
-    this.worldMatrixInner.multiplyVector3To(zeroVector, SceneGraphComponent.returnVector3);
+    this.matrixInner.multiplyVector3To(zeroVector, SceneGraphComponent.returnVector3);
     return SceneGraphComponent.returnVector3 as Vector3;
   }
 
   getWorldPositionOf(localPosition: Vector3) {
-    return this.worldMatrixInner.multiplyVector3(localPosition);
+    return this.matrixInner.multiplyVector3(localPosition);
   }
 
   getLocalPositionOf(worldPosition: Vector3): Vector3 {
-    return Matrix44.invert(this.worldMatrixInner).multiplyVector3(worldPosition);
+    return Matrix44.invert(this.matrixInner).multiplyVector3(worldPosition);
   }
 
   calcWorldAABB() {
@@ -701,91 +696,83 @@ export class SceneGraphComponent extends Component {
     }
   }
 
-  set translate(vec: IVector3) {
+  set position(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().translate = vec;
+      this.entity.getTransform().localPosition = vec;
     } else {
-      MutableMatrix44.invertTo(
-        this.__parent.entity.getSceneGraph().worldMatrixInner,
-        this.__tmpMatrix
-      );
-      this.entity.getTransform().translate = this.__tmpMatrix.multiplyVector3(vec);
+      MutableMatrix44.invertTo(this.__parent.entity.getSceneGraph().matrixInner, this.__tmpMatrix);
+      this.entity.getTransform().localPosition = this.__tmpMatrix.multiplyVector3(vec);
     }
   }
 
-  get translate(): IVector3 {
-    return this.worldMatrixInner.getTranslate();
+  get position(): MutableVector3 {
+    return this.matrixInner.getTranslate();
   }
 
-  get translateRest(): IVector3 {
-    return this.worldMatrixRestInner.getTranslate();
+  get positionRest(): MutableVector3 {
+    return this.matrixRestInner.getTranslate();
   }
 
-  set rotate(vec: IVector3) {
+  set eulerAngles(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().rotate = vec;
+      this.entity.getTransform().localEulerAngles = vec;
     } else {
-      const quat = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().worldMatrixInner);
+      const quat = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().matrixInner);
       const invQuat = Quaternion.invert(quat);
       const rotation = Quaternion.fromMatrix(Matrix44.rotate(vec));
       const result = Quaternion.multiply(rotation, invQuat);
-      this.entity.getTransform().rotate = result.toEulerAngles();
+      this.entity.getTransform().localEulerAngles = result.toEulerAngles();
     }
   }
 
-  get rotate() {
-    return this.worldMatrixInner.toEulerAngles();
+  get eulerAngles(): Vector3 {
+    return this.matrixInner.toEulerAngles();
   }
 
-  set quaternion(quat: IQuaternion) {
+  set rotation(quat: IQuaternion) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().quaternion = quat;
+      this.entity.getTransform().localRotation = quat;
     } else {
-      const quatInner = Quaternion.fromMatrix(
-        this.__parent.entity.getSceneGraph().worldMatrixInner
-      );
+      const quatInner = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().matrixInner);
       const invQuat = Quaternion.invert(quatInner);
-      this.entity.getTransform().quaternion = Quaternion.multiply(quat, invQuat);
+      this.entity.getTransform().localRotation = Quaternion.multiply(quat, invQuat);
     }
   }
 
-  get quaternion(): IQuaternion {
+  get rotation(): Quaternion {
     const parent = this.parent;
     if (parent != null) {
-      return Quaternion.multiply(
-        parent.quaternion,
-        this.entity.getTransform().quaternionInner
-      ) as IQuaternion;
+      return Quaternion.multiply(parent.rotation, this.entity.getTransform().localRotationInner);
     }
-    return this.entity.getTransform().quaternionInner;
+    return this.entity.getTransform().localRotationInner;
   }
 
-  get quaternionRest(): IQuaternion {
+  get rotationRest(): Quaternion {
     const parent = this.parent;
     if (parent != null) {
       return Quaternion.multiply(
-        parent.quaternionRest,
-        this.entity.getTransform().quaternionRestInner
-      ) as IQuaternion;
+        parent.rotationRest,
+        this.entity.getTransform().localRotationRestInner
+      );
     }
-    return this.entity.getTransform().quaternionRestInner;
+    return this.entity.getTransform().localRotationRestInner;
   }
 
   set scale(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().scale = vec;
+      this.entity.getTransform().localScale = vec;
     } else {
-      const mat = this.__parent.entity.getSceneGraph().worldMatrix;
+      const mat = this.__parent.entity.getSceneGraph().matrix;
       mat._v[12] = 0;
       mat._v[13] = 0;
       mat._v[14] = 0;
       const invMat = MutableMatrix44.invert(mat);
-      this.entity.getTransform().scale = invMat.multiplyVector3(vec);
+      this.entity.getTransform().localScale = invMat.multiplyVector3(vec);
     }
   }
 
-  get scale() {
-    return this.worldMatrixInner.getScale();
+  get scale(): MutableVector3 {
+    return this.matrixInner.getScale();
   }
 
   /**
@@ -826,13 +813,13 @@ export class SceneGraphComponent extends Component {
       private __sceneGraphcomponent?: SceneGraphComponent;
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
       }
 
-      getSceneGraph() {
+      getSceneGraph(): SceneGraphComponent {
         if (this.__sceneGraphComponent === undefined) {
           this.__sceneGraphComponent = this.getComponentByComponentTID(
             WellKnownComponentTIDs.SceneGraphComponentTID
@@ -840,14 +827,65 @@ export class SceneGraphComponent extends Component {
         }
         return this.__sceneGraphComponent;
       }
-      get worldMatrix(): IMatrix44 {
+      get matrix(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
-        return sceneGraph.worldMatrix;
+        return sceneGraph.matrix;
       }
-      get worldMatrixInner(): IMatrix44 {
+      get matrixInner(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
-        return sceneGraph.worldMatrixInner;
+        return sceneGraph.matrixInner;
       }
+
+      get position(): MutableVector3 {
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.position;
+      }
+
+      set position(vec: IVector3) {
+        const sceneGraph = this.getSceneGraph();
+        sceneGraph.position = vec;
+      }
+
+      get positionRest(): MutableVector3 {
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.positionRest;
+      }
+
+      get scale(): MutableVector3 {
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.scale;
+      }
+
+      set scale(vec: IVector3) {
+        const sceneGraph = this.getSceneGraph();
+        sceneGraph.scale = vec;
+      }
+
+      get eulerAngles(): Vector3 {
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.eulerAngles;
+      }
+
+      set eulerAngles(vec: IVector3) {
+        const sceneGraph = this.getSceneGraph();
+        sceneGraph.eulerAngles = vec;
+      }
+
+      get rotation(): Quaternion {
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.rotation;
+      }
+
+      set rotation(quat: IQuaternion) {
+        const sceneGraph = this.getSceneGraph();
+        sceneGraph.rotation = quat;
+      }
+
+      get rotationRest(): Quaternion {
+        const sceneGraph = this.getSceneGraph();
+        return sceneGraph.rotationRest;
+      }
+
       addChild(sg: SceneGraphComponent): void {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.addChild(sg);

@@ -51,8 +51,8 @@ document.body.appendChild(p);
 
   const rootGroup = mainRenderPass.sceneTopLevelGraphComponents[0].entity;
   const rootTransFormComponent = rootGroup.getTransform();
-  rootTransFormComponent.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 2.0, 0.0]);
-  rootTransFormComponent.translate = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
+  rootTransFormComponent.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI / 2.0, 0.0]);
+  rootTransFormComponent.localPosition = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
 
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
@@ -109,8 +109,8 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

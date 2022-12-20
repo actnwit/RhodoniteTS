@@ -17,7 +17,7 @@ export class GlobalRetarget2 implements IAnimationRetarget {
     const srcInverseBindMatrix = Is.exist(srcEntity.tryToGetAnimation())
       ? srcEntity.tryToGetAnimation()!.inverseBindMatrix!
       : Matrix44.identity();
-    const srcWorldMatrix = srcEntity.getSceneGraph().worldMatrixInner;
+    const srcWorldMatrix = srcEntity.getSceneGraph().matrixInner;
 
     // const localMatrix = Matrix44.multiply(srcInverseBindMatrix, srcWorldMatrix);
     const localMatrix = Matrix44.multiply(srcWorldMatrix, srcInverseBindMatrix);
@@ -50,7 +50,7 @@ export class GlobalRetarget2 implements IAnimationRetarget {
     const srcInverseBindMatrix = Is.exist(srcEntity.tryToGetAnimation())
       ? srcEntity.tryToGetAnimation()!.inverseBindMatrix!
       : Matrix44.identity();
-    const srcWorldMatrix = srcEntity.getSceneGraph().worldMatrixInner;
+    const srcWorldMatrix = srcEntity.getSceneGraph().matrixInner;
 
     // const localMatrix = Matrix44.multiply(srcInverseBindMatrix, srcWorldMatrix);
     const localMatrix = Matrix44.multiply(srcWorldMatrix, srcInverseBindMatrix);
@@ -81,6 +81,6 @@ export class GlobalRetarget2 implements IAnimationRetarget {
   retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
-    return srcEntity.getTransform().scaleInner;
+    return srcEntity.getTransform().localScaleInner;
   }
 }

@@ -47,7 +47,7 @@ declare global {
     cameraComponent.type = Rn.CameraType.Orthographic;
 
     const transformComponent = entityCamera.getTransform();
-    transformComponent.translate = Rn.Vector3.fromCopyArray([0.0, 0, 2.0]);
+    transformComponent.localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 2.0]);
 
     return entityCamera;
   }
@@ -59,7 +59,7 @@ declare global {
 
     const entityBoard = createEntityBoard(material);
     const transformComponentBoard = entityBoard.getTransform();
-    transformComponentBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    transformComponentBoard.localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
     window.entityBoard = entityBoard;
 
     const entitySphere = createEntitySphere(material);

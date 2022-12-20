@@ -60,7 +60,7 @@ import Rn from '../../../dist/esm/index.js';
     const entityCamera = Rn.EntityHelper.createCameraEntity();
 
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = lightPosition;
+    transformCamera.localPosition = lightPosition;
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.zNear = zFarDepth / 10000;
@@ -82,7 +82,7 @@ import Rn from '../../../dist/esm/index.js';
     const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
     const transformComponent = entityRootGroup.getTransform();
-    transformComponent.scale = rootGroupScale;
+    transformComponent.localScale = rootGroupScale;
     return entityRootGroup;
   }
 
@@ -115,8 +115,8 @@ import Rn from '../../../dist/esm/index.js';
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
-    entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
+    entitySphere.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+    entitySphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
@@ -153,8 +153,8 @@ import Rn from '../../../dist/esm/index.js';
     meshComponent.setMesh(mesh);
 
     const transform = entity.getTransform();
-    transform.scale = groundSize;
-    transform.translate = groundPosition;
+    transform.localScale = groundSize;
+    transform.localPosition = groundPosition;
 
     return entity;
   }

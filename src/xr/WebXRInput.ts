@@ -366,7 +366,7 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
           visualResponse.value as number
         );
 
-        entity.getTransform().translate = Vector3.lerp(
+        entity.getTransform().localPosition = Vector3.lerp(
           maxNodeTransform.translateInner,
           minNodeTransform.translateInner,
           visualResponse.value as number

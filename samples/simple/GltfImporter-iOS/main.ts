@@ -54,7 +54,7 @@ declare const window: any;
 
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
   const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
-  vrmRootEntity.getTransform().rotate = vrmModelRotation;
+  vrmRootEntity.getTransform().localEulerAngles = vrmModelRotation;
 
   // post effects
   const expressionPostEffect = new Rn.Expression();
@@ -129,7 +129,7 @@ declare const window: any;
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
   let count = 0;
   let startTime = Date.now();
@@ -184,8 +184,8 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+  boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 

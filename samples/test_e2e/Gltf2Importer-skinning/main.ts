@@ -23,7 +23,7 @@ declare const window: any;
     cameraComponent.zFar = 1000;
     cameraComponent.setFovyAndChangeFocalLength(45);
     cameraComponent.aspect = 1;
-    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+    cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
     const promise = Rn.Gltf2Importer.importFromUri(
       // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
@@ -32,8 +32,8 @@ declare const window: any;
 
     promise.then((response) => {
       const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
-      //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
-      rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
+      //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
+      rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
       // CameraComponent
       const cameraControllerComponent = cameraEntity.getCameraController();
@@ -80,7 +80,7 @@ declare const window: any;
           }
           //console.log(time);
           //      rootGroup.getTransform().scale = rotationVec3;
-          //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
+          //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
         }
 
         Rn.System.process([expression]);

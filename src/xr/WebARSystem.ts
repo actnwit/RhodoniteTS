@@ -241,13 +241,13 @@ export class WebARSystem {
     const viewerTranslateX = translate.x;
     const viewerTranslateZ = translate.z;
     const viewerTransform = this._cameraEntity.getTransform()!;
-    viewerTransform.translate = Vector3.fromCopyArray([
+    viewerTransform.localPosition = Vector3.fromCopyArray([
       viewerTranslateScaledX,
       0,
       viewerTranslateScaledZ,
     ]);
-    viewerTransform.scale = Vector3.fromCopyArray([scale, scale, scale]);
-    viewerTransform.rotate = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
+    viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
+    viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
 
     rotateMat.translateY = translate.y;
     rotateMat.translateX = translate.x - viewerTranslateX;
@@ -256,7 +256,7 @@ export class WebARSystem {
     rotateMat.translateX += xrViewerPos.x;
     rotateMat.translateZ += xrViewerPos.z;
 
-    this._cameraEntity.getTransform()!.matrix = rotateMat;
+    this._cameraEntity.getTransform()!.localMatrix = rotateMat;
   }
 
   get projectionMatrix() {

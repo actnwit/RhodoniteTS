@@ -88,7 +88,7 @@ import Rn from '../../../dist/esm/index.js';
   function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = lightPosition;
+    transformCamera.localPosition = lightPosition;
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.zNear = zFarDepthCamera / 100;
@@ -191,9 +191,9 @@ import Rn from '../../../dist/esm/index.js';
     rotate: Rn.Vector3
   ) {
     const transform = entity.getTransform();
-    transform.scale = scale;
-    transform.translate = translate;
-    transform.rotate = rotate;
+    transform.localScale = scale;
+    transform.localPosition = translate;
+    transform.localEulerAngles = rotate;
   }
 
   function draw(
@@ -204,7 +204,7 @@ import Rn from '../../../dist/esm/index.js';
     const inputElem = document.getElementById('light_pos') as HTMLInputElement;
     const inputValue = parseFloat(inputElem.value) / 200;
     lightPosition.x = inputValue;
-    entityDepthCamera.getTransform().translate = lightPosition;
+    entityDepthCamera.getTransform().localPosition = lightPosition;
     Rn.MutableVector3.multiplyTo(lightPosition, -1, directionLight).normalize();
     entityDepthCamera.getCamera().direction = directionLight;
 

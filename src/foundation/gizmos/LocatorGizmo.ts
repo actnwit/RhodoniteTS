@@ -82,11 +82,11 @@ export class LocatorGizmo extends Gizmo {
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     if (aabb.isVanilla()) {
-      this.__topEntity.getTransform()!.translate = sg.translate;
+      this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {
-      this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+      this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
     }
-    this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
+    this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),

@@ -34,7 +34,6 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
     private __getShaderProperty;
     private static getOffsetOfPropertyInShader;
-    private getOffsetOfTheOffsetVariableOfPropertyInShader;
     $load(meshComponent: MeshComponent): void;
     isMeshSetup(mesh: Mesh): boolean;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
@@ -54,5 +53,4 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     private __setCurrentComponentSIDsForEachPrimitive;
     common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, isVRMainPass: boolean, displayIdx: Index): boolean;
-    $render(): void;
 }

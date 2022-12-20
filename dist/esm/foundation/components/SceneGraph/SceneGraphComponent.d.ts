@@ -4,6 +4,7 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import { Vector3 } from '../../math/Vector3';
 import { AABB } from '../../math/AABB';
+import { MutableVector3 } from '../../math/MutableVector3';
 import { MeshComponent } from '../Mesh/MeshComponent';
 import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
 import { CameraComponent } from '../Camera/CameraComponent';
@@ -11,7 +12,7 @@ import { Vector4 } from '../../math/Vector4';
 import { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
-import { IQuaternion, IVector3 } from '../../math';
+import { IQuaternion, IVector3, Quaternion } from '../../math';
 export declare class SceneGraphComponent extends Component {
     private __parent?;
     private static __sceneGraphs;
@@ -82,11 +83,10 @@ export declare class SceneGraphComponent extends Component {
     get isTopLevel(): boolean;
     get children(): SceneGraphComponent[];
     get parent(): SceneGraphComponent | undefined;
-    get worldMatrixInner(): MutableMatrix44;
-    get worldMatrix(): MutableMatrix44;
-    get worldMatrixRestInner(): MutableMatrix44;
-    get worldMatrixRest(): MutableMatrix44;
-    get worldQuaternionRest(): IQuaternion;
+    get matrixInner(): MutableMatrix44;
+    get matrix(): MutableMatrix44;
+    get matrixRestInner(): MutableMatrix44;
+    get matrixRest(): MutableMatrix44;
     get normalMatrixInner(): MutableMatrix33;
     get entityWorldMatrix(): MutableMatrix44;
     get entityWorldMatrixInner(): MutableMatrix44;
@@ -100,7 +100,7 @@ export declare class SceneGraphComponent extends Component {
      * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
      * @param isJointMode collects joints only
      */
-    static flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: Boolean): SceneGraphComponent[];
+    static flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
     get worldPosition(): Vector3;
     getWorldPositionOf(localPosition: Vector3): IVector3;
     getLocalPositionOf(worldPosition: Vector3): Vector3;
@@ -132,16 +132,16 @@ export declare class SceneGraphComponent extends Component {
     $create(): void;
     $logic(): void;
     private __updateGizmos;
-    set translate(vec: IVector3);
-    get translate(): IVector3;
-    get translateRest(): IVector3;
-    set rotate(vec: IVector3);
-    get rotate(): IVector3;
-    set quaternion(quat: IQuaternion);
-    get quaternion(): IQuaternion;
-    get quaternionRest(): IQuaternion;
+    set position(vec: IVector3);
+    get position(): MutableVector3;
+    get positionRest(): MutableVector3;
+    set eulerAngles(vec: IVector3);
+    get eulerAngles(): Vector3;
+    set rotation(quat: IQuaternion);
+    get rotation(): Quaternion;
+    get rotationRest(): Quaternion;
     set scale(vec: IVector3);
-    get scale(): IVector3;
+    get scale(): MutableVector3;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component

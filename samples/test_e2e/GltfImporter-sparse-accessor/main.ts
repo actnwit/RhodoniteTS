@@ -20,7 +20,7 @@ document.body.appendChild(p);
   cameraComponent.yMag = 3.3;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = Rn.Vector3.fromCopyArray([3, 2, 1]);
+  cameraTransform.localPosition = Rn.Vector3.fromCopyArray([3, 2, 1]);
 
   // gltf
   const expression = (

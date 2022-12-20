@@ -80,7 +80,7 @@ export class Transform3D {
   /**
    * return a copy of a local translate vector
    */
-  get translate() {
+  get translate(): MutableVector3 {
     return this.translateInner.clone();
   }
 
@@ -112,7 +112,7 @@ export class Transform3D {
   /**
    * return a local rotation (XYZ euler) vector
    */
-  get rotateInner() {
+  get rotateInner(): Vector3 {
     if (this.__is_trs_matrix_updated) {
       return this.__matrix.toEulerAngles();
     } else {

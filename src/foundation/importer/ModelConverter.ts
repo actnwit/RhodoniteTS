@@ -227,21 +227,21 @@ export class ModelConverter {
       const nodeJson = gltfModel.nodes[node_i];
       const groupTransform = group.getTransform()!;
       if (nodeJson.translation) {
-        groupTransform.translate = Vector3.fromCopyArray([
+        groupTransform.localPosition = Vector3.fromCopyArray([
           nodeJson.translation[0],
           nodeJson.translation[1],
           nodeJson.translation[2],
         ]);
       }
       if (nodeJson.scale) {
-        groupTransform.scale = Vector3.fromCopyArray([
+        groupTransform.localScale = Vector3.fromCopyArray([
           nodeJson.scale[0],
           nodeJson.scale[1],
           nodeJson.scale[2],
         ]);
       }
       if (nodeJson.rotation) {
-        groupTransform.quaternion = Quaternion.fromCopy4(
+        groupTransform.localRotation = Quaternion.fromCopy4(
           nodeJson.rotation[0],
           nodeJson.rotation[1],
           nodeJson.rotation[2],
@@ -249,7 +249,7 @@ export class ModelConverter {
         );
       }
       if (nodeJson.matrix) {
-        groupTransform.matrix = Matrix44.fromCopyArrayColumnMajor(nodeJson.matrix);
+        groupTransform.localMatrix = Matrix44.fromCopyArrayColumnMajor(nodeJson.matrix);
       }
     }
   }
@@ -2114,7 +2114,7 @@ export class ModelConverter {
         for (const jointIdx of joints) {
           const rnJointEntity = rnEntities[jointIdx];
           const newRnJointEntity = EntityHelper.createGroupEntity();
-          newRnJointEntity.getTransform().matrix = rnJointEntity.getTransform().matrix;
+          newRnJointEntity.getTransform().localMatrix = rnJointEntity.getTransform().localMatrix;
           backupRnJoints[jointIdx] = newRnJointEntity;
         }
       }
@@ -2133,18 +2133,16 @@ export class ModelConverter {
         const joints = node.skinObject.joints;
         for (const jointIdx of joints) {
           const rnJointEntity = rnEntities[jointIdx];
-          rnJointEntity.getTransform().matrix = Matrix44.identity();
+          rnJointEntity.getTransform().localMatrix = Matrix44.identity();
         }
         for (const jointIdx of joints) {
           const rnJointEntity = rnEntities[jointIdx];
           let parentInvWorldMatrix = MutableMatrix44.identity();
           if (backupRnJoints[jointIdx].getSceneGraph().parent) {
-            parentInvWorldMatrix = backupRnJoints[jointIdx]
-              .getSceneGraph()
-              .parent!.worldMatrix.invert();
+            parentInvWorldMatrix = backupRnJoints[jointIdx].getSceneGraph().parent!.matrix.invert();
           }
-          rnJointEntity.getTransform().translate = parentInvWorldMatrix.multiplyVector3(
-            backupRnJoints[jointIdx].getSceneGraph().translate
+          rnJointEntity.getTransform().localPosition = parentInvWorldMatrix.multiplyVector3(
+            backupRnJoints[jointIdx].getSceneGraph().position
           );
         }
       }
@@ -2162,7 +2160,7 @@ export class ModelConverter {
           for (let j = 0; j < joints.length; j++) {
             const jointIdx = joints[j];
             const rnJointEntity = rnEntities[jointIdx];
-            accessor!.setMat4AsMatrix44(j, rnJointEntity.getSceneGraph().worldMatrix.invert(), {});
+            accessor!.setMat4AsMatrix44(j, rnJointEntity.getSceneGraph().matrix.invert(), {});
           }
         }
       }

@@ -156,9 +156,9 @@ export class AnimationComponent extends Component {
 
     const animationRetarget = this._animationRetarget;
     if (Is.exist(animationRetarget)) {
-      this.__transformComponent!.quaternion = animationRetarget.retargetQuaternion(this.entity);
-      this.__transformComponent!.translate = animationRetarget.retargetTranslate(this.entity);
-      this.__transformComponent!.scale = animationRetarget.retargetScale(this.entity);
+      this.__transformComponent!.localRotation = animationRetarget.retargetQuaternion(this.entity);
+      this.__transformComponent!.localPosition = animationRetarget.retargetTranslate(this.entity);
+      this.__transformComponent!.localScale = animationRetarget.retargetScale(this.entity);
     } else {
       this.__applyAnimation();
     }
@@ -172,13 +172,15 @@ export class AnimationComponent extends Component {
           const i = AnimationAttribute.fromString(attributeName).index;
           const value = AnimationComponent.__interpolate(channel, AnimationComponent.globalTime, i);
           if (i === AnimationAttribute.Quaternion.index) {
-            this.__transformComponent!.quaternion = Quaternion.fromCopyArray4(
+            this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
               value as Array4<number>
             );
           } else if (i === AnimationAttribute.Translate.index) {
-            this.__transformComponent!.translate = Vector3.fromCopyArray3(value as Array3<number>);
+            this.__transformComponent!.localPosition = Vector3.fromCopyArray3(
+              value as Array3<number>
+            );
           } else if (i === AnimationAttribute.Scale.index) {
-            this.__transformComponent!.scale = Vector3.fromCopyArray3(value as Array3<number>);
+            this.__transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
           } else if (i === AnimationAttribute.Weights.index) {
             this.__blendShapeComponent!.weights = value;
           } else if (i === AnimationAttribute.Effekseer.index) {
@@ -753,7 +755,7 @@ export class AnimationComponent extends Component {
     class AnimationEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

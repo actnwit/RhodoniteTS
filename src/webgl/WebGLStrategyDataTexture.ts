@@ -875,7 +875,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       args: {
         glw: glw,
         entity: entity,
-        worldMatrix: entity.getSceneGraph()!.worldMatrixInner,
+        worldMatrix: entity.getSceneGraph()!.matrixInner,
         normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
         isBillboard: entity.getSceneGraph().isBillboard,
         lightComponents: this.__lightComponents!,

@@ -1,5 +1,4 @@
 import { Quaternion } from '../../math/Quaternion';
-import { Matrix44 } from '../../math/Matrix44';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
@@ -63,100 +62,100 @@ export class TransformComponent extends Component {
     );
   }
 
-  get transform() {
+  get localTransform() {
     return this.__pose;
   }
 
-  get transformRest() {
+  get localTransformRest() {
     return this.restOrPose;
   }
 
-  set translate(vec: IVector3) {
+  set localPosition(vec: IVector3) {
     this.__pose.translate = vec;
   }
 
   /**
    * return a copy of a local translate vector
    */
-  get translate() {
+  get localPosition() {
     return this.__pose.translate;
   }
 
   /**
    * return a local translate vector
    */
-  get translateInner(): MutableVector3 {
+  get localPositionInner(): MutableVector3 {
     return this.__pose.translateInner;
   }
 
   /**
    * return a copy of a local translate vector
    */
-  get translateRest() {
+  get localPositionRest() {
     return this.restOrPose.translate;
   }
 
   /**
    * return a local translate vector
    */
-  get translateRestInner(): MutableVector3 {
+  get localPositionRestInner(): MutableVector3 {
     return this.restOrPose.translateInner;
   }
 
-  set rotate(vec: IVector3) {
+  set localEulerAngles(vec: IVector3) {
     this.__pose.rotate = vec;
   }
 
   /**
    * return a copy of a local rotation (XYZ euler) vector
    */
-  get rotate() {
+  get localEulerAngles() {
     return this.__pose.rotate;
   }
 
   /**
    * return a local rotation (XYZ euler) vector
    */
-  get rotateInner() {
+  get localEulerAnglesInner() {
     return this.__pose.rotateInner;
   }
 
   /**
    * return a copy of a local rotation (XYZ euler) vector
    */
-  get rotateRest() {
+  get localEulerAnglesRest() {
     return this.restOrPose.rotate;
   }
 
   /**
    * return a local rotation (XYZ euler) vector
    */
-  get rotateRestInner() {
+  get localEulerAnglesRestInner() {
     return this.restOrPose.rotateInner;
   }
 
-  set scale(vec: IVector3) {
+  set localScale(vec: IVector3) {
     this.__pose.scale = vec;
   }
 
   /**
    * return a copy of a local scale vector
    */
-  get scale() {
+  get localScale() {
     return this.__pose.scale;
   }
 
   /**
    * return a local scale vector
    */
-  get scaleInner() {
+  get localScaleInner() {
     return this.__pose.scaleInner;
   }
 
   /**
    * return a copy of a local scale vector
    */
-  get scaleRest() {
+  get localScaleRest() {
     return this.restOrPose.scale;
   }
 
@@ -167,67 +166,67 @@ export class TransformComponent extends Component {
     return this.restOrPose.scaleInner;
   }
 
-  set quaternion(quat: IQuaternion) {
+  set localRotation(quat: IQuaternion) {
     this.__pose.quaternion = quat;
   }
 
   /**
    * return a copy of a local quaternion vector
    */
-  get quaternion() {
+  get localRotation() {
     return this.__pose.quaternion;
   }
 
   /**
    * return a local quaternion vector
    */
-  get quaternionInner(): Quaternion {
+  get localRotationInner(): Quaternion {
     return this.__pose.quaternionInner;
   }
 
   /**
    * return a copy of a local quaternion vector
    */
-  get quaternionRest() {
+  get localRotationRest() {
     return this.restOrPose.quaternion;
   }
 
   /**
    * return a local quaternion vector
    */
-  get quaternionRestInner(): Quaternion {
+  get localRotationRestInner(): Quaternion {
     return this.restOrPose.quaternionInner;
   }
 
-  set matrix(mat: IMatrix44) {
+  set localMatrix(mat: IMatrix44) {
     this.__pose.matrix = mat;
   }
 
   /**
    * return a copy of local transform matrix
    */
-  get matrix() {
+  get localMatrix() {
     return this.__pose.matrix;
   }
 
   /**
    * return a local transform matrix
    */
-  get matrixInner() {
+  get localMatrixInner() {
     return this.__pose.matrixInner;
   }
 
   /**
    * return a copy of local transform matrix
    */
-  get matrixRest() {
+  get localMatrixRest() {
     return this.restOrPose.matrix;
   }
 
   /**
    * return a local transform matrix
    */
-  get matrixRestInner() {
+  get localMatrixRestInner() {
     return this.restOrPose.matrixInner;
   }
 
@@ -266,13 +265,13 @@ export class TransformComponent extends Component {
       private __transformComponent?: TransformComponent;
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
       }
 
-      getTransform() {
+      getTransform(): TransformComponent {
         if (this.__transformComponent === undefined) {
           this.__transformComponent = this.getComponentByComponentTID(
             WellKnownComponentTIDs.TransformComponentTID
@@ -280,97 +279,97 @@ export class TransformComponent extends Component {
         }
         return this.__transformComponent;
       }
-      set translate(vec: IVector3) {
+      set localPosition(vec: IVector3) {
         const transform = this.getTransform();
-        transform.translate = vec;
+        transform.localPosition = vec;
       }
-      get translate() {
-        return this.translateInner.clone();
+      get localPosition() {
+        return this.localPositionInner.clone();
       }
-      get translateInner() {
+      get localPositionInner() {
         const transform = this.getTransform();
-        return transform.translateInner;
+        return transform.localPositionInner;
       }
-      get translateRest() {
+      get localPositionRest() {
         const transform = this.getTransform();
-        return transform.translateRest;
+        return transform.localPositionRest;
       }
-      get translateRestInner() {
+      get localPositionRestInner() {
         const transform = this.getTransform();
-        return transform.translateRestInner;
+        return transform.localPositionRestInner;
       }
-      set scale(vec: IVector3) {
+      set localScale(vec: IVector3) {
         const transform = this.getTransform();
-        transform.scale = vec;
+        transform.localScale = vec;
       }
-      get scale() {
-        return this.scaleInner.clone();
+      get localScale() {
+        return this.localScaleInner.clone();
       }
-      get scaleInner() {
+      get localScaleInner() {
         const transform = this.getTransform();
-        return transform.scaleInner;
+        return transform.localScaleInner;
       }
-      get scaleRest() {
+      get localScaleRest() {
         const transform = this.getTransform();
-        return transform.scaleRest;
+        return transform.localScaleRest;
       }
-      get scaleRestInner() {
+      get localScaleRestInner() {
         const transform = this.getTransform();
         return transform.scaleRestInner;
       }
-      set rotate(vec: IVector3) {
+      set localEulerAngles(vec: IVector3) {
         const transform = this.getTransform();
-        transform.rotate = vec;
+        transform.localEulerAngles = vec;
       }
-      get rotate() {
-        return this.rotateInner.clone();
+      get localEulerAngles() {
+        return this.localEulerAnglesInner.clone();
       }
-      get rotateInner() {
+      get localEulerAnglesInner() {
         const transform = this.getTransform();
-        return transform.rotateInner;
+        return transform.localEulerAnglesInner;
       }
-      get rotateRest() {
-        return this.rotateRestInner.clone();
+      get localEulerAnglesRest() {
+        return this.localEulerAnglesRestInner.clone();
       }
-      get rotateRestInner() {
+      get localEulerAnglesRestInner() {
         const transform = this.getTransform();
-        return transform.rotateRestInner;
+        return transform.localEulerAnglesRestInner;
       }
-      set quaternion(quat: IQuaternion) {
+      set localRotation(quat: IQuaternion) {
         const transform = this.getTransform();
-        transform.quaternion = quat;
+        transform.localRotation = quat;
       }
-      get quaternion() {
-        return this.quaternionInner.clone();
+      get localRotation() {
+        return this.localRotationInner.clone();
       }
-      get quaternionInner() {
+      get localRotationInner() {
         const transform = this.getTransform();
-        return transform.quaternionInner;
+        return transform.localRotationInner;
       }
-      get quaternionRest() {
-        return this.quaternionRestInner.clone();
+      get localRotationRest() {
+        return this.localQuaternionRestInner.clone();
       }
-      get quaternionRestInner() {
+      get localQuaternionRestInner() {
         const transform = this.getTransform();
-        return transform.quaternionRestInner;
+        return transform.localRotationRestInner;
       }
-      set matrix(mat: IMatrix44) {
+      set localMatrix(mat: IMatrix44) {
         const transform = this.getTransform();
-        transform.matrix = mat;
+        transform.localMatrix = mat;
       }
-      get matrix() {
-        return this.matrixInner.clone();
+      get localMatrix() {
+        return this.localMatrixInner.clone();
       }
-      get matrixInner() {
+      get localMatrixInner() {
         const transform = this.getTransform();
-        return transform.matrixInner;
+        return transform.localMatrixInner;
       }
-      get matrixRest() {
-        return this.matrixRestInner.clone();
+      get localMatrixRest() {
+        return this.localMatrixRestInner.clone();
       }
-      get matrixRestInner() {
+      get localMatrixRestInner() {
         const transform = this.getTransform();
-        return transform.matrixRestInner;
+        return transform.localMatrixRestInner;
       }
     }
     applyMixins(base, TransformEntity);

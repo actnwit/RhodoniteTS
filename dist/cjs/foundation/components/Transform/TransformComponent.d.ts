@@ -20,93 +20,93 @@ export declare class TransformComponent extends Component {
     get restOrPose(): Transform3D;
     _backupTransformAsRest(): void;
     _restoreTransformFromRest(): void;
-    get transform(): Transform3D;
-    get transformRest(): Transform3D;
-    set translate(vec: IVector3);
+    get localTransform(): Transform3D;
+    get localTransformRest(): Transform3D;
+    set localPosition(vec: IVector3);
     /**
      * return a copy of a local translate vector
      */
-    get translate(): IVector3;
+    get localPosition(): IVector3;
     /**
      * return a local translate vector
      */
-    get translateInner(): MutableVector3;
+    get localPositionInner(): MutableVector3;
     /**
      * return a copy of a local translate vector
      */
-    get translateRest(): IVector3;
+    get localPositionRest(): MutableVector3;
     /**
      * return a local translate vector
      */
-    get translateRestInner(): MutableVector3;
-    set rotate(vec: IVector3);
+    get localPositionRestInner(): MutableVector3;
+    set localEulerAngles(vec: IVector3);
     /**
      * return a copy of a local rotation (XYZ euler) vector
      */
-    get rotate(): IVector3;
+    get localEulerAngles(): IVector3;
     /**
      * return a local rotation (XYZ euler) vector
      */
-    get rotateInner(): import("../../math").Vector3;
+    get localEulerAnglesInner(): import("../../math").Vector3;
     /**
      * return a copy of a local rotation (XYZ euler) vector
      */
-    get rotateRest(): IVector3;
+    get localEulerAnglesRest(): IVector3;
     /**
      * return a local rotation (XYZ euler) vector
      */
-    get rotateRestInner(): import("../../math").Vector3;
-    set scale(vec: IVector3);
+    get localEulerAnglesRestInner(): import("../../math").Vector3;
+    set localScale(vec: IVector3);
     /**
      * return a copy of a local scale vector
      */
-    get scale(): IVector3;
+    get localScale(): IVector3;
     /**
      * return a local scale vector
      */
-    get scaleInner(): MutableVector3;
+    get localScaleInner(): MutableVector3;
     /**
      * return a copy of a local scale vector
      */
-    get scaleRest(): IVector3;
+    get localScaleRest(): IVector3;
     /**
      * return a local scale vector
      */
     get scaleRestInner(): MutableVector3;
-    set quaternion(quat: IQuaternion);
+    set localRotation(quat: IQuaternion);
     /**
      * return a copy of a local quaternion vector
      */
-    get quaternion(): IQuaternion;
+    get localRotation(): IQuaternion;
     /**
      * return a local quaternion vector
      */
-    get quaternionInner(): Quaternion;
+    get localRotationInner(): Quaternion;
     /**
      * return a copy of a local quaternion vector
      */
-    get quaternionRest(): IQuaternion;
+    get localRotationRest(): IQuaternion;
     /**
      * return a local quaternion vector
      */
-    get quaternionRestInner(): Quaternion;
-    set matrix(mat: IMatrix44);
+    get localRotationRestInner(): Quaternion;
+    set localMatrix(mat: IMatrix44);
     /**
      * return a copy of local transform matrix
      */
-    get matrix(): IMatrix44;
+    get localMatrix(): IMatrix44;
     /**
      * return a local transform matrix
      */
-    get matrixInner(): import("../../math").MutableMatrix44;
+    get localMatrixInner(): import("../../math").MutableMatrix44;
     /**
      * return a copy of local transform matrix
      */
-    get matrixRest(): IMatrix44;
+    get localMatrixRest(): IMatrix44;
     /**
      * return a local transform matrix
      */
-    get matrixRestInner(): import("../../math").MutableMatrix44;
+    get localMatrixRestInner(): import("../../math").MutableMatrix44;
     $logic(): void;
     /**
      * get the entity which has this component.

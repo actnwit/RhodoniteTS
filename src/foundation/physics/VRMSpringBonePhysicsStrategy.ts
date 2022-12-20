@@ -39,7 +39,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     this.__currentTail =
       center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
     this.__prevTail = this.__currentTail;
-    this.__localRotation = transform.entity.getTransform()!.quaternion;
+    this.__localRotation = transform.entity.getTransform()!.localRotation;
     this.__boneAxis = Vector3.normalize(localChildPosition);
     this.__length = localChildPosition.length();
 
@@ -56,7 +56,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   get tail(): Vector3 {
     Vector3.multiplyTo(this.__boneAxis, this.__length, VRMSpringBonePhysicsStrategy.__tmp_vec3);
-    this.__transform!.worldMatrixInner.multiplyVector3To(
+    this.__transform!.matrixInner.multiplyVector3To(
       VRMSpringBonePhysicsStrategy.__tmp_vec3,
       VRMSpringBonePhysicsStrategy.__tmp_vec3_2
     );
@@ -67,7 +67,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   get parentRotation() {
     // return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
     return this.__transform!.parent != null
-      ? Quaternion.fromMatrix(this.__transform!.parent!.worldMatrixInner)
+      ? Quaternion.fromMatrix(this.__transform!.parent!.matrixInner)
       : Quaternion.fromCopy4(0, 0, 0, 1);
   }
 
@@ -123,9 +123,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       vrmSpringBone.initialize(
         sceneGraph,
         Vector3.fromCopy3(
-          transform.translate.x * transform.scale.x,
-          transform.translate.y * transform.scale.y,
-          transform.translate.z * transform.scale.z
+          transform.localPosition.x * transform.localScale.x,
+          transform.localPosition.y * transform.localScale.y,
+          transform.localPosition.z * transform.localScale.z
         ),
         // childPositionInLocal,
         void 0
@@ -139,7 +139,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           Vector3.multiply(Vector3.normalize(delta), 0.07)
         );
       }
-      const childPositionInLocal = Matrix44.invert(sceneGraph.worldMatrixInner).multiplyVector3(
+      const childPositionInLocal = Matrix44.invert(sceneGraph.matrixInner).multiplyVector3(
         childPosition
       );
       vrmSpringBone.initialize(sceneGraph, childPositionInLocal, void 0);
@@ -192,7 +192,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const resultRotation = this.applyRotation(nextTail);
     if (this.head.children.length > 0) {
-      this.head.children[0].entity.getTransform().quaternion = resultRotation;
+      this.head.children[0].entity.getTransform().localRotation = resultRotation;
     }
   }
 

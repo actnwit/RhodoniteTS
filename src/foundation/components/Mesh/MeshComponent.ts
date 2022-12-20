@@ -79,7 +79,7 @@ export class MeshComponent extends Component {
       );
     }
 
-    const worldMatrixInner = this.entity.getSceneGraph()!.worldMatrixInner;
+    const worldMatrixInner = this.entity.getSceneGraph()!.matrixInner;
     const centerPosition_inWorld = worldMatrixInner.multiplyVector3To(
       centerPosition_inLocal,
       MeshComponent.__tmpVector3_0
@@ -108,7 +108,7 @@ export class MeshComponent extends Component {
       let srcPointInLocal = srcPointInWorld;
       let directionInLocal = directionInWorld;
       if (this.__sceneGraphComponent) {
-        const invWorldMatrix = Matrix44.invert(this.__sceneGraphComponent.worldMatrixInner);
+        const invWorldMatrix = Matrix44.invert(this.__sceneGraphComponent.matrixInner);
         srcPointInLocal = Vector3.fromCopyVector4(
           invWorldMatrix.multiplyVector(Vector4.fromCopyVector3(srcPointInWorld))
         );
@@ -122,7 +122,7 @@ export class MeshComponent extends Component {
         let intersectPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
-            this.__sceneGraphComponent.worldMatrixInner.multiplyVector(
+            this.__sceneGraphComponent.matrixInner.multiplyVector(
               Vector4.fromCopyVector3(result.data.position)
             )
           );
@@ -159,7 +159,7 @@ export class MeshComponent extends Component {
           camera.viewMatrix,
           MeshComponent.__tmpMatrix44_0
         )
-          .multiply(this.__sceneGraphComponent.worldMatrixInner)
+          .multiply(this.__sceneGraphComponent.matrixInner)
           .invert();
 
         const srcPointInLocal = MathClassUtil.unProjectTo(
@@ -218,7 +218,7 @@ export class MeshComponent extends Component {
 
       // convert to World space
       const intersectedPositionInWorld =
-        this.__sceneGraphComponent.worldMatrixInner.multiplyVector3To(
+        this.__sceneGraphComponent.matrixInner.multiplyVector3To(
           result.data.position,
           MeshComponent.__returnVector3
         );

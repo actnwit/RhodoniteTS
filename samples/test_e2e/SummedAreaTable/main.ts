@@ -99,8 +99,8 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
     heightSegments: 40,
     material: sphereMaterial,
   });
-  sphereEntity.scale = Rn.Vector3.fromCopy3(-1, 1, 1);
-  sphereEntity.translate = Rn.Vector3.fromCopy3(0, 20, -20);
+  sphereEntity.localScale = Rn.Vector3.fromCopy3(-1, 1, 1);
+  sphereEntity.localPosition = Rn.Vector3.fromCopy3(0, 20, -20);
 
   const sphereRenderPass = new Rn.RenderPass();
   sphereRenderPass.addEntities([sphereEntity]);

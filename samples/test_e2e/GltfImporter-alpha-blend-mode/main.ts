@@ -21,8 +21,8 @@ document.body.appendChild(p);
   cameraComponent.aspect = world.width / world.height;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 2, 8]);
-  cameraTransform.rotate = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
+  cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 2, 8]);
+  cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
 
   // gltf
   const expression = (

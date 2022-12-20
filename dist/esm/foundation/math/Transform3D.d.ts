@@ -24,7 +24,7 @@ export declare class Transform3D {
     /**
      * return a copy of a local translate vector
      */
-    get translate(): IVector3;
+    get translate(): MutableVector3;
     /**
      * return a local translate vector
      */

@@ -521,7 +521,7 @@ bool get_isBillboard(float instanceId) {
           glw: glw,
           entity,
           primitive: primitive,
-          worldMatrix: entity.getSceneGraph().worldMatrix,
+          worldMatrix: entity.getSceneGraph().matrix,
           normalMatrix: entity.getSceneGraph().normalMatrix,
           isBillboard: entity.getSceneGraph().isBillboard,
           lightComponents: this.__lightComponents!,

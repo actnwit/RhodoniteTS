@@ -61,7 +61,7 @@ declare const window: any;
   vrmMainRenderPass.toClearColorBuffer = true;
 
   const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
-  vrmRootEntity.getTransform().rotate = vrmModelRotation;
+  vrmRootEntity.getTransform().localEulerAngles = vrmModelRotation;
 
   // animation
   const animationAssigner = Rn.AnimationAssigner.getInstance();
@@ -88,7 +88,7 @@ declare const window: any;
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
   let count = 0;
   let startTime = Date.now();

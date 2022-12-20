@@ -93,12 +93,12 @@ declare const window: any;
         entity.getSceneGraph().isVisible = false;
       }
 
-      entity.getTransform().scale = Rn.Vector3.fromCopyArray([
+      entity.getTransform().localScale = Rn.Vector3.fromCopyArray([
         1 / sqrtEntityNumber / 2,
         1 / sqrtEntityNumber / 2,
         1 / sqrtEntityNumber / 2,
       ]);
-      entity.getTransform().translate = Rn.Vector3.fromCopyArray([
+      entity.getTransform().localPosition = Rn.Vector3.fromCopyArray([
         (1 / sqrtEntityNumber) * 2 * (i % sqrtEntityNumber) - 1.0 + 1 / sqrtEntityNumber,
         (Math.floor(i / sqrtEntityNumber) / sqrtEntityNumber) * 2 - 1.0 + 1 / sqrtEntityNumber,
         0.0,
@@ -135,7 +135,7 @@ declare const window: any;
           rotationVec3._v[0] = rotation;
           rotationVec3._v[1] = rotation;
           rotationVec3._v[2] = rotation;
-          entity.getTransform().rotate = rotationVec3;
+          entity.getTransform().localEulerAngles = rotationVec3;
         });
       }
       stats.begin();
