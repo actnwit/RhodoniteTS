@@ -62,7 +62,7 @@ import Rn from '../../../dist/esm/index.js';
     const entityCamera = Rn.EntityHelper.createCameraEntity();
 
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
+    transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(120);
@@ -77,14 +77,14 @@ import Rn from '../../../dist/esm/index.js';
 
     const entitySmallBoard = createEntityColoredBoard(Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1]));
     const transformSmallBoard = entitySmallBoard.getTransform();
-    transformSmallBoard.scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
-    transformSmallBoard.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
-    transformSmallBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    transformSmallBoard.localScale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+    transformSmallBoard.localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
+    transformSmallBoard.localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
     const entityLargeBoard = createEntityColoredBoard(Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1]));
     const transformLargeBoard = entityLargeBoard.getTransform();
-    transformLargeBoard.translate = Rn.Vector3.fromCopyArray([15, 30, -1.5]);
-    transformLargeBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    transformLargeBoard.localPosition = Rn.Vector3.fromCopyArray([15, 30, -1.5]);
+    transformLargeBoard.localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
     renderPass.addEntities([entitySmallBoard, entityLargeBoard]);
     return renderPass;
@@ -181,8 +181,8 @@ import Rn from '../../../dist/esm/index.js';
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
@@ -200,7 +200,7 @@ import Rn from '../../../dist/esm/index.js';
     return expression;
   }
 
-  function draw(expressions: Rn.Expression[], isFirstLoop: Boolean, pElem?: HTMLElement) {
+  function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && !isFirstLoop) {
       pElem = document.createElement('p');

@@ -18,18 +18,18 @@ declare const window: any;
   cameraComponent.setFovyAndChangeFocalLength(50);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  // lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
+  // lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
   // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   const lightEntity2 = Rn.EntityHelper.createLightEntity();
   const lightComponent2 = lightEntity2.getLight();
   lightComponent2.type = Rn.LightType.Directional;
   lightComponent2.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
-  //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
+  lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+  //lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
   const rootGroups = (
@@ -38,10 +38,10 @@ declare const window: any;
       tangentCalculationMode: 0,
     })
   ).unwrapForce();
-  //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
+  //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 
   for (const rootGroup of rootGroups) {
-    rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
+    rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
   }
 
   //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
@@ -92,7 +92,7 @@ declare const window: any;
       }
       //console.log(time);
       //      rootGroup.getTransform().scale = rotationVec3;
-      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
+      //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
     }
 
     Rn.System.process([expression]);

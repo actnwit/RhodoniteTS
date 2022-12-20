@@ -97,7 +97,11 @@ async function setupRenderPassMain() {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, Math.PI / 3]);
+  planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([
+    Math.PI / 2,
+    0,
+    Math.PI / 3,
+  ]);
   const sphereEntity = Rn.EntityHelper.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
@@ -131,7 +135,7 @@ async function setupRenderPassMain() {
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
   const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;

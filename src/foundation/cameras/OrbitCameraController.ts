@@ -715,7 +715,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
       const sg = camera.entity.tryToGetSceneGraph();
       if (sg != null) {
-        const invMat = Matrix44.invertTo(sg.worldMatrixInner, OrbitCameraController.__tmpMat44_0);
+        const invMat = Matrix44.invertTo(sg.matrixInner, OrbitCameraController.__tmpMat44_0);
 
         invMat.multiplyVector3To(newCenterVec, newCenterVec);
         invMat.multiplyVector3To(newEyeVec, newEyeVec);

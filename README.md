@@ -65,7 +65,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 
   // create a Plane mesh
   Rn.MeshHelper.createPlane();
-  planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+  planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
   // Render Loop
   Rn.System.startRenderLoop(() => {
@@ -94,7 +94,7 @@ await Rn.System.init({
 
 // create a Plane mesh
 Rn.MeshHelper.createPlane();
-planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
 // Render Loop
 Rn.System.startRenderLoop(() => {
@@ -122,7 +122,7 @@ await Rn.System.init({
 
 // create a Plane mesh
 Rn.MeshHelper.createPlane();
-planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 
 // Render Loop
 Rn.System.startRenderLoop(() => {

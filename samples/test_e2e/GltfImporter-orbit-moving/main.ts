@@ -131,7 +131,7 @@ function createEnvCubeExpression(baseuri) {
   sphereMesh.addPrimitive(spherePrimitive);
 
   const sphereEntity = Rn.EntityHelper.createMeshEntity();
-  sphereEntity.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+  sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
 
   const sphereMeshComponent = sphereEntity.getMesh();
   sphereMeshComponent.setMesh(sphereMesh);

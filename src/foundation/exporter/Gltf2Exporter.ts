@@ -359,16 +359,20 @@ export class Gltf2Exporter {
       // matrix
       const transform = entity.getTransform()!;
       node.rotation = [
-        transform.quaternionInner.x,
-        transform.quaternionInner.y,
-        transform.quaternionInner.z,
-        transform.quaternionInner.w,
+        transform.localRotationInner.x,
+        transform.localRotationInner.y,
+        transform.localRotationInner.z,
+        transform.localRotationInner.w,
       ];
-      node.scale = [transform.scaleInner.x, transform.scaleInner.y, transform.scaleInner.z];
+      node.scale = [
+        transform.localScaleInner.x,
+        transform.localScaleInner.y,
+        transform.localScaleInner.z,
+      ];
       node.translation = [
-        transform.translateInner.x,
-        transform.translateInner.y,
-        transform.translateInner.z,
+        transform.localPositionInner.x,
+        transform.localPositionInner.y,
+        transform.localPositionInner.z,
       ];
 
       // mesh

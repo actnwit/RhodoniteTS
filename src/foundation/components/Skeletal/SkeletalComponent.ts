@@ -143,7 +143,7 @@ export class SkeletalComponent extends Component {
   }
 
   get rootJointWorldMatrixInner() {
-    return this.topOfJointsHierarchy?.worldMatrixInner;
+    return this.topOfJointsHierarchy?.matrixInner;
   }
 
   get jointMatrices() {
@@ -199,7 +199,7 @@ export class SkeletalComponent extends Component {
       const joint = this.__joints[i];
       let m;
       if (joint.isVisible) {
-        const globalJointTransform = joint.worldMatrixInner;
+        const globalJointTransform = joint.matrixInner;
 
         MutableMatrix44.multiplyTypedArrayTo(
           globalJointTransform,

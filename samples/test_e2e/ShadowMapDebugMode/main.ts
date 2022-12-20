@@ -13,11 +13,11 @@ let p: any;
   depthCameraComponent.zFar = 50.0;
   depthCameraComponent.setFovyAndChangeFocalLength(40);
   const depthCameraEntity = depthCameraComponent.entity;
-  depthCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
+  depthCameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
 
   const mainCameraComponent = createCameraControllerComponent();
   const mainCameraEntity = mainCameraComponent.entity;
-  mainCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
+  mainCameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
 
   // setting render passes
   const renderPassDepth = createRenderPassSpecifyingCameraComponent(depthCameraComponent);
@@ -72,17 +72,17 @@ let p: any;
   const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -1.5]);
   const rotateBigBoard = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
-  entitySmallBoardForDepth.getTransform().scale = scaleSmallBoard;
-  entitySmallBoardForDepth.getTransform().translate = translateSmallBoard;
-  entitySmallBoardForDepth.getTransform().rotate = rotateSmallBoard;
-  entityLargeBoardForDepth.getTransform().translate = translateBigBoard;
-  entityLargeBoardForDepth.getTransform().rotate = rotateBigBoard;
+  entitySmallBoardForDepth.getTransform().localScale = scaleSmallBoard;
+  entitySmallBoardForDepth.getTransform().localPosition = translateSmallBoard;
+  entitySmallBoardForDepth.getTransform().localEulerAngles = rotateSmallBoard;
+  entityLargeBoardForDepth.getTransform().localPosition = translateBigBoard;
+  entityLargeBoardForDepth.getTransform().localEulerAngles = rotateBigBoard;
 
-  entitySmallBoard.getTransform().scale = scaleSmallBoard;
-  entitySmallBoard.getTransform().translate = translateSmallBoard;
-  entitySmallBoard.getTransform().rotate = rotateSmallBoard;
-  entityLargeBoard.getTransform().translate = translateBigBoard;
-  entityLargeBoard.getTransform().rotate = rotateBigBoard;
+  entitySmallBoard.getTransform().localScale = scaleSmallBoard;
+  entitySmallBoard.getTransform().localPosition = translateSmallBoard;
+  entitySmallBoard.getTransform().localEulerAngles = rotateSmallBoard;
+  entityLargeBoard.getTransform().localPosition = translateBigBoard;
+  entityLargeBoard.getTransform().localEulerAngles = rotateBigBoard;
 
   let count = 0;
 

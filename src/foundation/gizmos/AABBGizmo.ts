@@ -152,8 +152,8 @@ export class AABBGizmo extends Gizmo {
     }
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
-    this.__topEntity.getTransform()!.translate = aabb.centerPoint;
-    this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
+    this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
+    this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       aabb.sizeX / 2,
       aabb.sizeY / 2,
       aabb.sizeZ / 2,

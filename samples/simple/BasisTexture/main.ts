@@ -41,7 +41,7 @@ declare const window: any;
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+  planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
   const sphereEntity = Rn.EntityHelper.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
@@ -74,7 +74,7 @@ declare const window: any;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
@@ -114,7 +114,7 @@ declare const window: any;
       }
       //console.log(time);
       //      rootGroup.getTransform().scale = rotationVec3;
-      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
+      //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
     }
 
     Rn.System.process([expression]);

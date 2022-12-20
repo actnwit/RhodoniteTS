@@ -10,8 +10,8 @@ await Rn.System.init({
 
 // Plane
 const planeEntity = Rn.MeshHelper.createPlane();
-planeEntity.rotate = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
-planeEntity.scale = Rn.Vector3.fromCopy3(0.5, 0.5, 0.5);
+planeEntity.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
+planeEntity.localScale = Rn.Vector3.fromCopy3(0.5, 0.5, 0.5);
 
 // Render Loop
 let count = 0;

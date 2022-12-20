@@ -45,55 +45,55 @@ function createGroupOfShapes(): Rn.IMeshEntity {
 
 function createGrid() {
   const shape = Rn.MeshHelper.createGrid();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
 
   return shape;
 }
 
 function createPlane() {
   const shape = Rn.MeshHelper.createPlane();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.translate = Rn.Vector3.fromCopy3(3, 0, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(3, 0, 0);
 
   return shape;
 }
 
 function createCube() {
   const shape = Rn.MeshHelper.createCube();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.translate = Rn.Vector3.fromCopy3(0, 3, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(0, 3, 0);
 
   return shape;
 }
 
 function createAxis() {
   const shape = Rn.MeshHelper.createAxis();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.translate = Rn.Vector3.fromCopy3(0, 6, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(0, 6, 0);
 
   return shape;
 }
 
 function createJoint() {
   const shape = Rn.MeshHelper.createJoint();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.translate = Rn.Vector3.fromCopy3(3, 3, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(3, 3, 0);
 
   return shape;
 }
 
 function createLine() {
   const shape = Rn.MeshHelper.createLine();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.translate = Rn.Vector3.fromCopy3(6, 3, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(6, 3, 0);
 
   return shape;
 }
 
 function createSphere() {
   const shape = Rn.MeshHelper.createSphere();
-  shape.rotate = Rn.Vector3.fromCopy3(90, 0, 0);
-  shape.translate = Rn.Vector3.fromCopy3(6, 6, 0);
+  shape.localEulerAngles = Rn.Vector3.fromCopy3(90, 0, 0);
+  shape.localPosition = Rn.Vector3.fromCopy3(6, 6, 0);
 
   return shape;
 }

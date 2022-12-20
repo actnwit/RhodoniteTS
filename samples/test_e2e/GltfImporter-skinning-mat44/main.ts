@@ -22,7 +22,7 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 1, 5]);
+  cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 1, 5]);
 
   // gltf
   const expression = (

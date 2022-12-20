@@ -153,18 +153,18 @@ export class ScaleGizmo extends Gizmo {
         if (Is.exist(parent)) {
           quaternion = parent.getQuaternionRecursively();
         }
-        ScaleGizmo.__groupEntity.getTransform().quaternion = quaternion;
+        ScaleGizmo.__groupEntity.getTransform().localRotation = quaternion;
       } else if (ScaleGizmo.__space === 'world') {
-        ScaleGizmo.__groupEntity.getTransform().quaternion = Quaternion.fromCopy4(0, 0, 0, 1);
+        ScaleGizmo.__groupEntity.getTransform().localRotation = Quaternion.fromCopy4(0, 0, 0, 1);
       }
     }
 
     if (this.__isVisible === true && flg === false) {
       InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_SCALE);
-      this.__deltaPoint = this.__target.getTransform().scale;
+      this.__deltaPoint = this.__target.getTransform().localScale;
       this.__pickStatedPoint = Vector3.zero();
       this.__isPointerDown = false;
-      this.__targetScaleBackup = this.__target.getTransform().scale;
+      this.__targetScaleBackup = this.__target.getTransform().localScale;
       ScaleGizmo.__activeAxis = 'none';
     }
 
@@ -276,7 +276,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zxPlane', true);
     ScaleGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__zxPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    // TranslationGizmo.__zxPlaneEntity.getTransform().rotate =
+    // TranslationGizmo.__zxPlaneEntity.getTransform().localEulerAngles =
     // Vector3.fromCopy3(90, 0, 0);
     ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zxPlaneMaterial.setParameter(
@@ -304,7 +304,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yzPlane', true);
     ScaleGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    ScaleGizmo.__yzPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
+    ScaleGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
       0,
       0,
       MathUtil.degreeToRadian(90)
@@ -335,7 +335,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xyPlane', true);
     ScaleGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
     // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    ScaleGizmo.__xyPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
+    ScaleGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
       MathUtil.degreeToRadian(90),
       0,
       0
@@ -364,7 +364,7 @@ export class ScaleGizmo extends Gizmo {
   private zMesh() {
     ScaleGizmo.__zCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_zCube', true);
-    ScaleGizmo.__zCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 0, 1);
+    ScaleGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
     ScaleGizmo.__zCubeMesh = new Mesh();
     ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zCubeMaterial.setParameter(
@@ -383,7 +383,7 @@ export class ScaleGizmo extends Gizmo {
   private yMesh() {
     ScaleGizmo.__yCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_yCube', true);
-    ScaleGizmo.__yCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 1, 0);
+    ScaleGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
     ScaleGizmo.__yCubeMesh = new Mesh();
     ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yCubeMaterial.setParameter(
@@ -402,7 +402,7 @@ export class ScaleGizmo extends Gizmo {
   private xMesh() {
     ScaleGizmo.__xCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xCubeEntity.tryToSetUniqueName('ScaleGizmo_xCube', true);
-    ScaleGizmo.__xCubeEntity.getTransform().translate = Vector3.fromCopy3(1, 0, 0);
+    ScaleGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
     ScaleGizmo.__xCubeMesh = new Mesh();
     ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xCubeMaterial.setParameter(
@@ -421,7 +421,7 @@ export class ScaleGizmo extends Gizmo {
   private xEdgeMesh() {
     ScaleGizmo.__xEdgeCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__xEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_xEdgeCube', true);
-    ScaleGizmo.__xEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(1, 0, 0);
+    ScaleGizmo.__xEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
     ScaleGizmo.__xEdgeCubeMesh = new Mesh();
     ScaleGizmo.__xEdgeCubePrimitive = new Cube();
     ScaleGizmo.__xEdgeCubePrimitive.generate({
@@ -437,7 +437,7 @@ export class ScaleGizmo extends Gizmo {
   private yEdgeMesh() {
     ScaleGizmo.__yEdgeCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__yEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_yEdgeCube', true);
-    ScaleGizmo.__yEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 1, 0);
+    ScaleGizmo.__yEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
     ScaleGizmo.__yEdgeCubeMesh = new Mesh();
     ScaleGizmo.__yEdgeCubePrimitive = new Cube();
     ScaleGizmo.__yEdgeCubePrimitive.generate({
@@ -453,7 +453,7 @@ export class ScaleGizmo extends Gizmo {
   private zEdgeMesh() {
     ScaleGizmo.__zEdgeCubeEntity = EntityHelper.createMeshEntity();
     ScaleGizmo.__zEdgeCubeEntity.tryToSetUniqueName('ScaleGizmo_zEdgeCube', true);
-    ScaleGizmo.__zEdgeCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 0, 1);
+    ScaleGizmo.__zEdgeCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
     ScaleGizmo.__zEdgeCubeMesh = new Mesh();
     ScaleGizmo.__zEdgeCubePrimitive = new Cube();
     ScaleGizmo.__zEdgeCubePrimitive.generate({
@@ -477,13 +477,13 @@ export class ScaleGizmo extends Gizmo {
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     if (aabb.isVanilla()) {
-      this.__topEntity.getTransform()!.translate = sg.translate;
+      this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {
-      this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+      this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
     }
 
     const max = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
-    this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
+    this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
@@ -491,7 +491,7 @@ export class ScaleGizmo extends Gizmo {
 
     if (this.__isPointerDown) {
       if (ScaleGizmo.__latestTargetEntity === this.__target) {
-        this.__target.getTransform().scale = this.__deltaPoint.clone();
+        this.__target.getTransform().localScale = this.__deltaPoint.clone();
       }
     }
   }
@@ -557,7 +557,7 @@ export class ScaleGizmo extends Gizmo {
 
     // InputManager.enableCameraController();
 
-    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const worldMatrix = this.__target.getSceneGraph().matrix.getRotate();
     const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
@@ -598,7 +598,7 @@ export class ScaleGizmo extends Gizmo {
     }
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
-      this.__targetScaleBackup = this.__target.getTransform().scale;
+      this.__targetScaleBackup = this.__target.getTransform().localScale;
     }
   }
 
@@ -619,7 +619,7 @@ export class ScaleGizmo extends Gizmo {
       CameraComponent.current
     ) as CameraComponent | undefined;
 
-    const worldMatrix = this.__target.getSceneGraph().worldMatrix.getRotate();
+    const worldMatrix = this.__target.getSceneGraph().matrix.getRotate();
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
     let rotMat = Matrix33.fromCopy9RowMajor(
       scaleVec.x * worldMatrix.m00,
@@ -758,7 +758,7 @@ export class ScaleGizmo extends Gizmo {
     InputManager.enableCameraController();
 
     if (ScaleGizmo.__latestTargetEntity === this.__target) {
-      this.__targetScaleBackup = this.__target.getTransform().scale;
+      this.__targetScaleBackup = this.__target.getTransform().localScale;
     }
   }
 

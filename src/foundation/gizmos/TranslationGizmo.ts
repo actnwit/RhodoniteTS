@@ -148,18 +148,23 @@ export class TranslationGizmo extends Gizmo {
         if (Is.exist(parent)) {
           quaternion = parent.getQuaternionRecursively();
         }
-        TranslationGizmo.__groupEntity.getTransform().quaternion = quaternion;
+        TranslationGizmo.__groupEntity.getTransform().localRotation = quaternion;
       } else if (TranslationGizmo.__space === 'world') {
-        TranslationGizmo.__groupEntity.getTransform().quaternion = Quaternion.fromCopy4(0, 0, 0, 1);
+        TranslationGizmo.__groupEntity.getTransform().localRotation = Quaternion.fromCopy4(
+          0,
+          0,
+          0,
+          1
+        );
       }
     }
 
     if (this.__isVisible === true && flg === false) {
       InputManager.unregister(INPUT_HANDLING_STATE_GIZMO_TRANSLATION);
-      this.__deltaPoint = this.__target.getTransform().translate;
+      this.__deltaPoint = this.__target.getTransform().localPosition;
       this.__pickStatedPoint = Vector3.zero();
       this.__isPointerDown = false;
-      this.__targetPointBackup = this.__target.getTransform().translate;
+      this.__targetPointBackup = this.__target.getTransform().localPosition;
       TranslationGizmo.__activeAxis = 'none';
     }
 
@@ -210,7 +215,7 @@ export class TranslationGizmo extends Gizmo {
     if (Is.not.exist(TranslationGizmo.__xCubeEntity)) {
       TranslationGizmo.__xCubeEntity = EntityHelper.createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
-      TranslationGizmo.__xCubeEntity.getTransform().translate = Vector3.fromCopy3(1, 0, 0);
+      TranslationGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
       TranslationGizmo.__xCubeMesh = new Mesh();
       TranslationGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__xCubeMaterial.setParameter(
@@ -230,7 +235,7 @@ export class TranslationGizmo extends Gizmo {
     if (Is.not.exist(TranslationGizmo.__yCubeEntity)) {
       TranslationGizmo.__yCubeEntity = EntityHelper.createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
-      TranslationGizmo.__yCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 1, 0);
+      TranslationGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
       TranslationGizmo.__yCubeMesh = new Mesh();
       TranslationGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__yCubeMaterial.setParameter(
@@ -250,7 +255,7 @@ export class TranslationGizmo extends Gizmo {
     if (Is.not.exist(TranslationGizmo.__zCubeEntity)) {
       TranslationGizmo.__zCubeEntity = EntityHelper.createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
-      TranslationGizmo.__zCubeEntity.getTransform().translate = Vector3.fromCopy3(0, 0, 1);
+      TranslationGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
       TranslationGizmo.__zCubeMesh = new Mesh();
       TranslationGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__zCubeMaterial.setParameter(
@@ -272,7 +277,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xyPlane', true);
       TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
       // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      TranslationGizmo.__xyPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
+      TranslationGizmo.__xyPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
         MathUtil.degreeToRadian(90),
         0,
         0
@@ -304,7 +309,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yzPlane', true);
       TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
       // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
-      TranslationGizmo.__yzPlaneEntity.getTransform().rotate = Vector3.fromCopy3(
+      TranslationGizmo.__yzPlaneEntity.getTransform().localEulerAngles = Vector3.fromCopy3(
         0,
         0,
         MathUtil.degreeToRadian(90)
@@ -398,12 +403,12 @@ export class TranslationGizmo extends Gizmo {
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     if (aabb.isVanilla()) {
-      this.__topEntity.getTransform()!.translate = sg.translate;
+      this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {
-      this.__topEntity.getTransform()!.translate = aabb.centerPoint;
+      this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
     }
     const max = Math.max(aabb.sizeX, aabb.sizeY, aabb.sizeZ);
-    this.__topEntity.getTransform()!.scale = Vector3.fromCopyArray([
+    this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
       Math.min(1, aabb.isVanilla() ? 1 : max / 2),
@@ -411,7 +416,7 @@ export class TranslationGizmo extends Gizmo {
 
     if (this.__isPointerDown) {
       if (this.__latestTargetEntity === this.__target) {
-        this.__target.getTransform().translate = this.__deltaPoint.clone();
+        this.__target.getTransform().localPosition = this.__deltaPoint.clone();
       }
     }
   }
@@ -478,7 +483,7 @@ export class TranslationGizmo extends Gizmo {
     const parent = this.__target.getSceneGraph().parent;
     let worldMatrix = Matrix44.identity();
     if (Is.exist(parent)) {
-      worldMatrix = parent.worldMatrixInner.getRotate();
+      worldMatrix = parent.matrixInner.getRotate();
     }
     const scaleVec = Vector3.one(); //this.__target.getSceneGraph().worldMatrix.getScale();
     let rotMat = Matrix33.fromCopy9RowMajor(
@@ -520,7 +525,7 @@ export class TranslationGizmo extends Gizmo {
     }
 
     if (this.__latestTargetEntity === this.__target) {
-      this.__targetPointBackup = this.__target.getTransform().translate;
+      this.__targetPointBackup = this.__target.getTransform().localPosition;
     }
   }
 
@@ -544,7 +549,7 @@ export class TranslationGizmo extends Gizmo {
     const parent = this.__target.getSceneGraph().parent;
     let worldMatrix = Matrix44.identity();
     if (Is.exist(parent)) {
-      worldMatrix = parent.worldMatrixInner.getRotate();
+      worldMatrix = parent.matrixInner.getRotate();
     }
     const scaleVec = Vector3.one();
     let rotMat = Matrix33.fromCopy9RowMajor(
@@ -615,7 +620,7 @@ export class TranslationGizmo extends Gizmo {
       const parent = this.__target.getSceneGraph().parent;
       let worldMatrix = Matrix44.identity();
       if (Is.exist(parent)) {
-        worldMatrix = parent.worldMatrix.getRotate();
+        worldMatrix = parent.matrix.getRotate();
       }
 
       const scaleVec = Vector3.one();
@@ -646,7 +651,7 @@ export class TranslationGizmo extends Gizmo {
     InputManager.enableCameraController();
 
     if (this.__latestTargetEntity === this.__target) {
-      this.__targetPointBackup = this.__target.getTransform().translate;
+      this.__targetPointBackup = this.__target.getTransform().localPosition;
     }
   }
 

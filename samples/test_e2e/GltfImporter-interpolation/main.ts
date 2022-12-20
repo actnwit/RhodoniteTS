@@ -19,7 +19,7 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   const cameraTransform = cameraEntity.getTransform();
-  cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 4.2, 25]);
+  cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 4.2, 25]);
 
   // gltf
   const expression = (
@@ -34,7 +34,7 @@ document.body.appendChild(p);
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.9, 0.9, 0.9]);
-  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 10.0, 10.0]);
+  lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 10.0, 10.0]);
 
   let count = 0;
   Rn.AnimationComponent.globalTime = 0.33;

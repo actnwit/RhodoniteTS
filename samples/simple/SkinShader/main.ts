@@ -57,11 +57,11 @@ const load = async function () {
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(30);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   const lightEntity2 = Rn.EntityHelper.createLightEntity();
-  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
+  lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
   (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).intensity =
     Rn.Vector3.fromCopyArray([1, 1, 1]);
 
@@ -119,7 +119,7 @@ const load = async function () {
       }
       //console.log(time);
       //      rootGroup.getTransform().scale = rotationVec3;
-      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
+      //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
     }
 
     Rn.System.process([expression]);

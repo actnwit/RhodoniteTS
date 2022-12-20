@@ -25,10 +25,10 @@ describe('SceneGraphComponent', () => {
     //  const child2Entity = generateEntity();
 
     // set transform info
-    sceneEntity.translate = Vector3.fromCopyArray([1, 0, 0]);
-    parentEntity.translate = Vector3.fromCopyArray([1, 0, 0]);
-    childEntity.translate = Vector3.fromCopyArray([1, 0, 0]);
-    //  child2Entity.getTransform().translate = Vector3.fromCopyArray([0, 1, 0]);
+    sceneEntity.position = Vector3.fromCopyArray([1, 0, 0]);
+    parentEntity.position = Vector3.fromCopyArray([1, 0, 0]);
+    childEntity.position = Vector3.fromCopyArray([1, 0, 0]);
+    //  child2Entity.getTransform().localPosition = Vector3.fromCopyArray([0, 1, 0]);
 
     // setup scene graph
     parentEntity.getSceneGraph().addChild(childEntity.getSceneGraph());
@@ -46,11 +46,11 @@ describe('SceneGraphComponent', () => {
     // console.log(childEntity.getSceneGraph().worldMatrix);
     // console.log(childEntity.getSceneGraph().worldMatrix);
 
-    console.log(childEntity.getSceneGraph().worldMatrix);
+    console.log(childEntity.getSceneGraph().matrix);
     expect(
       childEntity
         .getSceneGraph()
-        .worldMatrix.isEqual(
+        .matrix.isEqual(
           Matrix44.fromCopy16RowMajor(1, 0, 0, 3, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1),
           0.00001
         )

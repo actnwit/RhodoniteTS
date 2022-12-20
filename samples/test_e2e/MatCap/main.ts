@@ -29,7 +29,7 @@ import Rn from '../../../dist/esm/index.js';
   function createEntityMainCamera() {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
+    transformCamera.localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(90);
@@ -53,16 +53,16 @@ import Rn from '../../../dist/esm/index.js';
     });
 
     const entitySmallSphere = createEntityMatCapSphere(textureMatCap);
-    entitySmallSphere.getTransform().scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
+    entitySmallSphere.getTransform().localScale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
 
     const entityLargeSphere = createEntityMatCapSphere(textureMatCap);
-    entityLargeSphere.getTransform().translate = Rn.Vector3.fromCopyArray([15, 15, -20]);
+    entityLargeSphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([15, 15, -20]);
 
     const entityBoard = createEntityMatCapBoard(textureMatCap);
     const transformBoard = entityBoard.getTransform();
-    transformBoard.scale = Rn.Vector3.fromCopyArray([0.6, 0.6, 0.6]);
-    transformBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2 + 0.3, 0.3, 0]);
-    transformBoard.translate = Rn.Vector3.fromCopyArray([10, -10, -10]);
+    transformBoard.localScale = Rn.Vector3.fromCopyArray([0.6, 0.6, 0.6]);
+    transformBoard.localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2 + 0.3, 0.3, 0]);
+    transformBoard.localPosition = Rn.Vector3.fromCopyArray([10, -10, -10]);
 
     renderPass.addEntities([entitySmallSphere, entityLargeSphere, entityBoard]);
     return renderPass;
@@ -110,7 +110,7 @@ import Rn from '../../../dist/esm/index.js';
     return expression;
   }
 
-  function draw(expressions: Rn.Expression[], isFirstLoop: Boolean, pElem?: HTMLElement) {
+  function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && !isFirstLoop) {
       pElem = document.createElement('p');

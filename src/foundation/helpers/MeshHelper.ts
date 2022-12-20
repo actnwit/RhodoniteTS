@@ -27,9 +27,9 @@ const createPlane = (
   primitive.generate(desc);
   const entity = createShape(primitive);
   if (desc.direction === 'xy') {
-    entity.rotate = Vector3.fromCopy3(Math.PI / 2, 0, 0);
+    entity.localEulerAngles = Vector3.fromCopy3(Math.PI / 2, 0, 0);
   } else if (desc.direction === 'yz') {
-    entity.rotate = Vector3.fromCopy3(0, 0, Math.PI / 2);
+    entity.localEulerAngles = Vector3.fromCopy3(0, 0, Math.PI / 2);
   }
   return entity;
 };

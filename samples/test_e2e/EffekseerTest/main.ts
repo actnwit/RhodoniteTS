@@ -56,7 +56,7 @@ declare const window: any;
 
   // effekseerComponent.isLoop = true;
   effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
-  // effekseerEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
+  // effekseerEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();

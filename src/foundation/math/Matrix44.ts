@@ -913,8 +913,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   /**
    * @return Euler Angles Rotation (x, y, z)
    */
-  toEulerAngles() {
-    let rotate = null;
+  toEulerAngles(): Vector3 {
+    let rotate: Vector3;
     if (Math.abs(this._v[2]) !== 1.0) {
       const y = -Math.asin(this._v[2]);
       const x = Math.atan2(this._v[6] / Math.cos(y), this._v[10] / Math.cos(y));

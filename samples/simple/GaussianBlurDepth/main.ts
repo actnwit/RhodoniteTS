@@ -57,7 +57,7 @@ import Rn from '../../../dist/esm/index.js';
   function createEntityDepthCamera() {
     const entityCamera = Rn.EntityHelper.createCameraEntity();
     const transformCamera = entityCamera.getTransform();
-    transformCamera.translate = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
+    transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
     const cameraComponent = entityCamera.getCamera();
     cameraComponent.setFovyAndChangeFocalLength(120);
@@ -106,9 +106,9 @@ import Rn from '../../../dist/esm/index.js';
     meshComponent.setMesh(mesh);
 
     const transform = entity.getTransform();
-    transform.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
-    transform.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 5.0]);
-    transform.rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, 0.0]);
+    transform.localScale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
+    transform.localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 5.0]);
+    transform.localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, 0.0]);
 
     return entity;
   }
@@ -131,9 +131,9 @@ import Rn from '../../../dist/esm/index.js';
     meshComponent.setMesh(mesh);
 
     const transform = entity.getTransform();
-    transform.scale = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-    transform.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.5]);
-    transform.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    transform.localScale = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
+    transform.localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.5]);
+    transform.localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
     return entity;
   }
@@ -207,8 +207,8 @@ import Rn from '../../../dist/esm/index.js';
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

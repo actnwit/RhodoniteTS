@@ -494,13 +494,13 @@ export class WebXRSystem {
     const viewerTranslateX = (translateLeft.x + translateRight.x) / 2;
     const viewerTranslateZ = (translateLeft.z + translateRight.z) / 2;
     const viewerTransform = this.__viewerEntity.getTransform()!;
-    viewerTransform.translate = Vector3.fromCopyArray([
+    viewerTransform.localPosition = Vector3.fromCopyArray([
       viewerTranslateScaledX,
       0,
       viewerTranslateScaledZ,
     ]);
-    viewerTransform.scale = Vector3.fromCopyArray([scale, scale, scale]);
-    viewerTransform.rotate = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
+    viewerTransform.localScale = Vector3.fromCopyArray([scale, scale, scale]);
+    viewerTransform.localEulerAngles = Vector3.fromCopyArray([0, this.__viewerAzimuthAngle.x, 0]);
 
     rotateMatLeft.translateY = translateLeft.y;
     rotateMatLeft.translateX = translateLeft.x - viewerTranslateX;
@@ -515,8 +515,8 @@ export class WebXRSystem {
     rotateMatRight.translateX += xrViewerPosRight.x;
     rotateMatRight.translateZ += xrViewerPosRight.z;
 
-    this.__leftCameraEntity.getTransform()!.matrix = rotateMatLeft;
-    this.__rightCameraEntity.getTransform()!.matrix = rotateMatRight;
+    this.__leftCameraEntity.getTransform()!.localMatrix = rotateMatLeft;
+    this.__rightCameraEntity.getTransform()!.localMatrix = rotateMatRight;
   }
 
   private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: Function) {
@@ -567,7 +567,7 @@ export class WebXRSystem {
             const rotateMat = MutableMatrix44.fromCopyMatrix44(handWorldMatrix);
             rotateMat.translateY += this.__defaultPositionInLocalSpaceMode.y;
             rotateMat.translateY += this.__viewerTranslate.y;
-            hand.getTransform()!.matrix = rotateMat;
+            hand.getTransform()!.localMatrix = rotateMat;
 
             // update the components (buttons, etc...) of the controller
             const motionController = getMotionController(input);

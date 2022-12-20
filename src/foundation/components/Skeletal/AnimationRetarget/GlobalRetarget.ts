@@ -16,7 +16,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     let srcPGRestQ: IQuaternion;
     const parent = srcEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
-      srcPGRestQ = parent.quaternionRest;
+      srcPGRestQ = parent.rotationRest;
     } else {
       srcPGRestQ = Quaternion.identity();
     }
@@ -28,7 +28,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     let dstPGRestQ: IQuaternion;
     const parent = dstEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
-      dstPGRestQ = parent.quaternionRest;
+      dstPGRestQ = parent.rotationRest;
     } else {
       dstPGRestQ = Quaternion.identity();
     }
@@ -40,8 +40,8 @@ export class GlobalRetarget implements IAnimationRetarget {
     const srcEntity = this.__srcEntity;
 
     // extract global retarget quaternion
-    const srcPoseQ = srcEntity.getTransform().quaternionInner;
-    const srcRestQ = srcEntity.getTransform().quaternionRestInner;
+    const srcPoseQ = srcEntity.getTransform().localRotationInner;
+    const srcRestQ = srcEntity.getTransform().localRotationRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
 
     const animQ = Quaternion.multiply(
@@ -53,7 +53,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     );
 
     // retarget quaternion to local pose
-    const dstRestQ = dstEntity.getTransform().quaternionRestInner;
+    const dstRestQ = dstEntity.getTransform().localRotationRestInner;
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
     const tgtPoseQ = Quaternion.multiply(
@@ -68,14 +68,14 @@ export class GlobalRetarget implements IAnimationRetarget {
     const srcEntity = this.__srcEntity;
 
     // extract global retarget translate
-    const srcPoseT = srcEntity.getTransform().translateInner;
-    const srcRestT = srcEntity.getTransform().translateRestInner;
+    const srcPoseT = srcEntity.getTransform().localPositionInner;
+    const srcRestT = srcEntity.getTransform().localPositionRestInner;
     const srcPGRestQ = this.getSrcPGRestQ(srcEntity);
     const srcDelta = Vector3.subtract(srcPoseT, srcRestT);
     const AnimT = srcPGRestQ.transformVector3(srcDelta);
 
     // retarget translate to local pose
-    const dstRestT = dstEntity.getTransform().translateRestInner;
+    const dstRestT = dstEntity.getTransform().localPositionRestInner;
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
     const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(AnimT), dstRestT);
@@ -86,6 +86,6 @@ export class GlobalRetarget implements IAnimationRetarget {
   retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
     const srcEntity = this.__srcEntity;
 
-    return srcEntity.getTransform().scaleInner;
+    return srcEntity.getTransform().localScaleInner;
   }
 }

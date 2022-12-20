@@ -15,10 +15,10 @@ test('Use translate simply', () => {
 
   const firstEntity = generateEntity();
   const transformComponent = firstEntity.getTransform();
-  transformComponent.translate = Vector3.fromCopyArray([1, 0, 0]);
-  expect(transformComponent.translate.isEqual(Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
-  firstEntity.scale = Vector3.fromCopyArray([2, 1, 1]);
-  expect(transformComponent.translate.isEqual(Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
+  transformComponent.localPosition = Vector3.fromCopyArray([1, 0, 0]);
+  expect(transformComponent.localPosition.isEqual(Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
+  firstEntity.localScale = Vector3.fromCopyArray([2, 1, 1]);
+  expect(transformComponent.localPosition.isEqual(Vector3.fromCopyArray([1, 0, 0]))).toBe(true);
 
-  expect(transformComponent.scale.isEqual(Vector3.fromCopyArray([2, 1, 1]))).toBe(true);
+  expect(transformComponent.localScale.isEqual(Vector3.fromCopyArray([2, 1, 1]))).toBe(true);
 });

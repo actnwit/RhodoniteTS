@@ -20,7 +20,7 @@ import { RnM2 } from '../../../dist/esm/types/RnM2';
 
   // prepare entity
   const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
-  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
+  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera

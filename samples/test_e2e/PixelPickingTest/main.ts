@@ -77,16 +77,16 @@ let p: any;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
+  cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
-  // lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
+  // lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
   // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   const lightEntity2 = Rn.EntityHelper.createLightEntity();
-  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
+  lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
   (lightEntity2.getLight() as Rn.LightComponent).intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-  //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
+  //lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
   //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/Box/glTF/Box.gltf');
@@ -109,8 +109,8 @@ let p: any;
   ).unwrapForce();
   //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
-  //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
-  //  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
+  //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
+  //  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
   //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
 
   const renderPassEntityUidOutput = setupRenderPassEntityUidOutput(
@@ -164,7 +164,7 @@ let p: any;
       }
       //console.log(time);
       //      rootGroup.getTransform().scale = rotationVec3;
-      //rootGroup.getTransform().translate = rootGroup.getTransform().translate;
+      //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
     }
 
     Rn.System.process([expression]);

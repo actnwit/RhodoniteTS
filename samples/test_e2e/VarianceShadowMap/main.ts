@@ -16,13 +16,13 @@ declare const window: any;
   const spotLight = Rn.EntityHelper.createLightWithCameraEntity();
   spotLight.getLight().type = Rn.LightType.Spot;
   spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
-  spotLight.rotate = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
-  spotLight.translate = Rn.Vector3.fromCopy3(0.0, 1.0, 0);
+  spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
+  spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 1.0, 0);
 
   // Main Camera
   const mainCameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  mainCameraEntity.translate = Rn.Vector3.fromCopyArray([0.5, 3, 0.5]);
-  mainCameraEntity.rotate = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
+  mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0.5, 3, 0.5]);
+  mainCameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 
   // Depth RenderPass
   const renderPassDepth = createRenderPassSpecifyingCameraComponent(spotLight);
@@ -45,12 +45,12 @@ declare const window: any;
   const translateSmallBoard = Rn.Vector3.fromCopyArray([0.0, 0.5, -0.0]);
   const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -0.0]);
 
-  entitySmallBoard.getTransform().scale = Rn.Vector3.fromCopy3(0.2, 0.2, 0.2);
-  entitySmallBoard.getTransform().translate = translateSmallBoard;
-  // entitySmallBoard.getTransform().rotate = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
-  entityLargeBoard.getTransform().translate = translateBigBoard;
-  entityLargeBoard.getTransform().scale = Rn.Vector3.fromCopy3(1.5, 1.5, 1.5);
-  // entityLargeBoard.getTransform().rotate = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
+  entitySmallBoard.getTransform().localScale = Rn.Vector3.fromCopy3(0.2, 0.2, 0.2);
+  entitySmallBoard.getTransform().localPosition = translateSmallBoard;
+  // entitySmallBoard.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
+  entityLargeBoard.getTransform().localPosition = translateBigBoard;
+  entityLargeBoard.getTransform().localScale = Rn.Vector3.fromCopy3(1.5, 1.5, 1.5);
+  // entityLargeBoard.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 
   // set entities to render passes
   renderPassDepth.addEntities([entitySmallBoard, entityLargeBoard]);

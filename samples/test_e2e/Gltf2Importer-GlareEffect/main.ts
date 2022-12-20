@@ -106,7 +106,7 @@ declare const window: any;
     ).unwrapForce();
 
     const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
-    rootGroup.getTransform().scale = rootGroupScale;
+    rootGroup.getTransform().localScale = rootGroupScale;
     return rootGroup;
   }
 
@@ -138,8 +138,8 @@ declare const window: any;
     const meshComponentSphere = entitySphere.getMesh();
     meshComponentSphere.setMesh(meshSphere);
 
-    entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
+    entitySphere.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+    entitySphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
@@ -184,7 +184,7 @@ declare const window: any;
       material,
     });
 
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
+    boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
 
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = false;

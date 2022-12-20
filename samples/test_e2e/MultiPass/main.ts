@@ -27,7 +27,7 @@ declare const Stats: any;
     renderPass_fxaa.toClearColorBuffer = true;
     const cameraEntity_fxaa = Rn.EntityHelper.createCameraEntity();
     const cameraComponent_fxaa = cameraEntity_fxaa.getCamera();
-    cameraEntity_fxaa.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 1.0]);
+    cameraEntity_fxaa.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 1.0]);
     cameraComponent_fxaa.type = Rn.CameraType.Orthographic;
     renderPass_fxaa.cameraComponent = cameraComponent_fxaa;
 
@@ -81,7 +81,7 @@ declare const Stats: any;
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);
     meshComponent.setMesh(mesh);
-    entity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    entity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
     const meshComponent2 = entity2.getMesh();
 
     const primitive2 = new Rn.Plane();
@@ -101,8 +101,8 @@ declare const Stats: any;
     const mesh2 = new Rn.Mesh();
     mesh2.addPrimitive(primitive2);
     meshComponent2.setMesh(mesh2);
-    entity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 3, 0, 0]);
-    entity2.getTransform().translate = Rn.Vector3.fromCopyArray([0, 0, 0]);
+    entity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 3, 0, 0]);
+    entity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
     const primitive_fxaa = new Rn.Plane();
     primitive_fxaa.generate({
@@ -141,8 +141,8 @@ declare const Stats: any;
     const mesh_fxaa = new Rn.Mesh();
     mesh_fxaa.addPrimitive(primitive_fxaa);
     meshComponent_fxaa.setMesh(mesh_fxaa);
-    entity_fxaa.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
-    entity_fxaa.getTransform().translate = Rn.Vector3.fromCopyArray([0, 0, 0]);
+    entity_fxaa.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
+    entity_fxaa.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
     renderPass1.addEntities([entity]);
     renderPass2.addEntities([entity2]);
@@ -176,7 +176,7 @@ declare const Stats: any;
           rotationVec3._v[0] = rotation;
           rotationVec3._v[1] = rotation;
           rotationVec3._v[2] = rotation;
-          entity.getTransform().rotate = rotationVec3;
+          entity.getTransform().localEulerAngles = rotationVec3;
         });
       }
       stats.begin();

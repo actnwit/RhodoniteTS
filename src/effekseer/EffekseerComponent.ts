@@ -161,33 +161,33 @@ export class EffekseerComponent extends Component {
     if (this.__handle) {
       this.__handle.setLocation(vec.x, vec.y, vec.z);
     }
-    this.__transformComponent!.translate = vec;
+    this.__transformComponent!.localPosition = vec;
   }
 
   get translate() {
-    return this.__transformComponent!.translate;
+    return this.__transformComponent!.localPosition;
   }
 
   set rotate(vec) {
     if (this.__handle) {
       this.__handle.setRotation(vec.x, vec.y, vec.z);
     }
-    this.__transformComponent!.rotate = vec;
+    this.__transformComponent!.localEulerAngles = vec;
   }
 
   get rotate() {
-    return this.__transformComponent!.rotate;
+    return this.__transformComponent!.localEulerAngles;
   }
 
   set scale(vec) {
     if (this.__handle) {
       this.__handle.setScale(vec.x, vec.y, vec.z);
     }
-    this.__transformComponent!.scale = vec;
+    this.__transformComponent!.localScale = vec;
   }
 
   get scale() {
-    return this.__transformComponent!.scale;
+    return this.__transformComponent!.localScale;
   }
 
   $create() {
@@ -291,7 +291,7 @@ export class EffekseerComponent extends Component {
 
     if (this.__handle != null) {
       const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
-        this.__sceneGraphComponent!.worldMatrixInner
+        this.__sceneGraphComponent!.matrixInner
       );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);
@@ -376,7 +376,7 @@ export class EffekseerComponent extends Component {
     class EffekseerEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
