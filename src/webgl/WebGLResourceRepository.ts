@@ -1,5 +1,10 @@
 import { Accessor } from '../foundation/memory/Accessor';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
+import {
+  CGAPIResourceRepository,
+  DirectTextureData,
+  ICGAPIResourceRepository,
+  ImageBitmapData,
+} from '../foundation/renderer/CGAPIResourceRepository';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { VertexAttributeEnum, VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { TextureParameterEnum, TextureParameter } from '../foundation/definitions/TextureParameter';
@@ -53,6 +58,7 @@ import {
 } from '../types/WebGLConstants';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { EnumIO } from '../foundation';
 
 declare let HDRImage: any;
 
@@ -63,8 +69,6 @@ export type VertexHandles = {
   attributesFlags: Array<boolean>;
   setComplete: boolean;
 };
-
-type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement;
 
 export type TextureData = {
   level: Count;
@@ -82,7 +86,10 @@ export type WebGLResource =
   | WebGLTexture
   | WebGLTransformFeedback;
 
-export class WebGLResourceRepository extends CGAPIResourceRepository {
+export class WebGLResourceRepository
+  extends CGAPIResourceRepository
+  implements ICGAPIResourceRepository
+{
   private static __instance: WebGLResourceRepository;
   private __webglContexts: Map<string, WebGLContextWrapper> = new Map();
   private __glw?: WebGLContextWrapper;
@@ -674,12 +681,12 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     ) {
       this.bindTexture2D(
         value[0],
-        value[1] instanceof AbstractTexture ? value[1].cgApiResourceUid : value[1]
+        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
     } else if (info.compositionType === CompositionType.TextureCube) {
       this.bindTextureCube(
         value[0],
-        value[1] instanceof AbstractTexture ? value[1].cgApiResourceUid : value[1]
+        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
     }
   }
@@ -981,14 +988,117 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
 
     return resourceHandle;
   }
+
   /**
    * create a Texture
    * @param imageData
    * @param param1
    * @returns
    */
-  createTexture(
-    imageData: DirectTextureData,
+  createTextureFromImageBitmapData(
+    imageData: ImageBitmapData,
+    {
+      level,
+      internalFormat,
+      width,
+      height,
+      border,
+      format,
+      type,
+      magFilter,
+      minFilter,
+      wrapS,
+      wrapT,
+      generateMipmap,
+      anisotropy,
+      isPremultipliedAlpha,
+    }: {
+      level: Index;
+      internalFormat: TextureParameterEnum;
+      width: Size;
+      height: Size;
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+      magFilter: TextureParameterEnum;
+      minFilter: TextureParameterEnum;
+      wrapS: TextureParameterEnum;
+      wrapT: TextureParameterEnum;
+      generateMipmap: boolean;
+      anisotropy: boolean;
+      isPremultipliedAlpha: boolean;
+    }
+  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const textureHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2D(0, texture);
+    const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
+
+    this.__createTextureInner(
+      gl,
+      wrapS,
+      wrapT,
+      magFilter,
+      minFilter,
+      isPremultipliedAlpha,
+      width,
+      height,
+      anisotropy,
+      generateMipmap
+    );
+
+    return { textureHandle, samplerHandle: -1 };
+  }
+
+  private __createTextureInner(
+    gl: WebGL2RenderingContext,
+    wrapS: EnumIO,
+    wrapT: EnumIO,
+    magFilter: EnumIO,
+    minFilter: EnumIO,
+    isPremultipliedAlpha: boolean,
+    width: number,
+    height: number,
+    anisotropy: boolean,
+    generateMipmap: boolean
+  ) {
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    if (isPremultipliedAlpha) {
+      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    } else {
+      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    }
+    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+      if (anisotropy) {
+        if (this.__glw!.webgl2ExtTFA) {
+          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+        }
+      }
+
+      const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
+      if (isGenerateMipmap) {
+        gl.generateMipmap(gl.TEXTURE_2D);
+      }
+    }
+    this.__glw!.unbindTexture2D(0);
+  }
+
+  /**
+   * create a Texture
+   * @param imageData
+   * @param param1
+   * @returns
+   */
+  createTextureFromHTMLImageElement(
+    imageData: HTMLImageElement,
     {
       level,
       internalFormat,
@@ -1021,64 +1131,103 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
       isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
-    const isWebGL2 = this.__glw!.isWebGL2;
-    const gl = this.__glw!.getRawContext();
+    const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
-    if (isPremultipliedAlpha) {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    } else {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    }
+    const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
 
-    if (
-      imageData instanceof HTMLImageElement ||
-      imageData instanceof HTMLCanvasElement ||
-      imageData instanceof HTMLVideoElement
-    ) {
-      const gl = this.__glw!.getRawContextAsWebGL2();
-      // const levels = Math.max(Math.log2(width), Math.log2(height));
-      const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
-      gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
-    } else {
-      const gl = this.__glw!.getRawContextAsWebGL2();
-      // const levels = Math.max(Math.log2(width), Math.log2(height));
-      const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
-      gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        0,
-        0,
-        width,
-        height,
-        format.index,
-        type.index,
-        imageData as any as ArrayBufferView
-      );
-    }
+    this.__createTextureInner(
+      gl,
+      wrapS,
+      wrapT,
+      magFilter,
+      minFilter,
+      isPremultipliedAlpha,
+      width,
+      height,
+      anisotropy,
+      generateMipmap
+    );
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy) {
-        if (this.__glw!.webgl2ExtTFA) {
-          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-        }
-      }
+    return resourceHandle;
+  }
 
-      const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
-      if (isGenerateMipmap) {
-        gl.generateMipmap(gl.TEXTURE_2D);
-      }
+  /**
+   * create a Texture from TypedArray
+   * @param imageData
+   * @param param1
+   * @returns
+   */
+  createTextureFromTypedArray(
+    imageData: TypedArray,
+    {
+      level,
+      internalFormat,
+      width,
+      height,
+      border,
+      format,
+      type,
+      magFilter,
+      minFilter,
+      wrapS,
+      wrapT,
+      generateMipmap,
+      anisotropy,
+      isPremultipliedAlpha,
+    }: {
+      level: Index;
+      internalFormat: TextureParameterEnum;
+      width: Size;
+      height: Size;
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+      magFilter: TextureParameterEnum;
+      minFilter: TextureParameterEnum;
+      wrapS: TextureParameterEnum;
+      wrapT: TextureParameterEnum;
+      generateMipmap: boolean;
+      anisotropy: boolean;
+      isPremultipliedAlpha: boolean;
     }
-    this.__glw!.unbindTexture2D(0);
+  ): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2D(0, texture);
+    const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      width,
+      height,
+      format.index,
+      type.index,
+      imageData as any as ArrayBufferView
+    );
+
+    this.__createTextureInner(
+      gl,
+      wrapS,
+      wrapT,
+      magFilter,
+      minFilter,
+      isPremultipliedAlpha,
+      width,
+      height,
+      anisotropy,
+      generateMipmap
+    );
 
     return resourceHandle;
   }
@@ -1329,7 +1478,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
     const renderableWebGLResource = this.getWebGLResource(
-      renderable.cgApiResourceUid
+      renderable._textureResourceUid
     )! as WebGLTexture;
     const attachmentId = this.__glw!.colorAttachment(index);
     if (renderable instanceof RenderTargetTexture) {
@@ -1393,7 +1542,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
     const renderableWebGLResource = this.getWebGLResource(
-      renderable.cgApiResourceUid
+      renderable._textureResourceUid
     )! as WebGLTexture;
     if (renderable instanceof RenderTargetTexture) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
@@ -1987,7 +2136,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
         const width = img.width;
         const height = img.height;
 
-        const texture = this.createTexture(img, {
+        const texture = this.createTextureFromHTMLImageElement(img, {
           level,
           internalFormat,
           width,
@@ -2119,7 +2268,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
 
-    return this.createTexture(canvas, {
+    return this.createTextureFromImageBitmapData(canvas, {
       level: 0,
       internalFormat: TextureParameter.RGBA8,
       width: 1,
@@ -2157,7 +2306,7 @@ export class WebGLResourceRepository extends CGAPIResourceRepository {
 
   __createDummyTextureInner(base64: string) {
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
-    return this.createTexture(new Uint8Array(arrayBuffer), {
+    return this.createTextureFromTypedArray(new Uint8Array(arrayBuffer), {
       level: 0,
       internalFormat: TextureParameter.RGBA8,
       width: 1,

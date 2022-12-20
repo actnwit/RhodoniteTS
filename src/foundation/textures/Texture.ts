@@ -3,7 +3,7 @@ import { ComponentType } from '../definitions/ComponentType';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size, TypedArray, Count } from '../../types/CommonTypes';
+import { Size, TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { Config } from '../core/Config';
 import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -120,7 +120,7 @@ export class Texture extends AbstractTexture {
       isPremultipliedAlpha,
     });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
 
     AbstractTexture.__textureMap.set(texture, this);
@@ -206,24 +206,48 @@ export class Texture extends AbstractTexture {
     this.__height = img.height;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(img, {
-      level,
-      internalFormat,
-      width: this.__width,
-      height: this.__height,
-      border: 0,
-      format,
-      type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
-    });
+    let texture: CGAPIResourceHandle;
+    if (img instanceof HTMLImageElement) {
+      texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+        level,
+        internalFormat,
+        width: this.__width,
+        height: this.__height,
+        border: 0,
+        format,
+        type,
+        magFilter,
+        minFilter,
+        wrapS,
+        wrapT,
+        generateMipmap,
+        anisotropy,
+        isPremultipliedAlpha,
+      });
+    } else if (img instanceof HTMLCanvasElement) {
+      const { textureHandle, samplerHandle } =
+        webGLResourceRepository.createTextureFromImageBitmapData(img, {
+          level,
+          internalFormat,
+          width: this.__width,
+          height: this.__height,
+          border: 0,
+          format,
+          type,
+          magFilter,
+          minFilter,
+          wrapS,
+          wrapT,
+          generateMipmap,
+          anisotropy,
+          isPremultipliedAlpha,
+        });
+      texture = textureHandle;
+    } else {
+      throw new Error('Unsupported image type.');
+    }
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     this.__uri = image.src;
 
@@ -277,24 +301,49 @@ export class Texture extends AbstractTexture {
         this.__height = img.height;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        const texture = webGLResourceRepository.createTexture(img, {
-          level,
-          internalFormat,
-          width: this.__width,
-          height: this.__height,
-          border: 0,
-          format,
-          type,
-          magFilter,
-          minFilter,
-          wrapS,
-          wrapT,
-          generateMipmap,
-          anisotropy,
-          isPremultipliedAlpha,
-        });
 
-        this.cgApiResourceUid = texture;
+        let texture: CGAPIResourceHandle;
+        if (img instanceof HTMLImageElement) {
+          texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+            level,
+            internalFormat,
+            width: this.__width,
+            height: this.__height,
+            border: 0,
+            format,
+            type,
+            magFilter,
+            minFilter,
+            wrapS,
+            wrapT,
+            generateMipmap,
+            anisotropy,
+            isPremultipliedAlpha,
+          });
+        } else if (img instanceof HTMLCanvasElement) {
+          const { textureHandle, samplerHandle } =
+            webGLResourceRepository.createTextureFromImageBitmapData(img, {
+              level,
+              internalFormat,
+              width: this.__width,
+              height: this.__height,
+              border: 0,
+              format,
+              type,
+              magFilter,
+              minFilter,
+              wrapS,
+              wrapT,
+              generateMipmap,
+              anisotropy,
+              isPremultipliedAlpha,
+            });
+          texture = textureHandle;
+        } else {
+          throw new Error('Unsupported image type');
+        }
+
+        this._textureResourceUid = texture;
         this.__isTextureReady = true;
         AbstractTexture.__textureMap.set(texture, this);
 
@@ -316,26 +365,27 @@ export class Texture extends AbstractTexture {
     ctx.fillRect(0, 0, 1, 1);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(canvas, {
-      level: 0,
-      internalFormat: TextureParameter.RGBA8,
-      width: 1,
-      height: 1,
-      border: 0,
-      format: PixelFormat.RGBA,
-      type: ComponentType.UnsignedByte,
-      magFilter: TextureParameter.Nearest,
-      minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
-      generateMipmap: false,
-      anisotropy: false,
-      isPremultipliedAlpha: true,
-    });
+    const { textureHandle, samplerHandle } =
+      webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
+        level: 0,
+        internalFormat: TextureParameter.RGBA8,
+        width: 1,
+        height: 1,
+        border: 0,
+        format: PixelFormat.RGBA,
+        type: ComponentType.UnsignedByte,
+        magFilter: TextureParameter.Nearest,
+        minFilter: TextureParameter.Nearest,
+        wrapS: TextureParameter.ClampToEdge,
+        wrapT: TextureParameter.ClampToEdge,
+        generateMipmap: false,
+        anisotropy: false,
+        isPremultipliedAlpha: true,
+      });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(texture, this);
+    AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
   generateTextureFromTypedArray(
@@ -360,7 +410,7 @@ export class Texture extends AbstractTexture {
     const type = ComponentType.fromTypedArray(typedArray);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(typedArray, {
+    const texture = webGLResourceRepository.createTextureFromTypedArray(typedArray, {
       level,
       internalFormat,
       width: this.__width,
@@ -377,7 +427,7 @@ export class Texture extends AbstractTexture {
       isPremultipliedAlpha,
     });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -424,7 +474,7 @@ export class Texture extends AbstractTexture {
       }
     );
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -467,7 +517,7 @@ export class Texture extends AbstractTexture {
       }
     );
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -477,17 +527,17 @@ export class Texture extends AbstractTexture {
     this.__height = height;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
 
   destroy3DAPIResources() {
-    AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
+    AbstractTexture.__textureMap.delete(this._textureResourceUid);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
-    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    webGLResourceRepository.deleteTexture(this._textureResourceUid);
+    this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;
     this.__startedToLoad = false;
 

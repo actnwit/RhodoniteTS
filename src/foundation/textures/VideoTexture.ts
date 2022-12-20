@@ -101,28 +101,29 @@ export class VideoTexture extends AbstractTexture {
     this.__height = img.videoHeight;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTexture(img, {
-      level: level,
-      internalFormat: internalFormat,
-      width: this.__width,
-      height: this.__height,
-      border: 0,
-      format: format,
-      type: type,
-      magFilter: magFilter,
-      minFilter: minFilter,
-      wrapS: wrapS,
-      wrapT: wrapT,
-      generateMipmap: generateMipmap,
-      anisotropy: anisotropy,
-      isPremultipliedAlpha,
-    });
+    const { textureHandle, samplerHandle } =
+      webGLResourceRepository.createTextureFromImageBitmapData(img, {
+        level: level,
+        internalFormat: internalFormat,
+        width: this.__width,
+        height: this.__height,
+        border: 0,
+        format: format,
+        type: type,
+        magFilter: magFilter,
+        minFilter: minFilter,
+        wrapS: wrapS,
+        wrapT: wrapT,
+        generateMipmap: generateMipmap,
+        anisotropy: anisotropy,
+        isPremultipliedAlpha,
+      });
 
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;
     this.__uri = video.src;
 
-    AbstractTexture.__textureMap.set(texture, this);
+    AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
   generateTextureFromUri(
@@ -153,24 +154,25 @@ export class VideoTexture extends AbstractTexture {
         this.__height = video.videoHeight;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        const texture = webGLResourceRepository.createTexture(video, {
-          level: level,
-          internalFormat: internalFormat,
-          width: this.__width,
-          height: this.__height,
-          border: 0,
-          format: format,
-          type: type,
-          magFilter: magFilter,
-          minFilter: minFilter,
-          wrapS: wrapS,
-          wrapT: wrapT,
-          generateMipmap: generateMipmap,
-          anisotropy: anisotropy,
-          isPremultipliedAlpha,
-        });
+        const { textureHandle, samplerHandle } =
+          webGLResourceRepository.createTextureFromImageBitmapData(video, {
+            level: level,
+            internalFormat: internalFormat,
+            width: this.__width,
+            height: this.__height,
+            border: 0,
+            format: format,
+            type: type,
+            magFilter: magFilter,
+            minFilter: minFilter,
+            wrapS: wrapS,
+            wrapT: wrapT,
+            generateMipmap: generateMipmap,
+            anisotropy: anisotropy,
+            isPremultipliedAlpha,
+          });
 
-        this.cgApiResourceUid = texture;
+        this._textureResourceUid = textureHandle;
         this.__isTextureReady = true;
 
         resolve();
@@ -219,7 +221,7 @@ export class VideoTexture extends AbstractTexture {
   updateTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
-      webGLResourceRepository.updateTexture(this.cgApiResourceUid, this.#htmlVideoElement, {
+      webGLResourceRepository.updateTexture(this._textureResourceUid, this.#htmlVideoElement, {
         level: 0,
         xoffset: 0,
         yoffset: 0,
@@ -236,7 +238,7 @@ export class VideoTexture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(
-        this.cgApiResourceUid,
+        this._textureResourceUid,
         0,
         0,
         this.width,

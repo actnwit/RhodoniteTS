@@ -78,7 +78,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       wrapT: this.__wrapT,
       anisotropy: this.__anisotropy,
     });
-    this.cgApiResourceUid = texture;
+    this._textureResourceUid = texture;
 
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -91,10 +91,10 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   destroy3DAPIResources() {
-    AbstractTexture.__textureMap.delete(this.cgApiResourceUid);
+    AbstractTexture.__textureMap.delete(this._textureResourceUid);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(this.cgApiResourceUid);
-    this.cgApiResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    webGLResourceRepository.deleteTexture(this._textureResourceUid);
+    this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
     return true;
   }
@@ -173,7 +173,9 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext() as WebGLRenderingContext;
-    const texture = webGLResourceRepository.getWebGLResource(this.cgApiResourceUid) as WebGLTexture;
+    const texture = webGLResourceRepository.getWebGLResource(
+      this._textureResourceUid
+    ) as WebGLTexture;
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindTexture(gl.TEXTURE_2D, null);
