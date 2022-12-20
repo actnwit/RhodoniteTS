@@ -69,17 +69,19 @@ If you get an error like "webxr-input-profiles not found" when building a projec
   <canvas id="world"></canvas>
   <script src="../../../dist/umd/rhodonite.min.js"></script>
   <script>
-  async function load() {
-    // All Rhodonite classes you need are in window.Rn object.
-    await Rn.System.init({
-      approach: Rn.ProcessApproach.Uniform,
-      canvas: document.getElementById('world')
-    });
-    const entityRepository = Rn.EntityRepository.getInstance();
-    ...
-    (After that, please refer to the sample codes.)
-    ...
-  }
+  // Init Rhodonite
+  await Rn.System.init({
+    approach: Rn.ProcessApproach.DataTexture,
+    canvas: document.getElementById('world') as HTMLCanvasElement,
+  });
+
+  // Plane
+  Rn.MeshHelper.createPlane();
+
+  // Render Loop
+  Rn.System.startRenderLoop(() => {
+    Rn.System.processAuto();
+  });
   </script>
 </body>
 ```
@@ -95,20 +97,19 @@ You need a bundler (e.g., Webpack) to import the Rhodonite CommonJS package.
 ```typescript
 import Rn from 'rhodonite';
 
-async function load() {
-  await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas: document.getElementById('world') as HTMLCanvasElement
-  });
+// Init Rhodonite
+await Rn.System.init({
+  approach: Rn.ProcessApproach.DataTexture,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
 
-  // Camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent: Rn.CameraComponent = cameraEntity.getCamera();
+// Plane
+Rn.MeshHelper.createPlane();
 
-  ...
-  (After that, please refer to the sample codes.)
-  ...
-}
+// Render Loop
+Rn.System.startRenderLoop(() => {
+  Rn.System.processAuto();
+});
 ```
 
 #### Using ESModule package
@@ -123,20 +124,19 @@ You don't need any bundler.
 // main.ts
 import Rn from 'rhodonite/dist/esm/index.js';
 
-async function load() {
-  await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas: document.getElementById('world') as HTMLCanvasElement
-  });
+// Init Rhodonite
+await Rn.System.init({
+  approach: Rn.ProcessApproach.DataTexture,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
 
-  // Camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent: Rn.CameraComponent = cameraEntity.getCamera();
+// Plane
+Rn.MeshHelper.createPlane();
 
-  ...
-  (After that, please refer to the sample codes.)
-  ...
-}
+// Render Loop
+Rn.System.startRenderLoop(() => {
+  Rn.System.processAuto();
+});
 ```
 
 ```
