@@ -60,7 +60,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
   // Init Rhodonite
   await Rn.System.init({
     approach: Rn.ProcessApproach.DataTexture,
-    canvas: document.getElementById('world') as HTMLCanvasElement,
+    canvas: document.getElementById('world'),
   });
 
   // create a Plane mesh
