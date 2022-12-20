@@ -1,11 +1,11 @@
-name: "API Documents"
+name: 'API Documents'
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [main]
 
 jobs:
   gen_api_docs:
@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-    - run: npm install -g typescript@^4.0.3
-    - uses: actions/upload-artifact@v2
-      with:
-        name: Rhodonite-api-documents
-        path: docs/api
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install -g typescript@^4.0.3
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Rhodonite-api-documents
+          path: docs/api
