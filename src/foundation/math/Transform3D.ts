@@ -13,16 +13,16 @@ import { MutableQuaternion } from './MutableQuaternion';
 import { MutableVector3 } from './MutableVector3';
 
 export class Transform3D {
-  private __translate: MutableVector3;
+  private __position: MutableVector3;
   private __scale: MutableVector3;
-  private __quaternion: MutableQuaternion;
+  private __rotation: MutableQuaternion;
   private __matrix: MutableMatrix44;
   // private _invMatrix: MutableMatrix44;
   // private _normalMatrix: MutableMatrix33;
 
-  private __is_translate_updated = true;
+  private __is_position_updated = true;
   private __is_scale_updated = true;
-  private __is_quaternion_updated = true;
+  private __is_rotation_updated = true;
   private __is_trs_matrix_updated = true;
   // private __is_inverse_trs_matrix_updated = true;
   // private __is_normal_trs_matrix_updated = true;
@@ -38,24 +38,24 @@ export class Transform3D {
   constructor();
   constructor(Transform3D: Transform3D);
   constructor(x?: Transform3D) {
-    this.__translate = MutableVector3.dummy();
+    this.__position = MutableVector3.dummy();
     this.__scale = MutableVector3.dummy();
-    this.__quaternion = MutableQuaternion.dummy();
+    this.__rotation = MutableQuaternion.dummy();
     this.__matrix = MutableMatrix44.dummy();
     // this._invMatrix = MutableMatrix44.dummy();
     // this._normalMatrix = MutableMatrix33.dummy();
     if (x !== undefined) {
       this.setTransform(
-        x.translateInner,
-        MutableVector3.fromCopyVector3(x.rotateInner),
+        x.positionInner,
+        MutableVector3.fromCopyVector3(x.eulerAnglesInner),
         x.scaleInner,
-        MutableQuaternion.fromCopyQuaternion(x.quaternionInner),
+        MutableQuaternion.fromCopyQuaternion(x.rotationInner),
         x.matrixInner
       );
     } else {
-      this.__translate = MutableVector3.zero();
+      this.__position = MutableVector3.zero();
       this.__scale = MutableVector3.one();
-      this.__quaternion = MutableQuaternion.identity();
+      this.__rotation = MutableQuaternion.identity();
       this.__matrix = MutableMatrix44.identity();
       // this._invMatrix = MutableMatrix44.identity();
       // this._normalMatrix = MutableMatrix33.identity();
@@ -67,9 +67,9 @@ export class Transform3D {
     return clone;
   }
 
-  set translate(vec: IVector3) {
-    this.__translate.copyComponents(vec);
-    this.__is_translate_updated = true;
+  set position(vec: IVector3) {
+    this.__position.copyComponents(vec);
+    this.__is_position_updated = true;
     this.__is_trs_matrix_updated = false;
     // this.__is_inverse_trs_matrix_updated = false;
     // this.__is_normal_trs_matrix_updated = false;
@@ -78,46 +78,46 @@ export class Transform3D {
   }
 
   /**
-   * return a copy of a local translate vector
+   * return a copy of a local position vector
    */
-  get translate(): MutableVector3 {
-    return this.translateInner.clone();
+  get position(): MutableVector3 {
+    return this.positionInner.clone();
   }
 
   /**
-   * return a local translate vector
+   * return a local position vector
    */
-  get translateInner(): MutableVector3 {
-    if (this.__is_translate_updated) {
-      return this.__translate;
+  get positionInner(): MutableVector3 {
+    if (this.__is_position_updated) {
+      return this.__position;
     } else if (this.__is_trs_matrix_updated) {
-      this.__matrix.getTranslateTo(this.__translate);
-      this.__is_translate_updated = true;
+      this.__matrix.getTranslateTo(this.__position);
+      this.__is_position_updated = true;
     }
-    return this.__translate;
+    return this.__position;
   }
 
-  set rotate(vec: IVector3) {
+  set eulerAngles(vec: IVector3) {
     const rotationMat = Transform3D.__tmpMatrix44_0.rotate(vec);
-    this.quaternion = Quaternion.fromMatrix(rotationMat);
+    this.rotation = Quaternion.fromMatrix(rotationMat);
   }
 
   /**
    * return a copy of a local rotation (XYZ euler) vector
    */
-  get rotate() {
-    return this.rotateInner.clone();
+  get eulerAngles() {
+    return this.eulerAnglesInner.clone();
   }
 
   /**
    * return a local rotation (XYZ euler) vector
    */
-  get rotateInner(): Vector3 {
+  get eulerAnglesInner(): Vector3 {
     if (this.__is_trs_matrix_updated) {
       return this.__matrix.toEulerAngles();
     } else {
       // this._is_quaternion_updated
-      return this.__quaternion.toEulerAngles();
+      return this.__rotation.toEulerAngles();
     }
   }
 
@@ -152,9 +152,9 @@ export class Transform3D {
     return this.__scale;
   }
 
-  set quaternion(quat: IQuaternion) {
-    this.__quaternion.copyComponents(quat);
-    this.__is_quaternion_updated = true;
+  set rotation(quat: IQuaternion) {
+    this.__rotation.copyComponents(quat);
+    this.__is_rotation_updated = true;
     this.__is_trs_matrix_updated = false;
     // this.__is_inverse_trs_matrix_updated = false;
     // this.__is_normal_trs_matrix_updated = false;
@@ -165,46 +165,46 @@ export class Transform3D {
   /**
    * return a copy of a local quaternion vector
    */
-  get quaternion() {
-    return this.quaternionInner.clone();
+  get rotation() {
+    return this.rotationInner.clone();
   }
 
   /**
    * return a local quaternion vector
    */
-  get quaternionInner(): Quaternion {
-    if (this.__is_quaternion_updated) {
-      return this.__quaternion;
-    } else if (!this.__is_quaternion_updated) {
+  get rotationInner(): Quaternion {
+    if (this.__is_rotation_updated) {
+      return this.__rotation;
+    } else if (!this.__is_rotation_updated) {
       if (this.__is_trs_matrix_updated) {
-        this.__is_quaternion_updated = true;
-        this.__quaternion.fromMatrix(this.__matrix);
-        return this.__quaternion;
+        this.__is_rotation_updated = true;
+        this.__rotation.fromMatrix(this.__matrix);
+        return this.__rotation;
       }
     }
-    return this.__quaternion;
+    return this.__rotation;
   }
 
   __updateTransform() {
-    this.__updateRotation();
-    this.__updateTranslate();
+    this.__updateEulerAngles();
+    this.__updatePosition();
     this.__updateScale();
 
     //this.__updateMatrix();
     this.__needUpdate();
   }
 
-  __updateRotation() {
-    if (!this.__is_quaternion_updated && this.__is_trs_matrix_updated) {
-      this.__quaternion.fromMatrix(this.__matrix);
-      this.__is_quaternion_updated = true;
+  __updateEulerAngles() {
+    if (!this.__is_rotation_updated && this.__is_trs_matrix_updated) {
+      this.__rotation.fromMatrix(this.__matrix);
+      this.__is_rotation_updated = true;
     }
   }
 
-  __updateTranslate() {
-    if (!this.__is_translate_updated && this.__is_trs_matrix_updated) {
-      this.__matrix.getTranslateTo(this.__translate);
-      this.__is_translate_updated = true;
+  __updatePosition() {
+    if (!this.__is_position_updated && this.__is_trs_matrix_updated) {
+      this.__matrix.getTranslateTo(this.__position);
+      this.__is_position_updated = true;
     }
   }
 
@@ -218,14 +218,14 @@ export class Transform3D {
   __updateMatrix() {
     if (
       !this.__is_trs_matrix_updated &&
-      this.__is_translate_updated &&
-      this.__is_quaternion_updated &&
+      this.__is_position_updated &&
+      this.__is_rotation_updated &&
       this.__is_scale_updated
     ) {
-      const rotationMatrix = this.__matrix.fromQuaternion(this.__quaternion);
+      const rotationMatrix = this.__matrix.fromQuaternion(this.__rotation);
       const scaleMat = Transform3D.__tmpMatrix44_0.scale(this.__scale);
       const rsMatrix = rotationMatrix.multiply(scaleMat); // rsMatrix references to this._matrix
-      rsMatrix.putTranslate(this.__translate);
+      rsMatrix.putTranslate(this.__position);
 
       this.__is_trs_matrix_updated = true;
     }
@@ -234,8 +234,8 @@ export class Transform3D {
   set matrix(mat: IMatrix44) {
     this.__matrix.copyComponents(mat);
     this.__is_trs_matrix_updated = true;
-    this.__is_translate_updated = false;
-    this.__is_quaternion_updated = false;
+    this.__is_position_updated = false;
+    this.__is_rotation_updated = false;
     this.__is_scale_updated = false;
     // this.__is_inverse_trs_matrix_updated = false;
     // this.__is_normal_trs_matrix_updated = false;
@@ -277,7 +277,7 @@ export class Transform3D {
     // const n32 = 0;
     // const n33 = 1;
 
-    const q = this.quaternionInner;
+    const q = this.rotationInner;
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];
     const sz = q._v[2] * q._v[2];
@@ -306,7 +306,7 @@ export class Transform3D {
     // const m32 = 0.0;
     // const m33 = 1.0;
 
-    const translate = this.translateInner;
+    const translate = this.positionInner;
 
     // TranslateMatrix * RotateMatrix * ScaleMatrix
     this.__matrix.m00 = m00 * n00;
@@ -386,11 +386,11 @@ export class Transform3D {
   }
 
   set rotateMatrix44(rotateMatrix: IMatrix44) {
-    this.quaternion = Transform3D.__tmpQuaternion_0.fromMatrix(rotateMatrix);
+    this.rotation = Transform3D.__tmpQuaternion_0.fromMatrix(rotateMatrix);
   }
 
   get rotateMatrix44() {
-    return Matrix44.fromCopyQuaternion(this.quaternion);
+    return Matrix44.fromCopyQuaternion(this.rotation);
   }
 
   setPropertiesFromJson(arg: JSON) {
@@ -401,7 +401,7 @@ export class Transform3D {
     for (const key in json) {
       if (json.hasOwnProperty(key) && key in this) {
         if (key === 'quaternion') {
-          this[key] = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
+          this['rotation'] = Quaternion.fromCopyArray4((json as any)[key] as Array4<number>);
         } else if (key === 'matrix') {
           this[key] = Matrix44.fromCopyArray16RowMajor((json as any)[key] as Array16<number>);
         } else {
@@ -445,7 +445,7 @@ export class Transform3D {
     const cosTheta = Vector3.dot(fromDir, toDir);
     const theta = Math.acos(cosTheta);
 
-    this.quaternion = Transform3D.__tmpQuaternion_0.axisAngle(rotationDir, theta);
+    this.rotation = Transform3D.__tmpQuaternion_0.axisAngle(rotationDir, theta);
   }
 
   /**
@@ -481,26 +481,26 @@ export class Transform3D {
     if (matrix != null) {
       this.__matrix = matrix.clone();
       this.__is_trs_matrix_updated = true;
-      this.__is_translate_updated = false;
-      this.__is_quaternion_updated = false;
+      this.__is_position_updated = false;
+      this.__is_rotation_updated = false;
       this.__is_scale_updated = false;
     }
 
     // Translate
     if (translate != null) {
-      this.__translate = translate.clone();
-      this.__is_translate_updated = true;
+      this.__position = translate.clone();
+      this.__is_position_updated = true;
     }
 
     // Rotation
     if (rotate != null && quaternion != null) {
-      this.__quaternion = quaternion.clone() as MutableQuaternion;
-      this.__is_quaternion_updated = true;
+      this.__rotation = quaternion.clone() as MutableQuaternion;
+      this.__is_rotation_updated = true;
     } else if (rotate != null) {
-      this.__is_quaternion_updated = false;
+      this.__is_rotation_updated = false;
     } else if (quaternion != null) {
-      this.__quaternion = quaternion.clone() as MutableQuaternion;
-      this.__is_quaternion_updated = true;
+      this.__rotation = quaternion.clone() as MutableQuaternion;
+      this.__is_rotation_updated = true;
     }
 
     // Scale

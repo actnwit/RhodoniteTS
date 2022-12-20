@@ -54,10 +54,10 @@ export class TransformComponent extends Component {
       return;
     }
     this.__pose.setTransform(
-      this.__rest.translateInner,
-      MutableVector3.fromCopyVector3(this.__rest.rotateInner),
+      this.__rest.positionInner,
+      MutableVector3.fromCopyVector3(this.__rest.eulerAnglesInner),
       this.__rest.scaleInner,
-      MutableQuaternion.fromCopyQuaternion(this.__rest.quaternionInner),
+      MutableQuaternion.fromCopyQuaternion(this.__rest.rotationInner),
       this.__rest.matrixInner
     );
   }
@@ -71,67 +71,67 @@ export class TransformComponent extends Component {
   }
 
   set localPosition(vec: IVector3) {
-    this.__pose.translate = vec;
+    this.__pose.position = vec;
   }
 
   /**
    * return a copy of a local translate vector
    */
   get localPosition() {
-    return this.__pose.translate;
+    return this.__pose.position;
   }
 
   /**
    * return a local translate vector
    */
   get localPositionInner(): MutableVector3 {
-    return this.__pose.translateInner;
+    return this.__pose.positionInner;
   }
 
   /**
    * return a copy of a local translate vector
    */
   get localPositionRest() {
-    return this.restOrPose.translate;
+    return this.restOrPose.position;
   }
 
   /**
    * return a local translate vector
    */
   get localPositionRestInner(): MutableVector3 {
-    return this.restOrPose.translateInner;
+    return this.restOrPose.positionInner;
   }
 
   set localEulerAngles(vec: IVector3) {
-    this.__pose.rotate = vec;
+    this.__pose.eulerAngles = vec;
   }
 
   /**
    * return a copy of a local rotation (XYZ euler) vector
    */
   get localEulerAngles() {
-    return this.__pose.rotate;
+    return this.__pose.eulerAngles;
   }
 
   /**
    * return a local rotation (XYZ euler) vector
    */
   get localEulerAnglesInner() {
-    return this.__pose.rotateInner;
+    return this.__pose.eulerAnglesInner;
   }
 
   /**
    * return a copy of a local rotation (XYZ euler) vector
    */
   get localEulerAnglesRest() {
-    return this.restOrPose.rotate;
+    return this.restOrPose.eulerAngles;
   }
 
   /**
    * return a local rotation (XYZ euler) vector
    */
   get localEulerAnglesRestInner() {
-    return this.restOrPose.rotateInner;
+    return this.restOrPose.eulerAnglesInner;
   }
 
   set localScale(vec: IVector3) {
@@ -167,35 +167,35 @@ export class TransformComponent extends Component {
   }
 
   set localRotation(quat: IQuaternion) {
-    this.__pose.quaternion = quat;
+    this.__pose.rotation = quat;
   }
 
   /**
    * return a copy of a local quaternion vector
    */
   get localRotation() {
-    return this.__pose.quaternion;
+    return this.__pose.rotation;
   }
 
   /**
    * return a local quaternion vector
    */
   get localRotationInner(): Quaternion {
-    return this.__pose.quaternionInner;
+    return this.__pose.rotationInner;
   }
 
   /**
    * return a copy of a local quaternion vector
    */
   get localRotationRest() {
-    return this.restOrPose.quaternion;
+    return this.restOrPose.rotation;
   }
 
   /**
    * return a local quaternion vector
    */
   get localRotationRestInner(): Quaternion {
-    return this.restOrPose.quaternionInner;
+    return this.restOrPose.rotationInner;
   }
 
   set localMatrix(mat: IMatrix44) {
