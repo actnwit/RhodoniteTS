@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -23,11 +23,7 @@ declare const window: any;
   // params
 
   const displayResolution = 800;
-  const vrmModelRotation = Rn.Vector3.fromCopyArray([
-    0,
-    (3 / 4) * Math.PI,
-    0.0,
-  ]);
+  const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0.0]);
 
   // camera
   const cameraEntity = Rn.EntityHelper.createCameraEntity();
@@ -57,8 +53,7 @@ declare const window: any;
   expressions.push(vrmExpression);
 
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
-  const vrmRootEntity =
-    vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
+  const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
 
   // post effects
@@ -66,13 +61,12 @@ declare const window: any;
   expressions.push(expressionPostEffect);
 
   // gamma correction
-  const gammaTargetFramebuffer =
-    Rn.RenderableHelper.createTexturesForRenderTarget(
-      displayResolution,
-      displayResolution,
-      1,
-      {}
-    );
+  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
+    displayResolution,
+    displayResolution,
+    1,
+    {}
+  );
   for (const renderPass of vrmExpression.renderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
@@ -84,8 +78,7 @@ declare const window: any;
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial =
-    Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -98,18 +91,15 @@ declare const window: any;
   );
 
   // fxaa
-  const fxaaTargetFramebuffer =
-    Rn.RenderableHelper.createTexturesForRenderTarget(
-      displayResolution,
-      displayResolution,
-      1,
-      {}
-    );
+  const fxaaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
+    displayResolution,
+    displayResolution,
+    1,
+    {}
+  );
   gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 
-  const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(
-    gammaCorrectionRenderPass
-  );
+  const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(gammaCorrectionRenderPass);
   const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
   fxaaMaterial.setParameter(
     Rn.ShaderSemantics.ScreenInfo,
@@ -121,37 +111,25 @@ declare const window: any;
   );
   fxaaRenderPass.setMaterial(fxaaMaterial);
 
-  expressionPostEffect.addRenderPasses([
-    gammaCorrectionRenderPass,
-    fxaaRenderPass,
-  ]);
+  expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass, fxaaRenderPass]);
 
   //set default camera
   Rn.CameraComponent.current = 0;
 
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity =
-    vrmMainCameraComponent.entity as Rn.ICameraControllerEntity;
-  const vrmMainCameraControllerComponent =
-    vrmMainCameraEntity.getCameraController();
-  const controller =
-    vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const vrmMainCameraEntity = vrmMainCameraComponent.entity as Rn.ICameraControllerEntity;
+  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getCameraController();
+  const controller = vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.8;
-  controller.setTarget(
-    vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity
-  );
+  controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    0.0,
-    0.0,
-    Math.PI / 8,
-  ]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
   let count = 0;
   let startTime = Date.now();
@@ -191,10 +169,7 @@ window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 
-function createPostEffectRenderPass(
-  material: Rn.Material,
-  cameraComponent: Rn.CameraComponent
-) {
+function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({
     width: 1,
@@ -209,14 +184,8 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0.0,
-    0.0,
-  ]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0.0, -0.5,
-  ]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
@@ -244,11 +213,7 @@ function createRenderPassSharingEntitiesAndCamera(originalRenderPass) {
   return renderPass;
 }
 
-function setTextureParameterForMeshComponents(
-  meshComponents,
-  shaderSemantic,
-  value
-) {
+function setTextureParameterForMeshComponents(meshComponents, shaderSemantic, value) {
   for (let i = 0; i < meshComponents.length; i++) {
     const mesh = meshComponents[i].mesh;
     if (!mesh) continue;

@@ -92,7 +92,7 @@ export declare class Accessor {
     getVec2To(i: Index, out: MutableVector2, { indicesAccessor, endian }: IndicesAccessOption): Vector2;
     getVec3To(i: Index, out: MutableVector3, { indicesAccessor, endian }: IndicesAccessOption): Vector3;
     getVec4To(i: Index, out: MutableVector4, { indicesAccessor, endian }: IndicesAccessOption): Vector4;
-    getMat3To(i: Index, out: MutableMatrix33, { indicesAccessor, endian, }: {
+    getMat3To(i: Index, out: MutableMatrix33, { indicesAccessor, endian }: {
         indicesAccessor?: Accessor | undefined;
         endian?: boolean;
     }): Matrix33;

@@ -62,7 +62,7 @@ declare function createFXAA3QualityMaterial({ additionalName, maxInstancesNumber
     maxInstancesNumber?: number | undefined;
     noUseCameraTransform?: boolean | undefined;
 }): Material;
-declare function createFurnaceTestMaterial({ additionalName, maxInstancesNumber, }?: {
+declare function createFurnaceTestMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
@@ -96,12 +96,12 @@ declare function createVarianceShadowMapDecodeClassicSingleMaterial({ additional
     depthCameraComponent?: CameraComponent;
     maxInstancesNumber?: Count;
 }, encodedDepthRenderPasses: RenderPass[]): Material;
-declare function createDetectHighLuminanceMaterial({ additionalName, colorAttachmentsNumber, maxInstancesNumber, }: {
+declare function createDetectHighLuminanceMaterial({ additionalName, colorAttachmentsNumber, maxInstancesNumber }: {
     additionalName?: string | undefined;
     colorAttachmentsNumber?: number | undefined;
     maxInstancesNumber?: number | undefined;
 } | undefined, HDRRenderPass: RenderPass): Material;
-declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber, }?: {
+declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
@@ -134,7 +134,7 @@ declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture
     texture?: Texture;
     maxInstancesNumber?: Count;
 }): Material;
-declare function createEntityUIDOutputMaterial({ additionalName, maxInstancesNumber, }?: {
+declare function createEntityUIDOutputMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
@@ -159,7 +159,7 @@ declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr:
     alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function recreateShaderityMaterial(vertexShaderityObj: ShaderityObject, pixelShaderityObj: ShaderityObject, { additionalName, maxInstancesNumber, }?: {
+declare function recreateShaderityMaterial(vertexShaderityObj: ShaderityObject, pixelShaderityObj: ShaderityObject, { additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;

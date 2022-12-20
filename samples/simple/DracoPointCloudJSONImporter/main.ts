@@ -1,12 +1,11 @@
-import {IMeshEntity} from '../../../dist/esm/foundation/helpers/EntityHelper';
-import Rn, {Expression} from '../../../dist/esm/index.mjs';
-import {RnM2} from '../../../dist/esm/types/RnM2';
+import { IMeshEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
+import Rn, { Expression } from '../../../dist/esm/index.js';
+import { RnM2 } from '../../../dist/esm/types/RnM2';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
 
-  const pointCloudDrcUri =
-    './../../../assets/drc/FlightHelmet/FlightHelmet.drc';
+  const pointCloudDrcUri = './../../../assets/drc/FlightHelmet/FlightHelmet.drc';
 
   const pointSize = 1.0;
 
@@ -21,11 +20,7 @@ import {RnM2} from '../../../dist/esm/types/RnM2';
 
   // prepare entity
   const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
-  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    -Math.PI / 2,
-    0.0,
-    0.0,
-  ]);
+  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera
@@ -46,13 +41,9 @@ import {RnM2} from '../../../dist/esm/types/RnM2';
 
   // ---functions-----------------------------------------------------------------------------------------
 
-  async function createEntityPointCloud(
-    pointCloudDrcUri: string
-  ): Promise<IMeshEntity> {
+  async function createEntityPointCloud(pointCloudDrcUri: string): Promise<IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
-    const r_gltf2JSON = (
-      await importer.importPointCloud(pointCloudDrcUri)
-    ).unwrapForce() as RnM2;
+    const r_gltf2JSON = (await importer.importPointCloud(pointCloudDrcUri)).unwrapForce() as RnM2;
 
     const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
     return rootGroup as IMeshEntity;

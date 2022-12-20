@@ -5,6 +5,9 @@ import { Index } from '../types/CommonTypes';
 import { Vector4 } from '../foundation/math/Vector4';
 import { IEntity } from '../foundation/core/Entity';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+/**
+ * WebXRSystem class manages WebXR session and rendering
+ */
 export declare class WebXRSystem {
     private static __instance;
     private __xrSession?;

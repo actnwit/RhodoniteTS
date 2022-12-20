@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -8,16 +8,10 @@ import Rn from '../../../dist/esm/index.mjs';
 
   const resolutionDepthCamera = 512;
 
-  const diffuseColorFactorSmallBoard = Rn.Vector4.fromCopyArray([
-    0.5, 0.1, 0.4, 1,
-  ]);
-  const diffuseColorFactorLargeBoard = Rn.Vector4.fromCopyArray([
-    0.1, 0.7, 0.5, 1,
-  ]);
+  const diffuseColorFactorSmallBoard = Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1]);
+  const diffuseColorFactorLargeBoard = Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1]);
 
-  const shadowColorFactorLargeBoard = Rn.Vector4.fromCopyArray([
-    0.05, 0.35, 0.25, 1,
-  ]);
+  const shadowColorFactorLargeBoard = Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1]);
 
   // ---main algorithm-----------------------------------------------------------------------------------------
 
@@ -54,12 +48,8 @@ import Rn from '../../../dist/esm/index.mjs';
   const entitiesRenderTarget = [entitySmallBoard, entityLargeBoard];
 
   // prepare cameras
-  const directionLight = Rn.MutableVector3.multiply(
-    lightPosition,
-    -1
-  ).normalize();
-  const cameraComponentDepth =
-    createEntityDepthCamera(directionLight).getCamera();
+  const directionLight = Rn.MutableVector3.multiply(lightPosition, -1).normalize();
+  const cameraComponentDepth = createEntityDepthCamera(directionLight).getCamera();
   const cameraComponentMain = createEntityMainCamera().getCamera();
   const cameraControllerComponent = (
     cameraComponentMain.entity as Rn.ICameraControllerEntity
@@ -70,10 +60,7 @@ import Rn from '../../../dist/esm/index.mjs';
   controller.registerEventListeners(document.getElementById('world'));
 
   // prepare render passes
-  const renderPassDepth = createRenderPassDepth(
-    cameraComponentDepth,
-    entitiesRenderTarget
-  );
+  const renderPassDepth = createRenderPassDepth(cameraComponentDepth, entitiesRenderTarget);
   const framebufferDepth = Rn.RenderableHelper.createTexturesForRenderTarget(
     resolutionDepthCamera,
     resolutionDepthCamera,
@@ -142,11 +129,10 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPass.cameraComponent = cameraComponent;
     renderPass.addEntities([entitySmallBoard, entityLargeBoard]);
 
-    const materialSmallBoard =
-      Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-        {},
-        renderPassDepth
-      );
+    const materialSmallBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
+      {},
+      renderPassDepth
+    );
     materialSmallBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       diffuseColorFactorSmallBoard
@@ -157,11 +143,10 @@ import Rn from '../../../dist/esm/index.mjs';
     const primitiveSmallBoard = meshSmallBoard.primitives[0];
     renderPass.setMaterialForPrimitive(materialSmallBoard, primitiveSmallBoard);
 
-    const materialLargeBoard =
-      Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-        {},
-        renderPassDepth
-      );
+    const materialLargeBoard = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
+      {},
+      renderPassDepth
+    );
     materialLargeBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       diffuseColorFactorLargeBoard
@@ -224,8 +209,6 @@ import Rn from '../../../dist/esm/index.mjs';
     entityDepthCamera.getCamera().direction = directionLight;
 
     Rn.System.process(expressions);
-    requestAnimationFrame(
-      draw.bind(null, expressions, entityDepthCamera, directionLight)
-    );
+    requestAnimationFrame(draw.bind(null, expressions, entityDepthCamera, directionLight));
   }
 })();

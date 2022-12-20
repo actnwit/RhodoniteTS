@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -26,21 +26,13 @@ import Rn from '../../../dist/esm/index.mjs';
   const entityPostEffectCamera = createEntityPostEffectCamera();
 
   // prepare renderPasses
-  const renderPassMain = await createRenderPassMain(
-    uriGltf,
-    basePathIBL,
-    entityMainCamera
-  );
-  createAndSetFrameBufferAndMSAAFramebuffer(
-    renderPassMain,
-    rnCanvasElement.width
-  );
+  const renderPassMain = await createRenderPassMain(uriGltf, basePathIBL, entityMainCamera);
+  createAndSetFrameBufferAndMSAAFramebuffer(renderPassMain, rnCanvasElement.width);
 
   const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
   materialGamma.setTextureParameter(
     Rn.ShaderSemantics.BaseColorTexture,
-    renderPassMain.getResolveFramebuffer()
-      .colorAttachments[0] as Rn.RenderTargetTexture
+    renderPassMain.getResolveFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
   );
   const renderPassGamma = createRenderPassPostEffect(
     materialGamma,
@@ -105,8 +97,7 @@ import Rn from '../../../dist/esm/index.mjs';
 
   function createEntityEnvironmentCube(basePathIBL: string) {
     const cubeTextureEnvironment = new Rn.CubeTexture();
-    cubeTextureEnvironment.baseUriToLoad =
-      basePathIBL + '/environment/environment';
+    cubeTextureEnvironment.baseUriToLoad = basePathIBL + '/environment/environment';
     cubeTextureEnvironment.isNamePosNeg = true;
     cubeTextureEnvironment.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
     cubeTextureEnvironment.mipmapLevelNumber = 1;
@@ -115,14 +106,8 @@ import Rn from '../../../dist/esm/index.mjs';
     const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
       makeOutputSrgb: false,
     });
-    materialSphere.setParameter(
-      Rn.ShaderSemantics.EnvHdriFormat,
-      Rn.HdriFormat.HDR_LINEAR.index
-    );
-    materialSphere.setTextureParameter(
-      Rn.ShaderSemantics.ColorEnvTexture,
-      cubeTextureEnvironment
-    );
+    materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
+    materialSphere.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, cubeTextureEnvironment);
 
     const primitiveSphere = new Rn.Sphere();
     primitiveSphere.generate({
@@ -139,26 +124,22 @@ import Rn from '../../../dist/esm/index.mjs';
     meshComponentSphere.setMesh(meshSphere);
 
     entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0, 300, 0,
-    ]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
 
   async function createEntityGltf2(uriGltf: string) {
-    const gltf2JSON = (await Rn.Gltf2Importer.importFromUri(uriGltf, {
-      defaultMaterialHelperArgumentArray: [{makeOutputSrgb: false}],
-    })).unwrapForce();
-    const entityRootGroup =
-      Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+    const gltf2JSON = (
+      await Rn.Gltf2Importer.importFromUri(uriGltf, {
+        defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
+      })
+    ).unwrapForce();
+    const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
     return entityRootGroup;
   }
 
-  function createRenderPassPostEffect(
-    material: Rn.Material,
-    cameraComponent: Rn.CameraComponent
-  ) {
+  function createRenderPassPostEffect(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
     const boardPrimitive = new Rn.Plane();
     boardPrimitive.generate({
       width: 1,
@@ -173,14 +154,8 @@ import Rn from '../../../dist/esm/index.mjs';
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0.0, -0.5,
-    ]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
@@ -200,7 +175,7 @@ import Rn from '../../../dist/esm/index.mjs';
       resolutionFramebuffer,
       resolutionFramebuffer,
       0,
-      {isMSAA: true}
+      { isMSAA: true }
     );
     renderPass.setFramebuffer(framebuffer);
 
@@ -208,7 +183,7 @@ import Rn from '../../../dist/esm/index.mjs';
       resolutionFramebuffer,
       resolutionFramebuffer,
       1,
-      {createDepthBuffer: false}
+      { createDepthBuffer: false }
     );
     renderPass.setResolveFramebuffer(framebufferMSAA);
   }
@@ -236,11 +211,7 @@ import Rn from '../../../dist/esm/index.mjs';
     }
   }
 
-  function draw(
-    expressions: Rn.Expression[],
-    loopCount: number,
-    pElem?: HTMLElement
-  ) {
+  function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && loopCount > 100) {
       pElem = document.createElement('p');

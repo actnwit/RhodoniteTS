@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -13,48 +13,33 @@ let p: any;
   depthCameraComponent.zFar = 50.0;
   depthCameraComponent.setFovyAndChangeFocalLength(40);
   const depthCameraEntity = depthCameraComponent.entity;
-  depthCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    2.0, 2.0, 5.0,
-  ]);
+  depthCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([2.0, 2.0, 5.0]);
 
   const mainCameraComponent = createCameraControllerComponent();
   const mainCameraEntity = mainCameraComponent.entity;
-  mainCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    -0.1, -0.1, -0.2,
-  ]);
+  mainCameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([-0.1, -0.1, -0.2]);
 
   // setting render passes
-  const renderPassDepth =
-    createRenderPassSpecifyingCameraComponent(depthCameraComponent);
+  const renderPassDepth = createRenderPassSpecifyingCameraComponent(depthCameraComponent);
   createFramebuffer(renderPassDepth, 1024, 1024, 1, {});
 
-  const renderPassMain =
-    createRenderPassSpecifyingCameraComponent(mainCameraComponent);
+  const renderPassMain = createRenderPassSpecifyingCameraComponent(mainCameraComponent);
 
   const expression = new Rn.Expression();
   expression.addRenderPasses([renderPassDepth, renderPassMain]);
 
   //main
-  const entitySmallBoardForDepth = createBoardEntityWithMaterial(
-    'createDepthEncodeMaterial',
-    [{}]
-  );
-  const entityLargeBoardForDepth = createBoardEntityWithMaterial(
-    'createDepthEncodeMaterial',
-    [{}]
-  );
-  renderPassDepth.addEntities([
-    entitySmallBoardForDepth,
-    entityLargeBoardForDepth,
-  ]);
+  const entitySmallBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
+  const entityLargeBoardForDepth = createBoardEntityWithMaterial('createDepthEncodeMaterial', [{}]);
+  renderPassDepth.addEntities([entitySmallBoardForDepth, entityLargeBoardForDepth]);
 
   const entitySmallBoard = createBoardEntityWithMaterial(
     'createShadowMapDecodeClassicSingleMaterial',
-    [{isDebugging: true}, renderPassDepth]
+    [{ isDebugging: true }, renderPassDepth]
   );
   const entityLargeBoard = createBoardEntityWithMaterial(
     'createShadowMapDecodeClassicSingleMaterial',
-    [{isDebugging: true}, renderPassDepth]
+    [{ isDebugging: true }, renderPassDepth]
   );
   renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
@@ -129,9 +114,7 @@ let p: any;
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
-      material: Rn.MaterialHelper[materialHelperFunctionStr](
-        ...arrayOfHelperFunctionArgument
-      ),
+      material: Rn.MaterialHelper[materialHelperFunctionStr](...arrayOfHelperFunctionArgument),
     });
 
     const meshComponent = entity.getMesh();

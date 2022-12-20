@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 // import Rn from '../../../dist/cjs';
 
 const p = document.createElement('p');
@@ -29,8 +29,7 @@ declare const window: any;
   createFramebuffer(renderPassDepth, 1024, 1024);
 
   // Main RenderPass
-  const renderPassMain =
-    createRenderPassSpecifyingCameraComponent(mainCameraEntity);
+  const renderPassMain = createRenderPassSpecifyingCameraComponent(mainCameraEntity);
 
   // Expression
   const expression = new Rn.Expression();
@@ -58,9 +57,7 @@ declare const window: any;
   renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 
   // set depth shader to depth render pass
-  renderPassDepth.setMaterial(
-    Rn.MaterialHelper.createDepthMomentEncodeMaterial()
-  );
+  renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial());
 
   // set material parameters
   const meshComponentSmallBoard = entitySmallBoard.getMesh();
@@ -146,24 +143,19 @@ declare const window: any;
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-      height,
-      width,
-      1,
-      {
-        level: 0,
-        internalFormat: Rn.TextureParameter.RG32F,
-        format: Rn.PixelFormat.RG,
-        type: Rn.ComponentType.Float,
-        magFilter: Rn.TextureParameter.Linear,
-        minFilter: Rn.TextureParameter.Linear,
-        wrapS: Rn.TextureParameter.ClampToEdge,
-        wrapT: Rn.TextureParameter.ClampToEdge,
-        createDepthBuffer: true,
-        isMSAA: false,
-        sampleCountMSAA: 1,
-      }
-    );
+    const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(height, width, 1, {
+      level: 0,
+      internalFormat: Rn.TextureParameter.RG32F,
+      format: Rn.PixelFormat.RG,
+      type: Rn.ComponentType.Float,
+      magFilter: Rn.TextureParameter.Linear,
+      minFilter: Rn.TextureParameter.Linear,
+      wrapS: Rn.TextureParameter.ClampToEdge,
+      wrapT: Rn.TextureParameter.ClampToEdge,
+      createDepthBuffer: true,
+      isMSAA: false,
+      sampleCountMSAA: 1,
+    });
     renderPass.setFramebuffer(framebuffer);
     return framebuffer;
   }
@@ -186,11 +178,7 @@ declare const window: any;
       primitive.material.setParameter(shaderSemantic, value);
     }
   }
-  function setTextureParameterForMeshComponent(
-    meshComponent,
-    shaderSemantic,
-    value
-  ) {
+  function setTextureParameterForMeshComponent(meshComponent, shaderSemantic, value) {
     const mesh = meshComponent.mesh;
     const primitiveNumber = mesh.getPrimitiveNumber();
 

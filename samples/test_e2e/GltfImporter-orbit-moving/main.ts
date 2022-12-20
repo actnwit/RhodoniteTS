@@ -1,5 +1,5 @@
 import { RenderPassHelper } from '../../../dist/esm/index.js';
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -22,23 +22,23 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )).unwrapForce();
+  const mainExpression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb',
+      {
+        cameraComponent: cameraComponent,
+        defaultMaterialHelperArgumentArray: [
+          {
+            makeOutputSrgb: false,
+          },
+        ],
+      }
+    )
+  ).unwrapForce();
   expressions.push(mainExpression);
 
   // env
-  const envExpression = createEnvCubeExpression(
-    './../../../assets/ibl/papermill'
-  );
+  const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill');
   expressions.push(envExpression);
 
   // post effects
@@ -46,8 +46,7 @@ document.body.appendChild(p);
   expressions.push(expressionPostEffect);
 
   // gamma correction
-  const gammaTargetFramebuffer =
-    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
+  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   for (const renderPass of mainExpression.renderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
@@ -55,14 +54,11 @@ document.body.appendChild(p);
   }
   mainExpression.renderPasses[0].toClearColorBuffer = true;
   mainExpression.renderPasses[0].toClearDepthBuffer = true;
-  mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([
-    0, 0, 0, 0,
-  ]);
+  mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 0]);
 
-  const gammaCorrectionMaterial =
-    Rn.MaterialHelper.createGammaCorrectionMaterial({
-      noUseCameraTransform: true,
-    });
+  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial({
+    noUseCameraTransform: true,
+  });
   gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Translucent;
   const gammaCorrectionRenderPass =
     Rn.RenderPassHelper.createScreenDrawRenderPass(gammaCorrectionMaterial);
@@ -78,8 +74,7 @@ document.body.appendChild(p);
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.78;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
@@ -118,10 +113,7 @@ function createEnvCubeExpression(baseuri) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index
@@ -176,11 +168,7 @@ function setIBL(baseUri) {
   }
 }
 
-function setTextureParameterForMeshComponents(
-  meshComponents,
-  shaderSemantic,
-  value
-) {
+function setTextureParameterForMeshComponents(meshComponents, shaderSemantic, value) {
   for (let i = 0; i < meshComponents.length; i++) {
     const mesh = meshComponents[i].mesh;
     if (!mesh) continue;

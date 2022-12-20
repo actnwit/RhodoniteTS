@@ -20,6 +20,7 @@ export declare class Vrm0xImporter {
      */
     static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<IResult<Vrm0x, Err<RnM2, undefined>>>;
     static __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
+    static _readBlendShapeGroup(gltfModel: Vrm0x, rootEntity: ISceneGraphEntity): void;
     static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void;
     static _readSpringBone(gltfModel: Vrm0x): void;
     private static __addPhysicsComponentRecursively;

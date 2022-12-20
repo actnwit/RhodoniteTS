@@ -9,5 +9,6 @@ export * from './Physics/index';
 export * from './SceneGraph/index';
 export * from './Skeletal/index';
 export * from './Transform/index';
+export * from './Vrm/index';
 export * from './ComponentTypes';
 export * from './WellKnownComponentTIDs';

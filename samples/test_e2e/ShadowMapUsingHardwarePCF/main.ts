@@ -1,5 +1,5 @@
-import {ICameraEntityMethods, ILightEntity} from '../../../dist/esm/index.js';
-import Rn from '../../../dist/esm/index.mjs';
+import { ICameraEntityMethods, ILightEntity } from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esm/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -32,8 +32,7 @@ declare const window: any;
   createFramebuffer(renderPassDepth, 1024, 1024);
 
   // Main RenderPass
-  const renderPassMain =
-    createRenderPassSpecifyingCameraComponent(mainCameraEntity);
+  const renderPassMain = createRenderPassSpecifyingCameraComponent(mainCameraEntity as any);
 
   // Expression
   const expression = new Rn.Expression();
@@ -140,11 +139,7 @@ declare const window: any;
   }
 
   function createFramebuffer(renderPass, height, width) {
-    const framebuffer = Rn.RenderableHelper.createDepthBuffer(
-      height,
-      width,
-      {}
-    );
+    const framebuffer = Rn.RenderableHelper.createDepthBuffer(height, width, {});
     // const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
     //   height,
     //   width,
@@ -173,11 +168,7 @@ declare const window: any;
       primitive.material.setParameter(shaderSemantic, value);
     }
   }
-  function setTextureParameterForMeshComponent(
-    meshComponent,
-    shaderSemantic,
-    value
-  ) {
+  function setTextureParameterForMeshComponent(meshComponent, shaderSemantic, value) {
     const mesh = meshComponent.mesh;
     const primitiveNumber = mesh.getPrimitiveNumber();
 

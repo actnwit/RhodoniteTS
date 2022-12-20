@@ -1,5 +1,5 @@
 import { Byte, TypedArray } from '../../types/CommonTypes';
-export declare const valueWithDefault: <T>({ value, defaultValue, }: {
+export declare const valueWithDefault: <T>({ value, defaultValue }: {
     value?: T | undefined;
     defaultValue: T;
 }) => T;

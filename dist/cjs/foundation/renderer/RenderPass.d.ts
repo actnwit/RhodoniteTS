@@ -45,12 +45,15 @@ export declare class RenderPass extends RnObject {
     drawCount: number;
     __renderTargetColorAttachments?: RenderBufferTargetEnum[];
     private __preEachDrawFunc?;
+    private __postEachRenderFunc?;
     private static __tmp_Vector4_0;
     constructor();
     clone(): RenderPass;
-    setPreRenderFunction(func: (drawCount: number) => void): void;
-    unsetPreRenderFunction(): void;
+    setPreDrawFunction(func: (drawCount: number) => void): void;
+    unsetPreDrawFunction(): void;
     doPreEachDraw(drawCount: number): void;
+    setPostRenderFunction(func: () => void): void;
+    doPostRender(): void;
     /**
      * Add entities to draw.
      * @param entities An array of entities.
@@ -108,8 +111,8 @@ export declare class RenderPass extends RnObject {
     getResolveFramebuffer(): FrameBuffer | undefined;
     setResolveFramebuffer2(framebuffer: FrameBuffer): void;
     getResolveFramebuffer2(): FrameBuffer | undefined;
-    copyFramebufferToResolveFramebuffer(): void;
-    copyFramebufferToResolveFramebuffer2(): void;
+    _copyFramebufferToResolveFramebuffers(): void;
+    private __copyFramebufferToResolveFramebufferInner;
     private __setupMaterial;
     /**
      * Sets a material for the primitive on this render pass.

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -55,8 +55,7 @@ declare const window: any;
   const vrmMainRenderPass = vrmExpression.renderPasses[0];
   vrmMainRenderPass.toClearColorBuffer = true;
 
-  const vrmRootEntity =
-    vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
+  const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
 
   //set default camera
@@ -65,25 +64,17 @@ declare const window: any;
   // cameraController
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
   const vrmMainCameraEntity = vrmMainCameraComponent.entity;
-  const vrmMainCameraControllerComponent =
-    vrmMainCameraEntity.tryToGetCameraController();
-  const controller =
-    vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const vrmMainCameraControllerComponent = vrmMainCameraEntity.tryToGetCameraController();
+  const controller = vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.8;
-  controller.setTarget(
-    vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity
-  );
+  controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    0,
-    0,
-    Math.PI / 8,
-  ]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 0, Math.PI / 8]);
 
   let count = 0;
   const draw = function () {

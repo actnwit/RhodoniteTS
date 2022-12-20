@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -20,17 +20,19 @@ let p: any;
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/MetalRoughSpheresNoTextures/glTF/MetalRoughSpheresNoTextures.gltf',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )).unwrapForce();
+  const mainExpression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/MetalRoughSpheresNoTextures/glTF/MetalRoughSpheresNoTextures.gltf',
+      {
+        cameraComponent: cameraComponent,
+        defaultMaterialHelperArgumentArray: [
+          {
+            makeOutputSrgb: false,
+          },
+        ],
+      }
+    )
+  ).unwrapForce();
   expressions.push(mainExpression);
 
   // post effects
@@ -38,8 +40,7 @@ let p: any;
   expressions.push(expressionPostEffect);
 
   // gamma correction
-  const gammaTargetFramebuffer =
-    Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
+  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
   for (const renderPass of mainExpression.renderPasses) {
     renderPass.setFramebuffer(gammaTargetFramebuffer);
     renderPass.toClearColorBuffer = false;
@@ -51,8 +52,7 @@ let p: any;
   const postEffectCameraEntity = createPostEffectCameraEntity();
   const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  const gammaCorrectionMaterial =
-    Rn.MaterialHelper.createGammaCorrectionMaterial();
+  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
   const gammaCorrectionRenderPass = createPostEffectRenderPass(
     gammaCorrectionMaterial,
     postEffectCameraComponent
@@ -69,8 +69,7 @@ let p: any;
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.79;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
@@ -106,10 +105,7 @@ function createEnvCubeExpression(baseuri) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
 
   const spherePrimitive = new Rn.Sphere();
   spherePrimitive.generate({
@@ -160,10 +156,7 @@ function setIBL(baseUri) {
   }
 }
 
-function createPostEffectRenderPass(
-  material: Rn.Material,
-  cameraComponent: Rn.CameraComponent
-) {
+function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
   const boardPrimitive = new Rn.Plane();
   boardPrimitive.generate({
     width: 1,
@@ -178,14 +171,8 @@ function createPostEffectRenderPass(
   boardMesh.addPrimitive(boardPrimitive);
 
   const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0.0,
-    0.0,
-  ]);
-  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0.0, -0.5,
-  ]);
+  boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+  boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
   boardMeshComponent.setMesh(boardMesh);
 
@@ -205,11 +192,7 @@ function createPostEffectCameraEntity() {
   return cameraEntity;
 }
 
-function setTextureParameterForMeshComponents(
-  meshComponents,
-  shaderSemantic,
-  value
-) {
+function setTextureParameterForMeshComponents(meshComponents, shaderSemantic, value) {
   for (let i = 0; i < meshComponents.length; i++) {
     const mesh = meshComponents[i].mesh;
     if (!mesh) continue;

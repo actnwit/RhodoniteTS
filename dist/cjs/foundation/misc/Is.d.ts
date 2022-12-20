@@ -5,7 +5,9 @@ export declare const IsObj: {
     exist(val?: unknown, ...args: unknown[]): val is Object;
     function(val: unknown, ...args: unknown[]): val is Function;
     true(val: unknown, ...args: unknown[]): boolean;
+    truly(val: unknown, ...args: unknown[]): boolean;
     false(val: unknown, ...args: unknown[]): boolean;
+    falsy(val: unknown, ...args: unknown[]): boolean;
     stringContaining(thisStr: string, queryStr: string): boolean;
 };
 declare const NotObj: {
@@ -15,7 +17,9 @@ declare const NotObj: {
     exist(val?: unknown, ...args: unknown[]): val is null | undefined;
     function(val: unknown, ...args: unknown[]): val is unknown;
     true(val: unknown, ...args: unknown[]): boolean;
+    truly(val: unknown, ...args: unknown[]): boolean;
     false(val: unknown, ...args: unknown[]): boolean;
+    falsy(val: unknown, ...args: unknown[]): boolean;
 };
 declare type IsImplType = typeof IsObj;
 export interface IsType extends IsImplType {

@@ -17,5 +17,5 @@ export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
  */
 export declare class Sphere extends IShape {
     constructor();
-    generate({ radius, widthSegments, heightSegments, material, }: SphereDescriptor): void;
+    generate({ radius, widthSegments, heightSegments, material }: SphereDescriptor): void;
 }

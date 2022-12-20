@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -57,11 +57,7 @@ import Rn from '../../../dist/esm/index.mjs';
   const expressionSquareDepthBlur = createExpression(renderPassesSquareDepth);
   const expressionMain = createExpression([renderPassMain]);
 
-  const expressions = [
-    expressionDepthBlur,
-    expressionSquareDepthBlur,
-    expressionMain,
-  ];
+  const expressions = [expressionDepthBlur, expressionSquareDepthBlur, expressionMain];
 
   // draw
   draw(expressions, true);
@@ -158,11 +154,10 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPass.addEntities([entitySphere, entityBoard]);
 
     // set variance shadow material for sphere primitive in this render pass
-    const materialSphere =
-      Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
-        {depthCameraComponent: cameraComponentDepth},
-        [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
-      );
+    const materialSphere = Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
+      { depthCameraComponent: cameraComponentDepth },
+      [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
+    );
     materialSphere.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
@@ -179,11 +174,10 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPass.setMaterialForPrimitive(materialSphere, primitiveSphere);
 
     // set variance shadow material for board primitive in this render pass
-    const materialBoard =
-      Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
-        {depthCameraComponent: cameraComponentDepth},
-        [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
-      );
+    const materialBoard = Rn.MaterialHelper.createVarianceShadowMapDecodeClassicSingleMaterial(
+      { depthCameraComponent: cameraComponentDepth },
+      [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
+    );
     materialBoard.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
@@ -282,14 +276,12 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPassBlurTarget: Rn.RenderPass,
     isHorizontal: boolean
   ) {
-    const material =
-      Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
+    const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
 
-    const gaussianDistributionRatio =
-      Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
-        kernelSize: gaussianKernelSize,
-        variance: gaussianVariance,
-      });
+    const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
+      kernelSize: gaussianKernelSize,
+      variance: gaussianVariance,
+    });
     material.setParameter(
       Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,
       gaussianKernelSize
@@ -300,19 +292,12 @@ import Rn from '../../../dist/esm/index.mjs';
     );
 
     if (isHorizontal === false) {
-      material.setParameter(
-        Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal,
-        false
-      );
+      material.setParameter(Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal, false);
     }
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-    const TextureTarget = framebufferTarget
-      .colorAttachments[0] as Rn.RenderTargetTexture;
-    material.setTextureParameter(
-      Rn.ShaderSemantics.BaseColorTexture,
-      TextureTarget
-    );
+    const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
+    material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
 
     const boardPrimitive = new Rn.Plane();
     boardPrimitive.generate({
@@ -328,14 +313,8 @@ import Rn from '../../../dist/esm/index.mjs';
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0.0, -0.5,
-    ]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
@@ -353,11 +332,7 @@ import Rn from '../../../dist/esm/index.mjs';
     return expression;
   }
 
-  function draw(
-    expressions: Rn.Expression[],
-    isFirstLoop: Boolean,
-    pElem?: HTMLElement
-  ) {
+  function draw(expressions: Rn.Expression[], isFirstLoop: Boolean, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && !isFirstLoop) {
       pElem = document.createElement('p');

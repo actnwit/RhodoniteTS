@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
@@ -37,10 +37,7 @@ import Rn from '../../../dist/esm/index.mjs';
     return entityCamera;
   }
 
-  async function createRenderPassMain(
-    cameraComponent: Rn.CameraComponent,
-    uriMatCap: string
-  ) {
+  async function createRenderPassMain(cameraComponent: Rn.CameraComponent, uriMatCap: string) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
     renderPass.cameraComponent = cameraComponent;
@@ -56,23 +53,15 @@ import Rn from '../../../dist/esm/index.mjs';
     });
 
     const entitySmallSphere = createEntityMatCapSphere(textureMatCap);
-    entitySmallSphere.getTransform().scale = Rn.Vector3.fromCopyArray([
-      0.2, 0.2, 0.2,
-    ]);
+    entitySmallSphere.getTransform().scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
 
     const entityLargeSphere = createEntityMatCapSphere(textureMatCap);
-    entityLargeSphere.getTransform().translate = Rn.Vector3.fromCopyArray([
-      15, 15, -20,
-    ]);
+    entityLargeSphere.getTransform().translate = Rn.Vector3.fromCopyArray([15, 15, -20]);
 
     const entityBoard = createEntityMatCapBoard(textureMatCap);
     const transformBoard = entityBoard.getTransform();
     transformBoard.scale = Rn.Vector3.fromCopyArray([0.6, 0.6, 0.6]);
-    transformBoard.rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2 + 0.3,
-      0.3,
-      0,
-    ]);
+    transformBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2 + 0.3, 0.3, 0]);
     transformBoard.translate = Rn.Vector3.fromCopyArray([10, -10, -10]);
 
     renderPass.addEntities([entitySmallSphere, entityLargeSphere, entityBoard]);
@@ -85,7 +74,7 @@ import Rn from '../../../dist/esm/index.mjs';
       radius: 10,
       widthSegments: 20,
       heightSegments: 20,
-      material: Rn.MaterialHelper.createMatCapMaterial({texture}),
+      material: Rn.MaterialHelper.createMatCapMaterial({ texture }),
     });
 
     const entity = Rn.EntityHelper.createMeshEntity();
@@ -104,7 +93,7 @@ import Rn from '../../../dist/esm/index.mjs';
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
-      material: Rn.MaterialHelper.createMatCapMaterial({texture}),
+      material: Rn.MaterialHelper.createMatCapMaterial({ texture }),
     });
 
     const entity = Rn.EntityHelper.createMeshEntity();
@@ -121,11 +110,7 @@ import Rn from '../../../dist/esm/index.mjs';
     return expression;
   }
 
-  function draw(
-    expressions: Rn.Expression[],
-    isFirstLoop: Boolean,
-    pElem?: HTMLElement
-  ) {
+  function draw(expressions: Rn.Expression[], isFirstLoop: Boolean, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && !isFirstLoop) {
       pElem = document.createElement('p');

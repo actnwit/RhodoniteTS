@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
@@ -8,8 +8,7 @@ const setupRenderPassEntityUidOutput = function (
   canvas: HTMLCanvasElement
 ) {
   const renderPass = new Rn.RenderPass();
-  const entityUidOutputMaterial =
-    Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
@@ -47,8 +46,7 @@ const pick = function (e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
-  const renderTargetTexture =
-    framebuffer.getColorAttachedRenderTargetTexture(0);
+  const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(0);
   const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
@@ -79,20 +77,15 @@ let p: any;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0, 0.5,
-  ]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
   // lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
   // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   const lightEntity2 = Rn.EntityHelper.createLightEntity();
-  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0.0, 10.0,
-  ]);
-  (lightEntity2.getLight() as Rn.LightComponent).intensity =
-    Rn.Vector3.fromCopyArray([1, 1, 1]);
+  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
+  (lightEntity2.getLight() as Rn.LightComponent).intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
   //lightEntity2.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
   //lightEntity2.getLight().type = Rn.LightType.Directional;
 
@@ -109,9 +102,11 @@ let p: any;
   //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
   //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
   //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-  const response = (await Rn.Gltf2Importer.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
-  )).unwrapForce();
+  const response = (
+    await Rn.Gltf2Importer.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+    )
+  ).unwrapForce();
   //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
   //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
@@ -124,10 +119,7 @@ let p: any;
     canvas
   );
   window.renderPassEntityUidOutput = renderPassEntityUidOutput;
-  const renderPassRendering = setupRenderPassRendering(
-    rootGroup,
-    cameraComponent
-  );
+  const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
   // expression.addRenderPasses([renderPassEntityUidOutput]);
   // expression.addRenderPasses([renderPassRendering]);
   expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
@@ -136,9 +128,7 @@ let p: any;
   // CameraComponent
   const cameraControllerComponent =
     cameraEntity.getCameraController() as Rn.CameraControllerComponent;
-  (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(
-    rootGroup
-  );
+  (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(rootGroup);
 
   Rn.CameraComponent.current = 0;
   let startTime = Date.now();
@@ -153,7 +143,7 @@ let p: any;
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       }
 
-      window._pickedEntityUID = pick({offsetX: 300, offsetY: 300});
+      window._pickedEntityUID = pick({ offsetX: 300, offsetY: 300 });
 
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');

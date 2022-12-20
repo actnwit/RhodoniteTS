@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 let p: any;
 
 declare const window: any;
@@ -20,15 +20,11 @@ declare const window: any;
     cameraComponent.zFar = 1000;
     cameraComponent.setFovyAndChangeFocalLength(45);
     cameraComponent.aspect = 1;
-    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0, 0.5,
-    ]);
+    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
     // Lights
     const lightEntity = Rn.EntityHelper.createLightEntity();
-    lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      1.0, 1.0, 100000.0,
-    ]);
+    lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 1.0, 100000.0]);
     lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
     lightEntity.getLight().type = Rn.LightType.Directional;
     //lightEntity2.getLight().type = Rn.LightType.Directional;
@@ -37,10 +33,8 @@ declare const window: any;
       '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
     );
     //---------------------------
-    promise.then(response => {
-      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(
-        response.unwrapForce()
-      );
+    promise.then((response) => {
+      const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
       //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
       rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 

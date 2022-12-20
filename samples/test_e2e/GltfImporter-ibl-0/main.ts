@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -13,9 +13,7 @@ document.body.appendChild(p);
   const expressions = [];
 
   // env
-  const envExpression = createEnvCubeExpression(
-    './../../../assets/ibl/papermill'
-  );
+  const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill');
   expressions.push(envExpression);
 
   // camera
@@ -27,23 +25,24 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
-    {
-      cameraComponent: cameraComponent,
-    },
-    (obj: Rn.RnPromiseCallbackObj) => {
-      // this callback won't be called
-      console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
-    }
-  )).unwrapForce();
+  const mainExpression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
+      {
+        cameraComponent: cameraComponent,
+      },
+      (obj: Rn.RnPromiseCallbackObj) => {
+        // this callback won't be called
+        console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
+      }
+    )
+  ).unwrapForce();
   expressions.push(mainExpression);
 
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // lighting
@@ -76,10 +75,7 @@ function createEnvCubeExpression(baseuri) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index
@@ -98,9 +94,7 @@ function createEnvCubeExpression(baseuri) {
 
   const sphereEntity = Rn.EntityHelper.createMeshEntity();
   sphereEntity.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0, 20, -20,
-  ]);
+  sphereEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0, 20, -20]);
 
   const sphereMeshComponent = sphereEntity.getMesh();
   sphereMeshComponent.setMesh(sphereMesh);

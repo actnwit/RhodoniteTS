@@ -22,7 +22,6 @@ export declare class MaterialRepository {
      */
     static registerMaterial(materialTypeName: string, materialNode?: AbstractMaterialContent, maxInstanceNumber?: number): boolean;
     static forceRegisterMaterial(materialTypeName: string, materialNode: AbstractMaterialContent, maxInstanceNumber?: number): boolean;
-    private static __allocateBufferView;
     static isRegisteredMaterialType(materialTypeName: string): boolean;
     static getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined;
     static getAllMaterials(): Material[];
@@ -41,4 +40,6 @@ export declare class MaterialRepository {
      * @internal
      */
     static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo): number;
+    private static __registerInner;
+    private static __allocateBufferView;
 }

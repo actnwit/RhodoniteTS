@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 // import Rn from '../../../dist/cjs';
 
 declare const window: any;
@@ -14,9 +14,7 @@ let renderPassMain: Rn.RenderPass;
   const expressions: Rn.Expression[] = [];
 
   // Background Env Cube Map Expression
-  const envExpression = createBackgroundEnvCubeExpression(
-    './../../../assets/ibl/papermill'
-  );
+  const envExpression = createBackgroundEnvCubeExpression('./../../../assets/ibl/papermill');
   expressions.push(envExpression);
 
   // setup the Main RenderPass
@@ -39,7 +37,7 @@ async function initRn() {
   await Rn.System.init({
     approach: Rn.ProcessApproach.DataTexture,
     canvas,
-    webglOption: {antialias: false},
+    webglOption: { antialias: false },
   });
 }
 
@@ -89,10 +87,7 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index

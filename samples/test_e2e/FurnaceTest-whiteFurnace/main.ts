@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare global {
   interface Window {
@@ -54,19 +54,12 @@ declare global {
 
   function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
     const material = Rn.MaterialHelper.createFurnaceTestMaterial();
-    material.setParameter(
-      Rn.ShaderSemantics.ScreenInfo,
-      Rn.Vector2.fromCopyArray2([512, 512])
-    );
+    material.setParameter(Rn.ShaderSemantics.ScreenInfo, Rn.Vector2.fromCopyArray2([512, 512]));
     window.material = material;
 
     const entityBoard = createEntityBoard(material);
     const transformComponentBoard = entityBoard.getTransform();
-    transformComponentBoard.rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
+    transformComponentBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
     window.entityBoard = entityBoard;
 
     const entitySphere = createEntitySphere(material);
@@ -135,10 +128,7 @@ declare global {
     }
   }
 
-  function attachGlobalFunctions(
-    gl: WebGLRenderingContext,
-    expressions: Rn.Expression[]
-  ) {
+  function attachGlobalFunctions(gl: WebGLRenderingContext, expressions: Rn.Expression[]) {
     window.setRoughness = setRoughness;
     window.setDebugView = setDebugView;
     window.setGType = setGType;
@@ -152,10 +142,7 @@ declare global {
     const roughnessValue = Rn.MutableVector2.one();
     function setRoughness(floatValue: number) {
       roughnessValue.y = floatValue;
-      material.setParameter(
-        Rn.ShaderSemantics.MetallicRoughnessFactor,
-        roughnessValue
-      );
+      material.setParameter(Rn.ShaderSemantics.MetallicRoughnessFactor, roughnessValue);
       draw(expressions);
     }
 
@@ -175,10 +162,7 @@ declare global {
     }
 
     function setDisableFresnel(intValue: number) {
-      material.setParameter(
-        Rn.FurnaceTestMaterialContent.disable_fresnel,
-        intValue
-      );
+      material.setParameter(Rn.FurnaceTestMaterialContent.disable_fresnel, intValue);
       draw(expressions);
     }
 

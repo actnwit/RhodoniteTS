@@ -22,13 +22,14 @@ import { SkeletalComponent } from './Skeletal/SkeletalComponent';
 import { ITransformEntityMethods } from './Transform/ITransformEntity';
 import { TransformComponent } from './Transform/TransformComponent';
 import { IEffekseerEntityMethods, EffekseerComponent } from '../../effekseer/EffekseerComponent';
-import { ISparkGearEntityMethods, SparkGearComponent } from '../../sparkgear/SparkGearComponent';
 import { CameraComponent } from './Camera/CameraComponent';
+import { VrmComponent } from './Vrm/VrmComponent';
+import { IVrmEntityMethods } from './Vrm/IVrmEntity';
 export declare type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(baseClass: EntityBaseClass, components: typeof Component[]) => {
     entityClass: MixinBase;
     components: typeof Component[];
 };
-declare type AllWellKnownComponentMethodsTypes = IAnimationEntityMethods | ITransformEntityMethods | ISceneGraphEntityMethods | IMeshEntityMethods | IMeshRendererEntityMethods | ICameraEntityMethods | ICameraControllerEntityMethods | ILightEntityMethods | ISkeletalEntityMethods | IBlendShapeEntityMethods | IPhysicsEntityMethods | IEffekseerEntityMethods | ISparkGearEntityMethods;
+declare type AllWellKnownComponentMethodsTypes = IAnimationEntityMethods | ITransformEntityMethods | ISceneGraphEntityMethods | IMeshEntityMethods | IMeshRendererEntityMethods | ILightEntityMethods | ICameraEntityMethods | ICameraControllerEntityMethods | ISkeletalEntityMethods | IBlendShapeEntityMethods | IPhysicsEntityMethods | IEffekseerEntityMethods | IVrmEntityMethods;
 declare type IsThisAnimation<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof AnimationComponent ? IAnimationEntityMethods : Exclude<Possibles, IAnimationEntityMethods>;
 declare type IsThisTransform<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof TransformComponent ? ITransformEntityMethods : Exclude<Possibles, ITransformEntityMethods>;
 declare type IsThisSceneGraph<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof SceneGraphComponent ? ISceneGraphEntityMethods : Exclude<Possibles, ISceneGraphEntityMethods>;
@@ -41,6 +42,6 @@ declare type IsThisSkeletal<T extends typeof Component, Possibles extends AllWel
 declare type IsThisBlendShape<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof BlendShapeComponent ? IBlendShapeEntityMethods : Exclude<Possibles, IBlendShapeEntityMethods>;
 declare type IsThisPhysics<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof PhysicsComponent ? IPhysicsEntityMethods : Exclude<Possibles, IPhysicsEntityMethods>;
 declare type IsThisEffekseer<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof EffekseerComponent ? IEffekseerEntityMethods : Exclude<Possibles, IEffekseerEntityMethods>;
-declare type IsThisSparkGear<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof SparkGearComponent ? ISparkGearEntityMethods : Exclude<Possibles, ISparkGearEntityMethods>;
-export declare type ComponentToComponentMethods<T extends typeof Component> = IsThisSparkGear<T, IsThisEffekseer<T, IsThisPhysics<T, IsThisBlendShape<T, IsThisSkeletal<T, IsThisLight<T, IsThisCamera<T, IsThisCameraController<T, IsThisMeshRenderer<T, IsThisMesh<T, IsThisSceneGraph<T, IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>>>>>>>>>>>>;
+declare type IsThisVrm<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof VrmComponent ? IVrmEntityMethods : Exclude<Possibles, IVrmEntityMethods>;
+export declare type ComponentToComponentMethods<T extends typeof Component> = IsThisVrm<T, IsThisEffekseer<T, IsThisPhysics<T, IsThisBlendShape<T, IsThisSkeletal<T, IsThisLight<T, IsThisCamera<T, IsThisCameraController<T, IsThisMeshRenderer<T, IsThisMesh<T, IsThisSceneGraph<T, IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>>>>>>>>>>>>;
 export {};

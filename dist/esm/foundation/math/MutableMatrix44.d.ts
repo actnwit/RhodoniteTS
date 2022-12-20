@@ -125,8 +125,8 @@ export declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
      */
     rotateY(radian: number): this;
     /**
-   * Create Z oriented Rotation Matrix
-   */
+     * Create Z oriented Rotation Matrix
+     */
     rotateZ(radian: number): this;
     rotateXYZ(x: number, y: number, z: number): this;
     rotate(vec: Vector3): this;

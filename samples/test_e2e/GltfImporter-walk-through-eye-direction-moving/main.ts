@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -22,20 +22,21 @@ document.body.appendChild(p);
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const mainExpression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/Triangle/glTF-Embedded/Triangle.gltf',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )).unwrapForce();
+  const mainExpression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/Triangle/glTF-Embedded/Triangle.gltf',
+      {
+        cameraComponent: cameraComponent,
+      }
+    )
+  ).unwrapForce();
   expressions.push(mainExpression);
 
   // cameraController
   const mainRenderPass = mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   mainCameraControllerComponent.type = Rn.CameraControllerType.WalkThrough;
-  const controller =
-    mainCameraControllerComponent.controller as Rn.WalkThroughCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.WalkThroughCameraController;
   const rootGroup = mainRenderPass.sceneTopLevelGraphComponents[0].entity;
   controller.setTarget(rootGroup);
 
@@ -58,15 +59,11 @@ document.body.appendChild(p);
         break;
       case mouseUpCount + 1:
         controller.horizontalSpeed = 10;
-        document.dispatchEvent(
-          new KeyboardEvent('keydown', {keyCode: 81} as any)
-        ); // q key (back)
+        document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 81 } as any)); // q key (back)
         break;
       case mouseUpCount + 2:
         controller.horizontalSpeed = 5;
-        document.dispatchEvent(
-          new KeyboardEvent('keydown', {keyCode: 69} as any)
-        ); // e key (front)
+        document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 69 } as any)); // e key (front)
         break;
       case mouseUpCount + 3:
         document.dispatchEvent(new KeyboardEvent('keyup', {} as any));

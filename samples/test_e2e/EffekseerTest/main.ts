@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -67,16 +67,17 @@ declare const window: any;
   cameraComponent.aspect = 1;
 
   // 3D Model for Test
-  const response = (await Rn.Gltf2Importer.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
-  )).unwrapForce();
+  const response = (
+    await Rn.Gltf2Importer.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+    )
+  ).unwrapForce();
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
   // const sphereEntity = createSphere();
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    cameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(rootGroup);
 
   // renderPass

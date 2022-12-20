@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
@@ -25,12 +25,14 @@ document.body.appendChild(p);
   cameraTransform.translate = Rn.Vector3.fromCopyArray([0, 1, 5]);
 
   // gltf
-  const expression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )).unwrapForce();
+  const expression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
+      {
+        cameraComponent: cameraComponent,
+      }
+    )
+  ).unwrapForce();
 
   let count = 0;
   let startTime = Date.now();

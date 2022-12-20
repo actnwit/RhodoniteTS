@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
@@ -45,28 +45,21 @@ declare const window: any;
   createAndSetFramebuffer(renderPassLDR, rnCanvasElement.width, 1, {});
   renderPassLDR.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
-  const materialHighLuminance =
-    Rn.MaterialHelper.createDetectHighLuminanceMaterial(
-      {maxInstancesNumber: 1},
-      renderPassLDR
-    );
+  const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMaterial(
+    { maxInstancesNumber: 1 },
+    renderPassLDR
+  );
   const renderPassHighLuminance = createRenderPassPostEffect(
     materialHighLuminance,
     cameraComponentPostEffect
   );
-  createAndSetFramebuffer(
-    renderPassHighLuminance,
-    rnCanvasElement.width,
-    1,
-    {}
-  );
+  createAndSetFramebuffer(renderPassHighLuminance, rnCanvasElement.width, 1, {});
 
-  const renderPassesBlurredHighLuminance =
-    createRenderPassesBlurredHighLuminance(
-      renderPassHighLuminance,
-      cameraComponentPostEffect,
-      rnCanvasElement.width
-    );
+  const renderPassesBlurredHighLuminance = createRenderPassesBlurredHighLuminance(
+    renderPassHighLuminance,
+    cameraComponentPostEffect,
+    rnCanvasElement.width
+  );
 
   const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
     cameraComponentMain,
@@ -79,26 +72,15 @@ declare const window: any;
   const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
   materialGamma.setTextureParameter(
     Rn.ShaderSemantics.BaseColorTexture,
-    renderPassSynthesizeGlare.getFramebuffer()
-      .colorAttachments[0] as Rn.RenderTargetTexture
+    renderPassSynthesizeGlare.getFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
   );
 
-  const renderPassGamma = createRenderPassPostEffect(
-    materialGamma,
-    cameraComponentPostEffect
-  );
+  const renderPassGamma = createRenderPassPostEffect(materialGamma, cameraComponentPostEffect);
 
   // prepare expressions
-  const expressionDetectHighLuminance = createExpression([
-    renderPassLDR,
-    renderPassHighLuminance,
-  ]);
-  const expressionHighLuminance = createExpression(
-    renderPassesBlurredHighLuminance
-  );
-  const expressionSynthesizeImages = createExpression(
-    renderPassesSynthesizeImages
-  );
+  const expressionDetectHighLuminance = createExpression([renderPassLDR, renderPassHighLuminance]);
+  const expressionHighLuminance = createExpression(renderPassesBlurredHighLuminance);
+  const expressionSynthesizeImages = createExpression(renderPassesSynthesizeImages);
   const expressionGamma = createExpression([renderPassGamma]);
 
   const expressions = [
@@ -117,9 +99,11 @@ declare const window: any;
   // ---functions-----------------------------------------------------------------------------------------
 
   async function createEntityGltf2(uriGltf: string) {
-    const gltf2JSON = (await Rn.Gltf2Importer.importFromUri(uriGltf, {
-      defaultMaterialHelperArgumentArray: [{makeOutputSrgb: false}],
-    })).unwrapForce();
+    const gltf2JSON = (
+      await Rn.Gltf2Importer.importFromUri(uriGltf, {
+        defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
+      })
+    ).unwrapForce();
 
     const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
     rootGroup.getTransform().scale = rootGroupScale;
@@ -128,8 +112,7 @@ declare const window: any;
 
   function createEntityEnvironmentCube(basePathIBL: string) {
     const cubeTextureEnvironment = new Rn.CubeTexture();
-    cubeTextureEnvironment.baseUriToLoad =
-      basePathIBL + '/environment/environment';
+    cubeTextureEnvironment.baseUriToLoad = basePathIBL + '/environment/environment';
     cubeTextureEnvironment.isNamePosNeg = true;
     cubeTextureEnvironment.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
     cubeTextureEnvironment.mipmapLevelNumber = 1;
@@ -138,14 +121,8 @@ declare const window: any;
     const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
       makeOutputSrgb: false,
     });
-    materialSphere.setParameter(
-      Rn.ShaderSemantics.EnvHdriFormat,
-      Rn.HdriFormat.HDR_LINEAR.index
-    );
-    materialSphere.setTextureParameter(
-      Rn.ShaderSemantics.ColorEnvTexture,
-      cubeTextureEnvironment
-    );
+    materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
+    materialSphere.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, cubeTextureEnvironment);
 
     const primitiveSphere = new Rn.Sphere();
     primitiveSphere.generate({
@@ -162,9 +139,7 @@ declare const window: any;
     meshComponentSphere.setMesh(meshSphere);
 
     entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0, 300, 0,
-    ]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
@@ -198,10 +173,7 @@ declare const window: any;
     return renderPass;
   }
 
-  function createRenderPassPostEffect(
-    material: Rn.Material,
-    cameraComponent: Rn.CameraComponent
-  ) {
+  function createRenderPassPostEffect(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
     const boardEntity = Rn.MeshHelper.createPlane({
       width: 1,
       height: 1,
@@ -212,9 +184,7 @@ declare const window: any;
       material,
     });
 
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0.0, -0.5,
-    ]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
 
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = false;
@@ -288,11 +258,7 @@ declare const window: any;
       }
       renderPassBlurH.cameraComponent = cameraComponentPostEffect;
 
-      const renderPassBlurHV = createRenderPassGaussianBlur(
-        renderPassBlurH,
-        false,
-        resolutionBlur
-      );
+      const renderPassBlurHV = createRenderPassGaussianBlur(renderPassBlurH, false, resolutionBlur);
       renderPassBlurHV.cameraComponent = cameraComponentPostEffect;
 
       renderPasses.push(renderPassBlurH, renderPassBlurHV);
@@ -315,12 +281,7 @@ declare const window: any;
       cameraComponentMain,
       rootGroup
     );
-    createAndSetFramebuffer(
-      renderPassGlareTarget,
-      rnCanvasElement.width,
-      1,
-      {}
-    );
+    createAndSetFramebuffer(renderPassGlareTarget, rnCanvasElement.width, 1, {});
 
     const texturesSynthesize = [
       renderPassLDR.getFramebuffer().colorAttachments[0],
@@ -332,15 +293,14 @@ declare const window: any;
       );
     }
 
-    const materialSynthesizeTextures =
-      Rn.MaterialHelper.createSynthesizeHDRMaterial(
-        {
-          targetRegionTexture: renderPassGlareTarget.getFramebuffer()
-            .colorAttachments[0] as Rn.RenderTargetTexture,
-          maxInstancesNumber: 1,
-        },
-        texturesSynthesize
-      );
+    const materialSynthesizeTextures = Rn.MaterialHelper.createSynthesizeHDRMaterial(
+      {
+        targetRegionTexture: renderPassGlareTarget.getFramebuffer()
+          .colorAttachments[0] as Rn.RenderTargetTexture,
+        maxInstancesNumber: 1,
+      },
+      texturesSynthesize
+    );
     materialSynthesizeTextures.setParameter(
       Rn.SynthesizeHdrMaterialContent.SynthesizeCoefficient,
       synthesizeCoefficient
@@ -349,12 +309,7 @@ declare const window: any;
       materialSynthesizeTextures,
       cameraComponentPostEffect
     );
-    createAndSetFramebuffer(
-      renderPassSynthesizeGlare,
-      rnCanvasElement.width,
-      1,
-      {}
-    );
+    createAndSetFramebuffer(renderPassSynthesizeGlare, rnCanvasElement.width, 1, {});
 
     return [renderPassGlareTarget, renderPassSynthesizeGlare];
   }
@@ -366,36 +321,22 @@ declare const window: any;
   ) {
     const material = Rn.MaterialHelper.createGaussianBlurMaterial();
 
-    const gaussianDistributionRatio =
-      Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
-        kernelSize: gaussianKernelSize,
-        variance: gaussianVariance,
-      });
-    material.setParameter(
-      Rn.GaussianBlurMaterialContent.GaussianKernelSize,
-      gaussianKernelSize
-    );
-    material.setParameter(
-      Rn.GaussianBlurMaterialContent.GaussianRatio,
-      gaussianDistributionRatio
-    );
+    const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
+      kernelSize: gaussianKernelSize,
+      variance: gaussianVariance,
+    });
+    material.setParameter(Rn.GaussianBlurMaterialContent.GaussianKernelSize, gaussianKernelSize);
+    material.setParameter(Rn.GaussianBlurMaterialContent.GaussianRatio, gaussianDistributionRatio);
 
     if (isHorizontal === false) {
       material.setParameter(Rn.GaussianBlurMaterialContent.IsHorizontal, false);
     }
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-    const TextureTarget = framebufferTarget
-      .colorAttachments[0] as Rn.RenderTargetTexture;
-    material.setTextureParameter(
-      Rn.ShaderSemantics.BaseColorTexture,
-      TextureTarget
-    );
+    const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
+    material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
 
-    const renderPass = createRenderPassPostEffect(
-      material,
-      cameraComponentPostEffect
-    );
+    const renderPass = createRenderPassPostEffect(material, cameraComponentPostEffect);
     createAndSetFramebuffer(renderPass, resolutionBlur, 1, {});
 
     return renderPass;
@@ -460,11 +401,7 @@ declare const window: any;
     }
   }
 
-  function draw(
-    expressions: Rn.Expression[],
-    loopCount: number,
-    pElem?: HTMLElement
-  ) {
+  function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && loopCount > 50) {
       pElem = document.createElement('p');

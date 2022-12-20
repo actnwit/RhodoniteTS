@@ -19,6 +19,7 @@ export declare type Vrm0xBlendShapeBind = {
 export declare type Vrm0xBlendShapeGroup = {
     name: string;
     presetName: string;
+    isBinary: boolean;
     binds: Vrm0xBlendShapeBind[];
     materialValues: [];
 };

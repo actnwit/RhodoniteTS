@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -27,10 +27,7 @@ import Rn from '../../../dist/esm/index.mjs';
   const cameraComponentPostEffect = createEntityPostEffectCamera().getCamera();
 
   // prepare render passes
-  const renderPassDepth = createRenderPassDepthEncode(
-    cameraComponentDepth,
-    entitiesRenderTarget
-  );
+  const renderPassDepth = createRenderPassDepthEncode(cameraComponentDepth, entitiesRenderTarget);
   createAndSetFramebuffer(renderPassDepth, resolutionDepthCamera, 1);
 
   const renderPassDepthBlurH = createRenderPassGaussianBlurForDepth(
@@ -46,11 +43,7 @@ import Rn from '../../../dist/esm/index.mjs';
     false
   );
 
-  const renderPassesDepth = [
-    renderPassDepth,
-    renderPassDepthBlurH,
-    renderPassDepthBlurHV,
-  ];
+  const renderPassesDepth = [renderPassDepth, renderPassDepthBlurH, renderPassDepthBlurHV];
 
   // prepare expressions
   const expressionDepthBlur = createExpression(renderPassesDepth);
@@ -177,14 +170,12 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPassBlurTarget: Rn.RenderPass,
     isHorizontal: boolean
   ) {
-    const material =
-      Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
+    const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
 
-    const gaussianDistributionRatio =
-      Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
-        kernelSize: gaussianKernelSize,
-        variance: gaussianVariance,
-      });
+    const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
+      kernelSize: gaussianKernelSize,
+      variance: gaussianVariance,
+    });
     material.setParameter(
       Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,
       gaussianKernelSize
@@ -195,19 +186,12 @@ import Rn from '../../../dist/esm/index.mjs';
     );
 
     if (isHorizontal === false) {
-      material.setParameter(
-        Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal,
-        false
-      );
+      material.setParameter(Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal, false);
     }
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-    const TextureTarget = framebufferTarget
-      .colorAttachments[0] as Rn.RenderTargetTexture;
-    material.setTextureParameter(
-      Rn.ShaderSemantics.BaseColorTexture,
-      TextureTarget
-    );
+    const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
+    material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
 
     const boardPrimitive = new Rn.Plane();
     boardPrimitive.generate({
@@ -223,14 +207,8 @@ import Rn from '../../../dist/esm/index.mjs';
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0.0, -0.5,
-    ]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 

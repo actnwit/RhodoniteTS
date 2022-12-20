@@ -1,10 +1,9 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
 
-  const pointCloudDrcUri =
-    './../../../assets/drc/FlightHelmet/FlightHelmet.drc';
+  const pointCloudDrcUri = './../../../assets/drc/FlightHelmet/FlightHelmet.drc';
 
   const pointSize = 1.0;
 
@@ -25,11 +24,7 @@ import Rn from '../../../dist/esm/index.mjs';
 
   // prepare entity
   const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
-  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    -Math.PI / 2,
-    0.0,
-    0.0,
-  ]);
+  rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera
@@ -50,13 +45,9 @@ import Rn from '../../../dist/esm/index.mjs';
 
   // ---functions-----------------------------------------------------------------------------------------
 
-  async function createEntityPointCloud(
-    pointCloudDrcUri: string
-  ): Promise<Rn.IMeshEntity> {
+  async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
-    const primitive = await importer.importPointCloudToPrimitive(
-      pointCloudDrcUri
-    );
+    const primitive = await importer.importPointCloudToPrimitive(pointCloudDrcUri);
 
     const mesh = new Rn.Mesh();
     mesh.addPrimitive(primitive);

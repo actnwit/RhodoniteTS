@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 let p: any;
 
 declare const window: any;
@@ -23,16 +23,14 @@ declare const window: any;
     cameraComponent.zFar = 1000;
     cameraComponent.setFovyAndChangeFocalLength(45);
     cameraComponent.aspect = 1;
-    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0, 0.5,
-    ]);
+    cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
     const promise = Rn.Gltf2Importer.importFromUri(
       // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
       '../../../assets/gltf/glTF-Sample-Models/2.0/BrainStem/glTF/BrainStem.gltf'
     );
 
-    promise.then(response => {
+    promise.then((response) => {
       const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
       //rootGroup.getTransform().translate = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
       rootGroup.getTransform().rotate = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);

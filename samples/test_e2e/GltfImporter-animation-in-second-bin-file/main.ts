@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -19,18 +19,19 @@ declare const window: any;
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const expression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )).unwrapForce();
+  const expression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
+      {
+        cameraComponent: cameraComponent,
+      }
+    )
+  ).unwrapForce();
 
   // cameraController
   const mainRenderPass = expression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   let count = 0;
@@ -64,11 +65,7 @@ declare const window: any;
 
   draw();
 
-  function setParameterForMeshComponents(
-    meshComponents,
-    shaderSemantic,
-    value
-  ) {
+  function setParameterForMeshComponents(meshComponents, shaderSemantic, value) {
     for (let i = 0; i < meshComponents.length; i++) {
       const mesh = meshComponents[i].mesh;
       if (!mesh) continue;

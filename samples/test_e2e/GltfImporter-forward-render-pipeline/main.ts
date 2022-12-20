@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -20,32 +20,30 @@ declare const window: any;
   forwardRenderPipeline.setup(canvas.width, canvas.height);
 
   // camera
-  const {cameraComponent, cameraEntity} = createCamera();
+  const { cameraComponent, cameraEntity } = createCamera();
 
   // gltf
-  const mainExpression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )).unwrapForce();
+  const mainExpression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
+      {
+        cameraComponent: cameraComponent,
+        defaultMaterialHelperArgumentArray: [
+          {
+            makeOutputSrgb: false,
+          },
+        ],
+      }
+    )
+  ).unwrapForce();
 
   // env
-  const envExpression = createEnvCubeExpression(
-    './../../../assets/ibl/papermill',
-    cameraEntity
-  );
+  const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
 
   const mainRenderPass = mainExpression.renderPasses[0];
   // cameraController
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
   controller.dolly = 0.83;
 
@@ -102,7 +100,7 @@ function createCamera() {
   cameraComponent.zFar = 1000.0;
   cameraComponent.setFovyAndChangeFocalLength(30.0);
   cameraComponent.aspect = 1.0;
-  return {cameraComponent, cameraEntity};
+  return { cameraComponent, cameraEntity };
 }
 
 function createEnvCubeExpression(baseuri, cameraEntity) {
@@ -114,10 +112,7 @@ function createEnvCubeExpression(baseuri, cameraEntity) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 let p = null;
@@ -18,21 +18,21 @@ let p = null;
   cameraComponent.aspect = 1.0;
 
   // gltf
-  const expression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
-    {
-      defaultMaterialHelperArgumentArray: [
-        {
-          isLighting: false,
-        },
-      ],
-      cameraComponent: cameraComponent,
-    }
-  )).unwrapForce();
+  const expression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedTriangle/glTF-Embedded/AnimatedTriangle.gltf',
+      {
+        defaultMaterialHelperArgumentArray: [
+          {
+            isLighting: false,
+          },
+        ],
+        cameraComponent: cameraComponent,
+      }
+    )
+  ).unwrapForce();
 
-  const meshComponents = Rn.ComponentRepository.getComponentsWithType(
-    Rn.MeshComponent
-  );
+  const meshComponents = Rn.ComponentRepository.getComponentsWithType(Rn.MeshComponent);
   setParameterForMeshComponents(
     meshComponents,
     Rn.ShaderSemantics.BaseColorFactor,
@@ -42,8 +42,7 @@ let p = null;
   // cameraController
   const mainRenderPass = expression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.76;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 

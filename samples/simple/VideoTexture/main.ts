@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -14,10 +14,7 @@ declare const window: any;
   const texture = new Rn.VideoTexture();
   texture.generateTextureFromUri('../../../assets/videos/video.mp4');
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-  modelMaterial.setTextureParameter(
-    Rn.ShaderSemantics.DiffuseColorTexture,
-    texture
-  );
+  modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
   window.texture = texture;
 
   const planeEntity = Rn.EntityHelper.createMeshEntity();
@@ -35,11 +32,7 @@ declare const window: any;
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0,
-    0,
-  ]);
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
@@ -50,16 +43,13 @@ declare const window: any;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0, 0.5,
-  ]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // CameraComponent
   const cameraControllerComponent = (
     cameraEntity as Rn.ICameraControllerEntity
   ).getCameraController();
-  const controller =
-    cameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
 
   // renderPass

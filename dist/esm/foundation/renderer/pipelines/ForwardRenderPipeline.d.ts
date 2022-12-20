@@ -160,7 +160,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __setupMsaaResolveExpression;
     private __setupGammaExpression;
     private __setupSatExpression;
-    private __setupDepthMomentExpression;
+    private __setupDepthMomentFramebuffer;
     private __setIblInner;
     private __setIblInnerForTransparentOnly;
     /**
@@ -170,5 +170,6 @@ export declare class ForwardRenderPipeline extends RnObject {
      * This method adds expressions to the frame.
      */
     private __setExpressions;
+    private __setDepthMomentRenderPassesAndDepthTextureToEntityMaterials;
 }
 export {};

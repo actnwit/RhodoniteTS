@@ -21,12 +21,12 @@ export declare abstract class AbstractTexture extends RnObject {
     protected __minFilter: TextureParameterEnum;
     protected __wrapS: TextureParameterEnum;
     protected __wrapT: TextureParameterEnum;
+    protected __anisotropy: boolean;
     protected __hasTransparentPixels: boolean;
     private static readonly InvalidTextureUid;
     private static __textureUidCount;
     private __textureUid;
     protected __img?: HTMLImageElement;
-    cgApiResourceUid: CGAPIResourceHandle;
     protected __isTextureReady: boolean;
     protected __startedToLoad: boolean;
     protected __htmlImageElement?: HTMLImageElement;
@@ -35,6 +35,8 @@ export declare abstract class AbstractTexture extends RnObject {
     protected __uri?: string;
     protected __name: string;
     protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture>;
+    _textureResourceUid: CGAPIResourceHandle;
+    _samplerResourceUid: CGAPIResourceHandle;
     constructor();
     get textureUID(): number;
     get width(): Size;

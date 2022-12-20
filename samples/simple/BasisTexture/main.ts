@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -24,10 +24,7 @@ declare const window: any;
     });
   }
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-  modelMaterial.setTextureParameter(
-    Rn.ShaderSemantics.DiffuseColorTexture,
-    texture
-  );
+  modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
 
   const planeEntity = Rn.EntityHelper.createMeshEntity();
   const planePrimitive = new Rn.Plane();
@@ -44,11 +41,7 @@ declare const window: any;
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0,
-    0,
-  ]);
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
   const sphereEntity = Rn.EntityHelper.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
@@ -66,10 +59,7 @@ declare const window: any;
     const uint8Array = new Uint8Array(buffer);
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
   }
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
   const sphereMeshComponent = sphereEntity.getMesh();
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
@@ -84,14 +74,11 @@ declare const window: any;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
 
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0, 0.5,
-  ]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    cameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
 
   // renderPass

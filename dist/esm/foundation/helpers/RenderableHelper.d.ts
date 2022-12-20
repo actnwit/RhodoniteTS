@@ -1,5 +1,5 @@
 import { FrameBuffer } from '../renderer/FrameBuffer';
-declare function createTexturesForRenderTarget(width: number, height: number, textureNum: number, { level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, createDepthBuffer, isMSAA, sampleCountMSAA, }: {
+declare function createTexturesForRenderTarget(width: number, height: number, textureNum: number, { level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, createDepthBuffer, isMSAA, sampleCountMSAA, anisotropy, }: {
     level?: number | undefined;
     internalFormat?: import("..").EnumIO | undefined;
     format?: import("..").EnumIO | undefined;
@@ -11,6 +11,7 @@ declare function createTexturesForRenderTarget(width: number, height: number, te
     createDepthBuffer?: boolean | undefined;
     isMSAA?: boolean | undefined;
     sampleCountMSAA?: number | undefined;
+    anisotropy?: boolean | undefined;
 }): FrameBuffer;
 declare function createDepthBuffer(width: number, height: number, { level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, }: {
     level?: number | undefined;

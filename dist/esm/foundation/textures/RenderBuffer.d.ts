@@ -7,7 +7,7 @@ export declare class RenderBuffer extends RnObject implements IRenderable {
     width: number;
     height: number;
     private __internalFormat;
-    cgApiResourceUid: CGAPIResourceHandle;
+    _textureResourceUid: CGAPIResourceHandle;
     private __fbo?;
     private __isMSAA;
     private __sampleCountMSAA;

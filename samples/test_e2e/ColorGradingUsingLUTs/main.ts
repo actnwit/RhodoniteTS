@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
@@ -51,17 +51,13 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPass.toClearColorBuffer = true;
     renderPass.cameraComponent = cameraComponent;
 
-    const entitySmallBoard = createEntityColoredBoard(
-      Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
-    );
+    const entitySmallBoard = createEntityColoredBoard(Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1]));
     const transformSmallBoard = entitySmallBoard.getTransform();
     transformSmallBoard.scale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
     transformSmallBoard.translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -1.0]);
     transformSmallBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
-    const entityLargeBoard = createEntityColoredBoard(
-      Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
-    );
+    const entityLargeBoard = createEntityColoredBoard(Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1]));
     const transformLargeBoard = entityLargeBoard.getTransform();
     transformLargeBoard.translate = Rn.Vector3.fromCopyArray([15, 30, -1.5]);
     transformLargeBoard.rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
@@ -79,10 +75,7 @@ import Rn from '../../../dist/esm/index.mjs';
       vSpan: 1,
       isUVRepeat: false,
     });
-    primitive.material.setParameter(
-      Rn.ShaderSemantics.DiffuseColorFactor,
-      diffuseColor
-    );
+    primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, diffuseColor);
 
     const entity = Rn.EntityHelper.createMeshEntity();
     const meshComponent = entity.getMesh();
@@ -134,10 +127,7 @@ import Rn from '../../../dist/esm/index.mjs';
     renderPassMain: Rn.RenderPass,
     cameraComponent: Rn.CameraComponent
   ) {
-    const material = Rn.MaterialHelper.createColorGradingUsingLUTsMaterial(
-      {uri},
-      renderPassMain
-    );
+    const material = Rn.MaterialHelper.createColorGradingUsingLUTsMaterial({ uri }, renderPassMain);
 
     const boardPrimitive = new Rn.Plane();
     boardPrimitive.generate({
@@ -153,14 +143,8 @@ import Rn from '../../../dist/esm/index.mjs';
     boardMesh.addPrimitive(boardPrimitive);
 
     const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-      Math.PI / 2,
-      0.0,
-      0.0,
-    ]);
-    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0.0, 0.0, -0.5,
-    ]);
+    boardEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
+    boardEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
     const boardMeshComponent = boardEntity.getMesh();
     boardMeshComponent.setMesh(boardMesh);
 
@@ -178,11 +162,7 @@ import Rn from '../../../dist/esm/index.mjs';
     return expression;
   }
 
-  function draw(
-    expressions: Rn.Expression[],
-    isFirstLoop: Boolean,
-    pElem?: HTMLElement
-  ) {
+  function draw(expressions: Rn.Expression[], isFirstLoop: Boolean, pElem?: HTMLElement) {
     // for e2e-test
     if (pElem === undefined && !isFirstLoop) {
       pElem = document.createElement('p');

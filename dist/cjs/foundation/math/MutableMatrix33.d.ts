@@ -44,8 +44,8 @@ export declare class MutableMatrix33 extends Matrix33 implements IMutableMatrix,
      */
     static invert(mat: IMatrix33): MutableMatrix33;
     /**
-   * Create X oriented Rotation Matrix
-   */
+     * Create X oriented Rotation Matrix
+     */
     static rotateX(radian: number): MutableMatrix33;
     /**
      * Create Y oriented Rotation Matrix

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   const moduleName = 'webgl';
@@ -16,26 +16,17 @@ import Rn from '../../../dist/esm/index.mjs';
     Rn.CompositionType.Vec4,
     Rn.ComponentType.Float
   );
-  constant1.setDefaultInputValue(
-    'value',
-    Rn.Vector4.fromCopyArray([1, 2, 3, 4])
-  );
+  constant1.setDefaultInputValue('value', Rn.Vector4.fromCopyArray([1, 2, 3, 4]));
 
   // Constant 2
   const constant2 = new Rn.ConstantVariableShaderNode(
     Rn.CompositionType.Vec4,
     Rn.ComponentType.Float
   );
-  constant2.setDefaultInputValue(
-    'value',
-    Rn.Vector4.fromCopyArray([4, 3, 2, 1])
-  );
+  constant2.setDefaultInputValue('value', Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
 
   // Add (Constant 1 + Constant 2)
-  const addShaderNode = new Rn.AddShaderNode(
-    Rn.CompositionType.Vec4,
-    Rn.ComponentType.Float
-  );
+  const addShaderNode = new Rn.AddShaderNode(Rn.CompositionType.Vec4, Rn.ComponentType.Float);
   addShaderNode.addInputConnection(constant1, 'outValue', 'lhs');
   addShaderNode.addInputConnection(constant2, 'outValue', 'rhs');
 
@@ -71,10 +62,7 @@ import Rn from '../../../dist/esm/index.mjs';
   pElem.innerText = 'Rendered.';
   document.body.appendChild(pElem);
 
-  const rnMaterial = Rn.MaterialHelper.recreateCustomMaterial(
-    vertexRet.shader,
-    pixelRet.shader
-  );
+  const rnMaterial = Rn.MaterialHelper.recreateCustomMaterial(vertexRet.shader, pixelRet.shader);
   console.log('material');
   console.log(rnMaterial);
 })();

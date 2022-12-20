@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -25,17 +25,19 @@ document.body.appendChild(p);
   cameraTransform.rotate = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
 
   // gltf
-  const expression = (await Rn.GltfImporter.importFromUri(
-    './../../../assets/gltf/glTF-Sample-Models/2.0/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          isLighting: false,
-        },
-      ],
-    }
-  )).unwrapForce();
+  const expression = (
+    await Rn.GltfImporter.importFromUri(
+      './../../../assets/gltf/glTF-Sample-Models/2.0/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf',
+      {
+        cameraComponent: cameraComponent,
+        defaultMaterialHelperArgumentArray: [
+          {
+            isLighting: false,
+          },
+        ],
+      }
+    )
+  ).unwrapForce();
 
   Rn.System.process([expression]);
 

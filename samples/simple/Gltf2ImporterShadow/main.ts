@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -31,21 +31,14 @@ import Rn from '../../../dist/esm/index.mjs';
 
   // prepare render passes
   const entityRootGroup = await createEntityGltf2(uriGltf);
-  const renderPassesDepth = createRenderPassDepth(
-    entityCameraDepth.getCamera(),
-    entityRootGroup
-  );
+  const renderPassesDepth = createRenderPassDepth(entityCameraDepth.getCamera(), entityRootGroup);
 
   const entityEnvironmentCube = createEntityEnvironmentCube(basePathIBL);
   const entityBoardCastedShadow = createEntityBoard(renderPassesDepth);
 
   const renderPassMain = new Rn.RenderPass();
   renderPassMain.cameraComponent = entityCameraMain.getCamera();
-  renderPassMain.addEntities([
-    entityEnvironmentCube,
-    entityBoardCastedShadow,
-    entityRootGroup,
-  ]);
+  renderPassMain.addEntities([entityEnvironmentCube, entityBoardCastedShadow, entityRootGroup]);
 
   // set target of camera controller
   const cameraControllerComponent = entityCameraMain.getCameraController();
@@ -73,10 +66,7 @@ import Rn from '../../../dist/esm/index.mjs';
     cameraComponent.zNear = zFarDepth / 10000;
     cameraComponent.zFar = zFarDepth;
 
-    const lightDirection = Rn.MutableVector3.multiply(
-      lightPosition,
-      -1.0
-    ).normalize();
+    const lightDirection = Rn.MutableVector3.multiply(lightPosition, -1.0).normalize();
     cameraComponent.direction = lightDirection;
 
     return entityCamera;
@@ -88,11 +78,8 @@ import Rn from '../../../dist/esm/index.mjs';
   }
 
   async function createEntityGltf2(uriGltf: string) {
-    const gltf2JSON = (
-      await Rn.Gltf2Importer.importFromUri(uriGltf)
-    ).unwrapForce();
-    const entityRootGroup =
-      Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+    const gltf2JSON = (await Rn.Gltf2Importer.importFromUri(uriGltf)).unwrapForce();
+    const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
     const transformComponent = entityRootGroup.getTransform();
     transformComponent.scale = rootGroupScale;
@@ -101,8 +88,7 @@ import Rn from '../../../dist/esm/index.mjs';
 
   function createEntityEnvironmentCube(basePathIBL: string) {
     const cubeTextureEnvironment = new Rn.CubeTexture();
-    cubeTextureEnvironment.baseUriToLoad =
-      basePathIBL + '/environment/environment';
+    cubeTextureEnvironment.baseUriToLoad = basePathIBL + '/environment/environment';
     cubeTextureEnvironment.isNamePosNeg = true;
     cubeTextureEnvironment.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
     cubeTextureEnvironment.mipmapLevelNumber = 1;
@@ -113,10 +99,7 @@ import Rn from '../../../dist/esm/index.mjs';
       Rn.EnvConstantMaterialContent.EnvHdriFormat,
       Rn.HdriFormat.HDR_LINEAR.index
     );
-    materialSphere.setTextureParameter(
-      Rn.ShaderSemantics.ColorEnvTexture,
-      cubeTextureEnvironment
-    );
+    materialSphere.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, cubeTextureEnvironment);
 
     const primitiveSphere = new Rn.Sphere();
     primitiveSphere.generate({
@@ -133,19 +116,16 @@ import Rn from '../../../dist/esm/index.mjs';
     meshComponentSphere.setMesh(meshSphere);
 
     entitySphere.getTransform().scale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
-    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([
-      0, 300, 0,
-    ]);
+    entitySphere.getTransform().translate = Rn.Vector3.fromCopyArray([0, 300, 0]);
 
     return entitySphere;
   }
 
   function createEntityBoard(renderPassDepth: Rn.RenderPass) {
-    const material =
-      Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
-        {},
-        renderPassDepth
-      );
+    const material = Rn.MaterialHelper.createShadowMapDecodeClassicSingleMaterial(
+      {},
+      renderPassDepth
+    );
     material.setParameter(
       Rn.ShaderSemantics.DiffuseColorFactor,
       Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0])

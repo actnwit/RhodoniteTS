@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
@@ -13,7 +13,7 @@ let renderPassMain: Rn.RenderPass;
   const gl = await Rn.System.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas,
-    webglOption: {antialias: false},
+    webglOption: { antialias: false },
   });
 
   // setup the Main RenderPass
@@ -97,11 +97,7 @@ async function setupRenderPassMain() {
   const planeMesh = new Rn.Mesh();
   planeMesh.addPrimitive(planePrimitive);
   planeMeshComponent.setMesh(planeMesh);
-  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    Math.PI / 2,
-    0,
-    Math.PI / 3,
-  ]);
+  planeEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, Math.PI / 3]);
   const sphereEntity = Rn.EntityHelper.createMeshEntity();
   const spherePrimitive = new Rn.Sphere();
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
@@ -119,10 +115,7 @@ async function setupRenderPassMain() {
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
     environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   }
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture
-  );
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index
@@ -138,13 +131,10 @@ async function setupRenderPassMain() {
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(90);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0, 0.5,
-  ]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
   // CameraComponent
   const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller =
-    cameraControllerComponent.controller as Rn.OrbitCameraController;
+  const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(planeEntity);
   // renderPass
   const renderPass = new Rn.RenderPass();
@@ -161,12 +151,8 @@ function setupRenderPassFxaa(
   const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial({
     noUseCameraTransform: true,
   });
-  const renderPassFxaa =
-    Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
-  fxaaMaterial.setTextureParameterAsPromise(
-    Rn.ShaderSemantics.BaseColorTexture,
-    renderable
-  );
+  const renderPassFxaa = Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
+  fxaaMaterial.setTextureParameterAsPromise(Rn.ShaderSemantics.BaseColorTexture, renderable);
   fxaaMaterial.setParameter(
     Rn.ShaderSemantics.ScreenInfo,
     Rn.Vector2.fromCopyArray2([width, height])
@@ -176,9 +162,7 @@ function setupRenderPassFxaa(
 }
 
 window.toggleFXAA = function () {
-  const toggleButton = document.getElementById(
-    'toggleFXAAButton'
-  ) as HTMLElement;
+  const toggleButton = document.getElementById('toggleFXAAButton') as HTMLElement;
   if (activeExpression === expressionWithFXAA) {
     activeExpression = expressionWithOutFXAA;
     renderPassMain.setFramebuffer(undefined as any);

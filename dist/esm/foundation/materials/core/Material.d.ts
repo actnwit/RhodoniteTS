@@ -3,7 +3,7 @@ import { AlphaModeEnum } from '../../definitions/AlphaMode';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { ShaderSemanticsEnum, ShaderSemanticsIndex, getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 import { AbstractTexture } from '../../textures/AbstractTexture';
-import { Index, CGAPIResourceHandle, MaterialSID, MaterialUID } from '../../../types/CommonTypes';
+import { Index, CGAPIResourceHandle, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
 import { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { Primitive } from '../../geometry/Primitive';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
@@ -39,12 +39,6 @@ export declare class Material extends RnObject {
     private static __shaderStringMap;
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
-    /**
-     * @internal
-     * called from Primitive class only
-     * @param primitive
-     */
-    _addBelongPrimitive(primitive: Primitive): void;
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
     setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
     getTextureParameter(shaderSemantic: ShaderSemanticsEnum): any;
@@ -53,16 +47,51 @@ export declare class Material extends RnObject {
     setTextureParameterByUniformName(uniformName: string, value: any): void;
     getParameter(shaderSemantic: ShaderSemanticsEnum): any;
     /**
-     * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom only
-     * @param isUniformOnlyMode
-     */
-    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean): void;
-    /**
      * return whether the shader program ready or not
      * @returns is shader program ready or not
      */
     isShaderProgramReady(): boolean;
+    /**
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
+     * @param isUniformOnlyMode
+     */
+    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean): void;
+    /**
+     * @internal
+     * called from Primitive class only
+     * @param primitive
+     */
+    _addBelongPrimitive(primitive: Primitive): void;
+    /**
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform
+     * @param vertexShaderMethodDefinitions_uniform
+     * @param propertySetter
+     * @param isWebGL2
+     * @returns
+     */
+    _createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): CGAPIResourceHandle;
+    /**
+     * create program by updated shader source code
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform
+     *
+     * @param updatedShaderSources - updated shader source code
+     * @param onError
+     * @returns
+     */
+    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
+    /**
+     * @internal
+     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
+     */
+    _setupBasicUniformsLocations(): void;
+    /**
+     * @internal
+     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
+     */
+    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram;
     /**
      * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
@@ -73,14 +102,6 @@ export declare class Material extends RnObject {
         firstTime: boolean;
         args: RenderingArg;
     }): void;
-    private __setAutoParametersToGpu;
-    private __setSoloDatumParametersToGpu;
-    private __setupGlobalShaderDefinition;
-    private __createProgramAsSingleOperation;
-    private __createProgramAsSingleOperationByUpdatedSources;
-    private __createShaderProgramWithCache;
-    private __getAttributeInfo;
-    private __outputVertexAttributeBindingInfo;
     /**
      * @internal
      * @param propertySetter
@@ -89,17 +110,15 @@ export declare class Material extends RnObject {
         vertexPropertiesStr: string;
         pixelPropertiesStr: string;
     };
+    private __setAutoParametersToGpu;
+    private __setSoloDatumParametersToGpu;
+    private __setupGlobalShaderDefinition;
+    private __createProgramAsSingleOperation;
+    private __createProgramAsSingleOperationByUpdatedSources;
+    private __createShaderProgramWithCache;
+    private __getAttributeInfo;
+    private __outputVertexAttributeBindingInfo;
     private __getTargetShaderSemantics;
-    /**
-     * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUnfirom
-     * @param vertexShaderMethodDefinitions_uniform
-     * @param propertySetter
-     * @param isWebGL2
-     * @returns
-     */
-    _createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): CGAPIResourceHandle;
-    createProgramByUpdatedSources(updatedShaderSources: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
     /**
      * Change the blendEquations
      * This method works only if this alphaMode is the translucent
@@ -117,16 +136,6 @@ export declare class Material extends RnObject {
      * This method works only if this alphaMode is the translucent
      */
     setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number): void;
-    /**
-     * @internal
-     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
-     */
-    _setupBasicUniformsLocations(): void;
-    /**
-     * @internal
-     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
-     */
-    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram;
     isEmptyMaterial(): boolean;
     isBlend(): boolean;
     /**
@@ -140,7 +149,7 @@ export declare class Material extends RnObject {
     /**
      * Gets materialTID.
      */
-    get materialTID(): number;
+    get materialTID(): MaterialTID;
     get fieldsInfoArray(): ShaderSemanticsInfo[];
     get blendEquationMode(): number;
     get blendEquationModeAlpha(): number;
@@ -150,8 +159,8 @@ export declare class Material extends RnObject {
     get blendFuncAlphaDstFactor(): number;
     get alphaMode(): AlphaModeEnum;
     set alphaMode(mode: AlphaModeEnum);
-    get materialUID(): number;
-    get materialSID(): number;
+    get materialUID(): MaterialUID;
+    get materialSID(): MaterialSID;
     get isSkinning(): boolean;
     get isMorphing(): boolean;
     get isLighting(): boolean;

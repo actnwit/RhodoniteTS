@@ -10,7 +10,7 @@ export declare const WellKnownComponentTIDs: Readonly<{
     SkeletalComponentTID: 9;
     BlendShapeComponentTID: 10;
     PhysicsComponentTID: 11;
-    SparkGearComponentTID: 12;
-    EffekseerComponentTID: 13;
+    EffekseerComponentTID: 12;
+    VrmComponentTID: 13;
     maxWellKnownTidNumber: 13;
 }>;

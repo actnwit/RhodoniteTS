@@ -1,7 +1,7 @@
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { Index, IndexOf16Bytes } from '../types/CommonTypes';
+import { Index } from '../types/CommonTypes';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
@@ -15,7 +15,6 @@ declare function isSkipDrawing(material: Material): boolean;
 declare function setVRViewport(renderPass: RenderPass, displayIdx: Index): void;
 declare function getDisplayNumber(isVRMainPass: boolean): 1 | 2;
 declare function isVrMainPass(renderPass: RenderPass): boolean;
-declare function getLocationOffsetOfProperty(propertyIndex: Index, materialTypeName?: string): IndexOf16Bytes;
 declare function getPointSpriteShaderSemanticsInfoArray(): ({
     semantic: import("../foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
     compositionType: import("../foundation/definitions/CompositionType").CompositionTypeEnum;
@@ -47,7 +46,6 @@ declare const _default: Readonly<{
     setVRViewport: typeof setVRViewport;
     getDisplayNumber: typeof getDisplayNumber;
     isVrMainPass: typeof isVrMainPass;
-    getLocationOffsetOfProperty: typeof getLocationOffsetOfProperty;
     getPointSpriteShaderSemanticsInfoArray: typeof getPointSpriteShaderSemanticsInfoArray;
 }>;
 export default _default;

@@ -1,8 +1,8 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
-(async window => {
+(async (window) => {
   // Init Rhodonite
   await Rn.System.init({
     approach: Rn.ProcessApproach.DataTexture,
@@ -29,5 +29,4 @@ declare const window: any;
     Rn.System.processAuto();
     count++;
   });
-
 })(window);

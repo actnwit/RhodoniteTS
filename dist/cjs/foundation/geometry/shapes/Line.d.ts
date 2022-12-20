@@ -17,5 +17,5 @@ export declare class Line extends IShape {
      * Generates a line object
      * @param desc a descriptor object of a Line
      */
-    generate({ startPos, endPos, hasTerminalMark, material, }: LineDescriptor): void;
+    generate({ startPos, endPos, hasTerminalMark, material }: LineDescriptor): void;
 }

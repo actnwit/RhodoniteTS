@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
@@ -8,8 +8,7 @@ const setupRenderPassEntityUidOutput = function (
   canvas: HTMLCanvasElement
 ) {
   const renderPass = new Rn.RenderPass();
-  const entityUidOutputMaterial =
-    Rn.MaterialHelper.createEntityUIDOutputMaterial();
+  const entityUidOutputMaterial = Rn.MaterialHelper.createEntityUIDOutputMaterial();
 
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
@@ -53,25 +52,18 @@ const load = async function () {
 
   // Camera
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getComponent(
-    Rn.CameraComponent
-  ) as Rn.CameraComponent;
+  const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as Rn.CameraComponent;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
   cameraComponent.setFovyAndChangeFocalLength(30);
   cameraComponent.aspect = 1;
-  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0, 0.5,
-  ]);
+  cameraEntity.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
   const lightEntity2 = Rn.EntityHelper.createLightEntity();
-  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([
-    0.0, 0.0, 10.0,
-  ]);
-  (
-    lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent
-  ).intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
+  lightEntity2.getTransform().translate = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
+  (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).intensity =
+    Rn.Vector3.fromCopyArray([1, 1, 1]);
 
   // Please download a model from https://www.3dscanstore.com/blog/Free-3D-Head-Model or others
   const response = (await Rn.Gltf2Importer.importFromUri('')).unwrapForce();
@@ -83,10 +75,7 @@ const load = async function () {
     canvas
   );
   window.renderPassEntityUidOutput = renderPassEntityUidOutput;
-  const renderPassRendering = setupRenderPassRendering(
-    rootGroup,
-    cameraComponent
-  );
+  const renderPassRendering = setupRenderPassRendering(rootGroup, cameraComponent);
   // expression.addRenderPasses([renderPassEntityUidOutput]);
   // expression.addRenderPasses([renderPassRendering]);
   expression.addRenderPasses([renderPassEntityUidOutput, renderPassRendering]);
@@ -96,9 +85,7 @@ const load = async function () {
   const cameraControllerComponent = cameraEntity.getComponent(
     Rn.CameraControllerComponent
   ) as Rn.CameraControllerComponent;
-  (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(
-    rootGroup
-  );
+  (cameraControllerComponent.controller as Rn.OrbitCameraController).setTarget(rootGroup);
 
   Rn.CameraComponent.current = 0;
   let startTime = Date.now();

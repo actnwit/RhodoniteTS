@@ -1,5 +1,5 @@
-import Rn from '../../../dist/esm/index.mjs';
-import {checkFinished} from '../common/testHelpers.js';
+import Rn from '../../../dist/esm/index.js';
+import { checkFinished } from '../common/testHelpers.js';
 let p: HTMLParagraphElement | undefined;
 
 (async () => {
@@ -15,7 +15,7 @@ let p: HTMLParagraphElement | undefined;
   // Rendering Loop
   let count = 0;
   Rn.System.startRenderLoop(() => {
-    [p, count] = checkFinished({p: p!, count});
+    [p, count] = checkFinished({ p: p!, count });
 
     Rn.System.processAuto();
 

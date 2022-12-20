@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const Stats: any;
 declare const window: any;
@@ -9,8 +9,8 @@ declare const window: any;
     const indices = new Uint16Array([
       //        0, 1, 2, 2, 3, 0
 
-      3, 1, 0, 2, 1, 3, 4, 5, 7, 7, 5, 6, 8, 9, 11, 11, 9, 10, 15, 13, 12, 14,
-      13, 15, 19, 17, 16, 18, 17, 19, 20, 21, 23, 23, 21, 22,
+      3, 1, 0, 2, 1, 3, 4, 5, 7, 7, 5, 6, 8, 9, 11, 11, 9, 10, 15, 13, 12, 14, 13, 15, 19, 17, 16,
+      18, 17, 19, 20, 21, 23, 23, 21, 22,
     ]);
 
     const positions = new Float32Array([
@@ -49,10 +49,7 @@ declare const window: any;
 
     const primitive = Rn.Primitive.createPrimitive({
       indices: indices,
-      attributeSemantics: [
-        Rn.VertexAttribute.Position.XYZ,
-        Rn.VertexAttribute.Color0.XYZ,
-      ],
+      attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Color0.XYZ],
       attributes: [positions, colors],
       primitiveMode: Rn.PrimitiveMode.Triangles,
     });
@@ -102,12 +99,8 @@ declare const window: any;
         1 / sqrtEntityNumber / 2,
       ]);
       entity.getTransform().translate = Rn.Vector3.fromCopyArray([
-        (1 / sqrtEntityNumber) * 2 * (i % sqrtEntityNumber) -
-          1.0 +
-          1 / sqrtEntityNumber,
-        (Math.floor(i / sqrtEntityNumber) / sqrtEntityNumber) * 2 -
-          1.0 +
-          1 / sqrtEntityNumber,
+        (1 / sqrtEntityNumber) * 2 * (i % sqrtEntityNumber) - 1.0 + 1 / sqrtEntityNumber,
+        (Math.floor(i / sqrtEntityNumber) / sqrtEntityNumber) * 2 - 1.0 + 1 / sqrtEntityNumber,
         0.0,
       ]);
     }
@@ -138,7 +131,7 @@ declare const window: any;
 
       if (window.isAnimating) {
         const rotation = 0.001 * (date.getTime() - startTime);
-        entities.forEach(entity => {
+        entities.forEach((entity) => {
           rotationVec3._v[0] = rotation;
           rotationVec3._v[1] = rotation;
           rotationVec3._v[2] = rotation;

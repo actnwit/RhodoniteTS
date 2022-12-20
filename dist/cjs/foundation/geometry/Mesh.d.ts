@@ -19,7 +19,6 @@ export declare class Mesh implements IMesh {
     private __opaquePrimitives;
     private __transparentPrimitives;
     private __morphPrimitives;
-    weights: number[];
     private __localAABB;
     private __vaoUids;
     private __variationVBOUid;

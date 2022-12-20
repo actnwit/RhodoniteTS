@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 declare const window: any;
 
@@ -21,19 +21,19 @@ declare const window: any;
   cameraTransform.rotate = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0]);
 
   // gltf
-  const expression = (await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb',
-    {
-      cameraComponent: cameraComponent,
-    }
-  )).unwrapForce();
+  const expression = (
+    await Rn.GltfImporter.importFromUri(
+      '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb',
+      {
+        cameraComponent: cameraComponent,
+      }
+    )
+  ).unwrapForce();
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
   lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
-  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([
-    4.0, 0.0, 5.0,
-  ]);
+  lightEntity.getTransform().translate = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
   let count = 0;
   Rn.AnimationComponent.globalTime = 3.6;
@@ -45,12 +45,9 @@ declare const window: any;
 
     if (window.isAnimating) {
       Rn.AnimationComponent.globalTime += 0.016;
-      if (
-        Rn.AnimationComponent.globalTime > Rn.AnimationComponent.endInputValue
-      ) {
+      if (Rn.AnimationComponent.globalTime > Rn.AnimationComponent.endInputValue) {
         Rn.AnimationComponent.globalTime -=
-          Rn.AnimationComponent.endInputValue -
-          Rn.AnimationComponent.startInputValue;
+          Rn.AnimationComponent.endInputValue - Rn.AnimationComponent.startInputValue;
       }
     }
 

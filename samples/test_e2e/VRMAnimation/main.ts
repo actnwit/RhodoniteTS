@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.mjs';
+import Rn from '../../../dist/esm/index.js';
 
 let p: any;
 
@@ -34,33 +34,25 @@ declare const window: any;
   cameraComponent.aspect = 1.0;
 
   // vrm
-  const animGltf2ModelPromise = Rn.Gltf2Importer.importFromUri(
-    '../../../assets/vrm/test.glb'
-  );
-  const vrmModelPromise = Rn.Vrm0xImporter.importJsonOfVRM(
-    '../../../assets/vrm/test.vrm'
-  );
-  const vrmExpressionPromise = Rn.GltfImporter.importFromUri(
-    '../../../assets/vrm/test.vrm',
-    {
-      defaultMaterialHelperArgumentArray: [
-        {
-          isSkinning: true,
-          isMorphing: false,
-          makeOutputSrgb: true,
-        },
-      ],
-      tangentCalculationMode: 0,
-      cameraComponent: cameraComponent,
-    }
-  );
+  const animGltf2ModelPromise = Rn.Gltf2Importer.importFromUri('../../../assets/vrm/test.glb');
+  const vrmModelPromise = Rn.Vrm0xImporter.importJsonOfVRM('../../../assets/vrm/test.vrm');
+  const vrmExpressionPromise = Rn.GltfImporter.importFromUri('../../../assets/vrm/test.vrm', {
+    defaultMaterialHelperArgumentArray: [
+      {
+        isSkinning: true,
+        isMorphing: false,
+        makeOutputSrgb: true,
+      },
+    ],
+    tangentCalculationMode: 0,
+    cameraComponent: cameraComponent,
+  });
 
-  const [animGltf2Result, vrmModelResult, vrmExpressionResult] =
-    await Promise.all([
-      animGltf2ModelPromise,
-      vrmModelPromise,
-      vrmExpressionPromise,
-    ]);
+  const [animGltf2Result, vrmModelResult, vrmExpressionResult] = await Promise.all([
+    animGltf2ModelPromise,
+    vrmModelPromise,
+    vrmExpressionPromise,
+  ]);
 
   // expresions
   const expressions = [vrmExpressionResult.unwrapForce()];
@@ -68,8 +60,7 @@ declare const window: any;
   const vrmMainRenderPass = vrmExpressionResult.unwrapForce().renderPasses[0];
   vrmMainRenderPass.toClearColorBuffer = true;
 
-  const vrmRootEntity =
-    vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
+  const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
   vrmRootEntity.getTransform().rotate = vrmModelRotation;
 
   // animation
@@ -86,27 +77,18 @@ declare const window: any;
 
   // camera controller
   const vrmMainCameraComponent = vrmMainRenderPass.cameraComponent;
-  const vrmMainCameraEntity =
-    vrmMainCameraComponent.entity as Rn.ICameraControllerEntity;
-  const vrmMainCameraControllerComponent =
-    vrmMainCameraEntity.getCameraController();
-  const controller =
-    vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  const vrmMainCameraEntity = vrmMainCameraComponent.entity as Rn.ICameraControllerEntity;
+  const vrmMainCameraControllerComponent = vrmMainCameraEntity.getCameraController();
+  const controller = vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.78;
-  controller.setTarget(
-    vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity
-  );
+  controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
   const lightComponent = lightEntity.getLight();
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
-  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([
-    0.0,
-    0.0,
-    Math.PI / 8,
-  ]);
+  lightEntity.getTransform().rotate = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
   let count = 0;
   let startTime = Date.now();
