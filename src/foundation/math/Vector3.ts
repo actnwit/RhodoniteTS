@@ -476,6 +476,10 @@ export class Vector3 extends Vector3_<Float32ArrayConstructor> {
     return super._fromCopy3(x, y, z, Float32Array);
   }
 
+  static fromCopy1(val: number): Vector3 {
+    return super._fromCopy3(val, val, val, Float32Array);
+  }
+
   static fromCopyArray(array: Array<number>): Vector3 {
     return super._fromCopyArray(array, Float32Array);
   }
@@ -567,6 +571,10 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
 
   static fromCopy3(x: number, y: number, z: number): Vector3d {
     return super._fromCopy3(x, y, z, Float64Array);
+  }
+
+  static fromCopy1(val: number): Vector3d {
+    return super._fromCopy3(val, val, val, Float64Array);
   }
 
   static fromCopyArray(array: Array<number>): Vector3d {
