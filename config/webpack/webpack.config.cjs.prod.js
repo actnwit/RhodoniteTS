@@ -6,7 +6,7 @@ const webpack = require('webpack');
 const config = merge(baseConfig, {
   entry: './src/cjs.ts',
   target: 'node',
-  mode: 'development',
+  mode: 'production',
   output: {
     filename: 'index.cjs',
     chunkFilename: 'rhodonite-[name].js',
@@ -15,7 +15,6 @@ const config = merge(baseConfig, {
       type: 'umd',
     },
   },
-  devtool: 'inline-source-map',
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,

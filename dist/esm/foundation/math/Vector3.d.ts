@@ -132,6 +132,7 @@ export declare class Vector3 extends Vector3_<Float32ArrayConstructor> {
     constructor(v: TypedArray);
     static fromCopyArray3(array: Array3<number>): Vector3;
     static fromCopy3(x: number, y: number, z: number): Vector3;
+    static fromCopy1(val: number): Vector3;
     static fromCopyArray(array: Array<number>): Vector3;
     static fromCopyVector3(vec3: IVector3): Vector3;
     static fromCopyVector4(vec4: IVector4): Vector3;
@@ -159,6 +160,7 @@ export declare class Vector3d extends Vector3_<Float64ArrayConstructor> {
     private constructor();
     static fromCopyArray3(array: Array3<number>): Vector3d;
     static fromCopy3(x: number, y: number, z: number): Vector3d;
+    static fromCopy1(val: number): Vector3d;
     static fromCopyArray(array: Array<number>): Vector3d;
     static fromArrayBuffer(arrayBuffer: ArrayBuffer): Vector3d;
     static fromFloat64Array(float64Array: Float64Array): Vector3d;
