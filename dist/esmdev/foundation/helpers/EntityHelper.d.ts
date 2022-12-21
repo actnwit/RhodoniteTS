@@ -1,0 +1,44 @@
+import { IEntity } from '../core/Entity';
+import { ITransformEntityMethods } from '../components/Transform/ITransformEntity';
+import { ISceneGraphEntityMethods } from '../components/SceneGraph/ISceneGraphEntity';
+import { IMeshEntityMethods } from '../components/Mesh/IMeshEntity';
+import { ICameraEntityMethods } from '../components/Camera/ICameraEntity';
+import { ICameraControllerEntityMethods } from '../components/CameraController/ICameraControllerEntity';
+import { IAnimationEntityMethods } from '../components/Animation/IAnimationEntity';
+import { ILightEntityMethods } from '../components/Light/ILightEntity';
+import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
+import { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
+import { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
+import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
+export declare type ITransformEntity = IEntity & ITransformEntityMethods;
+export declare type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
+export declare type IMeshEntity = ISceneGraphEntity & IMeshEntityMethods & IMeshRendererEntityMethods;
+export declare type ICameraEntity = ISceneGraphEntity & ICameraEntityMethods;
+export declare type ICameraControllerEntity = ICameraEntity & ICameraControllerEntityMethods;
+export declare type ISkeletalEntity = ISceneGraphEntity & ISkeletalEntityMethods;
+export declare type ILightEntity = ISceneGraphEntity & ILightEntityMethods;
+export declare type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
+export declare type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
+export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {
+}
+declare function createTransformEntity(): ITransformEntity;
+declare function createGroupEntity(): ISceneGraphEntity;
+declare function createMeshEntity(): IMeshEntity;
+declare function createCameraEntity(): ICameraEntity;
+declare function createCameraControllerEntity(): ICameraControllerEntity;
+declare function createSkeletalEntity(): ISkeletalEntity;
+declare function createPhysicsEntity(): IPhysicsEntity;
+declare function createLightEntity(): ILightEntity;
+declare function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods;
+export declare const EntityHelper: Readonly<{
+    createTransformEntity: typeof createTransformEntity;
+    createGroupEntity: typeof createGroupEntity;
+    createMeshEntity: typeof createMeshEntity;
+    createCameraEntity: typeof createCameraEntity;
+    createCameraControllerEntity: typeof createCameraControllerEntity;
+    createSkeletalEntity: typeof createSkeletalEntity;
+    createLightEntity: typeof createLightEntity;
+    createLightWithCameraEntity: typeof createLightWithCameraEntity;
+    createPhysicsEntity: typeof createPhysicsEntity;
+}>;
+export {};

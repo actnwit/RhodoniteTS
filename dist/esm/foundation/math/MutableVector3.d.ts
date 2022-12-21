@@ -80,6 +80,7 @@ export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3;
     get className(): string;
     static fromCopy3(x: number, y: number, z: number): MutableVector3;
+    static fromCopy1(val: number): MutableVector3;
     static fromCopyArray3(array: Array3<number>): MutableVector3;
     static fromCopyArray(array: Array<number>): MutableVector3;
     static fromFloat32Array(float32Array: Float32Array): MutableVector3;
@@ -87,6 +88,9 @@ export declare class MutableVector3 extends MutableVector3_<Float32ArrayConstruc
     static fromCopyVector3(vec: IVector3): MutableVector3;
     static fromCopyVector4(vec: IVector4): MutableVector3;
     clone(): MutableVector3;
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3): void;
 }
 /**
  * Mutable 3D(x,y,z) Vector class with 64bit float components
@@ -106,8 +110,12 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
     static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
     static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
     static fromCopy3(x: number, y: number, z: number): MutableVector3d;
+    static fromCopy1(val: number): MutableVector3d;
     static fromCopyArray3(array: Array3<number>): MutableVector3d;
     static fromCopyArray(array: Array<number>): MutableVector3d;
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
     clone(): MutableVector3d;
 }
 export declare type MutableVector3f = MutableVector3;

@@ -113,6 +113,7 @@ You don't need any bundler.
 ```typescript
 // main.ts
 import Rn from 'rhodonite/dist/esm/index.js';
+// import Rn from 'rhodonite/dist/esmdev/index.js'; // use this if you want to display the source map or step through the library
 
 // Init Rhodonite
 await Rn.System.init({
@@ -136,6 +137,8 @@ Rn.System.startRenderLoop(() => {
   ...
   "compilerOptions": {
     "module": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     ...
   }
   ...
