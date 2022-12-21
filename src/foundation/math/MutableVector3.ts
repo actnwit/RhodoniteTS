@@ -264,6 +264,10 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
     return super._fromCopy3(x, y, z, Float32Array);
   }
 
+  static fromCopy1(val: number): MutableVector3 {
+    return super._fromCopy3(val, val, val, Float32Array);
+  }
+
   static fromCopyArray3(array: Array3<number>): MutableVector3 {
     return new MutableVector3(new Float32Array(array));
   }
@@ -350,6 +354,10 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
 
   static fromCopy3(x: number, y: number, z: number): MutableVector3d {
     return super._fromCopy3(x, y, z, Float64Array);
+  }
+
+  static fromCopy1(val: number): MutableVector3d {
+    return super._fromCopy3(val, val, val, Float64Array);
   }
 
   static fromCopyArray3(array: Array3<number>): MutableVector3d {
