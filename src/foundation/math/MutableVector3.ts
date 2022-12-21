@@ -294,6 +294,27 @@ export class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
   clone() {
     return super.clone() as MutableVector3;
   }
+
+  static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3) {
+    const c = Math.cos(radian);
+    const s = Math.sin(radian);
+    outVec.y = vec3.y * c - vec3.z * s;
+    outVec.z = vec3.y * s + vec3.z * c;
+  }
+
+  static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3) {
+    const c = Math.cos(radian);
+    const s = Math.sin(radian);
+    outVec.x = vec3.x * c + vec3.z * s;
+    outVec.z = -vec3.x * s + vec3.z * c;
+  }
+
+  static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3) {
+    const c = Math.cos(radian);
+    const s = Math.sin(radian);
+    outVec.x = vec3.x * c - vec3.y * s;
+    outVec.y = vec3.x * s + vec3.y * c;
+  }
 }
 
 /**
@@ -366,6 +387,27 @@ export class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
 
   static fromCopyArray(array: Array<number>): MutableVector3d {
     return new MutableVector3d(new Float64Array(array.slice(0, 3)));
+  }
+
+  static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d) {
+    const c = Math.cos(radian);
+    const s = Math.sin(radian);
+    outVec.y = vec3.y * c - vec3.z * s;
+    outVec.z = vec3.y * s + vec3.z * c;
+  }
+
+  static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d) {
+    const c = Math.cos(radian);
+    const s = Math.sin(radian);
+    outVec.x = vec3.x * c + vec3.z * s;
+    outVec.z = -vec3.x * s + vec3.z * c;
+  }
+
+  static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d) {
+    const c = Math.cos(radian);
+    const s = Math.sin(radian);
+    outVec.x = vec3.x * c - vec3.y * s;
+    outVec.y = vec3.x * s + vec3.y * c;
   }
 
   clone() {
