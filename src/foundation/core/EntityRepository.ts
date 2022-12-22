@@ -6,6 +6,8 @@ import { valueWithCompensation } from '../misc/MiscUtil';
 import { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { Is } from '../misc/Is';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
+import { SkeletalComponent } from '../components';
+import { ISceneGraphEntity } from '../helpers';
 
 /**
  * The class that generates and manages entities.
@@ -28,7 +30,35 @@ export class EntityRepository {
   }
 
   public static shallowCopyEntity(entity: IEntity): IEntity {
+    const newEntity = EntityRepository._shallowCopyEntityInner(entity);
+
+    EntityRepository.__setJoints(newEntity, entity);
+
+    return newEntity;
+  }
+
+  private static __setJoints(newEntity: IEntity, entity: IEntity) {
+    const skeletalComponentOfNew = newEntity.getComponentByComponentTID(
+      WellKnownComponentTIDs.SkeletalComponentTID
+    ) as SkeletalComponent;
+    const skeletalComponentOfOriginal = entity.getComponentByComponentTID(
+      WellKnownComponentTIDs.SkeletalComponentTID
+    ) as SkeletalComponent;
+    if (Is.exist(skeletalComponentOfNew) && Is.exist(skeletalComponentOfOriginal)) {
+      const jointsOriginal = skeletalComponentOfOriginal.getJoints();
+      const jointsNew = jointsOriginal.map((joint) => {
+        return EntityRepository.getEntity(
+          joint.entity._myLatestCopyEntityUID
+        ).tryToGetSceneGraph()!;
+      });
+
+      skeletalComponentOfNew.setJoints(jointsNew);
+    }
+  }
+
+  static _shallowCopyEntityInner(entity: IEntity) {
     const newEntity = this.createEntity();
+    entity._myLatestCopyEntityUID = newEntity.entityUID;
     for (let i = 1; i <= WellKnownComponentTIDs.maxWellKnownTidNumber; i++) {
       const component = entity.getComponentByComponentTID(i);
       if (Is.exist(component)) {

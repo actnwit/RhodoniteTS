@@ -56,7 +56,6 @@ import { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper'
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { IMatrix44, Matrix44, MutableQuaternion } from '../../math';
 import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
 import { SceneGraphComponent } from '../SceneGraph';
@@ -76,9 +75,6 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
  */
 export class AnimationComponent extends Component {
   /// inner states ///
-  private __backupDefaultValues: Map<AnimationPathName, IVector | IQuaternion | number[]> =
-    new Map();
-
   // The name of the current Active Track
   private __currentActiveAnimationTrackName?: AnimationTrackName;
 
@@ -87,7 +83,6 @@ export class AnimationComponent extends Component {
 
   /// cache references of other components
   private __transformComponent?: TransformComponent;
-  private __meshComponent?: MeshComponent;
   private __blendShapeComponent?: BlendShapeComponent;
   private __effekseerComponent?: EffekseerComponent;
   private __isEffekseerState = -1;
@@ -133,10 +128,6 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       TransformComponent
     ) as TransformComponent;
-    this.__meshComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      MeshComponent
-    ) as MeshComponent;
     this.__blendShapeComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
       BlendShapeComponent
@@ -410,10 +401,6 @@ export class AnimationComponent extends Component {
       this.__entityUid,
       TransformComponent
     ) as TransformComponent;
-    this.__meshComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      MeshComponent
-    ) as MeshComponent;
 
     this.__transformComponent?._backupTransformAsRest();
   }
@@ -1008,6 +995,16 @@ export class AnimationComponent extends Component {
 
   get globalInverseBindMatrix() {
     return this.__calcGlobalInverseBindMatrix(this.entity.getSceneGraph());
+  }
+
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as AnimationComponent;
+
+    this.__currentActiveAnimationTrackName = component.__currentActiveAnimationTrackName;
+    this.__animationTracks = new Map(component.__animationTracks);
+    this.__isEffekseerState = component.__isEffekseerState;
+    this.__isAnimating = component.__isAnimating;
+    this._animationRetarget = component._animationRetarget;
   }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);

@@ -31,10 +31,6 @@ export class SkeletalComponent extends Component {
   private __jointMatrices?: number[];
   public topOfJointsHierarchy?: SceneGraphComponent;
   public isSkinning = true;
-  private static __tmpVec3_0 = MutableVector3.zero();
-  private static __tmp_mat4 = MutableMatrix44.identity();
-  private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
-  private static __identityMat = MutableMatrix44.identity();
   private __qArray = new Float32Array(0);
   private __tsArray = new Float32Array(0);
   private __tqArray = new Float32Array(0);
@@ -44,9 +40,13 @@ export class SkeletalComponent extends Component {
   private __matArray = new Float32Array(0);
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
+  _animationRetarget?: IAnimationRetarget;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
-  _animationRetarget?: IAnimationRetarget;
+  private static __tmpVec3_0 = MutableVector3.zero();
+  private static __tmp_mat4 = MutableMatrix44.identity();
+  private static __tmp_q: MutableQuaternion = MutableQuaternion.fromCopy4(0, 0, 0, 1);
+  private static __identityMat = MutableMatrix44.identity();
 
   constructor(
     entityUid: EntityUID,
@@ -384,6 +384,42 @@ export class SkeletalComponent extends Component {
     return this.__inverseBindMatricesAccessor;
   }
 
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as SkeletalComponent;
+
+    this._jointIndices = component._jointIndices.concat();
+    this.setJoints(component.__joints.concat());
+    // const joints = [];
+    // for (let i = 0; i < component.__joints.length; i++) {
+    //   if (component.__joints[i].entity._myLatestCopyEntityUID !== -1) {
+    //     joints[i] = EntityRepository.getEntity(
+    //       component.__joints[i].entity._myLatestCopyEntityUID
+    //     ).tryToGetSceneGraph()!;
+    //   }
+    // }
+    this.setJoints([]);
+
+    this.__inverseBindMatricesAccessor = component.__inverseBindMatricesAccessor;
+    if (Is.exist(component._bindShapeMatrix)) {
+      this._bindShapeMatrix = component._bindShapeMatrix.clone();
+    }
+    if (Is.exist(component.__jointMatrices)) {
+      this.__jointMatrices = component.__jointMatrices.concat();
+    }
+    this.topOfJointsHierarchy = component.topOfJointsHierarchy;
+    this.isSkinning = component.isSkinning;
+    this.__qArray.set(component.__qArray);
+    this.__tsArray.set(component.__tsArray);
+    this.__tqArray.set(component.__tqArray);
+    this.__sqArray.set(component.__sqArray);
+    this.__qtsArray.set(component.__qtsArray);
+    this.__qtsInfo.copyComponents(component.__qtsInfo);
+    this.__matArray.set(component.__matArray);
+    this.__worldMatrix.copyComponents(component.__worldMatrix);
+    this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
+    this._animationRetarget = component._animationRetarget;
+  }
+
   /**
    * get the entity which has this component.
    * @returns the entity which has this component
@@ -405,7 +441,7 @@ export class SkeletalComponent extends Component {
     class SkeletalEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

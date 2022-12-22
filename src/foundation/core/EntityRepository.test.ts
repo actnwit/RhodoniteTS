@@ -6,6 +6,7 @@ import { EntityRepository } from './EntityRepository';
 import { MemoryManager } from './MemoryManager';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
+import { Vector3 } from '../math';
 
 test('getEntitiesNumber', () => {
   const entity1 = EntityRepository.createEntity();
@@ -42,9 +43,15 @@ test('shallow copy of entity', () => {
   EntityRepository.addComponentToEntity(SceneGraphComponent, firstEntity);
   EntityRepository.addComponentToEntity(AnimationComponent, firstEntity);
 
+  firstEntity.tryToGetTransform()!.localPosition = Vector3.fromCopy3(1, 2, 3);
+
   const secondEntity = EntityRepository.shallowCopyEntity(firstEntity);
   expect(Is.exist(secondEntity.tryToGetTransform())).toBe(true);
   expect(Is.exist(secondEntity.tryToGetSceneGraph())).toBe(true);
   expect(Is.exist(secondEntity.tryToGetAnimation())).toBe(true);
   expect(Is.exist(secondEntity.tryToGetCamera())).toBe(false);
+
+  expect(secondEntity.tryToGetTransform()!.localPosition.isEqual(Vector3.fromCopy3(1, 2, 3))).toBe(
+    true
+  );
 });

@@ -22,6 +22,7 @@ import { VrmComponent } from '../components/Vrm/VrmComponent';
 export interface IEntity extends IRnObject {
   entityUID: EntityUID;
   _isAlive: boolean;
+  _myLatestCopyEntityUID: EntityUID;
   getComponent(componentType: typeof Component): Component | undefined;
   getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
   _setComponent(componentType: typeof Component, com: Component): void;
@@ -58,6 +59,7 @@ export class Entity extends RnObject implements IEntity {
 
   /** Invalid Entity UID constant value */
   static readonly invalidEntityUID = -1;
+  public _myLatestCopyEntityUID = Entity.invalidEntityUID;
 
   /** No use yet */
   _isAlive: boolean;

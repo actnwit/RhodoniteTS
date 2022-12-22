@@ -343,7 +343,6 @@ export class ModelConverter {
         const rnEntity = rnEntities[node_i];
         const newRnEntity = EntityRepository.addComponentToEntity(SkeletalComponent, rnEntity);
         skeletalComponent = newRnEntity.getSkeletal();
-        skeletalComponent._jointIndices = node.skinObject.joints;
         if (Is.exist(node.skinObject.bindShapeMatrix)) {
           skeletalComponent._bindShapeMatrix = Matrix44.fromCopyArrayColumnMajor(
             node.skinObject.bindShapeMatrix

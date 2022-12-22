@@ -29,10 +29,8 @@ import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
-  private static __sceneGraphs: SceneGraphComponent[] = [];
-  public isAbleToBeParent: boolean;
-  private __children: Array<SceneGraphComponent> = [];
-  private __gizmoChildren: Array<SceneGraphComponent> = [];
+  private __children: SceneGraphComponent[] = [];
+  private __gizmoChildren: SceneGraphComponent[] = [];
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.dummy();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
@@ -42,8 +40,6 @@ export class SceneGraphComponent extends Component {
   private __tmpMatrix = MutableMatrix44.identity();
   private __worldAABB = new AABB();
   private __isWorldAABBDirty = true;
-  private static readonly __originVector3 = Vector3.zero();
-  private static returnVector3 = MutableVector3.zero();
   private _isVisible: MutableScalar = MutableScalar.dummy();
   private _isBillboard: MutableScalar = MutableScalar.dummy();
   private __aabbGizmo?: AABBGizmo;
@@ -51,14 +47,15 @@ export class SceneGraphComponent extends Component {
   private __translationGizmo?: TranslationGizmo;
   private __scaleGizmo?: ScaleGizmo;
   private __transformGizmoSpace: 'local' | 'world' = 'world';
-  private static isJointAABBShouldBeCalculated = false;
-  public toMakeWorldMatrixTheSameAsLocalMatrix = false;
   private __latestPrimitivePositionAccessorVersion = 0;
-
+  public toMakeWorldMatrixTheSameAsLocalMatrix = false;
   // Skeletal
   public isRootJoint = false;
   public jointIndex = -1;
-
+  private static readonly __originVector3 = Vector3.zero();
+  private static returnVector3 = MutableVector3.zero();
+  private static __sceneGraphs: SceneGraphComponent[] = [];
+  private static isJointAABBShouldBeCalculated = false;
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
@@ -72,8 +69,6 @@ export class SceneGraphComponent extends Component {
 
     SceneGraphComponent.__sceneGraphs.push(this);
 
-    this.isAbleToBeParent = false;
-    this.beAbleToBeParent(true);
     this.registerMember(
       BufferUse.GPUInstanceData,
       'worldMatrix',
@@ -240,10 +235,6 @@ export class SceneGraphComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
-  }
-
-  beAbleToBeParent(flag: boolean) {
-    this.isAbleToBeParent = flag;
   }
 
   setWorldMatrixDirty() {
@@ -441,12 +432,11 @@ export class SceneGraphComponent extends Component {
     if (!isJointMode || sceneGraphComponent.isJoint()) {
       results.push(sceneGraphComponent);
     }
-    if (sceneGraphComponent.isAbleToBeParent) {
-      const children = sceneGraphComponent.children!;
-      for (let i = 0; i < children.length; i++) {
-        const hitChildren = this.flattenHierarchy(children[i], isJointMode);
-        Array.prototype.push.apply(results, hitChildren);
-      }
+
+    const children = sceneGraphComponent.children!;
+    for (let i = 0; i < children.length; i++) {
+      const hitChildren = this.flattenHierarchy(children[i], isJointMode);
+      Array.prototype.push.apply(results, hitChildren);
     }
 
     return results;
@@ -773,6 +763,46 @@ export class SceneGraphComponent extends Component {
 
   get scale(): MutableVector3 {
     return this.matrixInner.getScale();
+  }
+
+  private __copyChild(child: SceneGraphComponent): ISceneGraphEntity {
+    const newChild = EntityRepository._shallowCopyEntityInner(child.entity);
+
+    return newChild as ISceneGraphEntity;
+  }
+
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as SceneGraphComponent;
+
+    this.__parent = component.__parent;
+    this.__children = [];
+    for (let i = 0; i < component.__children.length; i++) {
+      const copyChild = this.__copyChild(component.__children[i]).getSceneGraph();
+      this.__children.push(copyChild);
+    }
+
+    this.__gizmoChildren = component.__gizmoChildren.concat();
+    this._worldMatrix.copyComponents(component._worldMatrix);
+    this._worldMatrixRest.copyComponents(component._worldMatrixRest);
+    this._normalMatrix.copyComponents(component._normalMatrix);
+    this.__isWorldMatrixUpToDate = component.__isWorldMatrixUpToDate;
+    this.__isWorldMatrixRestUpToDate = component.__isWorldMatrixRestUpToDate;
+    this.__isNormalMatrixUpToDate = component.__isNormalMatrixUpToDate;
+    this.__tmpMatrix.copyComponents(component.__tmpMatrix);
+    this.__worldAABB = component.__worldAABB.clone();
+    this.__isWorldAABBDirty = component.__isWorldAABBDirty;
+    this._isVisible.copyComponents(component._isVisible);
+    this._isBillboard.copyComponents(component._isBillboard);
+    // this.__aabbGizmo = component.__aabbGizmo;
+    // this.__locatorGizmo = component.__locatorGizmo;
+    // this.__translationGizmo = component.__translationGizmo;
+    // this.__scaleGizmo = component.__scaleGizmo;
+    this.__transformGizmoSpace = component.__transformGizmoSpace;
+    this.__latestPrimitivePositionAccessorVersion =
+      component.__latestPrimitivePositionAccessorVersion;
+    this.toMakeWorldMatrixTheSameAsLocalMatrix = component.toMakeWorldMatrixTheSameAsLocalMatrix;
+    this.isRootJoint = component.isRootJoint;
+    this.jointIndex = component.jointIndex;
   }
 
   /**

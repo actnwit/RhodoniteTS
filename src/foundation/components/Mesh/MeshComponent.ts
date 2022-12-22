@@ -217,11 +217,10 @@ export class MeshComponent extends Component {
       assertExist(result.data);
 
       // convert to World space
-      const intersectedPositionInWorld =
-        this.__sceneGraphComponent.matrixInner.multiplyVector3To(
-          result.data.position,
-          MeshComponent.__returnVector3
-        );
+      const intersectedPositionInWorld = this.__sceneGraphComponent.matrixInner.multiplyVector3To(
+        result.data.position,
+        MeshComponent.__returnVector3
+      );
       return {
         result: true,
         data: {
@@ -292,6 +291,15 @@ export class MeshComponent extends Component {
 
   $logic() {}
 
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as MeshComponent;
+    this.__viewDepth = component.__viewDepth;
+    if (Is.exist(component.__mesh)) {
+      this.setMesh(component.__mesh);
+    }
+    this.isPickable = component.isPickable;
+  }
+
   /**
    * get the entity which has this component.
    * @returns the entity which has this component
@@ -313,7 +321,7 @@ export class MeshComponent extends Component {
     class MeshEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
