@@ -8,6 +8,7 @@ import { Is } from '../misc/Is';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { SkeletalComponent } from '../components';
 import { ISceneGraphEntity } from '../helpers';
+import { RnObject } from './RnObject';
 
 /**
  * The class that generates and manages entities.
@@ -65,6 +66,8 @@ export class EntityRepository {
 
   static _shallowCopyEntityInner(entity: IEntity) {
     const newEntity = this.createEntity();
+    (newEntity as Entity)._tags = Object.assign({}, (entity as Entity)._tags);
+
     entity._myLatestCopyEntityUID = newEntity.entityUID;
     for (let i = 1; i <= WellKnownComponentTIDs.maxWellKnownTidNumber; i++) {
       const component = entity.getComponentByComponentTID(i);
