@@ -28,10 +28,10 @@ export declare class MathClassUtil {
     static packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[];
     static unProjectTo(windowPosX: number, windowPosY: number, windowPosZ: number, inversePVMat44: Matrix44, viewportVec4: Vector4, out: MutableVector3): import("./IVector").IMutableVector3;
     static add(lhs: any, rhs: any): any;
-    static subtract(lhs: any, rhs: any): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
-    static multiplyNumber(lhs: any, rhs: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
-    static divideNumber(lhs: any, rhs: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
-    static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
+    static subtract(lhs: any, rhs: any): number | Vector3 | number[] | Vector4 | Quaternion | Vector2 | undefined;
+    static multiplyNumber(lhs: any, rhs: number): number | Vector3 | number[] | Vector4 | Quaternion | Vector2 | undefined;
+    static divideNumber(lhs: any, rhs: number): number | Vector3 | number[] | Vector4 | Quaternion | Vector2 | undefined;
+    static initWithScalar(objForDetectType: any, val: number): number | Vector3 | number[] | Vector4 | Quaternion | Vector2 | undefined;
     static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum): any;
     static _setForce(objForDetectType: any, val: any): void;
 }
