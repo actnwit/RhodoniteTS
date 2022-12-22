@@ -766,9 +766,9 @@ export class SceneGraphComponent extends Component {
   }
 
   private __copyChild(child: SceneGraphComponent): ISceneGraphEntity {
-    const newChild = EntityRepository._shallowCopyEntityInner(child.entity);
-
-    return newChild as ISceneGraphEntity;
+    const newChild = EntityRepository._shallowCopyEntityInner(child.entity) as ISceneGraphEntity;
+    newChild.getSceneGraph().__parent = this;
+    return newChild;
   }
 
   _shallowCopyFrom(component_: Component): void {
@@ -785,12 +785,12 @@ export class SceneGraphComponent extends Component {
     this._worldMatrix.copyComponents(component._worldMatrix);
     this._worldMatrixRest.copyComponents(component._worldMatrixRest);
     this._normalMatrix.copyComponents(component._normalMatrix);
-    this.__isWorldMatrixUpToDate = component.__isWorldMatrixUpToDate;
-    this.__isWorldMatrixRestUpToDate = component.__isWorldMatrixRestUpToDate;
-    this.__isNormalMatrixUpToDate = component.__isNormalMatrixUpToDate;
+    this.__isWorldMatrixUpToDate = false;
+    this.__isWorldMatrixRestUpToDate = false;
+    this.__isNormalMatrixUpToDate = false;
     this.__tmpMatrix.copyComponents(component.__tmpMatrix);
     this.__worldAABB = component.__worldAABB.clone();
-    this.__isWorldAABBDirty = component.__isWorldAABBDirty;
+    this.__isWorldAABBDirty = true;
     this._isVisible.copyComponents(component._isVisible);
     this._isBillboard.copyComponents(component._isBillboard);
     // this.__aabbGizmo = component.__aabbGizmo;

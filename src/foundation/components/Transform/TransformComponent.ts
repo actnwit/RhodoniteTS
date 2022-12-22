@@ -273,6 +273,7 @@ export class TransformComponent extends Component {
     if (component.__rest != null) {
       this.__rest = component.__rest.clone();
     }
+    this.__updateCountAtLastLogic = component.__updateCountAtLastLogic;
   }
 
   /**

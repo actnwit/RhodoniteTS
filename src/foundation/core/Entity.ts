@@ -52,7 +52,7 @@ export interface IEntity extends IRnObject {
  */
 export class Entity extends RnObject implements IEntity {
   /** The Unique ID of Entity */
-  private readonly __entity_uid: number;
+  private readonly ___entity_uid: number;
 
   /** The Map of components. All components must be managed in this map */
   protected __components: Map<ComponentTID, Component>; // index is ComponentTID
@@ -77,7 +77,7 @@ export class Entity extends RnObject implements IEntity {
    */
   constructor(entityUID: EntityUID, isAlive: boolean, components?: Map<ComponentTID, Component>) {
     super();
-    this.__entity_uid = entityUID;
+    this.___entity_uid = entityUID;
     this._isAlive = isAlive;
 
     this.__components = Is.exist(components) ? components : new Map();
@@ -87,7 +87,7 @@ export class Entity extends RnObject implements IEntity {
    * Get Unique ID of the entity.
    */
   get entityUID() {
-    return this.__entity_uid;
+    return this.___entity_uid;
   }
 
   /**
