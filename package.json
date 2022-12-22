@@ -9,10 +9,9 @@
     "web3d",
     "typescript"
   ],
-  "main": "dist/cjs/index.cjs",
+  "module": "dist/esm/index.js",
   "types": "dist/cjs/index.d.ts",
   "files": [
-    "dist/cjs",
     "dist/esm",
     "dist/esmdev",
     "VERSION-FILE",
@@ -103,5 +102,5 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "sideEffects": false
+  "sideEffects": ["*.frag", "*.vert"]
 }
