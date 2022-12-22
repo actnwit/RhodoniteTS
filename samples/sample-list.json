@@ -2,6 +2,7 @@
   "test_e2e": [
     "ColorGradingUsingLUTs",
     "DataTextureInstancedDrawing",
+    "DataTextureInstancedDrawing2",
     "DepthEncode",
     "EffekseerTest",
     "FurnaceTest-weakWhiteFurnaceResult",
