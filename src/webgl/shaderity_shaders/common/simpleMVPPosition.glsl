@@ -1,4 +1,4 @@
-mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
+mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
 
 #ifdef RN_NO_CAMERA_TRANSFORM
   gl_Position = worldMatrix * vec4(a_position, 1.0);

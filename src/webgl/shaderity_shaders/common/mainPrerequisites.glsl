@@ -8,7 +8,11 @@
 
   float skeletalComponentSID = -1.0;
   #ifdef RN_IS_SKINNING
-    skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
+    #ifdef RN_IS_VERTEX_SHADER
+      skeletalComponentSID = a_instanceInfo.y;
+    #else
+      skeletalComponentSID = -1.0;
+    #endif
   #endif
 
 #else

@@ -33,7 +33,7 @@ precision highp float;
 precision highp int;
 ${prerequisitesShaderityObject.code}
 
-    ${in_} float a_instanceInfo;\n`;
+    ${in_} vec2 a_instanceInfo;\n`;
     vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;

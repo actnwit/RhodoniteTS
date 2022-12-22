@@ -867,7 +867,7 @@ export class WebGLResourceRepository
       gl.enableVertexAttribArray(VertexAttribute.Instance.getAttributeSlot());
       gl.vertexAttribPointer(
         VertexAttribute.Instance.getAttributeSlot(),
-        CompositionType.Scalar.getNumberOfComponents(),
+        CompositionType.Vec2.getNumberOfComponents(),
         ComponentType.Float.index,
         false,
         0,

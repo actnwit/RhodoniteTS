@@ -5,7 +5,7 @@
 
 // This shader is based on https://github.com/Santarh/MToon
 
-in float a_instanceInfo;
+in vec2 a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec3 a_position;
 in vec3 a_normal;
@@ -49,9 +49,9 @@ void main(){
 
   float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
 
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   bool isSkinning = false;
   isSkinning = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
