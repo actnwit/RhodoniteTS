@@ -7,6 +7,13 @@ import { MemoryManager } from './MemoryManager';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 
+test('getEntitiesNumber', () => {
+  const entity1 = EntityRepository.createEntity();
+  expect(EntityRepository.getEntitiesNumber()).toBe(1);
+  const entity2 = EntityRepository.createEntity();
+  expect(EntityRepository.getEntitiesNumber()).toBe(2);
+});
+
 test('The entity repository can provide the component corresponding to the specified entityUID and componentTID', () => {
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
