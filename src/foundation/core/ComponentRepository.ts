@@ -37,7 +37,7 @@ export class ComponentRepository {
    * Gets the class object of the component corresponding to specified ComponentTID.
    * @param componentTid The componentTID to get the class object.
    */
-  public static getComponentClass(componentTid: ComponentTID) {
+  public static getComponentClass(componentTid: ComponentTID): typeof Component | undefined {
     return this.__componentClasses.get(componentTid);
   }
 

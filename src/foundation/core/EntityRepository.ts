@@ -5,6 +5,7 @@ import { RnTags, EntityUID, ComponentTID } from '../../types/CommonTypes';
 import { valueWithCompensation } from '../misc/MiscUtil';
 import { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { Is } from '../misc/Is';
+import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 
 /**
  * The class that generates and manages entities.
@@ -24,6 +25,32 @@ export class EntityRepository {
     this.__entities[this.__entity_uid_count] = entity;
 
     return entity;
+  }
+
+  public static shallowCopyEntity(entity: IEntity): IEntity {
+    const newEntity = this.createEntity();
+    for (let i = 1; i <= WellKnownComponentTIDs.maxWellKnownTidNumber; i++) {
+      const component = entity.getComponentByComponentTID(i);
+      if (Is.exist(component)) {
+        this.tryToAddComponentToEntityByTID(i, newEntity);
+        const componentOfNewEntity = newEntity.getComponentByComponentTID(i);
+        if (Is.exist(componentOfNewEntity)) {
+          componentOfNewEntity._shallowCopyFrom(component);
+        }
+      }
+    }
+    return newEntity;
+  }
+
+  public static tryToAddComponentToEntityByTID(
+    componentTID: ComponentTID,
+    entity: IEntity
+  ): IEntity {
+    const componentClass = ComponentRepository.getComponentClass(componentTID);
+    if (Is.not.exist(componentClass)) {
+      return entity;
+    }
+    return this.addComponentToEntity(componentClass, entity);
   }
 
   /**
