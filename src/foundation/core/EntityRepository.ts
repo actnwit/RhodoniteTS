@@ -32,12 +32,13 @@ export class EntityRepository {
   public static shallowCopyEntity(entity: IEntity): IEntity {
     const newEntity = EntityRepository._shallowCopyEntityInner(entity);
 
-    EntityRepository.__setJoints(newEntity, entity);
+    EntityRepository.__setJoints(entity);
 
     return newEntity;
   }
 
-  private static __setJoints(newEntity: IEntity, entity: IEntity) {
+  private static __setJoints(entity: IEntity) {
+    const newEntity = EntityRepository.getEntity(entity._myLatestCopyEntityUID);
     const skeletalComponentOfNew = newEntity.getComponentByComponentTID(
       WellKnownComponentTIDs.SkeletalComponentTID
     ) as SkeletalComponent;
@@ -51,8 +52,14 @@ export class EntityRepository {
           joint.entity._myLatestCopyEntityUID
         ).tryToGetSceneGraph()!;
       });
-
       skeletalComponentOfNew.setJoints(jointsNew);
+    }
+
+    const sceneGraph = entity.tryToGetSceneGraph();
+    if (Is.exist(sceneGraph)) {
+      sceneGraph.children.forEach((child) => {
+        EntityRepository.__setJoints(child.entity);
+      });
     }
   }
 
