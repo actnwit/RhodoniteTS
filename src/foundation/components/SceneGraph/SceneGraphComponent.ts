@@ -472,44 +472,44 @@ export class SceneGraphComponent extends Component {
   calcWorldAABB() {
     this.__worldAABB.initialize();
 
-    const meshComponent = this.entity.tryToGetMesh();
-    for (let i = 0; i < this.children.length; i++) {
-      this.__worldAABB.mergeAABB(this.children[i].worldAABB);
-    }
-    if (meshComponent != null) {
-      if (meshComponent.mesh != null) {
-        this.__worldAABB.mergeAABB(meshComponent.mesh.AABB);
+    // const meshComponent = this.entity.tryToGetMesh();
+    // for (let i = 0; i < this.children.length; i++) {
+    //   this.__worldAABB.mergeAABB(this.children[i].worldAABB);
+    // }
+    // if (meshComponent != null) {
+    //   if (meshComponent.mesh != null) {
+    //     this.__worldAABB.mergeAABB(meshComponent.mesh.AABB);
+    //   }
+    // }
+    // AABB.multiplyMatrixTo(
+    //   this.entity.tryToGetTransform()!.localMatrixInner,
+    //   this.__worldAABB,
+    //   SceneGraphComponent.__tmpAABB
+    // );
+
+    // this.__worldAABB = SceneGraphComponent.__tmpAABB.clone();
+    // return this.__worldAABB;
+
+    const aabb = (function mergeAABBRecursively(elem: SceneGraphComponent): AABB {
+      const meshComponent = elem.entity.tryToGetMesh();
+      if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+        AABB.multiplyMatrixTo(
+          elem.entityWorldMatrixInner,
+          meshComponent.mesh.AABB,
+          elem.__worldAABB
+        );
       }
-    }
-    AABB.multiplyMatrixTo(
-      this.entity.tryToGetTransform()!.localMatrixInner,
-      this.__worldAABB,
-      SceneGraphComponent.__tmpAABB
-    );
 
-    this.__worldAABB = SceneGraphComponent.__tmpAABB.clone();
-    return this.__worldAABB;
+      const children = elem.children;
+      for (let i = 0; i < children.length; i++) {
+        const aabb = mergeAABBRecursively(children[i]);
+        elem.__worldAABB.mergeAABB(aabb);
+      }
 
-    // const aabb = (function mergeAABBRecursively(elem: SceneGraphComponent): AABB {
-    //   const meshComponent = elem.entity.tryToGetMesh();
-    //   if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
-    //     AABB.multiplyMatrixTo(
-    //       elem.entityWorldMatrixInner,
-    //       meshComponent.mesh.AABB,
-    //       elem.__worldAABB
-    //     );
-    //   }
+      return elem.__worldAABB;
+    })(this);
 
-    //   const children = elem.children;
-    //   for (let i = 0; i < children.length; i++) {
-    //     const aabb = mergeAABBRecursively(children[i]);
-    //     elem.__worldAABB.mergeAABB(aabb);
-    //   }
-
-    //   return elem.__worldAABB;
-    // })(this);
-
-    // return aabb;
+    return aabb;
   }
 
   private get __shouldJointWorldAabbBeCalculated() {

@@ -9,7 +9,6 @@ import {
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { ProcessStage } from '../../definitions/ProcessStage';
-import { MeshComponent } from '../Mesh/MeshComponent';
 import {
   ComponentTID,
   ComponentSID,

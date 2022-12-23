@@ -191,19 +191,25 @@ export class MeshRendererComponent extends Component {
       // };
 
       const frustum = cameraComponent.frustum;
-      const frustumCullingRecursively = (
-        meshComponent: MeshComponent,
-        outMeshComponents: MeshComponent[]
-      ) => {
+      const frustumCulling = (meshComponent: MeshComponent, outMeshComponents: MeshComponent[]) => {
         const result = frustum.culling(meshComponent);
-        if (result === Visibility.Visible || result === Visibility.Neutral) {
+        if (result) {
           outMeshComponents.push(meshComponent);
+          meshComponent.entity.getSceneGraph().isVisible = true;
+          const skeletal = meshComponent.entity.tryToGetSkeletal();
+          if (skeletal !== undefined) {
+            skeletal._isCulled = false;
+          }
         } else {
-          console.log('culling');
+          meshComponent.entity.getSceneGraph().isVisible = false;
+          const skeletal = meshComponent.entity.tryToGetSkeletal();
+          if (skeletal !== undefined) {
+            skeletal._isCulled = true;
+          }
         }
       };
       for (const meshComponent of meshComponents) {
-        frustumCullingRecursively(meshComponent, filteredMeshComponents);
+        frustumCulling(meshComponent, filteredMeshComponents);
       }
     } else {
       filteredMeshComponents = renderPass!.meshComponents!;
