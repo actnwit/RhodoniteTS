@@ -14,19 +14,21 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ITransformEntity } from '../../helpers';
 import { MutableQuaternion, Transform3D } from '../../math';
 import { Is } from '../../misc';
-
-// import AnimationComponent from './AnimationComponent';
+import { SceneGraphComponent } from '../SceneGraph';
 
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
   private __pose = new Transform3D();
   private __updateCountAtLastLogic = 0;
-
-  // dependencies
-  private _dependentAnimationComponentId = 0;
+  private __sceneGraphComponent: SceneGraphComponent | undefined;
 
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
+    this.moveStageTo(ProcessStage.Create);
+  }
+
+  $create() {
+    this.__sceneGraphComponent = this.entity.tryToGetSceneGraph();
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -258,15 +260,8 @@ export class TransformComponent extends Component {
 
   $logic() {
     if (this.__updateCountAtLastLogic !== this.__pose.updateCount) {
-      const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
-      sceneGraphComponent.setWorldMatrixDirty();
+      this.__sceneGraphComponent!.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this.__pose.updateCount;
-    } else {
-      const skeletalComponent = this.entity.tryToGetSkeletal();
-      if (skeletalComponent != null) {
-        const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
-        sceneGraphComponent.setWorldMatrixDirty();
-      }
     }
   }
 
