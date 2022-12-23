@@ -59,6 +59,7 @@ export class SceneGraphComponent extends Component {
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
+  private static __tmpAABB = new AABB();
 
   constructor(
     entityUid: EntityUID,
@@ -470,26 +471,45 @@ export class SceneGraphComponent extends Component {
 
   calcWorldAABB() {
     this.__worldAABB.initialize();
-    const aabb = (function mergeAABBRecursively(elem: SceneGraphComponent): AABB {
-      const meshComponent = elem.entity.tryToGetMesh();
-      if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
-        AABB.multiplyMatrixTo(
-          elem.entityWorldMatrixInner,
-          meshComponent.mesh.AABB,
-          elem.__worldAABB
-        );
+
+    const meshComponent = this.entity.tryToGetMesh();
+    for (let i = 0; i < this.children.length; i++) {
+      this.__worldAABB.mergeAABB(this.children[i].worldAABB);
+    }
+    if (meshComponent != null) {
+      if (meshComponent.mesh != null) {
+        this.__worldAABB.mergeAABB(meshComponent.mesh.AABB);
       }
+    }
+    AABB.multiplyMatrixTo(
+      this.entity.tryToGetTransform()!.localMatrixInner,
+      this.__worldAABB,
+      SceneGraphComponent.__tmpAABB
+    );
 
-      const children = elem.children;
-      for (let i = 0; i < children.length; i++) {
-        const aabb = mergeAABBRecursively(children[i]);
-        elem.__worldAABB.mergeAABB(aabb);
-      }
+    this.__worldAABB = SceneGraphComponent.__tmpAABB.clone();
+    return this.__worldAABB;
 
-      return elem.__worldAABB;
-    })(this);
+    // const aabb = (function mergeAABBRecursively(elem: SceneGraphComponent): AABB {
+    //   const meshComponent = elem.entity.tryToGetMesh();
+    //   if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+    //     AABB.multiplyMatrixTo(
+    //       elem.entityWorldMatrixInner,
+    //       meshComponent.mesh.AABB,
+    //       elem.__worldAABB
+    //     );
+    //   }
 
-    return aabb;
+    //   const children = elem.children;
+    //   for (let i = 0; i < children.length; i++) {
+    //     const aabb = mergeAABBRecursively(children[i]);
+    //     elem.__worldAABB.mergeAABB(aabb);
+    //   }
+
+    //   return elem.__worldAABB;
+    // })(this);
+
+    // return aabb;
   }
 
   private get __shouldJointWorldAabbBeCalculated() {
