@@ -7,8 +7,6 @@ import { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { Is } from '../misc/Is';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { SkeletalComponent } from '../components';
-import { ISceneGraphEntity } from '../helpers';
-import { RnObject } from './RnObject';
 
 /**
  * The class that generates and manages entities.

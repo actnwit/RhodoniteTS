@@ -184,6 +184,8 @@ export class Mesh implements IMesh {
       const skeletal = this.__belongToEntities[i].tryToGetSkeletal();
       if (skeletal != null) {
         entityInfo[4 * i + 1] = skeletal.componentSID;
+      } else {
+        entityInfo[4 * i + 1] = -1;
       }
       // entityInfo[2 * i + 1] = this.__belongToEntities[i].getSceneGraph()
       //   .isVisible
