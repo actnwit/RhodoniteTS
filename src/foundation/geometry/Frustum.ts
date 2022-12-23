@@ -5,6 +5,7 @@ import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Visibility } from '../definitions/Visibility';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { MeshComponent } from '../components';
 
 /**
  * The view frustum class.
@@ -88,8 +89,8 @@ export class Frustum {
    * Do culling test (Inside / outside / neutral) of the entity against to the view frustum.
    * @param sg The SceneGraphComponent object of the entity.
    */
-  culling(sg: SceneGraphComponent) {
-    const aabb = sg.worldAABB;
+  culling(meshComponent: MeshComponent) {
+    const aabb = meshComponent.entity.getSceneGraph().calcWorldAABB();
     const center = aabb.centerPoint;
     const centerToCorner = aabb.lengthCenterToCorner;
 

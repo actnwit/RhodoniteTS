@@ -90,8 +90,7 @@ export class RenderPass extends RnObject {
     renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
     renderPass.__preEachDrawFunc = this.__preEachDrawFunc;
     renderPass.__postEachRenderFunc = this.__postEachRenderFunc;
-    renderPass.__renderTargetColorAttachments =
-      this.__renderTargetColorAttachments?.concat();
+    renderPass.__renderTargetColorAttachments = this.__renderTargetColorAttachments?.concat();
 
     return renderPass;
   }
@@ -213,8 +212,7 @@ export class RenderPass extends RnObject {
    * @return An array of MeshComponents
    */
   get meshComponents() {
-    this.__collectMeshComponents();
-    return this.__meshComponents;
+    return this.__meshComponents ?? [];
   }
 
   /**
@@ -222,7 +220,6 @@ export class RenderPass extends RnObject {
    * @return An array of SceneGraphComponents
    */
   get sceneTopLevelGraphComponents(): SceneGraphComponent[] {
-    this.__collectTopLevelSceneGraphComponents();
     return this.__topLevelSceneGraphComponents != null ? this.__topLevelSceneGraphComponents : [];
   }
 
@@ -321,9 +318,7 @@ export class RenderPass extends RnObject {
     this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer2);
   }
 
-  private __copyFramebufferToResolveFramebufferInner(
-    resolveFrameBuffer?: FrameBuffer
-  ) {
+  private __copyFramebufferToResolveFramebufferInner(resolveFrameBuffer?: FrameBuffer) {
     if (resolveFrameBuffer == null) {
       return;
     }

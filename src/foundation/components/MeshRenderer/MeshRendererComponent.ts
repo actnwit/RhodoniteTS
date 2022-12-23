@@ -119,10 +119,10 @@ export class MeshRendererComponent extends Component {
 
     // FrustumCulling
     let primitives: Primitive[] = [];
-    const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
+    const meshComponents = renderPass.meshComponents;
     primitives = MeshRendererComponent.__cullingWithViewFrustum(
       cameraComponent,
-      sceneGraphComponents,
+      meshComponents,
       renderPass
     );
 
@@ -170,10 +170,10 @@ export class MeshRendererComponent extends Component {
 
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
-    sceneGraphComponents: SceneGraphComponent[],
+    meshComponents: MeshComponent[],
     renderPass: RenderPass
   ) {
-    let meshComponents: MeshComponent[] = [];
+    let filteredMeshComponents: MeshComponent[] = [];
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
 
@@ -191,45 +191,27 @@ export class MeshRendererComponent extends Component {
       // };
 
       const frustum = cameraComponent.frustum;
-      const doAsVisible = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
-        const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
-        for (const sg of sgs) {
-          const mesh = sg.entity.tryToGetMesh();
-          if (mesh) {
-            meshComponents!.push(mesh);
-          }
-        }
-      };
       const frustumCullingRecursively = (
-        sg: SceneGraphComponent,
-        meshComponents: MeshComponent[]
+        meshComponent: MeshComponent,
+        outMeshComponents: MeshComponent[]
       ) => {
-        const result = frustum.culling(sg);
-        if (result === Visibility.Visible) {
-          doAsVisible(sg, meshComponents);
-        } else if (result === Visibility.Neutral) {
-          // || whetherContainsSkeletal(sg)) {
-          const children = sg.children;
-          const mesh = sg.entity.tryToGetMesh();
-          if (mesh) {
-            meshComponents.push(mesh);
-          }
-          for (const child of children) {
-            frustumCullingRecursively(child, meshComponents);
-          }
+        const result = frustum.culling(meshComponent);
+        if (result === Visibility.Visible || result === Visibility.Neutral) {
+          outMeshComponents.push(meshComponent);
+        } else {
+          console.log('culling');
         }
       };
-
-      for (const tlsg of sceneGraphComponents) {
-        frustumCullingRecursively(tlsg, meshComponents);
+      for (const meshComponent of meshComponents) {
+        frustumCullingRecursively(meshComponent, filteredMeshComponents);
       }
     } else {
-      meshComponents = renderPass!.meshComponents!;
+      filteredMeshComponents = renderPass!.meshComponents!;
     }
 
     const primitives: Primitive[] = [];
-    for (let i = 0; i < meshComponents.length; i++) {
-      const meshComponent = meshComponents[i];
+    for (let i = 0; i < filteredMeshComponents.length; i++) {
+      const meshComponent = filteredMeshComponents[i];
       const viewDepth = meshComponent.calcViewDepth(cameraComponent);
       const mesh = meshComponent.mesh;
       if (mesh !== undefined) {
