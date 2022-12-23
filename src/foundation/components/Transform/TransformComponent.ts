@@ -13,6 +13,7 @@ import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ITransformEntity } from '../../helpers';
 import { MutableQuaternion, Transform3D } from '../../math';
+import { Is } from '../../misc';
 
 // import AnimationComponent from './AnimationComponent';
 
@@ -66,8 +67,31 @@ export class TransformComponent extends Component {
     return this.__pose;
   }
 
+  set localTransform(transform: Transform3D) {
+    this.__pose.setTransform(
+      transform.positionInner,
+      MutableVector3.fromCopyVector3(transform.eulerAnglesInner),
+      transform.scaleInner,
+      MutableQuaternion.fromCopyQuaternion(transform.rotationInner),
+      transform.matrixInner
+    );
+  }
+
   get localTransformRest() {
     return this.restOrPose;
+  }
+
+  set localTransformRest(transform: Transform3D) {
+    if (Is.undefined(this.__rest)) {
+      this.__rest = new Transform3D();
+    }
+    this.__rest.setTransform(
+      transform.positionInner,
+      MutableVector3.fromCopyVector3(transform.eulerAnglesInner),
+      transform.scaleInner,
+      MutableQuaternion.fromCopyQuaternion(transform.rotationInner),
+      transform.matrixInner
+    );
   }
 
   set localPosition(vec: IVector3) {
@@ -241,6 +265,15 @@ export class TransformComponent extends Component {
         sceneGraphComponent.setWorldMatrixDirty();
       }
     }
+  }
+
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as TransformComponent;
+    this.__pose = component.__pose.clone();
+    if (component.__rest != null) {
+      this.__rest = component.__rest.clone();
+    }
+    this.__updateCountAtLastLogic = component.__updateCountAtLastLogic;
   }
 
   /**

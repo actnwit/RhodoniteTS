@@ -39,7 +39,7 @@ export class RnObject implements IRnObject {
   /// members
   private readonly __objectUid: ObjectUID = RnObject.currentMaxObjectCount++;
   private __uniqueName: string;
-  private __tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
+  _tags: RnTags = {}; // Tag string allows alphabet, digit and underscore (_) only
   private __combinedTagString = ''; // Tag string allows alphabet, digit and underscore (_) only
 
   constructor() {
@@ -134,7 +134,7 @@ export class RnObject implements IRnObject {
         this.removeTag(tag.tag);
       }
 
-      this.__tags[tag.tag] = tag.value;
+      this._tags[tag.tag] = tag.value;
       this.__combinedTagString += `${tag.tag}:${tag.value}` + ' ';
       return true;
     }
@@ -146,7 +146,7 @@ export class RnObject implements IRnObject {
    * @param tagName The tag name.
    */
   getTagValue(tagName: string): any {
-    return this.__tags[tagName];
+    return this._tags[tagName];
   }
 
   /**
@@ -156,7 +156,7 @@ export class RnObject implements IRnObject {
   getTag(tagName: string): Tag {
     const tag: Tag = {
       tag: tagName,
-      value: this.__tags[tagName],
+      value: this._tags[tagName],
     };
     return tag;
   }
@@ -166,7 +166,7 @@ export class RnObject implements IRnObject {
    * @param tagName The tag name.
    */
   hasTag(tagName: string) {
-    if (this.__tags[tagName] != null) {
+    if (this._tags[tagName] != null) {
       return true;
     } else {
       return false;
@@ -178,9 +178,9 @@ export class RnObject implements IRnObject {
    * @param tagName The tag name.
    */
   removeTag(tagName: string) {
-    const strToDelete = `${tagName}:${this.__tags[tagName]}` + ' ';
+    const strToDelete = `${tagName}:${this._tags[tagName]}` + ' ';
     this.__combinedTagString.replace(this.__combinedTagString, '');
-    delete this.__tags[tagName];
+    delete this._tags[tagName];
   }
 
   /**
@@ -189,7 +189,7 @@ export class RnObject implements IRnObject {
    * @param tagValue The tag value.
    */
   matchTag(tagName: string, tagValue: string): boolean {
-    if (this.__tags[tagName] === tagValue) {
+    if (this._tags[tagName] === tagValue) {
       return true;
     } else {
       return false;
@@ -250,7 +250,7 @@ export class RnObject implements IRnObject {
   }
 
   _copyFrom(rnObject: RnObject) {
-    this.__tags = deepCopyUsingJsonStringify(rnObject.__tags);
+    this._tags = deepCopyUsingJsonStringify(rnObject._tags);
     this.__combinedTagString = rnObject.__combinedTagString;
   }
 }

@@ -183,7 +183,7 @@ const Instance: VertexAttributeEnum = VertexAttributeClass.__createVertexAttribu
   str: 'INSTANCE',
   shaderStr: 'a_instanceInfo',
   attributeSlot: 8,
-  gltfComponentN: 1,
+  gltfComponentN: 4,
 });
 const FaceNormal: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
   str: 'FACE_NORMAL',
@@ -277,7 +277,7 @@ function toVertexAttributeSemanticJoinedStringAsGltfStyle(
     case Weights0:
       return attribute.XYZW;
     case Instance:
-      return attribute.X;
+      return attribute.XYZW;
     case FaceNormal:
       return attribute.XYZW;
     case BaryCentricCoord:
@@ -307,7 +307,7 @@ function toAttributeSlotFromJoinedString(str: VertexAttributeSemanticsJoinedStri
       return Joints0.getAttributeSlot();
     case Weights0.XYZW:
       return Weights0.getAttributeSlot();
-    case Instance.X:
+    case Instance.XYZW:
       return Instance.getAttributeSlot();
     case FaceNormal.XYZ:
       return FaceNormal.getAttributeSlot();

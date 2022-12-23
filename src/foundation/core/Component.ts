@@ -697,4 +697,8 @@ export class Component extends RnObject {
   _destroy(): void {
     this._isAlive = false;
   }
+
+  _shallowCopyFrom(component: Component): void {
+    // new Error('Not Implemented');
+  }
 }

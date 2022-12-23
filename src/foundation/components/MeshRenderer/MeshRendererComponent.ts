@@ -22,7 +22,6 @@ import {
   ComponentTID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import { AbstractMaterialContent } from '../../materials/core/AbstractMaterialContent';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
@@ -32,25 +31,23 @@ import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/type
 import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
 
 export class MeshRendererComponent extends Component {
-  private __meshComponent?: MeshComponent;
-  static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
-    new Map();
   public diffuseCubeMap?: CubeTexture;
   public specularCubeMap?: CubeTexture;
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
+  public _readyForRendering = false;
+  private __meshComponent?: MeshComponent;
 
   private static __webglRenderingStrategy?: WebGLStrategy;
-  private static __tmp_identityMatrix: IMatrix44 = Matrix44.identity();
   public static _lastOpaqueIndex = -1;
   public static _lastTransparentIndex = -1;
   public static _firstTransparentSortKey = -1;
   public static _lastTransparentSortKey = -1;
-  private static __manualTransparentSids?: ComponentSID[];
-  public _readyForRendering = false;
   public static isViewFrustumCullingEnabled = true;
   public static isDepthMaskTrueForTransparencies = false;
+  static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
+    new Map();
 
   constructor(
     entityUid: EntityUID,
@@ -277,6 +274,17 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount: Count;
   }) {}
 
+  _shallowCopyFrom(component_: Component): void {
+    const component = component_ as MeshRendererComponent;
+
+    this.diffuseCubeMap = component.diffuseCubeMap;
+    this.specularCubeMap = component.specularCubeMap;
+    this.diffuseCubeMapContribution = component.diffuseCubeMapContribution;
+    this.specularCubeMapContribution = component.specularCubeMapContribution;
+    this.rotationOfCubeMap = component.rotationOfCubeMap;
+    this._readyForRendering = component._readyForRendering;
+  }
+
   /**
    * @override
    * Add this component to the entity
@@ -290,7 +298,7 @@ export class MeshRendererComponent extends Component {
     class MeshRendererEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

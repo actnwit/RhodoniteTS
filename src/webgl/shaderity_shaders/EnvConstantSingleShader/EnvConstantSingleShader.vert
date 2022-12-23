@@ -3,7 +3,7 @@
 
 /* shaderity: @{definitions} */
 
-in float a_instanceInfo;
+in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec3 a_position;
 in vec3 a_color;
@@ -26,7 +26,7 @@ void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
@@ -40,7 +40,7 @@ void main(){
     gl_Position = projectionMatrix * worldMatrix * vec4(a_position, 1.0);
   }
 
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   v_normal_inWorld = normalMatrix * a_normal;
 
   v_color = a_color;

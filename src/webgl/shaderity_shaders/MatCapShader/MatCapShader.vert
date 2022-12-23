@@ -3,7 +3,7 @@
 
 /* shaderity: @{definitions} */
 
-in float a_instanceInfo;
+in vec4 a_instanceInfo;
 in vec3 a_baryCentricCoord;
 in vec3 a_position;
 in vec3 a_normal;
@@ -31,8 +31,8 @@ void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-  mat4 worldMatrix = get_worldMatrix(a_instanceInfo);
-  mat3 normalMatrix = get_normalMatrix(a_instanceInfo);
+  mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
+  mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
 
   bool isSkinning = false;

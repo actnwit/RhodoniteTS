@@ -176,11 +176,17 @@ export class Mesh implements IMesh {
     }
 
     const instanceNum = this.__belongToEntities.length;
-    const entityInfo = new Float32Array(instanceNum);
-    // const entityInfo = new Float32Array(instanceNum * 2);
+    // const entityInfo = new Float32Array(instanceNum);
+    const entityInfo = new Float32Array(instanceNum * 4);
     for (let i = 0; i < instanceNum; i++) {
-      entityInfo[i] = this.__belongToEntities[i].entityUID;
-      // entityInfo[2 * i + 0] = this.__belongToEntities[i].entityUID;
+      // entityInfo[i] = this.__belongToEntities[i].entityUID;
+      entityInfo[4 * i + 0] = this.__belongToEntities[i].entityUID;
+      const skeletal = this.__belongToEntities[i].tryToGetSkeletal();
+      if (skeletal != null) {
+        entityInfo[4 * i + 1] = skeletal.componentSID;
+      } else {
+        entityInfo[4 * i + 1] = -1;
+      }
       // entityInfo[2 * i + 1] = this.__belongToEntities[i].getSceneGraph()
       //   .isVisible
       //   ? 1

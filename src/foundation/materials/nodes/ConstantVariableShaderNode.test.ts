@@ -8,7 +8,7 @@ import { Vector4 } from '../../math/Vector4';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 import { ModuleManager } from '../../system/ModuleManager';
 
-test('ConstantVariable works correctly 1', async () => {
+test.skip('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,

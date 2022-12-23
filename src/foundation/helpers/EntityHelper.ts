@@ -32,6 +32,10 @@ export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {}
 
+function createEntity(): IEntity {
+  return EntityRepository.createEntity();
+}
+
 function createTransformEntity(): ITransformEntity {
   const entity = EntityRepository.createEntity();
   const entity1 = EntityRepository.addComponentToEntity(TransformComponent, entity);
@@ -101,6 +105,7 @@ function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods {
 }
 
 export const EntityHelper = Object.freeze({
+  createEntity,
   createTransformEntity,
   createGroupEntity,
   createMeshEntity,
