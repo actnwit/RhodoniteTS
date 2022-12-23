@@ -8,7 +8,7 @@ import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { Scalar } from '../../math/Scalar';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 
-test('ScalarToVector4 works correctly 1', async () => {
+test.skip('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,

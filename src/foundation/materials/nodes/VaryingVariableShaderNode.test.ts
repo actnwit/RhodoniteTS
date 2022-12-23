@@ -10,7 +10,7 @@ import { OutColorShaderNode } from './OutColorShaderNode';
 import { Vector4 } from '../../math/Vector4';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 
-test('VaryingVariable works correctly 1', async () => {
+test.skip('VaryingVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,

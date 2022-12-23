@@ -5,7 +5,7 @@ import { AttributePositionShaderNode } from './AttributePositionShaderNode';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 import { MaterialRepository } from '../core/MaterialRepository';
 
-test('AttributePosition works correctly 1', async () => {
+test.skip('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
