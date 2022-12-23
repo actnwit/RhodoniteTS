@@ -237,6 +237,17 @@ export class SceneGraphComponent extends Component {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
+  setWorldMatrixRestDirty() {
+    this.setWorldMatrixRestDirtyRecursively();
+  }
+
+  setWorldMatrixRestDirtyRecursively() {
+    this.__isWorldMatrixRestUpToDate = false;
+    this.children.forEach((child) => {
+      child.setWorldMatrixRestDirtyRecursively();
+    });
+  }
+
   setWorldMatrixDirty() {
     this.setWorldMatrixDirtyRecursively();
     this.parent?.setWorldAABBDirtyParentRecursively();
@@ -641,8 +652,8 @@ export class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
-    this._worldMatrixRest.copyComponents(this.__calcWorldMatrixRestRecursively());
+    this.matrixInner;
+    this.matrixRestInner;
 
     this.__updateGizmos();
 

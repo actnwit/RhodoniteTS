@@ -48,6 +48,8 @@ export class TransformComponent extends Component {
 
   _backupTransformAsRest() {
     this.__rest = this.__pose.clone();
+    const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
+    sceneGraphComponent.setWorldMatrixRestDirty();
   }
 
   _restoreTransformFromRest() {
@@ -255,13 +257,14 @@ export class TransformComponent extends Component {
   }
 
   $logic() {
-    const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
     if (this.__updateCountAtLastLogic !== this.__pose.updateCount) {
+      const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
       sceneGraphComponent.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this.__pose.updateCount;
     } else {
       const skeletalComponent = this.entity.tryToGetSkeletal();
       if (skeletalComponent != null) {
+        const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
         sceneGraphComponent.setWorldMatrixDirty();
       }
     }
