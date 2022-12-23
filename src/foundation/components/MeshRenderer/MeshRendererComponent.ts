@@ -177,18 +177,18 @@ export class MeshRendererComponent extends Component {
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
 
-      const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
-        const skeletalComponent = sg.entity.tryToGetSkeletal();
-        if (Is.exist(skeletalComponent)) {
-          return true;
-        } else {
-          const children = sg.children;
-          for (const child of children) {
-            return whetherContainsSkeletal(child);
-          }
-          return false;
-        }
-      };
+      // const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
+      //   const skeletalComponent = sg.entity.tryToGetSkeletal();
+      //   if (Is.exist(skeletalComponent)) {
+      //     return true;
+      //   } else {
+      //     const children = sg.children;
+      //     for (const child of children) {
+      //       return whetherContainsSkeletal(child);
+      //     }
+      //     return false;
+      //   }
+      // };
 
       const frustum = cameraComponent.frustum;
       const doAsVisible = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
@@ -207,7 +207,8 @@ export class MeshRendererComponent extends Component {
         const result = frustum.culling(sg);
         if (result === Visibility.Visible) {
           doAsVisible(sg, meshComponents);
-        } else if (result === Visibility.Neutral || whetherContainsSkeletal(sg)) {
+        } else if (result === Visibility.Neutral) {
+          // || whetherContainsSkeletal(sg)) {
           const children = sg.children;
           const mesh = sg.entity.tryToGetMesh();
           if (mesh) {
