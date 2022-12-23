@@ -377,11 +377,11 @@ export class System {
     Config.eventTargetDom = desc.canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     MemoryManager.createInstanceIfNotCreated({
-      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.3,
+      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
       gpuInstanceData: Is.exist(desc.memoryUsageOrder)
         ? desc.memoryUsageOrder.gpuInstanceData
-        : 0.4,
-      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.6,
+        : 0.5,
+      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);

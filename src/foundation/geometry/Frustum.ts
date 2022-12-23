@@ -5,6 +5,8 @@ import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Visibility } from '../definitions/Visibility';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { MeshComponent } from '../components';
+import { Index } from '../../types';
 
 /**
  * The view frustum class.
@@ -67,62 +69,156 @@ export class Frustum {
   }
 
   /**
-   * Do clipping test (Inside / outside / neutral) of the plane of the view frustum.
-   * @param plane The plane of the view frustum.
-   * @param point The point to test.
-   * @param bias The bias value.
+   * false if fully outside, true if inside or intersects
+   *
+   * original idea is from https://iquilezles.org/articles/frustumcorrect/
    */
-  clipping(plane: Vector4, point: Vector3, bias: number) {
-    const dot = Vector3.dot(plane as any as Vector3, point);
-    const d = dot + plane.w;
-    if (d + bias < 0) {
-      return Visibility.Invisible; // outside completely
-    } else if (d - bias > 0) {
-      return Visibility.Visible; // inside completely
-    } else {
-      return Visibility.Neutral; // neutral
+  culling(meshComponent: MeshComponent) {
+    const aabb = meshComponent.entity.getSceneGraph().worldAABB;
+
+    // check box outside/inside of frustum
+    for (let i = 0; i < 6; i++) {
+      let out = 0;
+      const plane = this.getPlane(i);
+      out +=
+        plane.x * aabb.minPoint.x +
+          plane.y * aabb.minPoint.y +
+          plane.z * aabb.minPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.maxPoint.x +
+          plane.y * aabb.minPoint.y +
+          plane.z * aabb.minPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.minPoint.x +
+          plane.y * aabb.maxPoint.y +
+          plane.z * aabb.minPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.maxPoint.x +
+          plane.y * aabb.maxPoint.y +
+          plane.z * aabb.minPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.minPoint.x +
+          plane.y * aabb.minPoint.y +
+          plane.z * aabb.maxPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.maxPoint.x +
+          plane.y * aabb.minPoint.y +
+          plane.z * aabb.maxPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.minPoint.x +
+          plane.y * aabb.maxPoint.y +
+          plane.z * aabb.maxPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      out +=
+        plane.x * aabb.maxPoint.x +
+          plane.y * aabb.maxPoint.y +
+          plane.z * aabb.maxPoint.z +
+          plane.w <
+        0
+          ? 1
+          : 0;
+      if (out === 8) {
+        return false;
+      }
     }
+
+    // check frustum outside/inside box
+    // let out = 0;
+    // out = 0;
+    // for (let i = 0; i < 8; i++) {
+    //   const plane = this.getPlane(i);
+    //   out += plane.x > aabb.maxPoint.x ? 1 : 0;
+    // }
+    // if (out === 8) {
+    //   return false;
+    // }
+    // out = 0;
+    // for (let i = 0; i < 8; i++) {
+    //   const plane = this.getPlane(i);
+    //   out += plane.x < aabb.minPoint.x ? 1 : 0;
+    // }
+    // if (out === 8) {
+    //   return false;
+    // }
+    // out = 0;
+    // for (let i = 0; i < 8; i++) {
+    //   const plane = this.getPlane(i);
+    //   out += plane.y > aabb.maxPoint.y ? 1 : 0;
+    // }
+    // if (out === 8) {
+    //   return false;
+    // }
+    // out = 0;
+    // for (let i = 0; i < 8; i++) {
+    //   const plane = this.getPlane(i);
+    //   out += plane.y < aabb.minPoint.y ? 1 : 0;
+    // }
+    // if (out === 8) {
+    //   return false;
+    // }
+    // out = 0;
+    // for (let i = 0; i < 8; i++) {
+    //   const plane = this.getPlane(i);
+    //   out += plane.z > aabb.maxPoint.z ? 1 : 0;
+    // }
+    // if (out === 8) {
+    //   return false;
+    // }
+    // out = 0;
+    // for (let i = 0; i < 8; i++) {
+    //   const plane = this.getPlane(i);
+    //   out += plane.z < aabb.minPoint.z ? 1 : 0;
+    // }
+    // if (out === 8) {
+    //   return false;
+    // }
+
+    return true;
   }
 
-  /**
-   * Do culling test (Inside / outside / neutral) of the entity against to the view frustum.
-   * @param sg The SceneGraphComponent object of the entity.
-   */
-  culling(sg: SceneGraphComponent) {
-    const aabb = sg.worldAABB;
-    const center = aabb.centerPoint;
-    const centerToCorner = aabb.lengthCenterToCorner;
-
-    const right = this.clipping(this.right, center, centerToCorner);
-    const left = this.clipping(this.left, center, centerToCorner);
-    if (
-      (right === Visibility.Invisible && left === Visibility.Visible) ||
-      (right === Visibility.Visible && left === Visibility.Invisible)
-    ) {
-      return Visibility.Invisible;
+  getPlane(i: Index) {
+    switch (i) {
+      case 0:
+        return this.top;
+      case 1:
+        return this.bottom;
+      case 2:
+        return this.right;
+      case 3:
+        return this.left;
+      case 4:
+        return this.zNear;
+      case 5:
+        return this.zFar;
+      default:
+        throw new Error('Invalid plane index.');
     }
-    const zNear = this.clipping(this.zNear, center, centerToCorner);
-    const zFar = this.clipping(this.zFar, center, centerToCorner);
-    if (
-      (zNear === Visibility.Invisible && zFar === Visibility.Visible) ||
-      (zNear === Visibility.Visible && zFar === Visibility.Invisible)
-    ) {
-      return Visibility.Invisible;
-    }
-    const top = this.clipping(this.top, center, centerToCorner);
-    const bottom = this.clipping(this.bottom, center, centerToCorner);
-    if (
-      (top === Visibility.Invisible && bottom === Visibility.Visible) ||
-      (top === Visibility.Visible && bottom === Visibility.Invisible)
-    ) {
-      return Visibility.Invisible;
-    }
-
-    const sum = top.index + bottom.index + right.index + left.index + zNear.index + zFar.index;
-    if (sum === 6) {
-      return Visibility.Visible;
-    }
-
-    return Visibility.Neutral;
   }
 }

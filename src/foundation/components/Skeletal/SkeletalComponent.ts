@@ -41,6 +41,7 @@ export class SkeletalComponent extends Component {
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
   _animationRetarget?: IAnimationRetarget;
+  _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
   private static __tmpVec3_0 = MutableVector3.zero();
@@ -191,7 +192,7 @@ export class SkeletalComponent extends Component {
   }
 
   $logic() {
-    if (!this.isSkinning) {
+    if (!this.isSkinning || this._isCulled) {
       return;
     }
 

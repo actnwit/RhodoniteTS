@@ -80,7 +80,7 @@ export class CameraControllerComponent extends Component {
     class CameraControllerEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

@@ -52,6 +52,7 @@ export class SceneGraphComponent extends Component {
   // Skeletal
   public isRootJoint = false;
   public jointIndex = -1;
+  _isCulled = false;
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   private static __sceneGraphs: SceneGraphComponent[] = [];
@@ -59,6 +60,7 @@ export class SceneGraphComponent extends Component {
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
+  private static __tmpAABB = new AABB();
 
   constructor(
     entityUid: EntityUID,
@@ -235,6 +237,18 @@ export class SceneGraphComponent extends Component {
 
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
+  }
+
+  setWorldMatrixRestDirty() {
+    this.matrixRestInner;
+    this.setWorldMatrixRestDirtyRecursively();
+  }
+
+  setWorldMatrixRestDirtyRecursively() {
+    this.__isWorldMatrixRestUpToDate = false;
+    this.children.forEach((child) => {
+      child.setWorldMatrixRestDirtyRecursively();
+    });
   }
 
   setWorldMatrixDirty() {
@@ -458,6 +472,25 @@ export class SceneGraphComponent extends Component {
 
   calcWorldAABB() {
     this.__worldAABB.initialize();
+
+    // const meshComponent = this.entity.tryToGetMesh();
+    // for (let i = 0; i < this.children.length; i++) {
+    //   this.__worldAABB.mergeAABB(this.children[i].worldAABB);
+    // }
+    // if (meshComponent != null) {
+    //   if (meshComponent.mesh != null) {
+    //     this.__worldAABB.mergeAABB(meshComponent.mesh.AABB);
+    //   }
+    // }
+    // AABB.multiplyMatrixTo(
+    //   this.entity.tryToGetTransform()!.localMatrixInner,
+    //   this.__worldAABB,
+    //   SceneGraphComponent.__tmpAABB
+    // );
+
+    // this.__worldAABB = SceneGraphComponent.__tmpAABB.clone();
+    // return this.__worldAABB;
+
     const aabb = (function mergeAABBRecursively(elem: SceneGraphComponent): AABB {
       const meshComponent = elem.entity.tryToGetMesh();
       if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
@@ -641,8 +674,7 @@ export class SceneGraphComponent extends Component {
   }
 
   $logic() {
-    this._worldMatrix.copyComponents(this.__calcWorldMatrixRecursively());
-    this._worldMatrixRest.copyComponents(this.__calcWorldMatrixRestRecursively());
+    this.matrixInner;
 
     this.__updateGizmos();
 

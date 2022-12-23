@@ -1,18 +1,21 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 let p: any;
 
 declare const window: any;
+declare const Stats: any;
 
 (async () => {
-  Rn.Config.maxEntityNumber = 200;
+  Rn.Config.maxEntityNumber = 40000;
   Rn.Config.maxLightNumberInShader = 1;
   Rn.Config.maxVertexMorphNumberInShader = 1;
   Rn.Config.maxMaterialInstanceForEachType = 30;
   Rn.Config.maxCameraNumber = 3;
   Rn.Config.maxSkeletalBoneNumber = 100;
-  Rn.Config.dataTextureWidth = 2 ** 9;
-  Rn.Config.dataTextureHeight = 2 ** 10;
+  Rn.Config.maxSkeletonNumber = 1504;
+  Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
+  Rn.Config.dataTextureWidth = 2 ** 12;
+  Rn.Config.dataTextureHeight = 2 ** 11;
   Rn.Config.maxMorphTargetNumber = 1;
   Rn.Config.isUboEnabled = false;
 
@@ -72,6 +75,27 @@ declare const window: any;
     false
   );
 
+  for (let i = 0; i < 1; i++) {
+    for (let j = 0; j < 1; j++) {
+      const vrmRootEntity2nd = Rn.EntityRepository.shallowCopyEntity(
+        vrmRootEntity
+      ) as Rn.ISceneGraphEntity;
+      vrmRootEntity2nd.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([
+        0,
+        Math.PI,
+        0.0,
+      ]);
+      vrmRootEntity2nd.getTransform().localPosition = Rn.Vector3.fromCopyArray([i, 0, j]);
+      vrmMainRenderPass.addEntities([vrmRootEntity2nd]);
+      animationAssigner.assignAnimation(
+        vrmRootEntity2nd,
+        animGltf2Result.unwrapForce(),
+        vrmModelResult.unwrapForce(),
+        false
+      );
+    }
+  }
+
   //set default camera
   Rn.CameraComponent.current = 0;
 
@@ -82,6 +106,7 @@ declare const window: any;
   const controller = vrmMainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.dolly = 0.78;
   controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
+  // controller.autoUpdate = false;
 
   // Lights
   const lightEntity = Rn.EntityHelper.createLightEntity();
@@ -89,6 +114,10 @@ declare const window: any;
   lightComponent.type = Rn.LightType.Directional;
   lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
   lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
+
+  const stats = new Stats();
+  stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.domElement);
 
   let count = 0;
   let startTime = Date.now();
@@ -113,7 +142,9 @@ declare const window: any;
       }
     }
 
+    stats.begin();
     Rn.System.process(expressions);
+    stats.end();
 
     count++;
 

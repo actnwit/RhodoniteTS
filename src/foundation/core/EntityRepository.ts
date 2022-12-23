@@ -7,6 +7,7 @@ import { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { Is } from '../misc/Is';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { SkeletalComponent } from '../components';
+import { ISceneGraphEntity } from '../helpers';
 
 /**
  * The class that generates and manages entities.
@@ -31,7 +32,8 @@ export class EntityRepository {
   public static shallowCopyEntity(entity: IEntity): IEntity {
     const newEntity = EntityRepository._shallowCopyEntityInner(entity);
 
-    EntityRepository.__setJoints(entity);
+    this.__setJoints(entity);
+    this.__handleTagData(newEntity as unknown as Entity);
 
     return newEntity;
   }
@@ -78,6 +80,46 @@ export class EntityRepository {
       }
     }
     return newEntity;
+  }
+
+  private static __handleTagData(newEntity: Entity) {
+    const tags = newEntity._tags;
+    if (Is.exist(tags)) {
+      const tagKeys = Object.keys(tags);
+      for (const tagKey of tagKeys) {
+        if (tagKey === 'rnEntities') {
+          const entities = newEntity.getTagValue('rnEntities') as ISceneGraphEntity[];
+          const newEntities = entities.map((entity) => {
+            return EntityRepository.getEntity(entity._myLatestCopyEntityUID);
+          });
+          newEntity.tryToSetTag({
+            tag: 'rnEntities',
+            value: newEntities,
+          });
+        }
+        if (tagKey === 'rnEntitiesByNames') {
+          const map = newEntity.getTagValue('rnEntitiesByNames') as Map<string, ISceneGraphEntity>;
+          for (const name of Object.keys(map)) {
+            const entity = map.get(name) as ISceneGraphEntity;
+            map.set(
+              name,
+              EntityRepository.getEntity(entity._myLatestCopyEntityUID) as ISceneGraphEntity
+            );
+          }
+          newEntity.tryToSetTag({
+            tag: 'rnEntitiesByNames',
+            value: map,
+          });
+        }
+      }
+    }
+
+    const sceneGraph = newEntity.tryToGetSceneGraph();
+    if (Is.exist(sceneGraph)) {
+      sceneGraph.children.forEach((child) => {
+        EntityRepository.__handleTagData(child.entity as unknown as Entity);
+      });
+    }
   }
 
   public static tryToAddComponentToEntityByTID(

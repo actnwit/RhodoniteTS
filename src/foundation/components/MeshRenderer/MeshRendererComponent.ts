@@ -119,10 +119,10 @@ export class MeshRendererComponent extends Component {
 
     // FrustumCulling
     let primitives: Primitive[] = [];
-    const sceneGraphComponents = renderPass.sceneTopLevelGraphComponents!;
+    const meshComponents = renderPass.meshComponents;
     primitives = MeshRendererComponent.__cullingWithViewFrustum(
       cameraComponent,
-      sceneGraphComponents,
+      meshComponents,
       renderPass
     );
 
@@ -170,65 +170,54 @@ export class MeshRendererComponent extends Component {
 
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
-    sceneGraphComponents: SceneGraphComponent[],
+    meshComponents: MeshComponent[],
     renderPass: RenderPass
   ) {
-    let meshComponents: MeshComponent[] = [];
+    let filteredMeshComponents: MeshComponent[] = [];
     if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
 
-      const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
-        const skeletalComponent = sg.entity.tryToGetSkeletal();
-        if (Is.exist(skeletalComponent)) {
-          return true;
-        } else {
-          const children = sg.children;
-          for (const child of children) {
-            return whetherContainsSkeletal(child);
-          }
-          return false;
-        }
-      };
+      // const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
+      //   const skeletalComponent = sg.entity.tryToGetSkeletal();
+      //   if (Is.exist(skeletalComponent)) {
+      //     return true;
+      //   } else {
+      //     const children = sg.children;
+      //     for (const child of children) {
+      //       return whetherContainsSkeletal(child);
+      //     }
+      //     return false;
+      //   }
+      // };
 
       const frustum = cameraComponent.frustum;
-      const doAsVisible = (sg: SceneGraphComponent, meshComponents: MeshComponent[]) => {
-        const sgs = SceneGraphComponent.flattenHierarchy(sg, false);
-        for (const sg of sgs) {
-          const mesh = sg.entity.tryToGetMesh();
-          if (mesh) {
-            meshComponents!.push(mesh);
+      const frustumCulling = (meshComponent: MeshComponent, outMeshComponents: MeshComponent[]) => {
+        const result = frustum.culling(meshComponent);
+        if (result) {
+          outMeshComponents.push(meshComponent);
+          meshComponent.entity.getSceneGraph()._isCulled = false;
+          const skeletal = meshComponent.entity.tryToGetSkeletal();
+          if (skeletal !== undefined) {
+            skeletal._isCulled = false;
+          }
+        } else {
+          meshComponent.entity.getSceneGraph()._isCulled = true;
+          const skeletal = meshComponent.entity.tryToGetSkeletal();
+          if (skeletal !== undefined) {
+            skeletal._isCulled = true;
           }
         }
       };
-      const frustumCullingRecursively = (
-        sg: SceneGraphComponent,
-        meshComponents: MeshComponent[]
-      ) => {
-        const result = frustum.culling(sg);
-        if (result === Visibility.Visible) {
-          doAsVisible(sg, meshComponents);
-        } else if (result === Visibility.Neutral || whetherContainsSkeletal(sg)) {
-          const children = sg.children;
-          const mesh = sg.entity.tryToGetMesh();
-          if (mesh) {
-            meshComponents.push(mesh);
-          }
-          for (const child of children) {
-            frustumCullingRecursively(child, meshComponents);
-          }
-        }
-      };
-
-      for (const tlsg of sceneGraphComponents) {
-        frustumCullingRecursively(tlsg, meshComponents);
+      for (const meshComponent of meshComponents) {
+        frustumCulling(meshComponent, filteredMeshComponents);
       }
     } else {
-      meshComponents = renderPass!.meshComponents!;
+      filteredMeshComponents = renderPass!.meshComponents!;
     }
 
     const primitives: Primitive[] = [];
-    for (let i = 0; i < meshComponents.length; i++) {
-      const meshComponent = meshComponents[i];
+    for (let i = 0; i < filteredMeshComponents.length; i++) {
+      const meshComponent = filteredMeshComponents[i];
       const viewDepth = meshComponent.calcViewDepth(cameraComponent);
       const mesh = meshComponent.mesh;
       if (mesh !== undefined) {
