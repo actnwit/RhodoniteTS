@@ -238,6 +238,7 @@ export class SceneGraphComponent extends Component {
   }
 
   setWorldMatrixRestDirty() {
+    this.matrixRestInner;
     this.setWorldMatrixRestDirtyRecursively();
   }
 
@@ -653,7 +654,6 @@ export class SceneGraphComponent extends Component {
 
   $logic() {
     this.matrixInner;
-    this.matrixRestInner;
 
     this.__updateGizmos();
 
