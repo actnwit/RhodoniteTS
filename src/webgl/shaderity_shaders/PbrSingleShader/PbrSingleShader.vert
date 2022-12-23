@@ -6,7 +6,7 @@
 in vec3 a_position;
 in vec3 a_color;
 in vec3 a_normal;
-in vec2 a_instanceInfo;
+in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;

@@ -1,7 +1,7 @@
 #pragma shaderity: require(../common/version.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
-in vec2 a_instanceInfo;
+in vec4 a_instanceInfo;
 in vec3 a_position;
 
 #pragma shaderity: require(../common/prerequisites.glsl)

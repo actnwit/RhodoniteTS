@@ -3,7 +3,7 @@
 
 /* shaderity: @{definitions} */
 
-in vec2 a_instanceInfo;
+in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec3 a_position;
 in vec3 a_color;

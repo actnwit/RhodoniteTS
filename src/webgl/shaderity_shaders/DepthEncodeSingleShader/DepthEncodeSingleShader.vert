@@ -5,7 +5,7 @@
 
 in vec3 a_position;
 in vec3 a_normal;
-in vec2 a_instanceInfo;
+in vec4 a_instanceInfo;
 in vec4 a_joint;
 in vec4 a_weight;
 
