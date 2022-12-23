@@ -21,7 +21,9 @@ export class OrbitCameraController extends AbstractCameraController implements I
   public scaleOfLengthCenterToCamera = 1.0;
   public moveSpeed = 1;
   public followTargetAABB = false;
+  public autoUpdate = true;
 
+  private __updated = false;
   private __fixedDolly = false;
   private __fixedLengthOfCenterToEye = 1;
   private __isMouseDown = false;
@@ -116,6 +118,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
   setTarget(targetEntity: ISceneGraphEntity) {
     this.__targetEntity = targetEntity;
     this.__originalTargetAABB = undefined;
+    this.__updated = false;
   }
 
   getTarget(): ISceneGraphEntity | undefined {
@@ -144,6 +147,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__lastMouseDownTimeStamp = e.timeStamp;
 
     console.log('original', this.__originalX, this.__originalY);
+
+    this.__updated = false;
   }
 
   __mouseMove(e: MouseEvent) {
@@ -189,6 +194,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
     this.__originalX = currentMouseX;
     this.__originalY = currentMouseY;
+    this.__updated = false;
   }
 
   __mouseUp(e: MouseEvent) {
@@ -198,6 +204,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
     this.__isMouseDown = false;
     this.__lastMouseUpTimeStamp = e.timeStamp;
+    this.__updated = false;
   }
 
   __touchDown(e: TouchEvent) {
@@ -661,9 +668,12 @@ export class OrbitCameraController extends AbstractCameraController implements I
   }
 
   logic(cameraComponent: CameraComponent) {
-    this.__updateTargeting(cameraComponent);
-    this.__calculateInfluenceOfController();
-    this.__updateCameraComponent(cameraComponent);
+    if (!this.__updated || this.autoUpdate) {
+      this.__updateTargeting(cameraComponent);
+      this.__calculateInfluenceOfController();
+      this.__updateCameraComponent(cameraComponent);
+      this.__updated = true;
+    }
   }
 
   /**
