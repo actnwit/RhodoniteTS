@@ -52,6 +52,7 @@ export class SceneGraphComponent extends Component {
   // Skeletal
   public isRootJoint = false;
   public jointIndex = -1;
+  _isCulled = false;
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
   private static __sceneGraphs: SceneGraphComponent[] = [];

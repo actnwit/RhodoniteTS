@@ -195,13 +195,13 @@ export class MeshRendererComponent extends Component {
         const result = frustum.culling(meshComponent);
         if (result) {
           outMeshComponents.push(meshComponent);
-          meshComponent.entity.getSceneGraph().isVisible = true;
+          meshComponent.entity.getSceneGraph()._isCulled = false;
           const skeletal = meshComponent.entity.tryToGetSkeletal();
           if (skeletal !== undefined) {
             skeletal._isCulled = false;
           }
         } else {
-          meshComponent.entity.getSceneGraph().isVisible = false;
+          meshComponent.entity.getSceneGraph()._isCulled = true;
           const skeletal = meshComponent.entity.tryToGetSkeletal();
           if (skeletal !== undefined) {
             skeletal._isCulled = true;
