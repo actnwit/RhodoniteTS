@@ -22,6 +22,7 @@ import {
   Array4,
 } from '../../types/CommonTypes';
 import { Matrix44 } from '../math/Matrix44';
+import { Is } from '../misc';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (byteOffset: Byte, value: number, littleEndian?: boolean) => void;
@@ -99,7 +100,7 @@ export class Accessor {
     this.__count = count;
     this.__arrayLength = arrayLength;
 
-    if (max) {
+    if (Is.exist(max)) {
       this.__max.setComponents(
         max[0] || -Number.MAX_VALUE,
         max[1] || -Number.MAX_VALUE,
@@ -108,13 +109,17 @@ export class Accessor {
       );
     }
 
-    if (min) {
+    if (Is.exist(min)) {
       this.__min.setComponents(
         min[0] || Number.MAX_VALUE,
         min[1] || Number.MAX_VALUE,
         min[2] || Number.MAX_VALUE,
         min[3] || Number.MAX_VALUE
       );
+    }
+
+    if (Is.exist(max) && Is.exist(min)) {
+      this.__isMinMixDirty = false;
     }
 
     this.__raw = raw;
@@ -1026,7 +1031,41 @@ export class Accessor {
     return this.__bufferView;
   }
 
+  setMinMax(min: number[], max: number[]) {
+    const componentN = this.compositionType.getNumberOfComponents();
+    if (componentN === 1) {
+      this.__min._v[0] = min[0];
+      this.__max._v[0] = max[0];
+    } else if (componentN === 2) {
+      this.__min._v[0] = min[0];
+      this.__min._v[1] = min[1];
+      this.__max._v[0] = max[0];
+      this.__max._v[1] = max[1];
+    } else if (componentN === 3) {
+      this.__min._v[0] = min[0];
+      this.__min._v[1] = min[1];
+      this.__min._v[2] = min[2];
+      this.__max._v[0] = max[0];
+      this.__max._v[1] = max[1];
+      this.__max._v[2] = max[2];
+    } else if (componentN === 4) {
+      this.__min._v[0] = min[0];
+      this.__min._v[1] = min[1];
+      this.__min._v[2] = min[2];
+      this.__min._v[3] = min[3];
+      this.__max._v[0] = max[0];
+      this.__max._v[1] = max[1];
+      this.__max._v[2] = max[2];
+      this.__max._v[3] = max[3];
+    }
+    this.__isMinMixDirty = false;
+  }
+
   get min(): number[] {
+    if (this.__isMinMixDirty) {
+      this.__calcMinMax();
+    }
+
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [this.__min._v[0], this.__min._v[1], this.__min._v[2], this.__min._v[3]];
@@ -1040,6 +1079,9 @@ export class Accessor {
   }
 
   get max(): number[] {
+    if (this.__isMinMixDirty) {
+      this.__calcMinMax();
+    }
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       return [this.__max._v[0], this.__max._v[1], this.__max._v[2], this.__max._v[3]];
@@ -1056,7 +1098,7 @@ export class Accessor {
     return this.__normalized;
   }
 
-  calcMinMax() {
+  private __calcMinMax() {
     const componentN = this.compositionType.getNumberOfComponents();
     if (componentN === 4) {
       this.__max.setComponents(

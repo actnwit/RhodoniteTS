@@ -1685,7 +1685,6 @@ function createOrReuseGltf2Accessor(
   const accessorIdx = calcAccessorIdxToSet(existingUniqueRnAccessors, rnAccessor);
   if (accessorIdx === -1) {
     // create a Gltf2Accessor
-    rnAccessor.calcMinMax();
     const gltf2Accessor: Gltf2AccessorEx = {
       bufferView: bufferViewIdxToSet,
       byteOffset: rnAccessor.byteOffsetInBufferView,

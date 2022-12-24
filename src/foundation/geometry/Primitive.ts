@@ -379,8 +379,6 @@ export class Primitive extends RnObject {
     ) {
       const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
 
-      positionAccessor.calcMinMax();
-
       const min = positionAccessor.min as number[];
       this.__aabb.minPoint = Primitive.__tmpVec3_0.setComponents(min[0], min[1], min[2]);
       const max = positionAccessor.max as number[];
