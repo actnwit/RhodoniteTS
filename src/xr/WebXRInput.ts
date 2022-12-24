@@ -14,6 +14,7 @@ import { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableScalar } from '../foundation/math/MutableScalar';
+import { ISceneGraphEntity } from '../foundation';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers: Map<XRInputSource, MotionController> = new Map();
@@ -350,8 +351,8 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
       if (visualResponse.valueNodeProperty === 'visibility') {
         entity.getSceneGraph().isVisible = !!visualResponse.value;
       } else if (visualResponse.valueNodeProperty === 'transform') {
-        const minNode = map.get(visualResponse.minNodeName!);
-        const maxNode = map.get(visualResponse.maxNodeName!);
+        const minNode = map.get(visualResponse.minNodeName!) as ISceneGraphEntity;
+        const maxNode = map.get(visualResponse.maxNodeName!) as ISceneGraphEntity;
         if (Is.not.exist(minNode) || Is.not.exist(maxNode)) {
           console.warn("The min/max Node of the component of the controller doesn't exist");
           continue;
@@ -361,14 +362,14 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
         const maxNodeTransform = maxNode.getTransform();
 
         entity.getTransform().quaternion = Quaternion.qlerp(
-          minNodeTransform.quaternionInner,
-          maxNodeTransform.quaternionInner,
+          minNodeTransform.localRotationInner,
+          maxNodeTransform.localRotationInner,
           visualResponse.value as number
         );
 
         entity.getTransform().localPosition = Vector3.lerp(
-          maxNodeTransform.translateInner,
-          minNodeTransform.translateInner,
+          maxNodeTransform.localPositionInner,
+          minNodeTransform.localPositionInner,
           visualResponse.value as number
         );
       }
