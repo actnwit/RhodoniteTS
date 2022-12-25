@@ -3,7 +3,7 @@ import { Size } from '../../../types/CommonTypes';
 import { IShape } from '../shapes/IShape';
 export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
     /** the length of axis */
-    length: Size;
+    length?: Size;
 }
 /**
  * the Axis class
@@ -11,7 +11,7 @@ export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
 export declare class Axis extends IShape {
     /**
      * Generates a axis object
-     * @param desc a descriptor object of a Axis
+     * @param _desc a descriptor object of a Axis
      */
-    generate(desc: AxisDescriptor): void;
+    generate(_desc: AxisDescriptor): void;
 }

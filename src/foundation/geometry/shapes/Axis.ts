@@ -6,7 +6,7 @@ import { IShape } from '../shapes/IShape';
 
 export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of axis */
-  length: Size;
+  length?: Size;
 }
 
 /**
@@ -15,9 +15,14 @@ export interface AxisDescriptor extends IAnyPrimitiveDescriptor {
 export class Axis extends IShape {
   /**
    * Generates a axis object
-   * @param desc a descriptor object of a Axis
+   * @param _desc a descriptor object of a Axis
    */
-  public generate(desc: AxisDescriptor): void {
+  public generate(_desc: AxisDescriptor): void {
+    const desc = {
+      length: _desc.length ?? 1,
+      material: _desc.material,
+    };
+
     // prettier-ignore
     const positions = [
       // X axis
@@ -57,7 +62,7 @@ export class Axis extends IShape {
       attributes,
       attributeSemantics,
       primitiveMode: PrimitiveMode.Lines,
-      material: desc?.material,
+      material: desc.material,
     });
   }
 }

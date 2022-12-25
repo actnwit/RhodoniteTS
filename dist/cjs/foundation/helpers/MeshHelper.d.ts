@@ -8,15 +8,15 @@ import { SphereDescriptor } from '../geometry/shapes/Sphere';
 import { JointDescriptor } from '../geometry/shapes/Joint';
 declare function createShape(primitive: IShape): import("./EntityHelper").IMeshEntity;
 export declare const MeshHelper: Readonly<{
-    createPlane: (_desc?: PlaneDescriptor & {
-        direction: 'xz' | 'xy' | 'yz';
+    createPlane: (desc?: PlaneDescriptor & {
+        direction?: 'xz' | 'xy' | 'yz';
     }) => import("./EntityHelper").IMeshEntity;
-    createLine: (_desc?: LineDescriptor) => import("./EntityHelper").IMeshEntity;
-    createGrid: (_desc?: GridDescriptor) => import("./EntityHelper").IMeshEntity;
-    createCube: (_desc?: CubeDescriptor) => import("./EntityHelper").IMeshEntity;
-    createSphere: (_desc?: SphereDescriptor) => import("./EntityHelper").IMeshEntity;
+    createLine: (desc?: LineDescriptor) => import("./EntityHelper").IMeshEntity;
+    createGrid: (desc?: GridDescriptor) => import("./EntityHelper").IMeshEntity;
+    createCube: (desc?: CubeDescriptor) => import("./EntityHelper").IMeshEntity;
+    createSphere: (desc?: SphereDescriptor) => import("./EntityHelper").IMeshEntity;
     createJoint: (desc?: JointDescriptor) => import("./EntityHelper").IMeshEntity;
-    createAxis: (_desc?: AxisDescriptor) => import("./EntityHelper").IMeshEntity;
+    createAxis: (desc?: AxisDescriptor) => import("./EntityHelper").IMeshEntity;
     createShape: typeof createShape;
 }>;
 export {};

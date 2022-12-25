@@ -6,15 +6,15 @@ import { IShape } from './IShape';
 
 export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
   /** the length of U(X)-axis direction */
-  width: Size;
+  width?: Size;
   /** the length of V(Y)-axis direction */
-  height: Size;
+  height?: Size;
   /** number of spans in U(X)-axis direction */
-  uSpan: Size;
+  uSpan?: Size;
   /** number of spans in V(Y)-axis direction */
-  vSpan: Size;
+  vSpan?: Size;
   /** draw uSpan times vSpan number of textures */
-  isUVRepeat: boolean;
+  isUVRepeat?: boolean;
   /** draw textures by flipping on the V(Y)-axis */
   flipTextureCoordinateY?: boolean;
 }
@@ -26,9 +26,19 @@ export interface PlaneDescriptor extends IAnyPrimitiveDescriptor {
 export class Plane extends IShape {
   /**
    * Generates a plane object
-   * @param desc a descriptor object of a Plane
+   * @param _desc a descriptor object of a Plane
    */
-  public generate(desc: PlaneDescriptor): void {
+  public generate(_desc: PlaneDescriptor): void {
+    const desc = {
+      width: _desc.width ?? 1,
+      height: _desc.height ?? 1,
+      uSpan: _desc.uSpan ?? 1,
+      vSpan: _desc.vSpan ?? 1,
+      isUVRepeat: _desc.isUVRepeat ?? false,
+      flipTextureCoordinateY: _desc.flipTextureCoordinateY ?? false,
+      material: _desc.material,
+    };
+
     const positions = [];
 
     for (let i = 0; i <= desc.vSpan; i++) {

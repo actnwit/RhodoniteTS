@@ -10,32 +10,21 @@ import { Grid, GridDescriptor } from '../geometry/shapes/Grid';
 import { Cube, CubeDescriptor } from '../geometry/shapes/Cube';
 import { Sphere, SphereDescriptor } from '../geometry/shapes/Sphere';
 import { Joint, JointDescriptor } from '../geometry/shapes/Joint';
+import { Is } from '../misc';
 
 const createPlane = (
-  _desc: PlaneDescriptor & {
-    direction: 'xz' | 'xy' | 'yz';
-  } = {
-    width: 1,
-    height: 1,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    direction: 'xz',
-  }
+  desc: PlaneDescriptor & {
+    direction?: 'xz' | 'xy' | 'yz';
+  } = {}
 ) => {
-  const desc = {
-    width: _desc.width ?? 1,
-    height: _desc.height ?? 1,
-    uSpan: _desc.uSpan ?? 1,
-    vSpan: _desc.vSpan ?? 1,
-    isUVRepeat: _desc.isUVRepeat ?? false,
-    flipTextureCoordinateY: _desc.flipTextureCoordinateY ?? false,
-    direction: _desc.direction ?? 'xz',
-  };
-
   const primitive = new Plane();
   primitive.generate(desc);
   const entity = createShape(primitive);
+
+  if (Is.not.exist(desc.direction)) {
+    desc.direction = 'xz';
+  }
+
   if (desc.direction === 'xy') {
     entity.localEulerAngles = Vector3.fromCopy3(Math.PI / 2, 0, 0);
   } else if (desc.direction === 'yz') {
@@ -44,73 +33,28 @@ const createPlane = (
   return entity;
 };
 
-const createLine = (
-  _desc: LineDescriptor = {
-    startPos: Vector3.fromCopy3(0, 0, 0),
-    endPos: Vector3.fromCopy3(1, 0, 0),
-    hasTerminalMark: true,
-  }
-) => {
-  const desc = {
-    startPos: _desc.startPos ?? Vector3.fromCopy3(0, 0, 0),
-    endPos: _desc.endPos ?? Vector3.fromCopy3(1, 0, 0),
-    hasTerminalMark: _desc.hasTerminalMark ?? true,
-  };
-
+const createLine = (desc: LineDescriptor = {}) => {
   const primitive = new Line();
   primitive.generate(desc);
   const entity = createShape(primitive);
   return entity;
 };
 
-const createGrid = (
-  _desc: GridDescriptor = {
-    length: 1,
-    division: 10,
-    isXY: true,
-    isXZ: true,
-    isYZ: true,
-  }
-) => {
-  const desc = {
-    length: _desc.length ?? 1,
-    division: _desc.division ?? 10,
-    isXY: _desc.isXY ?? true,
-    isXZ: _desc.isXZ ?? true,
-    isYZ: _desc.isYZ ?? true,
-  };
+const createGrid = (desc: GridDescriptor = {}) => {
   const primitive = new Grid();
   primitive.generate(desc);
   const entity = createShape(primitive);
   return entity;
 };
 
-const createCube = (
-  _desc: CubeDescriptor = {
-    widthVector: Vector3.fromCopy3(1, 1, 1),
-  }
-) => {
-  const desc = {
-    widthVector: _desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
-  };
+const createCube = (desc: CubeDescriptor = {}) => {
   const primitive = new Cube();
   primitive.generate(desc);
   const entity = createShape(primitive);
   return entity;
 };
 
-const createSphere = (
-  _desc: SphereDescriptor = {
-    radius: 1,
-    widthSegments: 10,
-    heightSegments: 10,
-  }
-) => {
-  const desc = {
-    radius: _desc.radius ?? 1,
-    widthSegments: _desc.widthSegments ?? 10,
-    heightSegments: _desc.heightSegments ?? 10,
-  };
+const createSphere = (desc: SphereDescriptor = {}) => {
   const primitive = new Sphere();
   primitive.generate(desc);
   const entity = createShape(primitive);
@@ -124,14 +68,7 @@ const createJoint = (desc: JointDescriptor = {}) => {
   return entity;
 };
 
-const createAxis = (
-  _desc: AxisDescriptor = {
-    length: 1,
-  }
-) => {
-  const desc = {
-    length: _desc.length ?? 1,
-  };
+const createAxis = (desc: AxisDescriptor = {}) => {
   const primitive = new Axis();
   primitive.generate(desc);
   const entity = createShape(primitive);
