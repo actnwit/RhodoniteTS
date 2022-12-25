@@ -40,6 +40,7 @@ export declare class MeshComponent extends Component {
     }): void;
     $load(): void;
     $logic(): void;
+    _shallowCopyFrom(component_: Component): void;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component

@@ -18,10 +18,6 @@ export declare class SkeletalComponent extends Component {
     private __jointMatrices?;
     topOfJointsHierarchy?: SceneGraphComponent;
     isSkinning: boolean;
-    private static __tmpVec3_0;
-    private static __tmp_mat4;
-    private static __tmp_q;
-    private static __identityMat;
     private __qArray;
     private __tsArray;
     private __tqArray;
@@ -31,9 +27,14 @@ export declare class SkeletalComponent extends Component {
     private __matArray;
     private __worldMatrix;
     private __isWorldMatrixVanilla;
+    _animationRetarget?: IAnimationRetarget;
+    _isCulled: boolean;
     private static __globalDataRepository;
     private static __tookGlobalDataNum;
-    _animationRetarget?: IAnimationRetarget;
+    private static __tmpVec3_0;
+    private static __tmp_mat4;
+    private static __tmp_q;
+    private static __identityMat;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static get componentTID(): ComponentTID;
     setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor): void;
@@ -54,6 +55,7 @@ export declare class SkeletalComponent extends Component {
     $logic(): void;
     private __copyToMatArray;
     getInverseBindMatricesAccessor(): Accessor | undefined;
+    _shallowCopyFrom(component_: Component): void;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component

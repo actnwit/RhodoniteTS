@@ -15,8 +15,6 @@ import { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import { IQuaternion, IVector3, Quaternion } from '../../math';
 export declare class SceneGraphComponent extends Component {
     private __parent?;
-    private static __sceneGraphs;
-    isAbleToBeParent: boolean;
     private __children;
     private __gizmoChildren;
     private _worldMatrix;
@@ -28,8 +26,6 @@ export declare class SceneGraphComponent extends Component {
     private __tmpMatrix;
     private __worldAABB;
     private __isWorldAABBDirty;
-    private static readonly __originVector3;
-    private static returnVector3;
     private _isVisible;
     private _isBillboard;
     private __aabbGizmo?;
@@ -37,12 +33,17 @@ export declare class SceneGraphComponent extends Component {
     private __translationGizmo?;
     private __scaleGizmo?;
     private __transformGizmoSpace;
-    private static isJointAABBShouldBeCalculated;
-    toMakeWorldMatrixTheSameAsLocalMatrix: boolean;
     private __latestPrimitivePositionAccessorVersion;
+    toMakeWorldMatrixTheSameAsLocalMatrix: boolean;
     isRootJoint: boolean;
     jointIndex: number;
+    _isCulled: boolean;
+    private static readonly __originVector3;
+    private static returnVector3;
+    private static __sceneGraphs;
+    private static isJointAABBShouldBeCalculated;
     private static invertedMatrix44;
+    private static __tmpAABB;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     set isVisible(flg: boolean);
     get isVisible(): boolean;
@@ -61,7 +62,8 @@ export declare class SceneGraphComponent extends Component {
     static getTopLevelComponents(): SceneGraphComponent[];
     isJoint(): boolean;
     static get componentTID(): ComponentTID;
-    beAbleToBeParent(flag: boolean): void;
+    setWorldMatrixRestDirty(): void;
+    setWorldMatrixRestDirtyRecursively(): void;
     setWorldMatrixDirty(): void;
     setWorldMatrixDirtyRecursively(): void;
     setWorldAABBDirtyParentRecursively(): void;
@@ -142,6 +144,8 @@ export declare class SceneGraphComponent extends Component {
     get rotationRest(): Quaternion;
     set scale(vec: IVector3);
     get scale(): MutableVector3;
+    private __copyChild;
+    _shallowCopyFrom(component_: Component): void;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component

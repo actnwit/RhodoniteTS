@@ -21,6 +21,7 @@ export declare type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export declare type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {
 }
+declare function createEntity(): IEntity;
 declare function createTransformEntity(): ITransformEntity;
 declare function createGroupEntity(): ISceneGraphEntity;
 declare function createMeshEntity(): IMeshEntity;
@@ -31,6 +32,7 @@ declare function createPhysicsEntity(): IPhysicsEntity;
 declare function createLightEntity(): ILightEntity;
 declare function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods;
 export declare const EntityHelper: Readonly<{
+    createEntity: typeof createEntity;
     createTransformEntity: typeof createTransformEntity;
     createGroupEntity: typeof createGroupEntity;
     createMeshEntity: typeof createMeshEntity;

@@ -38,6 +38,6 @@ export declare type CameraSID = Index;
 export declare type WebGLResourceHandle = number;
 export declare type CGAPIResourceHandle = WebGLResourceHandle;
 export declare type RnTags = {
-    [s: string]: string;
+    [s: string]: any;
 };
 export declare type ColorComponentLetter = 'r' | 'g' | 'b' | 'a';

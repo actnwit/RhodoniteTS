@@ -32,7 +32,7 @@ export declare class RnObject implements IRnObject {
     private static __objects;
     private readonly __objectUid;
     private __uniqueName;
-    private __tags;
+    _tags: RnTags;
     private __combinedTagString;
     constructor();
     private __updateInfo;

@@ -14,6 +14,11 @@ export declare class EntityRepository {
      * Creates an entity
      */
     static createEntity(): IEntity;
+    static shallowCopyEntity(entity: IEntity): IEntity;
+    private static __setJoints;
+    static _shallowCopyEntityInner(entity: IEntity): IEntity;
+    private static __handleTagData;
+    static tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity;
     /**
      * Add a Component to the entity
      * @param componentClass - a ComponentClass to add

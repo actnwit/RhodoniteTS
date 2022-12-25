@@ -10,23 +10,21 @@ import { RenderPass } from '../../renderer/RenderPass';
 import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 export declare class MeshRendererComponent extends Component {
-    private __meshComponent?;
-    static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
     diffuseCubeMap?: CubeTexture;
     specularCubeMap?: CubeTexture;
     diffuseCubeMapContribution: number;
     specularCubeMapContribution: number;
     rotationOfCubeMap: number;
+    _readyForRendering: boolean;
+    private __meshComponent?;
     private static __webglRenderingStrategy?;
-    private static __tmp_identityMatrix;
     static _lastOpaqueIndex: number;
     static _lastTransparentIndex: number;
     static _firstTransparentSortKey: number;
     static _lastTransparentSortKey: number;
-    private static __manualTransparentSids?;
-    _readyForRendering: boolean;
     static isViewFrustumCullingEnabled: boolean;
     static isDepthMaskTrueForTransparencies: boolean;
+    static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
     static get componentTID(): ComponentTID;
     $create(): void;
@@ -48,6 +46,7 @@ export declare class MeshRendererComponent extends Component {
         renderPass: RenderPass;
         renderPassTickCount: Count;
     }): void;
+    _shallowCopyFrom(component_: Component): void;
     /**
      * @override
      * Add this component to the entity

@@ -74,7 +74,7 @@ export declare class RenderPass extends RnObject {
      * Get all the MeshComponents list of the entities on this render pass.
      * @return An array of MeshComponents
      */
-    get meshComponents(): MeshComponent[] | undefined;
+    get meshComponents(): MeshComponent[];
     /**
      * Get all the highest level SceneGraphComponents list of the entities on this render pass.
      * @return An array of SceneGraphComponents

@@ -8,6 +8,8 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     scaleOfLengthCenterToCamera: number;
     moveSpeed: number;
     followTargetAABB: boolean;
+    autoUpdate: boolean;
+    private __updated;
     private __fixedDolly;
     private __fixedLengthOfCenterToEye;
     private __isMouseDown;

@@ -1,8 +1,7 @@
-import { Vector4 } from '../math/Vector4';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableVector4 } from '../math/MutableVector4';
-import { Vector3 } from '../math/Vector3';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { MeshComponent } from '../components';
+import { Index } from '../../types';
 /**
  * The view frustum class.
  */
@@ -23,15 +22,10 @@ export declare class Frustum {
      */
     update(viewMatrix: Matrix44, projectionMatrix: Matrix44): void;
     /**
-     * Do clipping test (Inside / outside / neutral) of the plane of the view frustum.
-     * @param plane The plane of the view frustum.
-     * @param point The point to test.
-     * @param bias The bias value.
+     * false if fully outside, true if inside or intersects
+     *
+     * original idea is from https://iquilezles.org/articles/frustumcorrect/
      */
-    clipping(plane: Vector4, point: Vector3, bias: number): import("..").EnumIO;
-    /**
-     * Do culling test (Inside / outside / neutral) of the entity against to the view frustum.
-     * @param sg The SceneGraphComponent object of the entity.
-     */
-    culling(sg: SceneGraphComponent): import("..").EnumIO;
+    culling(meshComponent: MeshComponent): boolean;
+    getPlane(i: Index): MutableVector4;
 }

@@ -118,10 +118,11 @@ export declare class Accessor {
     get byteOffsetInBuffer(): Byte;
     get byteOffsetInRawArrayBufferOfBuffer(): number;
     get bufferView(): BufferView;
+    setMinMax(min: number[], max: number[]): void;
     get min(): number[];
     get max(): number[];
     get normalized(): boolean;
-    calcMinMax(): void;
+    private __calcMinMax;
     get isMinMaxDirty(): boolean;
     get version(): number;
     get actualByteStride(): number;

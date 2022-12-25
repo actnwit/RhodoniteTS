@@ -243,4 +243,5 @@ export declare class Component extends RnObject {
      * Mark the component as destroyed
      */
     _destroy(): void;
+    _shallowCopyFrom(component: Component): void;
 }

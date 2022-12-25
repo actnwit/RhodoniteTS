@@ -19,6 +19,7 @@ import { VrmComponent } from '../components/Vrm/VrmComponent';
 export interface IEntity extends IRnObject {
     entityUID: EntityUID;
     _isAlive: boolean;
+    _myLatestCopyEntityUID: EntityUID;
     getComponent(componentType: typeof Component): Component | undefined;
     getComponentByComponentTID(componentTID: ComponentTID): Component | undefined;
     _setComponent(componentType: typeof Component, com: Component): void;
@@ -47,11 +48,12 @@ export interface IEntity extends IRnObject {
  */
 export declare class Entity extends RnObject implements IEntity {
     /** The Unique ID of Entity */
-    private readonly __entity_uid;
+    private readonly ___entity_uid;
     /** The Map of components. All components must be managed in this map */
     protected __components: Map<ComponentTID, Component>;
     /** Invalid Entity UID constant value */
     static readonly invalidEntityUID = -1;
+    _myLatestCopyEntityUID: number;
     /** No use yet */
     _isAlive: boolean;
     /**
