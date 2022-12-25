@@ -3,15 +3,15 @@ import { Size } from '../../../types/CommonTypes';
 import { IShape } from './IShape';
 export interface GridDescriptor extends IAnyPrimitiveDescriptor {
     /** the desc.length of axis */
-    length: Size;
+    length?: Size;
     /** the division of grid */
-    division: Size;
+    division?: Size;
     /** the XZ axis */
-    isXZ: boolean;
+    isXZ?: boolean;
     /** the XY axis */
-    isXY: boolean;
+    isXY?: boolean;
     /** the YZ axis */
-    isYZ: boolean;
+    isYZ?: boolean;
 }
 /**
  * the Grid class
@@ -19,7 +19,7 @@ export interface GridDescriptor extends IAnyPrimitiveDescriptor {
 export declare class Grid extends IShape {
     /**
      * Generates a grid object
-     * @param desc a descriptor object of a Grid
+     * @param _desc a descriptor object of a Grid
      */
-    generate(desc: GridDescriptor): void;
+    generate(_desc: GridDescriptor): void;
 }

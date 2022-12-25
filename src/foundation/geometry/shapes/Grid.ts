@@ -6,15 +6,15 @@ import { IShape } from './IShape';
 
 export interface GridDescriptor extends IAnyPrimitiveDescriptor {
   /** the desc.length of axis */
-  length: Size;
+  length?: Size;
   /** the division of grid */
-  division: Size;
+  division?: Size;
   /** the XZ axis */
-  isXZ: boolean;
+  isXZ?: boolean;
   /** the XY axis */
-  isXY: boolean;
+  isXY?: boolean;
   /** the YZ axis */
-  isYZ: boolean;
+  isYZ?: boolean;
 }
 
 /**
@@ -23,9 +23,17 @@ export interface GridDescriptor extends IAnyPrimitiveDescriptor {
 export class Grid extends IShape {
   /**
    * Generates a grid object
-   * @param desc a descriptor object of a Grid
+   * @param _desc a descriptor object of a Grid
    */
-  public generate(desc: GridDescriptor): void {
+  public generate(_desc: GridDescriptor): void {
+    const desc = {
+      length: _desc.length ?? 1,
+      division: _desc.division ?? 10,
+      isXY: _desc.isXY ?? true,
+      isXZ: _desc.isXZ ?? true,
+      isYZ: _desc.isYZ ?? true,
+      material: _desc.material,
+    };
     const positions: number[] = [];
     for (let i = 0; i < desc.division * 2 + 3; i++) {
       const start = -desc.length;

@@ -6,16 +6,16 @@ import { IShape } from './IShape';
  */
 export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
     /** radius */
-    radius: number;
+    radius?: number;
     /** the number of segments for width direction */
-    widthSegments: Count;
+    widthSegments?: Count;
     /** the number of segments for height direction */
-    heightSegments: Count;
+    heightSegments?: Count;
 }
 /**
  * Sphere class
  */
 export declare class Sphere extends IShape {
     constructor();
-    generate({ radius, widthSegments, heightSegments, material }: SphereDescriptor): void;
+    generate(_desc: SphereDescriptor): void;
 }

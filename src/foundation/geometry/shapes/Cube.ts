@@ -2,13 +2,14 @@ import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { IColorRgba } from '../../math/IColor';
 import { IVector3 } from '../../math/IVector';
+import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
 import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
 export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
   /** three width (width, height, depth) in (x, y, z) */
-  widthVector: IVector3;
+  widthVector?: IVector3;
   /** color */
   color?: IColorRgba;
 }
@@ -19,9 +20,14 @@ export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
 export class Cube extends Primitive implements IShape {
   /**
    * Generates a cube object
-   * @param desc a descriptor object of a Cube
+   * @param _desc a descriptor object of a Cube
    */
-  public generate(desc: CubeDescriptor): void {
+  public generate(_desc: CubeDescriptor): void {
+    const desc = {
+      widthVector: _desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
+      color: _desc.color,
+      material: _desc.material,
+    };
     // prettier-ignore
     const indices = [
       3, 1, 0, 2, 1, 3,
@@ -194,7 +200,7 @@ export class Cube extends Primitive implements IShape {
       attributeSemantics,
       primitiveMode,
       indices: new Uint16Array(indices),
-      material: desc?.material,
+      material: desc.material,
     });
   }
 }

@@ -4,7 +4,7 @@ import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
     /** three width (width, height, depth) in (x, y, z) */
-    widthVector: IVector3;
+    widthVector?: IVector3;
     /** color */
     color?: IColorRgba;
 }
@@ -14,7 +14,7 @@ export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
 export declare class Cube extends Primitive implements IShape {
     /**
      * Generates a cube object
-     * @param desc a descriptor object of a Cube
+     * @param _desc a descriptor object of a Cube
      */
-    generate(desc: CubeDescriptor): void;
+    generate(_desc: CubeDescriptor): void;
 }
