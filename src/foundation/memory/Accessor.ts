@@ -102,19 +102,19 @@ export class Accessor {
 
     if (Is.exist(max)) {
       this.__max.setComponents(
-        max[0] || -Number.MAX_VALUE,
-        max[1] || -Number.MAX_VALUE,
-        max[2] || -Number.MAX_VALUE,
-        max[3] || -Number.MAX_VALUE
+        max[0] ?? -Number.MAX_VALUE,
+        max[1] ?? -Number.MAX_VALUE,
+        max[2] ?? -Number.MAX_VALUE,
+        max[3] ?? -Number.MAX_VALUE
       );
     }
 
     if (Is.exist(min)) {
       this.__min.setComponents(
-        min[0] || Number.MAX_VALUE,
-        min[1] || Number.MAX_VALUE,
-        min[2] || Number.MAX_VALUE,
-        min[3] || Number.MAX_VALUE
+        min[0] ?? Number.MAX_VALUE,
+        min[1] ?? Number.MAX_VALUE,
+        min[2] ?? Number.MAX_VALUE,
+        min[3] ?? Number.MAX_VALUE
       );
     }
 
