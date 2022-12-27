@@ -100,6 +100,14 @@ const ColorBufferHalfFloatWebGL2: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 23,
   str: 'EXT_color_buffer_half_float',
 });
+const OculusMultiview: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 24,
+  str: 'OCULUS_multiview',
+});
+const OvrMultiview2: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 25,
+  str: 'OVR_multiview2',
+});
 
 const typeList = [
   VertexArrayObject,
@@ -124,6 +132,9 @@ const typeList = [
   CompressedTextureBptc,
   ColorBufferFloatWebGL2,
   ColorBufferHalfFloatWebGL2,
+  OculusMultiview,
+  OvrMultiview2,
+  GMAN_WEBGL_MEMORY,
 ];
 
 function from({ index }: { index: number }): WebGLExtensionEnum {
@@ -153,5 +164,7 @@ export const WebGLExtension = Object.freeze({
   CompressedTextureBptc,
   ColorBufferFloatWebGL2,
   ColorBufferHalfFloatWebGL2,
+  OculusMultiview,
+  OvrMultiview2,
   GMAN_WEBGL_MEMORY,
 });
