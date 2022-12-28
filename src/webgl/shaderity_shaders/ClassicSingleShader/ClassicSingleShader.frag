@@ -96,7 +96,6 @@ void main ()
       float shininess = get_shininess(materialSID, 0);
       int shadingModel = get_shadingModel(materialSID, 0);
 
-      float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
       vec3 viewPosition = get_viewPosition(cameraSID, 0);
 
       // Specular

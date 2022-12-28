@@ -30,3 +30,5 @@
   #endif
 
 #endif
+
+float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];

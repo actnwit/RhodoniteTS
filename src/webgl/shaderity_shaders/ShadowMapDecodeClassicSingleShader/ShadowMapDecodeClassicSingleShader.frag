@@ -105,7 +105,6 @@ void main (){
 
       diffuse += diffuseColor * max(0.0, dot(normal_inWorld, light.direction)) * light.attenuatedIntensity;
 
-      float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
       vec3 viewPosition = get_viewPosition(cameraSID, 0);
       float shininess = get_shininess(materialSID, 0);
       if (shadingModel == 2) {// BLINN

@@ -489,7 +489,6 @@ void main ()
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   // View vector
-  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
 

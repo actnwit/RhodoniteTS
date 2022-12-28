@@ -30,7 +30,6 @@ out vec4 v_position_inWorld;
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);

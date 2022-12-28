@@ -471,14 +471,18 @@ export class Material extends RnObject {
     } else {
       definitions += '#define RN_IS_UNIFORM_MODE\n';
     }
-    if (glw.webgl1ExtSTL) {
-      definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
-    }
-    if (glw.webgl1ExtDRV) {
-      definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
-    }
-    if (glw.webgl1ExtDB) {
-      definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
+    // if (glw.webgl1ExtSTL) {
+    //   definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
+    // }
+    // if (glw.webgl1ExtDRV) {
+    //   definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
+    // }
+    // if (glw.webgl1ExtDB) {
+    //   definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
+    // }
+
+    if (glw.is_multiview) {
+      definitions += '#define WEBGL2_MULTI_VIEW\n';
     }
 
     if (glw.isWebGL2 || glw.webgl1ExtDRV) {
