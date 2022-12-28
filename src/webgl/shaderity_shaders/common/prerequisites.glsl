@@ -2,6 +2,7 @@ const float Epsilon = 0.0000001;
 #define saturateEpsilonToOne(x) clamp(x, Epsilon, 1.0)
 
 uniform float u_materialSID; // skipProcess=true
+uniform int u_isMainVr; // skipProcess=true
 uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{widthOfDataTexture} */
 /* shaderity: @{heightOfDataTexture} */

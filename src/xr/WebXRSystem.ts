@@ -247,6 +247,14 @@ export class WebXRSystem {
     return this.__xrSession?.renderState.baseLayer?.framebuffer;
   }
 
+  isMultiView() {
+    if (this.__multiviewFramebufferHandle > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   get requestedToEnterWebXR() {
     return this.__requestedToEnterWebXR;
   }
