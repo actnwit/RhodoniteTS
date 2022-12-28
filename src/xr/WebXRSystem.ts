@@ -50,6 +50,7 @@ export class WebXRSystem {
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
   private __viewerScale = MutableVector3.one();
+  private __multiviewFramebufferHandle = -1;
 
   private constructor() {
     this.__viewerEntity = EntityHelper.createGroupEntity();
@@ -540,6 +541,16 @@ export class WebXRSystem {
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForVR);
       console.log(this.__canvasHeightForVR);
+
+      if (this.__multiviewFramebufferHandle === -1) {
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        this.__multiviewFramebufferHandle = webglResourceRepository.createMultiviewFramebuffer(
+          webglLayer.framebufferWidth,
+          webglLayer.framebufferHeight,
+          4
+        );
+      }
+
       webglResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       this.__isWebXRMode = true;
       callbackOnXrSessionStart();
