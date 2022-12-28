@@ -694,7 +694,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   private __setCurrentComponentSIDsForEachRenderPass(
     renderPass: RenderPass,
-    displayIdx: Index,
+    displayIdx: 0 | 1,
     isVRMainPass: boolean
   ) {
     if (isVRMainPass) {
@@ -702,7 +702,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
-        cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
+        if (webxrSystem.isMultiView()) {
+          cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
+        } else {
+          cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
+        }
       }
       WebGLStrategyDataTexture.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.CameraComponentTID
@@ -775,7 +779,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
-      this.__setCurrentComponentSIDsForEachRenderPass(renderPass, displayIdx, isVRMainPass);
+      this.__setCurrentComponentSIDsForEachRenderPass(
+        renderPass,
+        displayIdx as 0 | 1,
+        isVRMainPass
+      );
 
       for (let j = 0; j < renderPass.drawCount; j++) {
         renderPass.doPreEachDraw(j);

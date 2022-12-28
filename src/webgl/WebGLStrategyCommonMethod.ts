@@ -237,7 +237,7 @@ function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   }
 }
 
-function getDisplayNumber(isVRMainPass: boolean) {
+function getDisplayNumber(isVRMainPass: boolean): 1 | 2 {
   if (isVRMainPass) {
     return 2;
   } else {
