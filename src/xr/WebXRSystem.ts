@@ -355,12 +355,21 @@ export class WebXRSystem {
    * @returns The viewport vector of right eye
    */
   _getRightViewport() {
-    return Vector4.fromCopyArray([
-      this.__canvasWidthForVR / 2,
-      0,
-      this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR,
-    ]);
+    if (this.__multiviewFramebufferHandle > 0) {
+      return Vector4.fromCopyArray([
+        0,
+        0,
+        this.__canvasWidthForVR / 2,
+        this.__canvasHeightForVR,
+      ]);
+    } else {
+      return Vector4.fromCopyArray([
+        this.__canvasWidthForVR / 2,
+        0,
+        this.__canvasWidthForVR / 2,
+        this.__canvasHeightForVR,
+      ]);
+    }
   }
 
   _setValuesToGlobalDataRepository() {
@@ -431,19 +440,22 @@ export class WebXRSystem {
    */
   _postRender() {
     if (this.__isWebXRMode) {
-      const gl = this.__glw?.getRawContext();
+      const gl = this.__glw!.getRawContextAsWebGL2()!;
       if (this.__multiviewFramebufferHandle > 0) {
         const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.__xrSession!.renderState.baseLayer!.framebuffer!);
+
         const colorTexture = webglResourceRepository.getWebGLResource(
           this.__multiviewColorTextureHandle
         ) as WebGLTexture;
-        this.__webglStereoUtil?.blit(
+        this.__webglStereoUtil!.blit(
           colorTexture!,
           0,
           0,
           1,
           1,
-          this.__canvasWidthForVR * 2,
+          this.__canvasWidthForVR,
           this.__canvasHeightForVR
         );
       }
@@ -576,15 +588,15 @@ export class WebXRSystem {
       console.log(this.__canvasHeightForVR);
 
       if (this.__multiviewFramebufferHandle === -1) {
-        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
-          webglResourceRepository.createMultiviewFramebuffer(
-            webglLayer.framebufferWidth,
-            webglLayer.framebufferHeight,
-            4
-          );
+        // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        // [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
+        //   webglResourceRepository.createMultiviewFramebuffer(
+        //     webglLayer.framebufferWidth,
+        //     webglLayer.framebufferHeight,
+        //     4
+        //   );
 
-        this.__webglStereoUtil = new WebGLStereoUtil(gl);
+        // this.__webglStereoUtil = new WebGLStereoUtil(gl);
       }
 
       webglResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);

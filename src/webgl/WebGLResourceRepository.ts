@@ -2488,7 +2488,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     samples: number
   ): [WebGLResourceHandle, WebGLResourceHandle] {
     if (Is.not.exist(this.__glw!.webgl2ExtMLTVIEW)) {
-      return -1;
+      return [-1, -1];
     }
     const gl = this.__glw!.getRawContextAsWebGL2();
     const framebuffer = gl.createFramebuffer();
