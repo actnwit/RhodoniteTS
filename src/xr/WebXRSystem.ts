@@ -18,6 +18,7 @@ import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import { EntityHelper, ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -50,6 +51,9 @@ export class WebXRSystem {
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();
   private __viewerScale = MutableVector3.one();
+  private __multiviewFramebufferHandle = -1;
+  private __multiviewColorTextureHandle = -1;
+  private __webglStereoUtil?: WebGLStereoUtil;
 
   private constructor() {
     this.__viewerEntity = EntityHelper.createGroupEntity();
@@ -243,7 +247,23 @@ export class WebXRSystem {
   }
 
   get framebuffer() {
+    if (this.__multiviewFramebufferHandle > 0) {
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const framebuffer = webglResourceRepository.getWebGLResource(
+        this.__multiviewFramebufferHandle
+      );
+      return framebuffer as WebGLFramebuffer | undefined;
+    }
+
     return this.__xrSession?.renderState.baseLayer?.framebuffer;
+  }
+
+  isMultiView() {
+    if (this.__multiviewFramebufferHandle > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   get requestedToEnterWebXR() {
@@ -335,12 +355,21 @@ export class WebXRSystem {
    * @returns The viewport vector of right eye
    */
   _getRightViewport() {
-    return Vector4.fromCopyArray([
-      this.__canvasWidthForVR / 2,
-      0,
-      this.__canvasWidthForVR / 2,
-      this.__canvasHeightForVR,
-    ]);
+    if (this.__multiviewFramebufferHandle > 0) {
+      return Vector4.fromCopyArray([
+        0,
+        0,
+        this.__canvasWidthForVR / 2,
+        this.__canvasHeightForVR,
+      ]);
+    } else {
+      return Vector4.fromCopyArray([
+        this.__canvasWidthForVR / 2,
+        0,
+        this.__canvasWidthForVR / 2,
+        this.__canvasHeightForVR,
+      ]);
+    }
   }
 
   _setValuesToGlobalDataRepository() {
@@ -411,8 +440,25 @@ export class WebXRSystem {
    */
   _postRender() {
     if (this.__isWebXRMode) {
-      const gl = this.__glw?.getRawContext();
-      // gl?.bindFramebuffer(gl.FRAMEBUFFER, null);
+      const gl = this.__glw!.getRawContextAsWebGL2()!;
+      if (this.__multiviewFramebufferHandle > 0) {
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.__xrSession!.renderState.baseLayer!.framebuffer!);
+
+        const colorTexture = webglResourceRepository.getWebGLResource(
+          this.__multiviewColorTextureHandle
+        ) as WebGLTexture;
+        this.__webglStereoUtil!.blit(
+          colorTexture!,
+          0,
+          0,
+          1,
+          1,
+          this.__canvasWidthForVR,
+          this.__canvasHeightForVR
+        );
+      }
     }
     if (this.requestedToEnterWebVR) {
       // this.__isWebXRMode = true;
@@ -520,7 +566,7 @@ export class WebXRSystem {
   }
 
   private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: Function) {
-    const gl = this.__glw?.getRawContext();
+    const gl = this.__glw?.getRawContextAsWebGL2();
 
     if (gl != null) {
       // Make sure the canvas context we want to use is compatible with the current xr device.
@@ -540,6 +586,19 @@ export class WebXRSystem {
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForVR);
       console.log(this.__canvasHeightForVR);
+
+      if (this.__multiviewFramebufferHandle === -1) {
+        // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        // [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
+        //   webglResourceRepository.createMultiviewFramebuffer(
+        //     webglLayer.framebufferWidth,
+        //     webglLayer.framebufferHeight,
+        //     4
+        //   );
+
+        // this.__webglStereoUtil = new WebGLStereoUtil(gl);
+      }
+
       webglResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
       this.__isWebXRMode = true;
       callbackOnXrSessionStart();

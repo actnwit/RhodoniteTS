@@ -13,6 +13,27 @@ interface WEBGL_compressed_texture_bptc {
   readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
 }
 
+interface WEBGL_multiview {
+  framebufferTextureMultiviewOVR(
+    target: number,
+    attachment: number,
+    texture: WebGLTexture,
+    level: number,
+    baseViewIndex: number,
+    numViews: number
+  ): void;
+  framebufferTextureMultisampleMultiviewOVR(
+    target: number,
+    attachment: number,
+    texture: WebGLTexture,
+    level: number,
+    samples: number,
+    baseViewIndex: number,
+    numViews: number
+  ): void;
+  is_multisample: boolean;
+}
+
 export class WebGLContextWrapper {
   __gl: WebGLRenderingContext | WebGL2RenderingContext;
   __webglVersion = 1;
@@ -51,6 +72,7 @@ export class WebGLContextWrapper {
   public readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
   public readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
   public readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
+  public readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
   public readonly webgl2ExtGmanWM?: any;
 
   private __activeTextureBackup: Index = -1;
@@ -73,6 +95,7 @@ export class WebGLContextWrapper {
   #maxConventionUniformBlocks = INVALID_SIZE;
   private __maxVertexUniformVectors = INVALID_SIZE;
   private __maxFragmentUniformVectors = INVALID_SIZE;
+  public readonly is_multiview: boolean;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
@@ -89,6 +112,7 @@ export class WebGLContextWrapper {
     this.__viewport_height = this.__default_viewport_height = this.height;
 
     this.__isDebugMode = isDebug;
+    this.is_multiview = true;
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
@@ -117,6 +141,18 @@ export class WebGLContextWrapper {
       this.webgl2ExtCTBptc = this.__getCompressedTextureExtension(
         WebGLExtension.CompressedTextureBptc
       );
+      this.webgl2ExtMLTVIEW = this.__getExtension(WebGLExtension.OculusMultiview);
+      if (this.webgl2ExtMLTVIEW) {
+        this.webgl2ExtMLTVIEW.is_multisample = true;
+      } else {
+        this.webgl2ExtMLTVIEW = this.__getExtension(WebGLExtension.OvrMultiview2);
+        if (this.webgl2ExtMLTVIEW) {
+          this.webgl2ExtMLTVIEW.is_multisample = false;
+        } else {
+          console.warn('Neither OCULUS_multiview nor OVR_multiview2 extensions are supported');
+          this.is_multiview = false;
+        }
+      }
       this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
     }
     this.__getUniformBufferInfo();

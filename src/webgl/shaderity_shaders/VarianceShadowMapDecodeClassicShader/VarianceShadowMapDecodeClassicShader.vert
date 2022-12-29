@@ -1,4 +1,5 @@
 #pragma shaderity: require(../common/version.glsl)
+#pragma shaderity: require(../common/enableVertexExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: @{definitions} */
@@ -34,7 +35,6 @@ out vec3 v_baryCentricCoord;
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);

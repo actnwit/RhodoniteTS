@@ -544,6 +544,7 @@ export class WebGLResourceRepository
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as RnWebGLProgram;
     const gl = this.currentWebGLContextWrapper!.getRawContext();
     (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
+    (shaderProgram as any).isMainVr = gl.getUniformLocation(shaderProgram, 'u_isMainVr');
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
       shaderProgram,
       'u_currentComponentSIDs'
@@ -2479,6 +2480,72 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   getGlslDataUBOVec4SizeString(): string {
     const alignedMaxUniformBlockSize = this.__glw!.getAlignedMaxUniformBlockSize();
     return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
+  }
+
+  createMultiviewFramebuffer(
+    width: number,
+    height: number,
+    samples: number
+  ): [WebGLResourceHandle, WebGLResourceHandle] {
+    if (Is.not.exist(this.__glw!.webgl2ExtMLTVIEW)) {
+      return [-1, -1];
+    }
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const framebuffer = gl.createFramebuffer();
+    const framebufferHandle = this.__registerResource(framebuffer!);
+
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffer);
+
+    // color texture / attachment
+    const colorTexture = gl.createTexture()!;
+    const colorTextureHandle = this.__registerResource(colorTexture);
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, colorTexture);
+    gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, width, height, 2);
+    if (!this.__glw!.webgl2ExtMLTVIEW.is_multisample)
+      this.__glw!.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
+        gl.DRAW_FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        colorTexture!,
+        0,
+        0,
+        2
+      );
+    else
+      this.__glw!.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
+        gl.DRAW_FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        colorTexture!,
+        0,
+        samples,
+        0,
+        2
+      );
+
+    // depth texture / attachment
+    const depthStencilTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, depthStencilTex);
+    gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.DEPTH32F_STENCIL8, width, height, 2);
+    if (!this.__glw!.webgl2ExtMLTVIEW.is_multisample)
+      this.__glw!.webgl2ExtMLTVIEW.framebufferTextureMultiviewOVR(
+        gl.DRAW_FRAMEBUFFER,
+        gl.DEPTH_STENCIL_ATTACHMENT,
+        depthStencilTex!,
+        0,
+        0,
+        2
+      );
+    else
+      this.__glw!.webgl2ExtMLTVIEW.framebufferTextureMultisampleMultiviewOVR(
+        gl.DRAW_FRAMEBUFFER,
+        gl.DEPTH_STENCIL_ATTACHMENT,
+        depthStencilTex!,
+        0,
+        samples,
+        0,
+        2
+      );
+
+    return [framebufferHandle, colorTextureHandle];
   }
 
   createTransformFeedback() {

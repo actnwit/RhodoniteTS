@@ -694,7 +694,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   private __setCurrentComponentSIDsForEachRenderPass(
     renderPass: RenderPass,
-    displayIdx: Index,
+    displayIdx: 0 | 1,
     isVRMainPass: boolean
   ) {
     if (isVRMainPass) {
@@ -702,7 +702,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       let cameraComponentSid = -1;
       if (webxrSystem.isWebXRMode) {
-        cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
+        if (webxrSystem.isMultiView()) {
+          cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
+        } else {
+          cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
+        }
       }
       WebGLStrategyDataTexture.__currentComponentSIDs!._v[
         WellKnownComponentTIDs.CameraComponentTID
@@ -775,7 +779,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
-      this.__setCurrentComponentSIDsForEachRenderPass(renderPass, displayIdx, isVRMainPass);
+      this.__setCurrentComponentSIDsForEachRenderPass(
+        renderPass,
+        displayIdx as 0 | 1,
+        isVRMainPass
+      );
 
       for (let j = 0; j < renderPass.drawCount; j++) {
         renderPass.doPreEachDraw(j);
@@ -835,13 +843,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
 
     const meshRendererComponent = entity.getMeshRenderer()!;
+    const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
+    this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
 
     let firstTime = false;
-
     const shaderProgramUid = material._shaderProgramUid;
-    const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
-
-    this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
     if (shaderProgramUid !== this.__lastShader) {
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(
         shaderProgramUid
@@ -850,6 +856,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // Bind DataTexture
       gl.uniform1i((shaderProgram as any).dataTexture, 7);
+      gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0);
       this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
 
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;

@@ -1,5 +1,5 @@
 #pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableExtensions.glsl)
+#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: @{definitions} */
@@ -93,7 +93,6 @@ void main (){
   #endif
 
   // view vector
-  float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
 
