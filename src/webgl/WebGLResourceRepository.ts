@@ -2482,18 +2482,23 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return `const int dataUBOVec4Size = ${alignedMaxUniformBlockSize / 4 / 4};`;
   }
 
-  createMultiviewFramebuffer(width: number, height: number, samples: number): WebGLResourceHandle {
+  createMultiviewFramebuffer(
+    width: number,
+    height: number,
+    samples: number
+  ): [WebGLResourceHandle, WebGLResourceHandle] {
     if (Is.not.exist(this.__glw!.webgl2ExtMLTVIEW)) {
       return -1;
     }
     const gl = this.__glw!.getRawContextAsWebGL2();
     const framebuffer = gl.createFramebuffer();
-    const resourceHandle = this.__registerResource(framebuffer!);
+    const framebufferHandle = this.__registerResource(framebuffer!);
 
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, framebuffer);
 
     // color texture / attachment
-    const colorTexture = gl.createTexture();
+    const colorTexture = gl.createTexture()!;
+    const colorTextureHandle = this.__registerResource(colorTexture);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, colorTexture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, width, height, 2);
     if (!this.__glw!.webgl2ExtMLTVIEW.is_multisample)
@@ -2540,7 +2545,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
         2
       );
 
-    return resourceHandle;
+    return [framebufferHandle, colorTextureHandle];
   }
 
   createTransformFeedback() {

@@ -53,7 +53,7 @@ const FSMultiview = [
   '}',
 ].join('\n');
 
-export class StereoUtil {
+export class WebGLStereoUtil {
   private __gl: WebGL2RenderingContext;
   private __vao: WebGLVertexArrayObject;
   private __vertexShader?: WebGLShader;
