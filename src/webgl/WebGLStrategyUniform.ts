@@ -48,7 +48,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __latestPrimitivePositionAccessorVersions: number[] = [];
 
-  private readonly componentMatrices: ShaderSemanticsInfo[] = [
+  private static readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
       semantic: ShaderSemantics.VertexAttributesExistenceArray,
       compositionType: CompositionType.ScalarArray,
@@ -219,7 +219,7 @@ bool get_isBillboard(float instanceId) {
 
     material._setUniformLocationsOfMaterialNodes(true);
 
-    const shaderSemanticsInfos = this.componentMatrices;
+    const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
     const shaderSemanticsInfosPointSprite =
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 

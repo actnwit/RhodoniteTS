@@ -356,7 +356,7 @@ export class WebGLResourceRepository
     vertexShaderStr: string;
     fragmentShaderStr: string;
     attributeNames: AttributeNames;
-    attributeSemantics: Array<VertexAttributeEnum>;
+    attributeSemantics: VertexAttributeEnum[];
     onError?: (message: string) => void;
   }) {
     const gl = this.__glw!.getRawContext();

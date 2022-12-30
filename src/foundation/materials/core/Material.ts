@@ -591,7 +591,7 @@ export class Material extends RnObject {
     attributeNames: AttributeNames,
     attributeSemantics: VertexAttributeEnum[],
     onError?: (message: string) => void
-  ) {
+  ): CGAPIResourceHandle {
     // Cache
     const wholeShaderText = vertexShader + pixelShader;
     let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);

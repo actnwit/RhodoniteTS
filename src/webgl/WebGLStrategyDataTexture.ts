@@ -67,7 +67,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     this.__isDebugOperationToDataTextureBufferDone = false;
   }
 
-  get vertexShaderMethodDefinitions_dataTexture() {
+  static getVertexShaderMethodDefinitions_dataTexture() {
     return `
 
   mat4 get_worldMatrix(float instanceId)
@@ -181,8 +181,8 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     let programUid;
     if (Is.not.exist(updatedShaderSources)) {
       programUid = material._createProgram(
-        this.vertexShaderMethodDefinitions_dataTexture,
-        this.__getShaderProperty,
+        WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
+        WebGLStrategyDataTexture.__getShaderProperty,
         glw.isWebGL2
       );
     } else {
@@ -205,7 +205,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     return programUid;
   }
 
-  private __getShaderProperty(
+  private static __getShaderProperty(
     materialTypeName: string,
     info: ShaderSemanticsInfo,
     propertyIndex: Index,
