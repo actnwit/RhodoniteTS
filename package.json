@@ -14,6 +14,7 @@
   "files": [
     "dist/cjs",
     "dist/esm",
+    "dist/esmdev",
     "VERSION-FILE",
     "vendor/effekseer.d.ts"
   ],
