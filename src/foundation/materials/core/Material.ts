@@ -50,13 +50,12 @@ export class Material extends RnObject {
   _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
   _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
-  private __updatedShaderSources?: ShaderSources;
 
   // Ids
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
-  __materialSid: MaterialSID = -1;
+  __materialSid: MaterialSID = -1; // material serial Id in the material type
 
   // Common Rendering States
   private __alphaMode = AlphaMode.Opaque;
@@ -271,7 +270,7 @@ export class Material extends RnObject {
     );
 
     if (programUid > 0) {
-      this.__updatedShaderSources = updatedShaderSources;
+      // this.__updatedShaderSources = updatedShaderSources;
     }
 
     return programUid;
@@ -485,6 +484,10 @@ export class Material extends RnObject {
       definitions += '#define WEBGL2_MULTI_VIEW\n';
     }
 
+    // if (glw._isWebXRMode && glw.is_multiview) {
+    //   definitions += '#define WEBXR_MULTI_VIEW_VIEW_NUM_2\n';
+    // }
+
     if (glw.isWebGL2 || glw.webgl1ExtDRV) {
       definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
     }
@@ -514,7 +517,7 @@ export class Material extends RnObject {
       isWebGL2
     );
 
-    const definitions = materialNode.definitions;
+    const definitions = materialNode.getDefinitions(this);
 
     // Shader Construction
     let vertexShader = this.__setupGlobalShaderDefinition();
@@ -591,7 +594,7 @@ export class Material extends RnObject {
     attributeNames: AttributeNames,
     attributeSemantics: VertexAttributeEnum[],
     onError?: (message: string) => void
-  ) {
+  ): CGAPIResourceHandle {
     // Cache
     const wholeShaderText = vertexShader + pixelShader;
     let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
@@ -773,6 +776,7 @@ export class Material extends RnObject {
 
   set alphaMode(mode: AlphaModeEnum) {
     this.__alphaMode = mode;
+    this._shaderProgramUid = -1;
   }
 
   get materialUID(): MaterialUID {

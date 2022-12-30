@@ -27,12 +27,11 @@ export class MaterialRepository {
   ///
   private static __materialMap: Map<MaterialUID, Material> = new Map();
   private static __instances: Map<MaterialTypeName, Map<MaterialSID, Material>> = new Map();
-  private static __instancesByTypes: Map<MaterialTypeName, Material> = new Map();
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
   private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
-  private static __materialTypes: Map<MaterialTypeName, AbstractMaterialContent | undefined> =
+  private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> =
     new Map();
-  private static __maxInstances: Map<MaterialTypeName, MaterialSID> = new Map();
+  private static __maxInstances: Map<MaterialTypeName, Count> = new Map();
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
   private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> =
     new Map();
@@ -50,7 +49,7 @@ export class MaterialRepository {
     materialNode?: AbstractMaterialContent,
     maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
   ): boolean {
-    if (!MaterialRepository.__materialTypes.has(materialTypeName)) {
+    if (!MaterialRepository.__materialNodes.has(materialTypeName)) {
       MaterialRepository.__registerInner(materialTypeName, materialNode, maxInstanceNumber);
 
       return true;
@@ -70,7 +69,7 @@ export class MaterialRepository {
   }
 
   public static isRegisteredMaterialType(materialTypeName: string) {
-    return MaterialRepository.__materialTypes.has(materialTypeName);
+    return MaterialRepository.__materialNodes.has(materialTypeName);
   }
 
   public static getMaterialByMaterialUid(materialUid: MaterialSID) {
@@ -86,12 +85,16 @@ export class MaterialRepository {
    * @param materialTypeName The material type to create.
    * @param materialNodes_ The material nodes to add to the created material.
    */
-  public static createMaterial(materialTypeName: string, materialNode_?: AbstractMaterialContent) {
+  public static createMaterial(
+    materialTypeName: string,
+    materialNode_?: AbstractMaterialContent
+  ): Material {
     let materialNode = materialNode_;
     if (!materialNode) {
-      materialNode = MaterialRepository.__materialTypes.get(materialTypeName)!;
+      materialNode = MaterialRepository.__materialNodes.get(materialTypeName)!;
     }
 
+    // get the count of instance for the material type
     let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(
       materialTypeName
     ) as number;
@@ -115,10 +118,9 @@ export class MaterialRepository {
     // Set name
     material.tryToSetUniqueName(material.__materialTypeName, true);
 
-    // Set Metadata
+    // Set meta data to MaterialRepository
     {
       MaterialRepository.__materialMap.set(material.materialUID, material);
-      MaterialRepository.__instancesByTypes.set(material.materialTypeName, material);
 
       // set this material instance for the material type
       let map = MaterialRepository.__instances.get(material.__materialTypeName);
@@ -135,7 +137,7 @@ export class MaterialRepository {
       );
     }
 
-    // Set the material's meta data
+    // Set semanticsInfo and shaderVariables to the material instance
     if (Is.exist(material._materialContent)) {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
       const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName);
@@ -167,7 +169,8 @@ export class MaterialRepository {
     materialTypeName: string,
     propertyIndex: Index
   ): IndexOf16Bytes {
-    const material = MaterialRepository.__instancesByTypes.get(materialTypeName)!;
+    const map = MaterialRepository.__instances.get(materialTypeName)!;
+    const material = map.get(0)!; // 0 is the first instance of the material type
     const info = material._allFieldsInfo.get(propertyIndex)!;
     if (info.soloDatum) {
       const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyIndex);
@@ -193,7 +196,7 @@ export class MaterialRepository {
     maxInstanceNumber: number
   ) {
     const materialTid = ++MaterialRepository.__materialTidCount;
-    MaterialRepository.__materialTypes.set(materialTypeName, materialNode);
+    MaterialRepository.__materialNodes.set(materialTypeName, materialNode);
     MaterialRepository.__materialTids.set(materialTypeName, materialTid);
     MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
 
@@ -209,7 +212,10 @@ export class MaterialRepository {
   ) {
     // Calculate a BufferView size to take
     let totalByteLength = 0;
-    const alignedByteLengthAndSemanticInfoArray = [];
+    const alignedByteLengthAndSemanticInfoArray: {
+      alignedByte: number;
+      semanticInfo: ShaderSemanticsInfo;
+    }[] = [];
     for (const semanticInfo of materialNode._semanticsInfoArray) {
       const alignedByteLength = calcAlignedByteLength(semanticInfo);
       let dataCount = 1;
@@ -292,5 +298,11 @@ export class MaterialRepository {
     }
 
     return bufferView;
+  }
+
+  static _makeShaderInvalidateToAllMaterials() {
+    for (const material of MaterialRepository.__materialMap.values()) {
+      material._shaderProgramUid = -1;
+    }
   }
 }

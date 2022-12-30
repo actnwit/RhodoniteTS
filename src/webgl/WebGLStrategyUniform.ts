@@ -30,7 +30,9 @@ import { BufferUse } from '../foundation/definitions/BufferUse';
 import { Buffer } from '../foundation/memory/Buffer';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import WebGLStrategyCommonMethod, {
+  setupShaderProgramForMeshComponent,
+} from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation';
 
@@ -48,7 +50,7 @@ export class WebGLStrategyUniform implements WebGLStrategy {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __latestPrimitivePositionAccessorVersions: number[] = [];
 
-  private readonly componentMatrices: ShaderSemanticsInfo[] = [
+  private static readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
       semantic: ShaderSemantics.VertexAttributesExistenceArray,
       compositionType: CompositionType.ScalarArray,
@@ -159,67 +161,58 @@ bool get_isBillboard(float instanceId) {
 #endif
   `;
 
-  setupShaderProgram(meshComponent: MeshComponent): void {
-    if (meshComponent.mesh == null) {
-      return;
-    }
-
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
-        continue;
-      }
-
-      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        continue;
-      }
-
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-      try {
-        this.setupShaderForMaterial(material);
-        primitive._backupMaterial();
-      } catch (e) {
-        console.log(e);
-        primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive.material);
-      }
-    }
-  }
-
   /**
    * setup shader program for the material in this WebGL strategy
    * @param material - a material to setup shader program
-   * @param updatedShaderSources - updated shader sources if exists
    */
-  public setupShaderForMaterial(
-    material: Material,
-    updatedShaderSources?: ShaderSources,
-    onError?: (message: string) => void
-  ): CGAPIResourceHandle {
+  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    let programUid;
-    if (Is.not.exist(updatedShaderSources)) {
-      programUid = material._createProgram(
-        WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
-        ShaderSemantics.getShaderProperty,
-        glw.isWebGL2
-      );
-    } else {
-      programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
-    }
+    const programUid = material._createProgram(
+      WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
+      ShaderSemantics.getShaderProperty,
+      glw.isWebGL2
+    );
+    material._setupBasicUniformsLocations();
+
+    material._setUniformLocationsOfMaterialNodes(true);
+
+    const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+    const shaderSemanticsInfosPointSprite =
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+
+    material._setupAdditionalUniformLocations(
+      shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
+      true
+    );
+
+    WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
+      material._shaderProgramUid
+    );
+
+    return programUid;
+  }
+
+  /**
+   * re-setup shader program for the material in this WebGL strategy
+   * @param material - a material to re-setup shader program
+   * @param updatedShaderSources - updated shader sources
+   * @param onError - callback function to handle error
+   * @returns
+   */
+  public _reSetupShaderForMaterialBySpector(
+    material: Material,
+    updatedShaderSources: ShaderSources,
+    onError: (message: string) => void
+  ): CGAPIResourceHandle {
+    const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
 
     material._setupBasicUniformsLocations();
 
     material._setUniformLocationsOfMaterialNodes(true);
 
-    const shaderSemanticsInfos = this.componentMatrices;
+    const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
     const shaderSemanticsInfosPointSprite =
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
@@ -242,7 +235,7 @@ bool get_isBillboard(float instanceId) {
     }
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgram(meshComponent);
+      setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     if (!this.isMeshSetup(mesh)) {

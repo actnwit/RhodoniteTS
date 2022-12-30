@@ -34,7 +34,9 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { VectorN } from '../foundation/math/VectorN';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import WebGLStrategyCommonMethod, {
+  setupShaderProgramForMeshComponent,
+} from './WebGLStrategyCommonMethod';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
 import { Is } from '../foundation/misc/Is';
@@ -67,7 +69,7 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     this.__isDebugOperationToDataTextureBufferDone = false;
   }
 
-  get vertexShaderMethodDefinitions_dataTexture() {
+  static getVertexShaderMethodDefinitions_dataTexture() {
     return `
 
   mat4 get_worldMatrix(float instanceId)
@@ -132,62 +134,19 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
 `;
   }
 
-  setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void {
-    if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
-      return;
-    }
-
-    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
-        continue;
-      }
-
-      if (material.isShaderProgramReady()) {
-        continue;
-      }
-
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-      try {
-        this.setupShaderForMaterial(material);
-        primitive._backupMaterial();
-      } catch (e) {
-        console.log(e);
-        primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive._prevMaterial);
-      }
-    }
-  }
-
   /**
    * setup shader program for the material in this WebGL strategy
    * @param material - a material to setup shader program
-   * @param updatedShaderSources - updated shader sources if exists
    */
-  public setupShaderForMaterial(
-    material: Material,
-    updatedShaderSources?: ShaderSources,
-    onError?: (message: string) => void
-  ): CGAPIResourceHandle {
+  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    let programUid;
-    if (Is.not.exist(updatedShaderSources)) {
-      programUid = material._createProgram(
-        this.vertexShaderMethodDefinitions_dataTexture,
-        this.__getShaderProperty,
-        glw.isWebGL2
-      );
-    } else {
-      programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
-    }
+    const programUid = material._createProgram(
+      WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
+      WebGLStrategyDataTexture.__getShaderProperty,
+      glw.isWebGL2
+    );
 
     material._setupBasicUniformsLocations();
 
@@ -205,7 +164,37 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
     return programUid;
   }
 
-  private __getShaderProperty(
+  /**
+   * re-setup shader program for the material in this WebGL strategy
+   * @param material - a material to re-setup shader program
+   * @param updatedShaderSources - updated shader sources
+   * @param onError - callback function to handle error
+   * @returns
+   */
+  public _reSetupShaderForMaterialBySpector(
+    material: Material,
+    updatedShaderSources: ShaderSources,
+    onError: (message: string) => void
+  ): CGAPIResourceHandle {
+    const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
+
+    material._setupBasicUniformsLocations();
+
+    material._setUniformLocationsOfMaterialNodes(false);
+
+    material._setupAdditionalUniformLocations(
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
+      false
+    );
+
+    WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
+      material._shaderProgramUid
+    );
+
+    return programUid;
+  }
+
+  private static __getShaderProperty(
     materialTypeName: string,
     info: ShaderSemanticsInfo,
     propertyIndex: Index,
@@ -392,7 +381,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgramForMeshComponent(meshComponent);
+      setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     if (!this.isMeshSetup(mesh)) {

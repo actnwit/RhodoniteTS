@@ -50,9 +50,10 @@ export interface WebGLStrategy {
   ): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;
   attachShaderProgram(material: Material): void;
-  setupShaderForMaterial(
+  setupShaderForMaterial(material: Material): CGAPIResourceHandle;
+  _reSetupShaderForMaterialBySpector(
     material: Material,
-    updatedShaderSources?: ShaderSources,
-    onError?: (message: string) => void
+    updatedShaderSources: ShaderSources,
+    onError: (message: string) => void
   ): CGAPIResourceHandle;
 }

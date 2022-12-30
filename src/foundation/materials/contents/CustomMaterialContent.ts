@@ -6,7 +6,6 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
-import { AlphaModeEnum } from '../../definitions/AlphaMode';
 import { ShaderityUtility } from '../core/ShaderityUtility';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -27,7 +26,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isSpecular,
     isIridescence,
     isShadow,
-    alphaMode,
     useTangentAttribute,
     useNormalTexture,
     vertexShader,
@@ -46,7 +44,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isSpecular?: boolean;
     isIridescence?: boolean;
     isShadow?: boolean;
-    alphaMode: AlphaModeEnum;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
     vertexShader: ShaderityObject;
@@ -66,9 +63,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isSpecular ? '+specular' : '') +
         (isSheen ? '+sheen' : '') +
         (isIridescence ? '+iridescence' : '') +
-        (useTangentAttribute ? '+tangentAttribute' : '') +
-        ' alpha_' +
-        alphaMode.str.toLowerCase(),
+        (useTangentAttribute ? '+tangentAttribute' : ''),
       { isMorphing, isSkinning, isLighting }
     );
 
@@ -152,8 +147,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (noUseCameraTransform) {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }
-
-    this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
