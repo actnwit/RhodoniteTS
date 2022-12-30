@@ -1080,7 +1080,6 @@ export class ModelConverter {
         isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
         isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
         isShadow: rnLoaderOptions.shadow ? true : false,
-        alphaMode,
         useTangentAttribute,
         useNormalTexture,
         additionalName: additionalName,
@@ -1096,7 +1095,6 @@ export class ModelConverter {
       return MaterialHelper.createClassicUberMaterial({
         isSkinning,
         isLighting,
-        alphaMode,
         additionalName: additionalName,
         maxInstancesNumber: maxMaterialInstanceNumber,
       });

@@ -50,7 +50,6 @@ export class Material extends RnObject {
   _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
   _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
-  private __updatedShaderSources?: ShaderSources;
 
   // Ids
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;

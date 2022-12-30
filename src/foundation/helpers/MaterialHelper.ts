@@ -98,7 +98,6 @@ function createPbrUberMaterial({
   isShadow = false,
   useTangentAttribute = false,
   useNormalTexture = true,
-  alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
   const materialName =
@@ -114,9 +113,7 @@ function createPbrUberMaterial({
     (isSpecular ? '+specular' : '') +
     (isIridescence ? '+iridescence' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
-    (useNormalTexture ? '' : '-normalTexture') +
-    '_alpha_' +
-    alphaMode.str.toLowerCase();
+    (useNormalTexture ? '' : '-normalTexture');
 
   let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
   if (isMorphing) {
@@ -345,7 +342,6 @@ function createPbrUberMaterial({
     isSpecular,
     isIridescence,
     isShadow,
-    alphaMode,
     useTangentAttribute,
     useNormalTexture,
     vertexShader: pbrSingleShaderVertex,
@@ -366,16 +362,13 @@ function createClassicUberMaterial({
   isLighting = false,
   isMorphing = false,
   isShadow = false,
-  alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
   const materialName =
     'ClassicUber' +
     `_${additionalName}_` +
     (isSkinning ? '+skinning' : '') +
-    (isLighting ? '' : '-lighting') +
-    ' alpha_' +
-    alphaMode.str.toLowerCase();
+    (isLighting ? '' : '-lighting');
 
   const materialNode = new CustomMaterialContent({
     name: 'ClassicUber',
@@ -383,7 +376,6 @@ function createClassicUberMaterial({
     isLighting,
     isMorphing,
     isShadow,
-    alphaMode,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
@@ -401,18 +393,15 @@ function createDepthMomentEncodeMaterial({
   additionalName = '',
   isSkinning = true,
   isMorphing = false,
-  alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName =
-    'DepthMomentEncode' + `_${additionalName}_` + ' alpha_' + alphaMode.str.toLowerCase();
+  const materialName = 'DepthMomentEncode' + `_${additionalName}_`;
 
   const materialNode = new CustomMaterialContent({
     name: 'DepthMomentEncode',
     isSkinning,
     isLighting: false,
     isMorphing,
-    alphaMode,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: DepthMomentEncodeShaderVertex,
@@ -430,22 +419,15 @@ function createFlatMaterial({
   additionalName = '',
   isSkinning = true,
   isMorphing = false,
-  alphaMode = AlphaMode.Opaque,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
 } = {}) {
-  const materialName =
-    'Flat' +
-    `_${additionalName}_` +
-    (isSkinning ? '+skinning' : '') +
-    ' alpha_' +
-    alphaMode.str.toLowerCase();
+  const materialName = 'Flat' + `_${additionalName}_` + (isSkinning ? '+skinning' : '');
 
   const materialNode = new CustomMaterialContent({
     name: 'Flat',
     isSkinning,
     isLighting: false,
     isMorphing,
-    alphaMode,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: FlatSingleShaderVertex,
@@ -471,7 +453,6 @@ function createEnvConstantMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    alphaMode: AlphaMode.Opaque,
     useTangentAttribute: false,
     useNormalTexture: false,
     vertexShader: EnvConstantSingleShaderVertex,
@@ -497,7 +478,6 @@ function createFXAA3QualityMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    alphaMode: AlphaMode.Opaque,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: FXAA3QualityShaderVertex,
@@ -722,7 +702,6 @@ function createGammaCorrectionMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    alphaMode: AlphaMode.Opaque,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: GammaCorrectionShaderVertex,
@@ -748,7 +727,6 @@ function createSummedAreaTableMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    alphaMode: AlphaMode.Opaque,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: SummedAreaTableShaderVertex,
@@ -855,7 +833,6 @@ function recreateCustomMaterial(
     isSkinning = true,
     isLighting = false,
     isMorphing = false,
-    alphaMode = AlphaMode.Opaque,
     maxInstancesNumber = Config.maxMaterialInstanceForEachType,
   } = {}
 ) {
@@ -864,16 +841,13 @@ function recreateCustomMaterial(
     `_${additionalName}_` +
     (isMorphing ? '+morphing' : '') +
     (isSkinning ? '+skinning' : '') +
-    (isLighting ? '' : '-lighting') +
-    ' alpha_' +
-    alphaMode.str.toLowerCase();
+    (isLighting ? '' : '-lighting');
 
   const materialNode = new CustomMaterialContent({
     name: materialName,
     isSkinning,
     isLighting,
     isMorphing,
-    alphaMode,
     useTangentAttribute: false,
     useNormalTexture: true,
     vertexShader: {
