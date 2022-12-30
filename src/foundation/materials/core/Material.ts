@@ -56,7 +56,7 @@ export class Material extends RnObject {
   public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
-  __materialSid: MaterialSID = -1;
+  __materialSid: MaterialSID = -1; // material serial Id in the material type
 
   // Common Rendering States
   private __alphaMode = AlphaMode.Opaque;
