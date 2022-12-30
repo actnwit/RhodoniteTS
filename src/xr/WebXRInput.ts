@@ -1,7 +1,7 @@
-import { MotionController } from 'webxr-input-profiles/packages/motion-controllers/src/motionController';
-import { fetchProfile } from 'webxr-input-profiles/packages/motion-controllers/src/profiles';
-import { Constants } from 'webxr-input-profiles/packages/motion-controllers';
-import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component';
+import { MotionController } from 'webxr-input-profiles/packages/motion-controllers/src/motionController.js';
+import { fetchProfile } from 'webxr-input-profiles/packages/motion-controllers/src/profiles.js';
+import { Constants } from 'webxr-input-profiles/packages/motion-controllers/src/constants.js';
+import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/component.js';
 import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
 import { ModelConverter } from '../foundation/importer/ModelConverter';
 import { Is } from '../foundation/misc/Is';
