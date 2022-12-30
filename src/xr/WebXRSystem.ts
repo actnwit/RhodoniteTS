@@ -19,6 +19,7 @@ import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import { EntityHelper, ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
+import { MaterialRepository } from '../foundation';
 
 declare const navigator: Navigator;
 declare const window: any;
@@ -160,7 +161,8 @@ export class WebXRSystem {
         this.__spaceType = 'local';
         this.__isReadyForWebXR = false;
         this.__requestedToEnterWebXR = false;
-        this.__isWebXRMode = false;
+        this.__setWebXRMode(false);
+        MaterialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
         console.log('XRSession ends.');
         System.stopRenderLoop();
@@ -282,6 +284,11 @@ export class WebXRSystem {
     return this.__isWebXRMode;
   }
 
+  private __setWebXRMode(mode: boolean) {
+    this.__isWebXRMode = mode;
+    this.__glw!._isWebXRMode = mode;
+  }
+
   get isReadyForWebXR() {
     return this.__isReadyForWebXR;
   }
@@ -356,12 +363,7 @@ export class WebXRSystem {
    */
   _getRightViewport() {
     if (this.__multiviewFramebufferHandle > 0) {
-      return Vector4.fromCopyArray([
-        0,
-        0,
-        this.__canvasWidthForVR / 2,
-        this.__canvasHeightForVR,
-      ]);
+      return Vector4.fromCopyArray([0, 0, this.__canvasWidthForVR / 2, this.__canvasHeightForVR]);
     } else {
       return Vector4.fromCopyArray([
         this.__canvasWidthForVR / 2,
@@ -444,7 +446,10 @@ export class WebXRSystem {
       if (this.__multiviewFramebufferHandle > 0) {
         const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, this.__xrSession!.renderState.baseLayer!.framebuffer!);
+        gl.bindFramebuffer(
+          gl.DRAW_FRAMEBUFFER,
+          this.__xrSession!.renderState.baseLayer!.framebuffer!
+        );
 
         const colorTexture = webglResourceRepository.getWebGLResource(
           this.__multiviewColorTextureHandle
@@ -588,19 +593,20 @@ export class WebXRSystem {
       console.log(this.__canvasHeightForVR);
 
       if (this.__multiviewFramebufferHandle === -1) {
-        // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        // [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
-        //   webglResourceRepository.createMultiviewFramebuffer(
-        //     webglLayer.framebufferWidth,
-        //     webglLayer.framebufferHeight,
-        //     4
-        //   );
-
-        // this.__webglStereoUtil = new WebGLStereoUtil(gl);
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
+          webglResourceRepository.createMultiviewFramebuffer(
+            webglLayer.framebufferWidth,
+            webglLayer.framebufferHeight,
+            4
+          );
+        this.__webglStereoUtil = new WebGLStereoUtil(gl);
       }
 
+      MaterialRepository._makeShaderInvalidateToAllMaterials();
+
       webglResourceRepository.resizeCanvas(this.__canvasWidthForVR, this.__canvasHeightForVR);
-      this.__isWebXRMode = true;
+      this.__setWebXRMode(true);
       callbackOnXrSessionStart();
     } else {
       console.error('WebGL context is not ready for WebXR.');

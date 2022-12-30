@@ -270,7 +270,7 @@ export class Material extends RnObject {
     );
 
     if (programUid > 0) {
-      this.__updatedShaderSources = updatedShaderSources;
+      // this.__updatedShaderSources = updatedShaderSources;
     }
 
     return programUid;
@@ -482,6 +482,10 @@ export class Material extends RnObject {
 
     if (glw.is_multiview) {
       definitions += '#define WEBGL2_MULTI_VIEW\n';
+    }
+
+    if (glw._isWebXRMode && glw.is_multiview) {
+      definitions += '#define WEBXR_MULTI_VIEW_VIEW_NUM_2\n';
     }
 
     if (glw.isWebGL2 || glw.webgl1ExtDRV) {

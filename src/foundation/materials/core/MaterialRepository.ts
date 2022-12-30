@@ -212,7 +212,10 @@ export class MaterialRepository {
   ) {
     // Calculate a BufferView size to take
     let totalByteLength = 0;
-    const alignedByteLengthAndSemanticInfoArray = [];
+    const alignedByteLengthAndSemanticInfoArray: {
+      alignedByte: number;
+      semanticInfo: ShaderSemanticsInfo;
+    }[] = [];
     for (const semanticInfo of materialNode._semanticsInfoArray) {
       const alignedByteLength = calcAlignedByteLength(semanticInfo);
       let dataCount = 1;
@@ -295,5 +298,11 @@ export class MaterialRepository {
     }
 
     return bufferView;
+  }
+
+  static _makeShaderInvalidateToAllMaterials() {
+    for (const material of MaterialRepository.__materialMap.values()) {
+      material._shaderProgramUid = -1;
+    }
   }
 }
