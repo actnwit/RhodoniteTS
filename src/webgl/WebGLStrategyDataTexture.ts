@@ -168,26 +168,46 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
   /**
    * setup shader program for the material in this WebGL strategy
    * @param material - a material to setup shader program
-   * @param updatedShaderSources - updated shader sources if exists
    */
-  public setupShaderForMaterial(
-    material: Material,
-    updatedShaderSources?: ShaderSources,
-    onError?: (message: string) => void
-  ): CGAPIResourceHandle {
+  public setupShaderForMaterial(material: Material): CGAPIResourceHandle {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    let programUid;
-    if (Is.not.exist(updatedShaderSources)) {
-      programUid = material._createProgram(
-        WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
-        WebGLStrategyDataTexture.__getShaderProperty,
-        glw.isWebGL2
-      );
-    } else {
-      programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
-    }
+    const programUid = material._createProgram(
+      WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
+      WebGLStrategyDataTexture.__getShaderProperty,
+      glw.isWebGL2
+    );
+
+    material._setupBasicUniformsLocations();
+
+    material._setUniformLocationsOfMaterialNodes(false);
+
+    material._setupAdditionalUniformLocations(
+      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
+      false
+    );
+
+    WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
+      material._shaderProgramUid
+    );
+
+    return programUid;
+  }
+
+  /**
+   * re-setup shader program for the material in this WebGL strategy
+   * @param material - a material to re-setup shader program
+   * @param updatedShaderSources - updated shader sources
+   * @param onError - callback function to handle error
+   * @returns
+   */
+  public _reSetupShaderForMaterialBySpector(
+    material: Material,
+    updatedShaderSources: ShaderSources,
+    onError: (message: string) => void
+  ): CGAPIResourceHandle {
+    const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
 
     material._setupBasicUniformsLocations();
 

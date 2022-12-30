@@ -424,7 +424,7 @@ export class WebGLResourceRepository
       }
     }
 
-    shaderProgram.__SPECTOR_rebuildProgram = this.rebuildProgram.bind(shaderProgram);
+    shaderProgram.__SPECTOR_rebuildProgram = this.rebuildProgramBySpector.bind(shaderProgram);
 
     const resourceHandle = this.__registerResource(shaderProgram);
 
@@ -2651,7 +2651,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     }
   }
 
-  rebuildProgram(
+  rebuildProgramBySpector(
     this: RnWebGLProgram,
     updatedVertexSourceCode: string, // The new vertex shader source
     updatedFragmentSourceCode: string, // The new fragment shader source
@@ -2674,7 +2674,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
     const modifiedPixelSourceCode = updatedFragmentSourceCode.replace(/! =/g, '!=');
 
-    const programUid = renderingStrategy.setupShaderForMaterial(
+    const programUid = renderingStrategy._reSetupShaderForMaterialBySpector(
       material,
       {
         vertex: modifiedVertexSourceCode,
