@@ -251,6 +251,10 @@ export class WebXRSystem {
   }
 
   get framebuffer() {
+    return this.__xrSession?.renderState.baseLayer?.framebuffer;
+  }
+
+  getMultiviewFramebuffer(): WebGLFramebuffer | undefined {
     if (this.__multiviewFramebufferHandle > 0) {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const framebuffer = webglResourceRepository.getWebGLResource(
@@ -258,8 +262,7 @@ export class WebXRSystem {
       );
       return framebuffer as WebGLFramebuffer | undefined;
     }
-
-    return this.__xrSession?.renderState.baseLayer?.framebuffer;
+    return undefined;
   }
 
   isMultiView() {
@@ -597,14 +600,14 @@ export class WebXRSystem {
       console.log(this.__canvasHeightForVR);
 
       if (this.__multiviewFramebufferHandle === -1) {
-        // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        // [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
-        //   webglResourceRepository.createMultiviewFramebuffer(
-        //     webglLayer.framebufferWidth,
-        //     webglLayer.framebufferHeight,
-        //     4
-        //   );
-        // this.__webglStereoUtil = new WebGLStereoUtil(gl);
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
+          webglResourceRepository.createMultiviewFramebuffer(
+            webglLayer.framebufferWidth,
+            webglLayer.framebufferHeight,
+            4
+          );
+        this.__webglStereoUtil = new WebGLStereoUtil(gl);
       }
 
       MaterialRepository._makeShaderInvalidateToAllMaterials();

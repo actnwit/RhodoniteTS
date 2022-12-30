@@ -248,6 +248,14 @@ export class System {
               repo.switchDepthTest(renderPass.isDepthTest);
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                 // bind Framebuffer
+                const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+                if (
+                  webXRSystem?.isMultiView &&
+                  webXRSystem.isWebXRMode &&
+                  renderPass.isOutputForVr
+                ) {
+                  continue;
+                }
                 System.bindFramebuffer(renderPass, rnXRModule);
 
                 // set Viewport for Normal (Not WebXR)
@@ -339,7 +347,12 @@ export class System {
   private static bindFramebuffer(renderPass: RenderPass, rnXRModule?: RnXR) {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
-    if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
+
+    if (webXRSystem?.isWebXRMode && renderPass.isVrRendering) {
+      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const gl = glw.getRawContext();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.getMultiviewFramebuffer()!);
+    } else if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
       const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
