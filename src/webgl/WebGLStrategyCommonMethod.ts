@@ -19,6 +19,7 @@ import { Scalar } from '../foundation/math/Scalar';
 import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
+import { WebGLStrategy } from './WebGLStrategy';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -277,6 +278,43 @@ function getPointSpriteShaderSemanticsInfoArray() {
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
   ];
+}
+
+export function setupShaderProgramForMeshComponent(
+  webglStrategy: WebGLStrategy,
+  meshComponent: MeshComponent
+): void {
+  if (meshComponent.mesh == null) {
+    MeshComponent.alertNoMeshSet(meshComponent);
+    return;
+  }
+
+  const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+  for (let i = 0; i < primitiveNum; i++) {
+    const primitive = meshComponent.mesh.getPrimitiveAt(i);
+    const material = primitive.material;
+    if (material == null || material.isEmptyMaterial()) {
+      continue;
+    }
+
+    if (material.isShaderProgramReady()) {
+      continue;
+    }
+
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const glw = repo.currentWebGLContextWrapper!;
+    const gl = glw.getRawContext();
+    const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
+
+    try {
+      webglStrategy.setupShaderForMaterial(material);
+      primitive._backupMaterial();
+    } catch (e) {
+      console.log(e);
+      primitive._restoreMaterial();
+      webglStrategy.setupShaderForMaterial(primitive._prevMaterial);
+    }
+  }
 }
 
 export default Object.freeze({

@@ -73,7 +73,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   static materialNodes: AbstractMaterialContent[] = [];
   protected __shaderFunctionName: string;
   public isSingleOperation = false;
-  protected __definitions = '';
 
   protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
@@ -84,7 +83,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   static __dummySRGBGrayTexture = new Texture();
   static __dummyBlackCubeTexture = new CubeTexture();
   static __sheenLutTextureUid: MaterialNodeUID = -1;
-
+  protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
   private __isMorphing: boolean;
@@ -150,8 +149,12 @@ export abstract class AbstractMaterialContent extends RnObject {
     return this.__pixelShaderityObject;
   }
 
-  get definitions() {
-    return this.__definitions;
+  getDefinitions(material: Material) {
+    let definitions = this.__definitions.concat();
+
+    definitions += '#define RN_IS_ALPHAMODE_' + material.alphaMode.str + '\n';
+
+    return definitions;
   }
 
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {

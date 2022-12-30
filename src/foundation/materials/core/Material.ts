@@ -514,7 +514,7 @@ export class Material extends RnObject {
       isWebGL2
     );
 
-    const definitions = materialNode.definitions;
+    const definitions = materialNode.getDefinitions(this);
 
     // Shader Construction
     let vertexShader = this.__setupGlobalShaderDefinition();
@@ -773,6 +773,7 @@ export class Material extends RnObject {
 
   set alphaMode(mode: AlphaModeEnum) {
     this.__alphaMode = mode;
+    this._shaderProgramUid = -1;
   }
 
   get materialUID(): MaterialUID {

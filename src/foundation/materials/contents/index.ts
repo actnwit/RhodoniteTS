@@ -9,7 +9,6 @@ export * from './GaussianBlurForEncodedDepthMaterialContent';
 export * from './GaussianBlurMaterialContent';
 export * from './MToonMaterialContent';
 export * from './MatCapMaterialContent';
-export * from './PbrShadingMaterialContent';
 export * from './ShaderityMaterialContent';
 export * from './ShadowMapDecodeClassicMaterialContent';
 export * from './SynthesizeHdrMaterialContent';

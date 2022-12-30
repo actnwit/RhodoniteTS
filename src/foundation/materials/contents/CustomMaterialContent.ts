@@ -153,8 +153,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }
 
-    this.__definitions += '#define RN_IS_ALPHAMODE_' + alphaMode.str + '\n';
-
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 

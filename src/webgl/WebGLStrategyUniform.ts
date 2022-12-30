@@ -30,7 +30,9 @@ import { BufferUse } from '../foundation/definitions/BufferUse';
 import { Buffer } from '../foundation/memory/Buffer';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import WebGLStrategyCommonMethod, {
+  setupShaderProgramForMeshComponent,
+} from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation';
 
@@ -159,38 +161,6 @@ bool get_isBillboard(float instanceId) {
 #endif
   `;
 
-  setupShaderProgram(meshComponent: MeshComponent): void {
-    if (meshComponent.mesh == null) {
-      return;
-    }
-
-    const primitiveNum = meshComponent!.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent!.mesh.getPrimitiveAt(i);
-      const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
-        continue;
-      }
-
-      if (material._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-        continue;
-      }
-
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-      try {
-        this.setupShaderForMaterial(material);
-        primitive._backupMaterial();
-      } catch (e) {
-        console.log(e);
-        primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive.material);
-      }
-    }
-  }
-
   /**
    * setup shader program for the material in this WebGL strategy
    * @param material - a material to setup shader program
@@ -265,7 +235,7 @@ bool get_isBillboard(float instanceId) {
     }
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgram(meshComponent);
+      setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     if (!this.isMeshSetup(mesh)) {

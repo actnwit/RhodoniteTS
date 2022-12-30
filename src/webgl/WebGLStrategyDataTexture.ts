@@ -34,7 +34,9 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { VectorN } from '../foundation/math/VectorN';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod from './WebGLStrategyCommonMethod';
+import WebGLStrategyCommonMethod, {
+  setupShaderProgramForMeshComponent,
+} from './WebGLStrategyCommonMethod';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
 import { Is } from '../foundation/misc/Is';
@@ -130,39 +132,6 @@ export class WebGLStrategyDataTexture implements WebGLStrategy {
   #endif
 #endif
 `;
-  }
-
-  setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void {
-    if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
-      return;
-    }
-
-    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.mesh.getPrimitiveAt(i);
-      const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
-        continue;
-      }
-
-      if (material.isShaderProgramReady()) {
-        continue;
-      }
-
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-      try {
-        this.setupShaderForMaterial(material);
-        primitive._backupMaterial();
-      } catch (e) {
-        console.log(e);
-        primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive._prevMaterial);
-      }
-    }
   }
 
   /**
@@ -412,7 +381,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgramForMeshComponent(meshComponent);
+      setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     if (!this.isMeshSetup(mesh)) {
