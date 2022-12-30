@@ -484,9 +484,9 @@ export class Material extends RnObject {
       definitions += '#define WEBGL2_MULTI_VIEW\n';
     }
 
-    if (glw._isWebXRMode && glw.is_multiview) {
-      definitions += '#define WEBXR_MULTI_VIEW_VIEW_NUM_2\n';
-    }
+    // if (glw._isWebXRMode && glw.is_multiview) {
+    //   definitions += '#define WEBXR_MULTI_VIEW_VIEW_NUM_2\n';
+    // }
 
     if (glw.isWebGL2 || glw.webgl1ExtDRV) {
       definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
