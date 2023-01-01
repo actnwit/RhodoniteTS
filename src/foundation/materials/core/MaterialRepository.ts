@@ -111,6 +111,19 @@ export class MaterialRepository {
     return material;
   }
 
+  public static isFloorCountOfThisMaterialType(materialTypeName: string): number {
+    const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName);
+    if (Is.not.exist(countOfThisType)) {
+      return -1;
+    }
+    const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName);
+    if (Is.not.exist(maxCountOfThisType)) {
+      return -1;
+    }
+
+    return Math.floor(countOfThisType / maxCountOfThisType);
+  }
+
   /**
    * Initialize Method
    */
