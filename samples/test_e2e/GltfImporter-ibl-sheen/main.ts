@@ -77,7 +77,7 @@ document.body.appendChild(p);
   let count = 0;
 
   const draw = function () {
-    if (count > 70) {
+    if (count > 100) {
       p.id = 'rendered';
       p.innerText = 'Rendered.';
     } else if (count === 1) {
