@@ -151,7 +151,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 
-  setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -224,7 +224,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (args.setUniform) {
       if (firstTime) {
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-          this.setupHdriParameters(args);
+          CustomMaterialContent.__setupHdriParameters(args);
         this.__webglResourceRepository.setUniformValue(
           shaderProgram,
           ShaderSemantics.IBLParameter.str,
@@ -245,7 +245,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       }
     } else {
       const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-        this.setupHdriParameters(args);
+        CustomMaterialContent.__setupHdriParameters(args);
       const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
       tmp_vector4.x = mipmapLevelNumber;
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
@@ -284,7 +284,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
   }
 
-  private setupHdriParameters(args: RenderingArg) {
+  private static __setupHdriParameters(args: RenderingArg) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

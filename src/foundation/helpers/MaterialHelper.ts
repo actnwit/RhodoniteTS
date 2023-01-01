@@ -56,6 +56,19 @@ function createMaterial(
   materialNode?: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
+  let group = 0;
+  let isFull = false;
+  do {
+    const actualMaterialName = materialName + `__${group}`;
+    isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialName);
+    if (!isFull) {
+      MaterialRepository.registerMaterial(actualMaterialName, materialNode, maxInstancesNumber!);
+      const material = MaterialRepository.createMaterial(actualMaterialName, materialNode);
+      return material;
+    }
+    group++;
+  } while (isFull);
+
   const isRegisteredMaterialType = MaterialRepository.isRegisteredMaterialType(materialName);
 
   if (!isRegisteredMaterialType) {

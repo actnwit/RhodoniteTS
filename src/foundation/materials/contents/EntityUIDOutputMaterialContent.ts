@@ -100,7 +100,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

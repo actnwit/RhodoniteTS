@@ -114,7 +114,7 @@ export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterial
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

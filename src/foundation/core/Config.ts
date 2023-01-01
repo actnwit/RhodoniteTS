@@ -5,7 +5,7 @@ import { MiscUtil } from '../misc';
 let maxEntityNumber = 5000;
 let maxLightNumberInShader = 4;
 let maxVertexMorphNumberInShader = 41;
-let maxMaterialInstanceForEachType = 500;
+let maxMaterialInstanceForEachType = 10;
 let maxSkeletonNumber = 33;
 let maxCameraNumber = 20;
 let maxSizeLimitOfNonCompressedTexture = 512;
@@ -24,7 +24,6 @@ let eventTargetDom: HTMLElement | undefined;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
-    maxMaterialInstanceForEachType = 28;
     maxVertexMorphNumberInShader = 4;
     maxSkeletonNumber = 32;
     dataTextureWidth = 2 ** 9;

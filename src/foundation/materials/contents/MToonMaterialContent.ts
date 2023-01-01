@@ -815,7 +815,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
