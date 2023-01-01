@@ -358,7 +358,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,

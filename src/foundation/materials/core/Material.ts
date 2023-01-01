@@ -320,8 +320,8 @@ export class Material extends RnObject {
     this.__setAutoParametersToGpu(args, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    if (Is.exist(this._materialContent.setCustomSettingParametersToGpu)) {
-      this._materialContent.setCustomSettingParametersToGpu({
+    if (Is.exist(this._materialContent._setCustomSettingParametersToGpu)) {
+      this._materialContent._setCustomSettingParametersToGpu({
         material,
         shaderProgram,
         firstTime,

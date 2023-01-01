@@ -641,7 +641,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
   }
 
-  setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpu({
     material,
     shaderProgram,
     firstTime,
@@ -655,5 +655,9 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   setDefaultInputValue(inputName: string, value: any) {
     this.__defaultInputValues.set(inputName, value);
+  }
+
+  getDefinition() {
+    return '';
   }
 }
