@@ -111,17 +111,17 @@ export class MaterialRepository {
     return material;
   }
 
-  public static isFloorCountOfThisMaterialType(materialTypeName: string): number {
+  public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
     const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName);
     if (Is.not.exist(countOfThisType)) {
-      return -1;
+      return false;
     }
     const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName);
     if (Is.not.exist(maxCountOfThisType)) {
-      return -1;
+      return false;
     }
 
-    return Math.floor(countOfThisType / maxCountOfThisType);
+    return countOfThisType >= maxCountOfThisType;
   }
 
   /**

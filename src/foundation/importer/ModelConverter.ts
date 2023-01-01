@@ -1030,13 +1030,6 @@ export class ModelConverter {
       }
     }
 
-    // do normal handling
-    let maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType;
-    if (gltfModel.meshes.length > Config.maxMaterialInstanceForEachType) {
-      maxMaterialInstanceNumber =
-        gltfModel.meshes.length + Math.floor(Config.maxMaterialInstanceForEachType / 2);
-    }
-
     // pre data
     const isMorphing = this.__isMorphing(node, gltfModel);
     const isSkinning = this.__isSkinning(node, gltfModel);
@@ -1064,6 +1057,7 @@ export class ModelConverter {
       }
     }
 
+    const maxMaterialInstanceNumber: number = Config.maxMaterialInstanceForEachType;
     if (parseFloat(gltfModel.asset?.version) >= 2) {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
