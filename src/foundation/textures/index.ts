@@ -6,3 +6,4 @@ export * from './RenderTargetTexture';
 export * from './Texture';
 export * from './TextureDataFloat';
 export * from './VideoTexture';
+export * from './Sampler';

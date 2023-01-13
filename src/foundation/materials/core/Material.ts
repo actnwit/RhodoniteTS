@@ -37,6 +37,7 @@ import { AttributeNames, RenderingArg } from '../../../webgl/types/CommonTypes';
 import { GL_FUNC_ADD, GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA } from '../../../types';
 import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
+import { Sampler } from '../../textures';
 
 /**
  * The material class.
@@ -108,11 +109,15 @@ export class Material extends RnObject {
     }
   }
 
-  public setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void {
+  public setTextureParameter(
+    shaderSemantic: ShaderSemanticsEnum,
+    texture: AbstractTexture,
+    sampler: Sampler
+  ): void {
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const array = this._allFieldVariables.get(shaderSemantic.index)!;
       const shaderVariable = {
-        value: [array.value[0], value],
+        value: [array.value[0], texture, sampler],
         info: array.info,
       };
       this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
@@ -123,7 +128,7 @@ export class Material extends RnObject {
         shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
         shaderSemantic === ShaderSemantics.BaseColorTexture
       ) {
-        if (value.isTransparent) {
+        if (texture.isTransparent) {
           this.alphaMode = AlphaMode.Translucent;
         }
       }
@@ -163,22 +168,6 @@ export class Material extends RnObject {
         }
       }
     });
-  }
-
-  // Note: The uniform defined in the GlobalDataRepository and the VertexAttributesExistenceArray,
-  //       WorldMatrix, NormalMatrix, PointSize, and PointDistanceAttenuation cannot be set.
-  public setParameterByUniformName(uniformName: string, value: any) {
-    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
-    if (targetShaderSemantics != null) {
-      this.setParameter(targetShaderSemantics, value);
-    }
-  }
-
-  public setTextureParameterByUniformName(uniformName: string, value: any) {
-    const targetShaderSemantics = this.__getTargetShaderSemantics(uniformName);
-    if (targetShaderSemantics != null) {
-      this.setTextureParameter(targetShaderSemantics, value);
-    }
   }
 
   public getParameter(shaderSemantic: ShaderSemanticsEnum): any {
