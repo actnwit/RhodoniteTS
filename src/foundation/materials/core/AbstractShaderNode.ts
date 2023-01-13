@@ -9,14 +9,16 @@ type ShaderNodeInputConnectionType = {
   inputNameOfThis: string;
 };
 
+/**
+ * AbstractShaderNode is a class that represents a shader node.
+ */
 export abstract class AbstractShaderNode extends RnObject {
-  static shaderNodes: AbstractShaderNode[] = [];
+  static _shaderNodes: AbstractShaderNode[] = [];
   protected __shaderFunctionName: string;
   private __shaderCode?: string;
   protected __inputs: ShaderSocket[] = [];
   protected __outputs: ShaderSocket[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
-  private static readonly __invalidShaderNodeUid = -1;
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
   protected __shader?: GLSLShader;
@@ -26,19 +28,31 @@ export abstract class AbstractShaderNode extends RnObject {
     this.__shaderFunctionName = shaderNodeName;
     this.__shaderCode = shaderCode;
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
-    AbstractShaderNode.shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
+    AbstractShaderNode._shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
     this.__shader = shader;
   }
 
-  get shaderFunctionName() {
+  addInputConnection(
+    inputShaderNode: AbstractShaderNode,
+    outputNameOfPrev: string,
+    inputNameOfThis: string
+  ): void {
+    this.__inputConnections.push({
+      shaderNodeUid: inputShaderNode.shaderNodeUid,
+      outputNameOfPrev: outputNameOfPrev,
+      inputNameOfThis: inputNameOfThis,
+    });
+  }
+
+  get shaderFunctionName(): string {
     return this.__shaderFunctionName;
   }
 
-  get shaderCode() {
+  get shaderCode(): string | undefined {
     return this.__shaderCode;
   }
 
-  get shaderNodeUid() {
+  get shaderNodeUid(): ShaderNodeUID {
     return this.__shaderNodeUid;
   }
 
@@ -51,7 +65,7 @@ export abstract class AbstractShaderNode extends RnObject {
     return void 0;
   }
 
-  getInputs() {
+  getInputs(): ShaderSocket[] {
     return this.__inputs;
   }
 
@@ -64,27 +78,15 @@ export abstract class AbstractShaderNode extends RnObject {
     return void 0;
   }
 
-  getOutputs() {
+  getOutputs(): ShaderSocket[] {
     return this.__outputs;
-  }
-
-  addInputConnection(
-    inputShaderNode: AbstractShaderNode,
-    outputNameOfPrev: string,
-    inputNameOfThis: string
-  ) {
-    this.__inputConnections.push({
-      shaderNodeUid: inputShaderNode.shaderNodeUid,
-      outputNameOfPrev: outputNameOfPrev,
-      inputNameOfThis: inputNameOfThis,
-    });
   }
 
   get inputConnections(): ShaderNodeInputConnectionType[] {
     return this.__inputConnections;
   }
 
-  get shader() {
+  get shader(): GLSLShader | undefined {
     return this.__shader;
   }
 }

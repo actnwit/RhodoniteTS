@@ -190,7 +190,7 @@ ${prerequisitesShaderityObject.code}
         // Collects ExistingInputs
         for (let j = 0; j < inputConnections.length; j++) {
           const inputConnection = inputConnections[j];
-          const inputNode = AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+          const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
           if (isAnyTypeInput(materialNode.getInputs()[j])) {
             continue;
           }
@@ -227,7 +227,7 @@ ${prerequisitesShaderityObject.code}
             if (prevMaterialNodeInner?.shaderNodeUid !== inputConnection.shaderNodeUid) {
               continue;
             }
-            const inputNode = AbstractShaderNode.shaderNodes[inputConnection.shaderNodeUid];
+            const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
             if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
               if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
                 const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
