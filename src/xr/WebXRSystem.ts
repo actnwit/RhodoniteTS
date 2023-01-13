@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Vector3 } from '../foundation/math/Vector3';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
@@ -140,8 +141,8 @@ export class WebXRSystem {
     profilePriorities = [],
   }: {
     initialUserPosition?: Vector3;
-    callbackOnXrSessionStart: Function;
-    callbackOnXrSessionEnd: Function;
+    callbackOnXrSessionStart: () => void;
+    callbackOnXrSessionEnd: () => void;
     profilePriorities: string[];
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -184,6 +185,7 @@ export class WebXRSystem {
       //     initialUserPosition ?? Vector3.zero();
       // } catch (err) {
       // console.error(`Failed to start XRSession: ${err}`);
+      // eslint-disable-next-line prefer-const
       referenceSpace = await session.requestReferenceSpace('local');
       this.__spaceType = 'local';
       this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
@@ -446,7 +448,7 @@ export class WebXRSystem {
       if (this.__multiviewFramebufferHandle > 0) {
         const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-        gl.invalidateFramebuffer(gl.DRAW_FRAMEBUFFER, [ gl.DEPTH_STENCIL_ATTACHMENT ]);
+        gl.invalidateFramebuffer(gl.DRAW_FRAMEBUFFER, [gl.DEPTH_STENCIL_ATTACHMENT]);
 
         gl.bindFramebuffer(
           gl.DRAW_FRAMEBUFFER,
@@ -572,7 +574,7 @@ export class WebXRSystem {
     this.__rightCameraEntity.getTransform()!.localMatrix = rotateMatRight;
   }
 
-  private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: Function) {
+  private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: () => void) {
     const gl = this.__glw?.getRawContextAsWebGL2();
 
     if (gl != null) {
