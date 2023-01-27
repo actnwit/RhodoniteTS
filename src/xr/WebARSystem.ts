@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { EntityHelper, ICameraEntity } from '../foundation/helpers/EntityHelper';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
@@ -102,8 +103,8 @@ export class WebARSystem {
     callbackOnXrSessionEnd = () => {},
   }: {
     initialUserPosition?: Vector3;
-    callbackOnXrSessionStart: Function;
-    callbackOnXrSessionEnd: Function;
+    callbackOnXrSessionStart: () => void;
+    callbackOnXrSessionEnd: () => void;
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
@@ -145,7 +146,7 @@ export class WebARSystem {
     }
   }
 
-  private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: Function) {
+  private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: () => void) {
     const gl = this.__oGlw.unwrapForce().getRawContext();
 
     if (gl != null) {

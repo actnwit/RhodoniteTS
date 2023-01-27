@@ -90,6 +90,7 @@ declare let DracoDecoderModule: any;
  * A converter class from glTF2 model to Rhodonite Native data
  */
 export class ModelConverter {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
@@ -204,8 +205,6 @@ export class ModelConverter {
 
     return rootGroup;
   }
-
-  static _setupCamera(gltfModel: RnM2) {}
 
   private static createRnBuffer(gltfModel: RnM2): Buffer[] {
     const rnBuffers = [];
