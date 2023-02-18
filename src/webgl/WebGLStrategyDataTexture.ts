@@ -844,11 +844,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       gl.useProgram(shaderProgram);
 
       // Bind DataTexture
-      gl.uniform1i((shaderProgram as any).dataTexture, 7);
+      this.bindDataTexture(gl, shaderProgram);
+
       gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0);
-      this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-      const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
-      this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
 
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
       firstTime = true;
@@ -909,5 +907,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return true;
   }
 
+  private bindDataTexture(
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    shaderProgram: WebGLProgram
+  ) {
+    gl.uniform1i((shaderProgram as any).dataTexture, 7);
+    this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+    const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
+    this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
+  }
   // $render(): void {}
 }

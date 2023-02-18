@@ -493,10 +493,7 @@ bool get_isBillboard(float instanceId) {
         firstTime = true;
 
         gl.useProgram(shaderProgram);
-        gl.uniform1i((shaderProgram as any).dataTexture, 7);
-        this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
-        const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
-        this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
+        this.bindDataTexture(gl, shaderProgram);
 
         this.__lastShader = shaderProgramUid;
       }
@@ -541,6 +538,16 @@ bool get_isBillboard(float instanceId) {
     }
 
     return true;
+  }
+
+  private bindDataTexture(
+    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    shaderProgram: WebGLProgram
+  ) {
+    gl.uniform1i((shaderProgram as any).dataTexture, 7);
+    this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+    const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
+    this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
   }
 
   $render() {}
