@@ -495,6 +495,8 @@ bool get_isBillboard(float instanceId) {
         gl.useProgram(shaderProgram);
         gl.uniform1i((shaderProgram as any).dataTexture, 7);
         this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+        const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
+        this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
 
         this.__lastShader = shaderProgramUid;
       }

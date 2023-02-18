@@ -847,6 +847,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       gl.uniform1i((shaderProgram as any).dataTexture, 7);
       gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0);
       this.__webglResourceRepository.bindTexture2D(7, this.__dataTextureUid);
+      const samplerUid = this.__webglResourceRepository.createOrGetTextureSamplerRepeatNearest();
+      this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
 
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
       firstTime = true;

@@ -369,6 +369,10 @@ export class WebGLContextWrapper {
     this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
+  bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
+    this.__gl.bindSampler(activeTextureIndex, sampler);
+  }
+
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);

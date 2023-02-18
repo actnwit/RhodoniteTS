@@ -95,6 +95,8 @@ export class WebGLResourceRepository
   private __glw?: WebGLContextWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResources: Map<WebGLResourceHandle, WebGLResource> = new Map();
+  private __samplerRepeatNearestUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   private constructor() {
     super();
@@ -277,6 +279,16 @@ export class WebGLResourceRepository
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTexture2D(textureSlotIndex, texture);
+  }
+
+  /**
+   * bind the Sampler
+   * @param textureSlotIndex
+   * @param samplerUid
+   */
+  bindTextureSampler(textureSlotIndex: Index, samplerUid: CGAPIResourceHandle) {
+    const sampler = this.getWebGLResource(samplerUid) as WebGLSampler;
+    this.__glw!.bindTextureSampler(textureSlotIndex, sampler);
   }
 
   /**
@@ -988,6 +1000,21 @@ export class WebGLResourceRepository
     }
 
     return resourceHandle;
+  }
+
+  createOrGetTextureSamplerRepeatNearest() {
+    if (this.__samplerRepeatNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatNearestUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    }
+
+    return this.__samplerRepeatNearestUid;
   }
 
   /**
