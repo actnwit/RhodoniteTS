@@ -82,9 +82,9 @@ import { BufferView } from '../memory/BufferView';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 import Rn from '../../cjs';
 import { Vrm1_Materials_MToon } from '../../types/VRM1';
-import { Vrm0xMaterialProperty } from '../../types';
+import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
-import { Sampler } from '../textures';
+import { Sampler } from '../textures/Sampler';
 
 declare let DracoDecoderModule: any;
 

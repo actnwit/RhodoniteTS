@@ -37,7 +37,7 @@ import { AttributeNames, RenderingArg } from '../../../webgl/types/CommonTypes';
 import { GL_FUNC_ADD, GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA } from '../../../types';
 import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
-import { Sampler } from '../../textures';
+import { Sampler } from '../../textures/Sampler';
 
 /**
  * The material class.
