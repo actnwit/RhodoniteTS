@@ -83,12 +83,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
   static __dummySRGBGrayTexture = new Texture();
   static __dummyBlackCubeTexture = new CubeTexture();
-  static __dummyTextureSamplerRepeatLinear = new Sampler({
-    wrapS: TextureParameter.Repeat,
-    wrapT: TextureParameter.Repeat,
-    minFilter: TextureParameter.Linear,
-    magFilter: TextureParameter.Linear,
-  });
   static __sheenLutTextureUid: MaterialNodeUID = -1;
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
@@ -325,10 +319,6 @@ export abstract class AbstractMaterialContent extends RnObject {
         isPremultipliedAlpha: false,
       }
     );
-  }
-
-  static get dummyTextureSamplerRepeatLinear() {
-    return this.__dummyTextureSamplerRepeatLinear;
   }
 
   static get dummyWhiteTexture() {
