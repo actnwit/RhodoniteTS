@@ -1356,25 +1356,6 @@ export class WebGLResourceRepository
       );
     }
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-
-    if (minFilter === TextureParameter.LinearMipmapLinear) {
-      minFilter = TextureParameter.Linear;
-    }
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-
-    const width = textureDataArray[0].width;
-    const height = textureDataArray[0].height;
-    if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy) {
-        if (this.__glw!.webgl2ExtTFA) {
-          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-        }
-      }
-    }
-
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
