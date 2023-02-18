@@ -1,5 +1,6 @@
 import { CGAPIResourceHandle } from '../../types/CommonTypes';
 import { TextureParameter, TextureParameterEnum } from '../definitions';
+import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 
 export type SamplerDescriptor = {
   minFilter: TextureParameterEnum;
@@ -7,6 +8,7 @@ export type SamplerDescriptor = {
   wrapS: TextureParameterEnum;
   wrapT: TextureParameterEnum;
   wrapR?: TextureParameterEnum;
+  anisotropy?: boolean;
 };
 
 export class Sampler {
@@ -15,6 +17,7 @@ export class Sampler {
   private __wrapS: TextureParameterEnum;
   private __wrapT: TextureParameterEnum;
   private __wrapR: TextureParameterEnum;
+  private __anisotropy: boolean;
   private __samplerResourceUid: CGAPIResourceHandle = -1;
 
   constructor(desc: SamplerDescriptor) {
@@ -22,7 +25,20 @@ export class Sampler {
     this.__magFilter = desc.magFilter;
     this.__wrapS = desc.wrapS;
     this.__wrapT = desc.wrapT;
-    this.__wrapR = desc.wrapR ?? TextureParameter.ClampToEdge;
+    this.__wrapR = desc.wrapR ?? TextureParameter.Repeat;
+    this.__anisotropy = desc.anisotropy ?? true;
+  }
+
+  create() {
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__samplerResourceUid = webGLResourceRepository.createTextureSampler({
+      minFilter: this.__minFilter,
+      magFilter: this.__magFilter,
+      wrapS: this.__wrapS,
+      wrapT: this.__wrapT,
+      wrapR: this.__wrapR,
+      anisotropy: this.__anisotropy,
+    });
   }
 
   get minFilter(): TextureParameterEnum {

@@ -797,6 +797,7 @@ export class ModelConverter {
         wrapS: textureOption.wrapS,
         wrapT: textureOption.wrapT,
       });
+      sampler.create();
 
       const fileName = textureInfo.fileName;
       const uri = basePath + fileName;
@@ -1357,6 +1358,7 @@ export class ModelConverter {
         ? TextureParameter.from(texture.samplerObject!.wrapT)
         : TextureParameter.Repeat,
     });
+    sampler.create();
 
     return sampler;
   }

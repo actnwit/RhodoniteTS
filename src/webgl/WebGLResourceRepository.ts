@@ -992,6 +992,7 @@ export class WebGLResourceRepository
     minFilter,
     wrapS,
     wrapT,
+    wrapR,
     anisotropy,
     isPremultipliedAlpha,
   }: {
@@ -999,6 +1000,7 @@ export class WebGLResourceRepository
     minFilter: TextureParameterEnum;
     wrapS: TextureParameterEnum;
     wrapT: TextureParameterEnum;
+    wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
   }) {
@@ -1009,6 +1011,7 @@ export class WebGLResourceRepository
     gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, wrapT.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, wrapR.index);
     if (anisotropy) {
       if (this.__glw!.webgl2ExtTFA) {
         gl.samplerParameteri(sampler, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
@@ -1145,21 +1148,21 @@ export class WebGLResourceRepository
     anisotropy: boolean,
     generateMipmap: boolean
   ) {
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    if (isPremultipliedAlpha) {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    } else {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    }
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    // if (isPremultipliedAlpha) {
+    //   // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    // } else {
+    //   // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    // }
     if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy) {
-        if (this.__glw!.webgl2ExtTFA) {
-          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-        }
-      }
+      // if (anisotropy) {
+      //   if (this.__glw!.webgl2ExtTFA) {
+      //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      //   }
+      // }
 
       const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
       if (isGenerateMipmap) {
