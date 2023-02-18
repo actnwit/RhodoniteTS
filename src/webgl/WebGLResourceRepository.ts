@@ -97,6 +97,10 @@ export class WebGLResourceRepository
   private __webglResources: Map<WebGLResourceHandle, WebGLResource> = new Map();
   private __samplerRepeatNearestUid: WebGLResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerRepeatTriLinearUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerRepeatAnisotropyLinearUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   private constructor() {
     super();
@@ -698,6 +702,9 @@ export class WebGLResourceRepository
       );
       if (value[2] != null) {
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      } else {
+        const samplerUid = this.createOrGetTextureSamplerRepeatAnisotropyLinear();
+        this.bindTextureSampler(value[0], samplerUid);
       }
     } else if (info.compositionType === CompositionType.TextureCube) {
       this.bindTextureCube(
@@ -706,6 +713,9 @@ export class WebGLResourceRepository
       );
       if (value[2] != null) {
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      } else {
+        const samplerUid = this.createOrGetTextureSamplerRepeatTriLinear();
+        this.bindTextureSampler(value[0], samplerUid);
       }
     }
   }
@@ -1018,9 +1028,43 @@ export class WebGLResourceRepository
       gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
       gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
     }
 
     return this.__samplerRepeatNearestUid;
+  }
+
+  createOrGetTextureSamplerRepeatTriLinear() {
+    if (this.__samplerRepeatNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatTriLinearUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+    }
+
+    return this.__samplerRepeatTriLinearUid;
+  }
+
+  createOrGetTextureSamplerRepeatAnisotropyLinear() {
+    if (this.__samplerRepeatNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatAnisotropyLinearUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+      gl.samplerParameteri(sampler, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    }
+
+    return this.__samplerRepeatAnisotropyLinearUid;
   }
 
   /**

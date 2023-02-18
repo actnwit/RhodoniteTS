@@ -112,7 +112,7 @@ export class Material extends RnObject {
   public setTextureParameter(
     shaderSemantic: ShaderSemanticsEnum,
     texture: AbstractTexture,
-    sampler: Sampler
+    sampler?: Sampler
   ): void {
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const array = this._allFieldVariables.get(shaderSemantic.index)!;
