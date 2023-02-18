@@ -696,11 +696,17 @@ export class WebGLResourceRepository
         value[0],
         value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
+      if (value[2] != null) {
+        this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      }
     } else if (info.compositionType === CompositionType.TextureCube) {
       this.bindTextureCube(
         value[0],
         value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
+      if (value[2] != null) {
+        this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      }
     }
   }
 

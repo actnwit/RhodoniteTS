@@ -44,4 +44,8 @@ export class Sampler {
   get wrapR(): TextureParameterEnum {
     return this.__wrapR;
   }
+
+  get _samplerResourceUid(): CGAPIResourceHandle {
+    return this.__samplerResourceUid;
+  }
 }
