@@ -108,7 +108,7 @@ export class WebGLResourceRepository
   }
 
   addWebGLContext(
-    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    gl: WebGL2RenderingContext,
     canvas: HTMLCanvasElement,
     asCurrent: boolean,
     isDebug: boolean
