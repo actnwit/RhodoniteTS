@@ -4,5 +4,5 @@ reflection.x *= -1.0;
 #elif defined(GLSL_ES3)
   vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
 #else
-  vec4 specularTexel = textureCube(u_specularEnvTexture, reflection);
+  vec4 specularTexel = texture(u_specularEnvTexture, reflection);
 #endif

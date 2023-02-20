@@ -14,7 +14,7 @@ void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  vec4 textureColor = texture2D(u_baseColorTexture, v_texcoord);
+  vec4 textureColor = texture(u_baseColorTexture, v_texcoord);
 
   float r = textureColor.r;
   float g = textureColor.g;
@@ -52,7 +52,7 @@ void main ()
     }
 
     if( rRate * gRate * bRate != 0.0){
-      newColor += texture2D(u_lookupTableTexture, vec2(rIntAdjust / 256.0 + bIntAdjust / 16.0  + 1.0 / 512.0, gIntAdjust / 16.0 + 1.0 / 32.0)).rgb * rRate * gRate * bRate;
+      newColor += texture(u_lookupTableTexture, vec2(rIntAdjust / 256.0 + bIntAdjust / 16.0  + 1.0 / 512.0, gIntAdjust / 16.0 + 1.0 / 32.0)).rgb * rRate * gRate * bRate;
     }
   }
 

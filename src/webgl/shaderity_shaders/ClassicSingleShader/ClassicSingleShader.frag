@@ -68,7 +68,7 @@ void main ()
   vec4 diffuseColorTextureTransform = get_diffuseColorTextureTransform(materialSID, 0);
   float diffuseColorTextureRotation = get_diffuseColorTextureRotation(materialSID, 0);
   vec2 diffuseColorTexUv = uvTransform(diffuseColorTextureTransform.xy, diffuseColorTextureTransform.zw, diffuseColorTextureRotation, v_texcoord_0);
-  vec4 textureColor = texture2D(u_diffuseColorTexture, diffuseColorTexUv);
+  vec4 textureColor = texture(u_diffuseColorTexture, diffuseColorTexUv);
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 

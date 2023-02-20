@@ -245,8 +245,8 @@ float Schlick_to_F0(float f, float VdotH) {
 }
 
 vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2 detailUv) {
-  vec3 t = texture2D(baseMap,   baseUv).xyz * 2.0 - 1.0;
-  vec3 u = texture2D(detailMap, detailUv).xyz * 2.0 - 1.0;
+  vec3 t = texture(baseMap,   baseUv).xyz * 2.0 - 1.0;
+  vec3 u = texture(detailMap, detailUv).xyz * 2.0 - 1.0;
   vec3 r = normalize(vec3(t.xy + u.xy, t.z));
   return r;
 }

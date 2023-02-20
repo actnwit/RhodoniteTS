@@ -56,7 +56,7 @@ void main ()
 
     float strideLength = minStrideLength + float(i);
     vec2 stride = strideLength * blurDirection;
-    float depthData = decodeRGBAToDepth(texture2D(u_baseColorTexture, (offset + stride) * tFrag));
+    float depthData = decodeRGBAToDepth(texture(u_baseColorTexture, (offset + stride) * tFrag));
     if(depthData > 1.0) depthData = 1.0;
 
     float gaussianRatio = u_gaussianRatio[i];

@@ -34,7 +34,7 @@ highp vec4 fetchElement(int vec4_idx) {
   #ifdef GLSL_ES3
   return texture( u_dataTexture, vec2(x, y));
   #else
-  return texture2D( u_dataTexture, vec2(x, y));
+  return texture( u_dataTexture, vec2(x, y));
   #endif
 #endif
 }

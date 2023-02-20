@@ -37,7 +37,7 @@ void main ()
     vec2 stride = strideLength * blurDirection;
 
     float gaussianRatio = u_gaussianRatio[i];
-    color += texture2D(u_baseColorTexture, (offset + stride) * tFrag) * gaussianRatio;
+    color += texture(u_baseColorTexture, (offset + stride) * tFrag) * gaussianRatio;
   }
 
   rt0 = color;

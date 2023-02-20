@@ -532,8 +532,8 @@ uniform vec2 u_screenInfo; // initialValue=(0,0)
 #endif
 /*--------------------------------------------------------------------------*/
 #if (FXAA_GLSL_100 == 1)
-#define FxaaTexTop(t, p) texture2D(t, p, 0.0)
-#define FxaaTexOff(t, p, o, r) texture2D(t, p + (o * r), 0.0)
+#define FxaaTexTop(t, p) texture(t, p, 0.0)
+#define FxaaTexOff(t, p, o, r) texture(t, p + (o * r), 0.0)
 #endif
 /*--------------------------------------------------------------------------*/
 #if (FXAA_GLSL_120 == 1)

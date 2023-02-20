@@ -23,7 +23,7 @@ void main ()
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-vec4 baseColor = texture2D(u_baseColorTexture, v_texcoord_0);
+vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 
 if (get_enableLinearToSrgb(materialSID, 0)) {
   baseColor.rgb = linearToSrgb(baseColor.rgb);
