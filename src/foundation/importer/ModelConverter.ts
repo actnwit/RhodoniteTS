@@ -563,7 +563,7 @@ export class ModelConverter {
           node,
           gltfModel,
           primitive,
-          primitive.materialObject!
+          primitive.materialObject
         );
 
         if (material.isEmptyMaterial() === false) {
@@ -1181,9 +1181,9 @@ export class ModelConverter {
     node: RnM2Node,
     gltfModel: RnM2,
     primitive: RnM2Primitive,
-    materialJson: RnM2Material
+    materialJson?: RnM2Material
   ): Material {
-    const isUnlit = materialJson.extensions?.KHR_materials_unlit != null;
+    const isUnlit = materialJson?.extensions?.KHR_materials_unlit != null;
 
     const material: Material = this.__generateAppropriateMaterial(
       rnPrimitive,
@@ -1194,17 +1194,17 @@ export class ModelConverter {
     );
 
     // avoid unexpected initialization
-    if (!this.__needParameterInitialization(materialJson, material.materialTypeName))
+    if (!this.__needParameterInitialization(materialJson!, material.materialTypeName))
       return material;
 
     const options = gltfModel.asset.extras!.rnLoaderOptions;
-    const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
+    const pbrMetallicRoughness = materialJson?.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       // BaseColor Factor
       setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson);
     } else {
       let param: Index = ShadingModel.Phong.index;
-      if (materialJson.extras?.technique) {
+      if (materialJson?.extras?.technique) {
         switch (materialJson.extras.technique) {
           case ShadingModel.Constant.str:
             param = ShadingModel.Constant.index;
@@ -1223,13 +1223,13 @@ export class ModelConverter {
       }
     }
 
-    const emissiveFactor = isUnlit ? ([0, 0, 0] as Array3<number>) : materialJson.emissiveFactor;
+    const emissiveFactor = isUnlit ? ([0, 0, 0] as Array3<number>) : materialJson?.emissiveFactor;
     if (emissiveFactor != null) {
       material.setParameter(ShaderSemantics.EmissiveFactor, Vector3.fromCopyArray3(emissiveFactor));
     }
 
-    const emissiveTexture = materialJson.emissiveTexture;
-    if (emissiveTexture != null && Is.false(isUnlit)) {
+    const emissiveTexture = materialJson?.emissiveTexture;
+    if (emissiveTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(emissiveTexture.texture!, gltfModel);
       material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
       if (parseFloat(gltfModel.asset?.version) >= 2 && emissiveTexture.texCoord != null) {
@@ -1243,7 +1243,7 @@ export class ModelConverter {
       );
     }
 
-    let alphaMode = materialJson.alphaMode;
+    let alphaMode = materialJson?.alphaMode;
     if (options?.alphaMode) {
       alphaMode = options.alphaMode;
     }
@@ -1257,15 +1257,15 @@ export class ModelConverter {
       ) {
         material.setParameter(
           ShaderSemantics.AlphaCutoff,
-          Scalar.fromCopyNumber(materialJson.alphaCutoff ?? 0.5)
+          Scalar.fromCopyNumber(materialJson?.alphaCutoff ?? 0.5)
         );
       }
     }
-    if (Is.exist(materialJson.extensions?.KHR_materials_transmission)) {
+    if (Is.exist(materialJson?.extensions?.KHR_materials_transmission)) {
       material.alphaMode = AlphaMode.Translucent;
     }
 
-    const doubleSided = materialJson.doubleSided;
+    const doubleSided = materialJson?.doubleSided;
     if (doubleSided != null) {
       material.cullFace = !doubleSided;
     }
@@ -1289,16 +1289,16 @@ export class ModelConverter {
         }
       }
     }
-    if (Is.exist(materialJson.diffuseColorFactor)) {
-      const diffuseColorFactor = materialJson.diffuseColorFactor as Array4<number>;
+    if (Is.exist(materialJson?.diffuseColorFactor)) {
+      const diffuseColorFactor = materialJson?.diffuseColorFactor as Array4<number>;
       material.setParameter(
         ShaderSemantics.DiffuseColorFactor,
         Vector4.fromCopyArray4(diffuseColorFactor)
       );
     }
 
-    const normalTexture = materialJson.normalTexture;
-    if (normalTexture != null && Is.false(isUnlit)) {
+    const normalTexture = materialJson?.normalTexture;
+    if (normalTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(normalTexture.texture!, gltfModel);
       material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
       if (parseFloat(gltfModel.asset?.version) >= 2) {
@@ -1324,7 +1324,7 @@ export class ModelConverter {
     if (this._checkRnGltfLoaderOptionsExist(gltfModel)) {
       const loaderExtension = gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
       if (loaderExtension?.setupMaterial != null) {
-        loaderExtension.setupMaterial(gltfModel, materialJson, material);
+        loaderExtension.setupMaterial(gltfModel, materialJson!, material);
       }
     }
 
@@ -2189,7 +2189,7 @@ function setupPbrMetallicRoughness(
 
   // Ambient Occlusion Texture
   const occlusionTexture = materialJson.occlusionTexture;
-  if (occlusionTexture != null && Is.false(isUnlit)) {
+  if (occlusionTexture != null && Is.falsy(isUnlit)) {
     const rnTexture = ModelConverter._createTexture(occlusionTexture.texture!, gltfModel);
     material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
     if (occlusionTexture.texCoord != null) {
@@ -2218,7 +2218,7 @@ function setupPbrMetallicRoughness(
 
   // Metallic roughness texture
   const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
-  if (metallicRoughnessTexture != null && Is.false(isUnlit)) {
+  if (metallicRoughnessTexture != null && Is.falsy(isUnlit)) {
     const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture.texture!, gltfModel);
     material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
     if (metallicRoughnessTexture.texCoord != null) {
