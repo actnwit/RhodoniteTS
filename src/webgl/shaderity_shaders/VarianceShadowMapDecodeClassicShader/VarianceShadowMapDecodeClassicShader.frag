@@ -114,7 +114,7 @@ void main ()
   }
 
   // diffuseColorTexture
-  vec4 textureColor = texture2D(u_diffuseColorTexture, v_texcoord_0);
+  vec4 textureColor = texture(u_diffuseColorTexture, v_texcoord_0);
   if (textureColor.r > 0.05) {
     diffuseColor *= textureColor.rgb;
     alpha *= textureColor.a;

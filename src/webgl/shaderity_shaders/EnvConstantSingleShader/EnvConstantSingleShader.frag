@@ -61,7 +61,7 @@ void main() {
     envNormal.x *= -1.0;
   }
 
-  vec4 diffuseTexel = textureCube(u_colorEnvTexture, envNormal);
+  vec4 diffuseTexel = texture(u_colorEnvTexture, envNormal);
   vec3 textureColor;
   int EnvHdriFormat = get_envHdriFormat(materialSID, 0);
   if (EnvHdriFormat == 0) { // LDR_SRGB

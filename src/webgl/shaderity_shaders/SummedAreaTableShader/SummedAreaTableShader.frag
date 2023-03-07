@@ -23,14 +23,14 @@ void main ()
 float i = get_count(materialSID, 0);
 float dir = get_direction(materialSID, 0);
 
-rt0 = texture2D(u_baseColorTexture, gl_FragCoord.xy);
+rt0 = texture(u_baseColorTexture, gl_FragCoord.xy);
 
 if (dir > 0.0) {
   // horizontal
-  rt0 += texture2D(u_baseColorTexture, vec2(gl_FragCoord.x + pow(2.0, i), gl_FragCoord.y));
+  rt0 += texture(u_baseColorTexture, vec2(gl_FragCoord.x + pow(2.0, i), gl_FragCoord.y));
 } else {
   // virtical
-  rt0 += texture2D(u_baseColorTexture, vec2(gl_FragCoord.x, gl_FragCoord.y + pow(2.0, i)));
+  rt0 += texture(u_baseColorTexture, vec2(gl_FragCoord.x, gl_FragCoord.y + pow(2.0, i)));
 }
 
 #pragma shaderity: require(../common/glFragColor.glsl)

@@ -43,7 +43,7 @@ vec2 envBRDFApprox( float Roughness, float NoV ) {
 
 float specularIBL(float userRoughness, float NV, float f0) {
   /// Use specular BRDF LUT
-  // vec3 brdf = texture2D(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
+  // vec3 brdf = texture(u_brdfLutTexture, vec2(NV, 1.0 - userRoughness)).rgb;
   // float specular = 1.0 * (f0 * brdf.x + brdf.y);
 
   /// Use specular BRDF Approx
@@ -289,7 +289,7 @@ void main ()
     float userRoughness = metallicRoughnessFactor.y;
     float metallic = metallicRoughnessFactor.x;
 
-    vec4 ormTexel = texture2D(u_metallicRoughnessTexture, v_texcoord);
+    vec4 ormTexel = texture(u_metallicRoughnessTexture, v_texcoord);
     userRoughness = ormTexel.g * userRoughness;
     userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
     roughness = userRoughness;
