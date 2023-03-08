@@ -204,6 +204,10 @@ export class MutableVector4 extends MutableVector4_<Float32ArrayConstructor> {
     return new MutableVector4(new Float32Array(array));
   }
 
+  static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4 {
+    return new MutableVector4(new Float32Array([x, y, z, w]));
+  }
+
   static zero() {
     return super._zero(Float32Array) as MutableVector4;
   }
@@ -309,6 +313,10 @@ export class MutableVector4d extends MutableVector4_<Float64ArrayConstructor> {
 
   static fromCopyArray(array: Array<number>): MutableVector4d {
     return new MutableVector4d(new Float64Array(array.slice(0, 4)));
+  }
+
+  static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4d {
+    return new MutableVector4d(new Float64Array([x, y, z, w]));
   }
 
   clone() {
