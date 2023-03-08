@@ -20,6 +20,9 @@ export class Frustum {
   public zFar = MutableVector4.zero();
   private __updated = false;
   private __vp = MutableMatrix44.zero();
+  private __invProjMat = MutableMatrix44.zero();
+  private __invViewMat = MutableMatrix44.zero();
+  public corners: Vector4[] = [];
 
   constructor() {}
 
@@ -29,6 +32,7 @@ export class Frustum {
    * @param projectionMatrix The projection matrix.
    */
   update(viewMatrix: Matrix44, projectionMatrix: Matrix44) {
+    // Calculate the planes of the view frustum.
     Matrix44.multiplyTo(projectionMatrix, viewMatrix, this.__vp);
 
     this.zNear.x = this.__vp.m20 + this.__vp.m30;
@@ -66,6 +70,34 @@ export class Frustum {
     this.right.z = -this.__vp.m02 + this.__vp.m32;
     this.right.w = -this.__vp.m03 + this.__vp.m33;
     this.right.normalize3();
+
+    // Calculate the corners of the view frustum.
+    const hCorners = [
+      // near
+      Vector4.fromCopy4(-1, 1, 1, 1),
+      Vector4.fromCopy4(1, 1, 1, 1),
+      Vector4.fromCopy4(1, -1, 1, 1),
+      Vector4.fromCopy4(-1, -1, 1, 1),
+      // far
+      Vector4.fromCopy4(-1, 1, -1, 1),
+      Vector4.fromCopy4(1, 1, -1, 1),
+      Vector4.fromCopy4(1, -1, -1, 1),
+      Vector4.fromCopy4(-1, -1, -1, 1),
+    ];
+
+    Matrix44.invertTo(projectionMatrix, this.__invProjMat);
+    Matrix44.invertTo(viewMatrix, this.__invViewMat);
+    for (let i = 0; i < 8; i++) {
+      hCorners[i] = this.__invProjMat.multiplyVector(hCorners[i]);
+      hCorners[i] = Vector4.fromCopy4(
+        hCorners[i].x / hCorners[i].w,
+        hCorners[i].y / hCorners[i].w,
+        hCorners[i].z / hCorners[i].w,
+        1
+      );
+
+      this.corners[i] = this.__invViewMat.multiplyVector(hCorners[i]);
+    }
   }
 
   /**
@@ -150,55 +182,55 @@ export class Frustum {
     }
 
     // check frustum outside/inside box
-    // let out = 0;
-    // out = 0;
-    // for (let i = 0; i < 8; i++) {
-    //   const plane = this.getPlane(i);
-    //   out += plane.x > aabb.maxPoint.x ? 1 : 0;
-    // }
-    // if (out === 8) {
-    //   return false;
-    // }
-    // out = 0;
-    // for (let i = 0; i < 8; i++) {
-    //   const plane = this.getPlane(i);
-    //   out += plane.x < aabb.minPoint.x ? 1 : 0;
-    // }
-    // if (out === 8) {
-    //   return false;
-    // }
-    // out = 0;
-    // for (let i = 0; i < 8; i++) {
-    //   const plane = this.getPlane(i);
-    //   out += plane.y > aabb.maxPoint.y ? 1 : 0;
-    // }
-    // if (out === 8) {
-    //   return false;
-    // }
-    // out = 0;
-    // for (let i = 0; i < 8; i++) {
-    //   const plane = this.getPlane(i);
-    //   out += plane.y < aabb.minPoint.y ? 1 : 0;
-    // }
-    // if (out === 8) {
-    //   return false;
-    // }
-    // out = 0;
-    // for (let i = 0; i < 8; i++) {
-    //   const plane = this.getPlane(i);
-    //   out += plane.z > aabb.maxPoint.z ? 1 : 0;
-    // }
-    // if (out === 8) {
-    //   return false;
-    // }
-    // out = 0;
-    // for (let i = 0; i < 8; i++) {
-    //   const plane = this.getPlane(i);
-    //   out += plane.z < aabb.minPoint.z ? 1 : 0;
-    // }
-    // if (out === 8) {
-    //   return false;
-    // }
+    let out = 0;
+    out = 0;
+    for (let i = 0; i < 8; i++) {
+      const plane = this.corners[i];
+      out += plane.x > aabb.maxPoint.x ? 1 : 0;
+    }
+    if (out === 8) {
+      return false;
+    }
+    out = 0;
+    for (let i = 0; i < 8; i++) {
+      const plane = this.corners[i];
+      out += plane.x < aabb.minPoint.x ? 1 : 0;
+    }
+    if (out === 8) {
+      return false;
+    }
+    out = 0;
+    for (let i = 0; i < 8; i++) {
+      const plane = this.corners[i];
+      out += plane.y > aabb.maxPoint.y ? 1 : 0;
+    }
+    if (out === 8) {
+      return false;
+    }
+    out = 0;
+    for (let i = 0; i < 8; i++) {
+      const plane = this.corners[i];
+      out += plane.y < aabb.minPoint.y ? 1 : 0;
+    }
+    if (out === 8) {
+      return false;
+    }
+    out = 0;
+    for (let i = 0; i < 8; i++) {
+      const plane = this.corners[i];
+      out += plane.z > aabb.maxPoint.z ? 1 : 0;
+    }
+    if (out === 8) {
+      return false;
+    }
+    out = 0;
+    for (let i = 0; i < 8; i++) {
+      const plane = this.corners[i];
+      out += plane.z < aabb.minPoint.z ? 1 : 0;
+    }
+    if (out === 8) {
+      return false;
+    }
 
     return true;
   }
