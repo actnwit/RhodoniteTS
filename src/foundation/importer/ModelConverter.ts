@@ -377,6 +377,17 @@ export class ModelConverter {
           );
           skeletalComponent!.setInverseBindMatricesAccessor(rnBufferOfInverseBindMatAccessor);
         }
+
+        // Normalize Rig
+        const joints = skeletalComponent.getJoints();
+        for (const joint of joints) {
+          const worldMatrix = joint.matrixRestInner;
+          const worldPosition = worldMatrix.getTranslate();
+          if (joint.parent) {
+            joint.parent.position = worldPosition;
+          }
+          joint.rotation = Quaternion.identity();
+        }
       }
     }
   }
