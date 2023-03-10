@@ -362,6 +362,12 @@ declare namespace effekseer {
         readonly exists: boolean;
 
         /**
+         * Set frame of this effect instance.
+         * @param {number} frame Frame of this effect instance.
+         */
+        setFrame(frame: number): void;
+
+        /**
          * Set the location of this effect instance.
          * @param {number} x X value of location
          * @param {number} y Y value of location
@@ -391,6 +397,15 @@ declare namespace effekseer {
         setMatrix(matrixArray: Float32Array): void;
 
         /**
+        * Set the color of this effect instance.
+        * @param {number} r R channel value of color
+        * @param {number} g G channel value of color
+        * @param {number} b B channel value of color
+        * @param {number} a A channel value of color
+        */
+        setAllColor(r: number, g: number, b: number, a: number): void;
+
+        /**
          * Set the target location of this effect instance.
          * @param {number} x X value of target location
          * @param {number} y Y value of target location
@@ -411,6 +426,12 @@ declare namespace effekseer {
          * @param {number} value value
          */
         setDynamicInput(index: number, value: number): void;
+
+        /**
+         * Sends the specified trigger to the currently playing effect
+         * @param {number} index trigger index
+         */
+        sendTrigger(index: number): void;
 
         /**
          * Set the paused flag of this effect instance.
