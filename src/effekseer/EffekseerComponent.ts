@@ -218,7 +218,7 @@ export class EffekseerComponent extends Component {
     this.__isInitialized = true;
     const gl = glw!.getRawContext();
     const data = Is.exist(this.uri) ? this.uri : this.arrayBuffer;
-    this.__context.init(gl);
+    this.__context.init(gl, { enablePremultipliedAlpha: true });
 
     const onLoad = () => {
       if (this.playJustAfterLoaded) {

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 let p: any;
 
@@ -82,7 +82,7 @@ declare const window: any;
 
   // renderPass
   const renderPass = new Rn.RenderPass();
-  renderPass.clearColor = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
+  renderPass.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.01]);
   renderPass.toClearColorBuffer = true;
   // renderPass.addEntities([effekseerEntity]);
   renderPass.addEntities([rootGroup, effekseerEntity]);
