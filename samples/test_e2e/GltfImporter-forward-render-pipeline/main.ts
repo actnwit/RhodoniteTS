@@ -68,7 +68,7 @@ declare const window: any;
   let count = 0;
   let startTime = Date.now();
   const draw = function (frame) {
-    if (count > 50) {
+    if (count > 100) {
       p.id = 'rendered';
       p.innerText = 'Rendered.';
     } else if (count === 1) {
