@@ -853,6 +853,7 @@ export class ModelConverter {
       const isLighting = this.__isLighting(gltfModel, materialJson);
       const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
       const textures = defaultMaterialHelperArgument.textures;
+      const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
@@ -878,6 +879,7 @@ export class ModelConverter {
             isOutline: true,
             materialProperties,
             textures,
+            samplers,
             debugMode,
             maxInstancesNumber,
             makeOutputSrgb,
@@ -898,6 +900,7 @@ export class ModelConverter {
         isOutline: false,
         materialProperties,
         textures,
+        samplers,
         debugMode,
         maxInstancesNumber,
         makeOutputSrgb,
@@ -934,6 +937,7 @@ export class ModelConverter {
       const isLighting = this.__isLighting(gltfModel, materialJson);
       const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
       const textures = defaultMaterialHelperArgument.textures;
+      const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
@@ -959,6 +963,7 @@ export class ModelConverter {
             isOutline: true,
             materialProperties,
             textures,
+            samplers,
             debugMode,
             maxInstancesNumber,
             makeOutputSrgb,
@@ -979,6 +984,7 @@ export class ModelConverter {
         isOutline: false,
         materialProperties,
         textures,
+        samplers,
         debugMode,
         maxInstancesNumber,
         makeOutputSrgb,

@@ -50,6 +50,7 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { Vrm0xMaterialProperty } from '../../types';
+import { Sampler } from '../textures/Sampler';
 
 function createMaterial(
   materialName: string,
@@ -794,6 +795,7 @@ function createMToonMaterial({
   isOutline = false,
   materialProperties,
   textures,
+  samplers,
   debugMode,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
   makeOutputSrgb = true,
@@ -806,6 +808,7 @@ function createMToonMaterial({
   isOutline?: boolean;
   materialProperties?: Vrm0xMaterialProperty;
   textures?: any[];
+  samplers?: Sampler[];
   debugMode?: any;
   maxInstancesNumber?: Count;
   makeOutputSrgb?: boolean;
@@ -823,6 +826,7 @@ function createMToonMaterial({
     isOutline,
     materialProperties,
     textures,
+    samplers!,
     isMorphing,
     isSkinning,
     isLighting,

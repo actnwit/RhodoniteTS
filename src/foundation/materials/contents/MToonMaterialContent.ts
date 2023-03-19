@@ -23,6 +23,7 @@ import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSin
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vrm0xMaterialProperty } from '../../../types';
+import { Sampler } from '../../textures/Sampler';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -105,6 +106,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     isOutline: boolean,
     materialProperties: Vrm0xMaterialProperty | undefined,
     textures: any,
+    samplers: Sampler[],
     isMorphing: boolean,
     isSkinning: boolean,
     isLighting: boolean,
@@ -594,13 +596,14 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     }
 
     // Texture
-    this.__setTextures(textures, shaderSemanticsInfoArray, isOutline);
+    this.__setTextures(textures, samplers, shaderSemanticsInfoArray, isOutline);
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
   private __setTextures(
     textures: Texture[],
+    samplers: Sampler[],
     shaderSemanticsInfoArray: ShaderSemanticsInfo[],
     isOutline: boolean
   ) {
@@ -612,7 +615,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, textures[this.__textureProperties._MainTex]],
+        initialValue: [
+          0,
+          textures[this.__textureProperties._MainTex],
+          samplers[this.__textureProperties._MainTex],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -623,7 +630,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, textures[this.__textureProperties._ShadeTexture]],
+        initialValue: [
+          1,
+          textures[this.__textureProperties._ShadeTexture],
+          samplers[this.__textureProperties._ShadeTexture],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -634,7 +645,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [2, textures[this.__textureProperties._ReceiveShadowTexture]],
+        initialValue: [
+          2,
+          textures[this.__textureProperties._ReceiveShadowTexture],
+          samplers[this.__textureProperties._ReceiveShadowTexture],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -645,7 +660,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [3, textures[this.__textureProperties._ShadingGradeTexture]],
+        initialValue: [
+          3,
+          textures[this.__textureProperties._ShadingGradeTexture],
+          samplers[this.__textureProperties._ShadingGradeTexture],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -656,7 +675,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [4, textures[this.__textureProperties._RimTexture]],
+        initialValue: [
+          4,
+          textures[this.__textureProperties._RimTexture],
+          samplers[this.__textureProperties._RimTexture],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -667,7 +690,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [5, textures[this.__textureProperties._SphereAdd]],
+        initialValue: [
+          5,
+          textures[this.__textureProperties._SphereAdd],
+          samplers[this.__textureProperties._SphereAdd],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -678,7 +705,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [6, textures[this.__textureProperties._EmissionMap]],
+        initialValue: [
+          6,
+          textures[this.__textureProperties._EmissionMap],
+          samplers[this.__textureProperties._EmissionMap],
+        ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       }
@@ -700,7 +731,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.PixelShader,
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [8, textures[this.__textureProperties._BumpMap]],
+          initialValue: [
+            8,
+            textures[this.__textureProperties._BumpMap],
+            samplers[this.__textureProperties._BumpMap],
+          ],
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
         }
@@ -724,7 +759,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           stage: ShaderType.VertexShader,
           isCustomSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [9, textures[this.__textureProperties._OutlineWidthTexture]],
+          initialValue: [
+            9,
+            textures[this.__textureProperties._OutlineWidthTexture],
+            samplers[this.__textureProperties._OutlineWidthTexture],
+          ],
           min: 0,
           max: Number.MAX_SAFE_INTEGER,
         });

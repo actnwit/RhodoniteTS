@@ -96,6 +96,8 @@ export class WebGLResourceRepository
   private __glw?: WebGLContextWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResources: Map<WebGLResourceHandle, WebGLResource> = new Map();
+  private __samplerClampToEdgeNearestUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __samplerRepeatNearestUid: WebGLResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __samplerRepeatLinearUid: WebGLResourceHandle =
@@ -295,8 +297,12 @@ export class WebGLResourceRepository
    * @param samplerUid
    */
   bindTextureSampler(textureSlotIndex: Index, samplerUid: CGAPIResourceHandle) {
-    const sampler = this.getWebGLResource(samplerUid) as WebGLSampler;
-    this.__glw!.bindTextureSampler(textureSlotIndex, sampler);
+    if (samplerUid === -1) {
+      this.__glw!.bindTextureSampler(textureSlotIndex, null as any);
+    } else {
+      const sampler = this.getWebGLResource(samplerUid) as WebGLSampler;
+      this.__glw!.bindTextureSampler(textureSlotIndex, sampler);
+    }
   }
 
   /**
@@ -707,6 +713,9 @@ export class WebGLResourceRepository
       if (value[2] != null) {
         // value[2] must be Sampler object
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+        // } else {
+        //   this.bindTextureSampler(value[0], -1);
+        // }
       } else {
         if (info.compositionType === CompositionType.Texture2D) {
           const samplerUid = this.createOrGetTextureSamplerRepeatAnisotropyLinear();
@@ -725,6 +734,7 @@ export class WebGLResourceRepository
         // value[2] must be Sampler object
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
       } else {
+        // this.bindTextureSampler(value[0], -1);
         const samplerUid = this.createOrGetTextureSamplerRepeatTriLinear();
         this.bindTextureSampler(value[0], samplerUid);
       }
@@ -981,6 +991,22 @@ export class WebGLResourceRepository
     }
 
     return resourceHandle;
+  }
+
+  createOrGetTextureSamplerClampToEdgeNearest() {
+    if (this.__samplerClampToEdgeNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerClampToEdgeNearestUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+    }
+
+    return this.__samplerClampToEdgeNearestUid;
   }
 
   createOrGetTextureSamplerRepeatNearest() {
@@ -1350,6 +1376,25 @@ export class WebGLResourceRepository
         textureData.buffer
       );
     }
+
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+
+    // if (minFilter === TextureParameter.LinearMipmapLinear) {
+    //   minFilter = TextureParameter.Linear;
+    // }
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+
+    // const width = textureDataArray[0].width;
+    // const height = textureDataArray[0].height;
+    // if (MathUtil.isPowerOfTwoTexture(width, height)) {
+    //   if (anisotropy) {
+    //     if (this.__glw!.webgl2ExtTFA) {
+    //       gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    //     }
+    //   }
+    // }
 
     this.__glw!.unbindTexture2D(0);
 
@@ -1732,15 +1777,27 @@ export class WebGLResourceRepository
     const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    // if (MathUtil.isPowerOfTwoTexture(width, height)) {
-    //   if (anisotropy && this.__glw!.webgl2ExtTFA) {
-    //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-    //   }
-    // }
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+      if (anisotropy && this.__glw!.webgl2ExtTFA) {
+        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      }
+    }
+    if (
+      // if DEPTH_COMPONENT
+      internalFormat.index === GL_DEPTH_COMPONENT ||
+      internalFormat.index === GL_DEPTH_COMPONENT16 ||
+      internalFormat.index === GL_DEPTH_COMPONENT24 ||
+      internalFormat.index === GL_DEPTH_COMPONENT32F
+    ) {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+    }
+
     gl.texImage2D(
       gl.TEXTURE_2D,
       level,
@@ -1752,16 +1809,6 @@ export class WebGLResourceRepository
       type.index,
       null
     );
-    if (
-      // if DEPTH_COMPONENT
-      internalFormat.index === GL_DEPTH_COMPONENT ||
-      internalFormat.index === GL_DEPTH_COMPONENT16 ||
-      internalFormat.index === GL_DEPTH_COMPONENT24 ||
-      internalFormat.index === GL_DEPTH_COMPONENT32F
-    ) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
-    }
 
     this.__glw!.unbindTexture2D(0);
 

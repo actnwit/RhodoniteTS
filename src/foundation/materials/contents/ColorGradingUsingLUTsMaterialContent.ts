@@ -16,6 +16,7 @@ import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { Sampler } from '../../textures/Sampler';
 
 export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({
@@ -71,6 +72,15 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
       lookupTableTexture = AbstractMaterialContent.__dummyBlackTexture;
     }
 
+    const sampler = new Sampler({
+      minFilter: TextureParameter.Nearest,
+      magFilter: TextureParameter.Nearest,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      anisotropy: false,
+    });
+    sampler.create();
+
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
         semantic: ShaderSemantics.BaseColorTexture,
@@ -90,7 +100,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, lookupTableTexture],
+        initialValue: [1, lookupTableTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
