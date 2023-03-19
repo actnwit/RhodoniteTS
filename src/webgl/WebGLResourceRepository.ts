@@ -58,7 +58,8 @@ import {
 } from '../types/WebGLConstants';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { EnumIO } from '../foundation';
+import { Sampler } from '../foundation/textures/Sampler';
+import { EnumIO } from '../foundation/misc/EnumIO';
 
 declare let HDRImage: any;
 
@@ -694,7 +695,7 @@ export class WebGLResourceRepository
    * @param info
    * @param value
    */
-  bindTexture(info: ShaderSemanticsInfo, value: any) {
+  bindTexture(info: ShaderSemanticsInfo, value: [number, AbstractTexture | number, Sampler]) {
     if (
       info.compositionType === CompositionType.Texture2D ||
       info.compositionType === CompositionType.Texture2DShadow
@@ -704,6 +705,7 @@ export class WebGLResourceRepository
         value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
       if (value[2] != null) {
+        // value[2] must be Sampler object
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
       } else {
         if (info.compositionType === CompositionType.Texture2D) {
@@ -720,6 +722,7 @@ export class WebGLResourceRepository
         value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
       );
       if (value[2] != null) {
+        // value[2] must be Sampler object
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
       } else {
         const samplerUid = this.createOrGetTextureSamplerRepeatTriLinear();
