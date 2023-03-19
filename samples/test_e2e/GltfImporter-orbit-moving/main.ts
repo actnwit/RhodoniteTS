@@ -1,5 +1,4 @@
-import { RenderPassHelper } from '../../../dist/esm/index.js';
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
