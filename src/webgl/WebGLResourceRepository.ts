@@ -2083,26 +2083,14 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum | PixelFormatEnum;
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): Promise<WebGLResourceHandle> {
     return new Promise<WebGLResourceHandle>((resolve) => {

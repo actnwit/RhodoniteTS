@@ -36,7 +36,6 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { PixelFormat } from '../../definitions/PixelFormat';
-import { Sampler } from '../../textures/Sampler';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -310,13 +309,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.UnsignedByte,
-        magFilter: TextureParameter.Linear,
-        minFilter: TextureParameter.Linear,
-        wrapS: TextureParameter.ClampToEdge,
-        wrapT: TextureParameter.ClampToEdge,
         generateMipmap: false,
-        anisotropy: false,
-        isPremultipliedAlpha: false,
       }
     );
   }
