@@ -449,6 +449,8 @@ bool get_isBillboard(float instanceId) {
       }
     }
 
+    this.__webglResourceRepository.unbindTextureSamplers();
+
     return false;
   }
 
@@ -550,5 +552,5 @@ bool get_isBillboard(float instanceId) {
     this.__webglResourceRepository.bindTextureSampler(7, samplerUid);
   }
 
-  $render() {}
+  // $render() {}
 }

@@ -806,6 +806,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
+
+    this.__webglResourceRepository.unbindTextureSamplers();
+
     return false;
   }
 

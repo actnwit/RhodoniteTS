@@ -192,7 +192,10 @@ export class MeshRendererComponent extends Component {
 
       const frustum = cameraComponent.frustum;
       const frustumCulling = (meshComponent: MeshComponent, outMeshComponents: MeshComponent[]) => {
-        const result = (meshComponent.entity.getTagValue('type') === 'background-assets') ? true : frustum.culling(meshComponent);
+        const result =
+          meshComponent.entity.getTagValue('type') === 'background-assets'
+            ? true
+            : frustum.culling(meshComponent);
         if (result) {
           outMeshComponents.push(meshComponent);
           meshComponent.entity.getSceneGraph()._isCulled = false;

@@ -9,7 +9,7 @@ import { Expression } from '../Expression';
 import { Frame } from '../Frame';
 import { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
-import { EntityHelper, IMeshEntity } from '../../helpers/EntityHelper';
+import { IMeshEntity } from '../../helpers/EntityHelper';
 import { MaterialHelper } from '../../helpers/MaterialHelper';
 import { Size } from '../../../types';
 import { Err, Ok } from '../../misc/Result';
