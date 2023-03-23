@@ -1,5 +1,4 @@
-import { ICameraEntityMethods, ILightEntity } from '../../../dist/esm/index.js';
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -151,7 +150,7 @@ declare const window: any;
   }
 
   function createRenderPassSpecifyingCameraComponent(
-    lightWithCameraEntity: ILightEntity & ICameraEntityMethods
+    lightWithCameraEntity: Rn.ILightEntity & Rn.ICameraEntityMethods
   ) {
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = true;
