@@ -1242,13 +1242,7 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -1257,13 +1251,7 @@ export class WebGLResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1297,20 +1285,7 @@ export class WebGLResourceRepository
    */
   createCompressedTexture(
     textureDataArray: TextureData[],
-    compressionTextureType: CompressionTextureTypeEnum,
-    {
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      anisotropy,
-    }: {
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
-      anisotropy: boolean;
-    }
+    compressionTextureType: CompressionTextureTypeEnum
   ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContext();
 
