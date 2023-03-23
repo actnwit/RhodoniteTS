@@ -12,6 +12,7 @@ import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
+import { Sampler } from './Sampler';
 
 export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -37,6 +38,7 @@ export abstract class AbstractTexture extends RnObject {
   protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _samplerResourceUid: CGAPIResourceHandle = -1;
+  public _recommendedTextureSampler?: Sampler;
 
   constructor() {
     super();

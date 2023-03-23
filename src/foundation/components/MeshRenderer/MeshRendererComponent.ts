@@ -5,14 +5,11 @@ import { WebGLStrategy } from '../../../webgl/WebGLStrategy';
 import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStage, ProcessStageEnum } from '../../definitions/ProcessStage';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { CameraComponent } from '../Camera/CameraComponent';
-import { Matrix44 } from '../../math/Matrix44';
 import { ModuleManager } from '../../system/ModuleManager';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { RenderPass } from '../../renderer/RenderPass';
-import { Visibility } from '../../definitions/Visibility';
 import {
   ComponentSID,
   CGAPIResourceHandle,
@@ -22,10 +19,8 @@ import {
   ComponentTID,
   EntityUID,
 } from '../../../types/CommonTypes';
-import { IMatrix44 } from '../../math/IMatrix';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { Is } from '../../misc/Is';
 import { Primitive } from '../../..';
 import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/types/GeometryTypes';
 import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';

@@ -26,11 +26,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     internalFormat = TextureParameter.RGB8,
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
-    magFilter = TextureParameter.Linear,
-    minFilter = TextureParameter.Linear,
-    wrapS = TextureParameter.ClampToEdge,
-    wrapT = TextureParameter.ClampToEdge,
-    anisotropy = false,
   }: {
     width: Size;
     height: Size;
@@ -38,11 +33,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     internalFormat: TextureParameterEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
-    magFilter: TextureParameterEnum;
-    minFilter: TextureParameterEnum;
-    wrapS: TextureParameterEnum;
-    wrapT: TextureParameterEnum;
-    anisotropy: boolean;
   }) {
     this.__width = width;
     this.__height = height;
@@ -50,11 +40,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this.__internalFormat = internalFormat;
     this.__format = format;
     this.__type = type;
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
-    this.__anisotropy = anisotropy;
 
     this.__createRenderTargetTexture();
   }
@@ -76,11 +61,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       internalFormat: this.__internalFormat,
       format: this.__format,
       type: this.__type,
-      magFilter: this.__magFilter,
-      minFilter: this.__minFilter,
-      wrapS: this.__wrapS,
-      wrapT: this.__wrapT,
-      anisotropy: this.__anisotropy,
     });
     this._textureResourceUid = texture;
 

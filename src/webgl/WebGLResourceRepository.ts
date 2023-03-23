@@ -1656,11 +1656,6 @@ export class WebGLResourceRepository
     internalFormat,
     format,
     type,
-    magFilter,
-    minFilter,
-    wrapS,
-    wrapT,
-    anisotropy,
   }: {
     width: Size;
     height: Size;
@@ -1668,11 +1663,6 @@ export class WebGLResourceRepository
     internalFormat: TextureParameterEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
-    magFilter: TextureParameterEnum;
-    minFilter: TextureParameterEnum;
-    wrapS: TextureParameterEnum;
-    wrapT: TextureParameterEnum;
-    anisotropy: boolean;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
@@ -1680,26 +1670,6 @@ export class WebGLResourceRepository
     const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
-
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-    // if (MathUtil.isPowerOfTwoTexture(width, height)) {
-    //   if (anisotropy && this.__glw!.webgl2ExtTFA) {
-    //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-    //   }
-    // }
-    // if (
-    //   // if DEPTH_COMPONENT
-    //   internalFormat.index === GL_DEPTH_COMPONENT ||
-    //   internalFormat.index === GL_DEPTH_COMPONENT16 ||
-    //   internalFormat.index === GL_DEPTH_COMPONENT24 ||
-    //   internalFormat.index === GL_DEPTH_COMPONENT32F
-    // ) {
-    //   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
-    //   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
-    // }
 
     gl.texImage2D(
       gl.TEXTURE_2D,
