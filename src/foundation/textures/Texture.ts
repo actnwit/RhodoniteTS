@@ -1,9 +1,9 @@
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentType } from '../definitions/ComponentType';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
+import { TextureParameter } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { Size, TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
+import { TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { Config } from '../core/Config';
 import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -32,20 +32,10 @@ export class Texture extends AbstractTexture {
       internalFormat?: PixelFormatEnum;
       format?: PixelFormatEnum;
       type?: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap?: boolean;
-      anisotropy?: boolean;
-      isPremultipliedAlpha?: boolean;
     }
   ) {
     this.__startedToLoad = true;
-    this.__magFilter = options.magFilter;
-    this.__minFilter = options.minFilter;
-    this.__wrapS = options.wrapS;
-    this.__wrapT = options.wrapT;
     if (typeof BASIS === 'undefined') {
       console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
@@ -83,20 +73,10 @@ export class Texture extends AbstractTexture {
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
-      wrapS = TextureParameter.Repeat,
-      wrapT = TextureParameter.Repeat,
       generateMipmap = true,
-      anisotropy = true,
-      isPremultipliedAlpha = false,
     } = {}
   ): void {
     this.__startedToLoad = true;
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
 
     const basisFile = new Texture.__BasisFile!(uint8Array);
 
@@ -112,12 +92,6 @@ export class Texture extends AbstractTexture {
       border: 0,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      anisotropy,
-      isPremultipliedAlpha,
     });
 
     this._textureResourceUid = texture;
@@ -129,37 +103,15 @@ export class Texture extends AbstractTexture {
     basisFile.delete();
   }
 
-  async generateTextureFromKTX2(
-    uint8Array: Uint8Array,
-    {
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
-      wrapS = TextureParameter.Repeat,
-      wrapT = TextureParameter.Repeat,
-      anisotropy = true,
-      // isPremultipliedAlpha = false,
-    } = {}
-  ) {
+  async generateTextureFromKTX2(uint8Array: Uint8Array) {
     this.__startedToLoad = true;
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
 
     const transcodedData = await KTX2TextureLoader.getInstance().transcode(uint8Array);
     this.__width = transcodedData.width;
     this.__height = transcodedData.height;
     this.generateCompressedTextureWithMipmapFromTypedArray(
       transcodedData.mipmapData,
-      transcodedData.compressionTextureType,
-      {
-        magFilter,
-        minFilter,
-        wrapS,
-        wrapT,
-        anisotropy,
-        // isPremultipliedAlpha = false,
-      }
+      transcodedData.compressionTextureType
     );
   }
 
@@ -170,19 +122,10 @@ export class Texture extends AbstractTexture {
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.Linear,
-      wrapS = TextureParameter.Repeat,
-      wrapT = TextureParameter.Repeat,
       generateMipmap = true,
-      anisotropy = true,
       isPremultipliedAlpha = false,
     } = {}
   ) {
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
     let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
@@ -216,13 +159,7 @@ export class Texture extends AbstractTexture {
         border: 0,
         format,
         type,
-        magFilter,
-        minFilter,
-        wrapS,
-        wrapT,
         generateMipmap,
-        anisotropy,
-        isPremultipliedAlpha,
       });
     } else if (img instanceof HTMLCanvasElement) {
       const { textureHandle, samplerHandle } =
@@ -234,13 +171,7 @@ export class Texture extends AbstractTexture {
           border: 0,
           format,
           type,
-          magFilter,
-          minFilter,
-          wrapS,
-          wrapT,
           generateMipmap,
-          anisotropy,
-          isPremultipliedAlpha,
         });
       texture = textureHandle;
     } else {
@@ -312,13 +243,7 @@ export class Texture extends AbstractTexture {
             border: 0,
             format,
             type,
-            magFilter,
-            minFilter,
-            wrapS,
-            wrapT,
             generateMipmap,
-            anisotropy,
-            isPremultipliedAlpha,
           });
         } else if (img instanceof HTMLCanvasElement) {
           const { textureHandle, samplerHandle } =
@@ -330,13 +255,7 @@ export class Texture extends AbstractTexture {
               border: 0,
               format,
               type,
-              magFilter,
-              minFilter,
-              wrapS,
-              wrapT,
               generateMipmap,
-              anisotropy,
-              isPremultipliedAlpha,
             });
           texture = textureHandle;
         } else {
@@ -374,13 +293,7 @@ export class Texture extends AbstractTexture {
         border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.UnsignedByte,
-        magFilter: TextureParameter.Nearest,
-        minFilter: TextureParameter.Nearest,
-        wrapS: TextureParameter.ClampToEdge,
-        wrapT: TextureParameter.ClampToEdge,
         generateMipmap: false,
-        anisotropy: false,
-        isPremultipliedAlpha: true,
       });
 
     this._textureResourceUid = textureHandle;
@@ -403,10 +316,6 @@ export class Texture extends AbstractTexture {
       isPremultipliedAlpha = false,
     } = {}
   ) {
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
     const type = ComponentType.fromTypedArray(typedArray);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -448,10 +357,6 @@ export class Texture extends AbstractTexture {
   ) {
     this.__width = width;
     this.__height = height;
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
 
     const textureData = {
       level: 0,
@@ -491,10 +396,6 @@ export class Texture extends AbstractTexture {
       // isPremultipliedAlpha = false,
     } = {}
   ) {
-    this.__magFilter = magFilter;
-    this.__minFilter = minFilter;
-    this.__wrapS = wrapS;
-    this.__wrapT = wrapT;
     const originalTextureData = textureDataArray.find((textureData) => textureData.level === 0);
     if (originalTextureData == null) {
       throw new Error('texture data with level 0 is not found');

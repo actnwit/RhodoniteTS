@@ -20,11 +20,6 @@ export abstract class AbstractTexture extends RnObject {
   protected __internalFormat: TextureParameterEnum = TextureParameter.RGBA8;
   protected __format: PixelFormatEnum = PixelFormat.RGBA;
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
-  protected __magFilter: TextureParameterEnum = TextureParameter.Linear;
-  protected __minFilter: TextureParameterEnum = TextureParameter.Linear;
-  protected __wrapS: TextureParameterEnum = TextureParameter.ClampToEdge;
-  protected __wrapT: TextureParameterEnum = TextureParameter.ClampToEdge;
-  protected __anisotropy = false;
 
   protected __hasTransparentPixels = false;
 
@@ -207,21 +202,5 @@ export abstract class AbstractTexture extends RnObject {
       }
     }
     return textureDataFloat;
-  }
-
-  get magFilter() {
-    return this.__magFilter;
-  }
-
-  get minFilter() {
-    return this.__minFilter;
-  }
-
-  get wrapS() {
-    return this.__wrapS;
-  }
-
-  get wrapT() {
-    return this.__wrapT;
   }
 }

@@ -1107,13 +1107,7 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -1122,13 +1116,7 @@ export class WebGLResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1141,32 +1129,15 @@ export class WebGLResourceRepository
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
 
-    this.__createTextureInner(
-      gl,
-      wrapS,
-      wrapT,
-      magFilter,
-      minFilter,
-      isPremultipliedAlpha,
-      width,
-      height,
-      anisotropy,
-      generateMipmap
-    );
+    this.__createTextureInner(gl, width, height, generateMipmap);
 
     return { textureHandle, samplerHandle: -1 };
   }
 
   private __createTextureInner(
     gl: WebGL2RenderingContext,
-    wrapS: EnumIO,
-    wrapT: EnumIO,
-    magFilter: EnumIO,
-    minFilter: EnumIO,
-    isPremultipliedAlpha: boolean,
     width: number,
     height: number,
-    anisotropy: boolean,
     generateMipmap: boolean
   ) {
     // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
@@ -1209,13 +1180,7 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -1224,13 +1189,7 @@ export class WebGLResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1243,18 +1202,7 @@ export class WebGLResourceRepository
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
 
-    this.__createTextureInner(
-      gl,
-      wrapS,
-      wrapT,
-      magFilter,
-      minFilter,
-      isPremultipliedAlpha,
-      width,
-      height,
-      anisotropy,
-      generateMipmap
-    );
+    this.__createTextureInner(gl, width, height, generateMipmap);
 
     return resourceHandle;
   }
@@ -1318,18 +1266,7 @@ export class WebGLResourceRepository
       imageData as any as ArrayBufferView
     );
 
-    this.__createTextureInner(
-      gl,
-      wrapS,
-      wrapT,
-      magFilter,
-      minFilter,
-      isPremultipliedAlpha,
-      width,
-      height,
-      anisotropy,
-      generateMipmap
-    );
+    this.__createTextureInner(gl, width, height, generateMipmap);
 
     return resourceHandle;
   }
@@ -1377,25 +1314,6 @@ export class WebGLResourceRepository
       );
     }
 
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-
-    // if (minFilter === TextureParameter.LinearMipmapLinear) {
-    //   minFilter = TextureParameter.Linear;
-    // }
-    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-
-    // const width = textureDataArray[0].width;
-    // const height = textureDataArray[0].height;
-    // if (MathUtil.isPowerOfTwoTexture(width, height)) {
-    //   if (anisotropy) {
-    //     if (this.__glw!.webgl2ExtTFA) {
-    //       gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-    //     }
-    //   }
-    // }
-
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
@@ -1413,22 +1331,10 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
     let basisCompressionType: BasisCompressionTypeEnum;
@@ -1474,12 +1380,6 @@ export class WebGLResourceRepository
     }
     const mipmapDepth = basisFile.getNumLevels(0);
 
-    if (isPremultipliedAlpha) {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    } else {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    }
-
     for (let i = 0; i < mipmapDepth; i++) {
       const width = basisFile.getImageWidth(0, i);
       const height = basisFile.getImageHeight(0, i);
@@ -1494,23 +1394,6 @@ export class WebGLResourceRepository
         textureSource
       );
     }
-
-    if (mipmapDepth === 0) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-      let minFilter_ = minFilter;
-      if (minFilter === TextureParameter.LinearMipmapLinear) {
-        minFilter_ = TextureParameter.Linear;
-      }
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter_.index);
-    } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-      if (anisotropy && this.__glw!.webgl1ExtTFA) {
-        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-      }
-    }
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
 
     this.__glw!.unbindTexture2D(0);
 
@@ -2249,13 +2132,7 @@ export class WebGLResourceRepository
           border,
           format,
           type,
-          magFilter,
-          minFilter,
-          wrapS,
-          wrapT,
           generateMipmap,
-          anisotropy,
-          isPremultipliedAlpha,
         });
 
         resolve(texture);
@@ -2381,13 +2258,7 @@ export class WebGLResourceRepository
       border: 0,
       format: PixelFormat.RGBA,
       type: ComponentType.UnsignedByte,
-      magFilter: TextureParameter.Nearest,
-      minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
       generateMipmap: false,
-      anisotropy: false,
-      isPremultipliedAlpha: false,
     });
   }
 
