@@ -9,7 +9,6 @@ import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent
 import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
 import { Primitive } from '../geometry/Primitive';
 import { ProcessStage } from '../definitions/ProcessStage';
-import { AlphaMode } from '../definitions/AlphaMode';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
 import { GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent } from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';

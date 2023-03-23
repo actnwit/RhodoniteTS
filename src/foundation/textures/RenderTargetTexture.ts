@@ -10,11 +10,6 @@ import { Vector4 } from '../math/Vector4';
 
 export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
-  protected __magFilter: TextureParameterEnum = TextureParameter.Linear;
-  protected __minFilter: TextureParameterEnum = TextureParameter.Linear;
-  protected __wrapS: TextureParameterEnum = TextureParameter.ClampToEdge;
-  protected __wrapT: TextureParameterEnum = TextureParameter.ClampToEdge;
-  protected __anisotropy = false;
   constructor() {
     super();
   }
