@@ -269,7 +269,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, AbstractMaterialContent.__sheenLutTextureUid],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.__sheenLutTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });

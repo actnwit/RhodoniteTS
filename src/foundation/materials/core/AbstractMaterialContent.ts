@@ -82,7 +82,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
   static __dummySRGBGrayTexture = new Texture();
   static __dummyBlackCubeTexture = new CubeTexture();
-  static __sheenLutTextureUid: MaterialNodeUID = -1;
+  static __sheenLutTexture = new Texture();
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
@@ -294,24 +294,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     this.__dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
     this.__dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
-
-    const moduleName = 'pbr';
-    const moduleManager = ModuleManager.getInstance();
-    const pbrModule = moduleManager.getModule(moduleName)! as any;
-
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-
-    this.__sheenLutTextureUid = await webglResourceRepository!.createTextureFromDataUri(
-      pbrModule.sheen_E_and_DGTerm,
-      {
-        level: 0,
-        internalFormat: TextureParameter.RGBA8,
-        border: 0,
-        format: PixelFormat.RGBA,
-        type: ComponentType.UnsignedByte,
-        generateMipmap: false,
-      }
-    );
+    this.__sheenLutTexture.generateSheenLutTextureFromDataUri();
   }
 
   static get dummyWhiteTexture() {

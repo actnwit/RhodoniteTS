@@ -11,6 +11,7 @@ import { DataUtil } from '../misc/DataUtil';
 import { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
 import { TextureData } from '../../webgl/WebGLResourceRepository';
+import { ModuleManager } from '../system/ModuleManager';
 
 declare const BASIS: BASIS;
 
@@ -296,6 +297,27 @@ export class Texture extends AbstractTexture {
         generateMipmap: false,
       });
 
+    this._textureResourceUid = textureHandle;
+    this.__isTextureReady = true;
+    AbstractTexture.__textureMap.set(textureHandle, this);
+  }
+
+  async generateSheenLutTextureFromDataUri() {
+    const moduleName = 'pbr';
+    const moduleManager = ModuleManager.getInstance();
+    const pbrModule = moduleManager.getModule(moduleName)! as any;
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const textureHandle = await webglResourceRepository!.createTextureFromDataUri(
+      pbrModule.sheen_E_and_DGTerm,
+      {
+        level: 0,
+        internalFormat: TextureParameter.RGBA8,
+        border: 0,
+        format: PixelFormat.RGBA,
+        type: ComponentType.UnsignedByte,
+        generateMipmap: false,
+      }
+    );
     this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(textureHandle, this);

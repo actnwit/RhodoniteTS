@@ -704,15 +704,12 @@ export class WebGLResourceRepository
    * @param info
    * @param value
    */
-  bindTexture(info: ShaderSemanticsInfo, value: [number, AbstractTexture | number, Sampler]) {
+  bindTexture(info: ShaderSemanticsInfo, value: [number, AbstractTexture, Sampler]) {
     if (
       info.compositionType === CompositionType.Texture2D ||
       info.compositionType === CompositionType.Texture2DShadow
     ) {
-      this.bindTexture2D(
-        value[0],
-        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
-      );
+      this.bindTexture2D(value[0], value[1]._textureResourceUid);
       if (value[2] != null) {
         // value[2] must be Sampler object
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
@@ -729,10 +726,7 @@ export class WebGLResourceRepository
         }
       }
     } else if (info.compositionType === CompositionType.TextureCube) {
-      this.bindTextureCube(
-        value[0],
-        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
-      );
+      this.bindTextureCube(value[0], value[1]._textureResourceUid);
       if (value[2] != null) {
         // value[2] must be Sampler object
         this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
