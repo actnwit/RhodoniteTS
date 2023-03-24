@@ -9,7 +9,7 @@ export declare class DetectHighLuminanceMaterialContent extends AbstractMaterial
     static LuminanceReduce: ShaderSemanticsEnum;
     static FramebufferWidth: ShaderSemanticsEnum;
     constructor(HDRRenderPass: RenderPass, colorAttachmentsNumber: Count);
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

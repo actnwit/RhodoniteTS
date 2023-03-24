@@ -12,7 +12,7 @@ export declare class DepthEncodeMaterialContent extends AbstractMaterialContent 
     constructor(depthPow: number, { isSkinning }: {
         isSkinning: boolean;
     });
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

@@ -1,7 +1,8 @@
+import { Vector4 } from '../math/Vector4';
 import { Matrix44 } from '../math/Matrix44';
 import { MutableVector4 } from '../math/MutableVector4';
-import { MeshComponent } from '../components';
-import { Index } from '../../types';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { Index } from '../../types/CommonTypes';
 /**
  * The view frustum class.
  */
@@ -14,6 +15,9 @@ export declare class Frustum {
     zFar: MutableVector4;
     private __updated;
     private __vp;
+    private __invProjMat;
+    private __invViewMat;
+    corners: Vector4[];
     constructor();
     /**
      * Updates this view frustum data from the view and projection matrices.

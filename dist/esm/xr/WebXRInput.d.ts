@@ -1,5 +1,5 @@
 /// <reference types="webxr" />
-import { MotionController } from 'webxr-input-profiles/packages/motion-controllers/src/motionController';
+import { MotionController } from 'webxr-input-profiles/packages/motion-controllers/src/motionController.js';
 import { IEntity } from '../foundation/core/Entity';
 import { IMutableVector3 } from '../foundation/math/IVector';
 import { IMutableQuaternion } from '../foundation/math/IQuaternion';

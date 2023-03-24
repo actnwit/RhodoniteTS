@@ -62,6 +62,7 @@ export declare class MutableVector4 extends MutableVector4_<Float32ArrayConstruc
     constructor(x: Float32Array);
     static fromCopyArray(array: Array<number>): MutableVector4;
     static fromCopyArray4(array: Array4<number>): MutableVector4;
+    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4;
     static zero(): MutableVector4;
     static one(): MutableVector4;
     static dummy(): MutableVector4;
@@ -92,6 +93,7 @@ export declare class MutableVector4d extends MutableVector4_<Float64ArrayConstru
     static divideVector(l_vec: IVector4, r_vec: IVector4): MutableVector4d;
     static fromCopyArray4(array: Array4<number>): MutableVector4d;
     static fromCopyArray(array: Array<number>): MutableVector4d;
+    static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4d;
     clone(): MutableVector4d;
 }
 export declare type MutableVector4f = MutableVector4;

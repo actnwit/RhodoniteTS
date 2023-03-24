@@ -32,6 +32,9 @@ export declare class WebXRSystem {
     private __viewerAzimuthAngle;
     private __viewerOrientation;
     private __viewerScale;
+    private __multiviewFramebufferHandle;
+    private __multiviewColorTextureHandle;
+    private __webglStereoUtil?;
     private constructor();
     /**
      * Ready for WebXR
@@ -48,8 +51,8 @@ export declare class WebXRSystem {
      */
     enterWebXR({ initialUserPosition, callbackOnXrSessionStart, callbackOnXrSessionEnd, profilePriorities, }: {
         initialUserPosition?: Vector3;
-        callbackOnXrSessionStart: Function;
-        callbackOnXrSessionEnd: Function;
+        callbackOnXrSessionStart: () => void;
+        callbackOnXrSessionEnd: () => void;
         profilePriorities: string[];
     }): Promise<IEntity[] | undefined>;
     /**
@@ -59,15 +62,17 @@ export declare class WebXRSystem {
     getCanvasWidthForVr(): number;
     getCanvasHeightForVr(): number;
     getControllerEntities(): ISceneGraphEntity[];
-    get leftViewMatrix(): import("..").Matrix44;
-    get rightViewMatrix(): import("..").Matrix44;
+    get leftViewMatrix(): import("../foundation").Matrix44;
+    get rightViewMatrix(): import("../foundation").Matrix44;
     get leftProjectionMatrix(): MutableMatrix44;
     get rightProjectionMatrix(): MutableMatrix44;
     get framebuffer(): WebGLFramebuffer | undefined;
+    isMultiView(): boolean;
     get requestedToEnterWebXR(): boolean;
     get xrSession(): XRSession | undefined;
     get requestedToEnterWebVR(): boolean;
     get isWebXRMode(): boolean;
+    private __setWebXRMode;
     get isReadyForWebXR(): boolean;
     static getInstance(): WebXRSystem;
     /**
@@ -76,7 +81,7 @@ export declare class WebXRSystem {
      * @internal
      * @returns The view matrix vector of right eye
      */
-    _getViewMatrixAt(index: Index): import("..").Matrix44;
+    _getViewMatrixAt(index: Index): import("../foundation").Matrix44;
     /**
      * Getter of the project matrix of right eye
      * @param index (0: left, 1: right)

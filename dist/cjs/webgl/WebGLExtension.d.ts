@@ -23,5 +23,7 @@ export declare const WebGLExtension: Readonly<{
     CompressedTextureBptc: EnumIO;
     ColorBufferFloatWebGL2: EnumIO;
     ColorBufferHalfFloatWebGL2: EnumIO;
+    OculusMultiview: EnumIO;
+    OvrMultiview2: EnumIO;
     GMAN_WEBGL_MEMORY: EnumIO;
 }>;

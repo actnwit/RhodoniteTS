@@ -9,9 +9,14 @@ interface WEBGL_compressed_texture_etc {
 interface WEBGL_compressed_texture_bptc {
     readonly COMPRESSED_RGBA_BPTC_UNORM_EXT: number;
 }
+interface WEBGL_multiview {
+    framebufferTextureMultiviewOVR(target: number, attachment: number, texture: WebGLTexture, level: number, baseViewIndex: number, numViews: number): void;
+    framebufferTextureMultisampleMultiviewOVR(target: number, attachment: number, texture: WebGLTexture, level: number, samples: number, baseViewIndex: number, numViews: number): void;
+    is_multisample: boolean;
+}
 export declare class WebGLContextWrapper {
     #private;
-    __gl: WebGLRenderingContext | WebGL2RenderingContext;
+    __gl: WebGL2RenderingContext;
     __webglVersion: number;
     width: Size;
     height: Size;
@@ -47,6 +52,7 @@ export declare class WebGLContextWrapper {
     readonly webgl2ExtCTEtc?: WEBGL_compressed_texture_etc;
     readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
     readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
+    readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
     readonly webgl2ExtGmanWM?: any;
     private __activeTextureBackup;
     private __activeTextures2D;
@@ -62,8 +68,10 @@ export declare class WebGLContextWrapper {
     private __default_viewport_height;
     private __maxVertexUniformVectors;
     private __maxFragmentUniformVectors;
+    readonly is_multiview: boolean;
+    _isWebXRMode: boolean;
     __extensions: Map<WebGLExtensionEnum, WebGLObject>;
-    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, canvas: HTMLCanvasElement, isDebug: boolean);
+    constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, isDebug: boolean);
     getRawContext(): WebGLRenderingContext | WebGL2RenderingContext;
     getRawContextAsWebGL1(): WebGLRenderingContext;
     getRawContextAsWebGL2(): WebGL2RenderingContext;
@@ -84,6 +92,7 @@ export declare class WebGLContextWrapper {
     drawBuffers(buffers: RenderBufferTargetEnum[]): void;
     private __activeTexture;
     bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture): void;
+    bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler): void;
     bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture): void;
     unbindTexture2D(activeTextureIndex: Index): void;
     unbindTextureCube(activeTextureIndex: Index): void;

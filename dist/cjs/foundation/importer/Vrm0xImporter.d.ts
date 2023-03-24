@@ -4,6 +4,7 @@ import { GltfLoadOption, RnM2 } from '../../types';
 import { RenderPass } from '../renderer/RenderPass';
 import { Texture } from '../textures/Texture';
 import { Err, IResult } from '../misc/Result';
+import { Sampler } from '../textures/Sampler';
 /**
  * The VRM Importer class.
  * This class will be integrated into GltfImporter.
@@ -25,6 +26,7 @@ export declare class Vrm0xImporter {
     static _readSpringBone(gltfModel: Vrm0x): void;
     private static __addPhysicsComponentRecursively;
     static _createTextures(gltfModel: RnM2): Texture[];
+    static _createSamplers(gltfModel: RnM2): Sampler[];
     static _existOutlineMaterial(extensionsVRM: any): boolean;
     static _initializeMaterialProperties(gltfModel: RnM2, texturesLength: number): void;
     private static __initializeMToonMaterialProperties;

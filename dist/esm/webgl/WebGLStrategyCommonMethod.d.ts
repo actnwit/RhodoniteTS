@@ -6,6 +6,7 @@ import { Mesh } from '../foundation/geometry/Mesh';
 import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
+import { WebGLStrategy } from './WebGLStrategy';
 declare function setWebGLParameters(material: Material, gl: WebGLRenderingContext): void;
 declare function startDepthMasking(primitive: Primitive, gl: WebGLRenderingContext): void;
 declare function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext): void;
@@ -36,6 +37,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
     isCustomSetting: boolean;
     updateInterval: import("..").EnumIO;
 })[];
+export declare function setupShaderProgramForMeshComponent(webglStrategy: WebGLStrategy, meshComponent: MeshComponent): void;
 declare const _default: Readonly<{
     setWebGLParameters: typeof setWebGLParameters;
     startDepthMasking: typeof startDepthMasking;

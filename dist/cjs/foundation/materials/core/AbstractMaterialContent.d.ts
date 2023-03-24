@@ -52,7 +52,6 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     static materialNodes: AbstractMaterialContent[];
     protected __shaderFunctionName: string;
     isSingleOperation: boolean;
-    protected __definitions: string;
     protected __webglResourceRepository: WebGLResourceRepository;
     protected static __gl?: WebGLRenderingContext;
     static __dummyWhiteTexture: Texture;
@@ -61,7 +60,8 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     static __dummyPbrKelemenSzirmayKalosBrdfLutTexture: Texture;
     static __dummySRGBGrayTexture: Texture;
     static __dummyBlackCubeTexture: CubeTexture;
-    static __sheenLutTextureUid: MaterialNodeUID;
+    static __sheenLutTexture: Texture;
+    protected __definitions: string;
     protected static __tmp_vector4: MutableVector4;
     protected static __tmp_vector2: MutableVector2;
     private __isMorphing;
@@ -82,7 +82,7 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     get shaderFunctionName(): string;
     get vertexShaderityObject(): import("shaderity/dist/esm/types/type").ShaderityObject | undefined;
     get pixelShaderityObject(): import("shaderity/dist/esm/types/type").ShaderityObject | undefined;
-    get definitions(): string;
+    getDefinitions(material: Material): string;
     static getMaterialNode(materialNodeUid: MaterialNodeUID): AbstractMaterialContent;
     get materialNodeUid(): number;
     get _semanticsInfoArray(): ShaderSemanticsInfo[];
@@ -118,12 +118,13 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent): void;
     protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean): void;
     setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive, blendShapeComponent?: BlendShapeComponent): void;
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
         args: RenderingArg;
     }): void;
     setDefaultInputValue(inputName: string, value: any): void;
+    getDefinition(): string;
 }
 export {};

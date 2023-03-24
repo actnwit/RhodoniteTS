@@ -24,15 +24,21 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     private __latestPrimitivePositionAccessorVersions;
     private constructor();
     static dumpDataTextureBuffer(): void;
-    get vertexShaderMethodDefinitions_dataTexture(): string;
-    setupShaderProgramForMeshComponent(meshComponent: MeshComponent): void;
+    static getVertexShaderMethodDefinitions_dataTexture(): string;
     /**
      * setup shader program for the material in this WebGL strategy
      * @param material - a material to setup shader program
-     * @param updatedShaderSources - updated shader sources if exists
      */
-    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
-    private __getShaderProperty;
+    setupShaderForMaterial(material: Material): CGAPIResourceHandle;
+    /**
+     * re-setup shader program for the material in this WebGL strategy
+     * @param material - a material to re-setup shader program
+     * @param updatedShaderSources - updated shader sources
+     * @param onError - callback function to handle error
+     * @returns
+     */
+    _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
+    private static __getShaderProperty;
     private static getOffsetOfPropertyInShader;
     $load(meshComponent: MeshComponent): void;
     isMeshSetup(mesh: Mesh): boolean;
@@ -53,4 +59,5 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     private __setCurrentComponentSIDsForEachPrimitive;
     common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, isVRMainPass: boolean, displayIdx: Index): boolean;
+    private bindDataTexture;
 }
