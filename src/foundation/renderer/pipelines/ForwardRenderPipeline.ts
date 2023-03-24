@@ -607,7 +607,7 @@ export class ForwardRenderPipeline extends RnObject {
       1,
       {
         createDepthBuffer: false,
-        minFilter: TextureParameter.LinearMipmapLinear,
+        // minFilter: TextureParameter.LinearMipmapLinear,
       }
     );
     framebufferResolveForReference.tryToSetUniqueName(
@@ -722,15 +722,9 @@ export class ForwardRenderPipeline extends RnObject {
         internalFormat: TextureParameter.RGBA8,
         format: PixelFormat.RGBA,
         type: ComponentType.UnsignedByte,
-        magFilter: TextureParameter.Linear,
-        minFilter: TextureParameter.Linear,
-        // minFilter: TextureParameter.LinearMipmapLinear,
-        wrapS: TextureParameter.ClampToEdge,
-        wrapT: TextureParameter.ClampToEdge,
         createDepthBuffer: true,
         isMSAA: false,
         sampleCountMSAA: 1,
-        anisotropy: false,
       })
     );
   }

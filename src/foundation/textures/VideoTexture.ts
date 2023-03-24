@@ -110,13 +110,7 @@ export class VideoTexture extends AbstractTexture {
         border: 0,
         format: format,
         type: type,
-        magFilter: magFilter,
-        minFilter: minFilter,
-        wrapS: wrapS,
-        wrapT: wrapT,
         generateMipmap: generateMipmap,
-        anisotropy: anisotropy,
-        isPremultipliedAlpha,
       });
 
     this._textureResourceUid = textureHandle;
@@ -163,13 +157,7 @@ export class VideoTexture extends AbstractTexture {
             border: 0,
             format: format,
             type: type,
-            magFilter: magFilter,
-            minFilter: minFilter,
-            wrapS: wrapS,
-            wrapT: wrapT,
             generateMipmap: generateMipmap,
-            anisotropy: anisotropy,
-            isPremultipliedAlpha,
           });
 
         this._textureResourceUid = textureHandle;

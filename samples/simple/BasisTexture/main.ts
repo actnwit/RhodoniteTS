@@ -16,15 +16,17 @@ declare const window: any;
     const response = await fetch('../../../assets/images/Rn.basis');
     const buffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(buffer);
-    texture.generateTextureFromBasis(uint8Array, {
-      magFilter: Rn.TextureParameter.from(Rn.GL_LINEAR),
-      minFilter: Rn.TextureParameter.from(Rn.GL_LINEAR_MIPMAP_LINEAR),
-      wrapS: Rn.TextureParameter.from(Rn.GL_REPEAT),
-      wrapT: Rn.TextureParameter.from(Rn.GL_REPEAT),
-    });
+    texture.generateTextureFromBasis(uint8Array, {});
   }
+  const sampler = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.LinearMipmapLinear,
+    wrapS: Rn.TextureParameter.Repeat,
+    wrapT: Rn.TextureParameter.Repeat,
+  });
+  sampler.create();
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-  modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
+  modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture, sampler);
 
   const planeEntity = Rn.EntityHelper.createMeshEntity();
   const planePrimitive = new Rn.Plane();

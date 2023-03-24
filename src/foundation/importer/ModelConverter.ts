@@ -815,11 +815,11 @@ export class ModelConverter {
           rnTexture.autoResize = true;
         }
 
-        rnTexture.generateTextureFromImage(image.image, textureOption);
+        rnTexture.generateTextureFromImage(image.image);
       } else if (image?.basis != null) {
-        rnTexture.generateTextureFromBasis(image.basis, textureOption);
+        rnTexture.generateTextureFromBasis(image.basis, {});
       } else if (image?.ktx2 != null) {
-        rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
+        rnTexture.generateTextureFromKTX2(image.ktx2);
       } else {
         console.warn('default image not found');
         continue;
@@ -1215,7 +1215,7 @@ export class ModelConverter {
     const pbrMetallicRoughness = materialJson?.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       // BaseColor Factor
-      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson);
+      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson!);
     } else {
       let param: Index = ShadingModel.Phong.index;
       if (materialJson?.extras?.technique) {
@@ -1408,11 +1408,11 @@ export class ModelConverter {
         rnTexture.autoResize = true;
       }
 
-      rnTexture.generateTextureFromImage(imageElem, textureOption);
+      rnTexture.generateTextureFromImage(imageElem);
     } else if (image.basis) {
-      rnTexture.generateTextureFromBasis(image.basis, textureOption);
+      rnTexture.generateTextureFromBasis(image.basis, {});
     } else if (image.ktx2) {
-      rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
+      rnTexture.generateTextureFromKTX2(image.ktx2);
     }
 
     if (image.uri) {
