@@ -19,6 +19,7 @@ import { ModuleManager } from '../../system/ModuleManager';
 import { ComponentType, HdriFormatEnum, PixelFormat } from '../../definitions';
 import { MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { Sampler } from '../../textures/Sampler';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -93,6 +94,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oDrawFunc: IOption<DrawFunc> = new None();
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
   private __oSpecularCubeTexture: IOption<CubeTexture> = new None();
+  private __oSamplerForBackBuffer: IOption<Sampler> = new None();
 
   constructor() {
     super();
@@ -120,6 +122,14 @@ export class ForwardRenderPipeline extends RnObject {
 
     const sFrame = new Some(new Frame());
     this.__oFrame = sFrame;
+
+    this.__oSamplerForBackBuffer = new Some(new Sampler({
+      wrapS: TextureParameter.Repeat,
+      wrapT: TextureParameter.Repeat,
+      minFilter: TextureParameter.LinearMipmapLinear,
+      magFilter: TextureParameter.Linear,
+    }));
+    this.__oSamplerForBackBuffer.unwrapForce().create();
 
     // create Frame Buffers
     const { framebufferMsaa, framebufferResolve, framebufferResolveForReference } =
@@ -528,7 +538,8 @@ export class ForwardRenderPipeline extends RnObject {
                   ShaderSemantics.BackBufferTexture,
                   this.__oFrameBufferResolveForReference
                     .unwrapForce()
-                    .getColorAttachedRenderTargetTexture(0)!
+                    .getColorAttachedRenderTargetTexture(0)!,
+                    this.__oSamplerForBackBuffer.unwrapForce()
                 );
               }
             }
