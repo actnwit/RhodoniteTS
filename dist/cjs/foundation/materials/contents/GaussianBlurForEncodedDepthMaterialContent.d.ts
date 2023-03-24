@@ -19,7 +19,7 @@ export declare class GaussianBlurForEncodedDepthMaterialContent extends Abstract
      * MathUtil.computeGaussianDistributionRatioWhoseSumIsOne method.
      */
     constructor();
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

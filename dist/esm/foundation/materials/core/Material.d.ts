@@ -9,6 +9,7 @@ import { Primitive } from '../../geometry/Primitive';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
+import { Sampler } from '../../textures/Sampler';
 /**
  * The material class.
  * This class has one or more material nodes.
@@ -20,7 +21,6 @@ export declare class Material extends RnObject {
     _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable>;
     _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>;
     private __belongPrimitives;
-    private __updatedShaderSources?;
     _shaderProgramUid: CGAPIResourceHandle;
     __materialUid: MaterialUID;
     private __materialTid;
@@ -40,11 +40,9 @@ export declare class Material extends RnObject {
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
-    setTextureParameter(shaderSemantic: ShaderSemanticsEnum, value: AbstractTexture): void;
+    setTextureParameter(shaderSemantic: ShaderSemanticsEnum, texture: AbstractTexture, sampler?: Sampler): void;
     getTextureParameter(shaderSemantic: ShaderSemanticsEnum): any;
     setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsEnum, promise: Promise<AbstractTexture>): void;
-    setParameterByUniformName(uniformName: string, value: any): void;
-    setTextureParameterByUniformName(uniformName: string, value: any): void;
     getParameter(shaderSemantic: ShaderSemanticsEnum): any;
     /**
      * return whether the shader program ready or not

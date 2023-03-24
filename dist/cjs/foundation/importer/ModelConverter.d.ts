@@ -5,6 +5,7 @@ import { Material } from '../materials/core/Material';
 import { Accessor } from '../memory/Accessor';
 import { RnM2, RnM2Accessor, RnM2Texture, RnM2TextureInfo, RnM2SparseIndices } from '../../types/RnM2';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import Rn from '../../cjs';
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
@@ -16,7 +17,6 @@ export declare class ModelConverter {
     private static __generateCameraEntity;
     private static __generateLightEntity;
     static convertToRhodoniteObject(gltfModel: RnM2): ISceneGraphEntity;
-    static _setupCamera(gltfModel: RnM2): void;
     private static createRnBuffer;
     static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]): void;
     static _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void;
@@ -42,6 +42,7 @@ export declare class ModelConverter {
     private static __makeOutputSrgb;
     private static __getMaterialHash;
     private static __setupMaterial;
+    static _createSampler(texture: RnM2Texture): Rn.Sampler;
     static _createTexture(texture: RnM2Texture, gltfModel: RnM2, { autoDetectTransparency }?: {
         autoDetectTransparency?: boolean | undefined;
     }): Texture;

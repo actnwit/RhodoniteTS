@@ -16,6 +16,7 @@ import { VRMSpringBoneGroup } from '../physics/VRMSpringBoneGroup';
 import { Vrm1, Vrm1_Materials_MToon } from '../../types/VRM1';
 import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
+import { Sampler } from '../textures/Sampler';
 
 export class VrmImporter {
   private constructor() {}
@@ -25,9 +26,12 @@ export class VrmImporter {
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     const textures = this._createTextures(gltfModel);
+    const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
         defaultMaterialHelperArgumentArray[0].textures ?? textures;
+      defaultMaterialHelperArgumentArray[0].samplers =
+        defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
       defaultMaterialHelperArgumentArray[0].isLighting =
         defaultMaterialHelperArgumentArray[0].isLighting ?? true;
     }
@@ -168,6 +172,18 @@ export class VrmImporter {
     rnTextures.push(dummyBlackTexture);
 
     return rnTextures;
+  }
+
+  static _createSamplers(gltfModel: RnM2): Sampler[] {
+    if (!gltfModel.textures) gltfModel.textures = [];
+
+    const gltfTextures = gltfModel.textures;
+    const rnSamplers: Sampler[] = [];
+    for (let i = 0; i < gltfTextures.length; i++) {
+      const rnTexture = ModelConverter._createSampler(gltfTextures[i]);
+      rnSamplers[i] = rnTexture;
+    }
+    return rnSamplers;
   }
 
   private static __initializeMToonMaterialProperties(
@@ -360,9 +376,12 @@ export class VrmImporter {
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     const textures = this._createTextures(gltfModel);
+    const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
         defaultMaterialHelperArgumentArray[0].textures ?? textures;
+      defaultMaterialHelperArgumentArray[0].samplers =
+        defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
       defaultMaterialHelperArgumentArray[0].isLighting =
         defaultMaterialHelperArgumentArray[0].isLighting ?? true;
     }

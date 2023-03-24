@@ -9,18 +9,13 @@ import { Vector4 } from '../math/Vector4';
 export declare class RenderTargetTexture extends AbstractTexture implements IRenderable {
     private __fbo?;
     constructor();
-    create({ width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy, }: {
+    create({ width, height, level, internalFormat, format, type, }: {
         width: Size;
         height: Size;
         level: number;
         internalFormat: TextureParameterEnum;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
-        anisotropy: boolean;
     }): void;
     set _fbo(fbo: FrameBuffer);
     get fbo(): FrameBuffer | undefined;

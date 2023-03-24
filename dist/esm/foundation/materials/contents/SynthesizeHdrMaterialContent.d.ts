@@ -30,7 +30,7 @@ export declare class SynthesizeHdrMaterialContent extends AbstractMaterialConten
      * @targetRegionTexture Texture to specify the area where the texture will be synthesized
      */
     constructor(synthesizeTextures: AbstractTexture[], targetRegionTexture?: AbstractTexture);
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

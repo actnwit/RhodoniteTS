@@ -42,7 +42,7 @@ import { Buffer } from '../memory/Buffer';
 import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import { AnimationChannel, AnimationPathName } from '../../types/AnimationTypes';
 import { CompositionType } from '../definitions/CompositionType';
-import { ComponentTypeEnum, CompositionTypeEnum } from '../..';
+import { ComponentTypeEnum, CompositionTypeEnum, Sampler, Texture } from '../..';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import {
   IAnimationEntity,
@@ -54,8 +54,7 @@ import { createEffekseer } from './Gltf2ExporterEffekseer';
 import { Vector4 } from '../math/Vector4';
 import { Tag } from '../core/RnObject';
 import { Primitive } from '../geometry';
-import { Ok } from '../misc';
-import { CameraType } from '../definitions';
+import { CameraType, TextureParameter } from '../definitions';
 import { MathUtil } from '../math';
 const _VERSION = require('./../../../VERSION-FILE').default;
 
@@ -511,7 +510,7 @@ export class Gltf2Exporter {
 
             const existedImages: string[] = [];
 
-            const processTexture = (rnTexture: AbstractTexture) => {
+            const processTexture = (rnTexture: AbstractTexture, rnSampler?: Sampler) => {
               if (rnTexture && rnTexture.width > 1 && rnTexture.height > 1) {
                 let imageIndex = json.images.length;
                 let match = false;
@@ -527,10 +526,18 @@ export class Gltf2Exporter {
                 let samplerIdx = -1;
                 {
                   const gltf2TextureSampler: Gltf2TextureSampler = {
-                    magFilter: rnTexture.magFilter.index,
-                    minFilter: rnTexture.minFilter.index,
-                    wrapS: rnTexture.wrapS.index,
-                    wrapT: rnTexture.wrapT.index,
+                    magFilter:
+                      rnSampler != null ? rnSampler.magFilter.index : TextureParameter.Linear.index,
+                    minFilter:
+                      rnSampler != null ? rnSampler.minFilter.index : TextureParameter.Linear.index,
+                    wrapS:
+                      rnSampler != null
+                        ? rnSampler.wrapS.index
+                        : TextureParameter.TextureWrapS.index,
+                    wrapT:
+                      rnSampler != null
+                        ? rnSampler.wrapT.index
+                        : TextureParameter.TextureWrapT.index,
                   };
 
                   samplerIdx = json.samplers.findIndex((sampler) => {
@@ -602,11 +609,11 @@ export class Gltf2Exporter {
             };
 
             let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);
-            let rnTexture;
             let textureIndex;
             if (textureParam != null) {
-              rnTexture = textureParam[1];
-              textureIndex = processTexture(rnTexture!);
+              const rnTexture = textureParam[1] as Texture;
+              const rnSampler = textureParam[2] as Sampler | undefined;
+              textureIndex = processTexture(rnTexture, rnSampler);
               if (textureIndex != null) {
                 material.pbrMetallicRoughness.baseColorTexture = {
                   index: textureIndex,
@@ -615,8 +622,9 @@ export class Gltf2Exporter {
             } else {
               textureParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorTexture);
               if (textureParam != null) {
-                const rnTexture = textureParam[1];
-                const textureIndex = processTexture(rnTexture!);
+                const rnTexture = textureParam[1] as Texture;
+                const rnSampler = textureParam[2] as Sampler | undefined;
+                const textureIndex = processTexture(rnTexture, rnSampler);
                 if (textureIndex != null) {
                   material.pbrMetallicRoughness.diffuseColorTexture = {
                     index: textureIndex,
@@ -629,8 +637,9 @@ export class Gltf2Exporter {
               ShaderSemantics.MetallicRoughnessTexture
             ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = textureParam[1];
-              textureIndex = processTexture(rnTexture!);
+              const rnTexture = textureParam[1] as Texture;
+              const rnSampler = textureParam[2] as Sampler | undefined;
+              textureIndex = processTexture(rnTexture, rnSampler);
               if (textureIndex != null) {
                 material.pbrMetallicRoughness.metallicRoughnessTexture = {
                   index: textureIndex,
@@ -642,8 +651,9 @@ export class Gltf2Exporter {
               ShaderSemantics.NormalTexture
             ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = textureParam[1];
-              textureIndex = processTexture(rnTexture!);
+              const rnTexture = textureParam[1] as Texture;
+              const rnSampler = textureParam[2] as Sampler | undefined;
+              textureIndex = processTexture(rnTexture, rnSampler);
               if (textureIndex != null) {
                 material.normalTexture = { index: textureIndex };
               }
@@ -653,8 +663,9 @@ export class Gltf2Exporter {
               ShaderSemantics.OcclusionTexture
             ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = textureParam[1];
-              textureIndex = processTexture(rnTexture!);
+              const rnTexture = textureParam[1] as Texture;
+              const rnSampler = textureParam[2] as Sampler | undefined;
+              textureIndex = processTexture(rnTexture, rnSampler);
               if (textureIndex != null) {
                 material.occlusionTexture = { index: textureIndex };
               }
@@ -664,8 +675,9 @@ export class Gltf2Exporter {
               ShaderSemantics.EmissiveTexture
             ) as AbstractTexture;
             if (textureParam) {
-              rnTexture = textureParam[1];
-              textureIndex = processTexture(rnTexture!);
+              const rnTexture = textureParam[1] as Texture;
+              const rnSampler = textureParam[2] as Sampler | undefined;
+              textureIndex = processTexture(rnTexture, rnSampler);
               if (textureIndex != null) {
                 material.emissiveTexture = { index: textureIndex };
               }

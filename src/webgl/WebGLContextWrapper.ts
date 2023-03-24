@@ -34,7 +34,7 @@ interface WEBGL_multiview {
 }
 
 export class WebGLContextWrapper {
-  __gl: WebGLRenderingContext | WebGL2RenderingContext;
+  __gl: WebGL2RenderingContext;
   __webglVersion = 1;
   public width: Size = 0;
   public height: Size = 0;
@@ -99,11 +99,7 @@ export class WebGLContextWrapper {
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
-  constructor(
-    gl: WebGLRenderingContext | WebGL2RenderingContext,
-    canvas: HTMLCanvasElement,
-    isDebug: boolean
-  ) {
+  constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, isDebug: boolean) {
     this.__gl = gl;
     this.width = canvas.width;
     this.height = canvas.height;
@@ -371,6 +367,10 @@ export class WebGLContextWrapper {
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
 
     this.__activeTextures2D[activeTextureIndex] = texture;
+  }
+
+  bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
+    this.__gl.bindSampler(activeTextureIndex, sampler);
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {

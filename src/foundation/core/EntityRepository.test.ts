@@ -1,4 +1,3 @@
-import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { EntityHelper } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';

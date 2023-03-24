@@ -9,7 +9,6 @@ import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent
 import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
 import { Primitive } from '../geometry/Primitive';
 import { ProcessStage } from '../definitions/ProcessStage';
-import { AlphaMode } from '../definitions/AlphaMode';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
 import { GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent } from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
@@ -50,6 +49,7 @@ import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/Depth
 import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { Vrm0xMaterialProperty } from '../../types';
+import { Sampler } from '../textures/Sampler';
 
 function createMaterial(
   materialName: string,
@@ -268,7 +268,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, AbstractMaterialContent.__sheenLutTextureUid],
+      initialValue: [textureSlotIdx++, AbstractMaterialContent.__sheenLutTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -758,17 +758,19 @@ function createMatCapMaterial({
   isSkinning = false,
   uri,
   texture,
+  sampler,
   maxInstancesNumber = 10,
 }: {
   additionalName?: string;
   isSkinning?: boolean;
   uri?: string;
   texture?: Texture;
+  sampler?: Sampler;
   maxInstancesNumber?: Count;
 }) {
   const materialName = 'MatCap' + `_${additionalName}` + (isSkinning ? '+skinning' : '');
 
-  const materialNode = new MatCapMaterialContent(isSkinning, uri, texture);
+  const materialNode = new MatCapMaterialContent(isSkinning, uri, texture, sampler);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
@@ -794,6 +796,7 @@ function createMToonMaterial({
   isOutline = false,
   materialProperties,
   textures,
+  samplers,
   debugMode,
   maxInstancesNumber = Config.maxMaterialInstanceForEachType,
   makeOutputSrgb = true,
@@ -806,6 +809,7 @@ function createMToonMaterial({
   isOutline?: boolean;
   materialProperties?: Vrm0xMaterialProperty;
   textures?: any[];
+  samplers?: Sampler[];
   debugMode?: any;
   maxInstancesNumber?: Count;
   makeOutputSrgb?: boolean;
@@ -823,6 +827,7 @@ function createMToonMaterial({
     isOutline,
     materialProperties,
     textures,
+    samplers!,
     isMorphing,
     isSkinning,
     isLighting,

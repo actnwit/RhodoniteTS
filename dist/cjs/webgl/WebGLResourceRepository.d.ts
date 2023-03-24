@@ -7,6 +7,7 @@ import { TextureParameterEnum } from '../foundation/definitions/TextureParameter
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
+import { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import { HdriFormatEnum } from '../foundation/definitions/HdriFormat';
@@ -19,7 +20,8 @@ import { CompressionTextureTypeEnum } from '../foundation/definitions/Compressio
 import { Material } from '../foundation/materials/core/Material';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { EnumIO } from '../foundation';
+import { Sampler } from '../foundation/textures/Sampler';
+import { EnumIO } from '../foundation/misc/EnumIO';
 export declare type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;
@@ -40,9 +42,16 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     private __glw?;
     private __resourceCounter;
     private __webglResources;
+    private __samplerClampToEdgeLinearUid;
+    private __samplerClampToEdgeNearestUid;
+    private __samplerRepeatNearestUid;
+    private __samplerRepeatLinearUid;
+    private __samplerShadowUid;
+    private __samplerRepeatTriLinearUid;
+    private __samplerRepeatAnisotropyLinearUid;
     private constructor();
     static getInstance(): WebGLResourceRepository;
-    addWebGLContext(gl: WebGLRenderingContext | WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean, isDebug: boolean): void;
+    addWebGLContext(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean, isDebug: boolean): void;
     generateWebGLContext(canvas: HTMLCanvasElement, version: number, asCurrent: boolean, isDebug: boolean, webglOption?: WebGLContextAttributes, fallback?: boolean): WebGL2RenderingContext;
     get currentWebGLContextWrapper(): WebGLContextWrapper | undefined;
     private getResourceNumber;
@@ -60,6 +69,12 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param textureUid
      */
     bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle): void;
+    /**
+     * bind the Sampler
+     * @param textureSlotIndex
+     * @param samplerUid
+     */
+    bindTextureSampler(textureSlotIndex: Index, samplerUid: CGAPIResourceHandle): void;
     /**
      * bind the TextureCube
      * @param textureSlotIndex
@@ -88,7 +103,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         vertexShaderStr: string;
         fragmentShaderStr: string;
         attributeNames: AttributeNames;
-        attributeSemantics: Array<VertexAttributeEnum>;
+        attributeSemantics: VertexAttributeEnum[];
         onError?: (message: string) => void;
     }): number;
     private __checkShaderCompileStatus;
@@ -111,7 +126,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param info
      * @param value
      */
-    bindTexture(info: ShaderSemanticsInfo, value: any): void;
+    bindTexture(info: ShaderSemanticsInfo, value: [number, AbstractTexture, Sampler]): void;
     /**
      * set the uniform value
      * @param shaderProgram
@@ -150,39 +165,29 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         width: Size;
         height: Size;
     }): WebGLResourceHandle;
-    /**
-     * create a TexStorage2D
-     * @param data
-     * @param param1
-     * @returns
-     */
-    createTexStorage2DWithSamplerParameters({ levels, internalFormat, width, height, magFilter, minFilter, wrapS, wrapT, anisotropy, isPremultipliedAlpha, }: {
-        levels: Index;
-        internalFormat: TextureParameterEnum | PixelFormatEnum;
-        width: Size;
-        height: Size;
+    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, }: {
         magFilter: TextureParameterEnum;
         minFilter: TextureParameterEnum;
         wrapS: TextureParameterEnum;
         wrapT: TextureParameterEnum;
-        anisotropy: boolean;
-        isPremultipliedAlpha?: boolean;
-    }): WebGLResourceHandle;
-    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, anisotropy, isPremultipliedAlpha, }: {
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
+        wrapR: TextureParameterEnum;
         anisotropy: boolean;
         isPremultipliedAlpha?: boolean;
     }): number;
+    createOrGetTextureSamplerClampToEdgeLinear(): number;
+    createOrGetTextureSamplerClampToEdgeNearest(): number;
+    createOrGetTextureSamplerRepeatNearest(): number;
+    createOrGetTextureSamplerRepeatLinear(): number;
+    createOrGetTextureSamplerRepeatTriLinear(): number;
+    createOrGetTextureSamplerShadow(): number;
+    createOrGetTextureSamplerRepeatAnisotropyLinear(): number;
     /**
      * create a Texture
      * @param imageData
      * @param param1
      * @returns
      */
-    createTextureFromImageBitmapData(imageData: ImageBitmapData, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha, }: {
+    createTextureFromImageBitmapData(imageData: ImageBitmapData, { level, internalFormat, width, height, border, format, type, generateMipmap, }: {
         level: Index;
         internalFormat: TextureParameterEnum;
         width: Size;
@@ -190,13 +195,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
         generateMipmap: boolean;
-        anisotropy: boolean;
-        isPremultipliedAlpha: boolean;
     }): {
         textureHandle: WebGLResourceHandle;
         samplerHandle: WebGLResourceHandle;
@@ -208,7 +207,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param param1
      * @returns
      */
-    createTextureFromHTMLImageElement(imageData: HTMLImageElement, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha, }: {
+    createTextureFromHTMLImageElement(imageData: HTMLImageElement, { level, internalFormat, width, height, border, format, type, generateMipmap, }: {
         level: Index;
         internalFormat: TextureParameterEnum;
         width: Size;
@@ -216,13 +215,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
         generateMipmap: boolean;
-        anisotropy: boolean;
-        isPremultipliedAlpha: boolean;
     }): WebGLResourceHandle;
     /**
      * create a Texture from TypedArray
@@ -230,7 +223,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param param1
      * @returns
      */
-    createTextureFromTypedArray(imageData: TypedArray, { level, internalFormat, width, height, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha, }: {
+    createTextureFromTypedArray(imageData: TypedArray, { level, internalFormat, width, height, border, format, type, generateMipmap, }: {
         level: Index;
         internalFormat: TextureParameterEnum;
         width: Size;
@@ -238,42 +231,24 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
         generateMipmap: boolean;
-        anisotropy: boolean;
-        isPremultipliedAlpha: boolean;
     }): WebGLResourceHandle;
     /**
      * Create and bind compressed texture object
      * @param textureDataArray transcoded texture data for each mipmaps(levels)
      * @param compressionTextureType
      */
-    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum, { magFilter, minFilter, wrapS, wrapT, anisotropy, }: {
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
-        anisotropy: boolean;
-    }): WebGLResourceHandle;
+    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): WebGLResourceHandle;
     /**
      * create CompressedTextureFromBasis
      * @param basisFile
      * @param param1
      * @returns
      */
-    createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy, isPremultipliedAlpha, }: {
+    createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, }: {
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
-        anisotropy: boolean;
-        isPremultipliedAlpha: boolean;
     }): WebGLResourceHandle;
     /**
      * decode the BasisImage
@@ -337,18 +312,13 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param param0
      * @returns
      */
-    createRenderTargetTexture({ width, height, level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, anisotropy, }: {
+    createRenderTargetTexture({ width, height, level, internalFormat, format, type, }: {
         width: Size;
         height: Size;
         level: Index;
         internalFormat: TextureParameterEnum;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
-        anisotropy: boolean;
     }): number;
     /**
      * create a CubeTexture
@@ -366,14 +336,14 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         negY: DirectTextureData;
         posZ: DirectTextureData;
         negZ: DirectTextureData;
-    }>, width: Size, height: Size): number;
+    }>, width: Size, height: Size): [number, Sampler];
     /**
      * Create Cube Texture from image files.
      * @param baseUri the base uri to load images;
      * @param mipLevelCount the number of mip levels (include root level). if no mipmap, the value should be 1;
      * @returns the WebGLResourceHandle for the generated Cube Texture
      */
-    createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<number>;
+    createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<[number, Sampler]>;
     createCubeTextureFromBasis(basisFile: BasisFile, { magFilter, minFilter, wrapS, wrapT, border, }: {
         magFilter?: EnumIO | undefined;
         minFilter?: EnumIO | undefined;
@@ -381,22 +351,16 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         wrapT?: EnumIO | undefined;
         border?: number | undefined;
     }): number;
-    createDummyBlackCubeTexture(): number;
-    createDummyCubeTexture(rgbaStr?: string): number;
+    createDummyBlackCubeTexture(): [number, Sampler];
+    createDummyCubeTexture(rgbaStr?: string): [number, Sampler];
     setWebGLTextureDirectly(webGLTexture: WebGLTexture): number;
-    createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha, }: {
+    createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, generateMipmap, }: {
         level: Index;
         internalFormat: TextureParameterEnum | PixelFormatEnum;
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
-        magFilter: TextureParameterEnum;
-        minFilter: TextureParameterEnum;
-        wrapS: TextureParameterEnum;
-        wrapT: TextureParameterEnum;
         generateMipmap: boolean;
-        anisotropy: boolean;
-        isPremultipliedAlpha: boolean;
     }): Promise<WebGLResourceHandle>;
     updateLevel0TextureAndGenerateMipmap(textureUid: WebGLResourceHandle, textureData: DirectTextureData, { width, height, format, type, }: {
         width: Size;
@@ -434,6 +398,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     getGlslRenderTargetEndString(renderTargetNumber: number): string;
     getGlslDataUBODefinitionString(): string;
     getGlslDataUBOVec4SizeString(): string;
+    createMultiviewFramebuffer(width: number, height: number, samples: number): [WebGLResourceHandle, WebGLResourceHandle];
     createTransformFeedback(): number;
     deleteTransformFeedback(transformFeedbackUid: WebGLResourceHandle): void;
     setViewport(viewport?: Vector4): void;
@@ -444,10 +409,13 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     resizeCanvas(width: Size, height: Size): void;
     getCanvasSize(): [Size, Size];
     switchDepthTest(flag: boolean): void;
-    rebuildProgram(this: RnWebGLProgram, updatedVertexSourceCode: string, // The new vertex shader source
+    rebuildProgramBySpector(this: RnWebGLProgram, updatedVertexSourceCode: string, // The new vertex shader source
     updatedFragmentSourceCode: string, // The new fragment shader source
     onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
     onError: (message: string) => void): boolean;
+    rebuildProgram(material: Material, updatedVertexSourceCode: string, // The new vertex shader source
+    updatedFragmentSourceCode: string): void;
     getPixelDataFromTexture(texUid: WebGLResourceHandle, x: number, y: number, width: number, height: number): Uint8Array;
     setWebGLStateToDefault(): void;
+    unbindTextureSamplers(): void;
 }

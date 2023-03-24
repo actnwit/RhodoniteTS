@@ -19,12 +19,14 @@ export class CubeTexture extends AbstractTexture {
   async loadTextureImages() {
     this.__startedToLoad = true;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this._textureResourceUid = await webGLResourceRepository.createCubeTextureFromFiles(
+    const [resourceUid, sampler] = await webGLResourceRepository.createCubeTextureFromFiles(
       this.baseUriToLoad!,
       this.mipmapLevelNumber!,
       this.isNamePosNeg,
       this.hdriFormat
     );
+    this._recommendedTextureSampler = sampler;
+    this._textureResourceUid = resourceUid;
     this.__isTextureReady = true;
   }
 
@@ -38,8 +40,9 @@ export class CubeTexture extends AbstractTexture {
         this.isNamePosNeg,
         this.hdriFormat
       )
-      .then((cubeTextureUid) => {
+      .then(([cubeTextureUid, sampler]) => {
         this._textureResourceUid = cubeTextureUid;
+        this._recommendedTextureSampler = sampler;
       })
       .then(() => {
         this.__isTextureReady = true;
@@ -100,7 +103,7 @@ export class CubeTexture extends AbstractTexture {
     ctx.fillRect(0, 0, 1, 1);
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    this._textureResourceUid = webGLResourceRepository.createCubeTexture(
+    const [resourceUid, sampler] = webGLResourceRepository.createCubeTexture(
       1,
       [
         {
@@ -115,6 +118,8 @@ export class CubeTexture extends AbstractTexture {
       1,
       1
     );
+    this._textureResourceUid = resourceUid;
+
     this.__isTextureReady = true;
   }
 
@@ -138,12 +143,14 @@ export class CubeTexture extends AbstractTexture {
   ) {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    this._textureResourceUid = webGLResourceRepository.createCubeTexture(
+    const [resourceId, sampler] = webGLResourceRepository.createCubeTexture(
       typedArrayImages.length,
       typedArrayImages,
       baseLevelWidth,
       baseLevelHeight
     );
+    this._recommendedTextureSampler = sampler;
+    this._textureResourceUid = resourceId;
 
     this.__isTextureReady = true;
     this.__startedToLoad = true;

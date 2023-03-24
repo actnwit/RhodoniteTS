@@ -10,6 +10,7 @@ import { MutableVector3 } from '../math/MutableVector3';
 import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
+import { Sampler } from './Sampler';
 export declare abstract class AbstractTexture extends RnObject {
     protected __width: Size;
     protected __height: Size;
@@ -17,11 +18,6 @@ export declare abstract class AbstractTexture extends RnObject {
     protected __internalFormat: TextureParameterEnum;
     protected __format: PixelFormatEnum;
     protected __type: ComponentTypeEnum;
-    protected __magFilter: TextureParameterEnum;
-    protected __minFilter: TextureParameterEnum;
-    protected __wrapS: TextureParameterEnum;
-    protected __wrapT: TextureParameterEnum;
-    protected __anisotropy: boolean;
     protected __hasTransparentPixels: boolean;
     private static readonly InvalidTextureUid;
     private static __textureUidCount;
@@ -37,6 +33,7 @@ export declare abstract class AbstractTexture extends RnObject {
     protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture>;
     _textureResourceUid: CGAPIResourceHandle;
     _samplerResourceUid: CGAPIResourceHandle;
+    _recommendedTextureSampler?: Sampler;
     constructor();
     get textureUID(): number;
     get width(): Size;
@@ -65,8 +62,4 @@ export declare abstract class AbstractTexture extends RnObject {
     get isTransparent(): boolean;
     createInternalCanvasContext(): void;
     getTextureDataFloat(channels: Size): TextureDataFloat;
-    get magFilter(): import("..").EnumIO;
-    get minFilter(): import("..").EnumIO;
-    get wrapS(): import("..").EnumIO;
-    get wrapT(): import("..").EnumIO;
 }

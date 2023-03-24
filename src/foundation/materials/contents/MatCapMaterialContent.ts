@@ -8,7 +8,6 @@ import { ShaderSemanticsClass, ShaderSemantics } from '../../definitions/ShaderS
 import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Texture } from '../../textures/Texture';
-import { TextureParameter } from '../../definitions/TextureParameter';
 import { Vector3 } from '../../math/Vector3';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
@@ -16,11 +15,12 @@ import MatCapShaderVertex from '../../../webgl/shaderity_shaders/MatCapShader/Ma
 import MatCapShaderFragment from '../../../webgl/shaderity_shaders/MatCapShader/MatCapShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { Sampler } from '../../textures/Sampler';
 
 export class MatCapMaterialContent extends AbstractMaterialContent {
   static MatCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
 
-  constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture) {
+  constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
     super(
       null,
       'MatCapShading' + (isSkinning ? '+skinning' : ''),
@@ -34,12 +34,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       matCapTexture = new Texture();
       (async function (uri: string) {
         await matCapTexture.generateTextureFromUri(uri, {
-          minFilter: TextureParameter.Nearest,
-          magFilter: TextureParameter.Nearest,
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge,
           type: ComponentType.UnsignedByte,
-          anisotropy: false,
         });
       })(uri);
     } else if (texture instanceof AbstractTexture) {
@@ -103,7 +98,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [0, matCapTexture],
+      initialValue: [0, matCapTexture, sampler],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     });

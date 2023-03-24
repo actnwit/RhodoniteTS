@@ -17,16 +17,22 @@ export declare class WebGLStrategyUniform implements WebGLStrategy {
     private __lightComponents?;
     private static __globalDataRepository;
     private __latestPrimitivePositionAccessorVersions;
-    private readonly componentMatrices;
+    private static readonly componentMatrices;
     private constructor();
     private static __vertexShaderMethodDefinitions_uniform;
-    setupShaderProgram(meshComponent: MeshComponent): void;
     /**
      * setup shader program for the material in this WebGL strategy
      * @param material - a material to setup shader program
-     * @param updatedShaderSources - updated shader sources if exists
      */
-    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
+    setupShaderForMaterial(material: Material): CGAPIResourceHandle;
+    /**
+     * re-setup shader program for the material in this WebGL strategy
+     * @param material - a material to re-setup shader program
+     * @param updatedShaderSources - updated shader sources
+     * @param onError - callback function to handle error
+     * @returns
+     */
+    _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
     $load(meshComponent: MeshComponent): void;
     isMeshSetup(mesh: Mesh): boolean;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
@@ -39,5 +45,5 @@ export declare class WebGLStrategyUniform implements WebGLStrategy {
     static getInstance(): WebGLStrategyUniform;
     common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, renderPassTickCount: Count, isVRMainPass: boolean, displayIdx: Index): boolean;
-    $render(): void;
+    private bindDataTexture;
 }

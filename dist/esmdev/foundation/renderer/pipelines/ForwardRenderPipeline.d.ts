@@ -75,6 +75,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __oDrawFunc;
     private __oDiffuseCubeTexture;
     private __oSpecularCubeTexture;
+    private __oSamplerForBackBuffer;
     constructor();
     /**
      * Initializes the pipeline.

@@ -1,9 +1,9 @@
 import { ModuleManager } from '../system/ModuleManager';
-import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import { Index, Size, TypedArray, WebGLResourceHandle } from '../../types/CommonTypes';
-import { PixelFormatEnum } from '../definitions/PixelFormat';
-import { ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameterEnum } from '../definitions/TextureParameter';
+import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type { Index, Size, TypedArray, WebGLResourceHandle } from '../../types/CommonTypes';
+import type { PixelFormatEnum } from '../definitions/PixelFormat';
+import type { ComponentTypeEnum } from '../definitions/ComponentType';
+import type { TextureParameterEnum } from '../definitions/TextureParameter';
 
 export type DirectTextureData =
   | TypedArray

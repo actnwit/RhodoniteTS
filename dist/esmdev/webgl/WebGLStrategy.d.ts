@@ -22,5 +22,6 @@ export interface WebGLStrategy {
     attachGPUData(primitive: Primitive): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachShaderProgram(material: Material): void;
-    setupShaderForMaterial(material: Material, updatedShaderSources?: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
+    setupShaderForMaterial(material: Material): CGAPIResourceHandle;
+    _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
 }

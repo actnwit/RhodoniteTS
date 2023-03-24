@@ -12,6 +12,7 @@ import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
+import { Sampler } from './Sampler';
 
 export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
@@ -20,11 +21,6 @@ export abstract class AbstractTexture extends RnObject {
   protected __internalFormat: TextureParameterEnum = TextureParameter.RGBA8;
   protected __format: PixelFormatEnum = PixelFormat.RGBA;
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
-  protected __magFilter: TextureParameterEnum = TextureParameter.Linear;
-  protected __minFilter: TextureParameterEnum = TextureParameter.Linear;
-  protected __wrapS: TextureParameterEnum = TextureParameter.ClampToEdge;
-  protected __wrapT: TextureParameterEnum = TextureParameter.ClampToEdge;
-  protected __anisotropy = false;
 
   protected __hasTransparentPixels = false;
 
@@ -42,6 +38,7 @@ export abstract class AbstractTexture extends RnObject {
   protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _samplerResourceUid: CGAPIResourceHandle = -1;
+  public _recommendedTextureSampler?: Sampler;
 
   constructor() {
     super();
@@ -207,21 +204,5 @@ export abstract class AbstractTexture extends RnObject {
       }
     }
     return textureDataFloat;
-  }
-
-  get magFilter() {
-    return this.__magFilter;
-  }
-
-  get minFilter() {
-    return this.__minFilter;
-  }
-
-  get wrapS() {
-    return this.__wrapS;
-  }
-
-  get wrapT() {
-    return this.__wrapT;
   }
 }

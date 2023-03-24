@@ -1,6 +1,5 @@
 import { EntityRepository } from '../core/EntityRepository';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { IEntity } from '../core/Entity';
 import { Vector3 } from '../math/Vector3';
 import { Quaternion } from '../math/Quaternion';
 import { Matrix44 } from '../math/Matrix44';
@@ -82,8 +81,9 @@ import { BufferView } from '../memory/BufferView';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 import Rn from '../../cjs';
 import { Vrm1_Materials_MToon } from '../../types/VRM1';
-import { Vrm0xMaterialProperty } from '../../types';
+import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
+import { Sampler } from '../textures/Sampler';
 
 declare let DracoDecoderModule: any;
 
@@ -790,6 +790,14 @@ export class ModelConverter {
           : TextureParameter.Repeat,
       };
 
+      const sampler = new Sampler({
+        magFilter: textureOption.magFilter,
+        minFilter: textureOption.minFilter,
+        wrapS: textureOption.wrapS,
+        wrapT: textureOption.wrapT,
+      });
+      sampler.create();
+
       const fileName = textureInfo.fileName;
       const uri = basePath + fileName;
       rnTexture.name = uri;
@@ -807,18 +815,18 @@ export class ModelConverter {
           rnTexture.autoResize = true;
         }
 
-        rnTexture.generateTextureFromImage(image.image, textureOption);
+        rnTexture.generateTextureFromImage(image.image);
       } else if (image?.basis != null) {
-        rnTexture.generateTextureFromBasis(image.basis, textureOption);
+        rnTexture.generateTextureFromBasis(image.basis, {});
       } else if (image?.ktx2 != null) {
-        rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
+        rnTexture.generateTextureFromKTX2(image.ktx2);
       } else {
         console.warn('default image not found');
         continue;
       }
 
       const shaderSemantics = textureInfo.shaderSemantics;
-      material.setTextureParameter(shaderSemantics, rnTexture);
+      material.setTextureParameter(shaderSemantics, rnTexture, sampler);
     }
   }
 
@@ -844,6 +852,7 @@ export class ModelConverter {
       const isLighting = this.__isLighting(gltfModel, materialJson);
       const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
       const textures = defaultMaterialHelperArgument.textures;
+      const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
@@ -869,6 +878,7 @@ export class ModelConverter {
             isOutline: true,
             materialProperties,
             textures,
+            samplers,
             debugMode,
             maxInstancesNumber,
             makeOutputSrgb,
@@ -889,6 +899,7 @@ export class ModelConverter {
         isOutline: false,
         materialProperties,
         textures,
+        samplers,
         debugMode,
         maxInstancesNumber,
         makeOutputSrgb,
@@ -925,6 +936,7 @@ export class ModelConverter {
       const isLighting = this.__isLighting(gltfModel, materialJson);
       const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
       const textures = defaultMaterialHelperArgument.textures;
+      const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
       const maxInstancesNumber = defaultMaterialHelperArgument.maxInstancesNumber;
       const makeOutputSrgb = this.__makeOutputSrgb(gltfModel);
@@ -950,6 +962,7 @@ export class ModelConverter {
             isOutline: true,
             materialProperties,
             textures,
+            samplers,
             debugMode,
             maxInstancesNumber,
             makeOutputSrgb,
@@ -970,6 +983,7 @@ export class ModelConverter {
         isOutline: false,
         materialProperties,
         textures,
+        samplers,
         debugMode,
         maxInstancesNumber,
         makeOutputSrgb,
@@ -1201,7 +1215,7 @@ export class ModelConverter {
     const pbrMetallicRoughness = materialJson?.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       // BaseColor Factor
-      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson);
+      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson!);
     } else {
       let param: Index = ShadingModel.Phong.index;
       if (materialJson?.extras?.technique) {
@@ -1231,7 +1245,8 @@ export class ModelConverter {
     const emissiveTexture = materialJson?.emissiveTexture;
     if (emissiveTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(emissiveTexture.texture!, gltfModel);
-      material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture);
+      const rnSampler = ModelConverter._createSampler(emissiveTexture.texture!);
+      material.setTextureParameter(ShaderSemantics.EmissiveTexture, rnTexture, rnSampler);
       if (parseFloat(gltfModel.asset?.version) >= 2 && emissiveTexture.texCoord != null) {
         material.setParameter(ShaderSemantics.EmissiveTexcoordIndex, emissiveTexture.texCoord);
       }
@@ -1276,7 +1291,8 @@ export class ModelConverter {
       const rnTexture = ModelConverter._createTexture(diffuseColorTexture, gltfModel, {
         autoDetectTransparency: options?.autoDetectTextureTransparency,
       });
-      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture);
+      const rnSampler = ModelConverter._createSampler(diffuseColorTexture);
+      material.setTextureParameter(ShaderSemantics.DiffuseColorTexture, rnTexture, rnSampler);
 
       if (
         this._checkRnGltfLoaderOptionsExist(gltfModel) &&
@@ -1300,7 +1316,8 @@ export class ModelConverter {
     const normalTexture = materialJson?.normalTexture;
     if (normalTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(normalTexture.texture!, gltfModel);
-      material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture);
+      const rnSampler = ModelConverter._createSampler(normalTexture.texture!);
+      material.setTextureParameter(ShaderSemantics.NormalTexture, rnTexture, rnSampler);
       if (parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
           material.setParameter(ShaderSemantics.NormalTexcoordIndex, normalTexture.texCoord);
@@ -1329,6 +1346,26 @@ export class ModelConverter {
     }
 
     return material;
+  }
+
+  static _createSampler(texture: RnM2Texture) {
+    const sampler = new Sampler({
+      magFilter: Is.exist(texture.samplerObject?.magFilter)
+        ? TextureParameter.from(texture.samplerObject!.magFilter)
+        : TextureParameter.Linear,
+      minFilter: Is.exist(texture.samplerObject?.minFilter)
+        ? TextureParameter.from(texture.samplerObject!.minFilter)
+        : TextureParameter.Linear,
+      wrapS: Is.exist(texture.samplerObject?.wrapS)
+        ? TextureParameter.from(texture.samplerObject!.wrapS)
+        : TextureParameter.Repeat,
+      wrapT: Is.exist(texture.samplerObject?.wrapT)
+        ? TextureParameter.from(texture.samplerObject!.wrapT)
+        : TextureParameter.Repeat,
+    });
+    sampler.create();
+
+    return sampler;
   }
 
   static _createTexture(
@@ -1371,11 +1408,11 @@ export class ModelConverter {
         rnTexture.autoResize = true;
       }
 
-      rnTexture.generateTextureFromImage(imageElem, textureOption);
+      rnTexture.generateTextureFromImage(imageElem);
     } else if (image.basis) {
-      rnTexture.generateTextureFromBasis(image.basis, textureOption);
+      rnTexture.generateTextureFromBasis(image.basis, {});
     } else if (image.ktx2) {
-      rnTexture.generateTextureFromKTX2(image.ktx2, textureOption);
+      rnTexture.generateTextureFromKTX2(image.ktx2);
     }
 
     if (image.uri) {
@@ -2181,7 +2218,8 @@ function setupPbrMetallicRoughness(
     const rnTexture = ModelConverter._createTexture(baseColorTexture.texture!, gltfModel, {
       autoDetectTransparency: options?.autoDetectTextureTransparency,
     });
-    material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture);
+    const rnSampler = ModelConverter._createSampler(baseColorTexture.texture!);
+    material.setTextureParameter(ShaderSemantics.BaseColorTexture, rnTexture, rnSampler);
     if (baseColorTexture.texCoord != null) {
       material.setParameter(ShaderSemantics.BaseColorTexcoordIndex, baseColorTexture.texCoord);
     }
@@ -2191,7 +2229,8 @@ function setupPbrMetallicRoughness(
   const occlusionTexture = materialJson.occlusionTexture;
   if (occlusionTexture != null && Is.falsy(isUnlit)) {
     const rnTexture = ModelConverter._createTexture(occlusionTexture.texture!, gltfModel);
-    material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture);
+    const rnSampler = ModelConverter._createSampler(occlusionTexture.texture!);
+    material.setTextureParameter(ShaderSemantics.OcclusionTexture, rnTexture, rnSampler);
     if (occlusionTexture.texCoord != null) {
       material.setParameter(ShaderSemantics.OcclusionTexcoordIndex, occlusionTexture.texCoord);
     }
@@ -2220,7 +2259,8 @@ function setupPbrMetallicRoughness(
   const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
   if (metallicRoughnessTexture != null && Is.falsy(isUnlit)) {
     const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture.texture!, gltfModel);
-    material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture);
+    const rnSampler = ModelConverter._createSampler(metallicRoughnessTexture.texture!);
+    material.setTextureParameter(ShaderSemantics.MetallicRoughnessTexture, rnTexture, rnSampler);
     if (metallicRoughnessTexture.texCoord != null) {
       material.setParameter(
         ShaderSemantics.MetallicRoughnessTexcoordIndex,
@@ -2278,7 +2318,12 @@ function setup_KHR_materials_transmission(
         transmissionTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.TransmissionTexture, rnTransmissionTexture);
+      const rnSampler = ModelConverter._createSampler(transmissionTexture.texture!);
+      material.setTextureParameter(
+        ShaderSemantics.TransmissionTexture,
+        rnTransmissionTexture,
+        rnSampler
+      );
     }
     return true;
   }
@@ -2304,7 +2349,8 @@ function setup_KHR_materials_clearcoat(
         clearCoatTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.ClearCoatTexture, rnClearCoatTexture);
+      const rnSampler = ModelConverter._createSampler(clearCoatTexture.texture!);
+      material.setTextureParameter(ShaderSemantics.ClearCoatTexture, rnClearCoatTexture, rnSampler);
       if (clearCoatTexture.texCoord != null) {
         material.setParameter(ShaderSemantics.ClearCoatTexcoordIndex, clearCoatTexture.texCoord);
       }
@@ -2328,9 +2374,11 @@ function setup_KHR_materials_clearcoat(
         clearCoatRoughnessTexture.texture!,
         gltfModel
       );
+      const rnSampler = ModelConverter._createSampler(clearCoatRoughnessTexture.texture!);
       material.setTextureParameter(
         ShaderSemantics.ClearCoatRoughnessTexture,
-        rnClearCoatRoughnessTexture
+        rnClearCoatRoughnessTexture,
+        rnSampler
       );
       if (clearCoatRoughnessTexture.texCoord != null) {
         material.setParameter(
@@ -2353,9 +2401,11 @@ function setup_KHR_materials_clearcoat(
         clearCoatNormalTexture.texture!,
         gltfModel
       );
+      const rnSampler = ModelConverter._createSampler(clearCoatNormalTexture.texture!);
       material.setTextureParameter(
         ShaderSemantics.ClearCoatNormalTexture,
-        rnClearCoatNormalTexture
+        rnClearCoatNormalTexture,
+        rnSampler
       );
       if (clearCoatNormalTexture.texCoord != null) {
         material.setParameter(
@@ -2393,7 +2443,8 @@ function setup_KHR_materials_volume(
         thicknessTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.ThicknessTexture, rnThicknessTexture);
+      const rnSampler = ModelConverter._createSampler(thicknessTexture.texture!);
+      material.setTextureParameter(ShaderSemantics.ThicknessTexture, rnThicknessTexture, rnSampler);
     }
     const attenuationDistance = KHR_materials_volume.attenuationDistance
       ? KHR_materials_volume.attenuationDistance
@@ -2451,7 +2502,12 @@ function setup_KHR_materials_sheen(
         sheenColorTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.SheenColorTexture, rnSheenColorTexture);
+      const rnSampler = ModelConverter._createSampler(sheenColorTexture.texture!);
+      material.setTextureParameter(
+        ShaderSemantics.SheenColorTexture,
+        rnSheenColorTexture,
+        rnSampler
+      );
     }
     const sheenRoughnessFactor = Is.exist(KHR_materials_sheen.sheenRoughnessFactor)
       ? KHR_materials_sheen.sheenRoughnessFactor
@@ -2463,7 +2519,12 @@ function setup_KHR_materials_sheen(
         sheenRoughnessTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.SheenRoughnessTexture, rnSheenRoughnessTexture);
+      const rnSampler = ModelConverter._createSampler(sheenRoughnessTexture.texture!);
+      material.setTextureParameter(
+        ShaderSemantics.SheenRoughnessTexture,
+        rnSheenRoughnessTexture,
+        rnSampler
+      );
     }
   }
 }
@@ -2482,7 +2543,8 @@ function setup_KHR_materials_specular(
     const specularTexture = KHR_materials_specular.specularTexture;
     if (specularTexture != null) {
       const rnSpecularTexture = ModelConverter._createTexture(specularTexture.texture!, gltfModel);
-      material.setTextureParameter(ShaderSemantics.SpecularTexture, rnSpecularTexture);
+      const rnSampler = ModelConverter._createSampler(specularTexture.texture!);
+      material.setTextureParameter(ShaderSemantics.SpecularTexture, rnSpecularTexture, rnSampler);
     }
     const SpecularColorFactor = Is.exist(KHR_materials_specular.SpecularColorFactor)
       ? KHR_materials_specular.SpecularColorFactor
@@ -2497,7 +2559,12 @@ function setup_KHR_materials_specular(
         SpecularColorTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.SpecularColorTexture, rnSpecularColorTexture);
+      const rnSampler = ModelConverter._createSampler(SpecularColorTexture.texture!);
+      material.setTextureParameter(
+        ShaderSemantics.SpecularColorTexture,
+        rnSpecularColorTexture,
+        rnSampler
+      );
     }
   }
 }
@@ -2527,7 +2594,12 @@ function setup_KHR_materials_iridescence(
         iridescenceTexture.texture!,
         gltfModel
       );
-      material.setTextureParameter(ShaderSemantics.IridescenceTexture, rnIridescenceTexture);
+      const rnSampler = ModelConverter._createSampler(iridescenceTexture.texture!);
+      material.setTextureParameter(
+        ShaderSemantics.IridescenceTexture,
+        rnIridescenceTexture,
+        rnSampler
+      );
     }
 
     const iridescenceIor = Is.exist(KHR_materials_iridescence.iridescenceIor)
@@ -2555,9 +2627,11 @@ function setup_KHR_materials_iridescence(
         iridescenceThicknessTexture.texture!,
         gltfModel
       );
+      const rnSampler = ModelConverter._createSampler(iridescenceThicknessTexture.texture!);
       material.setTextureParameter(
         ShaderSemantics.IridescenceThicknessTexture,
-        rnIridescenceThicknessTexture
+        rnIridescenceThicknessTexture,
+        rnSampler
       );
     }
   }

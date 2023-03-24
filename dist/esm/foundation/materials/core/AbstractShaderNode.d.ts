@@ -7,26 +7,28 @@ declare type ShaderNodeInputConnectionType = {
     outputNameOfPrev: string;
     inputNameOfThis: string;
 };
+/**
+ * AbstractShaderNode is a class that represents a shader node.
+ */
 export declare abstract class AbstractShaderNode extends RnObject {
-    static shaderNodes: AbstractShaderNode[];
+    static _shaderNodes: AbstractShaderNode[];
     protected __shaderFunctionName: string;
     private __shaderCode?;
     protected __inputs: ShaderSocket[];
     protected __outputs: ShaderSocket[];
     protected __inputConnections: ShaderNodeInputConnectionType[];
-    private static readonly __invalidShaderNodeUid;
     private static __invalidShaderNodeCount;
     protected __shaderNodeUid: ShaderNodeUID;
     protected __shader?: GLSLShader;
     constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader);
+    addInputConnection(inputShaderNode: AbstractShaderNode, outputNameOfPrev: string, inputNameOfThis: string): void;
     get shaderFunctionName(): string;
     get shaderCode(): string | undefined;
-    get shaderNodeUid(): number;
+    get shaderNodeUid(): ShaderNodeUID;
     getInput(name: string): ShaderSocket | undefined;
     getInputs(): ShaderSocket[];
     getOutput(name: string): ShaderSocket | undefined;
     getOutputs(): ShaderSocket[];
-    addInputConnection(inputShaderNode: AbstractShaderNode, outputNameOfPrev: string, inputNameOfThis: string): void;
     get inputConnections(): ShaderNodeInputConnectionType[];
     get shader(): GLSLShader | undefined;
 }

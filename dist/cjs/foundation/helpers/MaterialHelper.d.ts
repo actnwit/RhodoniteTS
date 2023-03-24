@@ -9,10 +9,11 @@ import { Count } from '../../types/CommonTypes';
 import { ShaderityObject } from 'shaderity';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { Vrm0xMaterialProperty } from '../../types';
+import { Sampler } from '../textures/Sampler';
 declare function createMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createEmptyMaterial(): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isShadow, useTangentAttribute, useNormalTexture, alphaMode, maxInstancesNumber, }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
@@ -26,30 +27,26 @@ declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning,
     isShadow?: boolean | undefined;
     useTangentAttribute?: boolean | undefined;
     useNormalTexture?: boolean | undefined;
-    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createClassicUberMaterial({ additionalName, isSkinning, isLighting, isMorphing, isShadow, alphaMode, maxInstancesNumber, }?: {
+declare function createClassicUberMaterial({ additionalName, isSkinning, isLighting, isMorphing, isShadow, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
     isMorphing?: boolean | undefined;
     isShadow?: boolean | undefined;
-    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createDepthMomentEncodeMaterial({ additionalName, isSkinning, isMorphing, alphaMode, maxInstancesNumber, }?: {
+declare function createDepthMomentEncodeMaterial({ additionalName, isSkinning, isMorphing, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isMorphing?: boolean | undefined;
-    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createFlatMaterial({ additionalName, isSkinning, isMorphing, alphaMode, maxInstancesNumber, }?: {
+declare function createFlatMaterial({ additionalName, isSkinning, isMorphing, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isMorphing?: boolean | undefined;
-    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
 declare function createEnvConstantMaterial({ additionalName, maxInstancesNumber, makeOutputSrgb, }?: {
@@ -138,7 +135,7 @@ declare function createEntityUIDOutputMaterial({ additionalName, maxInstancesNum
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline, materialProperties, textures, debugMode, maxInstancesNumber, makeOutputSrgb, }: {
+declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline, materialProperties, textures, samplers, debugMode, maxInstancesNumber, makeOutputSrgb, }: {
     additionalName?: string;
     isMorphing?: boolean;
     isSkinning?: boolean;
@@ -147,16 +144,16 @@ declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, i
     isOutline?: boolean;
     materialProperties?: Vrm0xMaterialProperty;
     textures?: any[];
+    samplers?: Sampler[];
     debugMode?: any;
     maxInstancesNumber?: Count;
     makeOutputSrgb?: boolean;
 }): Material;
-declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, alphaMode, maxInstancesNumber, }?: {
+declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
     isMorphing?: boolean | undefined;
-    alphaMode?: import("../definitions/AlphaMode").AlphaModeEnum | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
 declare function recreateShaderityMaterial(vertexShaderityObj: ShaderityObject, pixelShaderityObj: ShaderityObject, { additionalName, maxInstancesNumber }?: {

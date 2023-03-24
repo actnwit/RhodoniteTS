@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
@@ -403,7 +403,7 @@ declare const window: any;
 
   function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLElement) {
     // for e2e-test
-    if (pElem === undefined && loopCount > 50) {
+    if (pElem === undefined && loopCount > 100) {
       pElem = document.createElement('p');
       pElem.setAttribute('id', 'rendered');
       pElem.innerText = 'Rendered.';

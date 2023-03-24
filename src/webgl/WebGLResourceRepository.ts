@@ -58,7 +58,9 @@ import {
 } from '../types/WebGLConstants';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { EnumIO } from '../foundation';
+import { Sampler } from '../foundation/textures/Sampler';
+import { EnumIO } from '../foundation/misc/EnumIO';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
 
 declare let HDRImage: any;
 
@@ -95,6 +97,19 @@ export class WebGLResourceRepository
   private __glw?: WebGLContextWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webglResources: Map<WebGLResourceHandle, WebGLResource> = new Map();
+  private __samplerClampToEdgeLinearUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerClampToEdgeNearestUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerRepeatNearestUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerRepeatLinearUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerShadowUid: WebGLResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerRepeatTriLinearUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __samplerRepeatAnisotropyLinearUid: WebGLResourceHandle =
+    CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
   private constructor() {
     super();
@@ -108,7 +123,7 @@ export class WebGLResourceRepository
   }
 
   addWebGLContext(
-    gl: WebGLRenderingContext | WebGL2RenderingContext,
+    gl: WebGL2RenderingContext,
     canvas: HTMLCanvasElement,
     asCurrent: boolean,
     isDebug: boolean
@@ -277,6 +292,20 @@ export class WebGLResourceRepository
   bindTexture2D(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTexture2D(textureSlotIndex, texture);
+  }
+
+  /**
+   * bind the Sampler
+   * @param textureSlotIndex
+   * @param samplerUid
+   */
+  bindTextureSampler(textureSlotIndex: Index, samplerUid: CGAPIResourceHandle) {
+    if (samplerUid === -1) {
+      this.__glw!.bindTextureSampler(textureSlotIndex, null as any);
+    } else {
+      const sampler = this.getWebGLResource(samplerUid) as WebGLSampler;
+      this.__glw!.bindTextureSampler(textureSlotIndex, sampler);
+    }
   }
 
   /**
@@ -675,20 +704,41 @@ export class WebGLResourceRepository
    * @param info
    * @param value
    */
-  bindTexture(info: ShaderSemanticsInfo, value: any) {
+  bindTexture(info: ShaderSemanticsInfo, value: [number, AbstractTexture, Sampler]) {
     if (
       info.compositionType === CompositionType.Texture2D ||
       info.compositionType === CompositionType.Texture2DShadow
     ) {
-      this.bindTexture2D(
-        value[0],
-        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
-      );
+      this.bindTexture2D(value[0], value[1]._textureResourceUid);
+      if (value[2] != null) {
+        // value[2] must be Sampler object
+        this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+        // } else {
+        //   this.bindTextureSampler(value[0], -1);
+        // }
+      } else {
+        if (info.compositionType === CompositionType.Texture2D) {
+          const samplerUid = this.createOrGetTextureSamplerClampToEdgeLinear();
+          this.bindTextureSampler(value[0], samplerUid);
+        } else if (info.compositionType === CompositionType.Texture2DShadow) {
+          const samplerUid = this.createOrGetTextureSamplerShadow();
+          this.bindTextureSampler(value[0], samplerUid);
+        }
+      }
     } else if (info.compositionType === CompositionType.TextureCube) {
-      this.bindTextureCube(
-        value[0],
-        value[1] instanceof AbstractTexture ? value[1]._textureResourceUid : value[1]
-      );
+      this.bindTextureCube(value[0], value[1]._textureResourceUid);
+      if (value[2] != null) {
+        // value[2] must be Sampler object
+        this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      } else {
+        // this.bindTextureSampler(value[0], -1);
+        const textureCube = value[1] as CubeTexture;
+        // const samplerUid = this.createOrGetTextureSamplerRepeatTriLinear();
+        this.bindTextureSampler(
+          value[0],
+          textureCube._recommendedTextureSampler?._samplerResourceUid ?? -1
+        );
+      }
     }
   }
 
@@ -910,60 +960,12 @@ export class WebGLResourceRepository
     return resourceHandle;
   }
 
-  /**
-   * create a TexStorage2D
-   * @param data
-   * @param param1
-   * @returns
-   */
-  createTexStorage2DWithSamplerParameters({
-    levels,
-    internalFormat,
-    width,
-    height,
-    magFilter,
-    minFilter,
-    wrapS,
-    wrapT,
-    anisotropy,
-    isPremultipliedAlpha,
-  }: {
-    levels: Index;
-    internalFormat: TextureParameterEnum | PixelFormatEnum;
-    width: Size;
-    height: Size;
-    magFilter: TextureParameterEnum;
-    minFilter: TextureParameterEnum;
-    wrapS: TextureParameterEnum;
-    wrapT: TextureParameterEnum;
-    anisotropy: boolean;
-    isPremultipliedAlpha?: boolean;
-  }): WebGLResourceHandle {
-    const gl = this.__glw!.getRawContextAsWebGL2();
-    const texture = gl.createTexture();
-    this.__glw!.bindTexture2D(0, texture!);
-    gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
-    const resourceHandle = this.__registerResource(texture!);
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy && this.__glw!.webgl2ExtTFA) {
-        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-      }
-    }
-    this.__glw!.unbindTexture2D(0);
-
-    return resourceHandle;
-  }
-
   createTextureSampler({
     magFilter,
     minFilter,
     wrapS,
     wrapT,
+    wrapR,
     anisotropy,
     isPremultipliedAlpha,
   }: {
@@ -971,6 +973,7 @@ export class WebGLResourceRepository
     minFilter: TextureParameterEnum;
     wrapS: TextureParameterEnum;
     wrapT: TextureParameterEnum;
+    wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
   }) {
@@ -981,6 +984,7 @@ export class WebGLResourceRepository
     gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, magFilter.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, wrapT.index);
+    gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, wrapR.index);
     if (anisotropy) {
       if (this.__glw!.webgl2ExtTFA) {
         gl.samplerParameteri(sampler, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
@@ -988,6 +992,122 @@ export class WebGLResourceRepository
     }
 
     return resourceHandle;
+  }
+
+  createOrGetTextureSamplerClampToEdgeLinear() {
+    if (this.__samplerClampToEdgeLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerClampToEdgeLinearUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+    }
+
+    return this.__samplerClampToEdgeLinearUid;
+  }
+
+  createOrGetTextureSamplerClampToEdgeNearest() {
+    if (this.__samplerClampToEdgeNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerClampToEdgeNearestUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+    }
+
+    return this.__samplerClampToEdgeNearestUid;
+  }
+
+  createOrGetTextureSamplerRepeatNearest() {
+    if (this.__samplerRepeatNearestUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatNearestUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+    }
+
+    return this.__samplerRepeatNearestUid;
+  }
+
+  createOrGetTextureSamplerRepeatLinear() {
+    if (this.__samplerRepeatLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatLinearUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+    }
+
+    return this.__samplerRepeatLinearUid;
+  }
+
+  createOrGetTextureSamplerRepeatTriLinear() {
+    if (this.__samplerRepeatTriLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatTriLinearUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+    }
+
+    return this.__samplerRepeatTriLinearUid;
+  }
+
+  createOrGetTextureSamplerShadow() {
+    if (this.__samplerShadowUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerShadowUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+    }
+
+    return this.__samplerShadowUid;
+  }
+
+  createOrGetTextureSamplerRepeatAnisotropyLinear() {
+    if (
+      this.__samplerRepeatAnisotropyLinearUid === CGAPIResourceRepository.InvalidCGAPIResourceUid
+    ) {
+      const gl = this.__glw!.getRawContextAsWebGL2();
+      const sampler = gl.createSampler()!;
+      const resourceHandle = this.__registerResource(sampler);
+      this.__samplerRepeatAnisotropyLinearUid = resourceHandle;
+      gl.samplerParameteri(sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, gl.REPEAT);
+      gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, gl.REPEAT);
+      gl.samplerParameteri(sampler, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    }
+
+    return this.__samplerRepeatAnisotropyLinearUid;
   }
 
   /**
@@ -1006,13 +1126,7 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -1021,13 +1135,7 @@ export class WebGLResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1040,49 +1148,32 @@ export class WebGLResourceRepository
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
 
-    this.__createTextureInner(
-      gl,
-      wrapS,
-      wrapT,
-      magFilter,
-      minFilter,
-      isPremultipliedAlpha,
-      width,
-      height,
-      anisotropy,
-      generateMipmap
-    );
+    this.__createTextureInner(gl, width, height, generateMipmap);
 
     return { textureHandle, samplerHandle: -1 };
   }
 
   private __createTextureInner(
     gl: WebGL2RenderingContext,
-    wrapS: EnumIO,
-    wrapT: EnumIO,
-    magFilter: EnumIO,
-    minFilter: EnumIO,
-    isPremultipliedAlpha: boolean,
     width: number,
     height: number,
-    anisotropy: boolean,
     generateMipmap: boolean
   ) {
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    if (isPremultipliedAlpha) {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    } else {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    }
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
+    // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
+    // if (isPremultipliedAlpha) {
+    //   // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    // } else {
+    //   // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    // }
     if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy) {
-        if (this.__glw!.webgl2ExtTFA) {
-          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-        }
-      }
+      // if (anisotropy) {
+      //   if (this.__glw!.webgl2ExtTFA) {
+      //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+      //   }
+      // }
 
       const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
       if (isGenerateMipmap) {
@@ -1108,13 +1199,7 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -1123,13 +1208,7 @@ export class WebGLResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1142,18 +1221,7 @@ export class WebGLResourceRepository
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
 
-    this.__createTextureInner(
-      gl,
-      wrapS,
-      wrapT,
-      magFilter,
-      minFilter,
-      isPremultipliedAlpha,
-      width,
-      height,
-      anisotropy,
-      generateMipmap
-    );
+    this.__createTextureInner(gl, width, height, generateMipmap);
 
     return resourceHandle;
   }
@@ -1174,13 +1242,7 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -1189,13 +1251,7 @@ export class WebGLResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1217,18 +1273,7 @@ export class WebGLResourceRepository
       imageData as any as ArrayBufferView
     );
 
-    this.__createTextureInner(
-      gl,
-      wrapS,
-      wrapT,
-      magFilter,
-      minFilter,
-      isPremultipliedAlpha,
-      width,
-      height,
-      anisotropy,
-      generateMipmap
-    );
+    this.__createTextureInner(gl, width, height, generateMipmap);
 
     return resourceHandle;
   }
@@ -1240,20 +1285,7 @@ export class WebGLResourceRepository
    */
   createCompressedTexture(
     textureDataArray: TextureData[],
-    compressionTextureType: CompressionTextureTypeEnum,
-    {
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      anisotropy,
-    }: {
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
-      anisotropy: boolean;
-    }
+    compressionTextureType: CompressionTextureTypeEnum
   ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContext();
 
@@ -1276,25 +1308,6 @@ export class WebGLResourceRepository
       );
     }
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-
-    if (minFilter === TextureParameter.LinearMipmapLinear) {
-      minFilter = TextureParameter.Linear;
-    }
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-
-    const width = textureDataArray[0].width;
-    const height = textureDataArray[0].height;
-    if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy) {
-        if (this.__glw!.webgl2ExtTFA) {
-          gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-        }
-      }
-    }
-
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
@@ -1312,22 +1325,10 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
     let basisCompressionType: BasisCompressionTypeEnum;
@@ -1373,12 +1374,6 @@ export class WebGLResourceRepository
     }
     const mipmapDepth = basisFile.getNumLevels(0);
 
-    if (isPremultipliedAlpha) {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    } else {
-      // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    }
-
     for (let i = 0; i < mipmapDepth; i++) {
       const width = basisFile.getImageWidth(0, i);
       const height = basisFile.getImageHeight(0, i);
@@ -1393,23 +1388,6 @@ export class WebGLResourceRepository
         textureSource
       );
     }
-
-    if (mipmapDepth === 0) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-      let minFilter_ = minFilter;
-      if (minFilter === TextureParameter.LinearMipmapLinear) {
-        minFilter_ = TextureParameter.Linear;
-      }
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter_.index);
-    } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-      if (anisotropy && this.__glw!.webgl1ExtTFA) {
-        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl1ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-      }
-    }
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
 
     this.__glw!.unbindTexture2D(0);
 
@@ -1652,11 +1630,6 @@ export class WebGLResourceRepository
     internalFormat,
     format,
     type,
-    magFilter,
-    minFilter,
-    wrapS,
-    wrapT,
-    anisotropy,
   }: {
     width: Size;
     height: Size;
@@ -1664,11 +1637,6 @@ export class WebGLResourceRepository
     internalFormat: TextureParameterEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
-    magFilter: TextureParameterEnum;
-    minFilter: TextureParameterEnum;
-    wrapS: TextureParameterEnum;
-    wrapT: TextureParameterEnum;
-    anisotropy: boolean;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
@@ -1676,25 +1644,7 @@ export class WebGLResourceRepository
     const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS.index);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT.index);
-    if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      if (anisotropy && this.__glw!.webgl2ExtTFA) {
-        gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-      }
-    }
-    if (
-      // if DEPTH_COMPONENT
-      internalFormat.index === GL_DEPTH_COMPONENT ||
-      internalFormat.index === GL_DEPTH_COMPONENT16 ||
-      internalFormat.index === GL_DEPTH_COMPONENT24 ||
-      internalFormat.index === GL_DEPTH_COMPONENT32F
-    ) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
-    }
+
     gl.texImage2D(
       gl.TEXTURE_2D,
       level,
@@ -1706,6 +1656,7 @@ export class WebGLResourceRepository
       type.index,
       null
     );
+
     this.__glw!.unbindTexture2D(0);
 
     return resourceHandle;
@@ -1732,33 +1683,39 @@ export class WebGLResourceRepository
     }>,
     width: Size,
     height: Size
-  ) {
+  ): [number, Sampler] {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
     this.__glw!.bindTextureCube(0, texture);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const wrapS = TextureParameter.ClampToEdge;
+    const wrapT = TextureParameter.ClampToEdge;
+    let minFilter = TextureParameter.Linear;
+    let magFilter = TextureParameter.Linear;
     if (
       (images[0].posX as any).hdriFormat === HdriFormat.HDR_LINEAR &&
       this.__glw!.isNotSupportWebGL1Extension(WebGLExtension.TextureFloatLinear)
     ) {
       if (mipLevelCount >= 2) {
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+        minFilter = TextureParameter.NearestMipmapNearest;
       } else {
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        minFilter = TextureParameter.Nearest;
       }
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      magFilter = TextureParameter.Nearest;
     } else {
       if (mipLevelCount >= 2) {
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        minFilter = TextureParameter.LinearMipmapLinear;
       } else {
-        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        minFilter = TextureParameter.Linear;
       }
-      gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      magFilter = TextureParameter.Linear;
     }
+
+    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter });
+    sampler.create();
 
     const loadImageToGPU = (image: DirectTextureData, cubeMapSide: number, i: Index) => {
       if ((image as any).hdriFormat === HdriFormat.HDR_LINEAR) {
@@ -1802,7 +1759,7 @@ export class WebGLResourceRepository
     }
     this.__glw!.unbindTextureCube(0);
 
-    return resourceHandle;
+    return [resourceHandle, sampler];
   }
 
   /**
@@ -2106,26 +2063,14 @@ export class WebGLResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum | PixelFormatEnum;
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): Promise<WebGLResourceHandle> {
     return new Promise<WebGLResourceHandle>((resolve) => {
@@ -2145,13 +2090,7 @@ export class WebGLResourceRepository
           border,
           format,
           type,
-          magFilter,
-          minFilter,
-          wrapS,
-          wrapT,
           generateMipmap,
-          anisotropy,
-          isPremultipliedAlpha,
         });
 
         resolve(texture);
@@ -2277,13 +2216,7 @@ export class WebGLResourceRepository
       border: 0,
       format: PixelFormat.RGBA,
       type: ComponentType.UnsignedByte,
-      magFilter: TextureParameter.Nearest,
-      minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
       generateMipmap: false,
-      anisotropy: false,
-      isPremultipliedAlpha: false,
     });
   }
 
@@ -2315,13 +2248,7 @@ export class WebGLResourceRepository
       border: 0,
       format: PixelFormat.RGBA,
       type: ComponentType.UnsignedByte,
-      magFilter: TextureParameter.Nearest,
-      minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
       generateMipmap: false,
-      anisotropy: false,
-      isPremultipliedAlpha: false,
     });
   }
 
@@ -2738,8 +2665,6 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindVertexArray(null);
@@ -2770,5 +2695,19 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     gl.colorMask(true, true, true, true);
     gl.depthMask(true);
     gl.sampleCoverage(1.0, false);
+
+    for (let i = 0; i < 16; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+      gl.bindSampler(i, null);
+    }
+  }
+
+  unbindTextureSamplers() {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    for (let i = 0; i < 16; i++) {
+      gl.bindSampler(i, null);
+    }
   }
 }

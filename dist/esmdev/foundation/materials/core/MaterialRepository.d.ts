@@ -5,10 +5,9 @@ import { Material } from './Material';
 export declare class MaterialRepository {
     private static __materialMap;
     private static __instances;
-    private static __instancesByTypes;
     private static __materialTids;
     private static __materialInstanceCountOfType;
-    private static __materialTypes;
+    private static __materialNodes;
     private static __maxInstances;
     private static __bufferViews;
     private static __accessors;
@@ -31,6 +30,7 @@ export declare class MaterialRepository {
      * @param materialNodes_ The material nodes to add to the created material.
      */
     static createMaterial(materialTypeName: string, materialNode_?: AbstractMaterialContent): Material;
+    static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean;
     /**
      * Initialize Method
      */
@@ -42,4 +42,5 @@ export declare class MaterialRepository {
     static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo): number;
     private static __registerInner;
     private static __allocateBufferView;
+    static _makeShaderInvalidateToAllMaterials(): void;
 }

@@ -37,8 +37,8 @@ export declare class WebARSystem {
      */
     enterWebAR({ initialUserPosition, callbackOnXrSessionStart, callbackOnXrSessionEnd, }: {
         initialUserPosition?: Vector3;
-        callbackOnXrSessionStart: Function;
-        callbackOnXrSessionEnd: Function;
+        callbackOnXrSessionStart: () => void;
+        callbackOnXrSessionEnd: () => void;
     }): Promise<void>;
     private __setupWebGLLayer;
     /**

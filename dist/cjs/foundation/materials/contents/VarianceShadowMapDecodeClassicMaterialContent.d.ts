@@ -43,7 +43,7 @@ export declare class VarianceShadowMapDecodeClassicMaterialContent extends Abstr
         colorAttachmentsNumberSquareDepth: Count;
         depthCameraComponent?: CameraComponent;
     }, encodedDepthRenderPasses: RenderPass[]);
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

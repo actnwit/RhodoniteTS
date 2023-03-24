@@ -16,6 +16,7 @@ import { VRMColliderGroup } from '../physics/VRMColliderGroup';
 import { VRMSpringBoneGroup } from '../physics/VRMSpringBoneGroup';
 import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { VrmComponent, VrmExpression } from '../components/Vrm/VrmComponent';
+import { Sampler } from '../textures/Sampler';
 
 /**
  * The VRM Importer class.
@@ -44,10 +45,12 @@ export class Vrm0xImporter {
     assertIsOk(result);
     const gltfModel = result.get();
     const textures = Vrm0xImporter._createTextures(gltfModel);
+    const samplers = Vrm0xImporter._createSamplers(gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures = textures;
+      defaultMaterialHelperArgumentArray[0].samplers = samplers;
     }
 
     Vrm0xImporter._initializeMaterialProperties(gltfModel, textures.length);
@@ -103,9 +106,12 @@ export class Vrm0xImporter {
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
     const textures = this._createTextures(gltfModel);
+    const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
         defaultMaterialHelperArgumentArray[0].textures ?? textures;
+      defaultMaterialHelperArgumentArray[0].samplers =
+        defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
       defaultMaterialHelperArgumentArray[0].isLighting =
         defaultMaterialHelperArgumentArray[0].isLighting ?? true;
     }
@@ -272,6 +278,18 @@ export class Vrm0xImporter {
     rnTextures.push(dummyBlackTexture);
 
     return rnTextures;
+  }
+
+  static _createSamplers(gltfModel: RnM2): Sampler[] {
+    if (!gltfModel.textures) gltfModel.textures = [];
+
+    const gltfTextures = gltfModel.textures;
+    const rnSamplers: Sampler[] = [];
+    for (let i = 0; i < gltfTextures.length; i++) {
+      const rnSampler = ModelConverter._createSampler(gltfTextures[i]);
+      rnSamplers[i] = rnSampler;
+    }
+    return rnSamplers;
   }
 
   static _existOutlineMaterial(extensionsVRM: any): boolean {

@@ -33,7 +33,7 @@ export declare class ShadowMapDecodeClassicMaterialContent extends AbstractMater
         isDebugging: boolean;
         colorAttachmentsNumber: Count;
     }, encodedDepthRenderPass: RenderPass);
-    setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
