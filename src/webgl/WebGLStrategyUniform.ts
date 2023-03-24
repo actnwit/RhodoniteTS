@@ -319,13 +319,7 @@ bool get_isBillboard(float instanceId) {
           border: 0,
           format: PixelFormat.RGBA,
           type: ComponentType.Float,
-          magFilter: TextureParameter.Nearest,
-          minFilter: TextureParameter.Nearest,
-          wrapS: TextureParameter.Repeat,
-          wrapT: TextureParameter.Repeat,
           generateMipmap: false,
-          anisotropy: false,
-          isPremultipliedAlpha: true,
         }
       );
     }

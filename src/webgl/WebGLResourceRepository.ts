@@ -2248,13 +2248,7 @@ export class WebGLResourceRepository
       border: 0,
       format: PixelFormat.RGBA,
       type: ComponentType.UnsignedByte,
-      magFilter: TextureParameter.Nearest,
-      minFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
       generateMipmap: false,
-      anisotropy: false,
-      isPremultipliedAlpha: false,
     });
   }
 

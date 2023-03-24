@@ -35,12 +35,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       matCapTexture = new Texture();
       (async function (uri: string) {
         await matCapTexture.generateTextureFromUri(uri, {
-          minFilter: TextureParameter.Nearest,
-          magFilter: TextureParameter.Nearest,
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge,
           type: ComponentType.UnsignedByte,
-          anisotropy: false,
         });
       })(uri);
     } else if (texture instanceof AbstractTexture) {

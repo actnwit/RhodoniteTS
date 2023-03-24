@@ -57,12 +57,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
       lookupTableTexture = new Texture();
       (async function (uri: string) {
         await lookupTableTexture.generateTextureFromUri(uri, {
-          minFilter: TextureParameter.Nearest,
-          magFilter: TextureParameter.Nearest,
-          wrapS: TextureParameter.ClampToEdge,
-          wrapT: TextureParameter.ClampToEdge,
           type: ComponentType.UnsignedByte,
-          anisotropy: false,
         });
       })(uri);
     } else if (texture instanceof AbstractTexture) {

@@ -124,7 +124,6 @@ export class Texture extends AbstractTexture {
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       generateMipmap = true,
-      isPremultipliedAlpha = false,
     } = {}
   ) {
     this.__startedToLoad = true;
@@ -193,13 +192,7 @@ export class Texture extends AbstractTexture {
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.Linear,
-      wrapS = TextureParameter.Repeat,
-      wrapT = TextureParameter.Repeat,
       generateMipmap = true,
-      anisotropy = true,
-      isPremultipliedAlpha = false,
     } = {}
   ) {
     this.__uri = imageUri;
@@ -329,13 +322,7 @@ export class Texture extends AbstractTexture {
       level = 0,
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
-      wrapS = TextureParameter.Repeat,
-      wrapT = TextureParameter.Repeat,
       generateMipmap = true,
-      anisotropy = true,
-      isPremultipliedAlpha = false,
     } = {}
   ) {
     const type = ComponentType.fromTypedArray(typedArray);
@@ -349,13 +336,7 @@ export class Texture extends AbstractTexture {
       border: 0,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     });
 
     this._textureResourceUid = texture;
@@ -367,15 +348,7 @@ export class Texture extends AbstractTexture {
     typedArray: TypedArray,
     width: number,
     height: number,
-    compressionTextureType: CompressionTextureTypeEnum,
-    {
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
-      wrapS = TextureParameter.ClampToEdge,
-      wrapT = TextureParameter.ClampToEdge,
-      anisotropy = true,
-      // isPremultipliedAlpha = false,
-    } = {}
+    compressionTextureType: CompressionTextureTypeEnum
   ) {
     this.__width = width;
     this.__height = height;
@@ -390,15 +363,7 @@ export class Texture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
       [textureData],
-      compressionTextureType,
-      {
-        magFilter,
-        minFilter,
-        wrapS,
-        wrapT,
-        anisotropy,
-        // isPremultipliedAlpha,
-      }
+      compressionTextureType
     );
 
     this._textureResourceUid = texture;
@@ -408,15 +373,7 @@ export class Texture extends AbstractTexture {
 
   generateCompressedTextureWithMipmapFromTypedArray(
     textureDataArray: TextureData[],
-    compressionTextureType: CompressionTextureTypeEnum,
-    {
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.LinearMipmapLinear,
-      wrapS = TextureParameter.ClampToEdge,
-      wrapT = TextureParameter.ClampToEdge,
-      anisotropy = true,
-      // isPremultipliedAlpha = false,
-    } = {}
+    compressionTextureType: CompressionTextureTypeEnum
   ) {
     const originalTextureData = textureDataArray.find((textureData) => textureData.level === 0);
     if (originalTextureData == null) {
@@ -429,15 +386,7 @@ export class Texture extends AbstractTexture {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
       textureDataArray,
-      compressionTextureType,
-      {
-        magFilter,
-        minFilter,
-        wrapS,
-        wrapT,
-        anisotropy,
-        // isPremultipliedAlpha,
-      }
+      compressionTextureType
     );
 
     this._textureResourceUid = texture;
