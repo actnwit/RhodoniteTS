@@ -8,7 +8,6 @@ import { ShaderSemanticsClass, ShaderSemantics } from '../../definitions/ShaderS
 import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Texture } from '../../textures/Texture';
-import { TextureParameter } from '../../definitions/TextureParameter';
 import { Vector3 } from '../../math/Vector3';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
@@ -21,7 +20,7 @@ import { Sampler } from '../../textures/Sampler';
 export class MatCapMaterialContent extends AbstractMaterialContent {
   static MatCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
 
-  constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture) {
+  constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
     super(
       null,
       'MatCapShading' + (isSkinning ? '+skinning' : ''),
@@ -44,13 +43,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       console.warn('no matcap texture');
       matCapTexture = AbstractMaterialContent.__dummyBlackTexture;
     }
-    const sampler = new Sampler({
-      minFilter: TextureParameter.Nearest,
-      magFilter: TextureParameter.Nearest,
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
-      anisotropy: false,
-    });
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 

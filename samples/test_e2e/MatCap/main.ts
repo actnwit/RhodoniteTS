@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 (async () => {
   // ---main algorithm-----------------------------------------------------------------------------------------
@@ -44,18 +44,20 @@ import Rn from '../../../dist/esm/index.js';
 
     const textureMatCap = new Rn.Texture();
     await textureMatCap.generateTextureFromUri(uriMatCap, {
+      type: Rn.ComponentType.UnsignedByte,
+    });
+    const samplerMatCap = new Rn.Sampler({
       minFilter: Rn.TextureParameter.Nearest,
       magFilter: Rn.TextureParameter.Nearest,
       wrapS: Rn.TextureParameter.ClampToEdge,
       wrapT: Rn.TextureParameter.ClampToEdge,
-      type: Rn.ComponentType.UnsignedByte,
       anisotropy: false,
     });
 
-    const entitySmallSphere = createEntityMatCapSphere(textureMatCap);
+    const entitySmallSphere = createEntityMatCapSphere(textureMatCap, samplerMatCap);
     entitySmallSphere.getTransform().localScale = Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]);
 
-    const entityLargeSphere = createEntityMatCapSphere(textureMatCap);
+    const entityLargeSphere = createEntityMatCapSphere(textureMatCap, samplerMatCap);
     entityLargeSphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([15, 15, -20]);
 
     const entityBoard = createEntityMatCapBoard(textureMatCap);
@@ -68,13 +70,13 @@ import Rn from '../../../dist/esm/index.js';
     return renderPass;
   }
 
-  function createEntityMatCapSphere(texture: Rn.Texture) {
+  function createEntityMatCapSphere(texture: Rn.Texture, sampler: Rn.Sampler) {
     const primitive = new Rn.Sphere();
     primitive.generate({
       radius: 10,
       widthSegments: 20,
       heightSegments: 20,
-      material: Rn.MaterialHelper.createMatCapMaterial({ texture }),
+      material: Rn.MaterialHelper.createMatCapMaterial({ texture, sampler }),
     });
 
     const entity = Rn.EntityHelper.createMeshEntity();

@@ -758,17 +758,19 @@ function createMatCapMaterial({
   isSkinning = false,
   uri,
   texture,
+  sampler,
   maxInstancesNumber = 10,
 }: {
   additionalName?: string;
   isSkinning?: boolean;
   uri?: string;
   texture?: Texture;
+  sampler?: Sampler;
   maxInstancesNumber?: Count;
 }) {
   const materialName = 'MatCap' + `_${additionalName}` + (isSkinning ? '+skinning' : '');
 
-  const materialNode = new MatCapMaterialContent(isSkinning, uri, texture);
+  const materialNode = new MatCapMaterialContent(isSkinning, uri, texture, sampler);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 

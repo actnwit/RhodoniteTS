@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 // import Rn from '../../../dist/cjs';
 
 const p = document.createElement('p');
@@ -148,10 +148,6 @@ declare const window: any;
       internalFormat: Rn.TextureParameter.RG32F,
       format: Rn.PixelFormat.RG,
       type: Rn.ComponentType.Float,
-      magFilter: Rn.TextureParameter.Linear,
-      minFilter: Rn.TextureParameter.Linear,
-      wrapS: Rn.TextureParameter.ClampToEdge,
-      wrapT: Rn.TextureParameter.ClampToEdge,
       createDepthBuffer: true,
       isMSAA: false,
       sampleCountMSAA: 1,
