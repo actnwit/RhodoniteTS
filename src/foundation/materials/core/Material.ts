@@ -38,6 +38,7 @@ import { GL_FUNC_ADD, GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA } from '../..
 import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
+import { Blend, BlendEnum } from '../../definitions/Blend';
 
 /**
  * The material class.
@@ -63,8 +64,8 @@ export class Material extends RnObject {
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;
   private __alphaToCoverage = false;
-  private __blendEquationMode = GL_FUNC_ADD; // gl.FUNC_ADD
-  private __blendEquationModeAlpha = GL_FUNC_ADD; // gl.FUNC_ADD
+  private __blendEquationMode = Blend.EquationFuncAdd; // gl.FUNC_ADD
+  private __blendEquationModeAlpha = Blend.EquationFuncAdd; // gl.FUNC_ADD
   private __blendFuncSrcFactor = GL_SRC_ALPHA; // gl.SRC_ALPHA
   private __blendFuncDstFactor = GL_ONE_MINUS_SRC_ALPHA; // gl.ONE_MINUS_SRC_ALPHA
   private __blendFuncAlphaSrcFactor = GL_ONE; // gl.ONE
@@ -650,7 +651,7 @@ export class Material extends RnObject {
    * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
    * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
    */
-  public setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha?: number) {
+  public setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum) {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
   }

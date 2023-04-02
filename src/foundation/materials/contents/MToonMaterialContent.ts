@@ -24,6 +24,7 @@ import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vrm0xMaterialProperty } from '../../../types';
 import { Sampler } from '../../textures/Sampler';
+import { Blend } from '../../definitions/Blend';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -806,7 +807,10 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         this.__floatProperties._DstBlend
       );
 
-      material.setBlendEquationMode(blendEquationMode, blendEquationModeAlpha);
+      material.setBlendEquationMode(
+        Blend.from(blendEquationMode),
+        blendEquationModeAlpha != null ? Blend.from(blendEquationModeAlpha) : undefined
+      );
       material.setBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor);
     }
 

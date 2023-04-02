@@ -73,7 +73,11 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   }
 
   if (material.alphaMode === AlphaMode.Translucent) {
-    setBlendEquationMode(material.blendEquationMode, material.blendEquationModeAlpha, gl);
+    setBlendEquationMode(
+      material.blendEquationMode.index,
+      material.blendEquationModeAlpha.index,
+      gl
+    );
     setBlendFuncSrcFactor(
       material.blendFuncSrcFactor,
       material.blendFuncDstFactor,
