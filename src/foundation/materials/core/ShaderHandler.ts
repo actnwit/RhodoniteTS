@@ -1,4 +1,4 @@
-import { Material } from '.';
+import { AbstractMaterialContent, Material, ShaderityUtility } from '.';
 import { CGAPIResourceHandle } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../../webgl/types/CommonTypes';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
@@ -42,4 +42,11 @@ export class ShaderHandler {
       return shaderProgramUid;
     }
   }
+}
+
+export function _getAttributeInfo(materialNode: AbstractMaterialContent) {
+  const reflection = ShaderityUtility.getAttributeReflection(materialNode.vertexShaderityObject!);
+  const attributeNames = reflection.names;
+  const attributeSemantics = reflection.semantics;
+  return { attributeNames, attributeSemantics };
 }

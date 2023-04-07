@@ -22,7 +22,6 @@ import {
   MaterialTID,
   MaterialUID,
 } from '../../../types/CommonTypes';
-import { DataUtil } from '../../misc/DataUtil';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { System } from '../../system/System';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
@@ -33,12 +32,12 @@ import { ShaderityUtility } from './ShaderityUtility';
 import { Is } from '../../misc/Is';
 import { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { Primitive } from '../../geometry/Primitive';
-import { AttributeNames, RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
-import { ShaderHandler } from './ShaderHandler';
+import { ShaderHandler, _getAttributeInfo } from './ShaderHandler';
 
 /**
  * The material class.
@@ -547,7 +546,7 @@ export class Material extends RnObject {
     vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
     pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
 
-    const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
+    const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
     const vertexAttributesBinding = this.__outputVertexAttributeBindingInfo(
       attributeNames,
       attributeSemantics
@@ -570,7 +569,7 @@ export class Material extends RnObject {
     onError?: (message: string) => void
   ) {
     const materialNode = this._materialContent;
-    const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
+    const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
 
     this._shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
       this,
@@ -582,13 +581,6 @@ export class Material extends RnObject {
     );
 
     return this._shaderProgramUid;
-  }
-
-  private __getAttributeInfo(materialNode: AbstractMaterialContent) {
-    const reflection = ShaderityUtility.getAttributeReflection(materialNode.vertexShaderityObject!);
-    const attributeNames = reflection.names;
-    const attributeSemantics = reflection.semantics;
-    return { attributeNames, attributeSemantics };
   }
 
   private __outputVertexAttributeBindingInfo(
