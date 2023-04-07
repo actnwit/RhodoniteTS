@@ -34,11 +34,11 @@ import { Is } from '../../misc/Is';
 import { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { Primitive } from '../../geometry/Primitive';
 import { AttributeNames, RenderingArg } from '../../../webgl/types/CommonTypes';
-import { GL_FUNC_ADD, GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA } from '../../../types';
 import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
+import { ShaderHandler } from './ShaderHandler';
 
 /**
  * The material class.
@@ -66,10 +66,10 @@ export class Material extends RnObject {
   private __alphaToCoverage = false;
   private __blendEquationMode = Blend.EquationFuncAdd; // gl.FUNC_ADD
   private __blendEquationModeAlpha = Blend.EquationFuncAdd; // gl.FUNC_ADD
-  private __blendFuncSrcFactor = GL_SRC_ALPHA; // gl.SRC_ALPHA
-  private __blendFuncDstFactor = GL_ONE_MINUS_SRC_ALPHA; // gl.ONE_MINUS_SRC_ALPHA
-  private __blendFuncAlphaSrcFactor = GL_ONE; // gl.ONE
-  private __blendFuncAlphaDstFactor = GL_ONE; // gl.ONE
+  private __blendFuncSrcFactor = Blend.SrcAlpha; // gl.SRC_ALPHA
+  private __blendFuncDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
+  private __blendFuncAlphaSrcFactor = Blend.One; // gl.ONE
+  private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
 
   // static fields
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -661,10 +661,10 @@ export class Material extends RnObject {
    * This method works only if this alphaMode is the translucent
    */
   public setBlendFuncSeparateFactor(
-    blendFuncSrcFactor: number,
-    blendFuncDstFactor: number,
-    blendFuncAlphaSrcFactor: number,
-    blendFuncAlphaDstFactor: number
+    blendFuncSrcFactor: BlendEnum,
+    blendFuncDstFactor: BlendEnum,
+    blendFuncAlphaSrcFactor: BlendEnum,
+    blendFuncAlphaDstFactor: BlendEnum
   ) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
@@ -676,7 +676,7 @@ export class Material extends RnObject {
    * Change the blendFuncFactors
    * This method works only if this alphaMode is the translucent
    */
-  public setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
+  public setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;

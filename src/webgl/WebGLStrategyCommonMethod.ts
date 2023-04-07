@@ -79,10 +79,10 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
       gl
     );
     setBlendFuncSrcFactor(
-      material.blendFuncSrcFactor,
-      material.blendFuncDstFactor,
-      material.blendFuncAlphaSrcFactor,
-      material.blendFuncAlphaDstFactor,
+      material.blendFuncSrcFactor.index,
+      material.blendFuncDstFactor.index,
+      material.blendFuncAlphaSrcFactor.index,
+      material.blendFuncAlphaDstFactor.index,
       gl
     );
   } else if (material.alphaMode === AlphaMode.Additive) {

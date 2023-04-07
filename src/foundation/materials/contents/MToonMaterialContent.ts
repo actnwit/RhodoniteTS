@@ -811,7 +811,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         Blend.from(blendEquationMode),
         blendEquationModeAlpha != null ? Blend.from(blendEquationModeAlpha) : undefined
       );
-      material.setBlendFuncFactor(blendFuncSrcFactor, blendFuncDstFactor);
+      material.setBlendFuncFactor(Blend.from(blendFuncSrcFactor), Blend.from(blendFuncDstFactor));
     }
 
     if (isOutline) {
