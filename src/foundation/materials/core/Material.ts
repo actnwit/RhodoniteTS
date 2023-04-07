@@ -41,6 +41,7 @@ import {
   ShaderHandler,
   _createProgramAsSingleOperationByUpdatedSources,
   _getAttributeInfo,
+  _outputVertexAttributeBindingInfo,
 } from './ShaderHandler';
 
 /**
@@ -552,7 +553,7 @@ export class Material extends RnObject {
     pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
 
     const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
-    const vertexAttributesBinding = this.__outputVertexAttributeBindingInfo(
+    const vertexAttributesBinding = _outputVertexAttributeBindingInfo(
       attributeNames,
       attributeSemantics
     );
@@ -567,17 +568,6 @@ export class Material extends RnObject {
     );
 
     return this._shaderProgramUid;
-  }
-
-  private __outputVertexAttributeBindingInfo(
-    attributeNames: string[],
-    attributeSemantics: VertexAttributeEnum[]
-  ) {
-    let vertexAttributesBinding = '\n// Vertex Attributes Binding Info\n';
-    for (let i = 0; i < attributeNames.length; i++) {
-      vertexAttributesBinding += `// ${attributeNames[i]}: ${attributeSemantics[i].str} \n`;
-    }
-    return vertexAttributesBinding;
   }
 
   private __getTargetShaderSemantics(uniformName: string) {

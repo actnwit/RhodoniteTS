@@ -71,3 +71,14 @@ export function _getAttributeInfo(materialNode: AbstractMaterialContent) {
   const attributeSemantics = reflection.semantics;
   return { attributeNames, attributeSemantics };
 }
+
+export function _outputVertexAttributeBindingInfo(
+  attributeNames: string[],
+  attributeSemantics: VertexAttributeEnum[]
+) {
+  let vertexAttributesBinding = '\n// Vertex Attributes Binding Info\n';
+  for (let i = 0; i < attributeNames.length; i++) {
+    vertexAttributesBinding += `// ${attributeNames[i]}: ${attributeSemantics[i].str} \n`;
+  }
+  return vertexAttributesBinding;
+}
