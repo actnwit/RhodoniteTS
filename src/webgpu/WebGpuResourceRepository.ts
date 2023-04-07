@@ -70,13 +70,7 @@ export class WebGpuResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -93,7 +87,7 @@ export class WebGpuResourceRepository
       anisotropy: boolean;
       isPremultipliedAlpha: boolean;
     }
-  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
+  ): WebGLResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
     const gpuTexture = gpuDevice.createTexture({
       size: [width, height, 1],
@@ -111,13 +105,6 @@ export class WebGpuResourceRepository
 
     const textureHandle = this.__registerResource(gpuTexture);
 
-    const gpuSampler = gpuDevice.createSampler({
-      magFilter: 'linear',
-      minFilter: 'linear',
-    });
-
-    const samplerHandle = this.__registerResource(gpuSampler);
-
-    return { textureHandle, samplerHandle };
+    return textureHandle;
   }
 }

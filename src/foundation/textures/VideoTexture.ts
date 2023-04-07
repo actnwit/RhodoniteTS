@@ -79,13 +79,7 @@ export class VideoTexture extends AbstractTexture {
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.Linear,
-      wrapS = TextureParameter.ClampToEdge,
-      wrapT = TextureParameter.ClampToEdge,
       generateMipmap = false,
-      anisotropy = false,
-      isPremultipliedAlpha = false,
       mutedAutoPlay = true,
     } = {}
   ) {
@@ -101,17 +95,16 @@ export class VideoTexture extends AbstractTexture {
     this.__height = img.videoHeight;
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const { textureHandle, samplerHandle } =
-      webGLResourceRepository.createTextureFromImageBitmapData(img, {
-        level: level,
-        internalFormat: internalFormat,
-        width: this.__width,
-        height: this.__height,
-        border: 0,
-        format: format,
-        type: type,
-        generateMipmap: generateMipmap,
-      });
+    const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+      level: level,
+      internalFormat: internalFormat,
+      width: this.__width,
+      height: this.__height,
+      border: 0,
+      format: format,
+      type: type,
+      generateMipmap: generateMipmap,
+    });
 
     this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;
@@ -127,13 +120,7 @@ export class VideoTexture extends AbstractTexture {
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
-      magFilter = TextureParameter.Linear,
-      minFilter = TextureParameter.Linear,
-      wrapS = TextureParameter.ClampToEdge,
-      wrapT = TextureParameter.ClampToEdge,
       generateMipmap = false,
-      anisotropy = false,
-      isPremultipliedAlpha = false,
       mutedAutoPlay = true,
       playButtonDomElement = undefined,
     } = {}
@@ -148,17 +135,16 @@ export class VideoTexture extends AbstractTexture {
         this.__height = video.videoHeight;
 
         const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        const { textureHandle, samplerHandle } =
-          webGLResourceRepository.createTextureFromImageBitmapData(video, {
-            level: level,
-            internalFormat: internalFormat,
-            width: this.__width,
-            height: this.__height,
-            border: 0,
-            format: format,
-            type: type,
-            generateMipmap: generateMipmap,
-          });
+        const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(video, {
+          level: level,
+          internalFormat: internalFormat,
+          width: this.__width,
+          height: this.__height,
+          border: 0,
+          format: format,
+          type: type,
+          generateMipmap: generateMipmap,
+        });
 
         this._textureResourceUid = textureHandle;
         this.__isTextureReady = true;

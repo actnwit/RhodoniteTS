@@ -44,13 +44,7 @@ export interface ICGAPIResourceRepository {
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -59,13 +53,7 @@ export interface ICGAPIResourceRepository {
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
-  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle };
+  ): WebGLResourceHandle;
 }

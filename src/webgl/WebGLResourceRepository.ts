@@ -1137,7 +1137,7 @@ export class WebGLResourceRepository
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
+  ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
@@ -1150,7 +1150,7 @@ export class WebGLResourceRepository
 
     this.__createTextureInner(gl, width, height, generateMipmap);
 
-    return { textureHandle, samplerHandle: -1 };
+    return textureHandle;
   }
 
   private __createTextureInner(
