@@ -45,10 +45,11 @@ import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
 
-export class WebGLStrategyDataTexture implements WebGLStrategy {
+export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();

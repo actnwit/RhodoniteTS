@@ -1,7 +1,6 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { MeshComponent } from '../Mesh/MeshComponent';
-import { WebGLStrategy } from '../../../webgl/WebGLStrategy';
 import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStage, ProcessStageEnum } from '../../definitions/ProcessStage';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
@@ -24,6 +23,7 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/types/GeometryTypes';
 import { Primitive } from '../../geometry/Primitive';
 import { isSkipDrawing } from '../../renderer/RenderingCommonMethods';
+import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 
 export class MeshRendererComponent extends Component {
   public diffuseCubeMap?: CubeTexture;
@@ -34,7 +34,7 @@ export class MeshRendererComponent extends Component {
   public _readyForRendering = false;
   private __meshComponent?: MeshComponent;
 
-  private static __webglRenderingStrategy?: WebGLStrategy;
+  private static __webglRenderingStrategy?: CGAPIStrategy;
   public static _lastOpaqueIndex = -1;
   public static _lastTransparentIndex = -1;
   public static _firstTransparentSortKey = -1;

@@ -36,10 +36,11 @@ import WebGLStrategyCommonMethod, {
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
 
-export class WebGLStrategyUniform implements WebGLStrategy {
+export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
