@@ -21,9 +21,9 @@ import {
 } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { Primitive } from '../../..';
 import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/types/GeometryTypes';
-import WebGLStrategyCommonMethod from '../../../webgl/WebGLStrategyCommonMethod';
+import { Primitive } from '../../geometry/Primitive';
+import { isSkipDrawing } from '../../renderer/RenderingCommonMethods';
 
 export class MeshRendererComponent extends Component {
   public diffuseCubeMap?: CubeTexture;
@@ -222,7 +222,7 @@ export class MeshRendererComponent extends Component {
         const meshPrimitives = mesh.primitives;
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
-          if (WebGLStrategyCommonMethod.isSkipDrawing(primitive.material)) {
+          if (isSkipDrawing(primitive.material)) {
             // continue;
           }
           primitive._viewDepth = viewDepth;

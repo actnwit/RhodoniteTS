@@ -34,7 +34,8 @@ import WebGLStrategyCommonMethod, {
   setupShaderProgramForMeshComponent,
 } from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
-import { ShaderSemanticsInfo } from '../foundation';
+import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 
 declare const spector: any;
 
@@ -459,7 +460,7 @@ bool get_isBillboard(float instanceId) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
-    if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+    if (isSkipDrawing(material)) {
       return false;
     }
     const mesh = primitive.mesh as Mesh;

@@ -216,14 +216,6 @@ function isMaterialsSetup(meshComponent: MeshComponent) {
   }
 }
 
-function isSkipDrawing(material: Material) {
-  if (material.isEmptyMaterial() || material._shaderProgramUid === -1) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function getViewport(renderPass: RenderPass) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
@@ -327,7 +319,6 @@ export default Object.freeze({
   endDepthMasking,
   updateVBOAndVAO,
   isMaterialsSetup,
-  isSkipDrawing,
   setVRViewport,
   getDisplayNumber,
   isVrMainPass,

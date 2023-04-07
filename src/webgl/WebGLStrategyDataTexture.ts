@@ -44,6 +44,7 @@ import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 
 declare const spector: any;
 
@@ -818,7 +819,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     const material: Material = renderPass.getAppropriateMaterial(primitive);
-    if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+    if (isSkipDrawing(material)) {
       return false;
     }
 
