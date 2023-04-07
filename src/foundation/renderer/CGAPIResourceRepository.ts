@@ -1,9 +1,16 @@
 import { ModuleManager } from '../system/ModuleManager';
 import type { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import type { Index, Size, TypedArray, WebGLResourceHandle } from '../../types/CommonTypes';
+import type {
+  CGAPIResourceHandle,
+  Index,
+  Size,
+  TypedArray,
+  WebGLResourceHandle,
+} from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
+import { Accessor } from '../memory';
 
 export type DirectTextureData =
   | TypedArray
@@ -55,5 +62,11 @@ export interface ICGAPIResourceRepository {
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): WebGLResourceHandle;
+  ): CGAPIResourceHandle;
+
+  /**
+   * create a Vertex Buffer
+   * @param accessor
+   */
+  createVertexBuffer(accessor: Accessor): CGAPIResourceHandle;
 }

@@ -3,6 +3,7 @@
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
+import { Accessor } from '../foundation/memory/Accessor';
 import {
   CGAPIResourceRepository,
   ICGAPIResourceRepository,
@@ -55,9 +56,9 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a Texture
-   * @param imageData
-   * @param param1
+   * create a WebGPU Texture
+   * @param imageData - an ImageBitmapData
+   * @param paramObject - a parameter object
    * @returns
    */
   public createTextureFromImageBitmapData(
@@ -106,5 +107,26 @@ export class WebGpuResourceRepository
     const textureHandle = this.__registerResource(gpuTexture);
 
     return textureHandle;
+  }
+
+  /**
+   * create a WebGPU Vertex Buffer
+   * @param accessor - an accessor
+   * @returns
+   */
+  public createVertexBuffer(accessor: Accessor) {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const vertexBuffer = gpuDevice.createBuffer({
+      size: accessor.byteLength,
+      usage: GPUBufferUsage.VERTEX,
+      mappedAtCreation: true,
+    });
+
+    new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+    vertexBuffer.unmap();
+
+    const bufferHandle = this.__registerResource(vertexBuffer);
+
+    return bufferHandle;
   }
 }
