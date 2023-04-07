@@ -42,6 +42,7 @@ import {
   _createProgramAsSingleOperationByUpdatedSources,
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
+  _setupGlobalShaderDefinition,
 } from './ShaderHandler';
 
 /**
@@ -234,9 +235,15 @@ export class Material extends RnObject {
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ): CGAPIResourceHandle {
-    const programUid = this.__createProgramAsSingleOperation(
-      vertexShaderMethodDefinitions_uniform,
+    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
       propertySetter,
+      isWebGL2
+    );
+
+    const programUid = this.__createProgramAsSingleOperation(
+      vertexPropertiesStr,
+      pixelPropertiesStr,
+      vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );
 
@@ -449,75 +456,21 @@ export class Material extends RnObject {
     });
   }
 
-  private __setupGlobalShaderDefinition() {
-    let definitions = '';
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
-    if (glw.isWebGL2) {
-      definitions += '#version 300 es\n#define GLSL_ES3\n';
-      if (Config.isUboEnabled) {
-        definitions += '#define RN_IS_UBO_ENABLED\n';
-      }
-    }
-    definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
-    if (ProcessApproach.isDataTextureApproach(System.processApproach)) {
-      definitions += '#define RN_IS_DATATEXTURE_MODE\n';
-    } else {
-      definitions += '#define RN_IS_UNIFORM_MODE\n';
-    }
-    // if (glw.webgl1ExtSTL) {
-    //   definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
-    // }
-    // if (glw.webgl1ExtDRV) {
-    //   definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
-    // }
-    // if (glw.webgl1ExtDB) {
-    //   definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
-    // }
-
-    if (glw.is_multiview) {
-      definitions += '#define WEBGL2_MULTI_VIEW\n';
-    }
-
-    // if (glw._isWebXRMode && glw.is_multiview) {
-    //   definitions += '#define WEBXR_MULTI_VIEW_VIEW_NUM_2\n';
-    // }
-
-    if (glw.isWebGL2 || glw.webgl1ExtDRV) {
-      definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
-    }
-    if (Config.boneDataType === BoneDataType.Mat44x1) {
-      definitions += '#define RN_BONE_DATA_TYPE_Mat44x1\n';
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
-    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
-    }
-
-    return definitions;
-  }
-
   private __createProgramAsSingleOperation(
+    vertexPropertiesStr: string,
+    pixelPropertiesStr: string,
     vertexShaderMethodDefinitions_uniform: string,
-    propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ): CGAPIResourceHandle {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialNode = this._materialContent;
 
-    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
-      propertySetter,
-      isWebGL2
-    );
-
     const definitions = materialNode.getDefinitions(this);
 
     // Shader Construction
-    let vertexShader = this.__setupGlobalShaderDefinition();
+    let vertexShader = _setupGlobalShaderDefinition(this.__materialTypeName);
     vertexShader += '#define RN_IS_VERTEX_SHADER\n';
-    let pixelShader = this.__setupGlobalShaderDefinition();
+    let pixelShader = _setupGlobalShaderDefinition(this.__materialTypeName);
     pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
     const vertexShaderityObject = ShaderityUtility.fillTemplate(
