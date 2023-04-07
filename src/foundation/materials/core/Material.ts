@@ -12,7 +12,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { AbstractTexture } from '../../textures/AbstractTexture';
-import { Config } from '../../core/Config';
 import { ShaderType } from '../../definitions/ShaderType';
 import {
   Index,
@@ -22,23 +21,23 @@ import {
   MaterialTID,
   MaterialUID,
 } from '../../../types/CommonTypes';
-import { DataUtil } from '../../misc/DataUtil';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { System } from '../../system/System';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { BoneDataType } from '../../definitions/BoneDataType';
 import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
-import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
-import { ShaderityUtility } from './ShaderityUtility';
 import { Is } from '../../misc/Is';
 import { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { Primitive } from '../../geometry/Primitive';
-import { AttributeNames, RenderingArg } from '../../../webgl/types/CommonTypes';
-import { GL_FUNC_ADD, GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA } from '../../../types';
-import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
+import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { ShaderSemanticsInfo } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
+import {
+  _createProgramAsSingleOperation,
+  _createProgramAsSingleOperationByUpdatedSources,
+  _getAttributeInfo,
+  _outputVertexAttributeBindingInfo,
+  _setupGlobalShaderDefinition,
+} from './ShaderHandler';
 
 /**
  * The material class.
@@ -66,14 +65,12 @@ export class Material extends RnObject {
   private __alphaToCoverage = false;
   private __blendEquationMode = Blend.EquationFuncAdd; // gl.FUNC_ADD
   private __blendEquationModeAlpha = Blend.EquationFuncAdd; // gl.FUNC_ADD
-  private __blendFuncSrcFactor = GL_SRC_ALPHA; // gl.SRC_ALPHA
-  private __blendFuncDstFactor = GL_ONE_MINUS_SRC_ALPHA; // gl.ONE_MINUS_SRC_ALPHA
-  private __blendFuncAlphaSrcFactor = GL_ONE; // gl.ONE
-  private __blendFuncAlphaDstFactor = GL_ONE; // gl.ONE
+  private __blendFuncSrcFactor = Blend.SrcAlpha; // gl.SRC_ALPHA
+  private __blendFuncDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
+  private __blendFuncAlphaSrcFactor = Blend.One; // gl.ONE
+  private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
 
   // static fields
-  private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
-  private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
     new Map();
 
@@ -232,11 +229,19 @@ export class Material extends RnObject {
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ): CGAPIResourceHandle {
-    const programUid = this.__createProgramAsSingleOperation(
-      vertexShaderMethodDefinitions_uniform,
+    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
       propertySetter,
       isWebGL2
     );
+
+    const programUid = _createProgramAsSingleOperation(
+      this,
+      vertexPropertiesStr,
+      pixelPropertiesStr,
+      vertexShaderMethodDefinitions_uniform,
+      isWebGL2
+    );
+    this._shaderProgramUid = programUid;
 
     return programUid;
   }
@@ -254,10 +259,13 @@ export class Material extends RnObject {
     updatedShaderSources: ShaderSources,
     onError?: (message: string) => void
   ): CGAPIResourceHandle {
-    const programUid = this.__createProgramAsSingleOperationByUpdatedSources(
+    const programUid = _createProgramAsSingleOperationByUpdatedSources(
+      this,
+      this._materialContent,
       updatedShaderSources,
       onError
     );
+    this._shaderProgramUid = programUid;
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -444,193 +452,6 @@ export class Material extends RnObject {
     });
   }
 
-  private __setupGlobalShaderDefinition() {
-    let definitions = '';
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
-    if (glw.isWebGL2) {
-      definitions += '#version 300 es\n#define GLSL_ES3\n';
-      if (Config.isUboEnabled) {
-        definitions += '#define RN_IS_UBO_ENABLED\n';
-      }
-    }
-    definitions += `#define RN_MATERIAL_TYPE_NAME ${this.__materialTypeName}\n`;
-    if (ProcessApproach.isDataTextureApproach(System.processApproach)) {
-      definitions += '#define RN_IS_DATATEXTURE_MODE\n';
-    } else {
-      definitions += '#define RN_IS_UNIFORM_MODE\n';
-    }
-    // if (glw.webgl1ExtSTL) {
-    //   definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
-    // }
-    // if (glw.webgl1ExtDRV) {
-    //   definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
-    // }
-    // if (glw.webgl1ExtDB) {
-    //   definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
-    // }
-
-    if (glw.is_multiview) {
-      definitions += '#define WEBGL2_MULTI_VIEW\n';
-    }
-
-    // if (glw._isWebXRMode && glw.is_multiview) {
-    //   definitions += '#define WEBXR_MULTI_VIEW_VIEW_NUM_2\n';
-    // }
-
-    if (glw.isWebGL2 || glw.webgl1ExtDRV) {
-      definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
-    }
-    if (Config.boneDataType === BoneDataType.Mat44x1) {
-      definitions += '#define RN_BONE_DATA_TYPE_Mat44x1\n';
-    } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-      definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
-    } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
-    } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-      definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
-    }
-
-    return definitions;
-  }
-
-  private __createProgramAsSingleOperation(
-    vertexShaderMethodDefinitions_uniform: string,
-    propertySetter: getShaderPropertyFunc,
-    isWebGL2: boolean
-  ): CGAPIResourceHandle {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const materialNode = this._materialContent;
-
-    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
-      propertySetter,
-      isWebGL2
-    );
-
-    const definitions = materialNode.getDefinitions(this);
-
-    // Shader Construction
-    let vertexShader = this.__setupGlobalShaderDefinition();
-    vertexShader += '#define RN_IS_VERTEX_SHADER\n';
-    let pixelShader = this.__setupGlobalShaderDefinition();
-    pixelShader += '#define RN_IS_PIXEL_SHADER\n';
-
-    const vertexShaderityObject = ShaderityUtility.fillTemplate(
-      materialNode.vertexShaderityObject!,
-      {
-        getters: vertexPropertiesStr,
-        definitions: definitions,
-        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-        matricesGetters: vertexShaderMethodDefinitions_uniform,
-      }
-    );
-    const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
-      vertexShaderityObject,
-      isWebGL2
-    ).code;
-
-    const pixelShaderityObject = ShaderityUtility.fillTemplate(materialNode.pixelShaderityObject!, {
-      renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
-      getters: pixelPropertiesStr,
-      definitions: definitions,
-      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-      matricesGetters: vertexShaderMethodDefinitions_uniform,
-      renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
-    });
-    const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
-      pixelShaderityObject,
-      isWebGL2
-    ).code;
-
-    vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
-    pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
-
-    const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
-    const vertexAttributesBinding = this.__outputVertexAttributeBindingInfo(
-      attributeNames,
-      attributeSemantics
-    );
-    vertexShader += vertexAttributesBinding;
-
-    return this.__createShaderProgramWithCache(
-      vertexShader,
-      pixelShader,
-      attributeNames,
-      attributeSemantics
-    );
-  }
-
-  private __createProgramAsSingleOperationByUpdatedSources(
-    updatedShaderSources: ShaderSources,
-    onError?: (message: string) => void
-  ) {
-    const materialNode = this._materialContent;
-    const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
-
-    return this.__createShaderProgramWithCache(
-      updatedShaderSources.vertex,
-      updatedShaderSources.pixel,
-      attributeNames,
-      attributeSemantics,
-      onError
-    );
-  }
-
-  private __createShaderProgramWithCache(
-    vertexShader: string,
-    pixelShader: string,
-    attributeNames: AttributeNames,
-    attributeSemantics: VertexAttributeEnum[],
-    onError?: (message: string) => void
-  ): CGAPIResourceHandle {
-    // Cache
-    const wholeShaderText = vertexShader + pixelShader;
-    let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
-    if (shaderProgramUid) {
-      this._shaderProgramUid = shaderProgramUid;
-      return shaderProgramUid;
-    }
-    const hash = DataUtil.toCRC32(wholeShaderText);
-    shaderProgramUid = Material.__shaderHashMap.get(hash);
-    if (shaderProgramUid) {
-      this._shaderProgramUid = shaderProgramUid;
-      return this._shaderProgramUid;
-    } else {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      this._shaderProgramUid = webglResourceRepository.createShaderProgram({
-        material: this,
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: pixelShader,
-        attributeNames: attributeNames,
-        attributeSemantics: attributeSemantics,
-        onError,
-      });
-      Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
-      Material.__shaderHashMap.set(hash, this._shaderProgramUid);
-      return this._shaderProgramUid;
-    }
-  }
-
-  private __getAttributeInfo(materialNode: AbstractMaterialContent) {
-    const reflection = ShaderityUtility.getAttributeReflection(materialNode.vertexShaderityObject!);
-    const attributeNames = reflection.names;
-    const attributeSemantics = reflection.semantics;
-    return { attributeNames, attributeSemantics };
-  }
-
-  private __outputVertexAttributeBindingInfo(
-    attributeNames: string[],
-    attributeSemantics: VertexAttributeEnum[]
-  ) {
-    let vertexAttributesBinding = '\n// Vertex Attributes Binding Info\n';
-    for (let i = 0; i < attributeNames.length; i++) {
-      vertexAttributesBinding += `// ${attributeNames[i]}: ${attributeSemantics[i].str} \n`;
-    }
-    return vertexAttributesBinding;
-  }
-
   private __getTargetShaderSemantics(uniformName: string) {
     const targetFieldsInfo = this.fieldsInfoArray.find((fieldsInfo) => {
       const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
@@ -661,10 +482,10 @@ export class Material extends RnObject {
    * This method works only if this alphaMode is the translucent
    */
   public setBlendFuncSeparateFactor(
-    blendFuncSrcFactor: number,
-    blendFuncDstFactor: number,
-    blendFuncAlphaSrcFactor: number,
-    blendFuncAlphaDstFactor: number
+    blendFuncSrcFactor: BlendEnum,
+    blendFuncDstFactor: BlendEnum,
+    blendFuncAlphaSrcFactor: BlendEnum,
+    blendFuncAlphaDstFactor: BlendEnum
   ) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
@@ -676,7 +497,7 @@ export class Material extends RnObject {
    * Change the blendFuncFactors
    * This method works only if this alphaMode is the translucent
    */
-  public setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number) {
+  public setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
