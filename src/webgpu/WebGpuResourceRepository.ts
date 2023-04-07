@@ -9,7 +9,7 @@ import {
   ICGAPIResourceRepository,
   ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
-import { Index, Size, WebGLResourceHandle } from '../types/CommonTypes';
+import { Index, Size, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 export type WebGpuResource =
@@ -114,7 +114,7 @@ export class WebGpuResourceRepository
    * @param accessor - an accessor
    * @returns
    */
-  public createVertexBuffer(accessor: Accessor) {
+  public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
     const vertexBuffer = gpuDevice.createBuffer({
       size: accessor.byteLength,
@@ -126,6 +126,27 @@ export class WebGpuResourceRepository
     vertexBuffer.unmap();
 
     const bufferHandle = this.__registerResource(vertexBuffer);
+
+    return bufferHandle;
+  }
+
+  /**
+   * create a WebGPU Index Buffer
+   * @param accessor - an accessor
+   * @returns a WebGPUResourceHandle
+   */
+  public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const indexBuffer = gpuDevice.createBuffer({
+      size: accessor.byteLength,
+      usage: GPUBufferUsage.INDEX,
+      mappedAtCreation: true,
+    });
+
+    new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+    indexBuffer.unmap();
+
+    const bufferHandle = this.__registerResource(indexBuffer);
 
     return bufferHandle;
   }

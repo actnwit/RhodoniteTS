@@ -67,6 +67,14 @@ export interface ICGAPIResourceRepository {
   /**
    * create a Vertex Buffer
    * @param accessor
+   * @returns a CGAPIResourceHandle
    */
   createVertexBuffer(accessor: Accessor): CGAPIResourceHandle;
+
+  /**
+   * create a Index Buffer
+   * @param accessor - an accessor
+   * @returns a CGAPIResourceHandle
+   */
+  createIndexBuffer(accessor: Accessor): CGAPIResourceHandle;
 }
