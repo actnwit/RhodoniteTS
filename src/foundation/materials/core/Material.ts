@@ -12,7 +12,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { AbstractTexture } from '../../textures/AbstractTexture';
-import { Config } from '../../core/Config';
 import { ShaderType } from '../../definitions/ShaderType';
 import {
   Index,
@@ -23,22 +22,17 @@ import {
   MaterialUID,
 } from '../../../types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { System } from '../../system/System';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { BoneDataType } from '../../definitions/BoneDataType';
 import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
-import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
-import { ShaderityUtility } from './ShaderityUtility';
 import { Is } from '../../misc/Is';
 import { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { Primitive } from '../../geometry/Primitive';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
+import { ShaderSemanticsInfo } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
 import {
-  ShaderHandler,
+  _createProgramAsSingleOperation,
   _createProgramAsSingleOperationByUpdatedSources,
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
@@ -240,12 +234,14 @@ export class Material extends RnObject {
       isWebGL2
     );
 
-    const programUid = this.__createProgramAsSingleOperation(
+    const programUid = _createProgramAsSingleOperation(
+      this,
       vertexPropertiesStr,
       pixelPropertiesStr,
       vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );
+    this._shaderProgramUid = programUid;
 
     return programUid;
   }
@@ -454,73 +450,6 @@ export class Material extends RnObject {
         }
       }
     });
-  }
-
-  private __createProgramAsSingleOperation(
-    vertexPropertiesStr: string,
-    pixelPropertiesStr: string,
-    vertexShaderMethodDefinitions_uniform: string,
-    isWebGL2: boolean
-  ): CGAPIResourceHandle {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const materialNode = this._materialContent;
-
-    const definitions = materialNode.getDefinitions(this);
-
-    // Shader Construction
-    let vertexShader = _setupGlobalShaderDefinition(this.__materialTypeName);
-    vertexShader += '#define RN_IS_VERTEX_SHADER\n';
-    let pixelShader = _setupGlobalShaderDefinition(this.__materialTypeName);
-    pixelShader += '#define RN_IS_PIXEL_SHADER\n';
-
-    const vertexShaderityObject = ShaderityUtility.fillTemplate(
-      materialNode.vertexShaderityObject!,
-      {
-        getters: vertexPropertiesStr,
-        definitions: definitions,
-        dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-        dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-        matricesGetters: vertexShaderMethodDefinitions_uniform,
-      }
-    );
-    const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
-      vertexShaderityObject,
-      isWebGL2
-    ).code;
-
-    const pixelShaderityObject = ShaderityUtility.fillTemplate(materialNode.pixelShaderityObject!, {
-      renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
-      getters: pixelPropertiesStr,
-      definitions: definitions,
-      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-      matricesGetters: vertexShaderMethodDefinitions_uniform,
-      renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
-    });
-    const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
-      pixelShaderityObject,
-      isWebGL2
-    ).code;
-
-    vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
-    pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
-
-    const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
-    const vertexAttributesBinding = _outputVertexAttributeBindingInfo(
-      attributeNames,
-      attributeSemantics
-    );
-    vertexShader += vertexAttributesBinding;
-
-    this._shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
-      this,
-      vertexShader,
-      pixelShader,
-      attributeNames,
-      attributeSemantics
-    );
-
-    return this._shaderProgramUid;
   }
 
   private __getTargetShaderSemantics(uniformName: string) {
