@@ -1,0 +1,45 @@
+import { Material } from '.';
+import { CGAPIResourceHandle } from '../../../types/CommonTypes';
+import { AttributeNames } from '../../../webgl/types/CommonTypes';
+import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { DataUtil } from '../../misc/DataUtil';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+
+export class ShaderHandler {
+  private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
+  private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
+
+  static _createShaderProgramWithCache(
+    material: Material,
+    vertexShader: string,
+    pixelShader: string,
+    attributeNames: AttributeNames,
+    attributeSemantics: VertexAttributeEnum[],
+    onError?: (message: string) => void
+  ): CGAPIResourceHandle {
+    // Cache
+    const wholeShaderText = vertexShader + pixelShader;
+    let shaderProgramUid = this.__shaderStringMap.get(wholeShaderText);
+    if (shaderProgramUid) {
+      return shaderProgramUid;
+    }
+    const hash = DataUtil.toCRC32(wholeShaderText);
+    shaderProgramUid = this.__shaderHashMap.get(hash);
+    if (shaderProgramUid) {
+      return shaderProgramUid;
+    } else {
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const shaderProgramUid = webglResourceRepository.createShaderProgram({
+        material,
+        vertexShaderStr: vertexShader,
+        fragmentShaderStr: pixelShader,
+        attributeNames: attributeNames,
+        attributeSemantics: attributeSemantics,
+        onError,
+      });
+      this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
+      this.__shaderHashMap.set(hash, shaderProgramUid);
+      return shaderProgramUid;
+    }
+  }
+}

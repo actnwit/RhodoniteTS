@@ -554,12 +554,15 @@ export class Material extends RnObject {
     );
     vertexShader += vertexAttributesBinding;
 
-    return this.__createShaderProgramWithCache(
+    this._shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
+      this,
       vertexShader,
       pixelShader,
       attributeNames,
       attributeSemantics
     );
+
+    return this._shaderProgramUid;
   }
 
   private __createProgramAsSingleOperationByUpdatedSources(
@@ -569,48 +572,16 @@ export class Material extends RnObject {
     const materialNode = this._materialContent;
     const { attributeNames, attributeSemantics } = this.__getAttributeInfo(materialNode);
 
-    return this.__createShaderProgramWithCache(
+    this._shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
+      this,
       updatedShaderSources.vertex,
       updatedShaderSources.pixel,
       attributeNames,
       attributeSemantics,
       onError
     );
-  }
 
-  private __createShaderProgramWithCache(
-    vertexShader: string,
-    pixelShader: string,
-    attributeNames: AttributeNames,
-    attributeSemantics: VertexAttributeEnum[],
-    onError?: (message: string) => void
-  ): CGAPIResourceHandle {
-    // Cache
-    const wholeShaderText = vertexShader + pixelShader;
-    let shaderProgramUid = Material.__shaderStringMap.get(wholeShaderText);
-    if (shaderProgramUid) {
-      this._shaderProgramUid = shaderProgramUid;
-      return shaderProgramUid;
-    }
-    const hash = DataUtil.toCRC32(wholeShaderText);
-    shaderProgramUid = Material.__shaderHashMap.get(hash);
-    if (shaderProgramUid) {
-      this._shaderProgramUid = shaderProgramUid;
-      return this._shaderProgramUid;
-    } else {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      this._shaderProgramUid = webglResourceRepository.createShaderProgram({
-        material: this,
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: pixelShader,
-        attributeNames: attributeNames,
-        attributeSemantics: attributeSemantics,
-        onError,
-      });
-      Material.__shaderStringMap.set(wholeShaderText, this._shaderProgramUid);
-      Material.__shaderHashMap.set(hash, this._shaderProgramUid);
-      return this._shaderProgramUid;
-    }
+    return this._shaderProgramUid;
   }
 
   private __getAttributeInfo(materialNode: AbstractMaterialContent) {
