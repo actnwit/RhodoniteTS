@@ -1,6 +1,7 @@
 import { AbstractMaterialContent, Material, ShaderityUtility } from '.';
 import { CGAPIResourceHandle } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../../webgl/types/CommonTypes';
+import { ShaderSources } from '../../../webgl/WebGLStrategy';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { DataUtil } from '../../misc/DataUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
@@ -42,6 +43,26 @@ export class ShaderHandler {
       return shaderProgramUid;
     }
   }
+}
+
+export function _createProgramAsSingleOperationByUpdatedSources(
+  material: Material,
+  materialNode: AbstractMaterialContent,
+  updatedShaderSources: ShaderSources,
+  onError?: (message: string) => void
+) {
+  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
+
+  const shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
+    material,
+    updatedShaderSources.vertex,
+    updatedShaderSources.pixel,
+    attributeNames,
+    attributeSemantics,
+    onError
+  );
+
+  return shaderProgramUid;
 }
 
 export function _getAttributeInfo(materialNode: AbstractMaterialContent) {

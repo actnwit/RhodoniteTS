@@ -37,7 +37,11 @@ import { ShaderSemanticsInfo, VertexAttributeEnum } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
-import { ShaderHandler, _getAttributeInfo } from './ShaderHandler';
+import {
+  ShaderHandler,
+  _createProgramAsSingleOperationByUpdatedSources,
+  _getAttributeInfo,
+} from './ShaderHandler';
 
 /**
  * The material class.
@@ -71,8 +75,6 @@ export class Material extends RnObject {
   private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
 
   // static fields
-  private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
-  private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
     new Map();
 
@@ -253,10 +255,13 @@ export class Material extends RnObject {
     updatedShaderSources: ShaderSources,
     onError?: (message: string) => void
   ): CGAPIResourceHandle {
-    const programUid = this.__createProgramAsSingleOperationByUpdatedSources(
+    const programUid = _createProgramAsSingleOperationByUpdatedSources(
+      this,
+      this._materialContent,
       updatedShaderSources,
       onError
     );
+    this._shaderProgramUid = programUid;
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -559,25 +564,6 @@ export class Material extends RnObject {
       pixelShader,
       attributeNames,
       attributeSemantics
-    );
-
-    return this._shaderProgramUid;
-  }
-
-  private __createProgramAsSingleOperationByUpdatedSources(
-    updatedShaderSources: ShaderSources,
-    onError?: (message: string) => void
-  ) {
-    const materialNode = this._materialContent;
-    const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
-
-    this._shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
-      this,
-      updatedShaderSources.vertex,
-      updatedShaderSources.pixel,
-      attributeNames,
-      attributeSemantics,
-      onError
     );
 
     return this._shaderProgramUid;
