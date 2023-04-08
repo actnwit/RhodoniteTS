@@ -155,18 +155,6 @@ export class WebGpuResourceRepository
     return bufferHandle;
   }
 
-  updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
-    const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
-    if (Is.not.exist(indexBuffer)) {
-      throw new Error('Not found IBO.');
-    }
-
-    indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
-      indexBuffer.unmap();
-    });
-  }
-
   updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
     const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
     if (Is.not.exist(vertexBuffer)) {
@@ -176,6 +164,18 @@ export class WebGpuResourceRepository
     vertexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
       new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
       vertexBuffer.unmap();
+    });
+  }
+
+  updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
+    const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(indexBuffer)) {
+      throw new Error('Not found IBO.');
+    }
+
+    indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
+      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+      indexBuffer.unmap();
     });
   }
 
@@ -211,5 +211,21 @@ export class WebGpuResourceRepository
       attributesFlags: attributesFlags,
       setComplete: false,
     };
+  }
+
+  /**
+   * update the VertexBuffer and IndexBuffer
+   * @param primitive
+   * @param vertexHandles
+   */
+  updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
+    if (vertexHandles.iboHandle) {
+      this.updateIndexBuffer(primitive.indicesAccessor as Accessor, vertexHandles.iboHandle);
+    }
+
+    const attributeAccessors = primitive.attributeAccessors;
+    for (let i = 0; i < attributeAccessors.length; i++) {
+      this.updateVertexBuffer(attributeAccessors[i], vertexHandles.vboHandles[i]);
+    }
   }
 }

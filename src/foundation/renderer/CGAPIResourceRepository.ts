@@ -95,4 +95,11 @@ export interface ICGAPIResourceRepository {
    * update a Index Buffer
    */
   updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle): void;
+
+  /**
+   * update the VertexBuffer and IndexBuffer
+   * @param primitive
+   * @param vertexHandles
+   */
+  updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles): void;
 }
