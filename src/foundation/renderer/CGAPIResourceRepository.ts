@@ -6,6 +6,7 @@ import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import { Accessor } from '../memory';
 import { Primitive } from '../geometry/Primitive';
+import { ProcessApproach, ProcessApproachEnum } from '../definitions';
 
 export type DirectTextureData =
   | TypedArray
@@ -24,6 +25,15 @@ export abstract class CGAPIResourceRepository {
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
     const webGLResourceRepository: WebGLResourceRepository =
+      webglModule.WebGLResourceRepository.getInstance();
+    return webGLResourceRepository;
+  }
+
+  static getCgApiResourceRepository(processApproach: ProcessApproachEnum): CGAPIResourceRepository {
+    const moduleName = ProcessApproach.isWebGL2Approach(processApproach) ? 'webgl' : 'webgpu';
+    const moduleManager = ModuleManager.getInstance();
+    const webglModule = moduleManager.getModule(moduleName)! as any;
+    const webGLResourceRepository: CGAPIResourceRepository =
       webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
   }
