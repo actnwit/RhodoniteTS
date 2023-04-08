@@ -1,13 +1,6 @@
 import { ModuleManager } from '../system/ModuleManager';
 import type { VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import type {
-  CGAPIResourceHandle,
-  Index,
-  Size,
-  TypedArray,
-  WebGLResourceHandle,
-  WebGPUResourceHandle,
-} from '../../types/CommonTypes';
+import type { CGAPIResourceHandle, Index, Size, TypedArray } from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
@@ -78,7 +71,7 @@ export interface ICGAPIResourceRepository {
    * @param typedArray - a typed array
    * @returns a CGAPIResourceHandle
    */
-  createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle;
+  createVertexBufferFromTypedArray(typedArray: TypedArray): CGAPIResourceHandle;
 
   /**
    * create a Index Buffer
@@ -96,12 +89,12 @@ export interface ICGAPIResourceRepository {
   /**
    * update a Vertex Buffer
    */
-  updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle): void;
+  updateVertexBuffer(accessor: Accessor, resourceHandle: CGAPIResourceHandle): void;
 
   /**
    * update a Index Buffer
    */
-  updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle): void;
+  updateIndexBuffer(accessor: Accessor, resourceHandle: CGAPIResourceHandle): void;
 
   /**
    * update the VertexBuffer and IndexBuffer
