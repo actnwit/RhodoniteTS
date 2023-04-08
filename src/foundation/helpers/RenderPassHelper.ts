@@ -1,7 +1,7 @@
-import { IMeshEntity } from '.';
 import { Material } from '../materials';
 import { Is } from '../misc';
 import { RenderPass } from '../renderer';
+import { IMeshEntity } from './EntityHelper';
 import { MeshHelper } from './MeshHelper';
 
 let planeEntity: IMeshEntity | undefined = undefined;
