@@ -11,7 +11,7 @@ import {
 import { CompositionType } from '../../definitions/CompositionType';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { AbstractTexture } from '../../textures/AbstractTexture';
+import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { ShaderType } from '../../definitions/ShaderType';
 import {
   Index,
@@ -24,9 +24,9 @@ import {
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Is } from '../../misc/Is';
-import { ShaderSources } from '../../../webgl/WebGLStrategy';
-import { Primitive } from '../../geometry/Primitive';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import type { ShaderSources } from '../../../webgl/WebGLStrategy';
+import type { Primitive } from '../../geometry/Primitive';
+import type { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';

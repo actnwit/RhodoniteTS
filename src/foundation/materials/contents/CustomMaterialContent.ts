@@ -9,7 +9,7 @@ import { ShaderityObject } from 'shaderity';
 import { ShaderityUtility } from '../core/ShaderityUtility';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../../math';
+import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 
 export class CustomMaterialContent extends AbstractMaterialContent {

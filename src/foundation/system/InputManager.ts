@@ -1,6 +1,4 @@
-import { TranslationGizmo } from '../gizmos/TranslationGizmo';
 import { Is } from '../misc/Is';
-import { assertExist } from '../misc/MiscUtil';
 
 export const EVENT_MOUSE_DOWN = 'mousedown';
 export const EVENT_MOUSE_MOVE = 'mousemove';

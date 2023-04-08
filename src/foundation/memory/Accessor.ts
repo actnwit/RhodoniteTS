@@ -22,7 +22,7 @@ import {
   Array4,
 } from '../../types/CommonTypes';
 import { Matrix44 } from '../math/Matrix44';
-import { Is } from '../misc';
+import { Is } from '../misc/Is';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (byteOffset: Byte, value: number, littleEndian?: boolean) => void;
