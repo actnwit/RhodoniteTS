@@ -9,7 +9,7 @@ import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { DataUtil } from '../../misc/DataUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { System } from '../../system/System';
+import { SystemState } from '../../system';
 
 export class ShaderHandler {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -164,7 +164,7 @@ export function _setupGlobalShaderDefinition(materialTypeName: string) {
     }
   }
   definitions += `#define RN_MATERIAL_TYPE_NAME ${materialTypeName}\n`;
-  if (ProcessApproach.isDataTextureApproach(System.processApproach)) {
+  if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';

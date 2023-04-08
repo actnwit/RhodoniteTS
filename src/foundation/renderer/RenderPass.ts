@@ -4,10 +4,9 @@ import { FrameBuffer } from './FrameBuffer';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Vector4 } from '../math/Vector4';
-import { EntityUID, Index } from '../../types/CommonTypes';
+import { EntityUID } from '../../types/CommonTypes';
 import { Material } from '../materials/core/Material';
 import { WebGLStrategy } from '../../webgl/main';
-import { System } from '../system/System';
 import { ModuleManager } from '../system/ModuleManager';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { Primitive } from '../geometry/Primitive';
@@ -17,6 +16,7 @@ import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { RenderBufferTargetEnum } from '../definitions';
+import { SystemState } from '../system/SystemState';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -394,7 +394,7 @@ export class RenderPass extends RnObject {
     if (webglRenderingStrategy != null) {
       return webglRenderingStrategy;
     }
-    const processApproach = System.processApproach;
+    const processApproach = SystemState.currentProcessApproach;
 
     const moduleManager = ModuleManager.getInstance();
     const moduleName = 'webgl';
