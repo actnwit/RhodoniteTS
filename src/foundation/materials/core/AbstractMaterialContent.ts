@@ -23,7 +23,7 @@ import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeCompo
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderityObject } from 'shaderity';
 import { BoneDataType } from '../../definitions/BoneDataType';
-import SystemState from '../../system/SystemState';
+import { SystemState } from '../../system/SystemState';
 import { ShaderTypeEnum, ShaderType } from '../../definitions/ShaderType';
 import { IVector3 } from '../../math/IVector';
 import { ModuleManager } from '../../system/ModuleManager';
@@ -34,8 +34,6 @@ import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import { PixelFormat } from '../../definitions/PixelFormat';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 

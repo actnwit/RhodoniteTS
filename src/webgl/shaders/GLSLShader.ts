@@ -4,7 +4,7 @@ import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/c
 import { ShaderSemanticsClass } from '../../foundation/definitions/ShaderSemantics';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
-import SystemState from '../../foundation/system/SystemState';
+import { SystemState } from '../../foundation/system/SystemState';
 import { AttributeNames } from '../types/CommonTypes';
 
 export abstract class GLSLShader {
