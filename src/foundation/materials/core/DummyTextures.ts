@@ -5,8 +5,9 @@ export const dummyWhiteTexture = new Texture();
 export const dummyBlueTexture = new Texture();
 export const dummyBlackTexture = new Texture();
 export const dummyBlackCubeTexture = new CubeTexture();
+export const sheenLutTexture = new Texture();
 
-export function initDefaultTextures() {
+export async function initDefaultTextures() {
   if (dummyWhiteTexture.isTextureReady) {
     return;
   }
@@ -14,11 +15,13 @@ export function initDefaultTextures() {
   dummyBlueTexture.tryToSetUniqueName('dummyBlueTexture', true);
   dummyBlackTexture.tryToSetUniqueName('dummyBlackTexture', true);
   dummyBlackCubeTexture.tryToSetUniqueName('dummyBlackCubeTexture', true);
+  sheenLutTexture.tryToSetUniqueName('sheenLutTexture', true);
 
   dummyWhiteTexture.generate1x1TextureFrom();
   dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
   dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
   dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
+  await sheenLutTexture.generateSheenLutTextureFromDataUri();
 }
 
 export const DefaultTextures = {
@@ -26,4 +29,5 @@ export const DefaultTextures = {
   dummyBlueTexture,
   dummyBlackTexture,
   dummyBlackCubeTexture,
+  sheenLutTexture,
 };

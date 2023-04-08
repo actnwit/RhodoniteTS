@@ -430,7 +430,7 @@ export class System {
     });
 
     await AbstractMaterialContent.initDefaultTextures();
-    initDefaultTextures();
+    await initDefaultTextures();
 
     return gl;
   }

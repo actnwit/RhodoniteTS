@@ -76,7 +76,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   protected static __gl?: WebGLRenderingContext;
   static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
   static __dummySRGBGrayTexture = new Texture();
-  static __sheenLutTexture = new Texture();
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
@@ -273,7 +272,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   public static async initDefaultTextures() {
     this.__dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
-    this.__sheenLutTexture.generateSheenLutTextureFromDataUri();
   }
 
   static get dummyPbrKelemenSzirmayKalosBrdfLutTexture() {

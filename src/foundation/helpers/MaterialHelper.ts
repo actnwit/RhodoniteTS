@@ -1,7 +1,7 @@
 import { Config } from '../core/Config';
 import { Material } from '../materials/core/Material';
 import { RenderPass } from '../renderer/RenderPass';
-import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
@@ -54,6 +54,7 @@ import {
   dummyBlackTexture,
   dummyBlueTexture,
   dummyWhiteTexture,
+  sheenLutTexture,
 } from '../materials/core/DummyTextures';
 
 function createMaterial(
@@ -273,7 +274,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, AbstractMaterialContent.__sheenLutTexture],
+      initialValue: [textureSlotIdx++, sheenLutTexture],
       min: 0,
       max: Number.MAX_VALUE,
     });
