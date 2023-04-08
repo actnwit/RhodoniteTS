@@ -4,8 +4,8 @@ import type { CGAPIResourceHandle, Index, Size, TypedArray } from '../../types/C
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
-import { Accessor } from '../memory';
-import { Primitive } from '../geometry/Primitive';
+import type { Accessor } from '../memory';
+import type { Primitive } from '../geometry/Primitive';
 import { ProcessApproach, ProcessApproachEnum } from '../definitions';
 
 export type DirectTextureData =
