@@ -202,7 +202,7 @@ export class WebGLResourceRepository
 
     const ibo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
     if (Is.not.exist(ibo)) {
-      throw new Error('Not found VBO.');
+      throw new Error('Not found IBO.');
     }
 
     glw.bindVertexArray(null);

@@ -6,6 +6,7 @@ import type {
   Size,
   TypedArray,
   WebGLResourceHandle,
+  WebGPUResourceHandle,
 } from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
@@ -84,4 +85,14 @@ export interface ICGAPIResourceRepository {
    * @param primitive
    */
   createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles;
+
+  /**
+   * update a Vertex Buffer
+   */
+  updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle): void;
+
+  /**
+   * update a Index Buffer
+   */
+  updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle): void;
 }

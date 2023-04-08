@@ -6,6 +6,7 @@ import { TextureParameterEnum } from '../foundation/definitions/TextureParameter
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Accessor } from '../foundation/memory/Accessor';
+import { Is } from '../foundation/misc/Is';
 import {
   CGAPIResourceRepository,
   ICGAPIResourceRepository,
@@ -152,6 +153,30 @@ export class WebGpuResourceRepository
     const bufferHandle = this.__registerResource(indexBuffer);
 
     return bufferHandle;
+  }
+
+  updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
+    const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(indexBuffer)) {
+      throw new Error('Not found IBO.');
+    }
+
+    indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
+      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+      indexBuffer.unmap();
+    });
+  }
+
+  updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
+    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(vertexBuffer)) {
+      throw new Error('Not found VBO.');
+    }
+
+    vertexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
+      new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+      vertexBuffer.unmap();
+    });
   }
 
   /**
