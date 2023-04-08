@@ -79,8 +79,6 @@ import { LightComponent } from '../components/Light/LightComponent';
 import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import { BufferView } from '../memory/BufferView';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
-import Rn from '../../cjs';
-import { Vrm1_Materials_MToon } from '../../types/VRM1';
 import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
@@ -2453,8 +2451,8 @@ function setup_KHR_materials_volume(
       material.setParameter(ShaderSemantics.AttenuationDistance, attenuationDistance);
     }
     const attenuationColor = KHR_materials_volume.attenuationColor
-      ? Rn.Vector3.fromCopyArray3(KHR_materials_volume.attenuationColor)
-      : Rn.Vector3.fromCopy3(1.0, 1.0, 1.0);
+      ? Vector3.fromCopyArray3(KHR_materials_volume.attenuationColor)
+      : Vector3.fromCopy3(1.0, 1.0, 1.0);
     if (attenuationColor != null) {
       material.setParameter(ShaderSemantics.AttenuationColor, attenuationColor);
     }
