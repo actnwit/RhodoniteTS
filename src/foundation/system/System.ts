@@ -25,6 +25,7 @@ import { RenderPass } from '../renderer/RenderPass';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import { initDefaultTextures } from '../materials/core/DummyTextures';
 
 declare const spector: any;
 
@@ -429,6 +430,7 @@ export class System {
     });
 
     await AbstractMaterialContent.initDefaultTextures();
+    initDefaultTextures();
 
     return gl;
   }

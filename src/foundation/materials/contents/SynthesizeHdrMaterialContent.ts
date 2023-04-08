@@ -15,6 +15,7 @@ import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/S
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyBlackTexture } from '../core/DummyTextures';
 
 export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   static SynthesizeCoefficient = new ShaderSemanticsClass({
@@ -62,7 +63,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
    */
   constructor(
     synthesizeTextures: AbstractTexture[],
-    targetRegionTexture: AbstractTexture = AbstractMaterialContent.dummyBlackTexture
+    targetRegionTexture: AbstractTexture = dummyBlackTexture
   ) {
     super(
       null,
@@ -109,7 +110,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, synthesizeTextures[0] ?? AbstractMaterialContent.dummyBlackTexture],
+        initialValue: [0, synthesizeTextures[0] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -120,7 +121,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, synthesizeTextures[1] ?? AbstractMaterialContent.dummyBlackTexture],
+        initialValue: [1, synthesizeTextures[1] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -131,7 +132,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [2, synthesizeTextures[2] ?? AbstractMaterialContent.dummyBlackTexture],
+        initialValue: [2, synthesizeTextures[2] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -142,7 +143,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [3, synthesizeTextures[3] ?? AbstractMaterialContent.dummyBlackTexture],
+        initialValue: [3, synthesizeTextures[3] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -153,7 +154,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [4, synthesizeTextures[4] ?? AbstractMaterialContent.dummyBlackTexture],
+        initialValue: [4, synthesizeTextures[4] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -164,7 +165,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [5, synthesizeTextures[5] ?? AbstractMaterialContent.dummyBlackTexture],
+        initialValue: [5, synthesizeTextures[5] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

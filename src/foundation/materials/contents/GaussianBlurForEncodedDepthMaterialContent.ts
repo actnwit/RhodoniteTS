@@ -14,6 +14,7 @@ import GaussianBlurForEncodedDepthSingleShaderFragment from '../../../webgl/shad
 import { Texture } from '../../textures/Texture';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyBlackTexture } from '../core/DummyTextures';
 
 export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterialContent {
   static GaussianKernelSize = new ShaderSemanticsClass({
@@ -105,7 +106,7 @@ export class GaussianBlurForEncodedDepthMaterialContent extends AbstractMaterial
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialContent.__dummyBlackTexture],
+        initialValue: [0, dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

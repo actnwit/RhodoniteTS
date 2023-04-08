@@ -74,12 +74,8 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
-  static __dummyWhiteTexture = new Texture();
-  static __dummyBlueTexture = new Texture();
-  static __dummyBlackTexture = new Texture();
   static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
   static __dummySRGBGrayTexture = new Texture();
-  static __dummyBlackCubeTexture = new CubeTexture();
   static __sheenLutTexture = new Texture();
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
@@ -113,13 +109,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
-    AbstractMaterialContent.__dummyBlackTexture.tryToSetUniqueName('dummyBlackTexture', true);
-    AbstractMaterialContent.__dummyWhiteTexture.tryToSetUniqueName('dummyWhiteTexture', true);
-    AbstractMaterialContent.__dummyBlueTexture.tryToSetUniqueName('dummyBlueTexture', true);
-    AbstractMaterialContent.__dummyBlackCubeTexture.tryToSetUniqueName(
-      'dummyBlackCubeTexture',
-      true
-    );
     AbstractMaterialContent.__dummySRGBGrayTexture.tryToSetUniqueName('dummySRGBGrayTexture', true);
     AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
       'dummyPbrKelemenSzirmayKalosBrdfLutTexture',
@@ -283,30 +272,10 @@ export abstract class AbstractMaterialContent extends RnObject {
   }
 
   public static async initDefaultTextures() {
-    if (this.__dummyWhiteTexture.isTextureReady) {
-      return;
-    }
-
-    this.__dummyWhiteTexture.generate1x1TextureFrom();
-    this.__dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
-    this.__dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
-    this.__dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
     this.__dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
     this.__sheenLutTexture.generateSheenLutTextureFromDataUri();
   }
 
-  static get dummyWhiteTexture() {
-    return this.__dummyWhiteTexture;
-  }
-  static get dummyBlackTexture() {
-    return this.__dummyBlackTexture;
-  }
-  static get dummyBlueTexture() {
-    return this.__dummyBlueTexture;
-  }
-  static get dummyBlackCubeTexture() {
-    return this.__dummyWhiteTexture;
-  }
   static get dummyPbrKelemenSzirmayKalosBrdfLutTexture() {
     return this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture;
   }

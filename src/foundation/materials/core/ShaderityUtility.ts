@@ -21,6 +21,7 @@ import { MutableScalar } from '../../math/MutableScalar';
 import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -285,15 +286,12 @@ export class ShaderityUtility {
             shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
           ) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [
-              parseInt(split[0]),
-              (AbstractMaterialContent as any)[`dummy${color}Texture`],
-            ];
+            initialValue = [parseInt(split[0]), (DefaultTextures as any)[`dummy${color}Texture`]];
           } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
             const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
             initialValue = [
               parseInt(split[0]),
-              (AbstractMaterialContent as any)[`dummy${color}CubeTexture`],
+              (DefaultTextures as any)[`dummy${color}CubeTexture`],
             ];
           } else {
             checkCompositionNumber(CompositionType.Vec2);
@@ -388,11 +386,11 @@ export class ShaderityUtility {
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Mat4) {
       return MutableMatrix44.identity();
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2D) {
-      return [0, AbstractMaterialContent.dummyWhiteTexture];
+      return [0, dummyWhiteTexture];
     } else if (shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow) {
-      return [0, AbstractMaterialContent.dummyWhiteTexture];
+      return [0, dummyWhiteTexture];
     } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
-      return [0, AbstractMaterialContent.dummyBlackTexture];
+      return [0, dummyBlackTexture];
     }
 
     console.warn('initial value is not found');

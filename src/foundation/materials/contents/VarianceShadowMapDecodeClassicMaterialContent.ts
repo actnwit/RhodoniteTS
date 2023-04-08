@@ -30,6 +30,7 @@ import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderi
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 
 export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static IsPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });
@@ -127,7 +128,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       depthTexture = depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
     } else {
       console.warn('renderPass of depth does not have framebuffer');
-      depthTexture = AbstractMaterialContent.__dummyBlackTexture;
+      depthTexture = dummyBlackTexture;
     }
 
     let squareDepthTexture;
@@ -137,7 +138,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
     } else {
       console.warn('renderPass of square depth does not have framebuffer');
-      squareDepthTexture = AbstractMaterialContent.__dummyBlackTexture;
+      squareDepthTexture = dummyBlackTexture;
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -316,7 +317,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialContent.__dummyBlueTexture],
+        initialValue: [0, dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -327,7 +328,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
+        initialValue: [1, dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

@@ -25,6 +25,7 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vrm0xMaterialProperty } from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
+import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -186,10 +187,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       this.__textureProperties._SphereAdd = 1;
       // this.__textureProperties._UvAnimMaskTexture = 0;
 
-      textures = [
-        AbstractMaterialContent.__dummyWhiteTexture,
-        AbstractMaterialContent.__dummyBlackTexture,
-      ];
+      textures = [dummyWhiteTexture, dummyBlackTexture];
     }
 
     if (debugMode) {
