@@ -236,11 +236,13 @@ bool get_isBillboard(float instanceId) {
       return;
     }
 
+    // setup shader program
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
-    if (!this.isMeshSetup(mesh)) {
+    // setup VBO and VAO
+    if (!this.__isMeshSetup(mesh)) {
       WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
 
       const primitiveNum = mesh.getPrimitiveNumber();
@@ -252,7 +254,7 @@ bool get_isBillboard(float instanceId) {
     }
   }
 
-  isMeshSetup(mesh: Mesh) {
+  private __isMeshSetup(mesh: Mesh) {
     if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return false;
     }

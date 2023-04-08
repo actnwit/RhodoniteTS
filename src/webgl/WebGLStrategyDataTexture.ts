@@ -382,11 +382,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         0
       );
 
+    // setup shader program
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
-    if (!this.isMeshSetup(mesh)) {
+    // update VBO and VAO
+    if (!this.__isMeshSetup(mesh)) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
       WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
       const primitiveNum = mesh.getPrimitiveNumber();
@@ -399,7 +401,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  isMeshSetup(mesh: Mesh) {
+  private __isMeshSetup(mesh: Mesh) {
     if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return false;
     }
