@@ -74,6 +74,13 @@ export interface ICGAPIResourceRepository {
   createVertexBuffer(accessor: Accessor): CGAPIResourceHandle;
 
   /**
+   * create a Vertex Buffer
+   * @param typedArray - a typed array
+   * @returns a CGAPIResourceHandle
+   */
+  createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle;
+
+  /**
    * create a Index Buffer
    * @param accessor - an accessor
    * @returns a CGAPIResourceHandle

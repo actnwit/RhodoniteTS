@@ -12,7 +12,13 @@ import {
   ICGAPIResourceRepository,
   ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
-import { Index, Size, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
+import {
+  Index,
+  Size,
+  TypedArray,
+  WebGLResourceHandle,
+  WebGPUResourceHandle,
+} from '../types/CommonTypes';
 import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
@@ -132,6 +138,27 @@ export class WebGpuResourceRepository
     const bufferHandle = this.__registerResource(vertexBuffer);
 
     return bufferHandle;
+  }
+
+  /**
+   * create a WebGPU Vertex Buffer
+   * @param typedArray - a typed array
+   * @returns a WebGPUResourceHandle
+   */
+  createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const vertexBuffer = gpuDevice.createBuffer({
+      size: typedArray.byteLength,
+      usage: GPUBufferUsage.VERTEX,
+      mappedAtCreation: true,
+    });
+
+    new Uint8Array(vertexBuffer.getMappedRange()).set(new Uint8Array(typedArray.buffer));
+    vertexBuffer.unmap();
+
+    const resourceHandle = this.__registerResource(vertexBuffer);
+
+    return resourceHandle;
   }
 
   /**
