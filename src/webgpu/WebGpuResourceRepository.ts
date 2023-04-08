@@ -3,6 +3,8 @@
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
+import { Primitive } from '../foundation/geometry/Primitive';
 import { Accessor } from '../foundation/memory/Accessor';
 import {
   CGAPIResourceRepository,
@@ -10,6 +12,7 @@ import {
   ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
 import { Index, Size, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
+import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 export type WebGpuResource =
@@ -149,5 +152,39 @@ export class WebGpuResourceRepository
     const bufferHandle = this.__registerResource(indexBuffer);
 
     return bufferHandle;
+  }
+
+  /**
+   * create a VertexBuffer and IndexBuffer
+   * @param primitive
+   * @returns
+   */
+  createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
+    let iboHandle;
+    if (primitive.hasIndices()) {
+      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
+    }
+
+    const attributesFlags: boolean[] = [];
+    for (let i = 0; i < VertexAttribute.AttributeTypeNumber; i++) {
+      attributesFlags[i] = false;
+    }
+    const vboHandles: Array<WebGLResourceHandle> = [];
+    primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
+      const vboHandle = this.createVertexBuffer(accessor);
+      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
+        primitive.attributeSemantics[i]
+      );
+      attributesFlags[slotIdx] = true;
+      vboHandles.push(vboHandle);
+    });
+
+    return {
+      vaoHandle: -1,
+      iboHandle: iboHandle,
+      vboHandles: vboHandles,
+      attributesFlags: attributesFlags,
+      setComplete: false,
+    };
   }
 }
