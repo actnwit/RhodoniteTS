@@ -206,6 +206,16 @@ export class WebGpuResourceRepository
     });
   }
 
+  deleteVertexBuffer(resourceHandle: WebGPUResourceHandle) {
+    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(vertexBuffer)) {
+      throw new Error('Not found VBO.');
+    }
+
+    vertexBuffer.destroy();
+    this.__webGpuResources.delete(resourceHandle);
+  }
+
   /**
    * create a VertexBuffer and IndexBuffer
    * @param primitive

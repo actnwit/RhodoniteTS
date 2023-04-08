@@ -109,4 +109,10 @@ export interface ICGAPIResourceRepository {
    * @param vertexHandles
    */
   updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles): void;
+
+  /**
+   * delete a Vertex Buffer
+   * @param resourceHandle - a CGAPIResourceHandle
+   */
+  deleteVertexBuffer(resourceHandle: CGAPIResourceHandle): void;
 }
