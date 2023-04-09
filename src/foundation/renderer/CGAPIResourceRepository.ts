@@ -4,9 +4,10 @@ import type { CGAPIResourceHandle, Index, Size, TypedArray } from '../../types/C
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
-import type { Accessor } from '../memory';
+import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
-import { ProcessApproach, ProcessApproachEnum } from '../definitions';
+import { SystemState } from '../system/SystemState';
+import { ProcessApproach } from '../definitions';
 
 export type DirectTextureData =
   | TypedArray
@@ -21,7 +22,10 @@ export abstract class CGAPIResourceRepository {
   static readonly InvalidCGAPIResourceUid = -1;
 
   static getWebGLResourceRepository(): WebGLResourceRepository {
-    const moduleName = 'webgl';
+    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
+      ? 'webgl'
+      : 'webgpu';
+    // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
     const webGLResourceRepository: WebGLResourceRepository =
@@ -29,8 +33,10 @@ export abstract class CGAPIResourceRepository {
     return webGLResourceRepository;
   }
 
-  static getCgApiResourceRepository(processApproach: ProcessApproachEnum): CGAPIResourceRepository {
-    const moduleName = ProcessApproach.isWebGL2Approach(processApproach) ? 'webgl' : 'webgpu';
+  static getCgApiResourceRepository(): CGAPIResourceRepository {
+    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
+      ? 'webgl'
+      : 'webgpu';
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
     const webGLResourceRepository: CGAPIResourceRepository =

@@ -373,6 +373,8 @@ export class System {
   public static async init(desc: SystemInitDescription) {
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('pbr');
+    this.__processApproach = desc.approach;
+    SystemState.currentProcessApproach = desc.approach;
     System.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     Config.eventTargetDom = desc.canvas;
     const repo = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -396,8 +398,6 @@ export class System {
     );
 
     repo.switchDepthTest(true);
-    this.__processApproach = desc.approach;
-    SystemState.currentProcessApproach = desc.approach;
 
     if (
       desc.rnWebGLDebug &&
