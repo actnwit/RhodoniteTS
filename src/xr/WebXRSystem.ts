@@ -97,7 +97,7 @@ export class WebXRSystem {
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
-    const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
+    const glw = CGAPIResourceRepository.getCgApiResourceRepository().currentWebGLContextWrapper;
     if (glw == null) {
       console.error('WebGL Context is not ready yet.');
       return [];
@@ -145,7 +145,7 @@ export class WebXRSystem {
     callbackOnXrSessionEnd: () => void;
     profilePriorities: string[];
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
     if (glw != null && this.__isReadyForWebXR) {
@@ -252,7 +252,7 @@ export class WebXRSystem {
 
   get framebuffer() {
     if (this.__multiviewFramebufferHandle > 0) {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       const framebuffer = webglResourceRepository.getWebGLResource(
         this.__multiviewFramebufferHandle
       );
@@ -446,7 +446,7 @@ export class WebXRSystem {
     if (this.__isWebXRMode) {
       const gl = this.__glw!.getRawContextAsWebGL2()!;
       if (this.__multiviewFramebufferHandle > 0) {
-        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
         gl.invalidateFramebuffer(gl.DRAW_FRAMEBUFFER, [gl.DEPTH_STENCIL_ATTACHMENT]);
 
@@ -590,7 +590,7 @@ export class WebXRSystem {
         depthNear: 0.01,
         depthFar: 1000,
       });
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForVR);

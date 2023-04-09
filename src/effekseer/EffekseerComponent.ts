@@ -214,7 +214,7 @@ export class EffekseerComponent extends Component {
       console.error('Effekseer context creation fails');
       return false;
     }
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     this.__isInitialized = true;
     const gl = glw!.getRawContext();

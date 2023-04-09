@@ -196,7 +196,7 @@ export class Material extends RnObject {
    * @param isUniformOnlyMode
    */
   _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
     let array: ShaderSemanticsInfo[] = [];
     if (Is.exist(this._materialContent)) {
@@ -279,7 +279,7 @@ export class Material extends RnObject {
    * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setupBasicUniformsLocations() {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
   }
 
@@ -291,7 +291,7 @@ export class Material extends RnObject {
     shaderSemantics: ShaderSemanticsInfo[],
     isUniformOnlyMode: boolean
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     return webglResourceRepository.setupUniformLocations(
       this._shaderProgramUid,
       shaderSemantics,
@@ -384,7 +384,7 @@ export class Material extends RnObject {
     firstTime: boolean,
     shaderProgram: WebGLProgram
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (args.setUniform) {
       this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
@@ -437,7 +437,7 @@ export class Material extends RnObject {
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material._soloDatumFields.get(materialTypeName);
     if (map == null) return;

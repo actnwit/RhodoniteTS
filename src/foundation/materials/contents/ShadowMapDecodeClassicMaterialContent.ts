@@ -406,7 +406,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
         );
         ShadowMapDecodeClassicMaterialContent.__lastZFar = encodedDepthCameraComponent.zFarInner;
       }
-      const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const __webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       __webglResourceRepository.setUniformValue(
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,

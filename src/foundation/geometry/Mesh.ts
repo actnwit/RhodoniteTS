@@ -169,7 +169,7 @@ export class Mesh implements IMesh {
    * @returns true: updated, false: not changed (not dirty)
    */
   updateVariationVBO(): boolean {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
     if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
@@ -206,7 +206,7 @@ export class Mesh implements IMesh {
    * @returns true: updated, false: not changed (not dirty)
    */
   deleteVariationVBO(): boolean {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
       this.__variationVBOUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -217,7 +217,7 @@ export class Mesh implements IMesh {
   }
 
   public updateVAO(): void {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -254,7 +254,7 @@ export class Mesh implements IMesh {
   }
 
   public deleteVAO() {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
       webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;

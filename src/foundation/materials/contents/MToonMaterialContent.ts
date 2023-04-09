@@ -834,7 +834,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContextAsWebGL2();
     if (glw!.isWebGL2) {
@@ -901,7 +901,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
 

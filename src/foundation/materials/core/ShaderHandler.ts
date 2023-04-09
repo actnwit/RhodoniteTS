@@ -36,7 +36,7 @@ export class ShaderHandler {
     if (shaderProgramUid) {
       return shaderProgramUid;
     } else {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
       const shaderProgramUid = webglResourceRepository.createShaderProgram({
         material,
         vertexShaderStr: vertexShader,
@@ -97,7 +97,7 @@ export function _createProgramAsSingleOperation(
   vertexShaderMethodDefinitions_uniform: string,
   isWebGL2: boolean
 ): CGAPIResourceHandle {
-  const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
   const materialNode = material._materialContent;
 
   const definitions = materialNode.getDefinitions(material);
@@ -157,7 +157,7 @@ export function _createProgramAsSingleOperation(
 
 export function _setupGlobalShaderDefinition(materialTypeName: string) {
   let definitions = '';
-  const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+  const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
   if (glw.isWebGL2) {
     definitions += '#version 300 es\n#define GLSL_ES3\n';

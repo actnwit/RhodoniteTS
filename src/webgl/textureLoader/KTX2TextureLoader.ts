@@ -142,7 +142,7 @@ export class KTX2TextureLoader {
   }
 
   private __getDeviceDependentParameters(hasAlpha: boolean) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
 
     const astc = glw.webgl2ExtCTAstc || glw.webgl1ExtCTAstc;

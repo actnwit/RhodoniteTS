@@ -94,7 +94,7 @@ export class VideoTexture extends AbstractTexture {
     this.__width = img.videoWidth;
     this.__height = img.videoHeight;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
       level: level,
       internalFormat: internalFormat,
@@ -134,7 +134,7 @@ export class VideoTexture extends AbstractTexture {
         this.__width = video.videoWidth;
         this.__height = video.videoHeight;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
         const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(video, {
           level: level,
           internalFormat: internalFormat,
@@ -193,7 +193,7 @@ export class VideoTexture extends AbstractTexture {
   }
 
   updateTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       webGLResourceRepository.updateTexture(this._textureResourceUid, this.#htmlVideoElement, {
         level: 0,
@@ -209,7 +209,7 @@ export class VideoTexture extends AbstractTexture {
 
   getCurrentFramePixelData() {
     let pixel: Uint8Array | undefined = undefined;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(
         this._textureResourceUid,

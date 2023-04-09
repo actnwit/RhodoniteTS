@@ -21,7 +21,7 @@ export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap
 export abstract class CGAPIResourceRepository {
   static readonly InvalidCGAPIResourceUid = -1;
 
-  static getWebGLResourceRepository(): WebGLResourceRepository {
+  static getCgApiResourceRepository(): WebGLResourceRepository {
     const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
       ? 'webgl'
       : 'webgpu';
@@ -33,7 +33,7 @@ export abstract class CGAPIResourceRepository {
     return webGLResourceRepository;
   }
 
-  static getCgApiResourceRepository(): CGAPIResourceRepository {
+  static getCgApiResourceRepository2(): CGAPIResourceRepository {
     const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
       ? 'webgl'
       : 'webgpu';
