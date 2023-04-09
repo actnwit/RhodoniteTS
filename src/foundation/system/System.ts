@@ -429,7 +429,6 @@ export class System {
       this.restartRenderLoop();
     });
 
-    await AbstractMaterialContent.initDefaultTextures();
     await initDefaultTextures();
 
     return gl;

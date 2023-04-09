@@ -1,13 +1,11 @@
 import { RnObject } from '../../core/RnObject';
 import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { Texture } from '../../textures/Texture';
-import { CubeTexture } from '../../textures/CubeTexture';
 import { Config } from '../../core/Config';
 import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Material } from './Material';
@@ -74,8 +72,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
-  static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
-  static __dummySRGBGrayTexture = new Texture();
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
@@ -108,19 +104,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
-    AbstractMaterialContent.__dummySRGBGrayTexture.tryToSetUniqueName('dummySRGBGrayTexture', true);
-    AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
-      'dummyPbrKelemenSzirmayKalosBrdfLutTexture',
-      true
-    );
-
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
     this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
-
-    AbstractMaterialContent.initDefaultTextures();
   }
 
   get shaderFunctionName() {
@@ -268,14 +256,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   getPixelOutputs() {
     return this.__pixelOutputs;
-  }
-
-  public static async initDefaultTextures() {
-    this.__dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
-  }
-
-  static get dummyPbrKelemenSzirmayKalosBrdfLutTexture() {
-    return this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture;
   }
 
   protected setupBasicInfo(
