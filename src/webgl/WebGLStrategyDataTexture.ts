@@ -44,10 +44,12 @@ import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
 
-export class WebGLStrategyDataTexture implements WebGLStrategy {
+export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyDataTexture;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
@@ -380,11 +382,13 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         0
       );
 
+    // setup shader program
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
-    if (!this.isMeshSetup(mesh)) {
+    // update VBO and VAO
+    if (!this.__isMeshSetup(mesh)) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
       WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
       const primitiveNum = mesh.getPrimitiveNumber();
@@ -397,7 +401,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  isMeshSetup(mesh: Mesh) {
+  private __isMeshSetup(mesh: Mesh) {
     if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return false;
     }
@@ -818,7 +822,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     const material: Material = renderPass.getAppropriateMaterial(primitive);
-    if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+    if (isSkipDrawing(material)) {
       return false;
     }
 

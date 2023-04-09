@@ -1,6 +1,4 @@
-import { Gltf2Camera } from '.';
 import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
-import { Texture } from '../foundation/textures/Texture';
 import { Byte, Index } from './CommonTypes';
 import {
   Gltf2BufferView,
@@ -16,6 +14,7 @@ import {
   Gltf2Image,
   Gltf2Texture,
   Gltf2TextureSampler,
+  Gltf2Camera,
 } from './glTF2';
 
 export interface Gltf2BufferViewEx extends Gltf2BufferView {

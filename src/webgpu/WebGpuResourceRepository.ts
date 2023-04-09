@@ -3,12 +3,23 @@
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
+import { Primitive } from '../foundation/geometry/Primitive';
+import { Accessor } from '../foundation/memory/Accessor';
+import { Is } from '../foundation/misc/Is';
 import {
   CGAPIResourceRepository,
   ICGAPIResourceRepository,
   ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
-import { Index, Size, WebGLResourceHandle } from '../types/CommonTypes';
+import {
+  Index,
+  Size,
+  TypedArray,
+  WebGLResourceHandle,
+  WebGPUResourceHandle,
+} from '../types/CommonTypes';
+import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 export type WebGpuResource =
@@ -55,9 +66,9 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a Texture
-   * @param imageData
-   * @param param1
+   * create a WebGPU Texture
+   * @param imageData - an ImageBitmapData
+   * @param paramObject - a parameter object
    * @returns
    */
   public createTextureFromImageBitmapData(
@@ -70,13 +81,7 @@ export class WebGpuResourceRepository
       border,
       format,
       type,
-      magFilter,
-      minFilter,
-      wrapS,
-      wrapT,
       generateMipmap,
-      anisotropy,
-      isPremultipliedAlpha,
     }: {
       level: Index;
       internalFormat: TextureParameterEnum;
@@ -93,7 +98,7 @@ export class WebGpuResourceRepository
       anisotropy: boolean;
       isPremultipliedAlpha: boolean;
     }
-  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
+  ): WebGLResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
     const gpuTexture = gpuDevice.createTexture({
       size: [width, height, 1],
@@ -111,13 +116,153 @@ export class WebGpuResourceRepository
 
     const textureHandle = this.__registerResource(gpuTexture);
 
-    const gpuSampler = gpuDevice.createSampler({
-      magFilter: 'linear',
-      minFilter: 'linear',
+    return textureHandle;
+  }
+
+  /**
+   * create a WebGPU Vertex Buffer
+   * @param accessor - an accessor
+   * @returns
+   */
+  public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const vertexBuffer = gpuDevice.createBuffer({
+      size: accessor.byteLength,
+      usage: GPUBufferUsage.VERTEX,
+      mappedAtCreation: true,
     });
 
-    const samplerHandle = this.__registerResource(gpuSampler);
+    new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+    vertexBuffer.unmap();
 
-    return { textureHandle, samplerHandle };
+    const bufferHandle = this.__registerResource(vertexBuffer);
+
+    return bufferHandle;
+  }
+
+  /**
+   * create a WebGPU Vertex Buffer
+   * @param typedArray - a typed array
+   * @returns a WebGPUResourceHandle
+   */
+  createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const vertexBuffer = gpuDevice.createBuffer({
+      size: typedArray.byteLength,
+      usage: GPUBufferUsage.VERTEX,
+      mappedAtCreation: true,
+    });
+
+    new Uint8Array(vertexBuffer.getMappedRange()).set(new Uint8Array(typedArray.buffer));
+    vertexBuffer.unmap();
+
+    const resourceHandle = this.__registerResource(vertexBuffer);
+
+    return resourceHandle;
+  }
+
+  /**
+   * create a WebGPU Index Buffer
+   * @param accessor - an accessor
+   * @returns a WebGPUResourceHandle
+   */
+  public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const indexBuffer = gpuDevice.createBuffer({
+      size: accessor.byteLength,
+      usage: GPUBufferUsage.INDEX,
+      mappedAtCreation: true,
+    });
+
+    new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+    indexBuffer.unmap();
+
+    const bufferHandle = this.__registerResource(indexBuffer);
+
+    return bufferHandle;
+  }
+
+  updateVertexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
+    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(vertexBuffer)) {
+      throw new Error('Not found VBO.');
+    }
+
+    vertexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
+      new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+      vertexBuffer.unmap();
+    });
+  }
+
+  updateIndexBuffer(accessor: Accessor, resourceHandle: WebGPUResourceHandle) {
+    const indexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(indexBuffer)) {
+      throw new Error('Not found IBO.');
+    }
+
+    indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
+      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+      indexBuffer.unmap();
+    });
+  }
+
+  deleteVertexBuffer(resourceHandle: WebGPUResourceHandle) {
+    const vertexBuffer = this.__webGpuResources.get(resourceHandle) as GPUBuffer;
+    if (Is.not.exist(vertexBuffer)) {
+      throw new Error('Not found VBO.');
+    }
+
+    vertexBuffer.destroy();
+    this.__webGpuResources.delete(resourceHandle);
+  }
+
+  /**
+   * create a VertexBuffer and IndexBuffer
+   * @param primitive
+   * @returns
+   */
+  createVertexBufferAndIndexBuffer(primitive: Primitive): VertexHandles {
+    let iboHandle;
+    if (primitive.hasIndices()) {
+      iboHandle = this.createIndexBuffer(primitive.indicesAccessor!);
+    }
+
+    const attributesFlags: boolean[] = [];
+    for (let i = 0; i < VertexAttribute.AttributeTypeNumber; i++) {
+      attributesFlags[i] = false;
+    }
+    const vboHandles: Array<WebGLResourceHandle> = [];
+    primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
+      const vboHandle = this.createVertexBuffer(accessor);
+      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
+        primitive.attributeSemantics[i]
+      );
+      attributesFlags[slotIdx] = true;
+      vboHandles.push(vboHandle);
+    });
+
+    return {
+      vaoHandle: -1,
+      iboHandle: iboHandle,
+      vboHandles: vboHandles,
+      attributesFlags: attributesFlags,
+      setComplete: false,
+    };
+  }
+
+  /**
+   * update the VertexBuffer and IndexBuffer
+   * @param primitive
+   * @param vertexHandles
+   */
+  updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles) {
+    if (vertexHandles.iboHandle) {
+      this.updateIndexBuffer(primitive.indicesAccessor as Accessor, vertexHandles.iboHandle);
+    }
+
+    const attributeAccessors = primitive.attributeAccessors;
+    for (let i = 0; i < attributeAccessors.length; i++) {
+      this.updateVertexBuffer(attributeAccessors[i], vertexHandles.vboHandles[i]);
+    }
   }
 }

@@ -34,11 +34,13 @@ import WebGLStrategyCommonMethod, {
   setupShaderProgramForMeshComponent,
 } from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
-import { ShaderSemanticsInfo } from '../foundation';
+import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
 
-export class WebGLStrategyUniform implements WebGLStrategy {
+export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private static __instance: WebGLStrategyUniform;
   private __webglResourceRepository: WebGLResourceRepository =
     WebGLResourceRepository.getInstance();
@@ -234,11 +236,13 @@ bool get_isBillboard(float instanceId) {
       return;
     }
 
+    // setup shader program
     if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
-    if (!this.isMeshSetup(mesh)) {
+    // setup VBO and VAO
+    if (!this.__isMeshSetup(mesh)) {
       WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
 
       const primitiveNum = mesh.getPrimitiveNumber();
@@ -250,7 +254,7 @@ bool get_isBillboard(float instanceId) {
     }
   }
 
-  isMeshSetup(mesh: Mesh) {
+  private __isMeshSetup(mesh: Mesh) {
     if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return false;
     }
@@ -459,7 +463,7 @@ bool get_isBillboard(float instanceId) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
-    if (WebGLStrategyCommonMethod.isSkipDrawing(material)) {
+    if (isSkipDrawing(material)) {
       return false;
     }
     const mesh = primitive.mesh as Mesh;

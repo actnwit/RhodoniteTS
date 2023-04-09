@@ -14,12 +14,12 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { ShaderSemanticsIndex } from '../../definitions/ShaderSemantics';
 import { calcAlignedByteLength, ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
-import { Accessor } from '../../memory/Accessor';
-import { BufferView } from '../../memory/BufferView';
+import type { Accessor } from '../../memory/Accessor';
+import type { BufferView } from '../../memory/BufferView';
 import { Is } from '../../misc/Is';
-import { AbstractMaterialContent } from './AbstractMaterialContent';
+import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
-import { MaterialTypeName } from './MaterialTypes';
+import type { MaterialTypeName } from './MaterialTypes';
 
 export class MaterialRepository {
   ///

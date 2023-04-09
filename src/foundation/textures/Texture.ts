@@ -162,17 +162,16 @@ export class Texture extends AbstractTexture {
         generateMipmap,
       });
     } else if (img instanceof HTMLCanvasElement) {
-      const { textureHandle, samplerHandle } =
-        webGLResourceRepository.createTextureFromImageBitmapData(img, {
-          level,
-          internalFormat,
-          width: this.__width,
-          height: this.__height,
-          border: 0,
-          format,
-          type,
-          generateMipmap,
-        });
+      const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+        level,
+        internalFormat,
+        width: this.__width,
+        height: this.__height,
+        border: 0,
+        format,
+        type,
+        generateMipmap,
+      });
       texture = textureHandle;
     } else {
       throw new Error('Unsupported image type.');
@@ -240,17 +239,16 @@ export class Texture extends AbstractTexture {
             generateMipmap,
           });
         } else if (img instanceof HTMLCanvasElement) {
-          const { textureHandle, samplerHandle } =
-            webGLResourceRepository.createTextureFromImageBitmapData(img, {
-              level,
-              internalFormat,
-              width: this.__width,
-              height: this.__height,
-              border: 0,
-              format,
-              type,
-              generateMipmap,
-            });
+          const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+            level,
+            internalFormat,
+            width: this.__width,
+            height: this.__height,
+            border: 0,
+            format,
+            type,
+            generateMipmap,
+          });
           texture = textureHandle;
         } else {
           throw new Error('Unsupported image type');
@@ -278,17 +276,16 @@ export class Texture extends AbstractTexture {
     ctx.fillRect(0, 0, 1, 1);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const { textureHandle, samplerHandle } =
-      webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
-        level: 0,
-        internalFormat: TextureParameter.RGBA8,
-        width: 1,
-        height: 1,
-        border: 0,
-        format: PixelFormat.RGBA,
-        type: ComponentType.UnsignedByte,
-        generateMipmap: false,
-      });
+    const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
+      level: 0,
+      internalFormat: TextureParameter.RGBA8,
+      width: 1,
+      height: 1,
+      border: 0,
+      format: PixelFormat.RGBA,
+      type: ComponentType.UnsignedByte,
+      generateMipmap: false,
+    });
 
     this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;

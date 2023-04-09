@@ -9,8 +9,9 @@ import { ShaderityObject } from 'shaderity';
 import { ShaderityUtility } from '../core/ShaderityUtility';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../../math';
+import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
+import { dummyBlackCubeTexture } from '../core/DummyTextures';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -201,7 +202,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         firstTime,
-        [5, AbstractMaterialContent.__dummyBlackCubeTexture]
+        [5, dummyBlackCubeTexture]
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
@@ -216,7 +217,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         firstTime,
-        [6, AbstractMaterialContent.__dummyBlackCubeTexture]
+        [6, dummyBlackCubeTexture]
       );
     }
 

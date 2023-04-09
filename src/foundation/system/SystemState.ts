@@ -2,6 +2,6 @@ import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessAppr
 
 const currentProcessApproach: ProcessApproachEnum = ProcessApproach.None;
 
-export default {
+export const SystemState = {
   currentProcessApproach,
 };

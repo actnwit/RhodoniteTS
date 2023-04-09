@@ -13,6 +13,7 @@ import EnvConstantSingleShaderVertex from '../../../webgl/shaderity_shaders/EnvC
 import EnvConstantSingleShaderFragment from '../../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyBlackCubeTexture } from '../core/DummyTextures';
 
 export class EnvConstantMaterialContent extends AbstractMaterialContent {
   static envRotation = new ShaderSemanticsClass({ str: 'envRotation' });
@@ -71,7 +72,7 @@ export class EnvConstantMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialContent.__dummyBlackCubeTexture],
+        initialValue: [0, dummyBlackCubeTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

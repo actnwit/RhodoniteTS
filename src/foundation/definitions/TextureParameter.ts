@@ -5,8 +5,17 @@ import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 export type TextureParameterEnum = EnumIO;
 
 class TextureParameterClass extends EnumClass implements TextureParameterEnum {
-  constructor({ index, str }: { index: number; str: string }) {
+  readonly __webgpu?: string;
+  constructor({ index, str, webgpu }: { index: number; str: string; webgpu?: string }) {
     super({ index, str });
+    this.__webgpu = webgpu;
+  }
+
+  get webgpu(): string {
+    if (this.__webgpu === undefined) {
+      throw new Error(`does not support ${this.str}`);
+    }
+    return this.__webgpu;
   }
 }
 
@@ -89,6 +98,7 @@ const RGB8: TextureParameterEnum = new TextureParameterClass({
 const RGBA8: TextureParameterEnum = new TextureParameterClass({
   index: 0x8058,
   str: 'RGBA8',
+  webgpu: 'rgba8unorm',
 });
 const RGB10_A2: TextureParameterEnum = new TextureParameterClass({
   index: 0x8059,

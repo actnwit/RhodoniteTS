@@ -18,6 +18,7 @@ import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyBlackTexture } from '../core/DummyTextures';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -74,7 +75,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
       framebufferWidth = framebuffer.width;
     } else {
-      targetTexture = AbstractMaterialContent.__dummyBlackTexture;
+      targetTexture = dummyBlackTexture;
       framebufferWidth = 1;
 
       if (framebuffer != null) {

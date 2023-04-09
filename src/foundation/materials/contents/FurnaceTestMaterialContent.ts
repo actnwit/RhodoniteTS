@@ -13,6 +13,7 @@ import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTes
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyWhiteTexture } from '../core/DummyTextures';
 
 export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static mode = new ShaderSemanticsClass({ str: 'mode' });
@@ -116,7 +117,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
-        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
+        initialValue: [1, dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

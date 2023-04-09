@@ -202,7 +202,7 @@ export class WebGLResourceRepository
 
     const ibo = this.__webglResources.get(resourceHandle) as WebGLBuffer;
     if (Is.not.exist(ibo)) {
-      throw new Error('Not found VBO.');
+      throw new Error('Not found IBO.');
     }
 
     glw.bindVertexArray(null);
@@ -1137,7 +1137,7 @@ export class WebGLResourceRepository
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): { textureHandle: WebGLResourceHandle; samplerHandle: WebGLResourceHandle } {
+  ): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
@@ -1150,7 +1150,7 @@ export class WebGLResourceRepository
 
     this.__createTextureInner(gl, width, height, generateMipmap);
 
-    return { textureHandle, samplerHandle: -1 };
+    return textureHandle;
   }
 
   private __createTextureInner(
@@ -2533,28 +2533,33 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     if (iboHandle) {
       const ibo = this.getWebGLResource(iboHandle) as WebGLBuffer;
       gl.deleteBuffer(ibo);
+      this.__webglResources.delete(iboHandle);
     }
 
     const vboHandles = vertexHandles.vboHandles;
     for (const vboHandle of vboHandles) {
       const vbo = this.getWebGLResource(vboHandle) as WebGLBuffer;
       gl.deleteBuffer(vbo);
+      this.__webglResources.delete(vboHandle);
     }
 
     const vaoHandle = vertexHandles.vaoHandle;
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
     this.__glw!.deleteVertexArray(vao);
+    this.__webglResources.delete(vaoHandle);
   }
 
   deleteVertexArray(vaoHandle: WebGLResourceHandle) {
     const vao = this.getWebGLResource(vaoHandle) as WebGLVertexArrayObject;
     this.__glw!.deleteVertexArray(vao);
+    this.__webglResources.delete(vaoHandle);
   }
 
   deleteVertexBuffer(vboUid: WebGLResourceHandle) {
     const gl = this.__glw!.getRawContext();
     const vbo = this.getWebGLResource(vboUid) as WebGLBuffer;
     gl.deleteBuffer(vbo);
+    this.__webglResources.delete(vboUid);
   }
 
   resizeCanvas(width: Size, height: Size) {

@@ -26,6 +26,7 @@ import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/
 import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 
 export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -207,7 +208,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [0, AbstractMaterialContent.__dummyBlueTexture],
+        initialValue: [0, dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -229,7 +230,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
         stage: ShaderType.PixelShader,
         isCustomSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: [1, AbstractMaterialContent.__dummyWhiteTexture],
+        initialValue: [1, dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

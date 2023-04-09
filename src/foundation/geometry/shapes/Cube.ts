@@ -17,7 +17,7 @@ export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * The Cube Primitive class
  */
-export class Cube extends Primitive implements IShape {
+export class Cube extends IShape {
   /**
    * Generates a cube object
    * @param _desc a descriptor object of a Cube

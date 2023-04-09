@@ -17,6 +17,7 @@ import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shader
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Sampler } from '../../textures/Sampler';
+import { dummyBlackTexture } from '../core/DummyTextures';
 
 export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({
@@ -42,7 +43,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
     } else {
-      targetTexture = AbstractMaterialContent.__dummyBlackTexture;
+      targetTexture = dummyBlackTexture;
       if (framebuffer != null) {
         console.warn(
           'renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']'
@@ -64,7 +65,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
       lookupTableTexture = texture;
     } else {
       console.warn('no LUT texture is specified');
-      lookupTableTexture = AbstractMaterialContent.__dummyBlackTexture;
+      lookupTableTexture = dummyBlackTexture;
     }
 
     const sampler = new Sampler({

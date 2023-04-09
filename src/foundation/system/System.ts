@@ -13,8 +13,8 @@ import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { Vector3 } from '../math/Vector3';
 import { CameraType } from '../definitions/CameraType';
 import { Time } from '../misc/Time';
-import SystemState from './SystemState';
-import { MiscUtil, valueWithCompensation } from '../misc/MiscUtil';
+import { SystemState } from './SystemState';
+import { MiscUtil } from '../misc/MiscUtil';
 import type { RnXR } from '../../xr/main';
 import { Is } from '../misc/Is';
 import { EntityHelper, ISceneGraphEntity } from '../helpers/EntityHelper';
@@ -25,6 +25,7 @@ import { RenderPass } from '../renderer/RenderPass';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import { initDefaultTextures } from '../materials/core/DummyTextures';
 
 declare const spector: any;
 
@@ -428,7 +429,7 @@ export class System {
       this.restartRenderLoop();
     });
 
-    await AbstractMaterialContent.initDefaultTextures();
+    await initDefaultTextures();
 
     return gl;
   }

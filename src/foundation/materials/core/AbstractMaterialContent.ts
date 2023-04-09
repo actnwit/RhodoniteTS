@@ -1,13 +1,11 @@
 import { RnObject } from '../../core/RnObject';
 import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
-import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { Texture } from '../../textures/Texture';
-import { CubeTexture } from '../../textures/CubeTexture';
 import { Config } from '../../core/Config';
 import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Material } from './Material';
@@ -23,7 +21,7 @@ import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeCompo
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderityObject } from 'shaderity';
 import { BoneDataType } from '../../definitions/BoneDataType';
-import SystemState from '../../system/SystemState';
+import { SystemState } from '../../system/SystemState';
 import { ShaderTypeEnum, ShaderType } from '../../definitions/ShaderType';
 import { IVector3 } from '../../math/IVector';
 import { ModuleManager } from '../../system/ModuleManager';
@@ -34,8 +32,6 @@ import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { TextureParameter } from '../../definitions/TextureParameter';
-import { PixelFormat } from '../../definitions/PixelFormat';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -76,13 +72,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
-  static __dummyWhiteTexture = new Texture();
-  static __dummyBlueTexture = new Texture();
-  static __dummyBlackTexture = new Texture();
-  static __dummyPbrKelemenSzirmayKalosBrdfLutTexture = new Texture();
-  static __dummySRGBGrayTexture = new Texture();
-  static __dummyBlackCubeTexture = new CubeTexture();
-  static __sheenLutTexture = new Texture();
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
   protected static __tmp_vector2 = MutableVector2.zero();
@@ -115,26 +104,11 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
-    AbstractMaterialContent.__dummyBlackTexture.tryToSetUniqueName('dummyBlackTexture', true);
-    AbstractMaterialContent.__dummyWhiteTexture.tryToSetUniqueName('dummyWhiteTexture', true);
-    AbstractMaterialContent.__dummyBlueTexture.tryToSetUniqueName('dummyBlueTexture', true);
-    AbstractMaterialContent.__dummyBlackCubeTexture.tryToSetUniqueName(
-      'dummyBlackCubeTexture',
-      true
-    );
-    AbstractMaterialContent.__dummySRGBGrayTexture.tryToSetUniqueName('dummySRGBGrayTexture', true);
-    AbstractMaterialContent.__dummyPbrKelemenSzirmayKalosBrdfLutTexture.tryToSetUniqueName(
-      'dummyPbrKelemenSzirmayKalosBrdfLutTexture',
-      true
-    );
-
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
     this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
-
-    AbstractMaterialContent.initDefaultTextures();
   }
 
   get shaderFunctionName() {
@@ -282,35 +256,6 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   getPixelOutputs() {
     return this.__pixelOutputs;
-  }
-
-  public static async initDefaultTextures() {
-    if (this.__dummyWhiteTexture.isTextureReady) {
-      return;
-    }
-
-    this.__dummyWhiteTexture.generate1x1TextureFrom();
-    this.__dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
-    this.__dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
-    this.__dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
-    this.__dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
-    this.__sheenLutTexture.generateSheenLutTextureFromDataUri();
-  }
-
-  static get dummyWhiteTexture() {
-    return this.__dummyWhiteTexture;
-  }
-  static get dummyBlackTexture() {
-    return this.__dummyBlackTexture;
-  }
-  static get dummyBlueTexture() {
-    return this.__dummyBlueTexture;
-  }
-  static get dummyBlackCubeTexture() {
-    return this.__dummyWhiteTexture;
-  }
-  static get dummyPbrKelemenSzirmayKalosBrdfLutTexture() {
-    return this.__dummyPbrKelemenSzirmayKalosBrdfLutTexture;
   }
 
   protected setupBasicInfo(

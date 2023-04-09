@@ -30,6 +30,10 @@ const DataTexture: ProcessApproachEnum = new ProcessApproachClass({
   index: 2,
   str: 'DataTexture',
 });
+const WebGPU: ProcessApproachEnum = new ProcessApproachClass({
+  index: 3,
+  str: 'WebGPU',
+});
 
 const typeList = [None, Uniform, DataTexture];
 
@@ -55,6 +59,15 @@ const isUniformApproach = (processApproach: ProcessApproachEnum) => {
   }
 };
 
+const isWebGpuApproach = (processApproach: ProcessApproachEnum) => {
+  switch (processApproach) {
+    case WebGPU:
+      return true;
+    default:
+      return false;
+  }
+};
+
 const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
   switch (processApproach) {
     case Uniform:
@@ -68,8 +81,10 @@ const isWebGL2Approach = (processApproach: ProcessApproachEnum) => {
 export const ProcessApproach = Object.freeze({
   isDataTextureApproach,
   isUniformApproach,
+  isWebGpuApproach,
   None,
   Uniform,
   DataTexture,
+  WebGPU,
   isWebGL2Approach,
 });

@@ -61,6 +61,7 @@ export type MeshUID = Index;
 export type CameraSID = Index;
 
 export type WebGLResourceHandle = number;
+export type WebGPUResourceHandle = number;
 
 export type CGAPIResourceHandle = WebGLResourceHandle;
 

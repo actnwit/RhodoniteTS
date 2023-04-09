@@ -15,8 +15,6 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { VectorN } from '../../math/VectorN';
 import { Array3, Array4, Count } from '../../../types/CommonTypes';
-import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
-import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
 import { Texture } from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
@@ -25,6 +23,7 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vrm0xMaterialProperty } from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
+import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -186,10 +185,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       this.__textureProperties._SphereAdd = 1;
       // this.__textureProperties._UvAnimMaskTexture = 0;
 
-      textures = [
-        AbstractMaterialContent.__dummyWhiteTexture,
-        AbstractMaterialContent.__dummyBlackTexture,
-      ];
+      textures = [dummyWhiteTexture, dummyBlackTexture];
     }
 
     if (debugMode) {
@@ -716,63 +712,55 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       }
     );
 
-    const glw = WebGLResourceRepository.getInstance()
-      .currentWebGLContextWrapper as WebGLContextWrapper;
-    const gl = glw.getRawContext();
-    const maxUsableTextureNumber = gl.getParameter(gl.MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-    const support10UnitsOfTextures = maxUsableTextureNumber > 9;
-
-    if (support10UnitsOfTextures) {
-      shaderSemanticsInfoArray.push(
-        {
-          // number 7 of texture is the data Texture
-          semantic: MToonMaterialContent._BumpMap,
-          componentType: ComponentType.Int,
-          compositionType: CompositionType.Texture2D,
-          stage: ShaderType.PixelShader,
-          isCustomSetting: false,
-          updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [
-            8,
-            textures[this.__textureProperties._BumpMap],
-            samplers[this.__textureProperties._BumpMap],
-          ],
-          min: 0,
-          max: Number.MAX_SAFE_INTEGER,
-        }
-        // {
-        //   semantic: MToonMaterialContent._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-        //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
-        // }
-      );
-
-      if (this.__textureProperties._BumpMap !== textures.length - 2) {
-        //textures.length - 2 is dummyTexture
-        this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
+    shaderSemanticsInfoArray.push(
+      {
+        // number 7 of texture is the data Texture
+        semantic: MToonMaterialContent._BumpMap,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader,
+        isCustomSetting: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [
+          8,
+          textures[this.__textureProperties._BumpMap],
+          samplers[this.__textureProperties._BumpMap],
+        ],
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
       }
+      // {
+      //   semantic: MToonMaterialContent._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
+      //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
+      // }
+    );
 
-      if (isOutline) {
-        shaderSemanticsInfoArray.push({
-          semantic: MToonMaterialContent._OutlineWidthTexture,
-          componentType: ComponentType.Int,
-          compositionType: CompositionType.Texture2D,
-          stage: ShaderType.VertexShader,
-          isCustomSetting: false,
-          updateInterval: ShaderVariableUpdateInterval.EveryTime,
-          initialValue: [
-            9,
-            textures[this.__textureProperties._OutlineWidthTexture],
-            samplers[this.__textureProperties._OutlineWidthTexture],
-          ],
-          min: 0,
-          max: Number.MAX_SAFE_INTEGER,
-        });
+    if (this.__textureProperties._BumpMap !== textures.length - 2) {
+      //textures.length - 2 is dummyTexture
+      this.__definitions += '#define RN_MTOON_HAS_BUMPMAP\n';
+    }
 
-        if (this.__textureProperties._OutlineWidthTexture !== textures.length - 2) {
-          //textures.length - 2 is dummyTexture
-          this.__definitions += '#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n';
-        }
+    if (isOutline) {
+      shaderSemanticsInfoArray.push({
+        semantic: MToonMaterialContent._OutlineWidthTexture,
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2D,
+        stage: ShaderType.VertexShader,
+        isCustomSetting: false,
+        updateInterval: ShaderVariableUpdateInterval.EveryTime,
+        initialValue: [
+          9,
+          textures[this.__textureProperties._OutlineWidthTexture],
+          samplers[this.__textureProperties._OutlineWidthTexture],
+        ],
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
+      });
+
+      if (this.__textureProperties._OutlineWidthTexture !== textures.length - 2) {
+        //textures.length - 2 is dummyTexture
+        this.__definitions += '#define RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE\n';
       }
     }
   }

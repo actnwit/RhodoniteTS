@@ -1,16 +1,13 @@
-import {
-  IMatrix44,
-  IQuaternion,
-  IVector3,
-  Matrix44,
-  MutableMatrix33,
-  Quaternion,
-  Vector3,
-} from '.';
 import { Array16, Array3, Array4 } from '../../types';
+import { IMatrix44 } from './IMatrix';
+import { IQuaternion } from './IQuaternion';
+import { IVector3 } from './IVector';
+import { Matrix44 } from './Matrix44';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableQuaternion } from './MutableQuaternion';
 import { MutableVector3 } from './MutableVector3';
+import { Quaternion } from './Quaternion';
+import { Vector3 } from './Vector3';
 
 export class Transform3D {
   private __position: MutableVector3;
