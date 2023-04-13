@@ -10,6 +10,7 @@ import type { ComponentTypeEnum } from './ComponentType';
 import { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
 
 export interface CompositionTypeEnum extends EnumIO {
+  webgpu: string;
   getNumberOfComponents(): Count;
   getGlslStr(componentType: ComponentTypeEnum): string;
   getGlslInitialValue(componentType: ComponentTypeEnum): string;
@@ -49,6 +50,10 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     this.__vec4SizeOfProperty = vec4SizeOfProperty;
     this.__isArray = isArray;
     this.__webgpuStr = webgpu;
+  }
+
+  get webgpu() {
+    return this.__webgpuStr;
   }
 
   getNumberOfComponents(): Count {
@@ -199,6 +204,7 @@ const Mat2: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT2',
   glslStr: 'mat2',
   hlslStr: 'float2x2',
+  webgpu: 'unknown',
   numberOfComponents: 4,
   vec4SizeOfProperty: 2,
 });

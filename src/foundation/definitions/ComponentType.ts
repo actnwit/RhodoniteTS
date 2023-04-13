@@ -3,6 +3,7 @@ import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { Gltf2AccessorComponentTypeNumber } from '../../types/glTF2';
 
 export interface ComponentTypeEnum extends EnumIO {
+  webgpu: string;
   getSizeInBytes(): number;
   isFloatingPoint(): boolean;
   isInteger(): boolean;
@@ -25,6 +26,10 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
     super({ index, str });
     this.__sizeInBytes = sizeInBytes;
     this.__webgpu = webgpu;
+  }
+
+  get webgpu(): string {
+    return this.__webgpu;
   }
 
   getSizeInBytes(): number {
