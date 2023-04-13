@@ -20,6 +20,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
   readonly __numberOfComponents: number;
   readonly __glslStr: string;
   readonly __hlslStr: string;
+  readonly __webgpuStr: string;
   readonly __isArray: boolean;
   readonly __vec4SizeOfProperty: IndexOf16Bytes;
   constructor({
@@ -27,6 +28,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     str,
     glslStr,
     hlslStr,
+    webgpu,
     numberOfComponents,
     vec4SizeOfProperty,
     isArray = false,
@@ -35,6 +37,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     str: string;
     glslStr: string;
     hlslStr: string;
+    webgpu: string;
     numberOfComponents: number;
     vec4SizeOfProperty: IndexOf16Bytes;
     isArray?: boolean;
@@ -45,6 +48,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     this.__hlslStr = hlslStr;
     this.__vec4SizeOfProperty = vec4SizeOfProperty;
     this.__isArray = isArray;
+    this.__webgpuStr = webgpu;
   }
 
   getNumberOfComponents(): Count {
@@ -150,6 +154,7 @@ const Unknown: CompositionTypeEnum = new CompositionTypeClass({
   str: 'UNKNOWN',
   glslStr: 'unknown',
   hlslStr: 'unknown',
+  webgpu: 'unknown',
   numberOfComponents: 0,
   vec4SizeOfProperty: 0,
 });
@@ -158,6 +163,7 @@ const Scalar: CompositionTypeEnum = new CompositionTypeClass({
   str: 'SCALAR',
   glslStr: 'float',
   hlslStr: 'float',
+  webgpu: '',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
@@ -166,6 +172,7 @@ const Vec2: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC2',
   glslStr: 'vec2',
   hlslStr: 'float2',
+  webgpu: 'x2',
   numberOfComponents: 2,
   vec4SizeOfProperty: 1,
 });
@@ -174,6 +181,7 @@ const Vec3: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC3',
   glslStr: 'vec3',
   hlslStr: 'float3',
+  webgpu: 'x3',
   numberOfComponents: 3,
   vec4SizeOfProperty: 1,
 });
@@ -182,6 +190,7 @@ const Vec4: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC4',
   glslStr: 'vec4',
   hlslStr: 'float4',
+  webgpu: 'x4',
   numberOfComponents: 4,
   vec4SizeOfProperty: 1,
 });
@@ -198,6 +207,7 @@ const Mat3: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT3',
   glslStr: 'mat3',
   hlslStr: 'float3x3',
+  webgpu: 'unknown',
   numberOfComponents: 9,
   vec4SizeOfProperty: 3,
 });
@@ -206,6 +216,7 @@ const Mat4: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT4',
   glslStr: 'mat4',
   hlslStr: 'float4x4',
+  webgpu: 'unknown',
   numberOfComponents: 16,
   vec4SizeOfProperty: 4,
 });
@@ -214,6 +225,7 @@ const Texture2D: CompositionTypeEnum = new CompositionTypeClass({
   str: 'TEXTURE_2D',
   glslStr: 'sampler2D',
   hlslStr: 'Texture2D',
+  webgpu: 'texture_2d',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
@@ -222,6 +234,7 @@ const TextureCube: CompositionTypeEnum = new CompositionTypeClass({
   str: 'TEXTURE_CUBE_MAP',
   glslStr: 'samplerCube',
   hlslStr: 'TextureCube',
+  webgpu: 'texture_cube',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
@@ -230,6 +243,7 @@ const ScalarArray: CompositionTypeEnum = new CompositionTypeClass({
   str: 'SCALAR_ARRAY',
   glslStr: 'float',
   hlslStr: 'float',
+  webgpu: 'unknown',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
   isArray: true,
@@ -239,6 +253,7 @@ const Vec2Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC2_ARRAY',
   glslStr: 'vec2',
   hlslStr: 'float2',
+  webgpu: 'unknown',
   numberOfComponents: 2,
   vec4SizeOfProperty: 1,
   isArray: true,
@@ -248,6 +263,7 @@ const Vec3Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC3_ARRAY',
   glslStr: 'vec3',
   hlslStr: 'float3',
+  webgpu: 'unknown',
   numberOfComponents: 3,
   vec4SizeOfProperty: 1,
   isArray: true,
@@ -257,6 +273,7 @@ const Vec4Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC4_ARRAY',
   glslStr: 'vec4',
   hlslStr: 'float4',
+  webgpu: 'unknown',
   numberOfComponents: 4,
   vec4SizeOfProperty: 1,
   isArray: true,
@@ -266,6 +283,7 @@ const Mat4Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT4_ARRAY',
   glslStr: 'mat4',
   hlslStr: 'float4x4',
+  webgpu: 'unknown',
   numberOfComponents: 16,
   vec4SizeOfProperty: 4,
   isArray: true,
@@ -275,6 +293,7 @@ const Mat3Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT3_ARRAY',
   glslStr: 'mat3',
   hlslStr: 'float3x3',
+  webgpu: 'unknown',
   numberOfComponents: 9,
   vec4SizeOfProperty: 3,
   isArray: true,
@@ -284,6 +303,7 @@ const Mat2Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT2_ARRAY',
   glslStr: 'mat2',
   hlslStr: 'float2x2',
+  webgpu: 'unknown',
   numberOfComponents: 4,
   vec4SizeOfProperty: 2,
   isArray: true,
@@ -293,6 +313,7 @@ const Texture2DShadow: CompositionTypeEnum = new CompositionTypeClass({
   str: 'TEXTURE_2D_SHADOW',
   glslStr: 'highp sampler2DShadow',
   hlslStr: 'Texture2D',
+  webgpu: 'texture_2d',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
@@ -301,6 +322,7 @@ const Texture2DRect: CompositionTypeEnum = new CompositionTypeClass({
   str: 'TEXTURE_2D_RECT',
   glslStr: 'sampler2DRect',
   hlslStr: 'Texture2D',
+  webgpu: 'texture_2d',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
