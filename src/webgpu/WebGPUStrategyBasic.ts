@@ -7,7 +7,6 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
-import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 export class WebGPUStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -70,27 +69,7 @@ export class WebGPUStrategyBasic implements CGAPIStrategy {
    * @param material - a material to setup shader program
    */
   public setupShaderForMaterial(material: Material): void {
-    const webglResourceRepository = WebGpuResourceRepository.getInstance();
-
-    const programUid = material._createProgramWebGpu();
-    // material._setupBasicUniformsLocations();
-
-    // material._setUniformLocationsOfMaterialNodes(true);
-
-    // const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
-    // const shaderSemanticsInfosPointSprite =
-    //   WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
-
-    // material._setupAdditionalUniformLocations(
-    //   shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
-    //   true
-    // );
-
-    // WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-    //   material._shaderProgramUid
-    // );
-
-    // return programUid;
+    material._createProgramWebGpu();
   }
 
   private __isMeshSetup(mesh: Mesh) {
