@@ -1,12 +1,15 @@
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { Mesh } from '../foundation/geometry/Mesh';
+import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { Is } from '../foundation/misc/Is';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
+import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 export class WebGPUStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -140,5 +143,16 @@ export class WebGPUStrategyBasic implements CGAPIStrategy {
     return true;
   }
 
-  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {}
+  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {
+    const primitive = Primitive.getPrimitive(primitiveUid);
+    const material: Material = renderPass.getAppropriateMaterial(primitive);
+    if (isSkipDrawing(material)) {
+      return false;
+    }
+
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    webGpuResourceRepository.draw(primitive, material, renderPass);
+
+    return true;
+  }
 }
