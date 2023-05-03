@@ -1,11 +1,13 @@
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { Mesh } from '../foundation/geometry/Mesh';
+import { Material } from '../foundation/materials/core/Material';
 import { Is } from '../foundation/misc/Is';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { Count, PrimitiveUID } from '../types/CommonTypes';
+import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
+import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 export class WebGPUStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -32,6 +34,63 @@ export class WebGPUStrategyBasic implements CGAPIStrategy {
           primitive.positionAccessorVersion!;
       }
     }
+  }
+
+  setupShaderProgramForMeshComponent(meshComponent: MeshComponent) {
+    if (meshComponent.mesh == null) {
+      MeshComponent.alertNoMeshSet(meshComponent);
+      return;
+    }
+
+    const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = meshComponent.mesh.getPrimitiveAt(i);
+      const material = primitive.material;
+      if (material == null || material.isEmptyMaterial()) {
+        continue;
+      }
+
+      if (material.isShaderProgramReady()) {
+        continue;
+      }
+
+      try {
+        this.setupShaderForMaterial(material);
+        primitive._backupMaterial();
+      } catch (e) {
+        console.log(e);
+        primitive._restoreMaterial();
+        this.setupShaderForMaterial(primitive._prevMaterial);
+      }
+    }
+  }
+
+  /**
+   * setup shader program for the material in this WebGL strategy
+   * @param material - a material to setup shader program
+   */
+  public setupShaderForMaterial(material: Material): void {
+    const webglResourceRepository = WebGpuResourceRepository.getInstance();
+
+    const programUid = material._createProgramWebGpu();
+    // material._setupBasicUniformsLocations();
+
+    // material._setUniformLocationsOfMaterialNodes(true);
+
+    // const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+    // const shaderSemanticsInfosPointSprite =
+    //   WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+
+    // material._setupAdditionalUniformLocations(
+    //   shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
+    //   true
+    // );
+
+    // WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
+    //   material._shaderProgramUid
+    // );
+
+    // return programUid;
   }
 
   private __isMeshSetup(mesh: Mesh) {

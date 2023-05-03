@@ -246,6 +246,17 @@ export class Material extends RnObject {
     return programUid;
   }
 
+  _createProgramWebGpu() {
+    const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    webGpuResourceRepository.createShaderProgram({
+      material: this,
+      vertexShaderStr: '',
+      fragmentShaderStr: '',
+      attributeNames: [],
+      attributeSemantics: [],
+    });
+  }
+
   /**
    * create program by updated shader source code
    * @internal

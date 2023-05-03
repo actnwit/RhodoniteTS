@@ -7,7 +7,9 @@ import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
-import { ProcessApproach } from '../definitions';
+import { ProcessApproach, VertexAttributeEnum } from '../definitions';
+import { Material } from '../materials/core/Material';
+import { AttributeNames } from '../../webgl/types/CommonTypes';
 
 export type DirectTextureData =
   | TypedArray
@@ -141,4 +143,24 @@ export interface ICGAPIResourceRepository {
     primitive: Primitive,
     instanceIDBufferUid: CGAPIResourceHandle
   ): void;
+
+  /**
+   * Create a shader program
+   * @return a shader program handle
+   */
+  createShaderProgram({
+    material,
+    vertexShaderStr,
+    fragmentShaderStr,
+    attributeNames,
+    attributeSemantics,
+    onError,
+  }: {
+    material: Material;
+    vertexShaderStr: string;
+    fragmentShaderStr: string;
+    attributeNames: AttributeNames;
+    attributeSemantics: VertexAttributeEnum[];
+    onError?: (message: string) => void;
+  }): CGAPIResourceHandle;
 }

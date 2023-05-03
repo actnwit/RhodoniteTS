@@ -33,6 +33,7 @@ import {
   CGAPIResourceHandle,
   Byte,
   ArrayType,
+  WebGPUResourceHandle,
 } from '../types/CommonTypes';
 import { DataUtil } from '../foundation/misc/DataUtil';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
@@ -369,8 +370,7 @@ export class WebGLResourceRepository
 
   /**
    * create a shader program
-   * @param param0
-   * @returns
+   * @returns a object which has shader modules
    */
   createShaderProgram({
     material,
@@ -386,7 +386,7 @@ export class WebGLResourceRepository
     attributeNames: AttributeNames;
     attributeSemantics: VertexAttributeEnum[];
     onError?: (message: string) => void;
-  }) {
+  }): WebGPUResourceHandle {
     const gl = this.__glw!.getRawContext();
 
     if (gl == null) {

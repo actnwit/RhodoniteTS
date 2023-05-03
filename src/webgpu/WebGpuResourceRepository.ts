@@ -3,8 +3,9 @@
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
-import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
+import { VertexAttribute, VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import { Primitive } from '../foundation/geometry/Primitive';
+import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
 import { Is } from '../foundation/misc/Is';
 import {
@@ -20,6 +21,7 @@ import {
   WebGPUResourceHandle,
 } from '../types/CommonTypes';
 import { VertexHandles } from '../webgl/WebGLResourceRepository';
+import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 
 export type WebGpuResource =
@@ -38,12 +40,14 @@ export type WebGpuResource =
   | GPURenderPassEncoder
   | GPUComputePipeline
   | GPURenderPipeline
-  | GPUQuerySet;
+  | GPUQuerySet
+  | object;
 
 export class WebGpuResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
 {
+  private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __webGpuDeviceWrapper: WebGpuDeviceWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -52,6 +56,13 @@ export class WebGpuResourceRepository
     super();
 
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
+  }
+
+  static getInstance(): WebGpuResourceRepository {
+    if (!this.__instance) {
+      throw new Error('WebGLResourceRepository is not initialized');
+    }
+    return this.__instance;
   }
 
   private getResourceNumber(): WebGLResourceHandle {
@@ -319,5 +330,42 @@ export class WebGpuResourceRepository
       ],
       arrayStride: 4 * 4,
     };
+  }
+
+  /**
+   * create a shader program
+   * @param param0
+   * @returns
+   */
+  createShaderProgram({
+    material,
+    vertexShaderStr,
+    fragmentShaderStr,
+    attributeNames,
+    attributeSemantics,
+    onError,
+  }: {
+    material: Material;
+    vertexShaderStr: string;
+    fragmentShaderStr: string;
+    attributeNames: AttributeNames;
+    attributeSemantics: VertexAttributeEnum[];
+    onError?: (message: string) => void;
+  }) {
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const vsModule = gpuDevice.createShaderModule({
+      code: vertexShaderStr,
+    });
+    const fsModule = gpuDevice.createShaderModule({
+      code: fragmentShaderStr,
+    });
+
+    const modules = {
+      vsModule,
+      fsModule,
+    };
+    const modulesHandle = this.__registerResource(modules);
+
+    return modulesHandle;
   }
 }
