@@ -4,7 +4,7 @@ import { FrameBuffer } from './FrameBuffer';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Vector4 } from '../math/Vector4';
-import { EntityUID } from '../../types/CommonTypes';
+import { EntityUID, RenderPassUID } from '../../types/CommonTypes';
 import { Material } from '../materials/core/Material';
 import { WebGLStrategy } from '../../webgl/main';
 import { ModuleManager } from '../system/ModuleManager';
@@ -22,6 +22,7 @@ import { SystemState } from '../system/SystemState';
  * A render pass is a collection of the resources which is used in rendering process.
  */
 export class RenderPass extends RnObject {
+  private readonly __renderPassUID: RenderPassUID;
   private __entities: (IMeshEntity | ISceneGraphEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
   private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
@@ -58,8 +59,11 @@ export class RenderPass extends RnObject {
   private __postEachRenderFunc?: () => void;
   private static __tmp_Vector4_0 = MutableVector4.zero();
 
+  public static __mesh_uid_count = -1;
+
   constructor() {
     super();
+    this.__renderPassUID = ++RenderPass.__mesh_uid_count;
   }
 
   clone() {
@@ -424,5 +428,9 @@ export class RenderPass extends RnObject {
       material = primitive.material;
     }
     return material;
+  }
+
+  get renderPassUID() {
+    return this.__renderPassUID;
   }
 }

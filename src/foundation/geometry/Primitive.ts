@@ -71,6 +71,10 @@ export class Primitive extends RnObject {
     super();
   }
 
+  get _vertexHandles() {
+    return this.__vertexHandles;
+  }
+
   setMaterialVariant(variantName: string, material: Material) {
     this.__materialVariants.set(variantName, material);
   }

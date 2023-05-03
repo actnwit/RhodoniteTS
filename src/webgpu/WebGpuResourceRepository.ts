@@ -4,6 +4,7 @@ import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute, VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
+import { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
@@ -13,6 +14,7 @@ import {
   ICGAPIResourceRepository,
   ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
+import { RenderPass } from '../foundation/renderer/RenderPass';
 import {
   Index,
   Size,
@@ -43,12 +45,15 @@ export type WebGpuResource =
   | GPUQuerySet
   | object;
 
+type RenderPipelineId = string;
+
 export class WebGpuResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
 {
   private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
+  private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
   private __webGpuDeviceWrapper: WebGpuDeviceWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
@@ -369,7 +374,7 @@ export class WebGpuResourceRepository
     return modulesHandle;
   }
 
-  draw(pipeline: GPURenderPipeline, verticesBuffer: GPUBuffer, vertexCount: number) {
+  draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
     const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
     const context = this.__webGpuDeviceWrapper.context;
     const commandEncoder = gpuDevice.createCommandEncoder();
@@ -390,11 +395,95 @@ export class WebGpuResourceRepository
     };
 
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+    const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
+
     passEncoder.setPipeline(pipeline);
-    passEncoder.setVertexBuffer(0, verticesBuffer);
-    passEncoder.draw(vertexCount, 1, 0, 0);
+    const VertexHandles = primitive._vertexHandles!;
+    VertexHandles.vboHandles.forEach((vboHandle, i) => {
+      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
+      passEncoder.setVertexBuffer(i, vertexBuffer);
+    });
+    if (primitive.hasIndices()) {
+      const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
+      passEncoder.setIndexBuffer(indicesBuffer, 'uint16'); // <---- IndexBufferをセット
+      const indicesAccessor = primitive.indicesAccessor!;
+      passEncoder.drawIndexed(indicesAccessor.elementCount); // インデックス描画の場合はdraw()でなくdrawIndexed()を使う
+    } else {
+      const vertexCount = primitive.attributeAccessors[0].elementCount;
+      passEncoder.draw(vertexCount, 1, 0, 0);
+    }
     passEncoder.end();
 
     gpuDevice.queue.submit([commandEncoder.finish()]);
+  }
+
+  getOrCreateRenderPipeline(primitive: Primitive, material: Material, renderPass: RenderPass) {
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
+
+    if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
+      return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
+    }
+
+    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+
+    const modules = this.__webGpuResources.get(material._shaderProgramUid) as {
+      vsModule: GPUShaderModule;
+      fsModule: GPUShaderModule;
+    };
+
+    if (modules != null) {
+      new Error('Shader Modules is not found');
+    }
+
+    const attributes: GPUVertexAttribute[] = [];
+
+    primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
+      const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
+        primitive.attributeSemantics[i]
+      );
+      attributes.push({
+        shaderLocation: slotIdx,
+        offset: accessor.byteOffsetInBufferView,
+        format: (accessor.componentType.webgpu +
+          accessor.compositionType.webgpu) as GPUVertexFormat,
+      });
+    });
+
+    const pipeline = gpuDevice.createRenderPipeline({
+      layout: 'auto',
+      vertex: {
+        module: modules.vsModule,
+        entryPoint: 'main',
+        buffers: [
+          {
+            // 配列の要素間の距離をバイト単位で指定します。
+            arrayStride: primitive.attributeAccessors[0].bufferView.defaultByteStride,
+
+            // 頂点バッファの属性を指定します。
+            attributes: attributes,
+          },
+        ],
+      },
+      fragment: {
+        module: modules.fsModule,
+        entryPoint: 'main',
+        targets: [
+          // 0
+          {
+            // @location(0) in fragment shader
+            format: presentationFormat,
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+    });
+
+    this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
+
+    return pipeline;
   }
 }
