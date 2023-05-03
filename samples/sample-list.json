@@ -52,7 +52,8 @@
     "SummedAreaTable",
     "VarianceShadowMap",
     "VRMAnimation",
-    "VRMImporter"
+    "VRMImporter",
+    "WebGpuSimple"
   ],
   "simple": [
     "4DViews",
