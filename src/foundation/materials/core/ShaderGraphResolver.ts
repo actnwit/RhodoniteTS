@@ -22,7 +22,7 @@ export class ShaderGraphResolver {
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let in_ = 'attribute';
     if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
       in_ = 'in';

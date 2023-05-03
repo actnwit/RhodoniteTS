@@ -507,7 +507,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         VarianceShadowMapDecodeClassicMaterialContent.__lastZFar =
           encodedDepthCameraComponent.zFarInner;
       }
-      const __webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       __webglResourceRepository.setUniformValue(
         shaderProgram,
         ShaderSemantics.LightViewProjectionMatrix.str,
@@ -540,7 +540,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
 
-    const __webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const __webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     __webglResourceRepository.setUniformValue(
       shaderProgram,
       ShaderSemantics.LightViewProjectionMatrix.str,

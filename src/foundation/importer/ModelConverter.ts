@@ -802,7 +802,7 @@ export class ModelConverter {
 
       const image = textureInfo.image;
       if (image?.image != null) {
-        const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
         const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
         if (
@@ -1396,7 +1396,7 @@ export class ModelConverter {
     const image = texture.image as RnM2Image;
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;
-      const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
 
       if (

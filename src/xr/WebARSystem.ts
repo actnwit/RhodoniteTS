@@ -60,7 +60,7 @@ export class WebARSystem {
   async readyForWebAR(requestButtonDom: HTMLElement) {
     await ModuleManager.getInstance().loadModule('xr');
 
-    const glw = CGAPIResourceRepository.getCgApiResourceRepository().currentWebGLContextWrapper;
+    const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
     if (glw == null) {
       throw new Error('WebGL Context is not ready yet.');
     }
@@ -106,7 +106,7 @@ export class WebARSystem {
     callbackOnXrSessionStart: () => void;
     callbackOnXrSessionEnd: () => void;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webglResourceRepository.currentWebGLContextWrapper;
 
     if (glw != null && this.__isReadyForWebAR) {
@@ -162,7 +162,7 @@ export class WebARSystem {
         depthNear: 0.1,
         depthFar: 10000,
       });
-      const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       this.__canvasWidthForAR = webglLayer.framebufferWidth;
       this.__canvasHeightForAR = webglLayer.framebufferHeight;
       console.log(this.__canvasWidthForAR);

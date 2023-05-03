@@ -30,7 +30,7 @@ export class Sampler {
   }
 
   create() {
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__samplerResourceUid = webGLResourceRepository.createTextureSampler({
       minFilter: this.__minFilter,
       magFilter: this.__magFilter,

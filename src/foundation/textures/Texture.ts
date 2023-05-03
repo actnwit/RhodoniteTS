@@ -88,7 +88,7 @@ export class Texture extends AbstractTexture {
       return;
     }
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
       border: 0,
       format,
@@ -148,7 +148,7 @@ export class Texture extends AbstractTexture {
     this.__width = img.width;
     this.__height = img.height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     let texture: CGAPIResourceHandle;
     if (img instanceof HTMLImageElement) {
       texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
@@ -224,7 +224,7 @@ export class Texture extends AbstractTexture {
         this.__width = img.width;
         this.__height = img.height;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
         let texture: CGAPIResourceHandle;
         if (img instanceof HTMLImageElement) {
@@ -296,7 +296,7 @@ export class Texture extends AbstractTexture {
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const textureHandle = await webglResourceRepository!.createTextureFromDataUri(
       pbrModule.sheen_E_and_DGTerm,
       {
@@ -324,7 +324,7 @@ export class Texture extends AbstractTexture {
   ) {
     const type = ComponentType.fromTypedArray(typedArray);
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createTextureFromTypedArray(typedArray, {
       level,
       internalFormat,
@@ -357,7 +357,7 @@ export class Texture extends AbstractTexture {
       buffer: typedArray,
     } as TextureData;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
       [textureData],
       compressionTextureType
@@ -380,7 +380,7 @@ export class Texture extends AbstractTexture {
     this.__width = originalTextureData.width;
     this.__height = originalTextureData.height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.createCompressedTexture(
       textureDataArray,
       compressionTextureType
@@ -394,7 +394,7 @@ export class Texture extends AbstractTexture {
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
     this._textureResourceUid = texture;
     this.__startedToLoad = true;
@@ -404,7 +404,7 @@ export class Texture extends AbstractTexture {
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this._textureResourceUid);
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webGLResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;

@@ -7,7 +7,7 @@ import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
-import { ProcessApproach, VertexAttributeEnum } from '../definitions';
+import { ProcessApproach, ShaderSemanticsInfo, VertexAttributeEnum } from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 
@@ -23,25 +23,31 @@ export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap
 export abstract class CGAPIResourceRepository {
   static readonly InvalidCGAPIResourceUid = -1;
 
-  static getCgApiResourceRepository(): WebGLResourceRepository {
+  static getCgApiResourceRepository(): ICGAPIResourceRepository {
     const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
       ? 'webgl'
       : 'webgpu';
     // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    const webGLResourceRepository: WebGLResourceRepository =
-      webglModule.WebGLResourceRepository.getInstance();
-    return webGLResourceRepository;
+
+    if (moduleName === 'webgl') {
+      const webGLResourceRepository: ICGAPIResourceRepository =
+        webglModule.WebGLResourceRepository.getInstance();
+      return webGLResourceRepository;
+    } else {
+      // WebGPU
+      const webGLResourceRepository: ICGAPIResourceRepository =
+        webglModule.WebGpuResourceRepository.getInstance();
+      return webGLResourceRepository;
+    }
   }
 
-  static getCgApiResourceRepository2(): CGAPIResourceRepository {
-    const moduleName = ProcessApproach.isWebGL2Approach(SystemState.currentProcessApproach)
-      ? 'webgl'
-      : 'webgpu';
+  static getWebGLResourceRepository(): WebGLResourceRepository {
+    const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
     const webglModule = moduleManager.getModule(moduleName)! as any;
-    const webGLResourceRepository: CGAPIResourceRepository =
+    const webGLResourceRepository: WebGLResourceRepository =
       webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
   }

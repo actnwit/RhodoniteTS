@@ -196,7 +196,7 @@ export class Material extends RnObject {
    * @param isUniformOnlyMode
    */
   _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let array: ShaderSemanticsInfo[] = [];
     if (Is.exist(this._materialContent)) {
@@ -313,7 +313,7 @@ fn main(
    * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
   _setupBasicUniformsLocations() {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
   }
 
@@ -325,7 +325,7 @@ fn main(
     shaderSemantics: ShaderSemanticsInfo[],
     isUniformOnlyMode: boolean
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     return webglResourceRepository.setupUniformLocations(
       this._shaderProgramUid,
       shaderSemantics,
@@ -418,7 +418,7 @@ fn main(
     firstTime: boolean,
     shaderProgram: WebGLProgram
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (args.setUniform) {
       this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
@@ -471,7 +471,7 @@ fn main(
     firstTime: boolean;
     args: RenderingArg;
   }) {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
     const map = Material._soloDatumFields.get(materialTypeName);
     if (map == null) return;

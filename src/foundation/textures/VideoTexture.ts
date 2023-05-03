@@ -193,7 +193,7 @@ export class VideoTexture extends AbstractTexture {
   }
 
   updateTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       webGLResourceRepository.updateTexture(this._textureResourceUid, this.#htmlVideoElement, {
         level: 0,
@@ -209,7 +209,7 @@ export class VideoTexture extends AbstractTexture {
 
   getCurrentFramePixelData() {
     let pixel: Uint8Array | undefined = undefined;
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
       pixel = webGLResourceRepository.getPixelDataFromTexture(
         this._textureResourceUid,

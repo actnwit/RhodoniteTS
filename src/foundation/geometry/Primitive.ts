@@ -449,7 +449,7 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles == null) {
       return false;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     webglResourceRepository.deleteVertexDataResources(this.__vertexHandles);
     this.__vertexHandles = undefined;
 

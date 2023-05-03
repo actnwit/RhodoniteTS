@@ -225,7 +225,7 @@ export class System {
       System.createCamera();
     }
 
-    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
 
     const componentTids = ComponentRepository.getComponentTIDs();
@@ -372,12 +372,13 @@ export class System {
    */
   public static async init(desc: SystemInitDescription) {
     await ModuleManager.getInstance().loadModule('webgl');
+    await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
     this.__processApproach = desc.approach;
     SystemState.currentProcessApproach = desc.approach;
-    System.__webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    System.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     Config.eventTargetDom = desc.canvas;
-    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
       gpuInstanceData: Is.exist(desc.memoryUsageOrder)
@@ -438,12 +439,12 @@ export class System {
   }
 
   public static resizeCanvas(width: number, height: number) {
-    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     repo.resizeCanvas(width, height);
   }
 
   public static getCanvasSize() {
-    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     return repo.getCanvasSize();
   }
 

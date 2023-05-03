@@ -13,6 +13,8 @@ export class ModuleManager {
     let module: any;
     if (moduleName.toLowerCase() === 'webgl') {
       module = await (await import(/* webpackChunkName: "webgl" */ '../../webgl/main')).default;
+    } else if (moduleName.toLowerCase() === 'webgpu') {
+      module = await (await import(/* webpackChunkName: "webgpu" */ '../../webgpu/main')).default;
     } else if (moduleName.toLowerCase() === 'effekseer') {
       module = await (
         await import(/* webpackChunkName: "effekseer" */ '../../effekseer/main')

@@ -217,7 +217,7 @@ export class Mesh implements IMesh {
   }
 
   public updateVAO(): void {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     // create and update VAO
     for (let i = 0; i < this.__primitives.length; i++) {
@@ -254,7 +254,7 @@ export class Mesh implements IMesh {
   }
 
   public deleteVAO() {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
       webglResourceRepository.deleteVertexArray(this.__vaoUids[i]);
       this.__vaoUids[i] = CGAPIResourceRepository.InvalidCGAPIResourceUid;

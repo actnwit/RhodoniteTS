@@ -11,7 +11,7 @@ import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
-export class WebGPUStrategyBasic implements CGAPIStrategy {
+export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
 
   $load(meshComponent: MeshComponent): void {

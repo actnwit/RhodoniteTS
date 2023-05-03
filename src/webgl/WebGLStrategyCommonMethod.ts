@@ -297,7 +297,7 @@ export function setupShaderProgramForMeshComponent(
       continue;
     }
 
-    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
+    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = repo.currentWebGLContextWrapper!;
     const gl = glw.getRawContext();
     const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
