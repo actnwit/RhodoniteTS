@@ -265,4 +265,59 @@ export class WebGpuResourceRepository
       this.updateVertexBuffer(attributeAccessors[i], vertexHandles.vboHandles[i]);
     }
   }
+
+  /**
+   * set the VertexData to the Pipeline
+   */
+  setVertexDataToPipeline(
+    {
+      vaoHandle,
+      iboHandle,
+      vboHandles,
+    }: {
+      vaoHandle: WebGPUResourceHandle;
+      iboHandle?: WebGPUResourceHandle;
+      vboHandles: Array<WebGPUResourceHandle>;
+    },
+    primitive: Primitive,
+    instanceIDBufferUid: WebGPUResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid
+  ) {
+    const buffers = [];
+
+    // Vertex Buffer Settings
+    /// Each vertex attributes
+    const attributes: GPUVertexAttribute[] = [];
+    for (let i = 0; i < vboHandles.length; i++) {
+      const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(
+        primitive.attributeSemantics[i]
+      );
+
+      const gpuVertexFormat = (primitive.attributeAccessors[i].componentType.webgpu +
+        primitive.attributeAccessors[i].compositionType.webgpu) as GPUVertexFormat;
+      attributes.push({
+        shaderLocation,
+        offset: primitive.attributeAccessors[i].byteOffsetInBufferView,
+        format: gpuVertexFormat,
+      });
+    }
+    buffers[0] = {
+      stepMode: 'vertex',
+      attributes,
+      arrayStride: primitive.attributeAccessors[0].byteStride,
+    };
+
+    /// Instance Buffer
+    const instanceIDBuffer = this.__webGpuResources.get(instanceIDBufferUid) as GPUBuffer;
+    buffers[1] = {
+      stepMode: 'instance',
+      attributes: [
+        {
+          shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
+          offset: 0,
+          format: 'float32x4',
+        },
+      ],
+      arrayStride: 4 * 4,
+    };
+  }
 }

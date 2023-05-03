@@ -124,4 +124,21 @@ export interface ICGAPIResourceRepository {
    * @param resourceHandle - a CGAPIResourceHandle
    */
   deleteVertexBuffer(resourceHandle: CGAPIResourceHandle): void;
+
+  /**
+   * set the VertexData to the Pipeline
+   */
+  setVertexDataToPipeline(
+    {
+      vaoHandle,
+      iboHandle,
+      vboHandles,
+    }: {
+      vaoHandle: CGAPIResourceHandle;
+      iboHandle?: CGAPIResourceHandle;
+      vboHandles: Array<CGAPIResourceHandle>;
+    },
+    primitive: Primitive,
+    instanceIDBufferUid: CGAPIResourceHandle
+  ): void;
 }
