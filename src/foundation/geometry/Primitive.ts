@@ -55,7 +55,6 @@ export class Primitive extends RnObject {
   private __oIndices: IOption<Accessor> = new None();
   private static __primitiveCount: Count = 0;
   private __primitiveUid: PrimitiveUID = -1; // start ID from zero
-  private static __headerAccessor?: Accessor;
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
@@ -159,10 +158,6 @@ export class Primitive extends RnObject {
 
   static get maxPrimitiveCount() {
     return 500;
-  }
-
-  static get headerAccessor() {
-    return this.__headerAccessor;
   }
 
   copyVertexData({
