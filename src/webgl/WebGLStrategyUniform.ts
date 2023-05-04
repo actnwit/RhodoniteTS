@@ -35,7 +35,7 @@ import WebGLStrategyCommonMethod, {
 } from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { isMaterialsSetup, isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
@@ -237,7 +237,7 @@ bool get_isBillboard(float instanceId) {
     }
 
     // setup shader program
-    if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
+    if (!isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 

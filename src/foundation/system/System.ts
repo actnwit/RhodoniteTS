@@ -251,16 +251,20 @@ export class System {
               if (typeof spector !== 'undefined') {
                 spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
               }
-              repo.switchDepthTest(renderPass.isDepthTest);
-              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                // bind Framebuffer
-                System.bindFramebuffer(renderPass, rnXRModule);
 
-                // set Viewport for Normal (Not WebXR)
-                System.setViewportForNormalRendering(renderPass, rnXRModule);
+              if (this.processApproach !== ProcessApproach.WebGPU) {
+                repo.switchDepthTest(renderPass.isDepthTest);
 
-                // clear Framebuffer
-                this.__webglResourceRepository.clearFrameBuffer(renderPass);
+                if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+                  // bind Framebuffer
+                  System.bindFramebuffer(renderPass, rnXRModule);
+
+                  // set Viewport for Normal (Not WebXR)
+                  System.setViewportForNormalRendering(renderPass, rnXRModule);
+
+                  // clear Framebuffer
+                  this.__webglResourceRepository.clearFrameBuffer(renderPass);
+                }
               }
 
               componentClass.updateComponentsOfEachProcessStage(componentClass, stage, renderPass);

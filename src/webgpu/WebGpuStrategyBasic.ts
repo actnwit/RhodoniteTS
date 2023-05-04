@@ -7,7 +7,7 @@ import { Is } from '../foundation/misc/Is';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import { isMaterialsSetup, isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { Count, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
@@ -31,9 +31,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     }
 
     // setup shader program
-    // if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
-    //   setupShaderProgramForMeshComponent(this, meshComponent);
-    // }
+    if (!isMaterialsSetup(meshComponent)) {
+      this.setupShaderProgramForMeshComponent(meshComponent);
+    }
 
     // setup VBO and VAO
     if (!this.__isMeshSetup(mesh)) {

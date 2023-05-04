@@ -9,6 +9,12 @@ export class WebGpuDeviceWrapper {
     this.__context = canvas.getContext('webgpu') as GPUCanvasContext;
     this.__gpuAdapter = gpuAdapter;
     this.__gpuDevice = gpuDevice;
+    const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+    this.__context.configure({
+      device: this.__gpuDevice,
+      format: presentationFormat,
+      alphaMode: 'opaque',
+    });
   }
 
   get canvas(): HTMLCanvasElement {
