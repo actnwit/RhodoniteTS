@@ -54,18 +54,20 @@ export class WebGpuResourceRepository
   private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
-  private __webGpuDeviceWrapper: WebGpuDeviceWrapper;
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
 
-  constructor(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
+  private constructor() {
     super();
+  }
 
+  addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
   }
 
   static getInstance(): WebGpuResourceRepository {
     if (!this.__instance) {
-      throw new Error('WebGLResourceRepository is not initialized');
+      this.__instance = new WebGpuResourceRepository();
     }
     return this.__instance;
   }
@@ -115,7 +117,7 @@ export class WebGpuResourceRepository
       isPremultipliedAlpha: boolean;
     }
   ): WebGLResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const gpuTexture = gpuDevice.createTexture({
       size: [width, height, 1],
       format: 'rgba8unorm',
@@ -141,7 +143,7 @@ export class WebGpuResourceRepository
    * @returns
    */
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vertexBuffer = gpuDevice.createBuffer({
       size: accessor.byteLength,
       usage: GPUBufferUsage.VERTEX,
@@ -162,7 +164,7 @@ export class WebGpuResourceRepository
    * @returns a WebGPUResourceHandle
    */
   createVertexBufferFromTypedArray(typedArray: TypedArray): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vertexBuffer = gpuDevice.createBuffer({
       size: typedArray.byteLength,
       usage: GPUBufferUsage.VERTEX,
@@ -183,7 +185,7 @@ export class WebGpuResourceRepository
    * @returns a WebGPUResourceHandle
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const indexBuffer = gpuDevice.createBuffer({
       size: accessor.byteLength,
       usage: GPUBufferUsage.INDEX,
@@ -357,7 +359,7 @@ export class WebGpuResourceRepository
     attributeSemantics: VertexAttributeEnum[];
     onError?: (message: string) => void;
   }) {
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
     });
@@ -375,8 +377,8 @@ export class WebGpuResourceRepository
   }
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
-    const context = this.__webGpuDeviceWrapper.context;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const context = this.__webGpuDeviceWrapper!.context;
     const commandEncoder = gpuDevice.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
 
@@ -425,7 +427,7 @@ export class WebGpuResourceRepository
       return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
     }
 
-    const gpuDevice = this.__webGpuDeviceWrapper.gpuDevice;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
     const modules = this.__webGpuResources.get(material._shaderProgramUid) as {
