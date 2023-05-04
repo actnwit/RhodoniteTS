@@ -392,7 +392,7 @@ export class WebGpuResourceRepository
         {
           view: textureView,
 
-          clearValue: { r: 0.0, g: 0.0, b: 0.0, a: 1.0 },
+          clearValue: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
 
           loadOp: 'clear',
 
@@ -470,7 +470,7 @@ export class WebGpuResourceRepository
         buffers: [
           {
             // 配列の要素間の距離をバイト単位で指定します。
-            arrayStride: primitive.attributeAccessors[0].bufferView.defaultByteStride,
+            arrayStride: primitive.attributeAccessors[0].actualByteStride,
 
             // 頂点バッファの属性を指定します。
             attributes: attributes,
