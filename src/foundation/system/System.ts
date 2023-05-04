@@ -329,8 +329,9 @@ export class System {
     cameraEntity.getCamera().type = CameraType.Orthographic;
     cameraEntity.getCamera().zNear = 0.1;
     cameraEntity.getCamera().zFar = 10000;
-    const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    cameraEntity.getCamera().xMag = wgl.width / wgl.height;
+    const webCGApiRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const [width, height] = webCGApiRepository.getCanvasSize();
+    cameraEntity.getCamera().xMag = width / height;
     cameraEntity.getCamera().yMag = 1;
   }
 
@@ -450,7 +451,9 @@ export class System {
       this.restartRenderLoop();
     });
 
-    await initDefaultTextures();
+    if (desc.approach !== ProcessApproach.WebGPU) {
+      await initDefaultTextures();
+    }
 
     return gl;
   }

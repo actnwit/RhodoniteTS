@@ -83,6 +83,11 @@ export class WebGpuResourceRepository
     return handle;
   }
 
+  getCanvasSize(): [Size, Size] {
+    const canvas = this.__webGpuDeviceWrapper!.canvas;
+    return [canvas.width, canvas.height];
+  }
+
   /**
    * create a WebGPU Texture
    * @param imageData - an ImageBitmapData

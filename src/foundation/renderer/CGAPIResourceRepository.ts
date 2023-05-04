@@ -55,6 +55,11 @@ export abstract class CGAPIResourceRepository {
 
 export interface ICGAPIResourceRepository {
   /**
+   * Get a Canvas Size
+   */
+  getCanvasSize(): [Size, Size];
+
+  /**
    * create a Texture
    * @param imageData
    * @param param1
