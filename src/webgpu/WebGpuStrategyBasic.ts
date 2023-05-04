@@ -8,11 +8,21 @@ import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRep
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
-import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
+import { Count, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
+  private static __instance: WebGpuStrategyBasic;
+
+  private constructor() {}
+
+  static getInstance() {
+    if (!this.__instance) {
+      this.__instance = new WebGpuStrategyBasic();
+    }
+    return this.__instance;
+  }
 
   $load(meshComponent: MeshComponent): void {
     const mesh = meshComponent.mesh as Mesh;
@@ -100,10 +110,10 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     meshRendererComponent: MeshRendererComponent,
     instanceIDBufferUid: number
   ): void {
-    throw new Error('Method not implemented.');
+    // throw new Error('Method not implemented.');
   }
   common_$prerender(): void {
-    throw new Error('Method not implemented.');
+    // throw new Error('Method not implemented.');
   }
   common_$render(
     primitiveUids: Int32Array,
