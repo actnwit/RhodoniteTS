@@ -7,7 +7,11 @@ import { Is } from '../foundation/misc/Is';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { isMaterialsSetup, isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import {
+  isMaterialsSetup,
+  isSkipDrawing,
+  updateVBOAndVAO,
+} from '../foundation/renderer/RenderingCommonMethods';
 import { Count, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
@@ -37,7 +41,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
     // setup VBO and VAO
     if (!this.__isMeshSetup(mesh)) {
-      // WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
+      updateVBOAndVAO(mesh);
 
       const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {

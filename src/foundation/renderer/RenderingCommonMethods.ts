@@ -1,5 +1,9 @@
 import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { ProcessApproach } from '../definitions';
+import { Mesh } from '../geometry';
 import { Material } from '../materials/core/Material';
+import { Is } from '../misc';
+import { SystemState } from '../system';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 export function isSkipDrawing(material: Material) {
@@ -28,5 +32,22 @@ export function isMaterialsSetup(meshComponent: MeshComponent) {
     }
   } else {
     return false;
+  }
+}
+
+export function updateVBOAndVAO(mesh: Mesh) {
+  const primitiveNum = mesh.getPrimitiveNumber();
+  for (let i = 0; i < primitiveNum; i++) {
+    const primitive = mesh.getPrimitiveAt(i);
+    if (Is.exist(primitive.vertexHandles)) {
+      primitive.update3DAPIVertexData();
+    } else {
+      primitive.create3DAPIVertexData();
+    }
+  }
+  mesh.updateVariationVBO();
+
+  if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+    mesh.updateVAO();
   }
 }

@@ -197,7 +197,7 @@ export class WebGpuResourceRepository
       mappedAtCreation: true,
     });
 
-    new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+    new Uint8Array(indexBuffer.getMappedRange()).set(accessor.getUint8Array());
     indexBuffer.unmap();
 
     const bufferHandle = this.__registerResource(indexBuffer);
@@ -224,7 +224,7 @@ export class WebGpuResourceRepository
     }
 
     indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.getUint8Array());
       indexBuffer.unmap();
     });
   }
@@ -406,7 +406,11 @@ export class WebGpuResourceRepository
     const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
 
     passEncoder.setPipeline(pipeline);
-    const VertexHandles = primitive._vertexHandles!;
+    const VertexHandles = primitive._vertexHandles;
+    if (VertexHandles == null) {
+      return;
+    }
+
     VertexHandles.vboHandles.forEach((vboHandle, i) => {
       const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
       passEncoder.setVertexBuffer(i, vertexBuffer);
