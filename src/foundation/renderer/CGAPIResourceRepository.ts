@@ -1,6 +1,6 @@
 import { ModuleManager } from '../system/ModuleManager';
 import type { VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import type { CGAPIResourceHandle, Index, Size, TypedArray } from '../../types/CommonTypes';
+import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
@@ -10,6 +10,7 @@ import { SystemState } from '../system/SystemState';
 import { ProcessApproach, ShaderSemanticsInfo, VertexAttributeEnum } from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
+import { Sampler } from '../textures/Sampler';
 
 export type DirectTextureData =
   | TypedArray
@@ -174,4 +175,21 @@ export interface ICGAPIResourceRepository {
     attributeSemantics: VertexAttributeEnum[];
     onError?: (message: string) => void;
   }): CGAPIResourceHandle;
+
+  /**
+   * create a Cube Texture
+   */
+  createCubeTexture(
+    mipLevelCount: Count,
+    images: Array<{
+      posX: DirectTextureData;
+      negX: DirectTextureData;
+      posY: DirectTextureData;
+      negY: DirectTextureData;
+      posZ: DirectTextureData;
+      negZ: DirectTextureData;
+    }>,
+    width: Size,
+    height: Size
+  ): [number, Sampler];
 }

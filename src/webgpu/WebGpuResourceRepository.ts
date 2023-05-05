@@ -2,7 +2,7 @@
 
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
-import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';
+import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute, VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
@@ -11,11 +11,14 @@ import { Accessor } from '../foundation/memory/Accessor';
 import { Is } from '../foundation/misc/Is';
 import {
   CGAPIResourceRepository,
+  DirectTextureData,
   ICGAPIResourceRepository,
   ImageBitmapData,
 } from '../foundation/renderer/CGAPIResourceRepository';
 import { RenderPass } from '../foundation/renderer/RenderPass';
+import { Sampler } from '../foundation/textures/Sampler';
 import {
+  Count,
   Index,
   Size,
   TypedArray,
@@ -496,5 +499,61 @@ export class WebGpuResourceRepository
     this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
 
     return pipeline;
+  }
+
+  createCubeTexture(
+    mipLevelCount: Count,
+    images: Array<{
+      posX: DirectTextureData;
+      negX: DirectTextureData;
+      posY: DirectTextureData;
+      negY: DirectTextureData;
+      posZ: DirectTextureData;
+      negZ: DirectTextureData;
+    }>,
+    width: Size,
+    height: Size
+  ): [number, Sampler] {
+    const imageBitmaps: (ImageBitmap | HTMLCanvasElement)[] = [];
+    if (images[0].posX instanceof ImageBitmap || images[0].posX instanceof HTMLCanvasElement) {
+      imageBitmaps.push(images[0].posX as any);
+      imageBitmaps.push(images[0].negX as any);
+      imageBitmaps.push(images[0].posY as any);
+      imageBitmaps.push(images[0].negY as any);
+      imageBitmaps.push(images[0].posZ as any);
+      imageBitmaps.push(images[0].negZ as any);
+    }
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const cubemapTexture = gpuDevice.createTexture({
+      dimension: '2d',
+      // Create a 2d array texture.
+      // Assume each image has the same size.
+      size: [imageBitmaps[0].width, imageBitmaps[0].height, 6],
+      format: 'rgba8unorm',
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+
+    for (let i = 0; i < imageBitmaps.length; i++) {
+      const imageBitmap = imageBitmaps[i];
+      gpuDevice.queue.copyExternalImageToTexture(
+        { source: imageBitmap },
+        { texture: cubemapTexture, origin: [0, 0, i] },
+        [imageBitmap.width, imageBitmap.height]
+      );
+    }
+
+    const handle = this.__registerResource(cubemapTexture);
+    const wrapS = TextureParameter.ClampToEdge;
+    const wrapT = TextureParameter.ClampToEdge;
+    const minFilter = TextureParameter.Linear;
+    const magFilter = TextureParameter.Linear;
+
+    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter });
+    sampler.create();
+
+    return [handle, sampler];
   }
 }
