@@ -8,7 +8,10 @@ declare const window: any;
     // Triangle
     const positions = new Float32Array([-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0]);
 
+    const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
+
     const primitive = Rn.Primitive.createPrimitive({
+      material: flatMaterial,
       attributeSemantics: [Rn.VertexAttribute.Position.XYZ],
       attributes: [positions],
       primitiveMode: Rn.PrimitiveMode.Triangles,

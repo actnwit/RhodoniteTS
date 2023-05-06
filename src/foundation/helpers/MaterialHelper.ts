@@ -42,6 +42,8 @@ import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAre
 import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
 import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
@@ -475,6 +477,8 @@ function createFlatMaterial({
     pixelShader: FlatSingleShaderFragment,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
+    vertexShaderWebGpu: FlatSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: FlatSingleShaderFragmentWebGpu,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);

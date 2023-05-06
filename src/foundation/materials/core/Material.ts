@@ -248,31 +248,12 @@ export class Material extends RnObject {
 
   _createProgramWebGpu() {
     const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const materialNode = this._materialContent;
+
     const programUid = webGpuResourceRepository.createShaderProgram({
       material: this,
-      vertexShaderStr: `
-struct VertexOutput {
-  @builtin(position) Position : vec4<f32>,
-}
-
-@vertex
-fn main(
-  @location(0) position: vec4<f32>,
-) -> VertexOutput {
-
-  var output : VertexOutput;
-  output.Position = position;
-
-  return output;
-}
-`,
-      fragmentShaderStr: `
-@fragment
-fn main(
-) -> @location(0) vec4<f32> {
-  return vec4<f32>(1, 0, 0, 1);
-}
-      `,
+      vertexShaderStr: materialNode.vertexShaderityObject!.code,
+      fragmentShaderStr: materialNode.pixelShaderityObject!.code,
       attributeNames: [],
       attributeSemantics: [],
     });

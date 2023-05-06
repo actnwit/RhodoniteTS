@@ -12,6 +12,8 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
+import { SystemState } from '../../system';
+import { ProcessApproach } from '../../definitions';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -34,6 +36,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     pixelShader,
     noUseCameraTransform,
     additionalShaderSemanticInfo,
+    vertexShaderWebGpu,
+    pixelShaderWebGpu,
   }: {
     name: string;
     isMorphing: boolean;
@@ -53,6 +57,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     pixelShader: ShaderityObject;
     noUseCameraTransform: boolean;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
+    vertexShaderWebGpu?: ShaderityObject;
+    pixelShaderWebGpu?: ShaderityObject;
   }) {
     super(
       null,
@@ -80,8 +86,14 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       pixelShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
-    this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-    this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this.__vertexShaderityObject = vertexShaderWebGpu;
+      this.__pixelShaderityObject = pixelShaderWebGpu;
+    } else {
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+    }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
