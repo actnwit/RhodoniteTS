@@ -85,15 +85,21 @@ export class VrmImporter {
       vrmSpringBoneGroup.colliderGroupIndices = Is.exist(spring.colliderGroups)
         ? spring.colliderGroups
         : [];
+
+      const joint = spring.joints[0];
+      vrmSpringBoneGroup.dragForce = joint.dragForce;
+      vrmSpringBoneGroup.stiffnessForce = joint.stiffness;
+      vrmSpringBoneGroup.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
+      // if (vrmSpringBoneGroup.gravityPower === 0) {
+      //   vrmSpringBoneGroup.gravityPower = 1;
+      // }
+      vrmSpringBoneGroup.gravityDir = Is.exist(joint.gravityDir)
+        ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
+        : Vector3.fromCopyArray3([0, -1, 0]);
+      vrmSpringBoneGroup.hitRadius = joint.hitRadius;
+
       for (const jointIdx in spring.joints) {
         const joint = spring.joints[jointIdx];
-        vrmSpringBoneGroup.dragForce = joint.dragForce;
-        vrmSpringBoneGroup.stiffnessForce = joint.stiffness;
-        vrmSpringBoneGroup.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
-        vrmSpringBoneGroup.gravityDir = Is.exist(joint.gravityDir)
-          ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
-          : Vector3.fromCopyArray3([0, -1, 0]);
-        vrmSpringBoneGroup.hitRadius = joint.hitRadius;
         const entity = gltfModel.asset.extras!.rnEntities![joint.node];
         vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
 
