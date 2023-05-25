@@ -137,7 +137,7 @@ export class MeshRendererComponent extends Component {
     const primitiveUids = primitives.map((primitive) => primitive.primitiveUid);
     primitiveUids.push(-1);
 
-    MeshRendererComponent._lastOpaqueIndex = -1;
+    MeshRendererComponent._lastOpaqueIndex = primitives.length - 1;
     MeshRendererComponent._lastTransparentIndex = -1;
     MeshRendererComponent._firstTransparentSortKey = -1;
     MeshRendererComponent._lastTransparentSortKey = -1;
@@ -150,9 +150,6 @@ export class MeshRendererComponent extends Component {
         MeshRendererComponent._firstTransparentSortKey = primitive._sortkey;
         break;
       }
-    }
-    if (MeshRendererComponent._lastOpaqueIndex === -1) {
-      MeshRendererComponent._lastOpaqueIndex = primitives.length - 1;
     }
 
     if (primitives.length > 0) {
