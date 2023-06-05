@@ -209,39 +209,40 @@ export class AnimationAssigner {
             const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
 
-            // apply animation data to the target joint entity
-            let animationAttributeType = 'translate';
-            if (channel.target!.path === 'translation') {
-              animationAttributeType = 'translate';
-            } else if (channel.target!.path! === 'rotation') {
-              animationAttributeType = 'quaternion';
-            } else {
-              animationAttributeType = channel.target!.path;
-            }
-            if (animationAttributeType === 'quaternion') {
-              animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name! : 'Untitled',
-                animationAttributeType,
-                animInputArray!,
-                animOutputArray!,
-                4, // Quaternion
-                AnimationInterpolation.fromString(interpolation)
-              );
-            } else if (
-              animationAttributeType === 'translate' &&
-              this.__isHips(rootEntity, vrmModel, channel.target!.node!)
-            ) {
-              animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name! : 'Untitled',
-                animationAttributeType,
-                animInputArray!,
-                animOutputArray!,
-                3, // translate
-                AnimationInterpolation.fromString(interpolation)
-              );
-            }
 
-            if (retargetMode !== 'none') {
+            if (retargetMode === 'none') {
+              // apply animation data to the target joint entity
+              let animationAttributeType = 'translate';
+              if (channel.target!.path === 'translation') {
+                animationAttributeType = 'translate';
+              } else if (channel.target!.path! === 'rotation') {
+                animationAttributeType = 'quaternion';
+              } else {
+                animationAttributeType = channel.target!.path;
+              }
+              if (animationAttributeType === 'quaternion') {
+                animationComponent.setAnimation(
+                  Is.exist(animation.name) ? animation.name! : 'Untitled',
+                  animationAttributeType,
+                  animInputArray!,
+                  animOutputArray!,
+                  4, // Quaternion
+                  AnimationInterpolation.fromString(interpolation)
+                );
+              } else if (
+                animationAttributeType === 'translate' &&
+                this.__isHips(rootEntity, vrmModel, channel.target!.node!)
+              ) {
+                animationComponent.setAnimation(
+                  Is.exist(animation.name) ? animation.name! : 'Untitled',
+                  animationAttributeType,
+                  animInputArray!,
+                  animOutputArray!,
+                  3, // translate
+                  AnimationInterpolation.fromString(interpolation)
+                );
+              }
+            } else {
               const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
               let retarget: IAnimationRetarget | undefined;
               if (retargetMode === 'global') {
@@ -253,7 +254,7 @@ export class AnimationAssigner {
               } else {
                 throw new Error('unknown retarget mode');
               }
-              animationComponent._animationRetarget = retarget;
+              animationComponent.setAnimationRetarget(retarget);
             }
           }
         }

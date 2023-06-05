@@ -1005,5 +1005,16 @@ export class AnimationComponent extends Component {
     this.__isAnimating = component.__isAnimating;
     this._animationRetarget = component._animationRetarget;
   }
+
+  setAnimationRetarget(retarget: IAnimationRetarget) {
+    this._animationRetarget = retarget;
+
+    this.__transformComponent = EntityRepository.getComponentOfEntity(
+      this.__entityUid,
+      TransformComponent
+    ) as TransformComponent;
+
+    this.__transformComponent?._backupTransformAsRest();
+  }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);
