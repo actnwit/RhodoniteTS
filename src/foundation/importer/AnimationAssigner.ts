@@ -20,13 +20,23 @@ type RetargetMode = 'none' | 'global' | 'global2' | 'absolute';
 export class AnimationAssigner {
   private static __instance: AnimationAssigner;
 
+  /**
+   * Assign Animation Function
+   *
+   * @param rootEntity - The root entity of the model which you want to assign animation.
+   * @param gltfModel - The glTF model that has animation data.
+   * @param vrmModel - The corresponding VRM model to the glTF model.
+   * @param isSameSkeleton
+   * @param retargetMode - Retarget mode. 'none' | 'global' | 'global2' | 'absolute'
+   * @param srcRootEntityForRetarget
+   * @returns
+   */
   assignAnimation(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
     vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
-    retargetMode: RetargetMode = 'none',
-    srcRootEntityForRetarget?: ISceneGraphEntity
+    retargetMode: RetargetMode
   ) {
     this.__setupAnimationForSameSkeleton(
       rootEntity,
@@ -34,7 +44,6 @@ export class AnimationAssigner {
       vrmModel,
       isSameSkeleton,
       retargetMode,
-      srcRootEntityForRetarget
     );
 
     return rootEntity;
@@ -165,7 +174,6 @@ export class AnimationAssigner {
     vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
     retargetMode: RetargetMode,
-    srcRootEntityForRetarget?: ISceneGraphEntity
   ) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
@@ -233,7 +241,7 @@ export class AnimationAssigner {
               );
             }
 
-            if (retargetMode !== 'none' && Is.exist(srcRootEntityForRetarget)) {
+            if (retargetMode !== 'none') {
               const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
               let retarget: IAnimationRetarget | undefined;
               if (retargetMode === 'global') {
