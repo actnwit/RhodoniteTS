@@ -72,8 +72,7 @@ declare const Stats: any;
     animGltf2Result.unwrapForce(),
     vrmModelResult.unwrapForce(),
     false,
-    'global',
-    animGltfModel
+    'global'
   );
 
   // for (let i = 0; i < 1; i++) {
