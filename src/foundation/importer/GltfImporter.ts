@@ -265,12 +265,12 @@ export class GltfImporter {
 
         if (result.isOk()) {
           const gltfModel = result.get();
-          if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') > 0) {
+          if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') >= 0) {
             options.__isImportVRM0x = false;
             gltfModel.asset.extras!.rnLoaderOptions!.__isImportVRM0x = false;
             options.__importedType = 'vrm1';
             await VrmImporter.__importVRM(gltfModel, renderPasses);
-          } else if (gltfModel.extensionsUsed.indexOf('VRM') > 0) {
+          } else if (gltfModel.extensionsUsed.indexOf('VRM') >= 0) {
             options.__importedType = 'vrm0x';
             await Vrm0xImporter.__importVRM0x(gltfModel, renderPasses);
           }

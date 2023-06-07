@@ -72,7 +72,8 @@ declare const Stats: any;
     vrmRootEntity,
     animGltf2Result.unwrapForce(),
     vrmModelResult.unwrapForce(),
-    false
+    false,
+    'none'
   );
 
   for (let i = 0; i < 1; i++) {
@@ -91,7 +92,8 @@ declare const Stats: any;
         vrmRootEntity2nd,
         animGltf2Result.unwrapForce(),
         vrmModelResult.unwrapForce(),
-        false
+        false,
+        'none'
       );
     }
   }
