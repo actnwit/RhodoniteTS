@@ -217,10 +217,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         const r = boneHitRadius + collider.radius;
         const delta = Vector3.subtract(nextTail, worldColliderPos);
         const deltaScalar = r - delta.length();
-        if (deltaScalar >= 0) {
+        if (deltaScalar > 0) {
           const normal = Vector3.normalize(delta);
           const resilienceVec = Vector3.multiply(
-            Vector3.add(worldColliderPos, normal),
+            normal,
             deltaScalar
           );
           nextTail = Vector3.add(nextTail, resilienceVec);
