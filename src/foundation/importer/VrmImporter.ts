@@ -17,6 +17,7 @@ import { Vrm1, Vrm1_Materials_MToon } from '../../types/VRM1';
 import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
+import { VrmComponent, VrmExpression, VrmExpressionMorphBind } from '../components';
 
 export class VrmImporter {
   private constructor() {}
@@ -60,6 +61,36 @@ export class VrmImporter {
 
     this._readSpringBone(gltfModel as Vrm1);
     this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
+    this._readExpressions(gltfModel as Vrm1, rootGroup);
+  }
+
+  static _readExpressions(gltfModel: Vrm1, rootEntity: ISceneGraphEntity) {
+    const vrmExpressions: VrmExpression[] = [];
+
+    const expressions = gltfModel.extensions.VRMC_vrm.expressions.preset;
+    for (const expressionName in expressions) {
+      const expression = expressions[expressionName];
+      let binds: VrmExpressionMorphBind[] = [];
+      if (Is.exist(expression.morphTargetBinds)) {
+        binds = expression.morphTargetBinds.map((bind) => {
+          const rnEntity = gltfModel.extras.rnEntities[bind.node];
+          return {
+            entityIdx: rnEntity.entityUID,
+            blendShapeIdx: bind.index,
+            weight: bind.weight,
+          }
+        });
+      }
+
+      const vrmExpression: VrmExpression = {
+        name: expressionName,
+        isBinary: expression.isBinary,
+        binds: binds,
+      }
+      vrmExpressions.push(vrmExpression);
+    }
+    const vrmEntity = EntityRepository.addComponentToEntity(VrmComponent, rootEntity);
+    vrmEntity.getVrm().setVrmExpressions(vrmExpressions);
   }
 
   static _readVRMHumanoidInfo(gltfModel: Vrm1, rootEntity?: ISceneGraphEntity): void {
