@@ -193,7 +193,10 @@ export class Vrm0xImporter {
   static _readSpringBone(gltfModel: Vrm0x): void {
     const boneGroups: VRMSpring[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
-      const vrmSpringBoneGroup = new VRMSpring();
+      const jointRootIndex = boneGroup.bones[0];
+      const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRootIndex];
+      const vrmSpringBoneGroup = new VRMSpring(jointRootEntity.getSceneGraph());
+
       vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
       vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
       for (const idxOfArray in boneGroup.bones) {
@@ -209,7 +212,6 @@ export class Vrm0xImporter {
           boneGroup.gravityDir.z,
         ]);
         springBone.hitRadius = boneGroup.hitRadius;
-        vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
         // const boneNodeIndex = boneGroup.bones[idxOfArray];
         // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
         // entityRepository.addComponentToEntity(PhysicsComponent, entity.entityUID);
@@ -220,9 +222,7 @@ export class Vrm0xImporter {
 
     VRMSpringBonePhysicsStrategy.setSprings(boneGroups);
     for (const boneGroup of boneGroups) {
-      for (const sg of boneGroup.rootBones) {
-        this.__addPhysicsComponentRecursively(EntityRepository, sg);
-      }
+      this.__addPhysicsComponentRecursively(EntityRepository, boneGroup.rootBone);
     }
 
     const colliderGroups: VRMColliderGroup[] = [];

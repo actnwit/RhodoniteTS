@@ -10,11 +10,12 @@ export class VRMSpring extends RnObject {
   // gravityDir = Vector3.fromCopyArray([0, -1.0, 0]);
   // dragForce = 0.05;
   // hitRadius = 0.02;
-  rootBones: SceneGraphComponent[] = [];
+  rootBone: SceneGraphComponent;
   bones: VRMSpringBone[] = [];
   colliderGroupIndices: Index[] = [];
 
-  constructor() {
+  constructor(rootBone: SceneGraphComponent) {
     super();
+    this.rootBone = rootBone;
   }
 }

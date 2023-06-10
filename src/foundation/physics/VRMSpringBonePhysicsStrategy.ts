@@ -27,13 +27,13 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       : Quaternion.fromCopy4(0, 0, 0, 1);
   }
 
-  static update() {
-    for (const spring of this.__springs) {
+  update() {
+    for (const spring of VRMSpringBonePhysicsStrategy.__springs) {
       this.updateInner(spring.bones, spring);
     }
   }
 
-  static updateInner(bones: VRMSpringBone[], spring: VRMSpring) {
+  updateInner(bones: VRMSpringBone[], spring: VRMSpring) {
     const center: SceneGraphComponent | undefined = void 0;
 
     const collisionGroups = VRMSpringBonePhysicsStrategy.getColliderGroups(
@@ -66,19 +66,15 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       }
 
       // update VRMSpringBone
-      const physicsComponent = sg.entity.tryToGetPhysics();
-      if (physicsComponent) {
-        const strategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
-        strategy.update(
-          collisionGroups,
-          bone,
-          center
-        );
-        // const children = sg.children;
-        // if (children) {
-        //   this.updateInner(children, spring);
-        // }
-      }
+      this.process(
+        collisionGroups,
+        bone,
+        center
+      );
+      // const children = sg.children;
+      // if (children) {
+      //   this.updateInner(children, spring);
+      // }
     }
   }
 
@@ -125,7 +121,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   //   const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
   // }
 
-  update(
+  process(
     collisionGroups: VRMColliderGroup[],
     bone: VRMSpringBone,
     center?: SceneGraphComponent
@@ -172,11 +168,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const resultRotation = this.applyRotation(nextTail, bone, head);
 
-    // if (head.children.length > 0) {
-    //   head.children[0].entity.getTransform().localRotation = resultRotation;
-    // }
-    head.entity.getTransform().localRotation = resultRotation;
-
+    if (head.children.length > 0) {
+      head.children[0].entity.getTransform().localRotation = resultRotation;
+    }
+    // head.entity.getTransform().localRotation = resultRotation;
   }
 
   applyRotation(nextTail: Vector3, bone: VRMSpringBone, head: SceneGraphComponent) {

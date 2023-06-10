@@ -26,11 +26,11 @@ export class PhysicsComponent extends Component {
     return this.__strategy;
   }
 
-  static common_$logic() {
-    VRMSpringBonePhysicsStrategy.update();
-  }
+  static common_$logic() {}
 
-  $logic() {}
+  $logic() {
+    this.__strategy.update();
+  }
 
   /**
    * @override

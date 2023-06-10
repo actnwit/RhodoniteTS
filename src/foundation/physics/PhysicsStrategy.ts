@@ -1,1 +1,3 @@
-export interface PhysicsStrategy {}
+export interface PhysicsStrategy {
+  update(): void;
+}

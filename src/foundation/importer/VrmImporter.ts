@@ -112,7 +112,9 @@ export class VrmImporter {
   static _readSpringBone(gltfModel: Vrm1): void {
     const springs: VRMSpring[] = [];
     for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
-      const vrmSpring = new VRMSpring();
+      const jointRoot = spring.joints[0];
+      const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRoot.node];
+      const vrmSpring = new VRMSpring(jointRootEntity.getSceneGraph());
       vrmSpring.tryToSetUniqueName(spring.name, true);
       vrmSpring.colliderGroupIndices = Is.exist(spring.colliderGroups)
         ? spring.colliderGroups
@@ -133,7 +135,6 @@ export class VrmImporter {
           : Vector3.fromCopyArray3([0, -1, 0]);
         springBone.hitRadius = joint.hitRadius;
 
-        vrmSpring.rootBones.push(entity.getSceneGraph());
         vrmSpring.bones.push(springBone);
       }
       springs.push(vrmSpring);
@@ -141,9 +142,7 @@ export class VrmImporter {
 
     VRMSpringBonePhysicsStrategy.setSprings(springs);
     for (const spring of springs) {
-      for (const sg of spring.rootBones) {
-        this.__addPhysicsComponentRecursively(EntityRepository, sg);
-      }
+      this.__addPhysicsComponentRecursively(EntityRepository, spring.rootBone);
     }
 
     const colliderGroups: VRMColliderGroup[] = [];
