@@ -10,6 +10,7 @@ import { Index } from '../../types/CommonTypes';
 import { PhysicsStrategy } from './PhysicsStrategy';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { IQuaternion } from '../math';
+import { Is } from '../misc/Is';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
@@ -113,21 +114,26 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   static initialize(sceneGraph: SceneGraphComponent) {
     const children = sceneGraph.children;
 
-    const physicsComponent = sceneGraph.entity.tryToGetPhysics()!;
+    const physicsComponent = sceneGraph.entity.tryToGetPhysics();
+    if (Is.not.exist(physicsComponent)) {
+      new Error('PhysicsComponent is not attached to the entity.');
+      return;
+    }
+
     const vrmSpringBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {
       const transform = children[0].entity.getTransform();
       // const childPositionInLocal = Matrix44.invert(
       //   sceneGraph.worldMatrixInner
       // ).multiplyVector3(children[0].worldPosition);
+      const childPositionInLocal = Vector3.fromCopy3(
+        transform.localPosition.x * transform.localScale.x,
+        transform.localPosition.y * transform.localScale.y,
+        transform.localPosition.z * transform.localScale.z
+      );
       vrmSpringBone.initialize(
         sceneGraph,
-        Vector3.fromCopy3(
-          transform.localPosition.x * transform.localScale.x,
-          transform.localPosition.y * transform.localScale.y,
-          transform.localPosition.z * transform.localScale.z
-        ),
-        // childPositionInLocal,
+        childPositionInLocal,
         void 0
       );
     } else {
