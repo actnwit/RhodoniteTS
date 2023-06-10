@@ -77,7 +77,7 @@ export class VrmComponent extends Component {
       private __vrmComponent?: VrmComponent;
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
