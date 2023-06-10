@@ -2,208 +2,133 @@ import { Vector3 } from '../math/Vector3';
 import { MutableVector3 } from '../math/MutableVector3';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { Quaternion } from '../math/Quaternion';
-import { Matrix44 } from '../math/Matrix44';
 import { Time } from '../misc/Time';
-import { VRMSpringBoneGroup } from './VRMSpringBoneGroup';
+import { VRMSpring } from './VRMSpring';
 import { VRMColliderGroup } from './VRMColliderGroup';
 import { Index } from '../../types/CommonTypes';
 import { PhysicsStrategy } from './PhysicsStrategy';
 import { MutableQuaternion } from '../math/MutableQuaternion';
-import { IQuaternion } from '../math';
 import { Is } from '../misc/Is';
+import { VRMSpringBone } from './VRMSpringBone';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
   private static __tmp_quat = MutableQuaternion.identity();
-  private static __boneGroups: VRMSpringBoneGroup[] = [];
+  private __spring: VRMSpring | undefined;
   private static __colliderGroups: Map<Index, VRMColliderGroup> = new Map();
-
-  // for bone
-  private __transform?: SceneGraphComponent;
-  private __boneAxis = Vector3.zero();
-  private __length = 0;
-  private __currentTail = Vector3.zero();
-  private __prevTail = Vector3.zero();
-  private __localRotation = Quaternion.fromCopy4(0, 0, 0, 1) as IQuaternion;
-  private __initalized = false;
 
   constructor() {}
 
-  initialize(
-    transform: SceneGraphComponent,
-    localChildPosition: Vector3,
-    center?: SceneGraphComponent
-  ) {
-    this.__transform = transform;
-    const worldChildPosition = transform.getWorldPositionOf(localChildPosition);
-    this.__currentTail =
-      center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
-    this.__prevTail = this.__currentTail;
-    this.__localRotation = transform.entity.getTransform()!.localRotation;
-    this.__boneAxis = Vector3.normalize(localChildPosition);
-    this.__length = localChildPosition.length();
-
-    this.__initalized = true;
-  }
-
-  get isInitialized() {
-    return this.__initalized;
-  }
-
-  get head(): SceneGraphComponent {
-    return this.__transform!;
-  }
-
-  get tail(): Vector3 {
-    Vector3.multiplyTo(this.__boneAxis, this.__length, VRMSpringBonePhysicsStrategy.__tmp_vec3);
-    this.__transform!.matrixInner.multiplyVector3To(
-      VRMSpringBonePhysicsStrategy.__tmp_vec3,
-      VRMSpringBonePhysicsStrategy.__tmp_vec3_2
-    );
-
-    return VRMSpringBonePhysicsStrategy.__tmp_vec3_2;
-  }
-
-  get parentRotation() {
-    // return (this.__transform!.parent != null) ? this.__transform!.parent!.entity.getTransform().quaternion : new Quaternion(0, 0, 0, 1);
-    return this.__transform!.parent != null
-      ? Quaternion.fromMatrix(this.__transform!.parent!.matrixInner)
+  getParentRotation(head: SceneGraphComponent) {
+    return head.parent != null
+      ? Quaternion.fromMatrix(head.parent!.matrixInner)
       : Quaternion.fromCopy4(0, 0, 0, 1);
   }
 
-  static update() {
-    for (const boneGroup of this.__boneGroups) {
-      this.updateInner(boneGroup.rootBones, boneGroup);
+  update() {
+    const spring = this.__spring;
+    if (Is.exist(spring)) {
+      this.updateInner(spring.bones, spring);
     }
   }
 
-  static updateInner(sceneGraphs: SceneGraphComponent[], boneGroup: VRMSpringBoneGroup) {
-    const dragForce = boneGroup.dragForce;
-    const stiffnessForce = boneGroup.stiffnessForce * Time.lastTickTimeInterval * 1;
-    const external = Vector3.multiply(
-      boneGroup.gravityDir,
-      boneGroup.gravityPower * Time.lastTickTimeInterval * 1
-    );
+  updateInner(bones: VRMSpringBone[], spring: VRMSpring) {
     const center: SceneGraphComponent | undefined = void 0;
 
-    const collisionGroups = VRMSpringBonePhysicsStrategy.getColliderGroups(
-      boneGroup.colliderGroupIndices
-    );
+    const collisionGroups = spring.colliderGroups;
 
-    for (const sg of sceneGraphs) {
-      const physicsComponent = sg.entity.tryToGetPhysics();
-      if (physicsComponent) {
-        const strategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
-        strategy.update(
-          stiffnessForce,
-          dragForce,
-          external,
-          collisionGroups,
-          boneGroup.hitRadius,
-          center
+    for (const bone of bones) {
+      // setup VRMSpringBone
+      const sg = bone.node.getSceneGraph();
+      const children = sg.children;
+      if (children.length > 0) {
+        const transform = children[0].entity.getTransform();
+        const childPositionInLocal = Vector3.fromCopy3(
+          transform.localPosition.x * transform.localScale.x,
+          transform.localPosition.y * transform.localScale.y,
+          transform.localPosition.z * transform.localScale.z
         );
-        const children = sg.children;
-        if (children) {
-          this.updateInner(children, boneGroup);
+        bone.setup(childPositionInLocal, void 0);
+      } else {
+        const delta = Vector3.subtract(sg.worldPosition, sg.parent!.worldPosition);
+        let childPosition = Vector3.fromCopyArray([1, 1, 1]);
+        if (delta.lengthSquared() > 0) {
+          childPosition = Vector3.add(
+            sg.worldPosition,
+            Vector3.multiply(Vector3.normalize(delta), 0.07)
+          );
         }
+        const childPositionInLocal = sg.getLocalPositionOf(childPosition);
+        bone.setup(childPositionInLocal, void 0);
       }
-    }
-  }
 
-  static initialize(sceneGraph: SceneGraphComponent) {
-    const children = sceneGraph.children;
-
-    const physicsComponent = sceneGraph.entity.tryToGetPhysics();
-    if (Is.not.exist(physicsComponent)) {
-      new Error('PhysicsComponent is not attached to the entity.');
-      return;
-    }
-
-    const vrmSpringBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
-    if (children.length > 0) {
-      const transform = children[0].entity.getTransform();
-      // const childPositionInLocal = Matrix44.invert(
-      //   sceneGraph.worldMatrixInner
-      // ).multiplyVector3(children[0].worldPosition);
-      const childPositionInLocal = Vector3.fromCopy3(
-        transform.localPosition.x * transform.localScale.x,
-        transform.localPosition.y * transform.localScale.y,
-        transform.localPosition.z * transform.localScale.z
+      // update VRMSpringBone
+      this.process(
+        collisionGroups,
+        bone,
+        center
       );
-      vrmSpringBone.initialize(
-        sceneGraph,
-        childPositionInLocal,
-        void 0
-      );
-    } else {
-      const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
-      let childPosition = Vector3.fromCopyArray([1, 1, 1]);
-      if (delta.lengthSquared() > 0) {
-        childPosition = Vector3.add(
-          sceneGraph.worldPosition,
-          Vector3.multiply(Vector3.normalize(delta), 0.07)
-        );
-      }
-      const childPositionInLocal = sceneGraph.getLocalPositionOf(childPosition);
-      vrmSpringBone.initialize(sceneGraph, childPositionInLocal, void 0);
     }
   }
 
-  calcParentDeltaRecursivle(sceneGraph: SceneGraphComponent) {
-    const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
-  }
-
-  update(
-    stiffnessForce: number,
-    dragForce: number,
-    external: Vector3,
+  process(
     collisionGroups: VRMColliderGroup[],
-    boneHitRadius: number,
+    bone: VRMSpringBone,
     center?: SceneGraphComponent
   ) {
+    const dragForce = bone.dragForce;
+    const stiffnessForce = bone.stiffnessForce * Time.lastTickTimeInterval * 1;
+
     const currentTail =
-      center != null ? center.getWorldPositionOf(this.__currentTail) : this.__currentTail;
-    const prevTail = center != null ? center.getWorldPositionOf(this.__prevTail) : this.__prevTail;
+      center != null ? center.getWorldPositionOf(bone.currentTail) : bone.currentTail;
+    const prevTail = center != null ? center.getWorldPositionOf(bone.prevTail) : bone.prevTail;
 
     // Continues the previous frame's movement (there is also attenuation)
     const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
 
     // Movement target of child bones due to parent's rotation
-    const rotation = Quaternion.multiply(this.parentRotation, this.__localRotation);
+    const head = bone.node.getSceneGraph();
+    const rotation = Quaternion.multiply(this.getParentRotation(head), bone.localRotation);
     const childBoneTarget = Vector3.multiply(
-      rotation.transformVector3(this.__boneAxis),
+      rotation.transformVector3(bone.boneAxis),
       stiffnessForce
     );
 
     // Calculate the nextTail
+    const external = Vector3.multiply(
+      bone.gravityDir,
+      bone.gravityPower * Time.lastTickTimeInterval * 1
+    );
     let nextTail = Vector3.add(
       Vector3.add(Vector3.add(currentTail, delta), childBoneTarget),
       external
     );
 
     // Normalize to bone length
-    const sub = Vector3.normalize(Vector3.subtract(nextTail, this.head.worldPosition));
-    nextTail = Vector3.add(this.head!.worldPosition, Vector3.multiply(sub, this.__length));
+    const sub = Vector3.normalize(Vector3.subtract(nextTail, head.worldPosition));
+    nextTail = Vector3.add(head.worldPosition, Vector3.multiply(sub, bone.boneLength));
 
     // Movement by Collision
-    nextTail = this.collision(collisionGroups, nextTail, boneHitRadius);
+    nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius);
 
     // prevTail = currentTail;
     // currentTail = nextTail;
-    this.__prevTail = center != null ? center.getLocalPositionOf(currentTail) : currentTail;
-    this.__currentTail = center != null ? center.getLocalPositionOf(nextTail) : nextTail;
+    bone.prevTail = center != null ? center.getLocalPositionOf(currentTail) : currentTail;
+    bone.currentTail = center != null ? center.getLocalPositionOf(nextTail) : nextTail;
 
-    const resultRotation = this.applyRotation(nextTail);
-    if (this.head.children.length > 0) {
-      this.head.children[0].entity.getTransform().localRotation = resultRotation;
+    const resultRotation = this.applyRotation(nextTail, bone, head);
+
+    if (head.children.length > 0) {
+      head.children[0].entity.getTransform().localRotation = resultRotation;
     }
+    // head.entity.getTransform().localRotation = resultRotation;
   }
 
-  applyRotation(nextTail: Vector3) {
+  applyRotation(nextTail: Vector3, bone: VRMSpringBone, head: SceneGraphComponent) {
     const result = Quaternion.fromToRotation(
-      Vector3.normalize(this.__boneAxis),
-      Vector3.normalize(this.head.getLocalPositionOf(nextTail))
+      Vector3.normalize(bone.boneAxis),
+      Vector3.normalize(head.getLocalPositionOf(nextTail))
     );
     return result;
   }
@@ -232,8 +157,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return nextTail;
   }
 
-  static setBoneGroups(sgs: VRMSpringBoneGroup[]) {
-    this.__boneGroups = sgs;
+  setSpring(sgs: VRMSpring) {
+    this.__spring = sgs;
   }
 
   static addColliderGroup(index: Index, group: VRMColliderGroup) {
