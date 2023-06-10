@@ -253,11 +253,11 @@ export class Vrm0xImporter {
     const entity = sg.entity;
     EntityRepository.addComponentToEntity(PhysicsComponent, entity);
     VRMSpringBonePhysicsStrategy.initialize(sg);
-    if (sg.children.length > 0) {
-      for (const child of sg.children) {
-        this.__addPhysicsComponentRecursively(entityRepository, child);
-      }
-    }
+    // if (sg.children.length > 0) {
+    //   for (const child of sg.children) {
+    //     this.__addPhysicsComponentRecursively(entityRepository, child);
+    //   }
+    // }
   }
 
   static _createTextures(gltfModel: RnM2): Texture[] {

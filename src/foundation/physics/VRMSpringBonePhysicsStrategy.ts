@@ -10,6 +10,7 @@ import { Index } from '../../types/CommonTypes';
 import { PhysicsStrategy } from './PhysicsStrategy';
 import { MutableQuaternion } from '../math/MutableQuaternion';
 import { IQuaternion } from '../math';
+import { Is } from '../misc/Is';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
@@ -113,21 +114,26 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   static initialize(sceneGraph: SceneGraphComponent) {
     const children = sceneGraph.children;
 
-    const physicsComponent = sceneGraph.entity.tryToGetPhysics()!;
+    const physicsComponent = sceneGraph.entity.tryToGetPhysics();
+    if (Is.not.exist(physicsComponent)) {
+      new Error('PhysicsComponent is not attached to the entity.');
+      return;
+    }
+
     const vrmSpringBone = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
     if (children.length > 0) {
       const transform = children[0].entity.getTransform();
       // const childPositionInLocal = Matrix44.invert(
       //   sceneGraph.worldMatrixInner
       // ).multiplyVector3(children[0].worldPosition);
+      const childPositionInLocal = Vector3.fromCopy3(
+        transform.localPosition.x * transform.localScale.x,
+        transform.localPosition.y * transform.localScale.y,
+        transform.localPosition.z * transform.localScale.z
+      );
       vrmSpringBone.initialize(
         sceneGraph,
-        Vector3.fromCopy3(
-          transform.localPosition.x * transform.localScale.x,
-          transform.localPosition.y * transform.localScale.y,
-          transform.localPosition.z * transform.localScale.z
-        ),
-        // childPositionInLocal,
+        childPositionInLocal,
         void 0
       );
     } else {
@@ -139,9 +145,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           Vector3.multiply(Vector3.normalize(delta), 0.07)
         );
       }
-      const childPositionInLocal = Matrix44.invert(sceneGraph.matrixInner).multiplyVector3(
-        childPosition
-      );
+      const childPositionInLocal = sceneGraph.getLocalPositionOf(childPosition);
       vrmSpringBone.initialize(sceneGraph, childPositionInLocal, void 0);
     }
   }
@@ -159,8 +163,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     center?: SceneGraphComponent
   ) {
     const currentTail =
-      center != null ? center!.getWorldPositionOf(this.__currentTail) : this.__currentTail;
-    const prevTail = center != null ? center!.getWorldPositionOf(this.__prevTail) : this.__prevTail;
+      center != null ? center.getWorldPositionOf(this.__currentTail) : this.__currentTail;
+    const prevTail = center != null ? center.getWorldPositionOf(this.__prevTail) : this.__prevTail;
 
     // Continues the previous frame's movement (there is also attenuation)
     const delta = MutableVector3.multiply(Vector3.subtract(currentTail, prevTail), 1.0 - dragForce);
@@ -187,8 +191,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     // prevTail = currentTail;
     // currentTail = nextTail;
-    this.__prevTail = center != null ? center!.getLocalPositionOf(currentTail) : currentTail;
-    this.__currentTail = center != null ? center!.getLocalPositionOf(nextTail) : nextTail;
+    this.__prevTail = center != null ? center.getLocalPositionOf(currentTail) : currentTail;
+    this.__currentTail = center != null ? center.getLocalPositionOf(nextTail) : nextTail;
 
     const resultRotation = this.applyRotation(nextTail);
     if (this.head.children.length > 0) {
@@ -213,10 +217,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         const r = boneHitRadius + collider.radius;
         const delta = Vector3.subtract(nextTail, worldColliderPos);
         const deltaScalar = r - delta.length();
-        if (deltaScalar >= 0) {
+        if (deltaScalar > 0) {
           const normal = Vector3.normalize(delta);
           const resilienceVec = Vector3.multiply(
-            Vector3.add(worldColliderPos, normal),
+            normal,
             deltaScalar
           );
           nextTail = Vector3.add(nextTail, resilienceVec);
