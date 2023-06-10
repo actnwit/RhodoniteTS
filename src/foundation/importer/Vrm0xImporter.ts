@@ -191,6 +191,28 @@ export class Vrm0xImporter {
   }
 
   static _readSpringBone(gltfModel: Vrm0x): void {
+    const colliderGroups: VRMColliderGroup[] = [];
+    for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
+      const colliderGroup =
+        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx];
+      const vrmColliderGroup = new VRMColliderGroup();
+      colliderGroups.push(vrmColliderGroup);
+      const colliders: SphereCollider[] = [];
+      for (const collider of colliderGroup.colliders) {
+        const sphereCollider = new SphereCollider();
+        sphereCollider.position = Vector3.fromCopyArray([
+          collider.offset.x,
+          collider.offset.y,
+          collider.offset.z,
+        ]);
+        sphereCollider.radius = collider.radius;
+        colliders.push(sphereCollider);
+      }
+      vrmColliderGroup.colliders = colliders;
+      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
+      vrmColliderGroup.baseSceneGraph = baseSg;
+    }
+
     const boneGroups: VRMSpring[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
       const jointRootIndex = boneGroup.bones[0];
@@ -198,7 +220,10 @@ export class Vrm0xImporter {
       const vrmSpringBoneGroup = new VRMSpring(jointRootEntity.getSceneGraph());
 
       vrmSpringBoneGroup.tryToSetUniqueName(boneGroup.comment, true);
-      vrmSpringBoneGroup.colliderGroupIndices = boneGroup.colliderGroups;
+      vrmSpringBoneGroup.colliderGroups = boneGroup.colliderGroups.map((colliderGroupIndex) => {
+        return colliderGroups[colliderGroupIndex];
+      });
+
       for (const idxOfArray in boneGroup.bones) {
         const boneNodeIndex = boneGroup.bones[idxOfArray];
         const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
@@ -220,47 +245,20 @@ export class Vrm0xImporter {
       boneGroups.push(vrmSpringBoneGroup);
     }
 
-    VRMSpringBonePhysicsStrategy.setSprings(boneGroups);
     for (const boneGroup of boneGroups) {
-      this.__addPhysicsComponentRecursively(EntityRepository, boneGroup.rootBone);
+      this.__addPhysicsComponent(boneGroup, boneGroup.rootBone);
     }
 
-    const colliderGroups: VRMColliderGroup[] = [];
-    for (const colliderGroupIdx in gltfModel.extensions.VRM.secondaryAnimation.colliderGroups) {
-      const colliderGroup =
-        gltfModel.extensions.VRM.secondaryAnimation.colliderGroups[colliderGroupIdx];
-      const vrmColliderGroup = new VRMColliderGroup();
-      colliderGroups.push(vrmColliderGroup);
-      const colliders: SphereCollider[] = [];
-      for (const collider of colliderGroup.colliders) {
-        const sphereCollider = new SphereCollider();
-        sphereCollider.position = Vector3.fromCopyArray([
-          collider.offset.x,
-          collider.offset.y,
-          collider.offset.z,
-        ]);
-        sphereCollider.radius = collider.radius;
-        colliders.push(sphereCollider);
-      }
-      vrmColliderGroup.colliders = colliders;
-      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
-      vrmColliderGroup.baseSceneGraph = baseSg;
-      VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
-    }
   }
 
-  private static __addPhysicsComponentRecursively(
-    entityRepository: EntityRepository,
+  private static __addPhysicsComponent(
+    boneGroup: VRMSpring,
     sg: SceneGraphComponent
   ): void {
     const entity = sg.entity;
-    EntityRepository.addComponentToEntity(PhysicsComponent, entity);
-    // VRMSpringBonePhysicsStrategy.initialize(sg);
-    // if (sg.children.length > 0) {
-    //   for (const child of sg.children) {
-    //     this.__addPhysicsComponentRecursively(entityRepository, child);
-    //   }
-    // }
+    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const physicsComponent = newEntity.getPhysics();
+    physicsComponent.strategy.setSpring(boneGroup);
   }
 
   static _createTextures(gltfModel: RnM2): Texture[] {

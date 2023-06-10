@@ -8,7 +8,6 @@ import { VRMColliderGroup } from './VRMColliderGroup';
 import { Index } from '../../types/CommonTypes';
 import { PhysicsStrategy } from './PhysicsStrategy';
 import { MutableQuaternion } from '../math/MutableQuaternion';
-import { IQuaternion } from '../math';
 import { Is } from '../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
 
@@ -16,7 +15,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
   private static __tmp_vec3_2 = MutableVector3.zero();
   private static __tmp_quat = MutableQuaternion.identity();
-  private static __springs: VRMSpring[] = [];
+  private __spring: VRMSpring | undefined;
   private static __colliderGroups: Map<Index, VRMColliderGroup> = new Map();
 
   constructor() {}
@@ -28,7 +27,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   }
 
   update() {
-    for (const spring of VRMSpringBonePhysicsStrategy.__springs) {
+    const spring = this.__spring;
+    if (Is.exist(spring)) {
       this.updateInner(spring.bones, spring);
     }
   }
@@ -36,9 +36,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   updateInner(bones: VRMSpringBone[], spring: VRMSpring) {
     const center: SceneGraphComponent | undefined = void 0;
 
-    const collisionGroups = VRMSpringBonePhysicsStrategy.getColliderGroups(
-      spring.colliderGroupIndices
-    );
+    const collisionGroups = spring.colliderGroups;
 
     for (const bone of bones) {
       // setup VRMSpringBone
@@ -71,55 +69,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         bone,
         center
       );
-      // const children = sg.children;
-      // if (children) {
-      //   this.updateInner(children, spring);
-      // }
     }
   }
-
-  // static initialize(sceneGraph: SceneGraphComponent) {
-  //   const children = sceneGraph.children;
-
-  //   const physicsComponent = sceneGraph.entity.tryToGetPhysics();
-  //   if (Is.not.exist(physicsComponent)) {
-  //     new Error('PhysicsComponent is not attached to the entity.');
-  //     return;
-  //   }
-
-  //   const vrmSpringBonePhysicsStrategy = physicsComponent.strategy as VRMSpringBonePhysicsStrategy;
-  //   if (children.length > 0) {
-  //     const transform = children[0].entity.getTransform();
-  //     // const childPositionInLocal = Matrix44.invert(
-  //     //   sceneGraph.worldMatrixInner
-  //     // ).multiplyVector3(children[0].worldPosition);
-  //     const childPositionInLocal = Vector3.fromCopy3(
-  //       transform.localPosition.x * transform.localScale.x,
-  //       transform.localPosition.y * transform.localScale.y,
-  //       transform.localPosition.z * transform.localScale.z
-  //     );
-  //     vrmSpringBonePhysicsStrategy.initialize(
-  //       sceneGraph,
-  //       childPositionInLocal,
-  //       void 0
-  //     );
-  //   } else {
-  //     const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
-  //     let childPosition = Vector3.fromCopyArray([1, 1, 1]);
-  //     if (delta.lengthSquared() > 0) {
-  //       childPosition = Vector3.add(
-  //         sceneGraph.worldPosition,
-  //         Vector3.multiply(Vector3.normalize(delta), 0.07)
-  //       );
-  //     }
-  //     const childPositionInLocal = sceneGraph.getLocalPositionOf(childPosition);
-  //     vrmSpringBonePhysicsStrategy.initialize(sceneGraph, childPositionInLocal, void 0);
-  //   }
-  // }
-
-  // calcParentDeltaRecursivle(sceneGraph: SceneGraphComponent) {
-  //   const delta = Vector3.subtract(sceneGraph.worldPosition, sceneGraph.parent!.worldPosition);
-  // }
 
   process(
     collisionGroups: VRMColliderGroup[],
@@ -206,8 +157,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     return nextTail;
   }
 
-  static setSprings(sgs: VRMSpring[]) {
-    this.__springs = sgs;
+  setSpring(sgs: VRMSpring) {
+    this.__spring = sgs;
   }
 
   static addColliderGroup(index: Index, group: VRMColliderGroup) {

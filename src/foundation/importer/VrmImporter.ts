@@ -110,41 +110,6 @@ export class VrmImporter {
   }
 
   static _readSpringBone(gltfModel: Vrm1): void {
-    const springs: VRMSpring[] = [];
-    for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
-      const jointRoot = spring.joints[0];
-      const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRoot.node];
-      const vrmSpring = new VRMSpring(jointRootEntity.getSceneGraph());
-      vrmSpring.tryToSetUniqueName(spring.name, true);
-      vrmSpring.colliderGroupIndices = Is.exist(spring.colliderGroups)
-        ? spring.colliderGroups
-        : [];
-
-      for (const jointIdx in spring.joints) {
-        const joint = spring.joints[jointIdx];
-        const entity = gltfModel.asset.extras!.rnEntities![joint.node];
-        const springBone = new VRMSpringBone(entity);
-        springBone.dragForce = joint.dragForce;
-        springBone.stiffnessForce = joint.stiffness;
-        springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
-        // if (vrmSpringBoneGroup.gravityPower === 0) {
-        //   vrmSpringBoneGroup.gravityPower = 1;
-        // }
-        springBone.gravityDir = Is.exist(joint.gravityDir)
-          ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
-          : Vector3.fromCopyArray3([0, -1, 0]);
-        springBone.hitRadius = joint.hitRadius;
-
-        vrmSpring.bones.push(springBone);
-      }
-      springs.push(vrmSpring);
-    }
-
-    VRMSpringBonePhysicsStrategy.setSprings(springs);
-    for (const spring of springs) {
-      this.__addPhysicsComponentRecursively(EntityRepository, spring.rootBone);
-    }
-
     const colliderGroups: VRMColliderGroup[] = [];
     for (const colliderGroupIdx in gltfModel.extensions.VRMC_springBone.colliderGroups) {
       const colliderGroup = gltfModel.extensions.VRMC_springBone.colliderGroups[colliderGroupIdx];
@@ -170,22 +135,55 @@ export class VrmImporter {
         }
       }
       vrmColliderGroup.colliders = colliders;
-      VRMSpringBonePhysicsStrategy.addColliderGroup(parseInt(colliderGroupIdx), vrmColliderGroup);
+    }
+
+
+    const springs: VRMSpring[] = [];
+    for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
+      const jointRoot = spring.joints[0];
+      const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRoot.node];
+      const vrmSpring = new VRMSpring(jointRootEntity.getSceneGraph());
+      vrmSpring.tryToSetUniqueName(spring.name, true);
+      const colliderGroupIndices = Is.exist(spring.colliderGroups)
+        ? spring.colliderGroups
+        : [];
+      vrmSpring.colliderGroups = colliderGroupIndices.map((colliderGroupIdx) => {
+        return colliderGroups[colliderGroupIdx];
+      });
+
+      for (const jointIdx in spring.joints) {
+        const joint = spring.joints[jointIdx];
+        const entity = gltfModel.asset.extras!.rnEntities![joint.node];
+        const springBone = new VRMSpringBone(entity);
+        springBone.dragForce = joint.dragForce;
+        springBone.stiffnessForce = joint.stiffness;
+        springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
+        // if (vrmSpringBoneGroup.gravityPower === 0) {
+        //   vrmSpringBoneGroup.gravityPower = 1;
+        // }
+        springBone.gravityDir = Is.exist(joint.gravityDir)
+          ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
+          : Vector3.fromCopyArray3([0, -1, 0]);
+        springBone.hitRadius = joint.hitRadius;
+
+        vrmSpring.bones.push(springBone);
+      }
+      springs.push(vrmSpring);
+    }
+
+    for (const spring of springs) {
+      this.__addPhysicsComponent(spring, spring.rootBone);
     }
   }
 
-  private static __addPhysicsComponentRecursively(
-    entityRepository: EntityRepository,
+  private static __addPhysicsComponent(
+    spring: VRMSpring,
     sg: SceneGraphComponent
   ): void {
     const entity = sg.entity;
-    EntityRepository.addComponentToEntity(PhysicsComponent, entity);
-    // VRMSpringBonePhysicsStrategy.initialize(sg);
-    // if (sg.children.length > 0) {
-    //   for (const child of sg.children) {
-    //     this.__addPhysicsComponentRecursively(entityRepository, child);
-    //   }
-    // }
+    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const physicsComponent = newEntity.getPhysics();
+    physicsComponent.strategy.setSpring(spring);
   }
 
   static _createTextures(gltfModel: RnM2): Texture[] {
