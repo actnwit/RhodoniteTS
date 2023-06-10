@@ -12,12 +12,13 @@ import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponen
 import { SphereCollider } from '../physics/SphereCollider';
 import { Vector3 } from '../math/Vector3';
 import { VRMColliderGroup } from '../physics/VRMColliderGroup';
-import { VRMSpringBoneGroup } from '../physics/VRMSpringBoneGroup';
+import { VRMSpring } from '../physics/VRMSpring';
 import { Vrm1, Vrm1_Materials_MToon } from '../../types/VRM1';
 import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
 import { VrmComponent, VrmExpression, VrmExpressionMorphBind } from '../components';
+import { VRMSpringBone } from '../physics/VRMSpringBone';
 
 export class VrmImporter {
   private constructor() {}
@@ -109,41 +110,38 @@ export class VrmImporter {
   }
 
   static _readSpringBone(gltfModel: Vrm1): void {
-    const boneGroups: VRMSpringBoneGroup[] = [];
+    const springs: VRMSpring[] = [];
     for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
-      const vrmSpringBoneGroup = new VRMSpringBoneGroup();
-      vrmSpringBoneGroup.tryToSetUniqueName(spring.name, true);
-      vrmSpringBoneGroup.colliderGroupIndices = Is.exist(spring.colliderGroups)
+      const vrmSpring = new VRMSpring();
+      vrmSpring.tryToSetUniqueName(spring.name, true);
+      vrmSpring.colliderGroupIndices = Is.exist(spring.colliderGroups)
         ? spring.colliderGroups
         : [];
-
-      const joint = spring.joints[0];
-      vrmSpringBoneGroup.dragForce = joint.dragForce;
-      vrmSpringBoneGroup.stiffnessForce = joint.stiffness;
-      vrmSpringBoneGroup.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
-      // if (vrmSpringBoneGroup.gravityPower === 0) {
-      //   vrmSpringBoneGroup.gravityPower = 1;
-      // }
-      vrmSpringBoneGroup.gravityDir = Is.exist(joint.gravityDir)
-        ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
-        : Vector3.fromCopyArray3([0, -1, 0]);
-      vrmSpringBoneGroup.hitRadius = joint.hitRadius;
 
       for (const jointIdx in spring.joints) {
         const joint = spring.joints[jointIdx];
         const entity = gltfModel.asset.extras!.rnEntities![joint.node];
-        vrmSpringBoneGroup.rootBones.push(entity.getSceneGraph()!);
+        const springBone = new VRMSpringBone(entity);
+        springBone.dragForce = joint.dragForce;
+        springBone.stiffnessForce = joint.stiffness;
+        springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
+        // if (vrmSpringBoneGroup.gravityPower === 0) {
+        //   vrmSpringBoneGroup.gravityPower = 1;
+        // }
+        springBone.gravityDir = Is.exist(joint.gravityDir)
+          ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
+          : Vector3.fromCopyArray3([0, -1, 0]);
+        springBone.hitRadius = joint.hitRadius;
 
-        // const boneNodeIndex = boneGroup.bones[idxOfArray];
-        // const entity = gltfModel.asset.extras!.rnEntities![boneNodeIndex];
-        // entityRepository.addComponentToEntity(PhysicsComponent, entity.entityUID);
+        vrmSpring.rootBones.push(entity.getSceneGraph());
+        vrmSpring.bones.push(springBone);
       }
-      boneGroups.push(vrmSpringBoneGroup);
+      springs.push(vrmSpring);
     }
 
-    VRMSpringBonePhysicsStrategy.setBoneGroups(boneGroups);
-    for (const boneGroup of boneGroups) {
-      for (const sg of boneGroup.rootBones) {
+    VRMSpringBonePhysicsStrategy.setSprings(springs);
+    for (const spring of springs) {
+      for (const sg of spring.rootBones) {
         this.__addPhysicsComponentRecursively(EntityRepository, sg);
       }
     }
@@ -183,7 +181,7 @@ export class VrmImporter {
   ): void {
     const entity = sg.entity;
     EntityRepository.addComponentToEntity(PhysicsComponent, entity);
-    VRMSpringBonePhysicsStrategy.initialize(sg);
+    // VRMSpringBonePhysicsStrategy.initialize(sg);
     // if (sg.children.length > 0) {
     //   for (const child of sg.children) {
     //     this.__addPhysicsComponentRecursively(entityRepository, child);
@@ -315,7 +313,7 @@ export class VrmImporter {
             ? dummyWhiteTextureNumber
             : mtoonMaterial.shadeMultiplyTexture.index,
           _RimTexture: Is.not.exist(mtoonMaterial.rimMultiplyTexture)
-            ? dummyWhiteTextureNumber
+            ? dummyBlackTextureNumber
             : mtoonMaterial.rimMultiplyTexture.index,
           _ShadingGradeTexture: dummyWhiteTextureNumber,
           _SphereAdd: dummyBlackTextureNumber,
