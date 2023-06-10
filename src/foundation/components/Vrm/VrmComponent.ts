@@ -10,14 +10,15 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export type VrmExpressionName = string;
+export type VrmExpressionMorphBind = {
+  entityIdx: Index; //
+  blendShapeIdx: Index; // morph target index in primitive
+  weight: number; // [0,1]
+}
 export type VrmExpression = {
   name: VrmExpressionName;
   isBinary: boolean;
-  binds: {
-    entityIdx: Index; //
-    blendShapeIdx: Index; // morph target index in primitive
-    weight: number; // [0,1]
-  }[];
+  binds: VrmExpressionMorphBind[];
 };
 
 export class VrmComponent extends Component {
