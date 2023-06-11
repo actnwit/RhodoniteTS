@@ -45,11 +45,14 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       const children = sg.children;
       if (children.length > 0) {
         const transform = children[0].entity.getTransform();
-        const childPositionInLocal = Vector3.fromCopy3(
+        const childPositionInLocal = MutableVector3.fromCopy3(
           transform.localPosition.x * transform.localScale.x,
           transform.localPosition.y * transform.localScale.y,
           transform.localPosition.z * transform.localScale.z
         );
+        if (childPositionInLocal.lengthSquared() < Number.EPSILON) {
+          childPositionInLocal.y = -1;
+        }
         bone.setup(childPositionInLocal, void 0);
       } else {
         const delta = Vector3.subtract(sg.worldPosition, sg.parent!.worldPosition);
@@ -132,12 +135,11 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   applyRotation(nextTail: Vector3, bone: VRMSpringBone, head: SceneGraphComponent) {
     const to = Matrix44.invert(Matrix44.multiply(head.parent!.matrixInner, bone.initialLocalMatrix)).multiplyVector3(nextTail);
-    const result = Quaternion.multiply(bone.initialLocalRotation, Quaternion.fromToRotation(
+    const result = Quaternion.multiply(bone.initialLocalRotation, Quaternion.normalize(Quaternion.fromToRotation(
       Vector3.normalize(bone.boneAxis),
-      // Vector3.normalize(head.getLocalPositionOf(nextTail))
       Vector3.normalize(to)
-    ));
-    return result;
+    )));
+    return Quaternion.normalize(result);
   }
 
   collision(collisionGroups: VRMColliderGroup[], nextTail: Vector3, boneHitRadius: number, head: SceneGraphComponent, bone: VRMSpringBone) {
