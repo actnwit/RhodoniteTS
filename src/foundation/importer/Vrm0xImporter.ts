@@ -208,7 +208,7 @@ export class Vrm0xImporter {
         sphereCollider.radius = collider.radius;
         colliders.push(sphereCollider);
       }
-      vrmColliderGroup.colliders = colliders;
+      vrmColliderGroup.sphereColliders = colliders;
       const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
       vrmColliderGroup.baseSceneGraph = baseSg;
     }

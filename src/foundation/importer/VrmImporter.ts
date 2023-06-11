@@ -19,6 +19,7 @@ import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
 import { VrmComponent, VrmExpression, VrmExpressionMorphBind } from '../components';
 import { VRMSpringBone } from '../physics/VRMSpringBone';
+import { CapsuleCollider } from '../physics/CapsuleCollider';
 
 export class VrmImporter {
   private constructor() {}
@@ -116,11 +117,12 @@ export class VrmImporter {
 
       const vrmColliderGroup = new VRMColliderGroup();
       colliderGroups.push(vrmColliderGroup);
-      const colliders: SphereCollider[] = [];
       for (const colliderIdx of colliderGroup.colliders) {
         const collider = gltfModel.extensions.VRMC_springBone.colliders[colliderIdx];
 
-        if (collider.shape.sphere) {
+        const baseSg = gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
+        vrmColliderGroup.baseSceneGraph = baseSg;
+        if (Is.exist(collider.shape.sphere)) {
           const sphereCollider = new SphereCollider();
           sphereCollider.position = Vector3.fromCopyArray([
             collider.shape.sphere.offset[0],
@@ -128,13 +130,23 @@ export class VrmImporter {
             collider.shape.sphere.offset[2],
           ]);
           sphereCollider.radius = collider.shape.sphere.radius;
-          colliders.push(sphereCollider);
-          const baseSg = gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
-          sphereCollider.baseSceneGraph = baseSg;
-          vrmColliderGroup.baseSceneGraph = baseSg;
+          vrmColliderGroup.sphereColliders.push(sphereCollider);
+        } else if (Is.exist(collider.shape.capsule)) {
+          const capsuleCollider = new CapsuleCollider();
+          capsuleCollider.position = Vector3.fromCopyArray([
+            collider.shape.capsule.offset[0],
+            collider.shape.capsule.offset[1],
+            collider.shape.capsule.offset[2],
+          ]);
+          capsuleCollider.radius = collider.shape.capsule.radius;
+          capsuleCollider.tail = Vector3.fromCopyArray([
+            collider.shape.capsule.tail[0],
+            collider.shape.capsule.tail[1],
+            collider.shape.capsule.tail[2],
+          ]);
+          vrmColliderGroup.capsuleColliders.push(capsuleCollider);
         }
       }
-      vrmColliderGroup.colliders = colliders;
     }
 
 
