@@ -1,7 +1,7 @@
 import { SceneGraphComponent } from "../components";
 import { RnObject } from "../core/RnObject";
 import { ISceneGraphEntity } from "../helpers/EntityHelper";
-import { IVector3, Quaternion } from "../math";
+import { IVector3, Matrix44, Quaternion } from "../math";
 import { Vector3 } from "../math/Vector3";
 
 export class VRMSpringBone extends RnObject {
@@ -16,7 +16,8 @@ export class VRMSpringBone extends RnObject {
   prevTail: Vector3 = Vector3.zero();
   boneAxis: Vector3 = Vector3.zero();
   boneLength = 0;
-  localRotation = Quaternion.identity();
+  initialLocalRotation = Quaternion.identity();
+  initialLocalMatrix = Matrix44.identity();
 
   initialized = false;
 
@@ -31,7 +32,8 @@ export class VRMSpringBone extends RnObject {
       const worldChildPosition = scenegraph.getWorldPositionOf(localChildPosition);
       this.currentTail = center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
       this.prevTail = this.currentTail;
-      this.localRotation = scenegraph.entity.getTransform().localRotation as Quaternion;
+      this.initialLocalRotation = scenegraph.entity.getTransform().localRotation as Quaternion;
+      this.initialLocalMatrix = scenegraph.entity.getTransform().localMatrix as Matrix44;
       this.boneAxis = Vector3.normalize(localChildPosition);
       this.boneLength = localChildPosition.length();
       this.initialized = true;
