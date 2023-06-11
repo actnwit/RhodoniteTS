@@ -154,6 +154,18 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           return nextTail;
         }
       }
+      for (const collider of collisionGroup.capsuleColliders) {
+        const {direction, distance} = collider.collision(collisionGroup.baseSceneGraph!, nextTail, boneHitRadius);
+        if (distance < 0) {
+          // Hit
+          nextTail = Vector3.add(nextTail, Vector3.multiply(direction, -distance));
+
+          // normalize bone length
+          nextTail = this.normalizeBoneLength(nextTail, bone, head);
+
+          return nextTail;
+        }
+      }
     }
 
     return nextTail;
