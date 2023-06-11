@@ -13,7 +13,7 @@ import { SphereCollider } from '../physics/SphereCollider';
 import { Vector3 } from '../math/Vector3';
 import { VRMColliderGroup } from '../physics/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring';
-import { Vrm1, Vrm1_Materials_MToon } from '../../types/VRM1';
+import { Vrm1, Vrm1SpringBone_Joint, Vrm1_Materials_MToon } from '../../types/VRM1';
 import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
@@ -163,6 +163,7 @@ export class VrmImporter {
         return colliderGroups[colliderGroupIdx];
       });
 
+      const addedEntities: ISceneGraphEntity[] = [];
       for (const jointIdx in spring.joints) {
         const joint = spring.joints[jointIdx];
         const entity = gltfModel.asset.extras!.rnEntities![joint.node];
@@ -170,21 +171,36 @@ export class VrmImporter {
         springBone.dragForce = joint.dragForce;
         springBone.stiffnessForce = joint.stiffness;
         springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
-        // if (vrmSpringBoneGroup.gravityPower === 0) {
-        //   vrmSpringBoneGroup.gravityPower = 1;
-        // }
         springBone.gravityDir = Is.exist(joint.gravityDir)
           ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
           : Vector3.fromCopyArray3([0, -1, 0]);
         springBone.hitRadius = joint.hitRadius;
-
         vrmSpring.bones.push(springBone);
+        addedEntities.push(entity);
       }
+
+      // Find and add the missing joints from spring.joints.
+      this.__addSpringBoneRecursively(vrmSpring, jointRootEntity, addedEntities);
       springs.push(vrmSpring);
     }
 
     for (const spring of springs) {
       this.__addPhysicsComponent(spring, spring.rootBone);
+    }
+  }
+
+  private static __addSpringBoneRecursively(vrmSpring: VRMSpring, entity: ISceneGraphEntity, addedEntities: ISceneGraphEntity[]): void {
+    const sg = entity.getSceneGraph();
+    const children = sg.children;
+
+    if (!addedEntities.includes(entity)) {
+      const springBone = new VRMSpringBone(entity);
+      vrmSpring.bones.push(springBone);
+      addedEntities.push(entity);
+    }
+
+    for (const child of children) {
+      this.__addSpringBoneRecursively(vrmSpring, child.entity, addedEntities);
     }
   }
 
