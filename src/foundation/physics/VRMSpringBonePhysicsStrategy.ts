@@ -142,21 +142,11 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   collision(collisionGroups: VRMColliderGroup[], nextTail: Vector3, boneHitRadius: number, head: SceneGraphComponent, bone: VRMSpringBone) {
     for (const collisionGroup of collisionGroups) {
-      for (const collider of collisionGroup.colliders) {
-        const worldColliderPos = collisionGroup.baseSceneGraph!.getWorldPositionOf(
-          collider.position
-        );
-        const r = boneHitRadius + collider.radius;
-        const delta = Vector3.subtract(nextTail, worldColliderPos);
-        const deltaScalar = r - delta.length();
-        if (deltaScalar > 0) {
-          const normal = Vector3.normalize(delta);
-          const resilienceVec = Vector3.multiply(
-            normal,
-            deltaScalar
-          );
+      for (const collider of collisionGroup.sphereColliders) {
+        const {direction, distance} = collider.collision(collisionGroup.baseSceneGraph!, nextTail, boneHitRadius);
+        if (distance < 0) {
           // Hit
-          nextTail = Vector3.add(nextTail, resilienceVec);
+          nextTail = Vector3.add(nextTail, Vector3.multiply(direction, -distance));
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone, head);
