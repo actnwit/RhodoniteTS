@@ -780,6 +780,18 @@ export class SceneGraphComponent extends Component {
     return this.entity.getTransform().localRotationRestInner;
   }
 
+  getRotationRest(endFn: (sg: SceneGraphComponent) => boolean) :Quaternion {
+    const parent = this.parent;
+    const IsEnd = endFn(this);
+    if (parent != null && !IsEnd) {
+      return Quaternion.multiply(
+        parent.getRotationRest(endFn),
+        this.entity.getTransform().localRotationRestInner
+      );
+    }
+    return this.entity.getTransform().localRotationRestInner;
+  }
+
   set scale(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localScale = vec;
