@@ -523,42 +523,36 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   toEulerAnglesTo(out: IMutableVector3) {
-    // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
-    const sinr_cosp = 2.0 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
-    const cosr_cosp = 1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
-    out._v[0] = Math.atan2(sinr_cosp, cosr_cosp);
+    const t0 = 2 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
+    const t1 = 1 - 2 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    out._v[0] = Math.atan2(t0, t1);
 
-    const sinp = 2.0 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
-    if (Math.abs(sinp) >= 1) {
-      out._v[1] = (Math.PI / 2) * Math.sign(sinp); // use 90 degrees if out of range
-    } else {
-      out._v[1] = Math.asin(sinp);
-    }
+    let t2 = 2 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
+    t2 = t2 > 1 ? 1 : t2;
+    t2 = t2 < -1 ? -1 : t2;
+    out._v[1] = Math.asin(t2);
 
-    const siny_cosp = 2.0 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
-    const cosy_cosp = 1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
-    out._v[2] = Math.atan2(siny_cosp, cosy_cosp);
+    const t3 = 2 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
+    const t4 = 1 - 2 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    out._v[2] = Math.atan2(t3, t4);
 
     return out;
   }
 
   toEulerAngles() {
     const out = new Vector3(new Float32Array(3));
-    // this is from https://en._v[3]ikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Source_Code_2
-    const sinr_cosp = 2.0 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
-    const cosr_cosp = 1.0 - 2.0 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
-    out._v[0] = Math.atan2(sinr_cosp, cosr_cosp);
+    const t0 = 2 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
+    const t1 = 1 - 2 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    out._v[0] = Math.atan2(t0, t1);
 
-    const sinp = 2.0 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
-    if (Math.abs(sinp) >= 1) {
-      out._v[1] = (Math.PI / 2) * Math.sign(sinp); // use 90 degrees if out of range
-    } else {
-      out._v[1] = Math.asin(sinp);
-    }
+    let t2 = 2 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
+    t2 = t2 > 1 ? 1 : t2;
+    t2 = t2 < -1 ? -1 : t2;
+    out._v[1] = Math.asin(t2);
 
-    const siny_cosp = 2.0 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
-    const cosy_cosp = 1.0 - 2.0 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
-    out._v[2] = Math.atan2(siny_cosp, cosy_cosp);
+    const t3 = 2 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
+    const t4 = 1 - 2 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    out._v[2] = Math.atan2(t3, t4);
 
     return out;
   }
