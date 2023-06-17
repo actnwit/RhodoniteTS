@@ -95,8 +95,20 @@ export class Transform3D {
   }
 
   set eulerAngles(vec: IVector3) {
-    const rotationMat = Transform3D.__tmpMatrix44_0.rotate(vec);
-    this.rotation = Quaternion.fromMatrix(rotationMat);
+    // const rotationMat = Transform3D.__tmpMatrix44_0.rotate(vec);
+    // this.rotation = Quaternion.fromMatrix(rotationMat);
+    const sx = Math.sin(vec._v[0] * 0.5);
+    const cx = Math.cos(vec._v[0] * 0.5);
+    const sy = Math.sin(vec._v[1] * 0.5);
+    const cy = Math.cos(vec._v[1] * 0.5);
+    const sz = Math.sin(vec._v[2] * 0.5);
+    const cz = Math.cos(vec._v[2] * 0.5);
+
+    this.rotation = MutableQuaternion.fromCopy4(
+      sx * cy * cz - cx * sy * sz,
+      cx * sy * cz + sx * cy * sz,
+      cx * cy * sz - sx * sy * cz,
+      cx * cy * cz + sx * sy * sz);
   }
 
   /**
@@ -110,12 +122,8 @@ export class Transform3D {
    * return a local rotation (XYZ euler) vector
    */
   get eulerAnglesInner(): Vector3 {
-    if (this.__is_trs_matrix_updated) {
-      return this.__matrix.toEulerAngles();
-    } else {
-      // this._is_quaternion_updated
-      return this.__rotation.toEulerAngles();
-    }
+    // this._is_quaternion_updated
+    return this.__rotation.toEulerAngles();
   }
 
   set scale(vec: IVector3) {
