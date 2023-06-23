@@ -25,7 +25,7 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 export class LightComponent extends Component {
   public type = LightType.Point;
   private __intensity = Vector3.fromCopyArray([1, 1, 1]);
-  private readonly __initialdirection = Vector3.fromCopyArray([0, 0, -1]);
+  private readonly __initialDirection = Vector3.fromCopyArray([0, 0, -1]);
   private __direction = Vector3.fromCopyArray([0, 0, -1]);
   public innerConeAngle = 0.0;
   public outerConeAngle = Math.PI / 4.0; // in radian
@@ -110,7 +110,7 @@ export class LightComponent extends Component {
 
   $logic() {
     this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(
-      this.__initialdirection
+      this.__initialDirection
     );
 
     const lightAngleScale =
@@ -153,7 +153,7 @@ export class LightComponent extends Component {
     class LightEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);
