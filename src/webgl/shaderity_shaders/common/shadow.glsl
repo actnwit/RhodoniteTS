@@ -1,6 +1,6 @@
 #ifdef RN_USE_SHADOW_MAPPING
 
-const float g_minVariance = 0.0;
+const float g_minVariance = 0.00001;
 
 float chebyshevUpperBound(vec2 moments, float t) {
   float p = (t <= moments.x) ? 1.0 : 0.0;

@@ -1,23 +1,20 @@
-import { Entity } from '../core/Entity';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
-import { EntityHelper, IMeshEntity } from '../helpers/EntityHelper';
+import { EntityHelper, IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Gizmo } from './Gizmo';
 
-/**
- * Locator Gizmo class
- */
-export class LocatorGizmo extends Gizmo {
+export class LightGizmo extends Gizmo {
   private static __mesh: Mesh;
   private static __length = 1;
+
   /**
    * Constructor
    * @param target the object which this gizmo belong to
    */
-  constructor(target: IMeshEntity) {
+  constructor(target: ISceneGraphEntity) {
     super(target);
   }
 
@@ -33,14 +30,6 @@ export class LocatorGizmo extends Gizmo {
     } else {
       return false;
     }
-  }
-
-  set length(val: number) {
-    LocatorGizmo.__length = val;
-  }
-
-  get length(): number {
-    return LocatorGizmo.__length;
   }
 
   ///
@@ -59,14 +48,14 @@ export class LocatorGizmo extends Gizmo {
     }
 
     this.__topEntity = EntityHelper.createMeshEntity();
-    this.__topEntity!.tryToSetUniqueName(`LocatorGizmo_of_${this.__target.uniqueName}`, true);
-    this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
+    this.__topEntity.tryToSetUniqueName(`LightGizmo_of_${this.__target.uniqueName}`, true);
+    this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
     this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
-    const sceneGraphComponent = this.__topEntity!.tryToGetMesh()!;
-    LocatorGizmo.__mesh = new Mesh();
-    LocatorGizmo.__mesh.addPrimitive(LocatorGizmo.__generatePrimitive());
-    sceneGraphComponent.setMesh(LocatorGizmo.__mesh);
+    const meshComponent = this.__topEntity!.tryToGetMesh()!;
+    LightGizmo.__mesh = new Mesh();
+    LightGizmo.__mesh.addPrimitive(LightGizmo.__generatePrimitive());
+    meshComponent.setMesh(LightGizmo.__mesh);
 
     this.setGizmoTag();
   }
@@ -79,6 +68,7 @@ export class LocatorGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
+
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     if (aabb.isVanilla()) {
@@ -86,6 +76,8 @@ export class LocatorGizmo extends Gizmo {
     } else {
       this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
     }
+    this.__topEntity.getTransform()!.localRotation = sg.rotation;
+
     this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
@@ -101,45 +93,34 @@ export class LocatorGizmo extends Gizmo {
 
   private static __generatePrimitive(): Primitive {
     const positions = new Float32Array([
-      // X axis
-      0,
-      0,
-      0,
-      this.__length,
-      0,
-      0,
-
-      // Y axis
-      0,
-      0,
-      0,
-      0,
-      this.__length,
-      0,
-
       // Z axis
       0,
       0,
       0,
       0,
       0,
-      this.__length,
-    ]);
+      -this.__length,
 
-    const color = new Float32Array([
-      // X axis as Red
-      1, 0, 0, 1, 0, 0,
+      // Arrow
+      0,
+      0,
+      -this.__length,
+      -0.1,
+      0,
+      -this.__length + 0.2,
 
-      // Y axis as Green
-      0, 1, 0, 0, 1, 0,
-
-      // Z axis as Blue
-      0, 0, 1, 0, 0, 1,
+      // Arrow end
+      -0.1,
+      0,
+      -this.__length + 0.2,
+      0,
+      0,
+      -this.__length + 0.2,
     ]);
 
     const primitive = Primitive.createPrimitive({
-      attributeSemantics: [VertexAttribute.Position.XYZ, VertexAttribute.Color0.XYZ],
-      attributes: [positions, color],
+      attributeSemantics: [VertexAttribute.Position.XYZ],
+      attributes: [positions],
       primitiveMode: PrimitiveMode.Lines,
     });
 
