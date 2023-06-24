@@ -96,15 +96,23 @@ export class LightGizmo extends Gizmo {
       0,
       0,
       0,
-      this.__length,
+      -this.__length - 0.2,
 
       // Arrow
       0,
       0,
-      this.__length,
-      0.1,
-      0.1,
-      this.__length - 0.1,
+      -this.__length - 0.2,
+      -0.1,
+      0,
+      -this.__length,
+
+      // Arrow end
+      -0.1,
+      0,
+      -this.__length,
+      0,
+      0,
+      -this.__length - 0.2,
     ]);
 
     const primitive = Primitive.createPrimitive({
