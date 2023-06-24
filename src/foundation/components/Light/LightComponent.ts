@@ -15,6 +15,8 @@ import { VectorN } from '../../math/VectorN';
 import { ILightEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import { LightGizmo } from '../../gizmos';
+import { Is } from '../../misc/Is';
 
 /**
  * The Component that represents a light.
@@ -39,6 +41,7 @@ export class LightComponent extends Component {
   private static __lightDirections = new VectorN(new Float32Array(0));
   private static __lightIntensities = new VectorN(new Float32Array(0));
   private static __lightProperties = new VectorN(new Float32Array(0));
+  private __lightGizmo?: LightGizmo;
 
   constructor(
     entityUid: EntityUID,
@@ -68,6 +71,28 @@ export class LightComponent extends Component {
 
   get _up() {
     return Vector3.fromCopy3(0, 1, 0);
+  }
+
+  set isLightGizmoVisible(flg: boolean) {
+    if (flg) {
+      if (Is.not.defined(this.__lightGizmo)) {
+        this.__lightGizmo = new LightGizmo(this.entity);
+        this.__lightGizmo._setup();
+      }
+      this.__lightGizmo.isVisible = true;
+    } else {
+      if (Is.defined(this.__lightGizmo)) {
+        this.__lightGizmo.isVisible = false;
+      }
+    }
+  }
+
+  get isLightGizmoVisible() {
+    if (Is.defined(this.__lightGizmo)) {
+      return this.__lightGizmo.isVisible;
+    } else {
+      return false;
+    }
   }
 
   $create() {
@@ -108,6 +133,12 @@ export class LightComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  private __updateGizmo() {
+    if (Is.defined(this.__lightGizmo) && this.__lightGizmo.isSetup && this.isLightGizmoVisible) {
+      this.__lightGizmo._update();
+    }
+  }
+
   $logic() {
     this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(
       this.__initialDirection
@@ -136,6 +167,8 @@ export class LightComponent extends Component {
     LightComponent.__lightProperties._v[4 * this.componentSID + 1] = this.range;
     LightComponent.__lightProperties._v[4 * this.componentSID + 2] = lightAngleScale;
     LightComponent.__lightProperties._v[4 * this.componentSID + 3] = lightAngleOffset;
+
+    this.__updateGizmo();
   }
 
   /**

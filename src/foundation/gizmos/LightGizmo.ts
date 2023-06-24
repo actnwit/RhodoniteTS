@@ -2,7 +2,7 @@ import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
-import { EntityHelper, IMeshEntity } from '../helpers/EntityHelper';
+import { EntityHelper, IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
 import { Gizmo } from './Gizmo';
 
@@ -14,7 +14,7 @@ export class LightGizmo extends Gizmo {
    * Constructor
    * @param target the object which this gizmo belong to
    */
-  constructor(target: IMeshEntity) {
+  constructor(target: ISceneGraphEntity) {
     super(target);
   }
 
