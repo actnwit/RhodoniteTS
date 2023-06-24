@@ -730,9 +730,9 @@ export class ForwardRenderPipeline extends RnObject {
     return new Some(
       RenderableHelper.createTexturesForRenderTarget(shadowMapSize, shadowMapSize, 1, {
         level: 0,
-        internalFormat: TextureParameter.RGBA8,
-        format: PixelFormat.RGBA,
-        type: ComponentType.UnsignedByte,
+        internalFormat: TextureParameter.RG32F,
+        format: PixelFormat.RG,
+        type: ComponentType.Float,
         createDepthBuffer: true,
         isMSAA: false,
         sampleCountMSAA: 1,
