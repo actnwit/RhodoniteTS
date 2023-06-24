@@ -50,12 +50,12 @@ export class LightGizmo extends Gizmo {
     this.__topEntity = EntityHelper.createMeshEntity();
     this.__topEntity.tryToSetUniqueName(`LightGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
-    this.__target.getSceneGraph()!._addGizmoChild(this.__topEntity!.getSceneGraph());
+    this.__target.getSceneGraph()._addGizmoChild(this.__topEntity!.getSceneGraph());
 
-    const sceneGraphComponent = this.__topEntity!.tryToGetMesh()!;
+    const meshComponent = this.__topEntity!.tryToGetMesh()!;
     LightGizmo.__mesh = new Mesh();
     LightGizmo.__mesh.addPrimitive(LightGizmo.__generatePrimitive());
-    sceneGraphComponent.setMesh(LightGizmo.__mesh);
+    meshComponent.setMesh(LightGizmo.__mesh);
 
     this.setGizmoTag();
   }
@@ -68,6 +68,7 @@ export class LightGizmo extends Gizmo {
     if (this.__topEntity == null) {
       return;
     }
+
     const sg = this.__target.getSceneGraph()!;
     const aabb = sg.worldAABB;
     if (aabb.isVanilla()) {
@@ -75,6 +76,8 @@ export class LightGizmo extends Gizmo {
     } else {
       this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
     }
+    this.__topEntity.getTransform()!.localRotation = sg.rotation;
+
     this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeX / 2),
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
@@ -96,23 +99,23 @@ export class LightGizmo extends Gizmo {
       0,
       0,
       0,
-      -this.__length - 0.2,
+      -this.__length,
 
       // Arrow
       0,
       0,
-      -this.__length - 0.2,
+      -this.__length,
       -0.1,
       0,
-      -this.__length,
+      -this.__length + 0.2,
 
       // Arrow end
       -0.1,
       0,
-      -this.__length,
+      -this.__length + 0.2,
       0,
       0,
-      -this.__length - 0.2,
+      -this.__length + 0.2,
     ]);
 
     const primitive = Primitive.createPrimitive({
