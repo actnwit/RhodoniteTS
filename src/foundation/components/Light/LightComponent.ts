@@ -171,6 +171,13 @@ export class LightComponent extends Component {
     this.__updateGizmo();
   }
 
+  _destroy() {
+    super._destroy();
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 0] = 0;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 1] = 0;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 2] = 0;
+  }
+
   /**
    * get the entity which has this component.
    * @returns the entity which has this component
