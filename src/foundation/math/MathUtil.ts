@@ -299,7 +299,7 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
   variance: number;
   mean?: number;
   effectiveDigit?: Count;
-}) {
+}): number[] {
   const ceiledHalfKernelSize = Math.ceil(kernelSize / 2.0);
   const gaussianDistributionRatio: number[] = new Array(ceiledHalfKernelSize);
   let totalSize = 0;

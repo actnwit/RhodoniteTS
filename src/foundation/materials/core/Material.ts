@@ -416,6 +416,14 @@ export class Material extends RnObject {
             webglResourceRepository.bindTexture(info, value.value);
           }
         }
+        if (info.needUniformInDataTextureMode) {
+          webglResourceRepository.setUniformValue(
+            shaderProgram,
+            info.semantic.str,
+            firstTime,
+            value.value
+          );
+        }
       });
     }
   }

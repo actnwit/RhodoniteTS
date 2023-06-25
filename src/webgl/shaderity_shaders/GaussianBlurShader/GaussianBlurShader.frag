@@ -4,7 +4,15 @@
 
 #pragma shaderity: require(../common/rt0.glsl)
 
+/* shaderity: @{definitions} */
+
 #pragma shaderity: require(../common/prerequisites.glsl)
+
+// uniform bool isHorizontal; // initialValue=1
+// uniform int gaussianKernelSize; // initialValue=1
+// uniform float framebufferWidth; // initialValue=1
+// uniform sampler2D baseColorTexture; // initialValue=(0,white)
+
 
 /* shaderity: @{getters} */
 

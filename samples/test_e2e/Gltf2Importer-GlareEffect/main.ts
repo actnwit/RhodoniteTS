@@ -325,11 +325,11 @@ declare const window: any;
       kernelSize: gaussianKernelSize,
       variance: gaussianVariance,
     });
-    material.setParameter(Rn.GaussianBlurMaterialContent.GaussianKernelSize, gaussianKernelSize);
-    material.setParameter(Rn.GaussianBlurMaterialContent.GaussianRatio, gaussianDistributionRatio);
+    material.setParameter(Rn.ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
+    material.setParameter(Rn.ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
 
     if (isHorizontal === false) {
-      material.setParameter(Rn.GaussianBlurMaterialContent.IsHorizontal, false);
+      material.setParameter(Rn.ShaderSemantics.IsHorizontal, false);
     }
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();

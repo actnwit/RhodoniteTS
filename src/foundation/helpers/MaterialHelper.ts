@@ -11,8 +11,6 @@ import { Primitive } from '../geometry/Primitive';
 import { ProcessStage } from '../definitions/ProcessStage';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { FurnaceTestMaterialContent } from '../materials/contents/FurnaceTestMaterialContent';
-import { GaussianBlurForEncodedDepthMaterialContent as GaussianBlurForEncodedDepthMaterialContent } from '../materials/contents/GaussianBlurForEncodedDepthMaterialContent';
-import { GaussianBlurMaterialContent as GaussianBlurMaterialContent } from '../materials/contents/GaussianBlurMaterialContent';
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { SynthesizeHdrMaterialContent as SynthesizeHDRMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { ColorGradingUsingLUTsMaterialContent } from '../materials/contents/ColorGradingUsingLUTsMaterialContent';
@@ -56,6 +54,11 @@ import {
   dummyWhiteTexture,
   sheenLutTexture,
 } from '../materials/core/DummyTextures';
+import GaussianBlurSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import GaussianBlurSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
+import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
+import { Scalar } from '../math/Scalar';
 
 function createMaterial(
   materialName: string,
@@ -574,10 +577,96 @@ function createShadowMapDecodeClassicSingleMaterial(
 function createGaussianBlurForEncodedDepthMaterial({
   additionalName = '',
   maxInstancesNumber = 10,
+  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
 
-  const materialNode = new GaussianBlurForEncodedDepthMaterialContent();
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  const gaussianRatio = new Float32Array(30);
+  additionalShaderSemanticInfo.push(
+    {
+      semantic: ShaderSemantics.IsHorizontal,
+      componentType: ComponentType.Bool,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: Scalar.fromCopyNumber(1), //true
+      min: 0,
+      max: 1,
+    },
+    {
+      semantic: ShaderSemantics.GaussianRatio,
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: 30,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: new VectorN(gaussianRatio),
+      min: 0,
+      max: 1,
+      needUniformInDataTextureMode: true,
+    },
+    {
+      semantic: ShaderSemantics.GaussianKernelSize,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: Scalar.fromCopyNumber(1),
+      min: 1,
+      max: 30,
+    },
+    {
+      semantic: ShaderSemantics.FramebufferWidth,
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: Scalar.fromCopyNumber(1),
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+    },
+    {
+      semantic: ShaderSemantics.BaseColorTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [0, dummyBlackTexture],
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+    }
+  );
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    isClearCoat: false,
+    isTransmission: false,
+    isVolume: false,
+    isSheen: false,
+    isSpecular: false,
+    isIridescence: false,
+    isShadow: false,
+    useTangentAttribute: false,
+    useNormalTexture: false,
+    vertexShader: GaussianBlurForEncodedDepthSingleShaderVertex,
+    pixelShader: GaussianBlurForEncodedDepthSingleShaderFragment,
+    noUseCameraTransform,
+    additionalShaderSemanticInfo,
+  });
+
   materialNode.isSingleOperation = true;
 
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
@@ -648,10 +737,98 @@ function createDetectHighLuminanceMaterial(
   return material;
 }
 
-function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
+function createGaussianBlurMaterial({
+  additionalName = '',
+  maxInstancesNumber = 10,
+  noUseCameraTransform = false,
+} = {}) {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
-  const materialNode = new GaussianBlurMaterialContent();
+  const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  const gaussianRatio = new Float32Array(30);
+  additionalShaderSemanticInfo.push(
+    {
+      semantic: ShaderSemantics.IsHorizontal,
+      componentType: ComponentType.Bool,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: Scalar.fromCopyNumber(1), //true
+      min: 0,
+      max: 1,
+    },
+    {
+      semantic: ShaderSemantics.GaussianRatio,
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: 30,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: new VectorN(gaussianRatio),
+      min: 0,
+      max: 1,
+      needUniformInDataTextureMode: true,
+    },
+    {
+      semantic: ShaderSemantics.GaussianKernelSize,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: Scalar.fromCopyNumber(1),
+      min: 1,
+      max: 30,
+    },
+    {
+      semantic: ShaderSemantics.FramebufferWidth,
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Scalar,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
+      soloDatum: false,
+      initialValue: Scalar.fromCopyNumber(1),
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+    },
+    {
+      semantic: ShaderSemantics.BaseColorTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [0, dummyBlackTexture],
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+    }
+  );
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    isClearCoat: false,
+    isTransmission: false,
+    isVolume: false,
+    isSheen: false,
+    isSpecular: false,
+    isIridescence: false,
+    isShadow: false,
+    useTangentAttribute: false,
+    useNormalTexture: false,
+    vertexShader: GaussianBlurSingleShaderVertex,
+    pixelShader: GaussianBlurSingleShaderFragment,
+    noUseCameraTransform,
+    additionalShaderSemanticInfo,
+  });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 

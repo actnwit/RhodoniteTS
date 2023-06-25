@@ -407,6 +407,11 @@ const IridescenceThicknessMaximum = new ShaderSemanticsClass({
 const IridescenceThicknessTexture = new ShaderSemanticsClass({
   str: 'iridescenceThicknessTexture',
 });
+const GaussianKernelSize = new ShaderSemanticsClass({
+  str: 'gaussianKernelSize',
+});
+const GaussianRatio = new ShaderSemanticsClass({ str: 'gaussianRatio' });
+const IsHorizontal = new ShaderSemanticsClass({ str: 'isHorizontal' });
 
 const typeList = [
   WorldMatrix,
@@ -530,6 +535,9 @@ const typeList = [
   IridescenceThicknessMinimum,
   IridescenceThicknessMaximum,
   IridescenceThicknessTexture,
+  GaussianKernelSize,
+  GaussianRatio,
+  IsHorizontal,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -784,4 +792,7 @@ export const ShaderSemantics = Object.freeze({
   IridescenceThicknessMinimum,
   IridescenceThicknessMaximum,
   IridescenceThicknessTexture,
+  GaussianKernelSize,
+  GaussianRatio,
+  IsHorizontal,
 });
