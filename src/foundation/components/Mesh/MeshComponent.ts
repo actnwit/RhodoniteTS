@@ -300,6 +300,12 @@ export class MeshComponent extends Component {
     this.isPickable = component.isPickable;
   }
 
+  _destroy(): void {
+    if (this.__mesh) {
+      this.__mesh = undefined;
+    }
+  }
+
   /**
    * get the entity which has this component.
    * @returns the entity which has this component
