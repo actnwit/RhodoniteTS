@@ -282,20 +282,14 @@ import Rn from '../../../dist/esm/index.js';
       kernelSize: gaussianKernelSize,
       variance: gaussianVariance,
     });
-    material.setParameter(
-      Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianKernelSize,
-      gaussianKernelSize
-    );
-    material.setParameter(
-      Rn.GaussianBlurForEncodedDepthMaterialContent.GaussianRatio,
-      gaussianDistributionRatio
-    );
-
+    material.setParameter(Rn.ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
+    material.setParameter(Rn.ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
     if (isHorizontal === false) {
-      material.setParameter(Rn.GaussianBlurForEncodedDepthMaterialContent.IsHorizontal, false);
+      material.setParameter(Rn.ShaderSemantics.IsHorizontal, false);
     }
 
     const framebufferTarget = renderPassBlurTarget.getFramebuffer();
+    material.setParameter(Rn.ShaderSemantics.FramebufferWidth, framebufferTarget.width);
     const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
     material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
 
