@@ -21,19 +21,10 @@ import Rn from '../../../dist/esmdev/index.js';
   const resolution = rnCanvasElement.width;
   createAndSetFramebuffer(renderPassMain, resolution, 1, {});
 
-  const cameraComponentPostEffect = createEntityPostEffectCamera().getCamera();
-  const renderPassGaussianBlurH = createRenderPassGaussianBlur(
-    renderPassMain,
-    cameraComponentPostEffect,
-    true
-  );
+  const renderPassGaussianBlurH = createRenderPassGaussianBlur(renderPassMain, true);
   createAndSetFramebuffer(renderPassGaussianBlurH, resolution, 1, {});
 
-  const renderPassGaussianBlurHV = createRenderPassGaussianBlur(
-    renderPassGaussianBlurH,
-    cameraComponentPostEffect,
-    false
-  );
+  const renderPassGaussianBlurHV = createRenderPassGaussianBlur(renderPassGaussianBlurH, false);
 
   // prepare expressions
   const expressionMain = createExpression([renderPassMain]);
@@ -136,21 +127,15 @@ import Rn from '../../../dist/esmdev/index.js';
     return framebuffer;
   }
 
-  function createEntityPostEffectCamera() {
-    const entityCamera = Rn.EntityHelper.createCameraEntity();
-    const cameraComponent = entityCamera.getCamera();
-    cameraComponent.zNearInner = 0.5;
-    cameraComponent.zFarInner = 2.0;
-
-    return entityCamera;
-  }
-
   function createRenderPassGaussianBlur(
     renderPassBlurTarget: Rn.RenderPass,
-    cameraComponent: Rn.CameraComponent,
     isHorizontal: boolean
   ) {
-    const material = Rn.MaterialHelper.createGaussianBlurMaterial();
+    const material = Rn.MaterialHelper.createGaussianBlurMaterial({
+      additionalName: '',
+      maxInstancesNumber: 10,
+      noUseCameraTransform: true,
+    });
 
     const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,
@@ -168,28 +153,19 @@ import Rn from '../../../dist/esmdev/index.js';
     const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
     material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
 
-    const boardPrimitive = new Rn.Plane();
-    boardPrimitive.generate({
-      width: 1,
-      height: 1,
+    const boardEntity = Rn.MeshHelper.createPlane({
+      width: 2,
+      height: 2,
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
+      flipTextureCoordinateY: false,
+      direction: 'xy',
       material,
     });
 
-    const boardMesh = new Rn.Mesh();
-    boardMesh.addPrimitive(boardPrimitive);
-
-    const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
-    const boardMeshComponent = boardEntity.getMesh();
-    boardMeshComponent.setMesh(boardMesh);
-
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = false;
-    renderPass.cameraComponent = cameraComponent;
     renderPass.addEntities([boardEntity]);
 
     return renderPass;

@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -24,19 +24,16 @@ import Rn from '../../../dist/esm/index.js';
 
   // prepare cameras
   const cameraComponentDepth = createEntityDepthCamera().getCamera();
-  const cameraComponentPostEffect = createEntityPostEffectCamera().getCamera();
   const cameraComponentMain = createEntityMainCamera().getCamera();
 
   // prepare render passes
   const renderPassesDepth = createRenderPassesDepth(
     cameraComponentDepth,
-    cameraComponentPostEffect,
     entitiesRenderTarget,
     false
   );
   const renderPassesSquareDepth = createRenderPassesDepth(
     cameraComponentDepth,
-    cameraComponentPostEffect,
     entitiesRenderTarget,
     true
   );
@@ -76,15 +73,6 @@ import Rn from '../../../dist/esm/index.js';
     return entityCamera;
   }
 
-  function createEntityPostEffectCamera() {
-    const entityCamera = Rn.EntityHelper.createCameraEntity();
-    const cameraComponent = entityCamera.getCamera();
-    cameraComponent.zNearInner = 0.5;
-    cameraComponent.zFarInner = 2.0;
-
-    return entityCamera;
-  }
-
   function createEntityMainCamera() {
     const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
     const transformCamera = entityCamera.getTransform();
@@ -95,7 +83,6 @@ import Rn from '../../../dist/esm/index.js';
 
   function createRenderPassesDepth(
     cameraComponentDepth: Rn.CameraComponent,
-    cameraComponentPostEffect: Rn.CameraComponent,
     entitiesRenderTarget: Rn.IMeshEntity[],
     isSquareDepth: boolean
   ) {
@@ -106,18 +93,10 @@ import Rn from '../../../dist/esm/index.js';
     );
     createAndSetFramebuffer(renderPassDepth, resolutionDepthCamera, 1);
 
-    const renderPassDepthBlurH = createRenderPassGaussianBlurForDepth(
-      cameraComponentPostEffect,
-      renderPassDepth,
-      true
-    );
+    const renderPassDepthBlurH = createRenderPassGaussianBlurForDepth(renderPassDepth, true);
     createAndSetFramebuffer(renderPassDepthBlurH, resolutionDepthCamera, 1);
 
-    const renderPassDepthBlurHV = createRenderPassGaussianBlurForDepth(
-      cameraComponentPostEffect,
-      renderPassDepthBlurH,
-      false
-    );
+    const renderPassDepthBlurHV = createRenderPassGaussianBlurForDepth(renderPassDepthBlurH, false);
     createAndSetFramebuffer(renderPassDepthBlurHV, resolutionDepthCamera, 1);
 
     return [renderPassDepth, renderPassDepthBlurH, renderPassDepthBlurHV];
@@ -272,11 +251,14 @@ import Rn from '../../../dist/esm/index.js';
   }
 
   function createRenderPassGaussianBlurForDepth(
-    cameraComponent: Rn.CameraComponent,
     renderPassBlurTarget: Rn.RenderPass,
     isHorizontal: boolean
   ) {
-    const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial();
+    const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial({
+      additionalName: '',
+      maxInstancesNumber: 10,
+      noUseCameraTransform: true,
+    });
 
     const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
       kernelSize: gaussianKernelSize,
@@ -293,28 +275,19 @@ import Rn from '../../../dist/esm/index.js';
     const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
     material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
 
-    const boardPrimitive = new Rn.Plane();
-    boardPrimitive.generate({
-      width: 1,
-      height: 1,
+    const boardEntity = Rn.MeshHelper.createPlane({
+      width: 2,
+      height: 2,
       uSpan: 1,
       vSpan: 1,
       isUVRepeat: false,
+      flipTextureCoordinateY: false,
+      direction: 'xy',
       material,
     });
 
-    const boardMesh = new Rn.Mesh();
-    boardMesh.addPrimitive(boardPrimitive);
-
-    const boardEntity = Rn.EntityHelper.createMeshEntity();
-    boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-    boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
-    const boardMeshComponent = boardEntity.getMesh();
-    boardMeshComponent.setMesh(boardMesh);
-
     const renderPass = new Rn.RenderPass();
     renderPass.toClearColorBuffer = false;
-    renderPass.cameraComponent = cameraComponent;
     renderPass.addEntities([boardEntity]);
 
     return renderPass;

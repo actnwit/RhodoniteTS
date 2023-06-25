@@ -577,6 +577,7 @@ function createShadowMapDecodeClassicSingleMaterial(
 function createGaussianBlurForEncodedDepthMaterial({
   additionalName = '',
   maxInstancesNumber = 10,
+  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
 
@@ -662,7 +663,7 @@ function createGaussianBlurForEncodedDepthMaterial({
     useNormalTexture: false,
     vertexShader: GaussianBlurForEncodedDepthSingleShaderVertex,
     pixelShader: GaussianBlurForEncodedDepthSingleShaderFragment,
-    noUseCameraTransform: false,
+    noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
 
@@ -736,7 +737,11 @@ function createDetectHighLuminanceMaterial(
   return material;
 }
 
-function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
+function createGaussianBlurMaterial({
+  additionalName = '',
+  maxInstancesNumber = 10,
+  noUseCameraTransform = false,
+} = {}) {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -821,7 +826,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
     useNormalTexture: false,
     vertexShader: GaussianBlurSingleShaderVertex,
     pixelShader: GaussianBlurSingleShaderFragment,
-    noUseCameraTransform: false,
+    noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
