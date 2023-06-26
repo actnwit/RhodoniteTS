@@ -20,6 +20,8 @@ import { ComponentType, HdriFormatEnum, PixelFormat } from '../../definitions';
 import { MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
+import { MathUtil } from '../../math/MathUtil';
+import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -80,12 +82,14 @@ export class ForwardRenderPipeline extends RnObject {
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
+  private __oFrameBufferDepthMomentBlur: IOption<FrameBuffer> = new None();
   private __oInitialExpression: IOption<Expression> = new None();
 
   /** main expressions */
   private __expressions: Expression[] = [];
 
   private __depthMomentExpressions: Expression[] = [];
+  private __oDepthMomentBlurExpression: IOption<Expression> = new None();
   private __oMsaaResolveExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
@@ -95,6 +99,9 @@ export class ForwardRenderPipeline extends RnObject {
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
   private __oSpecularCubeTexture: IOption<CubeTexture> = new None();
   private __oSamplerForBackBuffer: IOption<Sampler> = new None();
+
+  private __gaussianKernelSize = 15;
+  private __gaussianVariance = 8.0;
 
   constructor() {
     super();
@@ -229,6 +236,9 @@ export class ForwardRenderPipeline extends RnObject {
         renderPass.setMaterial(depthMomentMaterial);
       }
     }
+
+    // create depth moment blur expression
+    this.__createRenderPassGaussianBlur();
 
     // set depth moment texture to entity materials in main expressions
     for (const expression of this.__expressions) {
@@ -387,6 +397,10 @@ export class ForwardRenderPipeline extends RnObject {
    */
   getGammaExpression(): Expression | undefined {
     return this.__oGammaExpression.unwrapOrUndefined();
+  }
+
+  getDepthMomentBlurExpression(): Expression | undefined {
+    return this.__oDepthMomentBlurExpression.unwrapOrUndefined();
   }
 
   /**
@@ -780,6 +794,85 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  private __createRenderPassGaussianBlur() {
+    if (this.__oFrameBufferDepthMomentBlur.unwrapOrUndefined() === undefined) {
+      const framebuffer = RenderableHelper.createTexturesForRenderTarget(
+        this.__oFrameDepthMoment.unwrapForce().width,
+        this.__oFrameDepthMoment.unwrapForce().height,
+        1,
+        {
+          level: 0,
+          internalFormat: TextureParameter.RG32F,
+          format: PixelFormat.RG,
+          type: ComponentType.Float,
+          createDepthBuffer: true,
+          isMSAA: false,
+          sampleCountMSAA: 1,
+        }
+      );
+      this.__oFrameBufferDepthMomentBlur = new Some(framebuffer);
+    }
+    const renderPassGaussianBlurH = this.__createRenderPassGaussianBlurInner(
+      this.__oFrameDepthMoment.unwrapForce(),
+      this.__oFrameBufferDepthMomentBlur.unwrapForce(),
+      true
+    );
+    const renderPassGaussianBlurHV = this.__createRenderPassGaussianBlurInner(
+      this.__oFrameBufferDepthMomentBlur.unwrapForce(),
+      this.__oFrameDepthMoment.unwrapForce(),
+      false
+    );
+
+    const expressionGaussianBlur = new Expression();
+    expressionGaussianBlur.addRenderPasses([renderPassGaussianBlurH, renderPassGaussianBlurHV]);
+    this.__oDepthMomentBlurExpression = new Some(expressionGaussianBlur);
+  }
+
+  private __createRenderPassGaussianBlurInner(
+    inputFramebuffer: FrameBuffer,
+    outputFramebuffer: FrameBuffer,
+    isHorizontal: boolean
+  ) {
+    const material = MaterialHelper.createGaussianBlurMaterial({
+      additionalName: '',
+      maxInstancesNumber: 10,
+      noUseCameraTransform: true,
+    });
+
+    const gaussianDistributionRatio = MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({
+      kernelSize: this.__gaussianKernelSize,
+      variance: this.__gaussianVariance,
+    });
+    material.setParameter(ShaderSemantics.GaussianKernelSize, this.__gaussianKernelSize);
+    material.setParameter(ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
+
+    if (isHorizontal === false) {
+      material.setParameter(ShaderSemantics.IsHorizontal, false);
+    }
+
+    material.setParameter(ShaderSemantics.FramebufferWidth, inputFramebuffer.width);
+    const TextureTarget = inputFramebuffer.colorAttachments[0] as RenderTargetTexture;
+    material.setTextureParameter(ShaderSemantics.BaseColorTexture, TextureTarget);
+
+    const boardEntity = MeshHelper.createPlane({
+      width: 1,
+      height: 1,
+      uSpan: 1,
+      vSpan: 1,
+      isUVRepeat: false,
+      flipTextureCoordinateY: false,
+      direction: 'xy',
+      material,
+    });
+
+    const renderPass = new RenderPass();
+    renderPass.toClearColorBuffer = false;
+    renderPass.addEntities([boardEntity]);
+    renderPass.setFramebuffer(outputFramebuffer);
+
+    return renderPass;
+  }
+
   /**
    * setUp Frame
    *
@@ -793,6 +886,7 @@ export class ForwardRenderPipeline extends RnObject {
     for (const exp of this.__depthMomentExpressions) {
       frame.addExpression(exp);
     }
+    frame.addExpression(this.getDepthMomentBlurExpression()!);
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
