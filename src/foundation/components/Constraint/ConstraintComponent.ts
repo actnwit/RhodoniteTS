@@ -1,15 +1,21 @@
 import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
+import { IVrmConstraint } from '../../constraints/IVrmConstraint';
+import { VrmRollConstraint } from '../../constraints/VrmRollConstraint';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
+import { ProcessStage } from '../../definitions/ProcessStage';
 import { IConstraintEntity } from '../../helpers/EntityHelper';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export class ConstraintComponent extends Component {
+  private __vrmConstraint?: IVrmConstraint;
+
   constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
     super(entityUid, componentSid, entityComponent);
+    this.moveStageTo(ProcessStage.Logic);
   }
   /**
    * get the entity which has this component.
@@ -17,6 +23,20 @@ export class ConstraintComponent extends Component {
    */
   get entity(): IConstraintEntity {
     return EntityRepository.getEntity(this.__entityUid) as unknown as IConstraintEntity;
+  }
+
+  static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.ConstraintComponentTID;
+  }
+
+  $logic() {
+    if (this.__vrmConstraint) {
+      this.__vrmConstraint.update();
+    }
+  }
+
+  setConstraint(constraint: IVrmConstraint) {
+    this.__vrmConstraint = constraint;
   }
 
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
@@ -32,9 +52,9 @@ export class ConstraintComponent extends Component {
         super(entityUID, isAlive, components);
       }
 
-      getLight() {
+      getConstraint() {
         return this.getComponentByComponentTID(
-          WellKnownComponentTIDs.LightComponentTID
+          WellKnownComponentTIDs.ConstraintComponentTID
         ) as ConstraintComponent;
       }
     }

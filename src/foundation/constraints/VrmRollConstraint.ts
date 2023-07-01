@@ -9,15 +9,15 @@ export class VrmRollConstraint {
   private __weight: number;
 
   constructor(
-    sourceEntity: ISceneGraphEntity,
+    srcEntity: ISceneGraphEntity,
     rollAxis: 'X' | 'Y' | 'Z',
     weight: number,
-    distEntity: ISceneGraphEntity
+    dstEntity: ISceneGraphEntity
   ) {
-    this.__srcEntity = sourceEntity;
+    this.__srcEntity = srcEntity;
     this.__rollAxis = rollAxis;
     this.__weight = weight;
-    this.__dstEntity = distEntity;
+    this.__dstEntity = dstEntity;
   }
 
   getAxisVector(rollAxis: 'X' | 'Y' | 'Z') {
