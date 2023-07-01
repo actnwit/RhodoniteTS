@@ -11,6 +11,7 @@ export class VrmRotationConstraint implements IVrmConstraint {
     this.__srcEntity = srcEntity;
     this.__weight = weight;
     this.__dstEntity = dstEntity;
+    this.__dstEntity.getTransform()._backupTransformAsRest();
   }
 
   update(): void {

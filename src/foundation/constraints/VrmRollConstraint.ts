@@ -18,6 +18,7 @@ export class VrmRollConstraint {
     this.__rollAxis = rollAxis;
     this.__weight = weight;
     this.__dstEntity = dstEntity;
+    this.__dstEntity.getTransform()._backupTransformAsRest();
   }
 
   getAxisVector(rollAxis: 'X' | 'Y' | 'Z') {

@@ -25,6 +25,7 @@ export class VrmAimConstraint {
     this.__aimAxis = aimAxis;
     this.__weight = weight;
     this.__dstEntity = dstEntity;
+    this.__dstEntity.getTransform()._backupTransformAsRest();
   }
 
   getAxisVector(
