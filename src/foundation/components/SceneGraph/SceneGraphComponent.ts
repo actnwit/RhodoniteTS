@@ -869,10 +869,10 @@ export class SceneGraphComponent extends Component {
   }
 
   _destroy() {
-    // this.__aabbGizmo?.destroy();
-    // this.__locatorGizmo?.destroy();
-    // this.__translationGizmo?.destroy();
-    // this.__scaleGizmo?.destroy();
+    this.__aabbGizmo?._destroy();
+    this.__locatorGizmo?._destroy();
+    this.__translationGizmo?._destroy();
+    this.__scaleGizmo?._destroy();
     // this.__entityRepository.removeEntity(this.__entityUid);
     this.parent?.removeChild(this);
     this.children.forEach((child) => child.parent?.removeChild(child));

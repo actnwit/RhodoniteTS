@@ -4,6 +4,7 @@ import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
 import { EntityHelper, IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
 
 export class LightGizmo extends Gizmo {
@@ -83,6 +84,12 @@ export class LightGizmo extends Gizmo {
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeY / 2),
       Math.max(1, aabb.isVanilla() ? 1 : aabb.sizeZ / 2),
     ]);
+  }
+
+  _destroy(): void {
+    if (Is.exist(this.__topEntity)) {
+      this.__topEntity._destroy();
+    }
   }
 
   ///

@@ -5,6 +5,7 @@ import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
 import { EntityHelper, IMeshEntity } from '../helpers/EntityHelper';
 import { Vector3 } from '../math/Vector3';
+import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
 
 /**
@@ -145,4 +146,11 @@ export class LocatorGizmo extends Gizmo {
 
     return primitive;
   }
+
+  _destroy(): void {
+    if (Is.exist(this.__topEntity)) {
+      this.__topEntity._destroy();
+    }
+  }
+
 }
