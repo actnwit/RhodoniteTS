@@ -25,6 +25,8 @@ import { IEffekseerEntityMethods, EffekseerComponent } from '../../effekseer/Eff
 import { CameraComponent } from './Camera/CameraComponent';
 import { VrmComponent } from './Vrm/VrmComponent';
 import { IVrmEntityMethods } from './Vrm/IVrmEntity';
+import { ConstraintComponent } from './Constraint/ConstraintComponent';
+import { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
@@ -134,29 +136,39 @@ type IsThisVrm<
   Possibles extends AllWellKnownComponentMethodsTypes
 > = T extends typeof VrmComponent ? IVrmEntityMethods : Exclude<Possibles, IVrmEntityMethods>;
 
-export type ComponentToComponentMethods<T extends typeof Component> = IsThisVrm<
+type IsThisConstraint<
+  T extends typeof Component,
+  Possibles extends AllWellKnownComponentMethodsTypes
+> = T extends typeof ConstraintComponent
+  ? IConstraintEntityMethods
+  : Exclude<Possibles, IConstraintEntityMethods>;
+
+export type ComponentToComponentMethods<T extends typeof Component> = IsThisConstraint<
   T,
-  IsThisEffekseer<
+  IsThisVrm<
     T,
-    IsThisPhysics<
+    IsThisEffekseer<
       T,
-      IsThisBlendShape<
+      IsThisPhysics<
         T,
-        IsThisSkeletal<
+        IsThisBlendShape<
           T,
-          IsThisLight<
+          IsThisSkeletal<
             T,
-            IsThisCamera<
+            IsThisLight<
               T,
-              IsThisCameraController<
+              IsThisCamera<
                 T,
-                IsThisMeshRenderer<
+                IsThisCameraController<
                   T,
-                  IsThisMesh<
+                  IsThisMeshRenderer<
                     T,
-                    IsThisSceneGraph<
+                    IsThisMesh<
                       T,
-                      IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>
+                      IsThisSceneGraph<
+                        T,
+                        IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>
+                      >
                     >
                   >
                 >

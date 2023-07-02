@@ -15,6 +15,7 @@ import { TransformComponent } from '../components/Transform/TransformComponent';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { VrmComponent } from '../components/Vrm/VrmComponent';
+import { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
 
 /**
  * The Interface for an Entity.
@@ -40,6 +41,7 @@ export interface IEntity extends IRnObject {
   tryToGetTransform(): TransformComponent | undefined;
   tryToGetAnimation(): AnimationComponent | undefined;
   tryToGetVrm(): VrmComponent | undefined;
+  tryToGetConstraint(): ConstraintComponent | undefined;
   destroy(): void;
 }
 
@@ -211,6 +213,12 @@ export class Entity extends RnObject implements IEntity {
   tryToGetVrm() {
     return this.getComponentByComponentTID(WellKnownComponentTIDs.VrmComponentTID) as
       | VrmComponent
+      | undefined;
+  }
+
+  tryToGetConstraint() {
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.ConstraintComponentTID) as
+      | ConstraintComponent
       | undefined;
   }
 

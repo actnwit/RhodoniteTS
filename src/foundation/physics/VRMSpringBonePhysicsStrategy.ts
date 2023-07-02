@@ -23,7 +23,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   getParentRotation(head: SceneGraphComponent) {
     return head.parent != null
-      ? Quaternion.fromMatrix(head.parent!.matrixInner)
+      ? head.parent.rotation
       : Quaternion.fromCopy4(0, 0, 0, 1);
   }
 

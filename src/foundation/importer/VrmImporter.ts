@@ -20,6 +20,10 @@ import { Sampler } from '../textures/Sampler';
 import { VrmComponent, VrmExpression, VrmExpressionMorphBind } from '../components';
 import { VRMSpringBone } from '../physics/VRMSpringBone';
 import { CapsuleCollider } from '../physics/CapsuleCollider';
+import { ConstraintComponent } from '../components/Constraint';
+import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
+import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
+import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
 
 export class VrmImporter {
   private constructor() {}
@@ -64,6 +68,52 @@ export class VrmImporter {
     this._readSpringBone(gltfModel as Vrm1);
     this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
     this._readExpressions(gltfModel as Vrm1, rootGroup);
+    this._readConstraints(gltfModel as Vrm1);
+  }
+
+  static _readConstraints(gltfModel: Vrm1) {
+    for (let i = 0; i < gltfModel.nodes.length; i++) {
+      const node = gltfModel.nodes[i];
+      const constraint = node.extensions?.VRMC_node_constraint?.constraint;
+      if (Is.exist(constraint)) {
+        if (Is.exist(constraint.roll)) {
+          const roll = constraint.roll;
+          const dstEntity_ = gltfModel.extras.rnEntities[i];
+          const srcEntity = gltfModel.extras.rnEntities[roll.source];
+          const dstEntity = EntityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
+          const rollConstraint = new VrmRollConstraint(
+            srcEntity,
+            roll.rollAxis,
+            Is.exist(roll.weight) ? roll.weight : 1.0,
+            dstEntity
+          );
+          dstEntity.getConstraint().setConstraint(rollConstraint);
+        } else if (Is.exist(constraint.aim)) {
+          const aim = constraint.aim;
+          const dstEntity_ = gltfModel.extras.rnEntities[i];
+          const srcEntity = gltfModel.extras.rnEntities[aim.source];
+          const dstEntity = EntityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
+          const aimConstraint = new VrmAimConstraint(
+            srcEntity,
+            aim.aimAxis,
+            Is.exist(aim.weight) ? aim.weight : 1.0,
+            dstEntity
+          );
+          dstEntity.getConstraint().setConstraint(aimConstraint);
+        } else if (Is.exist(constraint.rotation)) {
+          const rotation = constraint.rotation;
+          const dstEntity_ = gltfModel.extras.rnEntities[i];
+          const srcEntity = gltfModel.extras.rnEntities[rotation.source];
+          const dstEntity = EntityRepository.addComponentToEntity(ConstraintComponent, dstEntity_);
+          const rotationConstraint = new VrmRotationConstraint(
+            srcEntity,
+            Is.exist(rotation.weight) ? rotation.weight : 1.0,
+            dstEntity
+          );
+          dstEntity.getConstraint().setConstraint(rotationConstraint);
+        }
+      }
+    }
   }
 
   static _readExpressions(gltfModel: Vrm1, rootEntity: ISceneGraphEntity) {
@@ -84,7 +134,7 @@ export class VrmImporter {
             entityIdx: rnEntity.entityUID,
             blendShapeIdx: bind.index,
             weight: bind.weight,
-          }
+          };
         });
       }
 
@@ -92,7 +142,7 @@ export class VrmImporter {
         name: expressionName,
         isBinary: expression.isBinary,
         binds: binds,
-      }
+      };
       vrmExpressions.push(vrmExpression);
     }
     const vrmEntity = EntityRepository.addComponentToEntity(VrmComponent, rootEntity);
@@ -155,7 +205,6 @@ export class VrmImporter {
       }
     }
 
-
     const springs: VRMSpring[] = [];
     if (Is.exist(gltfModel.extensions.VRMC_springBone?.springs)) {
       for (const spring of gltfModel.extensions.VRMC_springBone.springs) {
@@ -163,9 +212,7 @@ export class VrmImporter {
         const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRoot.node];
         const vrmSpring = new VRMSpring(jointRootEntity.getSceneGraph());
         vrmSpring.tryToSetUniqueName(spring.name, true);
-        const colliderGroupIndices = Is.exist(spring.colliderGroups)
-          ? spring.colliderGroups
-          : [];
+        const colliderGroupIndices = Is.exist(spring.colliderGroups) ? spring.colliderGroups : [];
         vrmSpring.colliderGroups = colliderGroupIndices.map((colliderGroupIdx) => {
           return colliderGroups[colliderGroupIdx];
         });
@@ -179,7 +226,11 @@ export class VrmImporter {
           springBone.stiffnessForce = joint.stiffness;
           springBone.gravityPower = Is.exist(joint.gravityPower) ? joint.gravityPower : 1;
           springBone.gravityDir = Is.exist(joint.gravityDir)
-            ? Vector3.fromCopyArray3([joint.gravityDir[0], joint.gravityDir[1], joint.gravityDir[2]])
+            ? Vector3.fromCopyArray3([
+                joint.gravityDir[0],
+                joint.gravityDir[1],
+                joint.gravityDir[2],
+              ])
             : Vector3.fromCopyArray3([0, -1, 0]);
           springBone.hitRadius = joint.hitRadius;
           vrmSpring.bones.push(springBone);
@@ -197,7 +248,11 @@ export class VrmImporter {
     }
   }
 
-  private static __addSpringBoneRecursively(vrmSpring: VRMSpring, entity: ISceneGraphEntity, addedEntities: ISceneGraphEntity[]): void {
+  private static __addSpringBoneRecursively(
+    vrmSpring: VRMSpring,
+    entity: ISceneGraphEntity,
+    addedEntities: ISceneGraphEntity[]
+  ): void {
     const sg = entity.getSceneGraph();
     const children = sg.children;
 
@@ -212,10 +267,7 @@ export class VrmImporter {
     }
   }
 
-  private static __addPhysicsComponent(
-    spring: VRMSpring,
-    sg: SceneGraphComponent
-  ): void {
+  private static __addPhysicsComponent(spring: VRMSpring, sg: SceneGraphComponent): void {
     const entity = sg.entity;
     const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();

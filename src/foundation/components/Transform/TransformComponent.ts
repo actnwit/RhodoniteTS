@@ -446,7 +446,7 @@ export class TransformComponent extends Component {
       get localRotationRest() {
         return this.localQuaternionRestInner.clone();
       }
-      get localQuaternionRestInner() {
+      get localRotationRestInner() {
         const transform = this.getTransform();
         return transform.localRotationRestInner;
       }
