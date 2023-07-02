@@ -70,10 +70,6 @@ export class SceneGraphComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
-    if (isReUse) {
-      return;
-    }
-
     SceneGraphComponent.__sceneGraphs.push(this);
 
     this.registerMember(
@@ -105,7 +101,7 @@ export class SceneGraphComponent extends Component {
       [0]
     );
 
-    this.submitToAllocation(this.maxNumberOfComponent);
+    this.submitToAllocation(this.maxNumberOfComponent, isReUse);
   }
 
   set isVisible(flg: boolean) {

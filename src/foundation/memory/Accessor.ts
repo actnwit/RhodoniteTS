@@ -271,12 +271,33 @@ export class Accessor {
       this.__byteOffsetInRawArrayBufferOfBuffer + this.__byteStride * this.__takenCount,
       this.__compositionType.getNumberOfComponents() * this.__arrayLength
     );
-    this.__takenCount += 1;
 
     // console.log(this.byteOffsetInRawArrayBufferOfBuffer, this.__byteStride, this.__takenCount, this.__arrayLength);
 
     (subTypedArray as any)._accessor = this;
     (subTypedArray as any)._idx_of_accessor = this.__takenCount;
+
+    this.__takenCount += 1;
+
+    return subTypedArray;
+  }
+
+  _takeExistedOne(idx: number): TypedArray {
+    const arrayBufferOfBufferView = this.__raw;
+
+    if (idx >= this.__count) {
+      console.error('You are trying to allocate more than you have secured.');
+    }
+    const subTypedArray = new this.__typedArrayClass!(
+      arrayBufferOfBufferView,
+      this.__byteOffsetInRawArrayBufferOfBuffer + this.__byteStride * idx,
+      this.__compositionType.getNumberOfComponents() * this.__arrayLength
+    );
+
+    // console.log(this.byteOffsetInRawArrayBufferOfBuffer, this.__byteStride, this.__takenCount, this.__arrayLength);
+
+    (subTypedArray as any)._accessor = this;
+    (subTypedArray as any)._idx_of_accessor = idx;
 
     return subTypedArray;
   }

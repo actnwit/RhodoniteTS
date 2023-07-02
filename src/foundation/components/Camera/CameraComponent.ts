@@ -112,10 +112,6 @@ export class CameraComponent extends Component {
       CameraComponent.current = componentSid;
     }
 
-    if (isReUse) {
-      return;
-    }
-
     this.registerMember(
       BufferUse.CPUGeneric,
       'eyeInner',
@@ -189,7 +185,11 @@ export class CameraComponent extends Component {
       [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     );
 
-    this.submitToAllocation(Config.maxCameraNumber);
+    this.submitToAllocation(Config.maxCameraNumber, isReUse);
+
+    if (isReUse) {
+      return;
+    }
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
