@@ -23,8 +23,25 @@ export class EntityRepository {
    * Creates an entity
    */
   public static createEntity(): IEntity {
-    const entity = new Entity(++this.__entity_uid_count, true);
-    this.__entities[this.__entity_uid_count] = entity;
+    // check dead entity
+    let deadUid = -1;
+    for (let i = 0; i < this.__entities.length; i++) {
+      if (this.__entities[i]._isAlive === false) {
+        deadUid = i;
+      }
+    }
+
+    let entityUid = -1;
+    if (deadUid === -1) {
+      // if all entity is alive, issue a new entityUid
+      entityUid = ++this.__entity_uid_count;
+    } else {
+      // if there is a dead entity, reuse the entityUid
+      entityUid = deadUid;
+    }
+
+    const entity = new Entity(entityUid, true);
+    this.__entities[entityUid] = entity;
 
     return entity;
   }
