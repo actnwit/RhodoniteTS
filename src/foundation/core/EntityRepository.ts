@@ -46,9 +46,18 @@ export class EntityRepository {
     return entity;
   }
 
-  public static deleteEntity(entityUid: EntityUID) {
+  public static deleteEntity(entityUid: EntityUID): void {
+    if (Is.not.exist(this.__entities[entityUid])) {
+      return;
+    }
     this.__entities[entityUid]._destroy();
     for (const [componentTid, component] of this._components[entityUid]) {
+      if (componentTid === WellKnownComponentTIDs.SceneGraphComponentTID) {
+        const sceneGraph = component as unknown as ISceneGraphEntity;
+        sceneGraph.children.forEach((child) => {
+          EntityRepository.deleteEntity(child.entity.entityUID);
+        });
+      }
       ComponentRepository.deleteComponent(component);
     }
     delete this._components[entityUid];
