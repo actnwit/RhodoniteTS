@@ -52,9 +52,16 @@ export class SkeletalComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
+    this.moveStageTo(ProcessStage.Logic);
+
+    if (isReUse) {
+      return;
+    }
+
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
       if (Config.boneDataType === BoneDataType.Mat44x1) {
         SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneMatrix);
@@ -72,8 +79,6 @@ export class SkeletalComponent extends Component {
     } else {
       console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
     }
-
-    this.moveStageTo(ProcessStage.Logic);
   }
 
   static get componentTID(): ComponentTID {

@@ -65,11 +65,16 @@ export class SceneGraphComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
 
     SceneGraphComponent.__sceneGraphs.push(this);
+
+    if (isReUse) {
+      return;
+    }
 
     this.registerMember(
       BufferUse.GPUInstanceData,

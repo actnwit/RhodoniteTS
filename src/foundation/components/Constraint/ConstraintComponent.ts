@@ -13,8 +13,13 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 export class ConstraintComponent extends Component {
   private __vrmConstraint?: IVrmConstraint;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Logic);
   }
   /**

@@ -99,11 +99,22 @@ export class CameraComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
 
     this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
+
+    this.setFovyAndChangeFocalLength(90);
+
+    if (CameraComponent.current === -1) {
+      CameraComponent.current = componentSid;
+    }
+
+    if (isReUse) {
+      return;
+    }
 
     this.registerMember(
       BufferUse.CPUGeneric,
@@ -184,12 +195,6 @@ export class CameraComponent extends Component {
     globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
     globalDataRepository.takeOne(ShaderSemantics.ProjectionMatrix);
     globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
-
-    this.setFovyAndChangeFocalLength(90);
-
-    if (CameraComponent.current === -1) {
-      CameraComponent.current = componentSid;
-    }
   }
 
   static set current(componentSID: ComponentSID) {

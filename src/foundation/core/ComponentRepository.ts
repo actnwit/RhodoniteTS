@@ -75,6 +75,7 @@ export class ComponentRepository {
       }
 
       let componentSid: ComponentSID = -1;
+      let isReUse = false;
       if (undefinedSid === -1) {
         // if there is no undefined element, issue a new component_sid
         this.__component_sid_count_map.set(componentTid, ++component_sid_count);
@@ -82,9 +83,15 @@ export class ComponentRepository {
       } else {
         // if there is undefined element, reuse the component_sid
         componentSid = undefinedSid;
+        isReUse = true;
       }
       // create the component
-      const component = new componentClass(entityUid, componentSid, entityRepository) as Component;
+      const component = new componentClass(
+        entityUid,
+        componentSid,
+        entityRepository,
+        isReUse
+      ) as Component;
 
       // register the component
       if (!this.__components.has(componentTid)) {
