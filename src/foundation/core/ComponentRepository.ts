@@ -61,14 +61,30 @@ export class ComponentRepository {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = Component.invalidComponentSID;
       }
-      this.__component_sid_count_map.set(componentTid, ++component_sid_count!);
 
+      // check __components array whether it has undefined element
+      const componentArray = this.__components.get(componentTid);
+      let undefinedSid = -1;
+      if (Is.exist(componentArray)) {
+        for (let i = 0; i < componentArray.length; i++) {
+          if (Is.not.exist(componentArray[i])) {
+            undefinedSid = i;
+            break;
+          }
+        }
+      }
+
+      let componentSid: ComponentSID = -1;
+      if (undefinedSid === -1) {
+        // if there is no undefined element, issue a new component_sid
+        this.__component_sid_count_map.set(componentTid, ++component_sid_count);
+        componentSid = component_sid_count;
+      } else {
+        // if there is undefined element, reuse the component_sid
+        componentSid = undefinedSid;
+      }
       // create the component
-      const component = new componentClass(
-        entityUid,
-        component_sid_count!,
-        entityRepository
-      ) as Component;
+      const component = new componentClass(entityUid, componentSid, entityRepository) as Component;
 
       // register the component
       if (!this.__components.has(componentTid)) {
@@ -79,6 +95,16 @@ export class ComponentRepository {
       return component;
     } else {
       throw new Error('The Component Class object is invalid.');
+    }
+  }
+
+  public static deleteComponent(component: Component) {
+    const thisClass = ComponentRepository;
+    const componentTid = component.componentTID;
+    const componentSid = component.componentSID;
+    const array = thisClass.__components.get(componentTid);
+    if (array != null) {
+      delete array[componentSid];
     }
   }
 

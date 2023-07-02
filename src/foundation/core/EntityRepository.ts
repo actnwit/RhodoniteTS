@@ -31,6 +31,9 @@ export class EntityRepository {
 
   public static deleteEntity(entityUid: EntityUID) {
     this.__entities[entityUid]._destroy();
+    for (const [componentTid, component] of this._components[entityUid]) {
+      ComponentRepository.deleteComponent(component);
+    }
     delete this._components[entityUid];
   }
 
