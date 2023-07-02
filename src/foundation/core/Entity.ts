@@ -42,7 +42,7 @@ export interface IEntity extends IRnObject {
   tryToGetAnimation(): AnimationComponent | undefined;
   tryToGetVrm(): VrmComponent | undefined;
   tryToGetConstraint(): ConstraintComponent | undefined;
-  destroy(): void;
+  _destroy(): void;
 }
 
 /**
@@ -225,7 +225,7 @@ export class Entity extends RnObject implements IEntity {
   /**
    * Mark the entity as destroyed
    */
-  destroy() {
+  _destroy() {
     this.__components.forEach((component) => {
       component._destroy();
     });

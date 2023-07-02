@@ -29,6 +29,11 @@ export class EntityRepository {
     return entity;
   }
 
+  public static deleteEntity(entityUid: EntityUID) {
+    this.__entities[entityUid]._destroy();
+    delete this._components[entityUid];
+  }
+
   public static shallowCopyEntity(entity: IEntity): IEntity {
     const newEntity = EntityRepository._shallowCopyEntityInner(entity);
 
