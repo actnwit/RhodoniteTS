@@ -22,6 +22,10 @@ export class PhysicsComponent extends Component {
     return WellKnownComponentTIDs.PhysicsComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.PhysicsComponentTID;
+  }
+
   get strategy() {
     return this.__strategy;
   }

@@ -19,7 +19,6 @@ import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonType
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { MathUtil } from '../../math/MathUtil';
-import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { ModuleManager } from '../../system/ModuleManager';
 import { RnXR } from '../../../xr/main';
 import { RenderPass } from '../../renderer/RenderPass';
@@ -487,6 +486,10 @@ export class CameraComponent extends Component {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.CameraComponentTID;
+  }
+
   calcProjectionMatrix() {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
@@ -786,7 +789,7 @@ export class CameraComponent extends Component {
     class CameraEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

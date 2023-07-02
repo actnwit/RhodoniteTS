@@ -14,7 +14,7 @@ export type VrmExpressionMorphBind = {
   entityIdx: Index; //
   blendShapeIdx: Index; // morph target index in primitive
   weight: number; // [0,1]
-}
+};
 export type VrmExpression = {
   name: VrmExpressionName;
   isBinary: boolean;
@@ -31,6 +31,10 @@ export class VrmComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.VrmComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.VrmComponentTID;
   }
 

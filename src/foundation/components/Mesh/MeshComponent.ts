@@ -51,6 +51,10 @@ export class MeshComponent extends Component {
     return WellKnownComponentTIDs.MeshComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.MeshComponentTID;
+  }
+
   setMesh(mesh: Mesh) {
     this.__mesh = mesh;
     mesh._belongToMeshComponent(this);

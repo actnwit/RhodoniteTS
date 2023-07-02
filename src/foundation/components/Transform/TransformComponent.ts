@@ -40,6 +40,10 @@ export class TransformComponent extends Component {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.TransformComponentTID;
+  }
+
   get restOrPose() {
     if (this.__rest !== undefined) {
       return this.__rest;

@@ -58,6 +58,10 @@ export class CameraControllerComponent extends Component {
     return WellKnownComponentTIDs.CameraControllerComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.CameraControllerComponentTID;
+  }
+
   $create() {
     this.__cameraComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,

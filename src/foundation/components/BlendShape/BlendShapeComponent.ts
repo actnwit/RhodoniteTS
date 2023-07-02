@@ -24,6 +24,10 @@ export class BlendShapeComponent extends Component {
     return WellKnownComponentTIDs.BlendShapeComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.BlendShapeComponentTID;
+  }
+
   set weights(weights: number[]) {
     this.__weights = weights;
   }
@@ -59,7 +63,7 @@ export class BlendShapeComponent extends Component {
     class BlendShapeEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

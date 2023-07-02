@@ -56,6 +56,10 @@ export class MeshRendererComponent extends Component {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.MeshRendererComponentTID;
+  }
+
   $create() {
     this.__meshComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,

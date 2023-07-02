@@ -29,6 +29,10 @@ export class ConstraintComponent extends Component {
     return WellKnownComponentTIDs.ConstraintComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.ConstraintComponentTID;
+  }
+
   $logic() {
     if (this.__vrmConstraint) {
       this.__vrmConstraint.update();

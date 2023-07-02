@@ -80,6 +80,10 @@ export class SkeletalComponent extends Component {
     return WellKnownComponentTIDs.SkeletalComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.SkeletalComponentTID;
+  }
+
   setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor) {
     this.__inverseBindMatricesAccessor = inverseBindMatricesAccessor;
   }

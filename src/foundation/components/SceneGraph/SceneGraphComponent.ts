@@ -239,6 +239,10 @@ export class SceneGraphComponent extends Component {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.SceneGraphComponentTID;
+  }
+
   setWorldMatrixRestDirty() {
     this.matrixRestInner;
     this.setWorldMatrixRestDirtyRecursively();
@@ -780,7 +784,7 @@ export class SceneGraphComponent extends Component {
     return this.entity.getTransform().localRotationRestInner;
   }
 
-  getRotationRest(endFn: (sg: SceneGraphComponent) => boolean) :Quaternion {
+  getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion {
     const parent = this.parent;
     const IsEnd = endFn(this);
     if (parent != null && !IsEnd) {

@@ -134,6 +134,13 @@ export class Component extends RnObject {
   }
 
   /**
+   * Get the Type ID of the Component
+   */
+  get componentTID() {
+    return 0;
+  }
+
+  /**
    * Get the Scoped ID of the Component
    */
   get componentSID() {

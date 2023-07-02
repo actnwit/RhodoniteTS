@@ -510,6 +510,10 @@ export class AnimationComponent extends Component {
     return WellKnownComponentTIDs.AnimationComponentTID;
   }
 
+  get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.AnimationComponentTID;
+  }
+
   private static __prepareVariablesForCubicSpline(
     outputArray_: Float32Array | number[],
     i: number,
