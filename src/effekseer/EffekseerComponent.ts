@@ -48,9 +48,10 @@ export class EffekseerComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
     Config.noWebGLTex2DStateCache = true;
   }
 

@@ -70,11 +70,11 @@ export class SceneGraphComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
-    SceneGraphComponent.__sceneGraphs.push(this);
-
     if (isReUse) {
       return;
     }
+
+    SceneGraphComponent.__sceneGraphs.push(this);
 
     this.registerMember(
       BufferUse.GPUInstanceData,
