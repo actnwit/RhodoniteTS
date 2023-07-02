@@ -180,7 +180,7 @@ export class Mesh implements IMesh {
     const entityInfo = new Float32Array(instanceNum * 4);
     for (let i = 0; i < instanceNum; i++) {
       // entityInfo[i] = this.__belongToEntities[i].entityUID;
-      entityInfo[4 * i + 0] = this.__belongToEntities[i].entityUID;
+      entityInfo[4 * i + 0] = this.__belongToEntities[i].getSceneGraph().componentSID;
       const skeletal = this.__belongToEntities[i].tryToGetSkeletal();
       if (skeletal != null) {
         entityInfo[4 * i + 1] = skeletal.componentSID;
