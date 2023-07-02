@@ -74,16 +74,20 @@ export class MeshComponent extends Component {
   }
 
   calcViewDepth(cameraComponent: CameraComponent) {
-    const centerPosition_inLocal = this.__mesh!.AABB.centerPoint;
+    if (Is.not.exist(this.__mesh)) {
+      return Number.MAX_VALUE;
+    }
+
+    const centerPosition_inLocal = this.__mesh.AABB.centerPoint;
     const skeletal = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletal) && Is.exist(skeletal._bindShapeMatrix)) {
       skeletal._bindShapeMatrix.multiplyVector3To(
-        this.__mesh!.AABB.centerPoint,
+        this.__mesh.AABB.centerPoint,
         centerPosition_inLocal
       );
     }
 
-    const worldMatrixInner = this.entity.getSceneGraph()!.matrixInner;
+    const worldMatrixInner = this.entity.getSceneGraph().matrixInner;
     const centerPosition_inWorld = worldMatrixInner.multiplyVector3To(
       centerPosition_inLocal,
       MeshComponent.__tmpVector3_0
