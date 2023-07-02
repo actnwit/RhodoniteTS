@@ -53,7 +53,8 @@ export class EntityRepository {
     for (const [componentTid, component] of this._components[entityUid]) {
       if (componentTid === WellKnownComponentTIDs.SceneGraphComponentTID) {
         const sceneGraph = component as unknown as ISceneGraphEntity;
-        for (const child of sceneGraph.children) {
+        const children = sceneGraph.children.concat();
+        for (const child of children) {
           EntityRepository.deleteEntity(child.entity.entityUID);
         }
       }
