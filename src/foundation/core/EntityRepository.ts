@@ -23,10 +23,45 @@ export class EntityRepository {
    * Creates an entity
    */
   public static createEntity(): IEntity {
-    const entity = new Entity(++this.__entity_uid_count, true);
-    this.__entities[this.__entity_uid_count] = entity;
+    // check dead entity
+    let deadUid = -1;
+    for (let i = 0; i < this.__entities.length; i++) {
+      if (this.__entities[i]._isAlive === false) {
+        deadUid = i;
+      }
+    }
+
+    let entityUid = -1;
+    if (deadUid === -1) {
+      // if all entity is alive, issue a new entityUid
+      entityUid = ++this.__entity_uid_count;
+    } else {
+      // if there is a dead entity, reuse the entityUid
+      entityUid = deadUid;
+    }
+
+    const entity = new Entity(entityUid, true);
+    this.__entities[entityUid] = entity;
 
     return entity;
+  }
+
+  public static deleteEntity(entityUid: EntityUID): void {
+    if (Is.not.exist(this._components[entityUid])) {
+      return;
+    }
+    for (const [componentTid, component] of this._components[entityUid]) {
+      if (componentTid === WellKnownComponentTIDs.SceneGraphComponentTID) {
+        const sceneGraph = component as unknown as ISceneGraphEntity;
+        const children = sceneGraph.children.concat();
+        for (const child of children) {
+          EntityRepository.deleteEntity(child.entity.entityUID);
+        }
+      }
+      ComponentRepository.deleteComponent(component);
+    }
+    this.__entities[entityUid]._destroy();
+    delete this._components[entityUid];
   }
 
   public static shallowCopyEntity(entity: IEntity): IEntity {

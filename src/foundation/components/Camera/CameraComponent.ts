@@ -19,7 +19,6 @@ import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonType
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { MathUtil } from '../../math/MathUtil';
-import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { ModuleManager } from '../../system/ModuleManager';
 import { RnXR } from '../../../xr/main';
 import { RenderPass } from '../../renderer/RenderPass';
@@ -100,11 +99,18 @@ export class CameraComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
 
     this._setMaxNumberOfComponent(Math.max(10, Math.floor(Config.maxEntityNumber / 100)));
+
+    this.setFovyAndChangeFocalLength(90);
+
+    if (CameraComponent.current === -1) {
+      CameraComponent.current = componentSid;
+    }
 
     this.registerMember(
       BufferUse.CPUGeneric,
@@ -179,18 +185,16 @@ export class CameraComponent extends Component {
       [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     );
 
-    this.submitToAllocation(Config.maxCameraNumber);
+    this.submitToAllocation(Config.maxCameraNumber, isReUse);
+
+    if (isReUse) {
+      return;
+    }
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
     globalDataRepository.takeOne(ShaderSemantics.ProjectionMatrix);
     globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
-
-    this.setFovyAndChangeFocalLength(90);
-
-    if (CameraComponent.current === -1) {
-      CameraComponent.current = componentSid;
-    }
   }
 
   static set current(componentSID: ComponentSID) {
@@ -484,6 +488,10 @@ export class CameraComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.CameraComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.CameraComponentTID;
   }
 
@@ -786,7 +794,7 @@ export class CameraComponent extends Component {
     class CameraEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

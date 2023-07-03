@@ -65,9 +65,10 @@ export class SceneGraphComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
 
     SceneGraphComponent.__sceneGraphs.push(this);
 
@@ -100,7 +101,7 @@ export class SceneGraphComponent extends Component {
       [0]
     );
 
-    this.submitToAllocation(this.maxNumberOfComponent);
+    this.submitToAllocation(this.maxNumberOfComponent, isReUse);
   }
 
   set isVisible(flg: boolean) {
@@ -236,6 +237,10 @@ export class SceneGraphComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.SceneGraphComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.SceneGraphComponentTID;
   }
 
@@ -780,7 +785,7 @@ export class SceneGraphComponent extends Component {
     return this.entity.getTransform().localRotationRestInner;
   }
 
-  getRotationRest(endFn: (sg: SceneGraphComponent) => boolean) :Quaternion {
+  getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion {
     const parent = this.parent;
     const IsEnd = endFn(this);
     if (parent != null && !IsEnd) {
@@ -864,10 +869,10 @@ export class SceneGraphComponent extends Component {
   }
 
   _destroy() {
-    // this.__aabbGizmo?.destroy();
-    // this.__locatorGizmo?.destroy();
-    // this.__translationGizmo?.destroy();
-    // this.__scaleGizmo?.destroy();
+    this.__aabbGizmo?._destroy();
+    this.__locatorGizmo?._destroy();
+    this.__translationGizmo?._destroy();
+    this.__scaleGizmo?._destroy();
     // this.__entityRepository.removeEntity(this.__entityUid);
     this.parent?.removeChild(this);
     this.children.forEach((child) => child.parent?.removeChild(child));

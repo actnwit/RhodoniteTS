@@ -5,6 +5,7 @@ import { Primitive } from '../geometry/Primitive';
 import { Vector3 } from '../math/Vector3';
 import { Mesh } from '../geometry/Mesh';
 import { EntityHelper, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { Is } from '../misc/Is';
 
 /**
  * AABB Gizmo class
@@ -159,4 +160,11 @@ export class AABBGizmo extends Gizmo {
       aabb.sizeZ / 2,
     ]);
   }
+
+  _destroy(): void {
+    if (Is.exist(this.__topEntity)) {
+      this.__topEntity._destroy();
+    }
+  }
+
 }

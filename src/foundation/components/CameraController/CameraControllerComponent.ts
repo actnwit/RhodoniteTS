@@ -25,9 +25,10 @@ export class CameraControllerComponent extends Component {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
-    super(entityUid, componentSid, entityRepository);
+    super(entityUid, componentSid, entityRepository, isReUse);
     this.__cameraController = new OrbitCameraController();
   }
 
@@ -55,6 +56,10 @@ export class CameraControllerComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.CameraControllerComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.CameraControllerComponentTID;
   }
 

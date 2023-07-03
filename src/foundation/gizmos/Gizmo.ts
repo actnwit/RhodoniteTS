@@ -63,6 +63,8 @@ export abstract class Gizmo extends RnObject {
    */
   abstract _update(): void;
 
+  abstract _destroy(): void;
+
   protected __toSkipSetup(): boolean {
     if (this.isSetup) {
       return true;

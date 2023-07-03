@@ -14,13 +14,22 @@ export class BlendShapeComponent extends Component {
   private __weights: number[] = [];
   private __targetNames: string[] = [];
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.BlendShapeComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.BlendShapeComponentTID;
   }
 
@@ -59,7 +68,7 @@ export class BlendShapeComponent extends Component {
     class BlendShapeEntity extends (base.constructor as any) {
       constructor(
         entityUID: EntityUID,
-        isAlive: Boolean,
+        isAlive: boolean,
         components?: Map<ComponentTID, Component>
       ) {
         super(entityUID, isAlive, components);

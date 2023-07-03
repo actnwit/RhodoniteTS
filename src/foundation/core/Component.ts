@@ -78,7 +78,8 @@ export class Component extends RnObject {
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
-    entityRepository: EntityRepository
+    entityRepository: EntityRepository,
+    isReUse: boolean
   ) {
     super();
 
@@ -130,6 +131,13 @@ export class Component extends RnObject {
    * Get the Type ID of the Component
    */
   static get componentTID() {
+    return 0;
+  }
+
+  /**
+   * Get the Type ID of the Component
+   */
+  get componentTID() {
     return 0;
   }
 
@@ -307,11 +315,26 @@ export class Component extends RnObject {
   /**
    * take one memory area for the specified member for all same type of the component instances.
    */
-  takeOne(memberName: string, dataClassType: any, initValues: number[]): any {
+  takeOne(
+    memberName: string,
+    dataClassType: any,
+    initValues: number[],
+    isReUse: boolean,
+    componentSid: ComponentSID
+  ): any {
     if (!(this as any)['_' + memberName].isDummy()) {
       return;
     }
-    const taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
+
+    let taken: TypedArray | undefined;
+    if (isReUse) {
+      taken = Component.__accessors
+        .get(this.constructor)!
+        .get(memberName)!
+        ._takeExistedOne(componentSid);
+    } else {
+      taken = Component.__accessors.get(this.constructor)!.get(memberName)!.takeOne();
+    }
     (this as any)['_' + memberName] = new dataClassType(taken, false, true);
 
     for (let i = 0; i < (this as any)['_' + memberName]._v.length; ++i) {
@@ -424,7 +447,7 @@ export class Component extends RnObject {
    * Allocate memory of self member fields
    * @param count a number of entities to need allocate
    */
-  submitToAllocation(count: Count): void {
+  submitToAllocation(count: Count, isReUse: boolean): void {
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
@@ -439,7 +462,13 @@ export class Component extends RnObject {
     for (const bufferUse of member.keys()) {
       const infoArray = member.get(bufferUse)!;
       infoArray.forEach((info) => {
-        this.takeOne(info.memberName, info.dataClassType, info.initValues);
+        this.takeOne(
+          info.memberName,
+          info.dataClassType,
+          info.initValues,
+          isReUse,
+          this._component_sid
+        );
       });
     }
 

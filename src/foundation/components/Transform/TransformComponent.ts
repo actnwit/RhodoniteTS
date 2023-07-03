@@ -22,8 +22,13 @@ export class TransformComponent extends Component {
   private __updateCountAtLastLogic = 0;
   private __sceneGraphComponent: SceneGraphComponent | undefined;
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(entityUid, componentSid, entityComponent, isReUse);
     this.moveStageTo(ProcessStage.Create);
   }
 
@@ -37,6 +42,10 @@ export class TransformComponent extends Component {
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.TransformComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 

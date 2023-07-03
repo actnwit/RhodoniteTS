@@ -125,7 +125,7 @@ export class RenderPass extends RnObject {
    */
   addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]) {
     for (const entity of entities) {
-      const sceneGraphComponent = entity.getSceneGraph()!;
+      const sceneGraphComponent = entity.getSceneGraph();
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
       const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
         sceneGraphComponent,

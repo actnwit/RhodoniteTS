@@ -12,13 +12,22 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 export class PhysicsComponent extends Component {
   private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
 
-  constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository) {
-    super(entityUid, componentSid, entityComponent);
+  constructor(
+    entityUid: EntityUID,
+    componentSid: ComponentSID,
+    entityComponent: EntityRepository,
+    isReUse: boolean
+  ) {
+    super(entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
   }
 
   static get componentTID(): ComponentTID {
+    return WellKnownComponentTIDs.PhysicsComponentTID;
+  }
+
+  get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.PhysicsComponentTID;
   }
 

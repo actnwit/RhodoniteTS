@@ -694,4 +694,11 @@ export class TranslationGizmo extends Gizmo {
       .castRayFromScreenInWorld(x, y, activeCamera!, viewport, 0.0);
     return { xResult, yResult, zResult };
   }
+
+  _destroy(): void {
+    if (Is.exist(this.__topEntity)) {
+      this.__topEntity._destroy();
+    }
+  }
+
 }
