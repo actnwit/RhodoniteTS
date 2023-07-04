@@ -586,6 +586,12 @@ void main ()
   metallic = clamp(metallic, 0.0, 1.0);
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
+  // filter NDF for specular AA
+  // https://jcgt.org/published/0010/02/02/
+  float alphaRoughness2 = alphaRoughness * alphaRoughness;
+  float filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
+  perceptualRoughness = sqrt(sqrt(filteredRoughness2));
+
 #ifdef RN_USE_SPECULAR
   float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
   float specular = get_specularFactor(materialSID, 0) * specularTexture;
