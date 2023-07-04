@@ -316,3 +316,8 @@ vec4 sq(vec4 t)
 {
   return t * t;
 }
+
+float saturate(float t)
+{
+  return clamp(t, 0.0, 1.0);
+}

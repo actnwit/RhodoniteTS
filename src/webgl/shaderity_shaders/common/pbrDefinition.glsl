@@ -277,3 +277,14 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
     return intensity * attenuatedTransmittance;
   }
 }
+
+float IsotropicNDFFiltering(vec3 normal, float roughness2) {
+  float SIGMA2 = 0.15915494;
+  float KAPPA = 0.18;
+  vec3 dndu = dFdx(normal);
+  vec3 dndv = dFdy(normal);
+  float kernelRoughness2 = SIGMA2 * (dot(dndu, dndu) + dot(dndv, dndv));
+  float clampedKernelRoughness2 = min(kernelRoughness2, KAPPA);
+  float filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
+  return filteredRoughness2;
+}
