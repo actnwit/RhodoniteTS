@@ -198,8 +198,10 @@ export class Vrm0xImporter {
       const vrmColliderGroup = new VRMColliderGroup();
       colliderGroups.push(vrmColliderGroup);
       const colliders: SphereCollider[] = [];
+      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
       for (const collider of colliderGroup.colliders) {
         const sphereCollider = new SphereCollider();
+        sphereCollider.baseSceneGraph = baseSg;
         sphereCollider.position = Vector3.fromCopyArray([
           collider.offset.x,
           collider.offset.y,
@@ -209,8 +211,6 @@ export class Vrm0xImporter {
         colliders.push(sphereCollider);
       }
       vrmColliderGroup.sphereColliders = colliders;
-      const baseSg = gltfModel.asset.extras!.rnEntities![colliderGroup.node].getSceneGraph();
-      vrmColliderGroup.baseSceneGraph = baseSg;
     }
 
     const boneGroups: VRMSpring[] = [];
