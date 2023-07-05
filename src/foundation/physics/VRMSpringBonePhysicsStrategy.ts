@@ -149,8 +149,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone, head);
-
-          return nextTail;
         }
       }
       for (const collider of collisionGroup.capsuleColliders) {
@@ -161,8 +159,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone, head);
-
-          return nextTail;
         }
       }
     }
