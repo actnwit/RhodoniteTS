@@ -176,9 +176,9 @@ export class VrmImporter {
           const collider = gltfModel.extensions.VRMC_springBone.colliders[colliderIdx];
 
           const baseSg = gltfModel.asset.extras!.rnEntities![collider.node].getSceneGraph();
-          vrmColliderGroup.baseSceneGraph = baseSg;
           if (Is.exist(collider.shape.sphere)) {
             const sphereCollider = new SphereCollider();
+            sphereCollider.baseSceneGraph = baseSg;
             sphereCollider.position = Vector3.fromCopyArray([
               collider.shape.sphere.offset[0],
               collider.shape.sphere.offset[1],
@@ -188,6 +188,7 @@ export class VrmImporter {
             vrmColliderGroup.sphereColliders.push(sphereCollider);
           } else if (Is.exist(collider.shape.capsule)) {
             const capsuleCollider = new CapsuleCollider();
+            capsuleCollider.baseSceneGraph = baseSg;
             capsuleCollider.position = Vector3.fromCopyArray([
               collider.shape.capsule.offset[0],
               collider.shape.capsule.offset[1],
