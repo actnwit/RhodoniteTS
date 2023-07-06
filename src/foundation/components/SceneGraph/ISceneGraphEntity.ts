@@ -5,6 +5,7 @@ import { IQuaternion } from '../../math/IQuaternion';
 
 export interface ISceneGraphEntityMethods {
   getSceneGraph(): SceneGraphComponent;
+  parent?: SceneGraphComponent;
   matrix: IMatrix44;
   matrixInner: IMatrix44;
   position: IVector3;

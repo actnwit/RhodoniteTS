@@ -906,6 +906,11 @@ export class SceneGraphComponent extends Component {
         }
         return this.__sceneGraphComponent;
       }
+
+      get parent(): SceneGraphComponent | undefined {
+        return this.getSceneGraph().parent;
+      }
+
       get matrix(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.matrix;
