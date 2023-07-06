@@ -69,4 +69,5 @@ export declare class TranslationGizmo extends Gizmo {
     private __onPointerUp;
     private static castRay2;
     private static castRay;
+    _destroy(): void;
 }

@@ -8,9 +8,12 @@ import { Sampler } from '../textures/Sampler';
 export declare class VrmImporter {
     private constructor();
     static __importVRM(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
+    static _readConstraints(gltfModel: Vrm1): void;
+    static _readExpressions(gltfModel: Vrm1, rootEntity: ISceneGraphEntity): void;
     static _readVRMHumanoidInfo(gltfModel: Vrm1, rootEntity?: ISceneGraphEntity): void;
     static _readSpringBone(gltfModel: Vrm1): void;
-    private static __addPhysicsComponentRecursively;
+    private static __addSpringBoneRecursively;
+    private static __addPhysicsComponent;
     static _createTextures(gltfModel: RnM2): Texture[];
     static _createSamplers(gltfModel: RnM2): Sampler[];
     private static __initializeMToonMaterialProperties;

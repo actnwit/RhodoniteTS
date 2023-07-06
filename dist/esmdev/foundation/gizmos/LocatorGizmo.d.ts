@@ -25,4 +25,5 @@ export declare class LocatorGizmo extends Gizmo {
      */
     _update(): void;
     private static __generatePrimitive;
+    _destroy(): void;
 }

@@ -1,6 +1,6 @@
 import { IColorRgba } from '../../math/IColor';
 import { IVector3 } from '../../math/IVector';
-import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
+import { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
     /** three width (width, height, depth) in (x, y, z) */
@@ -11,7 +11,7 @@ export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
 /**
  * The Cube Primitive class
  */
-export declare class Cube extends Primitive implements IShape {
+export declare class Cube extends IShape {
     /**
      * Generates a cube object
      * @param _desc a descriptor object of a Cube

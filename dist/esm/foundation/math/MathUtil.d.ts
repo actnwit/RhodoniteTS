@@ -35,7 +35,7 @@ declare function computeGaussianDistributionRatioWhoseSumIsOne({ kernelSize, var
     variance: number;
     mean?: number;
     effectiveDigit?: Count;
-}): any[];
+}): number[];
 export declare const MathUtil: Readonly<{
     radianToDegree: typeof radianToDegree;
     degreeToRadian: typeof degreeToRadian;

@@ -1,6 +1,6 @@
 import { Index, IndexOf16Bytes, MaterialSID } from '../../../types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { AbstractMaterialContent } from './AbstractMaterialContent';
+import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 export declare class MaterialRepository {
     private static __materialMap;

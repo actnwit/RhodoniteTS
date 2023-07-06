@@ -12,5 +12,6 @@ export declare const WellKnownComponentTIDs: Readonly<{
     PhysicsComponentTID: 11;
     EffekseerComponentTID: 12;
     VrmComponentTID: 13;
-    maxWellKnownTidNumber: 13;
+    ConstraintComponentTID: 14;
+    maxWellKnownTidNumber: 14;
 }>;

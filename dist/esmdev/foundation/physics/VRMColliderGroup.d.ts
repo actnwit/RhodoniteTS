@@ -1,6 +1,6 @@
 import { SphereCollider } from './SphereCollider';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { CapsuleCollider } from './CapsuleCollider';
 export declare class VRMColliderGroup {
-    colliders: SphereCollider[];
-    baseSceneGraph?: SceneGraphComponent;
+    sphereColliders: SphereCollider[];
+    capsuleColliders: CapsuleCollider[];
 }

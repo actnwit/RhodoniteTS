@@ -1,6 +1,6 @@
 import { Material } from '../materials/core/Material';
 import { RenderPass } from '../renderer/RenderPass';
-import { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
+import type { AbstractMaterialContent } from '../materials/core/AbstractMaterialContent';
 import { Primitive } from '../geometry/Primitive';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { Texture } from '../textures/Texture';
@@ -78,9 +78,10 @@ declare function createShadowMapDecodeClassicSingleMaterial({ additionalName, is
     colorAttachmentsNumber?: number | undefined;
     maxInstancesNumber?: number | undefined;
 } | undefined, depthEncodeRenderPass: RenderPass): Material;
-declare function createGaussianBlurForEncodedDepthMaterial({ additionalName, maxInstancesNumber, }?: {
+declare function createGaussianBlurForEncodedDepthMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
+    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createVarianceShadowMapDecodeClassicSingleMaterial({ additionalName, isMorphing, isSkinning, isDebugging, isLighting, colorAttachmentsNumberDepth, colorAttachmentsNumberSquareDepth, depthCameraComponent, maxInstancesNumber, }: {
     additionalName?: string;
@@ -98,9 +99,10 @@ declare function createDetectHighLuminanceMaterial({ additionalName, colorAttach
     colorAttachmentsNumber?: number | undefined;
     maxInstancesNumber?: number | undefined;
 } | undefined, HDRRenderPass: RenderPass): Material;
-declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber }?: {
+declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
+    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createSynthesizeHDRMaterial({ additionalName, targetRegionTexture, maxInstancesNumber, }: {
     additionalName?: string;
@@ -124,11 +126,12 @@ declare function createSummedAreaTableMaterial({ additionalName, maxInstancesNum
     maxInstancesNumber?: number | undefined;
     noUseCameraTransform?: boolean | undefined;
 }): Material;
-declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture, maxInstancesNumber, }: {
+declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture, sampler, maxInstancesNumber, }: {
     additionalName?: string;
     isSkinning?: boolean;
     uri?: string;
     texture?: Texture;
+    sampler?: Sampler;
     maxInstancesNumber?: Count;
 }): Material;
 declare function createEntityUIDOutputMaterial({ additionalName, maxInstancesNumber }?: {

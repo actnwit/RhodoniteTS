@@ -26,32 +26,20 @@ export declare class VideoTexture extends AbstractTexture {
     private static __basisLoadPromise?;
     constructor();
     private __getResizedCanvas;
-    generateTextureFromVideo(video: HTMLVideoElement, { level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha, mutedAutoPlay, }?: {
+    generateTextureFromVideo(video: HTMLVideoElement, { level, internalFormat, format, type, generateMipmap, mutedAutoPlay, }?: {
         level?: number | undefined;
         internalFormat?: import("..").EnumIO | undefined;
         format?: import("..").EnumIO | undefined;
         type?: ComponentTypeEnum | undefined;
-        magFilter?: import("..").EnumIO | undefined;
-        minFilter?: import("..").EnumIO | undefined;
-        wrapS?: import("..").EnumIO | undefined;
-        wrapT?: import("..").EnumIO | undefined;
         generateMipmap?: boolean | undefined;
-        anisotropy?: boolean | undefined;
-        isPremultipliedAlpha?: boolean | undefined;
         mutedAutoPlay?: boolean | undefined;
     }): void;
-    generateTextureFromUri(videoUri: string, { level, internalFormat, format, type, magFilter, minFilter, wrapS, wrapT, generateMipmap, anisotropy, isPremultipliedAlpha, mutedAutoPlay, playButtonDomElement, }?: {
+    generateTextureFromUri(videoUri: string, { level, internalFormat, format, type, generateMipmap, mutedAutoPlay, playButtonDomElement, }?: {
         level?: number | undefined;
         internalFormat?: import("..").EnumIO | undefined;
         format?: import("..").EnumIO | undefined;
         type?: ComponentTypeEnum | undefined;
-        magFilter?: import("..").EnumIO | undefined;
-        minFilter?: import("..").EnumIO | undefined;
-        wrapS?: import("..").EnumIO | undefined;
-        wrapT?: import("..").EnumIO | undefined;
         generateMipmap?: boolean | undefined;
-        anisotropy?: boolean | undefined;
-        isPremultipliedAlpha?: boolean | undefined;
         mutedAutoPlay?: boolean | undefined;
         playButtonDomElement?: undefined;
     }): Promise<void>;

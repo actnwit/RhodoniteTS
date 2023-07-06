@@ -1,5 +1,5 @@
-import { Material } from '../materials';
-import { RenderPass } from '../renderer';
+import { Material } from '../materials/core/Material';
+import { RenderPass } from '../renderer/RenderPass';
 /**
  * Creates a RenderPass for Screen rendering.
  *

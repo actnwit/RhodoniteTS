@@ -33,6 +33,7 @@ export declare abstract class Gizmo extends RnObject {
      * update the transform and etc of the gizmo
      */
     abstract _update(): void;
+    abstract _destroy(): void;
     protected __toSkipSetup(): boolean;
     protected setGizmoTag(): void;
 }

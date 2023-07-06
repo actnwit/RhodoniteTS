@@ -31,6 +31,7 @@ export declare class ComponentRepository {
      * @param entityRepository the reference of the entityRepository.
      */
     static createComponent(componentTid: ComponentTID, entityUid: EntityUID, entityRepository: EntityRepository): Component;
+    static deleteComponent(component: Component): void;
     /**
      * Get the instance of the component corresponding to the component class and componentSID.
      * @param componentClass The class object to get the component.

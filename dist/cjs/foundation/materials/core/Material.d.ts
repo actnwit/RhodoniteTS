@@ -2,14 +2,15 @@ import { RnObject } from '../../core/RnObject';
 import { AlphaModeEnum } from '../../definitions/AlphaMode';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { ShaderSemanticsEnum, ShaderSemanticsIndex, getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
-import { AbstractTexture } from '../../textures/AbstractTexture';
+import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Index, CGAPIResourceHandle, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
-import { ShaderSources } from '../../../webgl/WebGLStrategy';
-import { Primitive } from '../../geometry/Primitive';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import type { ShaderSources } from '../../../webgl/WebGLStrategy';
+import type { Primitive } from '../../geometry/Primitive';
+import type { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
+import { BlendEnum } from '../../definitions/Blend';
 /**
  * The material class.
  * This class has one or more material nodes.
@@ -35,8 +36,6 @@ export declare class Material extends RnObject {
     private __blendFuncDstFactor;
     private __blendFuncAlphaSrcFactor;
     private __blendFuncAlphaDstFactor;
-    private static __shaderHashMap;
-    private static __shaderStringMap;
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
@@ -110,12 +109,6 @@ export declare class Material extends RnObject {
     };
     private __setAutoParametersToGpu;
     private __setSoloDatumParametersToGpu;
-    private __setupGlobalShaderDefinition;
-    private __createProgramAsSingleOperation;
-    private __createProgramAsSingleOperationByUpdatedSources;
-    private __createShaderProgramWithCache;
-    private __getAttributeInfo;
-    private __outputVertexAttributeBindingInfo;
     private __getTargetShaderSemantics;
     /**
      * Change the blendEquations
@@ -123,17 +116,17 @@ export declare class Material extends RnObject {
      * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
      * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
      */
-    setBlendEquationMode(blendEquationMode: number, blendEquationModeAlpha?: number): void;
+    setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum): void;
     /**
      * Change the blendFuncSeparateFactors
      * This method works only if this alphaMode is the translucent
      */
-    setBlendFuncSeparateFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number, blendFuncAlphaSrcFactor: number, blendFuncAlphaDstFactor: number): void;
+    setBlendFuncSeparateFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum, blendFuncAlphaSrcFactor: BlendEnum, blendFuncAlphaDstFactor: BlendEnum): void;
     /**
      * Change the blendFuncFactors
      * This method works only if this alphaMode is the translucent
      */
-    setBlendFuncFactor(blendFuncSrcFactor: number, blendFuncDstFactor: number): void;
+    setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum): void;
     isEmptyMaterial(): boolean;
     isBlend(): boolean;
     /**
@@ -149,12 +142,12 @@ export declare class Material extends RnObject {
      */
     get materialTID(): MaterialTID;
     get fieldsInfoArray(): ShaderSemanticsInfo[];
-    get blendEquationMode(): number;
-    get blendEquationModeAlpha(): number;
-    get blendFuncSrcFactor(): number;
-    get blendFuncDstFactor(): number;
-    get blendFuncAlphaSrcFactor(): number;
-    get blendFuncAlphaDstFactor(): number;
+    get blendEquationMode(): import("../..").EnumIO;
+    get blendEquationModeAlpha(): import("../..").EnumIO;
+    get blendFuncSrcFactor(): import("../..").EnumIO;
+    get blendFuncDstFactor(): import("../..").EnumIO;
+    get blendFuncAlphaSrcFactor(): import("../..").EnumIO;
+    get blendFuncAlphaDstFactor(): import("../..").EnumIO;
     get alphaMode(): AlphaModeEnum;
     set alphaMode(mode: AlphaModeEnum);
     get materialUID(): MaterialUID;
