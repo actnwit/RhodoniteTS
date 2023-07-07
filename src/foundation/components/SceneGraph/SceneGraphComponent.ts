@@ -760,7 +760,8 @@ export class SceneGraphComponent extends Component {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localRotation = quat;
     } else {
-      const quatInner = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().matrixInner);
+      // const quatInner = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().matrixInner);
+      const quatInner = this.__parent.entity.getSceneGraph().rotation;
       const invQuat = Quaternion.invert(quatInner);
       this.entity.getTransform().localRotation = Quaternion.multiply(quat, invQuat);
     }
@@ -906,6 +907,11 @@ export class SceneGraphComponent extends Component {
         }
         return this.__sceneGraphComponent;
       }
+
+      get parent(): SceneGraphComponent | undefined {
+        return this.getSceneGraph().parent;
+      }
+
       get matrix(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.matrix;

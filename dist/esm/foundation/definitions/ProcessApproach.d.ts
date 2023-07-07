@@ -10,8 +10,10 @@ export declare type ProcessApproachEnum = ProcessApproachClass;
 export declare const ProcessApproach: Readonly<{
     isDataTextureApproach: (processApproach: ProcessApproachEnum) => boolean;
     isUniformApproach: (processApproach: ProcessApproachEnum) => boolean;
+    isWebGpuApproach: (processApproach: ProcessApproachEnum) => boolean;
     None: ProcessApproachClass;
     Uniform: ProcessApproachClass;
     DataTexture: ProcessApproachClass;
+    WebGPU: ProcessApproachClass;
     isWebGL2Approach: (processApproach: ProcessApproachEnum) => boolean;
 }>;

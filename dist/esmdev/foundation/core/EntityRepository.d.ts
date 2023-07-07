@@ -14,6 +14,7 @@ export declare class EntityRepository {
      * Creates an entity
      */
     static createEntity(): IEntity;
+    static deleteEntity(entityUid: EntityUID): void;
     static shallowCopyEntity(entity: IEntity): IEntity;
     private static __setJoints;
     static _shallowCopyEntityInner(entity: IEntity): IEntity;

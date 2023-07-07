@@ -1,7 +1,6 @@
-import { Gltf2Camera } from '.';
 import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { Byte, Index } from './CommonTypes';
-import { Gltf2BufferView, Gltf2Accessor, Gltf2, Gltf2Buffer, Gltf2Mesh, Gltf2Material, Gltf2Animation, Gltf2Skin, Gltf2PbrMetallicRoughness, Gltf2TextureInfo, Gltf2Image, Gltf2Texture, Gltf2TextureSampler } from './glTF2';
+import { Gltf2BufferView, Gltf2Accessor, Gltf2, Gltf2Buffer, Gltf2Mesh, Gltf2Material, Gltf2Animation, Gltf2Skin, Gltf2PbrMetallicRoughness, Gltf2TextureInfo, Gltf2Image, Gltf2Texture, Gltf2TextureSampler, Gltf2Camera } from './glTF2';
 export interface Gltf2BufferViewEx extends Gltf2BufferView {
     buffer: number;
     byteOffset: number;

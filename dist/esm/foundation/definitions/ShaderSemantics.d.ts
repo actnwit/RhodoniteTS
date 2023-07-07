@@ -156,5 +156,8 @@ export declare const ShaderSemantics: Readonly<{
     IridescenceThicknessMinimum: ShaderSemanticsClass;
     IridescenceThicknessMaximum: ShaderSemanticsClass;
     IridescenceThicknessTexture: ShaderSemanticsClass;
+    GaussianKernelSize: ShaderSemanticsClass;
+    GaussianRatio: ShaderSemanticsClass;
+    IsHorizontal: ShaderSemanticsClass;
 }>;
 export {};

@@ -7,7 +7,8 @@ import { Mesh } from '../foundation/geometry/Mesh';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { WebGLResourceHandle, Index, CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
-export declare class WebGLStrategyDataTexture implements WebGLStrategy {
+import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     private static __instance;
     private __webglResourceRepository;
     private __dataTextureUid;
@@ -41,7 +42,7 @@ export declare class WebGLStrategyDataTexture implements WebGLStrategy {
     private static __getShaderProperty;
     private static getOffsetOfPropertyInShader;
     $load(meshComponent: MeshComponent): void;
-    isMeshSetup(mesh: Mesh): boolean;
+    private __isMeshSetup;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     private __createAndUpdateDataTexture;
     deleteDataTexture(): void;

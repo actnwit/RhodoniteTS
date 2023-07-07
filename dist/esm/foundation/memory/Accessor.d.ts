@@ -56,6 +56,7 @@ export declare class Accessor {
     getDataViewGetter(componentType: ComponentTypeEnum): string | undefined;
     getDataViewSetter(componentType: ComponentTypeEnum): string | undefined;
     takeOne(): TypedArray;
+    _takeExistedOne(idx: number): TypedArray;
     get takenCount(): Count;
     get numberOfComponents(): number;
     get componentSizeInBytes(): number;

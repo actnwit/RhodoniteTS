@@ -17,7 +17,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3_2 = MutableVector3.zero();
   private static __tmp_quat = MutableQuaternion.identity();
   private __spring: VRMSpring | undefined;
-  private static __colliderGroups: Map<Index, VRMColliderGroup> = new Map();
 
   constructor() {}
 
@@ -53,14 +52,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         }
         bone.setup(childPositionInLocal, void 0);
       } else {
-        const delta = Vector3.subtract(sg.worldPosition, sg.parent!.worldPosition);
-        let childPosition = Vector3.fromCopyArray([1, 1, 1]);
-        if (delta.lengthSquared() > 0) {
-          childPosition = Vector3.add(
-            sg.worldPosition,
-            Vector3.multiply(Vector3.normalize(delta), 0.07)
-          );
-        }
+        const childPosition = Vector3.multiply(Vector3.normalize(sg.position), 0.07);
         const childPositionInLocal = sg.getLocalPositionOf(childPosition);
         bone.setup(childPositionInLocal, void 0);
       }
@@ -85,8 +77,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     );
 
     // Movement target of child bones due to parent's rotation
-    const head = bone.node.getSceneGraph();
-    const rotation = Quaternion.multiply(this.getParentRotation(head), bone.initialLocalRotation);
+    const rotation = Quaternion.multiply(
+      this.getParentRotation(bone.node.getSceneGraph()),
+      bone.node.localRotationRestInner
+    );
     const stiffness = Vector3.multiply(rotation.transformVector3(bone.boneAxis), stiffnessForce);
 
     // Calculate the nextTail
@@ -97,39 +91,48 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     let nextTail = Vector3.add(Vector3.add(Vector3.add(currentTail, inertia), stiffness), external);
 
     // Normalize to bone length
-    nextTail = this.normalizeBoneLength(nextTail, bone, head);
+    nextTail = this.normalizeBoneLength(nextTail, bone);
 
     // Movement by Collision
-    nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius, head, bone);
+    nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius, bone);
 
     // prevTail = currentTail;
     // currentTail = nextTail;
     bone.prevTail = center != null ? center.getLocalPositionOf(currentTail) : currentTail;
     bone.currentTail = center != null ? center.getLocalPositionOf(nextTail) : nextTail;
 
-    const resultRotation = this.applyRotation(nextTail, bone, head);
+    const resultRotation = this.applyRotation(nextTail, bone);
 
-    // if (head.children.length > 0) {
-    //   head.children[0].entity.getTransform().localRotation = resultRotation;
-    // }
-    head.entity.getTransform().localRotation = resultRotation;
+    // bone.node.localRotation = resultRotation;
+    bone.node.rotation = resultRotation;
   }
 
-  normalizeBoneLength(nextTail: Vector3, bone: VRMSpringBone, head: SceneGraphComponent) {
-    const sub = Vector3.normalize(Vector3.subtract(nextTail, head.worldPosition));
-    return Vector3.add(head.worldPosition, Vector3.multiply(sub, bone.boneLength));
+  normalizeBoneLength(nextTail: Vector3, bone: VRMSpringBone) {
+    const sub = Vector3.normalize(Vector3.subtract(nextTail, bone.node.position));
+    return Vector3.add(bone.node.position, Vector3.multiply(sub, bone.boneLength));
   }
 
-  applyRotation(nextTail: Vector3, bone: VRMSpringBone, head: SceneGraphComponent) {
-    const to = Matrix44.invert(
-      Matrix44.multiply(head.parent!.matrixInner, bone.initialLocalMatrix)
-    ).multiplyVector3(nextTail);
-    const result = Quaternion.multiply(
-      bone.initialLocalRotation,
-      Quaternion.normalize(
-        Quaternion.fromToRotation(Vector3.normalize(bone.boneAxis), Vector3.normalize(to))
-      )
+  applyRotation(nextTail: Vector3, bone: VRMSpringBone) {
+    // calc in local space
+    // const to = Matrix44.invert(
+    //   Matrix44.multiply(bone.node.parent!.matrixInner, bone.node.localMatrixRestInner)
+    // ).multiplyVector3(nextTail);
+    // const result = Quaternion.multiply(
+    //   bone.node.localRotationRestInner,
+    //   Quaternion.normalize(
+    //     Quaternion.fromToRotation(Vector3.normalize(bone.boneAxis), Vector3.normalize(to))
+    //   )
+    // );
+
+    // calc in world space
+    const rotation = Quaternion.multiply(
+      this.getParentRotation(bone.node.getSceneGraph()),
+      bone.node.localRotationRestInner
     );
+    const sub = Vector3.subtract(nextTail, bone.node.position);
+    let result = Quaternion.fromToRotation(rotation.transformVector3(bone.boneAxis), sub);
+    result = Quaternion.multiply(rotation, result);
+
     return Quaternion.normalize(result);
   }
 
@@ -137,7 +140,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     collisionGroups: VRMColliderGroup[],
     nextTail: Vector3,
     boneHitRadius: number,
-    head: SceneGraphComponent,
     bone: VRMSpringBone
   ) {
     for (const collisionGroup of collisionGroups) {
@@ -148,7 +150,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           nextTail = Vector3.add(nextTail, Vector3.multiply(direction, -distance));
 
           // normalize bone length
-          nextTail = this.normalizeBoneLength(nextTail, bone, head);
+          nextTail = this.normalizeBoneLength(nextTail, bone);
         }
       }
       for (const collider of collisionGroup.capsuleColliders) {
@@ -158,7 +160,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           nextTail = Vector3.add(nextTail, Vector3.multiply(direction, -distance));
 
           // normalize bone length
-          nextTail = this.normalizeBoneLength(nextTail, bone, head);
+          nextTail = this.normalizeBoneLength(nextTail, bone);
         }
       }
     }
@@ -168,17 +170,5 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   setSpring(sgs: VRMSpring) {
     this.__spring = sgs;
-  }
-
-  static addColliderGroup(index: Index, group: VRMColliderGroup) {
-    this.__colliderGroups.set(index, group);
-  }
-
-  static getColliderGroups(indices: Index[]) {
-    const colliderGroups: VRMColliderGroup[] = [];
-    for (const index of indices) {
-      colliderGroups.push(this.__colliderGroups.get(index)!);
-    }
-    return colliderGroups;
   }
 }

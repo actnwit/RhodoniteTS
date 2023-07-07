@@ -1,7 +1,11 @@
-import { IMatrix44, IQuaternion, IVector3, Quaternion, Vector3 } from '.';
+import { IMatrix44 } from './IMatrix';
+import { IQuaternion } from './IQuaternion';
+import { IVector3 } from './IVector';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { MutableQuaternion } from './MutableQuaternion';
 import { MutableVector3 } from './MutableVector3';
+import { Quaternion } from './Quaternion';
+import { Vector3 } from './Vector3';
 export declare class Transform3D {
     private __position;
     private __scale;

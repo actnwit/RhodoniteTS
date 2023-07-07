@@ -5,8 +5,6 @@ export * from './DetectHighLuminanceMaterialContent';
 export * from './EntityUIDOutputMaterialContent';
 export * from './EnvConstantMaterialContent';
 export * from './FurnaceTestMaterialContent';
-export * from './GaussianBlurForEncodedDepthMaterialContent';
-export * from './GaussianBlurMaterialContent';
 export * from './MToonMaterialContent';
 export * from './MatCapMaterialContent';
 export * from './ShaderityMaterialContent';

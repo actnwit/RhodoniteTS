@@ -26,4 +26,5 @@ export declare class AABBGizmo extends Gizmo {
      * update the transform and etc of the gizmo
      */
     _update(): void;
+    _destroy(): void;
 }

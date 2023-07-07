@@ -10,6 +10,7 @@ import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRend
 import { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
 import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
+import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
 export declare type ITransformEntity = IEntity & ITransformEntityMethods;
 export declare type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
 export declare type IMeshEntity = ISceneGraphEntity & IMeshEntityMethods & IMeshRendererEntityMethods;
@@ -19,6 +20,7 @@ export declare type ISkeletalEntity = ISceneGraphEntity & ISkeletalEntityMethods
 export declare type ILightEntity = ISceneGraphEntity & ILightEntityMethods;
 export declare type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export declare type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
+export declare type IConstraintEntity = ISceneGraphEntity & IConstraintEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {
 }
 declare function createEntity(): IEntity;

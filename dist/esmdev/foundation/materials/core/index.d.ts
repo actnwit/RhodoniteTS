@@ -5,3 +5,4 @@ export * from './MaterialRepository';
 export * from './MaterialTypes';
 export * from './ShaderGraphResolver';
 export * from './ShaderityUtility';
+export * from './DummyTextures';

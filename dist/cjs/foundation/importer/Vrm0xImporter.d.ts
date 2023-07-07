@@ -24,7 +24,8 @@ export declare class Vrm0xImporter {
     static _readBlendShapeGroup(gltfModel: Vrm0x, rootEntity: ISceneGraphEntity): void;
     static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void;
     static _readSpringBone(gltfModel: Vrm0x): void;
-    private static __addPhysicsComponentRecursively;
+    private static __addSpringBoneRecursively;
+    private static __addPhysicsComponent;
     static _createTextures(gltfModel: RnM2): Texture[];
     static _createSamplers(gltfModel: RnM2): Sampler[];
     static _existOutlineMaterial(extensionsVRM: any): boolean;

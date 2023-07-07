@@ -5,7 +5,18 @@ import { Vrm1 } from '../../types/VRM1';
 declare type RetargetMode = 'none' | 'global' | 'global2' | 'absolute';
 export declare class AnimationAssigner {
     private static __instance;
-    assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: Vrm0x | Vrm1, isSameSkeleton: boolean, retargetMode?: RetargetMode, srcRootEntityForRetarget?: ISceneGraphEntity): ISceneGraphEntity;
+    /**
+     * Assign Animation Function
+     *
+     * @param rootEntity - The root entity of the model which you want to assign animation.
+     * @param gltfModel - The glTF model that has animation data.
+     * @param vrmModel - The corresponding VRM model to the glTF model.
+     * @param isSameSkeleton
+     * @param retargetMode - Retarget mode. 'none' | 'global' | 'global2' | 'absolute'
+     * @param srcRootEntityForRetarget
+     * @returns
+     */
+    assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: Vrm0x | Vrm1, isSameSkeleton: boolean, retargetMode: RetargetMode): ISceneGraphEntity;
     private constructor();
     /**
      * The static method to get singleton instance of this class.

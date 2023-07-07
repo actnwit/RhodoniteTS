@@ -1,4 +1,3 @@
-declare const _default: {
+export declare const SystemState: {
     currentProcessApproach: import("../definitions/ProcessApproach").ProcessApproachClass;
 };
-export default _default;

@@ -25,6 +25,8 @@ import { IEffekseerEntityMethods, EffekseerComponent } from '../../effekseer/Eff
 import { CameraComponent } from './Camera/CameraComponent';
 import { VrmComponent } from './Vrm/VrmComponent';
 import { IVrmEntityMethods } from './Vrm/IVrmEntity';
+import { ConstraintComponent } from './Constraint/ConstraintComponent';
+import { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
 export declare type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(baseClass: EntityBaseClass, components: typeof Component[]) => {
     entityClass: MixinBase;
     components: typeof Component[];
@@ -43,5 +45,6 @@ declare type IsThisBlendShape<T extends typeof Component, Possibles extends AllW
 declare type IsThisPhysics<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof PhysicsComponent ? IPhysicsEntityMethods : Exclude<Possibles, IPhysicsEntityMethods>;
 declare type IsThisEffekseer<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof EffekseerComponent ? IEffekseerEntityMethods : Exclude<Possibles, IEffekseerEntityMethods>;
 declare type IsThisVrm<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof VrmComponent ? IVrmEntityMethods : Exclude<Possibles, IVrmEntityMethods>;
-export declare type ComponentToComponentMethods<T extends typeof Component> = IsThisVrm<T, IsThisEffekseer<T, IsThisPhysics<T, IsThisBlendShape<T, IsThisSkeletal<T, IsThisLight<T, IsThisCamera<T, IsThisCameraController<T, IsThisMeshRenderer<T, IsThisMesh<T, IsThisSceneGraph<T, IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>>>>>>>>>>>>;
+declare type IsThisConstraint<T extends typeof Component, Possibles extends AllWellKnownComponentMethodsTypes> = T extends typeof ConstraintComponent ? IConstraintEntityMethods : Exclude<Possibles, IConstraintEntityMethods>;
+export declare type ComponentToComponentMethods<T extends typeof Component> = IsThisConstraint<T, IsThisVrm<T, IsThisEffekseer<T, IsThisPhysics<T, IsThisBlendShape<T, IsThisSkeletal<T, IsThisLight<T, IsThisCamera<T, IsThisCameraController<T, IsThisMeshRenderer<T, IsThisMesh<T, IsThisSceneGraph<T, IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>>>>>>>>>>>>>;
 export {};

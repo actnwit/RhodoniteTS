@@ -45,7 +45,7 @@ export declare class Component extends RnObject {
      * @param componentSid Scoped ID of the Component
      * @param entityRepository The instance of the EntityRepository class (Dependency Injection)
      */
-    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository);
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     /**
      * Move to the other stages of process
      * @param processStage stage of component's process
@@ -65,6 +65,10 @@ export declare class Component extends RnObject {
      * Get the Type ID of the Component
      */
     static get componentTID(): number;
+    /**
+     * Get the Type ID of the Component
+     */
+    get componentTID(): number;
     /**
      * Get the Scoped ID of the Component
      */
@@ -114,7 +118,7 @@ export declare class Component extends RnObject {
     /**
      * take one memory area for the specified member for all same type of the component instances.
      */
-    takeOne(memberName: string, dataClassType: any, initValues: number[]): any;
+    takeOne(memberName: string, dataClassType: any, initValues: number[], isReUse: boolean, componentSid: ComponentSID): any;
     /**
      * get the taken accessor for the member field.
      */
@@ -139,7 +143,7 @@ export declare class Component extends RnObject {
      * Allocate memory of self member fields
      * @param count a number of entities to need allocate
      */
-    submitToAllocation(count: Count): void;
+    submitToAllocation(count: Count, isReUse: boolean): void;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component

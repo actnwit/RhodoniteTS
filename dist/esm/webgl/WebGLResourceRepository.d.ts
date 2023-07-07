@@ -196,10 +196,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         generateMipmap: boolean;
-    }): {
-        textureHandle: WebGLResourceHandle;
-        samplerHandle: WebGLResourceHandle;
-    };
+    }): WebGLResourceHandle;
     private __createTextureInner;
     /**
      * create a Texture
@@ -380,10 +377,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     deleteFrameBufferObject(frameBufferObjectHandle: WebGLResourceHandle): void;
     deleteRenderBuffer(renderBufferUid: WebGLResourceHandle): void;
     deleteTexture(textureHandle: WebGLResourceHandle): void;
-    createDummyTexture(rgbaStr?: string): {
-        textureHandle: number;
-        samplerHandle: number;
-    };
+    createDummyTexture(rgbaStr?: string): number;
     createDummyBlackTexture(): number;
     createDummyWhiteTexture(): number;
     createDummyNormalTexture(): number;

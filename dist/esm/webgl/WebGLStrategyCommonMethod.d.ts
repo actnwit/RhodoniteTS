@@ -12,7 +12,6 @@ declare function startDepthMasking(primitive: Primitive, gl: WebGLRenderingConte
 declare function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext): void;
 declare function updateVBOAndVAO(mesh: Mesh): void;
 declare function isMaterialsSetup(meshComponent: MeshComponent): boolean;
-declare function isSkipDrawing(material: Material): boolean;
 declare function setVRViewport(renderPass: RenderPass, displayIdx: Index): void;
 declare function getDisplayNumber(isVRMainPass: boolean): 1 | 2;
 declare function isVrMainPass(renderPass: RenderPass): boolean;
@@ -44,7 +43,6 @@ declare const _default: Readonly<{
     endDepthMasking: typeof endDepthMasking;
     updateVBOAndVAO: typeof updateVBOAndVAO;
     isMaterialsSetup: typeof isMaterialsSetup;
-    isSkipDrawing: typeof isSkipDrawing;
     setVRViewport: typeof setVRViewport;
     getDisplayNumber: typeof getDisplayNumber;
     isVrMainPass: typeof isVrMainPass;

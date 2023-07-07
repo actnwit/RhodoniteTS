@@ -7,7 +7,8 @@ import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { CGAPIResourceHandle, WebGLResourceHandle, Index, Count, PrimitiveUID } from '../types/CommonTypes';
-export declare class WebGLStrategyUniform implements WebGLStrategy {
+import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     private static __instance;
     private __webglResourceRepository;
     private __dataTextureUid;
@@ -34,7 +35,7 @@ export declare class WebGLStrategyUniform implements WebGLStrategy {
      */
     _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
     $load(meshComponent: MeshComponent): void;
-    isMeshSetup(mesh: Mesh): boolean;
+    private __isMeshSetup;
     $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
     common_$prerender(): void;
     attachGPUData(primitive: Primitive): void;

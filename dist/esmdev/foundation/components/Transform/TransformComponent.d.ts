@@ -15,10 +15,11 @@ export declare class TransformComponent extends Component {
     private __pose;
     private __updateCountAtLastLogic;
     private __sceneGraphComponent;
-    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository);
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
     $create(): void;
     static get renderedPropertyCount(): null;
     static get componentTID(): ComponentTID;
+    get componentTID(): ComponentTID;
     get restOrPose(): Transform3D;
     _backupTransformAsRest(): void;
     _restoreTransformFromRest(): void;
@@ -36,9 +37,13 @@ export declare class TransformComponent extends Component {
      */
     get localPositionInner(): MutableVector3;
     /**
+     * set a local translate vector as Rest
+     */
+    set localPositionRest(vec: IVector3);
+    /**
      * return a copy of a local translate vector
      */
-    get localPositionRest(): MutableVector3;
+    get localPositionRest(): IVector3;
     /**
      * return a local translate vector
      */
@@ -52,6 +57,10 @@ export declare class TransformComponent extends Component {
      * return a local rotation (XYZ euler) vector
      */
     get localEulerAnglesInner(): import("../../math").Vector3;
+    /**
+     * set a local rotation (XYZ euler) vector as Rest
+     */
+    set localEulerAnglesRest(vec: IVector3);
     /**
      * return a copy of a local rotation (XYZ euler) vector
      */
@@ -70,13 +79,17 @@ export declare class TransformComponent extends Component {
      */
     get localScaleInner(): MutableVector3;
     /**
+     * set a local scale vector as Rest
+     */
+    set localScaleRest(vec: IVector3);
+    /**
      * return a copy of a local scale vector
      */
     get localScaleRest(): IVector3;
     /**
      * return a local scale vector
      */
-    get scaleRestInner(): MutableVector3;
+    get localScaleRestInner(): MutableVector3;
     set localRotation(quat: IQuaternion);
     /**
      * return a copy of a local quaternion vector
@@ -86,6 +99,10 @@ export declare class TransformComponent extends Component {
      * return a local quaternion vector
      */
     get localRotationInner(): Quaternion;
+    /**
+     * set a local quaternion vector as Rest
+     */
+    set localRotationRest(quat: IQuaternion);
     /**
      * return a copy of a local quaternion vector
      */
@@ -103,6 +120,10 @@ export declare class TransformComponent extends Component {
      * return a local transform matrix
      */
     get localMatrixInner(): import("../../math").MutableMatrix44;
+    /**
+     * set a local transform matrix as Rest
+     */
+    set localMatrixRest(mat: IMatrix44);
     /**
      * return a copy of local transform matrix
      */
@@ -124,5 +145,5 @@ export declare class TransformComponent extends Component {
      * @param base the target entity
      * @param _componentClass the component class to add
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof import("../../..").EffekseerComponent ? import("../../..").IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof import("..").BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SkeletalComponent ? import("..").ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshRendererComponent ? import("..").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof SceneGraphComponent ? import("../SceneGraph").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof TransformComponent ? import("./ITransformEntity").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof import("..").AnimationComponent ? import("..").IAnimationEntityMethods : import("./ITransformEntity").ITransformEntityMethods | import("../SceneGraph").ISceneGraphEntityMethods | import("..").ILightEntityMethods | import("..").IMeshEntityMethods | import("..").IMeshRendererEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | import("..").ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | import("../../..").IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("./ITransformEntity").ITransformEntityMethods>, import("../SceneGraph").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("..").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, import("..").ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, import("../../..").IEffekseerEntityMethods>, import("..").IVrmEntityMethods>) & EntityBase;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("../Constraint").ConstraintComponent ? import("../Constraint").IConstraintEntityMethods : Exclude<SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof import("../../..").EffekseerComponent ? import("../../..").IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof import("..").BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SkeletalComponent ? import("..").ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshRendererComponent ? import("..").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof SceneGraphComponent ? import("../SceneGraph").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof TransformComponent ? import("./ITransformEntity").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof import("..").AnimationComponent ? import("..").IAnimationEntityMethods : import("./ITransformEntity").ITransformEntityMethods | import("../SceneGraph").ISceneGraphEntityMethods | import("..").IMeshEntityMethods | import("..").IMeshRendererEntityMethods | import("..").ILightEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | import("..").ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | import("../../..").IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("./ITransformEntity").ITransformEntityMethods>, import("../SceneGraph").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("..").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, import("..").ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, import("../../..").IEffekseerEntityMethods>, import("..").IVrmEntityMethods>, import("../Constraint").IConstraintEntityMethods>) & EntityBase;
 }

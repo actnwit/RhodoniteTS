@@ -5,7 +5,7 @@ import { Material } from '../materials/core/Material';
 import { Accessor } from '../memory/Accessor';
 import { RnM2, RnM2Accessor, RnM2Texture, RnM2TextureInfo, RnM2SparseIndices } from '../../types/RnM2';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import Rn from '../../cjs';
+import { Sampler } from '../textures/Sampler';
 /**
  * A converter class from glTF2 model to Rhodonite Native data
  */
@@ -42,7 +42,7 @@ export declare class ModelConverter {
     private static __makeOutputSrgb;
     private static __getMaterialHash;
     private static __setupMaterial;
-    static _createSampler(texture: RnM2Texture): Rn.Sampler;
+    static _createSampler(texture: RnM2Texture): Sampler;
     static _createTexture(texture: RnM2Texture, gltfModel: RnM2, { autoDetectTransparency }?: {
         autoDetectTransparency?: boolean | undefined;
     }): Texture;

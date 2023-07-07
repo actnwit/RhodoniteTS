@@ -171,6 +171,5 @@ export declare class ForwardRenderPipeline extends RnObject {
      * This method adds expressions to the frame.
      */
     private __setExpressions;
-    private __setDepthMomentRenderPassesAndDepthTextureToEntityMaterials;
 }
 export {};
