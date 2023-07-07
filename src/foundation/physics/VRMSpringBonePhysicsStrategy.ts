@@ -21,7 +21,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   constructor() {}
 
   getParentRotation(head: SceneGraphComponent) {
-    return head.parent != null ? head.parent.rotation : Quaternion.fromCopy4(0, 0, 0, 1);
+    return head.parent != null ? head.parent.rotation : Quaternion.identity();
   }
 
   update() {
@@ -42,13 +42,14 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       const children = sg.children;
       if (children.length > 0) {
         const transform = children[0].entity.getTransform();
-        const childPositionInLocal = MutableVector3.fromCopy3(
-          transform.localPosition.x * transform.localScale.x,
-          transform.localPosition.y * transform.localScale.y,
-          transform.localPosition.z * transform.localScale.z
-        );
+        // const childPositionInLocal = MutableVector3.fromCopy3(
+        //   transform.localPosition.x * transform.localScale.x,
+        //   transform.localPosition.y * transform.localScale.y,
+        //   transform.localPosition.z * transform.localScale.z
+        // );
+        const childPositionInLocal = transform.localPosition;
         if (childPositionInLocal.lengthSquared() < Number.EPSILON) {
-          childPositionInLocal.y = -1;
+          childPositionInLocal._v[1] = -1;
         }
         bone.setup(childPositionInLocal, void 0);
       } else {
@@ -129,7 +130,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       this.getParentRotation(bone.node.getSceneGraph()),
       bone.node.localRotationRestInner
     );
-    const sub = Vector3.subtract(nextTail, bone.node.position);
+    const sub = Vector3.normalize(Vector3.subtract(nextTail, bone.node.position));
     let result = Quaternion.fromToRotation(rotation.transformVector3(bone.boneAxis), sub);
     result = Quaternion.multiply(rotation, result);
 
