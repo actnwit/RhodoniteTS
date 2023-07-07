@@ -104,8 +104,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     const resultRotation = this.applyRotation(nextTail, bone);
 
-    // bone.node.localRotation = resultRotation;
-    bone.node.rotation = resultRotation;
+    bone.node.localRotation = resultRotation;
+    // bone.node.rotation = resultRotation;
   }
 
   normalizeBoneLength(nextTail: Vector3, bone: VRMSpringBone) {
@@ -115,26 +115,27 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   applyRotation(nextTail: Vector3, bone: VRMSpringBone) {
     // calc in local space
-    // const to = Matrix44.invert(
-    //   Matrix44.multiply(bone.node.parent!.matrixInner, bone.node.localMatrixRestInner)
-    // ).multiplyVector3(nextTail);
-    // const result = Quaternion.multiply(
-    //   bone.node.localRotationRestInner,
-    //   Quaternion.normalize(
-    //     Quaternion.fromToRotation(Vector3.normalize(bone.boneAxis), Vector3.normalize(to))
-    //   )
-    // );
+    const sub = Vector3.normalize(Vector3.subtract(nextTail, bone.node.position));
+    const to = Quaternion.invert(
+      Quaternion.multiply(bone.node.parent!.rotation, bone.node.localRotationRestInner)
+    ).transformVector3(sub);
+    const result = Quaternion.multiply(
+      bone.node.localRotationRestInner,
+      Quaternion.normalize(
+        Quaternion.fromToRotation(Vector3.normalize(bone.boneAxis), Vector3.normalize(to))
+      )
+    );
 
     // calc in world space
-    const rotation = Quaternion.multiply(
-      this.getParentRotation(bone.node.getSceneGraph()),
-      bone.node.localRotationRestInner
-    );
-    const sub = Vector3.normalize(Vector3.subtract(nextTail, bone.node.position));
-    let result = Quaternion.fromToRotation(rotation.transformVector3(bone.boneAxis), sub);
-    result = Quaternion.multiply(rotation, result);
+    // const rotation = Quaternion.multiply(
+    //   this.getParentRotation(bone.node.getSceneGraph()),
+    //   bone.node.localRotationRestInner
+    // );
+    // const sub = Vector3.subtract(nextTail, bone.node.position);
+    // let result = Quaternion.fromToRotation(rotation.transformVector3(bone.boneAxis), sub);
+    // result = Quaternion.multiply(result, rotation);
 
-    return Quaternion.normalize(result);
+    return result;
   }
 
   collision(
