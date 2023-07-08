@@ -203,10 +203,14 @@ export class InputManager {
 
   static enableCameraController() {
     this.__addEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    this.__activeMap.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, true);
+    this.__processEventListeners();
   }
 
   static disableCameraController() {
     this.__removeEventListeners(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
+    this.__activeMap.set(INPUT_HANDLING_STATE_CAMERA_CONTROLLER, false);
+    this.__processEventListeners();
   }
 
   static getCurrentState() {
