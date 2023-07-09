@@ -85,6 +85,8 @@ export class AnimationComponent extends Component {
   private __blendShapeComponent?: BlendShapeComponent;
   private __effekseerComponent?: EffekseerComponent;
   private __isEffekseerState = -1;
+  public useGlobalTime = true;
+  public time = 0;
 
   /// flags ///
   private __isAnimating = true;
@@ -156,12 +158,13 @@ export class AnimationComponent extends Component {
   }
 
   private __applyAnimation() {
+    const time = this.useGlobalTime ? AnimationComponent.globalTime : this.time;
     if (this.__currentActiveAnimationTrackName !== undefined) {
       const animationSet = this.__animationTracks.get(this.__currentActiveAnimationTrackName);
       if (animationSet !== undefined) {
         for (const [attributeName, channel] of animationSet) {
           const i = AnimationAttribute.fromString(attributeName).index;
-          const value = AnimationComponent.__interpolate(channel, AnimationComponent.globalTime, i);
+          const value = AnimationComponent.__interpolate(channel, time, i);
           if (i === AnimationAttribute.Quaternion.index) {
             this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
               value as Array4<number>
