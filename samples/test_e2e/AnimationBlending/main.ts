@@ -28,10 +28,10 @@ declare const window: any;
   Rn.AnimationComponent.setActiveAnimationsForAll('Survey', 'Run', 0.5);
   const slider = document.getElementById('slider') as HTMLInputElement;
   slider.addEventListener('input', (e: any) => {
-    Rn.AnimationComponent.setActiveAnimationsForAll('Survey', 'Run', e.target.value);
+    Rn.AnimationComponent.setActiveAnimationsForAll('Survey', 'Run', parseFloat(e.target.value));
   });
 
-  const endInputValue = 3.42;
+  const endInputValue = 1.16;
   const draw = function () {
     if (count > 0) {
       window._rendered = true;
