@@ -96,14 +96,6 @@ export class SkeletalComponent extends Component {
   setJoints(joints: SceneGraphComponent[]) {
     this.__joints = joints;
 
-    // register this skeleton entity to each joint's animation component
-    for (const joint of joints) {
-      const animationComponent = joint.entity.tryToGetAnimation();
-      if (Is.exist(animationComponent)) {
-        animationComponent.__skeletalComponent = this;
-      }
-    }
-
     // get each array data from global data repository
     let index = 0;
     if (this.componentSID < Config.maxSkeletonNumber) {
