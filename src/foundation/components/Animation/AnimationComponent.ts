@@ -61,7 +61,7 @@ export class AnimationComponent extends Component {
 
   // Animation Data of each AnimationComponent
   private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
-  private static __animationInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
+  private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
 
   /// cache references of other components
   private __transformComponent?: TransformComponent;
@@ -282,7 +282,7 @@ export class AnimationComponent extends Component {
     const newMaxEndInputTime = inputArray[inputArray.length - 1];
 
     const existingAnimationInfo = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationInfo.get(trackName),
+      value: AnimationComponent.__animationGlobalInfo.get(trackName),
       defaultValue: defaultAnimationInfo,
     });
     const existingMaxStartInputTime = existingAnimationInfo.minStartInputTime;
@@ -296,9 +296,9 @@ export class AnimationComponent extends Component {
         minStartInputTime: startResult.less,
         maxEndInputTime: endResult.greater,
       };
-      AnimationComponent.__animationInfo.set(trackName, info);
+      AnimationComponent.__animationGlobalInfo.set(trackName, info);
       AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
-        infoMap: new Map(AnimationComponent.__animationInfo),
+        infoMap: new Map(AnimationComponent.__animationGlobalInfo),
       });
     }
 
@@ -309,7 +309,7 @@ export class AnimationComponent extends Component {
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
     const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
     if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationInfo.values());
+      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
       if (array.length === 0) {
         return 0;
       }
@@ -317,7 +317,7 @@ export class AnimationComponent extends Component {
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxStartInputTime = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationInfo.get(name),
+      value: AnimationComponent.__animationGlobalInfo.get(name),
       defaultValue: defaultAnimationInfo,
     }).minStartInputTime;
 
@@ -328,7 +328,7 @@ export class AnimationComponent extends Component {
     const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
 
     if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationInfo.values());
+      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
       if (array.length === 0) {
         return 0;
       }
@@ -336,7 +336,7 @@ export class AnimationComponent extends Component {
       return firstAnimationInfo.maxEndInputTime;
     }
     const maxEndInputTime = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationInfo.get(name),
+      value: AnimationComponent.__animationGlobalInfo.get(name),
       defaultValue: defaultAnimationInfo,
     }).maxEndInputTime;
 
@@ -348,7 +348,7 @@ export class AnimationComponent extends Component {
    * @returns Array of Animation Track Name
    */
   static getAnimationList(): AnimationTrackName[] {
-    return Array.from(this.__animationInfo.keys());
+    return Array.from(this.__animationGlobalInfo.keys());
   }
 
   /**
@@ -356,7 +356,7 @@ export class AnimationComponent extends Component {
    * @returns the map of
    */
   static getAnimationInfo(): Map<AnimationTrackName, AnimationInfo> {
-    return new Map(this.__animationInfo);
+    return new Map(this.__animationGlobalInfo);
   }
 
   /**
@@ -389,7 +389,7 @@ export class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     } else {
-      const infoArray = Array.from(this.__animationInfo.values());
+      const infoArray = Array.from(this.__animationGlobalInfo.values());
       const lastInfo = infoArray[infoArray.length - 1];
       return lastInfo.minStartInputTime;
     }
@@ -402,7 +402,7 @@ export class AnimationComponent extends Component {
     if (components.length === 0) {
       return 0;
     } else {
-      const infoArray = Array.from(this.__animationInfo.values());
+      const infoArray = Array.from(this.__animationGlobalInfo.values());
       const lastInfo = infoArray[infoArray.length - 1];
       return lastInfo.maxEndInputTime;
     }
