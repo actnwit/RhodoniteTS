@@ -29,8 +29,6 @@ import {
 } from '../../../types/AnimationTypes';
 import { valueWithDefault, greaterThan, lessThan } from '../../misc/MiscUtil';
 import { EventPubSub, EventHandler } from '../../system/EventPubSub';
-import { IVector, IVector3 } from '../../math/IVector';
-import { IQuaternion } from '../../math/IQuaternion';
 import { Quaternion } from '../../math/Quaternion';
 import {
   array3_lerp_offsetAsComposition,
@@ -55,9 +53,7 @@ import { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper'
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { EffekseerComponent } from '../../../effekseer';
-import { IMatrix44, Matrix44, MutableQuaternion } from '../../math';
 import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
-import { SceneGraphComponent } from '../SceneGraph';
 import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 
 const defaultAnimationInfo = {
@@ -95,7 +91,6 @@ export class AnimationComponent extends Component {
   /**
    * @private
    */
-  public __skeletalComponent?: SkeletalComponent;
   public _animationRetarget?: IAnimationRetarget;
 
   /// Static Members ///
@@ -976,32 +971,6 @@ export class AnimationComponent extends Component {
 
   static setIsAnimating(flag: boolean) {
     this.isAnimating = flag;
-  }
-
-  private __calcGlobalInverseBindMatrix(sg: SceneGraphComponent): IMatrix44 {
-    const parentSg = sg.parent;
-
-    const inverseBindMatrix = Is.exist(this.inverseBindMatrix)
-      ? this.inverseBindMatrix
-      : Matrix44.identity();
-
-    if (Is.exist(parentSg)) {
-      return Matrix44.multiply(inverseBindMatrix, this.__calcGlobalInverseBindMatrix(parentSg));
-    } else {
-      return inverseBindMatrix;
-    }
-  }
-
-  get inverseBindMatrix() {
-    const inverseBindMatrix = this.__skeletalComponent?._getInverseBindMatrices(
-      this.entity.getSceneGraph()
-    );
-
-    return inverseBindMatrix;
-  }
-
-  get globalInverseBindMatrix() {
-    return this.__calcGlobalInverseBindMatrix(this.entity.getSceneGraph());
   }
 
   _shallowCopyFrom(component_: Component): void {

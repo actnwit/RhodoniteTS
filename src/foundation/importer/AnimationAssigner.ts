@@ -7,15 +7,10 @@ import { Index } from '../../types/CommonTypes';
 import { Vrm0x } from '../../types/VRM0x';
 import { Is } from '../misc/Is';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
-import {
-  AbsoluteAnimation,
-  GlobalRetarget,
-  GlobalRetarget2,
-  IAnimationRetarget,
-} from '../components';
+import { AbsoluteAnimation, GlobalRetarget, IAnimationRetarget } from '../components';
 import { Vrm1 } from '../../types/VRM1';
 
-type RetargetMode = 'none' | 'global' | 'global2' | 'absolute';
+type RetargetMode = 'none' | 'global' | 'absolute';
 
 export class AnimationAssigner {
   private static __instance: AnimationAssigner;
@@ -43,7 +38,7 @@ export class AnimationAssigner {
       gltfModel,
       vrmModel,
       isSameSkeleton,
-      retargetMode,
+      retargetMode
     );
 
     return rootEntity;
@@ -173,7 +168,7 @@ export class AnimationAssigner {
     gltfModel: RnM2,
     vrmModel: Vrm0x | Vrm1,
     isSameSkeleton: boolean,
-    retargetMode: RetargetMode,
+    retargetMode: RetargetMode
   ) {
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
@@ -208,7 +203,6 @@ export class AnimationAssigner {
           if (rnEntity) {
             const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
             const animationComponent = newRnEntity.getAnimation();
-
 
             if (retargetMode === 'none') {
               // apply animation data to the target joint entity
@@ -247,8 +241,6 @@ export class AnimationAssigner {
               let retarget: IAnimationRetarget | undefined;
               if (retargetMode === 'global') {
                 retarget = new GlobalRetarget(gltfEntity);
-              } else if (retargetMode === 'global2') {
-                retarget = new GlobalRetarget2(gltfEntity);
               } else if (retargetMode === 'absolute') {
                 retarget = new AbsoluteAnimation(gltfEntity);
               } else {
