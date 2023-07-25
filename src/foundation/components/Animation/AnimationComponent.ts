@@ -60,7 +60,7 @@ export class AnimationComponent extends Component {
   // The name of the current Active Track
   private __firstActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
-  private __interpolationRatioBtwFirstAndSecond = 0;
+  private __interpolationRatioBtwFirstAndSecond = 0; // the value range is [0,1]
 
   // Animation Data of each AnimationComponent
   private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
@@ -144,87 +144,88 @@ export class AnimationComponent extends Component {
     const time = this.useGlobalTime ? AnimationComponent.globalTime : this.time;
 
     // process the first active animation track
-    if (Is.not.exist(this.__firstActiveAnimationTrackName)) {
-      return;
-    }
-    const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
-    if (animationSetOf1st !== undefined) {
-      for (const [attributeName, channel] of animationSetOf1st) {
-        const i = AnimationAttribute.fromString(attributeName).index;
-        const value = __interpolate(channel, time, i);
+    if (
+      Is.exist(this.__firstActiveAnimationTrackName) &&
+      this.__interpolationRatioBtwFirstAndSecond < 1
+    ) {
+      const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
+      if (animationSetOf1st !== undefined) {
+        for (const [attributeName, channel] of animationSetOf1st) {
+          const i = AnimationAttribute.fromString(attributeName).index;
+          const value = __interpolate(channel, time, i);
 
-        if (i === AnimationAttribute.Quaternion.index) {
-          this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
-            value as Array4<number>
-          );
-        } else if (i === AnimationAttribute.Translate.index) {
-          this.__transformComponent!.localPosition = Vector3.fromCopyArray3(
-            value as Array3<number>
-          );
-        } else if (i === AnimationAttribute.Scale.index) {
-          this.__transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
-        } else if (i === AnimationAttribute.Weights.index) {
-          this.__blendShapeComponent!.weights = value;
-        } else if (i === AnimationAttribute.Effekseer.index) {
-          if (value[0] > 0.5) {
-            if (this.__isEffekseerState === 0) {
-              this.__effekseerComponent?.play();
+          if (i === AnimationAttribute.Quaternion.index) {
+            this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
+              value as Array4<number>
+            );
+          } else if (i === AnimationAttribute.Translate.index) {
+            this.__transformComponent!.localPosition = Vector3.fromCopyArray3(
+              value as Array3<number>
+            );
+          } else if (i === AnimationAttribute.Scale.index) {
+            this.__transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
+          } else if (i === AnimationAttribute.Weights.index) {
+            this.__blendShapeComponent!.weights = value;
+          } else if (i === AnimationAttribute.Effekseer.index) {
+            if (value[0] > 0.5) {
+              if (this.__isEffekseerState === 0) {
+                this.__effekseerComponent?.play();
+              }
+            } else {
+              if (this.__isEffekseerState === 1) {
+                this.__effekseerComponent?.pause();
+              }
             }
-          } else {
-            if (this.__isEffekseerState === 1) {
-              this.__effekseerComponent?.pause();
-            }
+            this.__isEffekseerState = value[0];
           }
-          this.__isEffekseerState = value[0];
         }
       }
     }
 
     // process the second active animation track, and blending with the first's one
     if (
-      Is.not.exist(this.__secondActiveAnimationTrackName) ||
-      this.__interpolationRatioBtwFirstAndSecond === 0
+      Is.exist(this.__secondActiveAnimationTrackName) &&
+      this.__interpolationRatioBtwFirstAndSecond > 0
     ) {
-      return;
-    }
-    const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
-    if (animationSetOf2nd !== undefined) {
-      for (const [attributeName, channel] of animationSetOf2nd) {
-        const i = AnimationAttribute.fromString(attributeName).index;
-        const value = __interpolate(channel, time, i);
+      const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
+      if (animationSetOf2nd !== undefined) {
+        for (const [attributeName, channel] of animationSetOf2nd) {
+          const i = AnimationAttribute.fromString(attributeName).index;
+          const value = __interpolate(channel, time, i);
 
-        if (i === AnimationAttribute.Quaternion.index) {
-          const quatOf2nd = Quaternion.fromCopyArray4(value as Array4<number>);
-          this.__transformComponent!.localRotation = Quaternion.qlerp(
-            this.__transformComponent!.localRotationInner,
-            quatOf2nd,
-            this.__interpolationRatioBtwFirstAndSecond
-          );
-        } else if (i === AnimationAttribute.Translate.index) {
-          const vec3Of2nd = Vector3.fromCopyArray3(value as Array3<number>);
-          this.__transformComponent!.localPosition = Vector3.lerp(
-            this.__transformComponent!.localPositionInner,
-            vec3Of2nd,
-            this.__interpolationRatioBtwFirstAndSecond
-          );
-        } else if (i === AnimationAttribute.Scale.index) {
-          const vec3of2nd = Vector3.fromCopyArray3(value as Array3<number>);
-          this.__transformComponent!.localScale = Vector3.lerp(
-            this.__transformComponent!.localScaleInner,
-            vec3of2nd,
-            this.__interpolationRatioBtwFirstAndSecond
-          );
-        } else if (i === AnimationAttribute.Weights.index) {
-          const weightsOf2nd = value;
-          for (let i = 0; i < weightsOf2nd.length; i++) {
-            this.__blendShapeComponent!.weights[i] = MathUtil.lerp(
-              this.__blendShapeComponent!.weights[i],
-              weightsOf2nd[i],
+          if (i === AnimationAttribute.Quaternion.index) {
+            const quatOf2nd = Quaternion.fromCopyArray4(value as Array4<number>);
+            this.__transformComponent!.localRotation = Quaternion.qlerp(
+              this.__transformComponent!.localRotationInner,
+              quatOf2nd,
               this.__interpolationRatioBtwFirstAndSecond
             );
+          } else if (i === AnimationAttribute.Translate.index) {
+            const vec3Of2nd = Vector3.fromCopyArray3(value as Array3<number>);
+            this.__transformComponent!.localPosition = Vector3.lerp(
+              this.__transformComponent!.localPositionInner,
+              vec3Of2nd,
+              this.__interpolationRatioBtwFirstAndSecond
+            );
+          } else if (i === AnimationAttribute.Scale.index) {
+            const vec3of2nd = Vector3.fromCopyArray3(value as Array3<number>);
+            this.__transformComponent!.localScale = Vector3.lerp(
+              this.__transformComponent!.localScaleInner,
+              vec3of2nd,
+              this.__interpolationRatioBtwFirstAndSecond
+            );
+          } else if (i === AnimationAttribute.Weights.index) {
+            const weightsOf2nd = value;
+            for (let i = 0; i < weightsOf2nd.length; i++) {
+              this.__blendShapeComponent!.weights[i] = MathUtil.lerp(
+                this.__blendShapeComponent!.weights[i],
+                weightsOf2nd[i],
+                this.__interpolationRatioBtwFirstAndSecond
+              );
+            }
+          } else if (i === AnimationAttribute.Effekseer.index) {
+            // do nothing
           }
-        } else if (i === AnimationAttribute.Effekseer.index) {
-          // do nothing
         }
       }
     }
