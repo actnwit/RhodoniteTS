@@ -418,9 +418,9 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   static _lerp(lhs: IVector3, rhs: IVector3, ratio: number, type: FloatTypedArrayConstructor) {
     return new this(
       new type([
-        lhs._v[0] * ratio + rhs._v[0] * (1 - ratio),
-        lhs._v[1] * ratio + rhs._v[1] * (1 - ratio),
-        lhs._v[2] * ratio + rhs._v[2] * (1 - ratio),
+        lhs._v[0] * (1 - ratio) + rhs._v[0] * ratio,
+        lhs._v[1] * (1 - ratio) + rhs._v[1] * ratio,
+        lhs._v[2] * (1 - ratio) + rhs._v[2] * ratio,
       ]),
       { type }
     );

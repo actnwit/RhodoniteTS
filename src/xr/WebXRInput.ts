@@ -368,8 +368,8 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
         );
 
         entity.getTransform().localPosition = Vector3.lerp(
-          maxNodeTransform.localPositionInner,
           minNodeTransform.localPositionInner,
+          maxNodeTransform.localPositionInner,
           visualResponse.value as number
         );
       }

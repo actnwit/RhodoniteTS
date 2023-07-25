@@ -181,7 +181,10 @@ export class AnimationComponent extends Component {
     }
 
     // process the second active animation track, and blending with the first's one
-    if (Is.not.exist(this.__secondActiveAnimationTrackName)) {
+    if (
+      Is.not.exist(this.__secondActiveAnimationTrackName) ||
+      this.__interpolationRatioBtwFirstAndSecond === 0
+    ) {
       return;
     }
     const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
