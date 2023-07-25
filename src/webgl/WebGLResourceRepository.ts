@@ -61,8 +61,7 @@ import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsIn
 import { Sampler } from '../foundation/textures/Sampler';
 import { EnumIO } from '../foundation/misc/EnumIO';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
-
-declare let HDRImage: any;
+const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;
