@@ -278,6 +278,10 @@ function roundAsFloat(value: number): number {
   return Math.round(value * 10000000) / 10000000;
 }
 
+function lerp(a: number, b: number, t: number) {
+  return a * (1 - t) + b * t;
+}
+
 /**
  * This function calculates the ratio of a discrete Gaussian distribution.
  * The sampling points are one away from each other. The sum of the ratios is 1.
@@ -363,4 +367,5 @@ export const MathUtil = Object.freeze({
   computeGaussianDistributionRatioWhoseSumIsOne,
   roundAsFloat,
   financial,
+  lerp,
 });

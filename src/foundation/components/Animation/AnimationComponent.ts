@@ -41,6 +41,7 @@ import { EffekseerComponent } from '../../../effekseer';
 import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
 import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import { __interpolate } from './AnimationOps';
+import { MathUtil } from '../../math';
 
 const defaultAnimationInfo = {
   name: '',
@@ -57,7 +58,9 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 export class AnimationComponent extends Component {
   /// inner states ///
   // The name of the current Active Track
-  private __currentActiveAnimationTrackName?: AnimationTrackName;
+  private __firstActiveAnimationTrackName?: AnimationTrackName;
+  private __secondActiveAnimationTrackName?: AnimationTrackName;
+  private __interpolationRatioBtwFirstAndSecond = 0;
 
   // Animation Data of each AnimationComponent
   private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
@@ -139,36 +142,86 @@ export class AnimationComponent extends Component {
 
   private __applyAnimation() {
     const time = this.useGlobalTime ? AnimationComponent.globalTime : this.time;
-    if (this.__currentActiveAnimationTrackName !== undefined) {
-      const animationSet = this.__animationTracks.get(this.__currentActiveAnimationTrackName);
-      if (animationSet !== undefined) {
-        for (const [attributeName, channel] of animationSet) {
-          const i = AnimationAttribute.fromString(attributeName).index;
-          const value = __interpolate(channel, time, i);
-          if (i === AnimationAttribute.Quaternion.index) {
-            this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
-              value as Array4<number>
-            );
-          } else if (i === AnimationAttribute.Translate.index) {
-            this.__transformComponent!.localPosition = Vector3.fromCopyArray3(
-              value as Array3<number>
-            );
-          } else if (i === AnimationAttribute.Scale.index) {
-            this.__transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
-          } else if (i === AnimationAttribute.Weights.index) {
-            this.__blendShapeComponent!.weights = value;
-          } else if (i === AnimationAttribute.Effekseer.index) {
-            if (value[0] > 0.5) {
-              if (this.__isEffekseerState === 0) {
-                this.__effekseerComponent?.play();
-              }
-            } else {
-              if (this.__isEffekseerState === 1) {
-                this.__effekseerComponent?.pause();
-              }
+
+    // process the first active animation track
+    if (Is.not.exist(this.__firstActiveAnimationTrackName)) {
+      return;
+    }
+    const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
+    if (animationSetOf1st !== undefined) {
+      for (const [attributeName, channel] of animationSetOf1st) {
+        const i = AnimationAttribute.fromString(attributeName).index;
+        const value = __interpolate(channel, time, i);
+
+        if (i === AnimationAttribute.Quaternion.index) {
+          this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
+            value as Array4<number>
+          );
+        } else if (i === AnimationAttribute.Translate.index) {
+          this.__transformComponent!.localPosition = Vector3.fromCopyArray3(
+            value as Array3<number>
+          );
+        } else if (i === AnimationAttribute.Scale.index) {
+          this.__transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
+        } else if (i === AnimationAttribute.Weights.index) {
+          this.__blendShapeComponent!.weights = value;
+        } else if (i === AnimationAttribute.Effekseer.index) {
+          if (value[0] > 0.5) {
+            if (this.__isEffekseerState === 0) {
+              this.__effekseerComponent?.play();
             }
-            this.__isEffekseerState = value[0];
+          } else {
+            if (this.__isEffekseerState === 1) {
+              this.__effekseerComponent?.pause();
+            }
           }
+          this.__isEffekseerState = value[0];
+        }
+      }
+    }
+
+    // process the second active animation track, and blending with the first's one
+    if (Is.not.exist(this.__secondActiveAnimationTrackName)) {
+      return;
+    }
+    const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
+    if (animationSetOf2nd !== undefined) {
+      for (const [attributeName, channel] of animationSetOf2nd) {
+        const i = AnimationAttribute.fromString(attributeName).index;
+        const value = __interpolate(channel, time, i);
+
+        if (i === AnimationAttribute.Quaternion.index) {
+          const quatOf2nd = Quaternion.fromCopyArray4(value as Array4<number>);
+          this.__transformComponent!.localRotation = Quaternion.qlerp(
+            this.__transformComponent!.localRotationInner,
+            quatOf2nd,
+            this.__interpolationRatioBtwFirstAndSecond
+          );
+        } else if (i === AnimationAttribute.Translate.index) {
+          const vec3Of2nd = Vector3.fromCopyArray3(value as Array3<number>);
+          this.__transformComponent!.localPosition = Vector3.lerp(
+            this.__transformComponent!.localPositionInner,
+            vec3Of2nd,
+            this.__interpolationRatioBtwFirstAndSecond
+          );
+        } else if (i === AnimationAttribute.Scale.index) {
+          const vec3of2nd = Vector3.fromCopyArray3(value as Array3<number>);
+          this.__transformComponent!.localScale = Vector3.lerp(
+            this.__transformComponent!.localScaleInner,
+            vec3of2nd,
+            this.__interpolationRatioBtwFirstAndSecond
+          );
+        } else if (i === AnimationAttribute.Weights.index) {
+          const weightsOf2nd = value;
+          for (let i = 0; i < weightsOf2nd.length; i++) {
+            this.__blendShapeComponent!.weights[i] = MathUtil.lerp(
+              this.__blendShapeComponent!.weights[i],
+              weightsOf2nd[i],
+              this.__interpolationRatioBtwFirstAndSecond
+            );
+          }
+        } else if (i === AnimationAttribute.Effekseer.index) {
+          // do nothing
         }
       }
     }
@@ -191,26 +244,63 @@ export class AnimationComponent extends Component {
     }
   }
 
-  static setActiveAnimationForAll(animationName: AnimationTrackName) {
+  static setActiveAnimationForAll(animationTrackName: AnimationTrackName) {
     const components = ComponentRepository.getComponentsWithType(
       AnimationComponent
     ) as AnimationComponent[];
     for (const component of components) {
-      component.setActiveAnimationTrack(animationName);
+      component.setActiveAnimationTrack(animationTrackName);
     }
   }
 
-  setActiveAnimationTrack(animationName: AnimationTrackName) {
-    if (this.__animationTracks.has(animationName)) {
-      this.__currentActiveAnimationTrackName = animationName;
+  setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
+    if (this.__animationTracks.has(animationTrackName)) {
+      this.__firstActiveAnimationTrackName = animationTrackName;
+      this.__secondActiveAnimationTrackName = undefined;
       return true;
     } else {
       return false;
     }
   }
 
+  static setActiveAnimationsForAll(
+    animationTrackName: AnimationTrackName,
+    secondTrackName: AnimationTrackName,
+    interpolationRatioBtwFirstAndSecond: number
+  ) {
+    const components = ComponentRepository.getComponentsWithType(
+      AnimationComponent
+    ) as AnimationComponent[];
+    for (const component of components) {
+      component.setActiveAnimationTracks(
+        animationTrackName,
+        secondTrackName,
+        interpolationRatioBtwFirstAndSecond
+      );
+    }
+  }
+
+  setActiveAnimationTracks(
+    firstTrackName: AnimationTrackName,
+    secondTrackName: AnimationTrackName,
+    interpolationRatioBtwFirstAndSecond: number
+  ) {
+    if (this.__animationTracks.has(firstTrackName) && this.__animationTracks.has(secondTrackName)) {
+      this.__firstActiveAnimationTrackName = firstTrackName;
+      this.__secondActiveAnimationTrackName = secondTrackName;
+      this.__interpolationRatioBtwFirstAndSecond = interpolationRatioBtwFirstAndSecond;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  set interpolationRatioBtwFirstAndSecond(ratio: number) {
+    this.__interpolationRatioBtwFirstAndSecond = ratio;
+  }
+
   getActiveAnimationTrack() {
-    return this.__currentActiveAnimationTrackName;
+    return this.__firstActiveAnimationTrackName;
   }
 
   hasAnimation(trackName: AnimationTrackName, pathName: AnimationPathName): boolean {
@@ -245,10 +335,10 @@ export class AnimationComponent extends Component {
   ) {
     // set the current Active AnimationTrackName
     if (makeThisActiveAnimation) {
-      this.__currentActiveAnimationTrackName = trackName;
+      this.__firstActiveAnimationTrackName = trackName;
     } else {
-      this.__currentActiveAnimationTrackName = valueWithDefault({
-        value: this.__currentActiveAnimationTrackName,
+      this.__firstActiveAnimationTrackName = valueWithDefault({
+        value: this.__firstActiveAnimationTrackName,
         defaultValue: trackName,
       });
     }
@@ -307,7 +397,7 @@ export class AnimationComponent extends Component {
   }
 
   public getStartInputValueOfAnimation(animationTrackName?: string): number {
-    const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
+    const name = animationTrackName ?? this.__firstActiveAnimationTrackName;
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
       if (array.length === 0) {
@@ -325,7 +415,7 @@ export class AnimationComponent extends Component {
   }
 
   public getEndInputValueOfAnimation(animationTrackName?: string): number {
-    const name = animationTrackName ?? this.__currentActiveAnimationTrackName;
+    const name = animationTrackName ?? this.__firstActiveAnimationTrackName;
 
     if (name === undefined) {
       const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
@@ -669,7 +759,7 @@ export class AnimationComponent extends Component {
   _shallowCopyFrom(component_: Component): void {
     const component = component_ as AnimationComponent;
 
-    this.__currentActiveAnimationTrackName = component.__currentActiveAnimationTrackName;
+    this.__firstActiveAnimationTrackName = component.__firstActiveAnimationTrackName;
     this.__animationTracks = new Map(component.__animationTracks);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
