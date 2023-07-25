@@ -20,8 +20,8 @@ export type AnimationTrackName = string;
 
 export interface AnimationInfo {
   name: AnimationTrackName;
-  maxStartInputTime: Second;
-  maxEndInputTime: Second;
+  minStartInputTime: Second; // min start time in all animation paths of the track
+  maxEndInputTime: Second; // max end time in all animation paths of the track
 }
 
 export type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
