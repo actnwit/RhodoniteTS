@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
@@ -8,77 +8,73 @@ const expressionWithOutFXAA = new Rn.Expression();
 let activeExpression: Rn.Expression;
 let framebuffer: Rn.FrameBuffer;
 let renderPassMain: Rn.RenderPass;
-(async () => {
-  const canvas = document.getElementById('world') as HTMLCanvasElement;
-  const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas,
-    webglOption: { antialias: false },
-  });
 
-  // setup the Main RenderPass
-  renderPassMain = await setupRenderPassMain();
-  framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    canvas!.clientWidth,
-    canvas!.clientHeight,
-    1,
-    {}
-  );
-  // renderPassMain.setFramebuffer(framebuffer);
+const canvas = document.getElementById('world') as HTMLCanvasElement;
+const gl = await Rn.System.init({
+  approach: Rn.ProcessApproach.Uniform,
+  canvas,
+  webglOption: { antialias: false },
+});
 
-  // setup the FXAA RenderPass
-  const renderPassFxaa = await setupRenderPassFxaa(
-    // framebuffer.getColorAttachedRenderTargetTexture(0),
-    frame.getColorAttachmentFromInputOf(expressionWithFXAA),
-    canvas!.clientWidth,
-    canvas!.clientHeight
-  );
+// setup the Main RenderPass
+renderPassMain = await setupRenderPassMain();
+framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
+  canvas!.clientWidth,
+  canvas!.clientHeight,
+  1,
+  {}
+);
+// renderPassMain.setFramebuffer(framebuffer);
 
-  // register renderPasses to expressions
-  expressionWithFXAA.addRenderPasses([renderPassMain, renderPassFxaa]);
-  expressionWithOutFXAA.addRenderPasses([renderPassMain]);
+// setup the FXAA RenderPass
+const renderPassFxaa = await setupRenderPassFxaa(
+  // framebuffer.getColorAttachedRenderTargetTexture(0),
+  frame.getColorAttachmentFromInputOf(expressionWithFXAA),
+  canvas!.clientWidth,
+  canvas!.clientHeight
+);
 
-  frame.addExpression(expressionWithFXAA, {
-    outputs: [
-      {
-        renderPass: {
-          index: 0,
-        },
-        frameBuffer: framebuffer,
+// register renderPasses to expressions
+expressionWithFXAA.addRenderPasses([renderPassMain, renderPassFxaa]);
+expressionWithOutFXAA.addRenderPasses([renderPassMain]);
+
+frame.addExpression(expressionWithFXAA, {
+  outputs: [
+    {
+      renderPass: {
+        index: 0,
       },
-    ],
-    inputRenderPasses: [renderPassMain],
-  });
+      frameBuffer: framebuffer,
+    },
+  ],
+  inputRenderPasses: [renderPassMain],
+});
 
-  frame.resolve();
+frame.resolve();
 
-  activeExpression = expressionWithFXAA;
+activeExpression = expressionWithFXAA;
 
-  Rn.CameraComponent.current = 0;
-  let startTime = Date.now();
-  let count = 0;
-  const draw = function () {
-    if (count > 0) {
-      window._rendered = true;
+Rn.CameraComponent.current = 0;
+let startTime = Date.now();
+let count = 0;
+
+Rn.System.startRenderLoop(() => {
+  if (count > 0) {
+    window._rendered = true;
+  }
+  if (window.isAnimating) {
+    const date = new Date();
+    const rotation = 0.001 * (date.getTime() - startTime);
+    const time = (date.getTime() - startTime) / 1000;
+    Rn.AnimationComponent.globalTime = time;
+    if (time > Rn.AnimationComponent.endInputValue) {
+      startTime = date.getTime();
     }
-    if (window.isAnimating) {
-      const date = new Date();
-      const rotation = 0.001 * (date.getTime() - startTime);
-      const time = (date.getTime() - startTime) / 1000;
-      Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
-        startTime = date.getTime();
-      }
-    }
+  }
 
-    Rn.System.process(frame);
-    count++;
-
-    requestAnimationFrame(draw);
-  };
-
-  draw();
-})();
+  Rn.System.process(frame);
+  count++;
+});
 
 async function setupRenderPassMain() {
   const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
