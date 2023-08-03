@@ -171,6 +171,7 @@ export class Vrm0xImporter {
     }
     const vrmEntity = EntityRepository.addComponentToEntity(VrmComponent, rootEntity);
     vrmEntity.getVrm().setVrmExpressions(vrmExpressions);
+    vrmEntity.getVrm()._version = '0.x';
   }
 
   static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void {

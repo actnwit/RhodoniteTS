@@ -25,6 +25,9 @@ export class VrmComponent extends Component {
   private __expressions: Map<VrmExpressionName, VrmExpression> = new Map();
   private __weights: Map<VrmExpressionName, number> = new Map();
   private __blendShapeComponent?: BlendShapeComponent;
+
+  public _version = '';
+
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
