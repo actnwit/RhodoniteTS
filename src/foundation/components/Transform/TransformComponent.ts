@@ -58,9 +58,11 @@ export class TransformComponent extends Component {
   }
 
   _backupTransformAsRest() {
-    this.__rest = this.__pose.clone();
-    const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
-    sceneGraphComponent.setWorldMatrixRestDirty();
+    if (this.__rest === undefined) {
+      this.__rest = this.__pose.clone();
+      const sceneGraphComponent = this.entity.tryToGetSceneGraph()!;
+      sceneGraphComponent.setWorldMatrixRestDirty();
+    }
   }
 
   _restoreTransformFromRest() {

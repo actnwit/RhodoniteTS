@@ -35,6 +35,17 @@ export class AnimationAssigner {
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
+    function removeRetargetRecursively(entity: ISceneGraphEntity) {
+      for (const child of entity.children) {
+        const animationComponent = child.entity.tryToGetAnimation();
+        if (Is.exist(animationComponent)) {
+          animationComponent.setAnimationRetarget(undefined as any);
+        }
+        removeRetargetRecursively(child.entity);
+      }
+    }
+    removeRetargetRecursively(rootEntity);
+
     this.__setupAnimationForSameSkeleton(
       rootEntity,
       gltfModel,
@@ -70,14 +81,6 @@ export class AnimationAssigner {
     if (gltfModel.animations && gltfModel.animations.length > 0) {
       for (const animation of gltfModel.animations) {
         for (const channel of animation.channels) {
-          // get animation data
-          const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
-          const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
-          const interpolation =
-            channel.samplerObject!.interpolation != null
-              ? channel.samplerObject!.interpolation
-              : 'LINEAR';
-
           // find the corresponding joint entity
           // const node = gltfModel.nodes[channel.target!.node!];
           const rnEntity = this.__getCorrespondingEntityWithVrma(
