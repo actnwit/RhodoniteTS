@@ -47,6 +47,17 @@ export class AnimationAssigner {
   }
 
   assignAnimationWithVrma(rootEntity: ISceneGraphEntity, gltfModel: RnM2Vrma) {
+    function removeRetargetRecursively(entity: ISceneGraphEntity) {
+      for (const child of entity.children) {
+        const animationComponent = child.entity.tryToGetAnimation();
+        if (Is.exist(animationComponent)) {
+          animationComponent.setAnimationRetarget(undefined as any);
+        }
+        removeRetargetRecursively(child.entity);
+      }
+    }
+    removeRetargetRecursively(rootEntity);
+
     if (gltfModel.animations) {
       for (const animation of gltfModel.animations) {
         for (const sampler of animation.samplers) {
