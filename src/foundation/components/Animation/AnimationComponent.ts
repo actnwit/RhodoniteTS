@@ -372,29 +372,29 @@ export class AnimationComponent extends Component {
     animationSet.set(pathName, channel);
 
     // update AnimationInfo
-    const newMaxStartInputTime = inputArray[0];
+    const newMinStartInputTime = inputArray[0];
     const newMaxEndInputTime = inputArray[inputArray.length - 1];
 
-    const existingAnimationInfo = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationGlobalInfo.get(trackName),
-      defaultValue: defaultAnimationInfo,
-    });
-    const existingMaxStartInputTime = existingAnimationInfo.minStartInputTime;
-    const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
+    // const existingAnimationInfo = valueWithDefault<AnimationInfo>({
+    //   value: AnimationComponent.__animationGlobalInfo.get(trackName),
+    //   defaultValue: defaultAnimationInfo,
+    // });
+    // const existingMaxStartInputTime = existingAnimationInfo.minStartInputTime;
+    // const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
 
-    const startResult = lessThan(existingMaxStartInputTime, newMaxStartInputTime);
-    const endResult = greaterThan(newMaxEndInputTime, existingMaxEndInputTime);
-    if (startResult.result || endResult.result) {
-      const info = {
-        name: trackName,
-        minStartInputTime: startResult.less,
-        maxEndInputTime: endResult.greater,
-      };
-      AnimationComponent.__animationGlobalInfo.set(trackName, info);
-      AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
-        infoMap: new Map(AnimationComponent.__animationGlobalInfo),
-      });
-    }
+    // const startResult = lessThan(existingMaxStartInputTime, newMaxStartInputTime);
+    // const endResult = greaterThan(newMaxEndInputTime, existingMaxEndInputTime);
+    // if (startResult.result || endResult.result) {
+    const info = {
+      name: trackName,
+      minStartInputTime: newMinStartInputTime,
+      maxEndInputTime: newMaxEndInputTime,
+    };
+    AnimationComponent.__animationGlobalInfo.set(trackName, info);
+    AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
+      infoMap: new Map(AnimationComponent.__animationGlobalInfo),
+    });
+    // }
 
     // backup the current transform as rest pose
     this.entity.getTransform()._backupTransformAsRest();
