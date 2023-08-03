@@ -10,3 +10,4 @@ export * from './glTF1';
 export * from './glTF2';
 export * from './glTF2ForOutput';
 export * from './RnM2';
+export * from './RnM2Vrma';
