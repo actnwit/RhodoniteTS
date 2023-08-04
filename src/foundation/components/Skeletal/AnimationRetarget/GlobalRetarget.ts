@@ -16,8 +16,8 @@ export class GlobalRetarget implements IAnimationRetarget {
     let srcPGRestQ: IQuaternion;
     const parent = srcEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
-      srcPGRestQ = parent.getRotationRest(sg => {
-        const parent = sg.parent
+      srcPGRestQ = parent.getRotationRest((sg) => {
+        const parent = sg.parent;
         if (Is.exist(parent)) {
           const vrm = parent.entity.tryToGetVrm();
           return Is.exist(vrm);
@@ -36,8 +36,8 @@ export class GlobalRetarget implements IAnimationRetarget {
     let dstPGRestQ: IQuaternion;
     const parent = dstEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
-      dstPGRestQ = parent.getRotationRest(sg => {
-        const parent = sg.parent
+      dstPGRestQ = parent.getRotationRest((sg) => {
+        const parent = sg.parent;
         if (Is.exist(parent)) {
           const vrm = parent.entity.tryToGetVrm();
           return Is.exist(vrm);
@@ -96,6 +96,9 @@ export class GlobalRetarget implements IAnimationRetarget {
 
     const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(AnimT), dstRestT);
 
+    if (srcEntity.uniqueName.indexOf('hips') >= 0) {
+      return Vector3.multiply(dstPoseT, srcEntity.parent!.scale.x);
+    }
     return dstPoseT;
   }
 

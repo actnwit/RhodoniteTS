@@ -9,6 +9,8 @@ import { Is } from '../misc/Is';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AbsoluteAnimation, GlobalRetarget, IAnimationRetarget } from '../components';
 import { Vrm1 } from '../../types/VRM1';
+import { RnM2Vrma } from '../../types';
+import { Vector3 } from '../math';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -33,6 +35,17 @@ export class AnimationAssigner {
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
+    function removeRetargetRecursively(entity: ISceneGraphEntity) {
+      for (const child of entity.children) {
+        const animationComponent = child.entity.tryToGetAnimation();
+        if (Is.exist(animationComponent)) {
+          animationComponent.setAnimationRetarget(undefined as any);
+        }
+        removeRetargetRecursively(child.entity);
+      }
+    }
+    removeRetargetRecursively(rootEntity);
+
     this.__setupAnimationForSameSkeleton(
       rootEntity,
       gltfModel,
@@ -40,6 +53,56 @@ export class AnimationAssigner {
       isSameSkeleton,
       retargetMode
     );
+
+    return rootEntity;
+  }
+
+  assignAnimationWithVrma(rootEntity: ISceneGraphEntity, gltfModel: RnM2Vrma) {
+    function removeRetargetRecursively(entity: ISceneGraphEntity) {
+      for (const child of entity.children) {
+        const animationComponent = child.entity.tryToGetAnimation();
+        if (Is.exist(animationComponent)) {
+          animationComponent.setAnimationRetarget(undefined as any);
+        }
+        removeRetargetRecursively(child.entity);
+      }
+    }
+    removeRetargetRecursively(rootEntity);
+
+    if (gltfModel.animations) {
+      for (const animation of gltfModel.animations) {
+        for (const sampler of animation.samplers) {
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
+        }
+      }
+    }
+
+    if (gltfModel.animations && gltfModel.animations.length > 0) {
+      for (const animation of gltfModel.animations) {
+        for (const channel of animation.channels) {
+          // find the corresponding joint entity
+          // const node = gltfModel.nodes[channel.target!.node!];
+          const rnEntity = this.__getCorrespondingEntityWithVrma(
+            rootEntity,
+            gltfModel,
+            channel.target!.node!
+          );
+          if (rnEntity) {
+            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+            const animationComponent = newRnEntity.getAnimation();
+
+            const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
+            const humanBones = gltfModel.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
+            const humanoidBoneName = humanBones.get(channel.target!.node!)!;
+            gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
+
+            const retarget = new GlobalRetarget(gltfEntity);
+            animationComponent.setAnimationRetarget(retarget);
+          }
+        }
+      }
+    }
 
     return rootEntity;
   }
@@ -133,6 +196,33 @@ export class AnimationAssigner {
           return void 0;
         }
       }
+      return void 0;
+    }
+  }
+
+  private __getCorrespondingEntityWithVrma(
+    rootEntity: ISceneGraphEntity,
+    gltfModel: RnM2Vrma,
+    nodeIndex: Index
+  ) {
+    // VRM1.0
+    const humanBones = gltfModel.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
+    const humanoidBoneName = humanBones.get(nodeIndex)!;
+    const dstMapNameNodeId = rootEntity.getTagValue('humanoid_map_name_nodeId')! as Map<
+      string,
+      number
+    >;
+    const dstBoneNodeId = dstMapNameNodeId.get(humanoidBoneName!);
+    if (dstBoneNodeId != null) {
+      const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
+      const rnEntity = rnEntities[dstBoneNodeId];
+      // if (humanoidBoneName === 'hips') {
+      //   rnEntity.parent!.scale = Vector3.fromCopy3(100, 100, 100);
+      // }
+
+      return rnEntity;
+    } else {
+      console.log(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
       return void 0;
     }
   }
