@@ -217,9 +217,14 @@ export class SkeletalComponent extends Component {
         m = SkeletalComponent.__identityMat;
       }
 
-      if (i === 0) {
+      if (i === 0 && joint.entity.tryToGetAnimation() != null) {
         this.__worldMatrix.copyComponents(m);
       }
+      if (i === 1 && this.__joints[0].entity.tryToGetAnimation() == null) {
+        // if the first joint has no animation (e.g. Root joint), expect the second joint to have a significant matrix
+        this.__worldMatrix.copyComponents(m);
+      }
+
       this.__isWorldMatrixVanilla = false;
 
       if (
