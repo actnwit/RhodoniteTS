@@ -4,96 +4,90 @@ declare const window: any;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-(async () => {
-  await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas: document.getElementById('world') as HTMLCanvasElement,
-  });
+await Rn.System.init({
+  approach: Rn.ProcessApproach.Uniform,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
 
-  // expressions
-  const expressions = [];
+// expressions
+const expressions = [];
 
-  // camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zNear = 0.1;
-  cameraComponent.zFar = 1000.0;
-  cameraComponent.setFovyAndChangeFocalLength(30.0);
-  cameraComponent.aspect = 1.0;
+// camera
+const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000.0;
+cameraComponent.setFovyAndChangeFocalLength(30.0);
+cameraComponent.aspect = 1.0;
 
-  // gltf
-  const mainExpression = (
-    await Rn.GltfImporter.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
-      {
-        cameraComponent: cameraComponent,
-        defaultMaterialHelperArgumentArray: [
-          {
-            makeOutputSrgb: false,
-          },
-        ],
-      }
-    )
-  ).unwrapForce();
-  expressions.push(mainExpression);
-
-  // post effects
-  const expressionPostEffect = new Rn.Expression();
-  expressions.push(expressionPostEffect);
-
-  // gamma correction (and super sampling)
-  const mainRenderPass = mainExpression.renderPasses[0];
-  const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
-  mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
-  mainRenderPass.toClearColorBuffer = true;
-  mainRenderPass.toClearDepthBuffer = true;
-
-  const postEffectCameraEntity = createPostEffectCameraEntity();
-  const postEffectCameraComponent = postEffectCameraEntity.getCamera();
-
-  const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
-  const gammaCorrectionRenderPass = createPostEffectRenderPass(
-    gammaCorrectionMaterial,
-    postEffectCameraComponent
-  );
-
-  setTextureParameterForMeshComponents(
-    gammaCorrectionRenderPass.meshComponents,
-    Rn.ShaderSemantics.BaseColorTexture,
-    gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
-  );
-
-  expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
-
-  // cameraController
-  const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
-  controller.dolly = 0.83;
-
-  // lighting
-  setIBL('./../../../assets/ibl/papermill');
-
-  let count = 0;
-
-  const draw = function () {
-    if (count > 100) {
-      p.id = 'rendered';
-      p.innerText = 'Rendered.';
-    } else if (count === 1) {
-      p.id = 'started';
-      p.innerText = 'Started.';
+// gltf
+const mainExpression = (
+  await Rn.GltfImporter.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
+    {
+      cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
     }
+  )
+).unwrapForce();
+expressions.push(mainExpression);
 
-    Rn.System.process(expressions);
+// post effects
+const expressionPostEffect = new Rn.Expression();
+expressions.push(expressionPostEffect);
 
-    count++;
+// gamma correction (and super sampling)
+const mainRenderPass = mainExpression.renderPasses[0];
+const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
+mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
+mainRenderPass.toClearColorBuffer = true;
+mainRenderPass.toClearDepthBuffer = true;
 
-    requestAnimationFrame(draw);
-  };
+const postEffectCameraEntity = createPostEffectCameraEntity();
+const postEffectCameraComponent = postEffectCameraEntity.getCamera();
 
-  draw();
-})();
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const gammaCorrectionRenderPass = createPostEffectRenderPass(
+  gammaCorrectionMaterial,
+  postEffectCameraComponent
+);
+
+setTextureParameterForMeshComponents(
+  gammaCorrectionRenderPass.meshComponents,
+  Rn.ShaderSemantics.BaseColorTexture,
+  gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+);
+
+expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
+
+// cameraController
+const mainCameraControllerComponent = cameraEntity.getCameraController();
+const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+controller.dolly = 0.83;
+
+// lighting
+setIBL('./../../../assets/ibl/papermill');
+
+let count = 0;
+
+Rn.System.startRenderLoop(() => {
+  if (count > 100) {
+    p.id = 'rendered';
+    p.innerText = 'Rendered.';
+  } else if (count === 1) {
+    p.id = 'started';
+    p.innerText = 'Started.';
+  }
+
+  Rn.System.process(expressions);
+
+  count++;
+});
 
 function setIBL(baseUri) {
   const specularCubeTexture = new Rn.CubeTexture();

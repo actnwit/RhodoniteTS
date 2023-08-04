@@ -1,70 +1,64 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
 
-(async () => {
-  await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas: document.getElementById('world') as HTMLCanvasElement,
-  });
+await Rn.System.init({
+  approach: Rn.ProcessApproach.Uniform,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+});
 
-  // expressions
-  const expressions = [];
+// expressions
+const expressions = [];
 
-  // env
-  const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill');
-  expressions.push(envExpression);
+// env
+const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill');
+expressions.push(envExpression);
 
-  // camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zNear = 0.1;
-  cameraComponent.zFar = 1000.0;
-  cameraComponent.setFovyAndChangeFocalLength(20.0);
-  cameraComponent.aspect = 1.0;
+// camera
+const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000.0;
+cameraComponent.setFovyAndChangeFocalLength(20.0);
+cameraComponent.aspect = 1.0;
 
-  // gltf
-  const mainExpression = (
-    await Rn.GltfImporter.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
-      {
-        cameraComponent: cameraComponent,
-      },
-      (obj: Rn.RnPromiseCallbackObj) => {
-        // this callback won't be called
-        console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
-      }
-    )
-  ).unwrapForce();
-  expressions.push(mainExpression);
-
-  // cameraController
-  const mainRenderPass = mainExpression.renderPasses[0];
-  const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
-
-  // lighting
-  setIBL('./../../../assets/ibl/papermill');
-
-  let count = 0;
-
-  const draw = function () {
-    if (count > 100) {
-      p.id = 'rendered';
-      p.innerText = 'Rendered.';
+// gltf
+const mainExpression = (
+  await Rn.GltfImporter.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
+    {
+      cameraComponent: cameraComponent,
+    },
+    (obj: Rn.RnPromiseCallbackObj) => {
+      // this callback won't be called
+      console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
     }
+  )
+).unwrapForce();
+expressions.push(mainExpression);
 
-    Rn.System.process(expressions);
+// cameraController
+const mainRenderPass = mainExpression.renderPasses[0];
+const mainCameraControllerComponent = cameraEntity.getCameraController();
+const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
-    count++;
+// lighting
+setIBL('./../../../assets/ibl/papermill');
 
-    requestAnimationFrame(draw);
-  };
+let count = 0;
 
-  draw();
-})();
+Rn.System.startRenderLoop(() => {
+  if (count > 100) {
+    p.id = 'rendered';
+    p.innerText = 'Rendered.';
+  }
+
+  Rn.System.process(expressions);
+
+  count++;
+});
 
 function createEnvCubeExpression(baseuri) {
   const environmentCubeTexture = new Rn.CubeTexture();
