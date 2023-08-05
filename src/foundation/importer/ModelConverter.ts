@@ -1085,6 +1085,7 @@ export class ModelConverter {
         isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
         isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
         isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
+        isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
         isShadow: rnLoaderOptions.shadow ? true : false,
         useTangentAttribute,
         useNormalTexture,
@@ -2651,7 +2652,10 @@ function setup_KHR_materials_anisotropy(
     const anisotropyRotation = Is.exist(KHR_materials_anisotropy.anisotropyRotation)
       ? KHR_materials_anisotropy.anisotropyRotation
       : 0.0;
-    material.setParameter(ShaderSemantics.AnisotropyRotation, Vector2.fromCopy2(Math.cos(anisotropyRotation), Math.sin(anisotropyRotation)));
+    material.setParameter(
+      ShaderSemantics.AnisotropyRotation,
+      Vector2.fromCopy2(Math.cos(anisotropyRotation), Math.sin(anisotropyRotation))
+    );
 
     const anisotropyTexture = KHR_materials_anisotropy.anisotropyTexture;
     if (anisotropyTexture != null) {

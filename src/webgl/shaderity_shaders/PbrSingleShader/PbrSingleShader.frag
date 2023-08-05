@@ -384,8 +384,19 @@ vec3 getNormalForEnv(mat3 rotEnvMatrix, vec3 normal_inWorld, float materialSID) 
   return normal_forEnv;
 }
 
-vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, float materialSID) {
+vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, float materialSID, float perceptualRoughness, float anisotropy, vec3 anisotropyDirection) {
+#ifdef RN_USE_ANISOTROPY
+
+  float tangentRoughness = mix(perceptualRoughness, 1.0, anisotropy * anisotropy);
+  vec3  anisotropicTangent  = cross(anisotropyDirection, viewDirection);
+  vec3  anisotropicNormal   = cross(anisotropicTangent, anisotropyDirection);
+  float bendFactor          = 1.0 - anisotropy * (1.0 - perceptualRoughness);
+  float bendFactorPow4      = bendFactor * bendFactor * bendFactor * bendFactor;
+  vec3  bentNormal          = normalize(mix(anisotropicNormal, normal_inWorld, bendFactorPow4));
+  vec3 reflection = rotEnvMatrix * reflect(-viewDirection, bentNormal);
+#else
   vec3 reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+#endif
   if (get_inverseEnvironment(materialSID, 0)) {
     reflection.x *= -1.0;
   }
@@ -396,7 +407,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
   float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
-  vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence)
+  vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence, float anisotropy, vec3 anisotropyDirection)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
@@ -404,7 +415,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
 
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID);
+  vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
   // IBL
   #ifdef RN_USE_IRIDESCENCE
@@ -451,9 +462,8 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 #ifdef RN_USE_CLEARCOAT
   float VdotNg = dot(geomNormal_inWorld, viewDirection);
   vec3 clearcoatNormal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID);
   IblResult coatResult = getIBLRadianceGGX(materialSID, VdotNc, viewDirection, vec3(0.0), F0,
-    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, clearcoatReflection);
+    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, reflection);
   vec3 coatLayer = coatResult.specular;
 
   float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
@@ -558,9 +568,12 @@ void main ()
   direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
   anisotropy *= anisotropyTex.b;
   vec3 anisotropicT = normalize(TBN * vec3(direction, 0.0));
-  vec3 anisotropicB = normalize(cross(normal_geometric, anisotropicT));
+  vec3 anisotropicB = normalize(cross(geomNormal_inWorld, anisotropicT));
   float BdotV = dot(anisotropicB, viewDirection);
   float TdotV = dot(anisotropicT, viewDirection);
+#else
+  float anisotropy = 0.0;
+  vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
 #endif
 
   // Clearcoat
@@ -809,7 +822,7 @@ void main ()
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV, ior, iridescenceFresnel, iridescenceF0, iridescence);
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV, ior, iridescenceFresnel, iridescenceF0, iridescence, anisotropy, anisotropicB);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
