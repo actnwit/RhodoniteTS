@@ -103,6 +103,11 @@ uniform float u_ior; // initialValue=1.5
   uniform float u_iridescenceThicknessMaximum; // initialValue=400
 #endif
 
+#ifdef RN_USE_ANISOTROPY
+  uniform float u_anisotropyStrength; // initialValue=0
+  uniform vec2 u_anisotropyRotation; // initialValue=(1,0)
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
@@ -500,6 +505,7 @@ void main ()
   int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
   vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
   vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+  mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
     vec3 normalTexValue = texture(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
@@ -507,7 +513,7 @@ void main ()
       vec3 normalTex = normalTexValue * 2.0 - 1.0;
       float normalScale = get_normalScale(materialSID, 0);
       vec3 scaledNormal = normalize(normalTex * vec3(normalScale, normalScale, 1.0));
-      normal_inWorld = perturb_normal(normal_inWorld, viewVector, normalTexUv, scaledNormal);
+      normal_inWorld = normalize(TBN * scaledNormal);
     }
   #endif
 
@@ -542,6 +548,20 @@ void main ()
   // NdotV
   vec3 viewDirection = normalize(viewVector);
   float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
+
+#ifdef RN_USE_ANISOTROPY
+  float anisotropy = get_anisotropyStrength(materialSID, 0);
+  vec2 anisotropyRotation = get_anisotropyRotation(materialSID, 0);
+  vec2 direction = anisotropyRotation;
+  vec3 anisotropyTex = texture(u_anisotropyTexture, baseColorTexUv).rgb;
+  direction = anisotropyTex.rg * 2.0 - vec2(1.0);
+  direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
+  anisotropy *= anisotropyTex.b;
+  vec3 anisotropicT = normalize(TBN * vec3(direction, 0.0));
+  vec3 anisotropicB = normalize(cross(normal_geometric, anisotropicT));
+  float BdotV = dot(anisotropicB, viewDirection);
+  float TdotV = dot(anisotropicT, viewDirection);
+#endif
 
   // Clearcoat
 #ifdef RN_USE_CLEARCOAT
@@ -656,7 +676,7 @@ void main ()
   float clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
   vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
   vec3 textureNormal_tangent = texture(u_clearCoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
-  vec3 clearcoatNormal_inWorld = perturb_normal(geomNormal_inWorld, viewVector, normalTexUv, textureNormal_tangent);
+  vec3 clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
   float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
 #else
   float clearcoatRoughness = 0.0;
@@ -739,8 +759,15 @@ void main ()
 
     // Specular
     float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+#ifdef RN_USE_ANISOTROPY
+    float TdotL = dot(anisotropicT, light.direction);
+    float BdotL = dot(anisotropicB, light.direction);
+    float TdotH = dot(anisotropicT, halfVector);
+    float BdotH = dot(anisotropicB, halfVector);
+    vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+#else
     vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
-
+#endif // RN_USE_ANISOTROPY
     // Base Layer
     vec3 baseLayer = diffuseContrib + specularContrib;
 
