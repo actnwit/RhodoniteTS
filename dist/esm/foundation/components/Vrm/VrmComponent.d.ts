@@ -18,6 +18,7 @@ export declare class VrmComponent extends Component {
     private __expressions;
     private __weights;
     private __blendShapeComponent?;
+    _version: string;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;

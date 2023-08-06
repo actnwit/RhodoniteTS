@@ -1,7 +1,7 @@
 import { SceneGraphComponent } from "../components";
 import { RnObject } from "../core/RnObject";
 import { ISceneGraphEntity } from "../helpers/EntityHelper";
-import { IVector3, Quaternion } from "../math";
+import { IVector3 } from "../math";
 import { Vector3 } from "../math/Vector3";
 export declare class VRMSpringBone extends RnObject {
     stiffnessForce: number;
@@ -14,8 +14,6 @@ export declare class VRMSpringBone extends RnObject {
     prevTail: Vector3;
     boneAxis: Vector3;
     boneLength: number;
-    initialLocalRotation: Quaternion;
-    initialLocalMatrix: import("../math").IdentityMatrix44;
     initialized: boolean;
     constructor(node: ISceneGraphEntity);
     setup(localChildPosition: IVector3, center?: SceneGraphComponent): void;

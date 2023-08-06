@@ -8,16 +8,17 @@ import { EventHandler } from '../../system/EventPubSub';
 import { IAnimationEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { EffekseerComponent } from '../../../effekseer';
-import { IMatrix44 } from '../../math';
 import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
-import { SceneGraphComponent } from '../SceneGraph';
 import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 /**
  * A component that manages animation.
  */
 export declare class AnimationComponent extends Component {
-    private __currentActiveAnimationTrackName?;
+    private __firstActiveAnimationTrackName?;
+    private __secondActiveAnimationTrackName?;
+    private __interpolationRatioBtwFirstAndSecond;
     private __animationTracks;
+    private static __animationGlobalInfo;
     private __transformComponent?;
     private __blendShapeComponent?;
     private __effekseerComponent?;
@@ -27,39 +28,39 @@ export declare class AnimationComponent extends Component {
     /**
      * @private
      */
-    __skeletalComponent?: SkeletalComponent;
     _animationRetarget?: IAnimationRetarget;
+    useGlobalTime: boolean;
     static globalTime: number;
+    time: number;
     static readonly Event: {
         ChangeAnimationInfo: symbol;
         PlayEnd: symbol;
     };
-    private static __animationGlobalInfo;
     private static __pubsub;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     $create(): void;
     $logic(): void;
     private __applyAnimation;
     static subscribe(type: AnimationComponentEventType, handler: EventHandler): void;
-    /**
-     * Compute cubic spline interpolation.
-     * @param p_0 starting point
-     * @param p_1 ending point
-     * @param m_0 inTangent
-     * @param m_1 outTangent
-     * @param t ratio
-     * @param animationAttributeIndex index of attribution
-     */
-    static cubicSpline(p0: Array<number>, p1: Array<number>, m0: Array<number>, m1: Array<number>, t: number): Array<number>;
-    static binarySearch(inputArray: Float32Array, currentTime: number): number;
-    static interpolationSearch(inputArray: Float32Array | number[], currentTime: number): number;
-    static bruteForceSearch(inputArray: Float32Array, currentTime: number): number;
     setIsAnimating(flg: boolean): void;
     static setIsAnimatingForAll(flg: boolean): void;
-    static setActiveAnimationForAll(animationName: AnimationTrackName): void;
-    setActiveAnimationTrack(animationName: AnimationTrackName): boolean;
+    static setActiveAnimationForAll(animationTrackName: AnimationTrackName): void;
+    setActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
+    static setActiveAnimationsForAll(animationTrackName: AnimationTrackName, secondTrackName: AnimationTrackName, interpolationRatioBtwFirstAndSecond: number): void;
+    setActiveAnimationTracks(firstTrackName: AnimationTrackName, secondTrackName: AnimationTrackName, interpolationRatioBtwFirstAndSecond: number): boolean;
+    set interpolationRatioBtwFirstAndSecond(ratio: number);
     getActiveAnimationTrack(): string | undefined;
     hasAnimation(trackName: AnimationTrackName, pathName: AnimationPathName): boolean;
+    /**
+     * set an animation channel to AnimationSet
+     * @param trackName - the name of animation track
+     * @param pathName - the name of animation path
+     * @param inputArray - the array of input values
+     * @param outputArray - the array of output values
+     * @param outputComponentN - the number of output value's components
+     * @param interpolation - the interpolation type
+     * @param makeThisActiveAnimation - if true, set this animation track as current active animation
+     */
     setAnimation(trackName: AnimationTrackName, pathName: AnimationPathName, inputArray: Float32Array, outputArray: Float32Array, outputComponentN: VectorComponentN, interpolation: AnimationInterpolationEnum, makeThisActiveAnimation?: boolean): void;
     getStartInputValueOfAnimation(animationTrackName?: string): number;
     getEndInputValueOfAnimation(animationTrackName?: string): number;
@@ -89,10 +90,6 @@ export declare class AnimationComponent extends Component {
     static get endInputValue(): number;
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
-    private static __prepareVariablesForCubicSpline;
-    private static __getOutputValue;
-    private static __lerp;
-    private static __interpolate;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component
@@ -104,15 +101,12 @@ export declare class AnimationComponent extends Component {
      * @param base the target entity
      * @param _componentClass the component class to add
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("../Constraint").ConstraintComponent ? import("../Constraint").IConstraintEntityMethods : Exclude<SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof EffekseerComponent ? import("../../../effekseer").IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof SkeletalComponent ? ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshRendererComponent ? import("..").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof SceneGraphComponent ? import("../SceneGraph").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof TransformComponent ? import("..").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof AnimationComponent ? import("./IAnimationEntity").IAnimationEntityMethods : import("..").ITransformEntityMethods | import("../SceneGraph").ISceneGraphEntityMethods | import("..").IMeshEntityMethods | import("..").IMeshRendererEntityMethods | import("..").ILightEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | import("../../../effekseer").IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("..").ITransformEntityMethods>, import("../SceneGraph").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("..").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, import("../../../effekseer").IEffekseerEntityMethods>, import("..").IVrmEntityMethods>, import("../Constraint").IConstraintEntityMethods>) & EntityBase;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("../Constraint").ConstraintComponent ? import("../Constraint").IConstraintEntityMethods : Exclude<SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof EffekseerComponent ? import("../../../effekseer").IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof SkeletalComponent ? ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshRendererComponent ? import("..").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SceneGraphComponent ? import("..").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof TransformComponent ? import("..").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof AnimationComponent ? import("./IAnimationEntity").IAnimationEntityMethods : import("..").ITransformEntityMethods | import("..").ISceneGraphEntityMethods | import("..").IMeshEntityMethods | import("..").IMeshRendererEntityMethods | import("..").ILightEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | import("../../../effekseer").IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("..").ITransformEntityMethods>, import("..").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("..").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, import("../../../effekseer").IEffekseerEntityMethods>, import("..").IVrmEntityMethods>, import("../Constraint").IConstraintEntityMethods>) & EntityBase;
     addKeyFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frameToInsert: Index, fps: number): boolean;
     addKeyFrameWithValue(trackName: AnimationTrackName, pathName: AnimationPathName, frameToInsert: Index, output: Array<number>, fps: number): boolean;
     deleteKeysAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frameToDelete: Index, fps: number): boolean;
     hasKeyFramesAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frame: Index, fps: number): boolean;
     static setIsAnimating(flag: boolean): void;
-    private __calcGlobalInverseBindMatrix;
-    get inverseBindMatrix(): IMatrix44 | undefined;
-    get globalInverseBindMatrix(): IMatrix44;
     _shallowCopyFrom(component_: Component): void;
     setAnimationRetarget(retarget: IAnimationRetarget): void;
 }

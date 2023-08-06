@@ -13,7 +13,7 @@ import { Sampler } from '../textures/Sampler';
 declare function createMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createEmptyMaterial(): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
@@ -24,6 +24,7 @@ declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning,
     isSheen?: boolean | undefined;
     isSpecular?: boolean | undefined;
     isIridescence?: boolean | undefined;
+    isAnisotropy?: boolean | undefined;
     isShadow?: boolean | undefined;
     useTangentAttribute?: boolean | undefined;
     useNormalTexture?: boolean | undefined;

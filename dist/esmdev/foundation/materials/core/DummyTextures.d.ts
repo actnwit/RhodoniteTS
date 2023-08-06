@@ -6,6 +6,7 @@ export declare const dummyBlackTexture: Texture;
 export declare const dummyBlackCubeTexture: CubeTexture;
 export declare const sheenLutTexture: Texture;
 export declare const dummySRGBGrayTexture: Texture;
+export declare const dummyAnisotropyTexture: Texture;
 export declare function initDefaultTextures(): Promise<void>;
 export declare const DefaultTextures: {
     dummyWhiteTexture: Texture;
@@ -14,4 +15,5 @@ export declare const DefaultTextures: {
     dummyBlackCubeTexture: CubeTexture;
     sheenLutTexture: Texture;
     dummySRGBGrayTexture: Texture;
+    dummyAnisotropyTexture: Texture;
 };

@@ -19,6 +19,7 @@ declare function convertToStringAsGLSLFloat(value: number): string;
 declare function nearZeroToZero(value: number): number;
 declare function financial(val: number | string): string;
 declare function roundAsFloat(value: number): number;
+declare function lerp(a: number, b: number, t: number): number;
 /**
  * This function calculates the ratio of a discrete Gaussian distribution.
  * The sampling points are one away from each other. The sum of the ratios is 1.
@@ -51,5 +52,6 @@ export declare const MathUtil: Readonly<{
     computeGaussianDistributionRatioWhoseSumIsOne: typeof computeGaussianDistributionRatioWhoseSumIsOne;
     roundAsFloat: typeof roundAsFloat;
     financial: typeof financial;
+    lerp: typeof lerp;
 }>;
 export {};

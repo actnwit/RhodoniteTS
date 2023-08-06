@@ -10,7 +10,7 @@ export declare type AnimationPathName = 'undefined' | 'translate' | 'quaternion'
 export declare type AnimationTrackName = string;
 export interface AnimationInfo {
     name: AnimationTrackName;
-    maxStartInputTime: Second;
+    minStartInputTime: Second;
     maxEndInputTime: Second;
 }
 export declare type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;

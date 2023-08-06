@@ -159,5 +159,8 @@ export declare const ShaderSemantics: Readonly<{
     GaussianKernelSize: ShaderSemanticsClass;
     GaussianRatio: ShaderSemanticsClass;
     IsHorizontal: ShaderSemanticsClass;
+    AnisotropyStrength: ShaderSemanticsClass;
+    AnisotropyRotation: ShaderSemanticsClass;
+    AnisotropyTexture: ShaderSemanticsClass;
 }>;
 export {};
