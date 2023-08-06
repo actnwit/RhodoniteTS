@@ -11,6 +11,7 @@ import { AbsoluteAnimation, GlobalRetarget, IAnimationRetarget } from '../compon
 import { Vrm1 } from '../../types/VRM1';
 import { RnM2Vrma } from '../../types';
 import { Vector3 } from '../math';
+import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -97,8 +98,13 @@ export class AnimationAssigner {
             const humanoidBoneName = humanBones.get(channel.target!.node!)!;
             gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
 
-            const retarget = new GlobalRetarget(gltfEntity);
-            animationComponent.setAnimationRetarget(retarget);
+            if (rootEntity.tryToGetVrm()!._version === '0.x') {
+              const retarget = new GlobalRetargetReverse(gltfEntity);
+              animationComponent.setAnimationRetarget(retarget);
+            } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
+              const retarget = new GlobalRetarget(gltfEntity);
+              animationComponent.setAnimationRetarget(retarget);
+            }
           }
         }
       }
