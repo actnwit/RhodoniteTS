@@ -26,6 +26,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isSheen,
     isSpecular,
     isIridescence,
+    isAnisotropy,
     isShadow,
     useTangentAttribute,
     useNormalTexture,
@@ -44,6 +45,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isSheen?: boolean;
     isSpecular?: boolean;
     isIridescence?: boolean;
+    isAnisotropy?: boolean;
     isShadow?: boolean;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
@@ -64,6 +66,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         (isSpecular ? '+specular' : '') +
         (isSheen ? '+sheen' : '') +
         (isIridescence ? '+iridescence' : '') +
+        (isAnisotropy ? '+anisotropy' : '') +
         (useTangentAttribute ? '+tangentAttribute' : ''),
       { isMorphing, isSkinning, isLighting }
     );
@@ -134,6 +137,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
     if (isIridescence) {
       this.__definitions += '#define RN_USE_IRIDESCENCE\n';
+    }
+    if (isAnisotropy) {
+      this.__definitions += '#define RN_USE_ANISOTROPY\n';
     }
     if (isShadow) {
       this.__definitions += '#define RN_USE_SHADOW_MAPPING\n';

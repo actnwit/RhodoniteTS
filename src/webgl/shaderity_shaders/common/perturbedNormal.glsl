@@ -1,13 +1,12 @@
 #ifdef RN_USE_TANGENT_ATTRIBUTE
-  vec3 perturb_normal(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord, vec3 normalTex) {
+  mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
     vec3 tangent_inWorld = normalize(v_tangent_inWorld);
     vec3 binormal_inWorld = normalize(v_binormal_inWorld);
     mat3 tbnMat_tangent_to_world = mat3(tangent_inWorld, binormal_inWorld, normal_inWorld);
 
-    return normalize(tbnMat_tangent_to_world * normalTex);
+    return tbnMat_tangent_to_world;
   }
 #else
-  #ifdef RN_IS_SUPPORTING_STANDARD_DERIVATIVES
     // This is based on http://www.thetenthplanet.de/archives/1180
     mat3 cotangent_frame(vec3 normal_inWorld, vec3 position, vec2 uv) {
       uv = gl_FrontFacing ? uv : -uv;
@@ -30,17 +29,9 @@
       return mat3(tangent * invMat, bitangent * invMat, normal_inWorld);
     }
 
-    vec3 perturb_normal(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord, vec3 normalTex) {
+    mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
       mat3 tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
-      if (texcoord.x > 0.0 || texcoord.y > 0.0) {
-        return normalize(tbnMat_tangent_to_world * normalTex);
-      } else {
-        return normal_inWorld;
-      }
+
+      return tbnMat_tangent_to_world;
     }
-  #else
-    vec3 perturb_normal(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord, vec3 normalTex) {
-      return normal_inWorld;
-    }
-  #endif
 #endif

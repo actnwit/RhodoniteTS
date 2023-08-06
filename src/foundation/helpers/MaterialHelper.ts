@@ -49,6 +49,7 @@ import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
 import {
+  dummyAnisotropyTexture,
   dummyBlackTexture,
   dummyBlueTexture,
   dummyWhiteTexture,
@@ -117,6 +118,7 @@ function createPbrUberMaterial({
   isSheen = false,
   isSpecular = false,
   isIridescence = false,
+  isAnisotropy = false,
   isShadow = false,
   useTangentAttribute = false,
   useNormalTexture = true,
@@ -134,6 +136,7 @@ function createPbrUberMaterial({
     (isSheen ? '+sheen' : '') +
     (isSpecular ? '+specular' : '') +
     (isIridescence ? '+iridescence' : '') +
+    (isAnisotropy ? '+anisotropy' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture');
 
@@ -336,6 +339,21 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
   }
+  if (isAnisotropy) {
+    additionalShaderSemanticInfo.push({
+      semantic: ShaderSemantics.AnisotropyTexture,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      isCustomSetting: true,
+      soloDatum: false,
+      updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      initialValue: [textureSlotIdx++, dummyAnisotropyTexture],
+      min: 0,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    });
+  }
 
   if (isShadow) {
     additionalShaderSemanticInfo.push({
@@ -363,6 +381,7 @@ function createPbrUberMaterial({
     isSheen,
     isSpecular,
     isIridescence,
+    isAnisotropy,
     isShadow,
     useTangentAttribute,
     useNormalTexture,

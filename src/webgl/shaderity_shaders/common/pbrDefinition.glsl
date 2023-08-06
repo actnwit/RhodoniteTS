@@ -288,3 +288,34 @@ float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   float filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
   return filteredRoughness2;
 }
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_anisotropy
+float D_GGX_anisotropic(float NdotH, float TdotH, float BdotH, float at, float ab)
+{
+    float a2 = at * ab;
+    vec3 f = vec3(ab * TdotH, at * BdotH, a2 * NdotH);
+    float w2 = a2 / dot(f, f);
+    return a2 * w2 * w2 / M_PI;
+}
+
+float V_GGX_anisotropic(float NdotL, float NdotV, float BdotV, float TdotV, float TdotL, float BdotL,
+    float at, float ab)
+{
+    float GGXV = NdotL * length(vec3(at * TdotV, ab * BdotV, NdotV));
+    float GGXL = NdotV * length(vec3(at * TdotL, ab * BdotL, NdotL));
+    float v = 0.5 / (GGXV + GGXL);
+    return clamp(v, 0.0, 1.0);
+}
+
+vec3 BRDF_specularAnisotropicGGX(vec3 F, float alphaRoughness,
+    float VdotH, float NdotL, float NdotV, float NdotH, float BdotV, float TdotV,
+    float TdotL, float BdotL, float TdotH, float BdotH, float anisotropy)
+{
+    float at = mix(alphaRoughness, 1.0, anisotropy * anisotropy);
+    float ab = alphaRoughness;
+
+    float V = V_GGX_anisotropic(NdotL, NdotV, BdotV, TdotV, TdotL, BdotL, at, ab);
+    float D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
+
+    return F * V * D;
+}

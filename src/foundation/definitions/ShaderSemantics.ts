@@ -410,6 +410,16 @@ const IridescenceThicknessTexture = new ShaderSemanticsClass({
 const GaussianKernelSize = new ShaderSemanticsClass({
   str: 'gaussianKernelSize',
 });
+const AnisotropyStrength = new ShaderSemanticsClass({
+  str: 'anisotropyStrength',
+});
+const AnisotropyRotation = new ShaderSemanticsClass({
+  str: 'anisotropyRotation',
+});
+const AnisotropyTexture = new ShaderSemanticsClass({
+  str: 'anisotropyTexture',
+});
+
 const GaussianRatio = new ShaderSemanticsClass({ str: 'gaussianRatio' });
 const IsHorizontal = new ShaderSemanticsClass({ str: 'isHorizontal' });
 
@@ -538,6 +548,9 @@ const typeList = [
   GaussianKernelSize,
   GaussianRatio,
   IsHorizontal,
+  AnisotropyStrength,
+  AnisotropyRotation,
+  AnisotropyTexture,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -795,4 +808,7 @@ export const ShaderSemantics = Object.freeze({
   GaussianKernelSize,
   GaussianRatio,
   IsHorizontal,
+  AnisotropyStrength,
+  AnisotropyRotation,
+  AnisotropyTexture,
 });

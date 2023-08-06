@@ -1085,6 +1085,7 @@ export class ModelConverter {
         isSheen: Is.exist(materialJson?.extensions?.KHR_materials_sheen),
         isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
         isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
+        isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
         isShadow: rnLoaderOptions.shadow ? true : false,
         useTangentAttribute,
         useNormalTexture,
@@ -2294,6 +2295,8 @@ function setupPbrMetallicRoughness(
 
   setup_KHR_materials_iridescence(materialJson, material, gltfModel);
 
+  setup_KHR_materials_anisotropy(materialJson, material, gltfModel);
+
   // BaseColor TexCoord Transform
   setup_KHR_texture_transform(baseColorTexture, material, metallicRoughnessTexture);
 }
@@ -2629,6 +2632,41 @@ function setup_KHR_materials_iridescence(
       material.setTextureParameter(
         ShaderSemantics.IridescenceThicknessTexture,
         rnIridescenceThicknessTexture,
+        rnSampler
+      );
+    }
+  }
+}
+
+function setup_KHR_materials_anisotropy(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_anisotropy = materialJson?.extensions?.KHR_materials_anisotropy;
+  if (Is.exist(KHR_materials_anisotropy)) {
+    const anisotropyStrength = Is.exist(KHR_materials_anisotropy.anisotropyStrength)
+      ? KHR_materials_anisotropy.anisotropyStrength
+      : 0.0;
+    material.setParameter(ShaderSemantics.AnisotropyStrength, anisotropyStrength);
+    const anisotropyRotation = Is.exist(KHR_materials_anisotropy.anisotropyRotation)
+      ? KHR_materials_anisotropy.anisotropyRotation
+      : 0.0;
+    material.setParameter(
+      ShaderSemantics.AnisotropyRotation,
+      Vector2.fromCopy2(Math.cos(anisotropyRotation), Math.sin(anisotropyRotation))
+    );
+
+    const anisotropyTexture = KHR_materials_anisotropy.anisotropyTexture;
+    if (anisotropyTexture != null) {
+      const rnAnisotropyTexture = ModelConverter._createTexture(
+        anisotropyTexture.texture!,
+        gltfModel
+      );
+      const rnSampler = ModelConverter._createSampler(anisotropyTexture.texture!);
+      material.setTextureParameter(
+        ShaderSemantics.AnisotropyTexture,
+        rnAnisotropyTexture,
         rnSampler
       );
     }

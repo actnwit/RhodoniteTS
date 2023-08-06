@@ -493,6 +493,12 @@ export class Gltf2Importer {
                 gltfJson.textures[iridescenceThicknessTexture.index];
             }
           }
+          if (Is.exist(extensions.KHR_materials_anisotropy)) {
+            const anisotropyTexture = extensions.KHR_materials_anisotropy.anisotropyTexture;
+            if (anisotropyTexture !== void 0) {
+              anisotropyTexture.texture = gltfJson.textures[anisotropyTexture.index];
+            }
+          }
         }
       }
     }

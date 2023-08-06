@@ -100,7 +100,8 @@ void main (){
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
     vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
-    normal_inWorld = perturb_normal(normal_inWorld, viewVector, v_texcoord_0, normal);
+    mat3 TBN = getTBN(normal_inWorld, viewVector, v_texcoord_0);
+    normal_inWorld = normalize(TBN * normal);
   #endif
 
   #ifdef RN_MTOON_IS_OUTLINE
