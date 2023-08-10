@@ -4,120 +4,93 @@ let p: any;
 
 declare const window: any;
 
-(async () => {
-  Rn.Config.maxSkeletalBoneNumber = 10;
-  // const createSphere = () => {
-  //   const entityRepository = Rn.EntityRepository.getInstance();
-  //   const entity = entityRepository.createEntity([
-  //     Rn.TransformComponent,
-  //     Rn.SceneGraphComponent,
-  //     Rn.MeshComponent,
-  //     Rn.MeshRendererComponent,
-  //   ]);
+Rn.Config.maxSkeletalBoneNumber = 10;
 
-  //   const primitive = new Rn.Sphere();
-  //   primitive.generate({
-  //     radius: 1,
-  //     heightSegments: 20,
-  //     widthSegments: 20,
-  //   });
+const moduleManager = Rn.ModuleManager.getInstance();
+const effekseerModule = await moduleManager.loadModule('effekseer', {
+  // Comment out for WASM version
+  // wasm: '../../../vendor/effekseer.wasm',
+});
 
-  //   const meshComponent = entity.getMesh();
-  //   const mesh = new Rn.Mesh();
-  //   mesh.addPrimitive(primitive);
-  //   meshComponent.setMesh(mesh);
-  //   return entity;
-  // };
+const gl = await Rn.System.init({
+  approach: Rn.ProcessApproach.Uniform,
+  canvas: document.getElementById('world') as HTMLCanvasElement,
+  memoryUsageOrder: {
+    cpuGeneric: 0.15,
+    gpuInstanceData: 0.2,
+    gpuVertexData: 0.3,
+  },
+});
 
-  const moduleManager = Rn.ModuleManager.getInstance();
-  const effekseerModule = await moduleManager.loadModule('effekseer', {
-    // Comment out for WASM version
-    // wasm: '../../../vendor/effekseer.wasm',
-  });
+// Effekseer
+const effekseerEntity = effekseerModule.createEffekseerEntity();
+const effekseerComponent = effekseerEntity.getComponent(
+  effekseerModule.EffekseerComponent
+) as Rn.EffekseerComponent;
+effekseerComponent.playJustAfterLoaded = true;
+effekseerComponent.randomSeed = 1;
+effekseerComponent.isLoop = false;
 
-  const gl = await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas: document.getElementById('world') as HTMLCanvasElement,
-    memoryUsageOrder: {
-      cpuGeneric: 0.15,
-      gpuInstanceData: 0.2,
-      gpuVertexData: 0.3,
-    },
-  });
+// effekseerComponent.isLoop = true;
+effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
+// effekseerEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
-  // Effekseer
-  const effekseerEntity = effekseerModule.createEffekseerEntity();
-  const effekseerComponent = effekseerEntity.getComponent(
-    effekseerModule.EffekseerComponent
-  ) as Rn.EffekseerComponent;
-  effekseerComponent.playJustAfterLoaded = true;
-  effekseerComponent.randomSeed = 1;
-  effekseerComponent.isLoop = false;
+// Camera
+const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000;
+cameraComponent.setFovyAndChangeFocalLength(90);
+cameraComponent.aspect = 1;
 
-  // effekseerComponent.isLoop = true;
-  effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
-  // effekseerEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
+// 3D Model for Test
+const response = (
+  await Rn.Gltf2Importer.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+  )
+).unwrapForce();
+const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
+// const sphereEntity = createSphere();
 
-  // Camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zNear = 0.1;
-  cameraComponent.zFar = 1000;
-  cameraComponent.setFovyAndChangeFocalLength(90);
-  cameraComponent.aspect = 1;
+// CameraComponent
+const cameraControllerComponent = cameraEntity.getCameraController();
+const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
+controller.setTarget(rootGroup);
 
-  // 3D Model for Test
-  const response = (
-    await Rn.Gltf2Importer.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
-    )
-  ).unwrapForce();
-  const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
-  // const sphereEntity = createSphere();
+// renderPass
+const renderPass = new Rn.RenderPass();
+renderPass.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.01]);
+renderPass.toClearColorBuffer = true;
+// renderPass.addEntities([effekseerEntity]);
+renderPass.addEntities([rootGroup, effekseerEntity]);
 
-  // CameraComponent
-  const cameraControllerComponent = cameraEntity.getCameraController();
-  const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.setTarget(rootGroup);
+// expression
+const expression = new Rn.Expression();
+expression.addRenderPasses([renderPass]);
 
-  // renderPass
-  const renderPass = new Rn.RenderPass();
-  renderPass.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.01]);
-  renderPass.toClearColorBuffer = true;
-  // renderPass.addEntities([effekseerEntity]);
-  renderPass.addEntities([rootGroup, effekseerEntity]);
+Rn.CameraComponent.current = 0;
+let count = 0;
+let setTimeDone = false;
 
-  // expression
-  const expression = new Rn.Expression();
-  expression.addRenderPasses([renderPass]);
+Rn.System.startRenderLoop(() => {
+  if (count > 0 && window._rendered !== true && setTimeDone) {
+    p = document.createElement('p');
+    p.setAttribute('id', 'rendered');
+    p.innerText = 'Rendered.';
+    document.body.appendChild(p);
+    window._rendered = true;
+  }
+  if (effekseerComponent.isPlay() && !setTimeDone) {
+    // const cameraController =
+    //   cameraEntity.getCameraController() as unknown as OrbitCameraController;
+    // cameraController.rotX = 90;
+    // cameraController.rotY = 90;
+    effekseerComponent.setTime(0.16);
+    setTimeDone = true;
+    // effekseerComponent.stop();
+    count = 0;
+  }
 
-  Rn.CameraComponent.current = 0;
-  let count = 0;
-  let setTimeDone = false;
-  const draw = function () {
-    if (count > 0 && window._rendered !== true && setTimeDone) {
-      p = document.createElement('p');
-      p.setAttribute('id', 'rendered');
-      p.innerText = 'Rendered.';
-      document.body.appendChild(p);
-      window._rendered = true;
-    }
-    if (effekseerComponent.isPlay() && !setTimeDone) {
-      // const cameraController =
-      //   cameraEntity.getCameraController() as unknown as OrbitCameraController;
-      // cameraController.rotX = 90;
-      // cameraController.rotY = 90;
-      effekseerComponent.setTime(0.16);
-      setTimeDone = true;
-      // effekseerComponent.stop();
-      count = 0;
-    }
-
-    Rn.System.process([expression]);
-    count++;
-
-    requestAnimationFrame(draw);
-  };
-
-  draw();
-})();
+  Rn.System.process([expression]);
+  count++;
+});

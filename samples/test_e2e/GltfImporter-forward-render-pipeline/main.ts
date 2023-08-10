@@ -5,93 +5,91 @@ document.body.appendChild(p);
 
 declare const window: any;
 
-(async () => {
-  Rn.Config.isUboEnabled = false;
-  const canvas = document.getElementById('world') as HTMLCanvasElement;
-  await Rn.System.init({
-    approach: Rn.ProcessApproach.DataTexture,
-    canvas,
-  });
+Rn.Config.isUboEnabled = false;
+const canvas = document.getElementById('world') as HTMLCanvasElement;
+await Rn.System.init({
+  approach: Rn.ProcessApproach.DataTexture,
+  canvas,
+});
 
-  Rn.MeshRendererComponent.isDepthMaskTrueForTransparencies = true;
+Rn.MeshRendererComponent.isDepthMaskTrueForTransparencies = true;
 
-  // create ForwardRenderPipeline
-  const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
-  forwardRenderPipeline.setup(canvas.width, canvas.height);
+// create ForwardRenderPipeline
+const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
+forwardRenderPipeline.setup(canvas.width, canvas.height);
 
-  // camera
-  const { cameraComponent, cameraEntity } = createCamera();
+// camera
+const { cameraComponent, cameraEntity } = createCamera();
 
-  // gltf
-  const mainExpression = (
-    await Rn.GltfImporter.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Models/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
-      {
-        cameraComponent: cameraComponent,
-        defaultMaterialHelperArgumentArray: [
-          {
-            makeOutputSrgb: false,
-          },
-        ],
-      }
-    )
-  ).unwrapForce();
-
-  // env
-  const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
-
-  const mainRenderPass = mainExpression.renderPasses[0];
-  // cameraController
-  const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
-  controller.dolly = 0.83;
-
-  forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
-
-  // lighting
-  forwardRenderPipeline.setIBL({
-    diffuse: {
-      baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
-      hdriFormat: Rn.HdriFormat.RGBE_PNG,
-      isNamePosNeg: true,
-      mipmapLevelNumber: 1,
-    },
-    specular: {
-      baseUri: './../../../assets/ibl/papermill/specular/specular',
-      hdriFormat: Rn.HdriFormat.RGBE_PNG,
-      isNamePosNeg: true,
-      mipmapLevelNumber: 10,
-    },
-  });
-
-  let count = 0;
-  let startTime = Date.now();
-  const draw = function (frame) {
-    if (count > 100) {
-      p.id = 'rendered';
-      p.innerText = 'Rendered.';
-    } else if (count === 1) {
-      p.id = 'started';
-      p.innerText = 'Started.';
+// gltf
+const mainExpression = (
+  await Rn.GltfImporter.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Models/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
+    {
+      cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
     }
+  )
+).unwrapForce();
 
-    if (window.isAnimating) {
-      const date = new Date();
-      const time = (date.getTime() - startTime) / 1000;
-      Rn.AnimationComponent.globalTime = time;
-      if (time > Rn.AnimationComponent.endInputValue) {
-        startTime = date.getTime();
-      }
+// env
+const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
+
+const mainRenderPass = mainExpression.renderPasses[0];
+// cameraController
+const mainCameraControllerComponent = cameraEntity.getCameraController();
+const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+controller.dolly = 0.83;
+
+forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
+
+// lighting
+forwardRenderPipeline.setIBL({
+  diffuse: {
+    baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+    isNamePosNeg: true,
+    mipmapLevelNumber: 1,
+  },
+  specular: {
+    baseUri: './../../../assets/ibl/papermill/specular/specular',
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+    isNamePosNeg: true,
+    mipmapLevelNumber: 10,
+  },
+});
+
+let count = 0;
+let startTime = Date.now();
+const draw = function (frame) {
+  if (count > 100) {
+    p.id = 'rendered';
+    p.innerText = 'Rendered.';
+  } else if (count === 1) {
+    p.id = 'started';
+    p.innerText = 'Started.';
+  }
+
+  if (window.isAnimating) {
+    const date = new Date();
+    const time = (date.getTime() - startTime) / 1000;
+    Rn.AnimationComponent.globalTime = time;
+    if (time > Rn.AnimationComponent.endInputValue) {
+      startTime = date.getTime();
     }
+  }
 
-    Rn.System.process(frame);
+  Rn.System.process(frame);
 
-    count++;
-  };
+  count++;
+};
 
-  forwardRenderPipeline.startRenderLoop(draw);
-})();
+forwardRenderPipeline.startRenderLoop(draw);
 
 function createCamera() {
   const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();

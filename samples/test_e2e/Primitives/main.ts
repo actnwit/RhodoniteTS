@@ -1,27 +1,25 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 import { checkFinished } from '../common/testHelpers.js';
 let p: HTMLParagraphElement | undefined;
 
-(async () => {
-  // setup Rhodonite
-  const system = await setupRhodonite();
+// setup Rhodonite
+const system = await setupRhodonite();
 
-  // setup shape entities
-  const group = createGroupOfShapes();
+// setup shape entities
+const group = createGroupOfShapes();
 
-  // setup camera
-  createCamera(group);
+// setup camera
+createCamera(group);
 
-  // Rendering Loop
-  let count = 0;
-  Rn.System.startRenderLoop(() => {
-    [p, count] = checkFinished({ p: p!, count });
+// Rendering Loop
+let count = 0;
+Rn.System.startRenderLoop(() => {
+  [p, count] = checkFinished({ p: p!, count });
 
-    Rn.System.processAuto();
+  Rn.System.processAuto();
 
-    count++;
-  });
-})();
+  count++;
+});
 
 function createGroupOfShapes(): Rn.IMeshEntity {
   const group = Rn.EntityHelper.createGroupEntity();
