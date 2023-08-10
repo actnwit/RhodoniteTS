@@ -1,6 +1,4 @@
-import { IMeshEntity } from '../../../dist/esm/foundation/helpers/EntityHelper';
-import Rn, { Expression } from '../../../dist/esm/index.js';
-import { RnM2 } from '../../../dist/esm/types/RnM2';
+import Rn from '../../../dist/esmdev/index.js';
 
 (async () => {
   // ---parameters---------------------------------------------------------------------------------------------
@@ -41,12 +39,14 @@ import { RnM2 } from '../../../dist/esm/types/RnM2';
 
   // ---functions-----------------------------------------------------------------------------------------
 
-  async function createEntityPointCloud(pointCloudDrcUri: string): Promise<IMeshEntity> {
+  async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMeshEntity> {
     const importer = Rn.DrcPointCloudImporter.getInstance();
-    const r_gltf2JSON = (await importer.importPointCloud(pointCloudDrcUri)).unwrapForce() as RnM2;
+    const r_gltf2JSON = (
+      await importer.importPointCloud(pointCloudDrcUri)
+    ).unwrapForce() as Rn.RnM2;
 
     const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
-    return rootGroup as IMeshEntity;
+    return rootGroup as Rn.IMeshEntity;
   }
 
   // For cases where there is a single baseColorTexture and each vertex has a UV attribute.
@@ -77,7 +77,7 @@ import { RnM2 } from '../../../dist/esm/types/RnM2';
   //   return rootGroup;
   // }
 
-  function setPointSizeRecursively(entity: IMeshEntity, pointSize: number) {
+  function setPointSizeRecursively(entity: Rn.IMeshEntity, pointSize: number) {
     // set point size
     const meshComponent = entity.getMesh();
     if (meshComponent) {
@@ -94,13 +94,13 @@ import { RnM2 } from '../../../dist/esm/types/RnM2';
     if (sceneGraphComponent) {
       const childSceneGraphComponents = sceneGraphComponent.children;
       for (const childSceneGraphComponent of childSceneGraphComponents) {
-        const childEntity = childSceneGraphComponent.entity as IMeshEntity;
+        const childEntity = childSceneGraphComponent.entity as Rn.IMeshEntity;
         setPointSizeRecursively(childEntity, pointSize);
       }
     }
   }
 
-  function draw(expressions: Expression[]) {
+  function draw(expressions: Rn.Expression[]) {
     Rn.System.process(expressions);
     requestAnimationFrame(draw.bind(null, expressions));
   }

@@ -1,123 +1,121 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
-(async () => {
-  // ---parameters---------------------------------------------------------------------------------------------
+// ---parameters---------------------------------------------------------------------------------------------
 
-  const pointCloudDrcUri = './../../../assets/drc/FlightHelmet/FlightHelmet.drc';
+const pointCloudDrcUri = './../../../assets/drc/FlightHelmet/FlightHelmet.drc';
 
-  const pointSize = 1.0;
+const pointSize = 1.0;
 
-  // ---main algorithm-----------------------------------------------------------------------------------------
+// ---main algorithm-----------------------------------------------------------------------------------------
 
-  // load modules
-  await Promise.all([
-    Rn.ModuleManager.getInstance().loadModule('webgl'),
-    Rn.ModuleManager.getInstance().loadModule('pbr'),
-  ]);
+// load modules
+await Promise.all([
+  Rn.ModuleManager.getInstance().loadModule('webgl'),
+  Rn.ModuleManager.getInstance().loadModule('pbr'),
+]);
 
-  // prepare memory
-  const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-  await Rn.System.init({
-    approach: Rn.ProcessApproach.Uniform,
-    canvas: rnCanvasElement,
-  });
+// prepare memory
+const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
+await Rn.System.init({
+  approach: Rn.ProcessApproach.Uniform,
+  canvas: rnCanvasElement,
+});
 
-  // prepare entity
-  const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
-  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
-  setPointSizeRecursively(rootGroup, pointSize);
+// prepare entity
+const rootGroup = await createEntityPointCloud(pointCloudDrcUri);
+rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 2, 0.0, 0.0]);
+setPointSizeRecursively(rootGroup, pointSize);
 
-  // set camera
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
-  const cameraControllerComponent = entityCamera.getCameraController();
-  cameraControllerComponent.controller.setTarget(rootGroup);
+// set camera
+const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+const cameraControllerComponent = entityCamera.getCameraController();
+cameraControllerComponent.controller.setTarget(rootGroup);
 
-  //prepare render pass and expression
-  const renderPass = new Rn.RenderPass();
-  renderPass.addEntities([rootGroup]);
-  renderPass.cameraComponent = entityCamera.getCamera();
+//prepare render pass and expression
+const renderPass = new Rn.RenderPass();
+renderPass.addEntities([rootGroup]);
+renderPass.cameraComponent = entityCamera.getCamera();
 
-  const expression = new Rn.Expression();
-  expression.addRenderPasses([renderPass]);
+const expression = new Rn.Expression();
+expression.addRenderPasses([renderPass]);
 
-  // draw
-  draw([expression]);
+// draw
+draw([expression]);
 
-  // ---functions-----------------------------------------------------------------------------------------
+// ---functions-----------------------------------------------------------------------------------------
 
-  async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMeshEntity> {
-    const importer = Rn.DrcPointCloudImporter.getInstance();
-    const primitive = await importer.importPointCloudToPrimitive(pointCloudDrcUri);
+async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMeshEntity> {
+  const importer = Rn.DrcPointCloudImporter.getInstance();
+  const primitive = await importer.importPointCloudToPrimitive(pointCloudDrcUri);
 
-    const mesh = new Rn.Mesh();
-    mesh.addPrimitive(primitive);
+  const mesh = new Rn.Mesh();
+  mesh.addPrimitive(primitive);
 
-    const entity = Rn.EntityHelper.createMeshEntity();
-    const meshComponent = entity.getMesh();
-    meshComponent.setMesh(mesh);
+  const entity = Rn.EntityHelper.createMeshEntity();
+  const meshComponent = entity.getMesh();
+  meshComponent.setMesh(mesh);
 
-    return entity;
-  }
+  return entity;
+}
 
-  // For cases where there is a single baseColorTexture and each vertex has a UV attribute.
-  //
-  // async function createEntityTextureAttachedPointCloud(
-  //   pointCloudDrcUri: string,
-  //   baseColorTextureUri: string
-  // ): Promise<Entity> {
-  //   const importer = Rn.DrcPointCloudImporter.getInstance();
-  //   const primitive = await importer.importPointCloudToPrimitive(
-  //     pointCloudDrcUri
-  //   );
+// For cases where there is a single baseColorTexture and each vertex has a UV attribute.
+//
+// async function createEntityTextureAttachedPointCloud(
+//   pointCloudDrcUri: string,
+//   baseColorTextureUri: string
+// ): Promise<Entity> {
+//   const importer = Rn.DrcPointCloudImporter.getInstance();
+//   const primitive = await importer.importPointCloudToPrimitive(
+//     pointCloudDrcUri
+//   );
 
-  //   const baseColorTexture = new Rn.Texture();
-  //   await baseColorTexture.generateTextureFromUri(baseColorTextureUri);
-  //   primitive.material.setTextureParameter(
-  //     Rn.ShaderSemantics.BaseColorTexture,
-  //     baseColorTexture
-  //   );
+//   const baseColorTexture = new Rn.Texture();
+//   await baseColorTexture.generateTextureFromUri(baseColorTextureUri);
+//   primitive.material.setTextureParameter(
+//     Rn.ShaderSemantics.BaseColorTexture,
+//     baseColorTexture
+//   );
 
-  //   const mesh = new Rn.Mesh();
-  //   mesh.addPrimitive(primitive);
+//   const mesh = new Rn.Mesh();
+//   mesh.addPrimitive(primitive);
 
-  //   const entityRepository = Rn.EntityRepository.getInstance();
-  //   const entity = entityRepository.createEntity([
-  //     Rn.TransformComponent,
-  //     Rn.SceneGraphComponent,
-  //     Rn.MeshComponent,
-  //     Rn.MeshRendererComponent,
-  //   ]);
-  //   const meshComponent = entity.getMesh();
-  //   meshComponent.setMesh(mesh);
+//   const entityRepository = Rn.EntityRepository.getInstance();
+//   const entity = entityRepository.createEntity([
+//     Rn.TransformComponent,
+//     Rn.SceneGraphComponent,
+//     Rn.MeshComponent,
+//     Rn.MeshRendererComponent,
+//   ]);
+//   const meshComponent = entity.getMesh();
+//   meshComponent.setMesh(mesh);
 
-  //   return entity;
-  // }
+//   return entity;
+// }
 
-  function setPointSizeRecursively(entity: Rn.IMeshEntity, pointSize: number) {
-    // set point size
-    const meshComponent = entity.getMesh();
-    if (meshComponent) {
-      const mesh = meshComponent.mesh;
-      const primitives = mesh.primitives;
-      for (const primitive of primitives) {
-        const material = primitive.material;
-        material.setParameter(Rn.ShaderSemantics.PointSize, pointSize);
-      }
-    }
-
-    // set recursively
-    const sceneGraphComponent = entity.getSceneGraph();
-    if (sceneGraphComponent) {
-      const childSceneGraphComponents = sceneGraphComponent.children;
-      for (const childSceneGraphComponent of childSceneGraphComponents) {
-        const childEntity = childSceneGraphComponent.entity as Rn.IMeshEntity;
-        setPointSizeRecursively(childEntity, pointSize);
-      }
+function setPointSizeRecursively(entity: Rn.IMeshEntity, pointSize: number) {
+  // set point size
+  const meshComponent = entity.getMesh();
+  if (meshComponent) {
+    const mesh = meshComponent.mesh;
+    const primitives = mesh.primitives;
+    for (const primitive of primitives) {
+      const material = primitive.material;
+      material.setParameter(Rn.ShaderSemantics.PointSize, pointSize);
     }
   }
 
-  function draw(expressions: Rn.Expression[]) {
-    Rn.System.process(expressions);
-    requestAnimationFrame(draw.bind(null, expressions));
+  // set recursively
+  const sceneGraphComponent = entity.getSceneGraph();
+  if (sceneGraphComponent) {
+    const childSceneGraphComponents = sceneGraphComponent.children;
+    for (const childSceneGraphComponent of childSceneGraphComponents) {
+      const childEntity = childSceneGraphComponent.entity as Rn.IMeshEntity;
+      setPointSizeRecursively(childEntity, pointSize);
+    }
   }
-})();
+}
+
+function draw(expressions: Rn.Expression[]) {
+  Rn.System.process(expressions);
+  requestAnimationFrame(draw.bind(null, expressions));
+}

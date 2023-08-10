@@ -65,8 +65,6 @@
     "GltfImporter-iOS",
     "ShadowMapping",
     "SkinShader",
-    "SparkGear",
-    "VideoTexture",
-    "VRMImporterMToon"
+    "VideoTexture"
   ]
 }

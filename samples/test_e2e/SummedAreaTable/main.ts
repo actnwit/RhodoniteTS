@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esm/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 // import Rn from '../../../dist/cjs';
 
 declare const window: any;
@@ -6,31 +6,29 @@ declare const window: any;
 let framebuffer: Rn.FrameBuffer;
 let renderPassMain: Rn.RenderPass;
 
-(async () => {
-  // Init Rhodonite
-  await initRn();
+// Init Rhodonite
+await initRn();
 
-  // expressions
-  const expressions: Rn.Expression[] = [];
+// expressions
+const expressions: Rn.Expression[] = [];
 
-  // Background Env Cube Map Expression
-  const envExpression = createBackgroundEnvCubeExpression('./../../../assets/ibl/papermill');
-  expressions.push(envExpression);
+// Background Env Cube Map Expression
+const envExpression = createBackgroundEnvCubeExpression('./../../../assets/ibl/papermill');
+expressions.push(envExpression);
 
-  // setup the Main RenderPass
-  await createMainExpression(expressions);
+// setup the Main RenderPass
+await createMainExpression(expressions);
 
-  // setup the SAT RenderPass
-  // createSat(expressions);
+// setup the SAT RenderPass
+// createSat(expressions);
 
-  // lighting
-  setIBL('./../../../assets/ibl/papermill');
+// lighting
+setIBL('./../../../assets/ibl/papermill');
 
-  // Render Loop
-  Rn.System.startRenderLoop(() => {
-    Rn.System.process(expressions);
-  });
-})();
+// Render Loop
+Rn.System.startRenderLoop(() => {
+  Rn.System.process(expressions);
+});
 
 async function initRn() {
   const canvas = document.getElementById('world') as HTMLCanvasElement;
