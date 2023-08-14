@@ -1,9 +1,9 @@
 import { MeshComponent } from '../components/Mesh/MeshComponent';
-import { ProcessApproach } from '../definitions';
-import { Mesh } from '../geometry';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { Mesh } from '../geometry/Mesh';
 import { Material } from '../materials/core/Material';
-import { Is } from '../misc';
-import { SystemState } from '../system';
+import { Is } from '../misc/Is';
+import { SystemState } from '../system/SystemState';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 export function isSkipDrawing(material: Material) {

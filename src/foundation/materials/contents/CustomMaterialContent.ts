@@ -12,8 +12,8 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
-import { SystemState } from '../../system';
-import { ProcessApproach } from '../../definitions';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
