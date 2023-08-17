@@ -134,6 +134,12 @@ export interface ICGAPIResourceRepository {
   updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles): void;
 
   /**
+   * delete the Vertex Data resources
+   * @param vertexHandles
+   */
+  deleteVertexDataResources(vertexHandles: VertexHandles): void;
+
+  /**
    * delete a Vertex Buffer
    * @param resourceHandle - a CGAPIResourceHandle
    */

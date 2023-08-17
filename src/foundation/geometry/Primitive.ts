@@ -427,8 +427,8 @@ export class Primitive extends RnObject {
     if (this.__vertexHandles != null) {
       return false;
     }
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    this.__vertexHandles = webglResourceRepository.createVertexBufferAndIndexBuffer(this);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    this.__vertexHandles = cgApiResourceRepository.createVertexBufferAndIndexBuffer(this);
 
     return true;
   }
@@ -439,8 +439,8 @@ export class Primitive extends RnObject {
       return false;
     }
 
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    webglResourceRepository.updateVertexBufferAndIndexBuffer(this, vertexHandles);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.updateVertexBufferAndIndexBuffer(this, vertexHandles);
 
     return true;
   }

@@ -292,6 +292,22 @@ export class WebGpuResourceRepository
     }
   }
 
+  deleteVertexDataResources(vertexHandles: VertexHandles) {
+    if (Is.exist(vertexHandles.iboHandle)) {
+      const indexBuffer = this.__webGpuResources.get(vertexHandles.iboHandle) as GPUBuffer;
+      if (Is.exist(indexBuffer)) {
+        indexBuffer.destroy();
+      }
+    }
+
+    for (const vboHandle of vertexHandles.vboHandles) {
+      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
+      if (Is.exist(vertexBuffer)) {
+        vertexBuffer.destroy();
+      }
+    }
+  }
+
   /**
    * set the VertexData to the Pipeline
    */
