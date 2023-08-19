@@ -63,6 +63,7 @@
     "GaussianBlurDepth",
     "Gltf2ImporterShadow",
     "GltfImporter-iOS",
+    "Physics",
     "ShadowMapping",
     "SkinShader",
     "VideoTexture"

@@ -1,6 +1,8 @@
+import { ISceneGraphEntity } from '../../helpers';
+import { IQuaternion, IVector3, MathUtil, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { PhysicsProperty } from '../PhysicsProperty';
+import { PhysicsPropertyInner } from '../PhysicsProperty';
 import { PhysicsStrategy } from '../PhysicsStrategy';
 import { PhysicsWorldProperty } from '../PhysicsWorldProperty';
 
@@ -13,6 +15,8 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   };
   static __world: any;
   private __body: any;
+  private __entity?: ISceneGraphEntity;
+  private __property: any;
 
   constructor() {
     if (Is.not.exist(OimoPhysicsStrategy.__world)) {
@@ -33,22 +37,74 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     }
   }
 
-  setShape(shape: PhysicsProperty) {
+  setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity) {
     const world = OimoPhysicsStrategy.__world;
-    this.__body = world.add({
-      type: shape.type.str.toLowerCase(),
-      size: [shape.size.x, shape.size.y, shape.size.z],
-      pos: [shape.position.x, shape.position.y, shape.position.z],
-      rot: [shape.rotation.x, shape.rotation.y, shape.rotation.z],
-      move: true,
-      density: 1,
-      friction: shape.friction,
-      restitution: shape.restitution,
-    });
+    this.__property = {
+      type: prop.type.str.toLowerCase(),
+      size: [prop.size.x, prop.size.y, prop.size.z],
+      pos: [prop.position.x, prop.position.y, prop.position.z],
+      rot: [prop.rotation.x, prop.rotation.y, prop.rotation.z],
+      move: prop.move,
+      density: prop.density,
+      friction: prop.friction,
+      restitution: prop.restitution,
+    };
+    this.__body = world.add(this.__property);
+    this.__entity = entity;
   }
 
   update(): void {
-    // Nothing to do
+    if (this.__entity === undefined) {
+      return;
+    }
+    const pos = this.__body.getPosition();
+    const rot = this.__body.getQuaternion();
+    this.__entity.position = Vector3.fromCopy3(pos.x, pos.y, pos.z);
+    this.__entity.rotation = Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w);
+  }
+
+  setPosition(worldPosition: IVector3): void {
+    const world = OimoPhysicsStrategy.__world;
+    if (this.__entity === undefined) {
+      return;
+    }
+    this.__body.remove();
+    const prop = this.__property;
+    this.__property = {
+      type: prop.type,
+      size: [prop.size[0], prop.size[1], prop.size[2]],
+      pos: [worldPosition.x, worldPosition.y, worldPosition.z],
+      rot: [this.__entity.eulerAngles.x, this.__entity.eulerAngles.y, this.__entity.eulerAngles.z],
+      move: prop.move,
+      density: prop.density,
+      friction: prop.friction,
+      restitution: prop.restitution,
+    };
+    this.__body = world.add(this.__property);
+  }
+
+  setEulerAngle(eulerAngles: IVector3): void {
+    const world = OimoPhysicsStrategy.__world;
+    if (this.__entity === undefined) {
+      return;
+    }
+    this.__body.remove();
+    const prop = this.__property;
+    this.__property = {
+      type: prop.type,
+      size: [prop.size[0], prop.size[1], prop.size[2]],
+      pos: [this.__entity.position.x, this.__entity.position.y, this.__entity.position.z],
+      rot: [
+        MathUtil.radianToDegree(eulerAngles.x),
+        MathUtil.radianToDegree(eulerAngles.y),
+        MathUtil.radianToDegree(eulerAngles.z),
+      ],
+      move: prop.move,
+      density: prop.density,
+      friction: prop.friction,
+      restitution: prop.restitution,
+    };
+    this.__body = world.add(this.__property);
   }
 
   static update(): void {
