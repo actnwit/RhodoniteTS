@@ -273,7 +273,7 @@ export class VrmImporter {
     const entity = sg.entity;
     const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
-    physicsComponent.strategy.setSpring(spring);
+    (physicsComponent.strategy as VRMSpringBonePhysicsStrategy).setSpring(spring);
   }
 
   static _createTextures(gltfModel: RnM2): Texture[] {

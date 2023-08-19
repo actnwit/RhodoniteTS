@@ -8,6 +8,8 @@ import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringB
 import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import { Is } from '../../misc/Is';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class PhysicsComponent extends Component {
   private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
@@ -35,7 +37,9 @@ export class PhysicsComponent extends Component {
     return this.__strategy;
   }
 
-  static common_$logic() {}
+  static common_$logic() {
+    OimoPhysicsStrategy.update();
+  }
 
   $logic() {
     this.__strategy.update();

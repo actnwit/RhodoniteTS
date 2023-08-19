@@ -5,12 +5,10 @@ import { Quaternion } from '../../math/Quaternion';
 import { Time } from '../../misc/Time';
 import { VRMSpring } from './VRMSpring';
 import { VRMColliderGroup } from './VRMColliderGroup';
-import { Index } from '../../../types/CommonTypes';
 import { PhysicsStrategy } from '../PhysicsStrategy';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { Is } from '../../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
-import { Matrix44 } from '../../math/Matrix44';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
