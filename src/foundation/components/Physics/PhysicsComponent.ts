@@ -4,7 +4,7 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpringBonePhysicsStrategy';
+import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';

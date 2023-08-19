@@ -1,4 +1,4 @@
-import { VRMSpring } from "./VRMSpring";
+import { VRMSpring } from './VRMSpring/VRMSpring';
 
 export interface PhysicsStrategy {
   update(): void;

@@ -1,16 +1,16 @@
-import { Vector3 } from '../math/Vector3';
-import { MutableVector3 } from '../math/MutableVector3';
-import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { Quaternion } from '../math/Quaternion';
-import { Time } from '../misc/Time';
+import { Vector3 } from '../../math/Vector3';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { SceneGraphComponent } from '../../components/SceneGraph/SceneGraphComponent';
+import { Quaternion } from '../../math/Quaternion';
+import { Time } from '../../misc/Time';
 import { VRMSpring } from './VRMSpring';
 import { VRMColliderGroup } from './VRMColliderGroup';
-import { Index } from '../../types/CommonTypes';
-import { PhysicsStrategy } from './PhysicsStrategy';
-import { MutableQuaternion } from '../math/MutableQuaternion';
-import { Is } from '../misc/Is';
+import { Index } from '../../../types/CommonTypes';
+import { PhysicsStrategy } from '../PhysicsStrategy';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { Is } from '../../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
-import { Matrix44 } from '../math/Matrix44';
+import { Matrix44 } from '../../math/Matrix44';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3 = MutableVector3.zero();
