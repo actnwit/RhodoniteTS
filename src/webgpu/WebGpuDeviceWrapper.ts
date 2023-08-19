@@ -6,7 +6,7 @@ export class WebGpuDeviceWrapper {
 
   constructor(canvas: HTMLCanvasElement, gpuAdapter: GPUAdapter, gpuDevice: GPUDevice) {
     this.__canvas = canvas;
-    this.__context = canvas.getContext('webgpu') as GPUCanvasContext;
+    this.__context = canvas.getContext('webgpu') as unknown as GPUCanvasContext;
     this.__gpuAdapter = gpuAdapter;
     this.__gpuDevice = gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();

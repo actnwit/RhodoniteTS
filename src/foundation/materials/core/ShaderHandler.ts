@@ -17,6 +17,16 @@ export class ShaderHandler {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 
+  /**
+   * Create a shader program Or Get a shader program from cache
+   * @param material
+   * @param vertexShader
+   * @param pixelShader
+   * @param attributeNames
+   * @param attributeSemantics
+   * @param onError
+   * @returns
+   */
   static _createShaderProgramWithCache(
     material: Material,
     vertexShader: string,

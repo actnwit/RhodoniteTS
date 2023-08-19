@@ -37,6 +37,7 @@ import {
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
   _setupGlobalShaderDefinitionWebGL,
+  ShaderHandler,
 } from './ShaderHandler';
 
 /**
@@ -250,13 +251,13 @@ export class Material extends RnObject {
     const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const materialNode = this._materialContent;
 
-    const programUid = webGpuResourceRepository.createShaderProgram({
-      material: this,
-      vertexShaderStr: materialNode.vertexShaderityObject!.code,
-      fragmentShaderStr: materialNode.pixelShaderityObject!.code,
-      attributeNames: [],
-      attributeSemantics: [],
-    });
+    const programUid = ShaderHandler._createShaderProgramWithCache(
+      this,
+      materialNode.vertexShaderityObject!.code,
+      materialNode.pixelShaderityObject!.code,
+      [],
+      []
+    );
 
     this._shaderProgramUid = programUid;
   }
