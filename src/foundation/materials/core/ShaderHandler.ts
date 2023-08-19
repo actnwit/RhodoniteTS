@@ -100,6 +100,21 @@ export function _outputVertexAttributeBindingInfo(
   return vertexAttributesBinding;
 }
 
+/**
+ * Create a shader program
+ *
+ * @remarks
+ * This method creates the final shader source code
+ * by embedding variables and adding definitions
+ * to the prototype shader source code during processing.
+ *
+ * @param material - A material
+ * @param vertexPropertiesStr - A string of vertex properties
+ * @param pixelPropertiesStr - A string of pixel properties
+ * @param vertexShaderMethodDefinitions_uniform - A string of vertex shader method definitions in Uniform Strategy
+ * @param isWebGL2 - A flag whether the current WebGL context is WebGL2 or not
+ * @returns
+ */
 export function _createProgramAsSingleOperationWebGL(
   material: Material,
   vertexPropertiesStr: string,
@@ -112,7 +127,7 @@ export function _createProgramAsSingleOperationWebGL(
 
   const definitions = materialNode.getDefinitions(material);
 
-  // Shader Construction
+  // Shader Code Construction
   let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
   vertexShader += '#define RN_IS_VERTEX_SHADER\n';
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
