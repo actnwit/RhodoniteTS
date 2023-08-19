@@ -153,7 +153,7 @@ export class WebGpuResourceRepository
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vertexBuffer = gpuDevice.createBuffer({
-      size: accessor.byteLength,
+      size: accessor.bufferView.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
     });
