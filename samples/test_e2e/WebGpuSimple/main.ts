@@ -38,6 +38,14 @@ declare const window: any;
     const entityOrig = Rn.EntityHelper.createMeshEntity();
     entityOrig.getMesh().setMesh(originalMesh);
     entities.push(entityOrig);
+    // const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
+    // const sphere = Rn.MeshHelper.createSphere({
+    //   radius: 0.5,
+    //   widthSegments: 32,
+    //   heightSegments: 32,
+    //   material: flatMaterial,
+    // });
+    // entities.push(sphere);
 
     let count = 0;
 
