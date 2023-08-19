@@ -36,8 +36,8 @@ export class ShaderHandler {
     if (shaderProgramUid) {
       return shaderProgramUid;
     } else {
-      const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-      const shaderProgramUid = webglResourceRepository.createShaderProgram({
+      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      const shaderProgramUid = cgApiResourceRepository.createShaderProgram({
         material,
         vertexShaderStr: vertexShader,
         fragmentShaderStr: pixelShader,
@@ -90,7 +90,7 @@ export function _outputVertexAttributeBindingInfo(
   return vertexAttributesBinding;
 }
 
-export function _createProgramAsSingleOperation(
+export function _createProgramAsSingleOperationWebGL(
   material: Material,
   vertexPropertiesStr: string,
   pixelPropertiesStr: string,
@@ -103,9 +103,9 @@ export function _createProgramAsSingleOperation(
   const definitions = materialNode.getDefinitions(material);
 
   // Shader Construction
-  let vertexShader = _setupGlobalShaderDefinition(material.__materialTypeName);
+  let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
   vertexShader += '#define RN_IS_VERTEX_SHADER\n';
-  let pixelShader = _setupGlobalShaderDefinition(material.__materialTypeName);
+  let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
   const vertexShaderityObject = ShaderityUtility.fillTemplate(materialNode.vertexShaderityObject!, {
@@ -155,7 +155,7 @@ export function _createProgramAsSingleOperation(
   return shaderProgramUid;
 }
 
-export function _setupGlobalShaderDefinition(materialTypeName: string) {
+export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string) {
   let definitions = '';
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;

@@ -148,7 +148,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material._createProgram(
+    const programUid = material._createProgramWebGL(
       WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
       WebGLStrategyDataTexture.__getShaderProperty,
       glw.isWebGL2

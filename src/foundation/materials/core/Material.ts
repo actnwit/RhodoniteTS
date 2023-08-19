@@ -32,11 +32,11 @@ import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
 import {
-  _createProgramAsSingleOperation,
+  _createProgramAsSingleOperationWebGL,
   _createProgramAsSingleOperationByUpdatedSources,
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
-  _setupGlobalShaderDefinition,
+  _setupGlobalShaderDefinitionWebGL,
 } from './ShaderHandler';
 
 /**
@@ -224,7 +224,7 @@ export class Material extends RnObject {
    * @param isWebGL2
    * @returns
    */
-  _createProgram(
+  _createProgramWebGL(
     vertexShaderMethodDefinitions_uniform: string,
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
@@ -234,7 +234,7 @@ export class Material extends RnObject {
       isWebGL2
     );
 
-    const programUid = _createProgramAsSingleOperation(
+    const programUid = _createProgramAsSingleOperationWebGL(
       this,
       vertexPropertiesStr,
       pixelPropertiesStr,
