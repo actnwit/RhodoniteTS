@@ -279,6 +279,18 @@ mat4 fetchMat4(int vec4_idx) {
   return val;
 }
 
+mat4x3 fetchMat4x3(int vec4_idx) {
+  vec4 col0 = fetchElement(vec4_idx);
+  vec4 col1 = fetchElement(vec4_idx + 1);
+  vec4 col2 = fetchElement(vec4_idx + 2);
+
+  mat4x3 val = mat4x3(
+    col0.x, col0.y, col0.z, col0.w,
+    col1.x, col1.y, col1.z, col1.w,
+    col2.x, col2.y, col2.z, col2.w);
+  return val;
+}
+
 float rand(const vec2 co){
   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }

@@ -652,6 +652,7 @@ const getShaderProperty: getShaderPropertyFunc = (
         `;
     }
   } else {
+    // is Not Array
     str += `return u_${variableName};`;
   }
 

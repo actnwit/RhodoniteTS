@@ -8,9 +8,9 @@ class BoneDataTypeClass extends EnumClass implements BoneDataTypeEnum {
   }
 }
 
-const Mat44x1: BoneDataTypeEnum = new BoneDataTypeClass({
+const Mat43x1: BoneDataTypeEnum = new BoneDataTypeClass({
   index: 0,
-  str: 'Mat44x1',
+  str: 'Mat43x1',
 });
 const Vec4x2: BoneDataTypeEnum = new BoneDataTypeClass({
   index: 1,
@@ -25,7 +25,7 @@ const Vec4x1: BoneDataTypeEnum = new BoneDataTypeClass({
   str: 'Vec4x1',
 });
 
-const typeList = [Mat44x1, Vec4x2, Vec4x1];
+const typeList = [Mat43x1, Vec4x2, Vec4x1];
 
 function from(index: number): BoneDataTypeEnum {
   return _from({ typeList, index }) as BoneDataTypeEnum;
@@ -36,7 +36,7 @@ function fromString(str: string): BoneDataTypeEnum {
 }
 
 export const BoneDataType = Object.freeze({
-  Mat44x1,
+  Mat43x1,
   Vec4x2,
   Vec4x2Old,
   Vec4x1,

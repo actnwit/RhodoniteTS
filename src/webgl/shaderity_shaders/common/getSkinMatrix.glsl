@@ -69,10 +69,10 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
 mat4 getSkinMatrix(float skeletalComponentSID) {
 
 #ifdef RN_BONE_DATA_TYPE_Mat44x1
-  mat4 skinMat = a_weight.x * get_boneMatrix(skeletalComponentSID, int(a_joint.x));
-  skinMat += a_weight.y * get_boneMatrix(skeletalComponentSID, int(a_joint.y));
-  skinMat += a_weight.z * get_boneMatrix(skeletalComponentSID, int(a_joint.z));
-  skinMat += a_weight.w * get_boneMatrix(skeletalComponentSID, int(a_joint.w));
+  mat4 skinMat = a_weight.x * mat4(get_boneMatrix(skeletalComponentSID, int(a_joint.x)));
+  skinMat += a_weight.y * mat4(get_boneMatrix(skeletalComponentSID, int(a_joint.y)));
+  skinMat += a_weight.z * mat4(get_boneMatrix(skeletalComponentSID, int(a_joint.z)));
+  skinMat += a_weight.w * mat4(get_boneMatrix(skeletalComponentSID, int(a_joint.w)));
 
 #elif defined(RN_BONE_DATA_TYPE_VEC4X2)
   vec2 criteria = vec2(4096.0, 4096.0);

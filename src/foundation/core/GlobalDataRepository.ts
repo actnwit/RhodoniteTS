@@ -111,7 +111,7 @@ export class GlobalDataRepository {
     // Skinning
     const boneMatrixInfo = {
       semantic: ShaderSemantics.BoneMatrix,
-      compositionType: CompositionType.Mat4Array,
+      compositionType: CompositionType.Mat4x3Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexShader,
@@ -210,7 +210,7 @@ export class GlobalDataRepository {
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Scalar.fromCopyNumber(-1),
     };
-    if (Config.boneDataType === BoneDataType.Mat44x1) {
+    if (Config.boneDataType === BoneDataType.Mat43x1) {
       this.__registerProperty(boneMatrixInfo, Config.maxSkeletonNumber);
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.__registerProperty(boneTranslatePackedQuatInfo, Config.maxSkeletonNumber);
