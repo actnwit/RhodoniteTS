@@ -324,7 +324,7 @@ export class WebGpuResourceRepository
     primitive: Primitive,
     instanceIDBufferUid: WebGPUResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid
   ) {
-    const buffers = [];
+    const buffers: GPUVertexBufferLayout[] = [];
 
     // Vertex Buffer Settings
     /// Each vertex attributes
@@ -467,17 +467,24 @@ export class WebGpuResourceRepository
       new Error('Shader Modules is not found');
     }
 
-    const attributes: GPUVertexAttribute[] = [];
+    // const attributes: GPUVertexAttribute[] = [];
 
+    const gpuVertexBufferLayouts: GPUVertexBufferLayout[] = [];
     primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
       const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
         primitive.attributeSemantics[i]
       );
-      attributes.push({
+      const attribute = {
         shaderLocation: slotIdx,
-        offset: accessor.byteOffsetInBufferView,
+        offset: accessor.isAoS ? accessor.byteOffsetInBufferView : 0,
         format: (accessor.componentType.webgpu +
           accessor.compositionType.webgpu) as GPUVertexFormat,
+      };
+      // attributes.push(attribute);
+      gpuVertexBufferLayouts.push({
+        stepMode: 'vertex',
+        arrayStride: primitive.attributeAccessors[i].actualByteStride,
+        attributes: [attribute],
       });
     });
 
@@ -486,15 +493,7 @@ export class WebGpuResourceRepository
       vertex: {
         module: modules.vsModule,
         entryPoint: 'main',
-        buffers: [
-          {
-            // 配列の要素間の距離をバイト単位で指定します。
-            arrayStride: primitive.attributeAccessors[0].actualByteStride,
-
-            // 頂点バッファの属性を指定します。
-            attributes: attributes,
-          },
-        ],
+        buffers: gpuVertexBufferLayouts,
       },
       fragment: {
         module: modules.fsModule,
