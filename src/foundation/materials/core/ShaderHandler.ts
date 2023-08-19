@@ -192,7 +192,7 @@ export function _setupGlobalShaderDefinition(materialTypeName: string) {
   if (glw.isWebGL2 || glw.webgl1ExtDRV) {
     definitions += '#define RN_IS_SUPPORTING_STANDARD_DERIVATIVES\n';
   }
-  if (Config.boneDataType === BoneDataType.Mat44x1) {
+  if (Config.boneDataType === BoneDataType.Mat43x1) {
     definitions += '#define RN_BONE_DATA_TYPE_Mat44x1\n';
   } else if (Config.boneDataType === BoneDataType.Vec4x2) {
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';

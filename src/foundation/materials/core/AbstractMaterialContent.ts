@@ -380,9 +380,9 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
     if (skeletalComponent) {
       if (setUniform) {
-        if (Config.boneDataType === BoneDataType.Mat44x1) {
+        if (Config.boneDataType === BoneDataType.Mat43x1) {
           const jointMatricesArray = skeletalComponent.jointMatricesArray;
-          (shaderProgram as any)._gl.uniformMatrix4fv(
+          (shaderProgram as any)._gl.uniformMatrix4x3fv(
             (shaderProgram as any).boneMatrix,
             false,
             jointMatricesArray

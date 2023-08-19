@@ -63,7 +63,7 @@ export class SkeletalComponent extends Component {
     }
 
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
-      if (Config.boneDataType === BoneDataType.Mat44x1) {
+      if (Config.boneDataType === BoneDataType.Mat43x1) {
         SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneMatrix);
       } else if (Config.boneDataType === BoneDataType.Vec4x2) {
         SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslatePackedQuat);
@@ -101,7 +101,7 @@ export class SkeletalComponent extends Component {
     if (this.componentSID < Config.maxSkeletonNumber) {
       index = this.componentSID;
     }
-    if (Config.boneDataType === BoneDataType.Mat44x1) {
+    if (Config.boneDataType === BoneDataType.Mat43x1) {
       this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
         ShaderSemantics.BoneMatrix,
         index
@@ -228,13 +228,13 @@ export class SkeletalComponent extends Component {
       this.__isWorldMatrixVanilla = false;
 
       if (
-        Config.boneDataType === BoneDataType.Mat44x1 ||
+        Config.boneDataType === BoneDataType.Mat43x1 ||
         Config.boneDataType === BoneDataType.Vec4x1
       ) {
         this.__copyToMatArray(m, i);
       }
 
-      if (Config.boneDataType !== BoneDataType.Mat44x1) {
+      if (Config.boneDataType !== BoneDataType.Mat43x1) {
         const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
           Math.hypot(m.m00, m.m01, m.m02),
           Math.hypot(m.m10, m.m11, m.m12),
@@ -369,22 +369,23 @@ export class SkeletalComponent extends Component {
   }
 
   private __copyToMatArray(m: IMatrix44, i: Index) {
-    this.__matArray[i * 16 + 0] = m._v[0];
-    this.__matArray[i * 16 + 1] = m._v[1];
-    this.__matArray[i * 16 + 2] = m._v[2];
-    this.__matArray[i * 16 + 3] = m._v[3];
-    this.__matArray[i * 16 + 4] = m._v[4];
-    this.__matArray[i * 16 + 5] = m._v[5];
-    this.__matArray[i * 16 + 6] = m._v[6];
-    this.__matArray[i * 16 + 7] = m._v[7];
-    this.__matArray[i * 16 + 8] = m._v[8];
-    this.__matArray[i * 16 + 9] = m._v[9];
-    this.__matArray[i * 16 + 10] = m._v[10];
-    this.__matArray[i * 16 + 11] = m._v[11];
-    this.__matArray[i * 16 + 12] = m._v[12];
-    this.__matArray[i * 16 + 13] = m._v[13];
-    this.__matArray[i * 16 + 14] = m._v[14];
-    this.__matArray[i * 16 + 15] = m._v[15];
+    // 0  1  2  3
+    // 4  5  6  7
+    // 8  9  10 11
+    // 12 13 14 15
+
+    this.__matArray[i * 12 + 0] = m._v[0];
+    this.__matArray[i * 12 + 1] = m._v[1];
+    this.__matArray[i * 12 + 2] = m._v[2];
+    this.__matArray[i * 12 + 3] = m._v[4];
+    this.__matArray[i * 12 + 4] = m._v[5];
+    this.__matArray[i * 12 + 5] = m._v[6];
+    this.__matArray[i * 12 + 6] = m._v[8];
+    this.__matArray[i * 12 + 7] = m._v[9];
+    this.__matArray[i * 12 + 8] = m._v[10];
+    this.__matArray[i * 12 + 9] = m._v[12];
+    this.__matArray[i * 12 + 10] = m._v[13];
+    this.__matArray[i * 12 + 11] = m._v[14];
   }
 
   public getInverseBindMatricesAccessor(): Accessor | undefined {

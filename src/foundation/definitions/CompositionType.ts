@@ -304,6 +304,15 @@ const Texture2DRect: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
+const Mat4x3Array: CompositionTypeEnum = new CompositionTypeClass({
+  index: 18,
+  str: 'MAT4x3_ARRAY',
+  glslStr: 'mat4x3',
+  hlslStr: 'float4x3',
+  numberOfComponents: 12,
+  vec4SizeOfProperty: 3,
+  isArray: true,
+});
 
 const typeList = [
   Unknown,
@@ -325,6 +334,7 @@ const typeList = [
   Texture2DShadow,
   Texture2DRect,
   TextureCube,
+  Mat4x3Array,
 ];
 
 export type VectorCompositionTypes = typeof Scalar | typeof Vec2 | typeof Vec3 | typeof Vec4;
@@ -486,6 +496,7 @@ function isArray(compositionType: CompositionTypeEnum) {
     compositionType === Vec2Array ||
     compositionType === Vec3Array ||
     compositionType === Vec4Array ||
+    compositionType === Mat4x3Array ||
     compositionType === Mat4Array ||
     compositionType === Mat3Array ||
     compositionType === Mat2Array
@@ -529,6 +540,7 @@ export const CompositionType = Object.freeze({
   Texture2DShadow,
   TextureCube,
   Texture2DRect,
+  Mat4x3Array,
   from,
   fromString,
   vectorFrom,

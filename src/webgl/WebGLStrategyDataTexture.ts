@@ -322,6 +322,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         case CompositionType.Mat2Array:
           str += '        mat2 val = fetchMat2No16BytesAligned(scalar_idx);\n';
           break;
+        case CompositionType.Mat4x3Array:
+          str += '        mat4x3 val = fetchMat4x3(vec4_idx);\n';
+          break;
         default:
           // console.error('unknown composition type', info.compositionType.str, memberName);
           str += '';
