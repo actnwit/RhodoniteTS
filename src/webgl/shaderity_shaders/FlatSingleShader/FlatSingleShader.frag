@@ -64,8 +64,8 @@ void main ()
 
 // #pragma shaderity: require(../common/alphaMask.glsl)
 
-  // rt0 = vec4(diffuseColor * alpha, alpha);
-  rt0 = vec4(1.0, 0.0, 0.0, 1.0);
+  rt0 = vec4(diffuseColor * alpha, alpha);
+  // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
 
 // #pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
 
