@@ -34,15 +34,40 @@ function createCube(i: number) {
     },
   });
 
-  cube.position = Rn.Vector3.fromCopyArray([0, i + 5, 0]);
+  cube.position = Rn.Vector3.fromCopyArray([-1, i + 5, 0]);
   cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
   (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setPosition(cube.position);
   (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setEulerAngle(cube.eulerAngles);
 }
 
-for (let i = 0; i < 300; i++) {
+function createSphere(i: number) {
+  const cube = Rn.MeshHelper.createSphere({
+    radius: 1,
+    widthSegments: 10,
+    heightSegments: 10,
+    physics: {
+      use: true,
+      move: true,
+      density: 1,
+      friction: 0.5,
+      restitution: 0.2,
+    },
+  });
+
+  cube.position = Rn.Vector3.fromCopyArray([5 * Math.random(), i + 5, 5 * Math.random()]);
+  cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
+  (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setPosition(cube.position);
+  (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setEulerAngle(cube.eulerAngles);
+}
+
+for (let i = 0; i < 250; i++) {
   createCube(i);
 }
+for (let i = 0; i < 50; i++) {
+  createSphere(i);
+}
+
+const lightEntity = Rn.EntityHelper.createLightEntity();
 
 // Camera
 const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();

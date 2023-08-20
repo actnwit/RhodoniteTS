@@ -4,6 +4,7 @@ import { PrimitiveMode } from '../../definitions/PrimitiveMode';
 import { Vector3 } from '../../math/Vector3';
 import { Count } from '../../../types/CommonTypes';
 import { IShape } from './IShape';
+import { PhysicsProperty } from '../../physics/PhysicsProperty';
 
 /**
  * The argument descriptor for Plane primitives
@@ -15,6 +16,8 @@ export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
   widthSegments?: Count;
   /** the number of segments for height direction */
   heightSegments?: Count;
+
+  physics?: PhysicsProperty;
 }
 
 /**

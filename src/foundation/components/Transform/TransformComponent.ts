@@ -15,12 +15,13 @@ import { ITransformEntity } from '../../helpers';
 import { MutableQuaternion, Transform3D } from '../../math';
 import { Is } from '../../misc';
 import { SceneGraphComponent } from '../SceneGraph';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
   private __pose = new Transform3D();
   private __updateCountAtLastLogic = 0;
-  private __sceneGraphComponent: SceneGraphComponent | undefined;
+  private __sceneGraphComponent?: SceneGraphComponent;
 
   constructor(
     entityUid: EntityUID,
@@ -111,6 +112,18 @@ export class TransformComponent extends Component {
 
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
+
+    // const physicsComponent = this.entity.tryToGetPhysics();
+    // if (physicsComponent !== undefined) {
+    //   if (physicsComponent.strategy !== undefined) {
+    //     if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+    //       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+    //       if (sceneGraphComponent !== undefined) {
+    //         physicsComponent.strategy.setPosition(sceneGraphComponent.position);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   /**
@@ -153,6 +166,18 @@ export class TransformComponent extends Component {
 
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
+
+    // const physicsComponent = this.entity.tryToGetPhysics();
+    // if (physicsComponent !== undefined) {
+    //   if (physicsComponent.strategy !== undefined) {
+    //     if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+    //       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+    //       if (sceneGraphComponent !== undefined) {
+    //         physicsComponent.strategy.setQuaternion(sceneGraphComponent.rotation);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   /**
@@ -237,6 +262,18 @@ export class TransformComponent extends Component {
 
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
+
+    // const physicsComponent = this.entity.tryToGetPhysics();
+    // if (physicsComponent !== undefined) {
+    //   if (physicsComponent.strategy !== undefined) {
+    //     if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+    //       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+    //       if (sceneGraphComponent !== undefined) {
+    //         physicsComponent.strategy.setQuaternion(sceneGraphComponent.rotation);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   /**

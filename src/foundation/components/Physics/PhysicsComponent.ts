@@ -4,15 +4,13 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { Is } from '../../misc/Is';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class PhysicsComponent extends Component {
-  private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
+  private __strategy?: PhysicsStrategy;
 
   constructor(
     entityUid: EntityUID,
@@ -33,6 +31,10 @@ export class PhysicsComponent extends Component {
     return WellKnownComponentTIDs.PhysicsComponentTID;
   }
 
+  setStrategy(strategy: PhysicsStrategy) {
+    this.__strategy = strategy;
+  }
+
   get strategy() {
     return this.__strategy;
   }
@@ -42,7 +44,7 @@ export class PhysicsComponent extends Component {
   }
 
   $logic() {
-    this.__strategy.update();
+    this.__strategy?.update();
   }
 
   /**
