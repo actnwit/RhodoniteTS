@@ -34,14 +34,18 @@ function createCube(i: number) {
     },
   });
 
-  cube.position = Rn.Vector3.fromCopyArray([-1, i + 5, 0]);
+  cube.position = Rn.Vector3.fromCopyArray([
+    5 * Math.random() - 2.5,
+    i + 5,
+    5 * Math.random() - 2.5,
+  ]);
   cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
-  (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setPosition(cube.position);
-  (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setEulerAngle(cube.eulerAngles);
+
+  return cube;
 }
 
 function createSphere(i: number) {
-  const cube = Rn.MeshHelper.createSphere({
+  const sphere = Rn.MeshHelper.createSphere({
     radius: 1,
     widthSegments: 10,
     heightSegments: 10,
@@ -54,15 +58,22 @@ function createSphere(i: number) {
     },
   });
 
-  cube.position = Rn.Vector3.fromCopyArray([5 * Math.random(), i + 5, 5 * Math.random()]);
-  cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
+  sphere.position = Rn.Vector3.fromCopyArray([
+    5 * Math.random() - 2.5,
+    i + 5,
+    5 * Math.random() - 2.5,
+  ]);
+  sphere.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
+
+  return sphere;
 }
 
+const entities = [];
 for (let i = 0; i < 250; i++) {
-  createCube(i);
+  entities.push(createCube(i));
 }
 for (let i = 0; i < 50; i++) {
-  createSphere(i);
+  entities.push(createSphere(i));
 }
 
 const lightEntity = Rn.EntityHelper.createLightEntity();
@@ -84,7 +95,7 @@ const controller = cameraControllerComponent.controller as Rn.OrbitCameraControl
 controller.setTarget(ground);
 
 Rn.CameraComponent.current = 0;
-let startTime = Date.now();
+const startTime = Date.now();
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
@@ -95,22 +106,17 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  if (window.isAnimating) {
-    const date = new Date();
-    const rotation = 0.001 * (date.getTime() - startTime);
-    //rotationVec3._v[0] = 0.1;
-    //rotationVec3._v[1] = rotation;
-    //rotationVec3._v[2] = 0.1;
-    const time = (date.getTime() - startTime) / 1000;
-    Rn.AnimationComponent.globalTime = time;
-    if (time > Rn.AnimationComponent.endInputValue) {
-      startTime = date.getTime();
+  Rn.System.processAuto();
+
+  for (const entity of entities) {
+    if (entity.position.y < -40) {
+      entity.position = Rn.Vector3.fromCopyArray([
+        2 * Math.random() - 1,
+        80 + Math.random() * 10,
+        2 * Math.random() - 1,
+      ]);
     }
-    //console.log(time);
-    //      rootGroup.getTransform().scale = rotationVec3;
-    //rootGroup.getTransform().localPosition = rootGroup.getTransform().localPosition;
   }
 
-  Rn.System.processAuto();
   count++;
 });

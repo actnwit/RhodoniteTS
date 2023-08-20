@@ -55,6 +55,9 @@ export abstract class AbstractQuaternion implements IQuaternion {
   toEulerAnglesTo(out: IMutableVector3): IMutableVector3 {
     throw new Error('Method not implemented.');
   }
+  toEulerAngles(): IVector3 {
+    throw new Error('Method not implemented.');
+  }
   transformVector3(vec: IVector3): IVector3 {
     throw new Error('Method not implemented.');
   }

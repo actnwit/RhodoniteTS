@@ -26,6 +26,7 @@ import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -725,21 +726,26 @@ export class SceneGraphComponent extends Component {
 
   setPositionWithoutPhysics(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().setLocalPositionWithoutPhysics(vec);
-    } else {
-      MutableMatrix44.invertTo(this.__parent.entity.getSceneGraph().matrixInner, this.__tmpMatrix);
-      this.entity
-        .getTransform()
-        .setLocalPositionWithoutPhysics(this.__tmpMatrix.multiplyVector3(vec));
-    }
-  }
-
-  set position(vec: IVector3) {
-    if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localPosition = vec;
     } else {
       MutableMatrix44.invertTo(this.__parent.entity.getSceneGraph().matrixInner, this.__tmpMatrix);
       this.entity.getTransform().localPosition = this.__tmpMatrix.multiplyVector3(vec);
+    }
+  }
+
+  set position(vec: IVector3) {
+    this.setPositionWithoutPhysics(vec);
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setPosition(vec);
+          }
+        }
+      }
     }
   }
 
@@ -751,7 +757,7 @@ export class SceneGraphComponent extends Component {
     return this.matrixRestInner.getTranslate();
   }
 
-  set eulerAngles(vec: IVector3) {
+  setEulerAngleWithoutPhysics(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localEulerAngles = vec;
     } else {
@@ -763,27 +769,49 @@ export class SceneGraphComponent extends Component {
     }
   }
 
+  set eulerAngles(vec: IVector3) {
+    this.setEulerAngleWithoutPhysics(vec);
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setEulerAngle(vec);
+          }
+        }
+      }
+    }
+  }
+
   get eulerAngles(): Vector3 {
     return this.matrixInner.toEulerAngles();
   }
 
   setRotationWithoutPhysics(quat: IQuaternion) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().setLocalRotationWithoutPhysics(quat);
-    } else {
-      const quatInner = this.__parent.entity.getSceneGraph().rotation;
-      const invQuat = Quaternion.invert(quatInner);
-      this.entity.getTransform().setLocalRotationWithoutPhysics(Quaternion.multiply(quat, invQuat));
-    }
-  }
-
-  set rotation(quat: IQuaternion) {
-    if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localRotation = quat;
     } else {
       const quatInner = this.__parent.entity.getSceneGraph().rotation;
       const invQuat = Quaternion.invert(quatInner);
       this.entity.getTransform().localRotation = Quaternion.multiply(quat, invQuat);
+    }
+  }
+
+  set rotation(quat: IQuaternion) {
+    this.setRotationWithoutPhysics(quat);
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setEulerAngle(quat.toEulerAngles());
+          }
+        }
+      }
     }
   }
 
