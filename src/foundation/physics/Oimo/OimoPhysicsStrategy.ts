@@ -59,8 +59,10 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     }
     const pos = this.__body.getPosition();
     const rot = this.__body.getQuaternion();
-    this.__entity.position = Vector3.fromCopy3(pos.x, pos.y, pos.z);
-    this.__entity.rotation = Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w);
+    this.__entity.getSceneGraph().setPositionWithoutPhysics(Vector3.fromCopy3(pos.x, pos.y, pos.z));
+    this.__entity
+      .getSceneGraph()
+      .setRotationWithoutPhysics(Quaternion.fromCopy4(rot.x, rot.y, rot.z, rot.w));
   }
 
   setPosition(worldPosition: IVector3): void {

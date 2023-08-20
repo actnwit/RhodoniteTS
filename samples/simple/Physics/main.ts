@@ -56,8 +56,6 @@ function createSphere(i: number) {
 
   cube.position = Rn.Vector3.fromCopyArray([5 * Math.random(), i + 5, 5 * Math.random()]);
   cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
-  (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setPosition(cube.position);
-  (cube.tryToGetPhysics()!.strategy as Rn.OimoPhysicsStrategy).setEulerAngle(cube.eulerAngles);
 }
 
 for (let i = 0; i < 250; i++) {

@@ -110,20 +110,24 @@ export class TransformComponent extends Component {
     );
   }
 
+  setLocalPositionWithoutPhysics(vec: IVector3) {
+    this.__pose.position = vec;
+  }
+
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
 
-    // const physicsComponent = this.entity.tryToGetPhysics();
-    // if (physicsComponent !== undefined) {
-    //   if (physicsComponent.strategy !== undefined) {
-    //     if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-    //       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-    //       if (sceneGraphComponent !== undefined) {
-    //         physicsComponent.strategy.setPosition(sceneGraphComponent.position);
-    //       }
-    //     }
-    //   }
-    // }
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setPosition(sceneGraphComponent.position);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -167,17 +171,17 @@ export class TransformComponent extends Component {
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
 
-    // const physicsComponent = this.entity.tryToGetPhysics();
-    // if (physicsComponent !== undefined) {
-    //   if (physicsComponent.strategy !== undefined) {
-    //     if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-    //       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-    //       if (sceneGraphComponent !== undefined) {
-    //         physicsComponent.strategy.setQuaternion(sceneGraphComponent.rotation);
-    //       }
-    //     }
-    //   }
-    // }
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setEulerAngle(sceneGraphComponent.eulerAngles);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -260,20 +264,24 @@ export class TransformComponent extends Component {
     return this.restOrPose.scaleInner;
   }
 
+  setLocalRotationWithoutPhysics(quat: IQuaternion) {
+    this.__pose.rotation = quat;
+  }
+
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
 
-    // const physicsComponent = this.entity.tryToGetPhysics();
-    // if (physicsComponent !== undefined) {
-    //   if (physicsComponent.strategy !== undefined) {
-    //     if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
-    //       const sceneGraphComponent = this.entity.tryToGetSceneGraph();
-    //       if (sceneGraphComponent !== undefined) {
-    //         physicsComponent.strategy.setQuaternion(sceneGraphComponent.rotation);
-    //       }
-    //     }
-    //   }
-    // }
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setEulerAngle(sceneGraphComponent.eulerAngles);
+          }
+        }
+      }
+    }
   }
 
   /**
