@@ -757,7 +757,7 @@ export class SceneGraphComponent extends Component {
     return this.matrixRestInner.getTranslate();
   }
 
-  setEulerAngleWithoutPhysics(vec: IVector3) {
+  set eulerAngles(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localEulerAngles = vec;
     } else {
@@ -767,10 +767,6 @@ export class SceneGraphComponent extends Component {
       const result = Quaternion.multiply(rotation, invQuat);
       this.entity.getTransform().localEulerAngles = result.toEulerAngles();
     }
-  }
-
-  set eulerAngles(vec: IVector3) {
-    this.setEulerAngleWithoutPhysics(vec);
 
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
@@ -856,6 +852,18 @@ export class SceneGraphComponent extends Component {
       mat._v[14] = 0;
       const invMat = MutableMatrix44.invert(mat);
       this.entity.getTransform().localScale = invMat.multiplyVector3(vec);
+    }
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setScale(vec);
+          }
+        }
+      }
     }
   }
 

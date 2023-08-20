@@ -17,6 +17,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
   private __body: any;
   private __entity?: ISceneGraphEntity;
   private __property: any;
+  private __localScale: IVector3 = Vector3.one();
 
   constructor() {
     if (Is.not.exist(OimoPhysicsStrategy.__world)) {
@@ -39,6 +40,7 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
 
   setShape(prop: PhysicsPropertyInner, entity: ISceneGraphEntity) {
     const world = OimoPhysicsStrategy.__world;
+    this.__localScale = prop.size;
     this.__property = {
       type: prop.type.str.toLowerCase(),
       size: [prop.size.x, prop.size.y, prop.size.z],
@@ -90,17 +92,43 @@ export class OimoPhysicsStrategy implements PhysicsStrategy {
     if (this.__entity === undefined) {
       return;
     }
+    const pos = this.__body.getPosition();
     this.__body.remove();
     const prop = this.__property;
     this.__property = {
       type: prop.type,
       size: [prop.size[0], prop.size[1], prop.size[2]],
-      pos: [this.__entity.position.x, this.__entity.position.y, this.__entity.position.z],
+      pos: [pos.x, pos.y, pos.z],
       rot: [
         MathUtil.radianToDegree(eulerAngles.x),
         MathUtil.radianToDegree(eulerAngles.y),
         MathUtil.radianToDegree(eulerAngles.z),
       ],
+      move: prop.move,
+      density: prop.density,
+      friction: prop.friction,
+      restitution: prop.restitution,
+    };
+    this.__body = world.add(this.__property);
+  }
+
+  setScale(scale: IVector3): void {
+    const world = OimoPhysicsStrategy.__world;
+    if (this.__entity === undefined) {
+      return;
+    }
+    const pos = this.__body.getPosition();
+    this.__body.remove();
+    const prop = this.__property;
+    this.__property = {
+      type: prop.type,
+      size: [
+        this.__localScale.x * scale.x,
+        this.__localScale.y * scale.y,
+        this.__localScale.z * scale.z,
+      ],
+      pos: [pos.x, pos.y, pos.z],
+      rot: [this.__entity.eulerAngles.x, this.__entity.eulerAngles.y, this.__entity.eulerAngles.z],
       move: prop.move,
       density: prop.density,
       friction: prop.friction,

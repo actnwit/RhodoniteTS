@@ -58,6 +58,7 @@ function createSphere(i: number) {
     },
   });
 
+  sphere.scale = Rn.Vector3.fromCopyArray([1, Math.random() + 0.2, 1]);
   sphere.position = Rn.Vector3.fromCopyArray([
     5 * Math.random() - 2.5,
     i + 5,
