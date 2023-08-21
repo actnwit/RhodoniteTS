@@ -4,13 +4,13 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import { VRMSpringBonePhysicsStrategy } from '../../physics/VRMSpringBonePhysicsStrategy';
 import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class PhysicsComponent extends Component {
-  private __strategy: PhysicsStrategy = new VRMSpringBonePhysicsStrategy();
+  private __strategy?: PhysicsStrategy;
 
   constructor(
     entityUid: EntityUID,
@@ -31,14 +31,20 @@ export class PhysicsComponent extends Component {
     return WellKnownComponentTIDs.PhysicsComponentTID;
   }
 
+  setStrategy(strategy: PhysicsStrategy) {
+    this.__strategy = strategy;
+  }
+
   get strategy() {
     return this.__strategy;
   }
 
-  static common_$logic() {}
+  static common_$logic() {
+    OimoPhysicsStrategy.update();
+  }
 
   $logic() {
-    this.__strategy.update();
+    this.__strategy?.update();
   }
 
   /**

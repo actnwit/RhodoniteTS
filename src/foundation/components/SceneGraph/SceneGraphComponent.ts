@@ -26,6 +26,7 @@ import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -723,12 +724,28 @@ export class SceneGraphComponent extends Component {
     }
   }
 
-  set position(vec: IVector3) {
+  setPositionWithoutPhysics(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localPosition = vec;
     } else {
       MutableMatrix44.invertTo(this.__parent.entity.getSceneGraph().matrixInner, this.__tmpMatrix);
       this.entity.getTransform().localPosition = this.__tmpMatrix.multiplyVector3(vec);
+    }
+  }
+
+  set position(vec: IVector3) {
+    this.setPositionWithoutPhysics(vec);
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setPosition(vec);
+          }
+        }
+      }
     }
   }
 
@@ -750,20 +767,47 @@ export class SceneGraphComponent extends Component {
       const result = Quaternion.multiply(rotation, invQuat);
       this.entity.getTransform().localEulerAngles = result.toEulerAngles();
     }
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setEulerAngle(vec);
+          }
+        }
+      }
+    }
   }
 
   get eulerAngles(): Vector3 {
     return this.matrixInner.toEulerAngles();
   }
 
-  set rotation(quat: IQuaternion) {
+  setRotationWithoutPhysics(quat: IQuaternion) {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localRotation = quat;
     } else {
-      // const quatInner = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().matrixInner);
       const quatInner = this.__parent.entity.getSceneGraph().rotation;
       const invQuat = Quaternion.invert(quatInner);
       this.entity.getTransform().localRotation = Quaternion.multiply(quat, invQuat);
+    }
+  }
+
+  set rotation(quat: IQuaternion) {
+    this.setRotationWithoutPhysics(quat);
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setEulerAngle(quat.toEulerAngles());
+          }
+        }
+      }
     }
   }
 
@@ -808,6 +852,18 @@ export class SceneGraphComponent extends Component {
       mat._v[14] = 0;
       const invMat = MutableMatrix44.invert(mat);
       this.entity.getTransform().localScale = invMat.multiplyVector3(vec);
+    }
+
+    const physicsComponent = this.entity.tryToGetPhysics();
+    if (physicsComponent !== undefined) {
+      if (physicsComponent.strategy !== undefined) {
+        if (physicsComponent.strategy instanceof OimoPhysicsStrategy) {
+          const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+          if (sceneGraphComponent !== undefined) {
+            physicsComponent.strategy.setScale(vec);
+          }
+        }
+      }
     }
   }
 

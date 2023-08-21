@@ -11,6 +11,10 @@ import { Cube, CubeDescriptor } from '../geometry/shapes/Cube';
 import { Sphere, SphereDescriptor } from '../geometry/shapes/Sphere';
 import { Joint, JointDescriptor } from '../geometry/shapes/Joint';
 import { Is } from '../misc';
+import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
+import { EntityRepository } from '../core/EntityRepository';
+import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
+import { PhysicsShape } from '../definitions/PhysicsShapeType';
 
 const createPlane = (
   desc: PlaneDescriptor & {
@@ -51,6 +55,25 @@ const createCube = (desc: CubeDescriptor = {}) => {
   const primitive = new Cube();
   primitive.generate(desc);
   const entity = createShape(primitive);
+
+  if (Is.exist(desc.physics) && desc.physics.use) {
+    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const physicsComponent = newEntity.getPhysics();
+    const strategy = new OimoPhysicsStrategy();
+    const property = {
+      type: PhysicsShape.Box,
+      size: desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
+      position: Vector3.fromCopy3(0, 0, 0),
+      rotation: Vector3.fromCopy3(0, 0, 0),
+      move: desc.physics.move,
+      density: desc.physics.density,
+      friction: desc.physics.friction,
+      restitution: desc.physics.restitution,
+    };
+    strategy.setShape(property, entity);
+    physicsComponent.setStrategy(strategy);
+  }
+
   return entity;
 };
 
@@ -58,6 +81,27 @@ const createSphere = (desc: SphereDescriptor = {}) => {
   const primitive = new Sphere();
   primitive.generate(desc);
   const entity = createShape(primitive);
+
+  if (Is.exist(desc.physics) && desc.physics.use) {
+    const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+    const physicsComponent = newEntity.getPhysics();
+    const strategy = new OimoPhysicsStrategy();
+    const property = {
+      type: PhysicsShape.Sphere,
+      size: Is.exist(desc.radius)
+        ? Vector3.fromCopy3(desc.radius, desc.radius, desc.radius)
+        : Vector3.fromCopy3(1, 1, 1),
+      position: Vector3.fromCopy3(0, 0, 0),
+      rotation: Vector3.fromCopy3(0, 0, 0),
+      move: desc.physics.move,
+      density: desc.physics.density,
+      friction: desc.physics.friction,
+      restitution: desc.physics.restitution,
+    };
+    strategy.setShape(property, entity);
+    physicsComponent.setStrategy(strategy);
+  }
+
   return entity;
 };
 

@@ -4,6 +4,7 @@ import { IColorRgba } from '../../math/IColor';
 import { IVector3 } from '../../math/IVector';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
+import { PhysicsProperty, PhysicsPropertyInner } from '../../physics/PhysicsProperty';
 import { IAnyPrimitiveDescriptor, Primitive } from '../Primitive';
 import { IShape } from './IShape';
 
@@ -12,6 +13,7 @@ export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
   widthVector?: IVector3;
   /** color */
   color?: IColorRgba;
+  physics?: PhysicsProperty;
 }
 
 /**
@@ -41,35 +43,35 @@ export class Cube extends IShape {
     // prettier-ignore
     const positions = [
       // upper
-      -desc.widthVector.x, desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  desc.widthVector.y, desc.widthVector.z,
-      -desc.widthVector.x, desc.widthVector.y, desc.widthVector.z,
+      -desc.widthVector.x / 2, desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  desc.widthVector.y / 2, desc.widthVector.z / 2,
+      -desc.widthVector.x / 2, desc.widthVector.y / 2, desc.widthVector.z / 2,
       // lower
-      -desc.widthVector.x, -desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  -desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  -desc.widthVector.y, desc.widthVector.z,
-      -desc.widthVector.x, -desc.widthVector.y, desc.widthVector.z,
+      -desc.widthVector.x / 2, -desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  -desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  -desc.widthVector.y / 2, desc.widthVector.z / 2,
+      -desc.widthVector.x / 2, -desc.widthVector.y / 2, desc.widthVector.z / 2,
       // front
-      -desc.widthVector.x, -desc.widthVector.y, desc.widthVector.z,
-      desc.widthVector.x,  -desc.widthVector.y, desc.widthVector.z,
-      desc.widthVector.x,  desc.widthVector.y, desc.widthVector.z,
-      -desc.widthVector.x, desc.widthVector.y, desc.widthVector.z,
+      -desc.widthVector.x / 2, -desc.widthVector.y / 2, desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  -desc.widthVector.y / 2, desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  desc.widthVector.y / 2, desc.widthVector.z / 2,
+      -desc.widthVector.x / 2, desc.widthVector.y / 2, desc.widthVector.z / 2,
       // back
-      -desc.widthVector.x, -desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  -desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  desc.widthVector.y, -desc.widthVector.z,
-      -desc.widthVector.x, desc.widthVector.y, -desc.widthVector.z,
+      -desc.widthVector.x / 2, -desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  -desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      -desc.widthVector.x / 2, desc.widthVector.y / 2, -desc.widthVector.z / 2,
       // right
-      desc.widthVector.x, -desc.widthVector.y, -desc.widthVector.z,
-      desc.widthVector.x,  -desc.widthVector.y, desc.widthVector.z,
-      desc.widthVector.x,  desc.widthVector.y, desc.widthVector.z,
-      desc.widthVector.x, desc.widthVector.y, -desc.widthVector.z,
+      desc.widthVector.x / 2, -desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  -desc.widthVector.y / 2, desc.widthVector.z / 2,
+      desc.widthVector.x / 2,  desc.widthVector.y / 2, desc.widthVector.z / 2,
+      desc.widthVector.x / 2, desc.widthVector.y / 2, -desc.widthVector.z / 2,
       // left
-      -desc.widthVector.x, -desc.widthVector.y, -desc.widthVector.z,
-      -desc.widthVector.x,  -desc.widthVector.y, desc.widthVector.z,
-      -desc.widthVector.x,  desc.widthVector.y, desc.widthVector.z,
-      -desc.widthVector.x, desc.widthVector.y, -desc.widthVector.z,
+      -desc.widthVector.x / 2, -desc.widthVector.y / 2, -desc.widthVector.z / 2,
+      -desc.widthVector.x / 2,  -desc.widthVector.y / 2, desc.widthVector.z / 2,
+      -desc.widthVector.x / 2,  desc.widthVector.y / 2, desc.widthVector.z / 2,
+      -desc.widthVector.x / 2, desc.widthVector.y / 2, -desc.widthVector.z / 2,
     ];
 
     // prettier-ignore

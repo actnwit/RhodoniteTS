@@ -1,8 +1,8 @@
-import { SceneGraphComponent } from "../components";
-import { RnObject } from "../core/RnObject";
-import { ISceneGraphEntity } from "../helpers/EntityHelper";
-import { IVector3, Matrix44, Quaternion } from "../math";
-import { Vector3 } from "../math/Vector3";
+import { SceneGraphComponent } from '../../components';
+import { RnObject } from '../../core/RnObject';
+import { ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { IVector3, Matrix44, Quaternion } from '../../math';
+import { Vector3 } from '../../math/Vector3';
 
 export class VRMSpringBone extends RnObject {
   stiffnessForce = 0.5;
@@ -10,7 +10,7 @@ export class VRMSpringBone extends RnObject {
   gravityDir = Vector3.fromCopyArray([0, -1.0, 0]);
   dragForce = 0.05;
   hitRadius = 0.02;
-  node: ISceneGraphEntity
+  node: ISceneGraphEntity;
 
   currentTail: Vector3 = Vector3.zero(); // In World Space
   prevTail: Vector3 = Vector3.zero(); // In World Space
@@ -29,7 +29,8 @@ export class VRMSpringBone extends RnObject {
       const scenegraph = this.node.getSceneGraph();
       this.node.getTransform()._backupTransformAsRest();
       const worldChildPosition = scenegraph.getWorldPositionOf(localChildPosition);
-      this.currentTail = center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
+      this.currentTail =
+        center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
       this.prevTail = this.currentTail.clone();
       this.boneAxis = Vector3.normalize(localChildPosition);
       this.boneLength = localChildPosition.length();

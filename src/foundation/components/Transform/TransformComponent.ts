@@ -15,12 +15,13 @@ import { ITransformEntity } from '../../helpers';
 import { MutableQuaternion, Transform3D } from '../../math';
 import { Is } from '../../misc';
 import { SceneGraphComponent } from '../SceneGraph';
+import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
   private __pose = new Transform3D();
   private __updateCountAtLastLogic = 0;
-  private __sceneGraphComponent: SceneGraphComponent | undefined;
+  private __sceneGraphComponent?: SceneGraphComponent;
 
   constructor(
     entityUid: EntityUID,

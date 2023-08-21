@@ -7,17 +7,17 @@ import { GltfLoadOption, RnM2 } from '../../types';
 import { RenderPass } from '../renderer/RenderPass';
 import { Texture } from '../textures/Texture';
 import { EntityRepository } from '../core/EntityRepository';
-import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpringBonePhysicsStrategy';
+import { VRMSpringBonePhysicsStrategy } from '../physics/VRMSpring/VRMSpringBonePhysicsStrategy';
 import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { SphereCollider } from '../physics/SphereCollider';
+import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { Vector3 } from '../math/Vector3';
-import { VRMColliderGroup } from '../physics/VRMColliderGroup';
-import { VRMSpring } from '../physics/VRMSpring';
+import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
+import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
 import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
 import { VrmComponent, VrmExpression } from '../components/Vrm/VrmComponent';
 import { Sampler } from '../textures/Sampler';
-import { VRMSpringBone } from '../physics/VRMSpringBone';
+import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
 
 /**
  * The VRM Importer class.
@@ -234,18 +234,20 @@ export class Vrm0xImporter {
         this.__addSpringBoneRecursively(vrmSpringBoneGroup, entity, boneGroup, addedEntities);
       }
 
-
-
       boneGroups.push(vrmSpringBoneGroup);
     }
 
     for (const boneGroup of boneGroups) {
       this.__addPhysicsComponent(boneGroup, boneGroup.rootBone);
     }
-
   }
 
-  private static __addSpringBoneRecursively(vrmSpring: VRMSpring, entity: ISceneGraphEntity, boneGroup: Vrm0xBoneGroup, addedEntities: ISceneGraphEntity[]): void {
+  private static __addSpringBoneRecursively(
+    vrmSpring: VRMSpring,
+    entity: ISceneGraphEntity,
+    boneGroup: Vrm0xBoneGroup,
+    addedEntities: ISceneGraphEntity[]
+  ): void {
     const sg = entity.getSceneGraph();
     const children = sg.children;
 
@@ -269,14 +271,13 @@ export class Vrm0xImporter {
     }
   }
 
-  private static __addPhysicsComponent(
-    boneGroup: VRMSpring,
-    sg: SceneGraphComponent
-  ): void {
+  private static __addPhysicsComponent(boneGroup: VRMSpring, sg: SceneGraphComponent): void {
     const entity = sg.entity;
     const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
     const physicsComponent = newEntity.getPhysics();
-    physicsComponent.strategy.setSpring(boneGroup);
+    const strategy = new VRMSpringBonePhysicsStrategy();
+    strategy.setSpring(boneGroup);
+    physicsComponent.setStrategy(strategy);
   }
 
   static _createTextures(gltfModel: RnM2): Texture[] {
