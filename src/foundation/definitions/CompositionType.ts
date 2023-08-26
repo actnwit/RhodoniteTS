@@ -337,6 +337,7 @@ const Mat4x3Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT4x3_ARRAY',
   glslStr: 'mat4x3',
   hlslStr: 'float4x3',
+  webgpu: 'unknown',
   numberOfComponents: 12,
   vec4SizeOfProperty: 3,
   isArray: true,
