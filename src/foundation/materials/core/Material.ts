@@ -39,6 +39,7 @@ import {
   _setupGlobalShaderDefinitionWebGL,
   ShaderHandler,
 } from './ShaderHandler';
+import Shaderity from 'shaderity';
 
 /**
  * The material class.
@@ -251,10 +252,13 @@ export class Material extends RnObject {
     const webGpuResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const materialNode = this._materialContent;
 
+    const preprocessedVertex = Shaderity.processPragma(materialNode.vertexShaderityObject!);
+    const preprocessedPixel = Shaderity.processPragma(materialNode.pixelShaderityObject!);
+
     const programUid = ShaderHandler._createShaderProgramWithCache(
       this,
-      materialNode.vertexShaderityObject!.code,
-      materialNode.pixelShaderityObject!.code,
+      preprocessedVertex.code,
+      preprocessedPixel.code,
       [],
       []
     );

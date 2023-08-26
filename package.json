@@ -54,6 +54,7 @@
     "gts-fix": "gts fix ./src ./samples"
   },
   "devDependencies": {
+    "@swc/core": "^1.3.24",
     "@types/jest": "^28.1.1",
     "@types/node": "^18.11.17",
     "@types/webgl-ext": "^0.0.32",
@@ -73,13 +74,12 @@
     "puppeteer": "9.1.1",
     "shaderity-loader": "0.0.18",
     "shx": "0.3.4",
+    "swc-loader": "^0.2.3",
     "ts-jest": "^28.0.4",
     "ts-loader": "^9.3.0",
     "tsc-watch": "^5.0.3",
     "typedoc": "^0.22.17",
     "typescript": "4.7.3",
-    "@swc/core": "^1.3.24",
-    "swc-loader": "^0.2.3",
     "version-loader": "^0.1.0",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.8.0",
@@ -88,7 +88,7 @@
   },
   "dependencies": {
     "ktx-parse": "0.2.2",
-    "shaderity": "0.2.7",
+    "shaderity": "0.2.8",
     "zlibjs": "^0.3.1",
     "zstddec": "^0.0.2"
   },
