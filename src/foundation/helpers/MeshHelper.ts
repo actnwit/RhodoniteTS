@@ -70,11 +70,47 @@ const createCube = (desc: CubeDescriptor = {}) => {
       friction: desc.physics.friction,
       restitution: desc.physics.restitution,
     };
-    strategy.setShape(property, entity);
+    strategy.setShape(property, newEntity);
     physicsComponent.setStrategy(strategy);
   }
 
   return entity;
+};
+
+const createCubes = (numberToCreate: number, desc: CubeDescriptor = {}) => {
+  const primitive = new Cube();
+  primitive.generate(desc);
+  const mesh = new Mesh();
+  mesh.addPrimitive(primitive);
+
+  const entities = [];
+
+  for (let i = 0; i < numberToCreate; i++) {
+    const entity = EntityHelper.createMeshEntity();
+    const meshComponent = entity.getMesh();
+    meshComponent.setMesh(mesh);
+
+    if (Is.exist(desc.physics) && desc.physics.use) {
+      const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const physicsComponent = newEntity.getPhysics();
+      const strategy = new OimoPhysicsStrategy();
+      const property = {
+        type: PhysicsShape.Box,
+        size: desc.widthVector ?? Vector3.fromCopy3(1, 1, 1),
+        position: Vector3.fromCopy3(0, 0, 0),
+        rotation: Vector3.fromCopy3(0, 0, 0),
+        move: desc.physics.move,
+        density: desc.physics.density,
+        friction: desc.physics.friction,
+        restitution: desc.physics.restitution,
+      };
+      strategy.setShape(property, newEntity);
+      physicsComponent.setStrategy(strategy);
+    }
+    entities.push(entity);
+  }
+
+  return entities;
 };
 
 const createSphere = (desc: SphereDescriptor = {}) => {
@@ -98,11 +134,49 @@ const createSphere = (desc: SphereDescriptor = {}) => {
       friction: desc.physics.friction,
       restitution: desc.physics.restitution,
     };
-    strategy.setShape(property, entity);
+    strategy.setShape(property, newEntity);
     physicsComponent.setStrategy(strategy);
   }
 
   return entity;
+};
+
+const createSpheres = (numberToCreate: number, desc: SphereDescriptor = {}) => {
+  const primitive = new Sphere();
+  primitive.generate(desc);
+  const mesh = new Mesh();
+  mesh.addPrimitive(primitive);
+
+  const entities = [];
+
+  for (let i = 0; i < numberToCreate; i++) {
+    const entity = EntityHelper.createMeshEntity();
+    const meshComponent = entity.getMesh();
+    meshComponent.setMesh(mesh);
+
+    if (Is.exist(desc.physics) && desc.physics.use) {
+      const newEntity = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+      const physicsComponent = newEntity.getPhysics();
+      const strategy = new OimoPhysicsStrategy();
+      const property = {
+        type: PhysicsShape.Sphere,
+        size: Is.exist(desc.radius)
+          ? Vector3.fromCopy3(desc.radius, desc.radius, desc.radius)
+          : Vector3.fromCopy3(1, 1, 1),
+        position: Vector3.fromCopy3(0, 0, 0),
+        rotation: Vector3.fromCopy3(0, 0, 0),
+        move: desc.physics.move,
+        density: desc.physics.density,
+        friction: desc.physics.friction,
+        restitution: desc.physics.restitution,
+      };
+      strategy.setShape(property, newEntity);
+      physicsComponent.setStrategy(strategy);
+    }
+    entities.push(entity);
+  }
+
+  return entities;
 };
 
 const createJoint = (desc: JointDescriptor = {}) => {
@@ -133,7 +207,9 @@ export const MeshHelper = Object.freeze({
   createLine,
   createGrid,
   createCube,
+  createCubes,
   createSphere,
+  createSpheres,
   createJoint,
   createAxis,
   createShape,

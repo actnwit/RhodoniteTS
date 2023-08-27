@@ -19,10 +19,11 @@ const ground = Rn.MeshHelper.createCube({
     friction: 0.5,
     restitution: 0.2,
   },
+  material: Rn.MaterialHelper.createClassicUberMaterial(),
 });
 
-function createCube(i: number) {
-  const cube = Rn.MeshHelper.createCube({
+function createCubes(numberToCreate: number) {
+  const cubes = Rn.MeshHelper.createCubes(numberToCreate, {
     widthVector: Rn.Vector3.fromCopyArray([1, 1, 1]),
     color: Rn.ColorRgba.fromCopy4(1.0, 0.5, 0.5, 1),
     physics: {
@@ -32,20 +33,23 @@ function createCube(i: number) {
       friction: 0.5,
       restitution: 0.2,
     },
+    material: Rn.MaterialHelper.createClassicUberMaterial(),
   });
 
-  cube.position = Rn.Vector3.fromCopyArray([
-    5 * Math.random() - 2.5,
-    i + 5,
-    5 * Math.random() - 2.5,
-  ]);
-  cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
-
-  return cube;
+  for (let i = 0; i < numberToCreate; i++) {
+    const cube = cubes[i];
+    cube.position = Rn.Vector3.fromCopyArray([
+      5 * Math.random() - 2.5,
+      i + 5,
+      5 * Math.random() - 2.5,
+    ]);
+    cube.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
+  }
+  return cubes;
 }
 
-function createSphere(i: number) {
-  const sphere = Rn.MeshHelper.createSphere({
+function createSpheres(numberToCreate: number) {
+  const spheres = Rn.MeshHelper.createSpheres(numberToCreate, {
     radius: 1,
     widthSegments: 10,
     heightSegments: 10,
@@ -58,24 +62,22 @@ function createSphere(i: number) {
     },
   });
 
-  sphere.scale = Rn.Vector3.fromCopyArray([1, Math.random() + 0.2, 1]);
-  sphere.position = Rn.Vector3.fromCopyArray([
-    5 * Math.random() - 2.5,
-    i + 5,
-    5 * Math.random() - 2.5,
-  ]);
-  sphere.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
-
-  return sphere;
+  for (let i = 0; i < numberToCreate; i++) {
+    const sphere = spheres[i];
+    sphere.scale = Rn.Vector3.fromCopyArray([1, Math.random() + 0.2, 1]);
+    sphere.position = Rn.Vector3.fromCopyArray([
+      5 * Math.random() - 2.5,
+      i + 5,
+      5 * Math.random() - 2.5,
+    ]);
+    sphere.eulerAngles = Rn.Vector3.fromCopyArray([Math.random(), 0, Math.random()]);
+  }
+  return spheres;
 }
 
 const entities = [];
-for (let i = 0; i < 250; i++) {
-  entities.push(createCube(i));
-}
-for (let i = 0; i < 50; i++) {
-  entities.push(createSphere(i));
-}
+Array.prototype.push.apply(entities, createCubes(400));
+Array.prototype.push.apply(entities, createSpheres(100));
 
 const lightEntity = Rn.EntityHelper.createLightEntity();
 
