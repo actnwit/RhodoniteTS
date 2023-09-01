@@ -4,7 +4,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(glsl|vs|fs|vert|frag)$/,
+        test: /\.(glsl|vs|fs|vert|frag|wgsl)$/,
         exclude: /node_modules/,
         use: ['shaderity-loader'],
       },

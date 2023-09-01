@@ -1,6 +1,4 @@
-struct VertexOutput {
-  @builtin(position) Position : vec4<f32>,
-}
+#pragma shaderity: require(./FlatSingleVertexOutput.wgsl)
 
 @vertex
 fn main(
