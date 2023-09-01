@@ -112,21 +112,15 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-#pragma shaderity: require(../common/pbrDefinition.glsl)
-#ifdef RN_USE_SHEEN
-  #pragma shaderity: require(../common/pbrSheen.glsl)
-#endif
-#ifdef RN_USE_IRIDESCENCE
-  #pragma shaderity: require(../common/pbrIridescence.glsl)
-#endif
-
 /* shaderity: @{getters} */
+
+#pragma shaderity: require(../common/opticalDefinition.glsl)
+#pragma shaderity: require(../common/pbrDefinition.glsl)
 
 /* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/shadow.glsl)
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
 
 vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   vec4 diffuseTexel = texture(u_diffuseEnvTexture, normal_forEnv);
@@ -573,6 +567,7 @@ void main ()
   float TdotV = dot(anisotropicT, viewDirection);
 #else
   float anisotropy = 0.0;
+  vec3 anisotropicT = vec3(0.0, 0.0, 0.0);
   vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
 #endif
 
@@ -734,78 +729,12 @@ void main ()
 
     // Light
     Light light = getLight(i, v_position_inWorld.xyz);
-
-    // Fresnel
-    vec3 halfVector = normalize(light.direction + viewDirection);
-    float VdotH = dot(viewDirection, halfVector);
-    vec3 F = fresnel(F0, F90, VdotH);
-
-    float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
-
-    // Diffuse
-    vec3 diffuseBrdf = diffuse_brdf(albedo);
-    vec3 pureDiffuse = (vec3(1.0) - F) * diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
-
-#ifdef RN_USE_TRANSMISSION
-    vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-    Light transmittedLightFromUnderSurface = light;
-    transmittedLightFromUnderSurface.pointToLight -= refractionVector;
-    vec3 transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
-    transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
-
-    vec3 Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
-    float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
-    float NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
-
-    vec3 transmittedContrib = (vec3(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
-
-#ifdef RN_USE_VOLUME
-    vec3 attenuationColor = get_attenuationColor(materialSID, 0);
-    float attenuationDistance = get_attenuationDistance(materialSID, 0);
-    transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
-#endif // RN_USE_VOLUME
-
-    vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
-#else
-    vec3 diffuseContrib = pureDiffuse;
-#endif // RN_USE_TRANSMISSION
-
-    // Specular
-    float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
-#ifdef RN_USE_ANISOTROPY
-    float TdotL = dot(anisotropicT, light.direction);
-    float BdotL = dot(anisotropicB, light.direction);
-    float TdotH = dot(anisotropicT, halfVector);
-    float BdotH = dot(anisotropicB, halfVector);
-    vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
-#else
-    vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
-#endif // RN_USE_ANISOTROPY
-    // Base Layer
-    vec3 baseLayer = diffuseContrib + specularContrib;
-
-#ifdef RN_USE_SHEEN
-    // Sheen
-    vec3 sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
-    float albedoSheenScaling = min(
-      albedoSheenScalingNdotV,
-      1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);
-    vec3 color = sheenContrib + baseLayer * albedoSheenScaling;
-#else
-    vec3 color = baseLayer;
-    float albedoSheenScaling = 1.0;
-#endif // RN_USE_SHEEN
-
-#ifdef RN_USE_CLEARCOAT
-    // Clear Coat Layer
-    float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-    float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
-    vec3 coated = coated_material_s(color, perceptualRoughness,
-      clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
-    rt0.xyz += coated;
-#else
-    rt0.xyz += color;
-#endif // RN_USE_CLEARCOAT
+    rt0.xyz += gltfBRDF(light, normal_inWorld, viewDirection, NdotV, albedo,
+                        perceptualRoughness, metallic, F0, F90, ior, transmission,
+                        clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
+                        attenuationColor, attenuationDistance,
+                        anisotropy, anisotropicT, anisotropicB,
+                        sheenColor, sheenRoughness, albedoSheenScalingNdotV);
   }
 
 #ifdef RN_USE_SHADOW_MAPPING
