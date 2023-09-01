@@ -435,9 +435,9 @@ export class WebGpuResourceRepository
     });
     if (primitive.hasIndices()) {
       const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
-      passEncoder.setIndexBuffer(indicesBuffer, 'uint16'); // <---- IndexBufferをセット
+      passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
       const indicesAccessor = primitive.indicesAccessor!;
-      passEncoder.drawIndexed(indicesAccessor.elementCount); // インデックス描画の場合はdraw()でなくdrawIndexed()を使う
+      passEncoder.drawIndexed(indicesAccessor.elementCount);
     } else {
       const vertexCount = primitive.attributeAccessors[0].elementCount;
       passEncoder.draw(vertexCount, 1, 0, 0);
