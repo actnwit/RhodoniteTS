@@ -151,9 +151,10 @@ void main ()
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  // View vector
+  // View direction
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
+  vec3 viewDirection = normalize(viewVector);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -203,86 +204,87 @@ void main ()
 
 #pragma shaderity: require(../common/alphaMask.glsl)
 
-  // NdotV
-  vec3 viewDirection = normalize(viewVector);
-  float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
-
-#ifdef RN_USE_ANISOTROPY
-  float anisotropy = get_anisotropyStrength(materialSID, 0);
-  vec2 anisotropyRotation = get_anisotropyRotation(materialSID, 0);
-  vec2 direction = anisotropyRotation;
-  vec3 anisotropyTex = texture(u_anisotropyTexture, baseColorTexUv).rgb;
-  direction = anisotropyTex.rg * 2.0 - vec2(1.0);
-  direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
-  anisotropy *= anisotropyTex.b;
-  vec3 anisotropicT = normalize(TBN * vec3(direction, 0.0));
-  vec3 anisotropicB = normalize(cross(geomNormal_inWorld, anisotropicT));
-  float BdotV = dot(anisotropicB, viewDirection);
-  float TdotV = dot(anisotropicT, viewDirection);
-#else
-  float anisotropy = 0.0;
-  vec3 anisotropicT = vec3(0.0, 0.0, 0.0);
-  vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
-#endif
-
-  // Clearcoat
-#ifdef RN_USE_CLEARCOAT
-  float clearcoatFactor = get_clearCoatFactor(materialSID, 0);
-  vec4 clearcoatTextureTransform = get_clearCoatTextureTransform(materialSID, 0);
-  float clearcoatTextureRotation = get_clearCoatTextureRotation(materialSID, 0);
-  int clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
-  vec2 clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex);
-  vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, clearCoatTexcoord);
-  float clearcoatTexture = texture(u_clearCoatTexture, clearcoatTexUv).r;
-  float clearcoat = clearcoatFactor * clearcoatTexture;
-#else
-  float clearcoat = 0.0;
-#endif // RN_USE_CLEARCOAT
-
-  // Transmission
-#ifdef RN_USE_TRANSMISSION
-  float transmissionFactor = get_transmissionFactor(materialSID, 0);
-  float transmissionTexture = texture(u_transmissionTexture, baseColorTexUv).r;
-  float transmission = transmissionFactor * transmissionTexture;
-  // alpha *= transmission;
-#else
-  float transmission = 0.0;
-#endif // RN_USE_TRANSMISSION
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
   vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
-  float perceptualRoughness = metallicRoughnessFactor.y;
   float metallic = metallicRoughnessFactor.x;
-
   vec4 metallicRoughnessTextureTransform = get_metallicRoughnessTextureTransform(materialSID, 0);
   float metallicRoughnessTextureRotation = get_metallicRoughnessTextureRotation(materialSID, 0);
   int metallicRoughnessTexcoordIndex = get_metallicRoughnessTexcoordIndex(materialSID, 0);
   vec2 metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex);
   vec2 metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, metallicRoughnessTexcoord);
   vec4 ormTexel = texture(u_metallicRoughnessTexture, metallicRoughnessTexUv);
-  perceptualRoughness = ormTexel.g * perceptualRoughness;
+  float perceptualRoughness = ormTexel.g * metallicRoughnessFactor.y;
   metallic = ormTexel.b * metallic;
-
-  perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   metallic = clamp(metallic, 0.0, 1.0);
+  perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
-
-  // filter NDF for specular AA
-  // https://jcgt.org/published/0010/02/02/
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
   float alphaRoughness2 = alphaRoughness * alphaRoughness;
   float filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
   perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
-#ifdef RN_USE_SPECULAR
-  float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
-  float specular = get_specularFactor(materialSID, 0) * specularTexture;
-  vec3 specularColorTexture = srgbToLinear(texture(u_specularTexture, baseColorTexUv).rgb);
-  vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
-#else
-  float specular = 1.0;
-  vec3 specularColor = vec3(1.0, 1.0, 1.0);
-#endif // RN_USE_SPECULAR
+  // Albedo
+  vec3 black = vec3(0.0);
+  vec3 albedo = mix(baseColor.rgb, black, metallic);
+
+  // NdotV
+  float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
+
+  #ifdef RN_USE_ANISOTROPY
+    float anisotropy = get_anisotropyStrength(materialSID, 0);
+    vec2 anisotropyRotation = get_anisotropyRotation(materialSID, 0);
+    vec2 direction = anisotropyRotation;
+    vec3 anisotropyTex = texture(u_anisotropyTexture, baseColorTexUv).rgb;
+    direction = anisotropyTex.rg * 2.0 - vec2(1.0);
+    direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
+    anisotropy *= anisotropyTex.b;
+    vec3 anisotropicT = normalize(TBN * vec3(direction, 0.0));
+    vec3 anisotropicB = normalize(cross(geomNormal_inWorld, anisotropicT));
+    float BdotV = dot(anisotropicB, viewDirection);
+    float TdotV = dot(anisotropicT, viewDirection);
+  #else
+    float anisotropy = 0.0;
+    vec3 anisotropicT = vec3(0.0, 0.0, 0.0);
+    vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
+    float BdotV = 0.0;
+    float TdotV = 0.0;
+  #endif
+
+    // Clearcoat
+  #ifdef RN_USE_CLEARCOAT
+    float clearcoatFactor = get_clearCoatFactor(materialSID, 0);
+    vec4 clearcoatTextureTransform = get_clearCoatTextureTransform(materialSID, 0);
+    float clearcoatTextureRotation = get_clearCoatTextureRotation(materialSID, 0);
+    int clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
+    vec2 clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex);
+    vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, clearCoatTexcoord);
+    float clearcoatTexture = texture(u_clearCoatTexture, clearcoatTexUv).r;
+    float clearcoat = clearcoatFactor * clearcoatTexture;
+  #else
+    float clearcoat = 0.0;
+  #endif // RN_USE_CLEARCOAT
+
+    // Transmission
+  #ifdef RN_USE_TRANSMISSION
+    float transmissionFactor = get_transmissionFactor(materialSID, 0);
+    float transmissionTexture = texture(u_transmissionTexture, baseColorTexUv).r;
+    float transmission = transmissionFactor * transmissionTexture;
+    // alpha *= transmission;
+  #else
+    float transmission = 0.0;
+  #endif // RN_USE_TRANSMISSION
+
+  #ifdef RN_USE_SPECULAR
+    float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
+    float specular = get_specularFactor(materialSID, 0) * specularTexture;
+    vec3 specularColorTexture = srgbToLinear(texture(u_specularTexture, baseColorTexUv).rgb);
+    vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
+  #else
+    float specular = 1.0;
+    vec3 specularColor = vec3(1.0, 1.0, 1.0);
+  #endif // RN_USE_SPECULAR
 
   // F0, F90
   float ior = get_ior(materialSID, 0);
@@ -295,87 +297,82 @@ void main ()
   vec3 F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
   vec3 F90 = mix(dielectricSpecularF90, vec3(1.0), metallic);
 
-  // Albedo
-  vec3 black = vec3(0.0);
-  vec3 albedo = mix(baseColor.rgb, black, metallic);
+  // Iridescence
+  #ifdef RN_USE_IRIDESCENCE
+    float iridescenceFactor = get_iridescenceFactor(materialSID, 0);
+    float iridescenceTexture = texture(u_iridescenceTexture, baseColorTexUv).r;
+    float iridescence = iridescenceFactor * iridescenceTexture;
+    float iridescenceIor = get_iridescenceIor(materialSID, 0);
+    float thicknessRatio = texture(u_iridescenceThicknessTexture, baseColorTexUv).r;
+    float iridescenceThicknessMinimum = get_iridescenceThicknessMinimum(materialSID, 0);
+    float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
+    float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
+
+    vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+    vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
+
+  #else
+    float iridescence = 0.0;
+    vec3 iridescenceFresnel = vec3(0.0);
+    vec3 iridescenceF0 = F0;
+  #endif // RN_USE_IRIDESCENCE
+
+  #ifdef RN_USE_CLEARCOAT
+    // Clearcoat
+    float clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
+    int clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
+    vec2 clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex);
+    vec4 clearcoatRoughnessTextureTransform = get_clearCoatRoughnessTextureTransform(materialSID, 0);
+    float clearcoatRoughnessTextureRotation = get_clearCoatRoughnessTextureRotation(materialSID, 0);
+    vec2 clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransform.xy, clearcoatRoughnessTextureTransform.zw, clearcoatRoughnessTextureRotation, clearCoatRoughnessTexcoord);
+    float textureRoughnessTexture = texture(u_clearCoatRoughnessTexture, clearcoatRoughnessTexUv).g;
+    float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
+
+    int clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
+    vec2 clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex);
+    vec4 clearcoatNormalTextureTransform = get_clearCoatNormalTextureTransform(materialSID, 0);
+    float clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
+    vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
+    vec3 textureNormal_tangent = texture(u_clearCoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
+    vec3 clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
+    float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+  #else
+    float clearcoatRoughness = 0.0;
+    vec3 clearcoatNormal_inWorld = vec3(0.0);
+    float VdotNc = 0.0;
+  #endif // RN_USE_CLEARCOAT
+
+  #ifdef RN_USE_VOLUME
+    // Volume
+    float thicknessFactor = get_thicknessFactor(materialSID, 0);
+    float thicknessTexture = texture(u_thicknessTexture, baseColorTexUv).g;
+    float attenuationDistance = get_attenuationDistance(materialSID, 0);
+    vec3 attenuationColor = get_attenuationColor(materialSID, 0);
+    float thickness = thicknessFactor * thicknessTexture;
+  #else
+    float thickness = 0.0;
+    vec3 attenuationColor = vec3(0.0);
+    float attenuationDistance = 0.000001;
+  #endif // RN_USE_VOLUME
+
+  #ifdef RN_USE_SHEEN
+    // Sheen
+    vec3 sheenColorFactor = get_sheenColorFactor(materialSID, 0);
+    vec3 sheenColorTexture = texture(u_sheenColorTexture, baseColorTexUv).rgb;
+    float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
+    float sheenRoughnessTexture = texture(u_sheenRoughnessTexture, baseColorTexUv).a;
+    vec3 sheenColor = sheenColorFactor * sheenColorTexture;
+    float sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
+    float albedoSheenScalingNdotV = 1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).r;
+  #else
+    vec3 sheenColor = vec3(0.0);
+    float sheenRoughness = 0.000001;
+    float albedoSheenScalingNdotV = 1.0;
+  #endif // RN_USE_SHEEN
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
-// Iridescence
-#ifdef RN_USE_IRIDESCENCE
-  float iridescenceFactor = get_iridescenceFactor(materialSID, 0);
-  float iridescenceTexture = texture(u_iridescenceTexture, baseColorTexUv).r;
-  float iridescence = iridescenceFactor * iridescenceTexture;
-  float iridescenceIor = get_iridescenceIor(materialSID, 0);
-  float thicknessRatio = texture(u_iridescenceThicknessTexture, baseColorTexUv).r;
-  float iridescenceThicknessMinimum = get_iridescenceThicknessMinimum(materialSID, 0);
-  float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
-  float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
-
-  vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
-  vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
-
-#else
-  float iridescence = 0.0;
-  vec3 iridescenceFresnel = vec3(0.0);
-  vec3 iridescenceF0 = F0;
-#endif // RN_USE_IRIDESCENCE
-
-#ifdef RN_USE_CLEARCOAT
-  // Clearcoat
-  float clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
-  int clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
-  vec2 clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex);
-  vec4 clearcoatRoughnessTextureTransform = get_clearCoatRoughnessTextureTransform(materialSID, 0);
-  float clearcoatRoughnessTextureRotation = get_clearCoatRoughnessTextureRotation(materialSID, 0);
-  vec2 clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransform.xy, clearcoatRoughnessTextureTransform.zw, clearcoatRoughnessTextureRotation, clearCoatRoughnessTexcoord);
-  float textureRoughnessTexture = texture(u_clearCoatRoughnessTexture, clearcoatRoughnessTexUv).g;
-  float clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
-
-  int clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
-  vec2 clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex);
-  vec4 clearcoatNormalTextureTransform = get_clearCoatNormalTextureTransform(materialSID, 0);
-  float clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
-  vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
-  vec3 textureNormal_tangent = texture(u_clearCoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
-  vec3 clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
-  float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
-#else
-  float clearcoatRoughness = 0.0;
-  vec3 clearcoatNormal_inWorld = vec3(0.0);
-  float VdotNc = 0.0;
-#endif // RN_USE_CLEARCOAT
-
-#ifdef RN_USE_VOLUME
-  // Volume
-  float thicknessFactor = get_thicknessFactor(materialSID, 0);
-  float thicknessTexture = texture(u_thicknessTexture, baseColorTexUv).g;
-  float attenuationDistance = get_attenuationDistance(materialSID, 0);
-  vec3 attenuationColor = get_attenuationColor(materialSID, 0);
-  float thickness = thicknessFactor * thicknessTexture;
-#else
-  float thickness = 0.0;
-  vec3 attenuationColor = vec3(0.0);
-  float attenuationDistance = 0.000001;
-#endif // RN_USE_VOLUME
-
-#ifdef RN_USE_SHEEN
-  // Sheen
-  vec3 sheenColorFactor = get_sheenColorFactor(materialSID, 0);
-  vec3 sheenColorTexture = texture(u_sheenColorTexture, baseColorTexUv).rgb;
-  float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
-  float sheenRoughnessTexture = texture(u_sheenRoughnessTexture, baseColorTexUv).a;
-  vec3 sheenColor = sheenColorFactor * sheenColorTexture;
-  float sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
-  float albedoSheenScalingNdotV = 1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).r;
-#else
-  vec3 sheenColor = vec3(0.0);
-  float sheenRoughness = 0.000001;
-  float albedoSheenScalingNdotV = 1.0;
-#endif // RN_USE_SHEEN
-
   // Lighting
-  vec3 diffuse = vec3(0.0, 0.0, 0.0);
   for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
     if (i >= lightNumber) {
       break;
@@ -387,20 +384,20 @@ void main ()
                         perceptualRoughness, metallic, F0, F90, ior, transmission,
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
-                        anisotropy, anisotropicT, anisotropicB,
+                        anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV);
   }
 
-#ifdef RN_USE_SHADOW_MAPPING
-  float bias = 0.001;
-  vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
-  float shadowContribusion = 1.0;
-  if (shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-    shadowContribusion = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
-  }
-  // rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
-  rt0.rgb = rt0.rgb * shadowContribusion;
-#endif
+  #ifdef RN_USE_SHADOW_MAPPING
+    float bias = 0.001;
+    vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+    float shadowContribusion = 1.0;
+    if (shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
+      shadowContribusion = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
+    }
+    // rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
+    rt0.rgb = rt0.rgb * shadowContribusion;
+  #endif
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,

@@ -552,6 +552,8 @@ vec3 gltfBRDF(
   float anisotropy,
   vec3 anisotropicT,
   vec3 anisotropicB,
+  float BdotV,
+  float TdotV,
   vec3 sheenColor,
   float sheenRoughness,
   float albedoSheenScalingNdotV
