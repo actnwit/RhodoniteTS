@@ -266,18 +266,6 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
   return uvTransformed;
 }
 
-// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
-vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 intensity, float transmissionDistance)
-{
-  if (attenuationDistance == 0.0) { // means Infinite distance
-    return intensity; // No attenuation
-  } else {
-    vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
-    vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
-    return intensity * attenuatedTransmittance;
-  }
-}
-
 float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   float SIGMA2 = 0.15915494;
   float KAPPA = 0.18;
@@ -289,6 +277,34 @@ float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   return filteredRoughness2;
 }
 
+
+////////////////////////////////////////
+// glTF KHR_materials_volume
+////////////////////////////////////////
+
+#ifdef RN_USE_VOLUME
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
+vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 intensity, float transmissionDistance)
+{
+  if (attenuationDistance == 0.0) { // means Infinite distance
+    return intensity; // No attenuation
+  } else {
+    vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
+    vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
+    return intensity * attenuatedTransmittance;
+  }
+}
+#endif
+
+
+
+
+
+
+////////////////////////////////////////
+// glTF KHR_materials_anisotropy
+////////////////////////////////////////
+#ifdef RN_USE_ANISOTROPY
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_anisotropy
 float D_GGX_anisotropic(float NdotH, float TdotH, float BdotH, float at, float ab)
 {
@@ -318,4 +334,302 @@ vec3 BRDF_specularAnisotropicGGX(vec3 F, float alphaRoughness,
     float D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
 
     return F * V * D;
+}
+#endif
+
+
+
+////////////////////////////////////////
+// glTF KHR_materials_sheen
+////////////////////////////////////////
+
+#ifdef RN_USE_SHEEN
+float d_Charlie(float sheenPerceptualRoughness, float NoH) {
+  // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  float invAlpha  = 1.0 / alphaG;
+  float cos2h = NoH * NoH;
+  float sin2h = 1.0 - cos2h;
+  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
+float sheenSimpleVisibility(float NdotL, float NdotV) {
+  return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
+float charlieL(float x, float alphaG) {
+  float oneMinusAlphaSq = (1.0 - alphaG) * (1.0 - alphaG);
+  float a = mix(21.5473, 25.3245, oneMinusAlphaSq);
+  float b = mix(3.82987, 3.32435, oneMinusAlphaSq);
+  float c = mix(0.19823, 0.16801, oneMinusAlphaSq);
+  float d = mix(-1.97760, -1.27393, oneMinusAlphaSq);
+  float e = mix(-4.32054, -4.85967, oneMinusAlphaSq);
+  return a / (1.0 + b * pow(x, c)) + d * x + e;
+}
+
+float lambdaSheen(float cosTheta, float alphaG)
+{
+  return abs(cosTheta) < 0.5 ? exp(charlieL(cosTheta, alphaG)) : exp(2.0 * charlieL(0.5, alphaG) - charlieL(1.0 - cosTheta, alphaG));
+}
+
+float sheenCharlieVisibility(float NdotL, float NdotV, float sheenPerceptualRoughness) {
+  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  float sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
+  return sheenVisibility;
+}
+
+vec3 sheen_brdf(vec3 sheenColor, float sheenPerceptualRoughness, float NdotL, float NdotV, float NdotH) {
+  float sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
+  float sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
+  return sheenColor * sheenDistribution * sheenVisibility;
+}
+#endif
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////
+// glTF KHR_materials_irirdescence
+////////////////////////////////////////
+
+#ifdef RN_USE_IRIDESCENCE
+// XYZ to REC709(sRGB) conversion matrix
+const mat3 XYZ_TO_REC709 = mat3(
+     3.2404542, -0.9692660,  0.0556434,
+    -1.5371385,  1.8760108, -0.2040259,
+    -0.4985314,  0.0415560,  1.0572252
+);
+
+// Assume air interface for top
+vec3 Fresnel0ToIor(vec3 F0) {
+    vec3 sqrtF0 = sqrt(F0);
+    return (vec3(1.0) + sqrtF0) / (vec3(1.0) - sqrtF0);
+}
+
+// Conversion from IOR to F0
+// ior is a value between 1.0 and 3.0. 1.0 is air interface
+vec3 IorToFresnel0(vec3 transmittedIor, float incidentIor) {
+    return sq((transmittedIor - vec3(incidentIor)) / (transmittedIor + vec3(incidentIor)));
+}
+float IorToFresnel0(float transmittedIor, float incidentIor) {
+    return sq((transmittedIor - incidentIor) / (transmittedIor + incidentIor));
+}
+
+/**
+ * From: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_iridescence#analytic-spectral-integration
+ */
+vec3 evalSensitivity(float OPD, vec3 shift) {
+    float phase = 2.0 * M_PI * OPD * 1.0e-9;
+    vec3 val = vec3(5.4856e-13, 4.4201e-13, 5.2481e-13);
+    vec3 pos = vec3(1.6810e+06, 1.7953e+06, 2.2084e+06);
+    vec3 var = vec3(4.3278e+09, 9.3046e+09, 6.6121e+09);
+
+    vec3 xyz = val * sqrt(2.0 * M_PI * var) * cos(pos * phase + shift) * exp(-(phase * phase) * var);
+    xyz.x += 9.7470e-14 * sqrt(2.0 * M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift[0]) * exp(-4.5282e+09 * (phase * phase));
+    xyz /= 1.0685e-7;
+
+    vec3 rgb = XYZ_TO_REC709 * xyz;
+    return rgb;
+}
+
+/**
+ * From: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_iridescence#iridescence-fresnel
+ */
+vec3 calcIridescence(float outsideIor, float eta2, float cosTheta1, float thinFilmThickness, vec3 baseF0) {
+
+
+  // iridescenceIor is the index of refraction of the thin-film layer
+  // Force iridescenceIor -> outsideIOR when thinFilmThickness -> 0.0
+  float iridescenceIor = mix(outsideIor, eta2, smoothstep(0.0, 0.03, thinFilmThickness));
+
+  // To calculate the reflectances R12 and R23 at the viewing angles (angle hitting the thin-film layer)
+  // and (angle after refraction in the thin-film) Schlick Fresnel is again used.
+  // This approximation allows to eliminate the split into S and P polarization for the exact Fresnel equations.
+  // can be calculated using Snell's law (with  being outsideIor and being iridescenceIor):
+  float sinTheta2Sq = sq(outsideIor / iridescenceIor) * (1.0 - sq(cosTheta1));
+  float cosTheta2Sq = 1.0 - sinTheta2Sq;
+
+  // Handle total internal reflection
+  if (cosTheta2Sq < 0.0) {
+      return vec3(1.0);
+  }
+
+  float cosTheta2 = sqrt(cosTheta2Sq);
+
+  /// Material Interfaces
+  // The iridescence model defined by Belcour/Barla models two material interfaces
+  // - one from the outside to the thin-film layer
+  // and another one from the thin-film to the base material. These two interfaces are defined as follows:
+
+  // First interface (from the outside to the thin-film layer)
+  float R0 = IorToFresnel0(iridescenceIor, outsideIor);
+  float R12 = fresnel(R0, cosTheta1);
+  float R21 = R12;
+  float T121 = 1.0 - R12;
+
+  // Second interface (from the thin-film to the base material)
+  vec3 baseIor = Fresnel0ToIor(baseF0 + 0.0001); // guard against 1.0
+  vec3 R1 = IorToFresnel0(baseIor, iridescenceIor);
+  vec3 R23 = fresnel(R1, cosTheta2);
+
+  // phi12 and phi23 define the base phases per interface and are approximated with 0.0
+  // if the IOR of the hit material (iridescenceIor or baseIor) is higher
+  // than the IOR of the previous material (outsideIor or iridescenceIor) and π otherwise.
+  // Also here, polarization is ignored.  float phi12 = 0.0;
+
+  // First interface (from the outside to the thin-film layer)
+  float phi12 = 0.0;
+  if (iridescenceIor < outsideIor) phi12 = M_PI;
+  float phi21 = M_PI - phi12;
+
+  // Second interface (from the thin-film to the base material)
+  vec3 phi23 = vec3(0.0);
+  if (baseIor[0] < iridescenceIor) phi23[0] = M_PI;
+  if (baseIor[1] < iridescenceIor) phi23[1] = M_PI;
+  if (baseIor[2] < iridescenceIor) phi23[2] = M_PI;
+
+  // OPD (optical path difference)
+  float OPD = 2.0 * iridescenceIor * thinFilmThickness * cosTheta2;
+  // Phase shift
+  vec3 phi = vec3(phi21) + phi23;
+
+  // Compound terms
+  vec3 R123 = clamp(R12 * R23, 1e-5, 0.9999);
+  vec3 r123 = sqrt(R123);
+  vec3 Rs = (T121 * T121) * R23 / (vec3(1.0) - R123);
+
+  // Reflectance term for m = 0 (DC term amplitude)
+  vec3 C0 = R12 + Rs;
+  vec3 I = C0;
+
+  // Reflectance term for m > 0 (pairs of diracs)
+  vec3 Cm = Rs - T121;
+  for (int m = 1; m <= 2; ++m)
+  {
+      Cm *= r123;
+      vec3 Sm = 2.0 * evalSensitivity(float(m) * OPD, float(m) * phi);
+      I += Cm * Sm;
+  }
+
+  vec3 F_iridescence = max(I, vec3(0.0));
+
+  return F_iridescence;
+}
+#endif
+
+
+
+
+
+////////////////////////////////////////
+// glTF BRDF for punctual lights
+////////////////////////////////////////
+vec3 gltfBRDF(
+  Light light,
+  vec3 normal_inWorld,
+  vec3 viewDirection,
+  float NdotV,
+  vec3 albedo,
+  float perceptualRoughness,
+  float metallic,
+  vec3 F0,
+  vec3 F90,
+  float ior,
+  float transmission,
+  float clearcoat,
+  float clearcoatRoughness,
+  vec3 clearcoatNormal_inWorld,
+  float VdotNc,
+  vec3 attenuationColor,
+  float attenuationDistance,
+  float anisotropy,
+  vec3 anisotropicT,
+  vec3 anisotropicB,
+  float BdotV,
+  float TdotV,
+  vec3 sheenColor,
+  float sheenRoughness,
+  float albedoSheenScalingNdotV
+  )
+{
+  float alphaRoughness = perceptualRoughness * perceptualRoughness;
+
+  // Fresnel
+  vec3 halfVector = normalize(light.direction + viewDirection);
+  float VdotH = dot(viewDirection, halfVector);
+  vec3 F = fresnel(F0, F90, VdotH);
+
+  float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
+
+  // Diffuse
+  vec3 diffuseBrdf = diffuse_brdf(albedo);
+  vec3 pureDiffuse = (vec3(1.0) - F) * diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
+
+#ifdef RN_USE_TRANSMISSION
+  vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
+  Light transmittedLightFromUnderSurface = light;
+  transmittedLightFromUnderSurface.pointToLight -= refractionVector;
+  vec3 transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
+  transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
+
+  vec3 Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
+  float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
+  float NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
+
+  vec3 transmittedContrib = (vec3(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+
+#ifdef RN_USE_VOLUME
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+#endif // RN_USE_VOLUME
+
+  vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
+#else
+  vec3 diffuseContrib = pureDiffuse;
+#endif // RN_USE_TRANSMISSION
+
+  // Specular
+  float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+#ifdef RN_USE_ANISOTROPY
+  float TdotL = dot(anisotropicT, light.direction);
+  float BdotL = dot(anisotropicB, light.direction);
+  float TdotH = dot(anisotropicT, halfVector);
+  float BdotH = dot(anisotropicB, halfVector);
+  vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+#else
+  vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
+#endif // RN_USE_ANISOTROPY
+  // Base Layer
+  vec3 baseLayer = diffuseContrib + specularContrib;
+
+#ifdef RN_USE_SHEEN
+  // Sheen
+  vec3 sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  float albedoSheenScaling = min(
+    albedoSheenScalingNdotV,
+    1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);
+  vec3 color = sheenContrib + baseLayer * albedoSheenScaling;
+#else
+  vec3 color = baseLayer;
+  float albedoSheenScaling = 1.0;
+#endif // RN_USE_SHEEN
+
+#ifdef RN_USE_CLEARCOAT
+  // Clear Coat Layer
+  float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
+  float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
+  vec3 coated = coated_material_s(color, perceptualRoughness,
+    clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
+  vec3 finalColor = coated;
+#else
+  vec3 finalColor = color;
+#endif // RN_USE_CLEARCOAT
+
+  return finalColor;
 }
