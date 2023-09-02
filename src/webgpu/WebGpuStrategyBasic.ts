@@ -1,5 +1,8 @@
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { MemoryManager } from '../foundation/core/MemoryManager';
+import { BufferUse } from '../foundation/definitions/BufferUse';
+import { Buffer } from '../foundation/memory/Buffer';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
@@ -12,13 +15,13 @@ import {
   isSkipDrawing,
   updateVBOAndVAO,
 } from '../foundation/renderer/RenderingCommonMethods';
-import { Count, PrimitiveUID } from '../types/CommonTypes';
+import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
   private static __instance: WebGpuStrategyBasic;
-
+  private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private constructor() {}
 
   static getInstance() {
@@ -117,7 +120,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     // throw new Error('Method not implemented.');
   }
   common_$prerender(): void {
-    // throw new Error('Method not implemented.');
+    this.__createAndUpdateStorageBuffer();
   }
   common_$render(
     primitiveUids: Int32Array,
@@ -168,5 +171,24 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     webGpuResourceRepository.draw(primitive, material, renderPass);
 
     return true;
+  }
+
+  private __createAndUpdateStorageBuffer() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+
+    // the GPU global Storage
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
+      BufferUse.GPUInstanceData
+    );
+
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    // const dataTextureByteSize =
+    //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
+    const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
+    if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array);
+    } else {
+      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
+    }
   }
 }

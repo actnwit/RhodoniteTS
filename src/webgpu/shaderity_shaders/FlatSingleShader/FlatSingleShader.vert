@@ -1,5 +1,10 @@
 #pragma shaderity: require(./FlatSingleVertexOutput.wgsl)
 
+struct StorageData {
+  data: array<vec4<f32>>,
+}
+@binding(0) @group(0) var<storage> storageData : StorageData;
+
 @vertex
 fn main(
 #ifdef RN_USE_POSITION

@@ -58,6 +58,8 @@ export class WebGpuResourceRepository
   private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
+  private __storageBuffer?: GPUBuffer;
+  private __bindGroup?: GPUBindGroup;
 
   private constructor() {
     super();
@@ -409,11 +411,8 @@ export class WebGpuResourceRepository
       colorAttachments: [
         {
           view: textureView,
-
           clearValue: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
-
           loadOp: 'clear',
-
           storeOp: 'store',
         },
       ],
@@ -422,8 +421,10 @@ export class WebGpuResourceRepository
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
     const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
+    const bindGroup = this.createBindGroup(pipeline);
 
     passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
     const VertexHandles = primitive._vertexHandles;
     if (VertexHandles == null) {
       return;
@@ -569,5 +570,61 @@ export class WebGpuResourceRepository
     sampler.create();
 
     return [handle, sampler];
+  }
+
+  createStorageBuffer(inputArray: Float32Array) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = gpuDevice.createBuffer({
+      size: inputArray.byteLength,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+    });
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+
+    this.__storageBuffer = storageBuffer;
+
+    const storageBufferHandle = this.__registerResource(storageBuffer);
+
+    return storageBufferHandle;
+  }
+
+  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+  }
+
+  createBindGroup(pipeline: GPURenderPipeline) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const entries: GPUBindGroupEntry[] = [];
+    const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
+    if (this.__storageBuffer != null) {
+      entries.push({
+        binding: 0,
+        resource: {
+          buffer: this.__storageBuffer,
+        },
+      });
+      bindGroupLayoutEntries.push({
+        binding: 0,
+        buffer: {
+          type: 'read-only-storage',
+        },
+        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+      });
+    }
+
+    const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
+      entries: bindGroupLayoutEntries,
+    };
+    const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
+
+    const uniformBindGroup = gpuDevice.createBindGroup({
+      layout: bindGroupLayout,
+      entries: entries,
+    });
+
+    this.__bindGroup = uniformBindGroup;
+
+    return uniformBindGroup;
   }
 }
