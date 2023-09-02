@@ -17,6 +17,8 @@ import {
 } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
+import { Component } from '../foundation/core/Component';
+import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -29,6 +31,22 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       this.__instance = new WebGpuStrategyBasic();
     }
     return this.__instance;
+  }
+
+  static getVertexShaderMethodDefinitions_storageBuffer() {
+    return `
+
+  fn get_worldMatrix(float instanceId) -> mat4x4<f32>
+  {
+    let index: i32 = ${Component.getLocationOffsetOfMemberOfComponent(
+      SceneGraphComponent,
+      'worldMatrix'
+    )} * 4 + 16 * i32(instanceId);
+    let matrix = fetchMat4(index);
+
+    return matrix;
+  }
+`;
   }
 
   $load(meshComponent: MeshComponent): void {

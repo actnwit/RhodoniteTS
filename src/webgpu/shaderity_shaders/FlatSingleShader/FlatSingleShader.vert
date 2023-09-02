@@ -5,6 +5,8 @@ struct StorageData {
 }
 @binding(0) @group(0) var<storage> storageData : StorageData;
 
+#pragma shaderity: require(../common/prerequisites.wgsl)
+
 @vertex
 fn main(
 #ifdef RN_USE_POSITION
