@@ -22,8 +22,6 @@ import {
   IMesh,
   PrimitiveSortKey,
   PrimitiveSortKeyOffset,
-  PrimitiveSortKey_BitOffset_Material,
-  PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_TranslucencyType,
   RaycastResult,
   RaycastResultEx1,

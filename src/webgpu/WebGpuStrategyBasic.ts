@@ -71,12 +71,12 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       }
 
       try {
-        this.setupShaderForMaterial(material);
+        this.setupShaderForMaterial(material, primitive);
         primitive._backupMaterial();
       } catch (e) {
         console.log(e);
         primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive._prevMaterial);
+        this.setupShaderForMaterial(primitive._prevMaterial, primitive);
       }
     }
   }
@@ -85,8 +85,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    * setup shader program for the material in this WebGL strategy
    * @param material - a material to setup shader program
    */
-  public setupShaderForMaterial(material: Material): void {
-    material._createProgramWebGpu();
+  public setupShaderForMaterial(material: Material, primitive: Primitive): void {
+    material._createProgramWebGpu(primitive);
   }
 
   private __isMeshSetup(mesh: Mesh) {

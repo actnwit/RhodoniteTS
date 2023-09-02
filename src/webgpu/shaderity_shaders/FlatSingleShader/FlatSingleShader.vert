@@ -2,11 +2,19 @@
 
 @vertex
 fn main(
-  @location(0) position: vec4<f32>,
+#ifdef RN_USE_POSITION
+  @location(0) position: vec3<f32>,
+#endif
+#ifdef RN_USE_NORMAL
+  @location(1) normal: vec3<f32>,
+#endif
+#ifdef RN_USE_TANGENT
+  @location(2) tangent: vec3<f32>,
+#endif
 ) -> VertexOutput {
 
   var output : VertexOutput;
-  output.Position = position;
+  output.Position = vec4<f32>(position, 1.0);
 
   return output;
 }
