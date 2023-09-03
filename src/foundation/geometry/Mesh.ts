@@ -169,17 +169,16 @@ export class Mesh implements IMesh {
    * @returns true: updated, false: not changed (not dirty)
    */
   updateVariationVBO(): boolean {
-    const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
     if (this.__variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webglResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
+      cgApiResourceRepository.deleteVertexBuffer(this.__variationVBOUid);
     }
 
     const instanceNum = this.__belongToEntities.length;
     // const entityInfo = new Float32Array(instanceNum);
     const entityInfo = new Float32Array(instanceNum * 4);
     for (let i = 0; i < instanceNum; i++) {
-      // entityInfo[i] = this.__belongToEntities[i].entityUID;
       entityInfo[4 * i + 0] = this.__belongToEntities[i].getSceneGraph().componentSID;
       const skeletal = this.__belongToEntities[i].tryToGetSkeletal();
       if (skeletal != null) {
@@ -187,12 +186,8 @@ export class Mesh implements IMesh {
       } else {
         entityInfo[4 * i + 1] = -1;
       }
-      // entityInfo[2 * i + 1] = this.__belongToEntities[i].getSceneGraph()
-      //   .isVisible
-      //   ? 1
-      //   : 0;
     }
-    this.__variationVBOUid = webglResourceRepository.createVertexBufferFromTypedArray(entityInfo);
+    this.__variationVBOUid = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);
 
     return true;
   }

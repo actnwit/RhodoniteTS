@@ -4,6 +4,7 @@ import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute, VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
+import { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
@@ -431,10 +432,18 @@ export class WebGpuResourceRepository
       return;
     }
 
+    const variationVBO = this.__webGpuResources.get(
+      (primitive.mesh! as Mesh)._variationVBOUid
+    ) as GPUBuffer;
+    passEncoder.setVertexBuffer(0, variationVBO);
     VertexHandles.vboHandles.forEach((vboHandle, i) => {
       const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      passEncoder.setVertexBuffer(i, vertexBuffer);
+      // const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(
+      //   primitive.attributeSemantics[i]
+      // );
+      passEncoder.setVertexBuffer(i + 1, vertexBuffer);
     });
+
     if (primitive.hasIndices()) {
       const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
       passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
@@ -471,6 +480,17 @@ export class WebGpuResourceRepository
     // const attributes: GPUVertexAttribute[] = [];
 
     const gpuVertexBufferLayouts: GPUVertexBufferLayout[] = [];
+    gpuVertexBufferLayouts.push({
+      stepMode: 'instance',
+      attributes: [
+        {
+          shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
+          offset: 0,
+          format: 'float32x4',
+        },
+      ],
+      arrayStride: 4 * 4,
+    });
     primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
       const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
         primitive.attributeSemantics[i]

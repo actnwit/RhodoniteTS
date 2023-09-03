@@ -15,7 +15,7 @@ import {
   isSkipDrawing,
   updateVBOAndVAO,
 } from '../foundation/renderer/RenderingCommonMethods';
-import { CGAPIResourceHandle, Count, PrimitiveUID } from '../types/CommonTypes';
+import { CGAPIResourceHandle, Count, Index, PrimitiveUID } from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 import { Component } from '../foundation/core/Component';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
@@ -57,7 +57,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
     // setup shader program
     if (!isMaterialsSetup(meshComponent)) {
-      this.setupShaderProgramForMeshComponent(meshComponent);
+      this.__setupShaderProgramForMeshComponent(meshComponent);
     }
 
     // setup VBO and VAO
@@ -73,7 +73,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     }
   }
 
-  setupShaderProgramForMeshComponent(meshComponent: MeshComponent) {
+  private __setupShaderProgramForMeshComponent(meshComponent: MeshComponent) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
