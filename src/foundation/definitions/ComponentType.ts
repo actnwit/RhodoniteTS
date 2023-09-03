@@ -3,6 +3,7 @@ import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { Gltf2AccessorComponentTypeNumber } from '../../types/glTF2';
 
 export interface ComponentTypeEnum extends EnumIO {
+  wgsl: string;
   webgpu: string;
   getSizeInBytes(): number;
   isFloatingPoint(): boolean;
@@ -11,21 +12,29 @@ export interface ComponentTypeEnum extends EnumIO {
 
 class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   readonly __webgpu: string;
+  readonly __wgsl: string;
   readonly __sizeInBytes: number;
   constructor({
     index,
     str,
     sizeInBytes,
+    wgsl,
     webgpu,
   }: {
     index: number;
     str: string;
     sizeInBytes: number;
+    wgsl: string;
     webgpu: string;
   }) {
     super({ index, str });
     this.__sizeInBytes = sizeInBytes;
     this.__webgpu = webgpu;
+    this.__wgsl = wgsl;
+  }
+
+  get wgsl(): string {
+    return this.__wgsl;
   }
 
   get webgpu(): string {
@@ -68,66 +77,77 @@ const Unknown: ComponentTypeEnum = new ComponentTypeClass({
   index: 5119,
   str: 'UNKNOWN',
   sizeInBytes: 0,
+  wgsl: 'unknown',
   webgpu: 'unknown',
 });
 const Byte: ComponentTypeEnum = new ComponentTypeClass({
   index: 5120,
   str: 'BYTE',
   sizeInBytes: 1,
+  wgsl: 'i32',
   webgpu: 'sint8',
 });
 const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({
   index: 5121,
   str: 'UNSIGNED_BYTE',
   sizeInBytes: 1,
+  wgsl: 'u32',
   webgpu: 'uint8',
 });
 const Short: ComponentTypeEnum = new ComponentTypeClass({
   index: 5122,
   str: 'SHORT',
   sizeInBytes: 2,
+  wgsl: 'i32',
   webgpu: 'sint16',
 });
 const UnsignedShort: ComponentTypeEnum = new ComponentTypeClass({
   index: 5123,
   str: 'UNSIGNED_SHORT',
   sizeInBytes: 2,
+  wgsl: 'u32',
   webgpu: 'uint16',
 });
 const Int: ComponentTypeEnum = new ComponentTypeClass({
   index: 5124,
   str: 'INT',
   sizeInBytes: 4,
+  wgsl: 'i32',
   webgpu: 'sint32',
 });
 const UnsignedInt: ComponentTypeEnum = new ComponentTypeClass({
   index: 5125,
   str: 'UNSIGNED_INT',
   sizeInBytes: 4,
+  wgsl: 'u32',
   webgpu: 'uint32',
 });
 const Float: ComponentTypeEnum = new ComponentTypeClass({
   index: 5126,
   str: 'FLOAT',
   sizeInBytes: 4,
+  wgsl: 'f32',
   webgpu: 'float32',
 });
 const Double: ComponentTypeEnum = new ComponentTypeClass({
   index: 5127,
   str: 'DOUBLE',
   sizeInBytes: 8,
+  wgsl: 'f32',
   webgpu: 'float64',
 });
 const Bool: ComponentTypeEnum = new ComponentTypeClass({
   index: 35670,
   str: 'BOOL',
   sizeInBytes: 1,
+  wgsl: 'bool',
   webgpu: 'bool',
 });
 const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({
   index: 0x140b,
   str: 'HALF_FLOAT',
   sizeInBytes: 2,
+  wgsl: 'f16',
   webgpu: 'float16',
 });
 

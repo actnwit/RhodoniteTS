@@ -339,7 +339,7 @@ export class WebGpuResourceRepository
       );
 
       const gpuVertexFormat = (primitive.attributeAccessors[i].componentType.webgpu +
-        primitive.attributeAccessors[i].compositionType.webgpuX) as GPUVertexFormat;
+        primitive.attributeAccessors[i].compositionType.webgpu) as GPUVertexFormat;
       attributes.push({
         shaderLocation,
         offset: primitive.attributeAccessors[i].byteOffsetInBufferView,
@@ -497,7 +497,7 @@ export class WebGpuResourceRepository
         shaderLocation: slotIdx,
         offset: accessor.isAoS ? accessor.byteOffsetInBufferView : 0,
         format: (accessor.componentType.webgpu +
-          accessor.compositionType.webgpuX) as GPUVertexFormat,
+          accessor.compositionType.webgpu) as GPUVertexFormat,
       };
       // attributes.push(attribute);
       gpuVertexBufferLayouts.push({

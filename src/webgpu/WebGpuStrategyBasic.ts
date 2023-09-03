@@ -15,10 +15,22 @@ import {
   isSkipDrawing,
   updateVBOAndVAO,
 } from '../foundation/renderer/RenderingCommonMethods';
-import { CGAPIResourceHandle, Count, Index, PrimitiveUID } from '../types/CommonTypes';
+import {
+  CGAPIResourceHandle,
+  Count,
+  Index,
+  IndexOf16Bytes,
+  IndexOf4Bytes,
+  PrimitiveUID,
+} from '../types/CommonTypes';
 import { WebGpuResourceRepository } from './WebGpuResourceRepository';
 import { Component } from '../foundation/core/Component';
 import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { ComponentType } from '../foundation/definitions/ComponentType';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -54,7 +66,135 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     info: ShaderSemanticsInfo,
     propertyIndex: Index,
     isGlobalData: boolean
-  ) {}
+  ) {
+    const returnType = info.compositionType.toWGSLType(info.componentType);
+    const methodName = info.semantic.str.replace('.', '_');
+    const isTexture = CompositionType.isTexture(info.compositionType);
+    if (isTexture) {
+      return '';
+    }
+
+    // inner contents of 'get_' shader function
+    const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
+    // for non-`index` property (this is general case)
+    const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
+    const offsetOfProperty: IndexOf16Bytes = this.getOffsetOfPropertyInShader(
+      isGlobalData,
+      propertyIndex,
+      materialTypeName
+    );
+
+    if (offsetOfProperty === -1) {
+      console.error('Could not get the location offset of the property.');
+    }
+
+    let indexStr;
+    const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+    indexStr = `let vec4_idx: i32 = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
+    if (CompositionType.isArray(info.compositionType)) {
+      const instanceSizeInScalar = scalarSizeOfProperty * (info.arrayLength ?? 1);
+      indexStr = `let vec4_idx: i32 = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
+      indexStr += `let scalar_idx: i32 = ${
+        // IndexOf4Bytes
+        offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
+      } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
+    }
+
+    const firstPartOfInnerFunc = `
+fn get_${methodName}(_instanceId: f32, idxOfArray: i32) -> ${returnType} {
+  let instanceId: i32 = i32(_instanceId);
+${indexStr}
+`;
+
+    let str = `${firstPartOfInnerFunc}`;
+
+    switch (info.compositionType) {
+      case CompositionType.Vec4:
+      case CompositionType.Vec4Array:
+        str += '        let val = fetchElement(vec4_idx);\n';
+        break;
+      case CompositionType.Vec3:
+        str += '        let col0 = fetchElement(vec4_idx);\n';
+        str += `        let val = ${returnType}(col0.xyz);`;
+        break;
+      case CompositionType.Vec3Array:
+        str += '        let val = fetchVec3No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Vec2:
+        str += '        let col0 = fetchElement(vec4_idx);\n';
+        str += `        let val = ${returnType}(col0.xy);`;
+        break;
+      case CompositionType.Vec2Array:
+        str += '        let val = fetchVec2No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Scalar:
+        str += '        let col0 = fetchElement(vec4_idx);\n';
+        if (info.componentType === ComponentType.Int) {
+          str += `        let val = ${returnType}(col0.x);`;
+        } else if (info.componentType === ComponentType.Bool) {
+          str += `        let val = ${returnType}(col0.x);`;
+        } else {
+          str += '       let val = col0.x;';
+        }
+        break;
+      case CompositionType.ScalarArray:
+        str += '        let col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
+        if (info.componentType === ComponentType.Int) {
+          str += '        let val = i32(col0);';
+        } else if (info.componentType === ComponentType.Bool) {
+          str += '        let val = bool(col0);';
+        } else {
+          str += '       let val = col0;';
+        }
+        break;
+      case CompositionType.Mat4:
+        str += '        let val = fetchMat4(vec4_idx);\n';
+        break;
+      case CompositionType.Mat4Array:
+        str += '        let val = fetchMat4(vec4_idx);\n';
+        break;
+      case CompositionType.Mat3:
+        str += '        let val = fetchMat3(vec4_idx);\n';
+        break;
+      case CompositionType.Mat3Array:
+        str += '        let val = fetchMat3No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Mat2:
+        str += '        let val = fetchMat2(vec4_idx);\n';
+        break;
+      case CompositionType.Mat2Array:
+        str += '        let val = fetchMat2No16BytesAligned(scalar_idx);\n';
+        break;
+      case CompositionType.Mat4x3Array:
+        str += '        let val = fetchMat4x3(vec4_idx);\n';
+        break;
+      default:
+        // console.error('unknown composition type', info.compositionType.str, memberName);
+        str += '';
+    }
+    str += `
+    return val;
+  }
+`;
+    return str;
+  }
+  private static getOffsetOfPropertyInShader(
+    isGlobalData: boolean,
+    propertyIndex: number,
+    materialTypeName: string
+  ) {
+    if (isGlobalData) {
+      const globalDataRepository = GlobalDataRepository.getInstance();
+      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
+      return dataBeginPos;
+    } else {
+      const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
+        materialTypeName,
+        propertyIndex
+      );
+      return dataBeginPos;
+    }
+  }
 
   $load(meshComponent: MeshComponent): void {
     const mesh = meshComponent.mesh as Mesh;
