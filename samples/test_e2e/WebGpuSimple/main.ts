@@ -1,4 +1,4 @@
-import Rn from '../../../dist/esmdev/index.js';
+import Rn, { EntityHelper } from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 (function () {
@@ -50,11 +50,15 @@ declare const window: any;
 
     let count = 0;
 
+    const camera = Rn.EntityHelper.createCameraEntity();
+    camera.position = Rn.Vector3.fromCopy3(0.0, 0.0, 2.0);
+
     // renderPass
     const renderPass = new Rn.RenderPass();
     renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);
     renderPass.toClearColorBuffer = true;
     renderPass.addEntities(entities);
+    renderPass.cameraComponent = camera.getCamera();
 
     // expression
     const expression = new Rn.Expression();

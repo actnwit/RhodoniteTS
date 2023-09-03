@@ -31,8 +31,10 @@ fn main(
 
 
   let worldMatrix = get_worldMatrix(instance_ids.x);
+  let viewMatrix = get_viewMatrix(0.0, 0);
+  let projectionMatrix = get_projectionMatrix(0.0, 0);
 
-  output.Position = worldMatrix * vec4<f32>(position, 1.0);
+  output.Position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
   // output.Position = vec4<f32>(position, 1.0);
 
   return output;
