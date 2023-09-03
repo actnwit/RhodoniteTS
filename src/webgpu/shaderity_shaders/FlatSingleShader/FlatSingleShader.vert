@@ -27,7 +27,12 @@ fn main(
 ) -> VertexOutput {
 
   var output : VertexOutput;
-  output.Position = vec4<f32>(position, 1.0);
+
+
+  let worldMatrix = get_worldMatrix(instance_ids.x);
+
+  output.Position = worldMatrix * vec4<f32>(position, 1.0);
+  // output.Position = vec4<f32>(position, 1.0);
 
   return output;
 }

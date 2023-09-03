@@ -37,6 +37,7 @@ declare const window: any;
     originalMesh.addPrimitive(primitive);
     const entityOrig = Rn.EntityHelper.createMeshEntity();
     entityOrig.getMesh().setMesh(originalMesh);
+    // entityOrig.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(0, 1, 0);
     entities.push(entityOrig);
     // const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
     // const sphere = Rn.MeshHelper.createSphere({

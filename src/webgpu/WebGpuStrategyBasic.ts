@@ -41,7 +41,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     let index: i32 = ${Component.getLocationOffsetOfMemberOfComponent(
       SceneGraphComponent,
       'worldMatrix'
-    )} * 4 + 16 * i32(instanceId);
+    )} + 4 * i32(instanceId);
     let matrix = fetchMat4(index);
 
     return matrix;

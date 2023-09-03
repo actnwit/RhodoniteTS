@@ -62,6 +62,7 @@ export class WebGpuResourceRepository
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
   private __storageBuffer?: GPUBuffer;
   private __bindGroup?: GPUBindGroup;
+  private __bindGroupLayout?: GPUBindGroupLayout;
 
   private constructor() {
     super();
@@ -423,10 +424,9 @@ export class WebGpuResourceRepository
     const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
 
     const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
-    const bindGroup = this.createBindGroup(pipeline);
 
     passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.setBindGroup(0, this.__bindGroup!);
     const VertexHandles = primitive._vertexHandles;
     if (VertexHandles == null) {
       return;
@@ -460,6 +460,8 @@ export class WebGpuResourceRepository
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
     }
+
+    this.createBindGroup();
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -505,8 +507,12 @@ export class WebGpuResourceRepository
       });
     });
 
+    const pipelineLayout = gpuDevice.createPipelineLayout({
+      bindGroupLayouts: [this.__bindGroupLayout!],
+    });
+
     const pipeline = gpuDevice.createRenderPipeline({
-      layout: 'auto',
+      layout: pipelineLayout,
       vertex: {
         module: modules.vsModule,
         entryPoint: 'main',
@@ -614,7 +620,7 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
-  createBindGroup(pipeline: GPURenderPipeline) {
+  createBindGroup() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const entries: GPUBindGroupEntry[] = [];
     const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
@@ -645,6 +651,7 @@ export class WebGpuResourceRepository
     });
 
     this.__bindGroup = uniformBindGroup;
+    this.__bindGroupLayout = bindGroupLayout;
 
     return uniformBindGroup;
   }

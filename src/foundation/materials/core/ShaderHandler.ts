@@ -14,6 +14,7 @@ import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import { ShaderityUtility } from './ShaderityUtility';
 import { Primitive } from '../../geometry/Primitive';
+import { Mesh } from '../../geometry/Mesh';
 
 export class ShaderHandler {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -266,9 +267,6 @@ export function _createProgramAsSingleOperationWebGpu(
     if (attributeSemantic.indexOf('WEIGHTS_0') !== -1) {
       vertexAttributeDefines += `#define RN_USE_WEIGHTS_0\n`;
     }
-    if (attributeSemantic.indexOf('INSTANCE') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
-    }
     if (attributeSemantic.indexOf('FACE_NORMAL') !== -1) {
       vertexAttributeDefines += `#define RN_USE_FACE_NORMAL\n`;
     }
@@ -279,6 +277,12 @@ export function _createProgramAsSingleOperationWebGpu(
       vertexAttributeDefines += `#define RN_USE_TEXCOORD_2\n`;
     }
   }
+
+  // if (
+  //   (primitive.mesh as Mesh)._variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
+  // ) {
+  vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
+  // }
 
   const vertexShaderityObject = ShaderityUtility.fillTemplate(materialNode.vertexShaderityObject!, {
     definitions: vertexAttributeDefines,
