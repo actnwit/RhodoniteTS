@@ -236,7 +236,9 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string) {
 export function _createProgramAsSingleOperationWebGpu(
   material: Material,
   primitive: Primitive,
-  vertexShaderMethodDefinitions: string
+  vertexShaderMethodDefinitions: string,
+  vertexPropertiesStr: string,
+  pixelPropertiesStr: string
 ) {
   const materialNode = material._materialContent;
 
@@ -285,6 +287,7 @@ export function _createProgramAsSingleOperationWebGpu(
   // }
 
   const vertexShaderityObject = ShaderityUtility.fillTemplate(materialNode.vertexShaderityObject!, {
+    getters: vertexPropertiesStr,
     definitions: vertexAttributeDefines,
     matricesGetters: vertexShaderMethodDefinitions,
   });

@@ -249,11 +249,18 @@ export class Material extends RnObject {
     return programUid;
   }
 
-  _createProgramWebGpu(primitive: Primitive, vertexShaderMethodDefinitions: string) {
+  _createProgramWebGpu(
+    primitive: Primitive,
+    vertexShaderMethodDefinitions: string,
+    propertySetter: getShaderPropertyFunc
+  ) {
+    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter, true);
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
-      vertexShaderMethodDefinitions
+      vertexShaderMethodDefinitions,
+      vertexPropertiesStr,
+      pixelPropertiesStr
     );
 
     this._shaderProgramUid = programUid;

@@ -31,6 +31,7 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
+import { getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -78,7 +79,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     const vec4SizeOfProperty: IndexOf16Bytes = info.compositionType.getVec4SizeOfProperty();
     // for non-`index` property (this is general case)
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
-    const offsetOfProperty: IndexOf16Bytes = this.getOffsetOfPropertyInShader(
+    const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyInShader(
       isGlobalData,
       propertyIndex,
       materialTypeName
@@ -242,7 +243,8 @@ ${indexStr}
         this.setupShaderForMaterial(
           material,
           primitive,
-          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer()
+          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+          WebGpuStrategyBasic.__getShaderProperty
         );
         primitive._backupMaterial();
       } catch (e) {
@@ -251,7 +253,8 @@ ${indexStr}
         this.setupShaderForMaterial(
           primitive._prevMaterial,
           primitive,
-          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer()
+          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+          WebGpuStrategyBasic.__getShaderProperty
         );
       }
     }
@@ -264,9 +267,10 @@ ${indexStr}
   public setupShaderForMaterial(
     material: Material,
     primitive: Primitive,
-    vertexShaderMethodDefinitions: string
+    vertexShaderMethodDefinitions: string,
+    propertySetter: getShaderPropertyFunc
   ): void {
-    material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions);
+    material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
   }
 
   private __isMeshSetup(mesh: Mesh) {
