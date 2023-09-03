@@ -361,6 +361,8 @@ ${indexStr}
       return false;
     }
 
+    this.__setCurrentComponentSIDsForEachPrimitive(material);
+
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     webGpuResourceRepository.draw(primitive, material, renderPass);
 
@@ -427,5 +429,9 @@ ${indexStr}
           -1;
       }
     }
+  }
+
+  private __setCurrentComponentSIDsForEachPrimitive(material: Material) {
+    WebGpuStrategyBasic.__currentComponentSIDs!._v[0] = material.materialSID;
   }
 }
