@@ -204,7 +204,12 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      webGpuResourceRepository.updateStorageBuffer(this.__storageBufferUid, float32Array);
+      const bufferSizeForDataTextureInByte = gpuInstanceDataBuffer!.takenSizeInByte;
+      webGpuResourceRepository.updateStorageBuffer(
+        this.__storageBufferUid,
+        float32Array,
+        bufferSizeForDataTextureInByte
+      );
     } else {
       this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
     }

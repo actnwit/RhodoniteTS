@@ -17,6 +17,7 @@ import {
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Sampler } from '../foundation/textures/Sampler';
 import {
+  Byte,
   Count,
   Index,
   Size,
@@ -587,10 +588,14 @@ export class WebGpuResourceRepository
     return storageBufferHandle;
   }
 
-  updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array) {
+  updateStorageBuffer(
+    storageBufferHandle: WebGPUResourceHandle,
+    inputArray: Float32Array,
+    updateByteLength: Byte
+  ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
   createBindGroup(pipeline: GPURenderPipeline) {
