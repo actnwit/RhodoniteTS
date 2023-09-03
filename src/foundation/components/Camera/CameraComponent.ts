@@ -27,6 +27,8 @@ import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc/Is';
 import { LightType } from '../../definitions/LightType';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
 
 /**
  * The Component that represents a camera.
@@ -499,73 +501,154 @@ export class CameraComponent extends Component {
     const zNear = this._parametersInner.x;
     const zFar = this._parametersInner.y;
 
-    if (this.type === CameraType.Perspective) {
-      const fovy = this._parametersInner.z;
-      const aspect = this._parametersInner.w;
-      const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
-      const xscale = yscale / aspect;
-      this._projectionMatrix.setComponents(
-        xscale,
-        0,
-        0,
-        0,
-        0,
-        yscale,
-        0,
-        0,
-        0,
-        0,
-        -(zFar + zNear) / (zFar - zNear),
-        -(2.0 * zFar * zNear) / (zFar - zNear),
-        0,
-        0,
-        -1,
-        0
-      );
-    } else if (this.type === CameraType.Orthographic) {
-      const xmag = this._parametersInner.z;
-      const ymag = this._parametersInner.w;
-      this._projectionMatrix.setComponents(
-        1 / xmag,
-        0.0,
-        0.0,
-        0,
-        0.0,
-        1 / ymag,
-        0.0,
-        0,
-        0.0,
-        0.0,
-        -2 / (zFar - zNear),
-        -(zFar + zNear) / (zFar - zNear),
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      );
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (this.type === CameraType.Perspective) {
+        const fovy = this._parametersInner.z;
+        const aspect = this._parametersInner.w;
+        const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
+        const xscale = yscale / aspect;
+        this._projectionMatrix.m00 = xscale;
+        this._projectionMatrix.m01 = 0;
+        this._projectionMatrix.m02 = 0;
+        this._projectionMatrix.m03 = 0;
+        this._projectionMatrix.m10 = 0;
+        this._projectionMatrix.m11 = yscale;
+        this._projectionMatrix.m12 = 0;
+        this._projectionMatrix.m13 = 0;
+        this._projectionMatrix.m20 = 0;
+        this._projectionMatrix.m21 = 0;
+        if (zFar === Infinity) {
+          const nf = 1 / (zNear - zFar);
+          this._projectionMatrix.m22 = zFar * nf;
+          this._projectionMatrix.m23 = zFar * zNear * nf;
+        } else {
+          this._projectionMatrix.m22 = -1;
+          this._projectionMatrix.m23 = -zNear;
+        }
+        this._projectionMatrix.m30 = 0;
+        this._projectionMatrix.m31 = 0;
+        this._projectionMatrix.m32 = -1;
+        this._projectionMatrix.m33 = 0;
+      } else if (this.type === CameraType.Orthographic) {
+        const xmag = this._parametersInner.z;
+        const ymag = this._parametersInner.w;
+        this._projectionMatrix.setComponents(
+          1 / xmag,
+          0.0,
+          0.0,
+          0,
+          0.0,
+          1 / ymag,
+          0.0,
+          0,
+          0.0,
+          0.0,
+          -1 / (zFar - zNear),
+          -zNear / (zFar - zNear),
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        );
+      } else {
+        const left = this._cornerInner.x;
+        const right = this._cornerInner.y;
+        const top = this._cornerInner.z;
+        const bottom = this._cornerInner.w;
+        const nf = 1 / (zNear - zFar);
+        this._projectionMatrix.setComponents(
+          (2 * zNear) / (right - left),
+          0.0,
+          (right + left) / (right - left),
+          0.0,
+          0.0,
+          (2 * zNear) / (top - bottom),
+          (top + bottom) / (top - bottom),
+          0.0,
+          0.0,
+          0.0,
+          zFar * nf,
+          zFar * zNear * nf,
+          0.0,
+          0.0,
+          -1.0,
+          0.0
+        );
+      }
     } else {
-      const left = this._cornerInner.x;
-      const right = this._cornerInner.y;
-      const top = this._cornerInner.z;
-      const bottom = this._cornerInner.w;
-      this._projectionMatrix.setComponents(
-        (2 * zNear) / (right - left),
-        0.0,
-        (right + left) / (right - left),
-        0.0,
-        0.0,
-        (2 * zNear) / (top - bottom),
-        (top + bottom) / (top - bottom),
-        0.0,
-        0.0,
-        0.0,
-        -(zFar + zNear) / (zFar - zNear),
-        (-1 * 2 * zFar * zNear) / (zFar - zNear),
-        0.0,
-        0.0,
-        -1.0,
-        0.0
-      );
+      if (this.type === CameraType.Perspective) {
+        const fovy = this._parametersInner.z;
+        const aspect = this._parametersInner.w;
+        const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
+        const xscale = yscale / aspect;
+        this._projectionMatrix.m00 = xscale;
+        this._projectionMatrix.m01 = 0;
+        this._projectionMatrix.m02 = 0;
+        this._projectionMatrix.m03 = 0;
+        this._projectionMatrix.m10 = 0;
+        this._projectionMatrix.m11 = yscale;
+        this._projectionMatrix.m12 = 0;
+        this._projectionMatrix.m13 = 0;
+        this._projectionMatrix.m20 = 0;
+        this._projectionMatrix.m21 = 0;
+        if (zFar === Infinity) {
+          const nf = 1 / (zNear - zFar);
+          this._projectionMatrix.m22 = (zFar + zNear) * nf;
+          this._projectionMatrix.m23 = 2.0 * zFar * zNear * nf;
+        } else {
+          this._projectionMatrix.m22 = -1;
+          this._projectionMatrix.m23 = -2 * zNear;
+        }
+        this._projectionMatrix.m30 = 0;
+        this._projectionMatrix.m31 = 0;
+        this._projectionMatrix.m32 = -1;
+        this._projectionMatrix.m33 = 0;
+      } else if (this.type === CameraType.Orthographic) {
+        const xmag = this._parametersInner.z;
+        const ymag = this._parametersInner.w;
+        this._projectionMatrix.setComponents(
+          1 / xmag,
+          0.0,
+          0.0,
+          0,
+          0.0,
+          1 / ymag,
+          0.0,
+          0,
+          0.0,
+          0.0,
+          -2 / (zFar - zNear),
+          -(zFar + zNear) / (zFar - zNear),
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        );
+      } else {
+        const left = this._cornerInner.x;
+        const right = this._cornerInner.y;
+        const top = this._cornerInner.z;
+        const bottom = this._cornerInner.w;
+        const nf = 1 / (zNear - zFar);
+        this._projectionMatrix.setComponents(
+          (2 * zNear) / (right - left),
+          0.0,
+          (right + left) / (right - left),
+          0.0,
+          0.0,
+          (2 * zNear) / (top - bottom),
+          (top + bottom) / (top - bottom),
+          0.0,
+          0.0,
+          0.0,
+          (zFar + zNear) * nf,
+          2 * zFar * zNear * nf,
+          0.0,
+          0.0,
+          -1.0,
+          0.0
+        );
+      }
     }
 
     return this._projectionMatrix;
