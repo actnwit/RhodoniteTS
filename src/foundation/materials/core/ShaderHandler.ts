@@ -1,3 +1,4 @@
+import Shaderity from 'shaderity';
 import { CGAPIResourceHandle } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../../webgl/types/CommonTypes';
 import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
@@ -12,6 +13,7 @@ import { SystemState } from '../../system/SystemState';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import { ShaderityUtility } from './ShaderityUtility';
+import { Primitive } from '../../geometry/Primitive';
 
 export class ShaderHandler {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -228,4 +230,70 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string) {
   }
 
   return definitions;
+}
+
+export function _createProgramAsSingleOperationWebGpu(
+  material: Material,
+  primitive: Primitive,
+  vertexShaderMethodDefinitions: string
+) {
+  const materialNode = material._materialContent;
+
+  let vertexAttributeDefines = '';
+  const attributeSemantics = primitive.attributeSemantics;
+  for (const attributeSemantic of attributeSemantics) {
+    if (attributeSemantic.indexOf('POSITION') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_POSITION\n`;
+    }
+    if (attributeSemantic.indexOf('NORMAL') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_NORMAL\n`;
+    }
+    if (attributeSemantic.indexOf('TANGENT') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TANGENT\n`;
+    }
+    if (attributeSemantic.indexOf('TEXCOORD_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TEXCOORD_0\n`;
+    }
+    if (attributeSemantic.indexOf('TEXCOORD_1') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TEXCOORD_1\n`;
+    }
+    if (attributeSemantic.indexOf('COLOR_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_COLOR_0\n`;
+    }
+    if (attributeSemantic.indexOf('JOINTS_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_JOINTS_0\n`;
+    }
+    if (attributeSemantic.indexOf('WEIGHTS_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_WEIGHTS_0\n`;
+    }
+    if (attributeSemantic.indexOf('INSTANCE') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
+    }
+    if (attributeSemantic.indexOf('FACE_NORMAL') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_FACE_NORMAL\n`;
+    }
+    if (attributeSemantic.indexOf('BARY_CENTRIC_COORD') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_BARY_CENTRIC_COORD\n`;
+    }
+    if (attributeSemantic.indexOf('TEXCOORD_2') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TEXCOORD_2\n`;
+    }
+  }
+
+  const vertexShaderityObject = ShaderityUtility.fillTemplate(materialNode.vertexShaderityObject!, {
+    definitions: vertexAttributeDefines,
+    matricesGetters: vertexShaderMethodDefinitions,
+  });
+
+  const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
+  const preprocessedPixel = Shaderity.processPragma(materialNode.pixelShaderityObject!);
+
+  const programUid = ShaderHandler._createShaderProgramWithCache(
+    material,
+    preprocessedVertex.code,
+    preprocessedPixel.code,
+    [],
+    []
+  );
+  return programUid;
 }

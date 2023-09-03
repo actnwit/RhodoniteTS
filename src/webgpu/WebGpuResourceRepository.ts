@@ -432,15 +432,11 @@ export class WebGpuResourceRepository
       return;
     }
 
-    const variationVBO = this.__webGpuResources.get(
-      (primitive.mesh! as Mesh)._variationVBOUid
-    ) as GPUBuffer;
+    const mesh = primitive.mesh as Mesh;
+    const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
     passEncoder.setVertexBuffer(0, variationVBO);
     VertexHandles.vboHandles.forEach((vboHandle, i) => {
       const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      // const shaderLocation = VertexAttribute.toAttributeSlotFromJoinedString(
-      //   primitive.attributeSemantics[i]
-      // );
       passEncoder.setVertexBuffer(i + 1, vertexBuffer);
     });
 
@@ -448,10 +444,10 @@ export class WebGpuResourceRepository
       const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
       passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
       const indicesAccessor = primitive.indicesAccessor!;
-      passEncoder.drawIndexed(indicesAccessor.elementCount);
+      passEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
     } else {
       const vertexCount = primitive.attributeAccessors[0].elementCount;
-      passEncoder.draw(vertexCount, 1, 0, 0);
+      passEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
     }
     passEncoder.end();
 

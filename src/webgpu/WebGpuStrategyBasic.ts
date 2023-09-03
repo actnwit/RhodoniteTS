@@ -36,7 +36,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   static getVertexShaderMethodDefinitions_storageBuffer() {
     return `
 
-  fn get_worldMatrix(float instanceId) -> mat4x4<f32>
+  fn get_worldMatrix(instanceId: f32) -> mat4x4<f32>
   {
     let index: i32 = ${Component.getLocationOffsetOfMemberOfComponent(
       SceneGraphComponent,
@@ -92,12 +92,20 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
       }
 
       try {
-        this.setupShaderForMaterial(material, primitive);
+        this.setupShaderForMaterial(
+          material,
+          primitive,
+          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer()
+        );
         primitive._backupMaterial();
       } catch (e) {
         console.log(e);
         primitive._restoreMaterial();
-        this.setupShaderForMaterial(primitive._prevMaterial, primitive);
+        this.setupShaderForMaterial(
+          primitive._prevMaterial,
+          primitive,
+          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer()
+        );
       }
     }
   }
@@ -106,8 +114,12 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
    * setup shader program for the material in this WebGL strategy
    * @param material - a material to setup shader program
    */
-  public setupShaderForMaterial(material: Material, primitive: Primitive): void {
-    material._createProgramWebGpu(primitive);
+  public setupShaderForMaterial(
+    material: Material,
+    primitive: Primitive,
+    vertexShaderMethodDefinitions: string
+  ): void {
+    material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions);
   }
 
   private __isMeshSetup(mesh: Mesh) {

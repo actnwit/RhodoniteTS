@@ -1,3 +1,4 @@
+/* shaderity: @{definitions} */
 #pragma shaderity: require(./FlatSingleVertexOutput.wgsl)
 
 struct StorageData {
@@ -7,8 +8,13 @@ struct StorageData {
 
 #pragma shaderity: require(../common/prerequisites.wgsl)
 
+/* shaderity: @{matricesGetters} */
+
 @vertex
 fn main(
+#ifdef RN_USE_INSTANCE
+  @location(8) instance_ids: vec4<f32>,
+#endif
 #ifdef RN_USE_POSITION
   @location(0) position: vec3<f32>,
 #endif
