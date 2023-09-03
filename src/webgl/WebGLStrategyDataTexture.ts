@@ -727,27 +727,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  private __setCurrentComponentSIDsForEachEntity(
-    gl: WebGLRenderingContext,
-    renderPass: RenderPass,
-    entity: ISkeletalEntity
-  ) {
-    const skeletalComponent = entity.tryToGetSkeletal();
-    if (skeletalComponent) {
-      let index = 0;
-      if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
-        index = skeletalComponent.componentSID;
-      }
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
-        WellKnownComponentTIDs.SkeletalComponentTID
-      ] = index;
-    } else {
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
-        WellKnownComponentTIDs.SkeletalComponentTID
-      ] = -1;
-    }
-  }
-
   private __setCurrentComponentSIDsForEachPrimitive(
     gl: WebGLRenderingContext,
     material: Material,
@@ -832,12 +811,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (isSkipDrawing(material)) {
       return false;
     }
-
-    this.__setCurrentComponentSIDsForEachEntity(
-      gl,
-      renderPass,
-      entity as unknown as ISkeletalEntity
-    );
 
     const meshRendererComponent = entity.getMeshRenderer()!;
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
