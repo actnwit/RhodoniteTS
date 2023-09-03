@@ -52,6 +52,8 @@ declare const window: any;
 
     const camera = Rn.EntityHelper.createCameraEntity();
     camera.position = Rn.Vector3.fromCopy3(0.0, 0.0, 2.0);
+    const camera2 = Rn.EntityHelper.createCameraEntity();
+    camera2.position = Rn.Vector3.fromCopy3(1.0, 0.0, 2.0);
 
     // renderPass
     const renderPass = new Rn.RenderPass();

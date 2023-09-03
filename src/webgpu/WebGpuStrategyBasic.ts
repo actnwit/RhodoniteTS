@@ -31,11 +31,19 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
-import { getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import { ShaderSemantics, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
+import { ComponentRepository } from '../foundation/core/ComponentRepository';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { VectorN } from '../foundation/math/VectorN';
+import { RnXR } from '../xr/main';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
   private static __instance: WebGpuStrategyBasic;
+  private static __currentComponentSIDs?: VectorN;
+  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private constructor() {}
 
@@ -203,6 +211,9 @@ ${indexStr}
       return;
     }
 
+    WebGpuStrategyBasic.__currentComponentSIDs =
+      WebGpuStrategyBasic.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
+
     // setup shader program
     if (!isMaterialsSetup(meshComponent)) {
       this.__setupShaderProgramForMeshComponent(meshComponent);
@@ -308,6 +319,8 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
+    this.__setCurrentComponentSIDsForEachRenderPass(renderPass, 0, false);
+
     for (let j = 0; j < renderPass.drawCount; j++) {
       renderPass.doPreEachDraw(j);
 
@@ -375,6 +388,44 @@ ${indexStr}
       );
     } else {
       this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
+    }
+  }
+
+  private __setCurrentComponentSIDsForEachRenderPass(
+    renderPass: RenderPass,
+    displayIdx: 0 | 1,
+    isVRMainPass: boolean
+  ) {
+    if (isVRMainPass) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      let cameraComponentSid = -1;
+      if (webxrSystem.isWebXRMode) {
+        if (webxrSystem.isMultiView()) {
+          cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
+        } else {
+          cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
+        }
+      }
+      WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
+        cameraComponentSid;
+    } else {
+      // Non-VR Rendering
+      let cameraComponent = renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        // if the renderPass has no cameraComponent, try to get the current cameraComponent
+        cameraComponent = ComponentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
+      }
+      if (cameraComponent) {
+        WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
+          cameraComponent.componentSID;
+      } else {
+        WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
+          -1;
+      }
     }
   }
 }

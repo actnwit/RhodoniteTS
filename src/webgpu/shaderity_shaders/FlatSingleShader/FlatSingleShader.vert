@@ -29,10 +29,10 @@ fn main(
 
   var output : VertexOutput;
 
-
+  let cameraSID = get_currentComponentSIDs(0.0, /* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */);
   let worldMatrix = get_worldMatrix(instance_ids.x);
-  let viewMatrix = get_viewMatrix(0.0, 0);
-  let projectionMatrix = get_projectionMatrix(0.0, 0);
+  let viewMatrix = get_viewMatrix(cameraSID, 0);
+  let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
   output.Position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
   // output.Position = vec4<f32>(position, 1.0);
