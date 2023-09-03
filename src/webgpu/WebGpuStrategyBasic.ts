@@ -49,6 +49,13 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 `;
   }
 
+  private static __getShaderProperty(
+    materialTypeName: string,
+    info: ShaderSemanticsInfo,
+    propertyIndex: Index,
+    isGlobalData: boolean
+  ) {}
+
   $load(meshComponent: MeshComponent): void {
     const mesh = meshComponent.mesh as Mesh;
     if (!Is.exist(mesh)) {
