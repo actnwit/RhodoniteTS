@@ -8,6 +8,7 @@ struct StorageData {
 
 #pragma shaderity: require(../common/prerequisites.wgsl)
 
+/* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
 @vertex

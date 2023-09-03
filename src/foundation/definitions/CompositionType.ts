@@ -160,7 +160,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
   }
 
   toWGSLType(componentType: ComponentTypeEnum): string {
-    return this.__webgpuStr.replace('#', componentType.wgsl);
+    return this.__wgslStr.replace('#', componentType.wgsl);
   }
 
   getVec4SizeOfProperty(): IndexOf16Bytes {
@@ -273,7 +273,7 @@ const ScalarArray: CompositionTypeEnum = new CompositionTypeClass({
   str: 'SCALAR_ARRAY',
   glslStr: 'float',
   hlslStr: 'float',
-  wgsl: 'array<>',
+  wgsl: '#',
   webgpu: 'unknown',
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
@@ -284,7 +284,7 @@ const Vec2Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC2_ARRAY',
   glslStr: 'vec2',
   hlslStr: 'float2',
-  wgsl: 'array<vec2<#>>',
+  wgsl: 'vec2<#>',
   webgpu: 'unknown',
   numberOfComponents: 2,
   vec4SizeOfProperty: 1,
@@ -295,7 +295,7 @@ const Vec3Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC3_ARRAY',
   glslStr: 'vec3',
   hlslStr: 'float3',
-  wgsl: 'array<vec3<#>>',
+  wgsl: 'vec3<#>',
   webgpu: 'unknown',
   numberOfComponents: 3,
   vec4SizeOfProperty: 1,
@@ -306,7 +306,7 @@ const Vec4Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'VEC4_ARRAY',
   glslStr: 'vec4',
   hlslStr: 'float4',
-  wgsl: 'array<vec4<#>>',
+  wgsl: 'vec4<#>',
   webgpu: 'unknown',
   numberOfComponents: 4,
   vec4SizeOfProperty: 1,
@@ -317,7 +317,7 @@ const Mat4Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT4_ARRAY',
   glslStr: 'mat4',
   hlslStr: 'float4x4',
-  wgsl: 'array<mat4x4<#>>',
+  wgsl: 'mat4x4<#>',
   webgpu: 'unknown',
   numberOfComponents: 16,
   vec4SizeOfProperty: 4,
@@ -328,7 +328,7 @@ const Mat3Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT3_ARRAY',
   glslStr: 'mat3',
   hlslStr: 'float3x3',
-  wgsl: 'array<mat3x3<#>>',
+  wgsl: 'mat3x3<#>',
   webgpu: 'unknown',
   numberOfComponents: 9,
   vec4SizeOfProperty: 3,
@@ -339,7 +339,7 @@ const Mat2Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT2_ARRAY',
   glslStr: 'mat2',
   hlslStr: 'float2x2',
-  wgsl: 'array<mat2x2<#>>',
+  wgsl: 'mat2x2<#>',
   webgpu: 'unknown',
   numberOfComponents: 4,
   vec4SizeOfProperty: 2,
@@ -370,7 +370,7 @@ const Mat4x3Array: CompositionTypeEnum = new CompositionTypeClass({
   str: 'MAT4x3_ARRAY',
   glslStr: 'mat4x3',
   hlslStr: 'float4x3',
-  wgsl: 'array<mat4x3<#>>',
+  wgsl: 'mat4x3<#>',
   webgpu: 'unknown',
   numberOfComponents: 12,
   vec4SizeOfProperty: 3,
