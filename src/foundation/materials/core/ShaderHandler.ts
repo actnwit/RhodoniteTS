@@ -292,8 +292,12 @@ export function _createProgramAsSingleOperationWebGpu(
     matricesGetters: vertexShaderMethodDefinitions,
   });
 
+  const pixelShaderityObject = ShaderityUtility.fillTemplate(materialNode.pixelShaderityObject!, {
+    getters: pixelPropertiesStr,
+  });
+
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
-  const preprocessedPixel = Shaderity.processPragma(materialNode.pixelShaderityObject!);
+  const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
 
   const programUid = ShaderHandler._createShaderProgramWithCache(
     material,

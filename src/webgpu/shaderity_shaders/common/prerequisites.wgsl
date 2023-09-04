@@ -3,6 +3,27 @@ fn fetchElement(vec4_idx: i32) -> vec4<f32>
   return storageData.data[vec4_idx];
 }
 
+fn fetchVec3No16BytesAligned(scalar_idx: i32) -> vec3<f32> {
+  let posIn4bytes = scalar_idx % 4;
+
+  let basePosIn16bytes = (scalar_idx - posIn4bytes) / 4;
+  if (posIn4bytes == 0) {
+    let val = fetchElement(basePosIn16bytes);
+    return val.xyz;
+  } else if (posIn4bytes == 1) {
+    let val0 = fetchElement(basePosIn16bytes);
+    return vec3<f32>(val0.yzw);
+  } else if (posIn4bytes == 2) {
+    let val0 = fetchElement(basePosIn16bytes);
+    let val1 = fetchElement(basePosIn16bytes+1);
+    return vec3<f32>(val0.zw, val1.x);
+  } else { // posIn4bytes == 3
+    let val0 = fetchElement(basePosIn16bytes);
+    let val1 = fetchElement(basePosIn16bytes+1);
+    return vec3<f32>(val0.w, val1.xy);
+  }
+}
+
 fn fetchVec4(vec4_idx: i32) -> vec4<f32> {
   return fetchElement(vec4_idx);
 }

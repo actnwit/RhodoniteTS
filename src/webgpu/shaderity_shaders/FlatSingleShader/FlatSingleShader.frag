@@ -3,6 +3,10 @@ struct StorageData {
 }
 @binding(0) @group(0) var<storage> storageData : StorageData;
 
+#pragma shaderity: require(../common/prerequisites.wgsl)
+
+/* shaderity: @{getters} */
+
 @fragment
 fn main(
 ) -> @location(0) vec4<f32> {
