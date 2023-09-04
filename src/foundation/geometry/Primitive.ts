@@ -28,6 +28,7 @@ import {
 } from './types/GeometryTypes';
 import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
 import { IOption, None, Some, Option } from '../misc/Option';
+import { DataUtil } from '../misc/DataUtil';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -67,6 +68,21 @@ export class Primitive extends RnObject {
 
   constructor() {
     super();
+  }
+
+  getIndexBitSize(): 'uint16' | 'uint32' {
+    const indexAccessor = this.__oIndices.unwrapOrUndefined();
+    if (indexAccessor == null) {
+      throw new Error('indexAccessor is null');
+    } else {
+      if (indexAccessor.componentType === ComponentType.UnsignedShort) {
+        return 'uint16';
+      } else if (indexAccessor.componentType === ComponentType.UnsignedInt) {
+        return 'uint32';
+      } else {
+        throw new Error('unknown indexAccessor.componentType');
+      }
+    }
   }
 
   get _vertexHandles() {
@@ -170,16 +186,17 @@ export class Primitive extends RnObject {
     material,
   }: PrimitiveDescriptor) {
     let sumOfAttributesByteSize = 0;
+    const byteAlign = 4;
     attributes.forEach((attribute) => {
       sumOfAttributesByteSize += attribute.byteLength;
     });
 
     let bufferSize = sumOfAttributesByteSize;
     if (indices != null) {
-      bufferSize += indices.byteLength;
+      bufferSize += DataUtil.addPaddingBytes(indices.byteLength, byteAlign);
     }
 
-    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, 4);
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, byteAlign);
 
     let indicesComponentType;
     let indicesBufferView;

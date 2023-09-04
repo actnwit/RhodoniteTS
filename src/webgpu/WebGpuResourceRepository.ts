@@ -1,5 +1,6 @@
 /// <reference types="@webgpu/types" />
 
+import { DataUtil } from '../foundation';
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
@@ -198,8 +199,9 @@ export class WebGpuResourceRepository
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const size = DataUtil.addPaddingBytes(accessor.byteLength, 4);
     const indexBuffer = gpuDevice.createBuffer({
-      size: accessor.byteLength,
+      size: size,
       usage: GPUBufferUsage.INDEX,
       mappedAtCreation: true,
     });
@@ -442,7 +444,8 @@ export class WebGpuResourceRepository
 
     if (primitive.hasIndices()) {
       const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
-      passEncoder.setIndexBuffer(indicesBuffer, 'uint16');
+      const indexBitSize = primitive.getIndexBitSize();
+      passEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
       const indicesAccessor = primitive.indicesAccessor!;
       passEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
     } else {
