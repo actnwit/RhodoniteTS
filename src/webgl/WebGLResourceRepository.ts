@@ -224,7 +224,7 @@ export class WebGLResourceRepository
     const resourceHandle = this.__registerResource(vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, accessor.bufferView.getUint8Array(), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, accessor.getUint8Array(), gl.STATIC_DRAW);
     //    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -902,7 +902,7 @@ export class WebGLResourceRepository
         primitive.attributeComponentTypes[i].index,
         primitive.attributeAccessors[i].normalized,
         primitive.attributeAccessors[i].byteStride,
-        primitive.attributeAccessors[i].byteOffsetInBufferView
+        0
       );
     });
 
