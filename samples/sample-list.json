@@ -53,7 +53,8 @@
     "VarianceShadowMap",
     "VRMAnimation",
     "VRMImporter",
-    "WebGpuSimple"
+    "WebGpuSimple",
+    "WebGpuGltf"
   ],
   "simple": [
     "4DViews",
