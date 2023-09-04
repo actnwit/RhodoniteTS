@@ -158,12 +158,12 @@ export class WebGpuResourceRepository
   public createVertexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vertexBuffer = gpuDevice.createBuffer({
-      size: accessor.bufferView.byteLength,
+      size: accessor.byteLength,
       usage: GPUBufferUsage.VERTEX,
       mappedAtCreation: true,
     });
 
-    new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.bufferView.getUint8Array());
+    new Uint8Array(vertexBuffer.getMappedRange()).set(accessor.getUint8Array());
     vertexBuffer.unmap();
 
     const bufferHandle = this.__registerResource(vertexBuffer);
@@ -516,7 +516,9 @@ export class WebGpuResourceRepository
       );
       const attribute = {
         shaderLocation: slotIdx,
-        offset: accessor.isAoS ? accessor.byteOffsetInBufferView : 0,
+        offset: 0,
+        // offset: accessor.byteOffsetInBufferView,
+        // offset: accessor.isAoS ? accessor.byteOffsetInBufferView : 0,
         format: (accessor.componentType.webgpu +
           accessor.compositionType.webgpu) as GPUVertexFormat,
       };

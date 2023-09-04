@@ -18,7 +18,7 @@ declare const window: any;
     let count = 0;
 
     const response = await Rn.Gltf2Importer.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Models/2.0/Cube/glTF/Cube.gltf',
+      '../../../assets/gltf/glTF-Sample-Models/2.0/BoxInterleaved/glTF/BoxInterleaved.gltf',
       {
         defaultMaterialHelperName: 'createFlatMaterial',
       }
@@ -51,9 +51,23 @@ declare const window: any;
     const expression = new Rn.Expression();
     expression.addRenderPasses([renderPass]);
 
+    let startTime = Date.now();
     const draw = function () {
       if (count > 0) {
         window._rendered = true;
+      }
+
+      if (window.isAnimating) {
+        const date = new Date();
+        const rotation = 0.001 * (date.getTime() - startTime);
+        //rotationVec3._v[0] = 0.1;
+        //rotationVec3._v[1] = rotation;
+        //rotationVec3._v[2] = 0.1;
+        const time = (date.getTime() - startTime) / 1000;
+        Rn.AnimationComponent.globalTime = time;
+        if (time > Rn.AnimationComponent.endInputValue) {
+          startTime = date.getTime();
+        }
       }
 
       //      console.log(date.getTime());
