@@ -406,6 +406,24 @@ export class WebGpuResourceRepository
     return modulesHandle;
   }
 
+  clearFrameBuffer(renderPass: RenderPass) {
+    if (renderPass.toClearColorBuffer) {
+      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+      const context = this.__webGpuDeviceWrapper!.context;
+      const textureView = context.getCurrentTexture().createView();
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [
+          {
+            view: textureView,
+            clearValue: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
+            loadOp: 'load',
+            storeOp: 'store',
+          },
+        ],
+      };
+    }
+  }
+
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const context = this.__webGpuDeviceWrapper!.context;
@@ -417,7 +435,7 @@ export class WebGpuResourceRepository
         {
           view: textureView,
           clearValue: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
-          loadOp: 'clear',
+          loadOp: 'load',
           storeOp: 'store',
         },
       ],
@@ -514,6 +532,8 @@ export class WebGpuResourceRepository
       bindGroupLayouts: [this.__bindGroupLayout!],
     });
 
+    const mode = primitive.primitiveMode;
+    const topology = mode.getWebGPUTypeStr();
     const pipeline = gpuDevice.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
@@ -533,7 +553,7 @@ export class WebGpuResourceRepository
         ],
       },
       primitive: {
-        topology: 'triangle-list',
+        topology: topology as GPUPrimitiveTopology,
       },
     });
 

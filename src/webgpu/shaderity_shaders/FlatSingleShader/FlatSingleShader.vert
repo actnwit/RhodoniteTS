@@ -35,6 +35,7 @@ fn main(
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
   output.Position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
+  // output.Position = vec4<f32>(position, 1.0);
 
   return output;
 }
