@@ -61,6 +61,7 @@ export class WebGpuResourceRepository
   private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
   private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
+  private __materialStateVersionMap: Map<RenderPipelineId, number> = new Map();
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
   private __storageBuffer?: GPUBuffer;
@@ -522,7 +523,13 @@ export class WebGpuResourceRepository
     const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
 
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
-      return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
+      const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
+      if (materialStateVersion === material.stateVersion) {
+        return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
+      } else {
+        this.__webGpuRenderPipelineMap.delete(renderPipelineId);
+        this.__materialStateVersionMap.delete(renderPipelineId);
+      }
     }
 
     this.createBindGroup(material);
@@ -602,6 +609,7 @@ export class WebGpuResourceRepository
     });
 
     this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
+    this.__materialStateVersionMap.set(renderPipelineId, material.stateVersion);
 
     return pipeline;
   }
@@ -756,16 +764,6 @@ export class WebGpuResourceRepository
             },
             visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
           });
-          const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
-            entries: bindGroupLayoutEntriesForTexture,
-          };
-          const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
-          const uniformBindGroup = gpuDevice.createBindGroup({
-            layout: bindGroupLayout,
-            entries: entriesForTexture,
-          });
-          this.__bindGroupTexture = uniformBindGroup;
-          this.__bindGroupLayoutTexture = bindGroupLayout;
 
           // Sampler
           if (!sampler.created) {
@@ -783,20 +781,32 @@ export class WebGpuResourceRepository
             },
             visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
           });
-          const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
-            entries: bindGroupLayoutEntriesForSampler,
-          };
-          const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(
-            bindGroupLayoutDescForSampler
-          );
-          const uniformBindGroupForSampler = gpuDevice.createBindGroup({
-            layout: bindGroupLayoutForSampler,
-            entries: entriesForSampler,
-          });
-          this.__bindGroupSampler = uniformBindGroupForSampler;
-          this.__bindGroupLayoutSampler = bindGroupLayoutForSampler;
         }
       });
+
+      const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
+        entries: bindGroupLayoutEntriesForTexture,
+      };
+      const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
+      const uniformBindGroup = gpuDevice.createBindGroup({
+        layout: bindGroupLayout,
+        entries: entriesForTexture,
+      });
+      this.__bindGroupTexture = uniformBindGroup;
+      this.__bindGroupLayoutTexture = bindGroupLayout;
+
+      const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
+        entries: bindGroupLayoutEntriesForSampler,
+      };
+      const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(
+        bindGroupLayoutDescForSampler
+      );
+      const uniformBindGroupForSampler = gpuDevice.createBindGroup({
+        layout: bindGroupLayoutForSampler,
+        entries: entriesForSampler,
+      });
+      this.__bindGroupSampler = uniformBindGroupForSampler;
+      this.__bindGroupLayoutSampler = bindGroupLayoutForSampler;
     }
   }
 }

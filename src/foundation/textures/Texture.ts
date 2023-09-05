@@ -10,7 +10,7 @@ import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { DataUtil } from '../misc/DataUtil';
 import { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
-import { TextureData } from '../../webgl/WebGLResourceRepository';
+import { TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { ModuleManager } from '../system/ModuleManager';
 
 declare const BASIS: BASIS;
@@ -224,11 +224,13 @@ export class Texture extends AbstractTexture {
         this.__width = img.width;
         this.__height = img.height;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
         let texture: CGAPIResourceHandle;
         if (img instanceof HTMLImageElement) {
-          texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+          texture = (
+            webGLResourceRepository as WebGLResourceRepository
+          ).createTextureFromHTMLImageElement(img, {
             level,
             internalFormat,
             width: this.__width,

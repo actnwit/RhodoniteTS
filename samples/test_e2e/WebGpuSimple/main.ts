@@ -4,18 +4,30 @@ declare const window: any;
 (function () {
   window.Rn = Rn;
   //    import Rn from '../../../dist/rhodonite.mjs';
-  function readyBasicVerticesData() {
+  async function readyBasicVerticesData() {
     // Triangle
     const positions = new Float32Array([-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0]);
+    const texcoord = new Float32Array([-0.5, -0.5, 0.5, -0.5, 0.0, 0.0]);
     const indices = new Uint32Array([0, 1, 2]);
 
     const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
-
+    setTimeout(async () => {
+      const texture = new Rn.Texture();
+      await texture.generateTextureFromUri('../../../assets/images/Rn.png');
+      const sampler = new Rn.Sampler({
+        minFilter: Rn.TextureParameter.Linear,
+        magFilter: Rn.TextureParameter.Linear,
+        wrapS: Rn.TextureParameter.Repeat,
+        wrapT: Rn.TextureParameter.Repeat,
+      });
+      sampler.create();
+      flatMaterial.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, texture, sampler);
+    }, 0);
     const primitive = Rn.Primitive.createPrimitive({
       material: flatMaterial,
-      attributeSemantics: [Rn.VertexAttribute.Position.XYZ],
+      attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Texcoord0.XY],
       indices,
-      attributes: [positions],
+      attributes: [positions, texcoord],
       primitiveMode: Rn.PrimitiveMode.Triangles,
     });
 
@@ -32,7 +44,7 @@ declare const window: any;
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
 
-    const primitive = readyBasicVerticesData();
+    const primitive = await readyBasicVerticesData();
 
     const entities = [];
     const originalMesh = new Rn.Mesh();

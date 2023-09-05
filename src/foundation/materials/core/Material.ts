@@ -73,6 +73,8 @@ export class Material extends RnObject {
   private __blendFuncAlphaSrcFactor = Blend.One; // gl.ONE
   private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
 
+  private __stateVersion = 0;
+
   // static fields
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
     new Map();
@@ -108,6 +110,7 @@ export class Material extends RnObject {
       }
       MathClassUtil._setForce(valueObj!.value, value);
     }
+    this.__stateVersion++;
   }
 
   public setTextureParameter(
@@ -134,6 +137,7 @@ export class Material extends RnObject {
         }
       }
     }
+    this.__stateVersion++;
   }
 
   public getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
@@ -168,6 +172,7 @@ export class Material extends RnObject {
           }
         }
       }
+      this.__stateVersion++;
     });
   }
 
@@ -503,6 +508,7 @@ export class Material extends RnObject {
   public setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum) {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
+    this.__stateVersion++;
   }
 
   /**
@@ -519,6 +525,7 @@ export class Material extends RnObject {
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
+    this.__stateVersion++;
   }
 
   /**
@@ -530,6 +537,7 @@ export class Material extends RnObject {
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
+    this.__stateVersion++;
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {
@@ -569,6 +577,7 @@ export class Material extends RnObject {
       );
     }
     this.__alphaToCoverage = alphaToCoverage;
+    this.__stateVersion++;
   }
   get alphaToCoverage(): boolean {
     return this.__alphaToCoverage;
@@ -640,5 +649,9 @@ export class Material extends RnObject {
 
   get materialTypeName(): string {
     return this.__materialTypeName;
+  }
+
+  get stateVersion(): number {
+    return this.__stateVersion;
   }
 }
