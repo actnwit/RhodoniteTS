@@ -6,7 +6,7 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
-import { ShaderityUtility } from '../core/ShaderityUtility';
+import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
@@ -78,11 +78,11 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     );
 
     // Shader Reflection
-    const vertexShaderData = ShaderityUtility.getShaderDataReflection(
+    const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
       vertexShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = ShaderityUtility.getShaderDataReflection(
+    const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
       pixelShader,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );

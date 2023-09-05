@@ -11,7 +11,6 @@ import {
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
-import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -34,7 +33,7 @@ export type VertexAttributesLayout = {
   components: ComponentTypeEnum[];
 };
 
-export class ShaderityUtility {
+export class ShaderityUtilityWebGL {
   public static fillTemplate(
     shaderityObject: ShaderityObject,
     args: FillArgsObject

@@ -12,7 +12,7 @@ import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository'
 import { SystemState } from '../../system/SystemState';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
-import { ShaderityUtility } from './ShaderityUtility';
+import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { Primitive } from '../../geometry/Primitive';
 import { Mesh } from '../../geometry/Mesh';
 
@@ -86,7 +86,9 @@ export function _createProgramAsSingleOperationByUpdatedSources(
 }
 
 export function _getAttributeInfo(materialNode: AbstractMaterialContent) {
-  const reflection = ShaderityUtility.getAttributeReflection(materialNode.vertexShaderityObject!);
+  const reflection = ShaderityUtilityWebGL.getAttributeReflection(
+    materialNode.vertexShaderityObject!
+  );
   const attributeNames = reflection.names;
   const attributeSemantics = reflection.semantics;
   return { attributeNames, attributeSemantics };
@@ -136,28 +138,34 @@ export function _createProgramAsSingleOperationWebGL(
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
-  const vertexShaderityObject = ShaderityUtility.fillTemplate(materialNode.vertexShaderityObject!, {
-    getters: vertexPropertiesStr,
-    definitions: definitions,
-    dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-    dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-    matricesGetters: vertexShaderMethodDefinitions_uniform,
-  });
-  const vertexShaderBody = ShaderityUtility.transformWebGLVersion(
+  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+    materialNode.vertexShaderityObject!,
+    {
+      getters: vertexPropertiesStr,
+      definitions: definitions,
+      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      matricesGetters: vertexShaderMethodDefinitions_uniform,
+    }
+  );
+  const vertexShaderBody = ShaderityUtilityWebGL.transformWebGLVersion(
     vertexShaderityObject,
     isWebGL2
   ).code;
 
-  const pixelShaderityObject = ShaderityUtility.fillTemplate(materialNode.pixelShaderityObject!, {
-    renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
-    getters: pixelPropertiesStr,
-    definitions: definitions,
-    dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-    dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
-    matricesGetters: vertexShaderMethodDefinitions_uniform,
-    renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
-  });
-  const pixelShaderBody = ShaderityUtility.transformWebGLVersion(
+  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+    materialNode.pixelShaderityObject!,
+    {
+      renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
+      getters: pixelPropertiesStr,
+      definitions: definitions,
+      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      matricesGetters: vertexShaderMethodDefinitions_uniform,
+      renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
+    }
+  );
+  const pixelShaderBody = ShaderityUtilityWebGL.transformWebGLVersion(
     pixelShaderityObject,
     isWebGL2
   ).code;
@@ -286,16 +294,22 @@ export function _createProgramAsSingleOperationWebGpu(
   vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
   // }
 
-  const vertexShaderityObject = ShaderityUtility.fillTemplate(materialNode.vertexShaderityObject!, {
-    getters: vertexPropertiesStr,
-    definitions: vertexAttributeDefines,
-    matricesGetters: vertexShaderMethodDefinitions,
-  });
+  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+    materialNode.vertexShaderityObject!,
+    {
+      getters: vertexPropertiesStr,
+      definitions: vertexAttributeDefines,
+      matricesGetters: vertexShaderMethodDefinitions,
+    }
+  );
 
-  const pixelShaderityObject = ShaderityUtility.fillTemplate(materialNode.pixelShaderityObject!, {
-    getters: pixelPropertiesStr,
-    definitions: vertexAttributeDefines,
-  });
+  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+    materialNode.pixelShaderityObject!,
+    {
+      getters: pixelPropertiesStr,
+      definitions: vertexAttributeDefines,
+    }
+  );
 
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
   const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
