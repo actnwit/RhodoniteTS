@@ -41,6 +41,10 @@ export class Sampler {
     });
   }
 
+  get created(): boolean {
+    return this.__samplerResourceUid !== -1;
+  }
+
   get minFilter(): TextureParameterEnum {
     return this.__minFilter;
   }

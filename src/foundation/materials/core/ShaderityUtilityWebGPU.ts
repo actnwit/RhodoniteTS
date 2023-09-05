@@ -21,6 +21,10 @@ import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
+import { WebGpuResourceRepository } from '../../../webgpu/WebGpuResourceRepository';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { TextureParameter } from '../../definitions';
+import { Sampler } from '../../textures/Sampler';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -32,6 +36,8 @@ export type VertexAttributesLayout = {
   compositions: CompositionTypeEnum[];
   components: ComponentTypeEnum[];
 };
+
+type Binding = number;
 
 export class ShaderityUtilityWebGPU {
   public static fillTemplate(
@@ -54,6 +60,7 @@ export class ShaderityUtilityWebGPU {
     shaderityObject: ShaderityObject;
   } {
     const copiedShaderityObject = this.__copyShaderityObject(shaderityObject);
+    const textureMap = new Map<Binding, ShaderSemanticsInfo>();
 
     const splitCode = shaderityObject.code.split(/\r\n|\n/);
     const uniformOmittedShaderRows = [];
@@ -100,8 +107,28 @@ export class ShaderityUtilityWebGPU {
           existingShaderInfoMap
         );
 
+        textureMap.set(binding, shaderSemanticsInfo);
+
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
       } else if (matchSamplerDeclaration) {
+        const binding = parseInt(matchSamplerDeclaration[1]);
+        const variableName = matchSamplerDeclaration[2];
+
+        if (textureMap.has(binding)) {
+          const textureShaderSemanticsInfo = textureMap.get(binding);
+          if (textureShaderSemanticsInfo) {
+            const sampler = new Sampler({
+              magFilter: TextureParameter.Linear,
+              minFilter: TextureParameter.Linear,
+              wrapS: TextureParameter.Repeat,
+              wrapT: TextureParameter.Repeat,
+              wrapR: TextureParameter.Repeat,
+              anisotropy: false,
+            });
+            sampler.create();
+            textureShaderSemanticsInfo.initialValue[2] = sampler;
+          }
+        }
       } else {
         // not match
         uniformOmittedShaderRows.push(row);
