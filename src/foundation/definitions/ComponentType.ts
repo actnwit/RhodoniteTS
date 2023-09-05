@@ -223,7 +223,65 @@ function fromGlslString(str_: string): ComponentTypeEnum {
     case 'bool':
       str = 'BOOL';
       break;
-    case 'int':
+    case 'i32':
+      str = 'INT';
+      break;
+    case 'u32':
+      str = 'UNSIGNED_INT';
+      break;
+    case 'f32':
+      str = 'FLOAT';
+      break;
+    case 'vec2<f32>':
+      str = 'FLOAT';
+      break;
+    case 'vec3<f32>':
+      str = 'FLOAT';
+      break;
+    case 'vec4<f32>':
+      str = 'FLOAT';
+      break;
+    case 'mat2x2<f32>':
+      str = 'FLOAT';
+      break;
+    case 'mat3x3<f32>':
+      str = 'FLOAT';
+      break;
+    case 'mat4x4<f32>':
+      str = 'FLOAT';
+      break;
+    case 'vec2<i32>':
+      str = 'INT';
+      break;
+    case 'vec3<i32>':
+      str = 'INT';
+      break;
+    case 'vec4<i32>':
+      str = 'INT';
+      break;
+    case 'sampler_2d':
+      str = 'INT';
+      break;
+    case 'sampler_2d_shadow':
+      str = 'INT';
+      break;
+    case 'sampler_3d':
+      str = 'INT';
+      break;
+    case 'sampler_cube':
+      str = 'INT';
+      break;
+  }
+  return _fromString({ typeList, str }) as ComponentTypeEnum;
+}
+
+function fromWgslString(str_: string): ComponentTypeEnum {
+  let str = str_;
+  switch (str_) {
+    case 'bool':
+      str = 'BOOL';
+      break;
+    case 'i32':
       str = 'INT';
       break;
     case 'float':
@@ -308,4 +366,5 @@ export const ComponentType = Object.freeze({
   toGltf2AccessorComponentType,
   fromString,
   fromGlslString,
+  fromWgslString,
 });

@@ -468,6 +468,52 @@ function fromGlslString(str_: string): CompositionTypeEnum {
   return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
 
+function fromWgslString(str_: string): CompositionTypeEnum {
+  let str = str_;
+  switch (str_) {
+    case 'bool':
+      str = 'scalar';
+      break;
+    case 'i32':
+      str = 'scalar';
+      break;
+    case 'u32':
+      str = 'scalar';
+      break;
+    case 'f32':
+      str = 'scalar';
+      break;
+    case 'vec2<f32>':
+      str = 'vec2';
+      break;
+    case 'vec3<f32>':
+      str = 'vec3';
+      break;
+    case 'vec4<f32>':
+      str = 'vec4';
+      break;
+    case 'vec2<i32>':
+      str = 'vec2';
+      break;
+    case 'vec3<i32>':
+      str = 'vec3';
+      break;
+    case 'vec4<i32>':
+      str = 'vec4';
+      break;
+    case 'sampler_2d':
+      str = 'TEXTURE_2D';
+      break;
+    case 'sampler_2d_shadow':
+      str = 'TEXTURE_2D_SHADOW';
+      break;
+    case 'sampler_cube':
+      str = 'TEXTURE_CUBE_MAP';
+      break;
+  }
+  return _fromString({ typeList, str }) as CompositionTypeEnum;
+}
+
 function toGltf2AccessorCompositionTypeString(
   componentN: VectorAndSquareMatrixComponentN
 ): Gltf2AccessorCompositionTypeString {
@@ -608,6 +654,7 @@ export const CompositionType = Object.freeze({
   fromString,
   vectorFrom,
   fromGlslString,
+  fromWgslString,
   isArray,
   isTexture,
   toGltf2AnimationAccessorCompositionType,
