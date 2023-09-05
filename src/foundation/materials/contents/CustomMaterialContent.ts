@@ -14,6 +14,7 @@ import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -78,19 +79,36 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     );
 
     // Shader Reflection
-    const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-      vertexShader,
-      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-    );
-    const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-      pixelShader,
-      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-    );
-
+    let vertexShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    let pixelShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this.__vertexShaderityObject = vertexShaderWebGpu;
-      this.__pixelShaderityObject = pixelShaderWebGpu;
+      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
+        vertexShaderWebGpu!,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
+        pixelShaderWebGpu!,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
     } else {
+      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        vertexShader,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        pixelShader,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
       this.__vertexShaderityObject = vertexShaderData.shaderityObject;
       this.__pixelShaderityObject = pixelShaderData.shaderityObject;
     }
