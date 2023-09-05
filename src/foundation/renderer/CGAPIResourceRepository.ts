@@ -198,4 +198,22 @@ export interface ICGAPIResourceRepository {
     width: Size,
     height: Size
   ): [number, Sampler];
+
+  createTextureSampler({
+    magFilter,
+    minFilter,
+    wrapS,
+    wrapT,
+    wrapR,
+    anisotropy,
+    isPremultipliedAlpha,
+  }: {
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+    wrapR: TextureParameterEnum;
+    anisotropy: boolean;
+    isPremultipliedAlpha?: boolean;
+  }): CGAPIResourceHandle;
 }

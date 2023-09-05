@@ -455,9 +455,7 @@ export class System {
       this.restartRenderLoop();
     });
 
-    if (desc.approach !== ProcessApproach.WebGPU) {
-      await initDefaultTextures();
-    }
+    await initDefaultTextures();
 
     return gl;
   }

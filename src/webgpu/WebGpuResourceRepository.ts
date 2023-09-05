@@ -1,6 +1,6 @@
 /// <reference types="@webgpu/types" />
 
-import { DataUtil } from '../foundation';
+import { CompositionType, DataUtil } from '../foundation';
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
@@ -62,8 +62,8 @@ export class WebGpuResourceRepository
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
   private __storageBuffer?: GPUBuffer;
-  private __bindGroup?: GPUBindGroup;
-  private __bindGroupLayout?: GPUBindGroupLayout;
+  private __bindGroupStorageBuffer?: GPUBindGroup;
+  private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
   private __commandEncoder?: GPUCommandEncoder;
 
   private constructor() {
@@ -81,7 +81,7 @@ export class WebGpuResourceRepository
     return this.__instance;
   }
 
-  private getResourceNumber(): WebGLResourceHandle {
+  private getResourceNumber(): WebGPUResourceHandle {
     return ++this.__resourceCounter;
   }
 
@@ -130,7 +130,7 @@ export class WebGpuResourceRepository
       anisotropy: boolean;
       isPremultipliedAlpha: boolean;
     }
-  ): WebGLResourceHandle {
+  ): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const gpuTexture = gpuDevice.createTexture({
       size: [width, height, 1],
@@ -149,6 +149,40 @@ export class WebGpuResourceRepository
     const textureHandle = this.__registerResource(gpuTexture);
 
     return textureHandle;
+  }
+
+  createTextureSampler({
+    magFilter,
+    minFilter,
+    wrapS,
+    wrapT,
+    wrapR,
+    anisotropy,
+    isPremultipliedAlpha,
+  }: {
+    magFilter: TextureParameterEnum;
+    minFilter: TextureParameterEnum;
+    wrapS: TextureParameterEnum;
+    wrapT: TextureParameterEnum;
+    wrapR: TextureParameterEnum;
+    anisotropy: boolean;
+    isPremultipliedAlpha?: boolean;
+  }): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const sampler = gpuDevice.createSampler({
+      magFilter: magFilter.webgpu as GPUFilterMode,
+      minFilter: minFilter.webgpu as GPUFilterMode,
+      addressModeU: wrapS.webgpu as GPUAddressMode,
+      addressModeV: wrapT.webgpu as GPUAddressMode,
+      addressModeW: wrapR.webgpu as GPUAddressMode,
+      lodMinClamp: 0,
+      lodMaxClamp: 0,
+      maxAnisotropy: anisotropy ? 4 : 1,
+    });
+
+    const samplerHandle = this.__registerResource(sampler);
+
+    return samplerHandle;
   }
 
   /**
@@ -448,7 +482,7 @@ export class WebGpuResourceRepository
     const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
 
     passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, this.__bindGroup!);
+    passEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     const VertexHandles = primitive._vertexHandles;
     if (VertexHandles == null) {
       return;
@@ -482,7 +516,7 @@ export class WebGpuResourceRepository
       return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
     }
 
-    this.createBindGroup();
+    this.createBindGroup(material);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -495,8 +529,6 @@ export class WebGpuResourceRepository
     if (modules != null) {
       new Error('Shader Modules is not found');
     }
-
-    // const attributes: GPUVertexAttribute[] = [];
 
     const gpuVertexBufferLayouts: GPUVertexBufferLayout[] = [];
     gpuVertexBufferLayouts.push({
@@ -517,12 +549,9 @@ export class WebGpuResourceRepository
       const attribute = {
         shaderLocation: slotIdx,
         offset: 0,
-        // offset: accessor.byteOffsetInBufferView,
-        // offset: accessor.isAoS ? accessor.byteOffsetInBufferView : 0,
         format: (accessor.componentType.webgpu +
           accessor.compositionType.webgpu) as GPUVertexFormat,
       };
-      // attributes.push(attribute);
       gpuVertexBufferLayouts.push({
         stepMode: 'vertex',
         arrayStride: primitive.attributeAccessors[i].actualByteStride,
@@ -531,7 +560,7 @@ export class WebGpuResourceRepository
     });
 
     const pipelineLayout = gpuDevice.createPipelineLayout({
-      bindGroupLayouts: [this.__bindGroupLayout!],
+      bindGroupLayouts: [this.__bindGroupLayoutStorageBuffer!],
     });
 
     const mode = primitive.primitiveMode;
@@ -651,39 +680,61 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
-  createBindGroup() {
+  createBindGroup(material: Material) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const entries: GPUBindGroupEntry[] = [];
-    const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
-    if (this.__storageBuffer != null) {
-      entries.push({
-        binding: 0,
-        resource: {
-          buffer: this.__storageBuffer,
-        },
+
+    // Group 0 (Storage Buffer)
+    {
+      const entries: GPUBindGroupEntry[] = [];
+      const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
+      if (this.__storageBuffer != null) {
+        entries.push({
+          binding: 0,
+          resource: {
+            buffer: this.__storageBuffer,
+          },
+        });
+        bindGroupLayoutEntries.push({
+          binding: 0,
+          buffer: {
+            type: 'read-only-storage',
+          },
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+        });
+      }
+
+      const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
+        entries: bindGroupLayoutEntries,
+      };
+      const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
+
+      const uniformBindGroup = gpuDevice.createBindGroup({
+        layout: bindGroupLayout,
+        entries: entries,
       });
-      bindGroupLayoutEntries.push({
-        binding: 0,
-        buffer: {
-          type: 'read-only-storage',
-        },
-        visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-      });
+
+      this.__bindGroupStorageBuffer = uniformBindGroup;
+      this.__bindGroupLayoutStorageBuffer = bindGroupLayout;
     }
 
-    const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
-      entries: bindGroupLayoutEntries,
-    };
-    const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
-
-    const uniformBindGroup = gpuDevice.createBindGroup({
-      layout: bindGroupLayout,
-      entries: entries,
-    });
-
-    this.__bindGroup = uniformBindGroup;
-    this.__bindGroupLayout = bindGroupLayout;
-
-    return uniformBindGroup;
+    // Group 1 (Texture), Group 2 (Sampler)
+    {
+      const entries: GPUBindGroupEntry[] = [];
+      const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
+      material._autoFieldVariablesOnly.forEach((value) => {
+        const info = value.info;
+        if (CompositionType.isTexture(info.compositionType)) {
+          const slot = value.value[0];
+          const texture = value.value[1];
+          const sampler = value.value[2];
+          // entries.push({
+          //   binding: slot,
+          //   resource: {
+          //     texture: texture,
+          //   },
+          // });
+        }
+      });
+    }
   }
 }
