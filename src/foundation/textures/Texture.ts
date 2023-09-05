@@ -21,9 +21,21 @@ export class Texture extends AbstractTexture {
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
   private static __BasisFile?: new (x: Uint8Array) => BasisFile;
+  private __uriToLoad?: string;
+  private __optionsToLoad?: {
+    level: number;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    generateMipmap: boolean;
+  };
 
   constructor() {
     super();
+  }
+
+  get hasUriToLoad() {
+    return this.__uriToLoad != null;
   }
 
   generateTextureFromBasis(
@@ -194,6 +206,27 @@ export class Texture extends AbstractTexture {
       generateMipmap = true,
     } = {}
   ) {
+    this.__uriToLoad = imageUri;
+    this.__optionsToLoad = {
+      level,
+      internalFormat,
+      format,
+      type,
+      generateMipmap,
+    };
+  }
+
+  loadFromUrl() {
+    if (this.__uriToLoad == null) {
+      return;
+    }
+    const imageUri = this.__uriToLoad;
+    const level = this.__optionsToLoad?.level ?? 0;
+    const internalFormat = this.__optionsToLoad?.internalFormat ?? TextureParameter.RGBA8;
+    const format = this.__optionsToLoad?.format ?? PixelFormat.RGBA;
+    const type = this.__optionsToLoad?.type ?? ComponentType.UnsignedByte;
+    const generateMipmap = this.__optionsToLoad?.generateMipmap ?? true;
+
     this.__uri = imageUri;
     this.__startedToLoad = true;
     return new Promise((resolve, reject) => {

@@ -41,6 +41,7 @@ import {
   _createProgramAsSingleOperationWebGpu,
 } from './ShaderHandler';
 import Shaderity from 'shaderity';
+import { Texture } from '../../textures';
 
 /**
  * The material class.
@@ -119,25 +120,40 @@ export class Material extends RnObject {
     sampler?: Sampler
   ): void {
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
-      const array = this._allFieldVariables.get(shaderSemantic.index)!;
-      const shaderVariable = {
-        value: [array.value[0], texture, sampler],
-        info: array.info,
-      };
-      this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
-      if (!array.info.isCustomSetting) {
-        this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
-      }
-      if (
-        shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
-        shaderSemantic === ShaderSemantics.BaseColorTexture
-      ) {
-        if (texture.isTransparent) {
-          this.alphaMode = AlphaMode.Translucent;
+      const setter = async () => {
+        if (typeof (texture as Texture).loadFromUrl !== 'undefined') {
+          await (texture as Texture).loadFromUrl();
         }
+        const array = this._allFieldVariables.get(shaderSemantic.index)!;
+        const shaderVariable = {
+          value: [array.value[0], texture, sampler],
+          info: array.info,
+        };
+        this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
+        if (!array.info.isCustomSetting) {
+          this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
+        }
+        if (
+          shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
+          shaderSemantic === ShaderSemantics.BaseColorTexture
+        ) {
+          if (texture.isTransparent) {
+            this.alphaMode = AlphaMode.Translucent;
+          }
+        }
+        this.__stateVersion++;
+      };
+
+      if (typeof (texture as Texture).hasUriToLoad !== 'undefined') {
+        if ((texture as Texture).hasUriToLoad) {
+          setTimeout(setter, 0);
+        } else {
+          setter();
+        }
+      } else {
+        setter();
       }
     }
-    this.__stateVersion++;
   }
 
   public getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {

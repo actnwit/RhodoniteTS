@@ -13,7 +13,7 @@ declare const window: any;
     const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
     setTimeout(async () => {
       const texture = new Rn.Texture();
-      await texture.generateTextureFromUri('../../../assets/images/Rn.png');
+      texture.generateTextureFromUri('../../../assets/images/Rn.png');
       const sampler = new Rn.Sampler({
         minFilter: Rn.TextureParameter.Linear,
         magFilter: Rn.TextureParameter.Linear,
@@ -22,7 +22,7 @@ declare const window: any;
       });
       sampler.create();
       flatMaterial.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, texture, sampler);
-    }, 0);
+    }, 3000);
     const primitive = Rn.Primitive.createPrimitive({
       material: flatMaterial,
       attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Texcoord0.XY],

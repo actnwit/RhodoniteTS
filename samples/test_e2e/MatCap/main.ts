@@ -40,9 +40,10 @@ async function createRenderPassMain(cameraComponent: Rn.CameraComponent, uriMatC
   renderPass.cameraComponent = cameraComponent;
 
   const textureMatCap = new Rn.Texture();
-  await textureMatCap.generateTextureFromUri(uriMatCap, {
+  textureMatCap.generateTextureFromUri(uriMatCap, {
     type: Rn.ComponentType.UnsignedByte,
   });
+  await textureMatCap.loadFromUrl();
   const samplerMatCap = new Rn.Sampler({
     minFilter: Rn.TextureParameter.Nearest,
     magFilter: Rn.TextureParameter.Nearest,
