@@ -60,7 +60,7 @@ export class ShaderityUtilityWebGPU {
 
     const shaderSemanticsInfoArray = [];
     for (const row of splitCode) {
-      const reg = /^(?![/])[\t ]*#param[\t ]+(\w+):[\t ]+(\w+);[\t ]*(\/\/)*[\t ]*(.*)/;
+      const reg = /^[\t ]*\/\/[\t ]*#param[\t ]+(\w+):[\t ]*([\w><]+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const matchUniformDeclaration = row.match(reg);
 
       if (matchUniformDeclaration) {
