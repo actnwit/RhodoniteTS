@@ -1,3 +1,8 @@
+struct StorageData {
+  data: array<vec4<f32>>,
+}
+@binding(0) @group(0) var<storage> storageData : StorageData;
+
 fn fetchElement(vec4_idx: i32) -> vec4<f32>
 {
   return storageData.data[vec4_idx];
