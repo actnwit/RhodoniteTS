@@ -1,6 +1,8 @@
 /// <reference types="@webgpu/types" />
 
-import { CompositionType, DataUtil } from '../foundation';
+import { DataUtil } from '../foundation/misc/DataUtil';
+import { CompositionType } from '../foundation/definitions/CompositionType';
+import { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
@@ -64,6 +66,10 @@ export class WebGpuResourceRepository
   private __storageBuffer?: GPUBuffer;
   private __bindGroupStorageBuffer?: GPUBindGroup;
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
+  private __bindGroupTexture?: GPUBindGroup;
+  private __bindGroupLayoutTexture?: GPUBindGroupLayout;
+  private __bindGroupSampler?: GPUBindGroup;
+  private __bindGroupLayoutSampler?: GPUBindGroupLayout;
   private __commandEncoder?: GPUCommandEncoder;
 
   private constructor() {
@@ -172,6 +178,7 @@ export class WebGpuResourceRepository
     const sampler = gpuDevice.createSampler({
       magFilter: magFilter.webgpu as GPUFilterMode,
       minFilter: minFilter.webgpu as GPUFilterMode,
+      mipmapFilter: 'linear',
       addressModeU: wrapS.webgpu as GPUAddressMode,
       addressModeV: wrapT.webgpu as GPUAddressMode,
       addressModeW: wrapR.webgpu as GPUAddressMode,
@@ -483,6 +490,8 @@ export class WebGpuResourceRepository
 
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
+    passEncoder.setBindGroup(1, this.__bindGroupTexture!);
+    passEncoder.setBindGroup(2, this.__bindGroupSampler!);
     const VertexHandles = primitive._vertexHandles;
     if (VertexHandles == null) {
       return;
@@ -560,7 +569,11 @@ export class WebGpuResourceRepository
     });
 
     const pipelineLayout = gpuDevice.createPipelineLayout({
-      bindGroupLayouts: [this.__bindGroupLayoutStorageBuffer!],
+      bindGroupLayouts: [
+        this.__bindGroupLayoutStorageBuffer!,
+        this.__bindGroupLayoutTexture!,
+        this.__bindGroupLayoutSampler!,
+      ],
     });
 
     const mode = primitive.primitiveMode;
@@ -719,20 +732,69 @@ export class WebGpuResourceRepository
 
     // Group 1 (Texture), Group 2 (Sampler)
     {
-      const entries: GPUBindGroupEntry[] = [];
-      const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
+      const entriesForTexture: GPUBindGroupEntry[] = [];
+      const bindGroupLayoutEntriesForTexture: GPUBindGroupLayoutEntry[] = [];
+      const entriesForSampler: GPUBindGroupEntry[] = [];
+      const bindGroupLayoutEntriesForSampler: GPUBindGroupLayoutEntry[] = [];
       material._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
         if (CompositionType.isTexture(info.compositionType)) {
           const slot = value.value[0];
-          const texture = value.value[1];
-          const sampler = value.value[2];
-          // entries.push({
-          //   binding: slot,
-          //   resource: {
-          //     texture: texture,
-          //   },
-          // });
+          const texture = value.value[1] as AbstractTexture;
+          const sampler = value.value[2] as Sampler;
+
+          // Texture
+          const gpuTexture = this.__webGpuResources.get(texture._textureResourceUid) as GPUTexture;
+          entriesForTexture.push({
+            binding: slot,
+            resource: gpuTexture.createView(),
+          });
+          bindGroupLayoutEntriesForTexture.push({
+            binding: slot,
+            texture: {
+              viewDimension: '2d',
+            },
+            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+          });
+          const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
+            entries: bindGroupLayoutEntriesForTexture,
+          };
+          const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
+          const uniformBindGroup = gpuDevice.createBindGroup({
+            layout: bindGroupLayout,
+            entries: entriesForTexture,
+          });
+          this.__bindGroupTexture = uniformBindGroup;
+          this.__bindGroupLayoutTexture = bindGroupLayout;
+
+          // Sampler
+          if (!sampler.created) {
+            sampler.create();
+          }
+          const gpuSampler = this.__webGpuResources.get(sampler._samplerResourceUid) as GPUSampler;
+          entriesForSampler.push({
+            binding: slot,
+            resource: gpuSampler,
+          });
+          bindGroupLayoutEntriesForSampler.push({
+            binding: slot,
+            sampler: {
+              type: 'filtering',
+            },
+            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+          });
+          const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
+            entries: bindGroupLayoutEntriesForSampler,
+          };
+          const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(
+            bindGroupLayoutDescForSampler
+          );
+          const uniformBindGroupForSampler = gpuDevice.createBindGroup({
+            layout: bindGroupLayoutForSampler,
+            entries: entriesForSampler,
+          });
+          this.__bindGroupSampler = uniformBindGroupForSampler;
+          this.__bindGroupLayoutSampler = bindGroupLayoutForSampler;
         }
       });
     }

@@ -19,6 +19,9 @@ fn main(
 #ifdef RN_USE_TANGENT
   @location(2) tangent: vec3<f32>,
 #endif
+#ifdef RN_USE_TEXCOORD_0
+  @location(3) texcoord_0: vec2<f32>,
+#endif
 ) -> VertexOutput {
 
   var output : VertexOutput;
@@ -28,11 +31,16 @@ fn main(
   let viewMatrix = get_viewMatrix(cameraSID, 0);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
-  output.Position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
+  output.position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
 
 #ifdef RN_USE_NORMAL
-  output.Normal = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);
+  output.normal = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);
 #endif
+
+#ifdef RN_USE_TEXCOORD_0
+  output.texcoord_0 = texcoord_0;
+#endif
+
   // output.Position = vec4<f32>(position, 1.0);
 
   return output;
