@@ -217,7 +217,7 @@ function toTypedArray(componentType: ComponentTypeEnum): TypedArrayConstructor |
   }
 }
 
-function fromGlslString(str_: string): ComponentTypeEnum {
+function fromWgslString(str_: string): ComponentTypeEnum {
   let str = str_;
   switch (str_) {
     case 'bool':
@@ -275,13 +275,13 @@ function fromGlslString(str_: string): ComponentTypeEnum {
   return _fromString({ typeList, str }) as ComponentTypeEnum;
 }
 
-function fromWgslString(str_: string): ComponentTypeEnum {
+function fromGlslString(str_: string): ComponentTypeEnum {
   let str = str_;
   switch (str_) {
     case 'bool':
       str = 'BOOL';
       break;
-    case 'i32':
+    case 'int':
       str = 'INT';
       break;
     case 'float':
