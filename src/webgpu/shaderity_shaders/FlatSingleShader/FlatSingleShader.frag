@@ -4,6 +4,9 @@
 
 /* shaderity: @{getters} */
 
+@group(0) @binding(0) var BaseColorTexture: texture_2d<f32>;
+@group(1) @binding(0) var BaseColorSampler: sampler;
+
 @fragment
 fn main(
   input: VertexOutput

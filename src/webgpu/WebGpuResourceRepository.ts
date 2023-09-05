@@ -64,6 +64,7 @@ export class WebGpuResourceRepository
   private __storageBuffer?: GPUBuffer;
   private __bindGroup?: GPUBindGroup;
   private __bindGroupLayout?: GPUBindGroupLayout;
+  private __commandEncoder?: GPUCommandEncoder;
 
   private constructor() {
     super();
@@ -427,7 +428,9 @@ export class WebGpuResourceRepository
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const context = this.__webGpuDeviceWrapper!.context;
-    const commandEncoder = gpuDevice.createCommandEncoder();
+    if (this.__commandEncoder == null) {
+      this.__commandEncoder = gpuDevice.createCommandEncoder();
+    }
     const textureView = context.getCurrentTexture().createView();
 
     const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -440,8 +443,7 @@ export class WebGpuResourceRepository
         },
       ],
     };
-
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
 
     const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
 
@@ -471,8 +473,6 @@ export class WebGpuResourceRepository
       passEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
     }
     passEncoder.end();
-
-    gpuDevice.queue.submit([commandEncoder.finish()]);
   }
 
   getOrCreateRenderPipeline(primitive: Primitive, material: Material, renderPass: RenderPass) {
@@ -562,6 +562,12 @@ export class WebGpuResourceRepository
     this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
 
     return pipeline;
+  }
+
+  flush() {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
+    this.__commandEncoder = undefined;
   }
 
   createCubeTexture(
