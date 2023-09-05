@@ -60,8 +60,16 @@ export class ShaderityUtilityWebGPU {
 
     const shaderSemanticsInfoArray = [];
     for (const row of splitCode) {
-      const reg = /^[\t ]*\/\/[\t ]*#param[\t ]+(\w+):[\t ]*([\w><]+);[\t ]*(\/\/)*[\t ]*(.*)/;
+      const reg =
+        /^[\t ]*\/\/[\t ]*#param[\t ]+(\w+)[ \t]*:[\t ]*([\w><]+);[\t ]*(\/\/)*[\t ]*(.*)/;
       const matchUniformDeclaration = row.match(reg);
+
+      const tex =
+        /^[\t ]*@group\(1\) @binding\((\d)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*([\w><]+);[\t ]*\/\/*[\t ]*(.*)/;
+      const matchTextureDeclaration = row.match(tex);
+      const sampler =
+        /^[\t ]*@group\(2\) @binding\((\d)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*sampler;/;
+      const matchSamplerDeclaration = row.match(sampler);
 
       if (matchUniformDeclaration) {
         const type = matchUniformDeclaration[2];
@@ -77,6 +85,23 @@ export class ShaderityUtilityWebGPU {
         );
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
+      } else if (matchTextureDeclaration) {
+        const binding = parseInt(matchTextureDeclaration[1]);
+        const variableName = matchTextureDeclaration[2];
+        const type = matchTextureDeclaration[3];
+        const info = matchTextureDeclaration[4];
+
+        const shaderSemanticsInfo = this.__createShaderSemanticInfoForTexture(
+          type,
+          variableName,
+          binding,
+          info,
+          shaderityObject.isFragmentShader,
+          existingShaderInfoMap
+        );
+
+        shaderSemanticsInfoArray.push(shaderSemanticsInfo);
+      } else if (matchSamplerDeclaration) {
       } else {
         // not match
         uniformOmittedShaderRows.push(row);
@@ -89,6 +114,55 @@ export class ShaderityUtilityWebGPU {
       shaderSemanticsInfoArray: shaderSemanticsInfoArray,
       shaderityObject: copiedShaderityObject,
     };
+  }
+
+  private static __createShaderSemanticInfoForTexture(
+    type: string,
+    variableName: string,
+    binding: number,
+    info: string,
+    isFragmentShader: boolean,
+    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
+  ): ShaderSemanticsInfo {
+    const componentType = ComponentType.Int;
+    const compositionType = CompositionType.Texture2D;
+    const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
+    const none_u_prefix = true;
+
+    let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
+    if (semantic == null) {
+      const semanticInfo = existingShaderInfoMap?.get(variableName);
+      if (semanticInfo != null) {
+        semantic = semanticInfo.semantic;
+      } else {
+        semantic = new ShaderSemanticsClass({ str: variableName });
+      }
+    }
+
+    const shaderSemanticsInfo: ShaderSemanticsInfo = {
+      semantic,
+      compositionType,
+      componentType,
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      isCustomSetting: false,
+      stage,
+      none_u_prefix,
+    };
+
+    const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
+    if (initialValue) {
+      const initialValueText = initialValue[1];
+      shaderSemanticsInfo.initialValue = this.__getInitialValueFromTextForTexture(
+        shaderSemanticsInfo,
+        binding,
+        initialValueText
+      );
+    } else {
+      shaderSemanticsInfo.initialValue = this.__getDefaultInitialValue(shaderSemanticsInfo);
+    }
+
+    return shaderSemanticsInfo;
   }
 
   private static __createShaderSemanticsInfo(
@@ -178,6 +252,25 @@ export class ShaderityUtilityWebGPU {
     }
   }
 
+  private static __getInitialValueFromTextForTexture(
+    shaderSemanticsInfo: ShaderSemanticsInfo,
+    binding: number,
+    initialValueText: string
+  ) {
+    let initialValue;
+    if (
+      shaderSemanticsInfo.compositionType === CompositionType.Texture2D ||
+      shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
+    ) {
+      const color = initialValueText.charAt(0).toUpperCase() + initialValueText.slice(1);
+      initialValue = [binding, (DefaultTextures as any)[`dummy${color}Texture`]];
+    } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
+      const color = initialValueText.charAt(0).toUpperCase() + initialValueText.slice(1);
+      initialValue = [binding, (DefaultTextures as any)[`dummy${color}CubeTexture`]];
+    }
+    return initialValue;
+  }
+
   private static __getInitialValueFromText(
     shaderSemanticsInfo: ShaderSemanticsInfo,
     initialValueText: string
@@ -207,25 +300,8 @@ export class ShaderityUtilityWebGPU {
           }
           break;
         case 2:
-          if (
-            shaderSemanticsInfo.compositionType === CompositionType.Texture2D ||
-            shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
-          ) {
-            const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [parseInt(split[0]), (DefaultTextures as any)[`dummy${color}Texture`]];
-          } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
-            const color = split[1].charAt(0).toUpperCase() + split[1].slice(1);
-            initialValue = [
-              parseInt(split[0]),
-              (DefaultTextures as any)[`dummy${color}CubeTexture`],
-            ];
-          } else {
-            checkCompositionNumber(CompositionType.Vec2);
-            initialValue = MutableVector2.fromCopyArray([
-              parseFloat(split[0]),
-              parseFloat(split[1]),
-            ]);
-          }
+          checkCompositionNumber(CompositionType.Vec2);
+          initialValue = MutableVector2.fromCopyArray([parseFloat(split[0]), parseFloat(split[1])]);
           break;
         case 3:
           checkCompositionNumber(CompositionType.Vec3);

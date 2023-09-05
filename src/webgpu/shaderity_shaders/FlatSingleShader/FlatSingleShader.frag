@@ -6,7 +6,7 @@
 
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 
-@group(1) @binding(0) var BaseColorTexture: texture_2d<f32>;
+@group(1) @binding(0) var BaseColorTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(0) var BaseColorSampler: sampler;
 
 @fragment
