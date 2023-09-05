@@ -88,7 +88,7 @@ function createAndSetFramebuffer(
   textureNum: number,
   property: {
     level?: number | undefined;
-    internalFormat?: Rn.PixelFormatEnum | undefined;
+    internalFormat?: Rn.TextureParameterEnum | undefined;
     format?: Rn.PixelFormatEnum | undefined;
     type?: Rn.ComponentTypeEnum | undefined;
     magFilter?: Rn.TextureParameterEnum | undefined;

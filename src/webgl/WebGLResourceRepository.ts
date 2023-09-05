@@ -2062,7 +2062,7 @@ export class WebGLResourceRepository
       generateMipmap,
     }: {
       level: Index;
-      internalFormat: TextureParameterEnum | PixelFormatEnum;
+      internalFormat: TextureParameterEnum;
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;

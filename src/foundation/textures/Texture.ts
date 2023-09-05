@@ -1,6 +1,6 @@
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentType } from '../definitions/ComponentType';
-import { TextureParameter } from '../definitions/TextureParameter';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
@@ -30,7 +30,7 @@ export class Texture extends AbstractTexture {
     uint8Array: Uint8Array,
     options: {
       level?: Count;
-      internalFormat?: PixelFormatEnum;
+      internalFormat?: TextureParameterEnum;
       format?: PixelFormatEnum;
       type?: ComponentTypeEnum;
       generateMipmap?: boolean;
