@@ -129,13 +129,7 @@ export class WebGpuResourceRepository
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;
-      magFilter: TextureParameterEnum;
-      minFilter: TextureParameterEnum;
-      wrapS: TextureParameterEnum;
-      wrapT: TextureParameterEnum;
       generateMipmap: boolean;
-      anisotropy: boolean;
-      isPremultipliedAlpha: boolean;
     }
   ): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -808,5 +802,53 @@ export class WebGpuResourceRepository
       this.__bindGroupSampler = uniformBindGroupForSampler;
       this.__bindGroupLayoutSampler = bindGroupLayoutForSampler;
     }
+  }
+
+  /**
+   * create a Texture
+   * @param imageData
+   * @param param1
+   * @returns
+   */
+  async createTextureFromHTMLImageElement(
+    imageData: HTMLImageElement,
+    {
+      level,
+      internalFormat,
+      width,
+      height,
+      border,
+      format,
+      type,
+      generateMipmap,
+    }: {
+      level: Index;
+      internalFormat: TextureParameterEnum;
+      width: Size;
+      height: Size;
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+      generateMipmap: boolean;
+    }
+  ): Promise<WebGPUResourceHandle> {
+    imageData.crossOrigin = 'Anonymous';
+
+    let handler = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    await imageData.decode();
+    const imageBitmap = await createImageBitmap(imageData);
+
+    handler = this.createTextureFromImageBitmapData(imageBitmap, {
+      level,
+      internalFormat,
+      width,
+      height,
+      border,
+      format,
+      type,
+      generateMipmap,
+    });
+
+    return handler;
   }
 }

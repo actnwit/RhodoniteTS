@@ -32,6 +32,8 @@ import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSing
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import pbrSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
@@ -389,6 +391,8 @@ function createPbrUberMaterial({
     useNormalTexture,
     vertexShader: pbrSingleShaderVertex,
     pixelShader: pbrSingleShaderFragment,
+    vertexShaderWebGpu: pbrSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: pbrSingleShaderFragmentWebGpu,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });

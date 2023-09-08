@@ -814,6 +814,7 @@ export class ModelConverter {
         }
 
         rnTexture.generateTextureFromImage(image.image);
+        rnTexture.loadFromImgLazy();
       } else if (image?.basis != null) {
         rnTexture.generateTextureFromBasis(image.basis, {});
       } else if (image?.ktx2 != null) {
@@ -1408,6 +1409,7 @@ export class ModelConverter {
       }
 
       rnTexture.generateTextureFromImage(imageElem);
+      rnTexture.loadFromImgLazy();
     } else if (image.basis) {
       rnTexture.generateTextureFromBasis(image.basis, {});
     } else if (image.ktx2) {

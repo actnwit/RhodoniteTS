@@ -37,7 +37,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         matCapTexture.generateTextureFromUri(uri, {
           type: ComponentType.UnsignedByte,
         });
-        await matCapTexture.loadFromUrl();
+        await matCapTexture.loadFromUrlLazy();
       })(uri);
     } else if (texture instanceof AbstractTexture) {
       matCapTexture = texture;

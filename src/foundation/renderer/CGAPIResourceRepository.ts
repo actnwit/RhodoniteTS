@@ -216,4 +216,33 @@ export interface ICGAPIResourceRepository {
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
   }): CGAPIResourceHandle;
+
+  /**
+   * create a Texture
+   * @param imageData
+   * @param param1
+   * @returns
+   */
+  createTextureFromHTMLImageElement(
+    imageData: HTMLImageElement,
+    {
+      level,
+      internalFormat,
+      width,
+      height,
+      border,
+      format,
+      type,
+      generateMipmap,
+    }: {
+      level: Index;
+      internalFormat: TextureParameterEnum;
+      width: Size;
+      height: Size;
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+      generateMipmap: boolean;
+    }
+  ): Promise<CGAPIResourceHandle>;
 }

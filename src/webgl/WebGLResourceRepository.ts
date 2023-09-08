@@ -1185,7 +1185,7 @@ export class WebGLResourceRepository
    * @param param1
    * @returns
    */
-  createTextureFromHTMLImageElement(
+  async createTextureFromHTMLImageElement(
     imageData: HTMLImageElement,
     {
       level,
@@ -1206,7 +1206,7 @@ export class WebGLResourceRepository
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): WebGLResourceHandle {
+  ): Promise<WebGLResourceHandle> {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;

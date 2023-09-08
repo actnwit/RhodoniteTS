@@ -35,7 +35,15 @@ const lightEntity = Rn.EntityHelper.createLightEntity();
 lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.4, 0.9, 0.7]);
 lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
-Rn.System.process([expression]);
+let count = 0;
 
-p.id = 'rendered';
-p.innerText = 'Rendered.';
+Rn.System.startRenderLoop(() => {
+  if (count > 100) {
+    p.id = 'rendered';
+    p.innerText = 'Rendered.';
+  }
+
+  Rn.System.process([expression]);
+
+  count++;
+});

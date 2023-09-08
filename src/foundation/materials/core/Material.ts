@@ -121,8 +121,9 @@ export class Material extends RnObject {
   ): void {
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const setter = async () => {
-        if (typeof (texture as Texture).loadFromUrl !== 'undefined') {
-          await (texture as Texture).loadFromUrl();
+        if (typeof (texture as Texture).loadFromUrlLazy !== 'undefined') {
+          await (texture as Texture).loadFromUrlLazy();
+          await (texture as Texture).loadFromImgLazy();
         }
         const array = this._allFieldVariables.get(shaderSemantic.index)!;
         const shaderVariable = {
@@ -144,8 +145,8 @@ export class Material extends RnObject {
         this.__stateVersion++;
       };
 
-      if (typeof (texture as Texture).hasUriToLoad !== 'undefined') {
-        if ((texture as Texture).hasUriToLoad) {
+      if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
+        if ((texture as Texture).hasDataToLoadLazy) {
           setTimeout(setter, 0);
         } else {
           setter();
