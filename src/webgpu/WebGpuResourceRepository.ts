@@ -67,10 +67,10 @@ export class WebGpuResourceRepository
   private __storageBuffer?: GPUBuffer;
   private __bindGroupStorageBuffer?: GPUBindGroup;
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
-  private __bindGroupTexture?: GPUBindGroup;
-  private __bindGroupLayoutTexture?: GPUBindGroupLayout;
-  private __bindGroupSampler?: GPUBindGroup;
-  private __bindGroupLayoutSampler?: GPUBindGroupLayout;
+  private __bindGroupTextureMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
+  private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
+  private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
+  private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
 
   private constructor() {
@@ -473,7 +473,12 @@ export class WebGpuResourceRepository
       colorAttachments: [
         {
           view: textureView,
-          clearValue: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
+          clearValue: {
+            r: renderPass.clearColor.x,
+            g: renderPass.clearColor.y,
+            b: renderPass.clearColor.z,
+            a: renderPass.clearColor.w,
+          },
           loadOp: 'load',
           storeOp: 'store',
         },
@@ -481,12 +486,18 @@ export class WebGpuResourceRepository
     };
     const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
 
-    const pipeline = this.getOrCreateRenderPipeline(primitive, material, renderPass);
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
+    const pipeline = this.getOrCreateRenderPipeline(
+      renderPipelineId,
+      primitive,
+      material,
+      renderPass
+    );
 
     passEncoder.setPipeline(pipeline);
     passEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
-    passEncoder.setBindGroup(1, this.__bindGroupTexture!);
-    passEncoder.setBindGroup(2, this.__bindGroupSampler!);
+    passEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
+    passEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
     const VertexHandles = primitive._vertexHandles;
     if (VertexHandles == null) {
       return;
@@ -513,9 +524,12 @@ export class WebGpuResourceRepository
     passEncoder.end();
   }
 
-  getOrCreateRenderPipeline(primitive: Primitive, material: Material, renderPass: RenderPass) {
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
-
+  getOrCreateRenderPipeline(
+    renderPipelineId: string,
+    primitive: Primitive,
+    material: Material,
+    renderPass: RenderPass
+  ) {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
       if (materialStateVersion === material.stateVersion) {
@@ -523,10 +537,14 @@ export class WebGpuResourceRepository
       } else {
         this.__webGpuRenderPipelineMap.delete(renderPipelineId);
         this.__materialStateVersionMap.delete(renderPipelineId);
+        this.__bindGroupTextureMap.delete(renderPipelineId);
+        this.__bindGroupLayoutTextureMap.delete(renderPipelineId);
+        this.__bindGroupSamplerMap.delete(renderPipelineId);
+        this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
       }
     }
 
-    this.createBindGroup(material);
+    this.createBindGroup(renderPipelineId, material);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -572,8 +590,8 @@ export class WebGpuResourceRepository
     const pipelineLayout = gpuDevice.createPipelineLayout({
       bindGroupLayouts: [
         this.__bindGroupLayoutStorageBuffer!,
-        this.__bindGroupLayoutTexture!,
-        this.__bindGroupLayoutSampler!,
+        this.__bindGroupLayoutTextureMap.get(renderPipelineId)!,
+        this.__bindGroupLayoutSamplerMap.get(renderPipelineId)!,
       ],
     });
 
@@ -695,7 +713,7 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
-  createBindGroup(material: Material) {
+  createBindGroup(renderPipelineId: string, material: Material) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
     // Group 0 (Storage Buffer)
@@ -777,18 +795,21 @@ export class WebGpuResourceRepository
           });
         }
       });
-
-      const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
+      // Texture
+      const bindGroupLayoutDescForTexture: GPUBindGroupLayoutDescriptor = {
         entries: bindGroupLayoutEntriesForTexture,
       };
-      const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
-      const uniformBindGroup = gpuDevice.createBindGroup({
-        layout: bindGroupLayout,
+      const bindGroupLayoutForTexture = gpuDevice.createBindGroupLayout(
+        bindGroupLayoutDescForTexture
+      );
+      const uniformBindGroupForTexture = gpuDevice.createBindGroup({
+        layout: bindGroupLayoutForTexture,
         entries: entriesForTexture,
       });
-      this.__bindGroupTexture = uniformBindGroup;
-      this.__bindGroupLayoutTexture = bindGroupLayout;
+      this.__bindGroupTextureMap.set(renderPipelineId, uniformBindGroupForTexture);
+      this.__bindGroupLayoutTextureMap.set(renderPipelineId, bindGroupLayoutForTexture);
 
+      // Sampler
       const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
         entries: bindGroupLayoutEntriesForSampler,
       };
@@ -799,8 +820,8 @@ export class WebGpuResourceRepository
         layout: bindGroupLayoutForSampler,
         entries: entriesForSampler,
       });
-      this.__bindGroupSampler = uniformBindGroupForSampler;
-      this.__bindGroupLayoutSampler = bindGroupLayoutForSampler;
+      this.__bindGroupSamplerMap.set(renderPipelineId, uniformBindGroupForSampler);
+      this.__bindGroupLayoutSamplerMap.set(renderPipelineId, bindGroupLayoutForSampler);
     }
   }
 
