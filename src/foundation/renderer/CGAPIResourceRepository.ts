@@ -11,6 +11,7 @@ import { ProcessApproach, ShaderSemanticsInfo, VertexAttributeEnum } from '../de
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
+import { RenderPass } from './RenderPass';
 
 export type DirectTextureData =
   | TypedArray
@@ -59,6 +60,10 @@ export interface ICGAPIResourceRepository {
    * Get a Canvas Size
    */
   getCanvasSize(): [Size, Size];
+
+  resizeCanvas(width: Size, height: Size): void;
+
+  clearFrameBuffer(renderPass: RenderPass): void;
 
   /**
    * create a Texture

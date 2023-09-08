@@ -6,7 +6,10 @@ import {
   ProcessApproachClass,
 } from '../definitions/ProcessApproach';
 import { ModuleManager } from './ModuleManager';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import {
+  CGAPIResourceRepository,
+  ICGAPIResourceRepository,
+} from '../renderer/CGAPIResourceRepository';
 import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
@@ -74,7 +77,7 @@ export class System {
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
-  private static __webglResourceRepository: WebGLResourceRepository;
+  private static __cgApiResourceRepository: ICGAPIResourceRepository;
   private static __webglStrategy?: WebGLStrategy;
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
@@ -261,10 +264,11 @@ export class System {
 
                   // set Viewport for Normal (Not WebXR)
                   System.setViewportForNormalRendering(renderPass, rnXRModule);
-
-                  // clear Framebuffer
-                  this.__webglResourceRepository.clearFrameBuffer(renderPass);
                 }
+              }
+              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+                // clear Framebuffer
+                this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
               }
 
               componentClass.updateComponentsOfEachProcessStage(componentClass, stage, renderPass);
@@ -343,7 +347,9 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
-      this.__webglResourceRepository.setViewport(renderPass.getViewport());
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(
+        renderPass.getViewport()
+      );
     }
   }
 
@@ -351,16 +357,20 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
+        .currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
     } else if (webARSystem?.isWebARMode) {
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
+        .currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer!);
     } else {
-      this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
-      this.__webglResourceRepository.setDrawTargets(renderPass);
+      (this.__cgApiResourceRepository as WebGLResourceRepository).bindFramebuffer(
+        renderPass.getFramebuffer()
+      );
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setDrawTargets(renderPass);
     }
   }
 
@@ -391,6 +401,7 @@ export class System {
 
     let gl;
 
+    System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
       const webGpuResourceRepository =
@@ -401,9 +412,9 @@ export class System {
       const device = await adapter!.requestDevice();
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
+      webGpuResourceRepository.recreateSystemDepthTexture();
     } else {
       // WebGL
-      System.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       gl = repo.generateWebGLContext(
         desc.canvas,
@@ -416,6 +427,7 @@ export class System {
       repo.switchDepthTest(true);
     }
 
+    // Memory Settings
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
       gpuInstanceData: Is.exist(desc.memoryUsageOrder)
@@ -436,6 +448,7 @@ export class System {
       );
     }
 
+    // Deal with WebGL context lost and restore
     desc.canvas.addEventListener(
       'webglcontextlost',
       ((event: Event) => {
@@ -465,7 +478,7 @@ export class System {
   }
 
   public static resizeCanvas(width: number, height: number) {
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     repo.resizeCanvas(width, height);
   }
 
@@ -475,6 +488,6 @@ export class System {
   }
 
   public static getCurrentWebGLContextWrapper() {
-    return this.__webglResourceRepository?.currentWebGLContextWrapper;
+    return (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper;
   }
 }

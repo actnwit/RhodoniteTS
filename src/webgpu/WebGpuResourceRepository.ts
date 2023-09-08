@@ -72,6 +72,7 @@ export class WebGpuResourceRepository
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
+  private __systemDepthTexture?: GPUTexture;
 
   private constructor() {
     super();
@@ -444,21 +445,42 @@ export class WebGpuResourceRepository
   }
 
   clearFrameBuffer(renderPass: RenderPass) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const context = this.__webGpuDeviceWrapper!.context;
+    const colorAttachments: GPURenderPassColorAttachment[] = [];
+    let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
     if (renderPass.toClearColorBuffer) {
-      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-      const context = this.__webGpuDeviceWrapper!.context;
       const textureView = context.getCurrentTexture().createView();
-      const renderPassDescriptor: GPURenderPassDescriptor = {
-        colorAttachments: [
-          {
-            view: textureView,
-            clearValue: { r: 1.0, g: 1.0, b: 1.0, a: 1.0 },
-            loadOp: 'load',
-            storeOp: 'store',
-          },
-        ],
+      colorAttachments.push({
+        view: textureView,
+        clearValue: {
+          r: renderPass.clearColor.x,
+          g: renderPass.clearColor.y,
+          b: renderPass.clearColor.z,
+          a: renderPass.clearColor.w,
+        },
+        loadOp: 'clear',
+        storeOp: 'store',
+      });
+    }
+    if (renderPass.toClearDepthBuffer) {
+      depthStencilAttachment = {
+        view: this.__systemDepthTexture!.createView(),
+        depthClearValue: renderPass.clearDepth,
+        depthLoadOp: 'clear',
+        depthStoreOp: 'store',
       };
     }
+
+    const renderPassDescriptor: GPURenderPassDescriptor = {
+      colorAttachments: colorAttachments,
+      depthStencilAttachment: depthStencilAttachment,
+    };
+    if (this.__commandEncoder == null) {
+      this.__commandEncoder = gpuDevice.createCommandEncoder();
+    }
+    const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+    passEncoder.end();
   }
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
@@ -473,16 +495,15 @@ export class WebGpuResourceRepository
       colorAttachments: [
         {
           view: textureView,
-          clearValue: {
-            r: renderPass.clearColor.x,
-            g: renderPass.clearColor.y,
-            b: renderPass.clearColor.z,
-            a: renderPass.clearColor.w,
-          },
           loadOp: 'load',
           storeOp: 'store',
         },
       ],
+      depthStencilAttachment: {
+        view: this.__systemDepthTexture!.createView(),
+        depthLoadOp: 'load',
+        depthStoreOp: 'store',
+      },
     };
     const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
 
@@ -617,6 +638,11 @@ export class WebGpuResourceRepository
       },
       primitive: {
         topology: topology as GPUPrimitiveTopology,
+      },
+      depthStencil: {
+        depthWriteEnabled: true,
+        depthCompare: 'less',
+        format: 'depth24plus',
       },
     });
 
@@ -871,5 +897,26 @@ export class WebGpuResourceRepository
     });
 
     return handler;
+  }
+
+  recreateSystemDepthTexture() {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const canvas = this.__webGpuDeviceWrapper!.canvas;
+
+    if (this.__systemDepthTexture != null) {
+      this.__systemDepthTexture.destroy();
+    }
+    this.__systemDepthTexture = gpuDevice.createTexture({
+      size: [canvas.width, canvas.height],
+      format: 'depth24plus',
+      usage: GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+  }
+
+  resizeCanvas(width: Size, height: Size) {
+    const canvas = this.__webGpuDeviceWrapper!.canvas;
+    canvas.width = width;
+    canvas.height = height;
+    this.recreateSystemDepthTexture();
   }
 }
