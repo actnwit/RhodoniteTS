@@ -3,6 +3,8 @@ struct StorageData {
 }
 @binding(0) @group(0) var<storage> storageData : StorageData;
 
+override _materialSID: u32;
+
 fn fetchElement(vec4_idx: u32) -> vec4<f32>
 {
   return storageData.data[vec4_idx];

@@ -5,6 +5,7 @@
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
+
 @vertex
 fn main(
 #ifdef RN_USE_INSTANCE
@@ -26,6 +27,7 @@ fn main(
   @location(3) color_0: vec2<f32>,
 #endif
 ) -> VertexOutput {
+#pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
   var output : VertexOutput;
 
@@ -35,7 +37,6 @@ fn main(
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
   output.position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
-
 #ifdef RN_USE_NORMAL
   output.normal = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);
 #endif

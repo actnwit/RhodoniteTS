@@ -23,6 +23,7 @@ fn main(
   @location(3) texcoord_0: vec2<f32>,
 #endif
 ) -> VertexOutput {
+#pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
   var output : VertexOutput;
 

@@ -13,6 +13,8 @@
 fn main(
   input: VertexOutput
 ) -> @location(0) vec4<f32> {
+#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+
   var Normal = input.normal * 0.5 + 0.5;
   // return vec4<f32>(Normal.x, Normal.y, Normal.z, 1);
 

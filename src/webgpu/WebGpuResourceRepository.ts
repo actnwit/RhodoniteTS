@@ -623,11 +623,17 @@ export class WebGpuResourceRepository
       vertex: {
         module: modules.vsModule,
         entryPoint: 'main',
+        constants: {
+          _materialSID: material.materialSID,
+        },
         buffers: gpuVertexBufferLayouts,
       },
       fragment: {
         module: modules.fsModule,
         entryPoint: 'main',
+        constants: {
+          _materialSID: material.materialSID,
+        },
         targets: [
           // 0
           {

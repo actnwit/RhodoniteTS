@@ -9,18 +9,16 @@
 @group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(0) var baseColorSampler: sampler;
 
-// override mateiralSID: i32 = 0;
-
 @fragment
 fn main(
   input: VertexOutput
 ) -> @location(0) vec4<f32> {
+#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+
   var Normal = input.normal * 0.5 + 0.5;
 
-  let materialSID = u32(get_currentComponentSIDs(0, 0));
-
   var baseColor = vec4<f32>(1, 1, 1, 1);
-  var baseColorFactor = get_baseColorFactor(materialSID, 0);
+  var baseColorFactor = get_baseColorFactor(materialSID, 0u);
 
 #ifdef RN_USE_COLOR_0
   baseColor = input.color_0;
