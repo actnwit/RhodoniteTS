@@ -38,6 +38,7 @@ import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { VectorN } from '../foundation/math/VectorN';
 import { RnXR } from '../xr/main';
+import { Config } from '../foundation/core/Config';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -76,6 +77,28 @@ fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
 
   return matrix;
 }
+
+#ifdef RN_IS_VERTEX_SHADER
+  #ifdef RN_IS_MORPHING
+  fn get_position(vertexId: u32, basePosition: vec3<f32>) -> vec3<f32> {
+    let position = basePosition;
+    let scalar_idx = 3u * vertexId;
+    for (let i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
+
+      let basePosIn4bytes = u_dataTextureMorphOffsetPosition[i] * 4u + scalar_idx;
+      let addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
+
+      position += addPos * u_morphWeights[i];
+      if (i == u_morphTargetNumber-1) {
+        break;
+      }
+    }
+
+    return position;
+  }
+  #endif
+#endif
+
 `;
   }
 
