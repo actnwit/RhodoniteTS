@@ -4,9 +4,9 @@
 
 /* shaderity: @{getters} */
 
-// #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
+// #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 
-@group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=blue
+@group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(0) var baseColorSampler: sampler;
 
 @fragment
@@ -14,13 +14,21 @@ fn main(
   input: VertexOutput
 ) -> @location(0) vec4<f32> {
   var Normal = input.normal * 0.5 + 0.5;
-  // return vec4<f32>(Normal.x, Normal.y, Normal.z, 1);
+
+  let materialSID = i32(get_currentComponentSIDs(0, 0));
+
+  var baseColor = vec4<f32>(1, 1, 1, 1);
+  var baseColorFactor = get_baseColorFactor(materialSID, 0);
+
+#ifdef RN_USE_COLOR_0
+  baseColor = input.color_0;
+#endif
+
+  baseColor *= baseColorFactor;
 
 #ifdef RN_USE_TEXCOORD_0
-  var baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
-  return baseColor;
-#else
-  return vec4<f32>(1, 0, 0, 1);
+  baseColor *= textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
 #endif
+  return baseColor;
 
 }

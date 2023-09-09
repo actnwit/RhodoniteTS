@@ -22,6 +22,9 @@ fn main(
 #ifdef RN_USE_TEXCOORD_0
   @location(3) texcoord_0: vec2<f32>,
 #endif
+#ifdef RN_USE_COLOR_0
+  @location(3) color_0: vec2<f32>,
+#endif
 ) -> VertexOutput {
 
   var output : VertexOutput;
@@ -39,6 +42,10 @@ fn main(
 
 #ifdef RN_USE_TEXCOORD_0
   output.texcoord_0 = texcoord_0;
+#endif
+
+#ifdef RN_USE_COLOR_0
+  output.color_0 = color_0;
 #endif
 
   // output.Position = vec4<f32>(position, 1.0);
