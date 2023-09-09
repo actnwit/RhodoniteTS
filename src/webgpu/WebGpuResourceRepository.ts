@@ -75,6 +75,7 @@ export class WebGpuResourceRepository
   private __commandEncoder?: GPUCommandEncoder;
   private __systemDepthTexture?: GPUTexture;
   private __uniformMorphBuffer?: GPUBuffer;
+  private __renderPassEncoder?: GPURenderPassEncoder;
 
   private constructor() {
     super();
@@ -507,23 +508,26 @@ export class WebGpuResourceRepository
     if (this.__commandEncoder == null) {
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
-    const textureView = context.getCurrentTexture().createView();
-
-    const renderPassDescriptor: GPURenderPassDescriptor = {
-      colorAttachments: [
-        {
-          view: textureView,
-          loadOp: 'load',
-          storeOp: 'store',
+    if (this.__renderPassEncoder == null) {
+      const textureView = context.getCurrentTexture().createView();
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [
+          {
+            view: textureView,
+            loadOp: 'load',
+            storeOp: 'store',
+          },
+        ],
+        depthStencilAttachment: {
+          view: this.__systemDepthTexture!.createView(),
+          depthLoadOp: 'load',
+          depthStoreOp: 'store',
         },
-      ],
-      depthStencilAttachment: {
-        view: this.__systemDepthTexture!.createView(),
-        depthLoadOp: 'load',
-        depthStoreOp: 'store',
-      },
-    };
-    const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+      };
+      const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+      this.__renderPassEncoder = passEncoder;
+    }
+    const passEncoder = this.__renderPassEncoder;
 
     const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
     const pipeline = this.getOrCreateRenderPipeline(
@@ -560,7 +564,6 @@ export class WebGpuResourceRepository
       const vertexCount = primitive.attributeAccessors[0].elementCount;
       passEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
     }
-    passEncoder.end();
   }
 
   getOrCreateRenderPipeline(
@@ -678,6 +681,10 @@ export class WebGpuResourceRepository
 
   flush() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    if (this.__renderPassEncoder != null) {
+      this.__renderPassEncoder.end();
+      this.__renderPassEncoder = undefined;
+    }
     gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
     this.__commandEncoder = undefined;
   }
