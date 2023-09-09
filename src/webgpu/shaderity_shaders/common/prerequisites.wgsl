@@ -2,10 +2,14 @@ struct StorageData {
   data: array<vec4<f32>>,
 }
 @group(0) @binding(0) var<storage> storageData: StorageData;
-struct UniformMorph {
+struct UniformMorphOffsets {
   data: array<vec4<u32>, /* shaderity: @{maxMorphDataNumber} */ >,
 }
-@group(0) @binding(1) var<uniform> uniformMorph: UniformMorph;
+@group(0) @binding(1) var<uniform> uniformMorphOffsets: UniformMorphOffsets;
+struct UniformMorphWeights {
+  data: array<vec4<f32>, /* shaderity: @{maxMorphDataNumber} */ >,
+}
+@group(0) @binding(2) var<uniform> uniformMorphWeights: UniformMorphWeights;
 
 override _materialSID: u32;
 override _currentPrimitiveIdx = 0u;

@@ -409,7 +409,8 @@ export class System {
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
-      webGpuResourceRepository.createUniformMorphBuffer();
+      webGpuResourceRepository.createUniformMorphOffsetsBuffer();
+      webGpuResourceRepository.createUniformMorphWeightsBuffer();
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();

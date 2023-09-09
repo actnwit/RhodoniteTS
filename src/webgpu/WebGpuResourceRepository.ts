@@ -74,7 +74,8 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
   private __systemDepthTexture?: GPUTexture;
-  private __uniformMorphBuffer?: GPUBuffer;
+  private __uniformMorphOffsetsBuffer?: GPUBuffer;
+  private __uniformMorphWeightsBuffer?: GPUBuffer;
   private __renderPassEncoder?: GPURenderPassEncoder;
 
   private constructor() {
@@ -639,6 +640,7 @@ export class WebGpuResourceRepository
 
     const mode = primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
+    const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid);
     const pipeline = gpuDevice.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
@@ -646,6 +648,8 @@ export class WebGpuResourceRepository
         entryPoint: 'main',
         constants: {
           _materialSID: material.materialSID,
+          _currentPrimitiveIdx: primitiveIdxHasMorph ?? 0,
+          _morphTargetNumber: primitive.targets.length,
         },
         buffers: gpuVertexBufferLayouts,
       },
@@ -770,28 +774,56 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
-  createUniformMorphBuffer() {
+  createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const inputArray = new Uint32Array(Config.maxVertexMorphNumberInShader * 4);
+    const inputArray = new Float32Array(
+      Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+    );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
       usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
     });
     gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
 
-    this.__uniformMorphBuffer = uniformBuffer;
+    this.__uniformMorphOffsetsBuffer = uniformBuffer;
 
     const uniformBufferHandle = this.__registerResource(uniformBuffer);
 
     return uniformBufferHandle;
   }
 
-  updateUniformMorphBuffer(inputArray: Uint32Array) {
+  updateUniformMorphOffsetsBuffer(inputArray: Float32Array) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    if (this.__uniformMorphBuffer == null) {
+    if (this.__uniformMorphOffsetsBuffer == null) {
       throw new Error('Not found uniform morph buffer.');
     }
-    gpuDevice.queue.writeBuffer(this.__uniformMorphBuffer, 0, inputArray);
+    gpuDevice.queue.writeBuffer(this.__uniformMorphOffsetsBuffer, 0, inputArray);
+  }
+
+  createUniformMorphWeightsBuffer() {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const inputArray = new Float32Array(
+      Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+    );
+    const uniformBuffer = gpuDevice.createBuffer({
+      size: inputArray.byteLength,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+    });
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
+
+    this.__uniformMorphWeightsBuffer = uniformBuffer;
+
+    const uniformBufferHandle = this.__registerResource(uniformBuffer);
+
+    return uniformBufferHandle;
+  }
+
+  updateUniformMorphWeightsBuffer(inputArray: Float32Array) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    if (this.__uniformMorphWeightsBuffer == null) {
+      throw new Error('Not found uniform morph buffer.');
+    }
+    gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray);
   }
 
   createBindGroup(renderPipelineId: string, material: Material) {
@@ -817,15 +849,30 @@ export class WebGpuResourceRepository
         });
       }
 
-      if (this.__uniformMorphBuffer != null) {
+      if (this.__uniformMorphOffsetsBuffer != null) {
         entries.push({
           binding: 1,
           resource: {
-            buffer: this.__uniformMorphBuffer,
+            buffer: this.__uniformMorphOffsetsBuffer,
           },
         });
         bindGroupLayoutEntries.push({
           binding: 1,
+          buffer: {
+            type: 'uniform',
+          },
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+        });
+      }
+      if (this.__uniformMorphWeightsBuffer != null) {
+        entries.push({
+          binding: 2,
+          resource: {
+            buffer: this.__uniformMorphWeightsBuffer,
+          },
+        });
+        bindGroupLayoutEntries.push({
+          binding: 2,
           buffer: {
             type: 'uniform',
           },

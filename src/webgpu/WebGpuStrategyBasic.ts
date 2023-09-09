@@ -39,6 +39,9 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { VectorN } from '../foundation/math/VectorN';
 import { RnXR } from '../xr/main';
 import { Config } from '../foundation/core/Config';
+import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
+import { Accessor } from '../foundation/memory/Accessor';
+import { BlendShapeComponent } from '../foundation';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -46,6 +49,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __currentComponentSIDs?: VectorN;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private __uniformMorphTypedArray?: Float32Array;
   private constructor() {}
 
   static getInstance() {
@@ -81,21 +85,21 @@ fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
   fn get_position(vertexId: u32, basePosition: vec3<f32>) -> vec3<f32> {
-    let position = basePosition;
+    var position = basePosition;
     let scalar_idx = 3u * vertexId;
-    for (let i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
+    for (var i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
 
-      let offsetPosition = uniformMorph.data[${
+      let offsetPosition = uniformMorphOffsets.data[${
         Config.maxVertexPrimitiveNumberInShader
-      }u * currentPrimitiveIdx + i].x;
-      let basePosIn4bytes =  * 4u + scalar_idx;
+      }u * _currentPrimitiveIdx + i].x;
+      let basePosIn4bytes = offsetPosition * 4u + scalar_idx;
       let addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-      let morphWeight = uniformMorph.data[${
+      let morphWeight = uniformMorphWeights.data[${
         Config.maxVertexPrimitiveNumberInShader
-      }u * currentPrimitiveIdx + i].y;
+      }u * _currentPrimitiveIdx + i].y;
       position += addPos * morphWeight;
-      if (i == morphTargetNumber-1) {
+      if (i == _morphTargetNumber-1) {
         break;
       }
     }
@@ -267,6 +271,12 @@ ${indexStr}
           primitive.positionAccessorVersion!;
       }
     }
+
+    if (this.__uniformMorphTypedArray == null) {
+      this.__uniformMorphTypedArray = new Float32Array(
+        Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+      );
+    }
   }
 
   private __setupShaderProgramForMeshComponent(meshComponent: MeshComponent) {
@@ -420,6 +430,7 @@ ${indexStr}
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      // Update
       const bufferSizeForDataTextureInByte = gpuInstanceDataBuffer!.takenSizeInByte;
       webGpuResourceRepository.updateStorageBuffer(
         this.__storageBufferUid,
@@ -427,7 +438,28 @@ ${indexStr}
         bufferSizeForDataTextureInByte
       );
     } else {
+      // Create
       this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
+    }
+  }
+
+  private updateUniformMorph(meshComponent: MeshComponent) {
+    for (let i = 0; i < Config.maxVertexPrimitiveNumberInShader; i++) {
+      const primitive = Primitive.getPrimitiveHasMorph(i);
+      if (primitive != null) {
+        for (let j = 0; j < primitive.targets.length; j++) {
+          const target = primitive.targets[j];
+          const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
+          this.__uniformMorphTypedArray![Config.maxVertexMorphNumberInShader * i * 4 + j * 4 + 0] =
+            accessor.byteOffsetInBuffer / 4 / 4;
+        }
+      }
+    }
+    const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
+    for (let i = 0; i < blendShapeComponents.length; i++) {
+      const blendShapeComponent = blendShapeComponents[i] as BlendShapeComponent;
+      const weights = blendShapeComponent!.weights;
+      // const weight = weights[j];
     }
   }
 

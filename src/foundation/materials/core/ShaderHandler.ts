@@ -306,7 +306,7 @@ export function _createProgramAsSingleOperationWebGpu(
     materialNode.vertexShaderityObject!,
     {
       getters: vertexPropertiesStr,
-      definitions: definitions,
+      definitions: '#define RN_IS_VERTEX_SHADER\n' + definitions,
       matricesGetters: vertexShaderMethodDefinitions,
       maxMorphDataNumber:
         '' + Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader,
@@ -317,7 +317,7 @@ export function _createProgramAsSingleOperationWebGpu(
     materialNode.pixelShaderityObject!,
     {
       getters: pixelPropertiesStr,
-      definitions: definitions,
+      definitions: '#define RN_IS_PIXEL_SHADER\n' + definitions,
       maxMorphDataNumber:
         '' + Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader,
     }

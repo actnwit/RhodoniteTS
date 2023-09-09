@@ -65,7 +65,9 @@ export class Primitive extends RnObject {
   public _viewDepth = 0;
   private __cachePositionAccessor?: Accessor;
 
-  private static __primitiveUidsHasMorph: PrimitiveUID[] = [];
+  private static __primitiveUidIdxHasMorph: Map<PrimitiveUID, Index> = new Map();
+  private static __idxPrimitiveUidHasMorph: Map<Index, Primitive> = new Map();
+  private static __primitiveCountHasMorph = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
@@ -73,8 +75,12 @@ export class Primitive extends RnObject {
     super();
   }
 
-  static getPrimitiveUidsHasMorph() {
-    return this.__primitiveUidsHasMorph;
+  static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID) {
+    return this.__primitiveUidIdxHasMorph.get(primitiveUid);
+  }
+
+  static getPrimitiveHasMorph(primitiveIdx: Index) {
+    return this.__idxPrimitiveUidHasMorph.get(primitiveIdx);
   }
 
   getIndexBitSize(): 'uint16' | 'uint32' {
@@ -423,12 +429,16 @@ export class Primitive extends RnObject {
   }
 
   setBlendShapeTargets(targets: Array<Attributes>) {
-    if (Primitive.__primitiveUidsHasMorph.length >= Config.maxVertexPrimitiveNumberInShader) {
+    if (Primitive.__primitiveUidIdxHasMorph.size >= Config.maxVertexPrimitiveNumberInShader) {
       console.warn(
-        'Primitive.__primitiveUidsHasMorph.length exceeds the Config.maxMorphPrimitiveNumber'
+        'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumber'
       );
     } else {
-      Primitive.__primitiveUidsHasMorph.push(this.__primitiveUid);
+      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
+      Primitive.__primitiveUidIdxHasMorph.set(
+        this.__primitiveUid,
+        Primitive.__primitiveCountHasMorph++
+      );
     }
 
     this.__targets = targets;
