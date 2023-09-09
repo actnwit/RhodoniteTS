@@ -503,12 +503,20 @@ export class WebGpuResourceRepository
   }
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const context = this.__webGpuDeviceWrapper!.context;
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
+    const pipeline = this.getOrCreateRenderPipeline(
+      renderPipelineId,
+      primitive,
+      material,
+      renderPass
+    );
+
     if (this.__commandEncoder == null) {
+      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
     if (this.__renderPassEncoder == null) {
+      const context = this.__webGpuDeviceWrapper!.context;
       const textureView = context.getCurrentTexture().createView();
       const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
@@ -525,20 +533,12 @@ export class WebGpuResourceRepository
         },
       };
       const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+      passEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
       this.__renderPassEncoder = passEncoder;
     }
     const passEncoder = this.__renderPassEncoder;
 
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
-    const pipeline = this.getOrCreateRenderPipeline(
-      renderPipelineId,
-      primitive,
-      material,
-      renderPass
-    );
-
     passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     passEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
     passEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
     const VertexHandles = primitive._vertexHandles;
