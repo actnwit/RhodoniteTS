@@ -56,17 +56,26 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
   static getVertexShaderMethodDefinitions_storageBuffer() {
     return `
+fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
+{
+  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
+    SceneGraphComponent,
+    'worldMatrix'
+  )}u + 4u * instanceId;
+  let matrix = fetchMat4(index);
 
-  fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
-  {
-    let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
-      SceneGraphComponent,
-      'worldMatrix'
-    )}u + 4u * instanceId;
-    let matrix = fetchMat4(index);
+  return matrix;
+}
 
-    return matrix;
-  }
+fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
+  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
+    SceneGraphComponent,
+    'normalMatrix'
+  )}u * 4 + 9 * instanceId;
+  let matrix = fetchMat3No16BytesAligned(index);
+
+  return matrix;
+}
 `;
   }
 

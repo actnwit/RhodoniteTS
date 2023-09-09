@@ -83,3 +83,51 @@ fn fetchMat4x3(vec4_idx: u32) -> mat4x3<f32> {
 
   return val;
 }
+
+
+fn fetchMat3No16BytesAligned(scalar_idx: u32) -> mat3x3<f32> {
+  let posIn4bytes = scalar_idx % 4u;
+
+  let basePosIn16bytes = (scalar_idx - posIn4bytes) / 4u;
+  if (posIn4bytes == 0u) {
+    let col0 = fetchElement(basePosIn16bytes);
+    let col1 = fetchElement(basePosIn16bytes + 1u);
+    let col2 = fetchElement(basePosIn16bytes + 2u);
+    let val = mat3x3<f32>(
+      col0.x, col0.y, col0.z,
+      col0.w, col1.x, col1.y,
+      col1.z, col1.w, col2.x
+      );
+    return val;
+  } else if (posIn4bytes == 1u) {
+    let col0 = fetchElement(basePosIn16bytes);
+    let col1 = fetchElement(basePosIn16bytes + 1u);
+    let col2 = fetchElement(basePosIn16bytes + 2u);
+    let val = mat3x3<f32>(
+      col0.y, col0.z, col0.w,
+      col1.x, col1.y, col1.z,
+      col1.w, col2.x, col2.y
+      );
+    return val;
+  } else if (posIn4bytes == 2u) {
+    let col0 = fetchElement(basePosIn16bytes);
+    let col1 = fetchElement(basePosIn16bytes + 1u);
+    let col2 = fetchElement(basePosIn16bytes + 2u);
+    let val = mat3x3<f32>(
+      col0.z, col0.w, col1.x,
+      col1.y, col1.z, col1.w,
+      col2.x, col2.y, col2.z
+      );
+    return val;
+  } else { // posIn4bytes == 3u
+    let col0 = fetchElement(basePosIn16bytes);
+    let col1 = fetchElement(basePosIn16bytes + 1u);
+    let col2 = fetchElement(basePosIn16bytes + 2u);
+    let val = mat3x3<f32>(
+      col0.w, col1.x, col1.y,
+      col1.z, col1.w, col2.x,
+      col2.y, col2.z, col2.w
+      );
+    return val;
+  }
+}
