@@ -345,7 +345,7 @@ export class Material extends RnObject {
    * @internal
    * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
-  _setParametersToGpu({
+  _setParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,
@@ -357,11 +357,11 @@ export class Material extends RnObject {
     args: RenderingArg;
   }) {
     // For Auto Parameters
-    this.__setAutoParametersToGpu(args, firstTime, shaderProgram);
+    this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    if (Is.exist(this._materialContent._setCustomSettingParametersToGpu)) {
-      this._materialContent._setCustomSettingParametersToGpu({
+    if (Is.exist(this._materialContent._setCustomSettingParametersToGpuWebGL)) {
+      this._materialContent._setCustomSettingParametersToGpuWebGL({
         material,
         shaderProgram,
         firstTime,
@@ -370,7 +370,7 @@ export class Material extends RnObject {
     }
 
     // For SoloDatum Parameters
-    this.__setSoloDatumParametersToGpu({
+    this.__setSoloDatumParametersToGpuWebGL({
       shaderProgram,
       firstTime,
       args,
@@ -421,7 +421,7 @@ export class Material extends RnObject {
     return { vertexPropertiesStr, pixelPropertiesStr };
   }
 
-  private __setAutoParametersToGpu(
+  private __setAutoParametersToGpuWebGL(
     args: RenderingArg,
     firstTime: boolean,
     shaderProgram: WebGLProgram
@@ -470,7 +470,7 @@ export class Material extends RnObject {
     }
   }
 
-  private __setSoloDatumParametersToGpu({
+  private __setSoloDatumParametersToGpuWebGL({
     shaderProgram,
     firstTime,
     args,

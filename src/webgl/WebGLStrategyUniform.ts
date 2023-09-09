@@ -508,7 +508,7 @@ bool get_isBillboard(float instanceId) {
       }
 
       WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-      material._setParametersToGpu({
+      material._setParametersToGpuWebGL({
         material,
         shaderProgram,
         firstTime,

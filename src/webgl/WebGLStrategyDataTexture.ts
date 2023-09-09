@@ -845,7 +845,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
-    material._setParametersToGpu({
+    material._setParametersToGpuWebGL({
       material: material,
       shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
       firstTime: firstTime,
