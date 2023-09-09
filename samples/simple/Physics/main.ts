@@ -76,8 +76,14 @@ function createSpheres(numberToCreate: number) {
 }
 
 const entities = [];
-Array.prototype.push.apply(entities, createCubes(400));
-Array.prototype.push.apply(entities, createSpheres(100));
+Array.prototype.push.apply(entities, createCubes(2000));
+Array.prototype.push.apply(entities, createSpheres(1000));
+Array.prototype.push.apply(entities, [ground]);
+
+const expression = new Rn.Expression();
+const renderPass = new Rn.RenderPass();
+expression.addRenderPasses([renderPass]);
+renderPass.addEntities(entities);
 
 const lightEntity = Rn.EntityHelper.createLightEntity();
 
@@ -109,7 +115,6 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.processAuto();
 
   for (const entity of entities) {
     if (entity.position.y < -40) {
@@ -120,6 +125,7 @@ Rn.System.startRenderLoop(() => {
       ]);
     }
   }
+  Rn.System.process([expression]);
 
   count++;
 });
