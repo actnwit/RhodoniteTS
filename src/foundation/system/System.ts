@@ -1,10 +1,6 @@
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ComponentRepository } from '../core/ComponentRepository';
-import {
-  ProcessApproachEnum,
-  ProcessApproach,
-  ProcessApproachClass,
-} from '../definitions/ProcessApproach';
+import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
 import { ModuleManager } from './ModuleManager';
 import {
   CGAPIResourceRepository,
@@ -413,6 +409,7 @@ export class System {
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
+      webGpuResourceRepository.createUniformMorphBuffer();
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();

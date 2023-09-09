@@ -1,7 +1,11 @@
 struct StorageData {
   data: array<vec4<f32>>,
 }
-@binding(0) @group(0) var<storage> storageData : StorageData;
+@group(0) @binding(0) var<storage> storageData: StorageData;
+struct UniformMorph {
+  data: array<vec4<u32>, /* shaderity: @{maxVertexMorphNumber} */>,
+}
+@group(0) @binding(1) var<uniform> uniformMorph: UniformMorph;
 
 override _materialSID: u32;
 

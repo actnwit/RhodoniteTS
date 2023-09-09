@@ -14,7 +14,6 @@ import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { Primitive } from '../../geometry/Primitive';
-import { Mesh } from '../../geometry/Mesh';
 
 export class ShaderHandler {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -309,6 +308,7 @@ export function _createProgramAsSingleOperationWebGpu(
       getters: vertexPropertiesStr,
       definitions: definitions,
       matricesGetters: vertexShaderMethodDefinitions,
+      maxVertexMorphNumber: '' + Config.maxVertexMorphNumberInShader,
     }
   );
 
@@ -317,6 +317,7 @@ export function _createProgramAsSingleOperationWebGpu(
     {
       getters: pixelPropertiesStr,
       definitions: definitions,
+      maxVertexMorphNumber: '' + Config.maxVertexMorphNumberInShader,
     }
   );
 

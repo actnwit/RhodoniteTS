@@ -32,6 +32,7 @@ import {
 import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
+import { Config } from '../foundation/core/Config';
 
 export type WebGpuResource =
   | GPUTexture
@@ -73,6 +74,7 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
   private __systemDepthTexture?: GPUTexture;
+  private __uniformMorphBuffer?: GPUBuffer;
 
   private constructor() {
     super();
@@ -761,10 +763,34 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
+  createUniformMorphBuffer() {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const inputArray = new Uint32Array(Config.maxVertexMorphNumberInShader * 4);
+    const uniformBuffer = gpuDevice.createBuffer({
+      size: inputArray.byteLength,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+    });
+    gpuDevice.queue.writeBuffer(uniformBuffer, 0, inputArray);
+
+    this.__uniformMorphBuffer = uniformBuffer;
+
+    const uniformBufferHandle = this.__registerResource(uniformBuffer);
+
+    return uniformBufferHandle;
+  }
+
+  updateUniformMorphBuffer(inputArray: Uint32Array) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    if (this.__uniformMorphBuffer == null) {
+      throw new Error('Not found uniform morph buffer.');
+    }
+    gpuDevice.queue.writeBuffer(this.__uniformMorphBuffer, 0, inputArray);
+  }
+
   createBindGroup(renderPipelineId: string, material: Material) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
-    // Group 0 (Storage Buffer)
+    // Group 0 (Storage Buffer, UniformMorph Buffer)
     {
       const entries: GPUBindGroupEntry[] = [];
       const bindGroupLayoutEntries: GPUBindGroupLayoutEntry[] = [];
@@ -779,6 +805,22 @@ export class WebGpuResourceRepository
           binding: 0,
           buffer: {
             type: 'read-only-storage',
+          },
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+        });
+      }
+
+      if (this.__uniformMorphBuffer != null) {
+        entries.push({
+          binding: 1,
+          resource: {
+            buffer: this.__uniformMorphBuffer,
+          },
+        });
+        bindGroupLayoutEntries.push({
+          binding: 1,
+          buffer: {
+            type: 'uniform',
           },
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
