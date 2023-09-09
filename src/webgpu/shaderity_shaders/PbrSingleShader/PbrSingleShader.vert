@@ -6,6 +6,7 @@
 /* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
+#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
 @vertex
 fn main(
