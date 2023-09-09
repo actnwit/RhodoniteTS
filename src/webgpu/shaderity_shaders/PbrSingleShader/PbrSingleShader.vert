@@ -34,7 +34,9 @@ fn main(
 #ifdef RN_USE_WEIGHTS_0
   @location(7) weights_0: vec4<f32>,
 #endif
-
+#ifdef RN_USE_BARY_CENTRIC_COORD
+  @location(10) baryCentricCoord: vec4<f32>,
+#endif
 
 ) -> VertexOutput {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
@@ -64,6 +66,10 @@ fn main(
 #else
   let weight = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
+#ifdef RN_USE_BARY_CENTRIC_COORD
+#else
+  let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
+#endif
 
   let geom = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
@@ -73,6 +79,7 @@ fn main(
     normalMatrix,
     position,
     normal,
+    baryCentricCoord,
     joint,
     weight
   );

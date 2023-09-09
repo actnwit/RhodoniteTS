@@ -85,11 +85,17 @@ fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
     let scalar_idx = 3u * vertexId;
     for (let i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
 
-      let basePosIn4bytes = u_dataTextureMorphOffsetPosition[i] * 4u + scalar_idx;
+      let offsetPosition = uniformMorph.data[${
+        Config.maxVertexPrimitiveNumberInShader
+      }u * currentPrimitiveIdx + i].x;
+      let basePosIn4bytes =  * 4u + scalar_idx;
       let addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
 
-      position += addPos * u_morphWeights[i];
-      if (i == u_morphTargetNumber-1) {
+      let morphWeight = uniformMorph.data[${
+        Config.maxVertexPrimitiveNumberInShader
+      }u * currentPrimitiveIdx + i].y;
+      position += addPos * morphWeight;
+      if (i == morphTargetNumber-1) {
         break;
       }
     }
@@ -395,8 +401,6 @@ ${indexStr}
       return false;
     }
 
-    this.__setCurrentComponentSIDsForEachPrimitive(material);
-
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     webGpuResourceRepository.draw(primitive, material, renderPass);
 
@@ -463,9 +467,5 @@ ${indexStr}
           -1;
       }
     }
-  }
-
-  private __setCurrentComponentSIDsForEachPrimitive(material: Material) {
-    WebGpuStrategyBasic.__currentComponentSIDs!._v[0] = material.materialSID;
   }
 }

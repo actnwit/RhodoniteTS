@@ -195,7 +195,7 @@ const BaryCentricCoord: VertexAttributeEnum = VertexAttributeClass.__createVerte
   str: 'BARY_CENTRIC_COORD',
   shaderStr: 'a_baryCentricCoord',
   attributeSlot: 10,
-  gltfComponentN: 3,
+  gltfComponentN: 4,
 });
 const Texcoord2: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
   str: 'TEXCOORD_2',

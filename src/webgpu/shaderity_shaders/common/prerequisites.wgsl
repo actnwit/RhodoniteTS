@@ -3,11 +3,13 @@ struct StorageData {
 }
 @group(0) @binding(0) var<storage> storageData: StorageData;
 struct UniformMorph {
-  data: array<vec4<u32>, /* shaderity: @{maxVertexMorphNumber} */>,
+  data: array<vec4<u32>, /* shaderity: @{maxMorphDataNumber} */ >,
 }
 @group(0) @binding(1) var<uniform> uniformMorph: UniformMorph;
 
 override _materialSID: u32;
+override _currentPrimitiveIdx = 0u;
+override _morphTargetNumber: u32 = 0u;
 
 fn fetchElement(vec4_idx: u32) -> vec4<f32>
 {

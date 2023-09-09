@@ -87,6 +87,7 @@ fn processGeometryWithMorphingAndSkinning(
   inNormalMatrix: mat3x3<f32>,
   inPosition_inLocal: vec3<f32>,
   inNormal_inLocal: vec3<f32>,
+  baryCentricCoord: vec4<f32>,
   joint: vec4<u32>,
   weight: vec4<f32>,
 ) -> GeometoryOutput {
@@ -99,7 +100,7 @@ fn processGeometryWithMorphingAndSkinning(
     position_inLocal = inPosition_inLocal;
 #ifdef RN_IS_MORPHING
   } else {
-    float vertexIdx = a_baryCentricCoord.w;
+    let vertexIdx = u32(baryCentricCoord.w);
     position_inLocal = get_position(vertexIdx, inPosition_inLocal);
   }
 #endif

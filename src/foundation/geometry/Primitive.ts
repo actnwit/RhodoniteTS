@@ -29,6 +29,7 @@ import {
 import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
 import { IOption, None, Some, Option } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
+import { Config } from '../core/Config';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -64,10 +65,16 @@ export class Primitive extends RnObject {
   public _viewDepth = 0;
   private __cachePositionAccessor?: Accessor;
 
+  private static __primitiveUidsHasMorph: PrimitiveUID[] = [];
+
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
 
   constructor() {
     super();
+  }
+
+  static getPrimitiveUidsHasMorph() {
+    return this.__primitiveUidsHasMorph;
   }
 
   getIndexBitSize(): 'uint16' | 'uint32' {
@@ -416,6 +423,14 @@ export class Primitive extends RnObject {
   }
 
   setBlendShapeTargets(targets: Array<Attributes>) {
+    if (Primitive.__primitiveUidsHasMorph.length >= Config.maxVertexPrimitiveNumberInShader) {
+      console.warn(
+        'Primitive.__primitiveUidsHasMorph.length exceeds the Config.maxMorphPrimitiveNumber'
+      );
+    } else {
+      Primitive.__primitiveUidsHasMorph.push(this.__primitiveUid);
+    }
+
     this.__targets = targets;
   }
 
