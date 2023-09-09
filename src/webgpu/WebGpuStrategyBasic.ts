@@ -57,12 +57,12 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   static getVertexShaderMethodDefinitions_storageBuffer() {
     return `
 
-  fn get_worldMatrix(instanceId: i32) -> mat4x4<f32>
+  fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
   {
-    let index: i32 = ${Component.getLocationOffsetOfMemberOfComponent(
+    let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
       SceneGraphComponent,
       'worldMatrix'
-    )} + 4 * instanceId;
+    )}u + 4u * instanceId;
     let matrix = fetchMat4(index);
 
     return matrix;
@@ -99,18 +99,18 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
     let indexStr;
     const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
-    indexStr = `  let vec4_idx: i32 = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
+    indexStr = `  let vec4_idx: u32 = ${offsetOfProperty}u + ${instanceSize}u * instanceId;\n`;
     if (CompositionType.isArray(info.compositionType)) {
       const instanceSizeInScalar = scalarSizeOfProperty * (info.arrayLength ?? 1);
-      indexStr = `  let vec4_idx: i32 = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
-      indexStr += `  let scalar_idx: i32 = ${
+      indexStr = `  let vec4_idx: u32 = ${offsetOfProperty}u + ${instanceSize} * instanceId + ${vec4SizeOfProperty}u * idxOfArray;\n`;
+      indexStr += `  let scalar_idx: u32 = ${
         // IndexOf4Bytes
         offsetOfProperty * 4 // IndexOf16bytes to IndexOf4Bytes
-      } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty} * idxOfArray;\n`;
+      } + ${instanceSizeInScalar} * instanceId + ${scalarSizeOfProperty}u * idxOfArray;\n`;
     }
 
     const firstPartOfInnerFunc = `
-fn get_${methodName}(instanceId: i32, idxOfArray: i32) -> ${returnType} {
+fn get_${methodName}(instanceId: u32, idxOfArray: u32) -> ${returnType} {
 ${indexStr}
 `;
 
