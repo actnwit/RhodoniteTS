@@ -72,10 +72,10 @@ export class ShaderityUtilityWebGPU {
       const matchUniformDeclaration = row.match(reg);
 
       const tex =
-        /^[\t ]*@group\(1\) @binding\((\d)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*([\w><]+);[\t ]*\/\/*[\t ]*(.*)/;
+        /^[\t ]*@group\(1\) @binding\((\d+)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*([\w><]+);[\t ]*\/\/*[\t ]*(.*)/;
       const matchTextureDeclaration = row.match(tex);
       const sampler =
-        /^[\t ]*@group\(2\) @binding\((\d)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*sampler;/;
+        /^[\t ]*@group\(2\) @binding\((\d+)\)[ \t]*var[ \t]*(\w+)[ \t]*:[ \t]*sampler;/;
       const matchSamplerDeclaration = row.match(sampler);
 
       if (matchUniformDeclaration) {
