@@ -5,6 +5,7 @@
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
+#pragma shaderity: require(../common/getSkinMatrix.wgsl)
 
 @vertex
 fn main(

@@ -171,17 +171,33 @@ export class WebGpuResourceRepository
     isPremultipliedAlpha?: boolean;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const sampler = gpuDevice.createSampler({
+    const maxAnisotropy = anisotropy ? 4 : 1;
+
+    const desc = {
       magFilter: magFilter.webgpu as GPUFilterMode,
       minFilter: minFilter.webgpu as GPUFilterMode,
-      mipmapFilter: 'linear',
+      mipmapFilter:
+        minFilter === TextureParameter.LinearMipmapLinear ||
+        minFilter === TextureParameter.NearestMipmapLinear
+          ? 'linear'
+          : 'nearest',
       addressModeU: wrapS.webgpu as GPUAddressMode,
       addressModeV: wrapT.webgpu as GPUAddressMode,
       addressModeW: wrapR.webgpu as GPUAddressMode,
       lodMinClamp: 0,
       lodMaxClamp: 0,
-      maxAnisotropy: anisotropy ? 4 : 1,
-    });
+      maxAnisotropy,
+    } as GPUSamplerDescriptor;
+
+    if (
+      desc.magFilter === 'nearest' ||
+      desc.minFilter === 'nearest' ||
+      desc.mipmapFilter === 'nearest'
+    ) {
+      desc.maxAnisotropy = 1;
+    }
+
+    const sampler = gpuDevice.createSampler(desc);
 
     const samplerHandle = this.__registerResource(sampler);
 

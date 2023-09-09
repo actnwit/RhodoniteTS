@@ -288,17 +288,26 @@ export function _createProgramAsSingleOperationWebGpu(
     }
   }
 
-  // if (
-  //   (primitive.mesh as Mesh)._variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid
-  // ) {
   vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
-  // }
+
+  let definitions = materialNode.getDefinitions(material);
+  definitions += vertexAttributeDefines;
+
+  if (Config.boneDataType === BoneDataType.Mat43x1) {
+    definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
+  } else if (Config.boneDataType === BoneDataType.Vec4x2) {
+    definitions += '#define RN_BONE_DATA_TYPE_VEC4X2\n';
+  } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
+    definitions += '#define RN_BONE_DATA_TYPE_VEC4X2_OLD\n';
+  } else if (Config.boneDataType === BoneDataType.Vec4x1) {
+    definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
+  }
 
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
       getters: vertexPropertiesStr,
-      definitions: vertexAttributeDefines,
+      definitions: definitions,
       matricesGetters: vertexShaderMethodDefinitions,
     }
   );
@@ -307,7 +316,7 @@ export function _createProgramAsSingleOperationWebGpu(
     materialNode.pixelShaderityObject!,
     {
       getters: pixelPropertiesStr,
-      definitions: vertexAttributeDefines,
+      definitions: definitions,
     }
   );
 
