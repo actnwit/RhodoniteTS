@@ -81,6 +81,7 @@ fn skinning(
 
 fn processGeometryWithMorphingAndSkinning(
   skeletalComponentSID: u32,
+  blendShapeComponentSID: u32,
   worldMatrix: mat4x4<f32>,
   viewMatrix: mat4x4<f32>,
   isBillboard: bool,
@@ -101,7 +102,7 @@ fn processGeometryWithMorphingAndSkinning(
 #ifdef RN_IS_MORPHING
   } else {
     let vertexIdx = u32(baryCentricCoord.w);
-    position_inLocal = get_position(vertexIdx, inPosition_inLocal);
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal, blendShapeComponentSID);
   }
 #endif
 

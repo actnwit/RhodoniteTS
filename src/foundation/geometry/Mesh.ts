@@ -186,6 +186,12 @@ export class Mesh implements IMesh {
       } else {
         entityInfo[4 * i + 1] = -1;
       }
+      const blendShape = this.__belongToEntities[i].tryToGetBlendShape();
+      if (blendShape != null) {
+        entityInfo[4 * i + 2] = blendShape.componentSID;
+      } else {
+        entityInfo[4 * i + 2] = -1;
+      }
     }
     this.__variationVBOUid = cgApiResourceRepository.createVertexBufferFromTypedArray(entityInfo);
 

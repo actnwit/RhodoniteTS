@@ -2,14 +2,18 @@ struct StorageData {
   data: array<vec4<f32>>,
 }
 @group(0) @binding(0) var<storage> storageData: StorageData;
+struct BlendShapeData {
+  data: array<vec4<f32>>,
+}
+@group(0) @binding(1) var<storage> blendShapeData: BlendShapeData;
 struct UniformMorphOffsets {
   data: array<vec4<u32>, /* shaderity: @{maxMorphDataNumber} */ >,
 }
-@group(0) @binding(1) var<uniform> uniformMorphOffsets: UniformMorphOffsets;
+@group(0) @binding(2) var<uniform> uniformMorphOffsets: UniformMorphOffsets;
 struct UniformMorphWeights {
   data: array<vec4<f32>, /* shaderity: @{maxMorphDataNumber} */ >,
 }
-@group(0) @binding(2) var<uniform> uniformMorphWeights: UniformMorphWeights;
+@group(0) @binding(3) var<uniform> uniformMorphWeights: UniformMorphWeights;
 
 override _materialSID: u32;
 override _currentPrimitiveIdx = 0u;
@@ -18,6 +22,11 @@ override _morphTargetNumber: u32 = 0u;
 fn fetchElement(vec4_idx: u32) -> vec4<f32>
 {
   return storageData.data[vec4_idx];
+}
+
+fn fetchElementFromBlendShapeBuffer(vec4_idx: u32) -> vec4<f32>
+{
+  return blendShapeData.data[vec4_idx];
 }
 
 fn fetchVec3No16BytesAligned(scalar_idx: u32) -> vec3<f32> {
@@ -37,6 +46,27 @@ fn fetchVec3No16BytesAligned(scalar_idx: u32) -> vec3<f32> {
   } else { // posIn4bytes == 3
     let val0 = fetchElement(basePosIn16bytes);
     let val1 = fetchElement(basePosIn16bytes+1u);
+    return vec3<f32>(val0.w, val1.xy);
+  }
+}
+
+fn fetchVec3No16BytesAlignedFromBlendShapeBuffer(scalar_idx: u32) -> vec3<f32> {
+  let posIn4bytes = scalar_idx % 4u;
+
+  let basePosIn16bytes = (scalar_idx - posIn4bytes) / 4u;
+  if (posIn4bytes == 0u) {
+    let val = fetchElementFromBlendShapeBuffer(basePosIn16bytes);
+    return val.xyz;
+  } else if (posIn4bytes == 1u) {
+    let val0 = fetchElementFromBlendShapeBuffer(basePosIn16bytes);
+    return vec3<f32>(val0.yzw);
+  } else if (posIn4bytes == 2u) {
+    let val0 = fetchElementFromBlendShapeBuffer(basePosIn16bytes);
+    let val1 = fetchElementFromBlendShapeBuffer(basePosIn16bytes+1u);
+    return vec3<f32>(val0.zw, val1.x);
+  } else { // posIn4bytes == 3
+    let val0 = fetchElementFromBlendShapeBuffer(basePosIn16bytes);
+    let val1 = fetchElementFromBlendShapeBuffer(basePosIn16bytes+1u);
     return vec3<f32>(val0.w, val1.xy);
   }
 }

@@ -66,6 +66,7 @@ export class WebGpuResourceRepository
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
   private __storageBuffer?: GPUBuffer;
+  private __storageBlendShapeBuffer?: GPUBuffer;
   private __bindGroupStorageBuffer?: GPUBindGroup;
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
   private __bindGroupTextureMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
@@ -774,6 +775,31 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
   }
 
+  createStorageBlendShapeBuffer(inputArray: Float32Array) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = gpuDevice.createBuffer({
+      size: inputArray.byteLength,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+    });
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray);
+
+    this.__storageBlendShapeBuffer = storageBuffer;
+
+    const storageBufferHandle = this.__registerResource(storageBuffer);
+
+    return storageBufferHandle;
+  }
+
+  updateStorageBlendShapeBuffer(
+    storageBufferHandle: WebGPUResourceHandle,
+    inputArray: Float32Array,
+    updateByteLength: Byte
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
+  }
+
   createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Float32Array(
@@ -848,16 +874,31 @@ export class WebGpuResourceRepository
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
       }
+      if (this.__storageBlendShapeBuffer != null) {
+        entries.push({
+          binding: 1,
+          resource: {
+            buffer: this.__storageBlendShapeBuffer,
+          },
+        });
+        bindGroupLayoutEntries.push({
+          binding: 1,
+          buffer: {
+            type: 'read-only-storage',
+          },
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+        });
+      }
 
       if (this.__uniformMorphOffsetsBuffer != null) {
         entries.push({
-          binding: 1,
+          binding: 2,
           resource: {
             buffer: this.__uniformMorphOffsetsBuffer,
           },
         });
         bindGroupLayoutEntries.push({
-          binding: 1,
+          binding: 2,
           buffer: {
             type: 'uniform',
           },
@@ -866,13 +907,13 @@ export class WebGpuResourceRepository
       }
       if (this.__uniformMorphWeightsBuffer != null) {
         entries.push({
-          binding: 2,
+          binding: 3,
           resource: {
             buffer: this.__uniformMorphWeightsBuffer,
           },
         });
         bindGroupLayoutEntries.push({
-          binding: 2,
+          binding: 3,
           buffer: {
             type: 'uniform',
           },

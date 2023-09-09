@@ -71,8 +71,10 @@ fn main(
   let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
 
+  let blendShapeComponentSID = u32(instance_ids.z);
   let geom = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
+    blendShapeComponentSID,
     worldMatrix,
     viewMatrix,
     false,
