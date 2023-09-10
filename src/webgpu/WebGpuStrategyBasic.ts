@@ -51,7 +51,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __storageBlendShapeBufferUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __uniformMorphOffsetsTypedArray?: Float32Array;
+  private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
   private constructor() {}
 
@@ -276,7 +276,7 @@ ${indexStr}
     }
 
     if (this.__uniformMorphOffsetsTypedArray == null) {
-      this.__uniformMorphOffsetsTypedArray = new Float32Array(
+      this.__uniformMorphOffsetsTypedArray = new Uint32Array(
         Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
       );
     }
@@ -472,10 +472,10 @@ ${indexStr}
     //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     const float32Array = new Float32Array(blendShapeDataBuffer!.getArrayBuffer());
     // if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-    //   // Update
+    //   //   // Update
     //   const bufferSizeForDataTextureInByte = blendShapeDataBuffer!.takenSizeInByte;
     //   webGpuResourceRepository.updateStorageBuffer(
-    //     this.__storageBufferUid,
+    //     this.__storageBlendShapeBufferUid,
     //     float32Array,
     //     bufferSizeForDataTextureInByte
     //   );
@@ -486,10 +486,6 @@ ${indexStr}
         webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
     // }
-  }
-
-  private __updateUniformMorph() {
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
 
     for (let i = 0; i < Config.maxVertexPrimitiveNumberInShader; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
@@ -504,6 +500,18 @@ ${indexStr}
       }
     }
     webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.__uniformMorphOffsetsTypedArray!);
+  }
+
+  private __updateUniformMorph() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+    const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(
+      BufferUse.GPUVertexData
+    );
+    if (blendShapeDataBuffer == null) {
+      return;
+    }
+
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
 
     const blendShapeComponents = ComponentRepository.getComponentsWithType(BlendShapeComponent);
     for (let i = 0; i < blendShapeComponents.length; i++) {

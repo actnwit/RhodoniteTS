@@ -802,7 +802,7 @@ export class WebGpuResourceRepository
 
   createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const inputArray = new Float32Array(
+    const inputArray = new Uint32Array(
       Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
@@ -818,7 +818,7 @@ export class WebGpuResourceRepository
     return uniformBufferHandle;
   }
 
-  updateUniformMorphOffsetsBuffer(inputArray: Float32Array) {
+  updateUniformMorphOffsetsBuffer(inputArray: Uint32Array) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     if (this.__uniformMorphOffsetsBuffer == null) {
       throw new Error('Not found uniform morph buffer.');
