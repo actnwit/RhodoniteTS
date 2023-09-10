@@ -92,15 +92,18 @@ fn get_normalMatrix(instanceId: u32) -> mat3x3<f32> {
     let scalar_idx = 3u * vertexId;
     for (var i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
 
-      let offsetPosition = uniformMorphOffsets.data[${
+      let offsets = uniformMorphOffsets.data[${
         Config.maxVertexMorphNumberInShader
-      }u * _currentPrimitiveIdx + i].x;
+      }u * _currentPrimitiveIdx + i / 4u];
+      let offsetPosition = offsets[i % 4u];
+
       let basePosIn4bytes = offsetPosition * 4u + scalar_idx;
       let addPos = fetchVec3No16BytesAlignedFromBlendShapeBuffer(basePosIn4bytes);
 
-      let morphWeight = uniformMorphWeights.data[${
+      let morphWeights = uniformMorphWeights.data[${
         Config.maxVertexMorphNumberInShader
-      }u * blendShapeComponentSID + i].x;
+      }u * blendShapeComponentSID + i / 4u];
+      let morphWeight = morphWeights[i % 4u];
       position += addPos * morphWeight;
       if (i == _morphTargetNumber-1) {
         break;
@@ -277,13 +280,17 @@ ${indexStr}
 
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
-        Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+        Math.ceil(
+          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        ) * 4
       );
     }
 
     if (this.__uniformMorphWeightsTypedArray == null) {
       this.__uniformMorphWeightsTypedArray = new Float32Array(
-        Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+        Math.ceil(
+          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        ) * 4
       );
     }
 
@@ -494,7 +501,7 @@ ${indexStr}
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
           this.__uniformMorphOffsetsTypedArray![
-            Config.maxVertexMorphNumberInShader * i * 4 + j * 4 + 0
+            Config.maxVertexMorphNumberInShader * i * 4 + Math.floor(j / 4) * 4 + (j % 4)
           ] = accessor.byteOffsetInBuffer / 4 / 4;
         }
       }
@@ -519,7 +526,9 @@ ${indexStr}
       const weights = blendShapeComponent!.weights;
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![
-          Config.maxVertexMorphNumberInShader * blendShapeComponent.componentSID * 4 + j * 4 + 0
+          Config.maxVertexMorphNumberInShader * blendShapeComponent.componentSID * 4 +
+            Math.floor(j / 4) * 4 +
+            (j % 4)
         ] = weights[j];
       }
     }

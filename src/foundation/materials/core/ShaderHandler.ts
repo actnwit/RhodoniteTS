@@ -309,7 +309,10 @@ export function _createProgramAsSingleOperationWebGpu(
       definitions: '#define RN_IS_VERTEX_SHADER\n' + definitions,
       matricesGetters: vertexShaderMethodDefinitions,
       maxMorphDataNumber:
-        '' + Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader,
+        '' +
+        Math.ceil(
+          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        ),
     }
   );
 
@@ -319,7 +322,10 @@ export function _createProgramAsSingleOperationWebGpu(
       getters: pixelPropertiesStr,
       definitions: '#define RN_IS_PIXEL_SHADER\n' + definitions,
       maxMorphDataNumber:
-        '' + Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader,
+        '' +
+        Math.ceil(
+          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        ),
     }
   );
 

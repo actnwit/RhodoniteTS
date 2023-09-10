@@ -803,7 +803,9 @@ export class WebGpuResourceRepository
   createUniformMorphOffsetsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Uint32Array(
-      Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+      Math.ceil(
+        (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+      ) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
@@ -829,7 +831,9 @@ export class WebGpuResourceRepository
   createUniformMorphWeightsBuffer() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Float32Array(
-      Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader * 4
+      Math.ceil(
+        (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+      ) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
       size: inputArray.byteLength,
