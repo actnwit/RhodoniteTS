@@ -69,6 +69,7 @@ export class WebGpuResourceRepository
   private __storageBlendShapeBuffer?: GPUBuffer;
   private __bindGroupStorageBuffer?: GPUBindGroup;
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
+  private __RenderBundleMap: Map<RenderPipelineId, GPURenderBundle> = new Map();
   private __bindGroupTextureMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
@@ -506,17 +507,60 @@ export class WebGpuResourceRepository
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
     const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
-    const pipeline = this.getOrCreateRenderPipeline(
+
+    const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       primitive,
       material,
       renderPass
     );
 
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+
+    if (!this.__RenderBundleMap.has(renderPipelineId) || recreated) {
+      const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+      const renderBundleDescriptor: GPURenderBundleEncoderDescriptor = {
+        colorFormats: [presentationFormat],
+        depthStencilFormat: 'depth24plus',
+        sampleCount: 1,
+      };
+      const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
+
+      encoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
+      encoder.setPipeline(pipeline);
+      encoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
+      encoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
+      const VertexHandles = primitive._vertexHandles;
+      if (VertexHandles == null) {
+        return;
+      }
+
+      const mesh = primitive.mesh as Mesh;
+      const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
+      encoder.setVertexBuffer(0, variationVBO);
+      VertexHandles.vboHandles.forEach((vboHandle, i) => {
+        const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
+        encoder.setVertexBuffer(i + 1, vertexBuffer);
+      });
+
+      if (primitive.hasIndices()) {
+        const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
+        const indexBitSize = primitive.getIndexBitSize();
+        encoder.setIndexBuffer(indicesBuffer, indexBitSize);
+        const indicesAccessor = primitive.indicesAccessor!;
+        encoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
+      } else {
+        const vertexCount = primitive.attributeAccessors[0].elementCount;
+        encoder.draw(vertexCount, mesh.meshEntitiesInner.length);
+      }
+
+      this.__RenderBundleMap.set(renderPipelineId, encoder.finish());
+    }
+
     if (this.__commandEncoder == null) {
-      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
+
     if (this.__renderPassEncoder == null) {
       const context = this.__webGpuDeviceWrapper!.context;
       const textureView = context.getCurrentTexture().createView();
@@ -534,38 +578,9 @@ export class WebGpuResourceRepository
           depthStoreOp: 'store',
         },
       };
-      const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
-      passEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
-      this.__renderPassEncoder = passEncoder;
+      this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
     }
-    const passEncoder = this.__renderPassEncoder;
-
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
-    passEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
-    const VertexHandles = primitive._vertexHandles;
-    if (VertexHandles == null) {
-      return;
-    }
-
-    const mesh = primitive.mesh as Mesh;
-    const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
-    passEncoder.setVertexBuffer(0, variationVBO);
-    VertexHandles.vboHandles.forEach((vboHandle, i) => {
-      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      passEncoder.setVertexBuffer(i + 1, vertexBuffer);
-    });
-
-    if (primitive.hasIndices()) {
-      const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
-      const indexBitSize = primitive.getIndexBitSize();
-      passEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
-      const indicesAccessor = primitive.indicesAccessor!;
-      passEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
-    } else {
-      const vertexCount = primitive.attributeAccessors[0].elementCount;
-      passEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
-    }
+    this.__renderPassEncoder.executeBundles([this.__RenderBundleMap.get(renderPipelineId)!]);
   }
 
   getOrCreateRenderPipeline(
@@ -573,11 +588,11 @@ export class WebGpuResourceRepository
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass
-  ) {
+  ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
       if (materialStateVersion === material.stateVersion) {
-        return this.__webGpuRenderPipelineMap.get(renderPipelineId)!;
+        return [this.__webGpuRenderPipelineMap.get(renderPipelineId)!, false];
       } else {
         this.__webGpuRenderPipelineMap.delete(renderPipelineId);
         this.__materialStateVersionMap.delete(renderPipelineId);
@@ -681,7 +696,7 @@ export class WebGpuResourceRepository
     this.__webGpuRenderPipelineMap.set(renderPipelineId, pipeline);
     this.__materialStateVersionMap.set(renderPipelineId, material.stateVersion);
 
-    return pipeline;
+    return [pipeline, true];
   }
 
   flush() {
