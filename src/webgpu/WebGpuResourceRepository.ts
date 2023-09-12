@@ -76,6 +76,7 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
   private __systemDepthTexture?: GPUTexture;
+  private __systemDepthTextureView?: GPUTextureView;
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
   private __uniformMorphWeightsBuffer?: GPUBuffer;
   private __renderPassEncoder?: GPURenderPassEncoder;
@@ -573,7 +574,7 @@ export class WebGpuResourceRepository
           },
         ],
         depthStencilAttachment: {
-          view: this.__systemDepthTexture!.createView(),
+          view: this.__systemDepthTextureView!,
           depthLoadOp: 'load',
           depthStoreOp: 'store',
         },
@@ -1089,6 +1090,7 @@ export class WebGpuResourceRepository
       format: 'depth24plus',
       usage: GPUTextureUsage.RENDER_ATTACHMENT,
     });
+    this.__systemDepthTextureView = this.__systemDepthTexture.createView();
   }
 
   resizeCanvas(width: Size, height: Size) {
