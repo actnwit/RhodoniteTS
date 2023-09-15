@@ -141,23 +141,150 @@ export class WebGpuResourceRepository
     }
   ): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const gpuTexture = gpuDevice.createTexture({
+    const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
       format: 'rgba8unorm',
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_DST |
         GPUTextureUsage.RENDER_ATTACHMENT,
-    });
+    };
+
+    if (generateMipmap) {
+      textureDescriptor.mipLevelCount = Math.floor(Math.log2(Math.max(width, height))) + 1;
+    }
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
 
     gpuDevice.queue.copyExternalImageToTexture({ source: imageData }, { texture: gpuTexture }, [
       width,
       height,
     ]);
 
+    if (generateMipmap) {
+      this.generateMipmaps(gpuTexture, textureDescriptor, 1);
+    }
+
     const textureHandle = this.__registerResource(gpuTexture);
 
     return textureHandle;
+  }
+
+  /**
+   * create a WebGPU Texture Mipmaps
+   *
+   * @remarks
+   * Thanks to: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
+   * @param texture - a texture
+   * @param textureDescriptor - a texture descriptor
+   * @param depthOrArrayLayers - depth or array layers
+   */
+  generateMipmaps(
+    texture: GPUTexture,
+    textureDescriptor: GPUTextureDescriptor,
+    depthOrArrayLayers: number
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const mipmapShaderModule = gpuDevice.createShaderModule({
+      code: `
+      var<private> pos : array<vec2f, 4> = array<vec2f, 4>(
+        vec2f(-1, 1), vec2f(1, 1),
+        vec2f(-1, -1), vec2f(1, -1));
+
+      struct VertexOutput {
+        @builtin(position) position : vec4f,
+        @location(0) texCoord : vec2f,
+      };
+
+      @vertex
+      fn vertexMain(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
+        var output : VertexOutput;
+        output.texCoord = pos[vertexIndex] * vec2f(0.5, -0.5) + vec2f(0.5);
+        output.position = vec4f(pos[vertexIndex], 0, 1);
+        return output;
+      }
+
+      @group(0) @binding(0) var imgSampler : sampler;
+      @group(0) @binding(1) var img : texture_2d<f32>;
+
+      @fragment
+      fn fragmentMain(@location(0) texCoord : vec2f) -> @location(0) vec4f {
+        return textureSample(img, imgSampler, texCoord);
+      }
+    `,
+    });
+
+    const pipeline = gpuDevice.createRenderPipeline({
+      layout: 'auto',
+      vertex: {
+        module: mipmapShaderModule,
+        entryPoint: 'vertexMain',
+      },
+      fragment: {
+        module: mipmapShaderModule,
+        entryPoint: 'fragmentMain',
+        targets: [
+          {
+            format: textureDescriptor.format,
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-strip',
+        stripIndexFormat: 'uint32',
+      },
+    });
+
+    const sampler = gpuDevice.createSampler({ minFilter: 'linear' });
+
+    const commandEncoder = gpuDevice.createCommandEncoder({});
+    for (let j = 0; j < depthOrArrayLayers; ++j) {
+      let srcView = texture.createView({
+        baseMipLevel: 0,
+        mipLevelCount: 1,
+        baseArrayLayer: j,
+      });
+      for (let i = 1; i < textureDescriptor.mipLevelCount!; ++i) {
+        const dstView = texture.createView({
+          baseMipLevel: i,
+          mipLevelCount: 1,
+          baseArrayLayer: j,
+        });
+
+        const passEncoder = commandEncoder.beginRenderPass({
+          colorAttachments: [
+            {
+              view: dstView,
+              loadOp: 'load',
+              storeOp: 'store',
+            },
+          ],
+        });
+
+        const bindGroup = gpuDevice.createBindGroup({
+          layout: pipeline.getBindGroupLayout(0),
+          entries: [
+            {
+              binding: 0,
+              resource: sampler,
+            },
+            {
+              binding: 1,
+              resource: srcView,
+            },
+          ],
+        });
+
+        // Render
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setBindGroup(0, bindGroup);
+        passEncoder.draw(4);
+        passEncoder.end();
+
+        srcView = dstView;
+      }
+    }
+    gpuDevice.queue.submit([commandEncoder.finish()]);
   }
 
   createTextureSampler({
