@@ -1143,7 +1143,7 @@ export class WebGLResourceRepository
     const textureHandle = this.__registerResource(texture);
 
     this.__glw!.bindTexture2D(0, texture);
-    const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
+    const levels = Math.floor(Math.log2(Math.max(width, height))) + 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
 
@@ -1167,18 +1167,15 @@ export class WebGLResourceRepository
     // } else {
     //   // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     // }
-    if (MathUtil.isPowerOfTwoTexture(width, height)) {
+    // if (MathUtil.isPowerOfTwoTexture(width, height)) {
       // if (anisotropy) {
       //   if (this.__glw!.webgl2ExtTFA) {
       //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
       //   }
       // }
 
-      const isGenerateMipmap = generateMipmap && height !== 1 && width !== 1;
-      if (isGenerateMipmap) {
-        gl.generateMipmap(gl.TEXTURE_2D);
-      }
-    }
+    gl.generateMipmap(gl.TEXTURE_2D);
+
     this.__glw!.unbindTexture2D(0);
   }
 
