@@ -15,14 +15,15 @@ import { VectorN } from '../../math/VectorN';
 import { ILightEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { LightGizmo } from '../../gizmos';
+import { LightGizmo } from '../../gizmos/LightGizmo';
 import { Is } from '../../misc/Is';
+import { Scalar } from '../../math/Scalar';
 
 /**
  * The Component that represents a light.
  *
  * @remarks
- * the light looks towards the local -Z axis,
+ * the light looks towards the local -Z axis in right hand coordinate system.
  */
 export class LightComponent extends Component {
   public type = LightType.Point;
@@ -41,6 +42,7 @@ export class LightComponent extends Component {
   private static __lightDirections = new VectorN(new Float32Array(0));
   private static __lightIntensities = new VectorN(new Float32Array(0));
   private static __lightProperties = new VectorN(new Float32Array(0));
+  private static __lightNumber = Scalar.zero();
   private __lightGizmo?: LightGizmo;
 
   constructor(
@@ -109,15 +111,6 @@ export class LightComponent extends Component {
   }
 
   $load() {
-    const lightComponents = ComponentRepository.getComponentsWithType(
-      LightComponent
-    ) as LightComponent[];
-    const currentComponentSIDs = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.CurrentComponentSIDs,
-      0
-    );
-    currentComponentSIDs!._v[WellKnownComponentTIDs.LightComponentTID] = lightComponents.length;
-
     LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
       ShaderSemantics.LightPosition,
       0
@@ -134,6 +127,10 @@ export class LightComponent extends Component {
       ShaderSemantics.LightProperty,
       0
     );
+    LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue(
+      ShaderSemantics.LightNumber,
+      0
+    );
 
     this.moveStageTo(ProcessStage.Logic);
   }
@@ -142,6 +139,13 @@ export class LightComponent extends Component {
     if (Is.defined(this.__lightGizmo) && this.__lightGizmo.isSetup && this.isLightGizmoVisible) {
       this.__lightGizmo._update();
     }
+  }
+
+  static common_$logic() {
+    const lightComponents = ComponentRepository.getComponentsWithType(
+      LightComponent
+    ) as LightComponent[];
+    LightComponent.__lightNumber._v[0] = lightComponents.length;
   }
 
   $logic() {
