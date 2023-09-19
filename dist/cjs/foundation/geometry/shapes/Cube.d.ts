@@ -1,5 +1,6 @@
 import { IColorRgba } from '../../math/IColor';
 import { IVector3 } from '../../math/IVector';
+import { PhysicsProperty } from '../../physics/PhysicsProperty';
 import { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
 export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
@@ -7,6 +8,7 @@ export interface CubeDescriptor extends IAnyPrimitiveDescriptor {
     widthVector?: IVector3;
     /** color */
     color?: IColorRgba;
+    physics?: PhysicsProperty;
 }
 /**
  * The Cube Primitive class

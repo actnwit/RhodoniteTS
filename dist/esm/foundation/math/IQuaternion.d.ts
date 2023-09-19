@@ -19,6 +19,7 @@ export interface IQuaternion {
     lengthSquared(): number;
     dot(vec: IQuaternion): number;
     toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
+    toEulerAngles(): IVector3;
     clone(): IQuaternion;
     transformVector3(vec: IVector3): IVector3;
     transformVector3Inverse(vec: IVector3): IVector3;

@@ -16,6 +16,7 @@ export declare abstract class AbstractQuaternion implements IQuaternion {
     isEqual(vec: IQuaternion, delta?: number): boolean;
     isStrictEqual(vec: IQuaternion): boolean;
     toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
+    toEulerAngles(): IVector3;
     transformVector3(vec: IVector3): IVector3;
     transformVector3Inverse(vec: IVector3): IVector3;
     /**

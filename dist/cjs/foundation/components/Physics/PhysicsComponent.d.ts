@@ -4,11 +4,12 @@ import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonType
 import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 export declare class PhysicsComponent extends Component {
-    private __strategy;
+    private __strategy?;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
-    get strategy(): PhysicsStrategy;
+    setStrategy(strategy: PhysicsStrategy): void;
+    get strategy(): PhysicsStrategy | undefined;
     static common_$logic(): void;
     $logic(): void;
     /**

@@ -14,7 +14,9 @@ export declare const MeshHelper: Readonly<{
     createLine: (desc?: LineDescriptor) => import("./EntityHelper").IMeshEntity;
     createGrid: (desc?: GridDescriptor) => import("./EntityHelper").IMeshEntity;
     createCube: (desc?: CubeDescriptor) => import("./EntityHelper").IMeshEntity;
+    createCubes: (numberToCreate: number, desc?: CubeDescriptor) => import("./EntityHelper").IMeshEntity[];
     createSphere: (desc?: SphereDescriptor) => import("./EntityHelper").IMeshEntity;
+    createSpheres: (numberToCreate: number, desc?: SphereDescriptor) => import("./EntityHelper").IMeshEntity[];
     createJoint: (desc?: JointDescriptor) => import("./EntityHelper").IMeshEntity;
     createAxis: (desc?: AxisDescriptor) => import("./EntityHelper").IMeshEntity;
     createShape: typeof createShape;

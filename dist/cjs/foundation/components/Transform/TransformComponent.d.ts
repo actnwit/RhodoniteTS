@@ -14,7 +14,7 @@ export declare class TransformComponent extends Component {
     private __rest;
     private __pose;
     private __updateCountAtLastLogic;
-    private __sceneGraphComponent;
+    private __sceneGraphComponent?;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
     $create(): void;
     static get renderedPropertyCount(): null;

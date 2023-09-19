@@ -48,6 +48,7 @@ export declare const CompositionType: Readonly<{
     Texture2DShadow: CompositionTypeEnum;
     TextureCube: CompositionTypeEnum;
     Texture2DRect: CompositionTypeEnum;
+    Mat4x3Array: CompositionTypeEnum;
     from: typeof from;
     fromString: typeof fromString;
     vectorFrom: typeof vectorFrom;

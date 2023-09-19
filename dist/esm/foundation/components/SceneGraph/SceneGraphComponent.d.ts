@@ -135,11 +135,13 @@ export declare class SceneGraphComponent extends Component {
     $create(): void;
     $logic(): void;
     private __updateGizmos;
+    setPositionWithoutPhysics(vec: IVector3): void;
     set position(vec: IVector3);
     get position(): MutableVector3;
     get positionRest(): MutableVector3;
     set eulerAngles(vec: IVector3);
     get eulerAngles(): Vector3;
+    setRotationWithoutPhysics(quat: IQuaternion): void;
     set rotation(quat: IQuaternion);
     get rotation(): Quaternion;
     get rotationRest(): Quaternion;
