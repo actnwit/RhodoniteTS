@@ -18,6 +18,7 @@ struct UniformMorphWeights {
 override _materialSID: u32;
 override _currentPrimitiveIdx = 0u;
 override _morphTargetNumber: u32 = 0u;
+const M_PI: f32 = 3.141592653589793;
 
 fn fetchElement(vec4_idx: u32) -> vec4<f32>
 {

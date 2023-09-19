@@ -17,7 +17,7 @@ fn main(
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  var Normal = input.normal * 0.5 + 0.5;
+  let normal_inWorld = normalize(input.normal_inWorld);
 
   var baseColor = vec4<f32>(1, 1, 1, 1);
   var baseColorFactor = get_baseColorFactor(materialSID, 0u);
@@ -31,6 +31,20 @@ fn main(
 #ifdef RN_USE_TEXCOORD_0
   baseColor *= textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
 #endif
-  return baseColor;
 
+  var resultColor = vec3<f32>(0, 0, 0);
+  var resultAlpha = 0.0;
+
+  // Lighting
+  let lightNumber = u32(get_lightNumber(0u, 0u));
+  for (var i = 0u; i < lightNumber; i++) {
+    let light: Light = getLight(i, input.position_inWorld);
+    let NdotL = dot(normal_inWorld, light.direction);
+    if (NdotL > 0.0) {
+      resultColor += baseColor.rgb / M_PI * NdotL * light.attenuatedIntensity;
+    }
+  }
+
+  resultAlpha = baseColor.a;
+  return vec4f(resultColor * resultAlpha, resultAlpha);
 }

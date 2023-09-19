@@ -87,7 +87,8 @@ fn main(
   );
 
   output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
-  output.normal = geom.normal_inWorld;
+  output.position_inWorld = geom.position_inWorld.xyz;
+  output.normal_inWorld = geom.normal_inWorld;
 
 #ifdef RN_USE_TEXCOORD_0
   output.texcoord_0 = texcoord_0;

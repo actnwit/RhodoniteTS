@@ -40,6 +40,10 @@ declare const window: any;
     const cameraControllerComponent = cameraEntity.getCameraController();
     cameraControllerComponent.controller.setTarget(rootGroup);
 
+    // Light
+    const light = Rn.EntityHelper.createLightEntity();
+    light.getLight().type = Rn.LightType.Directional;
+
     // renderPass
     const renderPass = new Rn.RenderPass();
     renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);

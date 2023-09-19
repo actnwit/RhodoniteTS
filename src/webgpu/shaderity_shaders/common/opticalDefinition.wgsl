@@ -83,12 +83,11 @@ fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
     light.lightType = 2;
   }
 
-  let M_PI = 3.141592653589793;
   light.intensity *= M_PI; // Punctual Light
 
   // Attenuation
   light.attenuatedIntensity = light.intensity;
-  light = getLightAttenuated(light);
+  let newLight = getLightAttenuated(light);
 
-  return light;
+  return newLight;
 }
