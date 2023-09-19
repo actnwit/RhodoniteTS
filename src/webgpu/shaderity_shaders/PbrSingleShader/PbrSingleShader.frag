@@ -4,6 +4,8 @@
 
 /* shaderity: @{getters} */
 
+#pragma shaderity: require(../common/opticalDefinition.wgsl)
+
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 
 @group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
