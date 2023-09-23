@@ -49,7 +49,6 @@ fn main(
 
   var output : VertexOutput;
   let instanceId = u32(instance_ids.x);
-  let cameraSID = u32(get_currentComponentSIDs(0, /* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */));
   let worldMatrix = get_worldMatrix(instanceId);
   let normalMatrix = get_normalMatrix(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID, 0);
