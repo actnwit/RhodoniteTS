@@ -25,8 +25,11 @@ fn main(
 #ifdef RN_USE_TEXCOORD_0
   @location(3) texcoord_0: vec2<f32>,
 #endif
+#ifdef RN_USE_TEXCOORD_1
+  @location(4) texcoord_1: vec2<f32>,
+#endif
 #ifdef RN_USE_COLOR_0
-  @location(3) color_0: vec2<f32>,
+  @location(5) color_0: vec2<f32>,
 #endif
 #ifdef RN_USE_JOINTS_0
   @location(6) joints_0: vec4<u32>,
@@ -36,6 +39,9 @@ fn main(
 #endif
 #ifdef RN_USE_BARY_CENTRIC_COORD
   @location(10) baryCentricCoord: vec4<f32>,
+#endif
+#ifdef RN_USE_TEXCOORD_2
+  @location(11) texcoord_2: vec2<f32>,
 #endif
 
 ) -> VertexOutput {
@@ -92,6 +98,12 @@ fn main(
 
 #ifdef RN_USE_TEXCOORD_0
   output.texcoord_0 = texcoord_0;
+#endif
+#ifdef RN_USE_TEXCOORD_1
+  output.texcoord_1 = texcoord_1;
+#endif
+#ifdef RN_USE_TEXCOORD_2
+  output.texcoord_2 = texcoord_2;
 #endif
 
 #ifdef RN_USE_COLOR_0

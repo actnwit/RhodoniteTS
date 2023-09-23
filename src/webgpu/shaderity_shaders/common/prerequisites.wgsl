@@ -172,3 +172,30 @@ fn fetchMat3No16BytesAligned(scalar_idx: u32) -> mat3x3<f32> {
     return val;
   }
 }
+
+fn uvTransform(scale: vec2f, offset: vec2f, rotation: f32, uv: vec2f) -> vec2f {
+  let translationMat = mat3x3(1,0,0, 0,1,0, offset.x, offset.y, 1);
+  let rotationMat = mat3x3(
+      cos(rotation), -sin(rotation), 0,
+      sin(rotation), cos(rotation), 0,
+                  0,             0, 1
+  );
+  let scaleMat = mat3x3(scale.x,0,0, 0,scale.y,0, 0,0,1);
+
+  let matrix = translationMat * rotationMat * scaleMat;
+  let uvTransformed = ( matrix * vec3f(uv.xy, 1) ).xy;
+
+  return uvTransformed;
+}
+
+fn getTexcoord(texcoordIndex: u32, input: VertexOutput) -> vec2<f32> {
+  var texcoord: vec2f;
+  if(texcoordIndex == 2){
+    texcoord = input.texcoord_2;
+  } else if(texcoordIndex == 1){
+    texcoord = input.texcoord_1;
+  }else{
+    texcoord = input.texcoord_0;
+  }
+  return texcoord;
+}
