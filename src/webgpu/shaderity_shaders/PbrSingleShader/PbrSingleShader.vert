@@ -20,7 +20,7 @@ fn main(
   @location(1) normal: vec3<f32>,
 #endif
 #ifdef RN_USE_TANGENT
-  @location(2) tangent: vec3<f32>,
+  @location(2) tangent: vec4<f32>,
 #endif
 #ifdef RN_USE_TEXCOORD_0
   @location(3) texcoord_0: vec2<f32>,
@@ -108,6 +108,11 @@ fn main(
 
 #ifdef RN_USE_COLOR_0
   output.color_0 = color_0;
+#endif
+
+#ifdef RN_USE_TANGENT
+  output.tangent_inWorld = normalMatrix * tangent.xyz;
+  output.binormal_inWorld = cross(output.tangent_inWorld, output.normal_inWorld) * tangent.w;
 #endif
 
   // output.Position = vec4<f32>(position, 1.0);

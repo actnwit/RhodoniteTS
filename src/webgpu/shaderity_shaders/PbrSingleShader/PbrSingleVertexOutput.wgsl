@@ -6,4 +6,6 @@ struct VertexOutput {
   @location(3) color_0 : vec2<f32>,
   @location(4) texcoord_1 : vec2<f32>,
   @location(5) texcoord_2 : vec2<f32>,
+  @location(6) tangent_inWorld : vec3<f32>,
+  @location(7) binormal_inWorld : vec3<f32>,
 }

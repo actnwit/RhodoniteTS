@@ -5,6 +5,7 @@
 /* shaderity: @{getters} */
 
 #pragma shaderity: require(../common/opticalDefinition.wgsl)
+#pragma shaderity: require(../common/perturbedNormal.wgsl)
 
 // Color
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
@@ -22,7 +23,8 @@
 
 @fragment
 fn main(
-  input: VertexOutput
+  input: VertexOutput,
+  @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 

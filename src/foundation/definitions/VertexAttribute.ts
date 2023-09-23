@@ -147,7 +147,7 @@ const Tangent: VertexAttributeEnum = VertexAttributeClass.__createVertexAttribut
   str: 'TANGENT',
   shaderStr: 'a_tangent',
   attributeSlot: 2,
-  gltfComponentN: 3,
+  gltfComponentN: 4,
 });
 const Texcoord0: VertexAttributeEnum = VertexAttributeClass.__createVertexAttributeClass({
   str: 'TEXCOORD_0',
