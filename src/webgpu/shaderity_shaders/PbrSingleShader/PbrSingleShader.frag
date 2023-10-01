@@ -27,6 +27,15 @@
   // #param normalScale: f32; // initialValue=(1)
 #endif
 
+// #param ior: f32; // initialValue=1.5
+
+// #param metallicRoughnessFactor: vec2<f32>; // initialValue=(1,1)
+@group(1) @binding(2) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(2) var metallicRoughnessSampler: sampler;
+// #param metallicRoughnessTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param metallicRoughnessTextureRotation: f32; // initialValue=0
+// #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
+
 @fragment
 fn main(
   input: VertexOutput,
@@ -35,6 +44,7 @@ fn main(
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
   let viewPosition = get_viewPosition(cameraSID, 0);
   let viewVector = viewPosition - input.position_inWorld.xyz;
+  let viewDirection = normalize(viewVector);
 
 // BaseColor
   var baseColor = vec4<f32>(1, 1, 1, 1);
@@ -73,6 +83,42 @@ fn main(
     normal_inWorld = normalize(TBN * scaledNormal);
   #endif
 
+
+  // Metallic & Roughness
+  let metallicRoughnessFactor: vec2f = get_metallicRoughnessFactor(materialSID, 0);
+  var metallic = metallicRoughnessFactor.x;
+  let metallicRoughnessTextureTransform = get_metallicRoughnessTextureTransform(materialSID, 0);
+  let metallicRoughnessTextureRotation = get_metallicRoughnessTextureRotation(materialSID, 0);
+  let metallicRoughnessTexcoordIndex = u32(get_metallicRoughnessTexcoordIndex(materialSID, 0));
+  let metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex, input);
+  let metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, metallicRoughnessTexcoord);
+  let ormTexel = textureSample(metallicRoughnessTexture, metallicRoughnessSampler, metallicRoughnessTexUv);
+  var perceptualRoughness = ormTexel.g * metallicRoughnessFactor.y;
+  metallic = ormTexel.b * metallic;
+  metallic = clamp(metallic, 0.0, 1.0);
+  perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
+
+  // Albedo
+  let black = vec3f(0.0);
+  let albedo = mix(baseColor.rgb, black, metallic);
+
+  // NdotV
+  let NdotV = clamp(dot(normal_inWorld, viewDirection), Epsilon, 1.0);
+
+  let specular = 1.0;
+  let specularColor = vec3f(1.0, 1.0, 1.0);
+
+  // F0, F90
+  let ior = get_ior(materialSID, 0);
+  let outsideIor = 1.0;
+  let dielectricSpecularF0 = min(
+    ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
+    vec3f(1.0)
+    ) * specular;
+  let dielectricSpecularF90 = vec3f(specular);
+  let F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
+  let F90 = mix(dielectricSpecularF90, vec3f(1.0), metallic);
+
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = 0.0;
 
@@ -80,10 +126,9 @@ fn main(
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
-    let NdotL = dot(normal_inWorld, light.direction);
-    if (NdotL > 0.0) {
-      resultColor += baseColor.rgb / M_PI * NdotL * light.attenuatedIntensity;
-    }
+
+    resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
+                            NdotV, albedo, perceptualRoughness, F0, F90);
   }
 
   resultAlpha = baseColor.a;
