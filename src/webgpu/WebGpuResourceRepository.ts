@@ -850,21 +850,25 @@ export class WebGpuResourceRepository
     width: Size,
     height: Size
   ): [number, Sampler] {
-    const imageBitmaps: (ImageBitmap | HTMLCanvasElement)[] = [];
-    if (images[0].posX instanceof ImageBitmap || images[0].posX instanceof HTMLCanvasElement) {
-      imageBitmaps.push(images[0].posX as any);
-      imageBitmaps.push(images[0].negX as any);
-      imageBitmaps.push(images[0].posY as any);
-      imageBitmaps.push(images[0].negY as any);
-      imageBitmaps.push(images[0].posZ as any);
-      imageBitmaps.push(images[0].negZ as any);
+    const mipmaps: (ImageBitmap | HTMLCanvasElement)[][] = [];
+    for (let i = 0; i < mipLevelCount; i++) {
+      const imageBitmaps: (ImageBitmap | HTMLCanvasElement)[] = [];
+      if (images[0].posX instanceof ImageBitmap || images[0].posX instanceof HTMLCanvasElement) {
+        imageBitmaps.push(images[0].posX as any);
+        imageBitmaps.push(images[0].negX as any);
+        imageBitmaps.push(images[0].posY as any);
+        imageBitmaps.push(images[0].negY as any);
+        imageBitmaps.push(images[0].posZ as any);
+        imageBitmaps.push(images[0].negZ as any);
+      }
+      mipmaps.push(imageBitmaps);
     }
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const cubemapTexture = gpuDevice.createTexture({
       dimension: '2d',
       // Create a 2d array texture.
       // Assume each image has the same size.
-      size: [imageBitmaps[0].width, imageBitmaps[0].height, 6],
+      size: [width, height, 6],
       format: 'rgba8unorm',
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
@@ -872,13 +876,15 @@ export class WebGpuResourceRepository
         GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    for (let i = 0; i < imageBitmaps.length; i++) {
-      const imageBitmap = imageBitmaps[i];
-      gpuDevice.queue.copyExternalImageToTexture(
-        { source: imageBitmap },
-        { texture: cubemapTexture, origin: [0, 0, i] },
-        [imageBitmap.width, imageBitmap.height]
-      );
+    for (let j = 0; j < mipmaps.length; j++) {
+      for (let i = 0; i < mipmaps[j].length; i++) {
+        const imageBitmap = mipmaps[j][i];
+        gpuDevice.queue.copyExternalImageToTexture(
+          { source: imageBitmap },
+          { texture: cubemapTexture, origin: [0, 0, i], mipLevel: j },
+          [imageBitmap.width / (j + 1), imageBitmap.height / (j + 1)]
+        );
+      }
     }
 
     const handle = this.__registerResource(cubemapTexture);
