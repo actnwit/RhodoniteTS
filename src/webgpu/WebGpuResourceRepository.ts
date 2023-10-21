@@ -733,7 +733,7 @@ export class WebGpuResourceRepository
       }
     }
 
-    this.createBindGroup(renderPipelineId, material);
+    this.createBindGroup(renderPipelineId, material, primitive);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -1152,7 +1152,7 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray);
   }
 
-  createBindGroup(renderPipelineId: string, material: Material) {
+  createBindGroup(renderPipelineId: string, material: Material, primitive: Primitive) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
     // Group 0 (Storage Buffer, UniformMorph Buffer)
@@ -1280,6 +1280,70 @@ export class WebGpuResourceRepository
           });
         }
       });
+      const mesh = primitive.mesh as Mesh;
+      const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
+      const meshRendererComponent = entity.getMeshRenderer()!;
+      if (meshRendererComponent.diffuseCubeMap != null) {
+        const diffuseCubeTexture = this.__webGpuResources.get(
+          meshRendererComponent.diffuseCubeMap._textureResourceUid
+        ) as GPUTexture;
+        entriesForTexture.push({
+          binding: 16,
+          resource: diffuseCubeTexture.createView(),
+        });
+        bindGroupLayoutEntriesForTexture.push({
+          binding: 16,
+          texture: {
+            viewDimension: 'cube',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
+        });
+        const diffuseCubeSampler = this.__webGpuResources.get(
+          meshRendererComponent.diffuseCubeMap._samplerResourceUid
+        ) as GPUSampler;
+        entriesForSampler.push({
+          binding: 16,
+          resource: diffuseCubeSampler,
+        });
+        bindGroupLayoutEntriesForSampler.push({
+          binding: 16,
+          sampler: {
+            type: 'filtering',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
+        });
+      }
+      if (meshRendererComponent.specularCubeMap != null) {
+        const specularCubeTexture = this.__webGpuResources.get(
+          meshRendererComponent.specularCubeMap._textureResourceUid
+        ) as GPUTexture;
+        entriesForTexture.push({
+          binding: 17,
+          resource: specularCubeTexture.createView(),
+        });
+        bindGroupLayoutEntriesForTexture.push({
+          binding: 17,
+          texture: {
+            viewDimension: 'cube',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
+        });
+        const specularCubeSampler = this.__webGpuResources.get(
+          meshRendererComponent.specularCubeMap._samplerResourceUid
+        ) as GPUSampler;
+        entriesForSampler.push({
+          binding: 17,
+          resource: specularCubeSampler,
+        });
+        bindGroupLayoutEntriesForSampler.push({
+          binding: 17,
+          sampler: {
+            type: 'filtering',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
+        });
+      }
+
       // Texture
       const bindGroupLayoutDescForTexture: GPUBindGroupLayoutDescriptor = {
         entries: bindGroupLayoutEntriesForTexture,
