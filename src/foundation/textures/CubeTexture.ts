@@ -18,7 +18,7 @@ export class CubeTexture extends AbstractTexture {
 
   async loadTextureImages() {
     this.__startedToLoad = true;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const [resourceUid, sampler] = await webGLResourceRepository.createCubeTextureFromFiles(
       this.baseUriToLoad!,
       this.mipmapLevelNumber!,
@@ -32,7 +32,7 @@ export class CubeTexture extends AbstractTexture {
 
   loadTextureImagesAsync() {
     this.__startedToLoad = true;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     webGLResourceRepository
       .createCubeTextureFromFiles(
         this.baseUriToLoad!,

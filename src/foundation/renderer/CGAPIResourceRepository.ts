@@ -7,7 +7,12 @@ import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
-import { ProcessApproach, ShaderSemanticsInfo, VertexAttributeEnum } from '../definitions';
+import {
+  HdriFormatEnum,
+  ProcessApproach,
+  ShaderSemanticsInfo,
+  VertexAttributeEnum,
+} from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
@@ -186,6 +191,13 @@ export interface ICGAPIResourceRepository {
     attributeSemantics: VertexAttributeEnum[];
     onError?: (message: string) => void;
   }): CGAPIResourceHandle;
+
+  createCubeTextureFromFiles(
+    baseUri: string,
+    mipLevelCount: Count,
+    isNamePosNeg: boolean,
+    hdriFormat: HdriFormatEnum
+  ): Promise<[number, Sampler]>;
 
   /**
    * create a Cube Texture

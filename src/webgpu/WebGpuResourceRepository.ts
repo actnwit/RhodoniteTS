@@ -33,6 +33,8 @@ import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
+import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
+const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type WebGpuResource =
   | GPUTexture
@@ -835,6 +837,151 @@ export class WebGpuResourceRepository
     }
     gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
     this.__commandEncoder = undefined;
+  }
+
+  /**
+   * Create Cube Texture from image files.
+   * @param baseUri the base uri to load images;
+   * @param mipLevelCount the number of mip levels (include root level). if no mipmap, the value should be 1;
+   * @returns the WebGLResourceHandle for the generated Cube Texture
+   */
+  async createCubeTextureFromFiles(
+    baseUri: string,
+    mipLevelCount: Count,
+    isNamePosNeg: boolean,
+    hdriFormat: HdriFormatEnum
+  ) {
+    const imageArgs: Array<{
+      posX: DirectTextureData;
+      negX: DirectTextureData;
+      posY: DirectTextureData;
+      negY: DirectTextureData;
+      posZ: DirectTextureData;
+      negZ: DirectTextureData;
+    }> = [];
+    let width = 0;
+    let height = 0;
+    for (let i = 0; i < mipLevelCount; i++) {
+      const loadOneLevel = () => {
+        return new Promise<HTMLImageElement[]>((resolve, reject) => {
+          let loadedCount = 0;
+          const images: HTMLImageElement[] = [];
+          let extension = '.jpg';
+          if (hdriFormat === HdriFormat.HDR_LINEAR) {
+            extension = '.hdr';
+          } else if (hdriFormat === HdriFormat.RGBE_PNG) {
+            extension = '.RGBE.PNG';
+          }
+
+          let posX = '_right_';
+          let negX = '_left_';
+          let posY = '_top_';
+          let negY = '_bottom_';
+          let posZ = '_front_';
+          let negZ = '_back_';
+          if (isNamePosNeg) {
+            posX = '_posx_';
+            negX = '_negx_';
+            posY = '_posy_';
+            negY = '_negy_';
+            posZ = '_posz_';
+            negZ = '_negz_';
+          }
+
+          const faces = [
+            [baseUri + posX + i + extension, 'posX'],
+            [baseUri + negX + i + extension, 'negX'],
+            [baseUri + posY + i + extension, 'posY'],
+            [baseUri + negY + i + extension, 'negY'],
+            [baseUri + posZ + i + extension, 'posZ'],
+            [baseUri + negZ + i + extension, 'negZ'],
+          ];
+          for (let j = 0; j < faces.length; j++) {
+            const face = faces[j][1];
+            let image: any;
+            if (hdriFormat === HdriFormat.HDR_LINEAR || hdriFormat === HdriFormat.RGB9_E5_PNG) {
+              image = new HDRImage();
+            } else {
+              image = new Image();
+            }
+            image.hdriFormat = hdriFormat;
+
+            (image as any).side = face;
+            (image as any).uri = faces[j][0];
+            image.crossOrigin = 'Anonymous';
+            image.onload = () => {
+              loadedCount++;
+              images.push(image);
+              if (loadedCount === 6) {
+                resolve(images);
+              }
+            };
+            image.onerror = () => {
+              reject((image as any).uri);
+            };
+            image.src = faces[j][0];
+          }
+        });
+      };
+
+      let images: HTMLImageElement[];
+      try {
+        images = await loadOneLevel();
+      } catch (e) {
+        // Try again once
+        try {
+          images = await loadOneLevel();
+        } catch (uri) {
+          // Give up
+          console.error(`failed to load ${uri}`);
+        }
+      }
+      const imageObj: {
+        posX?: DirectTextureData;
+        negX?: DirectTextureData;
+        posY?: DirectTextureData;
+        negY?: DirectTextureData;
+        posZ?: DirectTextureData;
+        negZ?: DirectTextureData;
+      } = {};
+      for (const image of images!) {
+        switch ((image as any).side) {
+          case 'posX':
+            imageObj.posX = image;
+            break;
+          case 'posY':
+            imageObj.posY = image;
+            break;
+          case 'posZ':
+            imageObj.posZ = image;
+            break;
+          case 'negX':
+            imageObj.negX = image;
+            break;
+          case 'negY':
+            imageObj.negY = image;
+            break;
+          case 'negZ':
+            imageObj.negZ = image;
+            break;
+        }
+        if (i === 0) {
+          width = image.width;
+          height = image.height;
+        }
+      }
+      imageArgs.push(
+        imageObj as {
+          posX: DirectTextureData;
+          negX: DirectTextureData;
+          posY: DirectTextureData;
+          negY: DirectTextureData;
+          posZ: DirectTextureData;
+          negZ: DirectTextureData;
+        }
+      );
+    }
+    return this.createCubeTexture(mipLevelCount, imageArgs, width, height);
   }
 
   createCubeTexture(
