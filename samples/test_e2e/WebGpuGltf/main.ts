@@ -1,4 +1,4 @@
-import Rn, { EntityHelper } from '../../../dist/esmdev/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 (function () {
@@ -55,6 +55,9 @@ declare const window: any;
     const expression = new Rn.Expression();
     expression.addRenderPasses([renderPass]);
 
+    // lighting
+    setIBL('./../../../assets/ibl/papermill');
+
     let startTime = Date.now();
     const draw = function () {
       if (count > 0) {
@@ -88,3 +91,68 @@ declare const window: any;
 window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
+
+function createEnvCubeExpression(baseuri) {
+  const environmentCubeTexture = new Rn.CubeTexture();
+  environmentCubeTexture.baseUriToLoad = baseuri + '/environment/environment';
+  environmentCubeTexture.isNamePosNeg = true;
+  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
+  environmentCubeTexture.mipmapLevelNumber = 1;
+  environmentCubeTexture.loadTextureImagesAsync();
+
+  const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
+  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  sphereMaterial.setParameter(
+    Rn.EnvConstantMaterialContent.EnvHdriFormat,
+    Rn.HdriFormat.LDR_SRGB.index
+  );
+
+  const spherePrimitive = new Rn.Sphere();
+  spherePrimitive.generate({
+    radius: 50,
+    widthSegments: 40,
+    heightSegments: 40,
+    material: sphereMaterial,
+  });
+
+  const sphereMesh = new Rn.Mesh();
+  sphereMesh.addPrimitive(spherePrimitive);
+
+  const sphereEntity = Rn.EntityHelper.createMeshEntity();
+  sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+  sphereEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 20, -20]);
+
+  const sphereMeshComponent = sphereEntity.getMesh();
+  sphereMeshComponent.setMesh(sphereMesh);
+
+  const sphereRenderPass = new Rn.RenderPass();
+  sphereRenderPass.addEntities([sphereEntity]);
+
+  const sphereExpression = new Rn.Expression();
+  sphereExpression.addRenderPasses([sphereRenderPass]);
+
+  return sphereExpression;
+}
+
+function setIBL(baseUri) {
+  const specularCubeTexture = new Rn.CubeTexture();
+  specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
+  specularCubeTexture.isNamePosNeg = true;
+  specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+  specularCubeTexture.mipmapLevelNumber = 10;
+
+  const diffuseCubeTexture = new Rn.CubeTexture();
+  diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
+  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+  diffuseCubeTexture.mipmapLevelNumber = 1;
+  diffuseCubeTexture.isNamePosNeg = true;
+
+  const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+    Rn.MeshRendererComponent
+  ) as Rn.MeshRendererComponent[];
+  for (let i = 0; i < meshRendererComponents.length; i++) {
+    const meshRendererComponent = meshRendererComponents[i];
+    meshRendererComponent.specularCubeMap = specularCubeTexture;
+    meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
+  }
+}

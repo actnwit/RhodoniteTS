@@ -34,6 +34,7 @@ import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
+import { MeshRendererComponent } from '../foundation';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type WebGpuResource =
@@ -636,13 +637,17 @@ export class WebGpuResourceRepository
   }
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID}`;
+    const mesh = primitive.mesh as Mesh;
+    const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
+    const meshRendererComponent = entity.getMeshRenderer()!;
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent._updateCount}`;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       primitive,
       material,
-      renderPass
+      renderPass,
+      meshRendererComponent
     );
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -717,7 +722,8 @@ export class WebGpuResourceRepository
     renderPipelineId: string,
     primitive: Primitive,
     material: Material,
-    renderPass: RenderPass
+    renderPass: RenderPass,
+    meshRendererComponent: MeshRendererComponent
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
@@ -733,7 +739,7 @@ export class WebGpuResourceRepository
       }
     }
 
-    this.createBindGroup(renderPipelineId, material, primitive);
+    this.createBindGroup(renderPipelineId, material, primitive, meshRendererComponent);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -1152,7 +1158,12 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray);
   }
 
-  createBindGroup(renderPipelineId: string, material: Material, primitive: Primitive) {
+  createBindGroup(
+    renderPipelineId: string,
+    material: Material,
+    primitive: Primitive,
+    meshRendererComponent: MeshRendererComponent
+  ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
     // Group 0 (Storage Buffer, UniformMorph Buffer)
@@ -1280,68 +1291,73 @@ export class WebGpuResourceRepository
           });
         }
       });
-      const mesh = primitive.mesh as Mesh;
-      const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
-      const meshRendererComponent = entity.getMeshRenderer()!;
       if (meshRendererComponent.diffuseCubeMap != null) {
         const diffuseCubeTexture = this.__webGpuResources.get(
           meshRendererComponent.diffuseCubeMap._textureResourceUid
-        ) as GPUTexture;
-        entriesForTexture.push({
-          binding: 16,
-          resource: diffuseCubeTexture.createView(),
-        });
-        bindGroupLayoutEntriesForTexture.push({
-          binding: 16,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
-        });
+        ) as GPUTexture | undefined;
+        if (Is.exist(diffuseCubeTexture)) {
+          entriesForTexture.push({
+            binding: 16,
+            resource: diffuseCubeTexture.createView({ dimension: 'cube' }),
+          });
+          bindGroupLayoutEntriesForTexture.push({
+            binding: 16,
+            texture: {
+              viewDimension: 'cube',
+            },
+            visibility: GPUShaderStage.FRAGMENT,
+          });
+        }
         const diffuseCubeSampler = this.__webGpuResources.get(
           meshRendererComponent.diffuseCubeMap._samplerResourceUid
-        ) as GPUSampler;
-        entriesForSampler.push({
-          binding: 16,
-          resource: diffuseCubeSampler,
-        });
-        bindGroupLayoutEntriesForSampler.push({
-          binding: 16,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
-        });
+        ) as GPUSampler | undefined;
+        if (Is.exist(diffuseCubeSampler)) {
+          entriesForSampler.push({
+            binding: 16,
+            resource: diffuseCubeSampler,
+          });
+          bindGroupLayoutEntriesForSampler.push({
+            binding: 16,
+            sampler: {
+              type: 'filtering',
+            },
+            visibility: GPUShaderStage.FRAGMENT,
+          });
+        }
       }
       if (meshRendererComponent.specularCubeMap != null) {
         const specularCubeTexture = this.__webGpuResources.get(
           meshRendererComponent.specularCubeMap._textureResourceUid
-        ) as GPUTexture;
-        entriesForTexture.push({
-          binding: 17,
-          resource: specularCubeTexture.createView(),
-        });
-        bindGroupLayoutEntriesForTexture.push({
-          binding: 17,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
-        });
+        ) as GPUTexture | undefined;
+        if (Is.exist(specularCubeTexture)) {
+          entriesForTexture.push({
+            binding: 17,
+            resource: specularCubeTexture.createView({ dimension: 'cube' }),
+          });
+          bindGroupLayoutEntriesForTexture.push({
+            binding: 17,
+            texture: {
+              viewDimension: 'cube',
+            },
+            visibility: GPUShaderStage.FRAGMENT,
+          });
+        }
         const specularCubeSampler = this.__webGpuResources.get(
           meshRendererComponent.specularCubeMap._samplerResourceUid
-        ) as GPUSampler;
-        entriesForSampler.push({
-          binding: 17,
-          resource: specularCubeSampler,
-        });
-        bindGroupLayoutEntriesForSampler.push({
-          binding: 17,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
-        });
+        ) as GPUSampler | undefined;
+        if (Is.exist(specularCubeSampler)) {
+          entriesForSampler.push({
+            binding: 17,
+            resource: specularCubeSampler,
+          });
+          bindGroupLayoutEntriesForSampler.push({
+            binding: 17,
+            sampler: {
+              type: 'filtering',
+            },
+            visibility: GPUShaderStage.FRAGMENT,
+          });
+        }
       }
 
       // Texture

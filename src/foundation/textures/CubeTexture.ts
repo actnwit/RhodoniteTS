@@ -31,22 +31,25 @@ export class CubeTexture extends AbstractTexture {
   }
 
   loadTextureImagesAsync() {
-    this.__startedToLoad = true;
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    webGLResourceRepository
-      .createCubeTextureFromFiles(
-        this.baseUriToLoad!,
-        this.mipmapLevelNumber!,
-        this.isNamePosNeg,
-        this.hdriFormat
-      )
-      .then(([cubeTextureUid, sampler]) => {
-        this._textureResourceUid = cubeTextureUid;
-        this._recommendedTextureSampler = sampler;
-      })
-      .then(() => {
-        this.__isTextureReady = true;
-      });
+    return new Promise<void>((resolve) => {
+      this.__startedToLoad = true;
+      const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      webGLResourceRepository
+        .createCubeTextureFromFiles(
+          this.baseUriToLoad!,
+          this.mipmapLevelNumber!,
+          this.isNamePosNeg,
+          this.hdriFormat
+        )
+        .then(([cubeTextureUid, sampler]) => {
+          this._textureResourceUid = cubeTextureUid;
+          this._recommendedTextureSampler = sampler;
+        })
+        .then(() => {
+          this.__isTextureReady = true;
+          resolve();
+        });
+    });
   }
 
   loadTextureImagesFromBasis(

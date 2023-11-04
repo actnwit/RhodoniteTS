@@ -24,7 +24,6 @@ import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/type
 import { Primitive } from '../../geometry/Primitive';
 import { isSkipDrawing } from '../../renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
-import { SystemState } from '../../system';
 
 export class MeshRendererComponent extends Component {
   public diffuseCubeMap?: CubeTexture;
@@ -44,6 +43,7 @@ export class MeshRendererComponent extends Component {
   public static isDepthMaskTrueForTransparencies = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
+  public _updateCount = 0;
 
   constructor(
     entityUid: EntityUID,
@@ -90,12 +90,16 @@ export class MeshRendererComponent extends Component {
   $load() {
     MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
 
+    const promises = [];
     if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
-      this.diffuseCubeMap.loadTextureImagesAsync();
+      promises.push(this.diffuseCubeMap.loadTextureImagesAsync());
     }
     if (this.specularCubeMap && !this.specularCubeMap.startedToLoad) {
-      this.specularCubeMap.loadTextureImagesAsync();
+      promises.push(this.specularCubeMap.loadTextureImagesAsync());
     }
+    Promise.all(promises).then(() => {
+      this._updateCount++;
+    });
 
     // this.moveStageTo(ProcessStage.PreRender);
   }
