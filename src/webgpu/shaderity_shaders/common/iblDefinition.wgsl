@@ -1,3 +1,109 @@
+fn get_irradiance(normal_forEnv: vec3f, hdriFormat: ivec2<i32>) -> vec3f {
+  let diffuseTexel: vec4f = texture(u_diffuseEnvTexture, normal_forEnv);
+
+  var irradiance: vec3f;
+  if (hdriFormat.x == 0) {
+    // LDR_SRGB
+    irradiance = srgbToLinear(diffuseTexel.rgb);
+  }
+  else if (hdriFormat.x == 3) {
+    // RGBE
+    irradiance = diffuseTexel.rgb * pow(2.0, diffuseTexel.a*255.0-128.0);
+  }
+  else {
+    irradiance = diffuseTexel.rgb;
+  }
+
+  return irradiance;
+}
+
+fn get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) -> vec3f {
+  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
+    vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);
+  #elif defined(GLSL_ES3)
+    vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
+  #else
+    vec4 specularTexel = texture(u_specularEnvTexture, reflection);
+  #endif
+
+// #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
+
+  let radiance: vec3f;
+  if (hdriFormat.y == 0) {
+    // LDR_SRGB
+    radiance = srgbToLinear(specularTexel.rgb);
+  }
+  else if (hdriFormat.y == 3) {
+    // RGBE
+    radiance = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+  }
+  else {
+    radiance = specularTexel.rgb;
+  }
+
+  return radiance;
+}
+
+fn getIBLRadianceGGX(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
+  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3,
+  normal_forEnv: vec3f, reflection: vec3f) -> IblResult
+{
+  // get radiance
+  let mipCount = iblParameter.x;
+  let lod = (perceptualRoughness * (mipCount - 1.0));
+  let radiance: vec3f = get_radiance(reflection, lod, hdriFormat);
+
+  // Roughness dependent fresnel
+  let kS: vec3f = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
+  let f_ab: vec2f = envBRDFApprox(perceptualRoughness, NdotV);
+  let FssEss: vec3f = kS * f_ab.x + f_ab.y;
+  var result: IblResult;
+  result.FssEss = FssEss;
+
+  // Specular IBL
+  var specular: vec3f = FssEss * radiance;
+
+  // scale with user parameters
+  let IBLSpecularContribution = iblParameter.z;
+  specular *= IBLSpecularContribution;
+
+  result.specular = specular;
+
+  return result;
+}
+
+fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
+  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3,
+  normal_forEnv: vec3f, reflection: vec3f) -> IblResult
+{
+  // get irradiance
+  let irradiance: vec3f = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
+  // Roughness dependent fresnel
+  let kS: vec3f = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
+  let f_ab: vec2f = envBRDFApprox(perceptualRoughness, NdotV);
+  let FssEss: vec3f = kS * f_ab.x + f_ab.y;
+  var result: IblResult;
+  result.FssEss = FssEss;
+
+  // Multiple scattering, Fdez-Aguera's approach
+  let Ems = (1.0 - (f_ab.x + f_ab.y));
+  let F_avg: vec3f = F0 + (1.0 - F0) / 21.0;
+  let FmsEms: vec3f = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
+  let k_D: vec3f = albedo * (1.0 - FssEss - FmsEms);
+
+  // Diffuse IBL
+  var diffuse: vec3f = (FmsEms + k_D) * irradiance;
+
+  // scale with user parameters
+  let IBLDiffuseContribution = iblParameter.y;
+  diffuse *= IBLDiffuseContribution;
+
+  result.diffuse = diffuse;
+
+  return result;
+}
+
 fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
   albedo: vec3f, F0: vec3f, perceptualRoughness: f32) -> vec3f
 {
