@@ -15,7 +15,7 @@ fn main(
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  var Normal = input.normal * 0.5 + 0.5;
+  var Normal = input.normal_inWorld * 0.5 + 0.5;
   // return vec4<f32>(Normal.x, Normal.y, Normal.z, 1);
 
 #ifdef RN_USE_TEXCOORD_0

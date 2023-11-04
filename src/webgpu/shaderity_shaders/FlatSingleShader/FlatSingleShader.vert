@@ -27,7 +27,6 @@ fn main(
 
   var output : VertexOutput;
 
-  let cameraSID = u32(get_currentComponentSIDs(0u, /* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */u));
   let worldMatrix = get_worldMatrix(u32(instance_ids.x));
   let viewMatrix = get_viewMatrix(cameraSID, 0u);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0u);
@@ -35,7 +34,7 @@ fn main(
   output.position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
 
 #ifdef RN_USE_NORMAL
-  output.normal = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);
+  output.normal_inWorld = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);
 #endif
 
 #ifdef RN_USE_TEXCOORD_0
