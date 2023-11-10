@@ -44,12 +44,10 @@
     "NodeEditor",
     "PixelPickingTest",
     "Primitives",
-    "ShadowMapUsingColorBuffer",
     "ShadowMapUsingHardwarePCF",
     "ShadowMapDebugMode",
     "ShadowMapVariance",
     "Simple",
-    "SummedAreaTable",
     "VarianceShadowMap",
     "VRMAnimation",
     "VRMImporter"

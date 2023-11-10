@@ -79,6 +79,7 @@ Rn.System.startRenderLoop(() => {
   if (count > 70) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
+    window._rendered = true;
   } else if (count === 1) {
     p.id = 'started';
     p.innerText = 'Started.';

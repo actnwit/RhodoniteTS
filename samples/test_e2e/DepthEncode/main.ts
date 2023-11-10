@@ -1,6 +1,8 @@
 import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
+declare const window: any;
+
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -48,6 +50,7 @@ Rn.System.startRenderLoop(() => {
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
     document.body.appendChild(p);
+    window._rendered = true;
   }
 
   Rn.System.process([expression]);

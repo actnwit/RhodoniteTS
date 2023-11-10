@@ -35,3 +35,4 @@ Rn.System.process([expression]);
 
 p.id = 'rendered';
 p.innerText = 'Rendered.';
+window._rendered = true;

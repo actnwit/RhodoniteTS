@@ -53,6 +53,7 @@ Rn.System.startRenderLoop(() => {
   if (count > 100) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
+    window._rendered = true;
   }
 
   Rn.System.process(expressions);

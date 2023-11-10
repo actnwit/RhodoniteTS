@@ -4,19 +4,29 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
-    - run: git submodule update -i
-    - uses: richard-chim/actions-yarn@v2.3.1
-      with:
-        cmd: install
-    - run: npm run build
-    - uses: actions/upload-artifact@v2
-      with:
-        name: Rhodonite-distribution-files
-        path: dist
-    - run: npm run build-samples
-    - run: npm run test
+      - uses: actions/checkout@v2
+      - run: git submodule update -i
+      - uses: richard-chim/actions-yarn@v2.3.1
+        with:
+          cmd: install
+      - run: npm run build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Rhodonite-distribution-files
+          path: dist
+      - run: npm run build-samples
+      - name: Do Unit Test
+        run: npm run test-unit
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+      - name: Run Playwright tests
+        run: npm run test-e2e
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

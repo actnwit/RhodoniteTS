@@ -82,6 +82,7 @@ Rn.System.startRenderLoop(() => {
   if (count > 1) {
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
+    window._rendered = true;
   }
 
   Rn.System.process(expressions);

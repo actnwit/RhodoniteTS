@@ -55,6 +55,7 @@ Rn.System.startRenderLoop(() => {
     case 1:
       p.id = 'rendered';
       p.innerText = 'rendered.';
+      window._rendered = true;
       break;
     case mouseUpCount + 1:
       controller.horizontalSpeed = 10;

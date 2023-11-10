@@ -88,3 +88,7 @@ samples/**/types.js*
 *.tsbuildinfo
 .dccache
 .envrc
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

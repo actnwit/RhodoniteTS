@@ -303,6 +303,7 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
     pElem.setAttribute('id', 'rendered');
     pElem.innerText = 'Rendered.';
     document.body.appendChild(pElem);
+    window._rendered = true;
   }
 
   Rn.System.process(expressions);

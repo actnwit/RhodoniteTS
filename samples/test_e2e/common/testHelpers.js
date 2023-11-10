@@ -4,6 +4,7 @@ export function checkFinished({ p, count, }) {
         p.setAttribute('id', 'rendered');
         p.innerText = 'Rendered.';
         document.body.appendChild(p);
+        window._rendered = true;
     }
     return [p, count];
 }

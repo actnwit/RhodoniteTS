@@ -153,6 +153,7 @@ Rn.System.startRenderLoop(() => {
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';
     document.body.appendChild(p);
+    window._rendered = true;
   }
 
   gl.enable(gl.DEPTH_TEST);

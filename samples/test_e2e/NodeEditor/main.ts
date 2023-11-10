@@ -60,6 +60,7 @@ const pElem = document.createElement('p');
 pElem.setAttribute('id', 'rendered');
 pElem.innerText = 'Rendered.';
 document.body.appendChild(pElem);
+window._rendered = true;
 
 const rnMaterial = Rn.MaterialHelper.recreateCustomMaterial(vertexRet.shader, pixelRet.shader);
 console.log('material');

@@ -1,5 +1,7 @@
 import Rn from '../../../dist/esmdev/index.js';
 
+declare const window: any;
+
 // prepare memory
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
@@ -166,6 +168,7 @@ function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLEl
     pElem.setAttribute('id', 'rendered');
     pElem.innerText = 'Rendered.';
     document.body.appendChild(pElem);
+    window._rendered = true;
   }
 
   Rn.System.process(expressions);

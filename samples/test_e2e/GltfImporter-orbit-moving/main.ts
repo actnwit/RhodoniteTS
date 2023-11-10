@@ -83,9 +83,10 @@ let count = 0;
 
 Rn.System.startRenderLoop(() => {
   switch (count) {
-    case 1:
+    case 10:
       p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';
+      window._rendered = true;
       break;
     case 100:
       p.setAttribute('id', 'moved');

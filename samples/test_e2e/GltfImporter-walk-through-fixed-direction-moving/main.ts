@@ -89,6 +89,7 @@ Rn.System.startRenderLoop(() => {
       document.dispatchEvent(new KeyboardEvent('keyup', {} as any));
       p.id = 'moved';
       p.innerText = 'Moved.';
+      window._rendered = true;
   }
 
   Rn.System.process(expressions);

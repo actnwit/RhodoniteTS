@@ -12,6 +12,7 @@ declare global {
     setDisableFresnel: Function;
     setClearColor: Function;
     setMode: Function;
+    _rendered: boolean;
   }
 }
 
@@ -122,6 +123,7 @@ function draw(expressions: Rn.Expression[], createPElem = false) {
     pElem.setAttribute('id', 'rendered');
     pElem.innerText = 'Rendered.';
     document.body.appendChild(pElem);
+    window._rendered = true;
   }
 }
 

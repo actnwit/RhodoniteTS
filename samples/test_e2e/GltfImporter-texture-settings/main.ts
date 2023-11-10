@@ -39,6 +39,7 @@ controller.dolly = 0.78;
 
 p.id = 'rendered';
 p.innerText = 'Rendered.';
+window._rendered = true;
 
 Rn.System.startRenderLoop(() => {
   Rn.System.process([expression]);

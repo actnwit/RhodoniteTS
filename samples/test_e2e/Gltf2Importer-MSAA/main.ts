@@ -207,6 +207,7 @@ function draw(expressions: Rn.Expression[], loopCount: number, pElem?: HTMLEleme
     pElem.setAttribute('id', 'rendered');
     pElem.innerText = 'Rendered.';
     document.body.appendChild(pElem);
+    window._rendered = true;
   }
 
   Rn.System.process(expressions);
