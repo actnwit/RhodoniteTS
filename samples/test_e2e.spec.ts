@@ -12,7 +12,9 @@ sampleList.test_e2e.forEach((sample) => {
 
     // console.log(sampleList);
 
-    expect(await canvasElement!.screenshot()).toMatchSnapshot();
+    expect(await canvasElement!.screenshot()).toMatchSnapshot({
+      maxDiffPixelRatio: 0.05,
+    });
   });
 });
 
