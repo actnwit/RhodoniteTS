@@ -4423,7 +4423,7 @@ shaderity-node@0.0.7:
   resolved "https://registry.yarnpkg.com/shaderity-node/-/shaderity-node-0.0.7.tgz#266bed366b124078e3f776723540c8552c6febf0"
   integrity sha512-XJY22VjkiQBYYBcMQ1lv8Rq0DNbYjHUrNCyViy30swAih0sE+T7jaz3kPTi+hlU2eWeSutqlSEu9kpt+QX0mmg==
 
-shaderity@0.2.9:
+shaderity@^0.2.9:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.2.9.tgz#b84a6298200a8511aff27546c7ce4a73d7da787d"
   integrity sha512-iPdM2LYKJHcHH0nhsr8V1HUEM73DBfnOM2hfKnZmWwPtSt1w/qQMzV902xW0vJ2I82zBozyG8KL7eVkXvo6vhA==
