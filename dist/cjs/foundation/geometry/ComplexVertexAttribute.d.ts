@@ -1,5 +1,4 @@
 import { VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { Attributes } from './Primitive';
 import { IndicesAccessOption } from '../memory/Accessor';
 import { Index } from '../../types/CommonTypes';
@@ -10,7 +9,7 @@ export declare class ComplexVertexAttribute implements ISemanticVertexAttribute 
     private __components;
     private __offsets;
     constructor(semanticAttribute: VertexAttributeEnum, attributes: Attributes);
-    get semantic(): PrimitiveModeEnum;
+    get semantic(): VertexAttributeEnum;
     getScalarAsArray(i: Index, option: IndicesAccessOption): Array1<number>;
     getVec2AsArray(i: Index, option: IndicesAccessOption): Array2<number>;
     getVec3AsArray(i: Index, option: IndicesAccessOption): Array3<number>;

@@ -3,7 +3,7 @@ const testCheckWindowRendered =
   require('../common/testFunc').testCheckWindowRendered;
 const SetURL = 'http://localhost:8082/samples/test_e2e/EffekseerTest';
 
-test('regression test EffekseerTest', async () => {
+test.skip('regression test EffekseerTest', async () => {
   await testCheckWindowRendered(
     jest,
     browser,

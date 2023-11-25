@@ -13,7 +13,7 @@ import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import { HdriFormatEnum } from '../foundation/definitions/HdriFormat';
 import { Vector4 } from '../foundation/math/Vector4';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle, Byte, ArrayType } from '../types/CommonTypes';
+import { WebGLResourceHandle, TypedArray, Index, Size, Count, CGAPIResourceHandle, Byte, ArrayType, WebGPUResourceHandle } from '../types/CommonTypes';
 import { BasisFile } from '../types/BasisTexture';
 import { RnWebGLProgram } from './WebGLExtendedTypes';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
@@ -21,7 +21,6 @@ import { Material } from '../foundation/materials/core/Material';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { Sampler } from '../foundation/textures/Sampler';
-import { EnumIO } from '../foundation/misc/EnumIO';
 export declare type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;
@@ -95,8 +94,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles): void;
     /**
      * create a shader program
-     * @param param0
-     * @returns
+     * @returns a object which has shader modules
      */
     createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
         material: Material;
@@ -105,7 +103,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         attributeNames: AttributeNames;
         attributeSemantics: VertexAttributeEnum[];
         onError?: (message: string) => void;
-    }): number;
+    }): WebGPUResourceHandle;
     private __checkShaderCompileStatus;
     private __checkShaderProgramLinkStatus;
     /**
@@ -213,7 +211,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         generateMipmap: boolean;
-    }): WebGLResourceHandle;
+    }): Promise<WebGLResourceHandle>;
     /**
      * create a Texture from TypedArray
      * @param imageData
@@ -342,10 +340,10 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      */
     createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<[number, Sampler]>;
     createCubeTextureFromBasis(basisFile: BasisFile, { magFilter, minFilter, wrapS, wrapT, border, }: {
-        magFilter?: EnumIO | undefined;
-        minFilter?: EnumIO | undefined;
-        wrapS?: EnumIO | undefined;
-        wrapT?: EnumIO | undefined;
+        magFilter?: TextureParameterEnum | undefined;
+        minFilter?: TextureParameterEnum | undefined;
+        wrapS?: TextureParameterEnum | undefined;
+        wrapT?: TextureParameterEnum | undefined;
         border?: number | undefined;
     }): number;
     createDummyBlackCubeTexture(): [number, Sampler];
@@ -353,7 +351,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     setWebGLTextureDirectly(webGLTexture: WebGLTexture): number;
     createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, generateMipmap, }: {
         level: Index;
-        internalFormat: TextureParameterEnum | PixelFormatEnum;
+        internalFormat: TextureParameterEnum;
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;

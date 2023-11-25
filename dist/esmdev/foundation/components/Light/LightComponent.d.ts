@@ -9,7 +9,7 @@ import { IEntity } from '../../core/Entity';
  * The Component that represents a light.
  *
  * @remarks
- * the light looks towards the local -Z axis,
+ * the light looks towards the local -Z axis in right hand coordinate system.
  */
 export declare class LightComponent extends Component {
     type: import("../..").EnumIO;
@@ -28,6 +28,7 @@ export declare class LightComponent extends Component {
     private static __lightDirections;
     private static __lightIntensities;
     private static __lightProperties;
+    private static __lightNumber;
     private __lightGizmo?;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
@@ -41,6 +42,7 @@ export declare class LightComponent extends Component {
     $create(): void;
     $load(): void;
     private __updateGizmo;
+    static common_$logic(): void;
     $logic(): void;
     _destroy(): void;
     /**

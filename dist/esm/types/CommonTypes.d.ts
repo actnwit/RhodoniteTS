@@ -35,6 +35,7 @@ export declare type MaterialTID = Index;
 export declare type TextureUID = Index;
 export declare type MeshUID = Index;
 export declare type CameraSID = Index;
+export declare type RenderPassUID = Index;
 export declare type WebGLResourceHandle = number;
 export declare type WebGPUResourceHandle = number;
 export declare type CGAPIResourceHandle = WebGLResourceHandle;

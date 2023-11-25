@@ -3,7 +3,7 @@ import { Material } from '../core/Material';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 export declare class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
     constructor();
-    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

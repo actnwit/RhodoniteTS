@@ -39,7 +39,7 @@ export declare class System {
     private static __expressionForProcessAuto?;
     private static __renderPassForProcessAuto?;
     private static __processApproach;
-    private static __webglResourceRepository;
+    private static __cgApiResourceRepository;
     private static __webglStrategy?;
     private static __renderPassTickCount;
     private static __animationFrameId;
@@ -110,7 +110,7 @@ export declare class System {
      * @param desc
      * @returns
      */
-    static init(desc: SystemInitDescription): Promise<WebGL2RenderingContext>;
+    static init(desc: SystemInitDescription): Promise<WebGL2RenderingContext | undefined>;
     static get processApproach(): import("../definitions/ProcessApproach").ProcessApproachClass;
     static resizeCanvas(width: number, height: number): void;
     static getCanvasSize(): [number, number];

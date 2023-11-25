@@ -7,12 +7,12 @@ export declare class CubeTexture extends AbstractTexture {
     isNamePosNeg: boolean;
     constructor();
     loadTextureImages(): Promise<void>;
-    loadTextureImagesAsync(): void;
+    loadTextureImagesAsync(): Promise<void>;
     loadTextureImagesFromBasis(uint8Array: Uint8Array, { magFilter, minFilter, wrapS, wrapT, }?: {
-        magFilter?: import("..").EnumIO | undefined;
-        minFilter?: import("..").EnumIO | undefined;
-        wrapS?: import("..").EnumIO | undefined;
-        wrapT?: import("..").EnumIO | undefined;
+        magFilter?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
+        minFilter?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
+        wrapS?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
+        wrapT?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
     }): void;
     load1x1Texture(rgbaStr?: string): void;
     /**

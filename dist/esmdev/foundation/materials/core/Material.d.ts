@@ -36,6 +36,7 @@ export declare class Material extends RnObject {
     private __blendFuncDstFactor;
     private __blendFuncAlphaSrcFactor;
     private __blendFuncAlphaDstFactor;
+    private __stateVersion;
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
@@ -68,7 +69,8 @@ export declare class Material extends RnObject {
      * @param isWebGL2
      * @returns
      */
-    _createProgram(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): CGAPIResourceHandle;
+    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): CGAPIResourceHandle;
+    _createProgramWebGpu(primitive: Primitive, vertexShaderMethodDefinitions: string, propertySetter: getShaderPropertyFunc): void;
     /**
      * create program by updated shader source code
      * @internal
@@ -93,7 +95,7 @@ export declare class Material extends RnObject {
      * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
-    _setParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -107,8 +109,8 @@ export declare class Material extends RnObject {
         vertexPropertiesStr: string;
         pixelPropertiesStr: string;
     };
-    private __setAutoParametersToGpu;
-    private __setSoloDatumParametersToGpu;
+    private __setAutoParametersToGpuWebGL;
+    private __setSoloDatumParametersToGpuWebGL;
     private __getTargetShaderSemantics;
     /**
      * Change the blendEquations
@@ -156,4 +158,5 @@ export declare class Material extends RnObject {
     get isMorphing(): boolean;
     get isLighting(): boolean;
     get materialTypeName(): string;
+    get stateVersion(): number;
 }
