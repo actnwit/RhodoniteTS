@@ -3,9 +3,12 @@ import { Count, IndexOf16Bytes, SquareMatrixComponentN, VectorAndSquareMatrixCom
 import type { ComponentTypeEnum } from './ComponentType';
 import { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
 export interface CompositionTypeEnum extends EnumIO {
+    webgpu: string;
+    wgsl: string;
     getNumberOfComponents(): Count;
     getGlslStr(componentType: ComponentTypeEnum): string;
     getGlslInitialValue(componentType: ComponentTypeEnum): string;
+    toWGSLType(componentType: ComponentTypeEnum): string;
     getVec4SizeOfProperty(): IndexOf16Bytes;
 }
 declare const Scalar: CompositionTypeEnum;
@@ -20,6 +23,7 @@ declare function from(index: number): CompositionTypeEnum;
 declare function fromString(str: string): CompositionTypeEnum;
 declare function vectorFrom(componentN: number): CompositionTypeEnum;
 declare function fromGlslString(str_: string): CompositionTypeEnum;
+declare function fromWgslString(str_: string): CompositionTypeEnum;
 declare function toGltf2AccessorCompositionTypeString(componentN: VectorAndSquareMatrixComponentN): Gltf2AccessorCompositionTypeString;
 declare function toGltf2AnimationAccessorCompositionTypeString(componentN: VectorComponentN): Gltf2AccessorCompositionTypeString;
 declare function toGltf2SquareMatrixAccessorCompositionTypeString(componentN: SquareMatrixComponentN): Gltf2AccessorCompositionTypeString;
@@ -53,6 +57,7 @@ export declare const CompositionType: Readonly<{
     fromString: typeof fromString;
     vectorFrom: typeof vectorFrom;
     fromGlslString: typeof fromGlslString;
+    fromWgslString: typeof fromWgslString;
     isArray: typeof isArray;
     isTexture: typeof isTexture;
     toGltf2AnimationAccessorCompositionType: typeof toGltf2AnimationAccessorCompositionType;

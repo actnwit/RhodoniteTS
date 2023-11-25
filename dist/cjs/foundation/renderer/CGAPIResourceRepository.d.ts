@@ -1,19 +1,29 @@
 import type { VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
-import type { CGAPIResourceHandle, Index, Size, TypedArray } from '../../types/CommonTypes';
+import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
-import type { Accessor } from '../memory';
+import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
-import { ProcessApproachEnum } from '../definitions';
+import { HdriFormatEnum, VertexAttributeEnum } from '../definitions';
+import { Material } from '../materials/core/Material';
+import { AttributeNames } from '../../webgl/types/CommonTypes';
+import { Sampler } from '../textures/Sampler';
+import { RenderPass } from './RenderPass';
 export declare type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export declare type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export declare abstract class CGAPIResourceRepository {
     static readonly InvalidCGAPIResourceUid = -1;
+    static getCgApiResourceRepository(): ICGAPIResourceRepository;
     static getWebGLResourceRepository(): WebGLResourceRepository;
-    static getCgApiResourceRepository(processApproach: ProcessApproachEnum): CGAPIResourceRepository;
 }
 export interface ICGAPIResourceRepository {
+    /**
+     * Get a Canvas Size
+     */
+    getCanvasSize(): [Size, Size];
+    resizeCanvas(width: Size, height: Size): void;
+    clearFrameBuffer(renderPass: RenderPass): void;
     /**
      * create a Texture
      * @param imageData
@@ -68,8 +78,70 @@ export interface ICGAPIResourceRepository {
      */
     updateVertexBufferAndIndexBuffer(primitive: Primitive, vertexHandles: VertexHandles): void;
     /**
+     * delete the Vertex Data resources
+     * @param vertexHandles
+     */
+    deleteVertexDataResources(vertexHandles: VertexHandles): void;
+    /**
      * delete a Vertex Buffer
      * @param resourceHandle - a CGAPIResourceHandle
      */
     deleteVertexBuffer(resourceHandle: CGAPIResourceHandle): void;
+    /**
+     * set the VertexData to the Pipeline
+     */
+    setVertexDataToPipeline({ vaoHandle, iboHandle, vboHandles, }: {
+        vaoHandle: CGAPIResourceHandle;
+        iboHandle?: CGAPIResourceHandle;
+        vboHandles: Array<CGAPIResourceHandle>;
+    }, primitive: Primitive, instanceIDBufferUid: CGAPIResourceHandle): void;
+    /**
+     * Create a shader program
+     * @return a shader program handle
+     */
+    createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
+        material: Material;
+        vertexShaderStr: string;
+        fragmentShaderStr: string;
+        attributeNames: AttributeNames;
+        attributeSemantics: VertexAttributeEnum[];
+        onError?: (message: string) => void;
+    }): CGAPIResourceHandle;
+    createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<[number, Sampler]>;
+    /**
+     * create a Cube Texture
+     */
+    createCubeTexture(mipLevelCount: Count, images: Array<{
+        posX: DirectTextureData;
+        negX: DirectTextureData;
+        posY: DirectTextureData;
+        negY: DirectTextureData;
+        posZ: DirectTextureData;
+        negZ: DirectTextureData;
+    }>, width: Size, height: Size): [number, Sampler];
+    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, }: {
+        magFilter: TextureParameterEnum;
+        minFilter: TextureParameterEnum;
+        wrapS: TextureParameterEnum;
+        wrapT: TextureParameterEnum;
+        wrapR: TextureParameterEnum;
+        anisotropy: boolean;
+        isPremultipliedAlpha?: boolean;
+    }): CGAPIResourceHandle;
+    /**
+     * create a Texture
+     * @param imageData
+     * @param param1
+     * @returns
+     */
+    createTextureFromHTMLImageElement(imageData: HTMLImageElement, { level, internalFormat, width, height, border, format, type, generateMipmap, }: {
+        level: Index;
+        internalFormat: TextureParameterEnum;
+        width: Size;
+        height: Size;
+        border: Size;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+        generateMipmap: boolean;
+    }): Promise<CGAPIResourceHandle>;
 }

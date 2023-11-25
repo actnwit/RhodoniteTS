@@ -56,7 +56,6 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     static getInstance(): WebGLStrategyDataTexture;
     private __setCurrentComponentSIDsForEachRenderPass;
-    private __setCurrentComponentSIDsForEachEntity;
     private __setCurrentComponentSIDsForEachPrimitive;
     common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, isVRMainPass: boolean, displayIdx: Index): boolean;

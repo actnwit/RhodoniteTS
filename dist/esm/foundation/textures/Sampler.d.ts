@@ -18,6 +18,7 @@ export declare class Sampler {
     private __samplerResourceUid;
     constructor(desc: SamplerDescriptor);
     create(): void;
+    get created(): boolean;
     get minFilter(): TextureParameterEnum;
     get magFilter(): TextureParameterEnum;
     get wrapS(): TextureParameterEnum;

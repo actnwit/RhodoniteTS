@@ -88,3 +88,5 @@ samples/**/types.js*
 *.tsbuildinfo
 .dccache
 .envrc
+actions-runner
+

@@ -2,6 +2,7 @@ export declare const Config: {
     maxEntityNumber: number;
     maxLightNumberInShader: number;
     maxVertexMorphNumberInShader: number;
+    maxVertexPrimitiveNumberInShader: number;
     maxMaterialInstanceForEachType: number;
     boneDataType: import("../misc").EnumIO;
     maxSkeletonNumber: number;

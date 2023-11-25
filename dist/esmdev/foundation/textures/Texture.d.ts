@@ -1,4 +1,5 @@
 import { PixelFormatEnum } from '../definitions/PixelFormat';
+import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { TypedArray, Count } from '../../types/CommonTypes';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -10,10 +11,14 @@ export declare class Texture extends AbstractTexture {
     private static __loadedBasisFunc;
     private static __basisLoadPromise?;
     private static __BasisFile?;
+    private __uriToLoadLazy?;
+    private __imgToLoadLazy?;
+    private __optionsToLoadLazy?;
     constructor();
+    get hasDataToLoadLazy(): boolean;
     generateTextureFromBasis(uint8Array: Uint8Array, options: {
         level?: Count;
-        internalFormat?: PixelFormatEnum;
+        internalFormat?: TextureParameterEnum;
         format?: PixelFormatEnum;
         type?: ComponentTypeEnum;
         generateMipmap?: boolean;
@@ -22,23 +27,25 @@ export declare class Texture extends AbstractTexture {
     generateTextureFromKTX2(uint8Array: Uint8Array): Promise<void>;
     generateTextureFromImage(image: HTMLImageElement, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: import("..").EnumIO | undefined;
+        internalFormat?: TextureParameterEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: ComponentTypeEnum | undefined;
         generateMipmap?: boolean | undefined;
     }): void;
+    loadFromImgLazy(): Promise<void>;
     generateTextureFromUri(imageUri: string, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: import("..").EnumIO | undefined;
+        internalFormat?: TextureParameterEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: ComponentTypeEnum | undefined;
         generateMipmap?: boolean | undefined;
-    }): Promise<void>;
+    }): void;
+    loadFromUrlLazy(): Promise<void>;
     generate1x1TextureFrom(rgbaStr?: string): void;
     generateSheenLutTextureFromDataUri(): Promise<void>;
     generateTextureFromTypedArray(typedArray: TypedArray, { level, internalFormat, format, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: import("..").EnumIO | undefined;
+        internalFormat?: TextureParameterEnum | undefined;
         format?: import("..").EnumIO | undefined;
         generateMipmap?: boolean | undefined;
     }): void;

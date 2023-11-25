@@ -6,7 +6,7 @@ export declare class EnvConstantMaterialContent extends AbstractMaterialContent 
     static envRotation: ShaderSemanticsClass;
     static EnvHdriFormat: ShaderSemanticsClass;
     constructor();
-    _setCustomSettingParametersToGpu({ material, shaderProgram, firstTime, args, }: {
+    _setCustomSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

@@ -11,18 +11,18 @@ declare const window: any;
     const indices = new Uint32Array([0, 1, 2]);
 
     const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
-    setTimeout(async () => {
-      const texture = new Rn.Texture();
-      texture.generateTextureFromUri('../../../assets/images/Rn.png');
-      const sampler = new Rn.Sampler({
-        minFilter: Rn.TextureParameter.Linear,
-        magFilter: Rn.TextureParameter.Linear,
-        wrapS: Rn.TextureParameter.Repeat,
-        wrapT: Rn.TextureParameter.Repeat,
-      });
-      sampler.create();
-      flatMaterial.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, texture, sampler);
-    }, 3000);
+    // setTimeout(async () => {
+    const texture = new Rn.Texture();
+    texture.generateTextureFromUri('../../../assets/images/Rn.png');
+    const sampler = new Rn.Sampler({
+      minFilter: Rn.TextureParameter.Linear,
+      magFilter: Rn.TextureParameter.Linear,
+      wrapS: Rn.TextureParameter.Repeat,
+      wrapT: Rn.TextureParameter.Repeat,
+    });
+    sampler.create();
+    flatMaterial.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, texture, sampler);
+    // }, 3000);
     const primitive = Rn.Primitive.createPrimitive({
       material: flatMaterial,
       attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Texcoord0.XY],
@@ -81,7 +81,7 @@ declare const window: any;
     expression.addRenderPasses([renderPass]);
 
     const draw = function () {
-      if (count > 0) {
+      if (count > 100) {
         window._rendered = true;
       }
 
