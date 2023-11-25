@@ -1,9 +1,9 @@
 const consoleLog = require('../common/testFunc').consoleLog;
 const testCheckWindowRendered =
   require('../common/testFunc').testCheckWindowRendered;
-const SetURL = 'http://localhost:8082/samples/test_e2e/EffekseerTest';
+const SetURL = 'http://localhost:8082/samples/test_e2e/WebGpuGltf';
 
-test('regression test EffekseerTest', async () => {
+test('regression test WebGpuGltf', async () => {
   await testCheckWindowRendered(
     jest,
     browser,
