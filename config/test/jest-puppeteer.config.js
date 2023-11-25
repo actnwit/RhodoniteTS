@@ -18,7 +18,6 @@ module.exports = {
     args: [
       '--start-maximized',
       '--no-sandbox',
-      // '--disable-gpu',
       '--disable-audio-output',
     ],
   },

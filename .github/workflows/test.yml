@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v2
@@ -18,5 +18,4 @@ jobs:
           name: Rhodonite-distribution-files
           path: dist
       - run: npm run build-samples
-      - run: node node_modules/puppeteer/install.mjs
       - run: npm run test
