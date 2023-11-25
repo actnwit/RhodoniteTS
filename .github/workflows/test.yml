@@ -9,9 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: git submodule update -i
-      - uses: richard-chim/actions-yarn@v2.3.1
-        with:
-          cmd: install
+      # - uses: richard-chim/actions-yarn@v2.3.1
+      #   with:
+      #     cmd: install
+      - run: yarn install
       - run: npm run build
       - uses: actions/upload-artifact@v2
         with:
