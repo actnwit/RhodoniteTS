@@ -34,7 +34,7 @@ import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import { MeshRendererComponent } from '../foundation';
+import { MeshRendererComponent, ShaderSemantics, ShaderSemanticsClass } from '../foundation';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type WebGpuResource =
@@ -1254,6 +1254,13 @@ export class WebGpuResourceRepository
       const bindGroupLayoutEntriesForSampler: GPUBindGroupLayoutEntry[] = [];
       material._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
+        if (
+          info.semantic.str === 'diffuseEnvTexture' ||
+          info.semantic.str === 'specularEnvTexture'
+        ) {
+          return;
+        }
+
         if (CompositionType.isTexture(info.compositionType)) {
           const slot = value.value[0];
           const texture = value.value[1] as AbstractTexture;

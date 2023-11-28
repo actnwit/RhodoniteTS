@@ -36,6 +36,17 @@
 // #param metallicRoughnessTextureRotation: f32; // initialValue=0
 // #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
 
+@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(16) var diffuseEnvSampler: sampler;
+@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(17) var specularEnvSampler: sampler;
+
+
+// #param iblParameter: vec4<f32>; // initialValue=(0,0,0,0)
+// #param hdriFormat: vec2<i32>; // initialValue=(0,0)
+// #param inverseEnvironment: bool; // initialValue=(false)
+#pragma shaderity: require(../common/iblDefinition.wgsl)
+
 @fragment
 fn main(
   input: VertexOutput,

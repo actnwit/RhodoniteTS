@@ -1,5 +1,5 @@
-fn get_irradiance(normal_forEnv: vec3f, hdriFormat: ivec2<i32>) -> vec3f {
-  let diffuseTexel: vec4f = texture(u_diffuseEnvTexture, normal_forEnv);
+fn get_irradiance(normal_forEnv: vec3f, hdriFormat: vec2<i32>) -> vec3f {
+  let diffuseTexel: vec4f = textureSample(diffuseEnvTexture, diffuseEnvSampler, normal_forEnv);
 
   var irradiance: vec3f;
   if (hdriFormat.x == 0) {
@@ -17,18 +17,10 @@ fn get_irradiance(normal_forEnv: vec3f, hdriFormat: ivec2<i32>) -> vec3f {
   return irradiance;
 }
 
-fn get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) -> vec3f {
-  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
-    vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);
-  #elif defined(GLSL_ES3)
-    vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
-  #else
-    vec4 specularTexel = texture(u_specularEnvTexture, reflection);
-  #endif
+fn get_radiance(reflection: vec3f, lod: f32, hdriFormat: vec2<i32>) -> vec3f {
+  let specularTexel = textureSampleLevel(specularEnvTexture, specularEnvSampler, reflection, lod);
 
-// #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
-
-  let radiance: vec3f;
+  var radiance: vec3f;
   if (hdriFormat.y == 0) {
     // LDR_SRGB
     radiance = srgbToLinear(specularTexel.rgb);
@@ -44,8 +36,32 @@ fn get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) -> vec3f {
   return radiance;
 }
 
+fn getNormalForEnv(rotEnvMatrix: mat3x3<f32>, normal_inWorld: vec3f, materialSID: u32) -> vec3f {
+  var normal_forEnv = rotEnvMatrix * normal_inWorld;
+  if (get_inverseEnvironment(materialSID, 0)) {
+    normal_forEnv.x *= -1.0;
+  }
+  return normal_forEnv;
+}
+
+fn getReflection(rotEnvMatrix: mat3x3<f32>, viewDirection: vec3f, normal_inWorld: vec3f,
+  materialSID: u32, perceptualRoughness: f32) -> vec3f {
+  var reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+  if (get_inverseEnvironment(materialSID, 0)) {
+    reflection.x *= -1.0;
+  }
+  return reflection;
+}
+
+struct IblResult
+{
+  specular: vec3f,
+  diffuse: vec3f,
+  FssEss: vec3f,
+};
+
 fn getIBLRadianceGGX(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
-  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3,
+  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3<f32>,
   normal_forEnv: vec3f, reflection: vec3f) -> IblResult
 {
   // get radiance
@@ -73,11 +89,11 @@ fn getIBLRadianceGGX(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo:
 }
 
 fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
-  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3,
+  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3<f32>,
   normal_forEnv: vec3f, reflection: vec3f) -> IblResult
 {
   // get irradiance
-  let irradiance: vec3f = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+  let irradiance: vec3f = get_irradiance(normal_forEnv, hdriFormat);
 
   // Roughness dependent fresnel
   let kS: vec3f = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
@@ -109,11 +125,11 @@ fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDire
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
   let rot = iblParameter.w + 3.1415;
-  let rotEnvMatrix = mat3x3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  let rotEnvMatrix = mat3x3<f32>(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   let hdriFormat: vec2<i32> = get_hdriFormat(materialSID, 0);
 
   let normal_forEnv: vec3f = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
+  let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness);
 
   // IBL
   let baseRadianceResult: IblResult = getIBLRadianceGGX(materialSID, NdotV, viewDirection, albedo, F0,

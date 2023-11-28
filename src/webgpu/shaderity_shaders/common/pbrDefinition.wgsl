@@ -14,6 +14,15 @@ fn fresnel(f0 : vec3f, f90 : vec3f, VdotH : f32) -> vec3f {
     return f0 + (f90 - f0) * x5;
 }
 
+// Roughness Dependent Fresnel
+// https://www.jcgt.org/published/0008/01/03/paper.pdf
+fn fresnelSchlickRoughness(F0: vec3f, cosTheta: f32, roughness: f32) -> vec3f
+{
+  let Fr = max(vec3f(1.0 - roughness), F0) - F0;
+  let k_S = F0 + Fr * pow(1.0 - cosTheta, 5.0);
+  return k_S;
+}
+
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
 fn diffuse_brdf(albedo: vec3f) -> vec3f
 {
@@ -42,6 +51,17 @@ fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, F: vec3f, alphaRoughness: f32) ->
   let D = d_GGX(NH, alphaRoughness);
   let V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
   return vec3f(D)*vec3f(V)*F;
+}
+
+// this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
+fn envBRDFApprox( Roughness: f32, NoV: f32 ) -> vec2f {
+  let c0 = vec4f(-1, -0.0275, -0.572, 0.022 );
+  let c1 = vec4f(1, 0.0425, 1.04, -0.04 );
+  let r = Roughness * c0 + c1;
+  let a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
+  let AB = vec2f( -1.04, 1.04 ) * a004 + r.zw;
+
+  return AB;
 }
 
 ////////////////////////////////////////

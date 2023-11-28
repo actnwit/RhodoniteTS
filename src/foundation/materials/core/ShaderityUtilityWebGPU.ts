@@ -21,8 +21,6 @@ import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
-import { WebGpuResourceRepository } from '../../../webgpu/WebGpuResourceRepository';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { TextureParameter } from '../../definitions';
 import { Sampler } from '../../textures/Sampler';
 
@@ -153,7 +151,13 @@ export class ShaderityUtilityWebGPU {
     existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): ShaderSemanticsInfo {
     const componentType = ComponentType.Int;
-    const compositionType = CompositionType.Texture2D;
+    let compositionType = CompositionType.Texture2D;
+    if (type.indexOf('texture_2d') !== -1) {
+      compositionType = CompositionType.Texture2D;
+    } else if (type.indexOf('texture_cube') !== -1) {
+      compositionType = CompositionType.TextureCube;
+    }
+
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
     const none_u_prefix = true;
 
