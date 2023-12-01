@@ -30,7 +30,7 @@ import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
 import { IOption, None, Some, Option } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
-import { isErr } from '../misc';
+import { RnException, isErr } from '../misc';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -221,8 +221,7 @@ export class Primitive extends RnObject {
         byteStride: 0,
       });
       if (isErr(indicesBufferViewResult)) {
-        indicesBufferViewResult;
-        throw new Error('indicesBufferViewResult.isErr()');
+        throw new RnException(indicesBufferViewResult.getRnError());
       }
       const indicesAccessorResult = indicesBufferViewResult.get().takeAccessor({
         compositionType: CompositionType.Scalar,
@@ -230,8 +229,7 @@ export class Primitive extends RnObject {
         count: indices.byteLength / indicesComponentType.getSizeInBytes(),
       });
       if (isErr(indicesAccessorResult)) {
-        indicesAccessorResult;
-        throw new Error('indicesAccessorResult.isErr()');
+        throw new RnException(indicesAccessorResult.getRnError());
       }
       indicesAccessor = indicesAccessorResult.get();
       // copy indices
