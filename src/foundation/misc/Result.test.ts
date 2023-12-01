@@ -14,34 +14,35 @@ function succeedIfValueEven(val: number): IResult<number, number> {
 test(`Result.match`, () => {
   const result0 = succeedIfValueEven(0);
   const result1 = succeedIfValueEven(1);
-  let result = '';
-  result0.match({
+  const ret0 = result0.match({
     Ok: (val: number) => {
       expect(val).toBe(0);
-      result = result0.name();
+      return result0.name();
     },
     Err: (err: RnError<number>) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
-      result = result0.name();
-    },
-    Finally: () => {
-      expect(result).toBe('Ok');
+      return err;
     },
   });
+  expect(ret0.unwrapForce()).toBe('Ok');
 
-  result1.match({
+  const ret1 = result1.match({
     Ok: (val: number) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
-      result = result1.name();
+      return val;
     },
     Err: (err: RnError<number>) => {
       expect(err.message).toBe('Error');
-      result = result1.name();
-    },
-    Finally: () => {
-      expect(result).toBe('Err');
+      return {
+        message: err.message + '!!!',
+        error: 'Err',
+      };
     },
   });
+  expect(ret1.isErr()).toBe(true);
+  if (ret1.isErr()) {
+    expect(ret1.getRnError().error).toBe('Err');
+  }
 });
 
 test(`Result.unwrap`, () => {

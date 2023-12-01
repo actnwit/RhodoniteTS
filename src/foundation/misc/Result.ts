@@ -1,4 +1,5 @@
 import { Is } from './Is';
+import { IOption, None, Some } from './Option';
 
 export interface RnError<ErrObj> {
   message: string;
@@ -10,15 +11,13 @@ export interface RnError<ErrObj> {
  * regardless of whether they are successful or not.
  */
 export interface IResult<T, ErrObj> {
-  match({
+  match<R, ErrObj2>({
     Ok,
     Err,
-    Finally,
   }: {
-    Ok: (value: T) => void;
-    Err: (value: RnError<ErrObj>) => void;
-    Finally?: () => void;
-  }): void;
+    Ok: (value: T) => R;
+    Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
+  }): IResult<R, ErrObj2>;
   // then(f: (value: T) => void): Finalizer | void;
   // catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
   unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
@@ -30,19 +29,17 @@ export interface IResult<T, ErrObj> {
 
 abstract class Result<T, ErrObj> {
   constructor(protected val?: T | RnError<ErrObj>) {}
-  match(obj: {
-    Ok: (value: T) => void;
-    Err: (value: RnError<ErrObj>) => void;
-    Finally?: () => void;
-  }): void {
+  match<R, ErrObj2>(obj: {
+    Ok: (value: T) => R;
+    Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
+  }): IResult<R, ErrObj2> {
     if (this instanceof Ok) {
-      obj.Ok(this.val as T);
+      return new Ok(obj.Ok(this.val as T));
     } else if (this instanceof Err) {
-      obj.Err(this.val as RnError<ErrObj>);
+      return new Err(obj.Err(this.val as RnError<ErrObj>));
     }
-    if (Is.exist(obj.Finally)) {
-      obj.Finally();
-    }
+
+    throw new Error('This is neither Ok nor Err.');
   }
   name(): string {
     return this.constructor.name;
