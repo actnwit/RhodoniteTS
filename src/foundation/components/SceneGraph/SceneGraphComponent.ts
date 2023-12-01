@@ -33,7 +33,7 @@ export class SceneGraphComponent extends Component {
   private __children: SceneGraphComponent[] = [];
   private __gizmoChildren: SceneGraphComponent[] = [];
   private _worldMatrix: MutableMatrix44 = MutableMatrix44.dummy();
-  private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.dummy();
+  private _worldMatrixRest: MutableMatrix44 = MutableMatrix44.identity();
   private _normalMatrix: MutableMatrix33 = MutableMatrix33.dummy();
   private __isWorldMatrixUpToDate = false;
   private __isWorldMatrixRestUpToDate = false;
@@ -341,7 +341,7 @@ export class SceneGraphComponent extends Component {
       this.__isWorldMatrixRestUpToDate = true;
     }
 
-    return this._worldMatrix;
+    return this._worldMatrixRest;
   }
 
   get matrixRest() {
