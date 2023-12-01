@@ -11,7 +11,7 @@ import { glTF1 } from '../../types/glTF1';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { RnPromiseCallback } from '../misc/RnPromise';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { assertIsErr, assertIsOk, Err, Result, Ok, isOk } from '../misc/Result';
+import { assertIsErr, assertIsOk, Err, Result, Ok, isOk, isErr } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -41,14 +41,13 @@ export class GltfImporter {
     }
 
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (r_arrayBuffer._isErr()) {
+    if (isErr(r_arrayBuffer)) {
       return new Err({
         message: 'Failed to fetch array buffer',
         error: r_arrayBuffer,
       });
     }
 
-    assertIsOk(r_arrayBuffer);
     options.files![uri] = r_arrayBuffer.get();
 
     await this.__detectTheModelFileTypeAndImport(uri, renderPasses, options, uri, callback);

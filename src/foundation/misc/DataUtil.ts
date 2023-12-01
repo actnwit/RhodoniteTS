@@ -400,16 +400,15 @@ export class DataUtil {
   }
 
   static async fetchArrayBuffer(uri: string): Promise<Result<ArrayBuffer, unknown>> {
-    try {
-      const response = await fetch(uri, { mode: 'cors' });
-      const arraybuffer = await response.arrayBuffer();
-      return new Ok(arraybuffer);
-    } catch (e) {
+    const response = await fetch(uri, { mode: 'cors' });
+    if (!response.ok) {
       return new Err({
         message: `fetchArrayBuffer failed. uri: ${uri}`,
-        error: e,
+        error: response.statusText,
       });
     }
+    const arraybuffer = await response.arrayBuffer();
+    return new Ok(arraybuffer);
   }
 
   static getResizedCanvas(image: HTMLImageElement, maxSize: Size): [HTMLCanvasElement, Size, Size] {

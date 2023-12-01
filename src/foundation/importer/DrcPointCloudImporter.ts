@@ -14,7 +14,7 @@ import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { ifUndefinedThen } from '../misc/MiscUtil';
 import { GltfLoadOption } from '../../types';
-import { Err, Result, Ok } from '../misc/Result';
+import { Err, Result, Ok, isErr } from '../misc/Result';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -59,19 +59,14 @@ export class DrcPointCloudImporter {
     }
 
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (r_arrayBuffer._isErr()) {
+    if (isErr(r_arrayBuffer)) {
       return new Err({
         message: 'fetchArrayBuffer failed',
         error: r_arrayBuffer,
       });
     }
 
-    const rnm2 = await this.__decodeDraco(
-      r_arrayBuffer.unwrapForce(),
-      defaultOptions,
-      basePath,
-      options
-    );
+    const rnm2 = await this.__decodeDraco(r_arrayBuffer.get(), defaultOptions, basePath, options);
 
     return new Ok(rnm2!);
   }

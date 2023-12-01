@@ -40,8 +40,8 @@ test(`Result.match`, () => {
       };
     },
   });
-  expect(ret1._isErr()).toBe(true);
-  if (ret1._isErr()) {
+  expect(isErr(ret1)).toBe(true);
+  if (isErr(ret1)) {
     expect(ret1.getRnError().error).toBe('Err');
   }
 });
