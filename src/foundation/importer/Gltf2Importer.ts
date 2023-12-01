@@ -26,7 +26,7 @@ export class Gltf2Importer {
   ): Promise<Result<RnM2, undefined>> {
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
 
-    if (r_arrayBuffer.isErr()) {
+    if (r_arrayBuffer._isErr()) {
       return new Err({
         message: 'fetchArrayBuffer error',
         error: undefined,

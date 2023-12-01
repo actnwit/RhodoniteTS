@@ -36,7 +36,7 @@ export class Vrm0xImporter {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
+    if (result._isErr()) {
       return new Err({
         message: 'Failed to import VRM file.',
         error: result,
@@ -88,7 +88,7 @@ export class Vrm0xImporter {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
+    if (result._isErr()) {
       return new Err({
         message: 'Failed to import VRM file.',
         error: result,

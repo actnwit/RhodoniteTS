@@ -39,8 +39,8 @@ test(`Result.match`, () => {
       };
     },
   });
-  expect(ret1.isErr()).toBe(true);
-  if (ret1.isErr()) {
+  expect(ret1._isErr()).toBe(true);
+  if (ret1._isErr()) {
     expect(ret1.getRnError().error).toBe('Err');
   }
 });
@@ -86,8 +86,8 @@ test(`Result.unwrapForce`, () => {
 
 test(`Result.isOk`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(result0.isOk()).toBe(true);
-  if (result0.isOk()) {
+  expect(result0._isOk()).toBe(true);
+  if (result0._isOk()) {
     expect(result0.get()).toBe(0);
   }
 });
@@ -95,7 +95,7 @@ test(`Result.isOk`, () => {
 test(`wrapped Err`, () => {
   function wrapper(): Result<number, Err<number, number>> {
     const result0 = succeedIfValueEven(1);
-    if (result0.isErr()) {
+    if (result0._isErr()) {
       return new Err({
         message: 'Error 2',
         error: result0,

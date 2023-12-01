@@ -22,8 +22,8 @@ interface IResult<T, ErrObj> {
   // catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
   unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
   unwrapForce(): T;
-  isOk(): this is Ok<T, ErrObj>;
-  isErr(): this is Err<T, ErrObj>;
+  _isOk(): this is Ok<T, ErrObj>;
+  _isErr(): this is Err<T, ErrObj>;
   name(): string;
 }
 
@@ -76,11 +76,11 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
     return true;
   }
 
-  isOk(): this is Ok<T, ErrObj> {
+  _isOk(): this is Ok<T, ErrObj> {
     return true;
   }
 
-  isErr(): false {
+  _isErr(): false {
     return false;
   }
 
@@ -119,11 +119,11 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
     return false;
   }
 
-  isOk(): false {
+  _isOk(): false {
     return false;
   }
 
-  isErr(): this is Err<T, ErrObj> {
+  _isErr(): this is Err<T, ErrObj> {
     return true;
   }
 
@@ -139,21 +139,21 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
 export type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
 
 export function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj> {
-  return result.isOk();
+  return result._isOk();
 }
 
 export function isErr<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Err<T, ErrObj> {
-  return result.isErr();
+  return result._isErr();
 }
 
 export function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any> {
-  if (result.isErr()) {
+  if (result._isErr()) {
     throw new Error('This is Err. No Ok.');
   }
 }
 
 export function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any> {
-  if (result.isOk()) {
+  if (result._isOk()) {
     throw new Error('This is Ok. No Err.');
   }
 }

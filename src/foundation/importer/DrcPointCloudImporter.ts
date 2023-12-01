@@ -59,7 +59,7 @@ export class DrcPointCloudImporter {
     }
 
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (r_arrayBuffer.isErr()) {
+    if (r_arrayBuffer._isErr()) {
       return new Err({
         message: 'fetchArrayBuffer failed',
         error: r_arrayBuffer,

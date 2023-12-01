@@ -41,7 +41,7 @@ export class GltfImporter {
     }
 
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (r_arrayBuffer.isErr()) {
+    if (r_arrayBuffer._isErr()) {
       return new Err({
         message: 'Failed to fetch array buffer',
         error: r_arrayBuffer,
@@ -263,7 +263,7 @@ export class GltfImporter {
           options
         );
 
-        if (result.isOk()) {
+        if (result._isOk()) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') >= 0) {
             options.__isImportVRM0x = false;
