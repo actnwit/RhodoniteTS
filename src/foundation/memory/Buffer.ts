@@ -64,7 +64,13 @@ export class Buffer {
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
-  }): Result<BufferView, undefined> {
+  }): Result<
+    BufferView,
+    {
+      'Buffer.byteLength': Byte;
+      'Buffer.takenSizeInByte': Byte;
+    }
+  > {
     // const byteAlign = this.__byteAlign;
     // const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
@@ -81,7 +87,10 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${
       // console.error(message);
       return new Err({
         message,
-        error: undefined,
+        error: {
+          'Buffer.byteLength': this.takenSizeInByte,
+          'Buffer.takenSizeInByte': this.takenSizeInByte,
+        },
       });
     }
 

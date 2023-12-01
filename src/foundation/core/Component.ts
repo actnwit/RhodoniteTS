@@ -15,6 +15,8 @@ import { RnObject } from './RnObject';
 import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
 import { IEntity } from './Entity';
 import { ComponentToComponentMethods } from '../components/ComponentTypes';
+import { Err, Result, isErr } from '../misc/Result';
+import { RnException } from '../misc';
 
 type MemberInfo = {
   memberName: string;
@@ -361,7 +363,7 @@ export class Component extends RnObject {
     compositionType: CompositionTypeEnum,
     componentType: ComponentTypeEnum,
     count: Count
-  ) {
+  ): Result<Accessor, undefined> {
     if (!this.__accessors.has(componentClass)) {
       this.__accessors.set(componentClass, new Map());
     }
@@ -371,24 +373,35 @@ export class Component extends RnObject {
     if (!accessors.has(memberName)) {
       const bytes = compositionType.getNumberOfComponents() * componentType.getSizeInBytes();
       const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
-      const bufferView = buffer
-        .takeBufferView({
-          byteLengthToNeed: bytes * count,
-          byteStride: 0,
-        })
-        .unwrapForce();
-      const accessor = bufferView
-        .takeAccessor({
-          compositionType,
-          componentType,
-          count: count,
-          byteStride: bytes,
-        })
-        .unwrapForce();
-      accessors.set(memberName, accessor);
-      return accessor;
+      const bufferViewResult = buffer.takeBufferView({
+        byteLengthToNeed: bytes * count,
+        byteStride: 0,
+      });
+      if (isErr(bufferViewResult)) {
+        return new Err({
+          message: 'Failed to take buffer view: ' + bufferViewResult.getRnError().message,
+          error: undefined,
+        });
+      }
+      const accessorResult = bufferViewResult.get().takeAccessor({
+        compositionType,
+        componentType,
+        count: count,
+        byteStride: bytes,
+      });
+      if (isErr(accessorResult)) {
+        return new Err({
+          message: 'Failed to take accessor: ' + accessorResult.getRnError().message,
+          error: undefined,
+        });
+      }
+      accessors.set(memberName, accessorResult.get());
+      return accessorResult;
     } else {
-      return void 0;
+      return new Err({
+        message: 'Already taken',
+        error: undefined,
+      });
     }
   }
 
@@ -519,7 +532,7 @@ export class Component extends RnObject {
       for (const bufferUse of member.keys()) {
         const infoArray = member.get(bufferUse)!;
         infoArray.forEach((info) => {
-          const accessor = Component.takeAccessor(
+          const accessorResult = Component.takeAccessor(
             info.bufferUse,
             info.memberName,
             componentClass,
@@ -527,10 +540,13 @@ export class Component extends RnObject {
             info.componentType,
             count
           );
+          if (isErr(accessorResult)) {
+            throw new RnException(accessorResult.getRnError());
+          }
           (that as any)['_byteOffsetOfAccessorInBuffer_' + info.memberName] =
-            accessor!.byteOffsetInBuffer;
+            accessorResult.get().byteOffsetInBuffer;
           (that as any)['_byteOffsetOfAccessorInComponent_' + info.memberName] =
-            accessor!.byteOffsetInBufferView;
+            accessorResult.get().byteOffsetInBufferView;
         });
       }
     }
