@@ -14,7 +14,7 @@ import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { ifUndefinedThen } from '../misc/MiscUtil';
 import { GltfLoadOption } from '../../types';
-import { Err, ResultType, Ok } from '../misc/Result';
+import { Err, Result, Ok } from '../misc/Result';
 
 declare let DracoDecoderModule: any;
 declare let Rn: any;
@@ -37,7 +37,7 @@ export class DrcPointCloudImporter {
   async importPointCloud(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<ResultType<RnM2, Err<ArrayBuffer, unknown>>> {
+  ): Promise<Result<RnM2, Err<ArrayBuffer, unknown>>> {
     const basePath = uri.substring(0, uri.lastIndexOf('/')) + '/'; // location of model file as basePath
     const defaultOptions = DataUtil.createDefaultGltfOptions();
 

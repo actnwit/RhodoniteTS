@@ -11,7 +11,7 @@ import { glTF1 } from '../../types/glTF1';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { RnPromiseCallback } from '../misc/RnPromise';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { assertIsErr, assertIsOk, Err, ResultType, Ok } from '../misc/Result';
+import { assertIsErr, assertIsOk, Err, Result, Ok } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -32,7 +32,7 @@ export class GltfImporter {
     uri: string,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<ResultType<Expression, Err<ArrayBuffer, unknown>>> {
+  ): Promise<Result<Expression, Err<ArrayBuffer, unknown>>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -75,7 +75,7 @@ export class GltfImporter {
     files: GltfFileBuffers,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<ResultType<Expression, never>> {
+  ): Promise<Result<Expression, never>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -205,7 +205,7 @@ export class GltfImporter {
     options: GltfLoadOption,
     uri: string,
     callback?: RnPromiseCallback
-  ): Promise<ResultType<void, undefined>> {
+  ): Promise<Result<void, undefined>> {
     const optionalFileType = options.fileType;
 
     const fileType = this.__getFileTypeFromFilePromise(fileName, options, optionalFileType);

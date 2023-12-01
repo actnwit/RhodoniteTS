@@ -27,7 +27,7 @@ interface IResult<T, ErrObj> {
   name(): string;
 }
 
-abstract class Result<T, ErrObj> {
+abstract class CResult<T, ErrObj> {
   constructor(protected val?: T | RnError<ErrObj>) {}
   match<R, ErrObj2>(obj: {
     Ok: (value: T) => R;
@@ -49,7 +49,7 @@ abstract class Result<T, ErrObj> {
 /**
  * a class indicating that the result is Ok (Succeeded).
  */
-export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
+export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
   constructor(val?: T) {
     super(val);
   }
@@ -92,7 +92,7 @@ export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrOb
 /**
  * a class indicating that the result is Error (Failed).
  */
-export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
+export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
   private __rnException: RnException<ErrObj>;
 
   constructor(val: RnError<ErrObj>) {
@@ -136,7 +136,7 @@ export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrO
   }
 }
 
-export type ResultType<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
+export type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
 
 export function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj> {
   return result.isOk();

@@ -3,7 +3,7 @@ import { CompositionTypeEnum } from '../definitions/CompositionType';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { Accessor } from './Accessor';
 import { Byte, Count, Size } from '../../types/CommonTypes';
-import { Err, ResultType, Ok } from '../misc';
+import { Err, Result, Ok } from '../misc';
 
 export class BufferView {
   private __buffer: Buffer;
@@ -102,7 +102,7 @@ export class BufferView {
     min?: number[];
     arrayLength?: Size;
     normalized?: boolean;
-  }): ResultType<Accessor, undefined> {
+  }): Result<Accessor, undefined> {
     const accessor = this.__takeAccessorInner({
       compositionType,
       componentType,
@@ -135,7 +135,7 @@ export class BufferView {
     max?: number[];
     min?: number[];
     normalized?: boolean;
-  }): ResultType<Accessor, undefined> {
+  }): Result<Accessor, undefined> {
     const accessor = this.__takeAccessorInnerWithByteOffset({
       compositionType,
       componentType,
@@ -168,7 +168,7 @@ export class BufferView {
     min?: number[];
     arrayLength: Size;
     normalized: boolean;
-  }): ResultType<Accessor, undefined> {
+  }): Result<Accessor, undefined> {
     const byteOffsetInBufferView = this.__takenByte;
     let actualByteStride = byteStride;
     if (actualByteStride === 0) {
@@ -238,7 +238,7 @@ byteSizeToTake: ${actualByteStride * count}, the byte length left in the Buffer:
     max?: number[];
     min?: number[];
     normalized: boolean;
-  }): ResultType<Accessor, undefined> {
+  }): Result<Accessor, undefined> {
     // Each accessor MUST fit its bufferView, i.e.,
     // accessor.byteOffset + EFFECTIVE_BYTE_STRIDE * (accessor.count - 1) + SIZE_OF_COMPONENT * NUMBER_OF_COMPONENTS
     // See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#data-alignment
