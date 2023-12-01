@@ -30,7 +30,8 @@ import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
 import { IOption, None, Some, Option } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
-import { RnException, isErr } from '../misc';
+import { isErr } from '../misc/Result';
+import { RnException } from '../misc/RnException';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 

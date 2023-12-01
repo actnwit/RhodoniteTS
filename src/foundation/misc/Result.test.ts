@@ -1,4 +1,5 @@
-import { Result, Ok, Err, RnError, RnException, isOk, isErr } from './Result';
+import { Result, Ok, Err, RnError, isOk, isErr } from './Result';
+import { RnException } from './RnException';
 
 function succeedIfValueEven(val: number): Result<number, number> {
   if (val % 2 === 0) {

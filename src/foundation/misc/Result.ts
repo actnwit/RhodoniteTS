@@ -1,3 +1,5 @@
+import { RnException } from './RnException';
+
 export interface RnError<ErrObj> {
   message: string;
   error: ErrObj;
@@ -152,28 +154,5 @@ export function assertIsOk(result: IResult<any, any>): asserts result is Ok<any,
 export function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any> {
   if (result._isOk()) {
     throw new Error('This is Ok. No Err.');
-  }
-}
-
-// export class Finalizer {
-//   finally(f: () => void): void {
-//     f();
-//   }
-// }
-
-export class RnException<ErrObj> extends Error {
-  static readonly _prefix = '\nRhodonite Exception';
-  constructor(private err: RnError<ErrObj>) {
-    super(`
-  message: ${err.message}
-  error: ${
-    err.error instanceof Err<unknown, unknown> ? 'see below Exception ↓' + err.error : err.error
-  }
-`);
-    this.name = RnException._prefix;
-  }
-
-  getRnError() {
-    return this.err;
   }
 }
