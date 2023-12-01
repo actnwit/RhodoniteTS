@@ -11,7 +11,7 @@ import { glTF1 } from '../../types/glTF1';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { RnPromiseCallback } from '../misc/RnPromise';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { assertIsErr, assertIsOk, Err, Result, Ok } from '../misc/Result';
+import { assertIsErr, assertIsOk, Err, Result, Ok, isOk } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -263,7 +263,7 @@ export class GltfImporter {
           options
         );
 
-        if (result._isOk()) {
+        if (isOk(result)) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') >= 0) {
             options.__isImportVRM0x = false;

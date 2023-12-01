@@ -1,4 +1,4 @@
-import { Result, Ok, Err, RnError, RnException } from './Result';
+import { Result, Ok, Err, RnError, RnException, isOk } from './Result';
 
 function succeedIfValueEven(val: number): Result<number, number> {
   if (val % 2 === 0) {
@@ -86,8 +86,8 @@ test(`Result.unwrapForce`, () => {
 
 test(`Result.isOk`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(result0._isOk()).toBe(true);
-  if (result0._isOk()) {
+  expect(isOk(result0)).toBe(true);
+  if (isOk(result0)) {
     expect(result0.get()).toBe(0);
   }
 });

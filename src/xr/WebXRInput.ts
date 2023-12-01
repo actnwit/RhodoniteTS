@@ -5,7 +5,7 @@ import { Component } from 'webxr-input-profiles/packages/motion-controllers/src/
 import { Gltf2Importer } from '../foundation/importer/Gltf2Importer';
 import { ModelConverter } from '../foundation/importer/ModelConverter';
 import { Is } from '../foundation/misc/Is';
-import { IEntity, Entity } from '../foundation/core/Entity';
+import { IEntity } from '../foundation/core/Entity';
 import { Quaternion } from '../foundation/math/Quaternion';
 import { Vector3 } from '../foundation/math/Vector3';
 import { IMutableVector3 } from '../foundation/math/IVector';
@@ -14,7 +14,8 @@ import { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableScalar } from '../foundation/math/MutableScalar';
-import { ISceneGraphEntity } from '../foundation';
+import { isOk } from '../foundation/misc/Result';
+import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers: Map<XRInputSource, MotionController> = new Map();
@@ -88,7 +89,7 @@ export async function createMotionController(
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const result = await addMotionControllerToScene(motionController);
-  if (result._isOk()) {
+  if (isOk(result)) {
     const rootGroup = ModelConverter.convertToRhodoniteObject(result.get());
     return rootGroup;
   } else {
