@@ -1,6 +1,3 @@
-import { Is } from './Is';
-import { IOption, None, Some } from './Option';
-
 export interface RnError<ErrObj> {
   message: string;
   error: ErrObj;
