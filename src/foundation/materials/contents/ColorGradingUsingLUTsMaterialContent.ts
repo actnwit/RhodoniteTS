@@ -57,9 +57,10 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     if (typeof uri === 'string') {
       lookupTableTexture = new Texture();
       (async function (uri: string) {
-        await lookupTableTexture.generateTextureFromUri(uri, {
+        lookupTableTexture.generateTextureFromUri(uri, {
           type: ComponentType.UnsignedByte,
         });
+        await lookupTableTexture.loadFromUrlLazy();
       })(uri);
     } else if (texture instanceof AbstractTexture) {
       lookupTableTexture = texture;
@@ -105,7 +106,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

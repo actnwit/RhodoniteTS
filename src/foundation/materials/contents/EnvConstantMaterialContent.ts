@@ -91,7 +91,7 @@ export class EnvConstantMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

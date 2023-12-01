@@ -2,7 +2,10 @@ import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
 import { ComponentRepository } from '../core/ComponentRepository';
 import { ProcessApproachEnum, ProcessApproach } from '../definitions/ProcessApproach';
 import { ModuleManager } from './ModuleManager';
-import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import {
+  CGAPIResourceRepository,
+  ICGAPIResourceRepository,
+} from '../renderer/CGAPIResourceRepository';
 import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
@@ -25,6 +28,8 @@ import { RenderPass } from '../renderer/RenderPass';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { initDefaultTextures } from '../materials/core/DummyTextures';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 
 declare const spector: any;
 
@@ -68,7 +73,7 @@ export class System {
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
-  private static __webglResourceRepository: WebGLResourceRepository;
+  private static __cgApiResourceRepository: ICGAPIResourceRepository;
   private static __webglStrategy?: WebGLStrategy;
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
@@ -245,16 +250,21 @@ export class System {
               if (typeof spector !== 'undefined') {
                 spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
               }
-              repo.switchDepthTest(renderPass.isDepthTest);
+
+              if (this.processApproach !== ProcessApproach.WebGPU) {
+                repo.switchDepthTest(renderPass.isDepthTest);
+
+                if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+                  // bind Framebuffer
+                  System.bindFramebuffer(renderPass, rnXRModule);
+
+                  // set Viewport for Normal (Not WebXR)
+                  System.setViewportForNormalRendering(renderPass, rnXRModule);
+                }
+              }
               if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                // bind Framebuffer
-                System.bindFramebuffer(renderPass, rnXRModule);
-
-                // set Viewport for Normal (Not WebXR)
-                System.setViewportForNormalRendering(renderPass, rnXRModule);
-
                 // clear Framebuffer
-                this.__webglResourceRepository.clearFrameBuffer(renderPass);
+                this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
               }
 
               componentClass.updateComponentsOfEachProcessStage(componentClass, stage, renderPass);
@@ -323,8 +333,9 @@ export class System {
     cameraEntity.getCamera().type = CameraType.Orthographic;
     cameraEntity.getCamera().zNear = 0.1;
     cameraEntity.getCamera().zFar = 10000;
-    const wgl = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    cameraEntity.getCamera().xMag = wgl.width / wgl.height;
+    const webCGApiRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const [width, height] = webCGApiRepository.getCanvasSize();
+    cameraEntity.getCamera().xMag = width / height;
     cameraEntity.getCamera().yMag = 1;
   }
 
@@ -332,7 +343,9 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if ((!webXRSystem?.isWebXRMode || !renderPass.isVrRendering) && !webARSystem?.isWebARMode) {
-      this.__webglResourceRepository.setViewport(renderPass.getViewport());
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setViewport(
+        renderPass.getViewport()
+      );
     }
   }
 
@@ -340,16 +353,20 @@ export class System {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
+        .currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webXRSystem.framebuffer!);
     } else if (webARSystem?.isWebARMode) {
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
+      const glw = (this.__cgApiResourceRepository as WebGLResourceRepository)
+        .currentWebGLContextWrapper!;
       const gl = glw.getRawContext();
       gl.bindFramebuffer(gl.FRAMEBUFFER, webARSystem.framebuffer!);
     } else {
-      this.__webglResourceRepository.bindFramebuffer(renderPass.getFramebuffer());
-      this.__webglResourceRepository.setDrawTargets(renderPass);
+      (this.__cgApiResourceRepository as WebGLResourceRepository).bindFramebuffer(
+        renderPass.getFramebuffer()
+      );
+      (this.__cgApiResourceRepository as WebGLResourceRepository).setDrawTargets(renderPass);
     }
   }
 
@@ -372,10 +389,43 @@ export class System {
    */
   public static async init(desc: SystemInitDescription) {
     await ModuleManager.getInstance().loadModule('webgl');
+    await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
-    System.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    this.__processApproach = desc.approach;
+    SystemState.currentProcessApproach = desc.approach;
     Config.eventTargetDom = desc.canvas;
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+
+    let gl;
+
+    System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    if (desc.approach === ProcessApproach.WebGPU) {
+      // WebGPU
+      const webGpuResourceRepository =
+        CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
+      const module = ModuleManager.getInstance().getModule('webgpu');
+      const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
+      const adapter = await navigator.gpu.requestAdapter();
+      const device = await adapter!.requestDevice();
+      const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
+      webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
+      webGpuResourceRepository.recreateSystemDepthTexture();
+      webGpuResourceRepository.createUniformMorphOffsetsBuffer();
+      webGpuResourceRepository.createUniformMorphWeightsBuffer();
+    } else {
+      // WebGL
+      const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+      gl = repo.generateWebGLContext(
+        desc.canvas,
+        desc.approach.webGLVersion,
+        true,
+        desc.rnWebGLDebug ? desc.rnWebGLDebug : true,
+        desc.webglOption,
+        desc.fallback3dApi
+      );
+      repo.switchDepthTest(true);
+    }
+
+    // Memory Settings
     MemoryManager.createInstanceIfNotCreated({
       cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
       gpuInstanceData: Is.exist(desc.memoryUsageOrder)
@@ -385,19 +435,6 @@ export class System {
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
-
-    const gl = repo.generateWebGLContext(
-      desc.canvas,
-      desc.approach.webGLVersion,
-      true,
-      desc.rnWebGLDebug ? desc.rnWebGLDebug : true,
-      desc.webglOption,
-      desc.fallback3dApi
-    );
-
-    repo.switchDepthTest(true);
-    this.__processApproach = desc.approach;
-    SystemState.currentProcessApproach = desc.approach;
 
     if (
       desc.rnWebGLDebug &&
@@ -409,6 +446,7 @@ export class System {
       );
     }
 
+    // Deal with WebGL context lost and restore
     desc.canvas.addEventListener(
       'webglcontextlost',
       ((event: Event) => {
@@ -438,7 +476,7 @@ export class System {
   }
 
   public static resizeCanvas(width: number, height: number) {
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     repo.resizeCanvas(width, height);
   }
 
@@ -448,6 +486,6 @@ export class System {
   }
 
   public static getCurrentWebGLContextWrapper() {
-    return this.__webglResourceRepository?.currentWebGLContextWrapper;
+    return (this.__cgApiResourceRepository as WebGLResourceRepository).currentWebGLContextWrapper;
   }
 }

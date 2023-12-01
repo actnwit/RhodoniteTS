@@ -32,6 +32,8 @@ import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSing
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
+import pbrSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
+import pbrSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
@@ -42,6 +44,8 @@ import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAre
 import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
 import FlatSingleShaderFragment from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
+import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
+import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
 import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
@@ -387,6 +391,8 @@ function createPbrUberMaterial({
     useNormalTexture,
     vertexShader: pbrSingleShaderVertex,
     pixelShader: pbrSingleShaderFragment,
+    vertexShaderWebGpu: pbrSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: pbrSingleShaderFragmentWebGpu,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
@@ -475,6 +481,8 @@ function createFlatMaterial({
     pixelShader: FlatSingleShaderFragment,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
+    vertexShaderWebGpu: FlatSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: FlatSingleShaderFragmentWebGpu,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);

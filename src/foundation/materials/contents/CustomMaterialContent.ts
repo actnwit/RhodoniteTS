@@ -6,12 +6,15 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
-import { ShaderityUtility } from '../core/ShaderityUtility';
+import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -34,6 +37,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     pixelShader,
     noUseCameraTransform,
     additionalShaderSemanticInfo,
+    vertexShaderWebGpu,
+    pixelShaderWebGpu,
   }: {
     name: string;
     isMorphing: boolean;
@@ -53,6 +58,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     pixelShader: ShaderityObject;
     noUseCameraTransform: boolean;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
+    vertexShaderWebGpu?: ShaderityObject;
+    pixelShaderWebGpu?: ShaderityObject;
   }) {
     super(
       null,
@@ -72,16 +79,39 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     );
 
     // Shader Reflection
-    const vertexShaderData = ShaderityUtility.getShaderDataReflection(
-      vertexShader,
-      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-    );
-    const pixelShaderData = ShaderityUtility.getShaderDataReflection(
-      pixelShader,
-      AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-    );
-    this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-    this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+    let vertexShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    let pixelShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
+        vertexShaderWebGpu!,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
+        pixelShaderWebGpu!,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+    } else {
+      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        vertexShader,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        pixelShader,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+    }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
@@ -158,7 +188,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

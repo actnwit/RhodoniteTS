@@ -30,7 +30,7 @@ export class Sampler {
   }
 
   create() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     this.__samplerResourceUid = webGLResourceRepository.createTextureSampler({
       minFilter: this.__minFilter,
       magFilter: this.__magFilter,
@@ -39,6 +39,10 @@ export class Sampler {
       wrapR: this.__wrapR,
       anisotropy: this.__anisotropy,
     });
+  }
+
+  get created(): boolean {
+    return this.__samplerResourceUid !== -1;
   }
 
   get minFilter(): TextureParameterEnum {

@@ -32,12 +32,16 @@ import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
 import {
-  _createProgramAsSingleOperation,
+  _createProgramAsSingleOperationWebGL,
   _createProgramAsSingleOperationByUpdatedSources,
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
-  _setupGlobalShaderDefinition,
+  _setupGlobalShaderDefinitionWebGL,
+  ShaderHandler,
+  _createProgramAsSingleOperationWebGpu,
 } from './ShaderHandler';
+import Shaderity from 'shaderity';
+import { Texture } from '../../textures';
 
 /**
  * The material class.
@@ -69,6 +73,8 @@ export class Material extends RnObject {
   private __blendFuncDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
   private __blendFuncAlphaSrcFactor = Blend.One; // gl.ONE
   private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
+
+  private __stateVersion = 0;
 
   // static fields
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
@@ -105,6 +111,7 @@ export class Material extends RnObject {
       }
       MathClassUtil._setForce(valueObj!.value, value);
     }
+    this.__stateVersion++;
   }
 
   public setTextureParameter(
@@ -113,22 +120,39 @@ export class Material extends RnObject {
     sampler?: Sampler
   ): void {
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
-      const array = this._allFieldVariables.get(shaderSemantic.index)!;
-      const shaderVariable = {
-        value: [array.value[0], texture, sampler],
-        info: array.info,
-      };
-      this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
-      if (!array.info.isCustomSetting) {
-        this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
-      }
-      if (
-        shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
-        shaderSemantic === ShaderSemantics.BaseColorTexture
-      ) {
-        if (texture.isTransparent) {
-          this.alphaMode = AlphaMode.Translucent;
+      const setter = async () => {
+        if (typeof (texture as Texture).loadFromUrlLazy !== 'undefined') {
+          await (texture as Texture).loadFromUrlLazy();
+          await (texture as Texture).loadFromImgLazy();
         }
+        const array = this._allFieldVariables.get(shaderSemantic.index)!;
+        const shaderVariable = {
+          value: [array.value[0], texture, sampler],
+          info: array.info,
+        };
+        this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
+        if (!array.info.isCustomSetting) {
+          this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
+        }
+        if (
+          shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
+          shaderSemantic === ShaderSemantics.BaseColorTexture
+        ) {
+          if (texture.isTransparent) {
+            this.alphaMode = AlphaMode.Translucent;
+          }
+        }
+        this.__stateVersion++;
+      };
+
+      if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
+        if ((texture as Texture).hasDataToLoadLazy) {
+          setTimeout(setter, 0);
+        } else {
+          setter();
+        }
+      } else {
+        setter();
       }
     }
   }
@@ -165,6 +189,7 @@ export class Material extends RnObject {
           }
         }
       }
+      this.__stateVersion++;
     });
   }
 
@@ -224,7 +249,7 @@ export class Material extends RnObject {
    * @param isWebGL2
    * @returns
    */
-  _createProgram(
+  _createProgramWebGL(
     vertexShaderMethodDefinitions_uniform: string,
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
@@ -234,7 +259,7 @@ export class Material extends RnObject {
       isWebGL2
     );
 
-    const programUid = _createProgramAsSingleOperation(
+    const programUid = _createProgramAsSingleOperationWebGL(
       this,
       vertexPropertiesStr,
       pixelPropertiesStr,
@@ -244,6 +269,23 @@ export class Material extends RnObject {
     this._shaderProgramUid = programUid;
 
     return programUid;
+  }
+
+  _createProgramWebGpu(
+    primitive: Primitive,
+    vertexShaderMethodDefinitions: string,
+    propertySetter: getShaderPropertyFunc
+  ) {
+    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter, true);
+    const programUid = _createProgramAsSingleOperationWebGpu(
+      this,
+      primitive,
+      vertexShaderMethodDefinitions,
+      vertexPropertiesStr,
+      pixelPropertiesStr
+    );
+
+    this._shaderProgramUid = programUid;
   }
 
   /**
@@ -303,7 +345,7 @@ export class Material extends RnObject {
    * @internal
    * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
-  _setParametersToGpu({
+  _setParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,
@@ -315,11 +357,11 @@ export class Material extends RnObject {
     args: RenderingArg;
   }) {
     // For Auto Parameters
-    this.__setAutoParametersToGpu(args, firstTime, shaderProgram);
+    this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    if (Is.exist(this._materialContent._setCustomSettingParametersToGpu)) {
-      this._materialContent._setCustomSettingParametersToGpu({
+    if (Is.exist(this._materialContent._setCustomSettingParametersToGpuWebGL)) {
+      this._materialContent._setCustomSettingParametersToGpuWebGL({
         material,
         shaderProgram,
         firstTime,
@@ -328,7 +370,7 @@ export class Material extends RnObject {
     }
 
     // For SoloDatum Parameters
-    this.__setSoloDatumParametersToGpu({
+    this.__setSoloDatumParametersToGpuWebGL({
       shaderProgram,
       firstTime,
       args,
@@ -379,7 +421,7 @@ export class Material extends RnObject {
     return { vertexPropertiesStr, pixelPropertiesStr };
   }
 
-  private __setAutoParametersToGpu(
+  private __setAutoParametersToGpuWebGL(
     args: RenderingArg,
     firstTime: boolean,
     shaderProgram: WebGLProgram
@@ -428,7 +470,7 @@ export class Material extends RnObject {
     }
   }
 
-  private __setSoloDatumParametersToGpu({
+  private __setSoloDatumParametersToGpuWebGL({
     shaderProgram,
     firstTime,
     args,
@@ -483,6 +525,7 @@ export class Material extends RnObject {
   public setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum) {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
+    this.__stateVersion++;
   }
 
   /**
@@ -499,6 +542,7 @@ export class Material extends RnObject {
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
+    this.__stateVersion++;
   }
 
   /**
@@ -510,6 +554,7 @@ export class Material extends RnObject {
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
+    this.__stateVersion++;
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {
@@ -549,6 +594,7 @@ export class Material extends RnObject {
       );
     }
     this.__alphaToCoverage = alphaToCoverage;
+    this.__stateVersion++;
   }
   get alphaToCoverage(): boolean {
     return this.__alphaToCoverage;
@@ -620,5 +666,9 @@ export class Material extends RnObject {
 
   get materialTypeName(): string {
     return this.__materialTypeName;
+  }
+
+  get stateVersion(): number {
+    return this.__stateVersion;
   }
 }

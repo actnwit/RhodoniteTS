@@ -116,7 +116,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

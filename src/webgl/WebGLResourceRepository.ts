@@ -33,6 +33,7 @@ import {
   CGAPIResourceHandle,
   Byte,
   ArrayType,
+  WebGPUResourceHandle,
 } from '../types/CommonTypes';
 import { DataUtil } from '../foundation/misc/DataUtil';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
@@ -223,7 +224,7 @@ export class WebGLResourceRepository
     const resourceHandle = this.__registerResource(vbo!);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, accessor.bufferView.getUint8Array(), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, accessor.getUint8Array(), gl.STATIC_DRAW);
     //    gl.bufferData(gl.ARRAY_BUFFER, accessor.getTypedArray(), gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
@@ -369,8 +370,7 @@ export class WebGLResourceRepository
 
   /**
    * create a shader program
-   * @param param0
-   * @returns
+   * @returns a object which has shader modules
    */
   createShaderProgram({
     material,
@@ -386,7 +386,7 @@ export class WebGLResourceRepository
     attributeNames: AttributeNames;
     attributeSemantics: VertexAttributeEnum[];
     onError?: (message: string) => void;
-  }) {
+  }): WebGPUResourceHandle {
     const gl = this.__glw!.getRawContext();
 
     if (gl == null) {
@@ -902,7 +902,7 @@ export class WebGLResourceRepository
         primitive.attributeComponentTypes[i].index,
         primitive.attributeAccessors[i].normalized,
         primitive.attributeAccessors[i].byteStride,
-        primitive.attributeAccessors[i].byteOffsetInBufferView
+        0
       );
     });
 
@@ -1185,7 +1185,7 @@ export class WebGLResourceRepository
    * @param param1
    * @returns
    */
-  createTextureFromHTMLImageElement(
+  async createTextureFromHTMLImageElement(
     imageData: HTMLImageElement,
     {
       level,
@@ -1206,7 +1206,7 @@ export class WebGLResourceRepository
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): WebGLResourceHandle {
+  ): Promise<WebGLResourceHandle> {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
@@ -2062,7 +2062,7 @@ export class WebGLResourceRepository
       generateMipmap,
     }: {
       level: Index;
-      internalFormat: TextureParameterEnum | PixelFormatEnum;
+      internalFormat: TextureParameterEnum;
       border: Size;
       format: PixelFormatEnum;
       type: ComponentTypeEnum;

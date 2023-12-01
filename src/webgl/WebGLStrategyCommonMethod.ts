@@ -181,41 +181,6 @@ function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
   }
 }
 
-function updateVBOAndVAO(mesh: Mesh) {
-  const primitiveNum = mesh.getPrimitiveNumber();
-  for (let i = 0; i < primitiveNum; i++) {
-    const primitive = mesh.getPrimitiveAt(i);
-    if (Is.exist(primitive.vertexHandles)) {
-      primitive.update3DAPIVertexData();
-    } else {
-      primitive.create3DAPIVertexData();
-    }
-  }
-  mesh.updateVariationVBO();
-  mesh.updateVAO();
-}
-
-function isMaterialsSetup(meshComponent: MeshComponent) {
-  if (meshComponent.mesh!._variationVBOUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-    const primitiveNum = meshComponent.mesh!.getPrimitiveNumber();
-    let count = 0;
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = meshComponent.mesh!.getPrimitiveAt(i);
-      if (primitive.material._shaderProgramUid !== -1) {
-        count++;
-      }
-    }
-
-    if (primitiveNum === count) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-}
-
 function getViewport(renderPass: RenderPass) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
@@ -317,8 +282,6 @@ export default Object.freeze({
   setWebGLParameters,
   startDepthMasking,
   endDepthMasking,
-  updateVBOAndVAO,
-  isMaterialsSetup,
   setVRViewport,
   getDisplayNumber,
   isVrMainPass,

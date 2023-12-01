@@ -44,7 +44,11 @@ import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import {
+  isMaterialsSetup,
+  isSkipDrawing,
+  updateVBOAndVAO,
+} from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
@@ -144,7 +148,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material._createProgram(
+    const programUid = material._createProgramWebGL(
       WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
       WebGLStrategyDataTexture.__getShaderProperty,
       glw.isWebGL2
@@ -386,14 +390,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
     // setup shader program
-    if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
+    if (!isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     // update VBO and VAO
     if (!this.__isMeshSetup(mesh)) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
-      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
+      updateVBOAndVAO(mesh);
       const primitiveNum = mesh.getPrimitiveNumber();
 
       for (let i = 0; i < primitiveNum; i++) {
@@ -723,27 +727,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  private __setCurrentComponentSIDsForEachEntity(
-    gl: WebGLRenderingContext,
-    renderPass: RenderPass,
-    entity: ISkeletalEntity
-  ) {
-    const skeletalComponent = entity.tryToGetSkeletal();
-    if (skeletalComponent) {
-      let index = 0;
-      if (skeletalComponent.componentSID < Config.maxSkeletonNumber) {
-        index = skeletalComponent.componentSID;
-      }
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
-        WellKnownComponentTIDs.SkeletalComponentTID
-      ] = index;
-    } else {
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v[
-        WellKnownComponentTIDs.SkeletalComponentTID
-      ] = -1;
-    }
-  }
-
   private __setCurrentComponentSIDsForEachPrimitive(
     gl: WebGLRenderingContext,
     material: Material,
@@ -829,12 +812,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       return false;
     }
 
-    this.__setCurrentComponentSIDsForEachEntity(
-      gl,
-      renderPass,
-      entity as unknown as ISkeletalEntity
-    );
-
     const meshRendererComponent = entity.getMeshRenderer()!;
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
@@ -868,7 +845,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
-    material._setParametersToGpu({
+    material._setParametersToGpuWebGL({
       material: material,
       shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
       firstTime: firstTime,

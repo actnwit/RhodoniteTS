@@ -24,6 +24,7 @@ export declare class MeshRendererComponent extends Component {
     static isViewFrustumCullingEnabled: boolean;
     static isDepthMaskTrueForTransparencies: boolean;
     static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
+    _updateCount: number;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;

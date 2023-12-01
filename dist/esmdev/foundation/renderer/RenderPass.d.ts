@@ -15,6 +15,7 @@ import { RenderBufferTargetEnum } from '../definitions';
  * A render pass is a collection of the resources which is used in rendering process.
  */
 export declare class RenderPass extends RnObject {
+    private readonly __renderPassUID;
     private __entities;
     private __sceneGraphDirectlyAdded;
     private __topLevelSceneGraphComponents?;
@@ -47,6 +48,7 @@ export declare class RenderPass extends RnObject {
     private __preEachDrawFunc?;
     private __postEachRenderFunc?;
     private static __tmp_Vector4_0;
+    static __mesh_uid_count: number;
     constructor();
     clone(): RenderPass;
     setPreDrawFunction(func: (drawCount: number) => void): void;
@@ -133,4 +135,5 @@ export declare class RenderPass extends RnObject {
     private __getMaterialOf;
     private __hasMaterialOf;
     getAppropriateMaterial(primitive: Primitive): Material;
+    get renderPassUID(): number;
 }

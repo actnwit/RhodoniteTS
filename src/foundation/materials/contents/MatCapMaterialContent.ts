@@ -34,9 +34,10 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     if (typeof uri === 'string') {
       matCapTexture = new Texture();
       (async function (uri: string) {
-        await matCapTexture.generateTextureFromUri(uri, {
+        matCapTexture.generateTextureFromUri(uri, {
           type: ComponentType.UnsignedByte,
         });
+        await matCapTexture.loadFromUrlLazy();
       })(uri);
     } else if (texture instanceof AbstractTexture) {
       matCapTexture = texture;
@@ -107,7 +108,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

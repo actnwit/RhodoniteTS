@@ -3,7 +3,7 @@
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
-    lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
+    lightNumber = get_lightNumber(0.0, 0);
   #endif
 
   float skeletalComponentSID = -1.0;

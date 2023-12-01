@@ -18,7 +18,7 @@ export class CubeTexture extends AbstractTexture {
 
   async loadTextureImages() {
     this.__startedToLoad = true;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const [resourceUid, sampler] = await webGLResourceRepository.createCubeTextureFromFiles(
       this.baseUriToLoad!,
       this.mipmapLevelNumber!,
@@ -31,22 +31,25 @@ export class CubeTexture extends AbstractTexture {
   }
 
   loadTextureImagesAsync() {
-    this.__startedToLoad = true;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository
-      .createCubeTextureFromFiles(
-        this.baseUriToLoad!,
-        this.mipmapLevelNumber!,
-        this.isNamePosNeg,
-        this.hdriFormat
-      )
-      .then(([cubeTextureUid, sampler]) => {
-        this._textureResourceUid = cubeTextureUid;
-        this._recommendedTextureSampler = sampler;
-      })
-      .then(() => {
-        this.__isTextureReady = true;
-      });
+    return new Promise<void>((resolve) => {
+      this.__startedToLoad = true;
+      const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      webGLResourceRepository
+        .createCubeTextureFromFiles(
+          this.baseUriToLoad!,
+          this.mipmapLevelNumber!,
+          this.isNamePosNeg,
+          this.hdriFormat
+        )
+        .then(([cubeTextureUid, sampler]) => {
+          this._textureResourceUid = cubeTextureUid;
+          this._recommendedTextureSampler = sampler;
+        })
+        .then(() => {
+          this.__isTextureReady = true;
+          resolve();
+        });
+    });
   }
 
   loadTextureImagesFromBasis(
@@ -101,7 +104,7 @@ export class CubeTexture extends AbstractTexture {
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
     const [resourceUid, sampler] = webGLResourceRepository.createCubeTexture(
       1,

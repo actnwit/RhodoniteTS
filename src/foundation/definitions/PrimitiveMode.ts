@@ -1,10 +1,33 @@
 import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 
-export type PrimitiveModeEnum = EnumIO;
+export interface PrimitiveModeEnum extends EnumIO {
+  getWebGPUTypeStr(): string;
+}
 
 class PrimitiveModeClass extends EnumClass implements PrimitiveModeEnum {
   constructor({ index, str }: { index: number; str: string }) {
     super({ index, str });
+  }
+
+  getWebGPUTypeStr(): string {
+    switch (this.index) {
+      case 0:
+        return 'point-list';
+      case 1:
+        return 'line-list';
+      case 2:
+        throw new Error('Not Supported in WebGPU');
+      case 3:
+        return 'line-strip';
+      case 4:
+        return 'triangle-list';
+      case 5:
+        return 'triangle-strip';
+      case 6:
+        throw new Error('Not Supported in WebGPU');
+      default:
+        throw new Error('Not Supported in WebGPU');
+    }
   }
 }
 
@@ -53,7 +76,7 @@ const typeList = [
 ];
 
 function from(index: number): PrimitiveModeEnum | undefined {
-  return _from({ typeList, index });
+  return _from({ typeList, index }) as PrimitiveModeEnum | undefined;
 }
 
 export const PrimitiveMode = Object.freeze({

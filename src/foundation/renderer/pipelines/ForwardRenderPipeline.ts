@@ -123,12 +123,14 @@ export class ForwardRenderPipeline extends RnObject {
     const sFrame = new Some(new Frame());
     this.__oFrame = sFrame;
 
-    this.__oSamplerForBackBuffer = new Some(new Sampler({
-      wrapS: TextureParameter.Repeat,
-      wrapT: TextureParameter.Repeat,
-      minFilter: TextureParameter.LinearMipmapLinear,
-      magFilter: TextureParameter.Linear,
-    }));
+    this.__oSamplerForBackBuffer = new Some(
+      new Sampler({
+        wrapS: TextureParameter.Repeat,
+        wrapT: TextureParameter.Repeat,
+        minFilter: TextureParameter.LinearMipmapLinear,
+        magFilter: TextureParameter.Linear,
+      })
+    );
     this.__oSamplerForBackBuffer.unwrapForce().create();
 
     // create Frame Buffers
@@ -341,7 +343,6 @@ export class ForwardRenderPipeline extends RnObject {
     diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
     diffuseCubeTexture.isNamePosNeg = arg.diffuse.isNamePosNeg;
     diffuseCubeTexture.mipmapLevelNumber = arg.diffuse.mipmapLevelNumber;
-    diffuseCubeTexture.loadTextureImagesAsync();
     this.__oDiffuseCubeTexture = new Some(diffuseCubeTexture);
 
     const specularCubeTexture = new CubeTexture();
@@ -349,7 +350,6 @@ export class ForwardRenderPipeline extends RnObject {
     specularCubeTexture.isNamePosNeg = arg.specular.isNamePosNeg;
     specularCubeTexture.hdriFormat = arg.specular.hdriFormat;
     specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
-    specularCubeTexture.loadTextureImagesAsync();
     this.__oSpecularCubeTexture = new Some(specularCubeTexture);
 
     this.__setIblInner();
@@ -545,7 +545,7 @@ export class ForwardRenderPipeline extends RnObject {
                   this.__oFrameBufferResolveForReference
                     .unwrapForce()
                     .getColorAttachedRenderTargetTexture(0)!,
-                    this.__oSamplerForBackBuffer.unwrapForce()
+                  this.__oSamplerForBackBuffer.unwrapForce()
                 );
               }
             }
@@ -803,5 +803,4 @@ export class ForwardRenderPipeline extends RnObject {
     frame.addExpression(this.getMsaaResolveExpression()!);
     frame.addExpression(this.getGammaExpression()!);
   }
-
 }

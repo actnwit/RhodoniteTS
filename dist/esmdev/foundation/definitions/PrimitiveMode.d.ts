@@ -1,15 +1,17 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type PrimitiveModeEnum = EnumIO;
+export interface PrimitiveModeEnum extends EnumIO {
+    getWebGPUTypeStr(): string;
+}
 declare function from(index: number): PrimitiveModeEnum | undefined;
 export declare const PrimitiveMode: Readonly<{
-    Unknown: EnumIO;
-    Points: EnumIO;
-    Lines: EnumIO;
-    LineLoop: EnumIO;
-    LineStrip: EnumIO;
-    Triangles: EnumIO;
-    TriangleStrip: EnumIO;
-    TriangleFan: EnumIO;
+    Unknown: PrimitiveModeEnum;
+    Points: PrimitiveModeEnum;
+    Lines: PrimitiveModeEnum;
+    LineLoop: PrimitiveModeEnum;
+    LineStrip: PrimitiveModeEnum;
+    Triangles: PrimitiveModeEnum;
+    TriangleStrip: PrimitiveModeEnum;
+    TriangleFan: PrimitiveModeEnum;
     from: typeof from;
 }>;
 export {};

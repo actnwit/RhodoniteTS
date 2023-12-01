@@ -6,7 +6,7 @@ module.exports = {
     launchTimeout: 10000, // Wait 5 secs max before timing out
   },
   launch: {
-    headless: true,
+    headless: 'new',
     devtools: false,
     // dumpio: true,
     // executablePath: "/Applications/Chromium.app/Contents/MacOS/Chromium", // Try this if you got error in Mac
@@ -18,7 +18,6 @@ module.exports = {
     args: [
       '--start-maximized',
       '--no-sandbox',
-      '--disable-gpu',
       '--disable-audio-output',
     ],
   },

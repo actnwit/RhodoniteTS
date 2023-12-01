@@ -1,6 +1,6 @@
 import Rn from '../../../../';
 import { ShaderityObject } from 'shaderity';
-import { ShaderityUtility } from './ShaderityUtility';
+import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 
 test.skip('ShaderityUtility parse rn_data correctly', async () => {
   const shaderText = `
@@ -30,7 +30,7 @@ void main() {
 `;
   const shaderityObject = { code: shaderText } as ShaderityObject;
 
-  const array = ShaderityUtility.getShaderDataReflection(shaderityObject);
+  const array = ShaderityUtilityWebGL.getShaderDataReflection(shaderityObject);
   expect(array.shaderSemanticsInfoArray[0].semantic.str).toBe('worldMatrix');
   expect(array.shaderSemanticsInfoArray[0].componentType).toBe(Rn.ComponentType.Float);
   expect(array.shaderSemanticsInfoArray[0].compositionType).toBe(Rn.CompositionType.Scalar);

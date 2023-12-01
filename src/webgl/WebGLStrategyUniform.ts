@@ -35,7 +35,11 @@ import WebGLStrategyCommonMethod, {
 } from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
+import {
+  isMaterialsSetup,
+  isSkipDrawing,
+  updateVBOAndVAO,
+} from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
@@ -171,7 +175,7 @@ bool get_isBillboard(float instanceId) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material._createProgram(
+    const programUid = material._createProgramWebGL(
       WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
       ShaderSemantics.getShaderProperty,
       glw.isWebGL2
@@ -237,13 +241,13 @@ bool get_isBillboard(float instanceId) {
     }
 
     // setup shader program
-    if (!WebGLStrategyCommonMethod.isMaterialsSetup(meshComponent)) {
+    if (!isMaterialsSetup(meshComponent)) {
       setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     // setup VBO and VAO
     if (!this.__isMeshSetup(mesh)) {
-      WebGLStrategyCommonMethod.updateVBOAndVAO(mesh);
+      updateVBOAndVAO(mesh);
 
       const primitiveNum = mesh.getPrimitiveNumber();
       for (let i = 0; i < primitiveNum; i++) {
@@ -504,7 +508,7 @@ bool get_isBillboard(float instanceId) {
       }
 
       WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-      material._setParametersToGpu({
+      material._setParametersToGpuWebGL({
         material,
         shaderProgram,
         firstTime,

@@ -7,7 +7,7 @@ import { Array1, Array2, Array3, Array4 } from '../../types/CommonTypes';
 import { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
 
 export class ComplexVertexAttribute implements ISemanticVertexAttribute {
-  private __semantic: PrimitiveModeEnum;
+  private __semantic: VertexAttributeEnum;
   private __components: Array1to4<Accessor> = [] as unknown as Array1to4<Accessor>;
   private __offsets: Array1to4<Index> = [] as unknown as Array1to4<Index>;
 
@@ -39,7 +39,7 @@ export class ComplexVertexAttribute implements ISemanticVertexAttribute {
     }
   }
 
-  get semantic(): PrimitiveModeEnum {
+  get semantic(): VertexAttributeEnum {
     return this.__semantic;
   }
 

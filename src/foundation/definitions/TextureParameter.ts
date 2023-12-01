@@ -2,7 +2,9 @@ import { GL_RG16F, GL_RG32F } from '../../types';
 import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
 import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
-export type TextureParameterEnum = EnumIO;
+export interface TextureParameterEnum extends EnumIO {
+  webgpu: string;
+}
 
 class TextureParameterClass extends EnumClass implements TextureParameterEnum {
   readonly __webgpu?: string;
@@ -22,26 +24,32 @@ class TextureParameterClass extends EnumClass implements TextureParameterEnum {
 const Nearest: TextureParameterEnum = new TextureParameterClass({
   index: 0x2600,
   str: 'NEAREST',
+  webgpu: 'nearest',
 });
 const Linear: TextureParameterEnum = new TextureParameterClass({
   index: 0x2601,
   str: 'LINEAR',
+  webgpu: 'linear',
 });
 const NearestMipmapNearest: TextureParameterEnum = new TextureParameterClass({
   index: 0x2700,
   str: 'NEAREST_MIPMAP_NEAREST',
+  webgpu: 'nearest',
 });
 const LinearMipmapNearest: TextureParameterEnum = new TextureParameterClass({
   index: 0x2701,
   str: 'LINEAR_MIPMAP_NEAREST',
+  webgpu: 'linear',
 });
 const NearestMipmapLinear: TextureParameterEnum = new TextureParameterClass({
   index: 0x2702,
   str: 'NEAREST_MIPMAP_LINEAR',
+  webgpu: 'nearest',
 });
 const LinearMipmapLinear: TextureParameterEnum = new TextureParameterClass({
   index: 0x2703,
   str: 'LINEAR_MIPMAP_LINEAR',
+  webgpu: 'linear',
 });
 const TextureMagFilter: TextureParameterEnum = new TextureParameterClass({
   index: 0x2800,
@@ -82,14 +90,17 @@ const ActiveTexture: TextureParameterEnum = new TextureParameterClass({
 const Repeat: TextureParameterEnum = new TextureParameterClass({
   index: 0x2901,
   str: 'REPEAT',
+  webgpu: 'repeat',
 });
 const ClampToEdge: TextureParameterEnum = new TextureParameterClass({
   index: 0x812f,
   str: 'CLAMP_TO_EDGE',
+  webgpu: 'clamp-to-edge',
 });
 const MirroredRepeat: TextureParameterEnum = new TextureParameterClass({
   index: 0x8370,
   str: 'MIRRORED_REPEAT',
+  webgpu: 'mirror-repeat',
 });
 const RGB8: TextureParameterEnum = new TextureParameterClass({
   index: 0x8051,
@@ -190,9 +201,9 @@ function from(index: number): TextureParameterEnum {
 
 function migrateToWebGL1InternalFormat(tp: TextureParameterEnum): TextureParameterEnum {
   if (tp.index === RGBA8.index) {
-    return PixelFormat.RGBA;
+    return PixelFormat.RGBA as TextureParameterEnum;
   } else if (tp.index === RGB8.index) {
-    return PixelFormat.RGB;
+    return PixelFormat.RGB as TextureParameterEnum;
   }
   throw new Error('Unsupported texture parameter');
 }

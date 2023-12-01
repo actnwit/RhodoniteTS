@@ -36,37 +36,37 @@ export class Frustum {
     this.zNear.y = this.__vp.m21 + this.__vp.m31;
     this.zNear.z = this.__vp.m22 + this.__vp.m32;
     this.zNear.w = this.__vp.m23 + this.__vp.m33;
-    this.zNear.normalize3();
+    // this.zNear.normalize3();
 
     this.zFar.x = -this.__vp.m20 + this.__vp.m30;
     this.zFar.y = -this.__vp.m21 + this.__vp.m31;
     this.zFar.z = -this.__vp.m22 + this.__vp.m32;
     this.zFar.w = -this.__vp.m23 + this.__vp.m33;
-    this.zFar.normalize3();
+    // this.zFar.normalize3();
 
     this.bottom.x = this.__vp.m10 + this.__vp.m30;
     this.bottom.y = this.__vp.m11 + this.__vp.m31;
     this.bottom.z = this.__vp.m12 + this.__vp.m32;
     this.bottom.w = this.__vp.m13 + this.__vp.m33;
-    this.bottom.normalize3();
+    // this.bottom.normalize3();
 
     this.top.x = -this.__vp.m10 + this.__vp.m30;
     this.top.y = -this.__vp.m11 + this.__vp.m31;
     this.top.z = -this.__vp.m12 + this.__vp.m32;
     this.top.w = -this.__vp.m13 + this.__vp.m33;
-    this.top.normalize3();
+    // this.top.normalize3();
 
     this.left.x = this.__vp.m00 + this.__vp.m30;
     this.left.y = this.__vp.m01 + this.__vp.m31;
     this.left.z = this.__vp.m02 + this.__vp.m32;
     this.left.w = this.__vp.m03 + this.__vp.m33;
-    this.left.normalize3();
+    // this.left.normalize3();
 
     this.right.x = -this.__vp.m00 + this.__vp.m30;
     this.right.y = -this.__vp.m01 + this.__vp.m31;
     this.right.z = -this.__vp.m02 + this.__vp.m32;
     this.right.w = -this.__vp.m03 + this.__vp.m33;
-    this.right.normalize3();
+    // this.right.normalize3();
 
     // Calculate the corners of the view frustum.
     const hCorners = [

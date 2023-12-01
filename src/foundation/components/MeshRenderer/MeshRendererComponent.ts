@@ -1,7 +1,7 @@
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { MeshComponent } from '../Mesh/MeshComponent';
-import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
+import { ProcessApproach, ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStage, ProcessStageEnum } from '../../definitions/ProcessStage';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -43,6 +43,7 @@ export class MeshRendererComponent extends Component {
   public static isDepthMaskTrueForTransparencies = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
+  public _updateCount = 0;
 
   constructor(
     entityUid: EntityUID,
@@ -71,23 +72,34 @@ export class MeshRendererComponent extends Component {
 
   static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
 
     // Strategy
-    MeshRendererComponent.__webglRenderingStrategy =
-      webglModule.getRenderingStrategy(processApproach);
+    if (processApproach === ProcessApproach.WebGPU) {
+      const moduleName = 'webgpu';
+      const webgpuModule = moduleManager.getModule(moduleName)! as any;
+      MeshRendererComponent.__webglRenderingStrategy =
+        webgpuModule.WebGpuStrategyBasic.getInstance();
+    } else {
+      const moduleName = 'webgl';
+      const webglModule = moduleManager.getModule(moduleName)! as any;
+      MeshRendererComponent.__webglRenderingStrategy =
+        webglModule.getRenderingStrategy(processApproach);
+    }
   }
 
   $load() {
     MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
 
+    const promises = [];
     if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
-      this.diffuseCubeMap.loadTextureImagesAsync();
+      promises.push(this.diffuseCubeMap.loadTextureImagesAsync());
     }
     if (this.specularCubeMap && !this.specularCubeMap.startedToLoad) {
-      this.specularCubeMap.loadTextureImagesAsync();
+      promises.push(this.specularCubeMap.loadTextureImagesAsync());
     }
+    Promise.all(promises).then(() => {
+      this._updateCount++;
+    });
 
     // this.moveStageTo(ProcessStage.PreRender);
   }

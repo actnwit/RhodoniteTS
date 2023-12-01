@@ -846,7 +846,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

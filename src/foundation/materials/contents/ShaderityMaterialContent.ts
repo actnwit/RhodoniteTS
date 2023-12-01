@@ -2,7 +2,7 @@ import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { ShaderityObject } from 'shaderity';
-import { ShaderityUtility } from '../core/ShaderityUtility';
+import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 import { ShaderType } from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
@@ -22,11 +22,11 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
   }) {
     super(null, name, {});
 
-    const vertexShaderData = ShaderityUtility.getShaderDataReflection(
+    const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
       vertexShaderityObj,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
-    const pixelShaderData = ShaderityUtility.getShaderDataReflection(
+    const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
       pixelShaderityObj,
       AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
     );
@@ -54,7 +54,7 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpu({
+  _setCustomSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

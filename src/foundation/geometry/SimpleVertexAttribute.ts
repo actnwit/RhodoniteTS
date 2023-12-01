@@ -1,19 +1,18 @@
 import { VertexAttributeEnum } from '../definitions/VertexAttribute';
-import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { Accessor } from '../memory/Accessor';
 import { Array1, Array2, Array3, Array4, Index } from '../../types/CommonTypes';
 import { IndicesAccessOption } from '../memory/Accessor';
 import { ISemanticVertexAttribute } from './ISemanticVertexAttribute';
 
 export class SimpleVertexAttribute implements ISemanticVertexAttribute {
-  private __semantic: PrimitiveModeEnum;
+  private __semantic: VertexAttributeEnum;
   private __accessor: Accessor;
   constructor(semanticAttribute: VertexAttributeEnum, accessor: Accessor) {
     this.__semantic = semanticAttribute;
     this.__accessor = accessor;
   }
 
-  get semantic(): PrimitiveModeEnum {
+  get semantic(): VertexAttributeEnum {
     return this.__semantic;
   }
 

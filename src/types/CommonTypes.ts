@@ -59,6 +59,7 @@ export type MaterialTID = Index; // a type number of the Material Type
 export type TextureUID = Index;
 export type MeshUID = Index;
 export type CameraSID = Index;
+export type RenderPassUID = Index;
 
 export type WebGLResourceHandle = number;
 export type WebGPUResourceHandle = number;

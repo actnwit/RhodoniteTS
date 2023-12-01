@@ -38,7 +38,15 @@ const expression = (
   )
 ).unwrapForce();
 
-Rn.System.process([expression]);
+let count = 0;
 
-p.id = 'rendered';
-p.innerText = 'Rendered.';
+Rn.System.startRenderLoop(() => {
+  if (count > 100) {
+    p.id = 'rendered';
+    p.innerText = 'Rendered.';
+  }
+
+  Rn.System.process([expression]);
+
+  count++;
+});

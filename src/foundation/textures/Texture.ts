@@ -1,6 +1,6 @@
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentType } from '../definitions/ComponentType';
-import { TextureParameter } from '../definitions/TextureParameter';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
@@ -10,7 +10,7 @@ import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { DataUtil } from '../misc/DataUtil';
 import { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
-import { TextureData } from '../../webgl/WebGLResourceRepository';
+import { TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { ModuleManager } from '../system/ModuleManager';
 
 declare const BASIS: BASIS;
@@ -21,16 +21,29 @@ export class Texture extends AbstractTexture {
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
   private static __BasisFile?: new (x: Uint8Array) => BasisFile;
+  private __uriToLoadLazy?: string;
+  private __imgToLoadLazy?: HTMLImageElement;
+  private __optionsToLoadLazy?: {
+    level: number;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    generateMipmap: boolean;
+  };
 
   constructor() {
     super();
+  }
+
+  get hasDataToLoadLazy() {
+    return this.__uriToLoadLazy != null || this.__imgToLoadLazy != null;
   }
 
   generateTextureFromBasis(
     uint8Array: Uint8Array,
     options: {
       level?: Count;
-      internalFormat?: PixelFormatEnum;
+      internalFormat?: TextureParameterEnum;
       format?: PixelFormatEnum;
       type?: ComponentTypeEnum;
       generateMipmap?: boolean;
@@ -126,6 +139,27 @@ export class Texture extends AbstractTexture {
       generateMipmap = true,
     } = {}
   ) {
+    this.__imgToLoadLazy = image;
+    this.__optionsToLoadLazy = {
+      level,
+      internalFormat,
+      format,
+      type,
+      generateMipmap,
+    };
+  }
+
+  async loadFromImgLazy() {
+    if (this.__imgToLoadLazy == null) {
+      return;
+    }
+    const image = this.__imgToLoadLazy!;
+    const level = this.__optionsToLoadLazy?.level ?? 0;
+    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureParameter.RGBA8;
+    const format = this.__optionsToLoadLazy?.format ?? PixelFormat.RGBA;
+    const type = this.__optionsToLoadLazy?.type ?? ComponentType.UnsignedByte;
+    const generateMipmap = this.__optionsToLoadLazy?.generateMipmap ?? true;
+
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
     let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
@@ -148,10 +182,10 @@ export class Texture extends AbstractTexture {
     this.__width = img.width;
     this.__height = img.height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     let texture: CGAPIResourceHandle;
     if (img instanceof HTMLImageElement) {
-      texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+      texture = await webGLResourceRepository.createTextureFromHTMLImageElement(img, {
         level,
         internalFormat,
         width: this.__width,
@@ -182,6 +216,8 @@ export class Texture extends AbstractTexture {
     this.__uri = image.src;
 
     AbstractTexture.__textureMap.set(texture, this);
+
+    this.__imgToLoadLazy = undefined;
   }
 
   generateTextureFromUri(
@@ -194,6 +230,27 @@ export class Texture extends AbstractTexture {
       generateMipmap = true,
     } = {}
   ) {
+    this.__uriToLoadLazy = imageUri;
+    this.__optionsToLoadLazy = {
+      level,
+      internalFormat,
+      format,
+      type,
+      generateMipmap,
+    };
+  }
+
+  async loadFromUrlLazy() {
+    if (this.__uriToLoadLazy == null) {
+      return;
+    }
+    const imageUri = this.__uriToLoadLazy;
+    const level = this.__optionsToLoadLazy?.level ?? 0;
+    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureParameter.RGBA8;
+    const format = this.__optionsToLoadLazy?.format ?? PixelFormat.RGBA;
+    const type = this.__optionsToLoadLazy?.type ?? ComponentType.UnsignedByte;
+    const generateMipmap = this.__optionsToLoadLazy?.generateMipmap ?? true;
+
     this.__uri = imageUri;
     this.__startedToLoad = true;
     return new Promise((resolve, reject) => {
@@ -224,41 +281,42 @@ export class Texture extends AbstractTexture {
         this.__width = img.width;
         this.__height = img.height;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+        const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
-        let texture: CGAPIResourceHandle;
-        if (img instanceof HTMLImageElement) {
-          texture = webGLResourceRepository.createTextureFromHTMLImageElement(img, {
-            level,
-            internalFormat,
-            width: this.__width,
-            height: this.__height,
-            border: 0,
-            format,
-            type,
-            generateMipmap,
-          });
-        } else if (img instanceof HTMLCanvasElement) {
-          const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
-            level,
-            internalFormat,
-            width: this.__width,
-            height: this.__height,
-            border: 0,
-            format,
-            type,
-            generateMipmap,
-          });
-          texture = textureHandle;
-        } else {
-          throw new Error('Unsupported image type');
-        }
-
-        this._textureResourceUid = texture;
-        this.__isTextureReady = true;
-        AbstractTexture.__textureMap.set(texture, this);
-
-        resolve();
+        let texture: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+        (async () => {
+          if (img instanceof HTMLImageElement) {
+            texture = await webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+              level,
+              internalFormat,
+              width: this.__width,
+              height: this.__height,
+              border: 0,
+              format,
+              type,
+              generateMipmap,
+            });
+          } else if (img instanceof HTMLCanvasElement) {
+            const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+              level,
+              internalFormat,
+              width: this.__width,
+              height: this.__height,
+              border: 0,
+              format,
+              type,
+              generateMipmap,
+            });
+            texture = textureHandle;
+          } else {
+            throw new Error('Unsupported image type');
+          }
+          this._textureResourceUid = texture;
+          this.__isTextureReady = true;
+          AbstractTexture.__textureMap.set(texture, this);
+          this.__uriToLoadLazy = undefined;
+          resolve();
+        })();
       };
 
       this.__img.src = imageUri;
@@ -275,7 +333,7 @@ export class Texture extends AbstractTexture {
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
       level: 0,
       internalFormat: TextureParameter.RGBA8,

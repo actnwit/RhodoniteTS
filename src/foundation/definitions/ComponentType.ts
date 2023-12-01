@@ -3,16 +3,42 @@ import { TypedArray, TypedArrayConstructor } from '../../types/CommonTypes';
 import { Gltf2AccessorComponentTypeNumber } from '../../types/glTF2';
 
 export interface ComponentTypeEnum extends EnumIO {
+  wgsl: string;
+  webgpu: string;
   getSizeInBytes(): number;
   isFloatingPoint(): boolean;
   isInteger(): boolean;
 }
 
 class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
+  readonly __webgpu: string;
+  readonly __wgsl: string;
   readonly __sizeInBytes: number;
-  constructor({ index, str, sizeInBytes }: { index: number; str: string; sizeInBytes: number }) {
+  constructor({
+    index,
+    str,
+    sizeInBytes,
+    wgsl,
+    webgpu,
+  }: {
+    index: number;
+    str: string;
+    sizeInBytes: number;
+    wgsl: string;
+    webgpu: string;
+  }) {
     super({ index, str });
     this.__sizeInBytes = sizeInBytes;
+    this.__webgpu = webgpu;
+    this.__wgsl = wgsl;
+  }
+
+  get wgsl(): string {
+    return this.__wgsl;
+  }
+
+  get webgpu(): string {
+    return this.__webgpu;
   }
 
   getSizeInBytes(): number {
@@ -51,56 +77,78 @@ const Unknown: ComponentTypeEnum = new ComponentTypeClass({
   index: 5119,
   str: 'UNKNOWN',
   sizeInBytes: 0,
+  wgsl: 'unknown',
+  webgpu: 'unknown',
 });
 const Byte: ComponentTypeEnum = new ComponentTypeClass({
   index: 5120,
   str: 'BYTE',
   sizeInBytes: 1,
+  wgsl: 'i32',
+  webgpu: 'sint8',
 });
 const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({
   index: 5121,
   str: 'UNSIGNED_BYTE',
   sizeInBytes: 1,
+  wgsl: 'u32',
+  webgpu: 'uint8',
 });
 const Short: ComponentTypeEnum = new ComponentTypeClass({
   index: 5122,
   str: 'SHORT',
   sizeInBytes: 2,
+  wgsl: 'i32',
+  webgpu: 'sint16',
 });
 const UnsignedShort: ComponentTypeEnum = new ComponentTypeClass({
   index: 5123,
   str: 'UNSIGNED_SHORT',
   sizeInBytes: 2,
+  wgsl: 'u32',
+  webgpu: 'uint16',
 });
 const Int: ComponentTypeEnum = new ComponentTypeClass({
   index: 5124,
   str: 'INT',
   sizeInBytes: 4,
+  wgsl: 'i32',
+  webgpu: 'sint32',
 });
 const UnsignedInt: ComponentTypeEnum = new ComponentTypeClass({
   index: 5125,
   str: 'UNSIGNED_INT',
   sizeInBytes: 4,
+  wgsl: 'u32',
+  webgpu: 'uint32',
 });
 const Float: ComponentTypeEnum = new ComponentTypeClass({
   index: 5126,
   str: 'FLOAT',
   sizeInBytes: 4,
+  wgsl: 'f32',
+  webgpu: 'float32',
 });
 const Double: ComponentTypeEnum = new ComponentTypeClass({
   index: 5127,
   str: 'DOUBLE',
   sizeInBytes: 8,
+  wgsl: 'f32',
+  webgpu: 'float64',
 });
 const Bool: ComponentTypeEnum = new ComponentTypeClass({
   index: 35670,
   str: 'BOOL',
   sizeInBytes: 1,
+  wgsl: 'bool',
+  webgpu: 'bool',
 });
 const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({
   index: 0x140b,
   str: 'HALF_FLOAT',
   sizeInBytes: 2,
+  wgsl: 'f16',
+  webgpu: 'float16',
 });
 
 const typeList = [
@@ -167,6 +215,64 @@ function toTypedArray(componentType: ComponentTypeEnum): TypedArrayConstructor |
   } else {
     return undefined;
   }
+}
+
+function fromWgslString(str_: string): ComponentTypeEnum {
+  let str = str_;
+  switch (str_) {
+    case 'bool':
+      str = 'BOOL';
+      break;
+    case 'i32':
+      str = 'INT';
+      break;
+    case 'u32':
+      str = 'UNSIGNED_INT';
+      break;
+    case 'f32':
+      str = 'FLOAT';
+      break;
+    case 'vec2<f32>':
+      str = 'FLOAT';
+      break;
+    case 'vec3<f32>':
+      str = 'FLOAT';
+      break;
+    case 'vec4<f32>':
+      str = 'FLOAT';
+      break;
+    case 'mat2x2<f32>':
+      str = 'FLOAT';
+      break;
+    case 'mat3x3<f32>':
+      str = 'FLOAT';
+      break;
+    case 'mat4x4<f32>':
+      str = 'FLOAT';
+      break;
+    case 'vec2<i32>':
+      str = 'INT';
+      break;
+    case 'vec3<i32>':
+      str = 'INT';
+      break;
+    case 'vec4<i32>':
+      str = 'INT';
+      break;
+    case 'sampler_2d':
+      str = 'INT';
+      break;
+    case 'sampler_2d_shadow':
+      str = 'INT';
+      break;
+    case 'sampler_3d':
+      str = 'INT';
+      break;
+    case 'sampler_cube':
+      str = 'INT';
+      break;
+  }
+  return _fromString({ typeList, str }) as ComponentTypeEnum;
 }
 
 function fromGlslString(str_: string): ComponentTypeEnum {
@@ -260,4 +366,5 @@ export const ComponentType = Object.freeze({
   toGltf2AccessorComponentType,
   fromString,
   fromGlslString,
+  fromWgslString,
 });
