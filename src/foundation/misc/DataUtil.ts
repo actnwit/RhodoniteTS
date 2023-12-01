@@ -2,7 +2,7 @@ import { GltfLoadOption } from '../../types';
 import { Byte, Size } from '../../types/CommonTypes';
 import { glTF1 } from '../../types/glTF1';
 import { RnM2 } from '../../types/RnM2';
-import { Err, IResult, Ok } from './Result';
+import { Err, ResultType, Ok } from './Result';
 import { RnPromise } from './RnPromise';
 
 declare const URL: any;
@@ -399,7 +399,7 @@ export class DataUtil {
     return defaultOptions;
   }
 
-  static async fetchArrayBuffer(uri: string): Promise<IResult<ArrayBuffer, unknown>> {
+  static async fetchArrayBuffer(uri: string): Promise<ResultType<ArrayBuffer, unknown>> {
     try {
       const response = await fetch(uri, { mode: 'cors' });
       const arraybuffer = await response.arrayBuffer();

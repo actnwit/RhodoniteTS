@@ -1,6 +1,6 @@
-import { IResult, Ok, Err, RnError, RnException } from './Result';
+import { ResultType, Ok, Err, RnError, RnException } from './Result';
 
-function succeedIfValueEven(val: number): IResult<number, number> {
+function succeedIfValueEven(val: number): ResultType<number, number> {
   if (val % 2 === 0) {
     return new Ok(val);
   } else {
@@ -93,7 +93,7 @@ test(`Result.isOk`, () => {
 });
 
 test(`wrapped Err`, () => {
-  function wrapper(): IResult<number, Err<number, number>> {
+  function wrapper(): ResultType<number, Err<number, number>> {
     const result0 = succeedIfValueEven(1);
     if (result0.isErr()) {
       return new Err({

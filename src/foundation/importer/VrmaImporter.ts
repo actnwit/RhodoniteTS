@@ -1,11 +1,11 @@
 import { GltfLoadOption, RnM2 } from '../../types';
 import { HumanBoneNames, NodeId, RnM2Vrma } from '../../types/RnM2Vrma';
 import { Is } from '../misc/Is';
-import { Err, IResult, Ok, assertIsOk } from '../misc/Result';
+import { Err, ResultType, Ok, assertIsOk } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 
 export class VrmaImporter {
-  static async importFromUri(uri: string): Promise<IResult<RnM2Vrma, Err<RnM2, undefined>>> {
+  static async importFromUri(uri: string): Promise<ResultType<RnM2Vrma, Err<RnM2, undefined>>> {
     const options: GltfLoadOption = {};
 
     const result = await Gltf2Importer.importFromUri(uri, options);
@@ -17,7 +17,7 @@ export class VrmaImporter {
     }
 
     assertIsOk(result);
-    const gltfJson: RnM2Vrma = result.get();
+    const gltfJson: RnM2Vrma = result.get() as RnM2Vrma;
     this.readHumanoid(gltfJson);
 
     return new Ok(gltfJson as RnM2Vrma);
@@ -25,7 +25,7 @@ export class VrmaImporter {
 
   static async importFromArrayBuffer(
     arrayBuffer: ArrayBuffer
-  ): Promise<IResult<RnM2Vrma, Err<RnM2, undefined>>> {
+  ): Promise<ResultType<RnM2Vrma, Err<RnM2, undefined>>> {
     const options: GltfLoadOption = {};
 
     const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
@@ -37,7 +37,7 @@ export class VrmaImporter {
     }
 
     assertIsOk(result);
-    const gltfJson: RnM2Vrma = result.get();
+    const gltfJson: RnM2Vrma = result.get() as RnM2Vrma;
     this.readHumanoid(gltfJson);
 
     return new Ok(gltfJson as RnM2Vrma);

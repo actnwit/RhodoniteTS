@@ -4,7 +4,7 @@ import { CompositionType, CompositionTypeEnum } from '../../foundation/definitio
 import { ComponentType, ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 
 import { DataUtil } from '../misc/DataUtil';
-import { Err, Ok, IResult } from '../misc';
+import { Err, Ok, ResultType } from '../misc/Result';
 
 export class Buffer {
   private __byteLength: Byte = 0;
@@ -64,7 +64,7 @@ export class Buffer {
   }: {
     byteLengthToNeed: Byte;
     byteStride: Byte;
-  }): IResult<BufferView, undefined> {
+  }): ResultType<BufferView, undefined> {
     // const byteAlign = this.__byteAlign;
     // const paddingBytes = this.__padding(byteLengthToNeed, byteAlign);
 
@@ -107,7 +107,7 @@ byteSizeToTake: ${byteSizeToTake}, the byte length left in the Buffer: ${
     byteLengthToNeed: Byte;
     byteStride: Byte;
     byteOffset: Byte;
-  }): IResult<BufferView, undefined> {
+  }): ResultType<BufferView, undefined> {
     const byteSizeToTake = byteLengthToNeed;
     if (byteSizeToTake + byteOffset > this.byteLength) {
       const message = `The size of the BufferView you are trying to take exceeds the byte length left in the Buffer.

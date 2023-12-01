@@ -13,8 +13,8 @@ import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { Vector3 } from '../math/Vector3';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
-import { Vrm1, Vrm1SpringBone_Joint, Vrm1_Materials_MToon } from '../../types/VRM1';
-import { assertIsOk, Err, IResult, Ok } from '../misc/Result';
+import { Vrm1, Vrm1_Materials_MToon } from '../../types/VRM1';
+import { assertIsOk, Err, ResultType, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
 import { VrmComponent, VrmExpression, VrmExpressionMorphBind } from '../components';
@@ -477,7 +477,7 @@ export class VrmImporter {
   static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<Vrm1, Err<RnM2, undefined>>> {
+  ): Promise<ResultType<Vrm1, Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
     const result = await Gltf2Importer.importFromUri(uri, options);

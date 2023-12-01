@@ -10,7 +10,7 @@ export interface RnError<ErrObj> {
  * An interface to handle the results in a unified manner,
  * regardless of whether they are successful or not.
  */
-export interface IResult<T, ErrObj> {
+interface IResult<T, ErrObj> {
   match<R, ErrObj2>({
     Ok,
     Err,
@@ -134,6 +134,16 @@ export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrO
   toString(): string {
     return this.__rnException.stack!;
   }
+}
+
+export type ResultType<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
+
+export function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj> {
+  return result.isOk();
+}
+
+export function isErr<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Err<T, ErrObj> {
+  return result.isErr();
 }
 
 export function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any> {

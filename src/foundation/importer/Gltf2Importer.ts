@@ -4,7 +4,7 @@ import { RnPromise, RnPromiseCallback } from '../misc/RnPromise';
 import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
-import { Err, IResult, Ok } from '../misc/Result';
+import { Err, ResultType, Ok } from '../misc/Result';
 
 declare let Rn: any;
 
@@ -23,7 +23,7 @@ export class Gltf2Importer {
   public static async importFromUri(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<RnM2, undefined>> {
+  ): Promise<ResultType<RnM2, undefined>> {
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
 
     if (r_arrayBuffer.isErr()) {
@@ -45,7 +45,7 @@ export class Gltf2Importer {
   public static async importFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
-  ): Promise<IResult<RnM2, undefined>> {
+  ): Promise<ResultType<RnM2, undefined>> {
     for (const fileName in files) {
       const fileExtension = DataUtil.getExtension(fileName);
 
@@ -73,7 +73,7 @@ export class Gltf2Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<IResult<RnM2, undefined>> {
+  ): Promise<ResultType<RnM2, undefined>> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);
