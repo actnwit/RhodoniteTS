@@ -48,16 +48,18 @@ test(`Result.match`, () => {
 
 test(`Result.unwrap`, () => {
   const result0 = succeedIfValueEven(0);
-  const value0 = result0.unwrap((err: RnError<number>) => {
+  const value0 = result0.unwrapWithCompensation((err: RnError<number>) => {
     expect(true).toBe(false); // If here come, this is wrong behavior.
+    return err.error + 1; // compensation
   });
   expect(value0).toBe(0);
 
   const result1 = succeedIfValueEven(1);
-  const value1 = result1.unwrap((err: RnError<number>) => {
+  const value1 = result1.unwrapWithCompensation((err: RnError<number>) => {
     expect(err.message).toBe('Error');
+    return err.error + 1; // compensation
   });
-  expect(value1).toBeUndefined();
+  expect(value1 % 2).toBe(0);
 });
 
 test(`Result.unwrapForce`, () => {
@@ -107,9 +109,10 @@ test(`wrapped Err`, () => {
   }
 
   const result = wrapper();
-  result.unwrap((err) => {
+  result.unwrapWithCompensation((err) => {
     expect(err.message).toBe('Error 2');
     console.log(err.error.toString());
+    return 0;
   });
 
   expect(() => {

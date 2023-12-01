@@ -6,23 +6,58 @@ export interface RnError<ErrObj> {
 }
 
 /**
- * An interface to handle the results in a unified manner,
+ * An interface to handle results in a unified manner,
  * regardless of whether they are successful or not.
  */
 interface IResult<T, ErrObj> {
+  /**
+   * pattern matching
+   * @param obj an object containing two pattern matching functions, Ok and Err.
+   * @returns the result of the pattern matching function as a Result object.
+   */
   match<R, ErrObj2>({
     Ok,
     Err,
   }: {
     Ok: (value: T) => R;
     Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
-  }): IResult<R, ErrObj2>;
-  // then(f: (value: T) => void): Finalizer | void;
-  // catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
-  unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
+  }): Result<R, ErrObj2>;
+
+  /**
+   * get the inner value.
+   * If the result is Err, The callback function compensates the error with an alternative valid value.
+   * So you can get the inner value whether the result is Ok or Err.
+   * @param catchFn
+   * @returns the inner value
+   */
+  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T;
+
+  /**
+   * get the inner value anyway.
+   * If the result is Err, this method throws an exception.
+   * @returns the inner value
+   */
   unwrapForce(): T;
+
+  /**
+   * get the boolean value whether the result is Ok or not.
+   * Do not use this method directly. Use isOk() function bellow instead.
+   * @private
+   * @returns whether the result is Ok or not
+   */
   _isOk(): this is Ok<T, ErrObj>;
+
+  /**
+   * get the boolean value whether the result is Err or not.
+   * Do not use this method directly. Use isErr() function bellow instead.
+   * @private
+   * @returns whether the result is Err or not
+   */
   _isErr(): this is Err<T, ErrObj>;
+
+  /**
+   * get the name of class. i.e. 'Ok' or 'Err'
+   */
   name(): string;
 }
 
@@ -31,7 +66,7 @@ abstract class CResult<T, ErrObj> {
   match<R, ErrObj2>(obj: {
     Ok: (value: T) => R;
     Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
-  }): IResult<R, ErrObj2> {
+  }): Result<R, ErrObj2> {
     if (this instanceof Ok) {
       return new Ok(obj.Ok(this.val as T));
     } else if (this instanceof Err) {
@@ -61,7 +96,7 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
   //   return new Finalizer();
   // }
 
-  unwrap(catchFn: (err: RnError<ErrObj>) => void): T {
+  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
     return this.val as T;
   }
 
@@ -83,6 +118,10 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
     return false;
   }
 
+  /**
+   * get the inner value safely.
+   * @returns the inner value
+   */
   get(): T {
     return this.val as T;
   }
@@ -99,15 +138,8 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
     this.__rnException = new RnException(this.val as RnError<ErrObj>);
   }
 
-  // then(f: (value: never) => void): void {}
-
-  // catch(f: (value: RnError<ErrObj>) => void): Finalizer {
-  //   f(this.val as RnError<ErrObj>);
-  //   return new Finalizer();
-  // }
-
-  unwrap(catchFn: (err: RnError<ErrObj>) => void): void {
-    catchFn(this.val as RnError<ErrObj>);
+  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
+    return catchFn(this.val as RnError<ErrObj>);
   }
 
   unwrapForce(): never {
@@ -126,6 +158,10 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
     return true;
   }
 
+  /**
+   * get the RnError object.
+   * @returns the RnError object
+   */
   getRnError(): RnError<ErrObj> {
     return this.val as RnError<ErrObj>;
   }
