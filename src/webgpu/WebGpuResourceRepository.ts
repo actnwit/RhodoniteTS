@@ -764,6 +764,8 @@ export class WebGpuResourceRepository
     renderPass: RenderPass,
     meshRendererComponent: MeshRendererComponent
   ): [GPURenderPipeline, boolean] {
+    this.__setupIBLParameters(material, meshRendererComponent);
+
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
       if (materialStateVersion === material.stateVersion) {
@@ -779,7 +781,6 @@ export class WebGpuResourceRepository
     this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
 
     this.__createBindGroup(renderPipelineId, material, primitive, meshRendererComponent);
-    this.__setupIBLParameters(material, meshRendererComponent);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -982,6 +983,13 @@ export class WebGpuResourceRepository
           console.error(`failed to load ${uri}`);
         }
       }
+      const imageBitmaps: ImageBitmap[] = [];
+      for (const image of images!) {
+        await image.decode();
+        const imageBitmap = await createImageBitmap(image);
+        imageBitmaps.push(imageBitmap);
+        (imageBitmap as any).side = (image as any).side;
+      }
       const imageObj: {
         posX?: DirectTextureData;
         negX?: DirectTextureData;
@@ -990,30 +998,30 @@ export class WebGpuResourceRepository
         posZ?: DirectTextureData;
         negZ?: DirectTextureData;
       } = {};
-      for (const image of images!) {
-        switch ((image as any).side) {
+      for (const imageBitmap of imageBitmaps) {
+        switch ((imageBitmap as any).side) {
           case 'posX':
-            imageObj.posX = image;
+            imageObj.posX = imageBitmap;
             break;
           case 'posY':
-            imageObj.posY = image;
+            imageObj.posY = imageBitmap;
             break;
           case 'posZ':
-            imageObj.posZ = image;
+            imageObj.posZ = imageBitmap;
             break;
           case 'negX':
-            imageObj.negX = image;
+            imageObj.negX = imageBitmap;
             break;
           case 'negY':
-            imageObj.negY = image;
+            imageObj.negY = imageBitmap;
             break;
           case 'negZ':
-            imageObj.negZ = image;
+            imageObj.negZ = imageBitmap;
             break;
         }
         if (i === 0) {
-          width = image.width;
-          height = image.height;
+          width = imageBitmap.width;
+          height = imageBitmap.height;
         }
       }
       imageArgs.push(
@@ -1055,13 +1063,13 @@ export class WebGpuResourceRepository
     const mipmaps: (ImageBitmap | HTMLCanvasElement)[][] = [];
     for (let i = 0; i < mipLevelCount; i++) {
       const imageBitmaps: (ImageBitmap | HTMLCanvasElement)[] = [];
-      if (images[0].posX instanceof ImageBitmap || images[0].posX instanceof HTMLCanvasElement) {
-        imageBitmaps.push(images[0].posX as any);
-        imageBitmaps.push(images[0].negX as any);
-        imageBitmaps.push(images[0].posY as any);
-        imageBitmaps.push(images[0].negY as any);
-        imageBitmaps.push(images[0].posZ as any);
-        imageBitmaps.push(images[0].negZ as any);
+      if (images[i].posX instanceof ImageBitmap || images[0].posX instanceof HTMLCanvasElement) {
+        imageBitmaps.push(images[i].posX as any);
+        imageBitmaps.push(images[i].negX as any);
+        imageBitmaps.push(images[i].posY as any);
+        imageBitmaps.push(images[i].negY as any);
+        imageBitmaps.push(images[i].posZ as any);
+        imageBitmaps.push(images[i].negZ as any);
       }
       mipmaps.push(imageBitmaps);
     }
@@ -1072,6 +1080,7 @@ export class WebGpuResourceRepository
       // Assume each image has the same size.
       size: [width, height, 6],
       format: 'rgba8unorm',
+      mipLevelCount: mipLevelCount,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_DST |
@@ -1084,7 +1093,7 @@ export class WebGpuResourceRepository
         gpuDevice.queue.copyExternalImageToTexture(
           { source: imageBitmap },
           { texture: cubemapTexture, origin: [0, 0, i], mipLevel: j },
-          [imageBitmap.width / (j + 1), imageBitmap.height / (j + 1)]
+          [imageBitmap.width, imageBitmap.height]
         );
       }
     }
@@ -1347,106 +1356,114 @@ export class WebGpuResourceRepository
           });
         }
       });
-      if (meshRendererComponent.diffuseCubeMap != null) {
-        const diffuseCubeTexture = this.__webGpuResources.get(
-          meshRendererComponent.diffuseCubeMap._textureResourceUid
-        ) as GPUTexture | undefined;
-        if (Is.exist(diffuseCubeTexture)) {
-          entriesForTexture.push({
-            binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-            resource: diffuseCubeTexture.createView({ dimension: 'cube' }),
-          });
-        } else {
-          const dummyCubeTexture = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureResourceUid
-          ) as GPUTexture;
-          entriesForTexture.push({
-            binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-            resource: dummyCubeTexture.createView({ dimension: 'cube' }),
-          });
-        }
-        bindGroupLayoutEntriesForTexture.push({
+
+      // Diffuse IBL
+      const diffuseCubeTexture = this.__webGpuResources.get(
+        Is.exist(meshRendererComponent.diffuseCubeMap)
+          ? meshRendererComponent.diffuseCubeMap._textureResourceUid
+          : -1
+      ) as GPUTexture | undefined;
+      if (Is.exist(diffuseCubeTexture)) {
+        entriesForTexture.push({
           binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
+          resource: diffuseCubeTexture.createView({ dimension: 'cube' }),
         });
-        const diffuseCubeSampler = this.__webGpuResources.get(
-          meshRendererComponent.diffuseCubeMap._samplerResourceUid
-        ) as GPUSampler | undefined;
-        if (Is.exist(diffuseCubeSampler)) {
-          entriesForSampler.push({
-            binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-            resource: diffuseCubeSampler,
-          });
-        } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
-          entriesForSampler.push({
-            binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-            resource: dummyCubeSampler,
-          });
-        }
-        bindGroupLayoutEntriesForSampler.push({
+      } else {
+        const dummyCubeTexture = this.__webGpuResources.get(
+          dummyBlackCubeTexture._textureResourceUid
+        ) as GPUTexture;
+        entriesForTexture.push({
           binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
+          resource: dummyCubeTexture.createView({ dimension: 'cube' }),
         });
       }
-      if (meshRendererComponent.specularCubeMap != null) {
-        const specularCubeTexture = this.__webGpuResources.get(
-          meshRendererComponent.specularCubeMap._textureResourceUid
-        ) as GPUTexture | undefined;
-        if (Is.exist(specularCubeTexture)) {
-          entriesForTexture.push({
-            binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-            resource: specularCubeTexture.createView({ dimension: 'cube' }),
-          });
-        } else {
-          const dummyCubeTexture = this.__webGpuResources.get(
-            dummyBlackCubeTexture._textureResourceUid
-          ) as GPUTexture;
-          entriesForTexture.push({
-            binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-            resource: dummyCubeTexture.createView({ dimension: 'cube' }),
-          });
-        }
-        bindGroupLayoutEntriesForTexture.push({
-          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          texture: {
-            viewDimension: 'cube',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
+      bindGroupLayoutEntriesForTexture.push({
+        binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
+        texture: {
+          viewDimension: 'cube',
+        },
+        visibility: GPUShaderStage.FRAGMENT,
+      });
+      const diffuseCubeSampler = this.__webGpuResources.get(
+        Is.exist(meshRendererComponent.diffuseCubeMap)
+          ? meshRendererComponent.diffuseCubeMap._samplerResourceUid
+          : -1
+      ) as GPUSampler | undefined;
+      if (Is.exist(diffuseCubeSampler)) {
+        entriesForSampler.push({
+          binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
+          resource: diffuseCubeSampler,
         });
-        const specularCubeSampler = this.__webGpuResources.get(
-          meshRendererComponent.specularCubeMap._samplerResourceUid
-        ) as GPUSampler | undefined;
-        if (Is.exist(specularCubeSampler)) {
-          entriesForSampler.push({
-            binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-            resource: specularCubeSampler,
-          });
-        } else {
-          const dummyCubeSampler = this.__webGpuResources.get(
-            dummyBlackCubeTexture._samplerResourceUid
-          ) as GPUSampler;
-          entriesForSampler.push({
-            binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-            resource: dummyCubeSampler,
-          });
-        }
-        bindGroupLayoutEntriesForSampler.push({
-          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          sampler: {
-            type: 'filtering',
-          },
-          visibility: GPUShaderStage.FRAGMENT,
+      } else {
+        const dummyCubeSampler = this.__webGpuResources.get(
+          dummyBlackCubeTexture._samplerResourceUid
+        ) as GPUSampler;
+        entriesForSampler.push({
+          binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
+          resource: dummyCubeSampler,
         });
       }
+      bindGroupLayoutEntriesForSampler.push({
+        binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
+        sampler: {
+          type: 'filtering',
+        },
+        visibility: GPUShaderStage.FRAGMENT,
+      });
+
+      // Specular IBL
+      const specularCubeTexture = this.__webGpuResources.get(
+        Is.exist(meshRendererComponent.specularCubeMap)
+          ? meshRendererComponent.specularCubeMap._textureResourceUid
+          : -1
+      ) as GPUTexture | undefined;
+      if (Is.exist(specularCubeTexture)) {
+        entriesForTexture.push({
+          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
+          resource: specularCubeTexture.createView({ dimension: 'cube' }),
+        });
+      } else {
+        const dummyCubeTexture = this.__webGpuResources.get(
+          dummyBlackCubeTexture._textureResourceUid
+        ) as GPUTexture;
+        entriesForTexture.push({
+          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
+          resource: dummyCubeTexture.createView({ dimension: 'cube' }),
+        });
+      }
+      bindGroupLayoutEntriesForTexture.push({
+        binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
+        texture: {
+          viewDimension: 'cube',
+        },
+        visibility: GPUShaderStage.FRAGMENT,
+      });
+      const specularCubeSampler = this.__webGpuResources.get(
+        Is.exist(meshRendererComponent.specularCubeMap)
+          ? meshRendererComponent.specularCubeMap._samplerResourceUid
+          : -1
+      ) as GPUSampler | undefined;
+      if (Is.exist(specularCubeSampler)) {
+        entriesForSampler.push({
+          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
+          resource: specularCubeSampler,
+        });
+      } else {
+        const dummyCubeSampler = this.__webGpuResources.get(
+          dummyBlackCubeTexture._samplerResourceUid
+        ) as GPUSampler;
+        entriesForSampler.push({
+          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
+          resource: dummyCubeSampler,
+        });
+      }
+      bindGroupLayoutEntriesForSampler.push({
+        binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
+        sampler: {
+          type: 'filtering',
+        },
+        visibility: GPUShaderStage.FRAGMENT,
+      });
 
       // Texture
       const bindGroupLayoutDescForTexture: GPUBindGroupLayoutDescriptor = {
