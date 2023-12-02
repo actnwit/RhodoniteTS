@@ -1410,11 +1410,11 @@ export class WebGpuResourceRepository
       const bindGroupLayoutForTexture = gpuDevice.createBindGroupLayout(
         bindGroupLayoutDescForTexture
       );
-      const uniformBindGroupForTexture = gpuDevice.createBindGroup({
+      const bindGroupForTexture = gpuDevice.createBindGroup({
         layout: bindGroupLayoutForTexture,
         entries: entriesForTexture,
       });
-      this.__bindGroupTextureMap.set(renderPipelineId, uniformBindGroupForTexture);
+      this.__bindGroupTextureMap.set(renderPipelineId, bindGroupForTexture);
       this.__bindGroupLayoutTextureMap.set(renderPipelineId, bindGroupLayoutForTexture);
 
       // Sampler
@@ -1424,11 +1424,11 @@ export class WebGpuResourceRepository
       const bindGroupLayoutForSampler = gpuDevice.createBindGroupLayout(
         bindGroupLayoutDescForSampler
       );
-      const uniformBindGroupForSampler = gpuDevice.createBindGroup({
+      const bindGroupForSampler = gpuDevice.createBindGroup({
         layout: bindGroupLayoutForSampler,
         entries: entriesForSampler,
       });
-      this.__bindGroupSamplerMap.set(renderPipelineId, uniformBindGroupForSampler);
+      this.__bindGroupSamplerMap.set(renderPipelineId, bindGroupForSampler);
       this.__bindGroupLayoutSamplerMap.set(renderPipelineId, bindGroupLayoutForSampler);
     }
   }
