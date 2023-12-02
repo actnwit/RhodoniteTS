@@ -34,7 +34,13 @@ import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import { MeshRendererComponent, ShaderSemantics, ShaderSemanticsClass } from '../foundation';
+import {
+  MeshRendererComponent,
+  MutableVector2,
+  MutableVector4,
+  ShaderSemantics,
+  ShaderSemanticsClass,
+} from '../foundation';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type WebGpuResource =
@@ -83,6 +89,9 @@ export class WebGpuResourceRepository
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
   private __uniformMorphWeightsBuffer?: GPUBuffer;
   private __renderPassEncoder?: GPURenderPassEncoder;
+
+  private static __iblParameterVec4 = MutableVector4.zero();
+  private static __hdriFormatVec2 = MutableVector2.zero();
 
   private constructor() {
     super();
@@ -718,6 +727,32 @@ export class WebGpuResourceRepository
     this.__renderPassEncoder.executeBundles([this.__RenderBundleMap.get(renderPipelineId)!]);
   }
 
+  private __setupIBLParameters(material: Material, meshRendererComponent: MeshRendererComponent) {
+    if (
+      meshRendererComponent.diffuseCubeMap == null ||
+      meshRendererComponent.specularCubeMap == null
+    ) {
+      return;
+    }
+    WebGpuResourceRepository.__iblParameterVec4.x =
+      meshRendererComponent.specularCubeMap.mipmapLevelNumber;
+    WebGpuResourceRepository.__iblParameterVec4.y =
+      meshRendererComponent.diffuseCubeMapContribution;
+    WebGpuResourceRepository.__iblParameterVec4.z =
+      meshRendererComponent.specularCubeMapContribution;
+    WebGpuResourceRepository.__iblParameterVec4.w = meshRendererComponent.rotationOfCubeMap;
+    material.setParameter(
+      ShaderSemantics.IBLParameter,
+      WebGpuResourceRepository.__iblParameterVec4
+    );
+
+    WebGpuResourceRepository.__hdriFormatVec2.x =
+      meshRendererComponent.diffuseCubeMap.hdriFormat.index;
+    WebGpuResourceRepository.__hdriFormatVec2.y =
+      meshRendererComponent.specularCubeMap.hdriFormat.index;
+    material.setParameter(ShaderSemantics.HDRIFormat, WebGpuResourceRepository.__hdriFormatVec2);
+  }
+
   getOrCreateRenderPipeline(
     renderPipelineId: string,
     primitive: Primitive,
@@ -739,7 +774,8 @@ export class WebGpuResourceRepository
     this.__bindGroupSamplerMap.delete(renderPipelineId);
     this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
 
-    this.createBindGroup(renderPipelineId, material, primitive, meshRendererComponent);
+    this.__createBindGroup(renderPipelineId, material, primitive, meshRendererComponent);
+    this.__setupIBLParameters(material, meshRendererComponent);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -1158,7 +1194,7 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray);
   }
 
-  createBindGroup(
+  private __createBindGroup(
     renderPipelineId: string,
     material: Material,
     primitive: Primitive,
