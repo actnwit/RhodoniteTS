@@ -27,6 +27,7 @@ export class CubeTexture extends AbstractTexture {
     );
     this._recommendedTextureSampler = sampler;
     this._textureResourceUid = resourceUid;
+    this._samplerResourceUid = sampler._samplerResourceUid;
     this.__isTextureReady = true;
   }
 
@@ -44,6 +45,7 @@ export class CubeTexture extends AbstractTexture {
         .then(([cubeTextureUid, sampler]) => {
           this._textureResourceUid = cubeTextureUid;
           this._recommendedTextureSampler = sampler;
+          this._samplerResourceUid = sampler._samplerResourceUid;
         })
         .then(() => {
           this.__isTextureReady = true;
