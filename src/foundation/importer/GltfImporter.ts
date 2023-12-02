@@ -11,7 +11,7 @@ import { glTF1 } from '../../types/glTF1';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { RnPromiseCallback } from '../misc/RnPromise';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { assertIsErr, assertIsOk, Err, IResult, Ok } from '../misc/Result';
+import { assertIsErr, assertIsOk, Err, Result, Ok, isOk, isErr } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -32,7 +32,7 @@ export class GltfImporter {
     uri: string,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<IResult<Expression, Err<ArrayBuffer, unknown>>> {
+  ): Promise<Result<Expression, Err<ArrayBuffer, unknown>>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -41,14 +41,13 @@ export class GltfImporter {
     }
 
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (r_arrayBuffer.isErr()) {
+    if (isErr(r_arrayBuffer)) {
       return new Err({
         message: 'Failed to fetch array buffer',
         error: r_arrayBuffer,
       });
     }
 
-    assertIsOk(r_arrayBuffer);
     options.files![uri] = r_arrayBuffer.get();
 
     await this.__detectTheModelFileTypeAndImport(uri, renderPasses, options, uri, callback);
@@ -75,7 +74,7 @@ export class GltfImporter {
     files: GltfFileBuffers,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<IResult<Expression, never>> {
+  ): Promise<Result<Expression, never>> {
     options = this.__initOptions(options);
 
     const renderPasses = options.expression?.renderPasses || [];
@@ -205,7 +204,7 @@ export class GltfImporter {
     options: GltfLoadOption,
     uri: string,
     callback?: RnPromiseCallback
-  ): Promise<IResult<void, undefined>> {
+  ): Promise<Result<void, undefined>> {
     const optionalFileType = options.fileType;
 
     const fileType = this.__getFileTypeFromFilePromise(fileName, options, optionalFileType);
@@ -263,7 +262,7 @@ export class GltfImporter {
           options
         );
 
-        if (result.isOk()) {
+        if (isOk(result)) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') >= 0) {
             options.__isImportVRM0x = false;

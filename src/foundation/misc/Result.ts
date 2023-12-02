@@ -1,4 +1,4 @@
-import { Is } from './Is';
+import { RnException } from './RnException';
 
 export interface RnError<ErrObj> {
   message: string;
@@ -6,43 +6,74 @@ export interface RnError<ErrObj> {
 }
 
 /**
- * An interface to handle the results in a unified manner,
+ * An interface to handle results in a unified manner,
  * regardless of whether they are successful or not.
  */
-export interface IResult<T, ErrObj> {
-  match({
+interface IResult<T, ErrObj> {
+  /**
+   * pattern matching
+   * @param obj an object containing two pattern matching functions, Ok and Err.
+   * @returns the result of the pattern matching function as a Result object.
+   */
+  match<R, ErrObj2>({
     Ok,
     Err,
-    Finally,
   }: {
-    Ok: (value: T) => void;
-    Err: (value: RnError<ErrObj>) => void;
-    Finally?: () => void;
-  }): void;
-  // then(f: (value: T) => void): Finalizer | void;
-  // catch(f: (value: RnError<ErrObj>) => void): Finalizer | void;
-  unwrap(catchFn: (err: RnError<ErrObj>) => void): T | void;
+    Ok: (value: T) => R;
+    Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
+  }): Result<R, ErrObj2>;
+
+  /**
+   * get the inner value.
+   * If the result is Err, The callback function compensates the error with an alternative valid value.
+   * So you can get the inner value whether the result is Ok or Err.
+   * @param catchFn
+   * @returns the inner value
+   */
+  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T;
+
+  /**
+   * get the inner value anyway.
+   * If the result is Err, this method throws an exception.
+   * @returns the inner value
+   */
   unwrapForce(): T;
-  isOk(): this is Ok<T, ErrObj>;
-  isErr(): this is Err<T, ErrObj>;
+
+  /**
+   * get the boolean value whether the result is Ok or not.
+   * Do not use this method directly. Use isOk() function bellow instead.
+   * @private
+   * @returns whether the result is Ok or not
+   */
+  _isOk(): this is Ok<T, ErrObj>;
+
+  /**
+   * get the boolean value whether the result is Err or not.
+   * Do not use this method directly. Use isErr() function bellow instead.
+   * @private
+   * @returns whether the result is Err or not
+   */
+  _isErr(): this is Err<T, ErrObj>;
+
+  /**
+   * get the name of class. i.e. 'Ok' or 'Err'
+   */
   name(): string;
 }
 
-abstract class Result<T, ErrObj> {
+abstract class CResult<T, ErrObj> {
   constructor(protected val?: T | RnError<ErrObj>) {}
-  match(obj: {
-    Ok: (value: T) => void;
-    Err: (value: RnError<ErrObj>) => void;
-    Finally?: () => void;
-  }): void {
+  match<R, ErrObj2>(obj: {
+    Ok: (value: T) => R;
+    Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
+  }): Result<R, ErrObj2> {
     if (this instanceof Ok) {
-      obj.Ok(this.val as T);
+      return new Ok(obj.Ok(this.val as T));
     } else if (this instanceof Err) {
-      obj.Err(this.val as RnError<ErrObj>);
+      return new Err(obj.Err(this.val as RnError<ErrObj>));
     }
-    if (Is.exist(obj.Finally)) {
-      obj.Finally();
-    }
+
+    throw new Error('This is neither Ok nor Err.');
   }
   name(): string {
     return this.constructor.name;
@@ -52,7 +83,7 @@ abstract class Result<T, ErrObj> {
 /**
  * a class indicating that the result is Ok (Succeeded).
  */
-export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
+export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
   constructor(val?: T) {
     super(val);
   }
@@ -65,7 +96,7 @@ export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrOb
   //   return new Finalizer();
   // }
 
-  unwrap(catchFn: (err: RnError<ErrObj>) => void): T {
+  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
     return this.val as T;
   }
 
@@ -79,14 +110,18 @@ export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrOb
     return true;
   }
 
-  isOk(): this is Ok<T, ErrObj> {
+  _isOk(): this is Ok<T, ErrObj> {
     return true;
   }
 
-  isErr(): false {
+  _isErr(): false {
     return false;
   }
 
+  /**
+   * get the inner value safely.
+   * @returns the inner value
+   */
   get(): T {
     return this.val as T;
   }
@@ -95,7 +130,7 @@ export class Ok<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrOb
 /**
  * a class indicating that the result is Error (Failed).
  */
-export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrObj> {
+export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
   private __rnException: RnException<ErrObj>;
 
   constructor(val: RnError<ErrObj>) {
@@ -103,15 +138,8 @@ export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrO
     this.__rnException = new RnException(this.val as RnError<ErrObj>);
   }
 
-  // then(f: (value: never) => void): void {}
-
-  // catch(f: (value: RnError<ErrObj>) => void): Finalizer {
-  //   f(this.val as RnError<ErrObj>);
-  //   return new Finalizer();
-  // }
-
-  unwrap(catchFn: (err: RnError<ErrObj>) => void): void {
-    catchFn(this.val as RnError<ErrObj>);
+  unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
+    return catchFn(this.val as RnError<ErrObj>);
   }
 
   unwrapForce(): never {
@@ -122,14 +150,18 @@ export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrO
     return false;
   }
 
-  isOk(): false {
+  _isOk(): false {
     return false;
   }
 
-  isErr(): this is Err<T, ErrObj> {
+  _isErr(): this is Err<T, ErrObj> {
     return true;
   }
 
+  /**
+   * get the RnError object.
+   * @returns the RnError object
+   */
   getRnError(): RnError<ErrObj> {
     return this.val as RnError<ErrObj>;
   }
@@ -139,37 +171,24 @@ export class Err<T, ErrObj> extends Result<T, ErrObj> implements IResult<T, ErrO
   }
 }
 
+export type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
+
+export function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj> {
+  return result._isOk();
+}
+
+export function isErr<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Err<T, ErrObj> {
+  return result._isErr();
+}
+
 export function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any> {
-  if (result.isErr()) {
+  if (result._isErr()) {
     throw new Error('This is Err. No Ok.');
   }
 }
 
 export function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any> {
-  if (result.isOk()) {
+  if (result._isOk()) {
     throw new Error('This is Ok. No Err.');
-  }
-}
-
-// export class Finalizer {
-//   finally(f: () => void): void {
-//     f();
-//   }
-// }
-
-export class RnException<ErrObj> extends Error {
-  static readonly _prefix = '\nRhodonite Exception';
-  constructor(private err: RnError<ErrObj>) {
-    super(`
-  message: ${err.message}
-  error: ${
-    err.error instanceof Err<unknown, unknown> ? 'see below Exception ↓' + err.error : err.error
-  }
-`);
-    this.name = RnException._prefix;
-  }
-
-  getRnError() {
-    return this.err;
   }
 }

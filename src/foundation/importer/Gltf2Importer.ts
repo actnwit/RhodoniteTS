@@ -4,7 +4,7 @@ import { RnPromise, RnPromiseCallback } from '../misc/RnPromise';
 import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
-import { Err, IResult, Ok } from '../misc/Result';
+import { Err, Result, Ok, isErr } from '../misc/Result';
 
 declare let Rn: any;
 
@@ -23,10 +23,10 @@ export class Gltf2Importer {
   public static async importFromUri(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<IResult<RnM2, undefined>> {
+  ): Promise<Result<RnM2, undefined>> {
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
 
-    if (r_arrayBuffer.isErr()) {
+    if (isErr(r_arrayBuffer)) {
       return new Err({
         message: 'fetchArrayBuffer error',
         error: undefined,
@@ -34,7 +34,7 @@ export class Gltf2Importer {
     }
 
     const result = await this._importGltfOrGlbFromArrayBuffers(
-      r_arrayBuffer.unwrapForce(),
+      r_arrayBuffer.get(),
       options?.files ?? {},
       options,
       uri
@@ -45,7 +45,7 @@ export class Gltf2Importer {
   public static async importFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
-  ): Promise<IResult<RnM2, undefined>> {
+  ): Promise<Result<RnM2, undefined>> {
     for (const fileName in files) {
       const fileExtension = DataUtil.getExtension(fileName);
 
@@ -73,7 +73,7 @@ export class Gltf2Importer {
     otherFiles: GltfFileBuffers,
     options?: GltfLoadOption,
     uri?: string
-  ): Promise<IResult<RnM2, undefined>> {
+  ): Promise<Result<RnM2, undefined>> {
     const dataView = new DataView(arrayBuffer, 0, 20);
     // Magic field
     const magic = dataView.getUint32(0, true);

@@ -24,25 +24,27 @@ cameraComponent.setFovyAndChangeFocalLength(20.0);
 cameraComponent.aspect = 1.0;
 
 // gltf
-const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
-    {
-      cameraComponent: cameraComponent,
-    },
-    (obj: Rn.RnPromiseCallbackObj) => {
-      // this callback won't be called
-      console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
-    }
-  )
-).unwrapForce();
-expressions.push(mainExpression);
+const mainExpressionResult = await Rn.GltfImporter.importFromUri(
+  '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
+  {
+    cameraComponent: cameraComponent,
+  },
+  (obj: Rn.RnPromiseCallbackObj) => {
+    // this callback won't be called
+    console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
+  }
+);
+if (Rn.isOk(mainExpressionResult)) {
+  expressions.push(mainExpressionResult.get());
 
-// cameraController
-const mainRenderPass = mainExpression.renderPasses[0];
-const mainCameraControllerComponent = cameraEntity.getCameraController();
-const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+  // cameraController
+  const mainRenderPass = mainExpressionResult.get().renderPasses[0];
+  const mainCameraControllerComponent = cameraEntity.getCameraController();
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+} else {
+  console.error(mainExpressionResult.toString());
+}
 
 // lighting
 setIBL('./../../../assets/ibl/papermill');

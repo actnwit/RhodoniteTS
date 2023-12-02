@@ -580,7 +580,7 @@ export class ForwardRenderPipeline extends RnObject {
     expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
 
     if (oFrameDepthMoment.has()) {
-      const frameDepthMoment = oFrameDepthMoment.unwrapForce();
+      const frameDepthMoment = oFrameDepthMoment.get();
       const initialRenderPassForDepthMoment = new RenderPass();
       initialRenderPassForDepthMoment.clearColor = Vector4.fromCopyArray4([1.0, 1.0, 1.0, 1.0]);
       initialRenderPassForDepthMoment.toClearColorBuffer = true;

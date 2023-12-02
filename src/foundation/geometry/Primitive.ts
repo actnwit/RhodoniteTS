@@ -30,6 +30,8 @@ import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
 import { IOption, None, Some, Option } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
+import { isErr } from '../misc/Result';
+import { RnException } from '../misc/RnException';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -212,23 +214,25 @@ export class Primitive extends RnObject {
     const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, byteAlign);
 
     let indicesComponentType;
-    let indicesBufferView;
     let indicesAccessor;
     if (indices != null) {
       indicesComponentType = ComponentType.fromTypedArray(indices);
-      indicesBufferView = buffer
-        .takeBufferView({
-          byteLengthToNeed: indices.byteLength,
-          byteStride: 0,
-        })
-        .unwrapForce();
-      indicesAccessor = indicesBufferView
-        .takeAccessor({
-          compositionType: CompositionType.Scalar,
-          componentType: indicesComponentType,
-          count: indices.byteLength / indicesComponentType.getSizeInBytes(),
-        })
-        .unwrapForce();
+      const indicesBufferViewResult = buffer.takeBufferView({
+        byteLengthToNeed: indices.byteLength,
+        byteStride: 0,
+      });
+      if (isErr(indicesBufferViewResult)) {
+        throw new RnException(indicesBufferViewResult.getRnError());
+      }
+      const indicesAccessorResult = indicesBufferViewResult.get().takeAccessor({
+        compositionType: CompositionType.Scalar,
+        componentType: indicesComponentType,
+        count: indices.byteLength / indicesComponentType.getSizeInBytes(),
+      });
+      if (isErr(indicesAccessorResult)) {
+        throw new RnException(indicesAccessorResult.getRnError());
+      }
+      indicesAccessor = indicesAccessorResult.get();
       // copy indices
       for (let i = 0; i < indices!.byteLength / indicesAccessor!.componentSizeInBytes; i++) {
         indicesAccessor!.setScalar(i, indices![i], {});
