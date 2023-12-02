@@ -729,15 +729,15 @@ export class WebGpuResourceRepository
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
       if (materialStateVersion === material.stateVersion) {
         return [this.__webGpuRenderPipelineMap.get(renderPipelineId)!, false];
-      } else {
-        this.__webGpuRenderPipelineMap.delete(renderPipelineId);
-        this.__materialStateVersionMap.delete(renderPipelineId);
-        this.__bindGroupTextureMap.delete(renderPipelineId);
-        this.__bindGroupLayoutTextureMap.delete(renderPipelineId);
-        this.__bindGroupSamplerMap.delete(renderPipelineId);
-        this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
       }
     }
+
+    this.__webGpuRenderPipelineMap.delete(renderPipelineId);
+    this.__materialStateVersionMap.delete(renderPipelineId);
+    this.__bindGroupTextureMap.delete(renderPipelineId);
+    this.__bindGroupLayoutTextureMap.delete(renderPipelineId);
+    this.__bindGroupSamplerMap.delete(renderPipelineId);
+    this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
 
     this.createBindGroup(renderPipelineId, material, primitive, meshRendererComponent);
 
