@@ -18,8 +18,8 @@ export class CubeTexture extends AbstractTexture {
 
   async loadTextureImages() {
     this.__startedToLoad = true;
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const [resourceUid, sampler] = await webGLResourceRepository.createCubeTextureFromFiles(
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const [resourceUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
       this.baseUriToLoad!,
       this.mipmapLevelNumber!,
       this.isNamePosNeg,
@@ -34,8 +34,8 @@ export class CubeTexture extends AbstractTexture {
   loadTextureImagesAsync() {
     return new Promise<void>((resolve) => {
       this.__startedToLoad = true;
-      const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-      webGLResourceRepository
+      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      cgApiResourceRepository
         .createCubeTextureFromFiles(
           this.baseUriToLoad!,
           this.mipmapLevelNumber!,
@@ -106,9 +106,9 @@ export class CubeTexture extends AbstractTexture {
     const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
-    const [resourceUid, sampler] = webGLResourceRepository.createCubeTexture(
+    const [resourceUid, sampler] = cgApiResourceRepository.createCubeTexture(
       1,
       [
         {
@@ -124,6 +124,8 @@ export class CubeTexture extends AbstractTexture {
       1
     );
     this._textureResourceUid = resourceUid;
+    this._recommendedTextureSampler = sampler;
+    this._samplerResourceUid = sampler._samplerResourceUid;
 
     this.__isTextureReady = true;
   }

@@ -142,6 +142,10 @@ fn main(
                             NdotV, albedo, perceptualRoughness, F0, F90);
   }
 
+  let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
+    albedo, F0, perceptualRoughness);
+  resultColor += ibl;
+
   resultAlpha = baseColor.a;
 #pragma shaderity: require(../common/outputSrgb.wgsl)
   return vec4f(resultColor * resultAlpha, resultAlpha);
