@@ -84,3 +84,12 @@ test('Inverse Transform vector with quaternion', () => {
   console.log(result_vec);
   expect(result_vec.isEqual(Vector3.fromCopy3(-1, 0, 0), 0.0001)).toBe(true);
 });
+
+test('toEulerAngles', () => {
+  const q = Quaternion.fromCopy4(0.5, 0.5, 0.5, 0.5);
+  const e = q.toEulerAngles();
+
+  console.log(e);
+
+  expect(e.isEqual(Vector3.fromCopy3(Math.PI / 2, 0, Math.PI / 2), 0.0001)).toBe(true);
+});
