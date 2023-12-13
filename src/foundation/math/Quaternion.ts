@@ -581,105 +581,36 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   toEulerAnglesTo(out: IMutableVector3) {
-    const x = this.x,
-      y = this.y,
-      z = this.z,
-      w = this.w;
-    const x2 = x + x,
-      y2 = y + y,
-      z2 = z + z;
-    const xx = x * x2,
-      xy = x * y2,
-      xz = x * z2;
-    const yy = y * y2,
-      yz = y * z2,
-      zz = z * z2;
-    const wx = w * x2,
-      wy = w * y2,
-      wz = w * z2;
+    const t0 = 2 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
+    const t1 = 1 - 2 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    out._v[0] = Math.atan2(t0, t1);
 
-    const e0 = 1 - (yy + zz);
-    const e1 = xy + wz;
-    const e2 = xz - wy;
-    const e3 = 0;
+    let t2 = 2 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
+    t2 = t2 > 1 ? 1 : t2;
+    t2 = t2 < -1 ? -1 : t2;
+    out._v[1] = Math.asin(t2);
 
-    const e4 = xy - wz;
-    const e5 = 1 - (xx + zz);
-    const e6 = yz + wx;
-    const e7 = 0;
-
-    const e8 = xz + wy;
-    const e9 = yz - wx;
-    const e10 = 1 - (xx + yy);
-    const e11 = 0;
-
-    const e12 = 0;
-    const e13 = 0;
-    const e14 = 0;
-    const e15 = 1;
-
-    // order: XYZ
-    out._v[1] = Math.asin(-Math.max(-1, Math.min(1, e2)));
-    if (Math.abs(e2) < 0.99999) {
-      out._v[0] = Math.atan2(e6, e10);
-      out._v[2] = Math.atan2(e1, e0);
-    } else {
-      this._v[0] = 0;
-      this._v[2] = Math.atan2(-e4, e5);
-    }
+    const t3 = 2 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
+    const t4 = 1 - 2 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    out._v[2] = Math.atan2(t3, t4);
 
     return out;
   }
 
   toEulerAngles() {
     const out = new Vector3(new Float32Array(3));
-    const x = this.x,
-      y = this.y,
-      z = this.z,
-      w = this.w;
-    const x2 = x + x,
-      y2 = y + y,
-      z2 = z + z;
-    const xx = x * x2,
-      xy = x * y2,
-      xz = x * z2;
-    const yy = y * y2,
-      yz = y * z2,
-      zz = z * z2;
-    const wx = w * x2,
-      wy = w * y2,
-      wz = w * z2;
+    const t0 = 2 * (this._v[3] * this._v[0] + this._v[1] * this._v[2]);
+    const t1 = 1 - 2 * (this._v[0] * this._v[0] + this._v[1] * this._v[1]);
+    out._v[0] = Math.atan2(t0, t1);
 
-    const e0 = 1 - (yy + zz);
-    const e1 = xy + wz;
-    const e2 = xz - wy;
-    const e3 = 0;
+    let t2 = 2 * (this._v[3] * this._v[1] - this._v[2] * this._v[0]);
+    t2 = t2 > 1 ? 1 : t2;
+    t2 = t2 < -1 ? -1 : t2;
+    out._v[1] = Math.asin(t2);
 
-    const e4 = xy - wz;
-    const e5 = 1 - (xx + zz);
-    const e6 = yz + wx;
-    const e7 = 0;
-
-    const e8 = xz + wy;
-    const e9 = yz - wx;
-    const e10 = 1 - (xx + yy);
-    const e11 = 0;
-
-    const e12 = 0;
-    const e13 = 0;
-    const e14 = 0;
-    const e15 = 1;
-
-    // order: XYZ
-    out._v[1] = Math.asin(-Math.max(-1, Math.min(1, e2)));
-
-    if (Math.abs(e2) < 0.99999) {
-      out._v[0] = Math.atan2(e6, e10);
-      out._v[2] = Math.atan2(e1, e0);
-    } else {
-      this._v[0] = 0;
-      this._v[2] = Math.atan2(-e4, e5);
-    }
+    const t3 = 2 * (this._v[3] * this._v[2] + this._v[0] * this._v[1]);
+    const t4 = 1 - 2 * (this._v[1] * this._v[1] + this._v[2] * this._v[2]);
+    out._v[2] = Math.atan2(t3, t4);
 
     return out;
   }
