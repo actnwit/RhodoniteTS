@@ -59,6 +59,15 @@ export class Transform3D {
     }
   }
 
+  isEqual(rhs: Transform3D, delta = Number.EPSILON): boolean {
+    return (
+      this.positionInner.isEqual(rhs.positionInner, delta) &&
+      this.rotationInner.isEqual(rhs.rotationInner, delta) &&
+      this.scaleInner.isEqual(rhs.scaleInner, delta) &&
+      this.matrixInner.isEqual(rhs.matrixInner, delta)
+    );
+  }
+
   clone() {
     const clone = new Transform3D(this);
     return clone;
@@ -108,7 +117,8 @@ export class Transform3D {
       sx * cy * cz - cx * sy * sz,
       cx * sy * cz + sx * cy * sz,
       cx * cy * sz - sx * sy * cz,
-      cx * cy * cz + sx * sy * sz);
+      cx * cy * cz + sx * sy * sz
+    );
   }
 
   /**

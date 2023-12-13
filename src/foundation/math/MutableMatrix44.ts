@@ -982,7 +982,7 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     return new MutableMatrix44(v);
   }
 
-  static fromCopyMatrix44(mat: Matrix44) {
+  static fromCopyMatrix44(mat: IMatrix44) {
     const v = new Float32Array(16);
     v.set(mat._v);
     return new MutableMatrix44(v);

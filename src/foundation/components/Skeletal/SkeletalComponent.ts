@@ -236,9 +236,9 @@ export class SkeletalComponent extends Component {
 
       if (Config.boneDataType !== BoneDataType.Mat43x1) {
         const scaleVec = SkeletalComponent.__tmpVec3_0.setComponents(
-          Math.hypot(m.m00, m.m01, m.m02),
-          Math.hypot(m.m10, m.m11, m.m12),
-          Math.hypot(m.m20, m.m21, m.m22)
+          Math.hypot(m._v[0], m._v[1], m._v[2]),
+          Math.hypot(m._v[4], m._v[5], m._v[6]),
+          Math.hypot(m._v[8], m._v[9], m._v[10])
         );
 
         m.m00 /= scaleVec.x;
