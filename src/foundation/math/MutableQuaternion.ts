@@ -3,6 +3,7 @@ import { IVector3, IVector4 } from './IVector';
 import { Array4, TypedArray } from '../../types/CommonTypes';
 import { IMutableQuaternion, ILogQuaternion, IQuaternion } from './IQuaternion';
 import { IMatrix44 } from './IMatrix';
+import { MutableMatrix44 } from './MutableMatrix44';
 
 export class MutableQuaternion extends Quaternion implements IMutableQuaternion {
   constructor(x: Float32Array) {
@@ -208,34 +209,60 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
   }
 
   fromMatrix(mat: IMatrix44) {
-    const tr = mat.m00 + mat.m11 + mat.m22;
+    let sx = Math.hypot(mat.m00, mat.m10, mat.m20);
+    const sy = Math.hypot(mat.m01, mat.m11, mat.m21);
+    const sz = Math.hypot(mat.m02, mat.m12, mat.m22);
 
-    if (tr > 0) {
-      const S = 0.5 / Math.sqrt(tr + 1.0);
-      this._v[0] = (mat.m21 - mat.m12) * S;
-      this._v[1] = (mat.m02 - mat.m20) * S;
-      this._v[2] = (mat.m10 - mat.m01) * S;
-      this._v[3] = 0.25 / S;
-    } else if (mat.m00 > mat.m11 && mat.m00 > mat.m22) {
-      const S = Math.sqrt(1.0 + mat.m00 - mat.m11 - mat.m22) * 2;
-      this._v[0] = 0.25 * S;
-      this._v[1] = (mat.m01 + mat.m10) / S;
-      this._v[2] = (mat.m02 + mat.m20) / S;
-      this._v[3] = (mat.m21 - mat.m12) / S;
-    } else if (mat.m11 > mat.m22) {
-      const S = Math.sqrt(1.0 + mat.m11 - mat.m00 - mat.m22) * 2;
-      this._v[0] = (mat.m01 + mat.m10) / S;
-      this._v[1] = 0.25 * S;
-      this._v[2] = (mat.m12 + mat.m21) / S;
-      this._v[3] = (mat.m02 - mat.m20) / S;
-    } else {
-      const S = Math.sqrt(1.0 + mat.m22 - mat.m00 - mat.m11) * 2;
-      this._v[0] = (mat.m02 + mat.m20) / S;
-      this._v[1] = (mat.m12 + mat.m21) / S;
-      this._v[2] = 0.25 * S;
-      this._v[3] = (mat.m10 - mat.m01) / S;
+    const det = mat.determinant();
+    if (det < 0) {
+      sx = -sx;
     }
 
+    const m = MutableMatrix44.fromCopyMatrix44(mat);
+
+    const invSx = 1 / sx;
+    const invSy = 1 / sy;
+    const invSz = 1 / sz;
+
+    m.m00 *= invSx;
+    m.m10 *= invSx;
+    m.m20 *= invSx;
+
+    m.m01 *= invSy;
+    m.m11 *= invSy;
+    m.m21 *= invSy;
+
+    m.m02 *= invSz;
+    m.m12 *= invSz;
+    m.m22 *= invSz;
+
+    const trace = m.m00 + m.m11 + m.m22;
+
+    if (trace > 0) {
+      const S = 0.5 / Math.sqrt(trace + 1.0);
+      this._v[0] = (m.m21 - m.m12) * S;
+      this._v[1] = (m.m02 - m.m20) * S;
+      this._v[2] = (m.m10 - m.m01) * S;
+      this._v[3] = 0.25 / S;
+    } else if (m.m00 > m.m11 && m.m00 > m.m22) {
+      const S = Math.sqrt(1.0 + m.m00 - m.m11 - m.m22) * 2;
+      this._v[0] = 0.25 * S;
+      this._v[1] = (m.m01 + m.m10) / S;
+      this._v[2] = (m.m02 + m.m20) / S;
+      this._v[3] = (m.m21 - m.m12) / S;
+    } else if (m.m11 > m.m22) {
+      const S = Math.sqrt(1.0 + m.m11 - m.m00 - m.m22) * 2;
+      this._v[0] = (m.m01 + m.m10) / S;
+      this._v[1] = 0.25 * S;
+      this._v[2] = (m.m12 + m.m21) / S;
+      this._v[3] = (m.m02 - m.m20) / S;
+    } else {
+      const S = Math.sqrt(1.0 + m.m22 - m.m00 - m.m11) * 2;
+      this._v[0] = (m.m02 + m.m20) / S;
+      this._v[1] = (m.m12 + m.m21) / S;
+      this._v[2] = 0.25 * S;
+      this._v[3] = (m.m10 - m.m01) / S;
+    }
     return this;
   }
 
