@@ -10,7 +10,7 @@ bool skinning(
   out vec3 outNormal_inWorld
   )
 {
-  mat4 skinMat = mat4(getSkinMatrix(skeletalComponentSID));
+  mat4 skinMat = getSkinMatrix(skeletalComponentSID);
   outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
   outNormalMatrix = toNormalMatrix(skinMat);
   outNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
