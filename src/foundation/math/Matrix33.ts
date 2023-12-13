@@ -447,16 +447,16 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
 
   getScale() {
     return Vector3.fromCopyArray([
-      Math.hypot(this._v[0], this._v[3], this._v[6]),
-      Math.hypot(this._v[1], this._v[4], this._v[7]),
-      Math.hypot(this._v[2], this._v[5], this._v[8]),
+      Math.hypot(this._v[0], this._v[1], this._v[2]),
+      Math.hypot(this._v[3], this._v[4], this._v[5]),
+      Math.hypot(this._v[6], this._v[7], this._v[8]),
     ]);
   }
 
   getScaleTo(outVec: MutableVector3) {
-    outVec._v[0] = Math.hypot(this._v[0], this._v[3], this._v[6]);
-    outVec._v[1] = Math.hypot(this._v[1], this._v[4], this._v[7]);
-    outVec._v[2] = Math.hypot(this._v[2], this._v[5], this._v[8]);
+    outVec._v[0] = Math.hypot(this._v[0], this._v[1], this._v[2]);
+    outVec._v[1] = Math.hypot(this._v[3], this._v[4], this._v[5]);
+    outVec._v[2] = Math.hypot(this._v[6], this._v[7], this._v[8]);
     return outVec;
   }
 
