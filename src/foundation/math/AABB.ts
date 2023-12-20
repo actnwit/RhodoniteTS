@@ -330,10 +330,10 @@ export class AABB {
       this.__min.toStringApproximately() +
       '\n' +
       'centerPoint: ' +
-      this.__centerPoint.toStringApproximately() +
+      this.centerPoint.toStringApproximately() +
       '\n' +
       'lengthCenterToCorner: ' +
-      MathUtil.financial(this.__lengthCenterToCorner)
+      MathUtil.financial(this.lengthCenterToCorner)
     );
   }
 }
