@@ -5,7 +5,7 @@
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
-// #param u_enableViewMatrix: bool; // initialValue=true
+// #param enableViewMatrix: bool; // initialValue=true
 
 @vertex
 fn main(
