@@ -152,7 +152,7 @@ export class AABBGizmo extends Gizmo {
       return;
     }
     const sg = this.__target.getSceneGraph()!;
-    const aabb = sg.worldAABB;
+    const aabb = sg.worldMergedAABB;
     this.__topEntity.getTransform()!.localPosition = aabb.centerPoint;
     this.__topEntity.getTransform()!.localScale = Vector3.fromCopyArray([
       aabb.sizeX / 2,
@@ -166,5 +166,4 @@ export class AABBGizmo extends Gizmo {
       this.__topEntity._destroy();
     }
   }
-
 }

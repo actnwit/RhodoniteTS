@@ -39,6 +39,7 @@ export class AABB {
     instance.__lengthCenterToCorner = this.__lengthCenterToCorner;
     instance.__isCenterPointDirty = this.__isCenterPointDirty;
     instance.__isLengthCenterToCornerDirty = this.__isLengthCenterToCornerDirty;
+    instance.__isVanilla = this.__isVanilla;
 
     return instance;
   }

@@ -81,7 +81,7 @@ export class LocatorGizmo extends Gizmo {
       return;
     }
     const sg = this.__target.getSceneGraph()!;
-    const aabb = sg.worldAABB;
+    const aabb = sg.worldMergedAABB;
     if (aabb.isVanilla()) {
       this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {
@@ -152,5 +152,4 @@ export class LocatorGizmo extends Gizmo {
       this.__topEntity._destroy();
     }
   }
-
 }
