@@ -13,7 +13,7 @@ export abstract class AbstractCameraController {
 
   protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3) {
     if (this.autoCalculateZNearAndZFar && Is.exist(this.__targetEntity)) {
-      const targetAABB = this.__targetEntity.getSceneGraph().worldAABB;
+      const targetAABB = this.__targetEntity.getSceneGraph().worldMergedAABB;
       const lengthOfCenterToEye = Vector3.lengthBtw(eyePosition, targetAABB.centerPoint);
 
       // calc cos between eyeToTarget and eye direction

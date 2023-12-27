@@ -694,13 +694,13 @@ export class OrbitCameraController extends AbstractCameraController implements I
       newCenterVec.copyComponents(centerVec);
     } else {
       if (this.__originalTargetAABB == null) {
-        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldAABB;
+        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
         this.__originalTargetAABB = targetAABB.clone();
       }
 
       // calc newCenterVec
       if (this.followTargetAABB) {
-        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldAABB;
+        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
         newCenterVec.copyComponents(targetAABB.centerPoint);
       } else {
         newCenterVec.copyComponents(this.__originalTargetAABB.centerPoint);

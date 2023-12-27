@@ -71,7 +71,7 @@ export class LightGizmo extends Gizmo {
     }
 
     const sg = this.__target.getSceneGraph()!;
-    const aabb = sg.worldAABB;
+    const aabb = sg.worldMergedAABB;
     if (aabb.isVanilla()) {
       this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {

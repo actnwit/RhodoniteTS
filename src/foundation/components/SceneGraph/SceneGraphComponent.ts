@@ -476,45 +476,31 @@ export class SceneGraphComponent extends Component {
     return Matrix44.invert(this.matrixInner).multiplyVector3(worldPosition);
   }
 
+  getWorldAABB() {
+    const aabb = new AABB();
+    const meshComponent = this.entity.tryToGetMesh();
+    if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+      aabb.mergeAABB(meshComponent.mesh.AABB);
+
+      AABB.multiplyMatrixTo(
+        this.entity.getSceneGraph().entityWorldMatrixInner,
+        aabb,
+        SceneGraphComponent.__tmpAABB
+      );
+    } else {
+      SceneGraphComponent.__tmpAABB.initialize();
+    }
+
+    return SceneGraphComponent.__tmpAABB;
+  }
+
   calcWorldAABB() {
-    this.__worldAABB.initialize();
-
-    // const meshComponent = this.entity.tryToGetMesh();
-    // for (let i = 0; i < this.children.length; i++) {
-    //   this.__worldAABB.mergeAABB(this.children[i].worldAABB);
-    // }
-    // if (meshComponent != null) {
-    //   if (meshComponent.mesh != null) {
-    //     this.__worldAABB.mergeAABB(meshComponent.mesh.AABB);
-    //   }
-    // }
-    // AABB.multiplyMatrixTo(
-    //   this.entity.tryToGetTransform()!.localMatrixInner,
-    //   this.__worldAABB,
-    //   SceneGraphComponent.__tmpAABB
-    // );
-
-    // this.__worldAABB = SceneGraphComponent.__tmpAABB.clone();
-    // return this.__worldAABB;
-
-    const aabb = (function mergeAABBRecursively(elem: SceneGraphComponent): AABB {
-      const meshComponent = elem.entity.tryToGetMesh();
-      if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
-        AABB.multiplyMatrixTo(
-          elem.entityWorldMatrixInner,
-          meshComponent.mesh.AABB,
-          elem.__worldAABB
-        );
-      }
-
-      const children = elem.children;
-      for (let i = 0; i < children.length; i++) {
-        const aabb = mergeAABBRecursively(children[i]);
-        elem.__worldAABB.mergeAABB(aabb);
-      }
-
-      return elem.__worldAABB;
-    })(this);
+    const aabb = this.getWorldAABB().clone();
+    for (const child of this.children) {
+      const childAABB = child.calcWorldAABB();
+      aabb.mergeAABB(childAABB);
+    }
+    this.__worldAABB = aabb;
 
     return aabb;
   }
@@ -523,7 +509,7 @@ export class SceneGraphComponent extends Component {
     return !SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint();
   }
 
-  get worldAABB() {
+  get worldMergedAABB() {
     if (this.__shouldJointWorldAabbBeCalculated) {
       return this.__worldAABB;
     }

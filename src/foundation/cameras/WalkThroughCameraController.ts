@@ -308,7 +308,7 @@ export class WalkThroughCameraController
   }
 
   private __updateCameraComponent(camera: CameraComponent) {
-    const targetAABB = this.__targetEntity!.getSceneGraph().worldAABB;
+    const targetAABB = this.__targetEntity!.getSceneGraph().worldMergedAABB;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner *
@@ -464,7 +464,7 @@ export class WalkThroughCameraController
   }
 
   setTarget(targetEntity: ISceneGraphEntity) {
-    const speed = targetEntity.tryToGetSceneGraph()!.worldAABB.lengthCenterToCorner / 10;
+    const speed = targetEntity.tryToGetSceneGraph()!.worldMergedAABB.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 
