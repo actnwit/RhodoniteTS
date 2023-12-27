@@ -39,7 +39,7 @@ export class SceneGraphComponent extends Component {
   private __isWorldMatrixRestUpToDate = false;
   private __isNormalMatrixUpToDate = false;
   private __tmpMatrix = MutableMatrix44.identity();
-  private __worldAABB = new AABB();
+  private __worldMergedAABB = new AABB();
   private __isWorldAABBDirty = true;
   private _isVisible: MutableScalar = MutableScalar.dummy();
   private _isBillboard: MutableScalar = MutableScalar.dummy();
@@ -500,7 +500,7 @@ export class SceneGraphComponent extends Component {
       const childAABB = child.calcWorldAABB();
       aabb.mergeAABB(childAABB);
     }
-    this.__worldAABB = aabb;
+    this.__worldMergedAABB = aabb;
 
     return aabb;
   }
@@ -511,7 +511,7 @@ export class SceneGraphComponent extends Component {
 
   get worldMergedAABB() {
     if (this.__shouldJointWorldAabbBeCalculated) {
-      return this.__worldAABB;
+      return this.__worldMergedAABB;
     }
 
     if (this.__isWorldAABBDirty) {
@@ -520,7 +520,7 @@ export class SceneGraphComponent extends Component {
     } else {
       // console.count('skipped')
     }
-    return this.__worldAABB;
+    return this.__worldMergedAABB;
   }
 
   /**
@@ -881,7 +881,7 @@ export class SceneGraphComponent extends Component {
     this.__isWorldMatrixRestUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
     this.__tmpMatrix.copyComponents(component.__tmpMatrix);
-    this.__worldAABB = component.__worldAABB.clone();
+    this.__worldMergedAABB = component.__worldMergedAABB.clone();
     this.__isWorldAABBDirty = true;
     this._isVisible.copyComponents(component._isVisible);
     this._isBillboard.copyComponents(component._isBillboard);
