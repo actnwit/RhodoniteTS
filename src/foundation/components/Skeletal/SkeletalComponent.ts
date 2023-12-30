@@ -21,7 +21,6 @@ import { ISkeletalEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc';
-import { IAnimationRetarget } from './AnimationRetarget/AnimationRetarget';
 
 export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -40,7 +39,6 @@ export class SkeletalComponent extends Component {
   private __matArray = new Float32Array(0);
   private __worldMatrix = MutableMatrix44.identity();
   private __isWorldMatrixVanilla = true;
-  _animationRetarget?: IAnimationRetarget;
   _isCulled = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tookGlobalDataNum = 0;
@@ -425,7 +423,6 @@ export class SkeletalComponent extends Component {
     this.__matArray.set(component.__matArray);
     this.__worldMatrix.copyComponents(component.__worldMatrix);
     this.__isWorldMatrixVanilla = component.__isWorldMatrixVanilla;
-    this._animationRetarget = component._animationRetarget;
   }
 
   /**

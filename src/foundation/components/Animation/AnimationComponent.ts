@@ -80,7 +80,7 @@ export class AnimationComponent extends Component {
   /**
    * @private
    */
-  public _animationRetarget?: IAnimationRetarget;
+  private _animationRetarget1st?: IAnimationRetarget;
 
   // Global animation time in Rhodonite
   public useGlobalTime = true;
@@ -131,7 +131,7 @@ export class AnimationComponent extends Component {
       return;
     }
 
-    const animationRetarget = this._animationRetarget;
+    const animationRetarget = this._animationRetarget1st;
     if (Is.exist(animationRetarget)) {
       this.__transformComponent!.localRotation = animationRetarget.retargetQuaternion(this.entity);
       this.__transformComponent!.localPosition = animationRetarget.retargetTranslate(this.entity);
@@ -775,11 +775,11 @@ export class AnimationComponent extends Component {
     this.__animationTracks = new Map(component.__animationTracks);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
-    this._animationRetarget = component._animationRetarget;
+    this._animationRetarget1st = component._animationRetarget1st;
   }
 
   setAnimationRetarget(retarget: IAnimationRetarget) {
-    this._animationRetarget = retarget;
+    this._animationRetarget1st = retarget;
 
     this.__transformComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
