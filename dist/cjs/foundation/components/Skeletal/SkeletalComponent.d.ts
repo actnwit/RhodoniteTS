@@ -9,7 +9,6 @@ import { IMatrix44 } from '../../math/IMatrix';
 import { Accessor } from '../../memory/Accessor';
 import { ISkeletalEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
-import { IAnimationRetarget } from './AnimationRetarget/AnimationRetarget';
 export declare class SkeletalComponent extends Component {
     _jointIndices: Index[];
     private __joints;
@@ -27,7 +26,6 @@ export declare class SkeletalComponent extends Component {
     private __matArray;
     private __worldMatrix;
     private __isWorldMatrixVanilla;
-    _animationRetarget?: IAnimationRetarget;
     _isCulled: boolean;
     private static __globalDataRepository;
     private static __tookGlobalDataNum;
