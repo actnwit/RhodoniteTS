@@ -59,7 +59,7 @@ export class AnimationComponent extends Component {
   /// inner states ///
   // The name of the current Active Track
   private __firstActiveAnimationTrackName?: AnimationTrackName;
-  private __secondActiveAnimationTrackName?: AnimationTrackName;
+  private __secondActiveAnimationTrackName?: AnimationTrackName; // for animation blending
   private __interpolationRatioBtwFirstAndSecond = 0; // the value range is [0,1]
 
   // Animation Data of each AnimationComponent
@@ -75,6 +75,7 @@ export class AnimationComponent extends Component {
   /// flags ///
   private __isAnimating = true;
   static isAnimating = true;
+  private isLoop = true;
 
   /**
    * @private
@@ -141,7 +142,17 @@ export class AnimationComponent extends Component {
   }
 
   private __applyAnimation() {
-    const time = this.useGlobalTime ? AnimationComponent.globalTime : this.time;
+    let time = this.time;
+    if (this.useGlobalTime) {
+      if (this.isLoop) {
+        const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
+        time =
+          (AnimationComponent.globalTime % duration) +
+          this.getStartInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
+      } else {
+        time = AnimationComponent.globalTime;
+      }
+    }
 
     // process the first active animation track
     if (
@@ -400,39 +411,36 @@ export class AnimationComponent extends Component {
     this.entity.getTransform()._backupTransformAsRest();
   }
 
-  public getStartInputValueOfAnimation(animationTrackName?: string): number {
-    const name = animationTrackName ?? this.__firstActiveAnimationTrackName;
-    if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
-      if (array.length === 0) {
-        return 0;
-      }
-      const firstAnimationInfo = array[0] as unknown as AnimationInfo;
-      return firstAnimationInfo.maxEndInputTime;
+  public getStartInputValueOfAnimation(animationTrackName: string): number {
+    let maxStartInputTime = Number.MAX_VALUE;
+
+    const animationTrack = this.__animationTracks.get(animationTrackName);
+    if (Is.not.exist(animationTrack)) {
+      return -1;
     }
-    const maxStartInputTime = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationGlobalInfo.get(name),
-      defaultValue: defaultAnimationInfo,
-    }).minStartInputTime;
+
+    animationTrack.forEach((channel) => {
+      const input = channel.sampler.input[0];
+      if (input < maxStartInputTime) {
+        maxStartInputTime = input;
+      }
+    });
 
     return maxStartInputTime;
   }
 
-  public getEndInputValueOfAnimation(animationTrackName?: string): number {
-    const name = animationTrackName ?? this.__firstActiveAnimationTrackName;
-
-    if (name === undefined) {
-      const array = Array.from(AnimationComponent.__animationGlobalInfo.values());
-      if (array.length === 0) {
-        return 0;
-      }
-      const firstAnimationInfo = array[0] as unknown as AnimationInfo;
-      return firstAnimationInfo.maxEndInputTime;
+  public getEndInputValueOfAnimation(animationTrackName: string): number {
+    const animationTrack = this.__animationTracks.get(animationTrackName);
+    if (Is.not.exist(animationTrack)) {
+      return -1;
     }
-    const maxEndInputTime = valueWithDefault<AnimationInfo>({
-      value: AnimationComponent.__animationGlobalInfo.get(name),
-      defaultValue: defaultAnimationInfo,
-    }).maxEndInputTime;
+    let maxEndInputTime = 0;
+    animationTrack.forEach((channel) => {
+      const input = channel.sampler.input[channel.sampler.input.length - 1];
+      if (maxEndInputTime < input) {
+        maxEndInputTime = input;
+      }
+    });
 
     return maxEndInputTime;
   }
