@@ -12,6 +12,7 @@ import { RnObject } from './RnObject';
 import { EntityUID, ComponentSID, Count, Byte } from '../../types/CommonTypes';
 import { IEntity } from './Entity';
 import { ComponentToComponentMethods } from '../components/ComponentTypes';
+import { Result } from '../misc/Result';
 /**
  * Component is a functional unit that can be added to an Entity instance.
  */
@@ -126,7 +127,7 @@ export declare class Component extends RnObject {
     /**
      * take one accessor for the member field.
      */
-    static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count): Accessor | undefined;
+    static takeAccessor(bufferUse: BufferUseEnum, memberName: string, componentClass: Function, compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum, count: Count): Result<Accessor, undefined>;
     static getByteOffsetOfThisComponentTypeInBuffer(bufferUse: BufferUseEnum, componentClass: Function): Byte;
     static getByteOffsetOfFirstOfThisMemberInBuffer(memberName: string, componentClass: Function): Byte;
     static getByteOffsetOfFirstOfThisMemberInBufferView(memberName: string, componentClass: Function): Byte;

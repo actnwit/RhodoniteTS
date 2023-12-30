@@ -23,6 +23,7 @@ export declare class Transform3D {
     private static __tmpQuaternion_0;
     constructor();
     constructor(Transform3D: Transform3D);
+    isEqual(rhs: Transform3D, delta?: number): boolean;
     clone(): Transform3D;
     set position(vec: IVector3);
     /**

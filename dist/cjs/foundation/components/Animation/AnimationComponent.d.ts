@@ -25,6 +25,7 @@ export declare class AnimationComponent extends Component {
     private __isEffekseerState;
     private __isAnimating;
     static isAnimating: boolean;
+    private isLoop;
     /**
      * @private
      */
@@ -62,8 +63,8 @@ export declare class AnimationComponent extends Component {
      * @param makeThisActiveAnimation - if true, set this animation track as current active animation
      */
     setAnimation(trackName: AnimationTrackName, pathName: AnimationPathName, inputArray: Float32Array, outputArray: Float32Array, outputComponentN: VectorComponentN, interpolation: AnimationInterpolationEnum, makeThisActiveAnimation?: boolean): void;
-    getStartInputValueOfAnimation(animationTrackName?: string): number;
-    getEndInputValueOfAnimation(animationTrackName?: string): number;
+    getStartInputValueOfAnimation(animationTrackName: string): number;
+    getEndInputValueOfAnimation(animationTrackName: string): number;
     /**
      * get the Array of Animation Track Name
      * @returns Array of Animation Track Name

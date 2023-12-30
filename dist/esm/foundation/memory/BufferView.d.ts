@@ -3,7 +3,7 @@ import { CompositionTypeEnum } from '../definitions/CompositionType';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { Accessor } from './Accessor';
 import { Byte, Count, Size } from '../../types/CommonTypes';
-import { IResult } from '../misc';
+import { Result } from '../misc';
 export declare class BufferView {
     private __buffer;
     private __byteOffsetInRawArrayBufferOfBuffer;
@@ -47,7 +47,7 @@ export declare class BufferView {
         min?: number[];
         arrayLength?: Size;
         normalized?: boolean;
-    }): IResult<Accessor, undefined>;
+    }): Result<Accessor, undefined>;
     takeAccessorWithByteOffset({ compositionType, componentType, count, byteOffsetInBufferView, byteStride, max, min, normalized, }: {
         compositionType: CompositionTypeEnum;
         componentType: ComponentTypeEnum;
@@ -57,7 +57,7 @@ export declare class BufferView {
         max?: number[];
         min?: number[];
         normalized?: boolean;
-    }): IResult<Accessor, undefined>;
+    }): Result<Accessor, undefined>;
     private __takeAccessorInner;
     private __takeAccessorInnerWithByteOffset;
     isSame(rnBufferView: BufferView): boolean;

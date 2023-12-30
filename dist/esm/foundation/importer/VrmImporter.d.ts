@@ -3,7 +3,7 @@ import { GltfLoadOption, RnM2 } from '../../types';
 import { RenderPass } from '../renderer/RenderPass';
 import { Texture } from '../textures/Texture';
 import { Vrm1 } from '../../types/VRM1';
-import { Err, IResult } from '../misc/Result';
+import { Err, Result } from '../misc/Result';
 import { Sampler } from '../textures/Sampler';
 export declare class VrmImporter {
     private constructor();
@@ -22,6 +22,6 @@ export declare class VrmImporter {
      * For VRM file only
      * Generate JSON.
      */
-    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<IResult<Vrm1, Err<RnM2, undefined>>>;
+    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Result<Vrm1, Err<RnM2, undefined>>>;
     static __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
 }

@@ -7,5 +7,6 @@ export * from './MiscUtil';
 export * from './Option';
 export * from './Result';
 export * from './RnPromise';
+export * from './RnException';
 export * from './Time';
 export * from './WeakOption';

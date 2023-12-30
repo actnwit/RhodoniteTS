@@ -1,7 +1,7 @@
 import { Expression } from '../renderer/Expression';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { RnPromiseCallback } from '../misc/RnPromise';
-import { Err, IResult } from '../misc/Result';
+import { Err, Result } from '../misc/Result';
 /**
  * Importer class which can import GLTF and VRM.
  */
@@ -15,7 +15,7 @@ export declare class GltfImporter {
      *            renderPasses[0]: model entities
      *            renderPasses[1]: model outlines
      */
-    static importFromUri(uri: string, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<IResult<Expression, Err<ArrayBuffer, unknown>>>;
+    static importFromUri(uri: string, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Result<Expression, Err<ArrayBuffer, unknown>>>;
     /**
      * Import GLTF or VRM from ArrayBuffers.
      * @param files ArrayBuffers of glTF/VRM files
@@ -24,7 +24,7 @@ export declare class GltfImporter {
      *            renderPasses[0]: model entities
      *            renderPasses[1]: model outlines
      */
-    static importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<IResult<Expression, never>>;
+    static importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Result<Expression, never>>;
     private static __initOptions;
     private static __setRenderPassesToExpression;
     private static __isValidExtension;

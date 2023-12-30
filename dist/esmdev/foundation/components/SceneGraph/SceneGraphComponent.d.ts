@@ -24,7 +24,7 @@ export declare class SceneGraphComponent extends Component {
     private __isWorldMatrixRestUpToDate;
     private __isNormalMatrixUpToDate;
     private __tmpMatrix;
-    private __worldAABB;
+    private __worldMergedAABB;
     private __isWorldAABBDirty;
     private _isVisible;
     private _isBillboard;
@@ -107,9 +107,10 @@ export declare class SceneGraphComponent extends Component {
     get worldPosition(): Vector3;
     getWorldPositionOf(localPosition: Vector3): IVector3;
     getLocalPositionOf(worldPosition: Vector3): Vector3;
+    getWorldAABB(): AABB;
     calcWorldAABB(): AABB;
     private get __shouldJointWorldAabbBeCalculated();
-    get worldAABB(): AABB;
+    get worldMergedAABB(): AABB;
     /**
      * castRay Methods
      *

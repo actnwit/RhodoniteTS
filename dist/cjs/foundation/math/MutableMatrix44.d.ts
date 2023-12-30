@@ -152,7 +152,7 @@ export declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
      * @returns
      */
     static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): MutableMatrix44;
-    static fromCopyMatrix44(mat: Matrix44): MutableMatrix44;
+    static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44;
     static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
     static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
     static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44;

@@ -2,7 +2,7 @@ import { BufferView } from './BufferView';
 import { Byte, TypedArray } from '../../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { IResult } from '../misc';
+import { Result } from '../misc/Result';
 export declare class Buffer {
     private __byteLength;
     private __byteOffset;
@@ -24,12 +24,15 @@ export declare class Buffer {
     takeBufferView({ byteLengthToNeed, byteStride, }: {
         byteLengthToNeed: Byte;
         byteStride: Byte;
-    }): IResult<BufferView, undefined>;
+    }): Result<BufferView, {
+        'Buffer.byteLength': Byte;
+        'Buffer.takenSizeInByte': Byte;
+    }>;
     takeBufferViewWithByteOffset({ byteLengthToNeed, byteStride, byteOffset, }: {
         byteLengthToNeed: Byte;
         byteStride: Byte;
         byteOffset: Byte;
-    }): IResult<BufferView, undefined>;
+    }): Result<BufferView, undefined>;
     _addTakenByteIndex(value: Byte): void;
     get byteLength(): number;
     get takenSizeInByte(): number;

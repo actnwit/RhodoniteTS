@@ -3,7 +3,7 @@ import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { GltfLoadOption, RnM2 } from '../../types';
 import { RenderPass } from '../renderer/RenderPass';
 import { Texture } from '../textures/Texture';
-import { Err, IResult } from '../misc/Result';
+import { Err, Result } from '../misc/Result';
 import { Sampler } from '../textures/Sampler';
 /**
  * The VRM Importer class.
@@ -14,12 +14,12 @@ export declare class Vrm0xImporter {
     /**
      * Import VRM file.
      */
-    static importFromUri(uri: string, options?: GltfLoadOption): Promise<IResult<ISceneGraphEntity[], Err<RnM2, undefined>>>;
+    static importFromUri(uri: string, options?: GltfLoadOption): Promise<Result<ISceneGraphEntity[], Err<RnM2, undefined>>>;
     /**
      * For VRM file only
      * Generate JSON.
      */
-    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<IResult<Vrm0x, Err<RnM2, undefined>>>;
+    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Result<Vrm0x, Err<RnM2, undefined>>>;
     static __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
     static _readBlendShapeGroup(gltfModel: Vrm0x, rootEntity: ISceneGraphEntity): void;
     static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void;
