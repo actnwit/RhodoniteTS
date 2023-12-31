@@ -494,10 +494,10 @@ export class SceneGraphComponent extends Component {
     return SceneGraphComponent.__tmpAABB;
   }
 
-  calcWorldAABB() {
+  calcWorldMergedAABB() {
     const aabb = this.getWorldAABB().clone();
     for (const child of this.children) {
-      const childAABB = child.calcWorldAABB();
+      const childAABB = child.calcWorldMergedAABB();
       aabb.mergeAABB(childAABB);
     }
     this.__worldMergedAABB = aabb;
@@ -515,7 +515,7 @@ export class SceneGraphComponent extends Component {
     }
 
     if (this.__isWorldAABBDirty) {
-      this.calcWorldAABB();
+      this.calcWorldMergedAABB();
       this.__isWorldAABBDirty = false;
     } else {
       // console.count('skipped')

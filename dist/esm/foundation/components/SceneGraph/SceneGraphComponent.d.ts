@@ -108,7 +108,7 @@ export declare class SceneGraphComponent extends Component {
     getWorldPositionOf(localPosition: Vector3): IVector3;
     getLocalPositionOf(worldPosition: Vector3): Vector3;
     getWorldAABB(): AABB;
-    calcWorldAABB(): AABB;
+    calcWorldMergedAABB(): AABB;
     private get __shouldJointWorldAabbBeCalculated();
     get worldMergedAABB(): AABB;
     /**
