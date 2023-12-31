@@ -182,7 +182,7 @@ export class EntityRepository {
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
     if (entity.hasComponent(componentClass)) {
-      console.log('This entity already has the Component.');
+      // console.log('This entity already has the Component.');
       return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
 
