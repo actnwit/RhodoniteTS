@@ -162,6 +162,7 @@ export class WebXRSystem {
         this.__spaceType = 'local';
         this.__isReadyForWebXR = false;
         this.__requestedToEnterWebXR = false;
+        this.__xrInputSources.length = 0;
         this.__setWebXRMode(false);
         MaterialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
