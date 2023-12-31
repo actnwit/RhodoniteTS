@@ -29,7 +29,8 @@ export declare class AnimationComponent extends Component {
     /**
      * @private
      */
-    _animationRetarget?: IAnimationRetarget;
+    private _animationRetarget1st?;
+    private _animationRetarget2nd?;
     useGlobalTime: boolean;
     static globalTime: number;
     time: number;
@@ -38,9 +39,13 @@ export declare class AnimationComponent extends Component {
         PlayEnd: symbol;
     };
     private static __pubsub;
+    private static __vector3Zero;
+    private static __vector3One;
+    private static __identityQuaternion;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     $create(): void;
     $logic(): void;
+    private __applyRetargetAnimation;
     private __applyAnimation;
     static subscribe(type: AnimationComponentEventType, handler: EventHandler): void;
     setIsAnimating(flg: boolean): void;
@@ -109,5 +114,6 @@ export declare class AnimationComponent extends Component {
     hasKeyFramesAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frame: Index, fps: number): boolean;
     static setIsAnimating(flag: boolean): void;
     _shallowCopyFrom(component_: Component): void;
-    setAnimationRetarget(retarget: IAnimationRetarget): void;
+    setAnimationRetarget(retarget1st: IAnimationRetarget): void;
+    setAnimationRetarget2nd(retarget2nd: IAnimationRetarget): void;
 }

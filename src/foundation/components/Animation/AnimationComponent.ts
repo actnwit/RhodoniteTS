@@ -80,7 +80,8 @@ export class AnimationComponent extends Component {
   /**
    * @private
    */
-  public _animationRetarget?: IAnimationRetarget;
+  private _animationRetarget1st?: IAnimationRetarget;
+  private _animationRetarget2nd?: IAnimationRetarget;
 
   // Global animation time in Rhodonite
   public useGlobalTime = true;
@@ -95,6 +96,9 @@ export class AnimationComponent extends Component {
     PlayEnd,
   };
   private static __pubsub = new EventPubSub();
+  private static __vector3Zero = Vector3.zero();
+  private static __vector3One = Vector3.one();
+  private static __identityQuaternion = Quaternion.identity();
 
   constructor(
     entityUid: EntityUID,
@@ -131,14 +135,49 @@ export class AnimationComponent extends Component {
       return;
     }
 
-    const animationRetarget = this._animationRetarget;
-    if (Is.exist(animationRetarget)) {
-      this.__transformComponent!.localRotation = animationRetarget.retargetQuaternion(this.entity);
-      this.__transformComponent!.localPosition = animationRetarget.retargetTranslate(this.entity);
-      this.__transformComponent!.localScale = animationRetarget.retargetScale(this.entity);
+    if (Is.exist(this._animationRetarget1st) || Is.exist(this._animationRetarget2nd)) {
+      this.__applyRetargetAnimation();
     } else {
       this.__applyAnimation();
     }
+  }
+
+  private __applyRetargetAnimation() {
+    let position1st = AnimationComponent.__vector3Zero;
+    let rotation1st = AnimationComponent.__identityQuaternion;
+    let scale1st = AnimationComponent.__vector3One;
+    let position2nd = AnimationComponent.__vector3Zero;
+    let rotation2nd = AnimationComponent.__identityQuaternion;
+    let scale2nd = AnimationComponent.__vector3One;
+    if (Is.exist(this._animationRetarget1st)) {
+      position1st = this._animationRetarget1st.retargetTranslate(this.entity as ISceneGraphEntity);
+      rotation1st = this._animationRetarget1st.retargetQuaternion(
+        this.entity as ISceneGraphEntity
+      ) as Quaternion;
+      scale1st = this._animationRetarget1st.retargetScale(this.entity as ISceneGraphEntity);
+    }
+    if (Is.exist(this._animationRetarget2nd)) {
+      position2nd = this._animationRetarget2nd.retargetTranslate(this.entity as ISceneGraphEntity);
+      rotation2nd = this._animationRetarget2nd.retargetQuaternion(
+        this.entity as ISceneGraphEntity
+      ) as Quaternion;
+      scale2nd = this._animationRetarget2nd.retargetScale(this.entity as ISceneGraphEntity);
+    }
+    this.__transformComponent!.localPosition = Vector3.lerp(
+      position1st,
+      position2nd,
+      this.__interpolationRatioBtwFirstAndSecond
+    );
+    this.__transformComponent!.localScale = Vector3.lerp(
+      scale1st,
+      scale2nd,
+      this.__interpolationRatioBtwFirstAndSecond
+    );
+    this.__transformComponent!.localRotation = Quaternion.qlerp(
+      rotation1st,
+      rotation2nd,
+      this.__interpolationRatioBtwFirstAndSecond
+    );
   }
 
   private __applyAnimation() {
@@ -775,11 +814,23 @@ export class AnimationComponent extends Component {
     this.__animationTracks = new Map(component.__animationTracks);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
-    this._animationRetarget = component._animationRetarget;
+    this._animationRetarget1st = component._animationRetarget1st;
+    this._animationRetarget2nd = component._animationRetarget2nd;
   }
 
-  setAnimationRetarget(retarget: IAnimationRetarget) {
-    this._animationRetarget = retarget;
+  setAnimationRetarget(retarget1st: IAnimationRetarget) {
+    this._animationRetarget1st = retarget1st;
+
+    this.__transformComponent = EntityRepository.getComponentOfEntity(
+      this.__entityUid,
+      TransformComponent
+    ) as TransformComponent;
+
+    this.__transformComponent?._backupTransformAsRest();
+  }
+
+  setAnimationRetarget2nd(retarget2nd: IAnimationRetarget) {
+    this._animationRetarget2nd = retarget2nd;
 
     this.__transformComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,

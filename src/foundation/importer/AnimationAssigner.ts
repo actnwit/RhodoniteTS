@@ -58,7 +58,12 @@ export class AnimationAssigner {
     return rootEntity;
   }
 
-  assignAnimationWithVrma(rootEntity: ISceneGraphEntity, gltfModel: RnM2Vrma) {
+  assignAnimationWithVrma(
+    rootEntity: ISceneGraphEntity,
+    vrmaModel1st: RnM2Vrma,
+    vrmaModel2nd?: RnM2Vrma
+  ) {
+    // remove existing retarget
     function removeRetargetRecursively(entity: ISceneGraphEntity) {
       for (const child of entity.children) {
         const animationComponent = child.entity.tryToGetAnimation();
@@ -70,44 +75,58 @@ export class AnimationAssigner {
     }
     removeRetargetRecursively(rootEntity);
 
-    if (gltfModel.animations) {
-      for (const animation of gltfModel.animations) {
-        for (const sampler of animation.samplers) {
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
+    const setRetarget = (vrma: RnM2Vrma, is1st: boolean) => {
+      if (vrma.animations) {
+        for (const animation of vrma.animations) {
+          for (const sampler of animation.samplers) {
+            ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
+            ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
+          }
         }
       }
-    }
 
-    if (gltfModel.animations && gltfModel.animations.length > 0) {
-      for (const animation of gltfModel.animations) {
-        for (const channel of animation.channels) {
-          // find the corresponding joint entity
-          // const node = gltfModel.nodes[channel.target!.node!];
-          const rnEntity = this.__getCorrespondingEntityWithVrma(
-            rootEntity,
-            gltfModel,
-            channel.target!.node!
-          );
-          if (rnEntity) {
-            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
-            const animationComponent = newRnEntity.getAnimation();
+      if (vrma.animations && vrma.animations.length > 0) {
+        for (const animation of vrma.animations) {
+          for (const channel of animation.channels) {
+            // find the corresponding joint entity
+            // const node = gltfModel.nodes[channel.target!.node!];
+            const rnEntity = this.__getCorrespondingEntityWithVrma(
+              rootEntity,
+              vrma,
+              channel.target!.node!
+            );
+            if (rnEntity) {
+              const newRnEntity = EntityRepository.addComponentToEntity(
+                AnimationComponent,
+                rnEntity
+              );
+              const animationComponent = newRnEntity.getAnimation();
 
-            const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
-            const humanBones = gltfModel.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
-            const humanoidBoneName = humanBones.get(channel.target!.node!)!;
-            gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
+              const gltfEntity = vrma.extras.rnEntities[channel.target!.node!];
+              const humanBones = vrma.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
+              const humanoidBoneName = humanBones.get(channel.target!.node!)!;
+              gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
 
-            if (rootEntity.tryToGetVrm()!._version === '0.x') {
-              const retarget = new GlobalRetargetReverse(gltfEntity);
-              animationComponent.setAnimationRetarget(retarget);
-            } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
-              const retarget = new GlobalRetarget(gltfEntity);
-              animationComponent.setAnimationRetarget(retarget);
+              let retarget: IAnimationRetarget | undefined;
+              if (rootEntity.tryToGetVrm()!._version === '0.x') {
+                retarget = new GlobalRetargetReverse(gltfEntity);
+              } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
+                retarget = new GlobalRetarget(gltfEntity);
+              }
+              if (is1st) {
+                animationComponent.setAnimationRetarget(retarget!);
+              } else {
+                animationComponent.setAnimationRetarget2nd(retarget!);
+              }
             }
           }
         }
       }
+    };
+
+    setRetarget(vrmaModel1st, true);
+    if (vrmaModel2nd) {
+      setRetarget(vrmaModel2nd, false);
     }
 
     return rootEntity;
