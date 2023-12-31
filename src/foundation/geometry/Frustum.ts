@@ -103,7 +103,7 @@ export class Frustum {
    * original idea is from https://iquilezles.org/articles/frustumcorrect/
    */
   culling(meshComponent: MeshComponent) {
-    const aabb = meshComponent.entity.getSceneGraph().calcWorldMergedAABB();
+    const aabb = meshComponent.entity.getSceneGraph().worldMergedAABB;
 
     // check box outside/inside of frustum
     for (let i = 0; i < 6; i++) {
