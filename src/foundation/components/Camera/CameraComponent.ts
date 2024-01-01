@@ -504,7 +504,10 @@ export class CameraComponent extends Component {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (this.type === CameraType.Perspective) {
         const fovy = this._parametersInner.z;
-        const aspect = this._parametersInner.w;
+        let aspect = this._parametersInner.w;
+        if (aspect < 0) {
+          aspect = SystemState.viewportAspectRatio;
+        }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
         this._projectionMatrix.m00 = xscale;
@@ -578,7 +581,10 @@ export class CameraComponent extends Component {
     } else {
       if (this.type === CameraType.Perspective) {
         const fovy = this._parametersInner.z;
-        const aspect = this._parametersInner.w;
+        let aspect = this._parametersInner.w;
+        if (aspect < 0) {
+          aspect = SystemState.viewportAspectRatio;
+        }
         const yscale = 1.0 / Math.tan((0.5 * fovy * Math.PI) / 180);
         const xscale = yscale / aspect;
         this._projectionMatrix.m00 = xscale;

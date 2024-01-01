@@ -60,8 +60,8 @@ import {
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { Sampler } from '../foundation/textures/Sampler';
-import { EnumIO } from '../foundation/misc/EnumIO';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
+import { SystemState } from '../foundation/system/SystemState';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
@@ -1168,11 +1168,11 @@ export class WebGLResourceRepository
     //   // gl.texParameteri(gl.TEXTURE_2D, gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     // }
     // if (MathUtil.isPowerOfTwoTexture(width, height)) {
-      // if (anisotropy) {
-      //   if (this.__glw!.webgl2ExtTFA) {
-      //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
-      //   }
-      // }
+    // if (anisotropy) {
+    //   if (this.__glw!.webgl2ExtTFA) {
+    //     gl.texParameteri(gl.TEXTURE_2D, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    //   }
+    // }
 
     gl.generateMipmap(gl.TEXTURE_2D);
 
@@ -2495,6 +2495,9 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     } else {
       this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
     }
+    SystemState.viewportAspectRatio =
+      (this.__glw!.viewport.z - this.__glw!.viewport.x) /
+      (this.__glw!.viewport.w - this.__glw!.viewport.y);
   }
 
   clearFrameBuffer(renderPass: RenderPass) {
