@@ -24,7 +24,6 @@ export class OrbitCameraController extends AbstractCameraController implements I
   public autoUpdate = true;
 
   private __updated = false;
-  private __fixedDolly = false;
   private __fixedLengthOfCenterToEye = 1;
   private __isMouseDown = false;
   private __lastMouseDownTimeStamp = 0;
@@ -55,7 +54,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
   private __eyeVec = MutableVector3.zero();
   private __centerVec = MutableVector3.zero();
   private __upVec = MutableVector3.zero();
-  protected __targetEntity?: ISceneGraphEntity;
+  protected __targetEntities: ISceneGraphEntity[] = [];
   private __scaleOfZNearAndZFar = 5000;
   private __doPreventDefault = false;
   private __isPressingShift = false;
@@ -116,13 +115,17 @@ export class OrbitCameraController extends AbstractCameraController implements I
   }
 
   setTarget(targetEntity: ISceneGraphEntity) {
-    this.__targetEntity = targetEntity;
+    this.setTargets([targetEntity]);
+  }
+
+  setTargets(targetEntities: ISceneGraphEntity[]) {
+    this.__targetEntities = targetEntities;
     this.__originalTargetAABB = undefined;
     this.__updated = false;
   }
 
-  getTarget(): ISceneGraphEntity | undefined {
-    return this.__targetEntity;
+  getTargets(): ISceneGraphEntity[] {
+    return this.__targetEntities;
   }
 
   set doPreventDefault(flag: boolean) {
@@ -328,9 +331,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
     this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
 
-    const scale = this.__fixedDolly
-      ? 1.0
-      : this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
+    const scale = this.__lengthOfCenterToEye * this.__fovyBias * this.__scaleOfTranslation;
 
     const upDirTranslateVec = OrbitCameraController.__tmpVec3_0;
     upDirTranslateVec
@@ -689,23 +690,28 @@ export class OrbitCameraController extends AbstractCameraController implements I
     const newCenterVec = this.__centerVec;
     const newUpVec = this.__upVec.copyComponents(upVec);
 
-    if (this.__targetEntity == null) {
+    if (this.__targetEntities.length === 0) {
       newEyeVec.copyComponents(eyeVec);
       newCenterVec.copyComponents(centerVec);
     } else {
       if (this.__originalTargetAABB == null) {
-        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
-        this.__originalTargetAABB = targetAABB.clone();
+        const aabb = new AABB();
+        for (const targetEntity of this.__targetEntities) {
+          aabb.mergeAABB(targetEntity.tryToGetSceneGraph()!.worldMergedAABB);
+        }
+        this.__originalTargetAABB = aabb.clone();
       }
 
       // calc newCenterVec
+      let aabbToUse = this.__originalTargetAABB!;
       if (this.followTargetAABB) {
-        const targetAABB = this.__targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
-        newCenterVec.copyComponents(targetAABB.centerPoint);
-      } else {
-        newCenterVec.copyComponents(this.__originalTargetAABB.centerPoint);
+        const aabb = new AABB();
+        for (const targetEntity of this.__targetEntities) {
+          aabb.mergeAABB(targetEntity.tryToGetSceneGraph()!.worldMergedAABB);
+        }
+        aabbToUse = aabb;
       }
-
+      newCenterVec.copyComponents(aabbToUse.centerPoint);
       // calc newEyeVec
       const centerToCameraVec = MutableVector3.subtractTo(
         eyeVec,
@@ -713,11 +719,10 @@ export class OrbitCameraController extends AbstractCameraController implements I
         newEyeVec
       ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
-      let lengthCenterToCamera = this.__fixedDolly
-        ? this.__fixedLengthOfCenterToEye
-        : this.__originalTargetAABB.lengthCenterToCorner *
-          (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
-          this.scaleOfLengthCenterToCamera;
+      let lengthCenterToCamera =
+        aabbToUse.lengthCenterToCorner *
+        (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
+        this.scaleOfLengthCenterToCamera;
       if (Math.abs(lengthCenterToCamera) < 0.00001) {
         lengthCenterToCamera = 1;
       }
@@ -745,12 +750,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
       OrbitCameraController.__tmpVec3_0
     );
 
-    if (this.__fixedDolly) {
-      this.__lengthOfCenterToEye = this.__fixedLengthOfCenterToEye;
-    } else {
-      centerToEyeVec.multiply(this.__dolly * this.dollyScale);
-      this.__lengthOfCenterToEye = centerToEyeVec.length();
-    }
+    centerToEyeVec.multiply(this.__dolly * this.dollyScale);
+    this.__lengthOfCenterToEye = centerToEyeVec.length();
 
     const newUpVec = this.__newUpVec;
     const newEyeVec = this.__newEyeVec;
@@ -875,14 +876,5 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   get lastMouseUpTimeStamp(): number {
     return this.__lastMouseUpTimeStamp;
-  }
-
-  setFixedDollyTrue(lengthOfCenterToEye: number) {
-    this.__fixedLengthOfCenterToEye = lengthOfCenterToEye;
-    this.__fixedDolly = true;
-  }
-
-  unsetFixedDolly() {
-    this.__fixedDolly = false;
   }
 }

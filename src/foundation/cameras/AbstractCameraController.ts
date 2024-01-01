@@ -1,5 +1,6 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AABB } from '../math/AABB';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 
@@ -7,13 +8,17 @@ export abstract class AbstractCameraController {
   public zNearMax = 0.1;
   public zFarScalingFactor = 100000;
   public autoCalculateZNearAndZFar = true;
-  protected abstract __targetEntity?: ISceneGraphEntity;
+  protected abstract __targetEntities: ISceneGraphEntity[];
 
   constructor() {}
 
   protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3) {
-    if (this.autoCalculateZNearAndZFar && Is.exist(this.__targetEntity)) {
-      const targetAABB = this.__targetEntity.getSceneGraph().worldMergedAABB;
+    if (this.autoCalculateZNearAndZFar && this.__targetEntities.length > 0) {
+      const aabb = new AABB();
+      for (const targetEntity of this.__targetEntities) {
+        aabb.mergeAABB(targetEntity.getSceneGraph().worldMergedAABB);
+      }
+      const targetAABB = aabb;
       const lengthOfCenterToEye = Vector3.lengthBtw(eyePosition, targetAABB.centerPoint);
 
       // calc cos between eyeToTarget and eye direction
@@ -45,5 +50,6 @@ export abstract class AbstractCameraController {
   }
 
   abstract setTarget(targetEntity: ISceneGraphEntity): void;
-  abstract getTarget(): ISceneGraphEntity | undefined;
+  abstract setTargets(targetEntities: ISceneGraphEntity[]): void;
+  abstract getTargets(): ISceneGraphEntity[];
 }
