@@ -349,7 +349,7 @@ export class VrmImporter {
           _OutlineCullMode: 1,
           _OutlineLightingMix: mtoonMaterial.outlineLightingMixFactor,
           _OutlineScaledMaxDistance: 1.0,
-          _OutlineWidth: mtoonMaterial.outlineWidthFactor,
+          _OutlineWidth: mtoonMaterial.outlineWidthFactor * 100,
           _OutlineWidthMode:
             mtoonMaterial.outlineWidthMode === 'worldCoordinates'
               ? 1
