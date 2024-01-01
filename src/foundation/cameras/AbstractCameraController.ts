@@ -16,7 +16,7 @@ export abstract class AbstractCameraController {
     if (this.autoCalculateZNearAndZFar && this.__targetEntities.length > 0) {
       const aabb = new AABB();
       for (const targetEntity of this.__targetEntities) {
-        aabb.mergeAABB(targetEntity.getSceneGraph().worldMergedAABB);
+        aabb.mergeAABB(targetEntity.getSceneGraph().worldMergedAABBWithSkeletal);
       }
       const targetAABB = aabb;
       const lengthOfCenterToEye = Vector3.lengthBtw(eyePosition, targetAABB.centerPoint);

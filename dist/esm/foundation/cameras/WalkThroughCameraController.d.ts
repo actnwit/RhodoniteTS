@@ -43,6 +43,7 @@ export declare class WalkThroughCameraController extends AbstractCameraControlle
     private static __tmpRotateMat;
     private static __tmp_Vec3_0;
     private static __tmp_Vec3_1;
+    aabbWithSkeletal: boolean;
     constructor(options?: {
         eventTargetDom: Document;
         verticalSpeed: number;
@@ -71,6 +72,7 @@ export declare class WalkThroughCameraController extends AbstractCameraControlle
     set mouseWheelSpeed(value: number);
     get mouseWheelSpeed(): number;
     setTarget(targetEntity: ISceneGraphEntity): void;
+    private __getTargetAABB;
     setTargets(targetEntities: ISceneGraphEntity[]): void;
     getTargets(): ISceneGraphEntity[];
     get allInfo(): any;

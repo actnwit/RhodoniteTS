@@ -70,6 +70,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   private __originalTargetAABB?: AABB;
 
+  public aabbWithSkeletal = true;
+
   // private __controllerTranslate = MutableVector3.zero();
   private __mouseDownFunc = this.__mouseDown.bind(this);
   private __mouseUpFunc = this.__mouseUp.bind(this);
@@ -677,6 +679,14 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  private __getTargetAABB(targetEntity: ISceneGraphEntity) {
+    if (this.aabbWithSkeletal) {
+      return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
+    } else {
+      return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
+    }
+  }
+
   /**
    * update center, eye and up vectors of OrbitCameraController
    * @internal
@@ -697,7 +707,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
       if (this.__originalTargetAABB == null) {
         const aabb = new AABB();
         for (const targetEntity of this.__targetEntities) {
-          aabb.mergeAABB(targetEntity.tryToGetSceneGraph()!.worldMergedAABB);
+          aabb.mergeAABB(this.__getTargetAABB(targetEntity));
         }
         this.__originalTargetAABB = aabb.clone();
       }
@@ -707,7 +717,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
       if (this.followTargetAABB) {
         const aabb = new AABB();
         for (const targetEntity of this.__targetEntities) {
-          aabb.mergeAABB(targetEntity.tryToGetSceneGraph()!.worldMergedAABB);
+          aabb.mergeAABB(this.__getTargetAABB(targetEntity));
         }
         aabbToUse = aabb;
       }

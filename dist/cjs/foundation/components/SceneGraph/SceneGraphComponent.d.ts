@@ -24,6 +24,7 @@ export declare class SceneGraphComponent extends Component {
     private __isWorldMatrixRestUpToDate;
     private __isNormalMatrixUpToDate;
     private __tmpMatrix;
+    private __worldMergedAABBWithSkeletal;
     private __worldMergedAABB;
     private __isWorldAABBDirty;
     private _isVisible;
@@ -91,8 +92,8 @@ export declare class SceneGraphComponent extends Component {
     get matrixRestInner(): MutableMatrix44;
     get matrixRest(): MutableMatrix44;
     get normalMatrixInner(): MutableMatrix33;
-    get entityWorldMatrix(): MutableMatrix44;
-    get entityWorldMatrixInner(): MutableMatrix44;
+    get entityWorldWithSkeletalMatrix(): MutableMatrix44;
+    get entityWorldMatrixWithSkeletalInner(): MutableMatrix44;
     get normalMatrix(): MutableMatrix33;
     isWorldMatrixUpToDateRecursively(): boolean;
     private __calcWorldMatrixRecursively;
@@ -109,8 +110,10 @@ export declare class SceneGraphComponent extends Component {
     getLocalPositionOf(worldPosition: Vector3): Vector3;
     getWorldAABB(): AABB;
     calcWorldMergedAABB(): AABB;
-    private get __shouldJointWorldAabbBeCalculated();
     get worldMergedAABB(): AABB;
+    getWorldAABBWithSkeletal(): AABB;
+    calcWorldMergedAABBWithSkeletal(): AABB;
+    get worldMergedAABBWithSkeletal(): AABB;
     /**
      * castRay Methods
      *

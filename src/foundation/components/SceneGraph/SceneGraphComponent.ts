@@ -39,6 +39,7 @@ export class SceneGraphComponent extends Component {
   private __isWorldMatrixRestUpToDate = false;
   private __isNormalMatrixUpToDate = false;
   private __tmpMatrix = MutableMatrix44.identity();
+  private __worldMergedAABBWithSkeletal = new AABB();
   private __worldMergedAABB = new AABB();
   private __isWorldAABBDirty = true;
   private _isVisible: MutableScalar = MutableScalar.dummy();
@@ -357,11 +358,11 @@ export class SceneGraphComponent extends Component {
     return this._normalMatrix;
   }
 
-  get entityWorldMatrix(): MutableMatrix44 {
-    return this.entityWorldMatrixInner.clone();
+  get entityWorldWithSkeletalMatrix(): MutableMatrix44 {
+    return this.entityWorldMatrixWithSkeletalInner.clone();
   }
 
-  get entityWorldMatrixInner(): MutableMatrix44 {
+  get entityWorldMatrixWithSkeletalInner(): MutableMatrix44 {
     const skeletalComponent = this.entity.tryToGetSkeletal();
     if (Is.exist(skeletalComponent) && skeletalComponent.isWorldMatrixUpdated) {
       return skeletalComponent.worldMatrixInner;
@@ -483,7 +484,7 @@ export class SceneGraphComponent extends Component {
       aabb.mergeAABB(meshComponent.mesh.AABB);
 
       AABB.multiplyMatrixTo(
-        this.entity.getSceneGraph().entityWorldMatrixInner,
+        this.entity.getSceneGraph().matrixInner,
         aabb,
         SceneGraphComponent.__tmpAABB
       );
@@ -505,22 +506,49 @@ export class SceneGraphComponent extends Component {
     return aabb;
   }
 
-  private get __shouldJointWorldAabbBeCalculated() {
-    return !SceneGraphComponent.isJointAABBShouldBeCalculated && this.isJoint();
-  }
-
   get worldMergedAABB() {
-    if (this.__shouldJointWorldAabbBeCalculated) {
-      return this.__worldMergedAABB;
-    }
-
     if (this.__isWorldAABBDirty) {
       this.calcWorldMergedAABB();
       this.__isWorldAABBDirty = false;
-    } else {
-      // console.count('skipped')
     }
     return this.__worldMergedAABB;
+  }
+
+  getWorldAABBWithSkeletal() {
+    const aabb = new AABB();
+    const meshComponent = this.entity.tryToGetMesh();
+    if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+      aabb.mergeAABB(meshComponent.mesh.AABB);
+
+      AABB.multiplyMatrixTo(
+        this.entity.getSceneGraph().entityWorldMatrixWithSkeletalInner,
+        aabb,
+        SceneGraphComponent.__tmpAABB
+      );
+    } else {
+      SceneGraphComponent.__tmpAABB.initialize();
+    }
+
+    return SceneGraphComponent.__tmpAABB;
+  }
+
+  calcWorldMergedAABBWithSkeletal() {
+    const aabb = this.getWorldAABBWithSkeletal().clone();
+    for (const child of this.children) {
+      const childAABB = child.calcWorldMergedAABBWithSkeletal();
+      aabb.mergeAABB(childAABB);
+    }
+    this.__worldMergedAABBWithSkeletal = aabb;
+
+    return aabb;
+  }
+
+  get worldMergedAABBWithSkeletal() {
+    if (this.__isWorldAABBDirty) {
+      this.calcWorldMergedAABBWithSkeletal();
+      this.__isWorldAABBDirty = false;
+    }
+    return this.__worldMergedAABBWithSkeletal;
   }
 
   /**
@@ -881,7 +909,7 @@ export class SceneGraphComponent extends Component {
     this.__isWorldMatrixRestUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
     this.__tmpMatrix.copyComponents(component.__tmpMatrix);
-    this.__worldMergedAABB = component.__worldMergedAABB.clone();
+    this.__worldMergedAABBWithSkeletal = component.__worldMergedAABBWithSkeletal.clone();
     this.__isWorldAABBDirty = true;
     this._isVisible.copyComponents(component._isVisible);
     this._isBillboard.copyComponents(component._isBillboard);

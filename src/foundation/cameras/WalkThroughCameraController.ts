@@ -65,6 +65,8 @@ export class WalkThroughCameraController
   private static __tmp_Vec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmp_Vec3_1: MutableVector3 = MutableVector3.zero();
 
+  public aabbWithSkeletal = true;
+
   constructor(
     options = {
       eventTargetDom: document,
@@ -311,7 +313,7 @@ export class WalkThroughCameraController
   private __updateCameraComponent(camera: CameraComponent) {
     const aabb = new AABB();
     for (const targetEntity of this.__targetEntities) {
-      aabb.mergeAABB(targetEntity.getSceneGraph().worldMergedAABB);
+      aabb.mergeAABB(this.__getTargetAABB(targetEntity));
     }
     const targetAABB = aabb;
     if (this._needInitialize && targetAABB != null) {
@@ -472,10 +474,18 @@ export class WalkThroughCameraController
     this.setTargets([targetEntity]);
   }
 
+  private __getTargetAABB(targetEntity: ISceneGraphEntity) {
+    if (this.aabbWithSkeletal) {
+      return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
+    } else {
+      return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
+    }
+  }
+
   setTargets(targetEntities: ISceneGraphEntity[]) {
     const aabb = new AABB();
     for (const targetEntity of targetEntities) {
-      aabb.mergeAABB(targetEntity.getSceneGraph().worldMergedAABB);
+      aabb.mergeAABB(this.__getTargetAABB(targetEntity));
     }
     const speed = aabb.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;

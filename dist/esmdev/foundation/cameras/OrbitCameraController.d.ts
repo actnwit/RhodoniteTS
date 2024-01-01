@@ -48,6 +48,7 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     private __minimum_y?;
     private __resetDollyTouchTime;
     private __originalTargetAABB?;
+    aabbWithSkeletal: boolean;
     private __mouseDownFunc;
     private __mouseUpFunc;
     private __mouseMoveFunc;
@@ -114,6 +115,7 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     unregisterEventListeners(): void;
     __getFovyFromCamera(camera: CameraComponent): number;
     logic(cameraComponent: CameraComponent): void;
+    private __getTargetAABB;
     /**
      * update center, eye and up vectors of OrbitCameraController
      * @internal
