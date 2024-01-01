@@ -468,6 +468,8 @@ export class System {
 
     await initDefaultTextures();
 
+    SystemState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
+
     return gl;
   }
 
@@ -478,6 +480,7 @@ export class System {
   public static resizeCanvas(width: number, height: number) {
     const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     repo.resizeCanvas(width, height);
+    SystemState.viewportAspectRatio = width / height;
   }
 
   public static getCanvasSize() {
