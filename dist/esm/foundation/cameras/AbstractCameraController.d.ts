@@ -5,10 +5,11 @@ export declare abstract class AbstractCameraController {
     zNearMax: number;
     zFarScalingFactor: number;
     autoCalculateZNearAndZFar: boolean;
-    protected abstract __targetEntity?: ISceneGraphEntity;
+    protected abstract __targetEntities: ISceneGraphEntity[];
     constructor();
     protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3): void;
     protected _calcZFarInner(camera: CameraComponent): void;
     abstract setTarget(targetEntity: ISceneGraphEntity): void;
-    abstract getTarget(): ISceneGraphEntity | undefined;
+    abstract setTargets(targetEntities: ISceneGraphEntity[]): void;
+    abstract getTargets(): ISceneGraphEntity[];
 }

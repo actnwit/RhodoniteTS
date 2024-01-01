@@ -401,7 +401,7 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
     const sg = this.__target.getSceneGraph()!;
-    const aabb = sg.worldMergedAABB;
+    const aabb = sg.worldMergedAABBWithSkeletal;
     if (aabb.isVanilla()) {
       this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {

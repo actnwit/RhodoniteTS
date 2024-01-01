@@ -16,6 +16,7 @@ import {
   InputManager,
   INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
 } from '../system/InputManager';
+import { AABB } from '../math/AABB';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -57,12 +58,14 @@ export class WalkThroughCameraController
   private _eventTargetDom?: any;
   private __doPreventDefault = false;
   private _needInitialize = true;
-  protected __targetEntity?: ISceneGraphEntity;
+  protected __targetEntities: ISceneGraphEntity[] = [];
 
   private static __tmpInvMat: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmpRotateMat: MutableMatrix33 = MutableMatrix33.identity();
   private static __tmp_Vec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmp_Vec3_1: MutableVector3 = MutableVector3.zero();
+
+  public aabbWithSkeletal = true;
 
   constructor(
     options = {
@@ -308,7 +311,11 @@ export class WalkThroughCameraController
   }
 
   private __updateCameraComponent(camera: CameraComponent) {
-    const targetAABB = this.__targetEntity!.getSceneGraph().worldMergedAABB;
+    const aabb = new AABB();
+    for (const targetEntity of this.__targetEntities) {
+      aabb.mergeAABB(this.__getTargetAABB(targetEntity));
+    }
+    const targetAABB = aabb;
     if (this._needInitialize && targetAABB != null) {
       const lengthCenterToCamera =
         targetAABB.lengthCenterToCorner *
@@ -464,16 +471,32 @@ export class WalkThroughCameraController
   }
 
   setTarget(targetEntity: ISceneGraphEntity) {
-    const speed = targetEntity.tryToGetSceneGraph()!.worldMergedAABB.lengthCenterToCorner / 10;
+    this.setTargets([targetEntity]);
+  }
+
+  private __getTargetAABB(targetEntity: ISceneGraphEntity) {
+    if (this.aabbWithSkeletal) {
+      return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
+    } else {
+      return targetEntity.tryToGetSceneGraph()!.worldMergedAABB;
+    }
+  }
+
+  setTargets(targetEntities: ISceneGraphEntity[]) {
+    const aabb = new AABB();
+    for (const targetEntity of targetEntities) {
+      aabb.mergeAABB(this.__getTargetAABB(targetEntity));
+    }
+    const speed = aabb.lengthCenterToCorner / 10;
     this.verticalSpeed = speed;
     this.horizontalSpeed = speed;
 
-    this.__targetEntity = targetEntity;
+    this.__targetEntities = targetEntities;
     this._needInitialize = true;
   }
 
-  getTarget(): ISceneGraphEntity | undefined {
-    return this.__targetEntity;
+  getTargets(): ISceneGraphEntity[] {
+    return this.__targetEntities;
   }
 
   get allInfo() {

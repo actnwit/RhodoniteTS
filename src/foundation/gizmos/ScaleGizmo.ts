@@ -475,7 +475,7 @@ export class ScaleGizmo extends Gizmo {
       return;
     }
     const sg = this.__target.getSceneGraph()!;
-    const aabb = sg.worldMergedAABB;
+    const aabb = sg.worldMergedAABBWithSkeletal;
     if (aabb.isVanilla()) {
       this.__topEntity.getTransform()!.localPosition = sg.position;
     } else {
@@ -679,7 +679,7 @@ export class ScaleGizmo extends Gizmo {
     }
 
     const sg = this.__target.getSceneGraph()!;
-    const aabb = sg.worldMergedAABB;
+    const aabb = sg.worldMergedAABBWithSkeletal;
     const deltaVector3 = Vector3.multiply(
       Vector3.subtract(pickInMovingPoint, this.__pickStatedPoint),
       1 / aabb.lengthCenterToCorner

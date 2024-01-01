@@ -5,5 +5,6 @@ export interface ICameraController {
     registerEventListeners(eventTargetDom: any): void;
     unregisterEventListeners(): void;
     setTarget(targetEntity: ISceneGraphEntity): void;
-    getTarget(): ISceneGraphEntity | undefined;
+    setTargets(targetEntities: ISceneGraphEntity[]): void;
+    getTargets(): ISceneGraphEntity[];
 }

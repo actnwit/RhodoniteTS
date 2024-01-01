@@ -10,7 +10,6 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     followTargetAABB: boolean;
     autoUpdate: boolean;
     private __updated;
-    private __fixedDolly;
     private __fixedLengthOfCenterToEye;
     private __isMouseDown;
     private __lastMouseDownTimeStamp;
@@ -38,7 +37,7 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     private __eyeVec;
     private __centerVec;
     private __upVec;
-    protected __targetEntity?: ISceneGraphEntity;
+    protected __targetEntities: ISceneGraphEntity[];
     private __scaleOfZNearAndZFar;
     private __doPreventDefault;
     private __isPressingShift;
@@ -48,7 +47,9 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     private __maximum_y?;
     private __minimum_y?;
     private __resetDollyTouchTime;
-    private __originalTargetAABB?;
+    private __initialTargetAABB?;
+    aabbWithSkeletal: boolean;
+    useInitialTargetAABBForLength: boolean;
     private __mouseDownFunc;
     private __mouseUpFunc;
     private __mouseMoveFunc;
@@ -78,7 +79,8 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     constructor();
     resetDollyAndTranslation(): void;
     setTarget(targetEntity: ISceneGraphEntity): void;
-    getTarget(): ISceneGraphEntity | undefined;
+    setTargets(targetEntities: ISceneGraphEntity[]): void;
+    getTargets(): ISceneGraphEntity[];
     set doPreventDefault(flag: boolean);
     get doPreventDefault(): boolean;
     __mouseDown(e: MouseEvent): void;
@@ -114,6 +116,7 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     unregisterEventListeners(): void;
     __getFovyFromCamera(camera: CameraComponent): number;
     logic(cameraComponent: CameraComponent): void;
+    private __getTargetAABB;
     /**
      * update center, eye and up vectors of OrbitCameraController
      * @internal
@@ -130,6 +133,4 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     get isMouseDown(): boolean;
     get lastMouseDownTimeStamp(): number;
     get lastMouseUpTimeStamp(): number;
-    setFixedDollyTrue(lengthOfCenterToEye: number): void;
-    unsetFixedDolly(): void;
 }
