@@ -68,9 +68,10 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   private __resetDollyTouchTime: Count = 0;
 
-  private __originalTargetAABB?: AABB;
+  private __initialTargetAABB?: AABB;
 
   public aabbWithSkeletal = true;
+  public useInitialTargetAABBForLength = false;
 
   // private __controllerTranslate = MutableVector3.zero();
   private __mouseDownFunc = this.__mouseDown.bind(this);
@@ -122,7 +123,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   setTargets(targetEntities: ISceneGraphEntity[]) {
     this.__targetEntities = targetEntities;
-    this.__originalTargetAABB = undefined;
+    this.__initialTargetAABB = undefined;
     this.__updated = false;
   }
 
@@ -704,16 +705,16 @@ export class OrbitCameraController extends AbstractCameraController implements I
       newEyeVec.copyComponents(eyeVec);
       newCenterVec.copyComponents(centerVec);
     } else {
-      if (this.__originalTargetAABB == null) {
+      if (this.__initialTargetAABB == null) {
         const aabb = new AABB();
         for (const targetEntity of this.__targetEntities) {
           aabb.mergeAABB(this.__getTargetAABB(targetEntity));
         }
-        this.__originalTargetAABB = aabb.clone();
+        this.__initialTargetAABB = aabb.clone();
       }
 
       // calc newCenterVec
-      let aabbToUse = this.__originalTargetAABB!;
+      let aabbToUse = this.__initialTargetAABB!;
       if (this.followTargetAABB) {
         const aabb = new AABB();
         for (const targetEntity of this.__targetEntities) {
@@ -729,8 +730,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
         newEyeVec
       ) as MutableVector3;
       const centerToCameraVecNormalized = centerToCameraVec.normalize();
+      const lengthCenterToCorner = this.useInitialTargetAABBForLength
+        ? this.__initialTargetAABB.lengthCenterToCorner
+        : aabbToUse.lengthCenterToCorner;
       let lengthCenterToCamera =
-        aabbToUse.lengthCenterToCorner *
+        lengthCenterToCorner *
         (1.0 + 1.0 / Math.tan(MathUtil.degreeToRadian(camera.fovy / 2.0))) *
         this.scaleOfLengthCenterToCamera;
       if (Math.abs(lengthCenterToCamera) < 0.00001) {

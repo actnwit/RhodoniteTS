@@ -47,8 +47,9 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     private __maximum_y?;
     private __minimum_y?;
     private __resetDollyTouchTime;
-    private __originalTargetAABB?;
+    private __initialTargetAABB?;
     aabbWithSkeletal: boolean;
+    useInitialTargetAABBForLength: boolean;
     private __mouseDownFunc;
     private __mouseUpFunc;
     private __mouseMoveFunc;
