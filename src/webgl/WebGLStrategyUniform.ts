@@ -30,16 +30,10 @@ import { BufferUse } from '../foundation/definitions/BufferUse';
 import { Buffer } from '../foundation/memory/Buffer';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod, {
-  setupShaderProgramForMeshComponent,
-} from './WebGLStrategyCommonMethod';
+import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import {
-  isMaterialsSetup,
-  isSkipDrawing,
-  updateVBOAndVAO,
-} from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
@@ -238,11 +232,6 @@ bool get_isBillboard(float instanceId) {
     const mesh = meshComponent.mesh as Mesh;
     if (!Is.exist(mesh)) {
       return;
-    }
-
-    // setup shader program
-    if (!isMaterialsSetup(meshComponent)) {
-      setupShaderProgramForMeshComponent(this, meshComponent);
     }
 
     // setup VBO and VAO
@@ -467,6 +456,8 @@ bool get_isBillboard(float instanceId) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
+    setupShaderProgram(material, this);
+
     if (isSkipDrawing(material)) {
       return false;
     }

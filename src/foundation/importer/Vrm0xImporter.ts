@@ -137,6 +137,7 @@ export class Vrm0xImporter {
     }
 
     const renderPassMain = renderPasses[0];
+    renderPassMain.tryToSetUniqueName('VRM Main RenderPass', true);
     renderPassMain.addEntities([rootGroup]);
 
     this._readSpringBone(gltfModel as Vrm0x);

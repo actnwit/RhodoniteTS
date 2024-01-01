@@ -862,6 +862,7 @@ export class ModelConverter {
       if (Is.exist(rnExtension)) {
         renderPassOutline = rnExtension.renderPassOutline;
         renderPassOutline.isVrRendering = true;
+        renderPassOutline.tryToSetUniqueName('VRM Outline RenderPass', true);
       }
 
       //exist outline
@@ -946,6 +947,7 @@ export class ModelConverter {
       if (Is.exist(rnExtension)) {
         renderPassOutline = rnExtension.renderPassOutline;
         renderPassOutline.isVrRendering = true;
+        renderPassOutline.tryToSetUniqueName('VRM Outline RenderPass', true);
       }
 
       //exist outline

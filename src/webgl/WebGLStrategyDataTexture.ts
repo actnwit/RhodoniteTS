@@ -34,9 +34,7 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { VectorN } from '../foundation/math/VectorN';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import WebGLStrategyCommonMethod, {
-  setupShaderProgramForMeshComponent,
-} from './WebGLStrategyCommonMethod';
+import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
 import { Is } from '../foundation/misc/Is';
@@ -44,11 +42,7 @@ import { ISkeletalEntity } from '../foundation/helpers/EntityHelper';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import {
-  isMaterialsSetup,
-  isSkipDrawing,
-  updateVBOAndVAO,
-} from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 
 declare const spector: any;
@@ -388,11 +382,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         ShaderSemantics.CurrentComponentSIDs,
         0
       );
-
-    // setup shader program
-    if (!isMaterialsSetup(meshComponent)) {
-      setupShaderProgramForMeshComponent(this, meshComponent);
-    }
 
     // update VBO and VAO
     if (!this.__isMeshSetup(mesh)) {
@@ -807,7 +796,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
+    // setup shader program
     const material: Material = renderPass.getAppropriateMaterial(primitive);
+    setupShaderProgram(material, this);
+
     if (isSkipDrawing(material)) {
       return false;
     }
