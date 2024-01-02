@@ -134,22 +134,23 @@ export class AnimationComponent extends Component {
 
   private __applyAnimation() {
     let time = this.time;
-    if (this.useGlobalTime) {
-      if (this.isLoop) {
-        const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
-        time =
-          (AnimationComponent.globalTime % duration) +
-          this.getStartInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
-      } else {
-        time = AnimationComponent.globalTime;
-      }
-    }
 
     // process the first active animation track
     if (
       Is.exist(this.__firstActiveAnimationTrackName) &&
       this.__interpolationRatioBtwFirstAndSecond < 1
     ) {
+      if (this.useGlobalTime) {
+        if (this.isLoop) {
+          const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
+          time =
+            (AnimationComponent.globalTime % duration) +
+            this.getStartInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
+        } else {
+          time = AnimationComponent.globalTime;
+        }
+      }
+
       const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
       if (animationSetOf1st !== undefined) {
         for (const [attributeName, channel] of animationSetOf1st) {
@@ -189,6 +190,16 @@ export class AnimationComponent extends Component {
       Is.exist(this.__secondActiveAnimationTrackName) &&
       this.__interpolationRatioBtwFirstAndSecond > 0
     ) {
+      if (this.useGlobalTime) {
+        if (this.isLoop) {
+          const duration = this.getEndInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
+          time =
+            (AnimationComponent.globalTime % duration) +
+            this.getStartInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
+        } else {
+          time = AnimationComponent.globalTime;
+        }
+      }
       const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
       if (animationSetOf2nd !== undefined) {
         for (const [attributeName, channel] of animationSetOf2nd) {
