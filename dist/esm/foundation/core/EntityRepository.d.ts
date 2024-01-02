@@ -15,6 +15,7 @@ export declare class EntityRepository {
      */
     static createEntity(): IEntity;
     static deleteEntity(entityUid: EntityUID): void;
+    static deleteEntityRecursively(entityUid: EntityUID): void;
     static shallowCopyEntity(entity: IEntity): IEntity;
     private static __setJoints;
     static _shallowCopyEntityInner(entity: IEntity): IEntity;

@@ -252,15 +252,6 @@ export class AnimationComponent extends Component {
     this.__isAnimating = flg;
   }
 
-  static setIsAnimatingForAll(flg: boolean) {
-    const animationComponents = ComponentRepository._getComponents(
-      AnimationComponent
-    )! as AnimationComponent[];
-    for (const animationComponent of animationComponents) {
-      animationComponent.setIsAnimating(flg);
-    }
-  }
-
   static setActiveAnimationForAll(animationTrackName: AnimationTrackName) {
     const components = ComponentRepository.getComponentsWithType(
       AnimationComponent
@@ -273,38 +264,6 @@ export class AnimationComponent extends Component {
   setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
     if (this.__animationTracks.has(animationTrackName)) {
       this.__firstActiveAnimationTrackName = animationTrackName;
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static setActiveAnimationsForAll(
-    animationTrackName: AnimationTrackName,
-    secondTrackName: AnimationTrackName,
-    interpolationRatioBtwFirstAndSecond: number
-  ) {
-    const components = ComponentRepository.getComponentsWithType(
-      AnimationComponent
-    ) as AnimationComponent[];
-    for (const component of components) {
-      component.setActiveAnimationTracks(
-        animationTrackName,
-        secondTrackName,
-        interpolationRatioBtwFirstAndSecond
-      );
-    }
-  }
-
-  setActiveAnimationTracks(
-    firstTrackName: AnimationTrackName,
-    secondTrackName: AnimationTrackName,
-    interpolationRatioBtwFirstAndSecond: number
-  ) {
-    if (this.__animationTracks.has(firstTrackName) && this.__animationTracks.has(secondTrackName)) {
-      this.__firstActiveAnimationTrackName = firstTrackName;
-      this.__secondActiveAnimationTrackName = secondTrackName;
-      this.__interpolationRatioBtwFirstAndSecond = interpolationRatioBtwFirstAndSecond;
       return true;
     } else {
       return false;
@@ -805,17 +764,19 @@ export class AnimationComponent extends Component {
     this.__isAnimating = component.__isAnimating;
   }
 
-  _setRetarget(retarget: IAnimationRetarget, is2nd: boolean, postFixToTrackName?: string) {
+  _setRetarget(retarget: IAnimationRetarget, postFixToTrackName?: string): string[] {
     const srcEntity = retarget.getEntity();
     const srcAnim = srcEntity.tryToGetAnimation();
     const dstEntity = this.entity;
     this.entity.getTransform()._backupTransformAsRest();
     if (Is.not.exist(srcAnim)) {
-      return;
+      return [];
     }
     srcAnim.useGlobalTime = false;
+    const trackNames: string[] = [];
     for (const [_trackName, track] of srcAnim.__animationTracks) {
       const trackName = _trackName + (postFixToTrackName ?? '');
+      trackNames.push(trackName);
       for (const [pathName, channel] of track) {
         if (channel == null) {
           continue;
@@ -858,11 +819,6 @@ export class AnimationComponent extends Component {
             false
           );
         }
-      }
-      if (is2nd) {
-        this.setSecondActiveAnimationTrack(trackName);
-      } else {
-        this.setActiveAnimationTrack(trackName);
       }
     }
 
@@ -908,6 +864,8 @@ export class AnimationComponent extends Component {
       }
       return outputsScale;
     }
+
+    return trackNames;
   }
 
   resetAnimationTracks() {

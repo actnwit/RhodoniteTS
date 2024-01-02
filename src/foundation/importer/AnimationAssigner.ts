@@ -49,8 +49,8 @@ export class AnimationAssigner {
 
   assignAnimationWithVrma(
     rootEntity: ISceneGraphEntity,
-    vrmaModel1st: RnM2Vrma,
-    vrmaModel2nd?: RnM2Vrma
+    vrmaModel: RnM2Vrma,
+    addPrefixToAnimationTrackName?: string
   ) {
     const resetAnimationTracks = (vrma: RnM2Vrma) => {
       if (vrma.animations && vrma.animations.length > 0) {
@@ -76,7 +76,8 @@ export class AnimationAssigner {
       }
     };
 
-    const setRetarget = (vrma: RnM2Vrma, is1st: boolean) => {
+    let trackNames: string[] = [];
+    const setRetarget = (vrma: RnM2Vrma) => {
       if (vrma.animations) {
         for (const animation of vrma.animations) {
           for (const sampler of animation.samplers) {
@@ -114,11 +115,10 @@ export class AnimationAssigner {
               } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
                 retarget = new GlobalRetarget(gltfEntity);
               }
-              if (is1st) {
-                animationComponent._setRetarget(retarget!, false);
-              } else {
-                animationComponent._setRetarget(retarget!, true, '_2nd');
-              }
+              trackNames = animationComponent._setRetarget(
+                retarget!,
+                addPrefixToAnimationTrackName
+              );
             }
           }
         }
@@ -126,18 +126,12 @@ export class AnimationAssigner {
     };
 
     // Reset animation tracks
-    resetAnimationTracks(vrmaModel1st);
-    if (vrmaModel2nd) {
-      resetAnimationTracks(vrmaModel2nd);
-    }
+    // resetAnimationTracks(vrmaModel);
 
     // Set retarget
-    setRetarget(vrmaModel1st, true);
-    if (vrmaModel2nd) {
-      setRetarget(vrmaModel2nd, false);
-    }
+    setRetarget(vrmaModel);
 
-    return rootEntity;
+    return trackNames;
   }
 
   private constructor() {}
@@ -370,7 +364,7 @@ export class AnimationAssigner {
                 throw new Error('unknown retarget mode');
               }
               animationComponent.resetAnimationTracks();
-              animationComponent._setRetarget(retarget, false);
+              animationComponent._setRetarget(retarget);
             }
           }
         }

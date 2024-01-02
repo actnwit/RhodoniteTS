@@ -43,11 +43,8 @@ export declare class AnimationComponent extends Component {
     private __applyAnimation;
     static subscribe(type: AnimationComponentEventType, handler: EventHandler): void;
     setIsAnimating(flg: boolean): void;
-    static setIsAnimatingForAll(flg: boolean): void;
     static setActiveAnimationForAll(animationTrackName: AnimationTrackName): void;
     setActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
-    static setActiveAnimationsForAll(animationTrackName: AnimationTrackName, secondTrackName: AnimationTrackName, interpolationRatioBtwFirstAndSecond: number): void;
-    setActiveAnimationTracks(firstTrackName: AnimationTrackName, secondTrackName: AnimationTrackName, interpolationRatioBtwFirstAndSecond: number): boolean;
     setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
     set interpolationRatioBtwFirstAndSecond(ratio: number);
     getActiveAnimationTrack(): string | undefined;
@@ -109,6 +106,7 @@ export declare class AnimationComponent extends Component {
     hasKeyFramesAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frame: Index, fps: number): boolean;
     static setIsAnimating(flag: boolean): void;
     _shallowCopyFrom(component_: Component): void;
-    _setRetarget(retarget: IAnimationRetarget, is2nd: boolean, postFixToTrackName?: string): void;
+    _setRetarget(retarget: IAnimationRetarget, postFixToTrackName?: string): string[];
     resetAnimationTracks(): void;
+    _destroy(): void;
 }

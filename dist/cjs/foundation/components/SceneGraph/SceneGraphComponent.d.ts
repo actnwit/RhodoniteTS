@@ -160,6 +160,8 @@ export declare class SceneGraphComponent extends Component {
      */
     get entity(): ISceneGraphEntity;
     setTransformGizmoSpace(space: 'local' | 'world'): void;
+    setActiveAnimationTrack(trackName: string): void;
+    setSecondActiveAnimationTrack(trackName: string): void;
     _destroy(): void;
     /**
      * @override
