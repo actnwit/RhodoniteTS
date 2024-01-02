@@ -913,5 +913,10 @@ export class AnimationComponent extends Component {
   resetAnimationTracks() {
     this.__animationTracks.clear();
   }
+
+  _destroy(): void {
+    this.__animationTracks.clear();
+    this.__isAnimating = false;
+  }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);
