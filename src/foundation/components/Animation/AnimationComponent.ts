@@ -804,7 +804,7 @@ export class AnimationComponent extends Component {
     }
     srcAnim.useGlobalTime = false;
     for (const [_trackName, track] of srcAnim.__animationTracks) {
-      const trackName = _trackName + postFixToTrackName ?? '';
+      const trackName = _trackName + (postFixToTrackName ?? '');
       for (const [pathName, channel] of track) {
         if (channel == null) {
           continue;

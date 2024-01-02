@@ -6,6 +6,7 @@ export declare class GlobalRetargetReverse implements IAnimationRetarget {
     private __srcEntity;
     static readonly __rev: Quaternion;
     constructor(srcEntity: ISceneGraphEntity);
+    getEntity(): ISceneGraphEntity;
     getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
     getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
     retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;

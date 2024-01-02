@@ -26,11 +26,6 @@ export declare class AnimationComponent extends Component {
     private __isAnimating;
     static isAnimating: boolean;
     private isLoop;
-    /**
-     * @private
-     */
-    private _animationRetarget1st?;
-    private _animationRetarget2nd?;
     useGlobalTime: boolean;
     static globalTime: number;
     time: number;
@@ -45,7 +40,6 @@ export declare class AnimationComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     $create(): void;
     $logic(): void;
-    private __applyRetargetAnimation;
     private __applyAnimation;
     static subscribe(type: AnimationComponentEventType, handler: EventHandler): void;
     setIsAnimating(flg: boolean): void;
@@ -54,6 +48,7 @@ export declare class AnimationComponent extends Component {
     setActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
     static setActiveAnimationsForAll(animationTrackName: AnimationTrackName, secondTrackName: AnimationTrackName, interpolationRatioBtwFirstAndSecond: number): void;
     setActiveAnimationTracks(firstTrackName: AnimationTrackName, secondTrackName: AnimationTrackName, interpolationRatioBtwFirstAndSecond: number): boolean;
+    setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
     set interpolationRatioBtwFirstAndSecond(ratio: number);
     getActiveAnimationTrack(): string | undefined;
     hasAnimation(trackName: AnimationTrackName, pathName: AnimationPathName): boolean;
@@ -114,6 +109,6 @@ export declare class AnimationComponent extends Component {
     hasKeyFramesAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frame: Index, fps: number): boolean;
     static setIsAnimating(flag: boolean): void;
     _shallowCopyFrom(component_: Component): void;
-    setAnimationRetarget(retarget1st: IAnimationRetarget): void;
-    setAnimationRetarget2nd(retarget2nd: IAnimationRetarget): void;
+    _setRetarget(retarget: IAnimationRetarget, is2nd: boolean, postFixToTrackName?: string): void;
+    resetAnimationTracks(): void;
 }

@@ -5,6 +5,7 @@ import { IAnimationRetarget } from './AnimationRetarget';
 export declare class GlobalRetarget implements IAnimationRetarget {
     private __srcEntity;
     constructor(srcEntity: ISceneGraphEntity);
+    getEntity(): ISceneGraphEntity;
     getSrcPGRestQ(srcEntity: ISceneGraphEntity): IQuaternion;
     getDstPGRestQ(dstEntity: ISceneGraphEntity): IQuaternion;
     retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion;

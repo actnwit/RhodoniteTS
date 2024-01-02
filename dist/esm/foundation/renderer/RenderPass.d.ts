@@ -132,7 +132,7 @@ export declare class RenderPass extends RnObject {
     setMaterial(material: Material): void;
     get material(): Material | undefined;
     private __setWebglRenderingStrategyIfNotYet;
-    private __getMaterialOf;
+    _getMaterialOf(primitive: Primitive): Material | undefined;
     private __hasMaterialOf;
     getAppropriateMaterial(primitive: Primitive): Material;
     get renderPassUID(): number;

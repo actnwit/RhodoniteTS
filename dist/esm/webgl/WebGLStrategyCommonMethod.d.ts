@@ -1,6 +1,5 @@
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { Index } from '../types/CommonTypes';
 import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
@@ -33,7 +32,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
     isCustomSetting: boolean;
     updateInterval: import("..").EnumIO;
 })[];
-export declare function setupShaderProgramForMeshComponent(webglStrategy: WebGLStrategy, meshComponent: MeshComponent): void;
+export declare function setupShaderProgram(material: Material, primitive: Primitive, webglStrategy: WebGLStrategy): void;
 declare const _default: Readonly<{
     setWebGLParameters: typeof setWebGLParameters;
     startDepthMasking: typeof startDepthMasking;
