@@ -858,22 +858,106 @@ export class AnimationComponent extends Component {
     this.__transformComponent?._backupTransformAsRest();
   }
 
-  getInputArray(
-    trackName: AnimationTrackName,
-    pathName: AnimationPathName
-  ): Float32Array | undefined {
-    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-      this.__animationTracks.get(trackName);
-    if (Is.not.exist(animationSet)) {
-      return undefined;
+  setRetarget(retarget: IAnimationRetarget) {
+    const srcEntity = retarget.getEntity();
+    const srcAnim = srcEntity.tryToGetAnimation();
+    const dstEntity = this.entity;
+    this.entity.getTransform()._backupTransformAsRest();
+    if (Is.not.exist(srcAnim)) {
+      return;
+    }
+    srcAnim.useGlobalTime = false;
+    for (const [trackName, track] of srcAnim.__animationTracks) {
+      for (const [pathName, channel] of track) {
+        if (channel == null) {
+          continue;
+        }
+        const input = channel.sampler.input;
+        if (channel.target.pathName === 'translate') {
+          const outputs = retargetTranslate(input, srcAnim);
+          this.setAnimation(
+            trackName,
+            pathName as AnimationPathName,
+            input,
+            outputs,
+            3,
+            channel.sampler.interpolationMethod,
+            true
+          );
+        }
+        if (channel.target.pathName === 'quaternion') {
+          const outputs = retargetQuaternion(input, srcAnim);
+          this.setAnimation(
+            trackName,
+            pathName as AnimationPathName,
+            input,
+            outputs,
+            4,
+            channel.sampler.interpolationMethod,
+            true
+          );
+        }
+        if (channel.target.pathName === 'scale') {
+          const outputs = retargetScale(input, srcAnim);
+          this.setAnimation(
+            trackName,
+            pathName as AnimationPathName,
+            input,
+            outputs,
+            3,
+            channel.sampler.interpolationMethod,
+            true
+          );
+        }
+      }
     }
 
-    const channel = animationSet.get(pathName);
-    if (Is.not.exist(channel)) {
-      return undefined;
+    function retargetTranslate(input: Float32Array, srcAnim: AnimationComponent) {
+      const outputsTranslation = new Float32Array(input.length * 3);
+      for (let i = 0; i < input.length; i++) {
+        srcAnim.time = input[i];
+        srcAnim.$create();
+        srcAnim.$logic();
+        const outputTranslation = retarget.retargetTranslate(dstEntity);
+        outputsTranslation[i * 3 + 0] = outputTranslation.x;
+        outputsTranslation[i * 3 + 1] = outputTranslation.y;
+        outputsTranslation[i * 3 + 2] = outputTranslation.z;
+      }
+      return outputsTranslation;
     }
 
-    return channel.sampler.input;
+    function retargetQuaternion(input: Float32Array, srcAnim: AnimationComponent) {
+      const outputsQuaternion = new Float32Array(input.length * 4);
+      for (let i = 0; i < input.length; i++) {
+        srcAnim.time = input[i];
+        srcAnim.$create();
+        srcAnim.$logic();
+        const outputQuaternion = retarget.retargetQuaternion(dstEntity);
+        outputsQuaternion[i * 4 + 0] = outputQuaternion.x;
+        outputsQuaternion[i * 4 + 1] = outputQuaternion.y;
+        outputsQuaternion[i * 4 + 2] = outputQuaternion.z;
+        outputsQuaternion[i * 4 + 3] = outputQuaternion.w;
+      }
+      return outputsQuaternion;
+    }
+
+    function retargetScale(input: Float32Array, srcAnim: AnimationComponent) {
+      const outputsScale = new Float32Array(input.length * 3);
+      for (let i = 0; i < input.length; i++) {
+        srcAnim.time = input[i];
+        srcAnim.$create();
+        srcAnim.$logic();
+        const outputScale = retarget.retargetScale(dstEntity);
+        outputsScale[i * 3 + 0] = outputScale.x;
+        outputsScale[i * 3 + 1] = outputScale.y;
+        outputsScale[i * 3 + 2] = outputScale.z;
+      }
+      return outputsScale;
+    }
+  }
+
+  resetAnimationTracks() {
+    this.__animationTracks.clear();
   }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);

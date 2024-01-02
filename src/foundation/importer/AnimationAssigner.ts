@@ -36,17 +36,6 @@ export class AnimationAssigner {
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
-    function removeRetargetRecursively(entity: ISceneGraphEntity) {
-      for (const child of entity.children) {
-        const animationComponent = child.entity.tryToGetAnimation();
-        if (Is.exist(animationComponent)) {
-          animationComponent.setAnimationRetarget(undefined as any);
-        }
-        removeRetargetRecursively(child.entity);
-      }
-    }
-    removeRetargetRecursively(rootEntity);
-
     this.__setupAnimationForSameSkeleton(
       rootEntity,
       gltfModel,
@@ -63,18 +52,6 @@ export class AnimationAssigner {
     vrmaModel1st: RnM2Vrma,
     vrmaModel2nd?: RnM2Vrma
   ) {
-    // remove existing retarget
-    function removeRetargetRecursively(entity: ISceneGraphEntity) {
-      for (const child of entity.children) {
-        const animationComponent = child.entity.tryToGetAnimation();
-        if (Is.exist(animationComponent)) {
-          animationComponent.setAnimationRetarget(undefined as any);
-        }
-        removeRetargetRecursively(child.entity);
-      }
-    }
-    removeRetargetRecursively(rootEntity);
-
     const setRetarget = (vrma: RnM2Vrma, is1st: boolean) => {
       if (vrma.animations) {
         for (const animation of vrma.animations) {
@@ -114,7 +91,9 @@ export class AnimationAssigner {
                 retarget = new GlobalRetarget(gltfEntity);
               }
               if (is1st) {
-                animationComponent.setAnimationRetarget(retarget!);
+                // animationComponent.setAnimationRetarget(retarget!);
+                animationComponent.resetAnimationTracks();
+                animationComponent.setRetarget(retarget!);
               } else {
                 animationComponent.setAnimationRetarget2nd(retarget!);
               }
@@ -361,7 +340,8 @@ export class AnimationAssigner {
               } else {
                 throw new Error('unknown retarget mode');
               }
-              animationComponent.setAnimationRetarget(retarget);
+              animationComponent.resetAnimationTracks();
+              animationComponent.setRetarget(retarget);
             }
           }
         }

@@ -11,6 +11,10 @@ export class AbsoluteAnimation implements IAnimationRetarget {
     this.__srcEntity = srcEntity;
   }
 
+  getEntity(): ISceneGraphEntity {
+    return this.__srcEntity;
+  }
+
   retargetQuaternion(dstEntity: ISceneGraphEntity): IQuaternion {
     const srcEntity = this.__srcEntity;
     return srcEntity.getTransform().localRotationInner;
