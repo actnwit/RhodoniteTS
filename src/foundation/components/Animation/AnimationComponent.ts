@@ -77,12 +77,6 @@ export class AnimationComponent extends Component {
   static isAnimating = true;
   private isLoop = true;
 
-  /**
-   * @private
-   */
-  private _animationRetarget1st?: IAnimationRetarget;
-  private _animationRetarget2nd?: IAnimationRetarget;
-
   // Global animation time in Rhodonite
   public useGlobalTime = true;
   public static globalTime = 0;
@@ -135,49 +129,7 @@ export class AnimationComponent extends Component {
       return;
     }
 
-    if (Is.exist(this._animationRetarget1st) || Is.exist(this._animationRetarget2nd)) {
-      this.__applyRetargetAnimation();
-    } else {
-      this.__applyAnimation();
-    }
-  }
-
-  private __applyRetargetAnimation() {
-    let position1st = AnimationComponent.__vector3Zero;
-    let rotation1st = AnimationComponent.__identityQuaternion;
-    let scale1st = AnimationComponent.__vector3One;
-    let position2nd = AnimationComponent.__vector3Zero;
-    let rotation2nd = AnimationComponent.__identityQuaternion;
-    let scale2nd = AnimationComponent.__vector3One;
-    if (Is.exist(this._animationRetarget1st)) {
-      position1st = this._animationRetarget1st.retargetTranslate(this.entity as ISceneGraphEntity);
-      rotation1st = this._animationRetarget1st.retargetQuaternion(
-        this.entity as ISceneGraphEntity
-      ) as Quaternion;
-      scale1st = this._animationRetarget1st.retargetScale(this.entity as ISceneGraphEntity);
-    }
-    if (Is.exist(this._animationRetarget2nd)) {
-      position2nd = this._animationRetarget2nd.retargetTranslate(this.entity as ISceneGraphEntity);
-      rotation2nd = this._animationRetarget2nd.retargetQuaternion(
-        this.entity as ISceneGraphEntity
-      ) as Quaternion;
-      scale2nd = this._animationRetarget2nd.retargetScale(this.entity as ISceneGraphEntity);
-    }
-    this.__transformComponent!.localPosition = Vector3.lerp(
-      position1st,
-      position2nd,
-      this.__interpolationRatioBtwFirstAndSecond
-    );
-    this.__transformComponent!.localScale = Vector3.lerp(
-      scale1st,
-      scale2nd,
-      this.__interpolationRatioBtwFirstAndSecond
-    );
-    this.__transformComponent!.localRotation = Quaternion.qlerp(
-      rotation1st,
-      rotation2nd,
-      this.__interpolationRatioBtwFirstAndSecond
-    );
+    this.__applyAnimation();
   }
 
   private __applyAnimation() {
@@ -310,7 +262,6 @@ export class AnimationComponent extends Component {
   setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
     if (this.__animationTracks.has(animationTrackName)) {
       this.__firstActiveAnimationTrackName = animationTrackName;
-      this.__secondActiveAnimationTrackName = undefined;
       return true;
     } else {
       return false;
@@ -343,6 +294,15 @@ export class AnimationComponent extends Component {
       this.__firstActiveAnimationTrackName = firstTrackName;
       this.__secondActiveAnimationTrackName = secondTrackName;
       this.__interpolationRatioBtwFirstAndSecond = interpolationRatioBtwFirstAndSecond;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
+    if (this.__animationTracks.has(animationTrackName)) {
+      this.__secondActiveAnimationTrackName = animationTrackName;
       return true;
     } else {
       return false;
@@ -832,33 +792,9 @@ export class AnimationComponent extends Component {
     this.__animationTracks = new Map(component.__animationTracks);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
-    this._animationRetarget1st = component._animationRetarget1st;
-    this._animationRetarget2nd = component._animationRetarget2nd;
   }
 
-  setAnimationRetarget(retarget1st: IAnimationRetarget) {
-    this._animationRetarget1st = retarget1st;
-
-    this.__transformComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      TransformComponent
-    ) as TransformComponent;
-
-    this.__transformComponent?._backupTransformAsRest();
-  }
-
-  setAnimationRetarget2nd(retarget2nd: IAnimationRetarget) {
-    this._animationRetarget2nd = retarget2nd;
-
-    this.__transformComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      TransformComponent
-    ) as TransformComponent;
-
-    this.__transformComponent?._backupTransformAsRest();
-  }
-
-  setRetarget(retarget: IAnimationRetarget) {
+  _setRetarget(retarget: IAnimationRetarget, is2nd: boolean, postFixToTrackName?: string) {
     const srcEntity = retarget.getEntity();
     const srcAnim = srcEntity.tryToGetAnimation();
     const dstEntity = this.entity;
@@ -867,11 +803,13 @@ export class AnimationComponent extends Component {
       return;
     }
     srcAnim.useGlobalTime = false;
-    for (const [trackName, track] of srcAnim.__animationTracks) {
+    for (const [_trackName, track] of srcAnim.__animationTracks) {
+      const trackName = _trackName + postFixToTrackName ?? '';
       for (const [pathName, channel] of track) {
         if (channel == null) {
           continue;
         }
+
         const input = channel.sampler.input;
         if (channel.target.pathName === 'translate') {
           const outputs = retargetTranslate(input, srcAnim);
@@ -882,7 +820,7 @@ export class AnimationComponent extends Component {
             outputs,
             3,
             channel.sampler.interpolationMethod,
-            true
+            false
           );
         }
         if (channel.target.pathName === 'quaternion') {
@@ -894,7 +832,7 @@ export class AnimationComponent extends Component {
             outputs,
             4,
             channel.sampler.interpolationMethod,
-            true
+            false
           );
         }
         if (channel.target.pathName === 'scale') {
@@ -906,9 +844,14 @@ export class AnimationComponent extends Component {
             outputs,
             3,
             channel.sampler.interpolationMethod,
-            true
+            false
           );
         }
+      }
+      if (is2nd) {
+        this.setSecondActiveAnimationTrack(trackName);
+      } else {
+        this.setActiveAnimationTrack(trackName);
       }
     }
 

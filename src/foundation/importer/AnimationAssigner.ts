@@ -52,6 +52,30 @@ export class AnimationAssigner {
     vrmaModel1st: RnM2Vrma,
     vrmaModel2nd?: RnM2Vrma
   ) {
+    const resetAnimationTracks = (vrma: RnM2Vrma) => {
+      if (vrma.animations && vrma.animations.length > 0) {
+        for (const animation of vrma.animations) {
+          for (const channel of animation.channels) {
+            // find the corresponding joint entity
+            // const node = gltfModel.nodes[channel.target!.node!];
+            const rnEntity = this.__getCorrespondingEntityWithVrma(
+              rootEntity,
+              vrma,
+              channel.target!.node!
+            );
+            if (rnEntity) {
+              const newRnEntity = EntityRepository.addComponentToEntity(
+                AnimationComponent,
+                rnEntity
+              );
+              const animationComponent = newRnEntity.getAnimation();
+              animationComponent.resetAnimationTracks();
+            }
+          }
+        }
+      }
+    };
+
     const setRetarget = (vrma: RnM2Vrma, is1st: boolean) => {
       if (vrma.animations) {
         for (const animation of vrma.animations) {
@@ -91,11 +115,9 @@ export class AnimationAssigner {
                 retarget = new GlobalRetarget(gltfEntity);
               }
               if (is1st) {
-                // animationComponent.setAnimationRetarget(retarget!);
-                animationComponent.resetAnimationTracks();
-                animationComponent.setRetarget(retarget!);
+                animationComponent._setRetarget(retarget!, false);
               } else {
-                animationComponent.setAnimationRetarget2nd(retarget!);
+                animationComponent._setRetarget(retarget!, true, '_2nd');
               }
             }
           }
@@ -103,6 +125,13 @@ export class AnimationAssigner {
       }
     };
 
+    // Reset animation tracks
+    resetAnimationTracks(vrmaModel1st);
+    if (vrmaModel2nd) {
+      resetAnimationTracks(vrmaModel2nd);
+    }
+
+    // Set retarget
     setRetarget(vrmaModel1st, true);
     if (vrmaModel2nd) {
       setRetarget(vrmaModel2nd, false);
@@ -341,7 +370,7 @@ export class AnimationAssigner {
                 throw new Error('unknown retarget mode');
               }
               animationComponent.resetAnimationTracks();
-              animationComponent.setRetarget(retarget);
+              animationComponent._setRetarget(retarget, false);
             }
           }
         }
