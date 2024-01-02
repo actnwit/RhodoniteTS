@@ -177,6 +177,9 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     onError: (message: string) => void
   ): CGAPIResourceHandle {
     const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
+    if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      return programUid;
+    }
 
     material._setupBasicUniformsLocations();
 

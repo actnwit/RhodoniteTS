@@ -207,6 +207,9 @@ bool get_isBillboard(float instanceId) {
     onError: (message: string) => void
   ): CGAPIResourceHandle {
     const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
+    if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      return programUid;
+    }
 
     material._setupBasicUniformsLocations();
 
