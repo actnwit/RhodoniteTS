@@ -798,7 +798,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     // setup shader program
     const material: Material = renderPass.getAppropriateMaterial(primitive);
-    setupShaderProgram(material, this);
+    setupShaderProgram(material, primitive, this);
 
     if (isSkipDrawing(material)) {
       return false;

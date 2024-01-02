@@ -456,7 +456,7 @@ bool get_isBillboard(float instanceId) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
-    setupShaderProgram(material, this);
+    setupShaderProgram(material, primitive, this);
 
     if (isSkipDrawing(material)) {
       return false;
