@@ -615,33 +615,40 @@ export class AnimationComponent extends Component {
       return false;
     }
 
-    // if the input is ArrayBuffer, convert it to Array
-    if (ArrayBuffer.isView(channel.sampler.input)) {
-      channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
-    }
-    // if the output is ArrayBuffer, convert it to Array
-    if (ArrayBuffer.isView(channel.sampler.output)) {
-      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
-    }
-
     const i = AnimationAttribute.fromString(pathName).index;
     const output = __interpolate(channel, AnimationComponent.globalTime, i);
 
     if (channel.sampler.input.length === 0) {
-      channel.sampler.input.push(input);
-      channel.sampler.output.push(...output);
+      const inputArray = Array.from(channel.sampler.input);
+      inputArray.push(input);
+      channel.sampler.input = new Float32Array(inputArray);
+      const outputArray = Array.from(channel.sampler.output);
+      outputArray.push(...output);
+      channel.sampler.output = new Float32Array(outputArray);
     } else if (channel.sampler.input.length === 1) {
       const existedInput = channel.sampler.input[0];
       if (secEnd < existedInput) {
-        channel.sampler.input.unshift(input);
-        channel.sampler.output.unshift(...output);
+        const inputArray = Array.from(channel.sampler.input);
+        inputArray.unshift(input);
+        channel.sampler.input = new Float32Array(inputArray);
+        const outputArray = Array.from(channel.sampler.output);
+        outputArray.unshift(...output);
+        channel.sampler.output = new Float32Array(outputArray);
       } else if (existedInput < secBegin) {
-        channel.sampler.input.push(input);
-        channel.sampler.output.push(...output);
+        const inputArray = Array.from(channel.sampler.input);
+        inputArray.push(input);
+        channel.sampler.input = new Float32Array(inputArray);
+        const outputArray = Array.from(channel.sampler.output);
+        outputArray.push(...output);
+        channel.sampler.output = new Float32Array(outputArray);
       } else {
         // secBegin <= existedInput <= secEnd
-        channel.sampler.input.splice(0, 0, input);
-        channel.sampler.output.splice(0, 0, ...output);
+        const inputArray = Array.from(channel.sampler.input);
+        inputArray.splice(0, 0, input);
+        channel.sampler.input = new Float32Array(inputArray);
+        const outputArray = Array.from(channel.sampler.output);
+        outputArray.splice(0, 0, ...output);
+        channel.sampler.output = new Float32Array(outputArray);
       }
     } else {
       // channel.sampler.input.length >= 2
@@ -654,8 +661,12 @@ export class AnimationComponent extends Component {
               channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
             }
           } else {
-            channel.sampler.input.splice(i, 0, input);
-            channel.sampler.output.splice(i * channel.sampler.outputComponentN, 0, ...output);
+            const inputArray = Array.from(channel.sampler.input);
+            inputArray.splice(i, 0, input);
+            channel.sampler.input = new Float32Array(inputArray);
+            const outputArray = Array.from(channel.sampler.output);
+            outputArray.splice(i * channel.sampler.outputComponentN, 0, ...output);
+            channel.sampler.output = new Float32Array(outputArray);
           }
           break;
         }
@@ -687,28 +698,37 @@ export class AnimationComponent extends Component {
       return false;
     }
 
-    if (ArrayBuffer.isView(channel.sampler.input)) {
-      channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
-    }
-    if (ArrayBuffer.isView(channel.sampler.output)) {
-      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
-    }
-
     if (channel.sampler.input.length === 0) {
-      channel.sampler.input.push(input);
-      channel.sampler.output.push(...output);
+      const inputArray = Array.from(channel.sampler.input);
+      inputArray.push(input);
+      channel.sampler.input = new Float32Array(inputArray);
+      const outputArray = Array.from(channel.sampler.output);
+      outputArray.push(...output);
+      channel.sampler.output = new Float32Array(outputArray);
     } else if (channel.sampler.input.length === 1) {
       const existedInput = channel.sampler.input[0];
       if (secEnd < existedInput) {
-        channel.sampler.input.unshift(input);
-        channel.sampler.output.unshift(...output);
+        const inputArray = Array.from(channel.sampler.input);
+        inputArray.unshift(input);
+        channel.sampler.input = new Float32Array(inputArray);
+        const outputArray = Array.from(channel.sampler.output);
+        outputArray.unshift(...output);
+        channel.sampler.output = new Float32Array(outputArray);
       } else if (existedInput < secBegin) {
-        channel.sampler.input.push(input);
-        channel.sampler.output.push(...output);
+        const inputArray = Array.from(channel.sampler.input);
+        inputArray.push(input);
+        channel.sampler.input = new Float32Array(inputArray);
+        const outputArray = Array.from(channel.sampler.output);
+        outputArray.push(...output);
+        channel.sampler.output = new Float32Array(outputArray);
       } else {
         // secBegin <= existedInput <= secEnd
-        channel.sampler.input.splice(0, 0, input);
-        channel.sampler.output.splice(0, 0, ...output);
+        const inputArray = Array.from(channel.sampler.input);
+        inputArray.splice(0, 0, input);
+        channel.sampler.input = new Float32Array(inputArray);
+        const outputArray = Array.from(channel.sampler.output);
+        outputArray.splice(0, 0, ...output);
+        channel.sampler.output = new Float32Array(outputArray);
       }
     } else {
       // channel.sampler.input.length >= 2
@@ -721,8 +741,12 @@ export class AnimationComponent extends Component {
               channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
             }
           } else {
-            channel.sampler.input.splice(i, 0, input);
-            channel.sampler.output.splice(i * channel.sampler.outputComponentN, 0, ...output);
+            const inputArray = Array.from(channel.sampler.input);
+            inputArray.splice(i, 0, input);
+            channel.sampler.input = new Float32Array(inputArray);
+            const outputArray = Array.from(channel.sampler.output);
+            outputArray.splice(i * channel.sampler.outputComponentN, 0, ...output);
+            channel.sampler.output = new Float32Array(outputArray);
           }
           break;
         }
@@ -752,21 +776,15 @@ export class AnimationComponent extends Component {
       return false;
     }
 
-    if (ArrayBuffer.isView(channel.sampler.input)) {
-      channel.sampler.input = Array.from(channel.sampler.input as Float32Array);
-    }
-    if (ArrayBuffer.isView(channel.sampler.output)) {
-      channel.sampler.output = Array.from(channel.sampler.output as Float32Array);
-    }
-
     for (let i = 0; i < channel.sampler.input.length; i++) {
       const input = channel.sampler.input[i];
       if (secBegin <= input && input < secEnd) {
-        channel.sampler.input.splice(i, 1);
-        channel.sampler.output.splice(
-          i * channel.sampler.outputComponentN,
-          channel.sampler.outputComponentN
-        );
+        const input = Array.from(channel.sampler.input);
+        input.splice(i, 1);
+        channel.sampler.input = new Float32Array(input);
+        const output = Array.from(channel.sampler.output);
+        output.splice(i * channel.sampler.outputComponentN, channel.sampler.outputComponentN);
+        channel.sampler.output = new Float32Array(output);
       }
     }
 
@@ -838,6 +856,24 @@ export class AnimationComponent extends Component {
     ) as TransformComponent;
 
     this.__transformComponent?._backupTransformAsRest();
+  }
+
+  getInputArray(
+    trackName: AnimationTrackName,
+    pathName: AnimationPathName
+  ): Float32Array | undefined {
+    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
+      this.__animationTracks.get(trackName);
+    if (Is.not.exist(animationSet)) {
+      return undefined;
+    }
+
+    const channel = animationSet.get(pathName);
+    if (Is.not.exist(channel)) {
+      return undefined;
+    }
+
+    return channel.sampler.input;
   }
 }
 ComponentRepository.registerComponentClass(AnimationComponent);
