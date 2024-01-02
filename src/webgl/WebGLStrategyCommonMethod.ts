@@ -241,40 +241,28 @@ function getPointSpriteShaderSemanticsInfoArray() {
   ];
 }
 
-export function setupShaderProgramForMeshComponent(
-  webglStrategy: WebGLStrategy,
-  meshComponent: MeshComponent
+export function setupShaderProgram(
+  material: Material,
+  primitive: Primitive,
+  webglStrategy: WebGLStrategy
 ): void {
-  if (meshComponent.mesh == null) {
-    MeshComponent.alertNoMeshSet(meshComponent);
+  if (material == null || material.isEmptyMaterial()) {
     return;
   }
 
-  const primitiveNum = meshComponent.mesh.getPrimitiveNumber();
-  for (let i = 0; i < primitiveNum; i++) {
-    const primitive = meshComponent.mesh.getPrimitiveAt(i);
-    const material = primitive.material;
-    if (material == null || material.isEmptyMaterial()) {
-      continue;
-    }
+  if (material.isShaderProgramReady()) {
+    return;
+  }
 
-    if (material.isShaderProgramReady()) {
-      continue;
-    }
-
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = repo.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
-    const isPointSprite = primitive.primitiveMode.index === gl.POINTS;
-
-    try {
-      webglStrategy.setupShaderForMaterial(material);
-      primitive._backupMaterial();
-    } catch (e) {
-      console.log(e);
-      primitive._restoreMaterial();
-      webglStrategy.setupShaderForMaterial(primitive._prevMaterial);
-    }
+  try {
+    primitive?._backupMaterial();
+    webglStrategy.setupShaderForMaterial(material);
+  } catch (e) {
+    // It is possible that a shader compilation error may occur, for example, in the middle of shader editing.
+    // In this case, restore the shaders from a backup of the valid material.
+    console.log(e);
+    primitive?._restoreMaterial();
+    webglStrategy.setupShaderForMaterial(material);
   }
 }
 

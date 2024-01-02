@@ -2613,6 +2613,10 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       },
       onError
     );
+    if (programUid < 0) {
+      return false;
+    }
+
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const program = webglResourceRepository.getWebGLResource(programUid) as RnWebGLProgram;
 

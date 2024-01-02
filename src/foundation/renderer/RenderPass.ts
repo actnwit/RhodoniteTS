@@ -409,7 +409,7 @@ export class RenderPass extends RnObject {
     return newWebglRenderingStrategyRef;
   }
 
-  private __getMaterialOf(primitive: Primitive) {
+  _getMaterialOf(primitive: Primitive) {
     return this.__primitiveMaterial.get(primitive);
   }
 
@@ -421,7 +421,7 @@ export class RenderPass extends RnObject {
     let material;
 
     if (this.__hasMaterialOf(primitive)) {
-      material = this.__getMaterialOf(primitive) as Material;
+      material = this._getMaterialOf(primitive) as Material;
     } else if (this.material != null) {
       material = this.material;
     } else {

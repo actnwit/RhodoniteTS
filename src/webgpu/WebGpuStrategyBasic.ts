@@ -10,11 +10,7 @@ import { Is } from '../foundation/misc/Is';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import {
-  isMaterialsSetup,
-  isSkipDrawing,
-  updateVBOAndVAO,
-} from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import {
   CGAPIResourceHandle,
   Count,
@@ -261,11 +257,6 @@ ${indexStr}
     WebGpuStrategyBasic.__currentComponentSIDs =
       WebGpuStrategyBasic.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
 
-    // setup shader program
-    if (!isMaterialsSetup(meshComponent)) {
-      this.__setupShaderProgramForMeshComponent(meshComponent);
-    }
-
     // setup VBO and VAO
     if (!this.__isMeshSetup(mesh)) {
       updateVBOAndVAO(mesh);
@@ -307,32 +298,36 @@ ${indexStr}
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = meshComponent.mesh.getPrimitiveAt(i);
       const material = primitive.material;
-      if (material == null || material.isEmptyMaterial()) {
-        continue;
-      }
+      this._setupShaderProgram(material, primitive);
+    }
+  }
 
-      if (material.isShaderProgramReady()) {
-        continue;
-      }
+  private _setupShaderProgram(material: Material, primitive: Primitive) {
+    if (material == null || material.isEmptyMaterial()) {
+      return;
+    }
 
-      try {
-        this.setupShaderForMaterial(
-          material,
-          primitive,
-          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
-          WebGpuStrategyBasic.__getShaderProperty
-        );
-        primitive._backupMaterial();
-      } catch (e) {
-        console.log(e);
-        primitive._restoreMaterial();
-        this.setupShaderForMaterial(
-          primitive._prevMaterial,
-          primitive,
-          WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
-          WebGpuStrategyBasic.__getShaderProperty
-        );
-      }
+    if (material.isShaderProgramReady()) {
+      return;
+    }
+
+    try {
+      this.setupShaderForMaterial(
+        material,
+        primitive,
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+        WebGpuStrategyBasic.__getShaderProperty
+      );
+      primitive._backupMaterial();
+    } catch (e) {
+      console.log(e);
+      primitive._restoreMaterial();
+      this.setupShaderForMaterial(
+        primitive._prevMaterial,
+        primitive,
+        WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
+        WebGpuStrategyBasic.__getShaderProperty
+      );
     }
   }
 
@@ -426,6 +421,7 @@ ${indexStr}
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
+    this._setupShaderProgram(material, primitive);
     if (isSkipDrawing(material)) {
       return false;
     }
