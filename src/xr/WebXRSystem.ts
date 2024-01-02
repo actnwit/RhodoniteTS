@@ -439,6 +439,13 @@ export class WebXRSystem {
     }
   }
 
+  resetViewerTransform() {
+    this.__viewerTranslate = MutableVector3.zero();
+    this.__viewerAzimuthAngle = MutableScalar.zero();
+    this.__viewerOrientation = MutableQuaternion.identity();
+    this.__viewerScale = MutableVector3.one();
+  }
+
   /**
    * Post process for rendering
    * @internal
