@@ -961,6 +961,39 @@ export class SceneGraphComponent extends Component {
     }
   }
 
+  setUseGlobalTime(flg: boolean) {
+    const animationComponent = this.entity.tryToGetAnimation();
+    if (animationComponent != null) {
+      animationComponent.useGlobalTime = flg;
+    }
+    const children = this.children;
+    for (let i = 0; i < children.length; i++) {
+      children[i].setUseGlobalTime(flg);
+    }
+  }
+
+  setIsLoop(flg: boolean) {
+    const animationComponent = this.entity.tryToGetAnimation();
+    if (animationComponent != null) {
+      animationComponent.isLoop = flg;
+    }
+    const children = this.children;
+    for (let i = 0; i < children.length; i++) {
+      children[i].setIsLoop(flg);
+    }
+  }
+
+  setAnimationTime(time: number) {
+    const animationComponent = this.entity.tryToGetAnimation();
+    if (animationComponent != null) {
+      animationComponent.time = time;
+    }
+    const children = this.children;
+    for (let i = 0; i < children.length; i++) {
+      children[i].setAnimationTime(time);
+    }
+  }
+
   setAnimationBlendingRatio(ratio: number) {
     const animationComponent = this.entity.tryToGetAnimation();
     if (animationComponent != null) {

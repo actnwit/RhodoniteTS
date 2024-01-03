@@ -75,7 +75,7 @@ export class AnimationComponent extends Component {
   /// flags ///
   private __isAnimating = true;
   static isAnimating = true;
-  private isLoop = true;
+  public isLoop = true;
 
   // Global animation time in Rhodonite
   public useGlobalTime = true;
@@ -134,18 +134,17 @@ export class AnimationComponent extends Component {
 
   private __applyAnimation() {
     let time = this.time;
+    if (this.useGlobalTime) {
+      time = AnimationComponent.globalTime;
+    }
 
     // process the first active animation track
     if (Is.exist(this.__firstActiveAnimationTrackName) && this.animationBlendingRatio < 1) {
-      if (this.useGlobalTime) {
-        if (this.isLoop) {
-          const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
-          time =
-            (AnimationComponent.globalTime % duration) +
-            this.getStartInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
-        } else {
-          time = AnimationComponent.globalTime;
-        }
+      if (this.isLoop) {
+        const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
+        time =
+          (time % duration) +
+          this.getStartInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
       }
 
       const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
@@ -184,16 +183,13 @@ export class AnimationComponent extends Component {
 
     // process the second active animation track, and blending with the first's one
     if (Is.exist(this.__secondActiveAnimationTrackName) && this.animationBlendingRatio > 0) {
-      if (this.useGlobalTime) {
-        if (this.isLoop) {
-          const duration = this.getEndInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
-          time =
-            (AnimationComponent.globalTime % duration) +
-            this.getStartInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
-        } else {
-          time = AnimationComponent.globalTime;
-        }
+      if (this.isLoop) {
+        const duration = this.getEndInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
+        time =
+          (time % duration) +
+          this.getStartInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
       }
+
       const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
       if (animationSetOf2nd !== undefined) {
         for (const [attributeName, channel] of animationSetOf2nd) {
