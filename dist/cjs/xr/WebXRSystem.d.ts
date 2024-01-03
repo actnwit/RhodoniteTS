@@ -124,6 +124,13 @@ export declare class WebXRSystem {
      */
     _getCameraComponentSIDAt(index: Index): number;
     /**
+     * Getter of the CameraComponent of left/right eye
+     * @internal
+     * @param index (0: left, 1: right)
+     * @returns the CameraComponent of left/right eye
+     */
+    _getCameraComponentAt(index: Index): import("../foundation").CameraComponent;
+    /**
      * Pre process for rendering
      * @internal
      * @param xrFrame XRFrame object
