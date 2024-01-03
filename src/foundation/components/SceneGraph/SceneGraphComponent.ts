@@ -939,6 +939,28 @@ export class SceneGraphComponent extends Component {
     this.__scaleGizmo?.setSpace(space);
   }
 
+  setActiveAnimationTrack(trackName: string) {
+    const animationComponent = this.entity.tryToGetAnimation();
+    if (animationComponent != null) {
+      animationComponent.setActiveAnimationTrack(trackName);
+    }
+    const children = this.children;
+    for (let i = 0; i < children.length; i++) {
+      children[i].setActiveAnimationTrack(trackName);
+    }
+  }
+
+  setSecondActiveAnimationTrack(trackName: string) {
+    const animationComponent = this.entity.tryToGetAnimation();
+    if (animationComponent != null) {
+      animationComponent.setSecondActiveAnimationTrack(trackName);
+    }
+    const children = this.children;
+    for (let i = 0; i < children.length; i++) {
+      children[i].setSecondActiveAnimationTrack(trackName);
+    }
+  }
+
   _destroy() {
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();

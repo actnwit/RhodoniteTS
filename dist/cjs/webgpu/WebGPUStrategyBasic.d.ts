@@ -22,6 +22,7 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
     private static getOffsetOfPropertyInShader;
     $load(meshComponent: MeshComponent): void;
     private __setupShaderProgramForMeshComponent;
+    private _setupShaderProgram;
     /**
      * setup shader program for the material in this WebGL strategy
      * @param material - a material to setup shader program

@@ -36,17 +36,6 @@ export class AnimationAssigner {
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
-    function removeRetargetRecursively(entity: ISceneGraphEntity) {
-      for (const child of entity.children) {
-        const animationComponent = child.entity.tryToGetAnimation();
-        if (Is.exist(animationComponent)) {
-          animationComponent.setAnimationRetarget(undefined as any);
-        }
-        removeRetargetRecursively(child.entity);
-      }
-    }
-    removeRetargetRecursively(rootEntity);
-
     this.__setupAnimationForSameSkeleton(
       rootEntity,
       gltfModel,
@@ -60,22 +49,35 @@ export class AnimationAssigner {
 
   assignAnimationWithVrma(
     rootEntity: ISceneGraphEntity,
-    vrmaModel1st: RnM2Vrma,
-    vrmaModel2nd?: RnM2Vrma
+    vrmaModel: RnM2Vrma,
+    addPrefixToAnimationTrackName?: string
   ) {
-    // remove existing retarget
-    function removeRetargetRecursively(entity: ISceneGraphEntity) {
-      for (const child of entity.children) {
-        const animationComponent = child.entity.tryToGetAnimation();
-        if (Is.exist(animationComponent)) {
-          animationComponent.setAnimationRetarget(undefined as any);
+    const resetAnimationTracks = (vrma: RnM2Vrma) => {
+      if (vrma.animations && vrma.animations.length > 0) {
+        for (const animation of vrma.animations) {
+          for (const channel of animation.channels) {
+            // find the corresponding joint entity
+            // const node = gltfModel.nodes[channel.target!.node!];
+            const rnEntity = this.__getCorrespondingEntityWithVrma(
+              rootEntity,
+              vrma,
+              channel.target!.node!
+            );
+            if (rnEntity) {
+              const newRnEntity = EntityRepository.addComponentToEntity(
+                AnimationComponent,
+                rnEntity
+              );
+              const animationComponent = newRnEntity.getAnimation();
+              animationComponent.resetAnimationTracks();
+            }
+          }
         }
-        removeRetargetRecursively(child.entity);
       }
-    }
-    removeRetargetRecursively(rootEntity);
+    };
 
-    const setRetarget = (vrma: RnM2Vrma, is1st: boolean) => {
+    let trackNames: string[] = [];
+    const setRetarget = (vrma: RnM2Vrma) => {
       if (vrma.animations) {
         for (const animation of vrma.animations) {
           for (const sampler of animation.samplers) {
@@ -113,23 +115,23 @@ export class AnimationAssigner {
               } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
                 retarget = new GlobalRetarget(gltfEntity);
               }
-              if (is1st) {
-                animationComponent.setAnimationRetarget(retarget!);
-              } else {
-                animationComponent.setAnimationRetarget2nd(retarget!);
-              }
+              trackNames = animationComponent._setRetarget(
+                retarget!,
+                addPrefixToAnimationTrackName
+              );
             }
           }
         }
       }
     };
 
-    setRetarget(vrmaModel1st, true);
-    if (vrmaModel2nd) {
-      setRetarget(vrmaModel2nd, false);
-    }
+    // Reset animation tracks
+    // resetAnimationTracks(vrmaModel);
 
-    return rootEntity;
+    // Set retarget
+    setRetarget(vrmaModel);
+
+    return trackNames;
   }
 
   private constructor() {}
@@ -361,7 +363,8 @@ export class AnimationAssigner {
               } else {
                 throw new Error('unknown retarget mode');
               }
-              animationComponent.setAnimationRetarget(retarget);
+              animationComponent.resetAnimationTracks();
+              animationComponent._setRetarget(retarget);
             }
           }
         }

@@ -6,7 +6,8 @@ import { valueWithCompensation } from '../misc/MiscUtil';
 import { ComponentToComponentMethods } from '../components/ComponentTypes';
 import { Is } from '../misc/Is';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
-import { SkeletalComponent } from '../components';
+import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
+import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { ISceneGraphEntity } from '../helpers';
 
 /**
@@ -62,6 +63,29 @@ export class EntityRepository {
     }
     this.__entities[entityUid]._destroy();
     delete this._components[entityUid];
+  }
+
+  public static deleteEntityRecursively(entityUid: EntityUID): void {
+    const entity = this.getEntity(entityUid);
+    const entities: IEntity[] = [];
+    const sg = entity.tryToGetSceneGraph();
+    if (sg != null) {
+      entities.push(sg.entity);
+      addChild(sg);
+    }
+
+    function addChild(sg: SceneGraphComponent) {
+      const children = sg.children;
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        entities.push(child.entity);
+        addChild(child);
+      }
+    }
+
+    for (const entity of entities) {
+      EntityRepository.deleteEntity(entity.entityUID);
+    }
   }
 
   public static shallowCopyEntity(entity: IEntity): IEntity {

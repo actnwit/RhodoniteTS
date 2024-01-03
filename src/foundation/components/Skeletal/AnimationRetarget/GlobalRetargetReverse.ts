@@ -13,6 +13,10 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
     this.__srcEntity = srcEntity;
   }
 
+  getEntity(): ISceneGraphEntity {
+    return this.__srcEntity;
+  }
+
   getSrcPGRestQ(srcEntity: ISceneGraphEntity) {
     let srcPGRestQ: IQuaternion;
     const parent = srcEntity.getSceneGraph().parent;

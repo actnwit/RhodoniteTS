@@ -129,6 +129,7 @@ export declare class WebXRSystem {
      * @param xrFrame XRFrame object
      */
     _preRender(time: number, xrFrame: XRFrame): void;
+    resetViewerTransform(): void;
     /**
      * Post process for rendering
      * @internal
