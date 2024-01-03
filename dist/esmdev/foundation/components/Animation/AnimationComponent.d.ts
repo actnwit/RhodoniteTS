@@ -16,7 +16,7 @@ import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 export declare class AnimationComponent extends Component {
     private __firstActiveAnimationTrackName?;
     private __secondActiveAnimationTrackName?;
-    private __interpolationRatioBtwFirstAndSecond;
+    animationBlendingRatio: number;
     private __animationTracks;
     private static __animationGlobalInfo;
     private __transformComponent?;
@@ -46,7 +46,6 @@ export declare class AnimationComponent extends Component {
     static setActiveAnimationForAll(animationTrackName: AnimationTrackName): void;
     setActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
     setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName): boolean;
-    set interpolationRatioBtwFirstAndSecond(ratio: number);
     getActiveAnimationTrack(): string | undefined;
     hasAnimation(trackName: AnimationTrackName, pathName: AnimationPathName): boolean;
     /**

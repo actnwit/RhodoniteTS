@@ -24,6 +24,7 @@ import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/type
 import { Primitive } from '../../geometry/Primitive';
 import { isSkipDrawing } from '../../renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
+import { RnXR } from '../../../xr/main';
 
 export class MeshRendererComponent extends Component {
   public diffuseCubeMap?: CubeTexture;
@@ -127,6 +128,15 @@ export class MeshRendererComponent extends Component {
         CameraComponent,
         CameraComponent.current
       ) as CameraComponent;
+    }
+    if (renderPass.isVrRendering) {
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      if (rnXRModule != null) {
+        const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+        if (webxrSystem.isWebXRMode) {
+          cameraComponent = webxrSystem._getCameraComponentAt(0) as CameraComponent;
+        }
+      }
     }
 
     // FrustumCulling

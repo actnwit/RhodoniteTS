@@ -24,10 +24,15 @@ light.getLight().type = Rn.LightType.Directional;
 
 let count = 0;
 
-Rn.AnimationComponent.setActiveAnimationsForAll('Survey', 'Run', 0.5);
+const rootEntity = expression.renderPasses[0].sceneTopLevelGraphComponents[0].entity;
+
+rootEntity.getSceneGraph().setActiveAnimationTrack('Survey');
+rootEntity.getSceneGraph().setSecondActiveAnimationTrack('Run');
+rootEntity.getSceneGraph().setAnimationBlendingRatio(0.5);
+
 const slider = document.getElementById('slider') as HTMLInputElement;
 slider.addEventListener('input', (e: any) => {
-  Rn.AnimationComponent.setActiveAnimationsForAll('Survey', 'Run', parseFloat(e.target.value));
+  rootEntity.getSceneGraph().setAnimationBlendingRatio(parseFloat(e.target.value));
 });
 
 const endInputValue = 1.16;

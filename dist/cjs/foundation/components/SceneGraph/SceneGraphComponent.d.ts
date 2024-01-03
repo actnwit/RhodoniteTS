@@ -162,6 +162,7 @@ export declare class SceneGraphComponent extends Component {
     setTransformGizmoSpace(space: 'local' | 'world'): void;
     setActiveAnimationTrack(trackName: string): void;
     setSecondActiveAnimationTrack(trackName: string): void;
+    setAnimationBlendingRatio(ratio: number): void;
     _destroy(): void;
     /**
      * @override
