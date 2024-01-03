@@ -961,6 +961,17 @@ export class SceneGraphComponent extends Component {
     }
   }
 
+  setAnimationBlendingRatio(ratio: number) {
+    const animationComponent = this.entity.tryToGetAnimation();
+    if (animationComponent != null) {
+      animationComponent.animationBlendingRatio = ratio;
+    }
+    const children = this.children;
+    for (let i = 0; i < children.length; i++) {
+      children[i].setAnimationBlendingRatio(ratio);
+    }
+  }
+
   _destroy() {
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();

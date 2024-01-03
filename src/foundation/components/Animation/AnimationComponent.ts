@@ -60,7 +60,7 @@ export class AnimationComponent extends Component {
   // The name of the current Active Track
   private __firstActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationTrackName?: AnimationTrackName; // for animation blending
-  private __interpolationRatioBtwFirstAndSecond = 0; // the value range is [0,1]
+  public animationBlendingRatio = 0; // the value range is [0,1]
 
   // Animation Data of each AnimationComponent
   private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
@@ -136,10 +136,7 @@ export class AnimationComponent extends Component {
     let time = this.time;
 
     // process the first active animation track
-    if (
-      Is.exist(this.__firstActiveAnimationTrackName) &&
-      this.__interpolationRatioBtwFirstAndSecond < 1
-    ) {
+    if (Is.exist(this.__firstActiveAnimationTrackName) && this.animationBlendingRatio < 1) {
       if (this.useGlobalTime) {
         if (this.isLoop) {
           const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
@@ -186,10 +183,7 @@ export class AnimationComponent extends Component {
     }
 
     // process the second active animation track, and blending with the first's one
-    if (
-      Is.exist(this.__secondActiveAnimationTrackName) &&
-      this.__interpolationRatioBtwFirstAndSecond > 0
-    ) {
+    if (Is.exist(this.__secondActiveAnimationTrackName) && this.animationBlendingRatio > 0) {
       if (this.useGlobalTime) {
         if (this.isLoop) {
           const duration = this.getEndInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
@@ -211,21 +205,21 @@ export class AnimationComponent extends Component {
             this.__transformComponent!.localRotation = Quaternion.qlerp(
               this.__transformComponent!.localRotationInner,
               quatOf2nd,
-              this.__interpolationRatioBtwFirstAndSecond
+              this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Translate.index) {
             const vec3Of2nd = Vector3.fromCopyArray3(value as Array3<number>);
             this.__transformComponent!.localPosition = Vector3.lerp(
               this.__transformComponent!.localPositionInner,
               vec3Of2nd,
-              this.__interpolationRatioBtwFirstAndSecond
+              this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Scale.index) {
             const vec3of2nd = Vector3.fromCopyArray3(value as Array3<number>);
             this.__transformComponent!.localScale = Vector3.lerp(
               this.__transformComponent!.localScaleInner,
               vec3of2nd,
-              this.__interpolationRatioBtwFirstAndSecond
+              this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Weights.index) {
             const weightsOf2nd = value;
@@ -233,7 +227,7 @@ export class AnimationComponent extends Component {
               this.__blendShapeComponent!.weights[i] = MathUtil.lerp(
                 this.__blendShapeComponent!.weights[i],
                 weightsOf2nd[i],
-                this.__interpolationRatioBtwFirstAndSecond
+                this.animationBlendingRatio
               );
             }
           } else if (i === AnimationAttribute.Effekseer.index) {
@@ -277,10 +271,6 @@ export class AnimationComponent extends Component {
     } else {
       return false;
     }
-  }
-
-  set interpolationRatioBtwFirstAndSecond(ratio: number) {
-    this.__interpolationRatioBtwFirstAndSecond = ratio;
   }
 
   getActiveAnimationTrack() {
