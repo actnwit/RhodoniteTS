@@ -25,7 +25,7 @@ export declare class AnimationComponent extends Component {
     private __isEffekseerState;
     private __isAnimating;
     static isAnimating: boolean;
-    private isLoop;
+    isLoop: boolean;
     useGlobalTime: boolean;
     static globalTime: number;
     time: number;
