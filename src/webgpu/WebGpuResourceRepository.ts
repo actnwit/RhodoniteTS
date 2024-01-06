@@ -35,6 +35,7 @@ import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
 import {
+  AlphaMode,
   MeshRendererComponent,
   MutableVector2,
   MutableVector4,
@@ -831,6 +832,37 @@ export class WebGpuResourceRepository
       ],
     });
 
+    let blend: GPUBlendState | undefined;
+    if (material.isBlend()) {
+      if (material.alphaMode === AlphaMode.Translucent) {
+        blend = {
+          color: {
+            srcFactor: 'src-alpha',
+            dstFactor: 'one-minus-src-alpha',
+            operation: 'add',
+          },
+          alpha: {
+            srcFactor: 'src-alpha',
+            dstFactor: 'one-minus-src-alpha',
+            operation: 'add',
+          },
+        };
+      } else if (material.alphaMode === AlphaMode.Additive) {
+        blend = {
+          color: {
+            srcFactor: 'one',
+            dstFactor: 'one',
+            operation: 'add',
+          },
+          alpha: {
+            srcFactor: 'one',
+            dstFactor: 'one',
+            operation: 'add',
+          },
+        };
+      }
+    }
+
     const mode = primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid);
@@ -857,6 +889,7 @@ export class WebGpuResourceRepository
           {
             // @location(0) in fragment shader
             format: presentationFormat,
+            blend,
           },
         ],
       },

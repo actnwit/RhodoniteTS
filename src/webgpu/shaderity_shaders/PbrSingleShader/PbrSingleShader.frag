@@ -74,7 +74,7 @@ fn main(
   let baseColorTexcoord = getTexcoord(baseColorTexcoordIndex, input);
   let baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
   let textureColor = textureSample(baseColorTexture, baseColorSampler, baseColorTexUv);
-  baseColor *= vec4(srgbToLinear(textureColor.rgb), 1.0);
+  baseColor *= vec4(srgbToLinear(textureColor.rgb), textureColor.a);
 #endif
 
 // Normal
