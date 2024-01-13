@@ -1,5 +1,5 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(./PbrSingleVertexOutput.wgsl)
+#pragma shaderity: require(../common/vertexOutput.wgsl)
 #pragma shaderity: require(../common/prerequisites.wgsl)
 
 /* shaderity: @{getters} */
@@ -74,7 +74,7 @@ fn main(
   let baseColorTexcoord = getTexcoord(baseColorTexcoordIndex, input);
   let baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
   let textureColor = textureSample(baseColorTexture, baseColorSampler, baseColorTexUv);
-  baseColor *= vec4(srgbToLinear(textureColor.rgb), 1.0);
+  baseColor *= vec4(srgbToLinear(textureColor.rgb), textureColor.a);
 #endif
 
 // Normal
@@ -141,6 +141,10 @@ fn main(
     resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
                             NdotV, albedo, perceptualRoughness, F0, F90);
   }
+
+  let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
+    albedo, F0, perceptualRoughness);
+  resultColor += ibl;
 
   resultAlpha = baseColor.a;
 #pragma shaderity: require(../common/outputSrgb.wgsl)

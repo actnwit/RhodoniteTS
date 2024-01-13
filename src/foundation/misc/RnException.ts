@@ -6,7 +6,7 @@ export class RnException<ErrObj> extends Error {
     super(`
   message: ${err.message}
   error: ${
-    err.error instanceof Err<unknown, unknown>
+    err.error instanceof Err
       ? 'see below Exception ↓' + err.error.toString()
       : err.error
   }

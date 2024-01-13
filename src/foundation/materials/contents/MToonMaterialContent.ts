@@ -905,7 +905,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContext();
 
-    let result = gl.ZERO;
+    let result = gl.ZERO as number;
     switch (enumNumber) {
       case 0:
         result = gl.ZERO;

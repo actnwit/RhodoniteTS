@@ -5,6 +5,8 @@
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
+// #param enableViewMatrix: bool; // initialValue=true
+
 @vertex
 fn main(
 #ifdef RN_USE_INSTANCE
@@ -31,17 +33,21 @@ fn main(
   let viewMatrix = get_viewMatrix(cameraSID, 0u);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0u);
 
-  output.position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
+  if (get_enableViewMatrix(materialSID, 0u)) {
+    mat4 rotateMatrix = viewMatrix;
+    rotateMatrix[3][0] = 0.0;
+    rotateMatrix[3][1] = 0.0;
+    rotateMatrix[3][2] = 0.0;
+    output.position = projectionMatrix * rotateMatrix * worldMatrix * vec4f(position, 1.0);
+  } else {
+    output.position = projectionMatrix * worldMatrix * vec4f(position, 1.0);
+  }
 
-#ifdef RN_USE_NORMAL
-  output.normal_inWorld = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);
-#endif
+  let normalMatrix = get_normalMatrix(instance_ids.x);
+  output.normal_inWorld = normalMatrix * normal;
 
-#ifdef RN_USE_TEXCOORD_0
+  output.color = color;
+  output.position_inWorld = (worldMatrix * vec4f(position, 1.0)).xyz;
   output.texcoord_0 = texcoord_0;
-#endif
 
-  // output.Position = vec4<f32>(position, 1.0);
-
-  return output;
 }
