@@ -929,15 +929,15 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
 
-"@types/webgl-ext@^0.0.32":
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/@types/webgl-ext/-/webgl-ext-0.0.32.tgz#e27d165fe922366e223cdb5a63d228c7c2c99deb"
-  integrity sha512-ySANgjcXdWpzkyQWEQ1rQjqipMNse+JPcoEWBOrIqRSLYJcLtLylJibJcEbemN/1aro1DfqEQM2N3DYNxUyAtg==
+"@types/webgl-ext@^0.0.36":
+  version "0.0.36"
+  resolved "https://registry.yarnpkg.com/@types/webgl-ext/-/webgl-ext-0.0.36.tgz#d91e5da2282230daf2cfff5b87678438cb2093ac"
+  integrity sha512-RfWC+SVbfT50VK+fRQMEwmOb28XL5jV1En6Jgu/eJrwM8q9IHq46FaVLGqm2fGW2mLLQwAR9oW06mmOiyQCpAQ==
 
-"@types/webxr@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.4.0.tgz#ad06c96a324293e0d5175d13dd5ded5931f90ba3"
-  integrity sha512-LQvrACV3Pj17GpkwHwXuTd733gfY+D7b9mKdrTmLdO7vo7P/o6209Qqtk63y/FCv/lspdmi0pWz6Qe/ull9kQg==
+"@types/webxr@^0.5.10":
+  version "0.5.10"
+  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.10.tgz#19c76208ec015ca3f139505e14d94d6b740f518a"
+  integrity sha512-n3u5sqXQJhf1CS68mw3Wf16FQ4cRPNBBwdYLFzq3UddiADOim1Pn3Y6PBdDilz1vOJF3ybLxJ8ZEDlLIzrOQZg==
 
 "@types/yargs-parser@*":
   version "21.0.0"
@@ -1266,10 +1266,10 @@
     "@webassemblyjs/ast" "1.11.1"
     "@xtuc/long" "4.2.2"
 
-"@webgpu/types@^0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.23.tgz#de1f1a9b4c6cc91c1b7b45198d19fd912076a738"
-  integrity sha512-SxHrhOTH1C7EcbnVZ3DzzliQs10QJO19GoUtzVJLIqDD0VeAdtxLEoNnP5zkCDKyMFvx3ptU7jESdaOIUqAuJg==
+"@webgpu/types@^0.1.40":
+  version "0.1.40"
+  resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.40.tgz#cf72d1df6f9f8adc5d39556041f20ff2e8a58885"
+  integrity sha512-/BBkHLS6/eQjyWhY2H7Dx5DHcVrS2ICj9owvSRdgtQT6KcafLZA86tPze0xAOsd4FbsYKCUBUQyNi87q7gV7kw==
 
 "@webpack-cli/configtest@^1.2.0":
   version "1.2.0"
@@ -5146,10 +5146,10 @@ typedoc@^0.22.17:
     minimatch "^5.1.0"
     shiki "^0.10.1"
 
-typescript@4.7.3:
-  version "4.7.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.3.tgz#8364b502d5257b540f9de4c40be84c98e23a129d"
-  integrity sha512-WOkT3XYvrpXx4vMMqlD+8R8R37fZkjyLGlxavMc4iB8lrl8L0DeTcHbYgw/v0N/z9wAFsgBhcsF0ruoySS22mA==
+typescript@^5.3.3:
+  version "5.3.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.3.3.tgz#b3ce6ba258e72e6305ba66f5c9b452aaee3ffe37"
+  integrity sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==
 
 unbzip2-stream@1.4.3:
   version "1.4.3"
