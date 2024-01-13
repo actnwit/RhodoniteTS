@@ -34,15 +34,14 @@ import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import {
-  AlphaMode,
-  MeshRendererComponent,
-  MutableVector2,
-  MutableVector4,
-  ShaderSemantics,
-  ShaderSemanticsClass,
-  dummyBlackCubeTexture,
-} from '../foundation';
+import { dummyBlackCubeTexture } from '../foundation/materials/core/DummyTextures';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { MutableVector2 } from '../foundation/math/MutableVector2';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { AlphaMode } from '../foundation/definitions/AlphaMode';
+import { MiscUtil } from '../foundation/misc/MiscUtil';
+
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type WebGpuResource =
@@ -574,6 +573,22 @@ export class WebGpuResourceRepository
     };
   }
 
+  private __checkShaderCompileStatus(
+    materialTypeName: string,
+    shaderText: string,
+    info: GPUCompilationInfo
+  ): boolean {
+    console.log('MaterialTypeName: ' + materialTypeName);
+    const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
+    console.log(lineNumberedShaderText);
+    for (let i = 0; i < info.messages.length; i++) {
+      console.log(info.messages[i]);
+      return false;
+    }
+
+    return true;
+  }
+
   /**
    * create a shader program
    * @param param0
@@ -598,8 +613,18 @@ export class WebGpuResourceRepository
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
     });
+    vsModule.getCompilationInfo().then((info) => {
+      if (info.messages.length > 0) {
+        this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
+      }
+    });
     const fsModule = gpuDevice.createShaderModule({
       code: fragmentShaderStr,
+    });
+    fsModule.getCompilationInfo().then((info) => {
+      if (info.messages.length > 0) {
+        this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
+      }
     });
 
     const modules = {
