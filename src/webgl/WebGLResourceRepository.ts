@@ -62,6 +62,7 @@ import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsIn
 import { Sampler } from '../foundation/textures/Sampler';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { SystemState } from '../foundation/system/SystemState';
+import { Logger } from '../foundation/misc/Logger';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
@@ -560,7 +561,9 @@ export class WebGLResourceRepository
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
         if (location == null && glw.isDebugMode) {
-          console.warn(`Rn: Can not get the uniform location: ${shaderVarName}`);
+          Logger.info(
+            `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
+          );
         }
       }
     }

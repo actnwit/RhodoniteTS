@@ -17,6 +17,7 @@ import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';
 import { Is } from '../../misc/Is';
+import { Logger } from '../../misc/Logger';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import type { MaterialTypeName } from './MaterialTypes';
@@ -54,7 +55,7 @@ export class MaterialRepository {
 
       return true;
     } else {
-      console.info(`${materialTypeName} is already registered.`);
+      Logger.info(`${materialTypeName} is already registered.`);
       return false;
     }
   }
