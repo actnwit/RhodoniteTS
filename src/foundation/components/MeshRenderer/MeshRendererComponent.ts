@@ -85,7 +85,9 @@ export class MeshRendererComponent extends Component {
         } else if (diffuseCubeTexture.isTextureReady) {
           resolve();
         } else {
-          throw new Error('diffuseCubeTexture is not ready');
+          diffuseCubeTexture.registerOnTextureLoaded(() => {
+            resolve();
+          });
         }
       })
     );
@@ -98,7 +100,9 @@ export class MeshRendererComponent extends Component {
         } else if (specularCubeTexture.isTextureReady) {
           resolve();
         } else {
-          throw new Error('specularCubeTexture is not ready');
+          specularCubeTexture.registerOnTextureLoaded(() => {
+            resolve();
+          });
         }
       })
     );
