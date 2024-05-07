@@ -12,8 +12,14 @@ export class CubeTexture extends AbstractTexture {
   public mipmapLevelNumber = 1;
   public hdriFormat = HdriFormat.LDR_SRGB;
   public isNamePosNeg = false;
+  private __onTextureLoadedArray: Array<() => void> = [];
+
   constructor() {
     super();
+  }
+
+  registerOnTextureLoaded(func: () => void) {
+    this.__onTextureLoadedArray.push(func);
   }
 
   async loadTextureImages() {
@@ -49,6 +55,10 @@ export class CubeTexture extends AbstractTexture {
         })
         .then(() => {
           this.__isTextureReady = true;
+          this.__onTextureLoadedArray.forEach((func) => {
+            func();
+          });
+          this.__onTextureLoadedArray = [];
           resolve();
         });
     });
