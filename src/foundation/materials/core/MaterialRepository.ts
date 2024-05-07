@@ -55,7 +55,7 @@ export class MaterialRepository {
 
       return true;
     } else {
-      Logger.info(`${materialTypeName} is already registered.`);
+      console.info(`${materialTypeName} is already registered.`);
       return false;
     }
   }

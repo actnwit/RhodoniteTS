@@ -561,7 +561,7 @@ export class WebGLResourceRepository
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
         if (location == null && glw.isDebugMode) {
-          Logger.info(
+          console.info(
             `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
           );
         }

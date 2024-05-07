@@ -25,9 +25,16 @@ export class Logger {
     this.__messages.push(log);
 
     // format log text
-    const date = new Date(log.timestamp);
-    const dateString = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-    const finalMessage = `Rn(${dateString}) ${log.message}`;
+    const yyyymmdd = new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    const dateTime = yyyymmdd.format(new Date());
+    const finalMessage = `Rn(${dateTime}) ${log.message}`;
 
     return finalMessage;
   }
