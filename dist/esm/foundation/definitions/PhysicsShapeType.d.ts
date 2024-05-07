@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type PhysicsShapeTypeEnum = EnumIO;
+export type PhysicsShapeTypeEnum = EnumIO;
 declare function from(index: number): PhysicsShapeTypeEnum;
 declare function fromString(str: string): PhysicsShapeTypeEnum;
 export declare const PhysicsShape: Readonly<{

@@ -7,4 +7,4 @@ declare const WebGpu: Readonly<{
     WebGpuStrategyBasic: typeof WebGpuStrategyBasic;
 }>;
 export default WebGpu;
-export declare type RnWebGpu = typeof WebGpu;
+export type RnWebGpu = typeof WebGpu;

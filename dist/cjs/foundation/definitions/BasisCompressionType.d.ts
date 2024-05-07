@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type BasisCompressionTypeEnum = EnumIO;
+export type BasisCompressionTypeEnum = EnumIO;
 declare function from(index: number): BasisCompressionTypeEnum;
 declare function fromString(str: string): BasisCompressionTypeEnum;
 export declare const BasisCompressionType: Readonly<{

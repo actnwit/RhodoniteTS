@@ -12,7 +12,7 @@ import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Byte, Index, Count, TypedArray, Size, TypedArrayConstructor, Array2, Array3, Array4 } from '../../types/CommonTypes';
 import { Matrix44 } from '../math/Matrix44';
-export declare type IndicesAccessOption = {
+export type IndicesAccessOption = {
     indicesAccessor?: Accessor;
     endian?: boolean;
 };

@@ -87,4 +87,4 @@ export declare class MutableVector2d extends MutableVector2_<Float64ArrayConstru
     static divideVector(l_vec: IVector2, r_vec: IVector2): MutableVector2d;
     clone(): MutableVector2d;
 }
-export declare type MutableVector2f = MutableVector2;
+export type MutableVector2f = MutableVector2;

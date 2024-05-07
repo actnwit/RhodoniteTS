@@ -11,16 +11,16 @@ import { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
 import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
-export declare type ITransformEntity = IEntity & ITransformEntityMethods;
-export declare type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
-export declare type IMeshEntity = ISceneGraphEntity & IMeshEntityMethods & IMeshRendererEntityMethods;
-export declare type ICameraEntity = ISceneGraphEntity & ICameraEntityMethods;
-export declare type ICameraControllerEntity = ICameraEntity & ICameraControllerEntityMethods;
-export declare type ISkeletalEntity = ISceneGraphEntity & ISkeletalEntityMethods;
-export declare type ILightEntity = ISceneGraphEntity & ILightEntityMethods;
-export declare type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
-export declare type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
-export declare type IConstraintEntity = ISceneGraphEntity & IConstraintEntityMethods;
+export type ITransformEntity = IEntity & ITransformEntityMethods;
+export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
+export type IMeshEntity = ISceneGraphEntity & IMeshEntityMethods & IMeshRendererEntityMethods;
+export type ICameraEntity = ISceneGraphEntity & ICameraEntityMethods;
+export type ICameraControllerEntity = ICameraEntity & ICameraControllerEntityMethods;
+export type ISkeletalEntity = ISceneGraphEntity & ISkeletalEntityMethods;
+export type ILightEntity = ISceneGraphEntity & ILightEntityMethods;
+export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
+export type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
+export type IConstraintEntity = ISceneGraphEntity & IConstraintEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {
 }
 declare function createEntity(): IEntity;

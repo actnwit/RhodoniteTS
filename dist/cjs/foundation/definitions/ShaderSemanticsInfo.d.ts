@@ -4,7 +4,7 @@ import { CompositionTypeEnum } from './CompositionType';
 import { ShaderSemanticsEnum } from './ShaderSemantics';
 import { ShaderTypeEnum } from './ShaderType';
 import { ShaderVariableUpdateIntervalEnum } from './ShaderVariableUpdateInterval';
-export declare type ShaderSemanticsInfo = {
+export type ShaderSemanticsInfo = {
     semantic: ShaderSemanticsEnum;
     prefix?: string;
     arrayLength?: Count;

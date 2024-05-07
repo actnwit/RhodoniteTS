@@ -3,7 +3,7 @@ import { Vrm0x } from '../../types/VRM0x';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Vrm1 } from '../../types/VRM1';
 import { RnM2Vrma } from '../../types';
-declare type RetargetMode = 'none' | 'global' | 'absolute';
+type RetargetMode = 'none' | 'global' | 'absolute';
 export declare class AnimationAssigner {
     private static __instance;
     /**

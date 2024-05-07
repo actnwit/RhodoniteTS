@@ -14,8 +14,8 @@ import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import { MeshRendererComponent } from '../foundation';
-export declare type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
+import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
 export declare class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private static __instance;
     private __webGpuResources;
@@ -38,6 +38,8 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __uniformMorphOffsetsBuffer?;
     private __uniformMorphWeightsBuffer?;
     private __renderPassEncoder?;
+    private static __iblParameterVec4;
+    private static __hdriFormatVec2;
     private constructor();
     addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper): void;
     static getInstance(): WebGpuResourceRepository;
@@ -121,6 +123,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         iboHandle?: WebGPUResourceHandle;
         vboHandles: Array<WebGPUResourceHandle>;
     }, primitive: Primitive, instanceIDBufferUid?: WebGPUResourceHandle): void;
+    private __checkShaderCompileStatus;
     /**
      * create a shader program
      * @param param0
@@ -136,6 +139,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     }): number;
     clearFrameBuffer(renderPass: RenderPass): void;
     draw(primitive: Primitive, material: Material, renderPass: RenderPass): void;
+    private __setupIBLParameters;
     getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, meshRendererComponent: MeshRendererComponent): [GPURenderPipeline, boolean];
     flush(): void;
     /**
@@ -145,6 +149,15 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @returns the WebGLResourceHandle for the generated Cube Texture
      */
     createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<[number, Sampler]>;
+    /**
+     * create a CubeTexture
+     *
+     * @param mipLevelCount
+     * @param images
+     * @param width
+     * @param height
+     * @returns resource handle
+     */
     createCubeTexture(mipLevelCount: Count, images: Array<{
         posX: DirectTextureData;
         negX: DirectTextureData;
@@ -161,7 +174,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     updateUniformMorphOffsetsBuffer(inputArray: Uint32Array): void;
     createUniformMorphWeightsBuffer(): number;
     updateUniformMorphWeightsBuffer(inputArray: Float32Array): void;
-    createBindGroup(renderPipelineId: string, material: Material, primitive: Primitive, meshRendererComponent: MeshRendererComponent): void;
+    private __createBindGroup;
     /**
      * create a Texture
      * @param imageData

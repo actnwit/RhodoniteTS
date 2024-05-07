@@ -1,5 +1,5 @@
 import { EnumIO } from '../foundation/misc/EnumIO';
-export declare type WebGLExtensionEnum = EnumIO;
+export type WebGLExtensionEnum = EnumIO;
 export declare const WebGLExtension: Readonly<{
     VertexArrayObject: EnumIO;
     TextureFloat: EnumIO;

@@ -5,9 +5,9 @@ import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { Expression } from './Expression';
 import { FrameBuffer } from './FrameBuffer';
 import { RenderPass } from './RenderPass';
-declare type ColorAttachmentIndex = number;
-declare type InputRenderPassIndex = number;
-declare type RenderPassIndex = number;
+type ColorAttachmentIndex = number;
+type InputRenderPassIndex = number;
+type RenderPassIndex = number;
 /**
  * Frame manages expressions and input/output dependencies between them
  */

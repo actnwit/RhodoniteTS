@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type PixelFormatEnum = EnumIO;
+export type PixelFormatEnum = EnumIO;
 export declare const PixelFormat: Readonly<{
     DepthComponent: EnumIO;
     Alpha: EnumIO;

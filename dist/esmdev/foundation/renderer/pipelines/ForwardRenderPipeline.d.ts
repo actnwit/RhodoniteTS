@@ -6,7 +6,7 @@ import { Err, Ok } from '../../misc/Result';
 import { RnObject } from '../../core/RnObject';
 import { HdriFormatEnum } from '../../definitions';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-declare type IBLCubeTextureParameter = {
+type IBLCubeTextureParameter = {
     baseUri: string;
     isNamePosNeg: boolean;
     hdriFormat: HdriFormatEnum;
@@ -119,13 +119,13 @@ export declare class ForwardRenderPipeline extends RnObject {
     setIBL(arg: {
         diffuse: IBLCubeTextureParameter;
         specular: IBLCubeTextureParameter;
-    }): void;
+    }): Promise<void>;
     /**
      * set IBL cube textures
      * @param diffuse - diffuse IBL Cube Texture
      * @param specular - specular IBL Cube Texture
      */
-    setIBLTextures(diffuse: CubeTexture, specular: CubeTexture): void;
+    setIBLTextures(diffuse: CubeTexture, specular: CubeTexture): Promise<void>;
     /**
      * getter of initial expression
      */

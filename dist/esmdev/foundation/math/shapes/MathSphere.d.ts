@@ -14,4 +14,4 @@ export declare class MathSphere extends MathSphere_<Float32ArrayConstructor> {
 }
 export declare class MathSphereD extends MathSphere_<Float64ArrayConstructor> {
 }
-export declare type MathSphereF = MathSphere;
+export type MathSphereF = MathSphere;

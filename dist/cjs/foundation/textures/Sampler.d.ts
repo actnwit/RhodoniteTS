@@ -1,6 +1,6 @@
 import { CGAPIResourceHandle } from '../../types/CommonTypes';
 import { TextureParameterEnum } from '../definitions';
-export declare type SamplerDescriptor = {
+export type SamplerDescriptor = {
     minFilter: TextureParameterEnum;
     magFilter: TextureParameterEnum;
     wrapS: TextureParameterEnum;

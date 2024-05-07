@@ -1,7 +1,7 @@
-export declare type Gltf1AnyObject = {
+export type Gltf1AnyObject = {
     [s: string]: any;
 };
-export declare type glTF1 = {
+export type glTF1 = {
     asset: {
         extras?: {
             rnLoaderOptions?: any;

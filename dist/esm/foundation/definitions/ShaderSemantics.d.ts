@@ -1,8 +1,8 @@
 import { EnumClass, EnumIO } from '../misc/EnumIO';
 import { Index } from '../../types/CommonTypes';
 import { ShaderSemanticsInfo } from './ShaderSemanticsInfo';
-export declare type ShaderSemanticsIndex = number;
-export declare type ShaderSemanticsName = string;
+export type ShaderSemanticsIndex = number;
+export type ShaderSemanticsName = string;
 export interface ShaderSemanticsEnum extends EnumIO {
     str: string;
 }
@@ -24,7 +24,7 @@ declare function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum;
 declare function fromString(str: string): ShaderSemanticsEnum;
 declare function fromStringCaseSensitively(str: string): ShaderSemanticsEnum;
 declare function fullSemanticStr(info: ShaderSemanticsInfo): string;
-export declare type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) => string;
+export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) => string;
 /**
  * @internal
  */

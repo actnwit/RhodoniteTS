@@ -44,7 +44,7 @@ declare global {
     }
 }
 export declare function getEvent(type: 'start' | 'move' | 'end' | 'click'): string;
-declare type ClassInstance = any;
+type ClassInstance = any;
 export interface InputHandlerInfo {
     eventName: string;
     handler: (event: any) => void;
@@ -56,7 +56,7 @@ export declare const INPUT_HANDLING_STATE_NONE = "None";
 export declare const INPUT_HANDLING_STATE_CAMERA_CONTROLLER = "CameraController";
 export declare const INPUT_HANDLING_STATE_GIZMO_TRANSLATION = "GizmoTranslation";
 export declare const INPUT_HANDLING_STATE_GIZMO_SCALE = "GizmoScale";
-export declare type InputHandlingState = typeof INPUT_HANDLING_STATE_NONE | typeof INPUT_HANDLING_STATE_CAMERA_CONTROLLER | typeof INPUT_HANDLING_STATE_GIZMO_TRANSLATION | typeof INPUT_HANDLING_STATE_GIZMO_SCALE;
+export type InputHandlingState = typeof INPUT_HANDLING_STATE_NONE | typeof INPUT_HANDLING_STATE_CAMERA_CONTROLLER | typeof INPUT_HANDLING_STATE_GIZMO_TRANSLATION | typeof INPUT_HANDLING_STATE_GIZMO_SCALE;
 export declare class InputManager {
     private static __inputHandlingStateMap;
     /**

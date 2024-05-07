@@ -2,7 +2,7 @@ import { PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
-export declare type VideoTextureArguments = {
+export type VideoTextureArguments = {
     level: number;
     internalFormat: PixelFormatEnum;
     format: PixelFormatEnum;

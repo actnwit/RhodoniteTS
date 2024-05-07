@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type FileTypeEnum = EnumIO;
+export type FileTypeEnum = EnumIO;
 declare function from(index: number): FileTypeEnum;
 declare function fromString(str: string): FileTypeEnum;
 declare function isGltfOrGlb(file: FileTypeEnum): boolean;

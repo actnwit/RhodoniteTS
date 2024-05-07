@@ -4,10 +4,10 @@ import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-export declare type FillArgsObject = {
+export type FillArgsObject = {
     [key: string]: string;
 };
-export declare type VertexAttributesLayout = {
+export type VertexAttributesLayout = {
     names: string[];
     semantics: VertexAttributeEnum[];
     compositions: CompositionTypeEnum[];

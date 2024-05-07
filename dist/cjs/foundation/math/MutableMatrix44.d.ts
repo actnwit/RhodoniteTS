@@ -6,7 +6,7 @@ import { Array16, Index } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 import { MutableVector3 } from './MutableVector3';
 declare const FloatArray: Float32ArrayConstructor;
-declare type FloatArray = Float32Array;
+type FloatArray = Float32Array;
 export declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
     constructor(m: FloatArray);
     set m00(val: number);

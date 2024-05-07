@@ -1,33 +1,33 @@
 import { RnM2 } from './RnM2';
-export declare type Vrm1HumanBone = {
+export type Vrm1HumanBone = {
     node: number;
 };
-export declare type Vrm1LookAt = {
+export type Vrm1LookAt = {
     curve: number[];
     xRange: number;
     yRange: number;
 };
-export declare type Vrm1_MeshAnnotation = {
+export type Vrm1_MeshAnnotation = {
     node: number;
     type: 'thirdPersonOnly' | 'firstPersonOnly' | 'both' | 'auto';
 };
-export declare type Vrm1BlendShapeBind = {
+export type Vrm1BlendShapeBind = {
     mesh: number;
     index: number;
     weight: number;
 };
-export declare type Vrm1BlendShapeGroup = {
+export type Vrm1BlendShapeGroup = {
     name: string;
     presetName: string;
     binds: Vrm1BlendShapeBind[];
     materialValues: [];
 };
-export declare type Vrm1SpringBone_Spring = {
+export type Vrm1SpringBone_Spring = {
     colliderGroups: number[];
     joints: Vrm1SpringBone_Joint[];
     name: string;
 };
-export declare type Vrm1SpringBone_Joint = {
+export type Vrm1SpringBone_Joint = {
     node: number;
     hitRadius: number;
     stiffness: number;
@@ -35,23 +35,23 @@ export declare type Vrm1SpringBone_Joint = {
     gravityDir: [number, number, number];
     dragForce: number;
 };
-export declare type Vrm1MorphTargetBind = {
+export type Vrm1MorphTargetBind = {
     index: number;
     node: number;
     weight: number;
 };
-export declare type Vrm1MaterialColorBind = {
+export type Vrm1MaterialColorBind = {
     material: number;
     type: string;
     targetValue: [number, number, number, number];
 };
-export declare type Vrm1TextureTransformBind = {
+export type Vrm1TextureTransformBind = {
     material: number;
     scale: [number, number];
     offset: [number, number];
 };
-export declare type Vrm1OverrideType = 'none' | 'block' | 'blend';
-export declare type Vrm1SpringBone_Collider = {
+export type Vrm1OverrideType = 'none' | 'block' | 'blend';
+export type Vrm1SpringBone_Collider = {
     node: number;
     shape: {
         sphere?: {
@@ -65,11 +65,11 @@ export declare type Vrm1SpringBone_Collider = {
         };
     };
 };
-export declare type Vrm1SpringBone_ColliderGroup = {
+export type Vrm1SpringBone_ColliderGroup = {
     name: string;
     colliders: number[];
 };
-export declare type Vrm1_Materials_MToon = {
+export type Vrm1_Materials_MToon = {
     specVersion: string;
     transparentWithZWrite: boolean;
     renderQueueOffsetNumber: number;
@@ -113,7 +113,7 @@ export declare type Vrm1_Materials_MToon = {
     uvAnimationScrollXSpeedFactor: number;
     uvAnimationScrollYSpeedFactor: number;
 };
-export declare type Vrm1_NodeConstraint_Constraint = {
+export type Vrm1_NodeConstraint_Constraint = {
     specVersion: string;
     constraint: {
         rotation?: {
@@ -132,7 +132,7 @@ export declare type Vrm1_NodeConstraint_Constraint = {
         };
     };
 };
-export declare type Vrm1_Extension = {
+export type Vrm1_Extension = {
     extensions: {
         VRMC_vrm: {
             specVersion: string;
@@ -207,4 +207,4 @@ export declare type Vrm1_Extension = {
         };
     };
 };
-export declare type Vrm1 = Vrm1_Extension & RnM2;
+export type Vrm1 = Vrm1_Extension & RnM2;

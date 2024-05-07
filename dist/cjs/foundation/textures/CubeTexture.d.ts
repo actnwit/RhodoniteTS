@@ -5,7 +5,9 @@ export declare class CubeTexture extends AbstractTexture {
     mipmapLevelNumber: number;
     hdriFormat: import("..").EnumIO;
     isNamePosNeg: boolean;
+    private __onTextureLoadedArray;
     constructor();
+    registerOnTextureLoaded(func: () => void): void;
     loadTextureImages(): Promise<void>;
     loadTextureImagesAsync(): Promise<void>;
     loadTextureImagesFromBasis(uint8Array: Uint8Array, { magFilter, minFilter, wrapS, wrapT, }?: {

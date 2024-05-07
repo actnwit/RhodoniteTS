@@ -44,7 +44,7 @@ export interface RaycastResultEx2 {
  * Depth Field
  * 32 bits: Depth
  */
-export declare type PrimitiveSortKey = number;
+export type PrimitiveSortKey = number;
 export declare const PrimitiveSortKey_BitLength_PrimitiveType = 3;
 export declare const PrimitiveSortKey_BitLength_Material = 10;
 export declare const PrimitiveSortKey_BitLength_TranslucencyType = 2;
@@ -52,7 +52,7 @@ export declare const PrimitiveSortKey_BitOffset_PrimitiveType = 0;
 export declare const PrimitiveSortKey_BitOffset_Material = 3;
 export declare const PrimitiveSortKey_BitOffset_TranslucencyType: number;
 export declare const PrimitiveSortKey_BitOffset_ViewportLayer: number;
-export declare type PrimitiveSortKeyOffset = typeof PrimitiveSortKey_BitOffset_Material | typeof PrimitiveSortKey_BitOffset_TranslucencyType | typeof PrimitiveSortKey_BitOffset_ViewportLayer;
+export type PrimitiveSortKeyOffset = typeof PrimitiveSortKey_BitOffset_Material | typeof PrimitiveSortKey_BitOffset_TranslucencyType | typeof PrimitiveSortKey_BitOffset_ViewportLayer;
 export declare const PrimitiveSortKey_BitLength_Depth = 32;
 export interface IMesh {
     meshUID: MeshUID;

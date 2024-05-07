@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type ShaderVariableUpdateIntervalEnum = EnumIO;
+export type ShaderVariableUpdateIntervalEnum = EnumIO;
 declare function from(index: number): ShaderVariableUpdateIntervalEnum;
 declare function fromString(str: string): ShaderVariableUpdateIntervalEnum;
 export declare const ShaderVariableUpdateInterval: Readonly<{

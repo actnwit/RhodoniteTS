@@ -161,7 +161,7 @@ export declare class Vector4d extends Vector4_<Float64ArrayConstructor> {
     static divideVector(l_vec: IVector4, r_vec: IVector4): Vector4d;
     clone(): Vector4d;
 }
-export declare type Vector4f = Vector4;
+export type Vector4f = Vector4;
 export declare const ConstVector4_1_1_1_1: Vector4;
 export declare const ConstVector4_0_0_0_1: Vector4;
 export declare const ConstVector4_0_0_0_0: Vector4;

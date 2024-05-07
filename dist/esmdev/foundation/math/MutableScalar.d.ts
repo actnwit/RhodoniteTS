@@ -42,4 +42,4 @@ export declare class MutableScalard extends MutableScalar_<Float64ArrayConstruct
     static dummy(): MutableScalard;
     static zero(): MutableScalard;
 }
-export declare type MutableScalarf = MutableScalar;
+export type MutableScalarf = MutableScalar;

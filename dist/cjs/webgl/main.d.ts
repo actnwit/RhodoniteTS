@@ -13,6 +13,6 @@ declare const WebGL: Readonly<{
     WebGLStrategyDataTexture: typeof WebGLStrategyDataTexture;
 }>;
 export default WebGL;
-export declare type RnWebGL = typeof WebGL;
-export declare type VertexHandles = vertexHandles;
-export declare type WebGLStrategy = webGLStrategy;
+export type RnWebGL = typeof WebGL;
+export type VertexHandles = vertexHandles;
+export type WebGLStrategy = webGLStrategy;

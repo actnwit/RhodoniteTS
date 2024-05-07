@@ -11,7 +11,7 @@ import { GL_DATA_BYTE, GL_DATA_UNSIGNED_BYTE, GL_DATA_SHORT, GL_DATA_UNSIGNED_SH
 export interface Gltf2AnyObject {
     [s: string]: any;
 }
-export declare type Gltf2 = {
+export type Gltf2 = {
     asset: {
         extras?: {
             rnLoaderOptions?: GltfLoadOption;
@@ -43,25 +43,25 @@ export declare type Gltf2 = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Scene = {
+export type Gltf2Scene = {
     name?: string;
     scene?: number;
     nodes?: number[];
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type AttributeName = 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0';
-export declare type Gltf2AccessorComponentTypeNumber = typeof GL_DATA_BYTE | typeof GL_DATA_UNSIGNED_BYTE | typeof GL_DATA_SHORT | typeof GL_DATA_UNSIGNED_SHORT | typeof GL_DATA_INT | typeof GL_DATA_UNSIGNED_INT | typeof GL_DATA_FLOAT;
-export declare type Gltf2AnimationAccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4';
-export declare type Gltf2AccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4' | 'MAT2' | 'MAT3' | 'MAT4';
-export declare type Gltf2AccessorIndex = number;
-export declare type Gltf2Attributes = {
+export type AttributeName = 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0';
+export type Gltf2AccessorComponentTypeNumber = typeof GL_DATA_BYTE | typeof GL_DATA_UNSIGNED_BYTE | typeof GL_DATA_SHORT | typeof GL_DATA_UNSIGNED_SHORT | typeof GL_DATA_INT | typeof GL_DATA_UNSIGNED_INT | typeof GL_DATA_FLOAT;
+export type Gltf2AnimationAccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4';
+export type Gltf2AccessorCompositionTypeString = 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4' | 'MAT2' | 'MAT3' | 'MAT4';
+export type Gltf2AccessorIndex = number;
+export type Gltf2Attributes = {
     [s: string]: number;
 };
-export declare type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
-export declare type Gltf2AttributeBlendShapes = Gltf2Attributes[];
-export declare type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
-export declare type Gltf2Primitive = {
+export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
+export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
+export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
+export type Gltf2Primitive = {
     attributes: Gltf2Attributes;
     indices?: number;
     material?: number;
@@ -70,14 +70,14 @@ export declare type Gltf2Primitive = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Mesh = {
+export type Gltf2Mesh = {
     primitives: Gltf2Primitive[];
     weights?: number[];
     name?: string;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Node = {
+export type Gltf2Node = {
     camera?: number;
     children?: number[];
     skin?: number;
@@ -92,7 +92,7 @@ export declare type Gltf2Node = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Skin = {
+export type Gltf2Skin = {
     inverseBindMatrices?: number;
     bindShapeMatrix?: number[];
     skeleton?: number;
@@ -101,14 +101,14 @@ export declare type Gltf2Skin = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2TextureInfo = {
+export type Gltf2TextureInfo = {
     index: number;
     texCoord?: number;
     texture?: Gltf2Texture;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2OcclusionTextureInfo = {
+export type Gltf2OcclusionTextureInfo = {
     index: number;
     texCoord?: number;
     texture?: Gltf2Texture;
@@ -116,7 +116,7 @@ export declare type Gltf2OcclusionTextureInfo = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2NormalTextureInfo = {
+export type Gltf2NormalTextureInfo = {
     index: number;
     texCoord?: number;
     texture?: Gltf2Texture;
@@ -124,7 +124,7 @@ export declare type Gltf2NormalTextureInfo = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2PbrMetallicRoughness = {
+export type Gltf2PbrMetallicRoughness = {
     baseColorFactor?: number[];
     baseColorTexture?: Gltf2TextureInfo;
     metallicFactor?: number;
@@ -133,7 +133,7 @@ export declare type Gltf2PbrMetallicRoughness = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Material = {
+export type Gltf2Material = {
     pbrMetallicRoughness?: Gltf2PbrMetallicRoughness;
     normalTexture?: Gltf2NormalTextureInfo;
     occlusionTexture?: Gltf2OcclusionTextureInfo;
@@ -146,7 +146,7 @@ export declare type Gltf2Material = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2CameraOrthographic = {
+export type Gltf2CameraOrthographic = {
     xmag: number;
     ymag: number;
     zfar: number;
@@ -154,7 +154,7 @@ export declare type Gltf2CameraOrthographic = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2CameraPerspective = {
+export type Gltf2CameraPerspective = {
     aspectRatio?: number;
     yfov: number;
     zfar?: number;
@@ -162,7 +162,7 @@ export declare type Gltf2CameraPerspective = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Camera = {
+export type Gltf2Camera = {
     orthographic?: Gltf2CameraOrthographic;
     perspective?: Gltf2CameraPerspective;
     type: string;
@@ -170,7 +170,7 @@ export declare type Gltf2Camera = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Image = {
+export type Gltf2Image = {
     uri?: string;
     mimeType?: string;
     bufferView?: number;
@@ -181,36 +181,36 @@ export declare type Gltf2Image = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'effekseer';
-export declare type Gltf2AnimationChannelTarget = {
+export type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'effekseer';
+export type Gltf2AnimationChannelTarget = {
     node?: number;
     path: Gltf2AnimationPathName;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-declare type Gltf2AnimationSamplerIndex = number;
-export declare type Gltf2AnimationChannel = {
+type Gltf2AnimationSamplerIndex = number;
+export type Gltf2AnimationChannel = {
     sampler: Gltf2AnimationSamplerIndex;
     target: Gltf2AnimationChannelTarget;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2AnimationSamplerInterpolation = 'LINEAR' | 'STEP' | 'CUBICSPLINE';
-export declare type Gltf2AnimationSampler = {
+export type Gltf2AnimationSamplerInterpolation = 'LINEAR' | 'STEP' | 'CUBICSPLINE';
+export type Gltf2AnimationSampler = {
     input: Gltf2AccessorIndex;
     output: Gltf2AccessorIndex;
     interpolation: Gltf2AnimationSamplerInterpolation;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Animation = {
+export type Gltf2Animation = {
     channels: Gltf2AnimationChannel[];
     samplers: Gltf2AnimationSampler[];
     name?: string;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Texture = {
+export type Gltf2Texture = {
     sampler?: number;
     source?: number;
     image?: Gltf2Image;
@@ -218,7 +218,7 @@ export declare type Gltf2Texture = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2TextureSampler = {
+export type Gltf2TextureSampler = {
     magFilter?: number;
     minFilter?: number;
     wrapS?: number;
@@ -227,27 +227,27 @@ export declare type Gltf2TextureSampler = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2SparseValues = {
+export type Gltf2SparseValues = {
     bufferView: number;
     byteOffset?: number;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2SparseIndices = {
+export type Gltf2SparseIndices = {
     bufferView: number;
     byteOffset?: number;
     componentType: number;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Sparse = {
+export type Gltf2Sparse = {
     count: number;
     indices?: Gltf2SparseIndices;
     values?: Gltf2SparseValues;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type Gltf2Buffer = {
+export type Gltf2Buffer = {
     uri?: string;
     byteLength: number;
     buffer?: Uint8Array;
@@ -283,8 +283,8 @@ export interface Gltf2Accessor {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 }
-export declare type PointType = 'directional' | 'point' | 'spot';
-export declare type KHR_lights_punctual_Light = {
+export type PointType = 'directional' | 'point' | 'spot';
+export type KHR_lights_punctual_Light = {
     color: Array3<number>;
     type: PointType;
     name?: string;
@@ -295,13 +295,13 @@ export declare type KHR_lights_punctual_Light = {
         outerConeAngle?: number;
     };
 };
-export declare type KHR_lights_punctual = {
+export type KHR_lights_punctual = {
     lights: KHR_lights_punctual_Light[];
 };
-export declare type GltfFileBuffers = {
+export type GltfFileBuffers = {
     [s: string]: ArrayBuffer;
 };
-export declare type GltfLoadOption = {
+export type GltfLoadOption = {
     files?: GltfFileBuffers;
     loaderExtensionName?: string;
     loaderExtension?: ILoaderExtension;

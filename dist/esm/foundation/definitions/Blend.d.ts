@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type BlendEnum = EnumIO;
+export type BlendEnum = EnumIO;
 declare function from(index: number): BlendEnum;
 export declare const Blend: Readonly<{
     EquationFuncAdd: EnumIO;

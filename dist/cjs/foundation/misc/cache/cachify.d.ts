@@ -3,7 +3,7 @@
  * Thank you!
  */
 import { primitives } from '../../../types/CommonTypes';
-declare type ObjectFnType = (arg: object) => unknown;
+type ObjectFnType = (arg: object) => unknown;
 /**
  * Return the caching wrapper function
  * @param fn the target function for caching result
@@ -15,5 +15,5 @@ export declare const objectCachify: (fn: ObjectFnType) => ObjectFnType;
  * @param fn the target function for caching result
  * @returns
  */
-export declare const primitiveCachify1: <P extends primitives>(fn: (arg: P) => unknown) => (arg: P) => unknown;
+export declare const primitiveCachify1: <P extends primitives>(fn: (arg: P) => unknown) => ((arg: P) => unknown);
 export {};

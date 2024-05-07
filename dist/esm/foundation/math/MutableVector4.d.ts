@@ -96,4 +96,4 @@ export declare class MutableVector4d extends MutableVector4_<Float64ArrayConstru
     static fromCopy4(x: number, y: number, z: number, w: number): MutableVector4d;
     clone(): MutableVector4d;
 }
-export declare type MutableVector4f = MutableVector4;
+export type MutableVector4f = MutableVector4;

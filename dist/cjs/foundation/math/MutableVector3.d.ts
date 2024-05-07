@@ -118,4 +118,4 @@ export declare class MutableVector3d extends MutableVector3_<Float64ArrayConstru
     static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
     clone(): MutableVector3d;
 }
-export declare type MutableVector3f = MutableVector3;
+export type MutableVector3f = MutableVector3;

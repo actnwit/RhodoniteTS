@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type ShaderVariableTypeEnum = EnumIO;
+export type ShaderVariableTypeEnum = EnumIO;
 declare function from(index: number): ShaderVariableTypeEnum;
 declare function fromString(str: string): ShaderVariableTypeEnum;
 export declare const ShaderVariableType: Readonly<{

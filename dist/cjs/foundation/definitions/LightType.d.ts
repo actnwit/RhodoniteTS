@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type LightTypeEnum = EnumIO;
+export type LightTypeEnum = EnumIO;
 declare function from(index: number): LightTypeEnum;
 declare function fromString(str: string): LightTypeEnum;
 export declare const LightType: Readonly<{

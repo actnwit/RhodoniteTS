@@ -1,15 +1,13 @@
 import { Component } from '../../core/Component';
 import { EntityRepository } from '../../core/EntityRepository';
 import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';
-import { TransformComponent } from '../Transform/TransformComponent';
 import { ComponentTID, ComponentSID, EntityUID, Index, VectorComponentN } from '../../../types/CommonTypes';
 import { AnimationPathName, AnimationTrack, AnimationComponentEventType, AnimationInfo, AnimationTrackName } from '../../../types/AnimationTypes';
 import { EventHandler } from '../../system/EventPubSub';
 import { IAnimationEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
-import { EffekseerComponent } from '../../../effekseer';
-import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
-import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
+import { ComponentToComponentMethods } from '../ComponentTypes';
+import { IAnimationRetarget } from '../Skeletal';
 /**
  * A component that manages animation.
  */
@@ -98,7 +96,7 @@ export declare class AnimationComponent extends Component {
      * @param base the target entity
      * @param _componentClass the component class to add
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("../Constraint").ConstraintComponent ? import("../Constraint").IConstraintEntityMethods : Exclude<SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof EffekseerComponent ? import("../../../effekseer").IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof SkeletalComponent ? ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshRendererComponent ? import("..").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SceneGraphComponent ? import("..").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof TransformComponent ? import("..").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof AnimationComponent ? import("./IAnimationEntity").IAnimationEntityMethods : import("..").ITransformEntityMethods | import("..").ISceneGraphEntityMethods | import("..").IMeshEntityMethods | import("..").IMeshRendererEntityMethods | import("..").ILightEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | import("../../../effekseer").IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("..").ITransformEntityMethods>, import("..").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("..").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, import("../../../effekseer").IEffekseerEntityMethods>, import("..").IVrmEntityMethods>, import("../Constraint").IConstraintEntityMethods>) & EntityBase;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
     addKeyFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frameToInsert: Index, fps: number): boolean;
     addKeyFrameWithValue(trackName: AnimationTrackName, pathName: AnimationPathName, frameToInsert: Index, output: Array<number>, fps: number): boolean;
     deleteKeysAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frameToDelete: Index, fps: number): boolean;

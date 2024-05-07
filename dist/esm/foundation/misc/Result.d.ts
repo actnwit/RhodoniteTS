@@ -96,7 +96,7 @@ export declare class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResul
     getRnError(): RnError<ErrObj>;
     toString(): string;
 }
-export declare type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
+export type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
 export declare function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj>;
 export declare function isErr<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Err<T, ErrObj>;
 export declare function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any>;

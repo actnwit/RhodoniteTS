@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type HdriFormatEnum = EnumIO;
+export type HdriFormatEnum = EnumIO;
 declare function from(index: number): HdriFormatEnum;
 declare function fromString(str: string): HdriFormatEnum;
 export declare const HdriFormat: Readonly<{

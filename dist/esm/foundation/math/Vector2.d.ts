@@ -150,6 +150,6 @@ export declare class Vector2d extends Vector2_<Float64ArrayConstructor> {
     static divideVector(l_vec: IVector2, r_vec: IVector2): Vector2d;
     clone(): Vector2d;
 }
-export declare type Vector2f = Vector2;
+export type Vector2f = Vector2;
 export declare const ConstVector2_1_1: Vector2;
 export declare const ConstVector2_0_0: Vector2;

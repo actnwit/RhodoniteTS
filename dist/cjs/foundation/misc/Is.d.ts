@@ -21,7 +21,7 @@ declare const NotObj: {
     false(val: unknown, ...args: unknown[]): boolean;
     falsy(val: unknown, ...args: unknown[]): boolean;
 };
-declare type IsImplType = typeof IsObj;
+type IsImplType = typeof IsObj;
 export interface IsType extends IsImplType {
     not: typeof NotObj;
     all: typeof IsObj;

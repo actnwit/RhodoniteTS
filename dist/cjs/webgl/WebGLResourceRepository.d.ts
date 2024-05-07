@@ -21,20 +21,20 @@ import { Material } from '../foundation/materials/core/Material';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { Sampler } from '../foundation/textures/Sampler';
-export declare type VertexHandles = {
+export type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;
     vboHandles: Array<CGAPIResourceHandle>;
     attributesFlags: Array<boolean>;
     setComplete: boolean;
 };
-export declare type TextureData = {
+export type TextureData = {
     level: Count;
     width: Count;
     height: Count;
     buffer: ArrayBufferView;
 };
-export declare type WebGLResource = WebGLBuffer | WebGLFramebuffer | WebGLObject | WebGLProgram | WebGLRenderbuffer | WebGLTexture | WebGLTransformFeedback;
+export type WebGLResource = WebGLBuffer | WebGLFramebuffer | WebGLObject | WebGLProgram | WebGLRenderbuffer | WebGLTexture | WebGLTransformFeedback;
 export declare class WebGLResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private static __instance;
     private __webglContexts;

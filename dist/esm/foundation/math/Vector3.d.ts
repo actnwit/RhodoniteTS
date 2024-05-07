@@ -178,6 +178,6 @@ export declare class Vector3d extends Vector3_<Float64ArrayConstructor> {
     static multiplyQuaternion(quat: IQuaternion, vec: IVector3): Vector3d;
     static lerp(lhs: IVector3, rhs: IVector3, ratio: number): Vector3d;
 }
-export declare type Vector3f = Vector3;
+export type Vector3f = Vector3;
 export declare const ConstVector3_1_1_1: Vector3;
 export declare const ConstVector3_0_0_0: Vector3;

@@ -5,4 +5,4 @@ declare const XR: Readonly<{
     WebARSystem: typeof WebARSystem;
 }>;
 export default XR;
-export declare type RnXR = typeof XR;
+export type RnXR = typeof XR;

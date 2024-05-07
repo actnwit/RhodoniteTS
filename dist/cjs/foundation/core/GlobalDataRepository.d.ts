@@ -3,7 +3,7 @@ import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from '../../types/C
 import { Accessor } from '../memory/Accessor';
 import { ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
 import { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
-declare type GlobalPropertyStruct = {
+type GlobalPropertyStruct = {
     shaderSemanticsInfo: ShaderSemanticsInfo;
     values: any[];
     maxCount: Count;

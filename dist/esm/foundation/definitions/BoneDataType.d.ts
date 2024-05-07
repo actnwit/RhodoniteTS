@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type BoneDataTypeEnum = EnumIO;
+export type BoneDataTypeEnum = EnumIO;
 declare function from(index: number): BoneDataTypeEnum;
 declare function fromString(str: string): BoneDataTypeEnum;
 export declare const BoneDataType: Readonly<{

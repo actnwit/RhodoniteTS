@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type CameraTypeEnum = EnumIO;
+export type CameraTypeEnum = EnumIO;
 declare function from(index: number): CameraTypeEnum;
 declare function fromString(str: string): CameraTypeEnum;
 export declare const CameraType: Readonly<{

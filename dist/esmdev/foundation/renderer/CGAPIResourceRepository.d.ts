@@ -10,8 +10,8 @@ import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
-export declare type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
-export declare type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
+export type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
+export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export declare abstract class CGAPIResourceRepository {
     static readonly InvalidCGAPIResourceUid = -1;
     static getCgApiResourceRepository(): ICGAPIResourceRepository;

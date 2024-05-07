@@ -1,14 +1,14 @@
-export declare type TextureFormat = {
+export type TextureFormat = {
     value: number;
 };
-declare type _TextureFormat = {
+type _TextureFormat = {
     ETC1S: TextureFormat;
     UASTC4x4: TextureFormat;
 };
-export declare type TranscodeTarget = {
+export type TranscodeTarget = {
     value: number;
 };
-declare type _TranscodeTarget = {
+type _TranscodeTarget = {
     ETC1_RGB: TranscodeTarget;
     BC1_RGB: TranscodeTarget;
     BC4_R: TranscodeTarget;
@@ -40,8 +40,8 @@ export declare class ImageInfo {
     alphaByteOffset: number;
     alphaByteLength: number;
 }
-declare type _ImageInfo = new (textureFormat: TextureFormat, levelWidth: number, levelHeight: number, level: number) => ImageInfo;
-export declare type TranscodedImage = {
+type _ImageInfo = new (textureFormat: TextureFormat, levelWidth: number, levelHeight: number, level: number) => ImageInfo;
+export type TranscodedImage = {
     transcodedImage: {
         get_typed_memory_view: () => Uint8Array;
         delete: () => void;
@@ -55,7 +55,7 @@ export declare class BasisLzEtc1sImageTranscoder {
     decodePalettes: (numEndpoints: number, endpoints: Uint8Array, numSelectors: number, selectors: Uint8Array) => void;
     decodeTables: (tables: Uint8Array) => void;
 }
-export declare type MscTranscoderModule = {
+export type MscTranscoderModule = {
     initTranscoders: () => void;
     TextureFormat: _TextureFormat;
     TranscodeTarget: _TranscodeTarget;
@@ -63,5 +63,5 @@ export declare type MscTranscoderModule = {
     UastcImageTranscoder: new () => UastcImageTranscoder;
     BasisLzEtc1sImageTranscoder: new () => BasisLzEtc1sImageTranscoder;
 };
-export declare type MSC_TRANSCODER = () => Promise<MscTranscoderModule>;
+export type MSC_TRANSCODER = () => Promise<MscTranscoderModule>;
 export {};

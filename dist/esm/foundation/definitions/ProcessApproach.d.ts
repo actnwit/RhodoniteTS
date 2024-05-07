@@ -6,7 +6,7 @@ export declare class ProcessApproachClass extends EnumClass implements EnumIO {
     });
     get webGLVersion(): 0 | 2;
 }
-export declare type ProcessApproachEnum = ProcessApproachClass;
+export type ProcessApproachEnum = ProcessApproachClass;
 export declare const ProcessApproach: Readonly<{
     isDataTextureApproach: (processApproach: ProcessApproachEnum) => boolean;
     isUniformApproach: (processApproach: ProcessApproachEnum) => boolean;

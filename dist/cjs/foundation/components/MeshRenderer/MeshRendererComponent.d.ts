@@ -1,16 +1,15 @@
 import { Component } from '../../core/Component';
-import { MeshComponent } from '../Mesh/MeshComponent';
 import { ProcessApproachEnum } from '../../definitions/ProcessApproach';
 import { ProcessStageEnum } from '../../definitions/ProcessStage';
 import { EntityRepository } from '../../core/EntityRepository';
-import { CameraComponent } from '../Camera/CameraComponent';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { RenderPass } from '../../renderer/RenderPass';
 import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
+import { ComponentToComponentMethods } from '../ComponentTypes';
 export declare class MeshRendererComponent extends Component {
-    diffuseCubeMap?: CubeTexture;
-    specularCubeMap?: CubeTexture;
+    private __diffuseCubeMap?;
+    private __specularCubeMap?;
     diffuseCubeMapContribution: number;
     specularCubeMapContribution: number;
     rotationOfCubeMap: number;
@@ -28,6 +27,9 @@ export declare class MeshRendererComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
+    get diffuseCubeMap(): CubeTexture | undefined;
+    get specularCubeMap(): CubeTexture | undefined;
+    setIBLCubeMap(diffuseCubeTexture: CubeTexture, specularCubeTexture: CubeTexture): Promise<void>;
     $create(): void;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
@@ -54,5 +56,5 @@ export declare class MeshRendererComponent extends Component {
      * @param base the target entity
      * @param _componentClass the component class to add
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("../Constraint").ConstraintComponent ? import("../Constraint").IConstraintEntityMethods : Exclude<SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof import("../../..").EffekseerComponent ? import("../../..").IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof import("..").BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SkeletalComponent ? import("..").ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof MeshRendererComponent ? import("./IMeshRendererEntity").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SceneGraphComponent ? import("..").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof import("..").TransformComponent ? import("..").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof import("..").AnimationComponent ? import("..").IAnimationEntityMethods : import("..").ITransformEntityMethods | import("..").ISceneGraphEntityMethods | import("..").IMeshEntityMethods | import("./IMeshRendererEntity").IMeshRendererEntityMethods | import("..").ILightEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | import("..").ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | import("../../..").IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("..").ITransformEntityMethods>, import("..").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("./IMeshRendererEntity").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, import("..").ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, import("../../..").IEffekseerEntityMethods>, import("..").IVrmEntityMethods>, import("../Constraint").IConstraintEntityMethods>) & EntityBase;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }

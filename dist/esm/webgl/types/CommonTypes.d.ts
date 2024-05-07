@@ -7,7 +7,7 @@ import { RenderPass } from '../../foundation/renderer/RenderPass';
 import { CubeTexture } from '../../foundation/textures/CubeTexture';
 import { Index } from '../../types/CommonTypes';
 import { WebGLContextWrapper } from '../WebGLContextWrapper';
-export declare type RenderingArg = {
+export type RenderingArg = {
     glw: WebGLContextWrapper;
     entity: IMeshEntity;
     primitive: Primitive;
@@ -22,4 +22,4 @@ export declare type RenderingArg = {
     displayIdx: Index;
     setUniform: boolean;
 };
-export declare type AttributeNames = Array<string>;
+export type AttributeNames = Array<string>;

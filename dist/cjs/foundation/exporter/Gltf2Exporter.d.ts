@@ -8,7 +8,7 @@ export declare const GLTF2_EXPORT_GLB = "glTF-Binary";
 export declare const GLTF2_EXPORT_DRACO = "glTF-Draco";
 export declare const GLTF2_EXPORT_EMBEDDED = "glTF-Embedded";
 export declare const GLTF2_EXPORT_NO_DOWNLOAD = "No-Download";
-export declare type Gltf2ExportType = typeof GLTF2_EXPORT_GLTF | typeof GLTF2_EXPORT_GLB | typeof GLTF2_EXPORT_DRACO | typeof GLTF2_EXPORT_EMBEDDED | typeof GLTF2_EXPORT_NO_DOWNLOAD;
+export type Gltf2ExportType = typeof GLTF2_EXPORT_GLTF | typeof GLTF2_EXPORT_GLB | typeof GLTF2_EXPORT_DRACO | typeof GLTF2_EXPORT_EMBEDDED | typeof GLTF2_EXPORT_NO_DOWNLOAD;
 export interface Gltf2ExporterArguments {
     entities?: ISceneGraphEntity[];
     type: Gltf2ExportType;

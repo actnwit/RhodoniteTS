@@ -1,7 +1,7 @@
-export declare type EventType = string | symbol;
-export declare type EventSubscriberIndex = number;
-export declare type CalledSubscriberNumber = number;
-export declare type EventHandler = (event: unknown) => void;
+export type EventType = string | symbol;
+export type EventSubscriberIndex = number;
+export type CalledSubscriberNumber = number;
+export type EventHandler = (event: unknown) => void;
 export interface IEventPubSub {
     subscribe(type: EventType, handler: EventHandler): EventSubscriberIndex;
     unsubscribe(type: EventType, index: EventSubscriberIndex): void;

@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type AnimationAttributeEnum = EnumIO;
+export type AnimationAttributeEnum = EnumIO;
 declare function from(index: number): AnimationAttributeEnum;
 declare function fromString(str: string): AnimationAttributeEnum;
 export declare const AnimationAttribute: Readonly<{

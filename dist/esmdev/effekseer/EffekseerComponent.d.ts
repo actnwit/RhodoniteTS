@@ -2,13 +2,11 @@
 /// <reference types="node" />
 import { Component } from '../foundation/core/Component';
 import { EntityRepository } from '../foundation/core/EntityRepository';
-import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
-import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
 import { IVector3 } from '../foundation/math/IVector';
 import type { Unzip } from 'zlib';
 import { IEntity } from '../foundation/core/Entity';
+import { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 export declare class EffekseerComponent extends Component {
     static readonly ANIMATION_EVENT_PLAY = 0;
@@ -65,7 +63,7 @@ export declare class EffekseerComponent extends Component {
      * @param base the target entity
      * @param _componentClass the component class to add
      */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): (SomeComponentClass extends typeof import("../foundation/components/Constraint").ConstraintComponent ? import("../foundation/components/Constraint").IConstraintEntityMethods : Exclude<SomeComponentClass extends typeof import("..").VrmComponent ? import("..").IVrmEntityMethods : Exclude<SomeComponentClass extends typeof EffekseerComponent ? IEffekseerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").PhysicsComponent ? import("..").IPhysicsEntityMethods : Exclude<SomeComponentClass extends typeof import("..").BlendShapeComponent ? import("..").IBlendShapeEntityMethods : Exclude<SomeComponentClass extends typeof import("..").SkeletalComponent ? import("..").ISkeletalEntityMethods : Exclude<SomeComponentClass extends typeof import("..").LightComponent ? import("..").ILightEntityMethods : Exclude<SomeComponentClass extends typeof CameraComponent ? import("..").ICameraEntityMethods : Exclude<SomeComponentClass extends typeof import("..").CameraControllerComponent ? import("..").ICameraControllerEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshRendererComponent ? import("..").IMeshRendererEntityMethods : Exclude<SomeComponentClass extends typeof import("..").MeshComponent ? import("..").IMeshEntityMethods : Exclude<SomeComponentClass extends typeof SceneGraphComponent ? import("..").ISceneGraphEntityMethods : Exclude<SomeComponentClass extends typeof TransformComponent ? import("..").ITransformEntityMethods : Exclude<SomeComponentClass extends typeof import("..").AnimationComponent ? import("..").IAnimationEntityMethods : import("..").ITransformEntityMethods | import("..").ISceneGraphEntityMethods | import("..").IMeshEntityMethods | import("..").IMeshRendererEntityMethods | import("..").ILightEntityMethods | import("..").ICameraEntityMethods | import("..").ICameraControllerEntityMethods | import("..").ISkeletalEntityMethods | import("..").IBlendShapeEntityMethods | import("..").IPhysicsEntityMethods | IEffekseerEntityMethods | import("..").IVrmEntityMethods, import("..").ITransformEntityMethods>, import("..").ISceneGraphEntityMethods>, import("..").IMeshEntityMethods>, import("..").IMeshRendererEntityMethods>, import("..").ICameraControllerEntityMethods>, import("..").ICameraEntityMethods>, import("..").ILightEntityMethods>, import("..").ISkeletalEntityMethods>, import("..").IBlendShapeEntityMethods>, import("..").IPhysicsEntityMethods>, IEffekseerEntityMethods>, import("..").IVrmEntityMethods>, import("../foundation/components/Constraint").IConstraintEntityMethods>) & EntityBase;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }
 export interface IEffekseerEntityMethods {
     getEffekseer(): EffekseerComponent;

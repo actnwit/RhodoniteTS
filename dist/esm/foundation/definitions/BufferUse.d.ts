@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type BufferUseEnum = EnumIO;
+export type BufferUseEnum = EnumIO;
 declare function from(index: number): BufferUseEnum;
 declare function fromString(str: string): BufferUseEnum;
 export declare const BufferUse: Readonly<{

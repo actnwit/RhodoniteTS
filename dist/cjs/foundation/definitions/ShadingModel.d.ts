@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type ShadingModelEnum = EnumIO;
+export type ShadingModelEnum = EnumIO;
 declare function from(index: number): ShadingModelEnum;
 export declare const ShadingModel: Readonly<{
     Unknown: EnumIO;

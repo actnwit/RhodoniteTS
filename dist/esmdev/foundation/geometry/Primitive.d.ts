@@ -10,7 +10,7 @@ import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
 import { IVector3 } from '../math/IVector';
 import { IMesh, PrimitiveSortKey, PrimitiveSortKeyOffset, RaycastResultEx1 } from './types/GeometryTypes';
-export declare type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
+export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 export interface IAnyPrimitiveDescriptor {
     /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
     material?: Material;

@@ -1,5 +1,5 @@
 import { IVector3 } from '../math';
-export declare type PhysicsWorldProperty = {
+export type PhysicsWorldProperty = {
     gravity: IVector3;
     random: boolean;
 };

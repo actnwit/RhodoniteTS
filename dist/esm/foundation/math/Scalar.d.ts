@@ -48,4 +48,4 @@ export declare class Scalard extends Scalar_<Float64ArrayConstructor> {
     static dummy(): Scalard;
     clone(): Scalard;
 }
-export declare type Scalarf = Scalar;
+export type Scalarf = Scalar;

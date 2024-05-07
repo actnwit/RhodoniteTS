@@ -20,16 +20,16 @@ import { IMatrix33 } from '../../math/IMatrix';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-export declare type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
-export declare type ShaderSocket = {
+export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
+export type ShaderSocket = {
     compositionType: CompositionTypeEnum;
     componentType: ComponentTypeEnum;
     name: ShaderAttributeOrSemanticsOrString;
     isClosed?: boolean;
 };
-declare type MaterialNodeTypeName = string;
-declare type MaterialNodeUID = number;
-declare type InputConnectionType = {
+type MaterialNodeTypeName = string;
+type MaterialNodeUID = number;
+type InputConnectionType = {
     materialNodeUid: number;
     outputNameOfPrev: string;
     inputNameOfThis: string;

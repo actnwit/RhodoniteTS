@@ -1,6 +1,6 @@
 import { PhysicsShapeTypeEnum } from '../definitions/PhysicsShapeType';
 import { IVector3 } from '../math';
-export declare type PhysicsPropertyInner = {
+export type PhysicsPropertyInner = {
     type: PhysicsShapeTypeEnum;
     size: IVector3;
     position: IVector3;
@@ -10,7 +10,7 @@ export declare type PhysicsPropertyInner = {
     friction: number;
     restitution: number;
 };
-export declare type PhysicsProperty = {
+export type PhysicsProperty = {
     use: boolean;
     move: boolean;
     density: number;

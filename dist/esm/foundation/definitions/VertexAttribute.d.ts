@@ -1,10 +1,10 @@
 import { EnumClass, EnumIO } from '../misc/EnumIO';
 import { Count, Index } from '../../types/CommonTypes';
 import { VectorComponentN } from '../../types/CommonTypes';
-declare type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
-export declare type VertexAttributeTypeName = 'UNKNOWN' | 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0' | 'INSTANCE' | 'FACE_NORMAL' | 'BARY_CENTRIC_COORD';
-export declare type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
-export declare type VertexAttributeSemanticsJoinedString = `${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
+type ComponentChar = 'X' | 'Y' | 'Z' | 'W';
+export type VertexAttributeTypeName = 'UNKNOWN' | 'POSITION' | 'NORMAL' | 'TANGENT' | 'TEXCOORD_0' | 'TEXCOORD_1' | 'TEXCOORD_2' | 'COLOR_0' | 'JOINTS_0' | 'WEIGHTS_0' | 'INSTANCE' | 'FACE_NORMAL' | 'BARY_CENTRIC_COORD';
+export type VertexAttributeComponent = `${VertexAttributeTypeName}.${ComponentChar}`;
+export type VertexAttributeSemanticsJoinedString = `${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}` | `${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar},${string}.${ComponentChar}`;
 export interface VertexAttributeEnum extends EnumIO {
     getAttributeSlot(): Index;
     shaderStr: string;
@@ -16,7 +16,7 @@ export interface VertexAttributeEnum extends EnumIO {
     XYZ: VertexAttributeSemanticsJoinedString;
     XYZW: VertexAttributeSemanticsJoinedString;
 }
-declare type VertexAttributeDescriptor = {
+type VertexAttributeDescriptor = {
     str: VertexAttributeTypeName;
     shaderStr: string;
     attributeSlot: Index;
@@ -53,7 +53,7 @@ declare const Weights0: VertexAttributeEnum;
 declare function isInstanceOfVertexAttributeClass(obj: unknown): obj is VertexAttributeClass;
 declare function from(index: number): VertexAttributeEnum;
 declare function fromString(str: string): VertexAttributeEnum;
-declare type Gltf2VertexAttributeEnums = typeof Position | typeof Color0 | typeof Normal | typeof Tangent | typeof Texcoord0 | typeof Texcoord1 | typeof Joints0 | typeof Weights0;
+type Gltf2VertexAttributeEnums = typeof Position | typeof Color0 | typeof Normal | typeof Tangent | typeof Texcoord0 | typeof Texcoord1 | typeof Joints0 | typeof Weights0;
 declare function toVertexAttributeSemanticJoinedStringAsGltfStyle(attribute: Gltf2VertexAttributeEnums): VertexAttributeSemanticsJoinedString;
 declare function toAttributeSlotFromJoinedString(str: VertexAttributeSemanticsJoinedString): Index;
 declare function toVectorComponentN(joinedString: VertexAttributeSemanticsJoinedString): VectorComponentN;

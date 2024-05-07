@@ -4,7 +4,7 @@ import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
 import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
-export declare type RnM2 = {
+export type RnM2 = {
     extensionsUsed: string[];
     extensionsRequired: string[];
     accessors: RnM2Accessor[];
@@ -29,7 +29,7 @@ export declare type RnM2 = {
         [key: string]: any;
     };
 };
-export declare type RnM2Scene = {
+export type RnM2Scene = {
     nodesObjects?: RnM2Node[];
     name?: string;
     scene?: number;
@@ -38,22 +38,22 @@ export declare type RnM2Scene = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2AttributesObject = {
+export type RnM2AttributesObject = {
     [s: string]: RnM2Accessor;
 };
-export declare type RnM2Attributes = {
+export type RnM2Attributes = {
     [s: string]: number;
 };
-export declare type RnM2AttributeAccessors = {
+export type RnM2AttributeAccessors = {
     [s: string]: RnM2Accessor;
 };
-export declare type RnM2AttributeBlendShapes = RnM2Attributes[];
-export declare type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
-export declare type RnM2MaterialVariant = {
+export type RnM2AttributeBlendShapes = RnM2Attributes[];
+export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
+export type RnM2MaterialVariant = {
     materialObject: RnM2Material;
     variants: string[];
 };
-export declare type RnM2Primitive = {
+export type RnM2Primitive = {
     attributesObjects?: RnM2AttributeAccessors;
     attributesNames?: {
         [s: string]: string;
@@ -73,14 +73,14 @@ export declare type RnM2Primitive = {
     extensions: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Mesh = {
+export type RnM2Mesh = {
     primitives: RnM2Primitive[];
     weights?: number[];
     name?: string;
     extensions: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Node = {
+export type RnM2Node = {
     cameraObject?: RnM2Camera;
     camera?: number;
     childrenObjects?: RnM2Node[];
@@ -100,7 +100,7 @@ export declare type RnM2Node = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Skin = {
+export type RnM2Skin = {
     inverseBindMatrices?: number;
     inverseBindMatricesObject?: RnM2Accessor;
     bindShapeMatrix?: number[];
@@ -112,14 +112,14 @@ export declare type RnM2Skin = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2TextureInfo = {
+export type RnM2TextureInfo = {
     index: number;
     texCoord?: number;
     texture?: RnM2Texture;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2OcclusionTextureInfo = {
+export type RnM2OcclusionTextureInfo = {
     index: number;
     texCoord?: number;
     texture?: RnM2Texture;
@@ -127,7 +127,7 @@ export declare type RnM2OcclusionTextureInfo = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2NormalTextureInfo = {
+export type RnM2NormalTextureInfo = {
     index: number;
     texCoord?: number;
     texture?: RnM2Texture;
@@ -135,7 +135,7 @@ export declare type RnM2NormalTextureInfo = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2PbrMetallicRoughness = {
+export type RnM2PbrMetallicRoughness = {
     baseColorFactor?: Array4<number>;
     baseColorTexture?: RnM2TextureInfo;
     metallicFactor?: number;
@@ -144,7 +144,7 @@ export declare type RnM2PbrMetallicRoughness = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Material = {
+export type RnM2Material = {
     pbrMetallicRoughness?: RnM2PbrMetallicRoughness;
     normalTexture?: RnM2NormalTextureInfo;
     occlusionTexture?: RnM2OcclusionTextureInfo;
@@ -159,7 +159,7 @@ export declare type RnM2Material = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2CameraOrthographic = {
+export type RnM2CameraOrthographic = {
     xmag: number;
     ymag: number;
     zfar: number;
@@ -167,7 +167,7 @@ export declare type RnM2CameraOrthographic = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2CameraPerspective = {
+export type RnM2CameraPerspective = {
     aspectRatio?: number;
     yfov: number;
     zfar?: number;
@@ -175,7 +175,7 @@ export declare type RnM2CameraPerspective = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Camera = {
+export type RnM2Camera = {
     orthographic?: RnM2CameraOrthographic;
     perspective?: RnM2CameraPerspective;
     type: string;
@@ -183,7 +183,7 @@ export declare type RnM2Camera = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Image = {
+export type RnM2Image = {
     uri?: string;
     mimeType?: string;
     bufferView?: number;
@@ -194,22 +194,22 @@ export declare type RnM2Image = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
-export declare type RnM2AnimationChannelTarget = {
+export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
+export type RnM2AnimationChannelTarget = {
     nodeObject?: RnM2Node;
     node?: number;
     path: PathType;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2AnimationChannel = {
+export type RnM2AnimationChannel = {
     sampler: number;
     target: RnM2AnimationChannelTarget;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
     samplerObject?: RnM2AnimationSampler;
 };
-export declare type RnM2AnimationSampler = {
+export type RnM2AnimationSampler = {
     input: number;
     output: number;
     interpolation?: Gltf2AnimationSamplerInterpolation;
@@ -218,7 +218,7 @@ export declare type RnM2AnimationSampler = {
     inputObject?: RnM2Accessor;
     outputObject?: RnM2Accessor;
 };
-export declare type RnM2Animation = {
+export type RnM2Animation = {
     channels: RnM2AnimationChannel[];
     samplers: RnM2AnimationSampler[];
     name?: string;
@@ -228,7 +228,7 @@ export declare type RnM2Animation = {
         [s: string]: any;
     };
 };
-export declare type RnM2Texture = {
+export type RnM2Texture = {
     samplerObject?: RnM2TextureSampler;
     sampler?: number;
     sourceObject?: RnM2Image;
@@ -238,7 +238,7 @@ export declare type RnM2Texture = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2TextureSampler = {
+export type RnM2TextureSampler = {
     magFilter?: number;
     minFilter?: number;
     wrapS?: number;
@@ -247,14 +247,14 @@ export declare type RnM2TextureSampler = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2SparseValues = {
+export type RnM2SparseValues = {
     bufferView: number;
     bufferViewObject: RnM2BufferView;
     byteOffset?: number;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2SparseIndices = {
+export type RnM2SparseIndices = {
     bufferView: number;
     bufferViewObject: RnM2BufferView;
     byteOffset?: number;
@@ -262,14 +262,14 @@ export declare type RnM2SparseIndices = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Sparse = {
+export type RnM2Sparse = {
     count: number;
     indices?: RnM2SparseIndices;
     values?: RnM2SparseValues;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Accessor = {
+export type RnM2Accessor = {
     bufferViewObject?: RnM2BufferView;
     bufferView?: number;
     bufferViewName?: string;
@@ -296,7 +296,7 @@ export declare type RnM2Accessor = {
         quaternionIfVec4?: boolean;
     };
 };
-export declare type RnM2Buffer = {
+export type RnM2Buffer = {
     uri?: string;
     byteLength: number;
     buffer?: Uint8Array;
@@ -306,7 +306,7 @@ export declare type RnM2Buffer = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2BufferView = {
+export type RnM2BufferView = {
     bufferObject?: RnM2Buffer;
     buffer?: number;
     bufferName?: string;
@@ -319,7 +319,7 @@ export declare type RnM2BufferView = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-export declare type RnM2Asset = {
+export type RnM2Asset = {
     copyright?: string;
     generator?: string;
     version: string;
@@ -335,25 +335,25 @@ export declare type RnM2Asset = {
         fileType?: string;
     };
 };
-export declare type RnM2ExtensionEffekseer = {
+export type RnM2ExtensionEffekseer = {
     effects: RnM2ExtensionsEffekseerEffect[];
 };
-export declare type RnM2ExtensionsEffekseerEffect = {
+export type RnM2ExtensionsEffekseerEffect = {
     node: number;
     name?: string;
     uri?: string;
     bufferView?: number;
     timelines?: RnM2ExtensionsEffekseerTimeline[];
 };
-export declare type RnM2ExtensionsEffekseerTimeline = {
+export type RnM2ExtensionsEffekseerTimeline = {
     name?: string;
     values: RnM2ExtensionsEffekseerTimelineItem[];
 };
-export declare type RnM2ExtensionsEffekseerTimelineItem = {
+export type RnM2ExtensionsEffekseerTimelineItem = {
     input: number;
     event: 'play' | 'stop' | 'pause';
 };
-export declare type RnM2Sampler = {
+export type RnM2Sampler = {
     magFilter?: number;
     minFilter?: number;
     wrapS?: number;

@@ -21,7 +21,7 @@ declare function fromTypedArray(typedArray: TypedArray): ComponentTypeEnum;
 declare function toTypedArray(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined;
 declare function fromWgslString(str_: string): ComponentTypeEnum;
 declare function fromGlslString(str_: string): ComponentTypeEnum;
-export declare type Gltf2AccessorComponentType = typeof Byte | typeof UnsignedByte | typeof Short | typeof UnsignedShort | typeof Int | typeof UnsignedInt | typeof Float;
+export type Gltf2AccessorComponentType = typeof Byte | typeof UnsignedByte | typeof Short | typeof UnsignedShort | typeof Int | typeof UnsignedInt | typeof Float;
 declare function toGltf2AccessorComponentType(componentTypeForGltf2: Gltf2AccessorComponentType): Gltf2AccessorComponentTypeNumber;
 export declare const ComponentType: Readonly<{
     Unknown: ComponentTypeEnum;

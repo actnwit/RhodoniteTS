@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type CompressionTextureTypeEnum = EnumIO;
+export type CompressionTextureTypeEnum = EnumIO;
 declare function from(index: number): CompressionTextureTypeEnum;
 declare function fromString(str: string): CompressionTextureTypeEnum;
 export declare const CompressionTextureType: Readonly<{

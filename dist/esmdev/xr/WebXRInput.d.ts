@@ -6,7 +6,7 @@ import { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
-declare type WebXRSystemViewerData = {
+type WebXRSystemViewerData = {
     viewerTranslate: IMutableVector3;
     viewerScale: MutableVector3;
     viewerOrientation: IMutableQuaternion;

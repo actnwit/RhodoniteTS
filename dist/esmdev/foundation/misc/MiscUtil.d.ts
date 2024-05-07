@@ -1,23 +1,23 @@
 import { Byte, TypedArray } from '../../types/CommonTypes';
 export declare const valueWithDefault: <T>({ value, defaultValue }: {
-    value?: T | undefined;
+    value?: T;
     defaultValue: T;
 }) => T;
-export declare const ifExistsThen: <T>(callback: (value: T) => void, value?: T | undefined) => value is T;
-export declare const ifExistsThenWithReturn: <T>(callback: (value: T) => T, value?: T | undefined) => T | undefined;
-export declare const ifDefinedThen: <T>(callback: (value: T) => void, value?: T | undefined) => value is T;
-export declare const ifDefinedThenWithReturn: <T>(callback: (value: T) => T, value?: T | undefined) => T | undefined;
-export declare const ifUndefinedThen: <T>(callback: () => void, value?: T | undefined) => value is T;
-export declare const ifUndefinedThenWithReturn: <T>(callback: () => T, value?: T | undefined) => T;
-export declare const ifNotExistsThen: <T>(callback: () => void, value?: T | undefined) => void;
-export declare const ifNotExistsThenWithReturn: <T>(callback: () => T, value?: T | undefined) => T;
-export declare const defaultValue: <T>(defaultValue: T, value?: T | undefined) => T;
+export declare const ifExistsThen: <T>(callback: (value: T) => void, value?: T) => value is T;
+export declare const ifExistsThenWithReturn: <T>(callback: (value: T) => T, value?: T) => T | undefined;
+export declare const ifDefinedThen: <T>(callback: (value: T) => void, value?: T) => value is T;
+export declare const ifDefinedThenWithReturn: <T>(callback: (value: T) => T, value?: T) => T | undefined;
+export declare const ifUndefinedThen: <T>(callback: () => void, value?: T) => value is T;
+export declare const ifUndefinedThenWithReturn: <T>(callback: () => T, value?: T) => T;
+export declare const ifNotExistsThen: <T>(callback: () => void, value?: T) => void;
+export declare const ifNotExistsThenWithReturn: <T>(callback: () => T, value?: T) => T;
+export declare const defaultValue: <T>(defaultValue: T, value?: T) => T;
 export declare const valueWithCompensation: <T>({ value, compensation, }: {
-    value?: T | undefined;
+    value?: T;
     compensation: () => T;
 }) => T;
-export declare const nullishToEmptyArray: <T>(value?: T[] | null | undefined) => T[];
-export declare const nullishToEmptyMap: <M, N>(value?: Map<M, N> | null | undefined) => Map<M, N>;
+export declare const nullishToEmptyArray: <T>(value?: T[] | null) => T[];
+export declare const nullishToEmptyMap: <M, N>(value?: Map<M, N> | null) => Map<M, N>;
 interface CompareResult {
     result: boolean;
     greater: number;

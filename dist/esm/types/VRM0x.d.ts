@@ -1,29 +1,29 @@
 import { Array3, Array4 } from './CommonTypes';
 import { RnM2 } from './RnM2';
-export declare type Vrm0xHumanBone = {
+export type Vrm0xHumanBone = {
     bone: string;
     node: number;
     name?: string;
     useDefaultValues: boolean;
 };
-export declare type Vrm0xLookAt = {
+export type Vrm0xLookAt = {
     curve: number[];
     xRange: number;
     yRange: number;
 };
-export declare type Vrm0xBlendShapeBind = {
+export type Vrm0xBlendShapeBind = {
     mesh: number;
     index: number;
     weight: number;
 };
-export declare type Vrm0xBlendShapeGroup = {
+export type Vrm0xBlendShapeGroup = {
     name: string;
     presetName: string;
     isBinary: boolean;
     binds: Vrm0xBlendShapeBind[];
     materialValues: [];
 };
-export declare type Vrm0xBoneGroup = {
+export type Vrm0xBoneGroup = {
     comment: string;
     stiffiness: number;
     gravityPower: number;
@@ -38,7 +38,7 @@ export declare type Vrm0xBoneGroup = {
     bones: number[];
     colliderGroups: number[];
 };
-export declare type Vrm0xCollider = {
+export type Vrm0xCollider = {
     offset: {
         x: number;
         y: number;
@@ -46,11 +46,11 @@ export declare type Vrm0xCollider = {
     };
     radius: number;
 };
-export declare type Vrm0xColliderGroup = {
+export type Vrm0xColliderGroup = {
     node: number;
     colliders: Vrm0xCollider[];
 };
-export declare type Vrm0xMaterialProperty = {
+export type Vrm0xMaterialProperty = {
     name: string;
     renderQueue: number;
     shader: string;
@@ -106,7 +106,7 @@ export declare type Vrm0xMaterialProperty = {
         _ShadingGradeTexture: number;
     };
 };
-export declare type Vrm0x_Extension = {
+export type Vrm0x_Extension = {
     extensions: {
         VRM: {
             exporterVersion: string;
@@ -161,4 +161,4 @@ export declare type Vrm0x_Extension = {
         };
     };
 };
-export declare type Vrm0x = Vrm0x_Extension & RnM2;
+export type Vrm0x = Vrm0x_Extension & RnM2;

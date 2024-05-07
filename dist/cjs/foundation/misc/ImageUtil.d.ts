@@ -1,7 +1,7 @@
 import { MutableVector3 } from '../math/MutableVector3';
 import { Size } from '../../types/CommonTypes';
 import { TextureDataFloat } from '../textures/TextureDataFloat';
-declare type SeamlessTextureData = {
+type SeamlessTextureData = {
     input: TextureDataFloat;
     Tinput: TextureDataFloat;
     Tinv: TextureDataFloat;

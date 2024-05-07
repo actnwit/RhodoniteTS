@@ -1,13 +1,13 @@
-declare type PromiseFn<T> = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void;
-declare type OnFinallyFn = (() => void) | null | undefined;
-export declare type RnPromiseCallbackObj = {
+type PromiseFn<T> = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void;
+type OnFinallyFn = (() => void) | null | undefined;
+export type RnPromiseCallbackObj = {
     promiseAllNum: number;
     resolvedNum: number;
     rejectedNum: number;
     pendingNum: number;
     processedPromises: any[];
 };
-export declare type RnPromiseCallback = (obj: RnPromiseCallbackObj) => void;
+export type RnPromiseCallback = (obj: RnPromiseCallbackObj) => void;
 export declare class RnPromise<T> extends Promise<T> {
     private __promise;
     private __callback?;

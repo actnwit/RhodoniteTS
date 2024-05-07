@@ -1,6 +1,6 @@
 import { IAnyPrimitiveDescriptor } from '../Primitive';
 import { IShape } from './IShape';
-export declare type JointDescriptor = IAnyPrimitiveDescriptor;
+export type JointDescriptor = IAnyPrimitiveDescriptor;
 /**
  * the Joint class
  */

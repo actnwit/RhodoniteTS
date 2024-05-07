@@ -10,7 +10,7 @@ import { AbstractMatrix } from './AbstractMatrix';
 import { Array16, ArrayType } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 declare const FloatArray: Float32ArrayConstructor;
-declare type FloatArray = Float32Array;
+type FloatArray = Float32Array;
 export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     constructor(m: FloatArray);
     get m00(): number;

@@ -2,7 +2,7 @@ import { RnTags, ObjectUID } from '../../types/CommonTypes';
 /**
  * A Tag class
  */
-export declare type Tag = {
+export type Tag = {
     tag: string;
     value: any;
 };

@@ -6,18 +6,18 @@ import { Second, VectorComponentN } from './CommonTypes';
  * type of animation.channel.target.path in glTF2
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
-export declare type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | 'effekseer';
-export declare type AnimationTrackName = string;
+export type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | 'effekseer';
+export type AnimationTrackName = string;
 export interface AnimationInfo {
     name: AnimationTrackName;
     minStartInputTime: Second;
     maxEndInputTime: Second;
 }
-export declare type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
+export type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
 /**
  * Similar to [Animation](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation)
  */
-export declare type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
+export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
 /**
  * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
  */
@@ -45,4 +45,4 @@ export interface AnimationSampler {
 export interface ChangeAnimationInfoEvent {
     infoMap: Map<AnimationTrackName, AnimationInfo>;
 }
-export declare type AnimationComponentEventType = symbol;
+export type AnimationComponentEventType = symbol;

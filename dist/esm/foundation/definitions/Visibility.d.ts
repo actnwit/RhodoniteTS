@@ -1,5 +1,5 @@
 import { EnumIO } from '../misc/EnumIO';
-export declare type VisibilityEnum = EnumIO;
+export type VisibilityEnum = EnumIO;
 declare function from(index: number): VisibilityEnum;
 declare function fromString(str: string): VisibilityEnum;
 export declare const Visibility: Readonly<{
