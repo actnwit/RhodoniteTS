@@ -47,7 +47,7 @@ controller.setTarget(entityRootGroup);
 const expression = createExpression([renderPassesDepth, renderPassMain]);
 
 // set ibl textures
-setIBLTexture(basePathIBL);
+await setIBLTexture(basePathIBL);
 
 // draw
 draw([expression]);
@@ -207,7 +207,7 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
   return expression;
 }
 
-function setIBLTexture(basePathIBL: string) {
+async function setIBLTexture(basePathIBL: string) {
   const cubeTextureSpecular = new Rn.CubeTexture();
   cubeTextureSpecular.baseUriToLoad = basePathIBL + '/specular/specular';
   cubeTextureSpecular.isNamePosNeg = true;
@@ -225,8 +225,7 @@ function setIBLTexture(basePathIBL: string) {
   ) as Rn.MeshRendererComponent[];
 
   for (const meshRendererComponent of meshRendererComponents) {
-    meshRendererComponent.specularCubeMap = cubeTextureSpecular;
-    meshRendererComponent.diffuseCubeMap = cubeTextureDiffuse;
+    await meshRendererComponent.setIBLCubeMap(cubeTextureDiffuse, cubeTextureSpecular);
   }
 }
 

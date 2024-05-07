@@ -56,7 +56,7 @@ declare const window: any;
     expression.addRenderPasses([renderPass]);
 
     // lighting
-    setIBL('./../../../assets/ibl/papermill');
+    await setIBL('./../../../assets/ibl/papermill');
 
     let startTime = Date.now();
     const draw = function () {
@@ -134,7 +134,7 @@ function createEnvCubeExpression(baseuri) {
   return sphereExpression;
 }
 
-function setIBL(baseUri) {
+async function setIBL(baseUri) {
   const specularCubeTexture = new Rn.CubeTexture();
   specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
   specularCubeTexture.isNamePosNeg = true;
@@ -150,9 +150,7 @@ function setIBL(baseUri) {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
-  for (let i = 0; i < meshRendererComponents.length; i++) {
-    const meshRendererComponent = meshRendererComponents[i];
-    meshRendererComponent.specularCubeMap = specularCubeTexture;
-    meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
+  for (const meshRendererComponent of meshRendererComponents) {
+    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
   }
 }

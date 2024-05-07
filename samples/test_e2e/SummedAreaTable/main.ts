@@ -23,7 +23,7 @@ await createMainExpression(expressions);
 // createSat(expressions);
 
 // lighting
-setIBL('./../../../assets/ibl/papermill');
+await setIBL('./../../../assets/ibl/papermill');
 
 // Render Loop
 Rn.System.startRenderLoop(() => {
@@ -109,7 +109,7 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
   return sphereExpression;
 }
 
-function setIBL(baseUri: string) {
+async function setIBL(baseUri: string) {
   // Specular IBL Cube Texture
   const specularCubeTexture = new Rn.CubeTexture();
   specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
@@ -128,9 +128,7 @@ function setIBL(baseUri: string) {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
-  for (let i = 0; i < meshRendererComponents.length; i++) {
-    const meshRendererComponent = meshRendererComponents[i];
-    meshRendererComponent.specularCubeMap = specularCubeTexture;
-    meshRendererComponent.diffuseCubeMap = diffuseCubeTexture;
+  for (const meshRendererComponent of meshRendererComponents) {
+    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
   }
 }

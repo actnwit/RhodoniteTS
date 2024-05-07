@@ -27,8 +27,8 @@ import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
 
 export class MeshRendererComponent extends Component {
-  public diffuseCubeMap?: CubeTexture;
-  public specularCubeMap?: CubeTexture;
+  private __diffuseCubeMap?: CubeTexture;
+  private __specularCubeMap?: CubeTexture;
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
@@ -63,6 +63,51 @@ export class MeshRendererComponent extends Component {
     return WellKnownComponentTIDs.MeshRendererComponentTID;
   }
 
+  get diffuseCubeMap() {
+    return this.__diffuseCubeMap;
+  }
+
+  get specularCubeMap() {
+    return this.__specularCubeMap;
+  }
+
+  setIBLCubeMap(diffuseCubeTexture: CubeTexture, specularCubeTexture: CubeTexture) {
+    this.__diffuseCubeMap = diffuseCubeTexture;
+    this.__specularCubeMap = specularCubeTexture;
+
+    const promises = [];
+    promises.push(
+      new Promise<void>((resolve) => {
+        if (!diffuseCubeTexture.startedToLoad) {
+          diffuseCubeTexture.loadTextureImagesAsync().then(() => {
+            resolve();
+          });
+        } else if (diffuseCubeTexture.isTextureReady) {
+          resolve();
+        } else {
+          throw new Error('diffuseCubeTexture is not ready');
+        }
+      })
+    );
+    promises.push(
+      new Promise<void>((resolve) => {
+        if (!specularCubeTexture.startedToLoad) {
+          specularCubeTexture.loadTextureImagesAsync().then(() => {
+            resolve();
+          });
+        } else if (specularCubeTexture.isTextureReady) {
+          resolve();
+        } else {
+          throw new Error('specularCubeTexture is not ready');
+        }
+      })
+    );
+
+    return Promise.all(promises).then(() => {
+      this._updateCount++;
+    });
+  }
+
   $create() {
     this.__meshComponent = EntityRepository.getComponentOfEntity(
       this.__entityUid,
@@ -90,19 +135,6 @@ export class MeshRendererComponent extends Component {
 
   $load() {
     MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
-
-    const promises = [];
-    if (this.diffuseCubeMap && !this.diffuseCubeMap.startedToLoad) {
-      promises.push(this.diffuseCubeMap.loadTextureImagesAsync());
-    }
-    if (this.specularCubeMap && !this.specularCubeMap.startedToLoad) {
-      promises.push(this.specularCubeMap.loadTextureImagesAsync());
-    }
-    Promise.all(promises).then(() => {
-      this._updateCount++;
-    });
-
-    // this.moveStageTo(ProcessStage.PreRender);
   }
 
   static common_$prerender() {
@@ -288,8 +320,8 @@ export class MeshRendererComponent extends Component {
   _shallowCopyFrom(component_: Component): void {
     const component = component_ as MeshRendererComponent;
 
-    this.diffuseCubeMap = component.diffuseCubeMap;
-    this.specularCubeMap = component.specularCubeMap;
+    this.__diffuseCubeMap = component.__diffuseCubeMap;
+    this.__specularCubeMap = component.__specularCubeMap;
     this.diffuseCubeMapContribution = component.diffuseCubeMapContribution;
     this.specularCubeMapContribution = component.specularCubeMapContribution;
     this.rotationOfCubeMap = component.rotationOfCubeMap;

@@ -46,10 +46,10 @@ const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraCon
 controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 controller.dolly = 0.83;
 
-forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
+await forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
 
 // lighting
-forwardRenderPipeline.setIBL({
+await forwardRenderPipeline.setIBL({
   diffuse: {
     baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
     hdriFormat: Rn.HdriFormat.RGBE_PNG,

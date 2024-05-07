@@ -337,7 +337,7 @@ export class ForwardRenderPipeline extends RnObject {
    * set IBL textures from uri
    * @param arg - argument for diffuse and specular IBL
    */
-  setIBL(arg: { diffuse: IBLCubeTextureParameter; specular: IBLCubeTextureParameter }) {
+  async setIBL(arg: { diffuse: IBLCubeTextureParameter; specular: IBLCubeTextureParameter }) {
     const diffuseCubeTexture = new CubeTexture();
     diffuseCubeTexture.baseUriToLoad = arg.diffuse.baseUri;
     diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
@@ -352,8 +352,8 @@ export class ForwardRenderPipeline extends RnObject {
     specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
     this.__oSpecularCubeTexture = new Some(specularCubeTexture);
 
-    this.__setIblInner();
-    this.__setIblInnerForTransparentOnly();
+    await this.__setIblInner();
+    await this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -361,11 +361,11 @@ export class ForwardRenderPipeline extends RnObject {
    * @param diffuse - diffuse IBL Cube Texture
    * @param specular - specular IBL Cube Texture
    */
-  setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
+  async setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
     this.__oSpecularCubeTexture = new Some(specular);
-    this.__setIblInner();
-    this.__setIblInnerForTransparentOnly();
+    await this.__setIblInner();
+    await this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -494,7 +494,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private __setExpressionsInner(
+  private async __setExpressionsInner(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -521,7 +521,7 @@ export class ForwardRenderPipeline extends RnObject {
       }
     }
     this.__expressions = expressions;
-    this.__setIblInner();
+    await this.__setIblInner();
   }
 
   private __setTransparentExpressionsForTransmission(expressions: Expression[]) {
@@ -746,7 +746,7 @@ export class ForwardRenderPipeline extends RnObject {
     );
   }
 
-  private __setIblInner() {
+  private async __setIblInner() {
     if (this.__expressions.length === 0) {
       console.warn(
         'No effect because there are no expressions to set IBL yet. call setExpressions before this method.'
@@ -758,22 +758,26 @@ export class ForwardRenderPipeline extends RnObject {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.specularCubeMap = this.__oSpecularCubeTexture.unwrapOrUndefined();
-            meshRendererComponent.diffuseCubeMap = this.__oDiffuseCubeTexture.unwrapOrUndefined();
+            await meshRendererComponent.setIBLCubeMap(
+              this.__oDiffuseCubeTexture.unwrapOrUndefined()!,
+              this.__oSpecularCubeTexture.unwrapOrUndefined()!
+            );
           }
         }
       }
     }
   }
 
-  private __setIblInnerForTransparentOnly() {
+  private async __setIblInnerForTransparentOnly() {
     for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
-            meshRendererComponent.specularCubeMap = this.__oSpecularCubeTexture.unwrapOrUndefined();
-            meshRendererComponent.diffuseCubeMap = this.__oDiffuseCubeTexture.unwrapOrUndefined();
+            await meshRendererComponent.setIBLCubeMap(
+              this.__oDiffuseCubeTexture.unwrapOrUndefined()!,
+              this.__oSpecularCubeTexture.unwrapOrUndefined()!
+            );
           }
         }
       }

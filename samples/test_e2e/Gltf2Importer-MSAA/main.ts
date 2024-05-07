@@ -41,7 +41,7 @@ const expression = new Rn.Expression();
 expression.addRenderPasses([renderPassMain, renderPassGamma]);
 
 // set ibl textures
-setIBLTexture(basePathIBL);
+await setIBLTexture(basePathIBL);
 
 // draw
 draw([expression], 0);
@@ -177,7 +177,7 @@ function createAndSetFrameBufferAndMSAAFramebuffer(
   renderPass.setResolveFramebuffer(framebufferMSAA);
 }
 
-function setIBLTexture(basePathIBL: string) {
+async function setIBLTexture(basePathIBL: string) {
   const cubeTextureSpecular = new Rn.CubeTexture();
   cubeTextureSpecular.baseUriToLoad = basePathIBL + '/specular/specular';
   cubeTextureSpecular.isNamePosNeg = true;
@@ -195,8 +195,7 @@ function setIBLTexture(basePathIBL: string) {
   ) as Rn.MeshRendererComponent[];
 
   for (const meshRendererComponent of meshRendererComponents) {
-    meshRendererComponent.specularCubeMap = cubeTextureSpecular;
-    meshRendererComponent.diffuseCubeMap = cubeTextureDiffuse;
+    await meshRendererComponent.setIBLCubeMap(cubeTextureDiffuse, cubeTextureSpecular);
   }
 }
 
