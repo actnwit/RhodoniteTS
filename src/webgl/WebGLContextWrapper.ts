@@ -2,6 +2,7 @@ import { WebGLExtensionEnum, WebGLExtension } from './WebGLExtension';
 import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
 import { Index, Size } from '../types/CommonTypes';
 import { Vector4 } from '../foundation/math/Vector4';
+import { Logger } from '../foundation/misc/Logger';
 
 const INVALID_SIZE = -1;
 
@@ -145,7 +146,7 @@ export class WebGLContextWrapper {
         if (this.webgl2ExtMLTVIEW) {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
-          console.warn('Neither OCULUS_multiview nor OVR_multiview2 extensions are supported');
+          console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           this.is_multiview = false;
         }
       }
@@ -419,7 +420,7 @@ export class WebGLContextWrapper {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null) {
         const text = `${extension.toString()} Not Available in this environment`;
-        console.warn(text);
+        console.info(text);
       }
       this.__extensions.set(extension, extObj);
       return extObj;
@@ -439,7 +440,7 @@ export class WebGLContextWrapper {
 
       if (extObj == null) {
         const text = `${extension.toString()} Not Available in this environment`;
-        console.warn(text);
+        console.info(text);
       } else {
         this.__extensions.set(extension, extObj);
       }
