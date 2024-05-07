@@ -268,7 +268,7 @@ function nearZeroToZero(value: number): number {
 
 function financial(val: number | string) {
   const fixedStr = Number.parseFloat(val as string).toFixed(7);
-  if (val >= 0) {
+  if (val as number >= 0) {
     return ' ' + fixedStr;
   }
   return fixedStr;
