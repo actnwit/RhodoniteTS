@@ -1157,12 +1157,13 @@ export class WebGpuResourceRepository
     }
 
     const handle = this.__registerResource(cubemapTexture);
-    const wrapS = TextureParameter.ClampToEdge;
-    const wrapT = TextureParameter.ClampToEdge;
-    const minFilter = TextureParameter.Linear;
+    const wrapS = TextureParameter.Repeat;
+    const wrapT = TextureParameter.Repeat;
+    const minFilter =
+      mipLevelCount === 1 ? TextureParameter.Linear : TextureParameter.LinearMipmapLinear;
     const magFilter = TextureParameter.Linear;
 
-    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter });
+    const sampler = new Sampler({ wrapS, wrapT, minFilter, magFilter, anisotropy: false });
     sampler.create();
 
     return [handle, sampler];
