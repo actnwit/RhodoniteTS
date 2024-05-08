@@ -78,7 +78,7 @@ await setIBL('./../../../assets/ibl/papermill');
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
-  if (p == null && count > 50) {
+  if (p == null && count > 0) {
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';

@@ -81,7 +81,7 @@ declare const window: any;
     expression.addRenderPasses([renderPass]);
 
     const draw = function () {
-      if (count > 100) {
+      if (count > 0) {
         window._rendered = true;
       }
 

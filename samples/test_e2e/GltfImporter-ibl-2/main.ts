@@ -75,7 +75,7 @@ await setIBL('./../../../assets/ibl/shanghai_bund');
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
-  if (count > 100) {
+  if (count > 1) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   } else if (count === 1) {

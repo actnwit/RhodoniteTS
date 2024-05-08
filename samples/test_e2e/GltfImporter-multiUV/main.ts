@@ -38,7 +38,7 @@ lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
-  if (count > 100) {
+  if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
