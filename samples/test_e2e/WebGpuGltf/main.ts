@@ -60,7 +60,7 @@ declare const window: any;
 
     let startTime = Date.now();
     const draw = function () {
-      if (count > 100) {
+      if (count > 0) {
         window._rendered = true;
       }
 

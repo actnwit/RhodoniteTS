@@ -91,7 +91,7 @@ window.download = function () {
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
-  if (count > 50) {
+  if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
   }
