@@ -334,8 +334,8 @@ export class WebGpuResourceRepository
       addressModeU: wrapS.webgpu as GPUAddressMode,
       addressModeV: wrapT.webgpu as GPUAddressMode,
       addressModeW: wrapR.webgpu as GPUAddressMode,
-      lodMinClamp: 0,
-      lodMaxClamp: 0,
+      // lodMinClamp: 0,
+      // lodMaxClamp: 32,
       maxAnisotropy,
     } as GPUSamplerDescriptor;
 
@@ -1134,8 +1134,6 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const cubemapTexture = gpuDevice.createTexture({
       dimension: '2d',
-      // Create a 2d array texture.
-      // Assume each image has the same size.
       size: [width, height, 6],
       format: 'rgba8unorm',
       mipLevelCount: mipLevelCount,
@@ -1145,13 +1143,13 @@ export class WebGpuResourceRepository
         GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    for (let j = 0; j < mipmaps.length; j++) {
-      for (let i = 0; i < mipmaps[j].length; i++) {
-        const imageBitmap = mipmaps[j][i];
+    for (let i = 0; i < mipLevelCount; i++) {
+      for (let j = 0; j < mipmaps[i].length; j++) {
+        const imageBitmap = mipmaps[i][j];
         gpuDevice.queue.copyExternalImageToTexture(
           { source: imageBitmap },
-          { texture: cubemapTexture, origin: [0, 0, i], mipLevel: j },
-          [imageBitmap.width, imageBitmap.height]
+          { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
+          [imageBitmap.width, imageBitmap.height, 1]
         );
       }
     }
