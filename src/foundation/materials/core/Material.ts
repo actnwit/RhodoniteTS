@@ -119,17 +119,9 @@ export class Material extends RnObject {
     texture: AbstractTexture,
     sampler: Sampler
   ): void {
-    let samplerObj = sampler;
-    // if (sampler == null) {
-    //   samplerObj = new Sampler({
-    //     wrapS: TextureParameter.ClampToEdge,
-    //     wrapT: TextureParameter.ClampToEdge,
-    //     wrapR: TextureParameter.ClampToEdge,
-    //     minFilter: TextureParameter.Linear,
-    //     magFilter: TextureParameter.Linear,
-    //     anisotropy: false,
-    //   });
-    // }
+    if (!sampler.created) {
+      sampler.create();
+    }
 
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const setter = async () => {
@@ -139,7 +131,7 @@ export class Material extends RnObject {
         }
         const array = this._allFieldVariables.get(shaderSemantic.index)!;
         const shaderVariable = {
-          value: [array.value[0], texture, samplerObj],
+          value: [array.value[0], texture, sampler],
           info: array.info,
         };
         this._allFieldVariables.set(shaderSemantic.index, shaderVariable);

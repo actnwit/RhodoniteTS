@@ -167,12 +167,22 @@ function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
     primitive.material.setParameter(shaderSemantic, value);
   }
 }
-function setTextureParameterForMeshComponent(meshComponent, shaderSemantic, value) {
+function setTextureParameterForMeshComponent(
+  meshComponent: Rn.MeshComponent,
+  shaderSemantic: Rn.ShaderSemanticsEnum,
+  value: Rn.RenderTargetTexture
+) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 
+  const sampler = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
   for (let j = 0; j < primitiveNumber; j++) {
     const primitive = mesh.getPrimitiveAt(j);
-    primitive.material.setTextureParameter(shaderSemantic, value);
+    primitive.material.setTextureParameter(shaderSemantic, value, sampler);
   }
 }

@@ -356,6 +356,7 @@ export class WebGpuResourceRepository
     wrapR,
     anisotropy,
     isPremultipliedAlpha,
+    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -364,6 +365,7 @@ export class WebGpuResourceRepository
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
+    shadowCompareMode: boolean;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const maxAnisotropy = anisotropy ? 4 : 1;

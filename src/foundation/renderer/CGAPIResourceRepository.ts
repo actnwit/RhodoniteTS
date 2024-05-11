@@ -221,6 +221,7 @@ export interface ICGAPIResourceRepository {
     wrapR,
     anisotropy,
     isPremultipliedAlpha,
+    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -229,6 +230,7 @@ export interface ICGAPIResourceRepository {
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
+    shadowCompareMode: boolean;
   }): CGAPIResourceHandle;
 
   /**

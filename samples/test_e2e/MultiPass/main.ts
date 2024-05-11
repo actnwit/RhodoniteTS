@@ -84,7 +84,7 @@ primitive2.generate({
 primitive2.material = Rn.MaterialHelper.createClassicUberMaterial({});
 const sampler = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Linear,
-  minFilter: Rn.TextureParameter.LinearMipmapLinear,
+  minFilter: Rn.TextureParameter.Linear,
   wrapS: Rn.TextureParameter.Repeat,
   wrapT: Rn.TextureParameter.Repeat,
 });
@@ -111,7 +111,7 @@ primitive_fxaa.generate({
 primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
 const sampler2 = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Linear,
-  minFilter: Rn.TextureParameter.LinearMipmapLinear,
+  minFilter: Rn.TextureParameter.Linear,
   wrapS: Rn.TextureParameter.Repeat,
   wrapT: Rn.TextureParameter.Repeat,
 });
@@ -134,7 +134,7 @@ primitive_fxaa.generate({
 primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
 const sampler3 = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Linear,
-  minFilter: Rn.TextureParameter.LinearMipmapLinear,
+  minFilter: Rn.TextureParameter.Linear,
   wrapS: Rn.TextureParameter.Repeat,
   wrapT: Rn.TextureParameter.Repeat,
 });

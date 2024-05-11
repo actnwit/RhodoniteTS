@@ -970,6 +970,7 @@ export class WebGLResourceRepository
     wrapR,
     anisotropy,
     isPremultipliedAlpha,
+    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -978,6 +979,7 @@ export class WebGLResourceRepository
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
+    shadowCompareMode: boolean;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const sampler = gl.createSampler()!;
@@ -987,6 +989,10 @@ export class WebGLResourceRepository
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, wrapT.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, wrapR.index);
+    if (shadowCompareMode) {
+      gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+    }
     if (anisotropy) {
       if (this.__glw!.webgl2ExtTFA) {
         gl.samplerParameteri(sampler, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);

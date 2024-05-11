@@ -149,6 +149,7 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
+    anisotropy: false,
   });
   material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget, sampler);
 

@@ -9,6 +9,7 @@ export type SamplerDescriptor = {
   wrapT: TextureParameterEnum;
   wrapR?: TextureParameterEnum;
   anisotropy?: boolean;
+  shadowCompareMode?: boolean;
 };
 
 export class Sampler {
@@ -18,6 +19,7 @@ export class Sampler {
   private __wrapT: TextureParameterEnum;
   private __wrapR: TextureParameterEnum;
   private __anisotropy: boolean;
+  private __shadowCompareMode: boolean;
   private __samplerResourceUid: CGAPIResourceHandle = -1;
 
   constructor(desc: SamplerDescriptor) {
@@ -27,6 +29,7 @@ export class Sampler {
     this.__wrapT = desc.wrapT;
     this.__wrapR = desc.wrapR ?? TextureParameter.Repeat;
     this.__anisotropy = desc.anisotropy ?? true;
+    this.__shadowCompareMode = desc.shadowCompareMode ?? false;
   }
 
   create() {
@@ -38,6 +41,7 @@ export class Sampler {
       wrapT: this.__wrapT,
       wrapR: this.__wrapR,
       anisotropy: this.__anisotropy,
+      shadowCompareMode: this.__shadowCompareMode,
     });
   }
 

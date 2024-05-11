@@ -74,7 +74,7 @@ function createEnvCubeExpression(baseuri) {
   const sampler = new Rn.Sampler({
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
-    minFilter: Rn.TextureParameter.LinearMipmapLinear,
+    minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
   });
   sphereMaterial.setTextureParameter(

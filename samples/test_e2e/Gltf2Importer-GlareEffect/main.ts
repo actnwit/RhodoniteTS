@@ -130,7 +130,7 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
   const samplerSphere = new Rn.Sampler({
     magFilter: Rn.TextureParameter.Linear,
-    minFilter: Rn.TextureParameter.LinearMipmapLinear,
+    minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
