@@ -18,10 +18,7 @@ declare const window: any;
     let count = 0;
 
     const response = await Rn.Gltf2Importer.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
-      {
-        // defaultMaterialHelperName: 'createFlatMaterial',
-      }
+      '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf'
     );
     //---------------------------
     const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
@@ -117,10 +114,7 @@ function createEnvCubeExpression(baseuri) {
     environmentCubeTexture,
     sampler
   );
-  sphereMaterial.setParameter(
-    Rn.EnvConstantMaterialContent.EnvHdriFormat,
-    Rn.HdriFormat.LDR_SRGB.index
-  );
+  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
 
   const spherePrimitive = new Rn.Sphere();
   spherePrimitive.generate({

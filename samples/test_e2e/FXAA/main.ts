@@ -116,10 +116,7 @@ async function setupRenderPassMain() {
     environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   }
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-  sphereMaterial.setParameter(
-    Rn.EnvConstantMaterialContent.EnvHdriFormat,
-    Rn.HdriFormat.LDR_SRGB.index
-  );
+  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
   const sphereMeshComponent = sphereEntity.getMesh();
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
