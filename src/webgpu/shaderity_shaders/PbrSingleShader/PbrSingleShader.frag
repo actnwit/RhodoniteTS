@@ -36,6 +36,13 @@
 // #param metallicRoughnessTextureRotation: f32; // initialValue=0
 // #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
 
+@group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(3) var occlusionSampler: sampler;
+// #param occlusionTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param occlusionTextureRotation: f32; // initialValue=0
+// #param occlusionTexcoordIndex: u32; // initialValue=0
+// #param occlusionStrength: f32; // initialValue=1
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
@@ -109,6 +116,7 @@ fn main(
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
 
+
   // Albedo
   let black = vec3f(0.0);
   let albedo = mix(baseColor.rgb, black, metallic);
@@ -144,7 +152,17 @@ fn main(
 
   let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness);
-  resultColor += ibl;
+
+  let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+  let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
+  let occlusionTextureTransform = get_occlusionTextureTransform(materialSID, 0);
+  let occlusionTextureRotation = get_occlusionTextureRotation(materialSID, 0);
+  let occlusionTexUv = uvTransform(occlusionTextureTransform.xy, occlusionTextureTransform.zw, occlusionTextureRotation, occlusionTexcoord);
+  let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
+  let occlusionStrength = get_occlusionStrength(materialSID, 0);
+
+  // Occlution to Indirect Lights
+  resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
 
   resultAlpha = baseColor.a;
 #pragma shaderity: require(../common/outputSrgb.wgsl)

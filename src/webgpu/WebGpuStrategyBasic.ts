@@ -183,6 +183,8 @@ ${indexStr}
         str += '  let col0 = fetchElement(vec4_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += `  let val = i32(col0.x);`;
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
           str += `  let val = bool(col0.x);`;
         } else {
@@ -193,6 +195,8 @@ ${indexStr}
         str += '  let col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += '  let val = i32(col0);';
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0);';
         } else if (info.componentType === ComponentType.Bool) {
           str += '  let val = bool(col0);';
         } else {
