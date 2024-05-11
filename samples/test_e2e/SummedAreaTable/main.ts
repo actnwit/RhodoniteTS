@@ -86,10 +86,7 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-  sphereMaterial.setParameter(
-    Rn.EnvConstantMaterialContent.EnvHdriFormat,
-    Rn.HdriFormat.LDR_SRGB.index
-  );
+  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
 
   const sphereEntity = Rn.MeshHelper.createSphere({
     radius: 50,

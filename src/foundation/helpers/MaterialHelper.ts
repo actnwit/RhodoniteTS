@@ -36,6 +36,8 @@ import pbrSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PbrSingl
 import pbrSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import EnvConstantSingleShaderVertex from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
 import EnvConstantSingleShaderFragment from '../../webgl/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
+import EnvConstantSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.vert';
+import EnvConstantSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/EnvConstantSingleShader/EnvConstantSingleShader.frag';
 import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.vert';
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
@@ -506,6 +508,8 @@ function createEnvConstantMaterial({
     useNormalTexture: false,
     vertexShader: EnvConstantSingleShaderVertex,
     pixelShader: EnvConstantSingleShaderFragment,
+    vertexShaderWebGpu: EnvConstantSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: EnvConstantSingleShaderFragmentWebGpu,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });

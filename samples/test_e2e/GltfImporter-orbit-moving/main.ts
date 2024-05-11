@@ -107,10 +107,7 @@ function createEnvCubeExpression(baseuri) {
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
-  sphereMaterial.setParameter(
-    Rn.EnvConstantMaterialContent.EnvHdriFormat,
-    Rn.HdriFormat.LDR_SRGB.index
-  );
+  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
 
   const spherePrimitive = new Rn.Sphere();
   spherePrimitive.generate({

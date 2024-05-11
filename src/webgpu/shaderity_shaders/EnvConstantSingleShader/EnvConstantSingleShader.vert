@@ -24,6 +24,9 @@ fn main(
 #ifdef RN_USE_TEXCOORD_0
   @location(3) texcoord_0: vec2<f32>,
 #endif
+#ifdef RN_USE_COLOR_0
+  @location(5) color_0: vec4<f32>,
+#endif
 ) -> VertexOutput {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
@@ -34,7 +37,7 @@ fn main(
   let projectionMatrix = get_projectionMatrix(cameraSID, 0u);
 
   if (get_enableViewMatrix(materialSID, 0u)) {
-    mat4 rotateMatrix = viewMatrix;
+    var rotateMatrix = viewMatrix;
     rotateMatrix[3][0] = 0.0;
     rotateMatrix[3][1] = 0.0;
     rotateMatrix[3][2] = 0.0;
@@ -43,11 +46,14 @@ fn main(
     output.position = projectionMatrix * worldMatrix * vec4f(position, 1.0);
   }
 
-  let normalMatrix = get_normalMatrix(instance_ids.x);
+  let normalMatrix = get_normalMatrix(u32(instance_ids.x));
   output.normal_inWorld = normalMatrix * normal;
 
-  output.color = color;
+#ifdef RN_USE_COLOR_0
+  output.color_0 = color_0;
+#endif
   output.position_inWorld = (worldMatrix * vec4f(position, 1.0)).xyz;
   output.texcoord_0 = texcoord_0;
 
+  return output;
 }

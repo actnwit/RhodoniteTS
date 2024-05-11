@@ -41,6 +41,7 @@ import { MutableVector4 } from '../foundation/math/MutableVector4';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
+import { CubeTexture } from '../foundation';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -1382,15 +1383,16 @@ export class WebGpuResourceRepository
           const sampler = value.value[2] as Sampler;
 
           // Texture
+          const type = texture instanceof CubeTexture ? 'cube' : '2d';
           const gpuTexture = this.__webGpuResources.get(texture._textureResourceUid) as GPUTexture;
           entriesForTexture.push({
             binding: slot,
-            resource: gpuTexture.createView(),
+            resource: gpuTexture.createView({ dimension: type }),
           });
           bindGroupLayoutEntriesForTexture.push({
             binding: slot,
             texture: {
-              viewDimension: '2d',
+              viewDimension: type,
             },
             visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
           });
