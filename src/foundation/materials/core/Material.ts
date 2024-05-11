@@ -120,16 +120,16 @@ export class Material extends RnObject {
     sampler?: Sampler
   ): void {
     let samplerObj = sampler;
-    if (sampler == null) {
-      samplerObj = new Sampler({
-        wrapS: TextureParameter.Repeat,
-        wrapT: TextureParameter.Repeat,
-        wrapR: TextureParameter.Repeat,
-        minFilter: TextureParameter.Linear,
-        magFilter: TextureParameter.Linear,
-        anisotropy: false,
-      });
-    }
+    // if (sampler == null) {
+    //   samplerObj = new Sampler({
+    //     wrapS: TextureParameter.ClampToEdge,
+    //     wrapT: TextureParameter.ClampToEdge,
+    //     wrapR: TextureParameter.ClampToEdge,
+    //     minFilter: TextureParameter.Linear,
+    //     magFilter: TextureParameter.Linear,
+    //     anisotropy: false,
+    //   });
+    // }
 
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const setter = async () => {
