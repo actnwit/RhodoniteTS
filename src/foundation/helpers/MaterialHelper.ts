@@ -42,6 +42,8 @@ import FXAA3QualityShaderVertex from '../../webgl/shaderity_shaders/FXAA3Quality
 import FXAA3QualityShaderFragment from '../../webgl/shaderity_shaders/FXAA3QualityShader/FXAA3QualitySingleShader.frag';
 import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import GammaCorrectionShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
+import GammaCorrectionShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
 import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
@@ -933,6 +935,8 @@ function createGammaCorrectionMaterial({
     useNormalTexture: true,
     vertexShader: GammaCorrectionShaderVertex,
     pixelShader: GammaCorrectionShaderFragment,
+    vertexShaderWebGpu: GammaCorrectionShaderVertexWebGpu,
+    pixelShaderWebGpu: GammaCorrectionShaderFragmentWebGpu,
     noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });

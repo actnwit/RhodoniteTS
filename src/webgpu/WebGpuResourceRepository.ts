@@ -41,7 +41,9 @@ import { MutableVector4 } from '../foundation/math/MutableVector4';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
-import { CubeTexture } from '../foundation';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
+import { IRenderable } from '../foundation/textures/IRenderable';
+import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -1748,6 +1750,27 @@ export class WebGpuResourceRepository
     const textureHandle = this.__registerResource(gpuTexture);
 
     return textureHandle;
+  }
+
+  /**
+   * create a FrameBufferObject
+   * @returns
+   */
+  createFrameBufferObject() {
+    return -1;
+  }
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    index: Index,
+    renderable: IRenderable
+  ) {
+    return;
   }
 
   deleteTexture(textureHandle: WebGLResourceHandle) {

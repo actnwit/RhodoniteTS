@@ -7,16 +7,13 @@ import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
-import {
-  HdriFormatEnum,
-  ProcessApproach,
-  ShaderSemanticsInfo,
-  VertexAttributeEnum,
-} from '../definitions';
+import { HdriFormatEnum, ProcessApproach, VertexAttributeEnum } from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
+import { IRenderable } from '../textures/IRenderable';
+import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export type DirectTextureData =
   | TypedArray
@@ -302,4 +299,21 @@ export interface ICGAPIResourceRepository {
     frameBufferUid: CGAPIResourceHandle,
     colorAttachmentIndex: number
   ): Promise<Uint8Array>;
+
+  /**
+   * create a FrameBufferObject
+   * @returns
+   */
+  createFrameBufferObject(): CGAPIResourceHandle;
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    index: Index,
+    renderable: IRenderable
+  ): void;
 }

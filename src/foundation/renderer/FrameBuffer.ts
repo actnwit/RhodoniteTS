@@ -1,5 +1,4 @@
 import { RnObject } from '../core/RnObject';
-import { Entity } from '../core/Entity';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 import { IRenderable } from '../textures/IRenderable';
 import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
@@ -62,8 +61,8 @@ export class FrameBuffer extends RnObject {
   create(width: Size, height: Size) {
     this.width = width;
     this.height = height;
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this.cgApiResourceUid = webGLResourceRepository.createFrameBufferObject();
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    this.cgApiResourceUid = cgApiResourceRepository.createFrameBufferObject();
 
     return this.cgApiResourceUid;
   }
@@ -78,8 +77,8 @@ export class FrameBuffer extends RnObject {
     }
     this.__colorAttachments[index] = renderable;
 
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
 
