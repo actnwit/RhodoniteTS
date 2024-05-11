@@ -283,4 +283,10 @@ export interface ICGAPIResourceRepository {
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
   }): CGAPIResourceHandle;
+
+  /**
+   * delete a Texture
+   * @param textureHandle
+   */
+  deleteTexture(textureHandle: CGAPIResourceHandle): void;
 }

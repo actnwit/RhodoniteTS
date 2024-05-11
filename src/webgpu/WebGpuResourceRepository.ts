@@ -1639,6 +1639,15 @@ export class WebGpuResourceRepository
     return textureHandle;
   }
 
+  deleteTexture(textureHandle: WebGLResourceHandle) {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+
+    if (texture != null) {
+      texture.destroy();
+      this.__webGpuResources.delete(textureHandle);
+    }
+  }
+
   recreateSystemDepthTexture() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const canvas = this.__webGpuDeviceWrapper!.canvas;
