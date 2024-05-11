@@ -187,6 +187,20 @@ export class WebGpuResourceRepository
     return textureHandle;
   }
 
+  generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
+    const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, 1],
+      format: 'rgba8unorm',
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+      mipLevelCount: Math.floor(Math.log2(Math.max(width, height))) + 1,
+    };
+    this.generateMipmaps(gpuTexture, textureDescriptor, 1);
+  }
+
   /**
    * create a WebGPU Texture Mipmaps
    *

@@ -48,8 +48,8 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   private __createRenderTargetTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const texture = webGLResourceRepository.createRenderTargetTexture({
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = cgApiResourceRepository.createRenderTargetTexture({
       width: this.__width,
       height: this.__height,
       level: this.__level,
@@ -71,8 +71,8 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this._textureResourceUid);
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    webGLResourceRepository.deleteTexture(this._textureResourceUid);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
     return true;
@@ -149,14 +149,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   generateMipmap() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContext() as WebGLRenderingContext;
-    const texture = webGLResourceRepository.getWebGLResource(
-      this._textureResourceUid
-    ) as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
   }
 }

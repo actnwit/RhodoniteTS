@@ -289,4 +289,9 @@ export interface ICGAPIResourceRepository {
    * @param textureHandle
    */
   deleteTexture(textureHandle: CGAPIResourceHandle): void;
+
+  /**
+   * generate Mipmaps
+   */
+  generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
 }
