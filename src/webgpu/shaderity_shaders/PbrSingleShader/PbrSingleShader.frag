@@ -42,9 +42,9 @@
 @group(2) @binding(17) var specularEnvSampler: sampler;
 
 
-// #param iblParameter: vec4<f32>; // initialValue=(0,0,0,0)
-// #param hdriFormat: vec2<i32>; // initialValue=(0,0)
-// #param inverseEnvironment: bool; // initialValue=(false)
+// #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isCustomSetting=true
+// #param hdriFormat: vec2<i32>; // initialValue=(0,0), isCustomSetting=true
+// #param inverseEnvironment: bool; // initialValue=true
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
