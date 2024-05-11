@@ -7,16 +7,16 @@
 // #param envHdriFormat: i32; // initialValue=0
 // #param envRotation: f32; // initialValue=0
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
-@group(1) @binding(0) colorEnvTexture: texture_cube<f32>; // initialValue=black
-@group(2) @binding(0) colorEnvSampler: sampler;
+@group(1) @binding(0) var colorEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(0) var colorEnvSampler: sampler;
 // #param makeOutputSrgb: bool; // initialValue=true
 // #param inverseEnvironment: bool; // initialValue=true
 
-fn linearToSrgb(vec3f linearColor) -> vec3f {
+fn linearToSrgb(linearColor: vec3f) -> vec3f {
   return pow(linearColor, vec3f(1.0/2.2));
 }
 
-fn srgbToLinear(vec3f srgbColor) -> vec3f {
+fn srgbToLinear(srgbColor: vec3f) -> vec3f {
   return pow(srgbColor, vec3f(2.2));
 }
 
@@ -36,13 +36,14 @@ fn main(
   let envRotation: f32 = get_envRotation(materialSID, 0u);
   let rot = envRotation + 3.1415;
   let rotEnvMatrix = mat3x3<f32>(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  let envNormal: vec3f = normalize(rotEnvMatrix * v_position_inWorld);
+  var envNormal: vec3f = normalize(rotEnvMatrix * input.position_inWorld);
 
   if (get_inverseEnvironment(materialSID, 0)) {
     envNormal.x *= -1.0;
   }
 
-  let textureColor: vec3f;
+  let diffuseTexel = textureSample(colorEnvTexture, colorEnvSampler, envNormal);
+  var textureColor: vec3f;
   let EnvHdriFormat: i32 = get_envHdriFormat(materialSID, 0);
   if (EnvHdriFormat == 0) { // LDR_SRGB
     textureColor = srgbToLinear(diffuseTexel.rgb);
@@ -51,9 +52,7 @@ fn main(
   } else {
     textureColor = diffuseTexel.rgb;
   }
-  diffuseColor.rgb *= textureColor;
-
-  let diffuseTexel = textureSample(colorEnvTexture, colorEnvSampler, envNormal);
+  diffuseColor *= vec4f(textureColor, 1.0);
 
   return diffuseColor;
 }

@@ -47,13 +47,18 @@ declare const window: any;
     // renderPass
     const renderPass = new Rn.RenderPass();
     renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);
-    renderPass.toClearColorBuffer = true;
+    // renderPass.toClearColorBuffer = true;
+    renderPass.toClearDepthBuffer = true;
     renderPass.addEntities([rootGroup]);
     renderPass.cameraComponent = cameraComponent;
 
     // expression
+    const expressions = [];
+    const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill');
+    expressions.push(envExpression);
     const expression = new Rn.Expression();
     expression.addRenderPasses([renderPass]);
+    expressions.push(expression);
 
     // lighting
     await setIBL('./../../../assets/ibl/papermill');
@@ -78,7 +83,7 @@ declare const window: any;
       }
 
       //      console.log(date.getTime());
-      Rn.System.process([expression]);
+      Rn.System.process(expressions);
 
       count++;
       requestAnimationFrame(draw);
@@ -101,7 +106,17 @@ function createEnvCubeExpression(baseuri) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  const sampler = new Rn.Sampler({
+    minFilter: Rn.TextureParameter.Linear,
+    magFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  sphereMaterial.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    environmentCubeTexture,
+    sampler
+  );
   sphereMaterial.setParameter(
     Rn.EnvConstantMaterialContent.EnvHdriFormat,
     Rn.HdriFormat.LDR_SRGB.index
