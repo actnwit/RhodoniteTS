@@ -294,4 +294,12 @@ export interface ICGAPIResourceRepository {
    * generate Mipmaps
    */
   generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
+
+  getTexturePixelData(
+    textureHandle: CGAPIResourceHandle,
+    width: number,
+    height: number,
+    frameBufferUid: CGAPIResourceHandle,
+    colorAttachmentIndex: number
+  ): Promise<Uint8Array>;
 }

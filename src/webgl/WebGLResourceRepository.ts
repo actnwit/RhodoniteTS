@@ -2259,6 +2259,31 @@ export class WebGLResourceRepository
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
+  async getTexturePixelData(
+    textureHandle: WebGLResourceHandle,
+    width: number,
+    height: number,
+    frameBufferUid: WebGLResourceHandle,
+    colorAttachmentIndex: number
+  ): Promise<Uint8Array> {
+    const gl = this.__glw!.getRawContext();
+
+    // Create a framebuffer backed by the texture
+    const fbo = this.getWebGLResource(frameBufferUid) as WebGLFramebuffer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    // Read the contents of the framebuffer (data stores the pixel data)
+    const data = new Uint8Array(width * height * 4);
+    if ((gl as WebGL2RenderingContext).readBuffer != null) {
+      (gl as WebGL2RenderingContext).readBuffer(36064 + colorAttachmentIndex); // 36064 means gl.COLOR_ATTACHMENT0
+    }
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return data;
+  }
+
   createUniformBuffer(bufferView: TypedArray | DataView) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 

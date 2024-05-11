@@ -201,6 +201,34 @@ export class WebGpuResourceRepository
     this.generateMipmaps(gpuTexture, textureDescriptor, 1);
   }
 
+  async getTexturePixelData(
+    textureHandle: WebGPUResourceHandle,
+    width: number,
+    height: number,
+    frameBufferUid: WebGPUResourceHandle,
+    colorAttachmentIndex: number
+  ): Promise<Uint8Array> {
+    const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureData = new Uint8Array(width * height * 4);
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const commandEncoder = gpuDevice.createCommandEncoder();
+    const buffer = gpuDevice.createBuffer({
+      size: width * height * 4,
+      usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+    });
+    commandEncoder.copyTextureToBuffer(
+      { texture: gpuTexture },
+      { buffer, bytesPerRow: width * 4 },
+      { width, height, depthOrArrayLayers: 1 }
+    );
+    gpuDevice.queue.submit([commandEncoder.finish()]);
+    await buffer.mapAsync(GPUMapMode.READ);
+    const arrayBuffer = buffer.getMappedRange();
+    textureData.set(new Uint8Array(arrayBuffer));
+    buffer.unmap();
+    return textureData;
+  }
+
   /**
    * create a WebGPU Texture Mipmaps
    *
