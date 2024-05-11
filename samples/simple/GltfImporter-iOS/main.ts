@@ -104,9 +104,17 @@ fxaaMaterial.setParameter(
   Rn.ShaderSemantics.ScreenInfo,
   Rn.Vector2.fromCopyArray2([displayResolution, displayResolution])
 );
+const sampler = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.Linear,
+  wrapS: Rn.TextureParameter.ClampToEdge,
+  wrapT: Rn.TextureParameter.ClampToEdge,
+  anisotropy: false,
+});
 fxaaMaterial.setTextureParameter(
   Rn.ShaderSemantics.BaseColorTexture,
-  fxaaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+  fxaaTargetFramebuffer.getColorAttachedRenderTargetTexture(0),
+  sampler
 );
 fxaaRenderPass.setMaterial(fxaaMaterial);
 

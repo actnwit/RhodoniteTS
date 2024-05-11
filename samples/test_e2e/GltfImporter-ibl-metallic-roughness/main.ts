@@ -99,7 +99,17 @@ function createEnvCubeExpression(baseuri) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  const sampler = new Rn.Sampler({
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+    minFilter: Rn.TextureParameter.LinearMipmapLinear,
+    magFilter: Rn.TextureParameter.Linear,
+  });
+  sphereMaterial.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    environmentCubeTexture,
+    sampler
+  );
 
   const spherePrimitive = new Rn.Sphere();
   spherePrimitive.generate({

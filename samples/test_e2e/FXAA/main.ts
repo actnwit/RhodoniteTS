@@ -115,7 +115,17 @@ async function setupRenderPassMain() {
     environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
     environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   }
-  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  const samplerSphere = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.LinearMipmapLinear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  sphereMaterial.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    environmentCubeTexture,
+    samplerSphere
+  );
   sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
   const sphereMeshComponent = sphereEntity.getMesh();
   const sphereMesh = new Rn.Mesh();

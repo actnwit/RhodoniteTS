@@ -69,9 +69,16 @@ const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
 
 const renderPassSynthesizeGlare = renderPassesSynthesizeImages[1];
 const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const sampler = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.Linear,
+  wrapS: Rn.TextureParameter.ClampToEdge,
+  wrapT: Rn.TextureParameter.ClampToEdge,
+});
 materialGamma.setTextureParameter(
   Rn.ShaderSemantics.BaseColorTexture,
-  renderPassSynthesizeGlare.getFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
+  renderPassSynthesizeGlare.getFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture,
+  sampler
 );
 
 const renderPassGamma = createRenderPassPostEffect(materialGamma, cameraComponentPostEffect);
@@ -121,7 +128,17 @@ function createEntityEnvironmentCube(basePathIBL: string) {
     makeOutputSrgb: false,
   });
   materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
-  materialSphere.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, cubeTextureEnvironment);
+  const samplerSphere = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.LinearMipmapLinear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  materialSphere.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    cubeTextureEnvironment,
+    samplerSphere
+  );
 
   const primitiveSphere = new Rn.Sphere();
   primitiveSphere.generate({
@@ -327,7 +344,13 @@ function createRenderPassGaussianBlur(
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
+  const sampler = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget, sampler);
 
   const renderPass = createRenderPassPostEffect(material, cameraComponentPostEffect);
   createAndSetFramebuffer(renderPass, resolutionBlur, 1, {});

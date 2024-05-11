@@ -28,9 +28,16 @@ const renderPassMain = await createRenderPassMain(uriGltf, basePathIBL, entityMa
 createAndSetFrameBufferAndMSAAFramebuffer(renderPassMain, rnCanvasElement.width);
 
 const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
+const sampler = new Rn.Sampler({
+  wrapS: Rn.TextureParameter.ClampToEdge,
+  wrapT: Rn.TextureParameter.ClampToEdge,
+  minFilter: Rn.TextureParameter.Linear,
+  magFilter: Rn.TextureParameter.Linear,
+});
 materialGamma.setTextureParameter(
   Rn.ShaderSemantics.BaseColorTexture,
-  renderPassMain.getResolveFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
+  renderPassMain.getResolveFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture,
+  sampler
 );
 const renderPassGamma = createRenderPassPostEffect(
   materialGamma,
@@ -96,7 +103,17 @@ function createEntityEnvironmentCube(basePathIBL: string) {
     makeOutputSrgb: false,
   });
   materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
-  materialSphere.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, cubeTextureEnvironment);
+  const sampler = new Rn.Sampler({
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+    minFilter: Rn.TextureParameter.Linear,
+    magFilter: Rn.TextureParameter.Linear,
+  });
+  materialSphere.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    cubeTextureEnvironment,
+    sampler
+  );
 
   const primitiveSphere = new Rn.Sphere();
   primitiveSphere.generate({

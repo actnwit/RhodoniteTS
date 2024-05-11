@@ -144,7 +144,13 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   material.setParameter(Rn.ShaderSemantics.FramebufferWidth, framebufferTarget.width);
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget);
+  const sampler = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget, sampler);
 
   const boardEntity = Rn.MeshHelper.createPlane({
     width: 2,

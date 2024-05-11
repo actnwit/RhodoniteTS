@@ -117,7 +117,7 @@ export class Material extends RnObject {
   public setTextureParameter(
     shaderSemantic: ShaderSemanticsEnum,
     texture: AbstractTexture,
-    sampler?: Sampler
+    sampler: Sampler
   ): void {
     let samplerObj = sampler;
     // if (sampler == null) {
