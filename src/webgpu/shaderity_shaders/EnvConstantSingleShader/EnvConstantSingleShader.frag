@@ -9,7 +9,7 @@
 // #param diffuseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 @group(1) @binding(0) var colorEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(0) var colorEnvSampler: sampler;
-// #param makeOutputSrgb: bool; // initialValue=true
+// #param makeOutputSrgb: f32; // initialValue=1
 // #param inverseEnvironment: bool; // initialValue=true
 
 fn linearToSrgb(linearColor: vec3f) -> vec3f {
@@ -54,5 +54,10 @@ fn main(
   }
   diffuseColor *= vec4f(textureColor, 1.0);
 
-  return diffuseColor;
+  var resultColor = diffuseColor.rgb;
+  let resultAlpha = diffuseColor.a;
+
+#pragma shaderity: require(../common/outputSrgb.wgsl)
+
+  return vec4f(resultColor, resultAlpha);
 }
