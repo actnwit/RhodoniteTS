@@ -685,26 +685,61 @@ export class WebGpuResourceRepository
     const colorAttachments: GPURenderPassColorAttachment[] = [];
     let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined;
     if (renderPass.toClearColorBuffer) {
-      const textureView = context.getCurrentTexture().createView();
-      colorAttachments.push({
-        view: textureView,
-        clearValue: {
-          r: renderPass.clearColor.x,
-          g: renderPass.clearColor.y,
-          b: renderPass.clearColor.z,
-          a: renderPass.clearColor.w,
-        },
-        loadOp: 'clear',
-        storeOp: 'store',
-      });
+      const framebuffer = renderPass.getFramebuffer();
+      if (framebuffer != null) {
+        for (let colorAttachment of framebuffer.colorAttachments) {
+          const texture = this.__webGpuResources.get(
+            colorAttachment._textureResourceUid
+          ) as GPUTexture;
+          const textureView = texture.createView();
+          colorAttachments.push({
+            view: textureView,
+            clearValue: {
+              r: renderPass.clearColor.x,
+              g: renderPass.clearColor.y,
+              b: renderPass.clearColor.z,
+              a: renderPass.clearColor.w,
+            },
+            loadOp: 'clear',
+            storeOp: 'store',
+          });
+        }
+      } else {
+        const textureView = context.getCurrentTexture().createView();
+        colorAttachments.push({
+          view: textureView,
+          clearValue: {
+            r: renderPass.clearColor.x,
+            g: renderPass.clearColor.y,
+            b: renderPass.clearColor.z,
+            a: renderPass.clearColor.w,
+          },
+          loadOp: 'clear',
+          storeOp: 'store',
+        });
+      }
     }
     if (renderPass.toClearDepthBuffer) {
-      depthStencilAttachment = {
-        view: this.__systemDepthTexture!.createView(),
-        depthClearValue: renderPass.clearDepth,
-        depthLoadOp: 'clear',
-        depthStoreOp: 'store',
-      };
+      const framebuffer = renderPass.getFramebuffer();
+      if (framebuffer != null && framebuffer.depthAttachment != null) {
+        const depthTexture = this.__webGpuResources.get(
+          framebuffer.depthAttachment._textureResourceUid
+        ) as GPUTexture;
+        const depthTextureView = depthTexture.createView();
+        depthStencilAttachment = {
+          view: depthTextureView,
+          depthClearValue: renderPass.clearDepth,
+          depthLoadOp: 'clear',
+          depthStoreOp: 'store',
+        };
+      } else {
+        depthStencilAttachment = {
+          view: this.__systemDepthTextureView!,
+          depthClearValue: renderPass.clearDepth,
+          depthLoadOp: 'clear',
+          depthStoreOp: 'store',
+        };
+      }
     }
 
     const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -780,22 +815,56 @@ export class WebGpuResourceRepository
 
     if (this.__renderPassEncoder == null) {
       const context = this.__webGpuDeviceWrapper!.context;
-      const textureView = context.getCurrentTexture().createView();
-      const renderPassDescriptor: GPURenderPassDescriptor = {
-        colorAttachments: [
-          {
-            view: textureView,
+      const framebuffer = renderPass.getFramebuffer();
+      if (framebuffer != null) {
+        let depthTextureView = this.__systemDepthTextureView!;
+        if (framebuffer.depthAttachment != null) {
+          const depthTexture = this.__webGpuResources.get(
+            framebuffer.depthAttachment._textureResourceUid
+          ) as GPUTexture;
+          if (depthTexture != null) {
+            depthTextureView = depthTexture.createView();
+          }
+        }
+        const renderPassDescriptor: GPURenderPassDescriptor = {
+          colorAttachments: [],
+          depthStencilAttachment: {
+            view: depthTextureView,
+            depthLoadOp: 'load',
+            depthStoreOp: 'store',
+          },
+        };
+        const colorAttachments = [];
+        for (let colorAttachment of framebuffer.colorAttachments) {
+          const texture = this.__webGpuResources.get(
+            colorAttachment._textureResourceUid
+          ) as GPUTexture;
+          colorAttachments.push({
+            view: texture.createView(),
             loadOp: 'load',
             storeOp: 'store',
+          });
+        }
+        renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
+        this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+      } else {
+        const textureView = context.getCurrentTexture().createView();
+        const renderPassDescriptor: GPURenderPassDescriptor = {
+          colorAttachments: [
+            {
+              view: textureView,
+              loadOp: 'load',
+              storeOp: 'store',
+            },
+          ],
+          depthStencilAttachment: {
+            view: this.__systemDepthTextureView!,
+            depthLoadOp: 'load',
+            depthStoreOp: 'store',
           },
-        ],
-        depthStencilAttachment: {
-          view: this.__systemDepthTextureView!,
-          depthLoadOp: 'load',
-          depthStoreOp: 'store',
-        },
-      };
-      this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+        };
+        this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+      }
     }
     this.__renderPassEncoder.executeBundles([this.__RenderBundleMap.get(renderPipelineId)!]);
   }

@@ -256,7 +256,7 @@ export class System {
 
                 if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
                   // bind Framebuffer
-                  System.bindFramebuffer(renderPass, rnXRModule);
+                  System.bindFramebufferWebGL(renderPass, rnXRModule);
 
                   // set Viewport for Normal (Not WebXR)
                   System.setViewportForNormalRendering(renderPass, rnXRModule);
@@ -349,7 +349,7 @@ export class System {
     }
   }
 
-  private static bindFramebuffer(renderPass: RenderPass, rnXRModule?: RnXR) {
+  private static bindFramebufferWebGL(renderPass: RenderPass, rnXRModule?: RnXR) {
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const webARSystem = rnXRModule?.WebARSystem.getInstance();
     if (webXRSystem?.isWebXRMode && renderPass.isOutputForVr) {
