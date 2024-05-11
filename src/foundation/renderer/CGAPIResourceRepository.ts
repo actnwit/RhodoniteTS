@@ -262,4 +262,25 @@ export interface ICGAPIResourceRepository {
       generateMipmap: boolean;
     }
   ): Promise<CGAPIResourceHandle>;
+
+  /**
+   * create a RenderTargetTexture
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTexture({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+  }: {
+    width: Size;
+    height: Size;
+    level: Index;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+  }): CGAPIResourceHandle;
 }

@@ -1602,6 +1602,43 @@ export class WebGpuResourceRepository
     return handler;
   }
 
+  /**
+   * create a RenderTargetTexture
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTexture({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+  }: {
+    width: Size;
+    height: Size;
+    level: Index;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+  }): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, 1],
+      format: 'rgba8unorm',
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_SRC |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const textureHandle = this.__registerResource(gpuTexture);
+
+    return textureHandle;
+  }
+
   recreateSystemDepthTexture() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const canvas = this.__webGpuDeviceWrapper!.canvas;
