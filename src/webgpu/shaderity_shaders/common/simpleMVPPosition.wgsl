@@ -1,4 +1,4 @@
-let worldMatrix = get_worldMatrix(a_instanceInfo.x);
+let worldMatrix = get_worldMatrix(u32(instance_ids.x));
 
 #ifdef RN_NO_CAMERA_TRANSFORM
   output.position = worldMatrix * vec4f(position, 1.0);

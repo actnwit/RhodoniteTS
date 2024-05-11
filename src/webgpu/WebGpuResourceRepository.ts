@@ -772,10 +772,27 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
     if (!this.__RenderBundleMap.has(renderPipelineId) || recreated) {
-      const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+      const framebuffer = renderPass.getFramebuffer();
+      let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
+      let depthStencilFormat = this.__systemDepthTexture!.format;
+      if (framebuffer != null) {
+        colorFormats = [];
+        for (let colorAttachment of framebuffer.colorAttachments) {
+          const texture = this.__webGpuResources.get(
+            colorAttachment._textureResourceUid
+          ) as GPUTexture;
+          colorFormats.push(texture.format);
+        }
+        if (framebuffer.depthAttachment != null) {
+          const depthTexture = this.__webGpuResources.get(
+            framebuffer.depthAttachment._textureResourceUid
+          ) as GPUTexture;
+          depthStencilFormat = depthTexture.format;
+        }
+      }
       const renderBundleDescriptor: GPURenderBundleEncoderDescriptor = {
-        colorFormats: [presentationFormat],
-        depthStencilFormat: 'depth24plus',
+        colorFormats: colorFormats,
+        depthStencilFormat: depthStencilFormat,
         sampleCount: 1,
       };
       const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
@@ -1004,7 +1021,38 @@ export class WebGpuResourceRepository
 
     const mode = primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
+    let stripIndexFormat = undefined;
+    if (topology === 'triangle-strip' || topology === 'line-strip') {
+      stripIndexFormat = primitive.getIndexBitSize();
+    }
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid);
+    const framebuffer = renderPass.getFramebuffer();
+    let targets: GPUColorTargetState[] = [
+      {
+        // @location(0) in fragment shader
+        format: presentationFormat,
+        blend,
+      },
+    ];
+    let depthStencilFormat = 'depth24plus' as GPUTextureFormat;
+    if (framebuffer != null) {
+      targets = [];
+      for (let colorAttachment of framebuffer.colorAttachments) {
+        const texture = this.__webGpuResources.get(
+          colorAttachment._textureResourceUid
+        ) as GPUTexture;
+        targets.push({
+          format: texture.format,
+          blend,
+        });
+      }
+      if (framebuffer.depthAttachment != null) {
+        const depthTexture = this.__webGpuResources.get(
+          framebuffer.depthAttachment._textureResourceUid
+        ) as GPUTexture;
+        depthStencilFormat = depthTexture.format;
+      }
+    }
     const pipeline = gpuDevice.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
@@ -1023,22 +1071,16 @@ export class WebGpuResourceRepository
         constants: {
           _materialSID: material.materialSID,
         },
-        targets: [
-          // 0
-          {
-            // @location(0) in fragment shader
-            format: presentationFormat,
-            blend,
-          },
-        ],
+        targets: targets,
       },
       primitive: {
         topology: topology as GPUPrimitiveTopology,
+        stripIndexFormat: stripIndexFormat,
       },
       depthStencil: {
         depthWriteEnabled: true,
         depthCompare: 'less',
-        format: 'depth24plus',
+        format: depthStencilFormat,
       },
     });
 
@@ -1738,7 +1780,7 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
-      format: 'rgba8unorm',
+      format: internalFormat.webgpu as GPUTextureFormat,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_SRC |
@@ -1753,12 +1795,66 @@ export class WebGpuResourceRepository
   }
 
   /**
+   * create Renderbuffer
+   */
+  createRenderBuffer(
+    width: Size,
+    height: Size,
+    internalFormat: TextureParameterEnum,
+    isMSAA: boolean,
+    sampleCountMSAA: Count
+  ): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, 1],
+      format: internalFormat.webgpu as GPUTextureFormat,
+      usage: GPUTextureUsage.COPY_SRC | GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const textureHandle = this.__registerResource(gpuTexture);
+
+    return textureHandle;
+  }
+
+  /**
+   * attach the DepthBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a DepthBuffer
+   */
+  attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void {}
+
+  /**
+   * attach the StencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a StencilBuffer
+   */
+  attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void {}
+
+  /**
+   * attach the depthStencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a depthStencilBuffer
+   */
+  attachDepthStencilBufferToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    renderable: IRenderable
+  ): void {}
+
+  /**
    * create a FrameBufferObject
    * @returns
    */
   createFrameBufferObject() {
     return -1;
   }
+
+  /**
+   * delete a FrameBufferObject
+   * @param frameBufferObjectHandle
+   */
+  deleteFrameBufferObject(frameBufferObjectHandle: WebGPUResourceHandle): void {}
 
   /**
    * attach the ColorBuffer to the FrameBufferObject

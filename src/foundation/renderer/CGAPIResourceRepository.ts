@@ -316,4 +316,45 @@ export interface ICGAPIResourceRepository {
     index: Index,
     renderable: IRenderable
   ): void;
+
+  /**
+   * create Renderbuffer
+   */
+  createRenderBuffer(
+    width: Size,
+    height: Size,
+    internalFormat: TextureParameterEnum,
+    isMSAA: boolean,
+    sampleCountMSAA: Count
+  ): CGAPIResourceHandle;
+
+  /**
+   * attach the DepthBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a DepthBuffer
+   */
+  attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+
+  /**
+   * attach the StencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a StencilBuffer
+   */
+  attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+
+  /**
+   * attach the depthStencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a depthStencilBuffer
+   */
+  attachDepthStencilBufferToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    renderable: IRenderable
+  ): void;
+
+  /**
+   * delete a FrameBufferObject
+   * @param frameBufferObjectHandle
+   */
+  deleteFrameBufferObject(frameBufferObjectHandle: CGAPIResourceHandle): void;
 }

@@ -37,8 +37,8 @@ export class RenderBuffer extends RnObject implements IRenderable {
     this.__isMSAA = isMSAA;
     this.__sampleCountMSAA = sampleCountMSAA;
     this.__internalFormat = internalFormat;
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    this._textureResourceUid = webglResourceRepository.createRenderBuffer(
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    this._textureResourceUid = cgApiResourceRepository.createRenderBuffer(
       width,
       height,
       internalFormat,

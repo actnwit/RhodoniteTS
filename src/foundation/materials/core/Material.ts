@@ -27,7 +27,7 @@ import { Is } from '../../misc/Is';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
 import type { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions';
+import { ShaderSemanticsInfo, TextureParameter } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
@@ -119,6 +119,18 @@ export class Material extends RnObject {
     texture: AbstractTexture,
     sampler?: Sampler
   ): void {
+    let samplerObj = sampler;
+    if (sampler == null) {
+      samplerObj = new Sampler({
+        wrapS: TextureParameter.Repeat,
+        wrapT: TextureParameter.Repeat,
+        wrapR: TextureParameter.Repeat,
+        minFilter: TextureParameter.Linear,
+        magFilter: TextureParameter.Linear,
+        anisotropy: false,
+      });
+    }
+
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const setter = async () => {
         if (typeof (texture as Texture).loadFromUrlLazy !== 'undefined') {
@@ -127,7 +139,7 @@ export class Material extends RnObject {
         }
         const array = this._allFieldVariables.get(shaderSemantic.index)!;
         const shaderVariable = {
-          value: [array.value[0], texture, sampler],
+          value: [array.value[0], texture, samplerObj],
           info: array.info,
         };
         this._allFieldVariables.set(shaderSemantic.index, shaderVariable);

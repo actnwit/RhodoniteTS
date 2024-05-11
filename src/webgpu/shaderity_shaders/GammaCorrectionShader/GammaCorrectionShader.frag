@@ -12,12 +12,12 @@
 #pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
 
 @fragment
-void main (
+fn main (
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  let baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
+  var baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
 
   if (get_enableLinearToSrgb(materialSID, 0)) {
     baseColor = vec4f(linearToSrgb(baseColor.rgb), baseColor.a);
