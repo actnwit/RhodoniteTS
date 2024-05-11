@@ -115,7 +115,11 @@ fn main(
   metallic = ormTexel.b * metallic;
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
-
+  let alphaRoughness = perceptualRoughness * perceptualRoughness;
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+  let alphaRoughness2 = alphaRoughness * alphaRoughness;
+  let filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
+  perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
   // Albedo
   let black = vec3f(0.0);
@@ -165,6 +169,7 @@ fn main(
   resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
 
   resultAlpha = baseColor.a;
+  // resultColor = vec3f(perceptualRoughness, 0.0, 0.0);
 #pragma shaderity: require(../common/outputSrgb.wgsl)
   return vec4f(resultColor * resultAlpha, resultAlpha);
 }

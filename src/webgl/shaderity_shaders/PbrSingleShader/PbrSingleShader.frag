@@ -469,6 +469,7 @@ void main ()
 
   // premultiplied alpha
   // rt0.rgb /= alpha;
+  // rt0 = vec4(perceptualRoughness, 0.0, 0.0, 1.0);
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
 rt1 = rt0;
