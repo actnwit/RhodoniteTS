@@ -28,6 +28,7 @@ cameraComponent.aspect = 1;
 cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 const cameraControllerComponent = cameraEntity.getCameraController();
 cameraControllerComponent.controller.setTarget(rootGroup);
+(cameraControllerComponent.controller as Rn.OrbitCameraController).autoUpdate = false;
 
 // Light
 const light = Rn.EntityHelper.createLightEntity();
@@ -59,6 +60,7 @@ const draw = function () {
   }
 
   if (window.isAnimating) {
+    Rn.AnimationComponent.isAnimating = true;
     const date = new Date();
     const rotation = 0.001 * (date.getTime() - startTime);
     //rotationVec3._v[0] = 0.1;
@@ -69,6 +71,8 @@ const draw = function () {
     if (time > Rn.AnimationComponent.endInputValue) {
       startTime = date.getTime();
     }
+  } else {
+    Rn.AnimationComponent.isAnimating = false;
   }
 
   //      console.log(date.getTime());
