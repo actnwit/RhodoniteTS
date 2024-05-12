@@ -23,6 +23,7 @@ fn main(
 #pragma shaderity: require(../common/simpleMVPPosition.wgsl)
 
   output.texcoord_0 = texcoord_0;
+  output.texcoord_0.y = 1.0 - output.texcoord_0.y;
 
   return output;
 
