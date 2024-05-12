@@ -402,6 +402,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
     this.dolly += Math.sign(evt.deltaY) / 200;
+    this.__updated = false;
   }
 
   __contextMenu(evt: Event) {
