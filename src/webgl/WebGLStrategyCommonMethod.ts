@@ -166,17 +166,21 @@ function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
-function startDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
+function startDepthMasking(
+  primitive: Primitive,
+  gl: WebGLRenderingContext,
+  renderPass: RenderPass
+) {
   if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
     return;
   }
-  if (primitive._sortkey === MeshRendererComponent._firstTransparentSortKey) {
+  if (primitive._sortkey === renderPass._firstTransparentSortKey) {
     gl.depthMask(false);
   }
 }
 
-function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext) {
-  if (primitive._sortkey === MeshRendererComponent._lastTransparentSortKey) {
+function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext, renderPass: RenderPass) {
+  if (primitive._sortkey === renderPass._lastTransparentSortKey) {
     gl.depthMask(true);
   }
 }

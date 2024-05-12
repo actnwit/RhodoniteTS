@@ -389,7 +389,7 @@ ${indexStr}
 
       // For opaque primitives
       if (renderPass.toRenderOpaquePrimitives) {
-        for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+        for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
           const primitiveUid = primitiveUids[i];
           this.renderInner(primitiveUid, renderPass, renderPassTickCount);
         }
@@ -402,11 +402,7 @@ ${indexStr}
           // gl.depthMask(false);
         }
 
-        for (
-          let i = MeshRendererComponent._lastOpaqueIndex + 1;
-          i <= MeshRendererComponent._lastTransparentIndex;
-          i++
-        ) {
+        for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
           const primitiveUid = primitiveUids[i];
           this.renderInner(primitiveUid, renderPass, renderPassTickCount);
         }
@@ -421,6 +417,9 @@ ${indexStr}
   }
 
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {
+    if (primitiveUid === -1) {
+      return false;
+    }
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);

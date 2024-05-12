@@ -25,6 +25,8 @@ import { Primitive } from '../../geometry/Primitive';
 import { isSkipDrawing } from '../../renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
+import { TransformComponent } from '../Transform/TransformComponent';
+import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture;
@@ -36,11 +38,6 @@ export class MeshRendererComponent extends Component {
   private __meshComponent?: MeshComponent;
 
   private static __webglRenderingStrategy?: CGAPIStrategy;
-  public static _lastOpaqueIndex = -1;
-  public static _lastTransparentIndex = -1;
-  public static _firstTransparentSortKey = -1;
-  public static _lastTransparentSortKey = -1;
-  public static isViewFrustumCullingEnabled = true;
   public static isDepthMaskTrueForTransparencies = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
@@ -156,6 +153,14 @@ export class MeshRendererComponent extends Component {
   }
 
   private static sort_$render_inner(renderPass: RenderPass) {
+    if (
+      TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
+      CameraControllerComponent.updateCount ===
+        renderPass._lastCameraControllerComponentsUpdateCount
+    ) {
+      return renderPass._lastPrimitiveUids;
+    }
+
     // get CameraComponent
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
@@ -200,25 +205,30 @@ export class MeshRendererComponent extends Component {
     const primitiveUids = primitives.map((primitive) => primitive.primitiveUid);
     primitiveUids.push(-1);
 
-    MeshRendererComponent._lastOpaqueIndex = primitives.length - 1;
-    MeshRendererComponent._lastTransparentIndex = -1;
-    MeshRendererComponent._firstTransparentSortKey = -1;
-    MeshRendererComponent._lastTransparentSortKey = -1;
+    renderPass._lastOpaqueIndex = primitives.length - 1;
+    renderPass._lastTransparentIndex = -1;
+    renderPass._firstTransparentSortKey = -1;
+    renderPass._lastTransparentSortKey = -1;
+
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
       const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
       const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
       if (isTranslucency) {
-        MeshRendererComponent._lastOpaqueIndex = i - 1;
-        MeshRendererComponent._firstTransparentSortKey = primitive._sortkey;
+        renderPass._lastOpaqueIndex = i - 1;
+        renderPass._firstTransparentSortKey = primitive._sortkey;
         break;
       }
     }
 
     if (primitives.length > 0) {
-      MeshRendererComponent._lastTransparentIndex = primitives.length - 1;
-      MeshRendererComponent._lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
+      renderPass._lastTransparentIndex = primitives.length - 1;
+      renderPass._lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
     }
+
+    renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    renderPass._lastPrimitiveUids = primitiveUids;
 
     return primitiveUids;
   }
@@ -229,7 +239,7 @@ export class MeshRendererComponent extends Component {
     renderPass: RenderPass
   ) {
     let filteredMeshComponents: MeshComponent[] = [];
-    if (cameraComponent && MeshRendererComponent.isViewFrustumCullingEnabled) {
+    if (cameraComponent) {
       cameraComponent.updateFrustum();
 
       // const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
