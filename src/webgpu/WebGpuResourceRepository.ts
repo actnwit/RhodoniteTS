@@ -927,14 +927,14 @@ export class WebGpuResourceRepository
     meshRendererComponent: MeshRendererComponent,
     cameraId: number
   ): [GPURenderPipeline, boolean] {
-    this.__setupIBLParameters(material, meshRendererComponent);
-
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
       if (materialStateVersion === material.stateVersion) {
         return [this.__webGpuRenderPipelineMap.get(renderPipelineId)!, false];
       }
     }
+
+    this.__setupIBLParameters(material, meshRendererComponent);
 
     this.__webGpuRenderPipelineMap.delete(renderPipelineId);
     this.__materialStateVersionMap.delete(renderPipelineId);
