@@ -761,6 +761,8 @@ export class WebGpuResourceRepository
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     const meshRendererComponent = entity.getMeshRenderer()!;
+    const sceneGraphComponent = entity.getSceneGraph()!;
+    sceneGraphComponent.normalMatrixInner; // update normal matrix. do not remove this line.
     const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent._updateCount}`;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
