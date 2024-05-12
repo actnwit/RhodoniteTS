@@ -757,7 +757,7 @@ export class WebGpuResourceRepository
     passEncoder.end();
   }
 
-  draw(primitive: Primitive, material: Material, renderPass: RenderPass) {
+  draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number) {
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     const meshRendererComponent = entity.getMeshRenderer()!;
@@ -770,7 +770,8 @@ export class WebGpuResourceRepository
       primitive,
       material,
       renderPass,
-      meshRendererComponent
+      meshRendererComponent,
+      cameraId
     );
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -923,7 +924,8 @@ export class WebGpuResourceRepository
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    meshRendererComponent: MeshRendererComponent
+    meshRendererComponent: MeshRendererComponent,
+    cameraId: number
   ): [GPURenderPipeline, boolean] {
     this.__setupIBLParameters(material, meshRendererComponent);
 
@@ -1057,6 +1059,7 @@ export class WebGpuResourceRepository
         depthStencilFormat = depthTexture.format;
       }
     }
+
     const pipeline = gpuDevice.createRenderPipeline({
       layout: pipelineLayout,
       vertex: {
@@ -1066,6 +1069,7 @@ export class WebGpuResourceRepository
           _materialSID: material.materialSID,
           _currentPrimitiveIdx: primitiveIdxHasMorph ?? 0,
           _morphTargetNumber: primitive.targets.length,
+          cameraSID: cameraId,
         },
         buffers: gpuVertexBufferLayouts,
       },
