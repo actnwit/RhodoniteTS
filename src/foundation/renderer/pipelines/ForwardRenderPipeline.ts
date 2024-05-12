@@ -231,6 +231,14 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     // set depth moment texture to entity materials in main expressions
+    const sampler = new Sampler({
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      anisotropy: false,
+    });
+    sampler.create();
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         const entities = renderPass.entities;
@@ -244,7 +252,8 @@ export class ForwardRenderPipeline extends RnObject {
                 const material = primitive.material;
                 material.setTextureParameter(
                   ShaderSemantics.DepthTexture,
-                  this.__oFrameDepthMoment.unwrapForce().getColorAttachedRenderTargetTexture(0)!
+                  this.__oFrameDepthMoment.unwrapForce().getColorAttachedRenderTargetTexture(0)!,
+                  sampler
                 );
               }
             }
@@ -691,9 +700,18 @@ export class ForwardRenderPipeline extends RnObject {
       value: 'background-assets',
     });
 
+    const sampler = new Sampler({
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      anisotropy: false,
+    });
+    sampler.create();
     materialGamma.setTextureParameter(
       ShaderSemantics.BaseColorTexture,
-      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
+      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!,
+      sampler
     );
 
     this.__oGammaBoardEntity = new Some(entityGamma);

@@ -82,9 +82,16 @@ primitive2.generate({
   isUVRepeat: false,
 });
 primitive2.material = Rn.MaterialHelper.createClassicUberMaterial({});
+const sampler = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.Linear,
+  wrapS: Rn.TextureParameter.Repeat,
+  wrapT: Rn.TextureParameter.Repeat,
+});
 primitive2.material.setTextureParameter(
   Rn.ShaderSemantics.DiffuseColorTexture,
-  framebuffer.getColorAttachedRenderTargetTexture(0)
+  framebuffer.getColorAttachedRenderTargetTexture(0),
+  sampler
 );
 
 const mesh2 = new Rn.Mesh();
@@ -102,9 +109,16 @@ primitive_fxaa.generate({
   isUVRepeat: false,
 });
 primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+const sampler2 = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.Linear,
+  wrapS: Rn.TextureParameter.Repeat,
+  wrapT: Rn.TextureParameter.Repeat,
+});
 primitive_fxaa.material.setTextureParameter(
   Rn.ShaderSemantics.BaseColorTexture,
-  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0)
+  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0),
+  sampler2
 );
 primitive_fxaa.material.setParameter(
   Rn.ShaderSemantics.ScreenInfo,
@@ -118,9 +132,16 @@ primitive_fxaa.generate({
   isUVRepeat: false,
 });
 primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+const sampler3 = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.Linear,
+  wrapS: Rn.TextureParameter.Repeat,
+  wrapT: Rn.TextureParameter.Repeat,
+});
 primitive_fxaa.material.setTextureParameter(
   Rn.ShaderSemantics.BaseColorTexture,
-  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0)
+  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0),
+  sampler3
 );
 primitive_fxaa.material.setParameter(
   Rn.ShaderSemantics.ScreenInfo,

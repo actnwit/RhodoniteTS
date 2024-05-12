@@ -42,12 +42,12 @@ const setupRenderPassRendering = function (
   return renderPass;
 };
 
-const pick = function (e: any) {
+const pick = async function (e: any) {
   const x = e.offsetX;
   const y = window.canvas.clientHeight - e.offsetY;
   const framebuffer = window.renderPassEntityUidOutput.getFramebuffer();
   const renderTargetTexture = framebuffer.getColorAttachedRenderTargetTexture(0);
-  const pickedPixel = renderTargetTexture.getPixelValueAt(x, y);
+  const pickedPixel = await renderTargetTexture.getPixelValueAt(x, y);
   console.log(pickedPixel.toString());
 
   const bitDec = Rn.Vector4.fromCopyArray([1, 255, 65025, 0]);
@@ -134,7 +134,7 @@ let startTime = Date.now();
 const rotationVec3 = Rn.MutableVector3.one();
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
+Rn.System.startRenderLoop(async () => {
   if (p == null && count > 0) {
     if (response != null) {
       gl.enable(gl.DEPTH_TEST);
@@ -143,7 +143,7 @@ Rn.System.startRenderLoop(() => {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
-    window._pickedEntityUID = pick({ offsetX: 300, offsetY: 300 });
+    window._pickedEntityUID = await pick({ offsetX: 300, offsetY: 300 });
 
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');

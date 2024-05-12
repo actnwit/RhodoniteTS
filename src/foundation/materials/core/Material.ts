@@ -27,7 +27,7 @@ import { Is } from '../../misc/Is';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
 import type { RenderingArg } from '../../../webgl/types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions';
+import { ShaderSemanticsInfo, TextureParameter } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
 import { Blend, BlendEnum } from '../../definitions/Blend';
@@ -117,8 +117,12 @@ export class Material extends RnObject {
   public setTextureParameter(
     shaderSemantic: ShaderSemanticsEnum,
     texture: AbstractTexture,
-    sampler?: Sampler
+    sampler: Sampler
   ): void {
+    if (!sampler.created) {
+      sampler.create();
+    }
+
     if (this._allFieldsInfo.has(shaderSemantic.index)) {
       const setter = async () => {
         if (typeof (texture as Texture).loadFromUrlLazy !== 'undefined') {

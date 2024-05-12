@@ -60,7 +60,17 @@ const environmentCubeTexture = new Rn.CubeTexture();
   const uint8Array = new Uint8Array(buffer);
   environmentCubeTexture.loadTextureImagesFromBasis(uint8Array);
 }
-sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+const samplerSphere = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.LinearMipmapLinear,
+  wrapS: Rn.TextureParameter.ClampToEdge,
+  wrapT: Rn.TextureParameter.ClampToEdge,
+});
+sphereMaterial.setTextureParameter(
+  Rn.ShaderSemantics.ColorEnvTexture,
+  environmentCubeTexture,
+  samplerSphere
+);
 const sphereMeshComponent = sphereEntity.getMesh();
 const sphereMesh = new Rn.Mesh();
 sphereMesh.addPrimitive(spherePrimitive);

@@ -85,7 +85,17 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
   environmentCubeTexture.loadTextureImagesAsync();
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
-  sphereMaterial.setTextureParameter(Rn.ShaderSemantics.ColorEnvTexture, environmentCubeTexture);
+  const sampler = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  sphereMaterial.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    environmentCubeTexture,
+    sampler
+  );
   sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
 
   const sphereEntity = Rn.MeshHelper.createSphere({

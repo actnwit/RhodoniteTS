@@ -970,6 +970,7 @@ export class WebGLResourceRepository
     wrapR,
     anisotropy,
     isPremultipliedAlpha,
+    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -978,6 +979,7 @@ export class WebGLResourceRepository
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
+    shadowCompareMode: boolean;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const sampler = gl.createSampler()!;
@@ -987,6 +989,10 @@ export class WebGLResourceRepository
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_S, wrapS.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_T, wrapT.index);
     gl.samplerParameteri(sampler, gl.TEXTURE_WRAP_R, wrapR.index);
+    if (shadowCompareMode) {
+      gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_MODE, gl.COMPARE_REF_TO_TEXTURE);
+      gl.samplerParameteri(sampler, gl.TEXTURE_COMPARE_FUNC, gl.LESS);
+    }
     if (anisotropy) {
       if (this.__glw!.webgl2ExtTFA) {
         gl.samplerParameteri(sampler, this.__glw!.webgl2ExtTFA!.TEXTURE_MAX_ANISOTROPY_EXT, 4);
@@ -2249,6 +2255,39 @@ export class WebGLResourceRepository
       type: ComponentType.UnsignedByte,
       generateMipmap: false,
     });
+  }
+
+  generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void {
+    const gl = this.__glw!.getRawContext();
+    const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+  }
+
+  async getTexturePixelData(
+    textureHandle: WebGLResourceHandle,
+    width: number,
+    height: number,
+    frameBufferUid: WebGLResourceHandle,
+    colorAttachmentIndex: number
+  ): Promise<Uint8Array> {
+    const gl = this.__glw!.getRawContext();
+
+    // Create a framebuffer backed by the texture
+    const fbo = this.getWebGLResource(frameBufferUid) as WebGLFramebuffer;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    // Read the contents of the framebuffer (data stores the pixel data)
+    const data = new Uint8Array(width * height * 4);
+    if ((gl as WebGL2RenderingContext).readBuffer != null) {
+      (gl as WebGL2RenderingContext).readBuffer(36064 + colorAttachmentIndex); // 36064 means gl.COLOR_ATTACHMENT0
+    }
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return data;
   }
 
   createUniformBuffer(bufferView: TypedArray | DataView) {

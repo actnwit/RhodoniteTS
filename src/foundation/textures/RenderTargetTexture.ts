@@ -48,8 +48,8 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   private __createRenderTargetTexture() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createRenderTargetTexture({
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = cgApiResourceRepository.createRenderTargetTexture({
       width: this.__width,
       height: this.__height,
       level: this.__level,
@@ -71,40 +71,28 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
 
   destroy3DAPIResources() {
     AbstractTexture.__textureMap.delete(this._textureResourceUid);
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(this._textureResourceUid);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
     return true;
   }
 
-  getTexturePixelData() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContext() as WebGLRenderingContext;
-
-    // Create a framebuffer backed by the texture
-    const fbo = webGLResourceRepository.getWebGLResource(
-      this.__fbo!.framebufferUID
-    ) as WebGLFramebuffer;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-    // const texture = webGLResourceRepository.getWebGLResource(this.cgApiResourceUid!) as WebGLTexture;
-    // gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-
-    // Read the contents of the framebuffer (data stores the pixel data)
-    const data = new Uint8Array(this.width * this.height * 4);
-    if ((gl as WebGL2RenderingContext).readBuffer != null) {
-      (gl as WebGL2RenderingContext).readBuffer(36064 + this.__fbo!.whichColorAttachment(this)); // 36064 means gl.COLOR_ATTACHMENT0
-    }
-    gl.readPixels(0, 0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  async getTexturePixelData() {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const data = cgApiResourceRepository.getTexturePixelData(
+      this._textureResourceUid,
+      this.__width,
+      this.__height,
+      this.__fbo!.framebufferUID,
+      this.__fbo!.whichColorAttachment(this)
+    );
 
     return data;
   }
 
-  downloadTexturePixelData() {
-    const data = this.getTexturePixelData();
+  async downloadTexturePixelData() {
+    const data = await this.getTexturePixelData();
     const canvas = document.createElement('canvas');
     canvas.width = this.__width;
     canvas.height = this.__height;
@@ -133,10 +121,10 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
    * @param argByteArray Pixel Data as Uint8Array
    * @returns Pixel Value in Vector4
    */
-  getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Vector4 {
+  async getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Promise<Vector4> {
     let byteArray = argByteArray;
     if (!byteArray) {
-      byteArray = this.getTexturePixelData();
+      byteArray = await this.getTexturePixelData();
     }
 
     const color = Vector4.fromCopyArray([
@@ -149,14 +137,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   generateMipmap() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContext() as WebGLRenderingContext;
-    const texture = webGLResourceRepository.getWebGLResource(
-      this._textureResourceUid
-    ) as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
   }
 }

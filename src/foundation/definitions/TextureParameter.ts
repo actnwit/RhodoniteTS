@@ -105,6 +105,7 @@ const MirroredRepeat: TextureParameterEnum = new TextureParameterClass({
 const RGB8: TextureParameterEnum = new TextureParameterClass({
   index: 0x8051,
   str: 'RGB8',
+  webgpu: 'rgb8unorm',
 });
 const RGBA8: TextureParameterEnum = new TextureParameterClass({
   index: 0x8058,
@@ -114,50 +115,62 @@ const RGBA8: TextureParameterEnum = new TextureParameterClass({
 const RGB10_A2: TextureParameterEnum = new TextureParameterClass({
   index: 0x8059,
   str: 'RGB10_A2',
+  webgpu: 'rgb10a2unorm',
 });
 const RG16F: TextureParameterEnum = new TextureParameterClass({
   index: GL_RG16F,
   str: 'RG16F',
+  webgpu: 'rg16float',
 });
 const RG32F: TextureParameterEnum = new TextureParameterClass({
   index: GL_RG32F,
   str: 'RG32F',
+  webgpu: 'rg32float',
 });
 const RGB16F: TextureParameterEnum = new TextureParameterClass({
   index: 0x881b,
   str: 'RGB16F',
+  webgpu: 'rgba16float',
 });
 const RGB32F: TextureParameterEnum = new TextureParameterClass({
   index: 0x8815,
   str: 'RGB32F',
+  webgpu: 'rgba32float',
 });
 const RGBA16F: TextureParameterEnum = new TextureParameterClass({
   index: 0x881a,
   str: 'RGBA16F',
+  webgpu: 'rgba16float',
 });
 const RGBA32F: TextureParameterEnum = new TextureParameterClass({
   index: 0x8814,
   str: 'RGBA32F',
+  webgpu: 'rgba32float',
 });
 const Depth16: TextureParameterEnum = new TextureParameterClass({
   index: 0x81a5,
   str: 'DEPTH_COMPONENT16',
+  webgpu: 'depth16unorm',
 });
 const Depth24: TextureParameterEnum = new TextureParameterClass({
   index: 0x81a6,
   str: 'DEPTH_COMPONENT24',
+  webgpu: 'depth24plus',
 });
 const Depth32F: TextureParameterEnum = new TextureParameterClass({
   index: 0x8cac,
   str: 'DEPTH_COMPONENT32F',
+  webgpu: 'depth32float',
 });
 const Depth24Stencil8: TextureParameterEnum = new TextureParameterClass({
   index: 0x88f0,
   str: 'DEPTH24_STENCIL8',
+  webgpu: 'depth24plus-stencil8',
 });
 const Depth32FStencil8: TextureParameterEnum = new TextureParameterClass({
   index: 0x8cad,
   str: 'DEPTH32F_STENCIL8',
+  webgpu: 'depth32float-stencil8',
 });
 
 const typeList = [

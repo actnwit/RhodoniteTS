@@ -7,16 +7,13 @@ import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
-import {
-  HdriFormatEnum,
-  ProcessApproach,
-  ShaderSemanticsInfo,
-  VertexAttributeEnum,
-} from '../definitions';
+import { HdriFormatEnum, ProcessApproach, VertexAttributeEnum } from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
+import { IRenderable } from '../textures/IRenderable';
+import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export type DirectTextureData =
   | TypedArray
@@ -224,6 +221,7 @@ export interface ICGAPIResourceRepository {
     wrapR,
     anisotropy,
     isPremultipliedAlpha,
+    shadowCompareMode,
   }: {
     magFilter: TextureParameterEnum;
     minFilter: TextureParameterEnum;
@@ -232,6 +230,7 @@ export interface ICGAPIResourceRepository {
     wrapR: TextureParameterEnum;
     anisotropy: boolean;
     isPremultipliedAlpha?: boolean;
+    shadowCompareMode: boolean;
   }): CGAPIResourceHandle;
 
   /**
@@ -262,4 +261,102 @@ export interface ICGAPIResourceRepository {
       generateMipmap: boolean;
     }
   ): Promise<CGAPIResourceHandle>;
+
+  /**
+   * create a RenderTargetTexture
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTexture({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+  }: {
+    width: Size;
+    height: Size;
+    level: Index;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+  }): CGAPIResourceHandle;
+
+  /**
+   * delete a Texture
+   * @param textureHandle
+   */
+  deleteTexture(textureHandle: CGAPIResourceHandle): void;
+
+  /**
+   * generate Mipmaps
+   */
+  generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
+
+  getTexturePixelData(
+    textureHandle: CGAPIResourceHandle,
+    width: number,
+    height: number,
+    frameBufferUid: CGAPIResourceHandle,
+    colorAttachmentIndex: number
+  ): Promise<Uint8Array>;
+
+  /**
+   * create a FrameBufferObject
+   * @returns
+   */
+  createFrameBufferObject(): CGAPIResourceHandle;
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    index: Index,
+    renderable: IRenderable
+  ): void;
+
+  /**
+   * create Renderbuffer
+   */
+  createRenderBuffer(
+    width: Size,
+    height: Size,
+    internalFormat: TextureParameterEnum,
+    isMSAA: boolean,
+    sampleCountMSAA: Count
+  ): CGAPIResourceHandle;
+
+  /**
+   * attach the DepthBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a DepthBuffer
+   */
+  attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+
+  /**
+   * attach the StencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a StencilBuffer
+   */
+  attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+
+  /**
+   * attach the depthStencilBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a depthStencilBuffer
+   */
+  attachDepthStencilBufferToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    renderable: IRenderable
+  ): void;
+
+  /**
+   * delete a FrameBufferObject
+   * @param frameBufferObjectHandle
+   */
+  deleteFrameBufferObject(frameBufferObjectHandle: CGAPIResourceHandle): void;
 }

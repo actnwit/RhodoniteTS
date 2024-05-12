@@ -183,6 +183,8 @@ ${indexStr}
         str += '  let col0 = fetchElement(vec4_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += `  let val = i32(col0.x);`;
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
           str += `  let val = bool(col0.x);`;
         } else {
@@ -193,6 +195,8 @@ ${indexStr}
         str += '  let col0 = fetchScalarNo16BytesAligned(scalar_idx);\n';
         if (info.componentType === ComponentType.Int) {
           str += '  let val = i32(col0);';
+        } else if (info.componentType === ComponentType.UnsignedInt) {
+          str += '  let val = u32(col0);';
         } else if (info.componentType === ComponentType.Bool) {
           str += '  let val = bool(col0);';
         } else {
@@ -380,8 +384,6 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
-    this.__setCurrentComponentSIDsForEachRenderPass(renderPass, 0, false);
-
     for (let j = 0; j < renderPass.drawCount; j++) {
       renderPass.doPreEachDraw(j);
 
@@ -427,7 +429,8 @@ ${indexStr}
     }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    webGpuResourceRepository.draw(primitive, material, renderPass);
+    const cameraID = this.__setCurrentComponentSIDsForEachRenderPass(renderPass, 0, false);
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraID);
 
     return true;
   }
@@ -539,7 +542,7 @@ ${indexStr}
     renderPass: RenderPass,
     displayIdx: 0 | 1,
     isVRMainPass: boolean
-  ) {
+  ): number {
     if (isVRMainPass) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       const webxrSystem = rnXRModule.WebXRSystem.getInstance();
@@ -553,6 +556,7 @@ ${indexStr}
       }
       WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
         cameraComponentSid;
+      return cameraComponentSid;
     } else {
       // Non-VR Rendering
       let cameraComponent = renderPass.cameraComponent;
@@ -566,9 +570,11 @@ ${indexStr}
       if (cameraComponent) {
         WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
           cameraComponent.componentSID;
+        return cameraComponent.componentSID;
       } else {
         WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
           -1;
+        return -1;
       }
     }
   }

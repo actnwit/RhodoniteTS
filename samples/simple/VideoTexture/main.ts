@@ -13,7 +13,13 @@ const gl = await Rn.System.init({
 const texture = new Rn.VideoTexture();
 texture.generateTextureFromUri('../../../assets/videos/video.mp4');
 const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
+const sampler = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.LinearMipmapLinear,
+  wrapS: Rn.TextureParameter.Repeat,
+  wrapT: Rn.TextureParameter.Repeat,
+});
+modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture, sampler);
 window.texture = texture;
 
 const planeEntity = Rn.EntityHelper.createMeshEntity();

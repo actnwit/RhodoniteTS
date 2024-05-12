@@ -104,3 +104,14 @@ fn gltfBRDF(
 
   return finalColor;
 }
+
+fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
+  let SIGMA2 = 0.15915494;
+  let KAPPA = 0.18;
+  let dndu  = dpdx(normal);
+  let dndv = dpdy(normal);
+  let kernelRoughness2 = SIGMA2 * (dot(dndu, dndu) + dot(dndv, dndv));
+  let clampedKernelRoughness2 = min(kernelRoughness2, KAPPA);
+  let filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
+  return filteredRoughness2;
+}

@@ -145,7 +145,17 @@ function createPostEffectCameraEntity() {
   return cameraEntity;
 }
 
-function setTextureParameterForMeshComponents(meshComponents, shaderSemantic, value) {
+function setTextureParameterForMeshComponents(
+  meshComponents: Rn.MeshComponent[],
+  shaderSemantic: Rn.ShaderSemanticsEnum,
+  value: Rn.RenderTargetTexture
+) {
+  const sampler = new Rn.Sampler({
+    magFilter: Rn.TextureParameter.Linear,
+    minFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
   for (let i = 0; i < meshComponents.length; i++) {
     const mesh = meshComponents[i].mesh;
     if (!mesh) continue;
@@ -153,7 +163,7 @@ function setTextureParameterForMeshComponents(meshComponents, shaderSemantic, va
     const primitiveNumber = mesh.getPrimitiveNumber();
     for (let j = 0; j < primitiveNumber; j++) {
       const primitive = mesh.getPrimitiveAt(j);
-      primitive.material.setTextureParameter(shaderSemantic, value);
+      primitive.material.setTextureParameter(shaderSemantic, value, sampler);
     }
   }
 }

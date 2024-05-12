@@ -36,15 +36,29 @@
 // #param metallicRoughnessTextureRotation: f32; // initialValue=0
 // #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
 
+@group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(3) var occlusionSampler: sampler;
+// #param occlusionTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param occlusionTextureRotation: f32; // initialValue=0
+// #param occlusionTexcoordIndex: u32; // initialValue=0
+// #param occlusionStrength: f32; // initialValue=1
+
+// #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
+// #param emissiveTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param emissiveTextureRotation: f32; // initialValue=0
+// #param emissiveTexcoordIndex: u32; // initialValue=0
+@group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(4) var emissiveSampler: sampler;
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(17) var specularEnvSampler: sampler;
 
 
-// #param iblParameter: vec4<f32>; // initialValue=(0,0,0,0)
-// #param hdriFormat: vec2<i32>; // initialValue=(0,0)
-// #param inverseEnvironment: bool; // initialValue=(false)
+// #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isCustomSetting=true
+// #param hdriFormat: vec2<i32>; // initialValue=(0,0), isCustomSetting=true
+// #param inverseEnvironment: bool; // initialValue=true
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
@@ -108,6 +122,11 @@ fn main(
   metallic = ormTexel.b * metallic;
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
+  let alphaRoughness = perceptualRoughness * perceptualRoughness;
+    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+  let alphaRoughness2 = alphaRoughness * alphaRoughness;
+  let filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
+  perceptualRoughness = sqrt(sqrt(filteredRoughness2));
 
   // Albedo
   let black = vec3f(0.0);
@@ -144,9 +163,31 @@ fn main(
 
   let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness);
-  resultColor += ibl;
+
+  let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+  let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
+  let occlusionTextureTransform = get_occlusionTextureTransform(materialSID, 0);
+  let occlusionTextureRotation = get_occlusionTextureRotation(materialSID, 0);
+  let occlusionTexUv = uvTransform(occlusionTextureTransform.xy, occlusionTextureTransform.zw, occlusionTextureRotation, occlusionTexcoord);
+  let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
+  let occlusionStrength = get_occlusionStrength(materialSID, 0);
+
+  // Occlution to Indirect Lights
+  resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
+
+  // Emissive
+  let emissiveFactor = get_emissiveFactor(materialSID, 0);
+  let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+  let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+  let emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
+  let emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
+  let emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
+  let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+
+  resultColor += emissive;
 
   resultAlpha = baseColor.a;
+  // resultColor = vec3f(perceptualRoughness, 0.0, 0.0);
 #pragma shaderity: require(../common/outputSrgb.wgsl)
   return vec4f(resultColor * resultAlpha, resultAlpha);
 }
