@@ -43,6 +43,13 @@
 // #param occlusionTexcoordIndex: u32; // initialValue=0
 // #param occlusionStrength: f32; // initialValue=1
 
+// #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
+// #param emissiveTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param emissiveTextureRotation: f32; // initialValue=0
+// #param emissiveTexcoordIndex: u32; // initialValue=0
+@group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(4) var emissiveSampler: sampler;
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
@@ -167,6 +174,17 @@ fn main(
 
   // Occlution to Indirect Lights
   resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
+
+  // Emissive
+  let emissiveFactor = get_emissiveFactor(materialSID, 0);
+  let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+  let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+  let emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
+  let emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
+  let emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
+  let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+
+  resultColor += emissive;
 
   resultAlpha = baseColor.a;
   // resultColor = vec3f(perceptualRoughness, 0.0, 0.0);
