@@ -46,6 +46,14 @@ export class RenderPass extends RnObject {
   public isVrRendering = true;
   public isOutputForVr = false;
 
+  public _lastOpaqueIndex = -1;
+  public _lastTransparentIndex = -1;
+  public _firstTransparentSortKey = -1;
+  public _lastTransparentSortKey = -1;
+  public _lastPrimitiveUids: number[] = [];
+  public _lastTransformComponentsUpdateCount = -1;
+  public _lastCameraControllerComponentsUpdateCount = -1;
+
   /** Whether or not to draw opaque primitives contained in this render pass. */
   public toRenderOpaquePrimitives = true;
 

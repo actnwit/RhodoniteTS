@@ -21,6 +21,7 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 export class CameraControllerComponent extends Component {
   private __cameraComponent?: CameraComponent;
   private __cameraController: ICameraController;
+  private static __updateCount = 0;
 
   constructor(
     entityUid: EntityUID,
@@ -75,7 +76,12 @@ export class CameraControllerComponent extends Component {
   $logic() {
     if (this.__cameraController) {
       this.__cameraController.logic(this.__cameraComponent!);
+      CameraControllerComponent.__updateCount = this.__cameraController.updateCount;
     }
+  }
+
+  static get updateCount() {
+    return CameraControllerComponent.__updateCount;
   }
 
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(

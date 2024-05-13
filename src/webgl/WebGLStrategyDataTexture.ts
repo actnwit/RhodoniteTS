@@ -44,6 +44,7 @@ import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsIn
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import { render } from 'react-dom';
 
 declare const spector: any;
 
@@ -755,7 +756,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         // For opaque primitives
         if (renderPass.toRenderOpaquePrimitives) {
-          for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+          for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
             const primitiveUid = primitiveUids[i];
             this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
           }
@@ -769,8 +770,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           }
 
           for (
-            let i = MeshRendererComponent._lastOpaqueIndex + 1;
-            i <= MeshRendererComponent._lastTransparentIndex;
+            let i = renderPass._lastOpaqueIndex + 1;
+            i <= renderPass._lastTransparentIndex;
             i++
           ) {
             const primitiveUid = primitiveUids[i];

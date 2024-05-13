@@ -403,7 +403,7 @@ bool get_isBillboard(float instanceId) {
 
         // For opaque primitives
         if (renderPass.toRenderOpaquePrimitives) {
-          for (let i = 0; i <= MeshRendererComponent._lastOpaqueIndex; i++) {
+          for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
             const primitiveUid = primitiveUids[i];
             this.renderInner(
               primitiveUid,
@@ -424,8 +424,8 @@ bool get_isBillboard(float instanceId) {
           }
 
           for (
-            let i = MeshRendererComponent._lastOpaqueIndex + 1;
-            i <= MeshRendererComponent._lastTransparentIndex;
+            let i = renderPass._lastOpaqueIndex + 1;
+            i <= renderPass._lastTransparentIndex;
             i++
           ) {
             const primitiveUid = primitiveUids[i];

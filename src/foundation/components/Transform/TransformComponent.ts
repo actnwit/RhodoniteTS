@@ -15,13 +15,14 @@ import { ITransformEntity } from '../../helpers';
 import { MutableQuaternion, Transform3D } from '../../math';
 import { Is } from '../../misc';
 import { SceneGraphComponent } from '../SceneGraph';
-import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
   private __pose = new Transform3D();
   private __updateCountAtLastLogic = 0;
   private __sceneGraphComponent?: SceneGraphComponent;
+
+  private static __updateCount = 0;
 
   constructor(
     entityUid: EntityUID,
@@ -56,6 +57,10 @@ export class TransformComponent extends Component {
     } else {
       return this.__pose;
     }
+  }
+
+  static get updateCount() {
+    return this.__updateCount;
   }
 
   _backupTransformAsRest() {
@@ -324,6 +329,7 @@ export class TransformComponent extends Component {
     if (this.__updateCountAtLastLogic !== this.__pose.updateCount) {
       this.__sceneGraphComponent!.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this.__pose.updateCount;
+      TransformComponent.__updateCount++;
     }
   }
 
