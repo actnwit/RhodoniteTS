@@ -1,12 +1,17 @@
 import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
+let isReadyWebVR = false;
+const webXrDom = document.getElementById('enter-webvr');
+
+const webXRProfileBasePath =
+  'https://storage.googleapis.com/emadurandal-3d.appspot.com/webxr/profiles';
 
 window.Rn = Rn;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.WebGPU,
+  approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
@@ -44,6 +49,7 @@ renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);
 renderPass.toClearDepthBuffer = true;
 renderPass.addEntities([rootGroup]);
 renderPass.cameraComponent = cameraComponent;
+renderPass.isOutputForVr = true;
 
 // expression
 const expressions = [];
@@ -58,6 +64,9 @@ await setIBL('./../../../assets/ibl/papermill');
 
 let startTime = Date.now();
 let startTimeForPerformanceNow = 0;
+
+await readyWebVR();
+
 const draw = function () {
   if (count > 0) {
     window._rendered = true;
@@ -103,6 +112,58 @@ window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 
+window.enterWebVR = async function () {
+  const rnXRModule = await Rn.ModuleManager.getInstance().getModule('xr');
+  const webXRSystem = rnXRModule.WebXRSystem.getInstance() as Rn.WebXRSystem;
+  if (!webXRSystem.isWebXRMode) {
+    const controllerEntities = (await webXRSystem.enterWebXR({
+      profilePriorities: [
+        'oculus-touch-v3',
+        'oculus-touch-v2',
+        'oculus-touch',
+        'valve-index',
+        'htc-vive',
+      ],
+      callbackOnXrSessionStart: () => {
+        // resizeMainCanvas();
+      },
+      callbackOnXrSessionEnd: () => {
+        webXRSystem.readyForWebXR(webXrDom, webXRProfileBasePath);
+      },
+    })) as Rn.IMeshEntity[];
+    // if (controllerEntities != null && window.__controllerEntities == null) {
+    //   if (getRnAppModel().getModelOpaqueExpressions()[2] != null) {
+    //     getRnAppModel()
+    //       .getModelOpaqueExpressions()[2]
+    //       .renderPasses[0].addEntities(controllerEntities);
+    //     window.__controllerEntities = controllerEntities;
+    //   }
+    //   // this.$store.dispatch('PcPageStore/changeHDRI');
+    // }
+  } else {
+    await webXRSystem.exitWebXR();
+  }
+};
+
+async function readyWebVR() {
+  const rnXRModule = await Rn.ModuleManager.getInstance().getModule('xr');
+  if (rnXRModule == null) {
+    return;
+  }
+  // WebVR
+  const webXRSystem = rnXRModule.WebXRSystem.getInstance() as Rn.WebXRSystem;
+  webXRSystem
+    .readyForWebXR(webXrDom, webXRProfileBasePath)
+    .then(() => {
+      isReadyWebVR = true;
+      console.log('WebXR is ready.');
+    })
+    .catch(() => {
+      isReadyWebVR = false;
+      console.log('WebXR is not ready.');
+    });
+}
+
 function createEnvCubeExpression(baseuri) {
   const environmentCubeTexture = new Rn.CubeTexture();
   environmentCubeTexture.baseUriToLoad = baseuri + '/environment/environment';
@@ -145,6 +206,7 @@ function createEnvCubeExpression(baseuri) {
 
   const sphereRenderPass = new Rn.RenderPass();
   sphereRenderPass.addEntities([sphereEntity]);
+  sphereRenderPass.isOutputForVr = true;
 
   const sphereExpression = new Rn.Expression();
   sphereExpression.addRenderPasses([sphereRenderPass]);
