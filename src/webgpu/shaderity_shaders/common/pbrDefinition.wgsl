@@ -64,6 +64,20 @@ fn envBRDFApprox( Roughness: f32, NoV: f32 ) -> vec2f {
   return AB;
 }
 
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
+fn coated_material_s(base: vec3f, perceptualRoughness: f32, clearcoatRoughness: f32, clearcoat: f32, VdotNc: f32, LdotNc: f32, NdotHc: f32) -> vec3f {
+  let clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
+  let clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
+  let alphaRoughness = perceptualRoughness * perceptualRoughness;
+  let D = d_GGX(NdotHc, clearcoatAlpha);
+  let V = v_SmithGGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
+  let f_clearcoat = clearcoatFresnel * D * V;
+
+  // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
+  return base * vec3f(1.0 - clearcoat * clearcoatFresnel) + vec3f(f_clearcoat * clearcoat);
+}
+
 ////////////////////////////////////////
 // glTF BRDF for punctual lights
 ////////////////////////////////////////
@@ -76,6 +90,10 @@ fn gltfBRDF(
   perceptualRoughness: f32,
   F0: vec3f,
   F90: vec3f,
+  clearcoat: f32,
+  clearcoatRoughness: f32,
+  clearcoatNormal_inWorld: vec3f,
+  VdotNc: f32,
   ) -> vec3f
 {
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -100,7 +118,17 @@ fn gltfBRDF(
   // Base Layer
   let baseLayer = diffuseContrib + specularContrib;
   let color = baseLayer;
+
+#ifdef RN_USE_CLEARCOAT
+  // Clear Coat Layer
+  let NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
+  let LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
+  let coated = coated_material_s(color, perceptualRoughness,
+    clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
+  let finalColor = coated;
+#else
   let finalColor = color;
+#endif // RN_USE_CLEARCOAT
 
   return finalColor;
 }

@@ -185,7 +185,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }
 
-    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
+    } else {
+      this.setShaderSemanticsInfoArray(
+        shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo)
+      );
+    }
   }
 
   _setCustomSettingParametersToGpuWebGL({

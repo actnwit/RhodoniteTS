@@ -203,3 +203,8 @@ fn getTexcoord(texcoordIndex: u32, input: VertexOutput) -> vec2<f32> {
   }
   return texcoord;
 }
+
+fn saturateEpsilonToOne(x: f32) -> f32 {
+  let Epsilon = 0.0000001;
+  return clamp(x, Epsilon, 1.0);
+}

@@ -121,7 +121,9 @@ fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, 
 }
 
 fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
-  albedo: vec3f, F0: vec3f, perceptualRoughness: f32) -> vec3f
+  albedo: vec3f, F0: vec3f, perceptualRoughness: f32,
+  clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, VdotNc: f32, geomNormal_inWorld: vec3f
+  ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
   let rot = iblParameter.w + 3.1415;
@@ -141,6 +143,18 @@ fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDire
 
   let color = base;
 
+#ifdef RN_USE_CLEARCOAT
+  let VdotNg = dot(geomNormal_inWorld, viewDirection);
+  let clearcoatNormal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  let coatResult: IblResult = getIBLRadianceGGX(materialSID, VdotNc, viewDirection, vec3f(0.0), F0,
+    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, reflection);
+  let coatLayer = coatResult.specular;
+
+  let clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
+  let coated = color * vec3f(1.0 - clearcoat * clearcoatFresnel) + vec3f(coatLayer * clearcoat);
+  return coated;
+#else
   return color;
+#endif
 }
 
