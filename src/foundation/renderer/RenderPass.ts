@@ -363,10 +363,19 @@ export class RenderPass extends RnObject {
       ) {
         continue;
       }
-      webGpuResourceRepository.copyTextureData(
-        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
+      // webGpuResourceRepository.copyTextureData(
+      //   this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
+      //   this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+      // );
+
+      webGpuResourceRepository.deleteTexture(
         this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
       );
+
+      this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid =
+        webGpuResourceRepository.duplicateTextureAsMipmapped(
+          this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid
+        );
     }
   }
 
