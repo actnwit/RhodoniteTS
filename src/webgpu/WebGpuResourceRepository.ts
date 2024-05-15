@@ -1906,6 +1906,16 @@ export class WebGpuResourceRepository
     gpuDevice.queue.submit([commandEncoder.finish()]);
   }
 
+  isMippmappedTexture(textureHandle: WebGPUResourceHandle): boolean {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    if (texture.mipLevelCount > 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   duplicateTextureAsMipmapped(fromTexture: WebGPUResourceHandle): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const texture = this.__webGpuResources.get(fromTexture) as GPUTexture;
