@@ -90,6 +90,7 @@ fn gltfBRDF(
   perceptualRoughness: f32,
   F0: vec3f,
   F90: vec3f,
+  transmission: f32,
   clearcoat: f32,
   clearcoatRoughness: f32,
   clearcoatNormal_inWorld: vec3f,
@@ -109,11 +110,31 @@ fn gltfBRDF(
   let diffuseBrdf = diffuse_brdf(albedo);
   let pureDiffuse = (vec3f(1.0) - F) * diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
+#ifdef RN_USE_TRANSMISSION
+  let refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
+  let transmittedLightFromUnderSurface: Light = light;
+  transmittedLightFromUnderSurface.pointToLight -= refractionVector;
+  let transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
+  transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
+
+  let Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
+  let NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
+  let NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
+
+  var transmittedContrib = (vec3f(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+
+#ifdef RN_USE_VOLUME
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+#endif // RN_USE_VOLUME
+
+  let diffuseContrib = mix(pureDiffuse, vec3f(transmittedContrib), transmission);
+#else
   let diffuseContrib = pureDiffuse;
+#endif // RN_USE_TRANSMISSION
 
   // Specular
   let NdotH = clamp(dot(normal_inWorld, halfVector), Epsilon, 1.0);
-  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
 
   // Base Layer
   let baseLayer = diffuseContrib + specularContrib;
