@@ -50,6 +50,28 @@
 @group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(4) var emissiveSampler: sampler;
 
+#ifdef RN_USE_CLEARCOAT
+// #param clearCoatFactor: f32; // initialValue=0
+// #param clearCoatRoughnessFactor: f32; // initialValue=0
+// #param clearCoatTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param clearCoatTextureRotation: f32; // initialValue=0
+// #param clearCoatRoughnessTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param clearCoatRoughnessTextureRotation: f32; // initialValue=0
+// #param clearCoatNormalTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param clearCoatNormalTextureRotation: f32; // initialValue=0
+// #param clearCoatTexcoordIndex: u32; // initialValue=(0)
+// #param clearCoatRoughnessTexcoordIndex: u32; // initialValue=(0)
+// #param clearCoatNormalTexcoordIndex: u32; // initialValue=(0)
+
+@group(1) @binding(5) var clearCoatTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(5) var clearCoatSampler: sampler;
+@group(1) @binding(6) var clearCoatRoughnessTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(6) var clearCoatRoughnessSampler: sampler;
+@group(1) @binding(7) var clearCoatNormalTexture: texture_2d<f32>; // initialValue=blue
+@group(2) @binding(7) var clearCoatNormalSampler: sampler;
+
+#endif
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
@@ -93,7 +115,7 @@ fn main(
 
 // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
-  let geomnormal_inworld = normal_inWorld;
+  let geomNormal_inWorld = normal_inWorld;
   let normalTextureTransform: vec4f = get_normalTextureTransform(materialSID, 0);
   let normalTextureRotation: f32 = get_normalTextureRotation(materialSID, 0);
   let normalTexcoordIndex: u32 = u32(get_normalTexcoordIndex(materialSID, 0));
@@ -135,6 +157,20 @@ fn main(
   // NdotV
   let NdotV = clamp(dot(normal_inWorld, viewDirection), Epsilon, 1.0);
 
+  // Clearcoat
+#ifdef RN_USE_CLEARCOAT
+  let clearcoatFactor = get_clearCoatFactor(materialSID, 0);
+  let clearcoatTextureTransform = get_clearCoatTextureTransform(materialSID, 0);
+  let clearcoatTextureRotation = get_clearCoatTextureRotation(materialSID, 0);
+  let clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
+  let clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex, input);
+  let clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, clearCoatTexcoord);
+  let clearcoatTexture = textureSample(clearCoatTexture, clearCoatSampler, clearcoatTexUv).r;
+  let clearcoat = clearcoatFactor * clearcoatTexture;
+#else
+  let clearcoat = 0.0;
+#endif // RN_USE_CLEARCOAT
+
   let specular = 1.0;
   let specularColor = vec3f(1.0, 1.0, 1.0);
 
@@ -149,6 +185,31 @@ fn main(
   let F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
   let F90 = mix(dielectricSpecularF90, vec3f(1.0), metallic);
 
+#ifdef RN_USE_CLEARCOAT
+  // Clearcoat
+  let clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
+  let clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
+  let clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex, input);
+  let clearcoatRoughnessTextureTransform = get_clearCoatRoughnessTextureTransform(materialSID, 0);
+  let clearcoatRoughnessTextureRotation = get_clearCoatRoughnessTextureRotation(materialSID, 0);
+  let clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransform.xy, clearcoatRoughnessTextureTransform.zw, clearcoatRoughnessTextureRotation, clearCoatRoughnessTexcoord);
+  let textureRoughnessTexture = textureSample(clearCoatRoughnessTexture, clearCoatRoughnessSampler, clearcoatRoughnessTexUv).g;
+  let clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
+
+  let clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
+  let clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex, input);
+  let clearcoatNormalTextureTransform = get_clearCoatNormalTextureTransform(materialSID, 0);
+  let clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
+  let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
+  let textureNormal_tangent = textureSample(clearCoatNormalTexture, clearCoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
+  let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
+  let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+#else
+  let clearcoatRoughness = 0.0;
+  let clearcoatNormal_inWorld = vec3(0.0);
+  let VdotNc = 0.0;
+#endif // RN_USE_CLEARCOAT
+
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = 0.0;
 
@@ -158,11 +219,14 @@ fn main(
     let light: Light = getLight(i, input.position_inWorld);
 
     resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
-                            NdotV, albedo, perceptualRoughness, F0, F90);
+                            NdotV, albedo, perceptualRoughness, F0, F90,
+                            clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc);
   }
 
   let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    albedo, F0, perceptualRoughness);
+    albedo, F0, perceptualRoughness,
+    clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld
+  );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
@@ -184,7 +248,12 @@ fn main(
   let emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
   let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
 
+#ifdef RN_USE_CLEARCOAT
+  let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
+  resultColor += coated_emissive;
+#else
   resultColor += emissive;
+#endif // RN_USE_CLEARCOAT
 
   resultAlpha = baseColor.a;
   // resultColor = vec3f(perceptualRoughness, 0.0, 0.0);
