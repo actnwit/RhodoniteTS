@@ -685,6 +685,10 @@ export class WebGpuResourceRepository
   }
 
   clearFrameBuffer(renderPass: RenderPass) {
+    if (!renderPass.toClearColorBuffer && !renderPass.toClearDepthBuffer) {
+      return;
+    }
+
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const context = this.__webGpuDeviceWrapper!.context;
     const colorAttachments: GPURenderPassColorAttachment[] = [];
