@@ -754,6 +754,7 @@ export class WebGpuResourceRepository
     const renderPassDescriptor: GPURenderPassDescriptor = {
       colorAttachments: colorAttachments,
       depthStencilAttachment: depthStencilAttachment,
+      label: renderPass.uniqueName,
     };
     if (this.__commandEncoder == null) {
       this.__commandEncoder = gpuDevice.createCommandEncoder();

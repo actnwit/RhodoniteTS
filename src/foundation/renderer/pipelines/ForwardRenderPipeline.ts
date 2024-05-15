@@ -578,6 +578,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPass.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
+    initialRenderPass.tryToSetUniqueName('InitialRenderPass', true);
 
     // render pass to clear buffers of framebuffer
     const initialRenderPassForFrameBuffer = new RenderPass();
@@ -585,6 +586,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPassForFrameBuffer.toClearColorBuffer = true;
     initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
     initialRenderPassForFrameBuffer.setFramebuffer(framebufferTargetOfGammaMsaa);
+    initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
 
     expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
 
@@ -595,6 +597,7 @@ export class ForwardRenderPipeline extends RnObject {
       initialRenderPassForDepthMoment.toClearColorBuffer = true;
       initialRenderPassForDepthMoment.toClearDepthBuffer = true;
       initialRenderPassForDepthMoment.setFramebuffer(frameDepthMoment);
+      initialRenderPassForDepthMoment.tryToSetUniqueName('InitialRenderPassForDepthMoment', true);
 
       expression.addRenderPasses([initialRenderPassForDepthMoment]);
     }
@@ -657,6 +660,7 @@ export class ForwardRenderPipeline extends RnObject {
     expressionForResolve.tryToSetUniqueName('Resolve', true);
     const renderPassForResolve = new RenderPass();
     expressionForResolve.addRenderPasses([renderPassForResolve]);
+    expressionForResolve.tryToSetUniqueName('MsaaResolve', true);
 
     renderPassForResolve.toClearDepthBuffer = false;
     renderPassForResolve.setFramebuffer(framebufferTargetOfGammaMsaa);
