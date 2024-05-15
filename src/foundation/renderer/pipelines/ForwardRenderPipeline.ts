@@ -85,6 +85,7 @@ export class ForwardRenderPipeline extends RnObject {
   /** main expressions */
   private __expressions: Expression[] = [];
 
+  private __oGenerateMipmapsExpression: IOption<Expression> = new None();
   private __depthMomentExpressions: Expression[] = [];
   private __oGammaExpression: IOption<Expression> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
@@ -149,7 +150,12 @@ export class ForwardRenderPipeline extends RnObject {
     );
     this.__oInitialExpression = new Some(initialExpression);
 
-    // Msaa Expression
+    this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
+      sFrame,
+      framebufferResolveForReference
+    );
+
+    // FrameBuffers
     this.__oFrameBufferMsaa = new Some(framebufferMsaa);
     this.__oFrameBufferResolve = new Some(framebufferResolve);
     this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
@@ -514,12 +520,6 @@ export class ForwardRenderPipeline extends RnObject {
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
         rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
         rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
-        // Generate Mipmap of resolve Framebuffer 2
-        rp.setPostRenderFunction(function (this: RenderPass): void {
-          const renderTargetTexture =
-            this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!;
-          renderTargetTexture.generateMipmap();
-        });
       }
     }
     this.__expressions = expressions;
@@ -642,6 +642,26 @@ export class ForwardRenderPipeline extends RnObject {
       framebufferResolve,
       framebufferResolveForReference,
     };
+  }
+
+  private __setupGenerateMipmapsExpression(sFrame: Some<Frame>, resolveFramebuffer2: FrameBuffer) {
+    const expression = new Expression();
+    expression.tryToSetUniqueName('GenerateMipmaps', true);
+    const renderPass = new RenderPass();
+    expression.addRenderPasses([renderPass]);
+    expression.tryToSetUniqueName('GenerateMipmaps', true);
+
+    renderPass.toClearDepthBuffer = false;
+
+    // Generate Mipmap of resolve Framebuffer 2
+    renderPass.setPostRenderFunction(function (this: RenderPass): void {
+      const renderTargetTexture = resolveFramebuffer2.getColorAttachedRenderTargetTexture(0)!;
+      renderTargetTexture.generateMipmap();
+    });
+
+    sFrame.unwrapForce().addExpression(expression);
+
+    return new Some(expression);
   }
 
   private __setupGammaExpression(
@@ -787,6 +807,9 @@ export class ForwardRenderPipeline extends RnObject {
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
+
+    frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
