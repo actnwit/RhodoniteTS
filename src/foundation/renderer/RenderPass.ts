@@ -17,6 +17,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { RenderBufferTargetEnum } from '../definitions';
 import { SystemState } from '../system/SystemState';
+import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -348,6 +349,25 @@ export class RenderPass extends RnObject {
     );
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+  }
+
+  _copyResolve1ToResolve2WebGpu() {
+    if (this.__resolveFrameBuffer == null || this.__resolveFrameBuffer2 == null) {
+      return;
+    }
+    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
+      if (
+        this.__resolveFrameBuffer.colorAttachments[i] == null ||
+        this.__resolveFrameBuffer2.colorAttachments[i] == null
+      ) {
+        continue;
+      }
+      webGpuResourceRepository.copyTextureData(
+        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
+        this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+      );
+    }
   }
 
   private __setupMaterial(material: Material) {

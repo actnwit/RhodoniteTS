@@ -1840,6 +1840,7 @@ export class WebGpuResourceRepository
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_SRC |
+        GPUTextureUsage.COPY_DST |
         GPUTextureUsage.RENDER_ATTACHMENT,
     };
 
@@ -1873,6 +1874,29 @@ export class WebGpuResourceRepository
     const textureHandle = this.__registerResource(gpuTexture);
 
     return textureHandle;
+  }
+
+  /**
+   * copy Texture Data
+   * @param fromTexture
+   * @param toTexture
+   */
+  copyTextureData(fromTexture: WebGPUResourceHandle, toTexture: WebGPUResourceHandle) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const from = this.__webGpuResources.get(fromTexture) as GPUTexture;
+    const to = this.__webGpuResources.get(toTexture) as GPUTexture;
+
+    const commandEncoder = gpuDevice.createCommandEncoder();
+    commandEncoder.copyTextureToTexture(
+      {
+        texture: from,
+      },
+      {
+        texture: to,
+      },
+      [to.width, to.height, 1]
+    );
+    gpuDevice.queue.submit([commandEncoder.finish()]);
   }
 
   /**

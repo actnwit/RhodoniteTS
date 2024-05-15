@@ -14,6 +14,7 @@ import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
 import { IRenderable } from '../textures/IRenderable';
 import { FrameBuffer } from '../renderer/FrameBuffer';
+import { WebGpuResourceRepository } from '../../webgpu';
 
 export type DirectTextureData =
   | TypedArray
@@ -54,6 +55,15 @@ export abstract class CGAPIResourceRepository {
     const webGLResourceRepository: WebGLResourceRepository =
       webglModule.WebGLResourceRepository.getInstance();
     return webGLResourceRepository;
+  }
+
+  static getWebGpuResourceRepository(): WebGpuResourceRepository {
+    const moduleName = 'webgpu';
+    const moduleManager = ModuleManager.getInstance();
+    const webgpuModule = moduleManager.getModule(moduleName)! as any;
+    const webGpuResourceRepository: WebGpuResourceRepository =
+      webgpuModule.WebGpuResourceRepository.getInstance();
+    return webGpuResourceRepository;
   }
 }
 
