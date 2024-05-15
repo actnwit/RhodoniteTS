@@ -69,6 +69,10 @@ export class MeshRendererComponent extends Component {
   }
 
   setIBLCubeMap(diffuseCubeTexture: CubeTexture, specularCubeTexture: CubeTexture) {
+    if (diffuseCubeTexture == null || specularCubeTexture == null) {
+      return;
+    }
+
     this.__diffuseCubeMap = diffuseCubeTexture;
     this.__specularCubeMap = specularCubeTexture;
 
