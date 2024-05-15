@@ -290,7 +290,9 @@ export class System {
 
               this.__renderPassTickCount++;
 
-              renderPass._copyFramebufferToResolveFramebuffers();
+              if (this.processApproach !== ProcessApproach.WebGPU) {
+                renderPass._copyFramebufferToResolveFramebuffersWebGL();
+              }
 
               renderPass.doPostRender();
             }

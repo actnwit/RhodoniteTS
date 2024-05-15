@@ -298,12 +298,6 @@ export class RenderPass extends RnObject {
   }
 
   setResolveFramebuffer(framebuffer: FrameBuffer) {
-    const repo = WebGLResourceRepository.getInstance();
-    const glw = repo.currentWebGLContextWrapper!;
-    if (!glw || !glw.isWebGL2) {
-      console.error('resolve framebuffer is unavailable in this webgl context');
-      return;
-    }
     this.__resolveFrameBuffer = framebuffer;
   }
 
@@ -312,12 +306,6 @@ export class RenderPass extends RnObject {
   }
 
   setResolveFramebuffer2(framebuffer: FrameBuffer) {
-    const repo = WebGLResourceRepository.getInstance();
-    const glw = repo.currentWebGLContextWrapper!;
-    if (!glw || !glw.isWebGL2) {
-      console.error('resolve framebuffer is unavailable in this webgl context');
-      return;
-    }
     this.__resolveFrameBuffer2 = framebuffer;
   }
 
@@ -325,7 +313,7 @@ export class RenderPass extends RnObject {
     return this.__resolveFrameBuffer2;
   }
 
-  _copyFramebufferToResolveFramebuffers() {
+  _copyFramebufferToResolveFramebuffersWebGL() {
     this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer);
     this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer2);
   }

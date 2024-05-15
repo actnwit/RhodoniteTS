@@ -44,6 +44,7 @@ import { MiscUtil } from '../foundation/misc/MiscUtil';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import { RenderBuffer } from '../foundation';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -798,7 +799,10 @@ export class WebGpuResourceRepository
       const renderBundleDescriptor: GPURenderBundleEncoderDescriptor = {
         colorFormats: colorFormats,
         depthStencilFormat: depthStencilFormat,
-        sampleCount: 1,
+        sampleCount:
+          renderPass.getResolveFramebuffer() != null
+            ? (renderPass.getFramebuffer()!.colorAttachments[0] as RenderBuffer).sampleCount
+            : 1,
       };
       const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
 
@@ -840,7 +844,45 @@ export class WebGpuResourceRepository
     if (this.__renderPassEncoder == null) {
       const context = this.__webGpuDeviceWrapper!.context;
       const framebuffer = renderPass.getFramebuffer();
-      if (framebuffer != null) {
+      const resolveFramebuffer = renderPass.getResolveFramebuffer();
+      if (resolveFramebuffer != null && framebuffer != null) {
+        let depthTextureView = this.__systemDepthTextureView!;
+        if (framebuffer.depthAttachment != null) {
+          const depthTexture = this.__webGpuResources.get(
+            framebuffer.depthAttachment._textureResourceUid
+          ) as GPUTexture;
+          if (depthTexture != null) {
+            depthTextureView = depthTexture.createView();
+          }
+        }
+        const renderPassDescriptor: GPURenderPassDescriptor = {
+          colorAttachments: [],
+          depthStencilAttachment: {
+            view: depthTextureView,
+            depthLoadOp: 'load',
+            depthStoreOp: 'store',
+          },
+        };
+        const colorAttachments = [];
+        for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
+          const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
+          const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
+          const texture = this.__webGpuResources.get(
+            colorAttachment._textureResourceUid
+          ) as GPUTexture;
+          const resolveTexture = this.__webGpuResources.get(
+            resolveColorAttachment._textureResourceUid
+          ) as GPUTexture;
+          colorAttachments.push({
+            view: texture.createView(),
+            resolveTarget: resolveTexture.createView(),
+            loadOp: 'load',
+            storeOp: 'discard',
+          });
+        }
+        renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
+        this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+      } else if (framebuffer != null) {
         let depthTextureView = this.__systemDepthTextureView!;
         if (framebuffer.depthAttachment != null) {
           const depthTexture = this.__webGpuResources.get(
@@ -1089,6 +1131,12 @@ export class WebGpuResourceRepository
         depthWriteEnabled: true,
         depthCompare: 'less',
         format: depthStencilFormat,
+      },
+      multisample: {
+        count:
+          renderPass.getResolveFramebuffer() != null
+            ? (renderPass.getFramebuffer()!.colorAttachments[0] as RenderBuffer).sampleCount
+            : 1,
       },
     });
 
@@ -1816,6 +1864,7 @@ export class WebGpuResourceRepository
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
       format: internalFormat.webgpu as GPUTextureFormat,
+      sampleCount: isMSAA ? sampleCountMSAA : 1,
       usage: GPUTextureUsage.COPY_SRC | GPUTextureUsage.RENDER_ATTACHMENT,
     };
 

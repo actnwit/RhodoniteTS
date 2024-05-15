@@ -26,6 +26,10 @@ export class RenderBuffer extends RnObject implements IRenderable {
     return this.__fbo;
   }
 
+  get sampleCount() {
+    return this.__sampleCountMSAA;
+  }
+
   create(
     width: Size,
     height: Size,
