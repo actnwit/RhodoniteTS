@@ -86,7 +86,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __expressions: Expression[] = [];
 
   private __depthMomentExpressions: Expression[] = [];
-  private __oMsaaResolveExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
   private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
@@ -151,13 +150,6 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oInitialExpression = new Some(initialExpression);
 
     // Msaa Expression
-    const msaaResolveExpression = this.__setupMsaaResolveExpression(
-      sFrame,
-      framebufferMsaa,
-      framebufferResolve,
-      framebufferResolveForReference
-    );
-    this.__oMsaaResolveExpression = new Some(msaaResolveExpression);
     this.__oFrameBufferMsaa = new Some(framebufferMsaa);
     this.__oFrameBufferResolve = new Some(framebufferResolve);
     this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
@@ -385,13 +377,6 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * getter of msaa resolve expression
-   */
-  getMsaaResolveExpression(): Expression | undefined {
-    return this.__oMsaaResolveExpression.unwrapOrUndefined();
-  }
-
-  /**
    * getter of gamma expression
    */
   getGammaExpression(): Expression | undefined {
@@ -527,6 +512,14 @@ export class ForwardRenderPipeline extends RnObject {
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+        rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+        // Generate Mipmap of resolve Framebuffer 2
+        rp.setPostRenderFunction(function (this: RenderPass): void {
+          const renderTargetTexture =
+            this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!;
+          renderTargetTexture.generateMipmap();
+        });
       }
     }
     this.__expressions = expressions;
@@ -541,6 +534,7 @@ export class ForwardRenderPipeline extends RnObject {
         rp.toRenderTransparentPrimitives = true;
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -648,35 +642,6 @@ export class ForwardRenderPipeline extends RnObject {
       framebufferResolve,
       framebufferResolveForReference,
     };
-  }
-
-  private __setupMsaaResolveExpression(
-    sFrame: Some<Frame>,
-    framebufferTargetOfGammaMsaa: FrameBuffer,
-    framebufferTargetOfGammaResolve: FrameBuffer,
-    framebufferTargetOfGammaResolveForReference: FrameBuffer
-  ) {
-    const expressionForResolve = new Expression();
-    expressionForResolve.tryToSetUniqueName('Resolve', true);
-    const renderPassForResolve = new RenderPass();
-    expressionForResolve.addRenderPasses([renderPassForResolve]);
-    expressionForResolve.tryToSetUniqueName('MsaaResolve', true);
-
-    renderPassForResolve.toClearDepthBuffer = false;
-    renderPassForResolve.setFramebuffer(framebufferTargetOfGammaMsaa);
-    renderPassForResolve.setResolveFramebuffer(framebufferTargetOfGammaResolve);
-    renderPassForResolve.setResolveFramebuffer2(framebufferTargetOfGammaResolveForReference);
-
-    // Generate Mipmap of resolve Framebuffer 2
-    renderPassForResolve.setPostRenderFunction(function (this: RenderPass): void {
-      const renderTargetTexture =
-        this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!;
-      renderTargetTexture.generateMipmap();
-    });
-
-    sFrame.unwrapForce().addExpression(expressionForResolve);
-
-    return expressionForResolve;
   }
 
   private __setupGammaExpression(
@@ -822,11 +787,9 @@ export class ForwardRenderPipeline extends RnObject {
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
-    frame.addExpression(this.getMsaaResolveExpression()!);
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
-    frame.addExpression(this.getMsaaResolveExpression()!);
     frame.addExpression(this.getGammaExpression()!);
   }
 }
