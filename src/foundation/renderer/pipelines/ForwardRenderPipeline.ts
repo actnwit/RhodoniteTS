@@ -16,11 +16,18 @@ import { Err, Ok } from '../../misc/Result';
 import { System } from '../../system/System';
 import { RnObject } from '../../core/RnObject';
 import { ModuleManager } from '../../system/ModuleManager';
-import { ComponentType, HdriFormatEnum, PixelFormat } from '../../definitions';
+import {
+  ComponentType,
+  HdriFormatEnum,
+  PixelFormat,
+  ProcessApproach,
+  ProcessApproachClass,
+} from '../../definitions';
 import { MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
 import { Vector3 } from '../../math/Vector3';
+import { SystemState } from '../../system';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -198,7 +205,9 @@ export class ForwardRenderPipeline extends RnObject {
       this.__setTransparentExpressionsForTransmission(clonedExpressions);
     }
 
-    this.__setDepthTextureToEntityMaterials();
+    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+      this.__setDepthTextureToEntityMaterials();
+    }
   }
 
   private __setDepthTextureToEntityMaterials() {
