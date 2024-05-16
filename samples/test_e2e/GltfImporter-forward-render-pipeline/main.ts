@@ -40,6 +40,7 @@ const mainExpression = (
 const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
 
 const mainRenderPass = mainExpression.renderPasses[0];
+mainRenderPass.tryToSetUniqueName('main', true);
 // cameraController
 const mainCameraControllerComponent = cameraEntity.getCameraController();
 const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
@@ -142,6 +143,7 @@ function createEnvCubeExpression(baseuri, cameraEntity) {
   sphereMeshComponent.setMesh(sphereMesh);
 
   const sphereRenderPass = new Rn.RenderPass();
+  sphereRenderPass.tryToSetUniqueName('envCube', true);
   sphereRenderPass.addEntities([sphereEntity]);
   sphereRenderPass.cameraComponent = cameraEntity.getCamera();
 

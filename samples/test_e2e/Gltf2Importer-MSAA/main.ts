@@ -95,7 +95,7 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   const cubeTextureEnvironment = new Rn.CubeTexture();
   cubeTextureEnvironment.baseUriToLoad = basePathIBL + '/environment/environment';
   cubeTextureEnvironment.isNamePosNeg = true;
-  cubeTextureEnvironment.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
+  cubeTextureEnvironment.hdriFormat = Rn.HdriFormat.LDR_SRGB;
   cubeTextureEnvironment.mipmapLevelNumber = 1;
   cubeTextureEnvironment.loadTextureImagesAsync();
 

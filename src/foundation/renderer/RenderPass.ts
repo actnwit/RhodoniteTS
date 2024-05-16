@@ -17,6 +17,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { RenderBufferTargetEnum } from '../definitions';
 import { SystemState } from '../system/SystemState';
+import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -298,12 +299,6 @@ export class RenderPass extends RnObject {
   }
 
   setResolveFramebuffer(framebuffer: FrameBuffer) {
-    const repo = WebGLResourceRepository.getInstance();
-    const glw = repo.currentWebGLContextWrapper!;
-    if (!glw || !glw.isWebGL2) {
-      console.error('resolve framebuffer is unavailable in this webgl context');
-      return;
-    }
     this.__resolveFrameBuffer = framebuffer;
   }
 
@@ -312,12 +307,6 @@ export class RenderPass extends RnObject {
   }
 
   setResolveFramebuffer2(framebuffer: FrameBuffer) {
-    const repo = WebGLResourceRepository.getInstance();
-    const glw = repo.currentWebGLContextWrapper!;
-    if (!glw || !glw.isWebGL2) {
-      console.error('resolve framebuffer is unavailable in this webgl context');
-      return;
-    }
     this.__resolveFrameBuffer2 = framebuffer;
   }
 
@@ -325,7 +314,7 @@ export class RenderPass extends RnObject {
     return this.__resolveFrameBuffer2;
   }
 
-  _copyFramebufferToResolveFramebuffers() {
+  _copyFramebufferToResolveFramebuffersWebGL() {
     this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer);
     this.__copyFramebufferToResolveFramebufferInner(this.__resolveFrameBuffer2);
   }
@@ -360,6 +349,40 @@ export class RenderPass extends RnObject {
     );
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, null);
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+  }
+
+  _copyResolve1ToResolve2WebGpu() {
+    if (this.__resolveFrameBuffer == null || this.__resolveFrameBuffer2 == null) {
+      return;
+    }
+    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
+      if (
+        this.__resolveFrameBuffer.colorAttachments[i] == null ||
+        this.__resolveFrameBuffer2.colorAttachments[i] == null
+      ) {
+        continue;
+      }
+
+      if (
+        webGpuResourceRepository.isMippmappedTexture(
+          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+        )
+      ) {
+        webGpuResourceRepository.copyTextureData(
+          this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
+          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+        );
+      } else {
+        webGpuResourceRepository.deleteTexture(
+          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+        );
+        this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid =
+          webGpuResourceRepository.duplicateTextureAsMipmapped(
+            this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid
+          );
+      }
+    }
   }
 
   private __setupMaterial(material: Material) {

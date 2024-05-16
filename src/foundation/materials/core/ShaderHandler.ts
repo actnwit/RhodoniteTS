@@ -321,6 +321,7 @@ export function _createProgramAsSingleOperationWebGpu(
     {
       getters: pixelPropertiesStr,
       definitions: '#define RN_IS_PIXEL_SHADER\n' + definitions,
+      matricesGetters: vertexShaderMethodDefinitions,
       maxMorphDataNumber:
         '' +
         Math.ceil(

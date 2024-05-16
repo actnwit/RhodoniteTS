@@ -20,6 +20,7 @@ import { ComponentType, HdriFormatEnum, PixelFormat } from '../../definitions';
 import { MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
+import { Vector3 } from '../../math/Vector3';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -85,8 +86,8 @@ export class ForwardRenderPipeline extends RnObject {
   /** main expressions */
   private __expressions: Expression[] = [];
 
+  private __oGenerateMipmapsExpression: IOption<Expression> = new None();
   private __depthMomentExpressions: Expression[] = [];
-  private __oMsaaResolveExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
   private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
@@ -150,14 +151,12 @@ export class ForwardRenderPipeline extends RnObject {
     );
     this.__oInitialExpression = new Some(initialExpression);
 
-    // Msaa Expression
-    const msaaResolveExpression = this.__setupMsaaResolveExpression(
+    this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
       sFrame,
-      framebufferMsaa,
-      framebufferResolve,
       framebufferResolveForReference
     );
-    this.__oMsaaResolveExpression = new Some(msaaResolveExpression);
+
+    // FrameBuffers
     this.__oFrameBufferMsaa = new Some(framebufferMsaa);
     this.__oFrameBufferResolve = new Some(framebufferResolve);
     this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
@@ -385,13 +384,6 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * getter of msaa resolve expression
-   */
-  getMsaaResolveExpression(): Expression | undefined {
-    return this.__oMsaaResolveExpression.unwrapOrUndefined();
-  }
-
-  /**
    * getter of gamma expression
    */
   getGammaExpression(): Expression | undefined {
@@ -527,6 +519,8 @@ export class ForwardRenderPipeline extends RnObject {
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+        rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
       }
     }
     this.__expressions = expressions;
@@ -541,6 +535,7 @@ export class ForwardRenderPipeline extends RnObject {
         rp.toRenderTransparentPrimitives = true;
         rp.toClearDepthBuffer = false;
         rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
         for (const entity of rp.entities) {
           const meshComponent = entity.tryToGetMesh();
@@ -578,6 +573,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPass.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
+    initialRenderPass.tryToSetUniqueName('InitialRenderPass', true);
 
     // render pass to clear buffers of framebuffer
     const initialRenderPassForFrameBuffer = new RenderPass();
@@ -585,6 +581,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPassForFrameBuffer.toClearColorBuffer = true;
     initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
     initialRenderPassForFrameBuffer.setFramebuffer(framebufferTargetOfGammaMsaa);
+    initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
 
     expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
 
@@ -595,6 +592,7 @@ export class ForwardRenderPipeline extends RnObject {
       initialRenderPassForDepthMoment.toClearColorBuffer = true;
       initialRenderPassForDepthMoment.toClearDepthBuffer = true;
       initialRenderPassForDepthMoment.setFramebuffer(frameDepthMoment);
+      initialRenderPassForDepthMoment.tryToSetUniqueName('InitialRenderPassForDepthMoment', true);
 
       expression.addRenderPasses([initialRenderPassForDepthMoment]);
     }
@@ -647,32 +645,24 @@ export class ForwardRenderPipeline extends RnObject {
     };
   }
 
-  private __setupMsaaResolveExpression(
-    sFrame: Some<Frame>,
-    framebufferTargetOfGammaMsaa: FrameBuffer,
-    framebufferTargetOfGammaResolve: FrameBuffer,
-    framebufferTargetOfGammaResolveForReference: FrameBuffer
-  ) {
-    const expressionForResolve = new Expression();
-    expressionForResolve.tryToSetUniqueName('Resolve', true);
-    const renderPassForResolve = new RenderPass();
-    expressionForResolve.addRenderPasses([renderPassForResolve]);
+  private __setupGenerateMipmapsExpression(sFrame: Some<Frame>, resolveFramebuffer2: FrameBuffer) {
+    const expression = new Expression();
+    expression.tryToSetUniqueName('GenerateMipmaps', true);
+    const renderPass = new RenderPass();
+    expression.addRenderPasses([renderPass]);
+    renderPass.tryToSetUniqueName('GenerateMipmaps', true);
 
-    renderPassForResolve.toClearDepthBuffer = false;
-    renderPassForResolve.setFramebuffer(framebufferTargetOfGammaMsaa);
-    renderPassForResolve.setResolveFramebuffer(framebufferTargetOfGammaResolve);
-    renderPassForResolve.setResolveFramebuffer2(framebufferTargetOfGammaResolveForReference);
+    renderPass.toClearDepthBuffer = false;
 
     // Generate Mipmap of resolve Framebuffer 2
-    renderPassForResolve.setPostRenderFunction(function (this: RenderPass): void {
-      const renderTargetTexture =
-        this.getResolveFramebuffer2()!.getColorAttachedRenderTargetTexture(0)!;
+    renderPass.setPostRenderFunction(function (this: RenderPass): void {
+      const renderTargetTexture = resolveFramebuffer2.getColorAttachedRenderTargetTexture(0)!;
       renderTargetTexture.generateMipmap();
     });
 
-    sFrame.unwrapForce().addExpression(expressionForResolve);
+    sFrame.unwrapForce().addExpression(expression);
 
-    return expressionForResolve;
+    return new Some(expression);
   }
 
   private __setupGammaExpression(
@@ -699,6 +689,7 @@ export class ForwardRenderPipeline extends RnObject {
       tag: 'type',
       value: 'background-assets',
     });
+    entityGamma.localPosition = Vector3.fromCopy3(0, 0, 0.5);
 
     const sampler = new Sampler({
       wrapS: TextureParameter.ClampToEdge,
@@ -818,11 +809,12 @@ export class ForwardRenderPipeline extends RnObject {
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
-    frame.addExpression(this.getMsaaResolveExpression()!);
+
+    frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
-    frame.addExpression(this.getMsaaResolveExpression()!);
     frame.addExpression(this.getGammaExpression()!);
   }
 }

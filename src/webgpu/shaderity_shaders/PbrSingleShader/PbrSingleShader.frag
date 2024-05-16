@@ -3,6 +3,7 @@
 #pragma shaderity: require(../common/prerequisites.wgsl)
 
 /* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/opticalDefinition.wgsl)
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
@@ -69,8 +70,17 @@
 @group(2) @binding(6) var clearCoatRoughnessSampler: sampler;
 @group(1) @binding(7) var clearCoatNormalTexture: texture_2d<f32>; // initialValue=blue
 @group(2) @binding(7) var clearCoatNormalSampler: sampler;
+#endif // RN_USE_CLEARCOAT
 
-#endif
+
+#ifdef RN_USE_TRANSMISSION
+// #param transmissionFactor: f32; // initialValue=(0)
+@group(1) @binding(8) var transmissionTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(8) var transmissionSampler: sampler;
+@group(1) @binding(9) var backBufferTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(9) var backBufferSampler: sampler; // initialValue=white
+#endif // RN_USE_TRANSMISSION
+
 
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
@@ -171,6 +181,16 @@ fn main(
   let clearcoat = 0.0;
 #endif // RN_USE_CLEARCOAT
 
+  // Transmission
+#ifdef RN_USE_TRANSMISSION
+  let transmissionFactor = get_transmissionFactor(materialSID, 0);
+  let transmissionTexture = textureSample(transmissionTexture, transmissionSampler, baseColorTexUv).r;
+  let transmission = transmissionFactor * transmissionTexture;
+    // alpha *= transmission;
+#else
+  let transmission = 0.0;
+#endif // RN_USE_TRANSMISSION
+
   let specular = 1.0;
   let specularColor = vec3f(1.0, 1.0, 1.0);
 
@@ -206,9 +226,14 @@ fn main(
   let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
 #else
   let clearcoatRoughness = 0.0;
-  let clearcoatNormal_inWorld = vec3(0.0);
+  let clearcoatNormal_inWorld = vec3f(0.0);
   let VdotNc = 0.0;
 #endif // RN_USE_CLEARCOAT
+
+
+  let thickness = 0.0;
+  let attenuationColor = vec3f(0.0);
+  let attenuationDistance = 0.000001;
 
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = 0.0;
@@ -220,12 +245,14 @@ fn main(
 
     resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
                             NdotV, albedo, perceptualRoughness, F0, F90,
+                            transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc);
   }
 
   let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness,
-    clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld
+    clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
+    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);

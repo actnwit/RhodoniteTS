@@ -29,7 +29,7 @@ fn main(
   @location(4) texcoord_1: vec2<f32>,
 #endif
 #ifdef RN_USE_COLOR_0
-  @location(5) color_0: vec2<f32>,
+  @location(5) color_0: vec4<f32>,
 #endif
 #ifdef RN_USE_JOINTS_0
   @location(6) joints_0: vec4<u32>,
@@ -113,6 +113,8 @@ fn main(
   output.tangent_inWorld = normalMatrix * tangent.xyz;
   output.binormal_inWorld = cross(output.tangent_inWorld, output.normal_inWorld) * tangent.w;
 #endif
+
+  output.instanceInfo = instance_ids.x;
 
   // output.Position = vec4<f32>(position, 1.0);
 
