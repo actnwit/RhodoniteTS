@@ -3,6 +3,7 @@
 #pragma shaderity: require(../common/prerequisites.wgsl)
 
 /* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/opticalDefinition.wgsl)
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
@@ -225,9 +226,14 @@ fn main(
   let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
 #else
   let clearcoatRoughness = 0.0;
-  let clearcoatNormal_inWorld = vec3(0.0);
+  let clearcoatNormal_inWorld = vec3f(0.0);
   let VdotNc = 0.0;
 #endif // RN_USE_CLEARCOAT
+
+
+  let thickness = 0.0;
+  let attenuationColor = vec3f(0.0);
+  let attenuationDistance = 0.000001;
 
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = 0.0;
@@ -239,14 +245,14 @@ fn main(
 
     resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
                             NdotV, albedo, perceptualRoughness, F0, F90,
-                            transmission,
+                            transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc);
   }
 
   let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
-    transmission, input.position_inWorld.xyz
+    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);

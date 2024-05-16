@@ -78,6 +78,12 @@ fn coated_material_s(base: vec3f, perceptualRoughness: f32, clearcoatRoughness: 
   return base * vec3f(1.0 - clearcoat * clearcoatFresnel) + vec3f(f_clearcoat * clearcoat);
 }
 
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_transmission#implementation-notes
+fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f32 {
+  let V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+  let D = d_GGX(NdotHt, alphaRoughness);
+  return V * D;
+}
 ////////////////////////////////////////
 // glTF BRDF for punctual lights
 ////////////////////////////////////////
@@ -91,6 +97,7 @@ fn gltfBRDF(
   F0: vec3f,
   F90: vec3f,
   transmission: f32,
+  ior: f32,
   clearcoat: f32,
   clearcoatRoughness: f32,
   clearcoatNormal_inWorld: vec3f,
@@ -112,7 +119,7 @@ fn gltfBRDF(
 
 #ifdef RN_USE_TRANSMISSION
   let refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-  let transmittedLightFromUnderSurface: Light = light;
+  var transmittedLightFromUnderSurface: Light = light;
   transmittedLightFromUnderSurface.pointToLight -= refractionVector;
   let transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
   transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
@@ -123,9 +130,9 @@ fn gltfBRDF(
 
   var transmittedContrib = (vec3f(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
 
-#ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
-#endif // RN_USE_VOLUME
+// #ifdef RN_USE_VOLUME
+//   transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+// #endif // RN_USE_VOLUME
 
   let diffuseContrib = mix(pureDiffuse, vec3f(transmittedContrib), transmission);
 #else

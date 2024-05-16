@@ -53,32 +53,46 @@ fn getReflection(rotEnvMatrix: mat3x3<f32>, viewDirection: vec3f, normal_inWorld
   return reflection;
 }
 
+fn scaleForLod(perceptualRoughness: f32, ior: f32) -> f32
+{
+  // Scale roughness to the range [0, 1],
+  // ior=1.0 will be scale 0,
+  // ior=1.5 will be scale 1.0,
+  // ior=2 will be scale 1.0 (clamped)
+  //
+
+  let scale = clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+  return perceptualRoughness * scale;
+}
+
 #ifdef RN_USE_TRANSMISSION
 fn get_sample_from_backbuffer(materialSID: u32, sampleCoord: vec2f, perceptualRoughness: f32, ior: f32) -> vec3f {
-  let vrState: vec2<u32> = get_vrState(0.0, 0);
+  let vrState: vec2<i32> = get_vrState(0, 0);
   let backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
-  let backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+  var backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+  var newSampleCoord = sampleCoord;
+  newSampleCoord.y = 1.0 - newSampleCoord.y;
   if (vrState.x == 1) { // For VR
     backBufferTextureLength = max(backBufferTextureSize.x / 2.0, backBufferTextureSize.y);
-    sampleCoord.x = sampleCoord.x * 0.5;
+    newSampleCoord.x = sampleCoord.x * 0.5;
     if (vrState.y == 1) { // For right eye
-      sampleCoord.x += 0.5;
+      newSampleCoord.x += 0.5;
     }
   }
   let framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
 
-  let transmittedLight = textureSample(backBufferTexture, backBufferSampler, sampleCoord).rgb;
+  let transmittedLight = textureSample(backBufferTexture, backBufferSampler, newSampleCoord).rgb;
 
   return transmittedLight;
 }
 
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32) -> vec3f
+fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceInfo: u32) -> vec3f
 {
   let refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  let worldMatrix = get_worldMatrix(input.instanceInfo);
+  let worldMatrix = get_worldMatrix(instanceInfo);
 
-  let modelScale;
+  var modelScale: vec3f;
   modelScale.x = length(vec3f(worldMatrix[0].xyz));
   modelScale.y = length(vec3f(worldMatrix[1].xyz));
   modelScale.z = length(vec3f(worldMatrix[2].xyz));
@@ -157,7 +171,7 @@ fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, 
 fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
   albedo: vec3f, F0: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, VdotNc: f32, geomNormal_inWorld: vec3f,
-  transmission: f32, v_position_inWorld: vec3f
+  transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
@@ -176,7 +190,7 @@ fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDire
 
 
 #ifdef RN_USE_TRANSMISSION
-  let refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior);
+  let refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior, instanceInfo);
   let refractedRayFromVPosition = v_position_inWorld + refractedRay;
   let ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4f(refractedRayFromVPosition, 1.0);
   var refractionCoords = ndcPoint.xy / ndcPoint.w;
@@ -184,11 +198,11 @@ fn IBLContribution(materialSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDire
   refractionCoords /= 2.0;
   var transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
 
-#ifdef RN_USE_VOLUME
-  let attenuationColor = get_attenuationColor(materialSID, 0);
-  let attenuationDistance = get_attenuationDistance(materialSID, 0);
-  transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
-#endif
+// #ifdef RN_USE_VOLUME
+//   let attenuationColor = get_attenuationColor(materialSID, 0);
+//   let attenuationDistance = get_attenuationDistance(materialSID, 0);
+//   transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
+// #endif
 
   let transmissionComp = (vec3f(1.0) - baseRadianceResult.FssEss) * transmittedLight * albedo;
   let diffuse = mix(baseLambertianResult.diffuse, transmissionComp, transmission);
