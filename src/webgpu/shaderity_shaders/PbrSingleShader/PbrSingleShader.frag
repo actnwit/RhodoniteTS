@@ -249,7 +249,7 @@ fn main(
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc);
   }
 
-  let ibl: vec3f = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
+  let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior
@@ -283,7 +283,6 @@ fn main(
 #endif // RN_USE_CLEARCOAT
 
   resultAlpha = baseColor.a;
-  // resultColor = vec3f(perceptualRoughness, 0.0, 0.0);
 #pragma shaderity: require(../common/outputSrgb.wgsl)
   return vec4f(resultColor * resultAlpha, resultAlpha);
 }

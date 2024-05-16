@@ -1144,7 +1144,7 @@ export class WebGpuResourceRepository
           _materialSID: material.materialSID,
           _currentPrimitiveIdx: primitiveIdxHasMorph ?? 0,
           _morphTargetNumber: primitive.targets.length,
-          cameraSID: cameraId,
+          _cameraSID: cameraId,
         },
         buffers: gpuVertexBufferLayouts,
       },
@@ -1153,6 +1153,7 @@ export class WebGpuResourceRepository
         entryPoint: 'main',
         constants: {
           _materialSID: material.materialSID,
+          _cameraSID: cameraId,
         },
         targets: targets,
       },
