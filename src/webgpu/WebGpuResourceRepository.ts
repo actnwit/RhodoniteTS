@@ -97,6 +97,10 @@ export class WebGpuResourceRepository
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
   private __uniformMorphWeightsBuffer?: GPUBuffer;
   private __renderPassEncoder?: GPURenderPassEncoder;
+  private __generateMipmapsShaderModule?: GPUShaderModule;
+  private __generateMipmapsPipeline?: GPURenderPipeline;
+  private __generateMipmapsFormat?: GPUTextureFormat;
+  private __generateMipmapsSampler?: GPUSampler;
 
   private static __iblParameterVec4 = MutableVector4.zero();
   private static __hdriFormatVec2 = MutableVector2.zero();
@@ -247,58 +251,68 @@ export class WebGpuResourceRepository
     depthOrArrayLayers: number
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const mipmapShaderModule = gpuDevice.createShaderModule({
-      code: `
-      var<private> pos : array<vec2f, 4> = array<vec2f, 4>(
-        vec2f(-1, 1), vec2f(1, 1),
-        vec2f(-1, -1), vec2f(1, -1));
 
-      struct VertexOutput {
-        @builtin(position) position : vec4f,
-        @location(0) texCoord : vec2f,
-      };
+    if (this.__generateMipmapsShaderModule == null) {
+      this.__generateMipmapsShaderModule = gpuDevice.createShaderModule({
+        code: `
+        var<private> pos : array<vec2f, 4> = array<vec2f, 4>(
+          vec2f(-1, 1), vec2f(1, 1),
+          vec2f(-1, -1), vec2f(1, -1));
 
-      @vertex
-      fn vertexMain(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
-        var output : VertexOutput;
-        output.texCoord = pos[vertexIndex] * vec2f(0.5, -0.5) + vec2f(0.5);
-        output.position = vec4f(pos[vertexIndex], 0, 1);
-        return output;
-      }
+        struct VertexOutput {
+          @builtin(position) position : vec4f,
+          @location(0) texCoord : vec2f,
+        };
 
-      @group(0) @binding(0) var imgSampler : sampler;
-      @group(0) @binding(1) var img : texture_2d<f32>;
+        @vertex
+        fn vertexMain(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
+          var output : VertexOutput;
+          output.texCoord = pos[vertexIndex] * vec2f(0.5, -0.5) + vec2f(0.5);
+          output.position = vec4f(pos[vertexIndex], 0, 1);
+          return output;
+        }
 
-      @fragment
-      fn fragmentMain(@location(0) texCoord : vec2f) -> @location(0) vec4f {
-        return textureSample(img, imgSampler, texCoord);
-      }
-    `,
-    });
+        @group(0) @binding(0) var imgSampler : sampler;
+        @group(0) @binding(1) var img : texture_2d<f32>;
 
-    const pipeline = gpuDevice.createRenderPipeline({
-      layout: 'auto',
-      vertex: {
-        module: mipmapShaderModule,
-        entryPoint: 'vertexMain',
-      },
-      fragment: {
-        module: mipmapShaderModule,
-        entryPoint: 'fragmentMain',
-        targets: [
-          {
-            format: textureDescriptor.format,
-          },
-        ],
-      },
-      primitive: {
-        topology: 'triangle-strip',
-        stripIndexFormat: 'uint32',
-      },
-    });
+        @fragment
+        fn fragmentMain(@location(0) texCoord : vec2f) -> @location(0) vec4f {
+          return textureSample(img, imgSampler, texCoord);
+        }
+      `,
+      });
+    }
 
-    const sampler = gpuDevice.createSampler({ minFilter: 'linear' });
+    if (this.__generateMipmapsPipeline != null && textureDescriptor.format != this.__generateMipmapsFormat) {
+      this.__generateMipmapsPipeline = undefined;
+    }
+    if (this.__generateMipmapsPipeline == null) {
+      this.__generateMipmapsPipeline = gpuDevice.createRenderPipeline({
+        layout: 'auto',
+        vertex: {
+          module: this.__generateMipmapsShaderModule,
+          entryPoint: 'vertexMain',
+        },
+        fragment: {
+          module: this.__generateMipmapsShaderModule,
+          entryPoint: 'fragmentMain',
+          targets: [
+            {
+              format: textureDescriptor.format,
+            },
+          ],
+        },
+        primitive: {
+          topology: 'triangle-strip',
+          stripIndexFormat: 'uint32',
+        },
+      });
+      this.__generateMipmapsFormat = textureDescriptor.format;
+    }
 
+    if (this.__generateMipmapsSampler == null) {
+      this.__generateMipmapsSampler = gpuDevice.createSampler({ minFilter: 'linear' });
+    }
     const commandEncoder = gpuDevice.createCommandEncoder({});
     for (let j = 0; j < depthOrArrayLayers; ++j) {
       let srcView = texture.createView({
@@ -324,11 +338,11 @@ export class WebGpuResourceRepository
         });
 
         const bindGroup = gpuDevice.createBindGroup({
-          layout: pipeline.getBindGroupLayout(0),
+          layout: this.__generateMipmapsPipeline.getBindGroupLayout(0),
           entries: [
             {
               binding: 0,
-              resource: sampler,
+              resource: this.__generateMipmapsSampler,
             },
             {
               binding: 1,
@@ -338,7 +352,7 @@ export class WebGpuResourceRepository
         });
 
         // Render
-        passEncoder.setPipeline(pipeline);
+        passEncoder.setPipeline(this.__generateMipmapsPipeline);
         passEncoder.setBindGroup(0, bindGroup);
         passEncoder.draw(4);
         passEncoder.end();
