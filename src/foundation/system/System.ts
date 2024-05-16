@@ -488,7 +488,7 @@ export class System {
   }
 
   public static getCanvasSize() {
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+    const repo = CGAPIResourceRepository.getCgApiResourceRepository();
     return repo.getCanvasSize();
   }
 
