@@ -769,6 +769,7 @@ export class WebGpuResourceRepository
     const meshRendererComponent = entity.getMeshRenderer()!;
     const sceneGraphComponent = entity.getSceneGraph()!;
     sceneGraphComponent.normalMatrixInner; // update normal matrix. do not remove this line.
+
     const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent._updateCount}`;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
@@ -882,7 +883,7 @@ export class WebGpuResourceRepository
             view: texture.createView(),
             resolveTarget: resolveTexture.createView(),
             loadOp: 'load',
-            storeOp: 'discard',
+            storeOp: 'store',
           });
         }
         renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
@@ -1134,7 +1135,7 @@ export class WebGpuResourceRepository
       },
       depthStencil: {
         depthWriteEnabled: true,
-        depthCompare: 'less',
+        depthCompare: renderPass.isDepthTest ? 'less' : 'always',
         format: depthStencilFormat,
       },
       multisample: {

@@ -20,6 +20,7 @@ import { ComponentType, HdriFormatEnum, PixelFormat } from '../../definitions';
 import { MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
+import { Vector3 } from '../../math/Vector3';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -649,7 +650,7 @@ export class ForwardRenderPipeline extends RnObject {
     expression.tryToSetUniqueName('GenerateMipmaps', true);
     const renderPass = new RenderPass();
     expression.addRenderPasses([renderPass]);
-    expression.tryToSetUniqueName('GenerateMipmaps', true);
+    renderPass.tryToSetUniqueName('GenerateMipmaps', true);
 
     renderPass.toClearDepthBuffer = false;
 
@@ -688,6 +689,7 @@ export class ForwardRenderPipeline extends RnObject {
       tag: 'type',
       value: 'background-assets',
     });
+    entityGamma.localPosition = Vector3.fromCopy3(0, 0, 0.5);
 
     const sampler = new Sampler({
       wrapS: TextureParameter.ClampToEdge,
