@@ -8,6 +8,12 @@
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
+// #param pointSize: f32; // initialValue=30
+// #param pointDistanceAttenuation: vec<f32>; // initialValue=(0,0.1,0.01)
+
+// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+// #param depthBiasPV: mat4; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
+
 @vertex
 fn main(
 #ifdef RN_USE_INSTANCE
@@ -43,18 +49,23 @@ fn main(
 #ifdef RN_USE_TEXCOORD_2
   @location(11) texcoord_2: vec2<f32>,
 #endif
+)
+{
 
-) -> VertexOutput {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
   var output : VertexOutput;
   let instanceId = u32(instance_ids.x);
+
   let worldMatrix = get_worldMatrix(instanceId);
-  let normalMatrix = get_normalMatrix(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID, 0);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
+  let normalMatrix = get_normalMatrix(instanceId);
+  let isBillboard = get_isBillboard(instanceId);
 
   let skeletalComponentSID = u32(instance_ids.y);
+  let blendShapeComponentSID = u32(instance_ids.z);
+
 
 #ifdef RN_USE_NORMAL
 #else
@@ -76,7 +87,7 @@ fn main(
   let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
 
-  let blendShapeComponentSID = u32(instance_ids.z);
+  // Skeletal
   let geom = processGeometryWithMorphingAndSkinning(
     skeletalComponentSID,
     blendShapeComponentSID,
@@ -92,29 +103,11 @@ fn main(
   );
 
   output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
-  output.position_inWorld = geom.position_inWorld.xyz;
-  output.normal_inWorld = geom.normal_inWorld;
 
-#ifdef RN_USE_TEXCOORD_0
+  output.color = color;
+  output.normal_inWorld = normalMatrix * normal;
   output.texcoord_0 = texcoord_0;
-#endif
-#ifdef RN_USE_TEXCOORD_1
-  output.texcoord_1 = texcoord_1;
-#endif
-#ifdef RN_USE_TEXCOORD_2
-  output.texcoord_2 = texcoord_2;
-#endif
-
-#ifdef RN_USE_COLOR_0
-  output.color_0 = color_0;
-#endif
-
-#ifdef RN_USE_TANGENT
-  output.tangent_inWorld = normalMatrix * tangent.xyz;
-  output.binormal_inWorld = cross(output.tangent_inWorld, output.normal_inWorld) * tangent.w;
-#endif
-
-  output.instanceInfo = instance_ids.x;
+  output.baryCentricCoord = baryCentricCoord.xyz;
 
   let visibility = get_isVisible(instanceId);
   if (!visibility)
@@ -126,5 +119,6 @@ fn main(
   output.shadowCoord = get_depthBiasPV(materialSID, 0) * geom.position_inWorld;
 #endif
 
-  return output;
+#pragma shaderity: require(../common/pointSprite.glsl)
+
 }

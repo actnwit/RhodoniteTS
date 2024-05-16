@@ -17,7 +17,6 @@ import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';
 import { Is } from '../../misc/Is';
-import { Logger } from '../../misc/Logger';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import type { MaterialTypeName } from './MaterialTypes';
