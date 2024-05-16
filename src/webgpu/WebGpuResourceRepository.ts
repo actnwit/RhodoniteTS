@@ -1188,7 +1188,7 @@ export class WebGpuResourceRepository
     let height = 0;
     for (let i = 0; i < mipLevelCount; i++) {
       const loadOneLevel = () => {
-        return new Promise<HTMLImageElement[]>((resolve, reject) => {
+        return new Promise<HTMLImageElement[] | HTMLCanvasElement[]>((resolve, reject) => {
           let loadedCount = 0;
           const images: HTMLImageElement[] = [];
           let extension = '.jpg';
@@ -1249,7 +1249,7 @@ export class WebGpuResourceRepository
         });
       };
 
-      let images: HTMLImageElement[];
+      let images: HTMLImageElement[] | HTMLCanvasElement[];
       try {
         images = await loadOneLevel();
       } catch (e) {
@@ -1261,12 +1261,16 @@ export class WebGpuResourceRepository
           console.error(`failed to load ${uri}`);
         }
       }
-      const imageBitmaps: ImageBitmap[] = [];
+      const imageBitmaps: ImageBitmap[] | HTMLCanvasElement[] = [];
       for (const image of images!) {
-        await image.decode();
-        const imageBitmap = await createImageBitmap(image);
-        imageBitmaps.push(imageBitmap);
-        (imageBitmap as any).side = (image as any).side;
+        if ((image as any).hdriFormat === HdriFormat.HDR_LINEAR) {
+          imageBitmaps.push(image as any);
+        } else {
+          await (image as any).decode();
+          const imageBitmap = await createImageBitmap(image);
+          imageBitmaps.push(imageBitmap as any);
+          (imageBitmap as any).side = (image as any).side;
+        }
       }
       const imageObj: {
         posX?: DirectTextureData;
@@ -1355,7 +1359,8 @@ export class WebGpuResourceRepository
     const cubemapTexture = gpuDevice.createTexture({
       dimension: '2d',
       size: [width, height, 6],
-      format: 'rgba8unorm',
+      format:
+        (mipmaps[0][0] as any).hdriFormat === HdriFormat.HDR_LINEAR ? 'rgba16float' : 'rgba8unorm',
       mipLevelCount: mipLevelCount,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
