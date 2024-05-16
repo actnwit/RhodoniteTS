@@ -57,7 +57,7 @@ fn main(
   let viewMatrix = get_viewMatrix(cameraSID, 0);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
-  let skeletalComponentSID = u32(instance_ids.y);
+  let skeletalComponentSID = i32(instance_ids.y);
 
 #ifdef RN_USE_NORMAL
 #else

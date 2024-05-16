@@ -80,7 +80,7 @@ fn skinning(
 
 
 fn processGeometryWithMorphingAndSkinning(
-  skeletalComponentSID: u32,
+  skeletalComponentSID: i32,
   blendShapeComponentSID: u32,
   worldMatrix: mat4x4<f32>,
   viewMatrix: mat4x4<f32>,
@@ -109,8 +109,8 @@ fn processGeometryWithMorphingAndSkinning(
   var worldMatrixInner = worldMatrix;
 
 #ifdef RN_IS_SKINNING
-  if (skeletalComponentSID >= 0u) {
-    output = skinning(skeletalComponentSID, inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
+  if (skeletalComponentSID >= 0) {
+    output = skinning(u32(skeletalComponentSID), inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
   } else {
 #endif
     output.normalMatrix = inNormalMatrix;
