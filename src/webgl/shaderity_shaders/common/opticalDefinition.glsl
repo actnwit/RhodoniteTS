@@ -38,8 +38,8 @@ void getLightAttenuated(Light light) {
     // Directional Light don't attenuate geometically
   // }
 
-  // Point Light and Spot Light
-  if (light.type != 0)
+  // Point Light
+  if (light.type == 1)
   {
     light.attenuatedIntensity *= getRangeAttenuation(light);
   }
