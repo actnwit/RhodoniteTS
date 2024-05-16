@@ -1161,7 +1161,7 @@ export class WebGpuResourceRepository
         stripIndexFormat: stripIndexFormat,
       },
       depthStencil: {
-        depthWriteEnabled: true,
+        depthWriteEnabled: renderPass.isDepthTest ? true : false,
         depthCompare: renderPass.isDepthTest ? 'less' : 'always',
         format: depthStencilFormat,
       },
