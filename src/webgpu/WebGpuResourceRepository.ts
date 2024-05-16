@@ -78,14 +78,14 @@ export class WebGpuResourceRepository
 {
   private static __instance: WebGpuResourceRepository;
   private __webGpuResources: Map<WebGLResourceHandle, WebGpuResource> = new Map();
-  private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
-  private __materialStateVersionMap: Map<RenderPipelineId, number> = new Map();
   private __resourceCounter: number = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __webGpuDeviceWrapper?: WebGpuDeviceWrapper;
   private __storageBuffer?: GPUBuffer;
   private __storageBlendShapeBuffer?: GPUBuffer;
   private __bindGroupStorageBuffer?: GPUBindGroup;
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
+  private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
+  private __materialStateVersionMap: Map<RenderPipelineId, number> = new Map();
   private __RenderBundleMap: Map<RenderPipelineId, GPURenderBundle> = new Map();
   private __bindGroupTextureMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
@@ -107,6 +107,16 @@ export class WebGpuResourceRepository
 
   private constructor() {
     super();
+  }
+
+  clearCache() {
+    this.__webGpuRenderPipelineMap.clear();
+    this.__materialStateVersionMap.clear();
+    this.__RenderBundleMap.clear();
+    this.__bindGroupTextureMap.clear();
+    this.__bindGroupLayoutTextureMap.clear();
+    this.__bindGroupSamplerMap.clear();
+    this.__bindGroupLayoutSamplerMap.clear();
   }
 
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
@@ -1911,6 +1921,9 @@ export class WebGpuResourceRepository
    * @param renderBufferUid
    */
   deleteRenderBuffer(renderBufferUid: WebGPUResourceHandle) {
+    this.flush();
+    this.clearCache();
+
     const texture = this.__webGpuResources.get(renderBufferUid) as GPUTexture;
 
     if (texture != null) {
@@ -2040,6 +2053,9 @@ export class WebGpuResourceRepository
   }
 
   deleteTexture(textureHandle: WebGLResourceHandle) {
+    this.flush();
+    this.clearCache();
+
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
 
     if (texture != null) {
