@@ -330,7 +330,7 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
-   * create Renderbuffer
+   * create a Renderbuffer
    */
   createRenderBuffer(
     width: Size,
@@ -339,6 +339,12 @@ export interface ICGAPIResourceRepository {
     isMSAA: boolean,
     sampleCountMSAA: Count
   ): CGAPIResourceHandle;
+
+  /**
+   * delete a RenderBuffer
+   * @param renderBufferUid
+   */
+  deleteRenderBuffer(renderBufferUid: CGAPIResourceHandle): void;
 
   /**
    * attach the DepthBuffer to the FrameBufferObject

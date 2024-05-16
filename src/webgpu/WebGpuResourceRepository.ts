@@ -283,7 +283,10 @@ export class WebGpuResourceRepository
       });
     }
 
-    if (this.__generateMipmapsPipeline != null && textureDescriptor.format != this.__generateMipmapsFormat) {
+    if (
+      this.__generateMipmapsPipeline != null &&
+      textureDescriptor.format != this.__generateMipmapsFormat
+    ) {
       this.__generateMipmapsPipeline = undefined;
     }
     if (this.__generateMipmapsPipeline == null) {
@@ -1901,6 +1904,19 @@ export class WebGpuResourceRepository
     const textureHandle = this.__registerResource(gpuTexture);
 
     return textureHandle;
+  }
+
+  /**
+   * delete a RenderBuffer
+   * @param renderBufferUid
+   */
+  deleteRenderBuffer(renderBufferUid: WebGPUResourceHandle) {
+    const texture = this.__webGpuResources.get(renderBufferUid) as GPUTexture;
+
+    if (texture != null) {
+      texture.destroy();
+      this.__webGpuResources.delete(renderBufferUid);
+    }
   }
 
   /**
