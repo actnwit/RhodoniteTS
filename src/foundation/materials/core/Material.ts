@@ -448,7 +448,8 @@ export class Material extends RnObject {
         }
       });
     } else {
-      this._autoFieldVariablesOnly.forEach((value) => {
+      const values = this._autoFieldVariablesOnly.values();
+      for (const value of values) {
         const info = value.info;
         if (CompositionType.isTexture(info.compositionType)) {
           if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
@@ -470,7 +471,7 @@ export class Material extends RnObject {
             value.value
           );
         }
-      });
+      }
     }
   }
 
@@ -487,7 +488,8 @@ export class Material extends RnObject {
     const materialTypeName = this.__materialTypeName;
     const map = Material._soloDatumFields.get(materialTypeName);
     if (map == null) return;
-    map.forEach((value, key) => {
+    const values = map.values();
+    for (const value of values) {
       const info = value.info;
       if (args.setUniform || CompositionType.isTexture(info.compositionType)) {
         if (!info.isCustomSetting) {
@@ -503,7 +505,7 @@ export class Material extends RnObject {
           }
         }
       }
-    });
+    }
   }
 
   private __getTargetShaderSemantics(uniformName: string) {

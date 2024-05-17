@@ -446,13 +446,13 @@ export class MathClassUtil {
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
       objForDetectType._v[3] = val._v[3];
+    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+      objForDetectType._v[0] = val._v[0];
+      objForDetectType._v[1] = val._v[1];
     } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
-    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
-      objForDetectType._v[0] = val._v[0];
-      objForDetectType._v[1] = val._v[1];
     } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
       if (typeof val._v === 'undefined') {
         objForDetectType._v[0] = val;

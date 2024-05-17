@@ -374,7 +374,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
-    if (Is.not.exist(mesh)) {
+    if (mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
       return;
     }
