@@ -312,7 +312,7 @@ export class Mesh implements IMesh {
   ///
 
   get primitives() {
-    return Array.from(this.__primitives);
+    return this.__primitives;
   }
 
   get meshUID() {

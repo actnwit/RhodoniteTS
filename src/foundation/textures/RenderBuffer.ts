@@ -59,8 +59,8 @@ export class RenderBuffer extends RnObject implements IRenderable {
   destroy3DAPIResources() {
     this.width = 0;
     this.height = 0;
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.deleteRenderBuffer(this._textureResourceUid);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.deleteRenderBuffer(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     return true;
   }

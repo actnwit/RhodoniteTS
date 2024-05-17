@@ -492,6 +492,15 @@ function fromWgslString(str_: string): CompositionTypeEnum {
     case 'vec4<f32>':
       str = 'vec4';
       break;
+    case 'mat2x2<f32>':
+      str = 'mat2';
+      break;
+    case 'mat3x3<f32>':
+      str = 'mat3';
+      break;
+    case 'mat4x4<f32>':
+      str = 'mat4';
+      break;
     case 'vec2<i32>':
       str = 'vec2';
       break;
@@ -500,6 +509,15 @@ function fromWgslString(str_: string): CompositionTypeEnum {
       break;
     case 'vec4<i32>':
       str = 'vec4';
+      break;
+    case 'mat2x2<i32>':
+      str = 'mat2';
+      break;
+    case 'mat3x3<i32>':
+      str = 'mat3';
+      break;
+    case 'mat4x4<i32>':
+      str = 'mat4';
       break;
     case 'sampler_2d':
       str = 'TEXTURE_2D';

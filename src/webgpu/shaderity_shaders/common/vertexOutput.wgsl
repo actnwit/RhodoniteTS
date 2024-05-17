@@ -8,5 +8,7 @@ struct VertexOutput {
   @location(5) texcoord_2 : vec2<f32>,
   @location(6) tangent_inWorld : vec3<f32>,
   @location(7) binormal_inWorld : vec3<f32>,
-  @location(8) instanceInfo : f32,
+  @location(8) baryCentricCoord: vec3<f32>,
+  @location(9) shadowCoord : vec4<f32>,
+  @location(10) instanceInfo : f32,
 }

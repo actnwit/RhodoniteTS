@@ -582,6 +582,18 @@ export class WebGLResourceRepository
     );
   }
 
+  setUniform1iForTexture(shaderProgram_: WebGLProgram, semanticStr: string, value: any) {
+    const shaderProgram = shaderProgram_ as RnWebGLProgram;
+    const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
+    if (info == null) {
+      return;
+    }
+    const gl = this.__glw!.getRawContext();
+    const loc: WebGLUniformLocation = (shaderProgram as any)[semanticStr];
+    gl.uniform1i(loc, value[0]);
+    this.bindTexture(info, value);
+  }
+
   /**
    * set an uniform value
    */
@@ -593,7 +605,7 @@ export class WebGLResourceRepository
   ) {
     const shaderProgram = shaderProgram_ as RnWebGLProgram;
     const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
-    if (Is.not.exist(info)) {
+    if (info == null) {
       return false;
     }
 
@@ -2534,12 +2546,11 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   setViewport(viewport?: Vector4) {
     if (viewport) {
       this.__glw?.setViewportAsVector4(viewport);
+      SystemState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
     } else {
       this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
+      SystemState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
     }
-    SystemState.viewportAspectRatio =
-      (this.__glw!.viewport.z - this.__glw!.viewport.x) /
-      (this.__glw!.viewport.w - this.__glw!.viewport.y);
   }
 
   clearFrameBuffer(renderPass: RenderPass) {

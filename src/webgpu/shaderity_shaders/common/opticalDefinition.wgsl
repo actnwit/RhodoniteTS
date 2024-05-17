@@ -39,8 +39,8 @@ fn getLightAttenuated(light: Light) -> Light {
     // Directional Light don't attenuate geometically
   // }
 
-  // Point Light and Spot Light
-  if (light.lightType != 0)
+  // Point Light
+  if (light.lightType == 1)
   {
     newLight.attenuatedIntensity *= getRangeAttenuation(light);
   }
@@ -68,7 +68,7 @@ fn getLight(lightIdx: u32, v_position_inWorld: vec3<f32>) -> Light {
   light.intensity = lightIntensity;
   light.position = lightPosition;
   if (lightType < -0.5) { // disabled light
-    light.intensity = vec3(0.0);
+    light.intensity = vec3f(0.0);
     light.lightType = -1;
   } else if (0.75 < lightType) { // is pointlight or spotlight
     light.pointToLight = lightPosition - v_position_inWorld;

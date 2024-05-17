@@ -30,6 +30,8 @@ import { VectorN } from '../math/VectorN';
 import { ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import ClassicSingleShaderVertex from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
 import ClassicSingleShaderFragment from '../../webgl/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
+import ClassicSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.vert';
+import ClassicSingleShaderFragmentWebgpu from '../../webgpu/shaderity_shaders/ClassicSingleShader/ClassicSingleShader.frag';
 import pbrSingleShaderVertex from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
 import pbrSingleShaderFragment from '../../webgl/shaderity_shaders/PbrSingleShader/PbrSingleShader.frag';
 import pbrSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PbrSingleShader/PbrSingleShader.vert';
@@ -431,6 +433,8 @@ function createClassicUberMaterial({
     useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
+    vertexShaderWebGpu: ClassicSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: ClassicSingleShaderFragmentWebgpu,
     noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
