@@ -449,12 +449,10 @@ export class RenderPass extends RnObject {
   }
 
   getAppropriateMaterial(primitive: Primitive): Material {
-    let material;
+    let material = this._getMaterialOf(primitive);
 
-    if (this.__hasMaterialOf(primitive)) {
-      material = this._getMaterialOf(primitive) as Material;
-    } else if (this.material != null) {
-      material = this.material;
+    if (this.__material != null) {
+      material = this.__material;
     } else {
       material = primitive.material;
     }
