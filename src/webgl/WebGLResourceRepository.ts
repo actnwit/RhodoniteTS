@@ -2546,12 +2546,11 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   setViewport(viewport?: Vector4) {
     if (viewport) {
       this.__glw?.setViewportAsVector4(viewport);
+      SystemState.viewportAspectRatio = (viewport.z - viewport.x) / (viewport.w - viewport.y);
     } else {
       this.__glw?.setViewport(0, 0, this.__glw!.width, this.__glw!.height);
+      SystemState.viewportAspectRatio = this.__glw!.width / this.__glw!.height;
     }
-    SystemState.viewportAspectRatio =
-      (this.__glw!.viewport.z - this.__glw!.viewport.x) /
-      (this.__glw!.viewport.w - this.__glw!.viewport.y);
   }
 
   clearFrameBuffer(renderPass: RenderPass) {

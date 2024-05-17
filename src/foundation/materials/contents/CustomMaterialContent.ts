@@ -233,32 +233,28 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     // IBL Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
+      this.__webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
-        firstTime,
         [5, args.diffuseCube]
       );
     } else {
-      this.__webglResourceRepository.setUniformValue(
+      this.__webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
-        firstTime,
         [5, dummyBlackCubeTexture]
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
-      this.__webglResourceRepository.setUniformValue(
+      this.__webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
-        firstTime,
         [6, args.specularCube]
       );
     } else {
-      this.__webglResourceRepository.setUniformValue(
+      this.__webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
-        firstTime,
         [6, dummyBlackCubeTexture]
       );
     }
