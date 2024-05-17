@@ -467,7 +467,7 @@ export class MathClassUtil {
         }
         objForDetectType._v[0] = val;
       } else {
-        if (objForDetectType._v[0] == val._[0]) {
+        if (objForDetectType._v[0] == val._v[0]) {
           return false;
         }
         objForDetectType._v[0] = val._v[0];
