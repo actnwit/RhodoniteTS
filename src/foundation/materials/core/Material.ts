@@ -37,11 +37,10 @@ import {
   _getAttributeInfo,
   _outputVertexAttributeBindingInfo,
   _setupGlobalShaderDefinitionWebGL,
-  ShaderHandler,
   _createProgramAsSingleOperationWebGpu,
 } from './ShaderHandler';
-import Shaderity from 'shaderity';
 import { Texture } from '../../textures';
+import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 
 /**
  * The material class.
@@ -76,6 +75,8 @@ export class Material extends RnObject {
 
   private __stateVersion = 0;
   private static __stateVersion = 0;
+
+  private static __webglResourceRepository?: WebGLResourceRepository;
 
   // static fields
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
@@ -441,7 +442,10 @@ export class Material extends RnObject {
     firstTime: boolean,
     shaderProgram: WebGLProgram
   ) {
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    if (Material.__webglResourceRepository == null) {
+      Material.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    }
+    const webglResourceRepository = Material.__webglResourceRepository!;
     if (args.setUniform) {
       this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
@@ -458,8 +462,7 @@ export class Material extends RnObject {
         }
       });
     } else {
-      const values = this._autoFieldVariablesOnly.values();
-      for (const value of values) {
+      for (const [key, value] of this._autoFieldVariablesOnly) {
         const info = value.info;
         if (CompositionType.isTexture(info.compositionType)) {
           if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
@@ -471,8 +474,7 @@ export class Material extends RnObject {
           } else {
             webglResourceRepository.bindTexture(info, value.value);
           }
-        }
-        if (info.needUniformInDataTextureMode) {
+        } else if (info.needUniformInDataTextureMode) {
           webglResourceRepository.setUniformValue(
             shaderProgram,
             info.semantic.str,
