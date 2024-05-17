@@ -521,12 +521,12 @@ export class CameraComponent extends Component {
         this._projectionMatrix.m20 = 0;
         this._projectionMatrix.m21 = 0;
         if (zFar === Infinity) {
+          this._projectionMatrix.m22 = -1;
+          this._projectionMatrix.m23 = -zNear;
+        } else {
           const nf = 1 / (zNear - zFar);
           this._projectionMatrix.m22 = zFar * nf;
           this._projectionMatrix.m23 = zFar * zNear * nf;
-        } else {
-          this._projectionMatrix.m22 = -1;
-          this._projectionMatrix.m23 = -zNear;
         }
         this._projectionMatrix.m30 = 0;
         this._projectionMatrix.m31 = 0;
@@ -598,12 +598,12 @@ export class CameraComponent extends Component {
         this._projectionMatrix.m20 = 0;
         this._projectionMatrix.m21 = 0;
         if (zFar === Infinity) {
+          this._projectionMatrix.m22 = -1;
+          this._projectionMatrix.m23 = -2 * zNear;
+        } else {
           const nf = 1 / (zNear - zFar);
           this._projectionMatrix.m22 = (zFar + zNear) * nf;
           this._projectionMatrix.m23 = 2.0 * zFar * zNear * nf;
-        } else {
-          this._projectionMatrix.m22 = -1;
-          this._projectionMatrix.m23 = -2 * zNear;
         }
         this._projectionMatrix.m30 = 0;
         this._projectionMatrix.m31 = 0;
