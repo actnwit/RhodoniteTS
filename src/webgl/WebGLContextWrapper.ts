@@ -78,6 +78,8 @@ export class WebGLContextWrapper {
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
+  private __boundTextures: Map<Index, WebGLTexture> = new Map();
+  private __boundSamplers: Map<Index, WebGLSampler> = new Map();
   private __isDebugMode = false;
   private __viewport_left = 0;
   private __viewport_top = 0;
@@ -315,19 +317,31 @@ export class WebGLContextWrapper {
   }
 
   bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture) {
-    this.__activeTexture(activeTextureIndex);
-    this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
+    const tex = this.__boundTextures.get(activeTextureIndex);
+    if (tex !== texture) {
+      this.__activeTexture(activeTextureIndex);
+      this.__gl.bindTexture(this.__gl.TEXTURE_2D, texture);
+      this.__boundTextures.set(activeTextureIndex, texture);
+    }
 
     this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
   bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
+    // const samp = this.__boundSamplers.get(activeTextureIndex);
+    // if (samp !== sampler) {
     this.__gl.bindSampler(activeTextureIndex, sampler);
+    this.__boundSamplers.set(activeTextureIndex, sampler);
+    // }
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
-    this.__activeTexture(activeTextureIndex);
-    this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
+    const tex = this.__boundTextures.get(activeTextureIndex);
+    if (tex !== texture) {
+      this.__activeTexture(activeTextureIndex);
+      this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, texture);
+      this.__boundTextures.set(activeTextureIndex, texture);
+    }
 
     this.__activeTexturesCube[activeTextureIndex] = texture;
   }
@@ -335,12 +349,14 @@ export class WebGLContextWrapper {
   unbindTexture2D(activeTextureIndex: Index) {
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
+    this.__boundTextures.delete(activeTextureIndex);
     delete this.__activeTextures2D[activeTextureIndex];
   }
 
   unbindTextureCube(activeTextureIndex: Index) {
     this.__activeTexture(activeTextureIndex);
     this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
+    this.__boundTextures.delete(activeTextureIndex);
     delete this.__activeTexturesCube[activeTextureIndex];
   }
 
