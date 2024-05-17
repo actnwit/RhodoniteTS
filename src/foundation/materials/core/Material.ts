@@ -75,6 +75,7 @@ export class Material extends RnObject {
   private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
 
   private __stateVersion = 0;
+  private static __stateVersion = 0;
 
   // static fields
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
@@ -95,6 +96,10 @@ export class Material extends RnObject {
     this.__materialTypeName = materialTypeName;
   }
 
+  static get stateVersion() {
+    return Material.__stateVersion;
+  }
+
   ///
   /// Parameter Setters
   ///
@@ -109,9 +114,13 @@ export class Material extends RnObject {
       } else {
         valueObj = this._allFieldVariables.get(propertyIndex);
       }
-      MathClassUtil._setForce(valueObj!.value, value);
+      const updated = MathClassUtil._setForce(valueObj!.value, value);
+
+      if (updated) {
+        this.__stateVersion++;
+        Material.__stateVersion++;
+      }
     }
-    this.__stateVersion++;
   }
 
   public setTextureParameter(
@@ -147,6 +156,7 @@ export class Material extends RnObject {
           }
         }
         this.__stateVersion++;
+        Material.__stateVersion++;
       };
 
       if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
@@ -194,6 +204,7 @@ export class Material extends RnObject {
         }
       }
       this.__stateVersion++;
+      Material.__stateVersion++;
     });
   }
 
@@ -530,6 +541,7 @@ export class Material extends RnObject {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
     this.__stateVersion++;
+    Material.__stateVersion++;
   }
 
   /**
@@ -547,6 +559,7 @@ export class Material extends RnObject {
     this.__blendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
     this.__stateVersion++;
+    Material.__stateVersion++;
   }
 
   /**
@@ -559,6 +572,7 @@ export class Material extends RnObject {
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
     this.__stateVersion++;
+    Material.__stateVersion++;
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {
@@ -599,6 +613,7 @@ export class Material extends RnObject {
     }
     this.__alphaToCoverage = alphaToCoverage;
     this.__stateVersion++;
+    Material.__stateVersion++;
   }
   get alphaToCoverage(): boolean {
     return this.__alphaToCoverage;

@@ -438,31 +438,47 @@ export class MathClassUtil {
     return obj;
   }
 
-  static _setForce(objForDetectType: any, val: any): void {
-    const obj = objForDetectType as any;
-
+  static _setForce(objForDetectType: any, val: any): boolean {
     if (objForDetectType instanceof MutableVector4 || objForDetectType instanceof Vector4) {
+      if (objForDetectType.isEqual(val)) {
+        return false;
+      }
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
       objForDetectType._v[3] = val._v[3];
     } else if (objForDetectType instanceof MutableVector2 || objForDetectType instanceof Vector2) {
+      if (objForDetectType.isEqual(val)) {
+        return false;
+      }
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
     } else if (objForDetectType instanceof MutableVector3 || objForDetectType instanceof Vector3) {
+      if (objForDetectType.isEqual(val)) {
+        return false;
+      }
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
     } else if (objForDetectType instanceof MutableScalar || objForDetectType instanceof Scalar) {
       if (typeof val._v === 'undefined') {
+        if (objForDetectType._v[0] == val) {
+          return false;
+        }
         objForDetectType._v[0] = val;
       } else {
+        if (objForDetectType._v[0] == val._[0]) {
+          return false;
+        }
         objForDetectType._v[0] = val._v[0];
       }
     } else if (
       objForDetectType instanceof MutableMatrix33 ||
       objForDetectType instanceof Matrix33
     ) {
+      if (objForDetectType.isEqual(val)) {
+        return false;
+      }
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
@@ -476,6 +492,9 @@ export class MathClassUtil {
       objForDetectType instanceof MutableMatrix44 ||
       objForDetectType instanceof Matrix44
     ) {
+      if (objForDetectType.isEqual(val)) {
+        return false;
+      }
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
@@ -496,6 +515,9 @@ export class MathClassUtil {
       objForDetectType instanceof MutableQuaternion ||
       objForDetectType instanceof Quaternion
     ) {
+      if (objForDetectType.isEqual(val)) {
+        return false;
+      }
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
@@ -507,14 +529,51 @@ export class MathClassUtil {
       } else {
         valArray = val;
       }
+      let isSame = true;
+      for (let i = 0; i < valArray.length; i++) {
+        if (objForDetectType._v[i] !== valArray[i]) {
+          isSame = false;
+          break;
+        }
+      }
+      if (isSame) {
+        return false;
+      }
       for (let i = 0; i < valArray.length; i++) {
         objForDetectType._v[i] = valArray[i];
       }
     } else if (Array.isArray(objForDetectType)) {
+      let isSame = true;
+      for (let i = 0; i < objForDetectType.length; i++) {
+        if (objForDetectType[i] !== val[i]) {
+          isSame = false;
+          break;
+        }
+      }
+      if (isSame) {
+        return false;
+      }
       for (let i = 0; i < objForDetectType.length; i++) {
         objForDetectType[i] = val._v[i];
       }
     } else if (!isNaN(objForDetectType._v.length)) {
+      let isSame = true;
+      for (let i = 0; i < objForDetectType._v.length; i++) {
+        if (Array.isArray(val)) {
+          if (objForDetectType._v[i] !== val[i]) {
+            isSame = false;
+            break;
+          }
+        } else {
+          if (objForDetectType._v[i] !== val._v[i]) {
+            isSame = false;
+            break;
+          }
+        }
+      }
+      if (isSame) {
+        return false;
+      }
       for (let i = 0; i < objForDetectType._v.length; i++) {
         if (Array.isArray(val)) {
           objForDetectType._v[i] = val[i];
@@ -526,6 +585,6 @@ export class MathClassUtil {
       console.warn('Unknown type _setForce');
     }
 
-    // maybe objForDetectType is number
+    return true;
   }
 }

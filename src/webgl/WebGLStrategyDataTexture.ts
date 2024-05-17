@@ -43,6 +43,8 @@ import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsIn
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 
 declare const spector: any;
 
@@ -62,6 +64,10 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
   private __latestPrimitivePositionAccessorVersions: number[] = [];
+
+  private __lastMaterialsUpdateCount = -1;
+  private __lastTransformComponentsUpdateCount = -1;
+  private __lastCameraComponentsUpdateCount = -1;
   private constructor() {}
 
   public static dumpDataTextureBuffer() {
@@ -577,9 +583,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   common_$prerender(): void {
-    // Setup GPU Storage (Data Texture & UBO)
-    this.__createAndUpdateDataTexture();
-    this.__createAndUpdateUBO();
+    if (TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
+      Material.stateVersion !== this.__lastMaterialsUpdateCount
+    ) {
+      // Setup GPU Storage (Data Texture & UBO)
+      this.__createAndUpdateDataTexture();
+      this.__createAndUpdateUBO();
+      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
+    }
+
 
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as
       | LightComponent[]

@@ -37,7 +37,9 @@ import { RnXR } from '../xr/main';
 import { Config } from '../foundation/core/Config';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
 import { Accessor } from '../foundation/memory/Accessor';
-import { BlendShapeComponent } from '../foundation';
+import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
+import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
@@ -49,6 +51,11 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __uniformMorphOffsetsTypedArray?: Uint32Array;
   private __uniformMorphWeightsTypedArray?: Float32Array;
+
+  private __lastMaterialsUpdateCount = -1;
+  private __lastTransformComponentsUpdateCount = -1;
+  private __lastCameraComponentsUpdateCount = -1;
+
   private constructor() {}
 
   static getInstance() {
@@ -389,8 +396,17 @@ ${indexStr}
     // throw new Error('Method not implemented.');
   }
   common_$prerender(): void {
-    this.__createAndUpdateStorageBuffer();
-    this.__updateUniformMorph();
+    if (
+      TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
+      Material.stateVersion !== this.__lastMaterialsUpdateCount
+    ) {
+      this.__createAndUpdateStorageBuffer();
+      this.__updateUniformMorph();
+      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
+    }
   }
   common_$render(
     primitiveUids: Int32Array,
