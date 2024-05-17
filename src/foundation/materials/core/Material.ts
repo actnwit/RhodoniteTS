@@ -435,10 +435,9 @@ export class Material extends RnObject {
       this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
         if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
-          webglResourceRepository.setUniformValue(
+          webglResourceRepository.setUniform1iForTexture(
             shaderProgram,
             info.semantic.str,
-            firstTime,
             value.value
           );
         } else {
@@ -453,10 +452,9 @@ export class Material extends RnObject {
         const info = value.info;
         if (CompositionType.isTexture(info.compositionType)) {
           if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
-            webglResourceRepository.setUniformValue(
+            webglResourceRepository.setUniform1iForTexture(
               shaderProgram,
               info.semantic.str,
-              firstTime,
               value.value
             );
           } else {

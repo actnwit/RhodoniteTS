@@ -441,27 +441,27 @@ export class MathClassUtil {
   static _setForce(objForDetectType: any, val: any): void {
     const obj = objForDetectType as any;
 
-    if (objForDetectType instanceof Vector4 || objForDetectType instanceof MutableVector4) {
+    if (objForDetectType instanceof MutableVector4 || objForDetectType instanceof Vector4) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
       objForDetectType._v[3] = val._v[3];
-    } else if (objForDetectType instanceof Vector2 || objForDetectType instanceof MutableVector2) {
+    } else if (objForDetectType instanceof MutableVector2 || objForDetectType instanceof Vector2) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
-    } else if (objForDetectType instanceof Vector3 || objForDetectType instanceof MutableVector3) {
+    } else if (objForDetectType instanceof MutableVector3 || objForDetectType instanceof Vector3) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
       objForDetectType._v[2] = val._v[2];
-    } else if (objForDetectType instanceof Scalar || objForDetectType instanceof MutableScalar) {
+    } else if (objForDetectType instanceof MutableScalar || objForDetectType instanceof Scalar) {
       if (typeof val._v === 'undefined') {
         objForDetectType._v[0] = val;
       } else {
         objForDetectType._v[0] = val._v[0];
       }
     } else if (
-      objForDetectType instanceof Matrix33 ||
-      objForDetectType instanceof MutableMatrix33
+      objForDetectType instanceof MutableMatrix33 ||
+      objForDetectType instanceof Matrix33
     ) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
@@ -473,8 +473,8 @@ export class MathClassUtil {
       objForDetectType._v[7] = val._v[7];
       objForDetectType._v[8] = val._v[8];
     } else if (
-      objForDetectType instanceof Matrix44 ||
-      objForDetectType instanceof MutableMatrix44
+      objForDetectType instanceof MutableMatrix44 ||
+      objForDetectType instanceof Matrix44
     ) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];
@@ -493,8 +493,8 @@ export class MathClassUtil {
       objForDetectType._v[14] = val._v[14];
       objForDetectType._v[15] = val._v[15];
     } else if (
-      objForDetectType instanceof Quaternion ||
-      objForDetectType instanceof MutableQuaternion
+      objForDetectType instanceof MutableQuaternion ||
+      objForDetectType instanceof Quaternion
     ) {
       objForDetectType._v[0] = val._v[0];
       objForDetectType._v[1] = val._v[1];

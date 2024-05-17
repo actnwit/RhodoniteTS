@@ -582,6 +582,18 @@ export class WebGLResourceRepository
     );
   }
 
+  setUniform1iForTexture(shaderProgram_: WebGLProgram, semanticStr: string, value: any) {
+    const shaderProgram = shaderProgram_ as RnWebGLProgram;
+    const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
+    if (info == null) {
+      return;
+    }
+    const gl = this.__glw!.getRawContext();
+    const loc: WebGLUniformLocation = (shaderProgram as any)[semanticStr];
+    gl.uniform1i(loc, value[0]);
+    this.bindTexture(info, value);
+  }
+
   /**
    * set an uniform value
    */

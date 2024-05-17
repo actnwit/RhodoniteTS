@@ -370,7 +370,7 @@ ${indexStr}
     for (let i = 0; i < primitiveNum; i++) {
       const primitive = mesh.getPrimitiveAt(i);
       if (
-        Is.not.exist(primitive.vertexHandles) ||
+        primitive.vertexHandles == null ||
         primitive.positionAccessorVersion !==
           this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
       ) {
