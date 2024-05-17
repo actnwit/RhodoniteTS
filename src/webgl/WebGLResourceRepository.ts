@@ -593,7 +593,7 @@ export class WebGLResourceRepository
   ) {
     const shaderProgram = shaderProgram_ as RnWebGLProgram;
     const info = shaderProgram._shaderSemanticsInfoMap.get(semanticStr);
-    if (Is.not.exist(info)) {
+    if (info == null) {
       return false;
     }
 
