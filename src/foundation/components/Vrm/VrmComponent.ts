@@ -76,6 +76,13 @@ export class VrmComponent extends Component {
     return Array.from(this.__expressions.keys());
   }
 
+  _shallowCopyFrom(component: Component): void {
+    const vrmComponent = component as VrmComponent;
+    this.__expressions = new Map(vrmComponent.__expressions);
+    this.__weights = new Map(vrmComponent.__weights);
+    this._version = vrmComponent._version;
+  }
+
   /**
    * @override
    * Add this component to the entity
