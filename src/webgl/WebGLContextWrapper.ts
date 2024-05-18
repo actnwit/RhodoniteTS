@@ -310,56 +310,7 @@ export class WebGLContextWrapper {
     if (this.__activeTextureBackup === activeTextureIndex) {
       return;
     }
-    switch (activeTextureIndex) {
-      case 0:
-        this.__gl.activeTexture(this.__gl.TEXTURE0);
-        break;
-      case 1:
-        this.__gl.activeTexture(this.__gl.TEXTURE1);
-        break;
-      case 2:
-        this.__gl.activeTexture(this.__gl.TEXTURE2);
-        break;
-      case 3:
-        this.__gl.activeTexture(this.__gl.TEXTURE3);
-        break;
-      case 4:
-        this.__gl.activeTexture(this.__gl.TEXTURE4);
-        break;
-      case 5:
-        this.__gl.activeTexture(this.__gl.TEXTURE5);
-        break;
-      case 6:
-        this.__gl.activeTexture(this.__gl.TEXTURE6);
-        break;
-      case 7:
-        this.__gl.activeTexture(this.__gl.TEXTURE7);
-        break;
-      case 8:
-        this.__gl.activeTexture(this.__gl.TEXTURE8);
-        break;
-      case 9:
-        this.__gl.activeTexture(this.__gl.TEXTURE9);
-        break;
-      case 10:
-        this.__gl.activeTexture(this.__gl.TEXTURE10);
-        break;
-      case 11:
-        this.__gl.activeTexture(this.__gl.TEXTURE11);
-        break;
-      case 12:
-        this.__gl.activeTexture(this.__gl.TEXTURE12);
-        break;
-      case 13:
-        this.__gl.activeTexture(this.__gl.TEXTURE13);
-        break;
-      case 14:
-        this.__gl.activeTexture(this.__gl.TEXTURE14);
-        break;
-      case 15:
-        this.__gl.activeTexture(this.__gl.TEXTURE15);
-        break;
-    }
+    this.__gl.activeTexture(this.__gl.TEXTURE0 + activeTextureIndex);
     this.__activeTextureBackup = activeTextureIndex;
   }
 
