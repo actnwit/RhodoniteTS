@@ -284,6 +284,8 @@ export class Material extends RnObject {
     );
     this._shaderProgramUid = programUid;
 
+    Material.__stateVersion++;
+
     return programUid;
   }
 
@@ -302,6 +304,7 @@ export class Material extends RnObject {
     );
 
     this._shaderProgramUid = programUid;
+    Material.__stateVersion++;
   }
 
   /**
@@ -329,6 +332,7 @@ export class Material extends RnObject {
       // this.__updatedShaderSources = updatedShaderSources;
     }
 
+    Material.__stateVersion++;
     return programUid;
   }
 
