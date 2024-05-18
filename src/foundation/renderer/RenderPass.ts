@@ -377,10 +377,12 @@ export class RenderPass extends RnObject {
         webGpuResourceRepository.deleteTexture(
           this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
         );
-        this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid =
-          webGpuResourceRepository.duplicateTextureAsMipmapped(
-            this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid
-          );
+        [
+          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid,
+          this.__resolveFrameBuffer2.colorAttachments[i]._textureViewResourceUid,
+        ] = webGpuResourceRepository.duplicateTextureAsMipmapped(
+          this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid
+        );
       }
     }
   }

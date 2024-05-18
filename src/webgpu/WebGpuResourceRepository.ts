@@ -724,10 +724,9 @@ export class WebGpuResourceRepository
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null) {
         for (let colorAttachment of framebuffer.colorAttachments) {
-          const texture = this.__webGpuResources.get(
-            colorAttachment._textureResourceUid
-          ) as GPUTexture;
-          const textureView = texture.createView();
+          const textureView = this.__webGpuResources.get(
+            colorAttachment._textureViewResourceUid
+          ) as GPUTextureView;
           colorAttachments.push({
             view: textureView,
             clearValue: {
@@ -758,10 +757,9 @@ export class WebGpuResourceRepository
     if (renderPass.toClearDepthBuffer) {
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null && framebuffer.depthAttachment != null) {
-        const depthTexture = this.__webGpuResources.get(
-          framebuffer.depthAttachment._textureResourceUid
-        ) as GPUTexture;
-        const depthTextureView = depthTexture.createView();
+        const depthTextureView = this.__webGpuResources.get(
+          framebuffer.depthAttachment._textureViewResourceUid
+        ) as GPUTextureView;
         depthStencilAttachment = {
           view: depthTextureView,
           depthClearValue: renderPass.clearDepth,
@@ -885,7 +883,9 @@ export class WebGpuResourceRepository
             framebuffer.depthAttachment._textureResourceUid
           ) as GPUTexture;
           if (depthTexture != null) {
-            depthTextureView = depthTexture.createView();
+            depthTextureView = this.__webGpuResources.get(
+              framebuffer.depthAttachment._textureViewResourceUid
+            ) as GPUTextureView;
           }
         }
         const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -900,15 +900,15 @@ export class WebGpuResourceRepository
         for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
           const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
           const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
-          const texture = this.__webGpuResources.get(
-            colorAttachment._textureResourceUid
-          ) as GPUTexture;
-          const resolveTexture = this.__webGpuResources.get(
-            resolveColorAttachment._textureResourceUid
-          ) as GPUTexture;
+          const textureView = this.__webGpuResources.get(
+            colorAttachment._textureViewResourceUid
+          ) as GPUTextureView;
+          const resolveTextureView = this.__webGpuResources.get(
+            resolveColorAttachment._textureViewResourceUid
+          ) as GPUTextureView;
           colorAttachments.push({
-            view: texture.createView(),
-            resolveTarget: resolveTexture.createView(),
+            view: textureView,
+            resolveTarget: resolveTextureView,
             loadOp: 'load',
             storeOp: 'store',
           });
@@ -922,7 +922,9 @@ export class WebGpuResourceRepository
             framebuffer.depthAttachment._textureResourceUid
           ) as GPUTexture;
           if (depthTexture != null) {
-            depthTextureView = depthTexture.createView();
+            depthTextureView = this.__webGpuResources.get(
+              framebuffer.depthAttachment._textureResourceUid
+            ) as GPUTextureView;
           }
         }
         const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -935,11 +937,11 @@ export class WebGpuResourceRepository
         };
         const colorAttachments = [];
         for (let colorAttachment of framebuffer.colorAttachments) {
-          const texture = this.__webGpuResources.get(
-            colorAttachment._textureResourceUid
-          ) as GPUTexture;
+          const textureView = this.__webGpuResources.get(
+            colorAttachment._textureViewResourceUid
+          ) as GPUTextureView;
           colorAttachments.push({
-            view: texture.createView(),
+            view: textureView,
             loadOp: 'load',
             storeOp: 'store',
           });
@@ -1636,10 +1638,12 @@ export class WebGpuResourceRepository
 
           // Texture
           const type = texture instanceof CubeTexture ? 'cube' : '2d';
-          const gpuTexture = this.__webGpuResources.get(texture._textureResourceUid) as GPUTexture;
+          const gpuTextureView = this.__webGpuResources.get(
+            texture._textureViewResourceUid
+          ) as GPUTextureView;
           entriesForTexture.push({
             binding: slot,
-            resource: gpuTexture.createView({ dimension: type }),
+            resource: gpuTextureView,
           });
           bindGroupLayoutEntriesForTexture.push({
             binding: slot,
@@ -1669,23 +1673,23 @@ export class WebGpuResourceRepository
       });
 
       // Diffuse IBL
-      const diffuseCubeTexture = this.__webGpuResources.get(
+      const diffuseCubeTextureView = this.__webGpuResources.get(
         Is.exist(meshRendererComponent.diffuseCubeMap)
-          ? meshRendererComponent.diffuseCubeMap._textureResourceUid
+          ? meshRendererComponent.diffuseCubeMap._textureViewResourceUid
           : -1
-      ) as GPUTexture | undefined;
-      if (Is.exist(diffuseCubeTexture)) {
+      ) as GPUTextureView | undefined;
+      if (Is.exist(diffuseCubeTextureView)) {
         entriesForTexture.push({
           binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          resource: diffuseCubeTexture.createView({ dimension: 'cube' }),
+          resource: diffuseCubeTextureView,
         });
       } else {
-        const dummyCubeTexture = this.__webGpuResources.get(
-          dummyBlackCubeTexture._textureResourceUid
-        ) as GPUTexture;
+        const dummyCubeTextureView = this.__webGpuResources.get(
+          dummyBlackCubeTexture._textureViewResourceUid
+        ) as GPUTextureView;
         entriesForTexture.push({
           binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          resource: dummyCubeTexture.createView({ dimension: 'cube' }),
+          resource: dummyCubeTextureView,
         });
       }
       bindGroupLayoutEntriesForTexture.push({
@@ -1723,23 +1727,24 @@ export class WebGpuResourceRepository
       });
 
       // Specular IBL
-      const specularCubeTexture = this.__webGpuResources.get(
+      const specularCubeTextureView = this.__webGpuResources.get(
         Is.exist(meshRendererComponent.specularCubeMap)
-          ? meshRendererComponent.specularCubeMap._textureResourceUid
+          ? meshRendererComponent.specularCubeMap._textureViewResourceUid
           : -1
-      ) as GPUTexture | undefined;
-      if (Is.exist(specularCubeTexture)) {
+      ) as GPUTextureView | undefined;
+
+      if (Is.exist(specularCubeTextureView)) {
         entriesForTexture.push({
           binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          resource: specularCubeTexture.createView({ dimension: 'cube' }),
+          resource: specularCubeTextureView,
         });
       } else {
-        const dummyCubeTexture = this.__webGpuResources.get(
-          dummyBlackCubeTexture._textureResourceUid
-        ) as GPUTexture;
+        const dummyCubeTextureView = this.__webGpuResources.get(
+          dummyBlackCubeTexture._textureViewResourceUid
+        ) as GPUTextureView;
         entriesForTexture.push({
           binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          resource: dummyCubeTexture.createView({ dimension: 'cube' }),
+          resource: dummyCubeTextureView,
         });
       }
       bindGroupLayoutEntriesForTexture.push({
@@ -1966,7 +1971,9 @@ export class WebGpuResourceRepository
     }
   }
 
-  duplicateTextureAsMipmapped(fromTexture: WebGPUResourceHandle): WebGPUResourceHandle {
+  duplicateTextureAsMipmapped(
+    fromTexture: WebGPUResourceHandle
+  ): [WebGPUResourceHandle, WebGPUResourceHandle] {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const texture = this.__webGpuResources.get(fromTexture) as GPUTexture;
 
@@ -1998,8 +2005,9 @@ export class WebGpuResourceRepository
     gpuDevice.queue.submit([commandBuffer]);
 
     const textureHandle = this.__registerResource(newTexture);
+    const textureViewHandle = this.__registerResource(newTexture.createView());
 
-    return textureHandle;
+    return [textureHandle, textureViewHandle];
   }
 
   /**
@@ -2051,6 +2059,22 @@ export class WebGpuResourceRepository
     renderable: IRenderable
   ) {
     return;
+  }
+
+  createTextureView2d(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView();
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
+  createTextureViewCube(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({ dimension: 'cube' });
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
   }
 
   deleteTexture(textureHandle: WebGLResourceHandle) {
