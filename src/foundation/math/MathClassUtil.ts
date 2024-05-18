@@ -545,7 +545,7 @@ export class MathClassUtil {
     } else if (Array.isArray(objForDetectType)) {
       let isSame = true;
       for (let i = 0; i < objForDetectType.length; i++) {
-        if (objForDetectType[i] !== val[i]) {
+        if (objForDetectType[i] !== val._v[i]) {
           isSame = false;
           break;
         }
