@@ -88,12 +88,13 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutStorageBuffer?: GPUBindGroupLayout;
   private __webGpuRenderPipelineMap: Map<RenderPipelineId, GPURenderPipeline> = new Map();
   private __materialStateVersionMap: Map<RenderPipelineId, number> = new Map();
-  private __RenderBundleMap: Map<RenderPipelineId, GPURenderBundle> = new Map();
   private __bindGroupTextureMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
+  private __lastRenderPassUid = -1;
+  private __renderBundleEncoder?: GPURenderBundleEncoder;
   private __systemDepthTexture?: GPUTexture;
   private __systemDepthTextureView?: GPUTextureView;
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
@@ -115,7 +116,6 @@ export class WebGpuResourceRepository
   clearCache() {
     this.__webGpuRenderPipelineMap.clear();
     this.__materialStateVersionMap.clear();
-    this.__RenderBundleMap.clear();
     this.__bindGroupTextureMap.clear();
     this.__bindGroupLayoutTextureMap.clear();
     this.__bindGroupSamplerMap.clear();
@@ -331,6 +331,9 @@ export class WebGpuResourceRepository
     }
 
     if (this.__renderPassEncoder != null) {
+      if (this.__renderBundleEncoder != null) {
+        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+      }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
@@ -800,6 +803,10 @@ export class WebGpuResourceRepository
   }
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number) {
+    const VertexHandles = primitive._vertexHandles;
+    if (VertexHandles == null) {
+      return;
+    }
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     const meshRendererComponent = entity.getMeshRenderer()!;
@@ -819,7 +826,16 @@ export class WebGpuResourceRepository
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
-    if (!this.__RenderBundleMap.has(renderPipelineId) || recreated) {
+    if (this.__lastRenderPassUid != renderPass.renderPassUID) {
+      if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
+        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+        this.__renderPassEncoder.end();
+        this.__renderBundleEncoder = undefined;
+        this.__renderPassEncoder = undefined;
+      }
+    }
+
+    if (this.__lastRenderPassUid != renderPass.renderPassUID) {
       const framebuffer = renderPass.getFramebuffer();
       let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
       let depthStencilFormat = this.__systemDepthTexture!.format;
@@ -847,43 +863,37 @@ export class WebGpuResourceRepository
             : 1,
       };
       const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
+      this.__renderBundleEncoder = encoder;
+    }
+    const renderBundleEncoder = this.__renderBundleEncoder!;
+    renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
+    renderBundleEncoder.setPipeline(pipeline);
+    renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
+    renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
 
-      encoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
-      encoder.setPipeline(pipeline);
-      encoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
-      encoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
-      const VertexHandles = primitive._vertexHandles;
-      if (VertexHandles == null) {
-        return;
-      }
+    const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
+    renderBundleEncoder.setVertexBuffer(0, variationVBO);
+    VertexHandles.vboHandles.forEach((vboHandle, i) => {
+      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
+      renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
+    });
 
-      const mesh = primitive.mesh as Mesh;
-      const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
-      encoder.setVertexBuffer(0, variationVBO);
-      VertexHandles.vboHandles.forEach((vboHandle, i) => {
-        const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-        encoder.setVertexBuffer(i + 1, vertexBuffer);
-      });
-
-      if (primitive.hasIndices()) {
-        const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
-        const indexBitSize = primitive.getIndexBitSize();
-        encoder.setIndexBuffer(indicesBuffer, indexBitSize);
-        const indicesAccessor = primitive.indicesAccessor!;
-        encoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
-      } else {
-        const vertexCount = primitive.attributeAccessors[0].elementCount;
-        encoder.draw(vertexCount, mesh.meshEntitiesInner.length);
-      }
-
-      this.__RenderBundleMap.set(renderPipelineId, encoder.finish());
+    if (primitive.hasIndices()) {
+      const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
+      const indexBitSize = primitive.getIndexBitSize();
+      renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
+      const indicesAccessor = primitive.indicesAccessor!;
+      renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
+    } else {
+      const vertexCount = primitive.attributeAccessors[0].elementCount;
+      renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
     }
 
     if (this.__commandEncoder == null) {
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
 
-    if (this.__renderPassEncoder == null) {
+    if (this.__lastRenderPassUid != renderPass.renderPassUID) {
       const context = this.__webGpuDeviceWrapper!.context;
       const framebuffer = renderPass.getFramebuffer();
       const resolveFramebuffer = renderPass.getResolveFramebuffer();
@@ -980,7 +990,7 @@ export class WebGpuResourceRepository
         this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
       }
     }
-    this.__renderPassEncoder.executeBundles([this.__RenderBundleMap.get(renderPipelineId)!]);
+    this.__lastRenderPassUid = renderPass.renderPassUID;
   }
 
   private __setupIBLParameters(material: Material, meshRendererComponent: MeshRendererComponent) {
@@ -1206,6 +1216,9 @@ export class WebGpuResourceRepository
 
   flush() {
     if (this.__renderPassEncoder != null) {
+      if (this.__renderBundleEncoder != null) {
+        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+      }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
@@ -1974,6 +1987,9 @@ export class WebGpuResourceRepository
     const from = this.__webGpuResources.get(fromTexture) as GPUTexture;
     const to = this.__webGpuResources.get(toTexture) as GPUTexture;
     if (this.__renderPassEncoder != null) {
+      if (this.__renderBundleEncoder != null) {
+        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+      }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
@@ -2021,6 +2037,9 @@ export class WebGpuResourceRepository
     const newTexture = gpuDevice.createTexture(textureDescriptor);
 
     if (this.__renderPassEncoder != null) {
+      if (this.__renderBundleEncoder != null) {
+        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+      }
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
