@@ -69,7 +69,6 @@ type ComponentMethodName = string;
  * ```
  */
 export class System {
-  private static __instance: System;
   private static __expressionForProcessAuto?: Expression;
   private static __renderPassForProcessAuto?: RenderPass;
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
@@ -80,10 +79,7 @@ export class System {
 
   private static __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private static __args: unknown[] = [];
-  private static __stageMethods: Map<
-    typeof Component,
-    Map<ProcessStageEnum, ComponentMethodName[]>
-  > = new Map();
+  private static __rnXRModule?: RnXR;
 
   private constructor() {}
 
@@ -107,35 +103,32 @@ export class System {
     this.__renderLoopFunc = renderLoopFunc;
     this.__args = args;
     const animationFrameObject = this.__getAnimationFrameObject();
+    if (this.__rnXRModule === undefined) {
+      this.__rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+    }
 
     this.__animationFrameId = animationFrameObject.requestAnimationFrame(((
       _time: number,
       xrFrame: XRFrame
     ) => {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      if (Is.exist(rnXRModule)) {
-        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
+      if (this.__rnXRModule !== undefined) {
+        const webXRSystem = this.__rnXRModule.WebXRSystem.getInstance();
+        const webARSystem = this.__rnXRModule.WebARSystem.getInstance();
         if (webXRSystem.isReadyForWebXR) {
           webXRSystem._preRender(_time, xrFrame);
-        }
-        const webARSystem = rnXRModule.WebARSystem.getInstance();
-        if (webARSystem.isReadyForWebAR) {
-          webARSystem._preRender(_time, xrFrame);
-        }
-      }
-
-      renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
-
-      if (Is.exist(rnXRModule)) {
-        const webXRSystem = rnXRModule.WebXRSystem.getInstance();
-        if (webXRSystem.isReadyForWebXR) {
+          renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
           webXRSystem._postRender();
-        }
-        const webARSystem = rnXRModule.WebARSystem.getInstance();
-        if (webARSystem.isReadyForWebAR) {
+        } else if (webARSystem.isReadyForWebAR) {
           webARSystem._preRender(_time, xrFrame);
+          renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
+          webARSystem._preRender(_time, xrFrame);
+        } else {
+          renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
         }
+      } else {
+        renderLoopFunc.apply(renderLoopFunc, [_time, ...args]);
       }
+
       this.startRenderLoop(renderLoopFunc, ...args);
     }) as FrameRequestCallback);
   }
