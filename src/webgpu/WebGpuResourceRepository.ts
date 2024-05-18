@@ -101,6 +101,7 @@ export class WebGpuResourceRepository
   private __generateMipmapsPipeline?: GPURenderPipeline;
   private __generateMipmapsFormat?: GPUTextureFormat;
   private __generateMipmapsSampler?: GPUSampler;
+  private __contextCurrentTextureView?: GPUTextureView;
 
   private static __iblParameterVec4 = MutableVector4.zero();
   private static __hdriFormatVec2 = MutableVector2.zero();
@@ -740,9 +741,11 @@ export class WebGpuResourceRepository
           });
         }
       } else {
-        const textureView = context.getCurrentTexture().createView();
+        if (this.__contextCurrentTextureView == null) {
+          this.__contextCurrentTextureView = context.getCurrentTexture().createView();
+        }
         colorAttachments.push({
-          view: textureView,
+          view: this.__contextCurrentTextureView,
           clearValue: {
             r: renderPass.clearColor.x,
             g: renderPass.clearColor.y,
@@ -949,11 +952,13 @@ export class WebGpuResourceRepository
         renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
         this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
       } else {
-        const textureView = context.getCurrentTexture().createView();
+        if (this.__contextCurrentTextureView == null) {
+          this.__contextCurrentTextureView = context.getCurrentTexture().createView();
+        }
         const renderPassDescriptor: GPURenderPassDescriptor = {
           colorAttachments: [
             {
-              view: textureView,
+              view: this.__contextCurrentTextureView,
               loadOp: 'load',
               storeOp: 'store',
             },
@@ -1191,6 +1196,10 @@ export class WebGpuResourceRepository
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
       this.__commandEncoder = undefined;
+    }
+
+    if (this.__contextCurrentTextureView != null) {
+      this.__contextCurrentTextureView = undefined;
     }
   }
 
