@@ -2272,9 +2272,9 @@ export class WebGLResourceRepository
   generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void {
     const gl = this.__glw!.getRawContext();
     const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.__glw!.bindTexture2D(0, texture);
     gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    this.__glw!.unbindTexture2D(0);
   }
 
   async getTexturePixelData(
