@@ -327,7 +327,14 @@ export class WebGpuResourceRepository
     if (this.__generateMipmapsSampler == null) {
       this.__generateMipmapsSampler = gpuDevice.createSampler({ minFilter: 'linear' });
     }
-    const commandEncoder = gpuDevice.createCommandEncoder({});
+
+    if (this.__renderPassEncoder != null) {
+      this.__renderPassEncoder.end();
+      this.__renderPassEncoder = undefined;
+    }
+    if (this.__commandEncoder == null) {
+      this.__commandEncoder = gpuDevice.createCommandEncoder({});
+    }
     for (let j = 0; j < depthOrArrayLayers; ++j) {
       let srcView = texture.createView({
         baseMipLevel: 0,
@@ -341,7 +348,7 @@ export class WebGpuResourceRepository
           baseArrayLayer: j,
         });
 
-        const passEncoder = commandEncoder.beginRenderPass({
+        const passEncoder = this.__commandEncoder.beginRenderPass({
           colorAttachments: [
             {
               view: dstView,
@@ -374,7 +381,6 @@ export class WebGpuResourceRepository
         srcView = dstView;
       }
     }
-    gpuDevice.queue.submit([commandEncoder.finish()]);
   }
 
   createTextureSampler({
@@ -1956,9 +1962,14 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const from = this.__webGpuResources.get(fromTexture) as GPUTexture;
     const to = this.__webGpuResources.get(toTexture) as GPUTexture;
-
-    const commandEncoder = gpuDevice.createCommandEncoder();
-    commandEncoder.copyTextureToTexture(
+    if (this.__renderPassEncoder != null) {
+      this.__renderPassEncoder.end();
+      this.__renderPassEncoder = undefined;
+    }
+    if (this.__commandEncoder == null) {
+      this.__commandEncoder = gpuDevice.createCommandEncoder();
+    }
+    this.__commandEncoder.copyTextureToTexture(
       {
         texture: from,
       },
@@ -1967,7 +1978,6 @@ export class WebGpuResourceRepository
       },
       [to.width, to.height, 1]
     );
-    gpuDevice.queue.submit([commandEncoder.finish()]);
   }
 
   isMippmappedTexture(textureHandle: WebGPUResourceHandle): boolean {
@@ -1999,19 +2009,21 @@ export class WebGpuResourceRepository
     };
     const newTexture = gpuDevice.createTexture(textureDescriptor);
 
+    if (this.__renderPassEncoder != null) {
+      this.__renderPassEncoder.end();
+      this.__renderPassEncoder = undefined;
+    }
     // Create a command encoder
-    const commandEncoder = gpuDevice.createCommandEncoder();
+    if (this.__commandEncoder == null) {
+      this.__commandEncoder = gpuDevice.createCommandEncoder();
+    }
 
     // Copy the texture to the new texture
-    commandEncoder.copyTextureToTexture(
+    this.__commandEncoder.copyTextureToTexture(
       { texture: texture },
       { texture: newTexture },
       { width: texture.width, height: texture.height, depthOrArrayLayers: 1 }
     );
-
-    // Submit the commands
-    const commandBuffer = commandEncoder.finish();
-    gpuDevice.queue.submit([commandBuffer]);
 
     const textureHandle = this.__registerResource(newTexture);
     const textureViewHandle = this.__registerResource(newTexture.createView());
