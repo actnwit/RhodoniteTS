@@ -44,7 +44,9 @@ import { MiscUtil } from '../foundation/misc/MiscUtil';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
-import { RenderBuffer } from '../foundation';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
+import { RenderBuffer } from '../foundation/textures/RenderBuffer';
+import { Vector2 } from '../foundation/math/Vector2';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -1023,6 +1025,15 @@ export class WebGpuResourceRepository
     }
 
     this.__setupIBLParameters(material, meshRendererComponent);
+
+    const width = this.__webGpuDeviceWrapper!.canvas.width;
+    const height = this.__webGpuDeviceWrapper!.canvas.height;
+    const backBufferTextureSize = GlobalDataRepository.getInstance().getValue(
+      ShaderSemantics.BackBufferTextureSize,
+      0
+    ) as Vector2;
+    backBufferTextureSize._v[0] = width;
+    backBufferTextureSize._v[1] = height;
 
     this.__webGpuRenderPipelineMap.delete(renderPipelineId);
     this.__materialStateVersionMap.delete(renderPipelineId);
