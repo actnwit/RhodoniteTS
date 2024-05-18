@@ -70,6 +70,7 @@ export type WebGpuResource =
   | object;
 
 type RenderPipelineId = string;
+type RenderPassUid = number;
 
 const IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
@@ -93,7 +94,7 @@ export class WebGpuResourceRepository
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
-  private __lastRenderPassUid = -1;
+  private __renderBundles: Map<RenderPassUid, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
   private __systemDepthTexture?: GPUTexture;
   private __systemDepthTextureView?: GPUTextureView;
@@ -120,6 +121,7 @@ export class WebGpuResourceRepository
     this.__bindGroupLayoutTextureMap.clear();
     this.__bindGroupSamplerMap.clear();
     this.__bindGroupLayoutSamplerMap.clear();
+    this.__renderBundles.clear();
   }
 
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
@@ -826,16 +828,16 @@ export class WebGpuResourceRepository
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
-    if (this.__lastRenderPassUid != renderPass.renderPassUID) {
-      if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
-        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-        this.__renderPassEncoder.end();
-        this.__renderBundleEncoder = undefined;
-        this.__renderPassEncoder = undefined;
-      }
-    }
+    // let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
+    // if (renderBundle != null && this.__renderPassEncoder != null) {
+    //   this.__renderPassEncoder.executeBundles([renderBundle]);
+    //   this.__renderPassEncoder.end();
+    //   this.__renderPassEncoder = undefined;
+    //   this.__lastRenderPassUid = renderPass.renderPassUID;
+    //   return;
+    // }
 
-    if (this.__lastRenderPassUid != renderPass.renderPassUID) {
+    if (this.__renderBundleEncoder == null) {
       const framebuffer = renderPass.getFramebuffer();
       let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
       let depthStencilFormat = this.__systemDepthTexture!.format;
@@ -889,11 +891,16 @@ export class WebGpuResourceRepository
       renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
     }
 
+    this.createRenderPassEncoder(renderPass);
+
+  }
+
+  private createRenderPassEncoder(renderPass: RenderPass) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     if (this.__commandEncoder == null) {
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
-
-    if (this.__lastRenderPassUid != renderPass.renderPassUID) {
+    if (this.__renderPassEncoder == null) {
       const context = this.__webGpuDeviceWrapper!.context;
       const framebuffer = renderPass.getFramebuffer();
       const resolveFramebuffer = renderPass.getResolveFramebuffer();
@@ -990,7 +997,34 @@ export class WebGpuResourceRepository
         this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
       }
     }
-    this.__lastRenderPassUid = renderPass.renderPassUID;
+  }
+
+  executeRenderBundle(renderPass: RenderPass) {
+    let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
+    if (renderBundle != null) {
+      this.createRenderPassEncoder(renderPass);
+
+      if (this.__renderPassEncoder != null) {
+        this.__renderPassEncoder.executeBundles([renderBundle]);
+        this.__renderPassEncoder.end();
+        this.__renderPassEncoder = undefined;
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  finishRenderBundleEncoder(renderPass: RenderPass) {
+    if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
+      const renderBundle = this.__renderBundleEncoder.finish();
+      this.__renderBundles.set(renderPass.renderPassUID, renderBundle);
+      this.__renderPassEncoder.executeBundles([renderBundle]);
+      this.__renderPassEncoder.end();
+      this.__renderBundleEncoder = undefined;
+      this.__renderPassEncoder = undefined;
+    }
   }
 
   private __setupIBLParameters(material: Material, meshRendererComponent: MeshRendererComponent) {
@@ -1215,13 +1249,13 @@ export class WebGpuResourceRepository
   }
 
   flush() {
-    if (this.__renderPassEncoder != null) {
-      if (this.__renderBundleEncoder != null) {
-        this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-      }
-      this.__renderPassEncoder.end();
-      this.__renderPassEncoder = undefined;
-    }
+    // if (this.__renderPassEncoder != null) {
+    //   if (this.__renderBundleEncoder != null) {
+    //     this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
+    //   }
+    //   this.__renderPassEncoder.end();
+    //   this.__renderPassEncoder = undefined;
+    // }
     if (this.__commandEncoder != null) {
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       gpuDevice.queue.submit([this.__commandEncoder!.finish()]);

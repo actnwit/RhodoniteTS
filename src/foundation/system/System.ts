@@ -262,28 +262,37 @@ export class System {
 
               componentClass.updateComponentsOfEachProcessStage(componentClass, stage, renderPass);
 
-              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-              if (componentClass_commonMethod) {
-                componentClass_commonMethod({
-                  processApproach: this.__processApproach,
-                  renderPass: renderPass,
+              let skipNormalRender = false;
+              if (this.processApproach === ProcessApproach.WebGPU) {
+                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
+                skipNormalRender = repo.executeRenderBundle(renderPass);
+              }
+
+              if (!skipNormalRender) {
+                const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+                if (componentClass_commonMethod) {
+                  componentClass_commonMethod({
+                    processApproach: this.__processApproach,
+                    renderPass: renderPass,
+                    processStage: stage,
+                    renderPassTickCount: this.__renderPassTickCount,
+                  });
+                }
+
+                componentClass.process({
+                  componentType: componentClass,
                   processStage: stage,
+                  processApproach: this.__processApproach,
+                  strategy: this.__webglStrategy!,
+                  renderPass: void 0,
                   renderPassTickCount: this.__renderPassTickCount,
                 });
               }
-
-              componentClass.process({
-                componentType: componentClass,
-                processStage: stage,
-                processApproach: this.__processApproach,
-                strategy: this.__webglStrategy!,
-                renderPass: void 0,
-                renderPassTickCount: this.__renderPassTickCount,
-              });
-
               this.__renderPassTickCount++;
 
               if (this.processApproach === ProcessApproach.WebGPU) {
+                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
+                repo.finishRenderBundleEncoder(renderPass);
                 renderPass._copyResolve1ToResolve2WebGpu();
               } else {
                 renderPass._copyFramebufferToResolveFramebuffersWebGL();
