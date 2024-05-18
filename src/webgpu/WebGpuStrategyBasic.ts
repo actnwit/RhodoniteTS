@@ -439,9 +439,6 @@ ${indexStr}
       }
     }
 
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    webGpuResourceRepository.flush();
-
     return true;
   }
 
