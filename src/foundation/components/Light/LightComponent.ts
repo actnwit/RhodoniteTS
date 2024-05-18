@@ -18,6 +18,7 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 import { LightGizmo } from '../../gizmos/LightGizmo';
 import { Is } from '../../misc/Is';
 import { Scalar } from '../../math/Scalar';
+import { TransformComponent } from '../Transform';
 
 /**
  * The Component that represents a light.
@@ -45,6 +46,10 @@ export class LightComponent extends Component {
   private static __lightNumber = Scalar.zero();
   private __lightGizmo?: LightGizmo;
 
+  private __updateCount = 0;
+  private __lastUpdateCount = -1;
+  private __lastTransformUpdateCount = -1;
+
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -70,6 +75,7 @@ export class LightComponent extends Component {
 
   set intensity(value: Vector3) {
     this.__intensity = value;
+    this.__updateCount++;
   }
 
   get intensity(): Vector3 {
@@ -92,6 +98,7 @@ export class LightComponent extends Component {
         this.__lightGizmo.isVisible = false;
       }
     }
+    this.__updateCount++;
   }
 
   get isLightGizmoVisible() {
@@ -149,6 +156,10 @@ export class LightComponent extends Component {
   }
 
   $logic() {
+    if (TransformComponent.updateCount === this.__lastTransformUpdateCount && this.__lastUpdateCount === this.__updateCount) {
+      return;
+    }
+
     this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(
       this.__initialDirection
     );
@@ -178,6 +189,9 @@ export class LightComponent extends Component {
     LightComponent.__lightProperties._v[4 * this.componentSID + 3] = lightAngleOffset;
 
     this.__updateGizmo();
+
+    this.__lastTransformUpdateCount = TransformComponent.updateCount;
+    this.__lastUpdateCount = this.__updateCount;
   }
 
   _destroy() {
