@@ -730,6 +730,12 @@ export class WebGpuResourceRepository
   }
 
   clearFrameBuffer(renderPass: RenderPass) {
+    if (renderPass.entities.length > 0) {
+      return;
+    }
+    // this method is executed when the renderPass has no entities.
+    // If the renderPass has entities, the clear operation is executed in the createRenderPassEncoder method.
+
     if (!renderPass.toClearColorBuffer && !renderPass.toClearDepthBuffer) {
       return;
     }
@@ -888,7 +894,6 @@ export class WebGpuResourceRepository
     }
 
     this.createRenderPassEncoder(renderPass);
-
   }
 
   private createRenderPassEncoder(renderPass: RenderPass) {
@@ -900,6 +905,17 @@ export class WebGpuResourceRepository
       const context = this.__webGpuDeviceWrapper!.context;
       const framebuffer = renderPass.getFramebuffer();
       const resolveFramebuffer = renderPass.getResolveFramebuffer();
+
+      const clearValue = renderPass.toClearColorBuffer
+        ? {
+            r: renderPass.clearColor.x,
+            g: renderPass.clearColor.y,
+            b: renderPass.clearColor.z,
+            a: renderPass.clearColor.w,
+          }
+        : undefined;
+      const depthClearValue = renderPass.toClearDepthBuffer ? renderPass.clearDepth : undefined;
+
       if (resolveFramebuffer != null && framebuffer != null) {
         let depthTextureView = this.__systemDepthTextureView!;
         if (framebuffer.depthAttachment != null) {
@@ -916,7 +932,8 @@ export class WebGpuResourceRepository
           colorAttachments: [],
           depthStencilAttachment: {
             view: depthTextureView,
-            depthLoadOp: 'load',
+            depthClearValue: depthClearValue,
+            depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
           },
         };
@@ -933,7 +950,8 @@ export class WebGpuResourceRepository
           colorAttachments.push({
             view: textureView,
             resolveTarget: resolveTextureView,
-            loadOp: 'load',
+            clearValue: clearValue,
+            loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
             storeOp: 'store',
           });
         }
@@ -955,7 +973,8 @@ export class WebGpuResourceRepository
           colorAttachments: [],
           depthStencilAttachment: {
             view: depthTextureView,
-            depthLoadOp: 'load',
+            depthClearValue: depthClearValue,
+            depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
           },
         };
@@ -966,7 +985,8 @@ export class WebGpuResourceRepository
           ) as GPUTextureView;
           colorAttachments.push({
             view: textureView,
-            loadOp: 'load',
+            clearValue: clearValue,
+            loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
             storeOp: 'store',
           });
         }
@@ -980,13 +1000,15 @@ export class WebGpuResourceRepository
           colorAttachments: [
             {
               view: this.__contextCurrentTextureView,
-              loadOp: 'load',
+              clearValue: clearValue,
+              loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
               storeOp: 'store',
             },
           ],
           depthStencilAttachment: {
             view: this.__systemDepthTextureView!,
-            depthLoadOp: 'load',
+            depthClearValue: depthClearValue,
+            depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
           },
         };
@@ -996,7 +1018,8 @@ export class WebGpuResourceRepository
   }
 
   private __toClearRenderBundles() {
-    if (Material.stateVersion !== this.__lastMaterialsUpdateCount ||
+    if (
+      Material.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid
     ) {
       this.__renderBundles.clear();
