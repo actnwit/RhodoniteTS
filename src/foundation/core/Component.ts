@@ -230,40 +230,41 @@ export class Component extends RnObject {
     }
   }
 
+  static updateComponentsForRenderStage(
+    componentClass: typeof Component,
+    processStage: ProcessStageEnum,
+    renderPass: RenderPass
+  ) {
+    const array = Component.__componentsOfProcessStages.get(processStage)!;
+    const method = (componentClass as any)['sort_$render'];
+    let sids = [];
+    sids = method(renderPass);
+    for (let i = 0; i < sids.length; i++) {
+      array[i] = sids[i];
+    }
+  }
+
   /**
    * Update all components at each process stage.
    */
   static updateComponentsOfEachProcessStage(
     componentClass: typeof Component,
-    processStage: ProcessStageEnum,
-    renderPass?: RenderPass
+    processStage: ProcessStageEnum
   ) {
     if (!Component.doesTheProcessStageMethodExist(componentClass, processStage)) {
       return;
     }
 
     const array = Component.__componentsOfProcessStages.get(processStage)!;
-    if (array) {
-      const method = (componentClass as any)['sort_' + processStage.methodName];
-
-      if (method != null) {
-        let sids = [];
-        sids = method(renderPass);
-        for (let i = 0; i < sids.length; i++) {
-          array[i] = sids[i];
-        }
-      } else {
-        let count = 0;
-        const components = ComponentRepository.getComponentsWithType(componentClass)!;
-        for (let i = 0; i < components.length; ++i) {
-          const component = components[i];
-          if (processStage === component.__currentProcessStage) {
-            array[count++] = component.componentSID;
-          }
-        }
-        array[count] = Component.invalidComponentSID;
+    let count = 0;
+    const components = ComponentRepository.getComponentsWithType(componentClass)!;
+    for (let i = 0; i < components.length; ++i) {
+      const component = components[i];
+      if (processStage === component.__currentProcessStage) {
+        array[count++] = component.componentSID;
       }
     }
+    array[count] = Component.invalidComponentSID;
   }
 
   /**

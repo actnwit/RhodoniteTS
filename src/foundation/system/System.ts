@@ -260,7 +260,7 @@ export class System {
                 this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              componentClass.updateComponentsOfEachProcessStage(componentClass, stage, renderPass);
+              componentClass.updateComponentsForRenderStage(componentClass, stage, renderPass);
 
               let skipNormalRender = false;
               if (this.processApproach === ProcessApproach.WebGPU) {
