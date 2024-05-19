@@ -12,7 +12,7 @@ export class ComponentRepository {
   private static __component_sid_count_map: Map<ComponentTID, number> = new Map();
   private static __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID
   static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
-
+  private static __componentTIDs: Array<ComponentTID> = [];
   constructor() {}
 
   /**
@@ -96,6 +96,7 @@ export class ComponentRepository {
       // register the component
       if (!this.__components.has(componentTid)) {
         this.__components.set(componentTid, []);
+        this.__updateComponentTIDs();
       }
       const array = this.__components.get(componentTid);
       array![component.componentSID] = component;
@@ -192,13 +193,17 @@ export class ComponentRepository {
     return components.filter((component) => component._isAlive);
   }
 
+  private static __updateComponentTIDs() {
+    const componentTids = Array.from(this.__components.keys());
+    componentTids.sort((a, b) => a - b);
+    this.__componentTIDs = componentTids;
+  }
+
   /**
    * Gets all componentTIDs.
    */
   public static getComponentTIDs(): Array<ComponentTID> {
-    const componentTids = Array.from(this.__components.keys());
-    componentTids.sort((a, b) => a - b);
-    return componentTids;
+    return this.__componentTIDs;
   }
 
   /**
