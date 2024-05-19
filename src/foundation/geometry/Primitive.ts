@@ -61,7 +61,7 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
-  private __woMesh: IWeakOption<Primitive, IMesh> = new WeakNone();
+  private __mesh?: IMesh;
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
@@ -146,11 +146,11 @@ export class Primitive extends RnObject {
    */
   _belongToMesh(mesh: IMesh) {
     // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
-    this.__woMesh = new WeakSome(this, mesh);
+    this.__mesh = mesh;
   }
 
   get mesh(): IMesh | undefined {
-    return this.__woMesh.unwrapOrUndefined(this);
+    return this.__mesh;
   }
 
   _backupMaterial() {
