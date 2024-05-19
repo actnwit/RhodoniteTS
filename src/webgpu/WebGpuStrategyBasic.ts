@@ -376,7 +376,7 @@ ${indexStr}
     }
   }
   common_$render(
-    primitiveUids: Int32Array,
+    primitiveUids: PrimitiveUID[],
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {

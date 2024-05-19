@@ -35,9 +35,6 @@ export class Component extends RnObject {
   static readonly invalidComponentSID = -1;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
-  protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array> = new Map();
-  protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number> = new Map();
-  // protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
   private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte>> = new Map();
@@ -90,15 +87,6 @@ export class Component extends RnObject {
 
     const stages = Component._processStages;
 
-    stages.forEach((stage) => {
-      if (this.isExistProcessStageMethod(stage)) {
-        if (Component.__componentsOfProcessStages.get(stage) == null) {
-          Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
-          // Component.__dirtyOfArrayOfProcessStages.set(stage, false);
-          Component.__lengthOfArrayOfProcessStages.set(stage, 0);
-        }
-      }
-    });
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = entityRepository;
   }
@@ -210,16 +198,29 @@ export class Component extends RnObject {
     }
 
     const methodName = processStage.methodName;
-    const array = this.__componentsOfProcessStages.get(processStage)!;
+    // const array = this.__componentsOfProcessStages.get(processStage)!;
+    // const components: Component[] | undefined =
+    //   ComponentRepository._getComponentsIncludingDead(componentType);
+    // for (let i = 0; i < array.length; ++i) {
+    //   const componentSid = array[i];
+    //   if (componentSid === Component.invalidComponentSID) {
+    //     return;
+    //   }
+    //   const component = components![componentSid];
+    //   if (component !== undefined) {
+    //     (component as any)[methodName]({
+    //       i,
+    //       processStage,
+    //       processApproach,
+    //       strategy,
+    //     });
+    //   }
+    // }
     const components: Component[] | undefined =
-      ComponentRepository._getComponentsIncludingDead(componentType);
-    for (let i = 0; i < array.length; ++i) {
-      const componentSid = array[i];
-      if (componentSid === Component.invalidComponentSID) {
-        return;
-      }
-      const component = components![componentSid];
-      if (component !== undefined) {
+      ComponentRepository._getComponentsIncludingDead(componentType)!;
+    for (let i = 0; i < components.length; ++i) {
+      const component = components[i];
+      if (processStage === component.__currentProcessStage && component._isAlive) {
         (component as any)[methodName]({
           i,
           processStage,
@@ -235,36 +236,10 @@ export class Component extends RnObject {
     processStage: ProcessStageEnum,
     renderPass: RenderPass
   ) {
-    const array = Component.__componentsOfProcessStages.get(processStage)!;
     const method = (componentClass as any)['sort_$render'];
-    let sids = [];
-    sids = method(renderPass);
-    for (let i = 0; i < sids.length; i++) {
-      array[i] = sids[i];
-    }
-  }
+    const sids = method(renderPass);
 
-  /**
-   * Update all components at each process stage.
-   */
-  static updateComponentsOfEachProcessStage(
-    componentClass: typeof Component,
-    processStage: ProcessStageEnum
-  ) {
-    if (!Component.doesTheProcessStageMethodExist(componentClass, processStage)) {
-      return;
-    }
-
-    const array = Component.__componentsOfProcessStages.get(processStage)!;
-    let count = 0;
-    const components = ComponentRepository._getComponentsIncludingDead(componentClass)!;
-    for (let i = 0; i < components.length; ++i) {
-      const component = components[i];
-      if (processStage === component.__currentProcessStage && component._isAlive) {
-        array[count++] = component.componentSID;
-      }
-    }
-    array[count] = Component.invalidComponentSID;
+    return sids;
   }
 
   /**

@@ -354,7 +354,11 @@ bool get_isBillboard(float instanceId) {
     return this.__instance;
   }
 
-  common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count) {
+  common_$render(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    renderPassTickCount: Count
+  ) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  Uniform:$render#');
     }

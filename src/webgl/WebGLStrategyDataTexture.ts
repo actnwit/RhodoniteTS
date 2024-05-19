@@ -717,7 +717,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count) {
+  common_$render(
+    primitiveUids: PrimitiveUID[],
+    renderPass: RenderPass,
+    renderPassTickCount: Count
+  ) {
     if (typeof spector !== 'undefined') {
       spector.setMarker('|  |  DataTexture:common_$render#');
     }

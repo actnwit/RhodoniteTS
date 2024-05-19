@@ -1,4 +1,4 @@
-import { CGAPIResourceHandle, Count, Index } from '../../types/CommonTypes';
+import { CGAPIResourceHandle, Count, Index, PrimitiveUID } from '../../types/CommonTypes';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { RenderPass } from './RenderPass';
@@ -12,7 +12,7 @@ export interface CGAPIStrategy {
   ): void;
   common_$prerender(): void;
   common_$render(
-    primitiveUids: Int32Array,
+    primitiveUids: PrimitiveUID[],
     renderPass: RenderPass,
     renderPassTickCount: Count
   ): boolean;
