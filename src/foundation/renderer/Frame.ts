@@ -24,6 +24,7 @@ type GeneratorOfRenderTargetTexturePromise = IterableIterator<RenderTargetTextur
  */
 export class Frame extends RnObject {
   private __expressions: ExpressionInputs[] = [];
+  private __expressionsCache: Expression[] = [];
   public static readonly FrameBuffer = 'FrameBuffer';
   public static readonly ResolveFrameBuffer = 'ResolveFrameBuffer';
   public static readonly ResolveFrameBuffer2 = 'ResolveFrameBuffer2';
@@ -85,6 +86,7 @@ export class Frame extends RnObject {
       expression,
       inputRenderPasses: Is.exist(inputRenderPasses) ? inputRenderPasses : [],
     });
+    this.__expressionsCache.push(expression);
   }
 
   /**
@@ -177,13 +179,14 @@ export class Frame extends RnObject {
    */
   clearExpressions() {
     this.__expressions.length = 0;
+    this.__expressionsCache.length = 0;
   }
 
   /**
    * Get expressions
    */
   get expressions() {
-    return this.__expressions.map((exp) => exp.expression);
+    return this.__expressionsCache;
   }
 
   setViewport(viewport: IVector4) {
