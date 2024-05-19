@@ -257,10 +257,10 @@ export class Component extends RnObject {
 
     const array = Component.__componentsOfProcessStages.get(processStage)!;
     let count = 0;
-    const components = ComponentRepository.getComponentsWithType(componentClass)!;
+    const components = ComponentRepository._getComponentsIncludingDead(componentClass)!;
     for (let i = 0; i < components.length; ++i) {
       const component = components[i];
-      if (processStage === component.__currentProcessStage) {
+      if (processStage === component.__currentProcessStage && component._isAlive) {
         array[count++] = component.componentSID;
       }
     }
