@@ -233,10 +233,7 @@ export class System {
           for (const componentTid of renderingComponentTids) {
             const componentClass: typeof Component =
               ComponentRepository.getComponentClass(componentTid)!;
-            const renderPassN = exp.renderPasses.length;
-
-            for (let i = 0; i < renderPassN; i++) {
-              const renderPass = exp.renderPasses[i];
+            for (const renderPass of exp.renderPasses) {
               if (typeof spector !== 'undefined') {
                 spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
               }
@@ -309,7 +306,6 @@ export class System {
         for (const componentTid of componentTids) {
           const componentClass: typeof Component =
             ComponentRepository.getComponentClass(componentTid)!;
-          // componentClass.updateComponentsOfEachProcessStage(componentClass, stage);
 
           const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
