@@ -207,13 +207,10 @@ export class System {
   public static process(frame: Frame): void;
   public static process(expressions: Expression[]): void;
   public static process(value: any) {
+    Time._processBegin();
     if (typeof spector !== 'undefined') {
       spector.setMarker('Rn#');
     }
-    if (this.__processApproach === ProcessApproach.None) {
-      throw new Error('Choose a process approach first.');
-    }
-    Time._processBegin();
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;
@@ -331,6 +328,10 @@ export class System {
     }
 
     Time._processEnd();
+  }
+
+  static get processTime() {
+    return Time.lastTimeTimeIntervalInMilliseconds;
   }
 
   private static createCamera() {
