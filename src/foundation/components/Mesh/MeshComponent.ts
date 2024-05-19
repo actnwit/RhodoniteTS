@@ -257,33 +257,6 @@ export class MeshComponent extends Component {
     this.moveStageTo(ProcessStage.Load);
   }
 
-  static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
-    // check for the need to update VBO
-    const meshComponents = ComponentRepository.getComponentsWithType(
-      MeshComponent
-    ) as MeshComponent[];
-    for (const meshComponent of meshComponents) {
-      const mesh = meshComponent.mesh as Mesh;
-      if (!Is.exist(mesh)) {
-        continue;
-      }
-
-      const primitiveNum = mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
-        if (
-          primitive.positionAccessorVersion !==
-          MeshComponent.__latestPrimitivePositionAccessorVersion
-        ) {
-          const meshRendererComponent = meshComponent.entity.tryToGetMeshRenderer();
-          meshRendererComponent?.moveStageTo(ProcessStage.Load);
-          MeshComponent.__latestPrimitivePositionAccessorVersion =
-            primitive.positionAccessorVersion!;
-        }
-      }
-    }
-  }
-
   $load() {
     if (this.__mesh == null) {
       return;
