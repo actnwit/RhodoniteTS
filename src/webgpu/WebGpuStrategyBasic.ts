@@ -44,8 +44,6 @@ import { TransformComponent } from '../foundation/components/Transform/Transform
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __latestPrimitivePositionAccessorVersions: number[] = [];
   private static __instance: WebGpuStrategyBasic;
-  private static __currentComponentSIDs?: VectorN;
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __storageBlendShapeBufferUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -273,13 +271,10 @@ ${indexStr}
   }
 
   $load(meshComponent: MeshComponent): void {
-    const mesh = meshComponent.mesh as Mesh;
-    if (!Is.exist(mesh)) {
+    const mesh = meshComponent.mesh;
+    if (mesh == null) {
       return;
     }
-
-    WebGpuStrategyBasic.__currentComponentSIDs =
-      WebGpuStrategyBasic.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
 
     // setup VBO and VAO
     if (!this.__isMeshSetup(mesh)) {
@@ -579,8 +574,6 @@ ${indexStr}
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
         }
       }
-      WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-        cameraComponentSid;
       return cameraComponentSid;
     } else {
       // Non-VR Rendering
@@ -593,12 +586,8 @@ ${indexStr}
         ) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-          cameraComponent.componentSID;
         return cameraComponent.componentSID;
       } else {
-        WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-          -1;
         return -1;
       }
     }
