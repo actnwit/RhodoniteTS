@@ -175,11 +175,10 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Initial Expression
     const initialExpression = this.__setupInitialExpression(
-      this.__oFrameBufferMsaa.unwrapForce(),
+      this.__oFrameBufferMsaa,
       this.__oFrameDepthMoment
     );
     this.__oInitialExpression = new Some(initialExpression);
-
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
     if (Is.exist(rnXRModule)) {
@@ -321,12 +320,6 @@ export class ForwardRenderPipeline extends RnObject {
       });
     }
     assertHas(this.__oFrame);
-    assertHas(this.__oFrameBufferMsaa);
-    assertHas(this.__oFrameBufferResolve);
-    assertHas(this.__oFrameBufferResolveForReference);
-    assertHas(this.__oGammaExpression);
-    assertHas(this.__oGammaBoardEntity);
-
     const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
       width = webXRSystem.getCanvasWidthForVr();
@@ -344,13 +337,21 @@ export class ForwardRenderPipeline extends RnObject {
           this.__shadowMapSize
         );
     }
-    this.__oFrameBufferMsaa.get().resize(width, height);
-    this.__oFrameBufferResolve.get().resize(width, height);
-    this.__oFrameBufferResolveForReference.get().resize(width, height);
 
-    this.__oGammaExpression
-      .get()
-      .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
+    if (!this.__isSimple) {
+      assertHas(this.__oFrameBufferMsaa);
+      assertHas(this.__oFrameBufferResolve);
+      assertHas(this.__oFrameBufferResolveForReference);
+      assertHas(this.__oGammaExpression);
+      assertHas(this.__oGammaBoardEntity);
+      this.__oFrameBufferMsaa.get().resize(width, height);
+      this.__oFrameBufferResolve.get().resize(width, height);
+      this.__oFrameBufferResolveForReference.get().resize(width, height);
+
+      this.__oGammaExpression
+        .get()
+        .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
+    }
 
     return new Ok();
   }
@@ -580,7 +581,7 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   private __setupInitialExpression(
-    framebufferTargetOfGammaMsaa: FrameBuffer,
+    oFramebufferTargetOfGammaMsaa: IOption<FrameBuffer>,
     oFrameDepthMoment: IOption<FrameBuffer>
   ) {
     const expression = new Expression();
@@ -599,7 +600,7 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPassForFrameBuffer.toClearColorBuffer = true;
     initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
     if (!this.__isSimple) {
-      initialRenderPassForFrameBuffer.setFramebuffer(framebufferTargetOfGammaMsaa);
+      initialRenderPassForFrameBuffer.setFramebuffer(oFramebufferTargetOfGammaMsaa.unwrapForce());
     }
     initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
 
