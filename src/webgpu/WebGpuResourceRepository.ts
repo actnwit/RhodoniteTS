@@ -47,6 +47,7 @@ import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { Vector2 } from '../foundation/math/Vector2';
+import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -106,6 +107,9 @@ export class WebGpuResourceRepository
   private __generateMipmapsFormat?: GPUTextureFormat;
   private __generateMipmapsSampler?: GPUSampler;
   private __contextCurrentTextureView?: GPUTextureView;
+
+  private __lastMaterialsUpdateCount = -1;
+  private __lastCurrentCameraComponentSid = -1;
 
   private static __iblParameterVec4 = MutableVector4.zero();
   private static __hdriFormatVec2 = MutableVector2.zero();
@@ -828,15 +832,6 @@ export class WebGpuResourceRepository
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
-    // let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
-    // if (renderBundle != null && this.__renderPassEncoder != null) {
-    //   this.__renderPassEncoder.executeBundles([renderBundle]);
-    //   this.__renderPassEncoder.end();
-    //   this.__renderPassEncoder = undefined;
-    //   this.__lastRenderPassUid = renderPass.renderPassUID;
-    //   return;
-    // }
-
     if (this.__renderBundleEncoder == null) {
       const framebuffer = renderPass.getFramebuffer();
       let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
@@ -867,6 +862,7 @@ export class WebGpuResourceRepository
       const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
       this.__renderBundleEncoder = encoder;
     }
+
     const renderBundleEncoder = this.__renderBundleEncoder!;
     renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     renderBundleEncoder.setPipeline(pipeline);
@@ -999,7 +995,19 @@ export class WebGpuResourceRepository
     }
   }
 
+  private __toClearRenderBundles() {
+    if (Material.stateVersion !== this.__lastMaterialsUpdateCount ||
+      CameraComponent.current !== this.__lastCurrentCameraComponentSid
+    ) {
+      this.__renderBundles.clear();
+      this.__lastCurrentCameraComponentSid = CameraComponent.current;
+      this.__lastMaterialsUpdateCount = Material.stateVersion;
+    }
+  }
+
   executeRenderBundle(renderPass: RenderPass) {
+    this.__toClearRenderBundles();
+
     let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
     if (renderBundle != null) {
       this.createRenderPassEncoder(renderPass);
@@ -1249,13 +1257,6 @@ export class WebGpuResourceRepository
   }
 
   flush() {
-    // if (this.__renderPassEncoder != null) {
-    //   if (this.__renderBundleEncoder != null) {
-    //     this.__renderPassEncoder.executeBundles([this.__renderBundleEncoder.finish()]);
-    //   }
-    //   this.__renderPassEncoder.end();
-    //   this.__renderPassEncoder = undefined;
-    // }
     if (this.__commandEncoder != null) {
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
