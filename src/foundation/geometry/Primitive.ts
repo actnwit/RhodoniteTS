@@ -26,12 +26,12 @@ import {
   RaycastResult,
   RaycastResultEx1,
 } from './types/GeometryTypes';
-import { IWeakOption, WeakNone, WeakSome } from '../misc/WeakOption';
 import { IOption, None, Some, Option } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
 import { isErr } from '../misc/Result';
 import { RnException } from '../misc/RnException';
+import { Mesh } from './Mesh';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -61,11 +61,11 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __latestPositionAccessorVersion = 0;
-  private __mesh?: IMesh;
+  private __positionAccessorVersion = 0;
+  private __mesh?: Mesh;
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
-  private __cachePositionAccessor?: Accessor;
 
   private static __primitiveUidIdxHasMorph: Map<PrimitiveUID, Index> = new Map();
   private static __idxPrimitiveUidHasMorph: Map<Index, Primitive> = new Map();
@@ -144,7 +144,7 @@ export class Primitive extends RnObject {
    * belong to mesh (weak reference)
    * @param mesh
    */
-  _belongToMesh(mesh: IMesh) {
+  _belongToMesh(mesh: Mesh) {
     // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
     this.__mesh = mesh;
   }
@@ -165,6 +165,13 @@ export class Primitive extends RnObject {
     return this.__primitives[primitiveUid];
   }
 
+  onAccessorUpdated(accessorVersion: number) {
+    this.__positionAccessorVersion = accessorVersion;
+    if (this.__mesh != null) {
+      this.__mesh._onPrimitivePositionUpdated();
+    }
+  }
+
   setData(
     attributes: Attributes,
     mode: PrimitiveModeEnum,
@@ -173,6 +180,9 @@ export class Primitive extends RnObject {
   ) {
     this.__oIndices = new Option(indicesAccessor);
     this.__attributes = attributes;
+
+    const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
+    positionAccessor._primitive = this;
 
     if (material != null) {
       this.material = material;
@@ -389,18 +399,8 @@ export class Primitive extends RnObject {
     return this.__primitiveUid;
   }
 
-  get positionAccessorVersion(): number | undefined {
-    if (this.__cachePositionAccessor != null) {
-      return this.__cachePositionAccessor.version;
-    } else {
-      const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ);
-      if (positionAccessor != null) {
-        this.__cachePositionAccessor = positionAccessor;
-        return positionAccessor.version;
-      } else {
-        return undefined;
-      }
-    }
+  get positionAccessorVersion(): number {
+    return this.__positionAccessorVersion;
   }
 
   get AABB() {

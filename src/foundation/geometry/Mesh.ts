@@ -68,6 +68,8 @@ export class Mesh implements IMesh {
   private static __tmpReturnVec3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpReturnVec3_2: MutableVector3 = MutableVector3.zero();
 
+  private __primitivePositionUpdateCount = 0;
+
   /**
    * Constructor
    */
@@ -326,16 +328,21 @@ export class Mesh implements IMesh {
     return this.__variationVBOUid;
   }
 
+  _onPrimitivePositionUpdated() {
+    this.__primitivePositionUpdateCount++;
+  }
+
+  get primitivePositionUpdateCount() {
+    return this.__primitivePositionUpdateCount;
+  }
+
   /**
    * Gets AABB in local space.
    */
   get AABB(): AABB {
-    for (const primitive of this.__primitives) {
-      if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
-        this.__localAABB.initialize();
-        this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
-        break;
-      }
+    if (this.__primitivePositionUpdateCount !== this.__latestPrimitivePositionAccessorVersion) {
+      this.__localAABB.initialize();
+      this.__latestPrimitivePositionAccessorVersion = this.__primitivePositionUpdateCount;
     }
 
     if (this.__localAABB.isVanilla()) {
