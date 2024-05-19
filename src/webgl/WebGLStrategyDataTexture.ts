@@ -63,7 +63,6 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
-  private __latestPrimitivePositionAccessorVersions: number[] = [];
 
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
@@ -392,37 +391,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
 
     // update VBO and VAO
-    if (!this.__isMeshSetup(mesh)) {
+    if (!mesh.isSetUpDone()) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
       updateVBOAndVAO(mesh);
-      const primitiveNum = mesh.getPrimitiveNumber();
-
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
-        this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] =
-          primitive.positionAccessorVersion!;
-      }
     }
-  }
-
-  private __isMeshSetup(mesh: Mesh) {
-    if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return false;
-    }
-
-    const primitiveNum = mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = mesh.getPrimitiveAt(i);
-      if (
-        primitive.vertexHandles == null ||
-        primitive.positionAccessorVersion !==
-          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
-      ) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   $prerender(
@@ -583,7 +555,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   common_$prerender(): void {
-    if (TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+    if (
+      TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
@@ -594,7 +567,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
-
 
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as
       | LightComponent[]

@@ -36,7 +36,8 @@ export class Mesh implements IMesh {
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __latestPrimitivePositionAccessorVersion = 0;
+  private __latestPrimitivePositionAccessorVersionForAABB = 0;
+  private __latestPrimitivePositionAccessorVersionForSetUpDone = 0;
   private __belongToEntities: IMeshEntity[] = [];
 
   /**
@@ -340,9 +341,11 @@ export class Mesh implements IMesh {
    * Gets AABB in local space.
    */
   get AABB(): AABB {
-    if (this.__primitivePositionUpdateCount !== this.__latestPrimitivePositionAccessorVersion) {
+    if (
+      this.__primitivePositionUpdateCount !== this.__latestPrimitivePositionAccessorVersionForAABB
+    ) {
       this.__localAABB.initialize();
-      this.__latestPrimitivePositionAccessorVersion = this.__primitivePositionUpdateCount;
+      this.__latestPrimitivePositionAccessorVersionForAABB = this.__primitivePositionUpdateCount;
     }
 
     if (this.__localAABB.isVanilla()) {
@@ -741,6 +744,30 @@ export class Mesh implements IMesh {
       Array.prototype.push.apply(variants, primitive.getVariantNames());
     }
     return variants;
+  }
+
+  isSetUpDone() {
+    let vertexHandlesReady = true;
+    for (const primitive of this.primitives) {
+      if (primitive.vertexHandles == null) {
+        vertexHandlesReady = false;
+        break;
+      }
+    }
+    if (!vertexHandlesReady) {
+      return false;
+    }
+
+    if (
+      this.__latestPrimitivePositionAccessorVersionForSetUpDone !==
+      this.__primitivePositionUpdateCount
+    ) {
+      this.__latestPrimitivePositionAccessorVersionForSetUpDone =
+        this.__primitivePositionUpdateCount;
+      return false;
+    }
+
+    return true;
   }
 
   // makeVerticesSeparated() {

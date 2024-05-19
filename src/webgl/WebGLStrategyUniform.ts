@@ -48,7 +48,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
-  private __latestPrimitivePositionAccessorVersions: number[] = [];
 
   private static readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
@@ -238,36 +237,9 @@ bool get_isBillboard(float instanceId) {
     }
 
     // setup VBO and VAO
-    if (!this.__isMeshSetup(mesh)) {
+    if (!mesh.isSetUpDone()) {
       updateVBOAndVAO(mesh);
-
-      const primitiveNum = mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
-        this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] =
-          primitive.positionAccessorVersion!;
-      }
     }
-  }
-
-  private __isMeshSetup(mesh: Mesh) {
-    if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return false;
-    }
-
-    const primitiveNum = mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = mesh.getPrimitiveAt(i);
-      if (
-        primitive.vertexHandles == null ||
-        primitive.positionAccessorVersion !==
-          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
-      ) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   $prerender(
