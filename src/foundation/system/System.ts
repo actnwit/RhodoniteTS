@@ -299,11 +299,10 @@ export class System {
               renderPass.doPostRender();
             }
           }
-
-          if (this.processApproach === ProcessApproach.WebGPU) {
-            const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-            webGpuResourceRepository.flush();
-          }
+        }
+        if (this.processApproach === ProcessApproach.WebGPU) {
+          const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+          webGpuResourceRepository.flush();
         }
       } else {
         for (const componentTid of componentTids) {
