@@ -69,6 +69,10 @@ export class LightComponent extends Component {
     return WellKnownComponentTIDs.LightComponentTID;
   }
 
+  get updateCount() {
+    return this.__updateCount;
+  }
+
   get direction() {
     return this.__direction;
   }
