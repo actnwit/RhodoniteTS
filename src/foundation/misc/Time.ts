@@ -22,6 +22,14 @@ export class Time {
     Time.__lastTickTimeInterval = Time.__lastProcessEndTime - Time.__currentProcessBeginTime;
   }
 
+  static get timeAtProcessBeginMilliseconds() {
+    return Time.__currentProcessBeginTime;
+  }
+
+  static get timeAtProcessEndMilliseconds() {
+    return Time.__lastProcessEndTime;
+  }
+
   static get timeFromSystemStart() {
     return (performance.now() - Time.__systemStartTime) / 1000;
   }

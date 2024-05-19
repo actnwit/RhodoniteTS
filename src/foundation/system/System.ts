@@ -334,6 +334,14 @@ export class System {
     return Time.lastTimeTimeIntervalInMilliseconds;
   }
 
+  static get timeAtProcessBegin() {
+    return Time.timeAtProcessBeginMilliseconds;
+  }
+
+  static get timeAtProcessEnd() {
+    return Time.timeAtProcessEndMilliseconds;
+  }
+
   private static createCamera() {
     const cameraEntity = EntityHelper.createCameraEntity();
     cameraEntity.getTransform()!.localPosition = Vector3.fromCopyArray([0, 0, 1]);
