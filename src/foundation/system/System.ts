@@ -284,8 +284,6 @@ export class System {
                   processStage: stage,
                   processApproach: this.__processApproach,
                   strategy: this.__webglStrategy!,
-                  renderPass: void 0,
-                  renderPassTickCount: this.__renderPassTickCount,
                 });
               }
               this.__renderPassTickCount++;
@@ -328,8 +326,6 @@ export class System {
             processStage: stage,
             processApproach: this.__processApproach,
             strategy: this.__webglStrategy!,
-            renderPass: void 0,
-            renderPassTickCount: this.__renderPassTickCount,
           });
         }
       }

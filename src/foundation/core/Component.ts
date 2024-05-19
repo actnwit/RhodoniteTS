@@ -199,15 +199,11 @@ export class Component extends RnObject {
     processStage,
     processApproach,
     strategy,
-    renderPass,
-    renderPassTickCount,
   }: {
     componentType: typeof Component;
     processStage: ProcessStageEnum;
     processApproach: ProcessApproachEnum;
     strategy: WebGLStrategy;
-    renderPass?: RenderPass;
-    renderPassTickCount: Count;
   }) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
@@ -229,8 +225,6 @@ export class Component extends RnObject {
           processStage,
           processApproach,
           strategy,
-          renderPass,
-          renderPassTickCount,
         });
       }
     }
