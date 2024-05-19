@@ -27,6 +27,7 @@ import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import { TransformComponent } from '../Transform';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -63,6 +64,8 @@ export class SceneGraphComponent extends Component {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
   private static __tmpAABB = new AABB();
+
+  private __lastTransformComponentsUpdateCount = -1;
 
   constructor(
     entityUid: EntityUID,
@@ -694,25 +697,31 @@ export class SceneGraphComponent extends Component {
   }
 
   $logic() {
+    if (this.__lastTransformComponentsUpdateCount === TransformComponent.updateCount) {
+      return;
+    }
+
     this.matrixInner;
 
     this.__updateGizmos();
 
-    const meshComponent = this.entity.tryToGetMesh();
-    if (Is.exist(meshComponent)) {
-      const mesh = meshComponent.mesh;
-      if (Is.exist(mesh)) {
-        const primitiveNum = mesh.getPrimitiveNumber();
-        for (let i = 0; i < primitiveNum; i++) {
-          const primitive = mesh!.getPrimitiveAt(i);
-          if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
-            this.setWorldAABBDirtyParentRecursively();
-            this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
-            break;
-          }
-        }
-      }
-    }
+    // const meshComponent = this.entity.tryToGetMesh();
+    // if (meshComponent != null) {
+    //   const mesh = meshComponent.mesh;
+    //   if (mesh != null) {
+    //     const primitiveNum = mesh.getPrimitiveNumber();
+    //     for (let i = 0; i < primitiveNum; i++) {
+    //       const primitive = mesh.getPrimitiveAt(i);
+    //       if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
+    //         this.setWorldAABBDirtyParentRecursively();
+    //         this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
+    //         break;
+    //       }
+    //     }
+    //   }
+    // }
+
+    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
   }
 
   private __updateGizmos() {

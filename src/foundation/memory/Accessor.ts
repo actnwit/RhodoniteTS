@@ -23,6 +23,7 @@ import {
 } from '../../types/CommonTypes';
 import { Matrix44 } from '../math/Matrix44';
 import { Is } from '../misc/Is';
+import { Primitive } from '../geometry/Primitive';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (byteOffset: Byte, value: number, littleEndian?: boolean) => void;
@@ -66,6 +67,8 @@ export class Accessor {
   private static __tmpVector3_0 = MutableVector3.zero();
   private static __tmpVector2_0 = MutableVector2.zero();
   private __version = 0;
+
+  public _primitive?: Primitive;
 
   constructor({
     bufferView,
@@ -182,6 +185,13 @@ export class Accessor {
     this.__dataViewSetter = (this.__dataView as any)[
       this.getDataViewSetter(this.__componentType)!
     ].bind(this.__dataView);
+  }
+
+  private __onUpdated() {
+    this.__version++;
+    if (this._primitive) {
+      this._primitive.onAccessorUpdated(this.__version);
+    }
   }
 
   getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined {
@@ -687,7 +697,7 @@ export class Accessor {
     }
     this.__dataViewSetter(this.__byteStride * index, value, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setVec2(i: Index, x: number, y: number, { indicesAccessor, endian = true }: IndicesAccessOption) {
@@ -699,7 +709,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index, x, endian);
     this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setVec3(
@@ -718,7 +728,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
     this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setVec4(
@@ -739,7 +749,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, w, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setMat4(
@@ -784,7 +794,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index + 14 * sizeInBytes, v14, endian);
     this.__dataViewSetter(this.__byteStride * index + 15 * sizeInBytes, v15, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setVec2AsVector(i: Index, vec: Vector2, { indicesAccessor, endian = true }: IndicesAccessOption) {
@@ -796,7 +806,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index, vec.x, endian);
     this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, vec.y, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setVec3AsVector(i: Index, vec: Vector3, { indicesAccessor, endian = true }: IndicesAccessOption) {
@@ -809,7 +819,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, vec.y, endian);
     this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, vec.z, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setVec4AsVector(i: Index, vec: Vector4, { indicesAccessor, endian = true }: IndicesAccessOption) {
@@ -823,7 +833,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, vec.z, endian);
     this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, vec.w, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setMat4AsMatrix44(
@@ -853,7 +863,7 @@ export class Accessor {
     this.__dataViewSetter(this.__byteStride * index + 14 * sizeInBytes, mat._v[14], endian);
     this.__dataViewSetter(this.__byteStride * index + 15 * sizeInBytes, mat._v[15], endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   copyFromTypedArray(typedArray: TypedArray) {
@@ -886,7 +896,7 @@ export class Accessor {
       }
     }
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setScalarAt(
@@ -901,7 +911,7 @@ export class Accessor {
     }
     this.__dataViewSetter(this.__byteStride * index + compositionOffset, value, endian);
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setElementFromSameCompositionAccessor(i: Index, accessor: Accessor, secondIdx?: Index) {
@@ -916,7 +926,7 @@ export class Accessor {
       this.setVec4AsVector(i, accessor.getVec4(j, {}), {});
     }
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   copyBuffer(accessor: Accessor) {
@@ -929,7 +939,7 @@ export class Accessor {
       this.__byteOffsetInRawArrayBufferOfBuffer
     );
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   setElementFromAccessor(i: Index, accessor: Accessor, secondIdx?: Index) {
@@ -987,7 +997,7 @@ export class Accessor {
       }
     }
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   addElementFromSameCompositionAccessor(
@@ -1019,7 +1029,7 @@ export class Accessor {
       );
     }
     this.__isMinMixDirty = true;
-    this.__version++;
+    this.__onUpdated();
   }
 
   get arrayBufferOfBufferView(): ArrayBuffer {

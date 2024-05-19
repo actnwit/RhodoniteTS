@@ -8,10 +8,10 @@ export class Time {
    * @internal
    */
   static _processBegin() {
-    if (Time.__currentProcessBeginTime === 0) {
-      Time.__systemStartTime = performance.now();
-    }
     Time.__currentProcessBeginTime = performance.now();
+    if (Time.__systemStartTime === 0) {
+      Time.__systemStartTime = Time.__currentProcessBeginTime;
+    }
   }
 
   /**
@@ -22,11 +22,23 @@ export class Time {
     Time.__lastTickTimeInterval = Time.__lastProcessEndTime - Time.__currentProcessBeginTime;
   }
 
+  static get timeAtProcessBeginMilliseconds() {
+    return Time.__currentProcessBeginTime;
+  }
+
+  static get timeAtProcessEndMilliseconds() {
+    return Time.__lastProcessEndTime;
+  }
+
   static get timeFromSystemStart() {
-    return Time.__systemStartTime - performance.now() / 1000;
+    return (performance.now() - Time.__systemStartTime) / 1000;
   }
 
   static get lastTickTimeInterval() {
     return Time.__lastTickTimeInterval / 1000;
+  }
+
+  static get lastTimeTimeIntervalInMilliseconds() {
+    return Time.__lastTickTimeInterval;
   }
 }

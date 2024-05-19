@@ -38,6 +38,7 @@ export abstract class AbstractTexture extends RnObject {
   protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _samplerResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewResourceUid: CGAPIResourceHandle = -1;
   public _recommendedTextureSampler?: Sampler;
 
   constructor() {

@@ -7,6 +7,9 @@ import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Size, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { Vector4 } from '../math/Vector4';
+import { SystemState } from '../system/SystemState';
+import { ProcessApproach } from '../definitions';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 
 export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
@@ -58,6 +61,12 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       type: this.__type,
     });
     this._textureResourceUid = texture;
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
 
     AbstractTexture.__textureMap.set(texture, this);
   }

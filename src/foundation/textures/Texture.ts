@@ -12,6 +12,9 @@ import { CompressionTextureTypeEnum } from '../definitions/CompressionTextureTyp
 import { KTX2TextureLoader } from '../../webgl/textureLoader/KTX2TextureLoader';
 import { TextureData, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { ModuleManager } from '../system/ModuleManager';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { SystemState } from '../system/SystemState';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 
 declare const BASIS: BASIS;
 
@@ -182,10 +185,10 @@ export class Texture extends AbstractTexture {
     this.__width = img.width;
     this.__height = img.height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     let texture: CGAPIResourceHandle;
     if (img instanceof HTMLImageElement) {
-      texture = await webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+      texture = await cgApiResourceRepository.createTextureFromHTMLImageElement(img, {
         level,
         internalFormat,
         width: this.__width,
@@ -196,7 +199,7 @@ export class Texture extends AbstractTexture {
         generateMipmap,
       });
     } else if (img instanceof HTMLCanvasElement) {
-      const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+      const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(img, {
         level,
         internalFormat,
         width: this.__width,
@@ -212,6 +215,11 @@ export class Texture extends AbstractTexture {
     }
 
     this._textureResourceUid = texture;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
     this.__isTextureReady = true;
     this.__uri = image.src;
 
@@ -281,12 +289,12 @@ export class Texture extends AbstractTexture {
         this.__width = img.width;
         this.__height = img.height;
 
-        const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+        const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
         let texture: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
         (async () => {
           if (img instanceof HTMLImageElement) {
-            texture = await webGLResourceRepository.createTextureFromHTMLImageElement(img, {
+            texture = await cgApiResourceRepository.createTextureFromHTMLImageElement(img, {
               level,
               internalFormat,
               width: this.__width,
@@ -297,7 +305,7 @@ export class Texture extends AbstractTexture {
               generateMipmap,
             });
           } else if (img instanceof HTMLCanvasElement) {
-            const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+            const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(img, {
               level,
               internalFormat,
               width: this.__width,
@@ -312,6 +320,11 @@ export class Texture extends AbstractTexture {
             throw new Error('Unsupported image type');
           }
           this._textureResourceUid = texture;
+          if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+            this._textureViewResourceUid = (
+              cgApiResourceRepository as WebGpuResourceRepository
+            ).createTextureView2d(this._textureResourceUid);
+          }
           this.__isTextureReady = true;
           AbstractTexture.__textureMap.set(texture, this);
           this.__uriToLoadLazy = undefined;
@@ -333,8 +346,8 @@ export class Texture extends AbstractTexture {
     ctx.fillStyle = rgbaStr;
     ctx.fillRect(0, 0, 1, 1);
 
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(canvas, {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(canvas, {
       level: 0,
       internalFormat: TextureParameter.RGBA8,
       width: 1,
@@ -346,6 +359,11 @@ export class Texture extends AbstractTexture {
     });
 
     this._textureResourceUid = textureHandle;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(textureHandle, this);
   }

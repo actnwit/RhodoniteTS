@@ -4,12 +4,16 @@ import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
+import { SystemState } from '../system/SystemState';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 
 export class RenderBuffer extends RnObject implements IRenderable {
   width = 0;
   height = 0;
   private __internalFormat: TextureParameterEnum = TextureParameter.Depth24;
   public _textureResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
   private __isMSAA = false;
   private __sampleCountMSAA = 4;
@@ -49,6 +53,12 @@ export class RenderBuffer extends RnObject implements IRenderable {
       isMSAA,
       sampleCountMSAA
     );
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
   }
 
   resize(width: Size, height: Size) {

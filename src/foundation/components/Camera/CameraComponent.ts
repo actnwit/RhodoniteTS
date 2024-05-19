@@ -29,6 +29,7 @@ import { Is } from '../../misc/Is';
 import { LightType } from '../../definitions/LightType';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { TransformComponent } from '../Transform/TransformComponent';
 
 /**
  * The Component that represents a camera.
@@ -97,6 +98,11 @@ export class CameraComponent extends Component {
   public isSyncToLight = false;
 
   private __frustum = new Frustum();
+
+  private __updateCount = 0;
+  private __lastUpdateCount = -1;
+  private __lastTransformComponentsUpdateCount = -1;
+  private __lastLightComponentsUpdateCount = -1;
 
   constructor(
     entityUid: EntityUID,
@@ -220,6 +226,8 @@ export class CameraComponent extends Component {
       this._parametersInner.z = 90;
       this._parametersInner.w = 1;
     }
+
+    this.__updateCount++;
   }
 
   get type() {
@@ -246,14 +254,17 @@ export class CameraComponent extends Component {
    */
   set eyeInner(vec: Vector3) {
     this._eyeInner.copyComponents(vec);
+    this.__updateCount++;
   }
 
   set upInner(vec: Vector3) {
     this._upInner.copyComponents(vec);
+    this.__updateCount++;
   }
 
   set up(vec: Vector3) {
     this._up.copyComponents(vec);
+    this.__updateCount++;
   }
 
   get up() {
@@ -303,10 +314,13 @@ export class CameraComponent extends Component {
 
     this._up.copyComponents(newUpNonNormalize).normalize();
     this._direction.copyComponents(newDirection);
+
+    this.__updateCount++;
   }
 
   set directionInner(vec: Vector3) {
     this._directionInner.copyComponents(vec);
+    this.__updateCount++;
   }
 
   get direction() {
@@ -319,6 +333,7 @@ export class CameraComponent extends Component {
 
   set corner(vec: Vector4) {
     this._corner.copyComponents(vec);
+    this.__updateCount++;
   }
 
   get corner(): Vector4 {
@@ -327,10 +342,12 @@ export class CameraComponent extends Component {
 
   set left(value: number) {
     this._corner.x = value;
+    this.__updateCount++;
   }
 
   set leftInner(value: number) {
     this._cornerInner.x = value;
+    this.__updateCount++;
   }
 
   get left() {
@@ -339,10 +356,12 @@ export class CameraComponent extends Component {
 
   set right(value: number) {
     this._corner.y = value;
+    this.__updateCount++;
   }
 
   set rightInner(value: number) {
     this._cornerInner.y = value;
+    this.__updateCount++;
   }
 
   get right() {
@@ -351,10 +370,12 @@ export class CameraComponent extends Component {
 
   set top(value: number) {
     this._corner.z = value;
+    this.__updateCount++;
   }
 
   set topInner(value: number) {
     this._cornerInner.z = value;
+    this.__updateCount++;
   }
 
   get top() {
@@ -363,10 +384,12 @@ export class CameraComponent extends Component {
 
   set bottom(value: number) {
     this._corner.w = value;
+    this.__updateCount++;
   }
 
   set bottomInner(value: number) {
     this._cornerInner.w = value;
+    this.__updateCount++;
   }
 
   get bottom() {
@@ -375,6 +398,7 @@ export class CameraComponent extends Component {
 
   set cornerInner(vec: Vector4) {
     this._cornerInner.copyComponents(vec);
+    this.__updateCount++;
   }
 
   get cornerInner() {
@@ -387,6 +411,7 @@ export class CameraComponent extends Component {
 
   set parametersInner(vec: Vector4) {
     this._parametersInner.copyComponents(vec);
+    this.__updateCount++;
   }
 
   get parametersInner() {
@@ -399,10 +424,12 @@ export class CameraComponent extends Component {
 
   set zNear(val: number) {
     this._parameters.x = val;
+    this.__updateCount++;
   }
 
   set zNearInner(val: number) {
     this._parametersInner.x = val;
+    this.__updateCount++;
   }
 
   get zNearInner() {
@@ -416,6 +443,7 @@ export class CameraComponent extends Component {
   set focalLength(val: number) {
     this._focalLength = val;
     this._parameters.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
+    this.__updateCount++;
   }
   get focalLength() {
     return this._focalLength;
@@ -423,10 +451,12 @@ export class CameraComponent extends Component {
 
   set zFar(val: number) {
     this._parameters.y = val;
+    this.__updateCount++;
   }
 
   set zFarInner(val: number) {
     this._parametersInner.y = val;
+    this.__updateCount++;
   }
 
   get zFarInner() {
@@ -441,11 +471,13 @@ export class CameraComponent extends Component {
     this._parameters.z = degree;
     this._filmHeight = 2 * this.focalLength * Math.tan(MathUtil.degreeToRadian(degree) / 2);
     this._filmWidth = this._filmHeight * this.aspect;
+    this.__updateCount++;
   }
 
   setFovyAndChangeFocalLength(degree: number) {
     this._parameters.z = degree;
     this._focalLength = this._filmHeight / 2 / Math.tan(MathUtil.degreeToRadian(degree) / 2);
+    this.__updateCount++;
   }
 
   get fovy() {
@@ -454,15 +486,18 @@ export class CameraComponent extends Component {
 
   set fovyInner(val: number) {
     this._parametersInner.z = val;
+    this.__updateCount++;
   }
 
   set aspect(val: number) {
     this._parameters.w = val;
     this._filmWidth = this._filmHeight * val;
+    this.__updateCount++;
   }
 
   set aspectInner(val: number) {
     this._parametersInner.w = val;
+    this.__updateCount++;
   }
 
   get aspectInner() {
@@ -475,6 +510,7 @@ export class CameraComponent extends Component {
 
   set xMag(val: number) {
     this._parameters.z = val;
+    this.__updateCount++;
   }
 
   get xMag() {
@@ -707,6 +743,7 @@ export class CameraComponent extends Component {
 
   set viewMatrix(viewMatrix: Matrix44) {
     this._viewMatrix.copyComponents(viewMatrix);
+    this.__updateCount++;
   }
 
   get projectionMatrix() {
@@ -726,6 +763,7 @@ export class CameraComponent extends Component {
 
   set projectionMatrix(projectionMatrix: Matrix44) {
     this._projectionMatrix.copyComponents(projectionMatrix);
+    this.__updateCount++;
   }
 
   get viewProjectionMatrix() {
@@ -806,6 +844,14 @@ export class CameraComponent extends Component {
 
   $logic({ renderPass }: { renderPass: RenderPass }) {
     const lightComponent = this.entity.tryToGetLight();
+    let lightComponentUpdateCount = lightComponent != null ? lightComponent.updateCount : -1;
+    if (
+      this.__lastUpdateCount === this.__updateCount &&
+      this.__lastTransformComponentsUpdateCount === TransformComponent.updateCount &&
+      this.__lastLightComponentsUpdateCount === lightComponentUpdateCount
+    ) {
+      return;
+    }
 
     if (this.isSyncToLight && Is.exist(lightComponent)) {
       // for Shadow Mapping
@@ -852,6 +898,10 @@ export class CameraComponent extends Component {
       this.calcProjectionMatrix();
     }
     this.setValuesToGlobalDataRepository();
+
+    this.__lastUpdateCount = this.__updateCount;
+    this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    this.__lastLightComponentsUpdateCount = lightComponentUpdateCount;
   }
 
   static getCurrentCameraEntity() {

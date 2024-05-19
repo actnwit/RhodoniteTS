@@ -82,6 +82,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __width = 0;
   private __height = 0;
   private __isShadow = false;
+  private __isSimple = false;
   private __shadowMapSize = 1024;
   private __oFrame: IOption<Frame> = new None();
   private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
@@ -116,10 +117,11 @@ export class ForwardRenderPipeline extends RnObject {
   async setup(
     canvasWidth: number,
     canvasHeight: number,
-    { isShadow = false, shadowMapSize = 1024 } = {}
+    { isShadow = false, shadowMapSize = 1024, isSimple = false } = {}
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
+    this.__isSimple = isSimple;
     this.__shadowMapSize = shadowMapSize;
     if (this.__oFrame.has()) {
       return new Err({
@@ -131,50 +133,52 @@ export class ForwardRenderPipeline extends RnObject {
     const sFrame = new Some(new Frame());
     this.__oFrame = sFrame;
 
-    this.__oSamplerForBackBuffer = new Some(
-      new Sampler({
-        wrapS: TextureParameter.Repeat,
-        wrapT: TextureParameter.Repeat,
-        minFilter: TextureParameter.LinearMipmapLinear,
-        magFilter: TextureParameter.Linear,
-      })
-    );
-    this.__oSamplerForBackBuffer.unwrapForce().create();
+    if (!this.__isSimple) {
+      this.__oSamplerForBackBuffer = new Some(
+        new Sampler({
+          wrapS: TextureParameter.Repeat,
+          wrapT: TextureParameter.Repeat,
+          minFilter: TextureParameter.LinearMipmapLinear,
+          magFilter: TextureParameter.Linear,
+        })
+      );
+      this.__oSamplerForBackBuffer.unwrapForce().create();
 
-    // create Frame Buffers
-    const { framebufferMsaa, framebufferResolve, framebufferResolveForReference } =
-      this.__createRenderTargets(canvasWidth, canvasHeight);
+      // create Frame Buffers
+      const { framebufferMsaa, framebufferResolve, framebufferResolveForReference } =
+        this.__createRenderTargets(canvasWidth, canvasHeight);
 
-    // depth moment FrameBuffer
-    if (isShadow) {
-      this.__isShadow = true;
-      this.__oFrameDepthMoment = this.__setupDepthMomentFramebuffer(shadowMapSize);
+      // FrameBuffers
+      this.__oFrameBufferMsaa = new Some(framebufferMsaa);
+      this.__oFrameBufferResolve = new Some(framebufferResolve);
+      this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
+
+      // depth moment FrameBuffer
+      if (isShadow) {
+        this.__isShadow = true;
+        this.__oFrameDepthMoment = this.__setupDepthMomentFramebuffer(shadowMapSize);
+      }
+
+      this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
+        sFrame,
+        this.__oFrameBufferResolveForReference.unwrapForce()
+      );
+
+      // gamma Expression
+      const gammaExpression = this.__setupGammaExpression(
+        sFrame,
+        this.__oFrameBufferResolve.unwrapForce(),
+        canvasWidth / canvasHeight
+      );
+      this.__oGammaExpression = new Some(gammaExpression);
     }
 
     // Initial Expression
     const initialExpression = this.__setupInitialExpression(
-      framebufferMsaa,
+      this.__oFrameBufferMsaa,
       this.__oFrameDepthMoment
     );
     this.__oInitialExpression = new Some(initialExpression);
-
-    this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
-      sFrame,
-      framebufferResolveForReference
-    );
-
-    // FrameBuffers
-    this.__oFrameBufferMsaa = new Some(framebufferMsaa);
-    this.__oFrameBufferResolve = new Some(framebufferResolve);
-    this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
-
-    // gamma Expression
-    const gammaExpression = this.__setupGammaExpression(
-      sFrame,
-      framebufferResolve,
-      canvasWidth / canvasHeight
-    );
-    this.__oGammaExpression = new Some(gammaExpression);
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
     if (Is.exist(rnXRModule)) {
@@ -316,12 +320,6 @@ export class ForwardRenderPipeline extends RnObject {
       });
     }
     assertHas(this.__oFrame);
-    assertHas(this.__oFrameBufferMsaa);
-    assertHas(this.__oFrameBufferResolve);
-    assertHas(this.__oFrameBufferResolveForReference);
-    assertHas(this.__oGammaExpression);
-    assertHas(this.__oGammaBoardEntity);
-
     const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
       width = webXRSystem.getCanvasWidthForVr();
@@ -339,13 +337,21 @@ export class ForwardRenderPipeline extends RnObject {
           this.__shadowMapSize
         );
     }
-    this.__oFrameBufferMsaa.get().resize(width, height);
-    this.__oFrameBufferResolve.get().resize(width, height);
-    this.__oFrameBufferResolveForReference.get().resize(width, height);
 
-    this.__oGammaExpression
-      .get()
-      .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
+    if (!this.__isSimple) {
+      assertHas(this.__oFrameBufferMsaa);
+      assertHas(this.__oFrameBufferResolve);
+      assertHas(this.__oFrameBufferResolveForReference);
+      assertHas(this.__oGammaExpression);
+      assertHas(this.__oGammaBoardEntity);
+      this.__oFrameBufferMsaa.get().resize(width, height);
+      this.__oFrameBufferResolve.get().resize(width, height);
+      this.__oFrameBufferResolveForReference.get().resize(width, height);
+
+      this.__oGammaExpression
+        .get()
+        .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
+    }
 
     return new Ok();
   }
@@ -527,9 +533,11 @@ export class ForwardRenderPipeline extends RnObject {
 
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
-        rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
-        rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+        if (!this.__isSimple) {
+          rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+          rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+          rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+        }
       }
     }
     this.__expressions = expressions;
@@ -543,23 +551,25 @@ export class ForwardRenderPipeline extends RnObject {
         rp.toRenderOpaquePrimitives = false; // not to render opaque primitives in transmission expression.
         rp.toRenderTransparentPrimitives = true;
         rp.toClearDepthBuffer = false;
-        rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-        rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+        if (!this.__isSimple) {
+          rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
+          rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
 
-        for (const entity of rp.entities) {
-          const meshComponent = entity.tryToGetMesh();
-          if (Is.exist(meshComponent)) {
-            const mesh = meshComponent.mesh;
-            if (Is.exist(mesh)) {
-              for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
-                const primitive = mesh.getPrimitiveAt(i);
-                primitive.material.setTextureParameter(
-                  ShaderSemantics.BackBufferTexture,
-                  this.__oFrameBufferResolveForReference
-                    .unwrapForce()
-                    .getColorAttachedRenderTargetTexture(0)!,
-                  this.__oSamplerForBackBuffer.unwrapForce()
-                );
+          for (const entity of rp.entities) {
+            const meshComponent = entity.tryToGetMesh();
+            if (Is.exist(meshComponent)) {
+              const mesh = meshComponent.mesh;
+              if (Is.exist(mesh)) {
+                for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+                  const primitive = mesh.getPrimitiveAt(i);
+                  primitive.material.setTextureParameter(
+                    ShaderSemantics.BackBufferTexture,
+                    this.__oFrameBufferResolveForReference
+                      .unwrapForce()
+                      .getColorAttachedRenderTargetTexture(0)!,
+                    this.__oSamplerForBackBuffer.unwrapForce()
+                  );
+                }
               }
             }
           }
@@ -571,7 +581,7 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   private __setupInitialExpression(
-    framebufferTargetOfGammaMsaa: FrameBuffer,
+    oFramebufferTargetOfGammaMsaa: IOption<FrameBuffer>,
     oFrameDepthMoment: IOption<FrameBuffer>
   ) {
     const expression = new Expression();
@@ -589,7 +599,9 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
     initialRenderPassForFrameBuffer.toClearColorBuffer = true;
     initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
-    initialRenderPassForFrameBuffer.setFramebuffer(framebufferTargetOfGammaMsaa);
+    if (!this.__isSimple) {
+      initialRenderPassForFrameBuffer.setFramebuffer(oFramebufferTargetOfGammaMsaa.unwrapForce());
+    }
     initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
 
     expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
@@ -812,18 +824,25 @@ export class ForwardRenderPipeline extends RnObject {
     const frame = this.__oFrame.unwrapForce();
     frame.clearExpressions();
     frame.addExpression(this.getInitialExpression()!);
-    for (const exp of this.__depthMomentExpressions) {
-      frame.addExpression(exp);
+
+    if (!this.__isSimple) {
+      for (const exp of this.__depthMomentExpressions) {
+        frame.addExpression(exp);
+      }
     }
     for (const exp of this.__expressions) {
       frame.addExpression(exp);
     }
 
-    frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+    if (!this.__isSimple) {
+      frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+    }
 
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
-    frame.addExpression(this.getGammaExpression()!);
+    if (!this.__isSimple) {
+      frame.addExpression(this.getGammaExpression()!);
+    }
   }
 }

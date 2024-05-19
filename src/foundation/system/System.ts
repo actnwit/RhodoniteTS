@@ -207,13 +207,10 @@ export class System {
   public static process(frame: Frame): void;
   public static process(expressions: Expression[]): void;
   public static process(value: any) {
+    Time._processBegin();
     if (typeof spector !== 'undefined') {
       spector.setMarker('Rn#');
     }
-    if (this.__processApproach === ProcessApproach.None) {
-      throw new Error('Choose a process approach first.');
-    }
-    Time._processBegin();
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;
@@ -236,10 +233,7 @@ export class System {
           for (const componentTid of renderingComponentTids) {
             const componentClass: typeof Component =
               ComponentRepository.getComponentClass(componentTid)!;
-            const renderPassN = exp.renderPasses.length;
-
-            for (let i = 0; i < renderPassN; i++) {
-              const renderPass = exp.renderPasses[i];
+            for (const renderPass of exp.renderPasses) {
               if (typeof spector !== 'undefined') {
                 spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
               }
@@ -260,30 +254,41 @@ export class System {
                 this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              componentClass.updateComponentsOfEachProcessStage(componentClass, stage, renderPass);
-
-              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-              if (componentClass_commonMethod) {
-                componentClass_commonMethod({
-                  processApproach: this.__processApproach,
-                  renderPass: renderPass,
-                  processStage: stage,
-                  renderPassTickCount: this.__renderPassTickCount,
-                });
+              let skipNormalRender = false;
+              if (this.processApproach === ProcessApproach.WebGPU) {
+                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
+                skipNormalRender = repo.executeRenderBundle(renderPass);
               }
 
-              componentClass.process({
-                componentType: componentClass,
-                processStage: stage,
-                processApproach: this.__processApproach,
-                strategy: this.__webglStrategy!,
-                renderPass: void 0,
-                renderPassTickCount: this.__renderPassTickCount,
-              });
+              if (!skipNormalRender) {
+                const primitiveUids = componentClass.updateComponentsForRenderStage(
+                  componentClass,
+                  stage,
+                  renderPass
+                );
+                const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+                if (componentClass_commonMethod) {
+                  componentClass_commonMethod({
+                    processApproach: this.__processApproach,
+                    renderPass: renderPass,
+                    processStage: stage,
+                    renderPassTickCount: this.__renderPassTickCount,
+                    primitiveUids,
+                  });
+                }
 
+                componentClass.process({
+                  componentType: componentClass,
+                  processStage: stage,
+                  processApproach: this.__processApproach,
+                  strategy: this.__webglStrategy!,
+                });
+              }
               this.__renderPassTickCount++;
 
               if (this.processApproach === ProcessApproach.WebGPU) {
+                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
+                repo.finishRenderBundleEncoder(renderPass);
                 renderPass._copyResolve1ToResolve2WebGpu();
               } else {
                 renderPass._copyFramebufferToResolveFramebuffersWebGL();
@@ -293,11 +298,14 @@ export class System {
             }
           }
         }
+        if (this.processApproach === ProcessApproach.WebGPU) {
+          const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+          webGpuResourceRepository.flush();
+        }
       } else {
         for (const componentTid of componentTids) {
           const componentClass: typeof Component =
             ComponentRepository.getComponentClass(componentTid)!;
-          componentClass.updateComponentsOfEachProcessStage(componentClass, stage);
 
           const componentClass_commonMethod = (componentClass as any)[commonMethodName];
           if (componentClass_commonMethod) {
@@ -314,14 +322,24 @@ export class System {
             processStage: stage,
             processApproach: this.__processApproach,
             strategy: this.__webglStrategy!,
-            renderPass: void 0,
-            renderPassTickCount: this.__renderPassTickCount,
           });
         }
       }
     }
 
     Time._processEnd();
+  }
+
+  static get processTime() {
+    return Time.lastTimeTimeIntervalInMilliseconds;
+  }
+
+  static get timeAtProcessBegin() {
+    return Time.timeAtProcessBeginMilliseconds;
+  }
+
+  static get timeAtProcessEnd() {
+    return Time.timeAtProcessEndMilliseconds;
   }
 
   private static createCamera() {

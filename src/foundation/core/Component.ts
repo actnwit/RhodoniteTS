@@ -35,9 +35,6 @@ export class Component extends RnObject {
   static readonly invalidComponentSID = -1;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
-  protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array> = new Map();
-  protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number> = new Map();
-  // protected static __dirtyOfArrayOfProcessStages: Map<ProcessStageEnum, boolean> = new Map();
   private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte>> = new Map();
@@ -90,15 +87,6 @@ export class Component extends RnObject {
 
     const stages = Component._processStages;
 
-    stages.forEach((stage) => {
-      if (this.isExistProcessStageMethod(stage)) {
-        if (Component.__componentsOfProcessStages.get(stage) == null) {
-          Component.__componentsOfProcessStages.set(stage, new Int32Array(Config.maxEntityNumber));
-          // Component.__dirtyOfArrayOfProcessStages.set(stage, false);
-          Component.__lengthOfArrayOfProcessStages.set(stage, 0);
-        }
-      }
-    });
     this.__memoryManager = MemoryManager.getInstance();
     this.__entityRepository = entityRepository;
   }
@@ -199,77 +187,41 @@ export class Component extends RnObject {
     processStage,
     processApproach,
     strategy,
-    renderPass,
-    renderPassTickCount,
   }: {
     componentType: typeof Component;
     processStage: ProcessStageEnum;
     processApproach: ProcessApproachEnum;
     strategy: WebGLStrategy;
-    renderPass?: RenderPass;
-    renderPassTickCount: Count;
   }) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
     }
 
     const methodName = processStage.methodName;
-    const array = this.__componentsOfProcessStages.get(processStage)!;
     const components: Component[] | undefined =
-      ComponentRepository._getComponentsIncludingDead(componentType);
-    for (let i = 0; i < array.length; ++i) {
-      const componentSid = array[i];
-      if (componentSid === Component.invalidComponentSID) {
-        return;
-      }
-      const component = components![componentSid];
-      if (component !== undefined) {
+      ComponentRepository._getComponentsIncludingDead(componentType)!;
+    for (let i = 0; i < components.length; ++i) {
+      const component = components[i];
+      if (processStage === component.__currentProcessStage && component._isAlive) {
         (component as any)[methodName]({
           i,
           processStage,
           processApproach,
           strategy,
-          renderPass,
-          renderPassTickCount,
         });
       }
     }
   }
 
-  /**
-   * Update all components at each process stage.
-   */
-  static updateComponentsOfEachProcessStage(
+  static updateComponentsForRenderStage(
     componentClass: typeof Component,
     processStage: ProcessStageEnum,
-    renderPass?: RenderPass
+    renderPass: RenderPass
   ) {
-    if (!Component.doesTheProcessStageMethodExist(componentClass, processStage)) {
-      return;
-    }
+    const method = (componentClass as any)['sort_$render'];
+    const sids = method(renderPass);
 
-    const array = Component.__componentsOfProcessStages.get(processStage)!;
-    if (array) {
-      const method = (componentClass as any)['sort_' + processStage.methodName];
-
-      if (method != null) {
-        let sids = [];
-        sids = method(renderPass);
-        for (let i = 0; i < sids.length; i++) {
-          array[i] = sids[i];
-        }
-      } else {
-        let count = 0;
-        const components = ComponentRepository.getComponentsWithType(componentClass)!;
-        for (let i = 0; i < components.length; ++i) {
-          const component = components[i];
-          if (processStage === component.__currentProcessStage) {
-            array[count++] = component.componentSID;
-          }
-        }
-        array[count] = Component.invalidComponentSID;
-      }
-    }
+    return sids;
   }
 
   /**

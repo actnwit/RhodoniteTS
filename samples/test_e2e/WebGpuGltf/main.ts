@@ -54,6 +54,7 @@ expressions.push(expression);
 await setIBL('./../../../assets/ibl/papermill');
 
 let startTime = Date.now();
+let startTimeForPerformanceNow = 0;
 const draw = function () {
   if (count > 0) {
     window._rendered = true;
@@ -77,6 +78,17 @@ const draw = function () {
 
   //      console.log(date.getTime());
   Rn.System.process(expressions);
+
+  const t0 = Rn.System.timeAtProcessBegin;
+  const t1 = Rn.System.timeAtProcessEnd;
+  const msec = t1 - t0;
+  const sec = msec / 1000;
+  const virtualFps = 1.0 / sec;
+  const duration = t1 - startTimeForPerformanceNow;
+  if (duration > 1000) {
+    console.log(`draw time: ${msec} msec, virtual fps: ${virtualFps} fps`);
+    startTimeForPerformanceNow = t1;
+  }
 
   count++;
   requestAnimationFrame(draw);

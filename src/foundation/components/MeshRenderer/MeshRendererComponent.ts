@@ -17,6 +17,7 @@ import {
   ObjectUID,
   ComponentTID,
   EntityUID,
+  PrimitiveUID,
 } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
@@ -311,13 +312,14 @@ export class MeshRendererComponent extends Component {
     renderPass,
     processStage,
     renderPassTickCount,
+    primitiveUids,
   }: {
     renderPass: RenderPass;
     processStage: ProcessStageEnum;
     renderPassTickCount: Count;
+    primitiveUids: PrimitiveUID[];
   }) {
     // Call common_$render of WebGLRenderingStrategy
-    const primitiveUids = Component.__componentsOfProcessStages.get(processStage)!;
     MeshRendererComponent.__webglRenderingStrategy!.common_$render(
       primitiveUids,
       renderPass,

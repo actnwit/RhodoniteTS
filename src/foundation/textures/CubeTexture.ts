@@ -4,6 +4,9 @@ import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { Size, TypedArray } from '../../types/CommonTypes';
+import { SystemState } from '../system/SystemState';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 
 declare const BASIS: BASIS;
 
@@ -34,6 +37,13 @@ export class CubeTexture extends AbstractTexture {
     this._recommendedTextureSampler = sampler;
     this._textureResourceUid = resourceUid;
     this._samplerResourceUid = sampler._samplerResourceUid;
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureViewCube(this._textureResourceUid);
+    }
+
     this.__isTextureReady = true;
   }
 
@@ -52,6 +62,12 @@ export class CubeTexture extends AbstractTexture {
           this._textureResourceUid = cubeTextureUid;
           this._recommendedTextureSampler = sampler;
           this._samplerResourceUid = sampler._samplerResourceUid;
+
+          if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+            this._textureViewResourceUid = (
+              cgApiResourceRepository as WebGpuResourceRepository
+            ).createTextureViewCube(this._textureResourceUid);
+          }
         })
         .then(() => {
           this.__isTextureReady = true;
@@ -136,6 +152,12 @@ export class CubeTexture extends AbstractTexture {
     this._textureResourceUid = resourceUid;
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureViewCube(this._textureResourceUid);
+    }
 
     this.__isTextureReady = true;
   }

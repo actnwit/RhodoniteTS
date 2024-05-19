@@ -42,10 +42,7 @@ import { CameraControllerComponent } from '../foundation/components/CameraContro
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
-  private __latestPrimitivePositionAccessorVersions: number[] = [];
   private static __instance: WebGpuStrategyBasic;
-  private static __currentComponentSIDs?: VectorN;
-  private static __globalDataRepository = GlobalDataRepository.getInstance();
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __storageBlendShapeBufferUid: CGAPIResourceHandle =
     CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -273,24 +270,14 @@ ${indexStr}
   }
 
   $load(meshComponent: MeshComponent): void {
-    const mesh = meshComponent.mesh as Mesh;
-    if (!Is.exist(mesh)) {
+    const mesh = meshComponent.mesh;
+    if (mesh == null) {
       return;
     }
 
-    WebGpuStrategyBasic.__currentComponentSIDs =
-      WebGpuStrategyBasic.__globalDataRepository.getValue(ShaderSemantics.CurrentComponentSIDs, 0);
-
     // setup VBO and VAO
-    if (!this.__isMeshSetup(mesh)) {
+    if (!mesh.isSetUpDone()) {
       updateVBOAndVAO(mesh);
-
-      const primitiveNum = mesh.getPrimitiveNumber();
-      for (let i = 0; i < primitiveNum; i++) {
-        const primitive = mesh.getPrimitiveAt(i);
-        this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid] =
-          primitive.positionAccessorVersion!;
-      }
     }
 
     if (this.__uniformMorphOffsetsTypedArray == null) {
@@ -368,26 +355,6 @@ ${indexStr}
     material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
   }
 
-  private __isMeshSetup(mesh: Mesh) {
-    if (mesh._variationVBOUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-      return false;
-    }
-
-    const primitiveNum = mesh.getPrimitiveNumber();
-    for (let i = 0; i < primitiveNum; i++) {
-      const primitive = mesh.getPrimitiveAt(i);
-      if (
-        primitive.vertexHandles == null ||
-        primitive.positionAccessorVersion !==
-          this.__latestPrimitivePositionAccessorVersions[primitive.primitiveUid]
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   $prerender(
     meshComponent: MeshComponent,
     meshRendererComponent: MeshRendererComponent,
@@ -409,7 +376,7 @@ ${indexStr}
     }
   }
   common_$render(
-    primitiveUids: Int32Array,
+    primitiveUids: PrimitiveUID[],
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
@@ -438,9 +405,6 @@ ${indexStr}
         // gl.depthMask(true);
       }
     }
-
-    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    webGpuResourceRepository.flush();
 
     return true;
   }
@@ -582,8 +546,6 @@ ${indexStr}
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(displayIdx);
         }
       }
-      WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-        cameraComponentSid;
       return cameraComponentSid;
     } else {
       // Non-VR Rendering
@@ -596,12 +558,8 @@ ${indexStr}
         ) as CameraComponent;
       }
       if (cameraComponent) {
-        WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-          cameraComponent.componentSID;
         return cameraComponent.componentSID;
       } else {
-        WebGpuStrategyBasic.__currentComponentSIDs!._v[WellKnownComponentTIDs.CameraComponentTID] =
-          -1;
         return -1;
       }
     }

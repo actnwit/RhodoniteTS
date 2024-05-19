@@ -36,7 +36,8 @@ export class Mesh implements IMesh {
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
   private __variationVBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __latestPrimitivePositionAccessorVersion = 0;
+  private __latestPrimitivePositionAccessorVersionForAABB = 0;
+  private __latestPrimitivePositionAccessorVersionForSetUpDone = 0;
   private __belongToEntities: IMeshEntity[] = [];
 
   /**
@@ -67,6 +68,8 @@ export class Mesh implements IMesh {
   private static __tmpReturnVec3_0: MutableVector3 = MutableVector3.zero();
   private static __tmpReturnVec3_1: MutableVector3 = MutableVector3.zero();
   private static __tmpReturnVec3_2: MutableVector3 = MutableVector3.zero();
+
+  private __primitivePositionUpdateCount = 0;
 
   /**
    * Constructor
@@ -326,16 +329,23 @@ export class Mesh implements IMesh {
     return this.__variationVBOUid;
   }
 
+  _onPrimitivePositionUpdated() {
+    this.__primitivePositionUpdateCount++;
+  }
+
+  get primitivePositionUpdateCount() {
+    return this.__primitivePositionUpdateCount;
+  }
+
   /**
    * Gets AABB in local space.
    */
   get AABB(): AABB {
-    for (const primitive of this.__primitives) {
-      if (primitive.positionAccessorVersion !== this.__latestPrimitivePositionAccessorVersion) {
-        this.__localAABB.initialize();
-        this.__latestPrimitivePositionAccessorVersion = primitive.positionAccessorVersion!;
-        break;
-      }
+    if (
+      this.__primitivePositionUpdateCount !== this.__latestPrimitivePositionAccessorVersionForAABB
+    ) {
+      this.__localAABB.initialize();
+      this.__latestPrimitivePositionAccessorVersionForAABB = this.__primitivePositionUpdateCount;
     }
 
     if (this.__localAABB.isVanilla()) {
@@ -734,6 +744,30 @@ export class Mesh implements IMesh {
       Array.prototype.push.apply(variants, primitive.getVariantNames());
     }
     return variants;
+  }
+
+  isSetUpDone() {
+    let vertexHandlesReady = true;
+    for (const primitive of this.primitives) {
+      if (primitive.vertexHandles == null) {
+        vertexHandlesReady = false;
+        break;
+      }
+    }
+    if (!vertexHandlesReady) {
+      return false;
+    }
+
+    if (
+      this.__latestPrimitivePositionAccessorVersionForSetUpDone !==
+      this.__primitivePositionUpdateCount
+    ) {
+      this.__latestPrimitivePositionAccessorVersionForSetUpDone =
+        this.__primitivePositionUpdateCount;
+      return false;
+    }
+
+    return true;
   }
 
   // makeVerticesSeparated() {

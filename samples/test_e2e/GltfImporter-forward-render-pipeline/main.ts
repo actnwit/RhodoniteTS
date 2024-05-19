@@ -77,12 +77,15 @@ const draw = function (frame) {
   }
 
   if (window.isAnimating) {
+    Rn.AnimationComponent.setIsAnimating(true);
     const date = new Date();
     const time = (date.getTime() - startTime) / 1000;
     Rn.AnimationComponent.globalTime = time;
     if (time > Rn.AnimationComponent.endInputValue) {
       startTime = date.getTime();
     }
+  } else {
+    Rn.AnimationComponent.setIsAnimating(false);
   }
 
   Rn.System.process(frame);
