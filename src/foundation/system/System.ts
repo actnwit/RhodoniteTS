@@ -257,12 +257,6 @@ export class System {
                 this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              const primitiveUids = componentClass.updateComponentsForRenderStage(
-                componentClass,
-                stage,
-                renderPass
-              );
-
               let skipNormalRender = false;
               if (this.processApproach === ProcessApproach.WebGPU) {
                 const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
@@ -270,6 +264,11 @@ export class System {
               }
 
               if (!skipNormalRender) {
+                const primitiveUids = componentClass.updateComponentsForRenderStage(
+                  componentClass,
+                  stage,
+                  renderPass
+                );
                 const componentClass_commonMethod = (componentClass as any)[commonMethodName];
                 if (componentClass_commonMethod) {
                   componentClass_commonMethod({

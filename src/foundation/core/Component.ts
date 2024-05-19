@@ -198,24 +198,6 @@ export class Component extends RnObject {
     }
 
     const methodName = processStage.methodName;
-    // const array = this.__componentsOfProcessStages.get(processStage)!;
-    // const components: Component[] | undefined =
-    //   ComponentRepository._getComponentsIncludingDead(componentType);
-    // for (let i = 0; i < array.length; ++i) {
-    //   const componentSid = array[i];
-    //   if (componentSid === Component.invalidComponentSID) {
-    //     return;
-    //   }
-    //   const component = components![componentSid];
-    //   if (component !== undefined) {
-    //     (component as any)[methodName]({
-    //       i,
-    //       processStage,
-    //       processApproach,
-    //       strategy,
-    //     });
-    //   }
-    // }
     const components: Component[] | undefined =
       ComponentRepository._getComponentsIncludingDead(componentType)!;
     for (let i = 0; i < components.length; ++i) {
