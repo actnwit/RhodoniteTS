@@ -60,8 +60,6 @@ const draw = function () {
     window._rendered = true;
   }
 
-  const t0 = performance.now();
-
   if (window.isAnimating) {
     Rn.AnimationComponent.isAnimating = true;
     const date = new Date();
@@ -81,8 +79,8 @@ const draw = function () {
   //      console.log(date.getTime());
   Rn.System.process(expressions);
 
-  const t1 = performance.now();
-
+  const t0 = Rn.System.timeAtProcessBegin;
+  const t1 = Rn.System.timeAtProcessEnd;
   const msec = t1 - t0;
   const sec = msec / 1000;
   const virtualFps = 1.0 / sec;
