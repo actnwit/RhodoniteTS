@@ -30,6 +30,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
+import { WebGpuStrategyBasic } from '../../webgpu';
 
 declare const spector: any;
 
@@ -256,8 +257,8 @@ export class System {
 
               let skipNormalRender = false;
               if (this.processApproach === ProcessApproach.WebGPU) {
-                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
-                skipNormalRender = repo.executeRenderBundle(renderPass);
+                const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
+                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
               }
 
               if (!skipNormalRender) {

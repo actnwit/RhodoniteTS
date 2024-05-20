@@ -5,7 +5,7 @@ import { RenderPass } from './RenderPass';
 
 export interface CGAPIStrategy {
   $load(meshComponent: MeshComponent): boolean;
-  common_$prerender(): void;
+  prerender(): void;
   common_$render(
     primitiveUids: PrimitiveUID[],
     renderPass: RenderPass,

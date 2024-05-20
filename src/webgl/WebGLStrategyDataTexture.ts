@@ -539,7 +539,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  common_$prerender(): void {
+  prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||

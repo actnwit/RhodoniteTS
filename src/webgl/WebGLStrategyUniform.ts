@@ -244,7 +244,7 @@ bool get_isBillboard(float instanceId) {
     return true;
   }
 
-  common_$prerender(): void {
+  prerender(): void {
     this.__lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent
     ) as LightComponent[];

@@ -359,7 +359,13 @@ ${indexStr}
     material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
   }
 
-  common_$prerender(): void {
+  renderWithRenderBundle(renderPass: RenderPass): boolean {
+    this.prerender();
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    return webGpuResourceRepository.executeRenderBundle(renderPass);
+  }
+
+  prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||

@@ -311,7 +311,7 @@ export class MeshRendererComponent extends Component {
     primitiveUids: PrimitiveUID[];
   }) {
     // Call common_$prerender of WebGLRenderingStrategy
-    MeshRendererComponent.__cgApiRenderingStrategy!.common_$prerender();
+    MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
 
     // Call common_$render of WebGLRenderingStrategy
     MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
