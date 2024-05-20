@@ -941,6 +941,7 @@ export class WebGpuResourceRepository
             depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
           },
+          label: renderPass.uniqueName,
         };
         const colorAttachments = [];
         for (let i = 0; i < resolveFramebuffer.colorAttachments.length; i++) {
@@ -982,6 +983,7 @@ export class WebGpuResourceRepository
             depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
           },
+          label: renderPass.uniqueName,
         };
         const colorAttachments = [];
         for (let colorAttachment of framebuffer.colorAttachments) {
@@ -1016,6 +1018,7 @@ export class WebGpuResourceRepository
             depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
           },
+          label: renderPass.uniqueName,
         };
         this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
       }
