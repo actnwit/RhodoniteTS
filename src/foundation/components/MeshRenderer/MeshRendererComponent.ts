@@ -28,6 +28,7 @@ import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture;
@@ -35,10 +36,8 @@ export class MeshRendererComponent extends Component {
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
-  public _readyForRendering = false;
-  private __meshComponent?: MeshComponent;
 
-  private static __webglRenderingStrategy?: CGAPIStrategy;
+  private static __cgApiRenderingStrategy?: CGAPIStrategy;
   public static isDepthMaskTrueForTransparencies = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
@@ -114,14 +113,6 @@ export class MeshRendererComponent extends Component {
     });
   }
 
-  $create() {
-    this.__meshComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      MeshComponent
-    ) as MeshComponent;
-    this.moveStageTo(ProcessStage.Load);
-  }
-
   static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const moduleManager = ModuleManager.getInstance();
 
@@ -129,24 +120,24 @@ export class MeshRendererComponent extends Component {
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
       const webgpuModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__webglRenderingStrategy =
+      MeshRendererComponent.__cgApiRenderingStrategy =
         webgpuModule.WebGpuStrategyBasic.getInstance();
+      (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
       const webglModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__webglRenderingStrategy =
+      MeshRendererComponent.__cgApiRenderingStrategy =
         webglModule.getRenderingStrategy(processApproach);
     }
   }
 
   $load() {
-    MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
-  }
-
-  static common_$prerender() {
-    MeshRendererComponent.__webglRenderingStrategy!.common_$prerender();
-
-    return;
+    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(
+      this.entity.tryToGetMesh()!
+    );
+    if (ready) {
+      this.moveStageTo(ProcessStage.Unknown);
+    }
   }
 
   // $prerender() {
@@ -319,8 +310,11 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
   }) {
+    // Call common_$prerender of WebGLRenderingStrategy
+    MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
+
     // Call common_$render of WebGLRenderingStrategy
-    MeshRendererComponent.__webglRenderingStrategy!.common_$render(
+    MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
       primitiveUids,
       renderPass,
       renderPassTickCount
@@ -345,7 +339,6 @@ export class MeshRendererComponent extends Component {
     this.diffuseCubeMapContribution = component.diffuseCubeMapContribution;
     this.specularCubeMapContribution = component.specularCubeMapContribution;
     this.rotationOfCubeMap = component.rotationOfCubeMap;
-    this._readyForRendering = component._readyForRendering;
   }
 
   /**

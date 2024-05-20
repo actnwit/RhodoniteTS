@@ -269,10 +269,10 @@ ${indexStr}
     }
   }
 
-  $load(meshComponent: MeshComponent): void {
+  $load(meshComponent: MeshComponent): boolean {
     const mesh = meshComponent.mesh;
     if (mesh == null) {
-      return;
+      return false;
     }
 
     // setup VBO and VAO
@@ -280,6 +280,10 @@ ${indexStr}
       updateVBOAndVAO(mesh);
     }
 
+    return true;
+  }
+
+  common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
         Math.ceil(
@@ -355,14 +359,13 @@ ${indexStr}
     material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
   }
 
-  $prerender(
-    meshComponent: MeshComponent,
-    meshRendererComponent: MeshRendererComponent,
-    instanceIDBufferUid: number
-  ): void {
-    // throw new Error('Method not implemented.');
+  renderWithRenderBundle(renderPass: RenderPass): boolean {
+    this.prerender();
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    return webGpuResourceRepository.executeRenderBundle(renderPass);
   }
-  common_$prerender(): void {
+
+  prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||

@@ -36,7 +36,6 @@ export class LightComponent extends Component {
   public range = -1;
   public enable = true;
   public shadowAreaSizeForDirectionalLight = 10;
-  private __sceneGraphComponent?: SceneGraphComponent;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
   private static __lightPositions = new VectorN(new Float32Array(0));
@@ -113,14 +112,6 @@ export class LightComponent extends Component {
     }
   }
 
-  $create() {
-    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      SceneGraphComponent
-    ) as SceneGraphComponent;
-    this.moveStageTo(ProcessStage.Load);
-  }
-
   $load() {
     LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
       ShaderSemantics.LightPosition,
@@ -160,11 +151,16 @@ export class LightComponent extends Component {
   }
 
   $logic() {
-    if (TransformComponent.updateCount === this.__lastTransformUpdateCount && this.__lastUpdateCount === this.__updateCount) {
+    if (
+      TransformComponent.updateCount === this.__lastTransformUpdateCount &&
+      this.__lastUpdateCount === this.__updateCount
+    ) {
       return;
     }
 
-    this.__direction = this.__sceneGraphComponent!.normalMatrixInner.multiplyVector(
+    const sceneGraphComponent = this.entity.getSceneGraph();
+
+    this.__direction = sceneGraphComponent.normalMatrixInner.multiplyVector(
       this.__initialDirection
     );
 
@@ -176,7 +172,7 @@ export class LightComponent extends Component {
     LightComponent.__lightDirections._v[3 * this.componentSID + 1] = this.__direction.y;
     LightComponent.__lightDirections._v[3 * this.componentSID + 2] = this.__direction.z;
 
-    const lightPosition = this.__sceneGraphComponent!.worldPosition;
+    const lightPosition = sceneGraphComponent.worldPosition;
     LightComponent.__lightPositions._v[3 * this.componentSID + 0] = lightPosition.x;
     LightComponent.__lightPositions._v[3 * this.componentSID + 1] = lightPosition.y;
     LightComponent.__lightPositions._v[3 * this.componentSID + 2] = lightPosition.z;

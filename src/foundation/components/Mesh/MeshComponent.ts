@@ -25,8 +25,6 @@ import { assertExist } from '../../misc/MiscUtil';
 export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
   private __mesh?: Mesh;
-  private __blendShapeComponent?: BlendShapeComponent;
-  private __sceneGraphComponent?: SceneGraphComponent;
   public isPickable = true;
 
   private static __tmpVector3_0: MutableVector3 = MutableVector3.zero();
@@ -44,8 +42,6 @@ export class MeshComponent extends Component {
     isReUse: boolean
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
-
-    this.moveStageTo(ProcessStage.Create);
   }
 
   static get componentTID(): ComponentTID {
@@ -116,8 +112,9 @@ export class MeshComponent extends Component {
     if (this.__mesh) {
       let srcPointInLocal = srcPointInWorld;
       let directionInLocal = directionInWorld;
-      if (this.__sceneGraphComponent) {
-        const invWorldMatrix = Matrix44.invert(this.__sceneGraphComponent.matrixInner);
+      const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+      if (sceneGraphComponent != null) {
+        const invWorldMatrix = Matrix44.invert(sceneGraphComponent.matrixInner);
         srcPointInLocal = Vector3.fromCopyVector4(
           invWorldMatrix.multiplyVector(Vector4.fromCopyVector3(srcPointInWorld))
         );
@@ -131,7 +128,7 @@ export class MeshComponent extends Component {
         let intersectPositionInWorld = null;
         if (Is.defined(result.data) && result.data.t >= 0) {
           intersectPositionInWorld = Vector3.fromCopyVector4(
-            this.__sceneGraphComponent.matrixInner.multiplyVector(
+            sceneGraphComponent.matrixInner.multiplyVector(
               Vector4.fromCopyVector3(result.data.position)
             )
           );
@@ -162,13 +159,14 @@ export class MeshComponent extends Component {
     dotThreshold = 0
   ): RaycastResultEx1 {
     if (this.__mesh) {
-      if (this.__sceneGraphComponent) {
+      const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+      if (sceneGraphComponent != null) {
         const invPVW = MutableMatrix44.multiplyTo(
           camera.projectionMatrix,
           camera.viewMatrix,
           MeshComponent.__tmpMatrix44_0
         )
-          .multiply(this.__sceneGraphComponent.matrixInner)
+          .multiply(sceneGraphComponent.matrixInner)
           .invert();
 
         const srcPointInLocal = MathClassUtil.unProjectTo(
@@ -222,11 +220,12 @@ export class MeshComponent extends Component {
     dotThreshold = 0
   ): RaycastResultEx1 {
     const result = this.castRayFromScreenInLocal(x, y, camera, viewport, dotThreshold);
-    if (this.__mesh && this.__sceneGraphComponent && result.result) {
+    const sceneGraphComponent = this.entity.tryToGetSceneGraph();
+    if (this.__mesh && sceneGraphComponent != null && result.result) {
       assertExist(result.data);
 
       // convert to World space
-      const intersectedPositionInWorld = this.__sceneGraphComponent.matrixInner.multiplyVector3To(
+      const intersectedPositionInWorld = sceneGraphComponent.matrixInner.multiplyVector3To(
         result.data.position,
         MeshComponent.__returnVector3
       );
@@ -244,19 +243,6 @@ export class MeshComponent extends Component {
     }
   }
 
-  $create() {
-    this.__blendShapeComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      BlendShapeComponent
-    ) as BlendShapeComponent;
-    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      SceneGraphComponent
-    ) as SceneGraphComponent;
-
-    this.moveStageTo(ProcessStage.Load);
-  }
-
   $load() {
     if (this.__mesh == null) {
       return;
@@ -265,7 +251,8 @@ export class MeshComponent extends Component {
     this.__mesh._calcTangents();
     // this.__mesh.__initMorphPrimitives();
     this.__mesh!._calcFaceNormalsIfNonNormal();
-    if (this.__blendShapeComponent && this.__blendShapeComponent.weights.length > 0) {
+    const blendShapeComponent = this.entity.tryToGetBlendShape();
+    if (blendShapeComponent != null && blendShapeComponent.weights.length > 0) {
       this.__mesh!._calcBaryCentricCoord();
     }
     this.moveStageTo(ProcessStage.Logic);

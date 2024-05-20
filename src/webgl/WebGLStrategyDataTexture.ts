@@ -381,7 +381,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const mesh = meshComponent.mesh as Mesh;
     if (mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
-      return;
+      return false;
     }
 
     WebGLStrategyDataTexture.__currentComponentSIDs =
@@ -395,23 +395,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
       updateVBOAndVAO(mesh);
     }
-  }
 
-  $prerender(
-    meshComponent: MeshComponent,
-    meshRendererComponent: MeshRendererComponent,
-    instanceIDBufferUid: WebGLResourceHandle
-  ): void {
-    if (meshRendererComponent._readyForRendering) {
-      return;
-    }
-
-    if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
-      return;
-    }
-
-    meshRendererComponent._readyForRendering = true;
+    return true;
   }
 
   private __createAndUpdateDataTexture() {
@@ -554,7 +539,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
   }
 
-  common_$prerender(): void {
+  prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||

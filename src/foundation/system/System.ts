@@ -30,6 +30,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
+import { WebGpuStrategyBasic } from '../../webgpu';
 
 declare const spector: any;
 
@@ -73,7 +74,6 @@ export class System {
   private static __renderPassForProcessAuto?: RenderPass;
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private static __cgApiResourceRepository: ICGAPIResourceRepository;
-  private static __webglStrategy?: WebGLStrategy;
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
 
@@ -256,8 +256,8 @@ export class System {
 
               let skipNormalRender = false;
               if (this.processApproach === ProcessApproach.WebGPU) {
-                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
-                skipNormalRender = repo.executeRenderBundle(renderPass);
+                const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
+                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
               }
 
               if (!skipNormalRender) {
@@ -280,15 +280,15 @@ export class System {
                 componentClass.process({
                   componentType: componentClass,
                   processStage: stage,
-                  processApproach: this.__processApproach,
-                  strategy: this.__webglStrategy!,
                 });
               }
               this.__renderPassTickCount++;
 
               if (this.processApproach === ProcessApproach.WebGPU) {
-                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
-                repo.finishRenderBundleEncoder(renderPass);
+                if (!skipNormalRender) {
+                  const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
+                  repo.finishRenderBundleEncoder(renderPass);
+                }
                 renderPass._copyResolve1ToResolve2WebGpu();
               } else {
                 renderPass._copyFramebufferToResolveFramebuffersWebGL();
@@ -320,8 +320,6 @@ export class System {
           componentClass.process({
             componentType: componentClass,
             processStage: stage,
-            processApproach: this.__processApproach,
-            strategy: this.__webglStrategy!,
           });
         }
       }

@@ -692,7 +692,7 @@ export class SceneGraphComponent extends Component {
     }
   }
 
-  $create() {
+  $load() {
     this.moveStageTo(ProcessStage.Logic);
   }
 

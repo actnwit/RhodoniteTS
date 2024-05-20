@@ -233,26 +233,18 @@ bool get_isBillboard(float instanceId) {
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
     if (!Is.exist(mesh)) {
-      return;
+      return false;
     }
 
     // setup VBO and VAO
     if (!mesh.isSetUpDone()) {
       updateVBOAndVAO(mesh);
     }
+
+    return true;
   }
 
-  $prerender(
-    meshComponent: MeshComponent,
-    meshRendererComponent: MeshRendererComponent,
-    instanceIDBufferUid: WebGLResourceHandle
-  ) {
-    if (meshComponent.mesh == null) {
-      return;
-    }
-  }
-
-  common_$prerender(): void {
+  prerender(): void {
     this.__lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent
     ) as LightComponent[];

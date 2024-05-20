@@ -20,7 +20,6 @@ export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
   private __pose = new Transform3D();
   private __updateCountAtLastLogic = 0;
-  private __sceneGraphComponent?: SceneGraphComponent;
 
   private static __updateCount = 0;
 
@@ -31,12 +30,6 @@ export class TransformComponent extends Component {
     isReUse: boolean
   ) {
     super(entityUid, componentSid, entityComponent, isReUse);
-    this.moveStageTo(ProcessStage.Create);
-  }
-
-  $create() {
-    this.__sceneGraphComponent = this.entity.tryToGetSceneGraph();
-    this.moveStageTo(ProcessStage.Logic);
   }
 
   static get renderedPropertyCount() {
@@ -325,9 +318,13 @@ export class TransformComponent extends Component {
     return this.restOrPose.matrixInner;
   }
 
+  $load() {
+    this.moveStageTo(ProcessStage.Logic);
+  }
+
   $logic() {
     if (this.__updateCountAtLastLogic !== this.__pose.updateCount) {
-      this.__sceneGraphComponent!.setWorldMatrixDirty();
+      this.entity.tryToGetSceneGraph()!.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this.__pose.updateCount;
       TransformComponent.__updateCount++;
     }

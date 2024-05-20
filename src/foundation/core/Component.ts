@@ -34,7 +34,7 @@ export class Component extends RnObject {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
   _isAlive = true;
-  protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
+  protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte>> = new Map();
@@ -56,11 +56,10 @@ export class Component extends RnObject {
   private __maxComponentNumber: Count = Config.maxEntityNumber;
 
   public static readonly _processStages: Array<ProcessStageEnum> = [
-    ProcessStage.Create,
+    // ProcessStage.Create,
     ProcessStage.Load,
     // ProcessStage.Mount,
     ProcessStage.Logic,
-    ProcessStage.PreRender,
     ProcessStage.Render,
     // ProcessStage.Unmount,
     // ProcessStage.Discard
@@ -185,13 +184,9 @@ export class Component extends RnObject {
   static process({
     componentType,
     processStage,
-    processApproach,
-    strategy,
   }: {
     componentType: typeof Component;
     processStage: ProcessStageEnum;
-    processApproach: ProcessApproachEnum;
-    strategy: WebGLStrategy;
   }) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
@@ -199,16 +194,10 @@ export class Component extends RnObject {
 
     const methodName = processStage.methodName;
     const components: Component[] | undefined =
-      ComponentRepository._getComponentsIncludingDead(componentType)!;
-    for (let i = 0; i < components.length; ++i) {
-      const component = components[i];
-      if (processStage === component.__currentProcessStage && component._isAlive) {
-        (component as any)[methodName]({
-          i,
-          processStage,
-          processApproach,
-          strategy,
-        });
+      ComponentRepository.getComponentsWithType(componentType)!;
+    for (const component of components) {
+      if (processStage === component.__currentProcessStage) {
+        (component as any)[methodName]();
       }
     }
   }
@@ -219,9 +208,7 @@ export class Component extends RnObject {
     renderPass: RenderPass
   ) {
     const method = (componentClass as any)['sort_$render'];
-    const sids = method(renderPass);
-
-    return sids;
+    return method(renderPass);
   }
 
   /**

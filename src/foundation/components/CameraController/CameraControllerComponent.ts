@@ -1,8 +1,6 @@
 import { Component } from '../../core/Component';
 import { EntityUID, ComponentSID, ComponentTID } from '../../../types/CommonTypes';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { CameraComponent } from '../Camera/CameraComponent';
-import { ProcessStage } from '../../definitions/ProcessStage';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
@@ -14,12 +12,12 @@ import {
 } from '../../definitions/CameraControllerType';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import { ProcessStage } from '../../definitions';
 
 /**
  * The Component that controls camera posture.
  */
 export class CameraControllerComponent extends Component {
-  private __cameraComponent?: CameraComponent;
   private __cameraController: ICameraController;
   private static __updateCount = 0;
 
@@ -64,18 +62,13 @@ export class CameraControllerComponent extends Component {
     return WellKnownComponentTIDs.CameraControllerComponentTID;
   }
 
-  $create() {
-    this.__cameraComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      CameraComponent
-    ) as CameraComponent;
-
+  $load() {
     this.moveStageTo(ProcessStage.Logic);
   }
 
   $logic() {
     if (this.__cameraController) {
-      this.__cameraController.logic(this.__cameraComponent!);
+      this.__cameraController.logic(this.entity.tryToGetCamera()!);
       CameraControllerComponent.__updateCount = this.__cameraController.updateCount;
     }
   }
