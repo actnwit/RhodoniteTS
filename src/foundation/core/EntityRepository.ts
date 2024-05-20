@@ -17,6 +17,7 @@ export class EntityRepository {
   private static __entity_uid_count: number = Entity.invalidEntityUID;
   private static __entities: Array<IEntity> = [];
   static _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID
+  private static __updateCount = 0;
 
   private constructor() {}
 
@@ -44,6 +45,8 @@ export class EntityRepository {
     const entity = new Entity(entityUid, true);
     this.__entities[entityUid] = entity;
 
+    this.__updateCount++;
+
     return entity;
   }
 
@@ -63,6 +66,8 @@ export class EntityRepository {
     }
     this.__entities[entityUid]._destroy();
     delete this._components[entityUid];
+
+    this.__updateCount++;
   }
 
   public static deleteEntityRecursively(entityUid: EntityUID): void {
@@ -231,6 +236,8 @@ export class EntityRepository {
     const entityClass = component.addThisComponentToEntity(entity, componentClass);
     entity._setComponent(componentClass, component);
 
+    this.__updateCount++;
+
     return entity as unknown as typeof entityClass;
   }
 
@@ -256,6 +263,8 @@ export class EntityRepository {
       map.delete(componentClass.componentTID);
       entity._removeComponent(componentClass.componentTID);
     }
+
+    this.__updateCount++;
 
     return entity as IEntity;
   }
@@ -331,6 +340,10 @@ export class EntityRepository {
   public static getEntitiesNumber(): number {
     const entities = this.__entities.filter((entity) => entity._isAlive);
     return entities.length;
+  }
+
+  public static get updateCount() {
+    return this.__updateCount;
   }
 }
 
