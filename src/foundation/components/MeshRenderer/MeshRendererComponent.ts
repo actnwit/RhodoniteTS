@@ -142,7 +142,10 @@ export class MeshRendererComponent extends Component {
   }
 
   $load() {
-    MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.__meshComponent!);
+    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.__meshComponent!);
+    if (ready) {
+      this.moveStageTo(ProcessStage.Unknown);
+    }
   }
 
   static common_$prerender() {

@@ -17,7 +17,8 @@ import { Is } from '../misc/Is';
 import { IVector3 } from '../math/IVector';
 import { IMesh, RaycastResultEx1 } from './types/GeometryTypes';
 import { IMeshEntity } from '../helpers/EntityHelper';
-import { MeshComponent } from '../..';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { ProcessStage } from '../definitions/ProcessStage';
 
 /**
  * The Mesh class.
@@ -331,6 +332,9 @@ export class Mesh implements IMesh {
 
   _onPrimitivePositionUpdated() {
     this.__primitivePositionUpdateCount++;
+    for (const entity of this.__belongToEntities) {
+      entity.getMeshRenderer().moveStageTo(ProcessStage.Load);
+    }
   }
 
   get primitivePositionUpdateCount() {

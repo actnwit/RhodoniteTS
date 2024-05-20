@@ -269,16 +269,18 @@ ${indexStr}
     }
   }
 
-  $load(meshComponent: MeshComponent): void {
+  $load(meshComponent: MeshComponent): boolean {
     const mesh = meshComponent.mesh;
     if (mesh == null) {
-      return;
+      return false;
     }
 
     // setup VBO and VAO
     if (!mesh.isSetUpDone()) {
       updateVBOAndVAO(mesh);
     }
+
+    return true;
   }
 
   common_$load(): void {

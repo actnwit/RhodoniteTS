@@ -233,13 +233,15 @@ bool get_isBillboard(float instanceId) {
   $load(meshComponent: MeshComponent) {
     const mesh = meshComponent.mesh as Mesh;
     if (!Is.exist(mesh)) {
-      return;
+      return false;
     }
 
     // setup VBO and VAO
     if (!mesh.isSetUpDone()) {
       updateVBOAndVAO(mesh);
     }
+
+    return true;
   }
 
   $prerender(

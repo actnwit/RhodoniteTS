@@ -4,7 +4,7 @@ import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererCo
 import { RenderPass } from './RenderPass';
 
 export interface CGAPIStrategy {
-  $load(meshComponent: MeshComponent): void;
+  $load(meshComponent: MeshComponent): boolean;
   $prerender(
     meshComponent: MeshComponent,
     meshRendererComponent: MeshRendererComponent,

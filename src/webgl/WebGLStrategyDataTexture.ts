@@ -381,7 +381,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const mesh = meshComponent.mesh as Mesh;
     if (mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
-      return;
+      return false;
     }
 
     WebGLStrategyDataTexture.__currentComponentSIDs =
@@ -395,6 +395,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
       updateVBOAndVAO(mesh);
     }
+
+    return true;
   }
 
   $prerender(
