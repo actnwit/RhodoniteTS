@@ -968,7 +968,7 @@ export class WebGpuResourceRepository
           ) as GPUTexture;
           if (depthTexture != null) {
             depthTextureView = this.__webGpuResources.get(
-              framebuffer.depthAttachment._textureResourceUid
+              framebuffer.depthAttachment._textureViewResourceUid
             ) as GPUTextureView;
           }
         }
