@@ -725,34 +725,26 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         isVRMainPass
       );
 
-      for (let j = 0; j < renderPass.drawCount; j++) {
-        renderPass.doPreEachDraw(j);
+      // For opaque primitives
+      if (renderPass.toRenderOpaquePrimitives) {
+        for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
+          const primitiveUid = primitiveUids[i];
+          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
+        }
+      }
 
-        // For opaque primitives
-        if (renderPass.toRenderOpaquePrimitives) {
-          for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
-            const primitiveUid = primitiveUids[i];
-            this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
-          }
+      // For translucent primitives
+      if (renderPass.toRenderTransparentPrimitives) {
+        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+          // disable depth write for transparent primitives
+          gl.depthMask(false);
         }
 
-        // For translucent primitives
-        if (renderPass.toRenderTransparentPrimitives) {
-          if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-            // disable depth write for transparent primitives
-            gl.depthMask(false);
-          }
-
-          for (
-            let i = renderPass._lastOpaqueIndex + 1;
-            i <= renderPass._lastTransparentIndex;
-            i++
-          ) {
-            const primitiveUid = primitiveUids[i];
-            this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
-          }
-          gl.depthMask(true);
+        for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
+          const primitiveUid = primitiveUids[i];
+          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
         }
+        gl.depthMask(true);
       }
     }
 

@@ -62,9 +62,7 @@ export class RenderPass extends RnObject {
   public toRenderTransparentPrimitives = true;
 
   public toRenderEffekseerEffects = false;
-  public drawCount = 1;
   public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
-  private __preEachDrawFunc?: (drawCount: number) => void;
   private __postEachRenderFunc?: () => void;
   private static __tmp_Vector4_0 = MutableVector4.zero();
 
@@ -101,25 +99,10 @@ export class RenderPass extends RnObject {
     renderPass.isOutputForVr = this.isOutputForVr;
     renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
     renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
-    renderPass.__preEachDrawFunc = this.__preEachDrawFunc;
     renderPass.__postEachRenderFunc = this.__postEachRenderFunc;
     renderPass.__renderTargetColorAttachments = this.__renderTargetColorAttachments?.concat();
 
     return renderPass;
-  }
-
-  setPreDrawFunction(func: (drawCount: number) => void) {
-    this.__preEachDrawFunc = func;
-  }
-
-  unsetPreDrawFunction() {
-    this.__preEachDrawFunc = void 0;
-  }
-
-  doPreEachDraw(drawCount: number) {
-    if (this.__preEachDrawFunc != null) {
-      this.__preEachDrawFunc(drawCount);
-    }
   }
 
   setPostRenderFunction(func: () => void) {
