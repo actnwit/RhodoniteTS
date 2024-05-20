@@ -60,7 +60,6 @@ export class CameraComponent extends Component {
   private _parameters: MutableVector4 = MutableVector4.dummy();
   private _parametersInner: MutableVector4 = MutableVector4.dummy();
   private __type: CameraTypeEnum = CameraType.Perspective;
-  private __sceneGraphComponent?: SceneGraphComponent;
 
   private _projectionMatrix: MutableMatrix44 = MutableMatrix44.dummy();
   private __isProjectionMatrixUpToDate = false;
@@ -727,7 +726,7 @@ export class CameraComponent extends Component {
 
     if (!this.primitiveMode) {
       const invertWorldMatrix = MutableMatrix44.invertTo(
-        this.__sceneGraphComponent!.matrixInner,
+        this.entity.getSceneGraph().matrixInner,
         CameraComponent.__tmpMatrix44_0
       );
 
@@ -819,10 +818,9 @@ export class CameraComponent extends Component {
   }
 
   get worldPosition() {
-    this.__sceneGraphComponent?.matrixInner.multiplyVector3To(
-      this.eyeInner,
-      CameraComponent.returnVector3
-    );
+    this.entity
+      .getSceneGraph()
+      .matrixInner.multiplyVector3To(this.eyeInner, CameraComponent.returnVector3);
     return CameraComponent.returnVector3;
   }
 
@@ -834,11 +832,7 @@ export class CameraComponent extends Component {
     return this.__frustum;
   }
 
-  $create() {
-    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      SceneGraphComponent
-    ) as SceneGraphComponent;
+  $load() {
     this.moveStageTo(ProcessStage.Logic);
   }
 

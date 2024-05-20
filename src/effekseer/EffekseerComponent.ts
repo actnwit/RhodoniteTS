@@ -37,8 +37,6 @@ export class EffekseerComponent extends Component {
   private __handle?: effekseer.EffekseerHandle;
   private __speed = 1;
   private __timer?: any;
-  private __sceneGraphComponent?: SceneGraphComponent;
-  private __transformComponent?: TransformComponent;
   private __isInitialized = false;
   private static __tmp_identityMatrix_0: MutableMatrix44 = MutableMatrix44.identity();
   private static __tmp_identityMatrix_1: MutableMatrix44 = MutableMatrix44.identity();
@@ -162,45 +160,33 @@ export class EffekseerComponent extends Component {
     if (this.__handle) {
       this.__handle.setLocation(vec.x, vec.y, vec.z);
     }
-    this.__transformComponent!.localPosition = vec;
+    this.entity.tryToGetTransform()!.localPosition = vec;
   }
 
   get translate() {
-    return this.__transformComponent!.localPosition;
+    return this.entity.tryToGetTransform()!.localPosition;
   }
 
   set rotate(vec) {
     if (this.__handle) {
       this.__handle.setRotation(vec.x, vec.y, vec.z);
     }
-    this.__transformComponent!.localEulerAngles = vec;
+    this.entity.tryToGetTransform()!.localEulerAngles = vec;
   }
 
   get rotate() {
-    return this.__transformComponent!.localEulerAngles;
+    return this.entity.tryToGetTransform()!.localEulerAngles;
   }
 
   set scale(vec) {
     if (this.__handle) {
       this.__handle.setScale(vec.x, vec.y, vec.z);
     }
-    this.__transformComponent!.localScale = vec;
+    this.entity.tryToGetTransform()!.localScale = vec;
   }
 
   get scale() {
-    return this.__transformComponent!.localScale;
-  }
-
-  $create() {
-    this.__sceneGraphComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      SceneGraphComponent
-    ) as SceneGraphComponent;
-    this.__transformComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      TransformComponent
-    ) as TransformComponent;
-    this.moveStageTo(ProcessStage.Load);
+    return this.entity.tryToGetTransform()!.localScale;
   }
 
   private __createEffekseerContext(): boolean {
@@ -292,7 +278,7 @@ export class EffekseerComponent extends Component {
 
     if (this.__handle != null) {
       const worldMatrix = EffekseerComponent.__tmp_identityMatrix_0.copyComponents(
-        this.__sceneGraphComponent!.matrixInner
+        this.entity.tryToGetSceneGraph()!.matrixInner
       );
       this.__handle.setMatrix(worldMatrix._v);
       this.__handle.setSpeed(this.__speed);

@@ -34,7 +34,7 @@ export class Component extends RnObject {
   private _component_sid: number;
   static readonly invalidComponentSID = -1;
   _isAlive = true;
-  protected __currentProcessStage: ProcessStageEnum = ProcessStage.Create;
+  protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
   private static __accessors: Map<Function, Map<string, Accessor>> = new Map();
   private static __byteLengthSumOfMembers: Map<Function, Map<BufferUseEnum, Byte>> = new Map();
@@ -56,7 +56,7 @@ export class Component extends RnObject {
   private __maxComponentNumber: Count = Config.maxEntityNumber;
 
   public static readonly _processStages: Array<ProcessStageEnum> = [
-    ProcessStage.Create,
+    // ProcessStage.Create,
     ProcessStage.Load,
     // ProcessStage.Mount,
     ProcessStage.Logic,

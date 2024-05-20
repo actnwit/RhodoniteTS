@@ -4,8 +4,6 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { AnimationInterpolationEnum } from '../../definitions/AnimationInterpolation';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
-import { TransformComponent } from '../Transform/TransformComponent';
-import { ProcessStage } from '../../definitions/ProcessStage';
 import {
   ComponentTID,
   ComponentSID,
@@ -14,7 +12,6 @@ import {
   Array4,
   Array3,
   VectorComponentN,
-  Array1,
 } from '../../../types/CommonTypes';
 import {
   AnimationPathName,
@@ -24,24 +21,18 @@ import {
   AnimationTrackName,
   AnimationChannel,
 } from '../../../types/AnimationTypes';
-import {
-  valueWithDefault,
-  greaterThan,
-  lessThan,
-  valueWithCompensation,
-} from '../../misc/MiscUtil';
+import { valueWithDefault, valueWithCompensation } from '../../misc/MiscUtil';
 import { EventPubSub, EventHandler } from '../../system/EventPubSub';
 import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
+import { IAnimationEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { EffekseerComponent } from '../../../effekseer';
-import { IAnimationRetarget, ISkeletalEntityMethods, SkeletalComponent } from '../Skeletal';
-import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
+import { IAnimationRetarget } from '../Skeletal';
 import { __interpolate } from './AnimationOps';
 import { MathUtil } from '../../math';
+import { ProcessStage } from '../../definitions';
 
 const defaultAnimationInfo = {
   name: '',
@@ -66,10 +57,6 @@ export class AnimationComponent extends Component {
   private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
   private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
 
-  /// cache references of other components
-  private __transformComponent?: TransformComponent;
-  private __blendShapeComponent?: BlendShapeComponent;
-  private __effekseerComponent?: EffekseerComponent;
   private __isEffekseerState = -1;
 
   /// flags ///
@@ -101,26 +88,10 @@ export class AnimationComponent extends Component {
     isReUse: boolean
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
-
-    this.__currentProcessStage = ProcessStage.Create;
   }
 
   /// LifeCycle Methods ///
-
-  $create() {
-    this.__transformComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      TransformComponent
-    ) as TransformComponent;
-    this.__blendShapeComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      BlendShapeComponent
-    ) as BlendShapeComponent;
-    this.__effekseerComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      EffekseerComponent
-    ) as EffekseerComponent;
-
+  $load() {
     this.moveStageTo(ProcessStage.Logic);
   }
 
@@ -138,6 +109,10 @@ export class AnimationComponent extends Component {
       time = AnimationComponent.globalTime;
     }
 
+    const transformComponent = this.entity.getTransform();
+    const blendShapeComponent = this.entity.tryToGetBlendShape();
+    const effekseerComponent = this.entity.tryToGetEffekseer();
+
     // process the first active animation track
     if (Is.exist(this.__firstActiveAnimationTrackName) && this.animationBlendingRatio < 1) {
       if (this.isLoop) {
@@ -154,25 +129,21 @@ export class AnimationComponent extends Component {
           const value = __interpolate(channel, time, i);
 
           if (i === AnimationAttribute.Quaternion.index) {
-            this.__transformComponent!.localRotation = Quaternion.fromCopyArray4(
-              value as Array4<number>
-            );
+            transformComponent!.localRotation = Quaternion.fromCopyArray4(value as Array4<number>);
           } else if (i === AnimationAttribute.Translate.index) {
-            this.__transformComponent!.localPosition = Vector3.fromCopyArray3(
-              value as Array3<number>
-            );
+            transformComponent!.localPosition = Vector3.fromCopyArray3(value as Array3<number>);
           } else if (i === AnimationAttribute.Scale.index) {
-            this.__transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
+            transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
           } else if (i === AnimationAttribute.Weights.index) {
-            this.__blendShapeComponent!.weights = value;
+            blendShapeComponent!.weights = value;
           } else if (i === AnimationAttribute.Effekseer.index) {
             if (value[0] > 0.5) {
               if (this.__isEffekseerState === 0) {
-                this.__effekseerComponent?.play();
+                effekseerComponent?.play();
               }
             } else {
               if (this.__isEffekseerState === 1) {
-                this.__effekseerComponent?.pause();
+                effekseerComponent?.pause();
               }
             }
             this.__isEffekseerState = value[0];
@@ -198,30 +169,30 @@ export class AnimationComponent extends Component {
 
           if (i === AnimationAttribute.Quaternion.index) {
             const quatOf2nd = Quaternion.fromCopyArray4(value as Array4<number>);
-            this.__transformComponent!.localRotation = Quaternion.qlerp(
-              this.__transformComponent!.localRotationInner,
+            transformComponent!.localRotation = Quaternion.qlerp(
+              transformComponent!.localRotationInner,
               quatOf2nd,
               this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Translate.index) {
             const vec3Of2nd = Vector3.fromCopyArray3(value as Array3<number>);
-            this.__transformComponent!.localPosition = Vector3.lerp(
-              this.__transformComponent!.localPositionInner,
+            transformComponent!.localPosition = Vector3.lerp(
+              transformComponent!.localPositionInner,
               vec3Of2nd,
               this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Scale.index) {
             const vec3of2nd = Vector3.fromCopyArray3(value as Array3<number>);
-            this.__transformComponent!.localScale = Vector3.lerp(
-              this.__transformComponent!.localScaleInner,
+            transformComponent!.localScale = Vector3.lerp(
+              transformComponent!.localScaleInner,
               vec3of2nd,
               this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Weights.index) {
             const weightsOf2nd = value;
             for (let i = 0; i < weightsOf2nd.length; i++) {
-              this.__blendShapeComponent!.weights[i] = MathUtil.lerp(
-                this.__blendShapeComponent!.weights[i],
+              blendShapeComponent!.weights[i] = MathUtil.lerp(
+                blendShapeComponent!.weights[i],
                 weightsOf2nd[i],
                 this.animationBlendingRatio
               );
@@ -812,7 +783,6 @@ export class AnimationComponent extends Component {
       const outputsTranslation = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.$create();
         srcAnim.$logic();
         const outputTranslation = retarget.retargetTranslate(dstEntity);
         outputsTranslation[i * 3 + 0] = outputTranslation.x;
@@ -826,7 +796,6 @@ export class AnimationComponent extends Component {
       const outputsQuaternion = new Float32Array(input.length * 4);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.$create();
         srcAnim.$logic();
         const outputQuaternion = retarget.retargetQuaternion(dstEntity);
         outputsQuaternion[i * 4 + 0] = outputQuaternion.x;
@@ -841,7 +810,6 @@ export class AnimationComponent extends Component {
       const outputsScale = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.$create();
         srcAnim.$logic();
         const outputScale = retarget.retargetScale(dstEntity);
         outputsScale[i * 3 + 0] = outputScale.x;

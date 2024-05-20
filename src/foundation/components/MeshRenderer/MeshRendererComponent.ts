@@ -36,7 +36,6 @@ export class MeshRendererComponent extends Component {
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
-  private __meshComponent?: MeshComponent;
 
   private static __cgApiRenderingStrategy?: CGAPIStrategy;
   public static isDepthMaskTrueForTransparencies = false;
@@ -114,14 +113,6 @@ export class MeshRendererComponent extends Component {
     });
   }
 
-  $create() {
-    this.__meshComponent = EntityRepository.getComponentOfEntity(
-      this.__entityUid,
-      MeshComponent
-    ) as MeshComponent;
-    this.moveStageTo(ProcessStage.Load);
-  }
-
   static common_$load({ processApproach }: { processApproach: ProcessApproachEnum }) {
     const moduleManager = ModuleManager.getInstance();
 
@@ -141,7 +132,9 @@ export class MeshRendererComponent extends Component {
   }
 
   $load() {
-    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.__meshComponent!);
+    const ready = MeshRendererComponent.__cgApiRenderingStrategy!.$load(
+      this.entity.tryToGetMesh()!
+    );
     if (ready) {
       this.moveStageTo(ProcessStage.Unknown);
     }
