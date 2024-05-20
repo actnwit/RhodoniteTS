@@ -63,6 +63,9 @@ export class SceneGraphComponent extends Component {
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
+
+  private static __updateCount = -1;
+
   private static __tmpAABB = new AABB();
 
   private __lastTransformComponentsUpdateCount = -1;
@@ -111,10 +114,15 @@ export class SceneGraphComponent extends Component {
 
   set isVisible(flg: boolean) {
     this._isVisible.setValue(flg ? 1 : 0);
+    SceneGraphComponent.__updateCount++;
   }
 
   get isVisible() {
     return this._isVisible.getValue() === 1 ? true : false;
+  }
+
+  static get updateCount() {
+    return SceneGraphComponent.__updateCount;
   }
 
   setVisibilityRecursively(flag: boolean) {
