@@ -48,6 +48,7 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { Vector2 } from '../foundation/math/Vector2';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
+import { EntityRepository } from '../foundation';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -110,6 +111,7 @@ export class WebGpuResourceRepository
 
   private __lastMaterialsUpdateCount = -1;
   private __lastCurrentCameraComponentSid = -1;
+  private __lastEntityRepositoryUpdateCount = -1;
 
   private static __iblParameterVec4 = MutableVector4.zero();
   private static __hdriFormatVec2 = MutableVector2.zero();
@@ -1023,11 +1025,13 @@ export class WebGpuResourceRepository
   private __toClearRenderBundles() {
     if (
       Material.stateVersion !== this.__lastMaterialsUpdateCount ||
-      CameraComponent.current !== this.__lastCurrentCameraComponentSid
+      CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
+      EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount
     ) {
       this.__renderBundles.clear();
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
+      this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
     }
   }
 
