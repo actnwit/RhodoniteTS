@@ -105,18 +105,16 @@ fn get_isVisible(instanceId: u32) -> bool {
     let scalar_idx = 3u * vertexId;
     for (var i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
 
-      let offsets = uniformMorphOffsets.data[${
-        Config.maxVertexMorphNumberInShader
-      }u * _currentPrimitiveIdx + i / 4u];
-      let offsetPosition = offsets[i % 4u];
+      let idx = ${Config.maxVertexMorphNumberInShader}u * _currentPrimitiveIdx + i;
+      let offsets = uniformMorphOffsets.data[ idx / 4u];
+      let offsetPosition = offsets[idx % 4u];
 
       let basePosIn4bytes = offsetPosition * 4u + scalar_idx;
       let addPos = fetchVec3No16BytesAlignedFromBlendShapeBuffer(basePosIn4bytes);
 
-      let morphWeights: vec4f = uniformMorphWeights.data[${
-        Config.maxVertexMorphNumberInShader
-      }u * blendShapeComponentSID + i / 4u];
-      let morphWeight: f32 = morphWeights[i % 4u];
+      let idx2 = ${Config.maxVertexMorphNumberInShader}u * blendShapeComponentSID + i;
+      let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
+      let morphWeight: f32 = morphWeights[idx2 % 4u];
       position += addPos * morphWeight;
       if (i == _morphTargetNumber-1) {
         break;
@@ -494,7 +492,7 @@ ${indexStr}
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          this.__uniformMorphOffsetsTypedArray![Config.maxVertexMorphNumberInShader * i * 4 + j] =
+          this.__uniformMorphOffsetsTypedArray![Config.maxVertexMorphNumberInShader * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
       }
@@ -519,7 +517,7 @@ ${indexStr}
       const weights = blendShapeComponent!.weights;
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![
-          Config.maxVertexMorphNumberInShader * blendShapeComponent.componentSID * 4 + j
+          Config.maxVertexMorphNumberInShader * blendShapeComponent.componentSID + j
         ] = weights[j];
       }
     }

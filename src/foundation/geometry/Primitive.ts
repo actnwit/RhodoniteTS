@@ -77,11 +77,11 @@ export class Primitive extends RnObject {
     super();
   }
 
-  static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID) {
+  static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
     return this.__primitiveUidIdxHasMorph.get(primitiveUid);
   }
 
-  static getPrimitiveHasMorph(primitiveIdx: Index) {
+  static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined {
     return this.__idxPrimitiveUidHasMorph.get(primitiveIdx);
   }
 
