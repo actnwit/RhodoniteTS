@@ -119,11 +119,11 @@ fn main(
 
   output.baryCentricCoord = baryCentricCoord.xyz;
 
-  // let visibility = get_isVisible(instanceId);
-  // if (!visibility)
-  // {
-  //   output.position = vec4f(0.0, 0.0, 0.0, 1.0);
-  // }
+  let visibility = get_isVisible(instanceId);
+  if (!visibility)
+  {
+    output.position = vec4f(0.0, 0.0, 0.0, 1.0);
+  }
 
 #ifdef RN_USE_SHADOW_MAPPING
   output.shadowCoord = get_depthBiasPV(materialSID, 0) * geom.position_inWorld;

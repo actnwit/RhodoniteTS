@@ -3,10 +3,8 @@ import { MeshRendererComponent } from '../foundation/components/MeshRenderer/Mes
 import { MemoryManager } from '../foundation/core/MemoryManager';
 import { BufferUse } from '../foundation/definitions/BufferUse';
 import { Buffer } from '../foundation/memory/Buffer';
-import { Mesh } from '../foundation/geometry/Mesh';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
-import { Is } from '../foundation/misc/Is';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
@@ -27,7 +25,7 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
-import { ShaderSemantics, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import { getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
@@ -49,6 +47,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
+  private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
@@ -369,11 +368,13 @@ ${indexStr}
   prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+      SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
       this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }

@@ -66,6 +66,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
+  private __lastSceneGraphComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
   private constructor() {}
 
@@ -542,6 +543,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+      SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
@@ -549,6 +551,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateDataTexture();
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
       this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
