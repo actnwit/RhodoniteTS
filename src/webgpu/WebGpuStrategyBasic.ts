@@ -103,7 +103,7 @@ fn get_isVisible(instanceId: u32) -> bool {
   fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
     var position = basePosition;
     let scalar_idx = 3u * vertexId;
-    for (var i=0u; i<${Config.maxVertexMorphNumberInShader}u; i++) {
+    for (var i=0u; i<_morphTargetNumber; i++) {
 
       let idx = ${Config.maxVertexMorphNumberInShader}u * _currentPrimitiveIdx + i;
       let offsets = uniformMorphOffsets.data[ idx / 4u];
@@ -116,9 +116,6 @@ fn get_isVisible(instanceId: u32) -> bool {
       let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
       let morphWeight: f32 = morphWeights[idx2 % 4u];
       position += addPos * morphWeight;
-      if (i == _morphTargetNumber-1) {
-        break;
-      }
     }
 
     return position;
@@ -467,24 +464,20 @@ ${indexStr}
     }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    // const dataTextureByteSize =
-    //   MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     const float32Array = new Float32Array(blendShapeDataBuffer!.getArrayBuffer());
-    // if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
-    //   //   // Update
-    //   const bufferSizeForDataTextureInByte = blendShapeDataBuffer!.takenSizeInByte;
-    //   webGpuResourceRepository.updateStorageBuffer(
-    //     this.__storageBlendShapeBufferUid,
-    //     float32Array,
-    //     bufferSizeForDataTextureInByte
-    //   );
-    // } else {
-    // Create
-    if (this.__storageBlendShapeBufferUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+    if (this.__storageBlendShapeBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      // Update
+      const bufferSizeForDataTextureInByte = blendShapeDataBuffer!.takenSizeInByte;
+      webGpuResourceRepository.updateStorageBuffer(
+        this.__storageBlendShapeBufferUid,
+        float32Array,
+        bufferSizeForDataTextureInByte
+      );
+    } else {
+      // Create
       this.__storageBlendShapeBufferUid =
         webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
-    // }
 
     for (let i = 0; i < Config.maxVertexPrimitiveNumberInShader; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
