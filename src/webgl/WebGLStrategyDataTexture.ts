@@ -399,23 +399,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return true;
   }
 
-  $prerender(
-    meshComponent: MeshComponent,
-    meshRendererComponent: MeshRendererComponent,
-    instanceIDBufferUid: WebGLResourceHandle
-  ): void {
-    if (meshRendererComponent._readyForRendering) {
-      return;
-    }
-
-    if (meshComponent.mesh == null) {
-      MeshComponent.alertNoMeshSet(meshComponent);
-      return;
-    }
-
-    meshRendererComponent._readyForRendering = true;
-  }
-
   private __createAndUpdateDataTexture() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 

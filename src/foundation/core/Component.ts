@@ -60,7 +60,6 @@ export class Component extends RnObject {
     ProcessStage.Load,
     // ProcessStage.Mount,
     ProcessStage.Logic,
-    ProcessStage.PreRender,
     ProcessStage.Render,
     // ProcessStage.Unmount,
     // ProcessStage.Discard

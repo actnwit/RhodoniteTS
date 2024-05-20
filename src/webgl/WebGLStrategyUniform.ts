@@ -244,16 +244,6 @@ bool get_isBillboard(float instanceId) {
     return true;
   }
 
-  $prerender(
-    meshComponent: MeshComponent,
-    meshRendererComponent: MeshRendererComponent,
-    instanceIDBufferUid: WebGLResourceHandle
-  ) {
-    if (meshComponent.mesh == null) {
-      return;
-    }
-  }
-
   common_$prerender(): void {
     this.__lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent

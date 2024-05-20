@@ -359,13 +359,6 @@ ${indexStr}
     material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
   }
 
-  $prerender(
-    meshComponent: MeshComponent,
-    meshRendererComponent: MeshRendererComponent,
-    instanceIDBufferUid: number
-  ): void {
-    // throw new Error('Method not implemented.');
-  }
   common_$prerender(): void {
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||

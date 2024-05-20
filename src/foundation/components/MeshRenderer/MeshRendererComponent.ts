@@ -36,7 +36,6 @@ export class MeshRendererComponent extends Component {
   public diffuseCubeMapContribution = 1.0;
   public specularCubeMapContribution = 1.0;
   public rotationOfCubeMap = 0;
-  public _readyForRendering = false;
   private __meshComponent?: MeshComponent;
 
   private static __cgApiRenderingStrategy?: CGAPIStrategy;
@@ -146,12 +145,6 @@ export class MeshRendererComponent extends Component {
     if (ready) {
       this.moveStageTo(ProcessStage.Unknown);
     }
-  }
-
-  static common_$prerender() {
-    MeshRendererComponent.__cgApiRenderingStrategy!.common_$prerender();
-
-    return;
   }
 
   // $prerender() {
@@ -324,6 +317,9 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
   }) {
+    // Call common_$prerender of WebGLRenderingStrategy
+    MeshRendererComponent.__cgApiRenderingStrategy!.common_$prerender();
+
     // Call common_$render of WebGLRenderingStrategy
     MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
       primitiveUids,
@@ -350,7 +346,6 @@ export class MeshRendererComponent extends Component {
     this.diffuseCubeMapContribution = component.diffuseCubeMapContribution;
     this.specularCubeMapContribution = component.specularCubeMapContribution;
     this.rotationOfCubeMap = component.rotationOfCubeMap;
-    this._readyForRendering = component._readyForRendering;
   }
 
   /**
