@@ -28,6 +28,7 @@ import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture;
@@ -38,7 +39,7 @@ export class MeshRendererComponent extends Component {
   public _readyForRendering = false;
   private __meshComponent?: MeshComponent;
 
-  private static __webglRenderingStrategy?: CGAPIStrategy;
+  private static __cgApiRenderingStrategy?: CGAPIStrategy;
   public static isDepthMaskTrueForTransparencies = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
@@ -129,22 +130,23 @@ export class MeshRendererComponent extends Component {
     if (processApproach === ProcessApproach.WebGPU) {
       const moduleName = 'webgpu';
       const webgpuModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__webglRenderingStrategy =
+      MeshRendererComponent.__cgApiRenderingStrategy =
         webgpuModule.WebGpuStrategyBasic.getInstance();
+      (MeshRendererComponent.__cgApiRenderingStrategy as WebGpuStrategyBasic).common_$load();
     } else {
       const moduleName = 'webgl';
       const webglModule = moduleManager.getModule(moduleName)! as any;
-      MeshRendererComponent.__webglRenderingStrategy =
+      MeshRendererComponent.__cgApiRenderingStrategy =
         webglModule.getRenderingStrategy(processApproach);
     }
   }
 
   $load() {
-    MeshRendererComponent.__webglRenderingStrategy!.$load(this.__meshComponent!);
+    MeshRendererComponent.__cgApiRenderingStrategy!.$load(this.__meshComponent!);
   }
 
   static common_$prerender() {
-    MeshRendererComponent.__webglRenderingStrategy!.common_$prerender();
+    MeshRendererComponent.__cgApiRenderingStrategy!.common_$prerender();
 
     return;
   }
@@ -320,7 +322,7 @@ export class MeshRendererComponent extends Component {
     primitiveUids: PrimitiveUID[];
   }) {
     // Call common_$render of WebGLRenderingStrategy
-    MeshRendererComponent.__webglRenderingStrategy!.common_$render(
+    MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
       primitiveUids,
       renderPass,
       renderPassTickCount

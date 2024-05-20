@@ -279,7 +279,9 @@ ${indexStr}
     if (!mesh.isSetUpDone()) {
       updateVBOAndVAO(mesh);
     }
+  }
 
+  common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
         Math.ceil(
