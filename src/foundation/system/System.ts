@@ -287,8 +287,10 @@ export class System {
               this.__renderPassTickCount++;
 
               if (this.processApproach === ProcessApproach.WebGPU) {
-                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
-                repo.finishRenderBundleEncoder(renderPass);
+                if (!skipNormalRender) {
+                  const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
+                  repo.finishRenderBundleEncoder(renderPass);
+                }
                 renderPass._copyResolve1ToResolve2WebGpu();
               } else {
                 renderPass._copyFramebufferToResolveFramebuffersWebGL();
