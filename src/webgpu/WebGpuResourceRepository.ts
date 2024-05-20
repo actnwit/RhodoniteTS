@@ -48,7 +48,7 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { Vector2 } from '../foundation/math/Vector2';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { EntityRepository } from '../foundation';
+import { EntityRepository } from '../foundation/core/EntityRepository';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 

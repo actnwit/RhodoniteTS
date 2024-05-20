@@ -140,15 +140,7 @@ export class MeshRendererComponent extends Component {
     }
   }
 
-  // $prerender() {
-  // }
-
   static sort_$render(renderPass: RenderPass): ComponentSID[] {
-    const primitiveUids = MeshRendererComponent.sort_$render_inner(renderPass);
-    return primitiveUids;
-  }
-
-  private static sort_$render_inner(renderPass: RenderPass) {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.updateCount ===

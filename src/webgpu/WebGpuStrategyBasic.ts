@@ -29,10 +29,8 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { ShaderSemantics, getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
 import { ModuleManager } from '../foundation/system/ModuleManager';
-import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
-import { VectorN } from '../foundation/math/VectorN';
 import { RnXR } from '../xr/main';
 import { Config } from '../foundation/core/Config';
 import { VertexAttribute } from '../foundation/definitions/VertexAttribute';
@@ -298,7 +296,9 @@ ${indexStr}
       );
     }
 
-    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
+    if (
+      BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData
+    ) {
       this.__createOrUpdateStorageBlendShapeBuffer();
       this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
     }
@@ -388,30 +388,26 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
-    for (let j = 0; j < renderPass.drawCount; j++) {
-      renderPass.doPreEachDraw(j);
+    // For opaque primitives
+    if (renderPass.toRenderOpaquePrimitives) {
+      for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
+        const primitiveUid = primitiveUids[i];
+        this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+      }
+    }
 
-      // For opaque primitives
-      if (renderPass.toRenderOpaquePrimitives) {
-        for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
-          const primitiveUid = primitiveUids[i];
-          this.renderInner(primitiveUid, renderPass, renderPassTickCount);
-        }
+    // For translucent primitives
+    if (renderPass.toRenderTransparentPrimitives) {
+      if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+        // disable depth write for transparent primitives
+        // gl.depthMask(false);
       }
 
-      // For translucent primitives
-      if (renderPass.toRenderTransparentPrimitives) {
-        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-          // disable depth write for transparent primitives
-          // gl.depthMask(false);
-        }
-
-        for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
-          const primitiveUid = primitiveUids[i];
-          this.renderInner(primitiveUid, renderPass, renderPassTickCount);
-        }
-        // gl.depthMask(true);
+      for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
+        const primitiveUid = primitiveUids[i];
+        this.renderInner(primitiveUid, renderPass, renderPassTickCount);
       }
+      // gl.depthMask(true);
     }
 
     return true;
