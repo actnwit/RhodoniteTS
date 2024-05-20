@@ -219,9 +219,7 @@ export class Component extends RnObject {
     renderPass: RenderPass
   ) {
     const method = (componentClass as any)['sort_$render'];
-    const sids = method(renderPass);
-
-    return sids;
+    return method(renderPass);
   }
 
   /**

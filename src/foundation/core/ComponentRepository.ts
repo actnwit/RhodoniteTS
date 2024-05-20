@@ -13,6 +13,7 @@ export class ComponentRepository {
   private static __components: Map<ComponentTID, Array<Component>> = new Map(); // index of array Is ComponentSID
   static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
   private static __componentTIDs: Array<ComponentTID> = [];
+  private static __renderingComponentTIDs: Array<ComponentTID> = [];
   constructor() {}
 
   /**
@@ -197,6 +198,15 @@ export class ComponentRepository {
     const componentTids = Array.from(this.__components.keys());
     componentTids.sort((a, b) => a - b);
     this.__componentTIDs = componentTids;
+
+    const renderingComponentTids: ComponentTID[] = [];
+    if (this.__components.has(WellKnownComponentTIDs.MeshRendererComponentTID)) {
+      renderingComponentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID);
+    }
+    if (this.__components.has(WellKnownComponentTIDs.EffekseerComponentTID)) {
+      renderingComponentTids.push(WellKnownComponentTIDs.EffekseerComponentTID);
+    }
+    this.__renderingComponentTIDs = renderingComponentTids;
   }
 
   /**
@@ -210,13 +220,6 @@ export class ComponentRepository {
    * Gets all rendering componentTIDs.
    */
   public static getRenderingComponentTIDs(): Array<ComponentTID> {
-    const componentTids: ComponentTID[] = [];
-    if (this.__components.has(WellKnownComponentTIDs.MeshRendererComponentTID)) {
-      componentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID);
-    }
-    if (this.__components.has(WellKnownComponentTIDs.EffekseerComponentTID)) {
-      componentTids.push(WellKnownComponentTIDs.EffekseerComponentTID);
-    }
-    return componentTids;
+    return this.__renderingComponentTIDs;
   }
 }
