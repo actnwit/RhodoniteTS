@@ -184,13 +184,9 @@ export class Component extends RnObject {
   static process({
     componentType,
     processStage,
-    processApproach,
-    strategy,
   }: {
     componentType: typeof Component;
     processStage: ProcessStageEnum;
-    processApproach: ProcessApproachEnum;
-    strategy: WebGLStrategy;
   }) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
@@ -201,11 +197,7 @@ export class Component extends RnObject {
       ComponentRepository.getComponentsWithType(componentType)!;
     for (const component of components) {
       if (processStage === component.__currentProcessStage) {
-        (component as any)[methodName]({
-          processStage,
-          processApproach,
-          strategy,
-        });
+        (component as any)[methodName]();
       }
     }
   }

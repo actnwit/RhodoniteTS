@@ -74,7 +74,6 @@ export class System {
   private static __renderPassForProcessAuto?: RenderPass;
   private static __processApproach: ProcessApproachEnum = ProcessApproach.None;
   private static __cgApiResourceRepository: ICGAPIResourceRepository;
-  private static __webglStrategy?: WebGLStrategy;
   private static __renderPassTickCount = 0;
   private static __animationFrameId = -1;
 
@@ -281,8 +280,6 @@ export class System {
                 componentClass.process({
                   componentType: componentClass,
                   processStage: stage,
-                  processApproach: this.__processApproach,
-                  strategy: this.__webglStrategy!,
                 });
               }
               this.__renderPassTickCount++;
@@ -323,8 +320,6 @@ export class System {
           componentClass.process({
             componentType: componentClass,
             processStage: stage,
-            processApproach: this.__processApproach,
-            strategy: this.__webglStrategy!,
           });
         }
       }

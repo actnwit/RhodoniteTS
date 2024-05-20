@@ -836,7 +836,7 @@ export class CameraComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
-  $logic({ renderPass }: { renderPass: RenderPass }) {
+  $logic() {
     const lightComponent = this.entity.tryToGetLight();
     let lightComponentUpdateCount = lightComponent != null ? lightComponent.updateCount : -1;
     if (
