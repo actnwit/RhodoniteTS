@@ -836,9 +836,38 @@ export class WebGpuResourceRepository
       cameraId
     );
 
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    this.createRenderBundleEncoder(renderPass);
 
+    const renderBundleEncoder = this.__renderBundleEncoder!;
+    renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
+    renderBundleEncoder.setPipeline(pipeline);
+    renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
+    renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
+
+    const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
+    renderBundleEncoder.setVertexBuffer(0, variationVBO);
+    VertexHandles.vboHandles.forEach((vboHandle, i) => {
+      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
+      renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
+    });
+
+    if (primitive.hasIndices()) {
+      const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
+      const indexBitSize = primitive.getIndexBitSize();
+      renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
+      const indicesAccessor = primitive.indicesAccessor!;
+      renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
+    } else {
+      const vertexCount = primitive.attributeAccessors[0].elementCount;
+      renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
+    }
+
+    this.createRenderPassEncoder(renderPass);
+  }
+
+  private createRenderBundleEncoder(renderPass: RenderPass) {
     if (this.__renderBundleEncoder == null) {
+      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       const framebuffer = renderPass.getFramebuffer();
       let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
       let depthStencilFormat = this.__systemDepthTexture!.format;
@@ -868,37 +897,11 @@ export class WebGpuResourceRepository
       const encoder = gpuDevice.createRenderBundleEncoder(renderBundleDescriptor);
       this.__renderBundleEncoder = encoder;
     }
-
-    const renderBundleEncoder = this.__renderBundleEncoder!;
-    renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
-    renderBundleEncoder.setPipeline(pipeline);
-    renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
-    renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
-
-    const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
-    renderBundleEncoder.setVertexBuffer(0, variationVBO);
-    VertexHandles.vboHandles.forEach((vboHandle, i) => {
-      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
-    });
-
-    if (primitive.hasIndices()) {
-      const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
-      const indexBitSize = primitive.getIndexBitSize();
-      renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
-      const indicesAccessor = primitive.indicesAccessor!;
-      renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
-    } else {
-      const vertexCount = primitive.attributeAccessors[0].elementCount;
-      renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
-    }
-
-    this.createRenderPassEncoder(renderPass);
   }
 
   private createRenderPassEncoder(renderPass: RenderPass) {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     if (this.__commandEncoder == null) {
+      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
     if (this.__renderPassEncoder == null) {
