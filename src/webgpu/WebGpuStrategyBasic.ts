@@ -53,6 +53,9 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastTransformComponentsUpdateCount = -1;
   private __lastCameraComponentsUpdateCount = -1;
 
+  private __lastBlendShapeComponentsUpdateCountForWeights = -1;
+  private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
+
   private constructor() {}
 
   static getInstance() {
@@ -295,7 +298,10 @@ ${indexStr}
       );
     }
 
-    this.__createStorageBlendShapeBuffer();
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForBlendData) {
+      this.__createOrUpdateStorageBlendShapeBuffer();
+      this.__lastBlendShapeComponentsUpdateCountForBlendData = BlendShapeComponent.updateCount;
+    }
   }
 
   private __setupShaderProgramForMeshComponent(meshComponent: MeshComponent) {
@@ -367,10 +373,14 @@ ${indexStr}
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
-      this.__updateUniformMorph();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
+    }
+
+    if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
+      this.__updateUniformMorph();
+      this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
   }
   common_$render(
@@ -451,7 +461,7 @@ ${indexStr}
     }
   }
 
-  private __createStorageBlendShapeBuffer() {
+  private __createOrUpdateStorageBlendShapeBuffer() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage

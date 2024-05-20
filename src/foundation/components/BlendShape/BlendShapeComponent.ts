@@ -14,6 +14,8 @@ export class BlendShapeComponent extends Component {
   private __weights: number[] = [];
   private __targetNames: string[] = [];
 
+  private static __updateCount = 0;
+
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -23,6 +25,10 @@ export class BlendShapeComponent extends Component {
     super(entityUid, componentSid, entityComponent, isReUse);
 
     this.moveStageTo(ProcessStage.Logic);
+  }
+
+  static get updateCount() {
+    return this.__updateCount;
   }
 
   static get componentTID(): ComponentTID {
@@ -35,6 +41,7 @@ export class BlendShapeComponent extends Component {
 
   set weights(weights: number[]) {
     this.__weights = weights;
+    BlendShapeComponent.__updateCount++;
   }
 
   get weights() {
@@ -43,6 +50,7 @@ export class BlendShapeComponent extends Component {
 
   set targetNames(names: string[]) {
     this.__targetNames = names;
+    BlendShapeComponent.__updateCount++;
   }
 
   get targetNames() {
@@ -51,6 +59,7 @@ export class BlendShapeComponent extends Component {
 
   setWeightByIndex(index: Index, weight: number) {
     this.__weights[index] = weight;
+    BlendShapeComponent.__updateCount++;
   }
 
   $logic() {}
