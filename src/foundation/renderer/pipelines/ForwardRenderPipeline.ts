@@ -593,18 +593,18 @@ export class ForwardRenderPipeline extends RnObject {
     initialRenderPass.toClearColorBuffer = true;
     initialRenderPass.toClearDepthBuffer = true;
     initialRenderPass.tryToSetUniqueName('InitialRenderPass', true);
+    expression.addRenderPasses([initialRenderPass]);
 
     // render pass to clear buffers of framebuffer
-    const initialRenderPassForFrameBuffer = new RenderPass();
-    initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
-    initialRenderPassForFrameBuffer.toClearColorBuffer = true;
-    initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
     if (!this.__isSimple) {
+      const initialRenderPassForFrameBuffer = new RenderPass();
+      initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
+      initialRenderPassForFrameBuffer.toClearColorBuffer = true;
+      initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
       initialRenderPassForFrameBuffer.setFramebuffer(oFramebufferTargetOfGammaMsaa.unwrapForce());
+      initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
+      expression.addRenderPasses([initialRenderPassForFrameBuffer]);
     }
-    initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
-
-    expression.addRenderPasses([initialRenderPass, initialRenderPassForFrameBuffer]);
 
     if (oFrameDepthMoment.has()) {
       const frameDepthMoment = oFrameDepthMoment.get();

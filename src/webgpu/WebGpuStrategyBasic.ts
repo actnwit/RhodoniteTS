@@ -36,6 +36,7 @@ import { Accessor } from '../foundation/memory/Accessor';
 import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { Mesh } from '../foundation/geometry/Mesh';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
@@ -425,8 +426,16 @@ ${indexStr}
       return false;
     }
 
+    const mesh = primitive.mesh as Mesh;
+    if (
+      mesh.meshEntitiesInner.length === 0 ||
+      mesh.meshEntitiesInner[0].getSceneGraph().isVisible === false
+    ) {
+      return false;
+    }
+
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const cameraID = this.__setCurrentComponentSIDsForEachRenderPass(renderPass, 0, false);
+    const cameraID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
     webGpuResourceRepository.draw(primitive, material, renderPass, cameraID);
 
     return true;
@@ -528,7 +537,7 @@ ${indexStr}
     }
   }
 
-  private __setCurrentComponentSIDsForEachRenderPass(
+  private __getAppropriateCameraComponentSID(
     renderPass: RenderPass,
     displayIdx: 0 | 1,
     isVRMainPass: boolean
