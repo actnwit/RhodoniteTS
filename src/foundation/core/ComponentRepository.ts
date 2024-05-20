@@ -154,7 +154,7 @@ export class ComponentRepository {
    */
   public static _getComponents(componentClass: typeof Component): Array<Component> | undefined {
     const components = this.__components.get(componentClass.componentTID);
-    return components?.filter((component) => component._isAlive);
+    return components;
   }
 
   /**
@@ -191,7 +191,7 @@ export class ComponentRepository {
     if (components == null) {
       return [];
     }
-    return components.filter((component) => component._isAlive);
+    return components;
   }
 
   private static __updateComponentTIDs() {

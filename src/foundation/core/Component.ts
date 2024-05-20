@@ -198,16 +198,10 @@ export class Component extends RnObject {
 
     const methodName = processStage.methodName;
     const components: Component[] | undefined =
-      ComponentRepository._getComponentsIncludingDead(componentType)!;
-    for (let i = 0; i < components.length; ++i) {
-      const component = components[i];
-      if (
-        component != null &&
-        processStage === component.__currentProcessStage &&
-        component._isAlive
-      ) {
+      ComponentRepository.getComponentsWithType(componentType)!;
+    for (const component of components) {
+      if (processStage === component.__currentProcessStage) {
         (component as any)[methodName]({
-          i,
           processStage,
           processApproach,
           strategy,
