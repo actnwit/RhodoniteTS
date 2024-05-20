@@ -191,7 +191,7 @@ export class ComponentRepository {
     if (components == null) {
       return [];
     }
-    return components;
+    return components.filter((component) => component != null);
   }
 
   private static __updateComponentTIDs() {
