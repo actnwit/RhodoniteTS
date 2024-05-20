@@ -254,7 +254,7 @@ export class System {
                 this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
               }
 
-              let skipNormalRender = false;
+              let skipNormalRender = renderPass.entities.length === 0 ? true : false;
               if (this.processApproach === ProcessApproach.WebGPU) {
                 const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
                 skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
