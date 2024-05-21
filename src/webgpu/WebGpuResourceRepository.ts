@@ -1032,13 +1032,13 @@ export class WebGpuResourceRepository
     if (
       Material.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
+      // CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount
     ) {
       this.__renderBundles.clear();
       SystemState.snapshotRenderingMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
-      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      // this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
     }

@@ -30,7 +30,11 @@ import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository'
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import { AnimationComponent, MeshRendererComponent } from '../components';
+import {
+  AnimationComponent,
+  CameraControllerComponent,
+  MeshRendererComponent,
+} from '../components';
 
 declare const spector: any;
 
@@ -80,6 +84,8 @@ export class System {
   private static __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private static __args: unknown[] = [];
   private static __rnXRModule?: RnXR;
+
+  private static __lastCameraControllerComponentsUpdateCount = -1;
 
   private constructor() {}
 
@@ -264,7 +270,12 @@ export class System {
           }
           webGpuResourceRepository.flush();
         } else {
-          if (!SystemState.snapshotRenderingMode || AnimationComponent.isAnimating) {
+          if (
+            !SystemState.snapshotRenderingMode ||
+            AnimationComponent.isAnimating ||
+            CameraControllerComponent.updateCount !==
+              this.__lastCameraControllerComponentsUpdateCount
+          ) {
             for (const componentTid of componentTids) {
               const componentClass: typeof Component =
                 ComponentRepository.getComponentClass(componentTid)!;
@@ -284,6 +295,7 @@ export class System {
           }
         }
       }
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     } else {
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
