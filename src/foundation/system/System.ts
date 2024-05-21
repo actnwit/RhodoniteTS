@@ -251,15 +251,11 @@ export class System {
                   renderPassTickCount: this.__renderPassTickCount,
                   primitiveUids,
                 });
-              }
-              this.__renderPassTickCount++;
-
-              if (!skipNormalRender) {
-                const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
-                repo.finishRenderBundleEncoder(renderPass);
+                webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
               }
               renderPass._copyResolve1ToResolve2WebGpu();
               renderPass.doPostRender();
+              this.__renderPassTickCount++;
             }
           }
           webGpuResourceRepository.flush();
