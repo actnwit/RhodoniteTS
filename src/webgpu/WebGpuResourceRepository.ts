@@ -907,7 +907,6 @@ export class WebGpuResourceRepository
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
     if (this.__renderPassEncoder == null) {
-      const context = this.__webGpuDeviceWrapper!.context;
       const framebuffer = renderPass.getFramebuffer();
       const resolveFramebuffer = renderPass.getResolveFramebuffer();
 
@@ -1001,6 +1000,7 @@ export class WebGpuResourceRepository
         this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
       } else {
         if (this.__contextCurrentTextureView == null) {
+          const context = this.__webGpuDeviceWrapper!.context;
           this.__contextCurrentTextureView = context.getCurrentTexture().createView();
         }
         const renderPassDescriptor: GPURenderPassDescriptor = {
