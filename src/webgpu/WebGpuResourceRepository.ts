@@ -1036,7 +1036,7 @@ export class WebGpuResourceRepository
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount
     ) {
       this.__renderBundles.clear();
-      SystemState.snapshotRenderingMode = false;
+      SystemState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
       // this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;

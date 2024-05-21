@@ -240,7 +240,7 @@ export class System {
               let skipNormalRender = renderPass.entities.length === 0 ? true : false;
               if (!skipNormalRender) {
                 skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-                SystemState.snapshotRenderingMode ||= skipNormalRender;
+                SystemState.webgpuRenderBundleMode ||= skipNormalRender;
               }
 
               if (!skipNormalRender) {
@@ -271,7 +271,7 @@ export class System {
           webGpuResourceRepository.flush();
         } else {
           if (
-            !SystemState.snapshotRenderingMode ||
+            !SystemState.webgpuRenderBundleMode ||
             AnimationComponent.isAnimating ||
             CameraControllerComponent.updateCount !==
               this.__lastCameraControllerComponentsUpdateCount

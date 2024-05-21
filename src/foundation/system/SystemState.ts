@@ -5,5 +5,5 @@ const currentProcessApproach: ProcessApproachEnum = ProcessApproach.None;
 export const SystemState = {
   currentProcessApproach,
   viewportAspectRatio: 0,
-  snapshotRenderingMode: false,
+  webgpuRenderBundleMode: false,
 };
