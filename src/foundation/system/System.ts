@@ -231,7 +231,7 @@ export class System {
         const commonMethodName = 'common_' + methodName;
         if (stage === ProcessStage.Render) {
           const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
-          webGpuStrategyBasic.prerender();
+          MeshRendererComponent.common_$prerender();
           for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
               // clear Framebuffer
@@ -300,6 +300,7 @@ export class System {
         const methodName = stage.methodName;
         const commonMethodName = 'common_' + methodName;
         if (stage === ProcessStage.Render) {
+          MeshRendererComponent.common_$prerender();
           for (const exp of expressions) {
             for (const componentTid of renderingComponentTids) {
               const componentClass: typeof Component =

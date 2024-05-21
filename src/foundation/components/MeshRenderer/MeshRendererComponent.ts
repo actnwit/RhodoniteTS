@@ -292,6 +292,11 @@ export class MeshRendererComponent extends Component {
     return primitives;
   }
 
+  static common_$prerender() {
+    // Call common_$prerender of WebGLRenderingStrategy
+    MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
+  }
+
   static common_$render({
     renderPass,
     processStage,
@@ -303,9 +308,6 @@ export class MeshRendererComponent extends Component {
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
   }) {
-    // Call common_$prerender of WebGLRenderingStrategy
-    MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
-
     // Call common_$render of WebGLRenderingStrategy
     MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
       primitiveUids,
