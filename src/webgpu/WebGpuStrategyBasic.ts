@@ -361,7 +361,6 @@ ${indexStr}
   }
 
   renderWithRenderBundle(renderPass: RenderPass): boolean {
-    this.prerender();
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     return webGpuResourceRepository.executeRenderBundle(renderPass);
   }

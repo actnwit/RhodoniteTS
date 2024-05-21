@@ -30,7 +30,7 @@ import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository'
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import { MeshRendererComponent } from '../components';
+import { AnimationComponent, MeshRendererComponent } from '../components';
 
 declare const spector: any;
 
@@ -224,17 +224,17 @@ export class System {
         const methodName = stage.methodName;
         const commonMethodName = 'common_' + methodName;
         if (stage === ProcessStage.Render) {
+          const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
+          webGpuStrategyBasic.prerender();
           for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
               // clear Framebuffer
               this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
 
               let skipNormalRender = renderPass.entities.length === 0 ? true : false;
-              if (this.processApproach === ProcessApproach.WebGPU) {
-                const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
-                if (!skipNormalRender) {
-                  skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-                }
+              if (!skipNormalRender) {
+                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+                SystemState.snapshotRenderingMode ||= skipNormalRender;
               }
 
               if (!skipNormalRender) {
@@ -264,21 +264,23 @@ export class System {
           }
           webGpuResourceRepository.flush();
         } else {
-          for (const componentTid of componentTids) {
-            const componentClass: typeof Component =
-              ComponentRepository.getComponentClass(componentTid)!;
+          if (!SystemState.snapshotRenderingMode || AnimationComponent.isAnimating) {
+            for (const componentTid of componentTids) {
+              const componentClass: typeof Component =
+                ComponentRepository.getComponentClass(componentTid)!;
 
-            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-            if (componentClass_commonMethod) {
-              componentClass_commonMethod({
-                processApproach: this.__processApproach,
-                renderPass: void 0,
-                processStage: stage,
-                renderPassTickCount: this.__renderPassTickCount,
-              });
+              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+              if (componentClass_commonMethod) {
+                componentClass_commonMethod({
+                  processApproach: this.__processApproach,
+                  renderPass: void 0,
+                  processStage: stage,
+                  renderPassTickCount: this.__renderPassTickCount,
+                });
+              }
+
+              componentClass.process(componentClass, stage);
             }
-
-            componentClass.process(componentClass, stage);
           }
         }
       }
