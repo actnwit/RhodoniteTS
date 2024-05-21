@@ -181,13 +181,7 @@ export class Component extends RnObject {
    * Process the components
    * @param param0 params
    */
-  static process({
-    componentType,
-    processStage,
-  }: {
-    componentType: typeof Component;
-    processStage: ProcessStageEnum;
-  }) {
+  static process(componentType: typeof Component, processStage: ProcessStageEnum) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
       return;
     }

@@ -279,10 +279,7 @@ export class System {
                 }
 
                 if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
-                  componentClass.process({
-                    componentType: componentClass,
-                    processStage: stage,
-                  });
+                  componentClass.process(componentClass, stage);
                 }
               }
               this.__renderPassTickCount++;
@@ -320,10 +317,7 @@ export class System {
             });
           }
 
-          componentClass.process({
-            componentType: componentClass,
-            processStage: stage,
-          });
+          componentClass.process(componentClass, stage);
         }
       }
     }
