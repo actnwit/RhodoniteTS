@@ -13,6 +13,7 @@ import { Is } from '../misc/Is';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { InputManager, INPUT_HANDLING_STATE_CAMERA_CONTROLLER } from '../system/InputManager';
 import { Config } from '../core/Config';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 
 declare let window: any;
 
@@ -106,13 +107,21 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   private static __tmpMat44_0: MutableMatrix44 = MutableMatrix44.identity();
 
-  constructor() {
+  private __cameraControllerComponent: CameraControllerComponent;
+
+  constructor(cameraControllerComponent: CameraControllerComponent) {
     super();
     this.registerEventListeners();
+    this.__cameraControllerComponent = cameraControllerComponent;
   }
 
   get updateCount() {
     return this.__updateCount;
+  }
+
+  private _updateCount() {
+    this.__updateCount++;
+    this.__cameraControllerComponent._updateCount(this.__updateCount);
   }
 
   resetDollyAndTranslation() {
@@ -130,7 +139,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__targetEntities = targetEntities;
     this.__initialTargetAABB = undefined;
     this.__updated = false;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   getTargets(): ISceneGraphEntity[] {
@@ -161,7 +170,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     console.log('original', this.__originalX, this.__originalY);
 
     this.__updated = false;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   __mouseMove(e: MouseEvent) {
@@ -208,7 +217,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__originalX = currentMouseX;
     this.__originalY = currentMouseY;
     this.__updated = false;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   __mouseUp(e: MouseEvent) {
@@ -219,7 +228,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__isMouseDown = false;
     this.__lastMouseUpTimeStamp = e.timeStamp;
     this.__updated = false;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   __touchDown(e: TouchEvent) {
@@ -412,7 +421,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__tryToPreventDefault(evt);
     this.dolly += Math.sign(evt.deltaY) / 200;
     this.__updated = false;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   __contextMenu(evt: Event) {

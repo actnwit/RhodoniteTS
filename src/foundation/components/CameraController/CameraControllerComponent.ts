@@ -28,15 +28,15 @@ export class CameraControllerComponent extends Component {
     isReUse: boolean
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
-    this.__cameraController = new OrbitCameraController();
+    this.__cameraController = new OrbitCameraController(this);
   }
 
   set type(type: CameraControllerTypeEnum) {
     this.__cameraController.unregisterEventListeners();
     if (type === CameraControllerType.Orbit) {
-      this.__cameraController = new OrbitCameraController();
+      this.__cameraController = new OrbitCameraController(this);
     } else if (type === CameraControllerType.WalkThrough) {
-      this.__cameraController = new WalkThroughCameraController();
+      this.__cameraController = new WalkThroughCameraController(this);
     } else {
       console.warn('Not support type!');
     }
@@ -69,8 +69,11 @@ export class CameraControllerComponent extends Component {
   $logic() {
     if (this.__cameraController) {
       this.__cameraController.logic(this.entity.tryToGetCamera()!);
-      CameraControllerComponent.__updateCount = this.__cameraController.updateCount;
     }
+  }
+
+  _updateCount(count: number) {
+    CameraControllerComponent.__updateCount = count;
   }
 
   static get updateCount() {

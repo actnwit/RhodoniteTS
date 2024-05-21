@@ -17,6 +17,7 @@ import {
   INPUT_HANDLING_STATE_CAMERA_CONTROLLER,
 } from '../system/InputManager';
 import { AABB } from '../math/AABB';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
@@ -67,8 +68,10 @@ export class WalkThroughCameraController
   private static __tmp_Vec3_1: MutableVector3 = MutableVector3.zero();
 
   public aabbWithSkeletal = true;
+  private __cameraControllerComponent: CameraControllerComponent;
 
   constructor(
+    cameraControllerComponent: CameraControllerComponent,
     options = {
       eventTargetDom: document,
       verticalSpeed: 1,
@@ -80,6 +83,7 @@ export class WalkThroughCameraController
     }
   ) {
     super();
+    this.__cameraControllerComponent = cameraControllerComponent;
 
     this._horizontalSpeed = options.horizontalSpeed;
     this._verticalSpeed = options.verticalSpeed;
@@ -105,6 +109,11 @@ export class WalkThroughCameraController
     const eventTargetDom = options.eventTargetDom;
 
     this.registerEventListeners(eventTargetDom);
+  }
+
+  private _updateCount() {
+    this.__updateCount++;
+    this.__cameraControllerComponent._updateCount(this.__updateCount);
   }
 
   get updateCount() {
@@ -247,7 +256,7 @@ export class WalkThroughCameraController
     this._currentPos.add(deltaVec);
     this._currentCenter.add(deltaVec);
 
-    this.__updateCount++;
+    this._updateCount();
   }
 
   _mouseDown(evt: MouseEvent) {
@@ -258,7 +267,7 @@ export class WalkThroughCameraController
     this._clickedMouseXOnCanvas = evt.clientX - rect.left;
     this._clickedMouseYOnCanvas = evt.clientY - rect.top;
 
-    this.__updateCount++;
+    this._updateCount();
     return false;
   }
 
@@ -276,7 +285,7 @@ export class WalkThroughCameraController
     this._deltaMouseYOnCanvas = this._draggedMouseYOnCanvas - this._clickedMouseYOnCanvas;
 
     this._isMouseDrag = true;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   _mouseUp(evt: MouseEvent) {
@@ -291,7 +300,7 @@ export class WalkThroughCameraController
     const rect = target.getBoundingClientRect();
     this._clickedMouseXOnCanvas = evt.clientX - rect.left;
     this._clickedMouseYOnCanvas = evt.clientY - rect.top;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   tryReset() {}
@@ -503,7 +512,7 @@ export class WalkThroughCameraController
 
     this.__targetEntities = targetEntities;
     this._needInitialize = true;
-    this.__updateCount++;
+    this._updateCount();
   }
 
   getTargets(): ISceneGraphEntity[] {
