@@ -49,7 +49,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
-  private __lastCameraComponentsUpdateCount = -1;
+  private __lastCameraControllerComponentsUpdateCount = -1;
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
@@ -361,7 +361,6 @@ ${indexStr}
   }
 
   renderWithRenderBundle(renderPass: RenderPass): boolean {
-    this.prerender();
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     return webGpuResourceRepository.executeRenderBundle(renderPass);
   }
@@ -370,13 +369,13 @@ ${indexStr}
     if (
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     }
 
@@ -422,17 +421,6 @@ ${indexStr}
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
-    if (isSkipDrawing(material)) {
-      return false;
-    }
-
-    const mesh = primitive.mesh as Mesh;
-    if (
-      mesh.meshEntitiesInner.length === 0 ||
-      mesh.meshEntitiesInner[0].getSceneGraph().isVisible === false
-    ) {
-      return false;
-    }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);

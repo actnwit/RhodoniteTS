@@ -49,6 +49,8 @@ import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { Vector2 } from '../foundation/math/Vector2';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { EntityRepository } from '../foundation/core/EntityRepository';
+import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
+import { SystemState } from '../foundation/system/SystemState';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -111,6 +113,7 @@ export class WebGpuResourceRepository
 
   private __lastMaterialsUpdateCount = -1;
   private __lastCurrentCameraComponentSid = -1;
+  private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastEntityRepositoryUpdateCount = -1;
 
   private static __iblParameterVec4 = MutableVector4.zero();
@@ -907,7 +910,6 @@ export class WebGpuResourceRepository
       this.__commandEncoder = gpuDevice.createCommandEncoder();
     }
     if (this.__renderPassEncoder == null) {
-      const context = this.__webGpuDeviceWrapper!.context;
       const framebuffer = renderPass.getFramebuffer();
       const resolveFramebuffer = renderPass.getResolveFramebuffer();
 
@@ -1001,6 +1003,7 @@ export class WebGpuResourceRepository
         this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
       } else {
         if (this.__contextCurrentTextureView == null) {
+          const context = this.__webGpuDeviceWrapper!.context;
           this.__contextCurrentTextureView = context.getCurrentTexture().createView();
         }
         const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -1029,10 +1032,13 @@ export class WebGpuResourceRepository
     if (
       Material.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
+      // CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount
     ) {
       this.__renderBundles.clear();
+      SystemState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
+      // this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
     }

@@ -30,6 +30,7 @@ import { LightType } from '../../definitions/LightType';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformComponent } from '../Transform/TransformComponent';
+import { CameraControllerComponent } from '../CameraController';
 
 /**
  * The Component that represents a camera.
@@ -102,6 +103,7 @@ export class CameraComponent extends Component {
   private __lastUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastLightComponentsUpdateCount = -1;
+  private __lastCameraControllerComponentsUpdateCount = -1;
 
   constructor(
     entityUid: EntityUID,
@@ -842,7 +844,8 @@ export class CameraComponent extends Component {
     if (
       this.__lastUpdateCount === this.__updateCount &&
       this.__lastTransformComponentsUpdateCount === TransformComponent.updateCount &&
-      this.__lastLightComponentsUpdateCount === lightComponentUpdateCount
+      this.__lastLightComponentsUpdateCount === lightComponentUpdateCount &&
+      this.__lastCameraControllerComponentsUpdateCount === CameraControllerComponent.updateCount
     ) {
       return;
     }
@@ -896,6 +899,7 @@ export class CameraComponent extends Component {
     this.__lastUpdateCount = this.__updateCount;
     this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     this.__lastLightComponentsUpdateCount = lightComponentUpdateCount;
+    this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
   }
 
   static getCurrentCameraEntity() {

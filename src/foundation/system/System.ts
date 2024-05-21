@@ -6,11 +6,9 @@ import {
   CGAPIResourceRepository,
   ICGAPIResourceRepository,
 } from '../renderer/CGAPIResourceRepository';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
 import { EntityRepository } from '../core/EntityRepository';
-import { CameraComponent } from '../components/Camera/CameraComponent';
 import { MemoryManager } from '../core/MemoryManager';
 import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { Vector3 } from '../math/Vector3';
@@ -31,6 +29,12 @@ import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu';
+import { CameraComponent } from '../components/Camera/CameraComponent';
+import {
+  AnimationComponent,
+  CameraControllerComponent,
+  MeshRendererComponent,
+} from '../components';
 
 declare const spector: any;
 
@@ -80,6 +84,8 @@ export class System {
   private static __renderLoopFunc?: (time: number, ...args: any[]) => void;
   private static __args: unknown[] = [];
   private static __rnXRModule?: RnXR;
+
+  private static __lastCameraControllerComponentsUpdateCount = -1;
 
   private constructor() {}
 
@@ -208,9 +214,6 @@ export class System {
   public static process(expressions: Expression[]): void;
   public static process(value: any) {
     Time._processBegin();
-    if (typeof spector !== 'undefined') {
-      spector.setMarker('Rn#');
-    }
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;
@@ -220,25 +223,88 @@ export class System {
       System.createCamera();
     }
 
-    const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
-
-    const componentTids = ComponentRepository.getComponentTIDs();
-    const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
-    for (const stage of Component._processStages) {
-      const methodName = stage.methodName;
-      const commonMethodName = 'common_' + methodName;
-      if (stage === ProcessStage.Render) {
-        for (const exp of expressions) {
-          for (const componentTid of renderingComponentTids) {
-            const componentClass: typeof Component =
-              ComponentRepository.getComponentClass(componentTid)!;
+    if (this.processApproach === ProcessApproach.WebGPU) {
+      const componentTids = ComponentRepository.getComponentTIDs();
+      const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+      for (const stage of Component._processStages) {
+        const methodName = stage.methodName;
+        const commonMethodName = 'common_' + methodName;
+        if (stage === ProcessStage.Render) {
+          const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
+          MeshRendererComponent.common_$prerender();
+          for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
-              if (typeof spector !== 'undefined') {
-                spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
+              // clear Framebuffer
+              this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
+
+              let skipNormalRender = renderPass.entities.length === 0 ? true : false;
+              if (!skipNormalRender) {
+                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+                SystemState.webgpuRenderBundleMode ||= skipNormalRender;
               }
 
-              if (this.processApproach !== ProcessApproach.WebGPU) {
+              if (!skipNormalRender) {
+                const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
+                MeshRendererComponent.common_$render({
+                  renderPass: renderPass,
+                  processStage: stage,
+                  renderPassTickCount: this.__renderPassTickCount,
+                  primitiveUids,
+                });
+                webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+              }
+              renderPass._copyResolve1ToResolve2WebGpu();
+              renderPass.doPostRender();
+              this.__renderPassTickCount++;
+            }
+          }
+          webGpuResourceRepository.flush();
+        } else {
+          if (
+            !SystemState.webgpuRenderBundleMode ||
+            AnimationComponent.isAnimating ||
+            CameraControllerComponent.updateCount !==
+              this.__lastCameraControllerComponentsUpdateCount
+          ) {
+            for (const componentTid of componentTids) {
+              const componentClass: typeof Component =
+                ComponentRepository.getComponentClass(componentTid)!;
+
+              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+              if (componentClass_commonMethod) {
+                componentClass_commonMethod({
+                  processApproach: this.__processApproach,
+                  renderPass: void 0,
+                  processStage: stage,
+                  renderPassTickCount: this.__renderPassTickCount,
+                });
+              }
+
+              componentClass.process(componentClass, stage);
+            }
+          }
+        }
+      }
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    } else {
+      const repo = CGAPIResourceRepository.getWebGLResourceRepository();
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
+
+      const componentTids = ComponentRepository.getComponentTIDs();
+      const renderingComponentTids = ComponentRepository.getRenderingComponentTIDs();
+      for (const stage of Component._processStages) {
+        const methodName = stage.methodName;
+        const commonMethodName = 'common_' + methodName;
+        if (stage === ProcessStage.Render) {
+          MeshRendererComponent.common_$prerender();
+          for (const exp of expressions) {
+            for (const componentTid of renderingComponentTids) {
+              const componentClass: typeof Component =
+                ComponentRepository.getComponentClass(componentTid)!;
+              for (const renderPass of exp.renderPasses) {
+                if (typeof spector !== 'undefined') {
+                  spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
+                }
                 repo.switchDepthTest(renderPass.isDepthTest);
 
                 if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
@@ -248,79 +314,58 @@ export class System {
                   // set Viewport for Normal (Not WebXR)
                   System.setViewportForNormalRendering(renderPass, rnXRModule);
                 }
-              }
-              if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
-                // clear Framebuffer
-                this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
-              }
-
-              let skipNormalRender = renderPass.entities.length === 0 ? true : false;
-              if (this.processApproach === ProcessApproach.WebGPU) {
-                const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
-                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-              }
-
-              if (!skipNormalRender) {
-                const primitiveUids = componentClass.updateComponentsForRenderStage(
-                  componentClass,
-                  stage,
-                  renderPass
-                );
-                const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-                if (componentClass_commonMethod) {
-                  componentClass_commonMethod({
-                    processApproach: this.__processApproach,
-                    renderPass: renderPass,
-                    processStage: stage,
-                    renderPassTickCount: this.__renderPassTickCount,
-                    primitiveUids,
-                  });
+                if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
+                  // clear Framebuffer
+                  this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
                 }
 
-                componentClass.process({
-                  componentType: componentClass,
-                  processStage: stage,
-                });
-              }
-              this.__renderPassTickCount++;
-
-              if (this.processApproach === ProcessApproach.WebGPU) {
+                let skipNormalRender = renderPass.entities.length === 0 ? true : false;
                 if (!skipNormalRender) {
-                  const repo = CGAPIResourceRepository.getWebGpuResourceRepository();
-                  repo.finishRenderBundleEncoder(renderPass);
-                }
-                renderPass._copyResolve1ToResolve2WebGpu();
-              } else {
-                renderPass._copyFramebufferToResolveFramebuffersWebGL();
-              }
+                  const primitiveUids = componentClass.updateComponentsForRenderStage(
+                    componentClass,
+                    stage,
+                    renderPass
+                  );
+                  const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+                  if (componentClass_commonMethod) {
+                    componentClass_commonMethod({
+                      processApproach: this.__processApproach,
+                      renderPass: renderPass,
+                      processStage: stage,
+                      renderPassTickCount: this.__renderPassTickCount,
+                      primitiveUids,
+                    });
+                  }
 
-              renderPass.doPostRender();
+                  if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
+                    componentClass.process(componentClass, stage);
+                  }
+                }
+                this.__renderPassTickCount++;
+
+                renderPass._copyFramebufferToResolveFramebuffersWebGL();
+
+                renderPass.doPostRender();
+              }
             }
           }
-        }
-        if (this.processApproach === ProcessApproach.WebGPU) {
-          const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-          webGpuResourceRepository.flush();
-        }
-      } else {
-        for (const componentTid of componentTids) {
-          const componentClass: typeof Component =
-            ComponentRepository.getComponentClass(componentTid)!;
+        } else {
+          for (const componentTid of componentTids) {
+            const componentClass: typeof Component =
+              ComponentRepository.getComponentClass(componentTid)!;
 
-          const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-          if (componentClass_commonMethod) {
-            componentClass_commonMethod({
-              processApproach: this.__processApproach,
-              renderPass: void 0,
-              processStage: stage,
-              renderPassTickCount: this.__renderPassTickCount,
-            });
+            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+            if (componentClass_commonMethod) {
+              componentClass_commonMethod({
+                processApproach: this.__processApproach,
+                renderPass: void 0,
+                processStage: stage,
+                renderPassTickCount: this.__renderPassTickCount,
+              });
+            }
+
+            componentClass.process(componentClass, stage);
           }
-
-          componentClass.process({
-            componentType: componentClass,
-            processStage: stage,
-          });
         }
       }
     }

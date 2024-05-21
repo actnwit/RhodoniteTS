@@ -773,17 +773,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     setupShaderProgram(material, primitive, this);
 
-    if (isSkipDrawing(material)) {
-      return false;
-    }
-
-    if (
-      mesh.meshEntitiesInner.length === 0 ||
-      mesh.meshEntitiesInner[0].getSceneGraph().isVisible === false
-    ) {
-      return false;
-    }
-
     const meshRendererComponent = entity.getMeshRenderer()!;
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);

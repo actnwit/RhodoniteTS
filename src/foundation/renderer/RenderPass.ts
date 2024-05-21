@@ -54,6 +54,7 @@ export class RenderPass extends RnObject {
   public _lastPrimitiveUids: number[] = [];
   public _lastTransformComponentsUpdateCount = -1;
   public _lastCameraControllerComponentsUpdateCount = -1;
+  public _lastSceneGraphComponentsUpdateCount = -1;
 
   /** Whether or not to draw opaque primitives contained in this render pass. */
   public toRenderOpaquePrimitives = true;
