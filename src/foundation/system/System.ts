@@ -257,7 +257,9 @@ export class System {
               let skipNormalRender = renderPass.entities.length === 0 ? true : false;
               if (this.processApproach === ProcessApproach.WebGPU) {
                 const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
+                if (!skipNormalRender) {
                 skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+                }
               }
 
               if (!skipNormalRender) {
