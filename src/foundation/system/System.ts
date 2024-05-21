@@ -6,11 +6,9 @@ import {
   CGAPIResourceRepository,
   ICGAPIResourceRepository,
 } from '../renderer/CGAPIResourceRepository';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { Component } from '../core/Component';
 import { Expression } from '../renderer/Expression';
 import { EntityRepository } from '../core/EntityRepository';
-import { CameraComponent } from '../components/Camera/CameraComponent';
 import { MemoryManager } from '../core/MemoryManager';
 import { GlobalDataRepository } from '../core/GlobalDataRepository';
 import { Vector3 } from '../math/Vector3';
@@ -31,6 +29,7 @@ import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 
 declare const spector: any;
 
@@ -258,7 +257,7 @@ export class System {
               if (this.processApproach === ProcessApproach.WebGPU) {
                 const webGpuStrategyBasic = WebGpuStrategyBasic.getInstance();
                 if (!skipNormalRender) {
-                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+                  skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
                 }
               }
 
@@ -279,10 +278,12 @@ export class System {
                   });
                 }
 
-                componentClass.process({
-                  componentType: componentClass,
-                  processStage: stage,
-                });
+                if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
+                  componentClass.process({
+                    componentType: componentClass,
+                    processStage: stage,
+                  });
+                }
               }
               this.__renderPassTickCount++;
 
