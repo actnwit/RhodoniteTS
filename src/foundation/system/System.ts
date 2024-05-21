@@ -244,19 +244,13 @@ export class System {
               }
 
               if (!skipNormalRender) {
-                const primitiveUids = MeshRendererComponent.updateComponentsForRenderStage(
-                  MeshRendererComponent,
-                  stage,
-                  renderPass
-                );
+                const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
                 MeshRendererComponent.common_$render({
                   renderPass: renderPass,
                   processStage: stage,
                   renderPassTickCount: this.__renderPassTickCount,
                   primitiveUids,
                 });
-
-                MeshRendererComponent.process(MeshRendererComponent, stage);
               }
               this.__renderPassTickCount++;
 

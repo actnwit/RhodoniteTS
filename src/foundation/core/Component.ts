@@ -195,7 +195,6 @@ export class Component extends RnObject {
       }
     }
   }
-
   static updateComponentsForRenderStage(
     componentClass: typeof Component,
     processStage: ProcessStageEnum,
