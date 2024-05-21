@@ -425,14 +425,6 @@ ${indexStr}
       return false;
     }
 
-    const mesh = primitive.mesh as Mesh;
-    if (
-      mesh.meshEntitiesInner.length === 0 ||
-      mesh.meshEntitiesInner[0].getSceneGraph().isVisible === false
-    ) {
-      return false;
-    }
-
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
     webGpuResourceRepository.draw(primitive, material, renderPass, cameraID);

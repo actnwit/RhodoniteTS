@@ -427,7 +427,7 @@ bool get_isBillboard(float instanceId) {
     const mesh = primitive.mesh as Mesh;
     const meshEntities = mesh.meshEntitiesInner;
     for (const entity of meshEntities) {
-      if (!entity.getSceneGraph().isVisible || entity.getSceneGraph()._isCulled) {
+      if (entity.getSceneGraph()._isCulled) {
         continue;
       }
       const meshComponent = entity.getMesh();

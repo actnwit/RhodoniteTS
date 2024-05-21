@@ -29,6 +29,7 @@ import { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture;
@@ -144,7 +145,8 @@ export class MeshRendererComponent extends Component {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.updateCount ===
-        renderPass._lastCameraControllerComponentsUpdateCount
+        renderPass._lastCameraControllerComponentsUpdateCount &&
+      SceneGraphComponent.updateCount === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
       return renderPass._lastPrimitiveUids;
     }
@@ -171,11 +173,7 @@ export class MeshRendererComponent extends Component {
     // FrustumCulling
     let primitives: Primitive[] = [];
     const meshComponents = renderPass.meshComponents;
-    primitives = MeshRendererComponent.__cullingWithViewFrustum(
-      cameraComponent,
-      meshComponents,
-      renderPass
-    );
+    primitives = MeshRendererComponent.__cullingWithViewFrustum(cameraComponent, meshComponents);
 
     // After Frustum Culling, remove duplicated Primitives
     primitives = Array.from(new Set(primitives));
@@ -223,8 +221,7 @@ export class MeshRendererComponent extends Component {
 
   private static __cullingWithViewFrustum(
     cameraComponent: CameraComponent,
-    meshComponents: MeshComponent[],
-    renderPass: RenderPass
+    meshComponents: MeshComponent[]
   ) {
     let filteredMeshComponents: MeshComponent[] = [];
     if (cameraComponent) {
@@ -265,10 +262,14 @@ export class MeshRendererComponent extends Component {
         }
       };
       for (const meshComponent of meshComponents) {
-        frustumCulling(meshComponent, filteredMeshComponents);
+        if (meshComponent.entity.getSceneGraph().isVisible) {
+          frustumCulling(meshComponent, filteredMeshComponents);
+        }
       }
     } else {
-      filteredMeshComponents = renderPass!.meshComponents!;
+      filteredMeshComponents = meshComponents.filter(
+        (meshComponent) => meshComponent.entity.getSceneGraph().isVisible
+      );
     }
 
     const primitives: Primitive[] = [];
