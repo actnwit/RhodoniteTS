@@ -207,9 +207,6 @@ export class System {
   public static process(expressions: Expression[]): void;
   public static process(value: any) {
     Time._processBegin();
-    if (typeof spector !== 'undefined') {
-      spector.setMarker('Rn#');
-    }
     let expressions: Expression[] = value;
     if (value instanceof Frame) {
       expressions = value.expressions;
@@ -233,11 +230,10 @@ export class System {
             const componentClass: typeof Component =
               ComponentRepository.getComponentClass(componentTid)!;
             for (const renderPass of exp.renderPasses) {
-              if (typeof spector !== 'undefined') {
-                spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
-              }
-
               if (this.processApproach !== ProcessApproach.WebGPU) {
+                if (typeof spector !== 'undefined') {
+                  spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
+                }
                 repo.switchDepthTest(renderPass.isDepthTest);
 
                 if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
