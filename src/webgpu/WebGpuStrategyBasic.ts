@@ -421,9 +421,6 @@ ${indexStr}
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
-    if (isSkipDrawing(material)) {
-      return false;
-    }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);

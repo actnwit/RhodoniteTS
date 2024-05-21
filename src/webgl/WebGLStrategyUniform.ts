@@ -421,9 +421,6 @@ bool get_isBillboard(float instanceId) {
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     setupShaderProgram(material, primitive, this);
 
-    if (isSkipDrawing(material)) {
-      return false;
-    }
     const mesh = primitive.mesh as Mesh;
     const meshEntities = mesh.meshEntitiesInner;
     for (const entity of meshEntities) {
