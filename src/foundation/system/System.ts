@@ -28,14 +28,12 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
-import { WebGpuStrategyBasic } from '../../webgpu';
+import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import {
-  AnimationComponent,
-  CameraControllerComponent,
-  MeshRendererComponent,
-} from '../components';
-
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
+import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
+import { TransformComponent } from '../components/Transform/TransformComponent';
 declare const spector: any;
 
 /**
@@ -86,6 +84,7 @@ export class System {
   private static __rnXRModule?: RnXR;
 
   private static __lastCameraControllerComponentsUpdateCount = -1;
+  private static __lastTransformComponentsUpdateCount = -1;
 
   private constructor() {}
 
@@ -266,6 +265,7 @@ export class System {
           if (
             !SystemState.webgpuRenderBundleMode ||
             AnimationComponent.isAnimating ||
+            TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
             CameraControllerComponent.updateCount !==
               this.__lastCameraControllerComponentsUpdateCount
           ) {
@@ -289,6 +289,7 @@ export class System {
         }
       }
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     } else {
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
@@ -350,24 +351,34 @@ export class System {
             }
           }
         } else {
-          for (const componentTid of componentTids) {
-            const componentClass: typeof Component =
-              ComponentRepository.getComponentClass(componentTid)!;
+          if (
+            AnimationComponent.isAnimating ||
+            TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+            CameraControllerComponent.updateCount !==
+              this.__lastCameraControllerComponentsUpdateCount
+          ) {
+            for (const componentTid of componentTids) {
+              const componentClass: typeof Component =
+                ComponentRepository.getComponentClass(componentTid)!;
 
-            const componentClass_commonMethod = (componentClass as any)[commonMethodName];
-            if (componentClass_commonMethod) {
-              componentClass_commonMethod({
-                processApproach: this.__processApproach,
-                renderPass: void 0,
-                processStage: stage,
-                renderPassTickCount: this.__renderPassTickCount,
-              });
+              const componentClass_commonMethod = (componentClass as any)[commonMethodName];
+              if (componentClass_commonMethod) {
+                componentClass_commonMethod({
+                  processApproach: this.__processApproach,
+                  renderPass: void 0,
+                  processStage: stage,
+                  renderPassTickCount: this.__renderPassTickCount,
+                });
+              }
+
+              componentClass.process(componentClass, stage);
             }
 
-            componentClass.process(componentClass, stage);
           }
         }
       }
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+      this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     }
 
     Time._processEnd();
