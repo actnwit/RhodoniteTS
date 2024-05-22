@@ -34,6 +34,7 @@ import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
+import { Primitive } from '../geometry/Primitive';
 declare const spector: any;
 
 /**
@@ -85,6 +86,7 @@ export class System {
 
   private static __lastCameraControllerComponentsUpdateCount = -1;
   private static __lastTransformComponentsUpdateCount = -1;
+  private static __lastPrimitiveCount = -1;
 
   private constructor() {}
 
@@ -355,7 +357,8 @@ export class System {
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
             CameraControllerComponent.updateCount !==
-              this.__lastCameraControllerComponentsUpdateCount
+              this.__lastCameraControllerComponentsUpdateCount ||
+            Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
           ) {
             for (const componentTid of componentTids) {
               const componentClass: typeof Component =
@@ -373,12 +376,12 @@ export class System {
 
               componentClass.process(componentClass, stage);
             }
-
           }
         }
       }
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
     }
 
     Time._processEnd();

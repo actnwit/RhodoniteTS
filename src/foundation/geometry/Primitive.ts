@@ -165,6 +165,10 @@ export class Primitive extends RnObject {
     return this.__primitives[primitiveUid];
   }
 
+  static getPrimitiveCount() {
+    return this.__primitiveCount;
+  }
+
   onAccessorUpdated(accessorVersion: number) {
     this.__positionAccessorVersion = accessorVersion;
     if (this.__mesh != null) {
