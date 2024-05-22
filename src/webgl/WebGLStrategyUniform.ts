@@ -361,6 +361,8 @@ bool get_isBillboard(float instanceId) {
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
 
+    let renderedSomething = false;
+
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVrMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
@@ -370,7 +372,7 @@ bool get_isBillboard(float instanceId) {
       if (renderPass.toRenderOpaquePrimitives) {
         for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
           const primitiveUid = primitiveUids[i];
-          this.renderInner(
+          const rendered = this.renderInner(
             primitiveUid,
             glw,
             renderPass,
@@ -378,6 +380,7 @@ bool get_isBillboard(float instanceId) {
             isVrMainPass,
             displayIdx
           );
+          renderedSomething ||= rendered;
         }
       }
 
@@ -390,7 +393,7 @@ bool get_isBillboard(float instanceId) {
 
         for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
           const primitiveUid = primitiveUids[i];
-          this.renderInner(
+          const rendered = this.renderInner(
             primitiveUid,
             glw,
             renderPass,
@@ -398,6 +401,7 @@ bool get_isBillboard(float instanceId) {
             isVrMainPass,
             displayIdx
           );
+          renderedSomething ||= rendered;
         }
         gl.depthMask(true);
       }
@@ -405,7 +409,7 @@ bool get_isBillboard(float instanceId) {
 
     this.__webglResourceRepository.unbindTextureSamplers();
 
-    return false;
+    return renderedSomething;
   }
 
   renderInner(
@@ -423,6 +427,8 @@ bool get_isBillboard(float instanceId) {
 
     const mesh = primitive.mesh as Mesh;
     const meshEntities = mesh.meshEntitiesInner;
+
+    let renderedSomething = false;
     for (const entity of meshEntities) {
       if (entity.getSceneGraph()._isCulled) {
         continue;
@@ -490,9 +496,11 @@ bool get_isBillboard(float instanceId) {
       } else {
         gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
       }
+
+      renderedSomething = true;
     }
 
-    return true;
+    return renderedSomething;
   }
 
   private bindDataTexture(

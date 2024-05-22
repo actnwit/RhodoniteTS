@@ -718,6 +718,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
+
+    let renderedSomething = false;
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
@@ -732,7 +734,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (renderPass.toRenderOpaquePrimitives) {
         for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
           const primitiveUid = primitiveUids[i];
-          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
+          const rendered = this.renderInner(
+            primitiveUid,
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayIdx
+          );
+          renderedSomething ||= rendered;
         }
       }
 
@@ -745,7 +754,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
         for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
           const primitiveUid = primitiveUids[i];
-          this.renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayIdx);
+          const rendered = this.renderInner(
+            primitiveUid,
+            glw,
+            renderPass,
+            isVRMainPass,
+            displayIdx
+          );
+          renderedSomething ||= rendered;
         }
         gl.depthMask(true);
       }
@@ -755,7 +771,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     this.__webglResourceRepository.unbindTextureSamplers();
 
-    return false;
+    return renderedSomething;
   }
 
   renderInner(

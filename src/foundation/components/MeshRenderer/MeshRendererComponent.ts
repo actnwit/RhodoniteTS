@@ -307,9 +307,9 @@ export class MeshRendererComponent extends Component {
     processStage: ProcessStageEnum;
     renderPassTickCount: Count;
     primitiveUids: PrimitiveUID[];
-  }) {
+  }): boolean {
     // Call common_$render of WebGLRenderingStrategy
-    MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
+    return MeshRendererComponent.__cgApiRenderingStrategy!.common_$render(
       primitiveUids,
       renderPass,
       renderPassTickCount

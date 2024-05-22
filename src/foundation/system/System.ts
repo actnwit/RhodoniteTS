@@ -237,21 +237,24 @@ export class System {
               // clear Framebuffer
               this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
 
-              let skipNormalRender = renderPass.entities.length === 0 ? true : false;
-              if (!skipNormalRender) {
-                skipNormalRender = webGpuStrategyBasic.renderWithRenderBundle(renderPass);
-                SystemState.webgpuRenderBundleMode ||= skipNormalRender;
+              let doRender = renderPass._renderedSomethingBefore;
+              if (doRender) {
+                doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
+                SystemState.webgpuRenderBundleMode ||= doRender;
               }
 
-              if (!skipNormalRender) {
+              if (doRender) {
                 const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
-                MeshRendererComponent.common_$render({
+                const renderedSomething = MeshRendererComponent.common_$render({
                   renderPass: renderPass,
                   processStage: stage,
                   renderPassTickCount: this.__renderPassTickCount,
                   primitiveUids,
                 });
-                webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+                renderPass._renderedSomethingBefore = renderedSomething;
+                if (renderedSomething) {
+                  webGpuResourceRepository.finishRenderBundleEncoder(renderPass);
+                }
               }
               renderPass._copyResolve1ToResolve2WebGpu();
               renderPass.doPostRender();
@@ -319,8 +322,8 @@ export class System {
                   this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
                 }
 
-                let skipNormalRender = renderPass.entities.length === 0 ? true : false;
-                if (!skipNormalRender) {
+                let doRender = renderPass._renderedSomethingBefore;
+                if (doRender) {
                   const primitiveUids = componentClass.updateComponentsForRenderStage(
                     componentClass,
                     stage,
@@ -328,13 +331,14 @@ export class System {
                   );
                   const componentClass_commonMethod = (componentClass as any)[commonMethodName];
                   if (componentClass_commonMethod) {
-                    componentClass_commonMethod({
+                    const renderedSomething = componentClass_commonMethod({
                       processApproach: this.__processApproach,
                       renderPass: renderPass,
                       processStage: stage,
                       renderPassTickCount: this.__renderPassTickCount,
                       primitiveUids,
                     });
+                    renderPass._renderedSomethingBefore = renderedSomething;
                   }
 
                   if (componentTid !== WellKnownComponentTIDs.MeshRendererComponentTID) {
