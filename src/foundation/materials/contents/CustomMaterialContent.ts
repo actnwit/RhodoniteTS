@@ -141,13 +141,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.__definitions += '#define RN_IS_LIGHTING\n';
     }
 
-    if (isSkinning) {
+    // if (isSkinning) {
       this.__definitions += '#define RN_IS_SKINNING\n';
-    }
+    // }
 
-    if (isMorphing) {
+    // if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
-    }
+    // }
 
     if (isClearCoat) {
       this.__definitions += '#define RN_USE_CLEARCOAT\n';
