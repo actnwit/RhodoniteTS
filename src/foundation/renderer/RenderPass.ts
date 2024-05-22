@@ -56,6 +56,7 @@ export class RenderPass extends RnObject {
   public _lastCameraControllerComponentsUpdateCount = -1;
   public _lastSceneGraphComponentsUpdateCount = -1;
   public _renderedSomethingBefore = true;
+  public _isChangedSortRenderResult = false;
 
   /** Whether or not to draw opaque primitives contained in this render pass. */
   public toRenderOpaquePrimitives = true;

@@ -141,26 +141,16 @@ export class MeshRendererComponent extends Component {
     }
   }
 
-  static toDoSort_$render(renderPass: RenderPass): boolean {
+  static sort_$render(renderPass: RenderPass): ComponentSID[] {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.updateCount ===
         renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.updateCount === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
-      return false;
+      return renderPass._lastPrimitiveUids;
     }
 
-    renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
-    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
-    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-
-    renderPass._renderedSomethingBefore = true;
-
-    return true;
-  }
-
-  static sort_$render(renderPass: RenderPass): ComponentSID[] {
     // get CameraComponent
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
@@ -201,28 +191,64 @@ export class MeshRendererComponent extends Component {
     const primitiveUids = primitives.map((primitive) => primitive.primitiveUid);
     primitiveUids.push(-1);
 
-    renderPass._lastOpaqueIndex = primitives.length - 1;
-    renderPass._lastTransparentIndex = -1;
-    renderPass._firstTransparentSortKey = -1;
-    renderPass._lastTransparentSortKey = -1;
+    let _lastOpaqueIndex = primitives.length - 1;
+    let _lastTransparentIndex = -1;
+    let _firstTransparentSortKey = -1;
+    let _lastTransparentSortKey = -1;
 
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
       const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
       const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
       if (isTranslucency) {
-        renderPass._lastOpaqueIndex = i - 1;
-        renderPass._firstTransparentSortKey = primitive._sortkey;
+        _lastOpaqueIndex = i - 1;
+        _firstTransparentSortKey = primitive._sortkey;
         break;
       }
     }
 
     if (primitives.length > 0) {
-      renderPass._lastTransparentIndex = primitives.length - 1;
-      renderPass._lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
+      _lastTransparentIndex = primitives.length - 1;
+      _lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
     }
 
+    let resultChanged = false;
+    if (_lastOpaqueIndex != renderPass._lastOpaqueIndex) {
+      renderPass._lastOpaqueIndex = _lastOpaqueIndex;
+      resultChanged ||= true;
+    }
+    if (_lastTransparentIndex != renderPass._lastTransparentIndex) {
+      renderPass._lastTransparentIndex = _lastTransparentIndex;
+      resultChanged ||= true;
+    }
+    if (_firstTransparentSortKey != renderPass._firstTransparentSortKey) {
+      renderPass._firstTransparentSortKey = _firstTransparentSortKey;
+      resultChanged ||= true;
+    }
+    if (_lastTransparentSortKey != renderPass._lastTransparentSortKey) {
+      renderPass._lastTransparentSortKey = _lastTransparentSortKey;
+      resultChanged ||= true;
+    }
+
+    if (primitiveUids.length !== renderPass._lastPrimitiveUids.length) {
+      resultChanged ||= true;
+    } else {
+      for (let i = _lastOpaqueIndex + 1; i < primitiveUids.length; i++) {
+        if (primitiveUids[i] !== renderPass._lastPrimitiveUids[i]) {
+          resultChanged ||= true;
+          break;
+        }
+      }
+    }
+    renderPass._isChangedSortRenderResult = resultChanged;
+
     renderPass._lastPrimitiveUids = primitiveUids;
+
+    renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
+    renderPass._renderedSomethingBefore = true;
+
     return primitiveUids;
   }
 

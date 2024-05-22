@@ -237,7 +237,7 @@ export class System {
               // clear Framebuffer
               this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
 
-              const toDoSort_$render = MeshRendererComponent.toDoSort_$render(renderPass);
+              const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
                 doRender = !webGpuStrategyBasic.renderWithRenderBundle(renderPass);
@@ -245,9 +245,6 @@ export class System {
               }
 
               if (doRender) {
-                const primitiveUids = toDoSort_$render
-                  ? MeshRendererComponent.sort_$render(renderPass)
-                  : renderPass._lastPrimitiveUids;
                 const renderedSomething = MeshRendererComponent.common_$render({
                   renderPass: renderPass,
                   processStage: stage,
@@ -325,18 +322,11 @@ export class System {
                   this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
                 }
 
-                const toDoSort_$render = MeshRendererComponent.toDoSort_$render(renderPass);
+                const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
                 let doRender = renderPass._renderedSomethingBefore;
                 if (doRender) {
                   const componentClass_commonMethod = (componentClass as any)[commonMethodName];
                   if (componentClass_commonMethod) {
-                    const primitiveUids = toDoSort_$render
-                      ? componentClass.updateComponentsForRenderStage(
-                          componentClass,
-                          stage,
-                          renderPass
-                        )
-                      : renderPass._lastPrimitiveUids;
                     const renderedSomething = componentClass_commonMethod({
                       processApproach: this.__processApproach,
                       renderPass: renderPass,

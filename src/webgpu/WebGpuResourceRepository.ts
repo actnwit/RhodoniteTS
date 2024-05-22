@@ -1044,6 +1044,9 @@ export class WebGpuResourceRepository
 
   executeRenderBundle(renderPass: RenderPass) {
     this.__toClearRenderBundles();
+    if (renderPass._isChangedSortRenderResult) {
+      this.__renderBundles.clear();
+    }
 
     let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
     if (renderBundle != null) {
