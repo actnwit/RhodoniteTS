@@ -174,9 +174,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     if (isShadow) {
       this.__definitions += '#define RN_USE_SHADOW_MAPPING\n';
     }
-    if (useTangentAttribute) {
-      this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
-    }
+    // if (useTangentAttribute) {
+    //   this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
+    // }
     if (useNormalTexture) {
       this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
     }

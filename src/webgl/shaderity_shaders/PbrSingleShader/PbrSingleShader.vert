@@ -22,7 +22,7 @@ out vec2 v_texcoord_1;
 out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
 out float v_instanceInfo;
-#ifdef RN_USE_TANGENT_ATTRIBUTE
+#ifdef RN_USE_TANGENT
   in vec4 a_tangent;
   out vec3 v_tangent_inWorld;
   out vec3 v_binormal_inWorld;
@@ -89,7 +89,7 @@ void main()
   v_texcoord_1 = a_texcoord_1;
   v_texcoord_2 = a_texcoord_2;
 
-  #ifdef RN_USE_TANGENT_ATTRIBUTE
+  #ifdef RN_USE_TANGENT
     v_tangent_inWorld = normalMatrix * a_tangent.xyz;
     v_binormal_inWorld = cross(v_tangent_inWorld, v_normal_inWorld) * a_tangent.w;
   #endif

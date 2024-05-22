@@ -373,14 +373,14 @@ export class RenderPass extends RnObject {
     }
   }
 
-  private __setupMaterial(material: Material) {
+  private __setupMaterial(material: Material, primitive: Primitive) {
     if (material.isEmptyMaterial()) return;
 
     const webglRenderingStrategy = this.__setWebglRenderingStrategyIfNotYet(
       this.__webglRenderingStrategy
     );
 
-    webglRenderingStrategy.setupShaderForMaterial(material);
+    webglRenderingStrategy.setupShaderForMaterial(material, primitive);
   }
 
   /**
@@ -392,7 +392,7 @@ export class RenderPass extends RnObject {
   setMaterialForPrimitive(material: Material, primitive: Primitive) {
     this.__primitiveMaterial.set(primitive, material);
 
-    this.__setupMaterial(material);
+    // this.__setupMaterial(material, primitive);s
   }
 
   /**
@@ -404,7 +404,7 @@ export class RenderPass extends RnObject {
   setMaterial(material: Material) {
     this.__material = material;
 
-    this.__setupMaterial(material);
+    // this.__setupMaterial(material);
   }
 
   get material() {

@@ -241,13 +241,13 @@ export function setupShaderProgram(
 
   try {
     primitive?._backupMaterial();
-    webglStrategy.setupShaderForMaterial(material);
+    webglStrategy.setupShaderForMaterial(material, primitive);
   } catch (e) {
     // It is possible that a shader compilation error may occur, for example, in the middle of shader editing.
     // In this case, restore the shaders from a backup of the valid material.
     console.log(e);
     primitive?._restoreMaterial();
-    webglStrategy.setupShaderForMaterial(material);
+    webglStrategy.setupShaderForMaterial(material, primitive);
   }
 }
 

@@ -15,7 +15,7 @@ in vec2 v_texcoord_2;
 in vec3 v_baryCentricCoord;
 in float v_instanceInfo;
 
-#ifdef RN_USE_TANGENT_ATTRIBUTE
+#ifdef RN_USE_TANGENT
   in vec3 v_tangent_inWorld;
   in vec3 v_binormal_inWorld;
 #endif

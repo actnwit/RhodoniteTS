@@ -25,7 +25,7 @@ export interface WebGLStrategy {
   ): void;
   //setupShaderProgram(meshComponent: MeshComponent): void;
   attachShaderProgram(material: Material): void;
-  setupShaderForMaterial(material: Material): CGAPIResourceHandle;
+  setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
   _reSetupShaderForMaterialBySpector(
     material: Material,
     updatedShaderSources: ShaderSources,

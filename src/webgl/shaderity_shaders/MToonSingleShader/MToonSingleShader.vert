@@ -20,7 +20,7 @@ out vec3 v_normal_inView;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 
-#ifdef RN_USE_TANGENT_ATTRIBUTE
+#ifdef RN_USE_TANGENT
 in vec4 a_tangent;
 out vec3 v_tangent_inWorld;
 out vec3 v_binormal_inWorld; // bitangent_inWorld
@@ -103,7 +103,7 @@ void main(){
     #endif
   #endif
 
-  #ifdef RN_USE_TANGENT_ATTRIBUTE
+  #ifdef RN_USE_TANGENT
     v_tangent_inWorld = normalMatrix * a_tangent.xyz;
     v_binormal_inWorld = cross(v_normal_inWorld, v_tangent_inWorld) * a_tangent.w;
   #endif
