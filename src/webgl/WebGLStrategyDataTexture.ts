@@ -808,7 +808,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       // Bind DataTexture
       this.bindDataTexture(gl, shaderProgram);
 
-      gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0);
+      // gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0); // VR MultiView is not supported yet
 
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
       firstTime = true;
