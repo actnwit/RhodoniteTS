@@ -141,16 +141,26 @@ export class MeshRendererComponent extends Component {
     }
   }
 
-  static sort_$render(renderPass: RenderPass): ComponentSID[] {
+  static toDoSort_$render(renderPass: RenderPass): boolean {
     if (
       TransformComponent.updateCount === renderPass._lastTransformComponentsUpdateCount &&
       CameraControllerComponent.updateCount ===
         renderPass._lastCameraControllerComponentsUpdateCount &&
       SceneGraphComponent.updateCount === renderPass._lastSceneGraphComponentsUpdateCount
     ) {
-      return renderPass._lastPrimitiveUids;
+      return false;
     }
 
+    renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
+    renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
+
+    renderPass._renderedSomethingBefore = true;
+
+    return true;
+  }
+
+  static sort_$render(renderPass: RenderPass): ComponentSID[] {
     // get CameraComponent
     let cameraComponent = renderPass.cameraComponent;
     // If the renderPass doesn't have a cameraComponent, then we get it of the main camera
@@ -212,10 +222,7 @@ export class MeshRendererComponent extends Component {
       renderPass._lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
     }
 
-    renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
-    renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     renderPass._lastPrimitiveUids = primitiveUids;
-
     return primitiveUids;
   }
 
