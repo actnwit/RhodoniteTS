@@ -127,14 +127,32 @@ export class ModelConverter {
     return entity;
   }
 
+  private static __setupMaterials(gltfModel: RnM2) {
+    const rnMaterials: Material[] = [];
+    if (gltfModel.materials != null) {
+      for (const material of gltfModel.materials) {
+        const rnMaterial = this.__setupMaterial(gltfModel, material);
+        rnMaterials.push(rnMaterial);
+      }
+    }
+    return rnMaterials;
+  }
+
   static convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.createRnBuffer(gltfModel);
     gltfModel.asset.extras!.rnMaterials = {};
 
+    // Materials
+    const rnMaterials = this.__setupMaterials(gltfModel);
+
     // Mesh, Camera, Group, ...
-    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
+    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
+      gltfModel,
+      rnBuffers,
+      rnMaterials
+    );
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transform
@@ -379,7 +397,7 @@ export class ModelConverter {
     }
   }
 
-  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
+  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[], rnMaterials: Material[]) {
     const rnEntities: ISceneGraphEntity[] = [];
     const rnEntitiesByNames: Map<string, ISceneGraphEntity> = new Map();
 
@@ -388,7 +406,13 @@ export class ModelConverter {
       let entity: ISceneGraphEntity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
-        const meshEntity = this.__setupMesh(node, node.meshObject!, meshIdx, rnBuffers, gltfModel);
+        const meshEntity = this.__setupMesh(
+          node.meshObject!,
+          meshIdx,
+          rnBuffers,
+          gltfModel,
+          rnMaterials
+        );
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
@@ -534,11 +558,11 @@ export class ModelConverter {
   }
 
   private static __setupMesh(
-    node: RnM2Node,
     mesh: RnM2Mesh,
     meshIndex: Index,
     rnBuffers: Buffer[],
-    gltfModel: RnM2
+    gltfModel: RnM2,
+    rnMaterials: Material[]
   ) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
@@ -555,19 +579,13 @@ export class ModelConverter {
         rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
       }
 
-      const setupMaterial = (primitive: RnM2Primitive) => {
-        const material = this.__setupMaterial(gltfModel, primitive.materialObject!);
-
-        return material;
-      };
-
       const setupMaterialVariants = (rnPrimitive: Primitive, primitive: RnM2Primitive) => {
         const materialVariants = primitive.materialVariants;
         if (Is.not.exist(materialVariants)) {
           return;
         }
         for (const materialVariant of materialVariants) {
-          const material = this.__setupMaterial(gltfModel, materialVariant.materialObject);
+          const material = rnMaterials[materialVariant.material];
 
           for (const variantName of materialVariant.variants) {
             rnPrimitive.setMaterialVariant(variantName, material);
@@ -583,7 +601,10 @@ export class ModelConverter {
 
         const rnPrimitive = new Primitive();
 
-        const material = setupMaterial(primitive);
+        const material =
+          primitive.material != null
+            ? rnMaterials[primitive.material]
+            : this.__setupMaterial(gltfModel);
         setupMaterialVariants(rnPrimitive, primitive);
 
         // indices
