@@ -548,18 +548,6 @@ export class MToonMaterialContent extends AbstractMaterialContent {
 
       shaderSemanticsInfoArray.push(
         {
-          semantic: ShaderSemantics.MorphTargetNumber,
-          componentType: ComponentType.Int,
-          compositionType: CompositionType.Scalar,
-          stage: ShaderType.VertexShader,
-          isCustomSetting: true,
-          soloDatum: true,
-          initialValue: Scalar.fromCopyNumber(0),
-          min: 0,
-          max: Config.maxVertexMorphNumberInShader,
-          needUniformInDataTextureMode: true,
-        },
-        {
           semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
           componentType: ComponentType.Int,
           compositionType: CompositionType.ScalarArray,

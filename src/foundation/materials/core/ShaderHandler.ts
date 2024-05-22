@@ -214,6 +214,9 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
       definitions += `#define RN_USE_TANGENT\n`;
     }
   }
+  if (primitive.targets != null && primitive.targets.length > 0) {
+    definitions += '#define RN_IS_MORPHING\n';
+  }
 
   // if (glw.webgl1ExtSTL) {
   //   definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';

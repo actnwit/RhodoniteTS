@@ -151,7 +151,7 @@ function createPbrUberMaterial({
     (useNormalTexture ? '' : '-normalTexture');
 
   let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
-  if (isMorphing) {
+  if (true) {
     additionalShaderSemanticInfo = [
       {
         semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
@@ -423,6 +423,35 @@ function createClassicUberMaterial({
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting');
 
+  const additionalShaderSemanticInfo = [
+    {
+      semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.maxVertexMorphNumberInShader,
+      stage: ShaderType.VertexShader,
+      isCustomSetting: true,
+      soloDatum: true,
+      initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    },
+    {
+      semantic: ShaderSemantics.MorphWeights,
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.maxVertexMorphNumberInShader,
+      stage: ShaderType.VertexShader,
+      isCustomSetting: true,
+      soloDatum: true,
+      initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    },
+  ];
+
   const materialNode = new CustomMaterialContent({
     name: 'ClassicUber',
     isSkinning,
@@ -436,7 +465,7 @@ function createClassicUberMaterial({
     vertexShaderWebGpu: ClassicSingleShaderVertexWebGpu,
     pixelShaderWebGpu: ClassicSingleShaderFragmentWebgpu,
     noUseCameraTransform: false,
-    additionalShaderSemanticInfo: [],
+    additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
