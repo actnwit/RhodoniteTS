@@ -397,6 +397,20 @@ export class Material extends RnObject {
     });
   }
 
+  _setParametersToGpuWebGL2({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArg;
+  }) {
+    // For Auto Parameters
+    this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
+  }
   /**
    * @internal
    * @param propertySetter

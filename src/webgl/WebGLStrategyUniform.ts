@@ -467,27 +467,29 @@ bool get_isBillboard(float instanceId) {
         this.__lastMaterial = material;
       }
 
-      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-      material._setParametersToGpuWebGL({
-        material,
-        shaderProgram,
-        firstTime,
-        args: {
-          setUniform: true,
-          glw: glw,
-          entity,
-          primitive: primitive,
-          worldMatrix: entity.getSceneGraph().matrix,
-          normalMatrix: entity.getSceneGraph().normalMatrix,
-          isBillboard: entity.getSceneGraph().isBillboard,
-          lightComponents: this.__lightComponents!,
-          renderPass: renderPass,
-          diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
-          specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
-          isVr: isVRMainPass,
-          displayIdx,
-        },
-      });
+      if (firstTime) {
+        WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+        material._setParametersToGpuWebGL({
+          material,
+          shaderProgram,
+          firstTime,
+          args: {
+            setUniform: true,
+            glw: glw,
+            entity,
+            primitive: primitive,
+            worldMatrix: entity.getSceneGraph().matrix,
+            normalMatrix: entity.getSceneGraph().normalMatrix,
+            isBillboard: entity.getSceneGraph().isBillboard,
+            lightComponents: this.__lightComponents!,
+            renderPass: renderPass,
+            diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
+            specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
+            isVr: isVRMainPass,
+            displayIdx,
+          },
+        });
+      }
 
       if (primitive.indicesAccessor) {
         gl.drawElements(

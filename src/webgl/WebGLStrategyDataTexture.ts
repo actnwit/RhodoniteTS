@@ -769,7 +769,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     this.__lastRenderPassTickCount = renderPassTickCount;
 
-    this.__webglResourceRepository.unbindTextureSamplers();
+    // this.__webglResourceRepository.unbindTextureSamplers();
 
     return renderedSomething;
   }
@@ -818,34 +818,36 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastMaterial = material;
     }
 
-    this.__setCurrentComponentSIDsForEachPrimitive(
-      gl,
-      material,
-      WebGLStrategyDataTexture.__shaderProgram
-    );
+    if (firstTime) {
+      this.__setCurrentComponentSIDsForEachPrimitive(
+        gl,
+        material,
+        WebGLStrategyDataTexture.__shaderProgram
+      );
 
-    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
-    material._setParametersToGpuWebGL({
-      material: material,
-      shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
-      firstTime: firstTime,
-      args: {
-        glw: glw,
-        entity: entity,
-        worldMatrix: entity.getSceneGraph()!.matrixInner,
-        normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
-        isBillboard: entity.getSceneGraph().isBillboard,
-        lightComponents: this.__lightComponents!,
-        renderPass: renderPass,
-        primitive: primitive,
-        diffuseCube: meshRendererComponent.diffuseCubeMap,
-        specularCube: meshRendererComponent.specularCubeMap!,
-        setUniform: false,
-        isVr: isVRMainPass,
-        displayIdx,
-      },
-    });
+      material._setParametersToGpuWebGL({
+        material: material,
+        shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+        firstTime: firstTime,
+        args: {
+          glw: glw,
+          entity: entity,
+          worldMatrix: entity.getSceneGraph()!.matrixInner,
+          normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
+          isBillboard: entity.getSceneGraph().isBillboard,
+          lightComponents: this.__lightComponents!,
+          renderPass: renderPass,
+          primitive: primitive,
+          diffuseCube: meshRendererComponent.diffuseCubeMap,
+          specularCube: meshRendererComponent.specularCubeMap!,
+          setUniform: false,
+          isVr: isVRMainPass,
+          displayIdx,
+        },
+      });
+    }
 
     if (primitive.indicesAccessor) {
       glw.drawElementsInstanced(
