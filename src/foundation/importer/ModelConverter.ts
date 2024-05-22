@@ -558,9 +558,6 @@ export class ModelConverter {
       const setupMaterial = (primitive: RnM2Primitive) => {
         const material = this.__setupMaterial(node, gltfModel, primitive.materialObject!);
 
-        if (material.isEmptyMaterial() === false) {
-          ModelConverter.setDefaultTextures(material, gltfModel);
-        }
         return material;
       };
 
@@ -571,10 +568,6 @@ export class ModelConverter {
         }
         for (const materialVariant of materialVariants) {
           const material = this.__setupMaterial(node, gltfModel, materialVariant.materialObject);
-
-          if (material.isEmptyMaterial() === false) {
-            ModelConverter.setDefaultTextures(material, gltfModel);
-          }
 
           for (const variantName of materialVariant.variants) {
             rnPrimitive.setMaterialVariant(variantName, material);
@@ -1307,6 +1300,10 @@ export class ModelConverter {
       if (loaderExtension?.setupMaterial != null) {
         loaderExtension.setupMaterial(gltfModel, materialJson!, material);
       }
+    }
+
+    if (material.isEmptyMaterial() === false) {
+      ModelConverter.setDefaultTextures(material, gltfModel);
     }
 
     return material;
