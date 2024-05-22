@@ -425,9 +425,6 @@ bool get_isBillboard(float instanceId) {
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     setupShaderProgram(material, primitive, this);
 
-    if (isSkipDrawing(material)) {
-      return false;
-    }
     const mesh = primitive.mesh as Mesh;
     const meshEntities = mesh.meshEntitiesInner;
 
@@ -454,6 +451,9 @@ bool get_isBillboard(float instanceId) {
       let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
 
       if (shaderProgramUid !== this.__lastShader) {
+        if (isSkipDrawing(material)) {
+          return false;
+        }
         firstTime = true;
 
         gl.useProgram(shaderProgram);

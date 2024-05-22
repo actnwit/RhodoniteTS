@@ -789,10 +789,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     setupShaderProgram(material, primitive, this);
 
-    if (isSkipDrawing(material)) {
-      return false;
-    }
-
     const meshRendererComponent = entity.getMeshRenderer()!;
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
@@ -800,6 +796,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     let firstTime = false;
     const shaderProgramUid = material._shaderProgramUid;
     if (shaderProgramUid !== this.__lastShader) {
+      if (isSkipDrawing(material)) {
+        return false;
+      }
+
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(
         shaderProgramUid
       )! as WebGLProgram;
