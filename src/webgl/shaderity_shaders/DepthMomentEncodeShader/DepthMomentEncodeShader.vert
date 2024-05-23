@@ -13,16 +13,13 @@ in vec2 a_texcoord_1;
 in vec2 a_texcoord_2;
 in vec4 a_joint;
 in vec4 a_weight;
+in vec4 a_baryCentricCoord;
 out vec3 v_color;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 
 uniform float u_pointSize; // initialValue=30, soloDatum=true
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
-
-#ifdef RN_IS_MORPHING
-uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=true, needUniformInDataTextureMode=true
-#endif
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 

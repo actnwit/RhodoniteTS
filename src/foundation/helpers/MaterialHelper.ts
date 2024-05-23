@@ -481,6 +481,34 @@ function createDepthMomentEncodeMaterial({
 } = {}) {
   const materialName = 'DepthMomentEncode' + `_${additionalName}_`;
 
+  const additionalShaderSemanticInfo = [
+    {
+      semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.maxVertexMorphNumberInShader,
+      stage: ShaderType.VertexShader,
+      isCustomSetting: true,
+      soloDatum: true,
+      initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    },
+    {
+      semantic: ShaderSemantics.MorphWeights,
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.maxVertexMorphNumberInShader,
+      stage: ShaderType.VertexShader,
+      isCustomSetting: true,
+      soloDatum: true,
+      initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    },
+  ];
   const materialNode = new CustomMaterialContent({
     name: 'DepthMomentEncode',
     isSkinning,
@@ -491,7 +519,7 @@ function createDepthMomentEncodeMaterial({
     vertexShader: DepthMomentEncodeShaderVertex,
     pixelShader: DepthMomentEncodeShaderFragment,
     noUseCameraTransform: false,
-    additionalShaderSemanticInfo: [],
+    additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
