@@ -166,25 +166,6 @@ function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
-function startDepthMasking(
-  primitive: Primitive,
-  gl: WebGLRenderingContext,
-  renderPass: RenderPass
-) {
-  if (MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-    return;
-  }
-  if (primitive._sortkey === renderPass._firstTransparentSortKey) {
-    gl.depthMask(false);
-  }
-}
-
-function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext, renderPass: RenderPass) {
-  if (primitive._sortkey === renderPass._lastTransparentSortKey) {
-    gl.depthMask(true);
-  }
-}
-
 function getViewport(renderPass: RenderPass) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
@@ -260,20 +241,18 @@ export function setupShaderProgram(
 
   try {
     primitive?._backupMaterial();
-    webglStrategy.setupShaderForMaterial(material);
+    webglStrategy.setupShaderForMaterial(material, primitive);
   } catch (e) {
     // It is possible that a shader compilation error may occur, for example, in the middle of shader editing.
     // In this case, restore the shaders from a backup of the valid material.
     console.log(e);
     primitive?._restoreMaterial();
-    webglStrategy.setupShaderForMaterial(material);
+    webglStrategy.setupShaderForMaterial(material, primitive);
   }
 }
 
 export default Object.freeze({
   setWebGLParameters,
-  startDepthMasking,
-  endDepthMasking,
   setVRViewport,
   getDisplayNumber,
   isVrMainPass,

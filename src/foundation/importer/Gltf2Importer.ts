@@ -336,6 +336,7 @@ export class Gltf2Importer {
 
             const materialVariant = {
               materialObject: gltfJson.materials[mapping.material],
+              material: mapping.material,
               variants: variants,
             };
 

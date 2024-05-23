@@ -1032,13 +1032,11 @@ export class WebGpuResourceRepository
     if (
       Material.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
-      // CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount
     ) {
       this.__renderBundles.clear();
       SystemState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
-      // this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
     }
@@ -1046,6 +1044,9 @@ export class WebGpuResourceRepository
 
   executeRenderBundle(renderPass: RenderPass) {
     this.__toClearRenderBundles();
+    if (renderPass._isChangedSortRenderResult) {
+      this.__renderBundles.clear();
+    }
 
     let renderBundle = this.__renderBundles.get(renderPass.renderPassUID);
     if (renderBundle != null) {

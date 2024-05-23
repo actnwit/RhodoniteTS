@@ -268,6 +268,7 @@ export class Material extends RnObject {
   _createProgramWebGL(
     vertexShaderMethodDefinitions_uniform: string,
     propertySetter: getShaderPropertyFunc,
+    primitive: Primitive,
     isWebGL2: boolean
   ): CGAPIResourceHandle {
     const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
@@ -277,6 +278,7 @@ export class Material extends RnObject {
 
     const programUid = _createProgramAsSingleOperationWebGL(
       this,
+      primitive,
       vertexPropertiesStr,
       pixelPropertiesStr,
       vertexShaderMethodDefinitions_uniform,
@@ -397,6 +399,20 @@ export class Material extends RnObject {
     });
   }
 
+  _setParametersToGpuWebGL2({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArg;
+  }) {
+    // For Auto Parameters
+    this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
+  }
   /**
    * @internal
    * @param propertySetter

@@ -54,6 +54,7 @@ export type RnM2AttributeBlendShapesAccessors = RnM2AttributeAccessors[];
 
 export type RnM2MaterialVariant = {
   materialObject: RnM2Material;
+  material: number;
   variants: string[];
 };
 

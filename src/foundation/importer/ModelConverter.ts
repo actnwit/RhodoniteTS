@@ -127,14 +127,32 @@ export class ModelConverter {
     return entity;
   }
 
+  private static __setupMaterials(gltfModel: RnM2) {
+    const rnMaterials: Material[] = [];
+    if (gltfModel.materials != null) {
+      for (const material of gltfModel.materials) {
+        const rnMaterial = this.__setupMaterial(gltfModel, material);
+        rnMaterials.push(rnMaterial);
+      }
+    }
+    return rnMaterials;
+  }
+
   static convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.createRnBuffer(gltfModel);
     gltfModel.asset.extras!.rnMaterials = {};
 
+    // Materials
+    const rnMaterials = this.__setupMaterials(gltfModel);
+
     // Mesh, Camera, Group, ...
-    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(gltfModel, rnBuffers);
+    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
+      gltfModel,
+      rnBuffers,
+      rnMaterials
+    );
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
     // Transform
@@ -379,7 +397,7 @@ export class ModelConverter {
     }
   }
 
-  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[]) {
+  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[], rnMaterials: Material[]) {
     const rnEntities: ISceneGraphEntity[] = [];
     const rnEntitiesByNames: Map<string, ISceneGraphEntity> = new Map();
 
@@ -388,7 +406,13 @@ export class ModelConverter {
       let entity: ISceneGraphEntity;
       if (node.mesh != null) {
         const meshIdx = node.mesh;
-        const meshEntity = this.__setupMesh(node, node.meshObject!, meshIdx, rnBuffers, gltfModel);
+        const meshEntity = this.__setupMesh(
+          node.meshObject!,
+          meshIdx,
+          rnBuffers,
+          gltfModel,
+          rnMaterials
+        );
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
         }
@@ -534,11 +558,11 @@ export class ModelConverter {
   }
 
   private static __setupMesh(
-    node: RnM2Node,
     mesh: RnM2Mesh,
     meshIndex: Index,
     rnBuffers: Buffer[],
-    gltfModel: RnM2
+    gltfModel: RnM2,
+    rnMaterials: Material[]
   ) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
@@ -555,38 +579,13 @@ export class ModelConverter {
         rnMesh.tangentCalculationMode = rnLoaderOptions.tangentCalculationMode;
       }
 
-      const setupMaterial = (rnPrimitive: Primitive, primitive: RnM2Primitive) => {
-        const material = this.__setupMaterial(
-          rnPrimitive,
-          node,
-          gltfModel,
-          primitive,
-          primitive.materialObject
-        );
-
-        if (material.isEmptyMaterial() === false) {
-          ModelConverter.setDefaultTextures(material, gltfModel);
-        }
-        return material;
-      };
-
       const setupMaterialVariants = (rnPrimitive: Primitive, primitive: RnM2Primitive) => {
         const materialVariants = primitive.materialVariants;
         if (Is.not.exist(materialVariants)) {
           return;
         }
         for (const materialVariant of materialVariants) {
-          const material = this.__setupMaterial(
-            rnPrimitive,
-            node,
-            gltfModel,
-            primitive,
-            materialVariant.materialObject
-          );
-
-          if (material.isEmptyMaterial() === false) {
-            ModelConverter.setDefaultTextures(material, gltfModel);
-          }
+          const material = rnMaterials[materialVariant.material];
 
           for (const variantName of materialVariant.variants) {
             rnPrimitive.setMaterialVariant(variantName, material);
@@ -602,8 +601,23 @@ export class ModelConverter {
 
         const rnPrimitive = new Primitive();
 
-        const material = setupMaterial(rnPrimitive, primitive);
+        const rnMaterial =
+          primitive.material != null
+            ? rnMaterials[primitive.material]
+            : this.__setupMaterial(gltfModel);
         setupMaterialVariants(rnPrimitive, primitive);
+
+        if (rnMaterial.materialTypeName.indexOf('MToon') !== -1) {
+          const VRMProperties = gltfModel.extensions.VRM;
+          const rnExtension = VRMProperties.rnExtension;
+          if (rnExtension != null) {
+            const renderPassOutline = rnExtension.renderPassOutline;
+            const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial;
+            if (outlineMaterial != null) {
+              renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+            }
+          }
+        }
 
         // indices
         let indicesRnAccessor;
@@ -652,7 +666,7 @@ export class ModelConverter {
           }
         }
 
-        rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
+        rnPrimitive.setData(map, rnPrimitiveMode, rnMaterial, indicesRnAccessor);
 
         // morph targets
         if (primitive.targets != null) {
@@ -830,10 +844,7 @@ export class ModelConverter {
   }
 
   private static __setVRM1Material(
-    rnPrimitive: Primitive,
-    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: RnM2Primitive,
     materialJson: RnM2Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
@@ -846,10 +857,10 @@ export class ModelConverter {
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
       const additionalName = defaultMaterialHelperArgument.additionalName;
-      const isMorphing = this.__isMorphing(node, gltfModel);
-      const isSkinning = this.__isSkinning(node, gltfModel);
+      const isMorphing = true; //this.__isMorphing(node, gltfModel);
+      const isSkinning = true; // this.__isSkinning(node, gltfModel);
       const isLighting = this.__isLighting(gltfModel, materialJson);
-      const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
+      const useTangentAttribute = true; // this.__useTangentAttribute(gltfModel, primitive);
       const textures = defaultMaterialHelperArgument.textures;
       const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
@@ -887,7 +898,7 @@ export class ModelConverter {
           outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
-        renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+        materialJson.extras!.outlineMaterial = outlineMaterial;
       }
 
       const material = MaterialHelper.createMToonMaterial({
@@ -915,26 +926,24 @@ export class ModelConverter {
   }
 
   private static __setVRM0xMaterial(
-    rnPrimitive: Primitive,
-    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: RnM2Primitive,
+    // primitive: RnM2Primitive,
     materialJson: RnM2Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
-    const materialProperties = gltfModel.extensions.VRM.materialProperties[primitive.material!];
+    const materialProperties = materialJson.extras!.vrm0xMaterialProperty as Vrm0xMaterialProperty;
     const shaderName = materialProperties.shader;
     if (shaderName === 'VRM/MToon') {
       // argument
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
       const additionalName = defaultMaterialHelperArgument.additionalName;
-      const isMorphing = this.__isMorphing(node, gltfModel);
-      const isSkinning = this.__isSkinning(node, gltfModel);
+      const isMorphing = true; //this.__isMorphing(node, gltfModel);
+      const isSkinning = true; //this.__isSkinning(node, gltfModel);
       const isLighting = this.__isLighting(gltfModel, materialJson);
-      const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
+      const useTangentAttribute = true;
       const textures = defaultMaterialHelperArgument.textures;
       const samplers = defaultMaterialHelperArgument.samplers;
       const debugMode = defaultMaterialHelperArgument.debugMode;
@@ -972,7 +981,7 @@ export class ModelConverter {
           outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
-        renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+        materialJson.extras!.outlineMaterial = outlineMaterial;
       }
 
       const material = MaterialHelper.createMToonMaterial({
@@ -1000,10 +1009,7 @@ export class ModelConverter {
   }
 
   private static __generateAppropriateMaterial(
-    rnPrimitive: Primitive,
-    node: RnM2Node,
     gltfModel: RnM2,
-    primitive: RnM2Primitive,
     materialJson?: RnM2Material
   ): Material {
     // if rnLoaderOptions is set something, do special deal
@@ -1023,14 +1029,7 @@ export class ModelConverter {
 
       // For VRM0x
       if (rnLoaderOptions.__isImportVRM0x) {
-        const material = this.__setVRM0xMaterial(
-          rnPrimitive,
-          node,
-          gltfModel,
-          primitive,
-          materialJson!,
-          rnLoaderOptions
-        );
+        const material = this.__setVRM0xMaterial(gltfModel, materialJson!, rnLoaderOptions);
         if (Is.exist(material)) {
           return material;
         }
@@ -1046,26 +1045,19 @@ export class ModelConverter {
     }
 
     // pre data
-    const isMorphing = this.__isMorphing(node, gltfModel);
-    const isSkinning = this.__isSkinning(node, gltfModel);
+    const isMorphing = true; // this.__isMorphing(node, gltfModel);
+    const isSkinning = true; //this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
     let alphaMode = AlphaMode.fromGlTFString(materialJson?.alphaMode || 'OPAQUE');
     alphaMode = Is.exist(materialJson?.extensions?.KHR_materials_transmission)
       ? AlphaMode.Translucent
       : alphaMode;
-    const additionalName = node.skin != null ? `skin${node.skin ?? node.skinName ?? ''}` : void 0;
+    const additionalName = '';
 
     if (Is.exist(materialJson)) {
       if (materialJson.extensions?.VRMC_materials_mtoon != null) {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
-        const material = this.__setVRM1Material(
-          rnPrimitive,
-          node,
-          gltfModel,
-          primitive,
-          materialJson,
-          rnLoaderOptions
-        );
+        const material = this.__setVRM1Material(gltfModel, materialJson, rnLoaderOptions);
         if (Is.exist(material)) {
           return material;
         }
@@ -1076,7 +1068,7 @@ export class ModelConverter {
     if (parseFloat(gltfModel.asset?.version) >= 2) {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
-      const useTangentAttribute = this.__useTangentAttribute(gltfModel, primitive);
+      const useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
       const useNormalTexture = this.__useNormalTexture(gltfModel);
       const material = MaterialHelper.createPbrUberMaterial({
         isMorphing,
@@ -1121,15 +1113,15 @@ export class ModelConverter {
     }
   }
 
-  private static __isSkinning(node: RnM2Node, gltfModel: RnM2) {
-    const argument =
-      gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
-    if (argument?.isSkinning === false) {
-      return false;
-    } else {
-      return node.skin != null;
-    }
-  }
+  // private static __isSkinning(node: RnM2Node, gltfModel: RnM2) {
+  //   const argument =
+  //     gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
+  //   if (argument?.isSkinning === false) {
+  //     return false;
+  //   } else {
+  //     return node.skin != null;
+  //   }
+  // }
 
   private static __useTangentAttribute(gltfModel: RnM2, primitive: RnM2Primitive) {
     const tangentCalculationMode =
@@ -1173,41 +1165,10 @@ export class ModelConverter {
     return argument?.makeOutputSrgb as boolean | undefined;
   }
 
-  private static __getMaterialHash(
-    node: RnM2Node,
-    gltfModel: RnM2,
-    primitive: RnM2Primitive,
-    materialJson: RnM2Material
-  ): string {
-    return (
-      primitive.material! +
-      '_isSkinning_' +
-      this.__isSkinning(node, gltfModel) +
-      '_isMorphing_' +
-      this.__isMorphing(node, gltfModel) +
-      '_isLighting_' +
-      this.__isLighting(gltfModel, materialJson) +
-      '_useTangentAttribute_' +
-      this.__useTangentAttribute(gltfModel, primitive)
-    );
-  }
-
-  private static __setupMaterial(
-    rnPrimitive: Primitive,
-    node: RnM2Node,
-    gltfModel: RnM2,
-    primitive: RnM2Primitive,
-    materialJson?: RnM2Material
-  ): Material {
+  private static __setupMaterial(gltfModel: RnM2, materialJson?: RnM2Material): Material {
     const isUnlit = materialJson?.extensions?.KHR_materials_unlit != null;
 
-    const material: Material = this.__generateAppropriateMaterial(
-      rnPrimitive,
-      node,
-      gltfModel,
-      primitive,
-      materialJson
-    );
+    const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
 
     // avoid unexpected initialization
     if (!this.__needParameterInitialization(materialJson!, material.materialTypeName))
@@ -1345,6 +1306,10 @@ export class ModelConverter {
       if (loaderExtension?.setupMaterial != null) {
         loaderExtension.setupMaterial(gltfModel, materialJson!, material);
       }
+    }
+
+    if (material.isEmptyMaterial() === false) {
+      ModelConverter.setDefaultTextures(material, gltfModel);
     }
 
     return material;

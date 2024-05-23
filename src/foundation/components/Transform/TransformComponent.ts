@@ -89,6 +89,7 @@ export class TransformComponent extends Component {
       MutableQuaternion.fromCopyQuaternion(transform.rotationInner),
       transform.matrixInner
     );
+    TransformComponent.__updateCount++;
   }
 
   get localTransformRest() {
@@ -106,10 +107,12 @@ export class TransformComponent extends Component {
       MutableQuaternion.fromCopyQuaternion(transform.rotationInner),
       transform.matrixInner
     );
+    TransformComponent.__updateCount++;
   }
 
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -134,6 +137,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.position = vec;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -152,6 +156,7 @@ export class TransformComponent extends Component {
 
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -176,6 +181,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.eulerAngles = vec;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -194,6 +200,7 @@ export class TransformComponent extends Component {
 
   set localScale(vec: IVector3) {
     this.__pose.scale = vec;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -218,6 +225,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.scale = vec;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -236,6 +244,7 @@ export class TransformComponent extends Component {
 
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -260,6 +269,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.rotation = quat;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -278,6 +288,7 @@ export class TransformComponent extends Component {
 
   set localMatrix(mat: IMatrix44) {
     this.__pose.matrix = mat;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -302,6 +313,7 @@ export class TransformComponent extends Component {
       this.__rest = this.__pose.clone();
     }
     this.__rest.matrix = mat;
+    TransformComponent.__updateCount++;
   }
 
   /**
@@ -326,7 +338,6 @@ export class TransformComponent extends Component {
     if (this.__updateCountAtLastLogic !== this.__pose.updateCount) {
       this.entity.tryToGetSceneGraph()!.setWorldMatrixDirty();
       this.__updateCountAtLastLogic = this.__pose.updateCount;
-      TransformComponent.__updateCount++;
     }
   }
 
@@ -337,6 +348,7 @@ export class TransformComponent extends Component {
       this.__rest = component.__rest.clone();
     }
     this.__updateCountAtLastLogic = component.__updateCountAtLastLogic;
+    TransformComponent.__updateCount++;
   }
 
   /**

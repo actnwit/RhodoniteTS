@@ -121,6 +121,7 @@ export function _outputVertexAttributeBindingInfo(
  */
 export function _createProgramAsSingleOperationWebGL(
   material: Material,
+  primitive: Primitive,
   vertexPropertiesStr: string,
   pixelPropertiesStr: string,
   vertexShaderMethodDefinitions_uniform: string,
@@ -132,9 +133,9 @@ export function _createProgramAsSingleOperationWebGL(
   const definitions = materialNode.getDefinitions(material);
 
   // Shader Code Construction
-  let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
+  let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   vertexShader += '#define RN_IS_VERTEX_SHADER\n';
-  let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName);
+  let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
 
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
@@ -190,7 +191,7 @@ export function _createProgramAsSingleOperationWebGL(
   return shaderProgramUid;
 }
 
-export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string) {
+export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, primitive: Primitive) {
   let definitions = '';
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const glw = webglResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
@@ -206,6 +207,17 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string) {
   } else {
     definitions += '#define RN_IS_UNIFORM_MODE\n';
   }
+
+  const attributeSemantics = primitive.attributeSemantics;
+  for (const attributeSemantic of attributeSemantics) {
+    if (attributeSemantic.indexOf('TANGENT') !== -1) {
+      definitions += `#define RN_USE_TANGENT\n`;
+    }
+  }
+  if (primitive.targets != null && primitive.targets.length > 0) {
+    definitions += '#define RN_IS_MORPHING\n';
+  }
+
   // if (glw.webgl1ExtSTL) {
   //   definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
   // }

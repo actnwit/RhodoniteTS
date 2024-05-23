@@ -13,7 +13,7 @@ in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
-#ifdef RN_USE_TANGENT_ATTRIBUTE
+#ifdef RN_USE_TANGENT
   in vec3 v_tangent_inWorld;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
 #endif

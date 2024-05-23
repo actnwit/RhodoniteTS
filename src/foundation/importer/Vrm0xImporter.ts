@@ -431,6 +431,14 @@ export class Vrm0xImporter {
       );
       // this.__initializeForUndefinedProperty(textureProperties, "_UvAnimMaskTexture", dummyWhiteTextureNumber);
     }
+
+    for (let i = 0; i < gltfModel.materials.length; i++) {
+      const material = gltfModel.materials[i];
+      if (material.extras == null) {
+        material.extras = {};
+      }
+      material.extras.vrm0xMaterialProperty = materialProperties[i];
+    }
   }
 
   private static __initializeForUndefinedProperty(

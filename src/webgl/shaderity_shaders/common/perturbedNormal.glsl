@@ -1,4 +1,4 @@
-#ifdef RN_USE_TANGENT_ATTRIBUTE
+#ifdef RN_USE_TANGENT
   mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
     vec3 tangent_inWorld = normalize(v_tangent_inWorld);
     vec3 binormal_inWorld = normalize(v_binormal_inWorld);

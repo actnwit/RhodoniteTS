@@ -389,11 +389,13 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
+    let renderedSomething = false;
     // For opaque primitives
     if (renderPass.toRenderOpaquePrimitives) {
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+        const rendered = this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+        renderedSomething ||= rendered;
       }
     }
 
@@ -406,12 +408,13 @@ ${indexStr}
 
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+        const rendered = this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+        renderedSomething ||= rendered;
       }
       // gl.depthMask(true);
     }
 
-    return true;
+    return renderedSomething;
   }
 
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {
@@ -421,6 +424,9 @@ ${indexStr}
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
+    if (isSkipDrawing(material)) {
+      return false;
+    }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);

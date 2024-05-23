@@ -966,10 +966,10 @@ export class WebGLResourceRepository
   }): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const texture = gl.createTexture();
-    this.__glw!.bindTexture2D(0, texture!);
+    this.__glw!.bindTexture2D(15, texture!);
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     const resourceHandle = this.__registerResource(texture!);
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
 
     return resourceHandle;
   }
@@ -1163,7 +1163,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const textureHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
     const levels = Math.floor(Math.log2(Math.max(width, height))) + 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
@@ -1197,7 +1197,7 @@ export class WebGLResourceRepository
 
     gl.generateMipmap(gl.TEXTURE_2D);
 
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
   }
 
   /**
@@ -1233,7 +1233,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
     const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, format.index, type.index, imageData);
@@ -1275,7 +1275,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
     const levels = generateMipmap ? Math.max(Math.log2(width), Math.log2(height)) : 1;
     gl.texStorage2D(GL_TEXTURE_2D, levels, internalFormat.index, width, height);
     gl.texSubImage2D(
@@ -1309,7 +1309,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
 
     const internalFormat = compressionTextureType.index;
 
@@ -1325,7 +1325,7 @@ export class WebGLResourceRepository
       );
     }
 
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
 
     return resourceHandle;
   }
@@ -1355,7 +1355,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    this.__glw!.bindTexture2D(15, texture);
 
     const s3tc = gl.getExtension('WEBGL_compressed_texture_s3tc');
     if (s3tc) {
@@ -1406,7 +1406,7 @@ export class WebGLResourceRepository
       );
     }
 
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
 
     return resourceHandle;
   }
@@ -1660,7 +1660,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
 
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -1674,7 +1674,7 @@ export class WebGLResourceRepository
       null
     );
 
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
 
     return resourceHandle;
   }
@@ -1706,7 +1706,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTextureCube(0, texture);
+    this.__glw!.bindTextureCube(15, texture);
 
     const wrapS = TextureParameter.ClampToEdge;
     const wrapT = TextureParameter.ClampToEdge;
@@ -1774,7 +1774,7 @@ export class WebGLResourceRepository
       loadImageToGPU(image.posZ, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, i);
       loadImageToGPU(image.negZ, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, i);
     }
-    this.__glw!.unbindTextureCube(0);
+    this.__glw!.unbindTextureCube(15);
 
     return [resourceHandle, sampler];
   }
@@ -1944,7 +1944,7 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTextureCube(0, texture);
+    this.__glw!.bindTextureCube(15, texture);
 
     const s3tc = gl.getExtension('WEBGL_compressed_texture_s3tc');
     if (s3tc) {
@@ -2013,7 +2013,7 @@ export class WebGLResourceRepository
       }
     }
 
-    this.__glw!.unbindTextureCube(0);
+    this.__glw!.unbindTextureCube(15);
 
     return resourceHandle;
   }
@@ -2133,7 +2133,7 @@ export class WebGLResourceRepository
     }
   ) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
 
     const gl = this.__glw!.getRawContextAsWebGL2();
     gl.texSubImage2D(
@@ -2148,7 +2148,7 @@ export class WebGLResourceRepository
       textureData as any as ArrayBufferView
     );
     gl.generateMipmap(gl.TEXTURE_2D);
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
   }
 
   updateTexture(
@@ -2174,7 +2174,7 @@ export class WebGLResourceRepository
   ) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
 
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
 
     const gl = this.__glw!.getRawContextAsWebGL2();
     gl.texSubImage2D(
@@ -2188,7 +2188,7 @@ export class WebGLResourceRepository
       type.index,
       textureData as any as ArrayBufferView
     );
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
   }
 
   deleteFrameBufferObject(frameBufferObjectHandle: WebGLResourceHandle) {
@@ -2272,9 +2272,9 @@ export class WebGLResourceRepository
   generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void {
     const gl = this.__glw!.getRawContext();
     const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
-    this.__glw!.bindTexture2D(0, texture);
+    this.__glw!.bindTexture2D(15, texture);
     gl.generateMipmap(gl.TEXTURE_2D);
-    this.__glw!.unbindTexture2D(0);
+    this.__glw!.unbindTexture2D(15);
   }
 
   async getTexturePixelData(
