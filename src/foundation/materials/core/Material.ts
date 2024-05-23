@@ -249,9 +249,7 @@ export class Material extends RnObject {
     const shaderProgramUid = this._shaderProgramUidMap.get(
       primitive != null ? primitive.primitiveUid : this._primitiveUid
     );
-    if (shaderProgramUid != null) {
-      webglResourceRepository.setupUniformLocations(shaderProgramUid, array, isUniformOnlyMode);
-    }
+    webglResourceRepository.setupUniformLocations(shaderProgramUid!, array, isUniformOnlyMode);
   }
 
   getShaderProgramUid(primitive?: Primitive): CGAPIResourceHandle {
@@ -360,11 +358,7 @@ export class Material extends RnObject {
 
     const primitiveUid = primitive != null ? primitive.primitiveUid : this._primitiveUid;
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveUid);
-    if (shaderProgramUid != null && shaderProgramUid !== -1) {
-      webglResourceRepository.setupBasicUniformLocations(shaderProgramUid);
-    } else {
-      console.warn('shaderProgramUid is not found');
-    }
+    webglResourceRepository.setupBasicUniformLocations(shaderProgramUid!);
   }
 
   /**
@@ -379,15 +373,11 @@ export class Material extends RnObject {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const primitiveUid = primitive != null ? primitive.primitiveUid : this._primitiveUid;
     const shaderProgramUid = this._shaderProgramUidMap.get(primitiveUid);
-    if (shaderProgramUid != null && shaderProgramUid !== -1) {
-      webglResourceRepository.setupUniformLocations(
-        shaderProgramUid!,
-        shaderSemantics,
-        isUniformOnlyMode
-      );
-    } else {
-      console.warn('shaderProgramUid is not found');
-    }
+    webglResourceRepository.setupUniformLocations(
+      shaderProgramUid!,
+      shaderSemantics,
+      isUniformOnlyMode
+    );
   }
 
   /**
