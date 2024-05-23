@@ -24,6 +24,11 @@ import { Vrm0xMaterialProperty } from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
 import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import { ShaderityObject } from 'shaderity';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
+import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -554,7 +559,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           arrayLength: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
-          soloDatum: true,
+          soloDatum: false,
           initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
@@ -567,7 +572,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           arrayLength: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
           isCustomSetting: true,
-          soloDatum: true,
+          soloDatum: false,
           initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
           max: Number.MAX_VALUE,
@@ -575,6 +580,54 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         }
       );
     }
+
+    // Shader Reflection
+    let vertexShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    let pixelShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    } else {
+      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        mToonSingleShaderVertex,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        mToonSingleShaderFragment,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+
+      for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
+        vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
+        shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
+      }
+      for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
+        const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
+          (vertexInfo: ShaderSemanticsInfo) => {
+            if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        );
+        if (foundShaderSemanticsInfo) {
+          foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
+        } else {
+          pixelShaderSemanticsInfo.stage = ShaderType.PixelShader;
+          shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
+        }
+      }
+    }
+
+
 
     if (useTangentAttribute) {
       this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
