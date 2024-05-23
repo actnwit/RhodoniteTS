@@ -11,4 +11,5 @@ struct VertexOutput {
   @location(8) baryCentricCoord: vec3<f32>,
   @location(9) shadowCoord : vec4<f32>,
   @location(10) instanceInfo : f32,
+  @location(11) normal_inView : vec3<f32>,
 }
