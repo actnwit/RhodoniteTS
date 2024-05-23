@@ -323,7 +323,7 @@ ${indexStr}
       return;
     }
 
-    if (material.isShaderProgramReady()) {
+    if (material.isShaderProgramReady(primitive)) {
       return;
     }
 
@@ -424,7 +424,7 @@ ${indexStr}
     const primitive = Primitive.getPrimitive(primitiveUid);
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
-    if (isSkipDrawing(material)) {
+    if (isSkipDrawing(material, primitive)) {
       return false;
     }
 

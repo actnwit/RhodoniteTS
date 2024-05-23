@@ -154,17 +154,18 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       glw.isWebGL2
     );
 
-    material._setupBasicUniformsLocations();
+    material._setupBasicUniformsLocations(primitive);
 
-    material._setUniformLocationsOfMaterialNodes(false);
+    material._setUniformLocationsOfMaterialNodes(false, primitive);
 
     material._setupAdditionalUniformLocations(
       WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
-      false
+      false,
+      primitive
     );
 
     WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
-      material._shaderProgramUid
+      material.getShaderProgramUid(primitive)
     );
 
     return programUid;
@@ -197,7 +198,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     );
 
     WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
-      material._shaderProgramUid
+      material.getShaderProgramUid()
     );
 
     return programUid;
@@ -595,20 +596,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram) {}
 
-  attachShaderProgram(material: Material): void {
-    const shaderProgramUid = material._shaderProgramUid;
-
-    if (shaderProgramUid !== this.__lastShader) {
-      const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-      const gl = glw.getRawContext();
-      const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-        shaderProgramUid
-      )! as WebGLProgram;
-      gl.useProgram(shaderProgram);
-      this.__lastShader = shaderProgramUid;
-    }
-  }
-
   attachVertexData(
     i: number,
     primitive: Primitive,
@@ -795,9 +782,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
 
     let firstTime = false;
-    const shaderProgramUid = material._shaderProgramUid;
+    const shaderProgramUid = material.getShaderProgramUid(primitive);
     if (shaderProgramUid !== this.__lastShader) {
-      if (isSkipDrawing(material)) {
+      if (isSkipDrawing(material, primitive)) {
         return false;
       }
 

@@ -314,9 +314,9 @@ export class MeshRendererComponent extends Component {
         const meshPrimitives = mesh.primitives;
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
-          if (isSkipDrawing(primitive.material)) {
-            // continue;
-          }
+          // if (isSkipDrawing(primitive.material)) {
+          // continue;
+          // }
           primitive._viewDepth = viewDepth;
           primitives.push(primitive);
         }

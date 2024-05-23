@@ -1141,7 +1141,7 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
-    const modules = this.__webGpuResources.get(material._shaderProgramUid) as {
+    const modules = this.__webGpuResources.get(material.getShaderProgramUid(primitive)) as {
       vsModule: GPUShaderModule;
       fsModule: GPUShaderModule;
     };

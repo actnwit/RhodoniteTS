@@ -56,7 +56,8 @@ export class Material extends RnObject {
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
 
   // Ids
-  public _shaderProgramUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  private _shaderProgramUidMap: Map<PrimitiveUID, CGAPIResourceHandle> = new Map();
+  private _primitiveUid: PrimitiveUID = -1;
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
   __materialSid: MaterialSID = -1; // material serial Id in the material type
@@ -227,8 +228,8 @@ export class Material extends RnObject {
    * return whether the shader program ready or not
    * @returns is shader program ready or not
    */
-  public isShaderProgramReady() {
-    return this._shaderProgramUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid;
+  public isShaderProgramReady(primitive: Primitive): boolean {
+    return this._shaderProgramUidMap.has(primitive.primitiveUid);
   }
 
   /**
@@ -236,16 +237,26 @@ export class Material extends RnObject {
    * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
    * @param isUniformOnlyMode
    */
-  _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean) {
+  _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive?: Primitive) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
     let array: ShaderSemanticsInfo[] = [];
-    if (Is.exist(this._materialContent)) {
+    if (this._materialContent != null) {
       const semanticsInfoArray = this._materialContent._semanticsInfoArray;
       array = array.concat(semanticsInfoArray);
     }
 
-    webglResourceRepository.setupUniformLocations(this._shaderProgramUid, array, isUniformOnlyMode);
+    const shaderProgramUid = this._shaderProgramUidMap.get(
+      primitive != null ? primitive.primitiveUid : this._primitiveUid
+    );
+    if (shaderProgramUid != null) {
+      webglResourceRepository.setupUniformLocations(shaderProgramUid, array, isUniformOnlyMode);
+    }
+  }
+
+  getShaderProgramUid(primitive?: Primitive): CGAPIResourceHandle {
+    const primitiveUid = primitive !== undefined ? primitive.primitiveUid : this._primitiveUid;
+    return this._shaderProgramUidMap.get(primitiveUid) ?? -1;
   }
 
   /**
@@ -284,7 +295,8 @@ export class Material extends RnObject {
       vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );
-    this._shaderProgramUid = programUid;
+    this._shaderProgramUidMap.set(primitive.primitiveUid, programUid);
+    this._primitiveUid = primitive.primitiveUid;
 
     Material.__stateVersion++;
 
@@ -305,7 +317,8 @@ export class Material extends RnObject {
       pixelPropertiesStr
     );
 
-    this._shaderProgramUid = programUid;
+    this._shaderProgramUidMap.set(primitive.primitiveUid, programUid);
+    this._primitiveUid = primitive.primitiveUid;
     Material.__stateVersion++;
   }
 
@@ -328,7 +341,7 @@ export class Material extends RnObject {
       updatedShaderSources,
       onError
     );
-    this._shaderProgramUid = programUid;
+    this._shaderProgramUidMap.set(this._primitiveUid, programUid);
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -342,9 +355,16 @@ export class Material extends RnObject {
    * @internal
    * called WebGLStrategyDataTexture and WebGLStrategyUniform only
    */
-  _setupBasicUniformsLocations() {
+  _setupBasicUniformsLocations(primitive?: Primitive) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webglResourceRepository.setupBasicUniformLocations(this._shaderProgramUid);
+
+    const primitiveUid = primitive != null ? primitive.primitiveUid : this._primitiveUid;
+    const shaderProgramUid = this._shaderProgramUidMap.get(primitiveUid);
+    if (shaderProgramUid != null && shaderProgramUid !== -1) {
+      webglResourceRepository.setupBasicUniformLocations(shaderProgramUid);
+    } else {
+      console.warn('shaderProgramUid is not found');
+    }
   }
 
   /**
@@ -353,14 +373,21 @@ export class Material extends RnObject {
    */
   _setupAdditionalUniformLocations(
     shaderSemantics: ShaderSemanticsInfo[],
-    isUniformOnlyMode: boolean
+    isUniformOnlyMode: boolean,
+    primitive?: Primitive
   ) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    return webglResourceRepository.setupUniformLocations(
-      this._shaderProgramUid,
-      shaderSemantics,
-      isUniformOnlyMode
-    );
+    const primitiveUid = primitive != null ? primitive.primitiveUid : this._primitiveUid;
+    const shaderProgramUid = this._shaderProgramUidMap.get(primitiveUid);
+    if (shaderProgramUid != null && shaderProgramUid !== -1) {
+      webglResourceRepository.setupUniformLocations(
+        shaderProgramUid!,
+        shaderSemantics,
+        isUniformOnlyMode
+      );
+    } else {
+      console.warn('shaderProgramUid is not found');
+    }
   }
 
   /**
@@ -683,7 +710,7 @@ export class Material extends RnObject {
 
   set alphaMode(mode: AlphaModeEnum) {
     this.__alphaMode = mode;
-    this._shaderProgramUid = -1;
+    this._shaderProgramUidMap.clear();
   }
 
   get materialUID(): MaterialUID {
@@ -712,5 +739,11 @@ export class Material extends RnObject {
 
   get stateVersion(): number {
     return this.__stateVersion;
+  }
+
+  makeShadersInvalidate() {
+    this._shaderProgramUidMap.clear();
+    this.__stateVersion++;
+    Material.__stateVersion++;
   }
 }

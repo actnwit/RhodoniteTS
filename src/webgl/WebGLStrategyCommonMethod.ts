@@ -235,7 +235,7 @@ export function setupShaderProgram(
     return;
   }
 
-  if (material.isShaderProgramReady()) {
+  if (material.isShaderProgramReady(primitive)) {
     return;
   }
 
