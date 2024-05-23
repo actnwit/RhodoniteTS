@@ -96,6 +96,8 @@ export class Primitive extends RnObject {
         return 'uint16';
       } else if (indexAccessor.componentType === ComponentType.UnsignedInt) {
         return 'uint32';
+      } else if (indexAccessor.componentType === ComponentType.UnsignedByte) {
+        return 'uint16';
       } else {
         throw new Error('unknown indexAccessor.componentType');
       }
