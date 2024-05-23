@@ -21,7 +21,6 @@ export declare class LightComponent extends Component {
     range: number;
     enable: boolean;
     shadowAreaSizeForDirectionalLight: number;
-    private __sceneGraphComponent?;
     private static __globalDataRepository;
     private static __tmp_vec4;
     private static __lightPositions;
@@ -30,16 +29,19 @@ export declare class LightComponent extends Component {
     private static __lightProperties;
     private static __lightNumber;
     private __lightGizmo?;
+    private __updateCount;
+    private __lastUpdateCount;
+    private __lastTransformUpdateCount;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
+    get updateCount(): number;
     get direction(): Vector3;
     set intensity(value: Vector3);
     get intensity(): Vector3;
     get _up(): Vector3;
     set isLightGizmoVisible(flg: boolean);
     get isLightGizmoVisible(): boolean;
-    $create(): void;
     $load(): void;
     private __updateGizmo;
     static common_$logic(): void;

@@ -115,6 +115,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      */
     setupUniformLocations(shaderProgramUid: WebGLResourceHandle, infoArray: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram;
     setupBasicUniformLocations(shaderProgramUid: WebGLResourceHandle): void;
+    setUniform1iForTexture(shaderProgram_: WebGLProgram, semanticStr: string, value: any): void;
     /**
      * set an uniform value
      */
@@ -163,7 +164,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         width: Size;
         height: Size;
     }): WebGLResourceHandle;
-    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, }: {
+    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, shadowCompareMode, }: {
         magFilter: TextureParameterEnum;
         minFilter: TextureParameterEnum;
         wrapS: TextureParameterEnum;
@@ -171,6 +172,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         wrapR: TextureParameterEnum;
         anisotropy: boolean;
         isPremultipliedAlpha?: boolean;
+        shadowCompareMode: boolean;
     }): number;
     createOrGetTextureSamplerClampToEdgeLinear(): number;
     createOrGetTextureSamplerClampToEdgeNearest(): number;
@@ -380,6 +382,8 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     createDummyWhiteTexture(): number;
     createDummyNormalTexture(): number;
     __createDummyTextureInner(base64: string): number;
+    generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void;
+    getTexturePixelData(textureHandle: WebGLResourceHandle, width: number, height: number, frameBufferUid: WebGLResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     createUniformBuffer(bufferView: TypedArray | DataView): number;
     updateUniformBuffer(uboUid: WebGLResourceHandle, typedArray: TypedArray, offsetByte: Byte, arrayLength: Byte): void;
     bindUniformBlock(shaderProgramUid: WebGLResourceHandle, blockName: string, blockIndex: Index): void;

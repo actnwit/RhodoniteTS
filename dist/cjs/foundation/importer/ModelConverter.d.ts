@@ -16,6 +16,7 @@ export declare class ModelConverter {
     private static __generateMeshEntity;
     private static __generateCameraEntity;
     private static __generateLightEntity;
+    private static __setupMaterials;
     static convertToRhodoniteObject(gltfModel: RnM2): ISceneGraphEntity;
     private static createRnBuffer;
     static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]): void;
@@ -36,11 +37,9 @@ export declare class ModelConverter {
     private static __setVRM0xMaterial;
     private static __generateAppropriateMaterial;
     private static __isLighting;
-    private static __isSkinning;
     private static __useTangentAttribute;
     private static __useNormalTexture;
     private static __makeOutputSrgb;
-    private static __getMaterialHash;
     private static __setupMaterial;
     static _createSampler(texture: RnM2Texture): Sampler;
     static _createTexture(texture: RnM2Texture, gltfModel: RnM2, { autoDetectTransparency }?: {

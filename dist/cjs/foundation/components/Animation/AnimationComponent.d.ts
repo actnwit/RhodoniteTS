@@ -17,9 +17,6 @@ export declare class AnimationComponent extends Component {
     animationBlendingRatio: number;
     private __animationTracks;
     private static __animationGlobalInfo;
-    private __transformComponent?;
-    private __blendShapeComponent?;
-    private __effekseerComponent?;
     private __isEffekseerState;
     private __isAnimating;
     static isAnimating: boolean;
@@ -36,7 +33,7 @@ export declare class AnimationComponent extends Component {
     private static __vector3One;
     private static __identityQuaternion;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
-    $create(): void;
+    $load(): void;
     $logic(): void;
     private __applyAnimation;
     static subscribe(type: AnimationComponentEventType, handler: EventHandler): void;

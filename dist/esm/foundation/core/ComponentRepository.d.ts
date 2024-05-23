@@ -8,6 +8,8 @@ export declare class ComponentRepository {
     private static __component_sid_count_map;
     private static __components;
     static __componentClasses: Map<ComponentTID, typeof Component>;
+    private static __componentTIDs;
+    private static __renderingComponentTIDs;
     constructor();
     /**
      * Registers the class object of the component.
@@ -62,6 +64,7 @@ export declare class ComponentRepository {
      * @param componentType The class object of the component.
      */
     static getComponentsWithType(componentType: typeof Component): Array<Component>;
+    private static __updateComponentTIDs;
     /**
      * Gets all componentTIDs.
      */

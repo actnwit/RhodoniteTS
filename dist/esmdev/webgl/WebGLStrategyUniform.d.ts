@@ -2,7 +2,6 @@ import { ShaderSources, WebGLStrategy } from './WebGLStrategy';
 import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { Primitive } from '../foundation/geometry/Primitive';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Mesh } from '../foundation/geometry/Mesh';
@@ -17,7 +16,6 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
     private __lastRenderPassTickCount;
     private __lightComponents?;
     private static __globalDataRepository;
-    private __latestPrimitivePositionAccessorVersions;
     private static readonly componentMatrices;
     private constructor();
     private static __vertexShaderMethodDefinitions_uniform;
@@ -25,7 +23,7 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
      * setup shader program for the material in this WebGL strategy
      * @param material - a material to setup shader program
      */
-    setupShaderForMaterial(material: Material): CGAPIResourceHandle;
+    setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
     /**
      * re-setup shader program for the material in this WebGL strategy
      * @param material - a material to re-setup shader program
@@ -34,17 +32,15 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
      * @returns
      */
     _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
-    $load(meshComponent: MeshComponent): void;
-    private __isMeshSetup;
-    $prerender(meshComponent: MeshComponent, meshRendererComponent: MeshRendererComponent, instanceIDBufferUid: WebGLResourceHandle): void;
-    common_$prerender(): void;
+    $load(meshComponent: MeshComponent): boolean;
+    prerender(): void;
     attachGPUData(primitive: Primitive): void;
     attachShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveUid: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     dettachVertexData(glw: WebGLContextWrapper): void;
     static getInstance(): WebGLStrategyUniform;
-    common_$render(primitiveUids: Int32Array, renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, renderPassTickCount: Count, isVRMainPass: boolean, displayIdx: Index): boolean;
     private bindDataTexture;
 }

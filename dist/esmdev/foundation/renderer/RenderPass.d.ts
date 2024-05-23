@@ -38,22 +38,27 @@ export declare class RenderPass extends RnObject {
     private __webglRenderingStrategy?;
     isVrRendering: boolean;
     isOutputForVr: boolean;
+    _lastOpaqueIndex: number;
+    _lastTransparentIndex: number;
+    _firstTransparentSortKey: number;
+    _lastTransparentSortKey: number;
+    _lastPrimitiveUids: number[];
+    _lastTransformComponentsUpdateCount: number;
+    _lastCameraControllerComponentsUpdateCount: number;
+    _lastSceneGraphComponentsUpdateCount: number;
+    _renderedSomethingBefore: boolean;
+    _isChangedSortRenderResult: boolean;
     /** Whether or not to draw opaque primitives contained in this render pass. */
     toRenderOpaquePrimitives: boolean;
     /** Whether or not to draw transparent primitives contained in this render pass. */
     toRenderTransparentPrimitives: boolean;
     toRenderEffekseerEffects: boolean;
-    drawCount: number;
     __renderTargetColorAttachments?: RenderBufferTargetEnum[];
-    private __preEachDrawFunc?;
     private __postEachRenderFunc?;
     private static __tmp_Vector4_0;
     static __mesh_uid_count: number;
     constructor();
     clone(): RenderPass;
-    setPreDrawFunction(func: (drawCount: number) => void): void;
-    unsetPreDrawFunction(): void;
-    doPreEachDraw(drawCount: number): void;
     setPostRenderFunction(func: () => void): void;
     doPostRender(): void;
     /**
@@ -113,8 +118,9 @@ export declare class RenderPass extends RnObject {
     getResolveFramebuffer(): FrameBuffer | undefined;
     setResolveFramebuffer2(framebuffer: FrameBuffer): void;
     getResolveFramebuffer2(): FrameBuffer | undefined;
-    _copyFramebufferToResolveFramebuffers(): void;
+    _copyFramebufferToResolveFramebuffersWebGL(): void;
     private __copyFramebufferToResolveFramebufferInner;
+    _copyResolve1ToResolve2WebGpu(): void;
     private __setupMaterial;
     /**
      * Sets a material for the primitive on this render pass.

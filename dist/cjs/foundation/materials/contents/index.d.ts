@@ -3,7 +3,6 @@ export * from './CustomMaterialContent';
 export * from './DepthEncodeMaterialContent';
 export * from './DetectHighLuminanceMaterialContent';
 export * from './EntityUIDOutputMaterialContent';
-export * from './EnvConstantMaterialContent';
 export * from './FurnaceTestMaterialContent';
 export * from './MToonMaterialContent';
 export * from './MatCapMaterialContent';

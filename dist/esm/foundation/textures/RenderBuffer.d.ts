@@ -8,12 +8,14 @@ export declare class RenderBuffer extends RnObject implements IRenderable {
     height: number;
     private __internalFormat;
     _textureResourceUid: CGAPIResourceHandle;
+    _textureViewResourceUid: CGAPIResourceHandle;
     private __fbo?;
     private __isMSAA;
     private __sampleCountMSAA;
     constructor();
     set _fbo(fbo: FrameBuffer);
     get fbo(): FrameBuffer | undefined;
+    get sampleCount(): number;
     create(width: Size, height: Size, internalFormat: TextureParameterEnum, { isMSAA, sampleCountMSAA }?: {
         isMSAA?: boolean | undefined;
         sampleCountMSAA?: number | undefined;

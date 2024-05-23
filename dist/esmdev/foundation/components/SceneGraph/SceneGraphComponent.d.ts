@@ -45,10 +45,13 @@ export declare class SceneGraphComponent extends Component {
     private static __sceneGraphs;
     private static isJointAABBShouldBeCalculated;
     private static invertedMatrix44;
+    private static __updateCount;
     private static __tmpAABB;
+    private __lastTransformComponentsUpdateCount;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     set isVisible(flg: boolean);
     get isVisible(): boolean;
+    static get updateCount(): number;
     setVisibilityRecursively(flag: boolean): void;
     set isBillboard(flg: boolean);
     get isBillboard(): boolean;
@@ -137,7 +140,7 @@ export declare class SceneGraphComponent extends Component {
      * @returns information of intersection in world space
      */
     castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): RaycastResultEx2;
-    $create(): void;
+    $load(): void;
     $logic(): void;
     private __updateGizmos;
     setPositionWithoutPhysics(vec: IVector3): void;

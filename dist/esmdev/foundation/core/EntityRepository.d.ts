@@ -9,6 +9,7 @@ export declare class EntityRepository {
     private static __entity_uid_count;
     private static __entities;
     static _components: Array<Map<ComponentTID, Component>>;
+    private static __updateCount;
     private constructor();
     /**
      * Creates an entity
@@ -66,5 +67,6 @@ export declare class EntityRepository {
      * Gets the number of all entities.
      */
     static getEntitiesNumber(): number;
+    static get updateCount(): number;
 }
 export declare function applyMixins(derivedCtor: IEntity, baseCtor: any): void;

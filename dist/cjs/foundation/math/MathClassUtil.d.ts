@@ -33,5 +33,5 @@ export declare class MathClassUtil {
     static divideNumber(lhs: any, rhs: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
     static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
     static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum): any;
-    static _setForce(objForDetectType: any, val: any): void;
+    static _setForce(objForDetectType: any, val: any): boolean;
 }

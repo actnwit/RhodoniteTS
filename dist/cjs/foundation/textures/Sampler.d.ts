@@ -7,6 +7,7 @@ export type SamplerDescriptor = {
     wrapT: TextureParameterEnum;
     wrapR?: TextureParameterEnum;
     anisotropy?: boolean;
+    shadowCompareMode?: boolean;
 };
 export declare class Sampler {
     private __minFilter;
@@ -15,6 +16,7 @@ export declare class Sampler {
     private __wrapT;
     private __wrapR;
     private __anisotropy;
+    private __shadowCompareMode;
     private __samplerResourceUid;
     constructor(desc: SamplerDescriptor);
     create(): void;

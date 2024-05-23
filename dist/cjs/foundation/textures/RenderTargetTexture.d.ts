@@ -22,8 +22,8 @@ export declare class RenderTargetTexture extends AbstractTexture implements IRen
     private __createRenderTargetTexture;
     resize(width: Size, height: Size): void;
     destroy3DAPIResources(): boolean;
-    getTexturePixelData(): Uint8Array;
-    downloadTexturePixelData(): void;
+    getTexturePixelData(): Promise<Uint8Array>;
+    downloadTexturePixelData(): Promise<void>;
     /**
      * Origin is left bottom
      *
@@ -32,6 +32,6 @@ export declare class RenderTargetTexture extends AbstractTexture implements IRen
      * @param argByteArray Pixel Data as Uint8Array
      * @returns Pixel Value in Vector4
      */
-    getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Vector4;
+    getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Promise<Vector4>;
     generateMipmap(): void;
 }

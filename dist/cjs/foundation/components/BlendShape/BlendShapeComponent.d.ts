@@ -9,7 +9,9 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 export declare class BlendShapeComponent extends Component {
     private __weights;
     private __targetNames;
+    private static __updateCount;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
+    static get updateCount(): number;
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
     set weights(weights: number[]);

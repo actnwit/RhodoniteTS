@@ -57,6 +57,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __width;
     private __height;
     private __isShadow;
+    private __isSimple;
     private __shadowMapSize;
     private __oFrame;
     private __oFrameDepthMoment;
@@ -66,8 +67,8 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __oInitialExpression;
     /** main expressions */
     private __expressions;
+    private __oGenerateMipmapsExpression;
     private __depthMomentExpressions;
-    private __oMsaaResolveExpression;
     private __oGammaExpression;
     private __transparentOnlyExpressions;
     private __oGammaBoardEntity;
@@ -82,9 +83,10 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @param canvasWidth - The width of the canvas.
      * @param canvasHeight - The height of the canvas.
      */
-    setup(canvasWidth: number, canvasHeight: number, { isShadow, shadowMapSize }?: {
+    setup(canvasWidth: number, canvasHeight: number, { isShadow, shadowMapSize, isSimple }?: {
         isShadow?: boolean | undefined;
         shadowMapSize?: number | undefined;
+        isSimple?: boolean | undefined;
     }): Promise<Err<unknown, undefined> | Ok<unknown, unknown>>;
     /**
      * set Expressions for drawing
@@ -131,10 +133,6 @@ export declare class ForwardRenderPipeline extends RnObject {
      */
     getInitialExpression(): Expression | undefined;
     /**
-     * getter of msaa resolve expression
-     */
-    getMsaaResolveExpression(): Expression | undefined;
-    /**
      * getter of gamma expression
      */
     getGammaExpression(): Expression | undefined;
@@ -158,7 +156,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __setTransparentExpressionsForTransmission;
     private __setupInitialExpression;
     private __createRenderTargets;
-    private __setupMsaaResolveExpression;
+    private __setupGenerateMipmapsExpression;
     private __setupGammaExpression;
     private __setupSatExpression;
     private __setupDepthMomentFramebuffer;

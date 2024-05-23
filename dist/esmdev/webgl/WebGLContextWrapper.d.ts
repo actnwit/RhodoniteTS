@@ -57,6 +57,8 @@ export declare class WebGLContextWrapper {
     private __activeTextureBackup;
     private __activeTextures2D;
     private __activeTexturesCube;
+    private __boundTextures;
+    private __boundSamplers;
     private __isDebugMode;
     private __viewport_left;
     private __viewport_top;

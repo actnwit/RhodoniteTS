@@ -10,6 +10,7 @@ import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
 import { IVector3 } from '../math/IVector';
 import { IMesh, PrimitiveSortKey, PrimitiveSortKeyOffset, RaycastResultEx1 } from './types/GeometryTypes';
+import { Mesh } from './Mesh';
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 export interface IAnyPrimitiveDescriptor {
     /** attach a rhodonite material to this plane(the default material is the classicUberMaterial */
@@ -35,17 +36,17 @@ export declare class Primitive extends RnObject {
     private __targets;
     private __vertexHandles?;
     private __latestPositionAccessorVersion;
-    private __woMesh;
+    private __positionAccessorVersion;
+    private __mesh?;
     private static __primitives;
     _sortkey: PrimitiveSortKey;
     _viewDepth: number;
-    private __cachePositionAccessor?;
     private static __primitiveUidIdxHasMorph;
     private static __idxPrimitiveUidHasMorph;
     private static __primitiveCountHasMorph;
     private static __tmpVec3_0;
     constructor();
-    static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): number | undefined;
+    static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined;
     static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined;
     getIndexBitSize(): 'uint16' | 'uint32';
     get _vertexHandles(): VertexHandles | undefined;
@@ -60,11 +61,13 @@ export declare class Primitive extends RnObject {
      * belong to mesh (weak reference)
      * @param mesh
      */
-    _belongToMesh(mesh: IMesh): void;
+    _belongToMesh(mesh: Mesh): void;
     get mesh(): IMesh | undefined;
     _backupMaterial(): void;
     _restoreMaterial(): void;
     static getPrimitive(primitiveUid: PrimitiveUID): Primitive;
+    static getPrimitiveCount(): number;
+    onAccessorUpdated(accessorVersion: number): void;
     setData(attributes: Attributes, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor): void;
     static get maxPrimitiveCount(): number;
     copyVertexData({ attributes, attributeSemantics, primitiveMode, indices, material, }: PrimitiveDescriptor): void;
@@ -83,7 +86,7 @@ export declare class Primitive extends RnObject {
     get attributeComponentTypes(): Array<ComponentTypeEnum>;
     get primitiveMode(): PrimitiveModeEnum;
     get primitiveUid(): PrimitiveUID;
-    get positionAccessorVersion(): number | undefined;
+    get positionAccessorVersion(): number;
     get AABB(): AABB;
     setVertexAttribute(accessor: Accessor, vertexSemantic: VertexAttributeSemanticsJoinedString): void;
     removeIndices(): void;

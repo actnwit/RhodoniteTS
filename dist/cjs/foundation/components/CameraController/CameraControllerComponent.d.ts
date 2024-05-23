@@ -9,15 +9,17 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
  * The Component that controls camera posture.
  */
 export declare class CameraControllerComponent extends Component {
-    private __cameraComponent?;
     private __cameraController;
+    private static __updateCount;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     set type(type: CameraControllerTypeEnum);
     get type(): CameraControllerTypeEnum;
     get controller(): ICameraController;
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
-    $create(): void;
+    $load(): void;
     $logic(): void;
+    _updateCount(count: number): void;
+    static get updateCount(): number;
     addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }

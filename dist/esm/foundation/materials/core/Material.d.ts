@@ -37,10 +37,13 @@ export declare class Material extends RnObject {
     private __blendFuncAlphaSrcFactor;
     private __blendFuncAlphaDstFactor;
     private __stateVersion;
+    private static __stateVersion;
+    private static __webglResourceRepository?;
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
+    static get stateVersion(): number;
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
-    setTextureParameter(shaderSemantic: ShaderSemanticsEnum, texture: AbstractTexture, sampler?: Sampler): void;
+    setTextureParameter(shaderSemantic: ShaderSemanticsEnum, texture: AbstractTexture, sampler: Sampler): void;
     getTextureParameter(shaderSemantic: ShaderSemanticsEnum): any;
     setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsEnum, promise: Promise<AbstractTexture>): void;
     getParameter(shaderSemantic: ShaderSemanticsEnum): any;
@@ -69,7 +72,7 @@ export declare class Material extends RnObject {
      * @param isWebGL2
      * @returns
      */
-    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): CGAPIResourceHandle;
+    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, primitive: Primitive, isWebGL2: boolean): CGAPIResourceHandle;
     _createProgramWebGpu(primitive: Primitive, vertexShaderMethodDefinitions: string, propertySetter: getShaderPropertyFunc): void;
     /**
      * create program by updated shader source code
@@ -96,6 +99,12 @@ export declare class Material extends RnObject {
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
     _setParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArg;
+    }): void;
+    _setParametersToGpuWebGL2({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

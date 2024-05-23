@@ -3,6 +3,7 @@ import { Size } from '../../types/CommonTypes';
 import { ICameraController } from './ICameraController';
 import { AbstractCameraController } from './AbstractCameraController';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 export declare class OrbitCameraController extends AbstractCameraController implements ICameraController {
     dollyScale: number;
     scaleOfLengthCenterToCamera: number;
@@ -10,6 +11,7 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     followTargetAABB: boolean;
     autoUpdate: boolean;
     private __updated;
+    private __updateCount;
     private __fixedLengthOfCenterToEye;
     private __isMouseDown;
     private __lastMouseDownTimeStamp;
@@ -76,7 +78,10 @@ export declare class OrbitCameraController extends AbstractCameraController impl
     private static __tmp_rotateM_Reset;
     private static __tmp_rotateM_Revert;
     private static __tmpMat44_0;
-    constructor();
+    private __cameraControllerComponent;
+    constructor(cameraControllerComponent: CameraControllerComponent);
+    get updateCount(): number;
+    private _updateCount;
     resetDollyAndTranslation(): void;
     setTarget(targetEntity: ISceneGraphEntity): void;
     setTargets(targetEntities: ISceneGraphEntity[]): void;

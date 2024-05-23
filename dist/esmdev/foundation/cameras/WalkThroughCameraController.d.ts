@@ -3,7 +3,9 @@ import { MutableVector3 } from '../math/MutableVector3';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { AbstractCameraController } from './AbstractCameraController';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 export declare class WalkThroughCameraController extends AbstractCameraController implements ICameraController {
+    private __updateCount;
     private _horizontalSpeed;
     private _verticalSpeed;
     private _turnSpeed;
@@ -44,7 +46,8 @@ export declare class WalkThroughCameraController extends AbstractCameraControlle
     private static __tmp_Vec3_0;
     private static __tmp_Vec3_1;
     aabbWithSkeletal: boolean;
-    constructor(options?: {
+    private __cameraControllerComponent;
+    constructor(cameraControllerComponent: CameraControllerComponent, options?: {
         eventTargetDom: Document;
         verticalSpeed: number;
         horizontalSpeed: number;
@@ -53,6 +56,8 @@ export declare class WalkThroughCameraController extends AbstractCameraControlle
         inverseVerticalRotating: boolean;
         inverseHorizontalRotating: boolean;
     });
+    private _updateCount;
+    get updateCount(): number;
     registerEventListeners(eventTargetDom?: Document): void;
     unregisterEventListeners(): void;
     private __tryToPreventDefault;

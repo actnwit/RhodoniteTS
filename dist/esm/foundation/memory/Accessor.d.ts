@@ -12,6 +12,7 @@ import { MutableMatrix33 } from '../math/MutableMatrix33';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Byte, Index, Count, TypedArray, Size, TypedArrayConstructor, Array2, Array3, Array4 } from '../../types/CommonTypes';
 import { Matrix44 } from '../math/Matrix44';
+import { Primitive } from '../geometry/Primitive';
 export type IndicesAccessOption = {
     indicesAccessor?: Accessor;
     endian?: boolean;
@@ -39,6 +40,7 @@ export declare class Accessor {
     private static __tmpVector3_0;
     private static __tmpVector2_0;
     private __version;
+    _primitive?: Primitive;
     constructor({ bufferView, byteOffsetInBufferView, compositionType, componentType, byteStride, count, raw, max, min, arrayLength, normalized, }: {
         bufferView: BufferView;
         byteOffsetInBufferView: Byte;
@@ -52,6 +54,7 @@ export declare class Accessor {
         arrayLength: Size;
         normalized: boolean;
     });
+    private __onUpdated;
     getTypedArrayClass(componentType: ComponentTypeEnum): TypedArrayConstructor | undefined;
     getDataViewGetter(componentType: ComponentTypeEnum): string | undefined;
     getDataViewSetter(componentType: ComponentTypeEnum): string | undefined;

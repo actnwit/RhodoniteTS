@@ -27,8 +27,6 @@ export declare class EffekseerComponent extends Component {
     private __handle?;
     private __speed;
     private __timer?;
-    private __sceneGraphComponent?;
-    private __transformComponent?;
     private __isInitialized;
     private static __tmp_identityMatrix_0;
     private static __tmp_identityMatrix_1;
@@ -50,7 +48,6 @@ export declare class EffekseerComponent extends Component {
     get rotate(): IVector3;
     set scale(vec: IVector3);
     get scale(): IVector3;
-    $create(): void;
     private __createEffekseerContext;
     $load(): void;
     $logic(): void;

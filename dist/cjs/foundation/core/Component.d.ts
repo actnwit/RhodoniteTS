@@ -5,8 +5,6 @@ import { BufferUseEnum } from '../definitions/BufferUse';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessStageEnum } from '../definitions/ProcessStage';
-import { ProcessApproachEnum } from '../definitions/ProcessApproach';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { RenderPass } from '../renderer/RenderPass';
 import { RnObject } from './RnObject';
 import { EntityUID, ComponentSID, Count, Byte } from '../../types/CommonTypes';
@@ -21,8 +19,6 @@ export declare class Component extends RnObject {
     static readonly invalidComponentSID = -1;
     _isAlive: boolean;
     protected __currentProcessStage: ProcessStageEnum;
-    protected static __componentsOfProcessStages: Map<ProcessStageEnum, Int32Array>;
-    protected static __lengthOfArrayOfProcessStages: Map<ProcessStageEnum, number>;
     private static __bufferViews;
     private static __accessors;
     private static __byteLengthSumOfMembers;
@@ -95,18 +91,8 @@ export declare class Component extends RnObject {
      * Process the components
      * @param param0 params
      */
-    static process({ componentType, processStage, processApproach, strategy, renderPass, renderPassTickCount, }: {
-        componentType: typeof Component;
-        processStage: ProcessStageEnum;
-        processApproach: ProcessApproachEnum;
-        strategy: WebGLStrategy;
-        renderPass?: RenderPass;
-        renderPassTickCount: Count;
-    }): void;
-    /**
-     * Update all components at each process stage.
-     */
-    static updateComponentsOfEachProcessStage(componentClass: typeof Component, processStage: ProcessStageEnum, renderPass?: RenderPass): void;
+    static process(componentType: typeof Component, processStage: ProcessStageEnum): void;
+    static updateComponentsForRenderStage(componentClass: typeof Component, processStage: ProcessStageEnum, renderPass: RenderPass): any;
     /**
      * get byte length of sum of member fields in the component class
      */

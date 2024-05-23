@@ -4,7 +4,7 @@ import { Index, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { IVector3 } from '../math/IVector';
 import { IMesh, RaycastResultEx1 } from './types/GeometryTypes';
 import { IMeshEntity } from '../helpers/EntityHelper';
-import { MeshComponent } from '../..';
+import { MeshComponent } from '../components/Mesh/MeshComponent';
 /**
  * The Mesh class.
  * This mesh object has primitives (geometries) or a reference of 'original mesh'.
@@ -22,7 +22,8 @@ export declare class Mesh implements IMesh {
     private __localAABB;
     private __vaoUids;
     private __variationVBOUid;
-    private __latestPrimitivePositionAccessorVersion;
+    private __latestPrimitivePositionAccessorVersionForAABB;
+    private __latestPrimitivePositionAccessorVersionForSetUpDone;
     private __belongToEntities;
     /**
      * Specification of when calculate the tangent of a vertex to apply Normal texture (for pbr/MToon shader)
@@ -49,6 +50,7 @@ export declare class Mesh implements IMesh {
     private static __tmpReturnVec3_0;
     private static __tmpReturnVec3_1;
     private static __tmpReturnVec3_2;
+    private __primitivePositionUpdateCount;
     /**
      * Constructor
      */
@@ -96,6 +98,8 @@ export declare class Mesh implements IMesh {
      * @internal
      */
     get _variationVBOUid(): CGAPIResourceHandle;
+    _onPrimitivePositionUpdated(): void;
+    get primitivePositionUpdateCount(): number;
     /**
      * Gets AABB in local space.
      */
@@ -127,4 +131,5 @@ export declare class Mesh implements IMesh {
      */
     applyMaterialVariant(variantName: string): void;
     getVariantNames(): string[];
+    isSetUpDone(): boolean;
 }

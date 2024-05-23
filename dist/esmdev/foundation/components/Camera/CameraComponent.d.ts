@@ -8,7 +8,6 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { Frustum } from '../../geometry/Frustum';
 import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
-import { RenderPass } from '../../renderer/RenderPass';
 import { ICameraEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
@@ -36,7 +35,6 @@ export declare class CameraComponent extends Component {
     private _parameters;
     private _parametersInner;
     private __type;
-    private __sceneGraphComponent?;
     private _projectionMatrix;
     private __isProjectionMatrixUpToDate;
     private _viewMatrix;
@@ -54,6 +52,11 @@ export declare class CameraComponent extends Component {
     _xrRight: boolean;
     isSyncToLight: boolean;
     private __frustum;
+    private __updateCount;
+    private __lastUpdateCount;
+    private __lastTransformComponentsUpdateCount;
+    private __lastLightComponentsUpdateCount;
+    private __lastCameraControllerComponentsUpdateCount;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static set current(componentSID: ComponentSID);
     static get current(): ComponentSID;
@@ -130,10 +133,8 @@ export declare class CameraComponent extends Component {
     get worldPosition(): MutableVector3;
     updateFrustum(): void;
     get frustum(): Frustum;
-    $create(): void;
-    $logic({ renderPass }: {
-        renderPass: RenderPass;
-    }): void;
+    $load(): void;
+    $logic(): void;
     static getCurrentCameraEntity(): ICameraEntity;
     /**
      * get the entity which has this component.

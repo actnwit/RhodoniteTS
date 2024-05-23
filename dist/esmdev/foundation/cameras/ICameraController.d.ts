@@ -7,4 +7,5 @@ export interface ICameraController {
     setTarget(targetEntity: ISceneGraphEntity): void;
     setTargets(targetEntities: ISceneGraphEntity[]): void;
     getTargets(): ISceneGraphEntity[];
+    updateCount: number;
 }

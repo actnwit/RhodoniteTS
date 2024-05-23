@@ -9,38 +9,51 @@ import { Accessor } from '../foundation/memory/Accessor';
 import { CGAPIResourceRepository, DirectTextureData, ICGAPIResourceRepository, ImageBitmapData } from '../foundation/renderer/CGAPIResourceRepository';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Sampler } from '../foundation/textures/Sampler';
-import { Byte, Count, Index, Size, TypedArray, WebGPUResourceHandle } from '../types/CommonTypes';
+import { Byte, Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
 import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { HdriFormatEnum } from '../foundation/definitions/HdriFormat';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { IRenderable } from '../foundation/textures/IRenderable';
+import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
 export declare class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private static __instance;
     private __webGpuResources;
-    private __webGpuRenderPipelineMap;
-    private __materialStateVersionMap;
     private __resourceCounter;
     private __webGpuDeviceWrapper?;
     private __storageBuffer?;
     private __storageBlendShapeBuffer?;
     private __bindGroupStorageBuffer?;
     private __bindGroupLayoutStorageBuffer?;
-    private __RenderBundleMap;
+    private __webGpuRenderPipelineMap;
+    private __materialStateVersionMap;
     private __bindGroupTextureMap;
     private __bindGroupLayoutTextureMap;
     private __bindGroupSamplerMap;
     private __bindGroupLayoutSamplerMap;
     private __commandEncoder?;
+    private __renderBundles;
+    private __renderBundleEncoder?;
     private __systemDepthTexture?;
     private __systemDepthTextureView?;
     private __uniformMorphOffsetsBuffer?;
     private __uniformMorphWeightsBuffer?;
     private __renderPassEncoder?;
+    private __generateMipmapsShaderModule?;
+    private __generateMipmapsPipeline?;
+    private __generateMipmapsFormat?;
+    private __generateMipmapsSampler?;
+    private __contextCurrentTextureView?;
+    private __lastMaterialsUpdateCount;
+    private __lastCurrentCameraComponentSid;
+    private __lastCameraControllerComponentsUpdateCount;
+    private __lastEntityRepositoryUpdateCount;
     private static __iblParameterVec4;
     private static __hdriFormatVec2;
     private constructor();
+    clearCache(): void;
     addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper): void;
     static getInstance(): WebGpuResourceRepository;
     private getResourceNumber;
@@ -62,6 +75,8 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         type: ComponentTypeEnum;
         generateMipmap: boolean;
     }): WebGPUResourceHandle;
+    generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void;
+    getTexturePixelData(textureHandle: WebGPUResourceHandle, width: number, height: number, frameBufferUid: WebGPUResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     /**
      * create a WebGPU Texture Mipmaps
      *
@@ -72,7 +87,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param depthOrArrayLayers - depth or array layers
      */
     generateMipmaps(texture: GPUTexture, textureDescriptor: GPUTextureDescriptor, depthOrArrayLayers: number): void;
-    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, }: {
+    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, shadowCompareMode, }: {
         magFilter: TextureParameterEnum;
         minFilter: TextureParameterEnum;
         wrapS: TextureParameterEnum;
@@ -80,6 +95,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         wrapR: TextureParameterEnum;
         anisotropy: boolean;
         isPremultipliedAlpha?: boolean;
+        shadowCompareMode: boolean;
     }): WebGPUResourceHandle;
     /**
      * create a WebGPU Vertex Buffer
@@ -138,9 +154,14 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         onError?: (message: string) => void;
     }): number;
     clearFrameBuffer(renderPass: RenderPass): void;
-    draw(primitive: Primitive, material: Material, renderPass: RenderPass): void;
+    draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number): void;
+    private createRenderBundleEncoder;
+    private createRenderPassEncoder;
+    private __toClearRenderBundles;
+    executeRenderBundle(renderPass: RenderPass): boolean;
+    finishRenderBundleEncoder(renderPass: RenderPass): void;
     private __setupIBLParameters;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, meshRendererComponent: MeshRendererComponent): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, meshRendererComponent: MeshRendererComponent, cameraId: number): [GPURenderPipeline, boolean];
     flush(): void;
     /**
      * Create Cube Texture from image files.
@@ -191,6 +212,73 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         type: ComponentTypeEnum;
         generateMipmap: boolean;
     }): Promise<WebGPUResourceHandle>;
+    /**
+     * create a RenderTargetTexture
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTexture({ width, height, level, internalFormat, format, type, }: {
+        width: Size;
+        height: Size;
+        level: Index;
+        internalFormat: TextureParameterEnum;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+    }): WebGPUResourceHandle;
+    /**
+     * create Renderbuffer
+     */
+    createRenderBuffer(width: Size, height: Size, internalFormat: TextureParameterEnum, isMSAA: boolean, sampleCountMSAA: Count): WebGPUResourceHandle;
+    /**
+     * delete a RenderBuffer
+     * @param renderBufferUid
+     */
+    deleteRenderBuffer(renderBufferUid: WebGPUResourceHandle): void;
+    /**
+     * copy Texture Data
+     * @param fromTexture
+     * @param toTexture
+     */
+    copyTextureData(fromTexture: WebGPUResourceHandle, toTexture: WebGPUResourceHandle): void;
+    isMippmappedTexture(textureHandle: WebGPUResourceHandle): boolean;
+    duplicateTextureAsMipmapped(fromTexture: WebGPUResourceHandle): [WebGPUResourceHandle, WebGPUResourceHandle];
+    /**
+     * attach the DepthBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a DepthBuffer
+     */
+    attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+    /**
+     * attach the StencilBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a StencilBuffer
+     */
+    attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+    /**
+     * attach the depthStencilBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a depthStencilBuffer
+     */
+    attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+    /**
+     * create a FrameBufferObject
+     * @returns
+     */
+    createFrameBufferObject(): number;
+    /**
+     * delete a FrameBufferObject
+     * @param frameBufferObjectHandle
+     */
+    deleteFrameBufferObject(frameBufferObjectHandle: WebGPUResourceHandle): void;
+    /**
+     * attach the ColorBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a ColorBuffer
+     */
+    attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable): void;
+    createTextureView2d(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle;
+    createTextureViewCube(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle;
+    deleteTexture(textureHandle: WebGLResourceHandle): void;
     recreateSystemDepthTexture(): void;
     resizeCanvas(width: Size, height: Size): void;
 }

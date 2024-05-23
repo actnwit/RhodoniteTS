@@ -6,8 +6,6 @@ import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLStrategy } from './WebGLStrategy';
 declare function setWebGLParameters(material: Material, gl: WebGLRenderingContext): void;
-declare function startDepthMasking(primitive: Primitive, gl: WebGLRenderingContext): void;
-declare function endDepthMasking(primitive: Primitive, gl: WebGLRenderingContext): void;
 declare function setVRViewport(renderPass: RenderPass, displayIdx: Index): void;
 declare function getDisplayNumber(isVRMainPass: boolean): 1 | 2;
 declare function isVrMainPass(renderPass: RenderPass): boolean;
@@ -35,8 +33,6 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
 export declare function setupShaderProgram(material: Material, primitive: Primitive, webglStrategy: WebGLStrategy): void;
 declare const _default: Readonly<{
     setWebGLParameters: typeof setWebGLParameters;
-    startDepthMasking: typeof startDepthMasking;
-    endDepthMasking: typeof endDepthMasking;
     setVRViewport: typeof setVRViewport;
     getDisplayNumber: typeof getDisplayNumber;
     isVrMainPass: typeof isVrMainPass;

@@ -13,6 +13,7 @@ type RenderPassIndex = number;
  */
 export declare class Frame extends RnObject {
     private __expressions;
+    private __expressionsCache;
     static readonly FrameBuffer = "FrameBuffer";
     static readonly ResolveFrameBuffer = "ResolveFrameBuffer";
     static readonly ResolveFrameBuffer2 = "ResolveFrameBuffer2";

@@ -14,6 +14,7 @@ import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { VrmComponent } from '../components/Vrm/VrmComponent';
 import { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
+import { EffekseerComponent } from '../../effekseer';
 /**
  * The Interface for an Entity.
  */
@@ -39,6 +40,7 @@ export interface IEntity extends IRnObject {
     tryToGetAnimation(): AnimationComponent | undefined;
     tryToGetVrm(): VrmComponent | undefined;
     tryToGetConstraint(): ConstraintComponent | undefined;
+    tryToGetEffekseer(): EffekseerComponent | undefined;
     _destroy(): void;
 }
 /**
@@ -120,6 +122,7 @@ export declare class Entity extends RnObject implements IEntity {
     tryToGetTransform(): TransformComponent | undefined;
     tryToGetVrm(): VrmComponent | undefined;
     tryToGetConstraint(): ConstraintComponent | undefined;
+    tryToGetEffekseer(): EffekseerComponent | undefined;
     /**
      * Mark the entity as destroyed
      */

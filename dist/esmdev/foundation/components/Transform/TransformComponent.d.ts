@@ -14,13 +14,13 @@ export declare class TransformComponent extends Component {
     private __rest;
     private __pose;
     private __updateCountAtLastLogic;
-    private __sceneGraphComponent?;
+    private static __updateCount;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
-    $create(): void;
     static get renderedPropertyCount(): null;
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
     get restOrPose(): Transform3D;
+    static get updateCount(): number;
     _backupTransformAsRest(): void;
     _restoreTransformFromRest(): void;
     get localTransform(): Transform3D;
@@ -132,6 +132,7 @@ export declare class TransformComponent extends Component {
      * return a local transform matrix
      */
     get localMatrixRestInner(): import("../../math").MutableMatrix44;
+    $load(): void;
     $logic(): void;
     _shallowCopyFrom(component_: Component): void;
     /**

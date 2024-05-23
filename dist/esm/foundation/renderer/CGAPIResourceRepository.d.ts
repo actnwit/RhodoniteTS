@@ -10,12 +10,16 @@ import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
+import { IRenderable } from '../textures/IRenderable';
+import { FrameBuffer } from '../renderer/FrameBuffer';
+import { WebGpuResourceRepository } from '../../webgpu';
 export type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export declare abstract class CGAPIResourceRepository {
     static readonly InvalidCGAPIResourceUid = -1;
     static getCgApiResourceRepository(): ICGAPIResourceRepository;
     static getWebGLResourceRepository(): WebGLResourceRepository;
+    static getWebGpuResourceRepository(): WebGpuResourceRepository;
 }
 export interface ICGAPIResourceRepository {
     /**
@@ -119,7 +123,7 @@ export interface ICGAPIResourceRepository {
         posZ: DirectTextureData;
         negZ: DirectTextureData;
     }>, width: Size, height: Size): [number, Sampler];
-    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, }: {
+    createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, shadowCompareMode, }: {
         magFilter: TextureParameterEnum;
         minFilter: TextureParameterEnum;
         wrapS: TextureParameterEnum;
@@ -127,6 +131,7 @@ export interface ICGAPIResourceRepository {
         wrapR: TextureParameterEnum;
         anisotropy: boolean;
         isPremultipliedAlpha?: boolean;
+        shadowCompareMode: boolean;
     }): CGAPIResourceHandle;
     /**
      * create a Texture
@@ -144,4 +149,70 @@ export interface ICGAPIResourceRepository {
         type: ComponentTypeEnum;
         generateMipmap: boolean;
     }): Promise<CGAPIResourceHandle>;
+    /**
+     * create a RenderTargetTexture
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTexture({ width, height, level, internalFormat, format, type, }: {
+        width: Size;
+        height: Size;
+        level: Index;
+        internalFormat: TextureParameterEnum;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+    }): CGAPIResourceHandle;
+    /**
+     * delete a Texture
+     * @param textureHandle
+     */
+    deleteTexture(textureHandle: CGAPIResourceHandle): void;
+    /**
+     * generate Mipmaps
+     */
+    generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
+    getTexturePixelData(textureHandle: CGAPIResourceHandle, width: number, height: number, frameBufferUid: CGAPIResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
+    /**
+     * create a FrameBufferObject
+     * @returns
+     */
+    createFrameBufferObject(): CGAPIResourceHandle;
+    /**
+     * attach the ColorBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a ColorBuffer
+     */
+    attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable): void;
+    /**
+     * create a Renderbuffer
+     */
+    createRenderBuffer(width: Size, height: Size, internalFormat: TextureParameterEnum, isMSAA: boolean, sampleCountMSAA: Count): CGAPIResourceHandle;
+    /**
+     * delete a RenderBuffer
+     * @param renderBufferUid
+     */
+    deleteRenderBuffer(renderBufferUid: CGAPIResourceHandle): void;
+    /**
+     * attach the DepthBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a DepthBuffer
+     */
+    attachDepthBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+    /**
+     * attach the StencilBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a StencilBuffer
+     */
+    attachStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+    /**
+     * attach the depthStencilBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param renderable a depthStencilBuffer
+     */
+    attachDepthStencilBufferToFrameBufferObject(framebuffer: FrameBuffer, renderable: IRenderable): void;
+    /**
+     * delete a FrameBufferObject
+     * @param frameBufferObjectHandle
+     */
+    deleteFrameBufferObject(frameBufferObjectHandle: CGAPIResourceHandle): void;
 }

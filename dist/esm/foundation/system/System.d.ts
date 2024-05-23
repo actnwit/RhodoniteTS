@@ -35,17 +35,18 @@ interface SystemInitDescription {
  * ```
  */
 export declare class System {
-    private static __instance;
     private static __expressionForProcessAuto?;
     private static __renderPassForProcessAuto?;
     private static __processApproach;
     private static __cgApiResourceRepository;
-    private static __webglStrategy?;
     private static __renderPassTickCount;
     private static __animationFrameId;
     private static __renderLoopFunc?;
     private static __args;
-    private static __stageMethods;
+    private static __rnXRModule?;
+    private static __lastCameraControllerComponentsUpdateCount;
+    private static __lastTransformComponentsUpdateCount;
+    private static __lastPrimitiveCount;
     private constructor();
     /**
      * Starts a render loop.
@@ -90,9 +91,12 @@ export declare class System {
      */
     static process(frame: Frame): void;
     static process(expressions: Expression[]): void;
+    static get processTime(): number;
+    static get timeAtProcessBegin(): number;
+    static get timeAtProcessEnd(): number;
     private static createCamera;
     private static setViewportForNormalRendering;
-    private static bindFramebuffer;
+    private static bindFramebufferWebGL;
     /**
      * Initialize the Rhodonite system.
      *

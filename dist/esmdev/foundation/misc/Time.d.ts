@@ -11,6 +11,9 @@ export declare class Time {
      * @internal
      */
     static _processEnd(): void;
+    static get timeAtProcessBeginMilliseconds(): number;
+    static get timeAtProcessEndMilliseconds(): number;
     static get timeFromSystemStart(): number;
     static get lastTickTimeInterval(): number;
+    static get lastTimeTimeIntervalInMilliseconds(): number;
 }

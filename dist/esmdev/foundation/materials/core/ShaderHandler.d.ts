@@ -41,6 +41,6 @@ export declare function _outputVertexAttributeBindingInfo(attributeNames: string
  * @param isWebGL2 - A flag whether the current WebGL context is WebGL2 or not
  * @returns
  */
-export declare function _createProgramAsSingleOperationWebGL(material: Material, vertexPropertiesStr: string, pixelPropertiesStr: string, vertexShaderMethodDefinitions_uniform: string, isWebGL2: boolean): CGAPIResourceHandle;
-export declare function _setupGlobalShaderDefinitionWebGL(materialTypeName: string): string;
+export declare function _createProgramAsSingleOperationWebGL(material: Material, primitive: Primitive, vertexPropertiesStr: string, pixelPropertiesStr: string, vertexShaderMethodDefinitions_uniform: string, isWebGL2: boolean): CGAPIResourceHandle;
+export declare function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, primitive: Primitive): string;
 export declare function _createProgramAsSingleOperationWebGpu(material: Material, primitive: Primitive, vertexShaderMethodDefinitions: string, vertexPropertiesStr: string, pixelPropertiesStr: string): number;
