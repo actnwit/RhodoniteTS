@@ -315,7 +315,7 @@ export class MaterialRepository {
 
   static _makeShaderInvalidateToAllMaterials() {
     for (const material of MaterialRepository.__materialMap.values()) {
-      material._shaderProgramUid = -1;
+      material.makeShadersInvalidate();
     }
   }
 }

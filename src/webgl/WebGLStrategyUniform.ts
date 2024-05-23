@@ -174,9 +174,9 @@ bool get_isBillboard(float instanceId) {
       primitive,
       glw.isWebGL2
     );
-    material._setupBasicUniformsLocations();
+    material._setupBasicUniformsLocations(primitive);
 
-    material._setUniformLocationsOfMaterialNodes(true);
+    material._setUniformLocationsOfMaterialNodes(true, primitive);
 
     const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
     const shaderSemanticsInfosPointSprite =
@@ -184,11 +184,12 @@ bool get_isBillboard(float instanceId) {
 
     material._setupAdditionalUniformLocations(
       shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
-      true
+      true,
+      primitive
     );
 
     WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-      material._shaderProgramUid
+      material.getShaderProgramUid(primitive)
     );
 
     return programUid;
@@ -225,7 +226,7 @@ bool get_isBillboard(float instanceId) {
     );
 
     WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-      material._shaderProgramUid
+      material.getShaderProgramUid()
     );
 
     return programUid;
@@ -291,8 +292,6 @@ bool get_isBillboard(float instanceId) {
   }
 
   attachGPUData(primitive: Primitive): void {}
-
-  attachShaderProgram(material: Material): void {}
 
   attachVertexData(
     i: number,
@@ -444,15 +443,15 @@ bool get_isBillboard(float instanceId) {
         CGAPIResourceRepository.InvalidCGAPIResourceUid
       );
 
+      const shaderProgramUid = material.getShaderProgramUid(primitive);
       const shaderProgram = this.__webglResourceRepository.getWebGLResource(
-        material._shaderProgramUid
+        shaderProgramUid
       )! as WebGLProgram;
-      const shaderProgramUid = material._shaderProgramUid;
 
       let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
 
       if (shaderProgramUid !== this.__lastShader) {
-        if (isSkipDrawing(material)) {
+        if (isSkipDrawing(material, primitive)) {
           return false;
         }
         firstTime = true;
