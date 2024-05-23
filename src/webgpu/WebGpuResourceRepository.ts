@@ -113,8 +113,8 @@ export class WebGpuResourceRepository
 
   private __lastMaterialsUpdateCount = -1;
   private __lastCurrentCameraComponentSid = -1;
-  private __lastCameraControllerComponentsUpdateCount = -1;
   private __lastEntityRepositoryUpdateCount = -1;
+  private __lastPrimitivesMaterialVariantUpdateCount = -1;
 
   private static __iblParameterVec4 = MutableVector4.zero();
   private static __hdriFormatVec2 = MutableVector2.zero();
@@ -1032,13 +1032,15 @@ export class WebGpuResourceRepository
     if (
       Material.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
-      EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount
+      EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount ||
+      Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount
     ) {
       this.__renderBundles.clear();
       SystemState.webgpuRenderBundleMode = false;
       this.__lastCurrentCameraComponentSid = CameraComponent.current;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
+      this.__lastPrimitivesMaterialVariantUpdateCount = Primitive.variantUpdateCount;
     }
   }
 

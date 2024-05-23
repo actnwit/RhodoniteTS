@@ -60,8 +60,6 @@ export class Primitive extends RnObject {
   private __aabb = new AABB();
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
-  private __latestPositionAccessorVersion = 0;
-  private __positionAccessorVersion = 0;
   private __mesh?: Mesh;
   private static __primitives: Primitive[] = [];
   public _sortkey: PrimitiveSortKey = 0;
@@ -72,6 +70,10 @@ export class Primitive extends RnObject {
   private static __primitiveCountHasMorph = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
+
+  private __latestPositionAccessorVersion = 0;
+  private __positionAccessorVersion = 0;
+  private static __variantUpdateCount = 0;
 
   constructor() {
     super();
@@ -104,8 +106,13 @@ export class Primitive extends RnObject {
     return this.__vertexHandles;
   }
 
+  static get variantUpdateCount() {
+    return this.__variantUpdateCount;
+  }
+
   setMaterialVariant(variantName: string, material: Material) {
     this.__materialVariants.set(variantName, material);
+    Primitive.__variantUpdateCount++;
   }
 
   applyMaterialVariant(variantName: string) {
@@ -113,6 +120,7 @@ export class Primitive extends RnObject {
     if (variant) {
       this.material = variant;
       this.__currentVariantName = variantName;
+      Primitive.__variantUpdateCount++;
     }
   }
 
