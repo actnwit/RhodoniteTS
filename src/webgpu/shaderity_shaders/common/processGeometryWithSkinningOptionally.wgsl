@@ -62,13 +62,7 @@ fn skinning(
   ) -> GeometoryOutput
 {
   var output: GeometoryOutput;
-  let skinMat43 = getSkinMatrix(skeletalComponentSID, joint, weight);
-  var skinMat = mat4x4<f32>(
-    vec4<f32>(skinMat43[0], 0.0),
-    vec4<f32>(skinMat43[1], 0.0),
-    vec4<f32>(skinMat43[2], 0.0),
-    vec4<f32>(skinMat43[3], 1.0)
-  );
+  let skinMat = getSkinMatrix(skeletalComponentSID, joint, weight);
   output.position_inWorld = skinMat * vec4<f32>(inPosition_inLocal, 1.0);
   output.normalMatrix = toNormalMatrix(skinMat);
   output.normal_inWorld = normalize(output.normalMatrix * inNormal_inLocal);

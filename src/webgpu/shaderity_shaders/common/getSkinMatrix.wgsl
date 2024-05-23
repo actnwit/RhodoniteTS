@@ -1,7 +1,7 @@
 
 #ifdef RN_IS_SKINNING
 
-fn createMatrixFromQuaternionTranslationScale( quaternion: vec4<f32>, translation: vec3<f32>, scale: vec3<f32> ) -> mat4x3<f32> {
+fn createMatrixFromQuaternionTranslationScale( quaternion: vec4<f32>, translation: vec3<f32>, scale: vec3<f32> ) -> mat4x4<f32> {
   let q = quaternion;
   let t = translation;
 
@@ -30,12 +30,7 @@ fn createMatrixFromQuaternionTranslationScale( quaternion: vec4<f32>, translatio
   );
 
   let mat44 = mat*uniformScaleMat;
-  return mat4x3<f32>(
-    vec3<f32>(mat44[0].x, mat44[0].y, mat44[0].z),
-    vec3<f32>(mat44[1].x, mat44[1].y, mat44[1].z),
-    vec3<f32>(mat44[2].x, mat44[2].y, mat44[2].z),
-    vec3<f32>(mat44[3].x, mat44[3].y, mat44[3].z)
-  );
+  return mat44;
 
 }
 
@@ -73,13 +68,23 @@ fn unpackedVec2ToNormalizedVec4(vec_xy: vec2<f32>, criteria: f32) -> vec4<f32> {
   return vec4<f32>(r, g, b, a);
 }
 
-fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>) -> mat4x3<f32> {
+fn get_boneMatrixAsMat4x4(skeletalComponentSID: u32, joint: u32) -> mat4x4<f32> {
+  let mat43: mat4x3<f32> = get_boneMatrix(skeletalComponentSID, joint);
+  return mat4x4<f32>(
+    vec4<f32>(mat43[0], 0.0),
+    vec4<f32>(mat43[1], 0.0),
+    vec4<f32>(mat43[2], 0.0),
+    vec4<f32>(mat43[3], 1.0)
+  );
+}
+
+fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>) -> mat4x4<f32> {
 
 #ifdef RN_BONE_DATA_TYPE_Mat43x1
-  var skinMat: mat4x3<f32> = weight.x * get_boneMatrix(skeletalComponentSID, joint.x);
-  skinMat += weight.y * get_boneMatrix(skeletalComponentSID, joint.y);
-  skinMat += weight.z * get_boneMatrix(skeletalComponentSID, joint.z);
-  skinMat += weight.w * get_boneMatrix(skeletalComponentSID, joint.w);
+  var skinMat: mat4x4<f32> = weight.x * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.x);
+  skinMat += weight.y * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.y);
+  skinMat += weight.z * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.z);
+  skinMat += weight.w * get_boneMatrixAsMat4x4(skeletalComponentSID, joint.w);
 
 #elif defined(RN_BONE_DATA_TYPE_VEC4X2)
   let criteria = vec2<f32>(4096.0, 4096.0);
@@ -87,7 +92,7 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
   let tq_x = get_boneTranslatePackedQuat(skeletalComponentSID, joint.x);
   let sq_x = get_boneScalePackedQuat(skeletalComponentSID, joint.x);
   var quat = unpackedVec2ToNormalizedVec4(vec2(tq_x.w, sq_x.w), criteria.x);
-  var skinMat: mat4x3<f32> = weight.x * createMatrixFromQuaternionTranslationScale(quat, tq_x.xyz, sq_x.xyz);
+  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(quat, tq_x.xyz, sq_x.xyz);
 
   let tq_y = get_boneTranslatePackedQuat(skeletalComponentSID, joint.y);
   let sq_y = get_boneScalePackedQuat(skeletalComponentSID, joint.y);
@@ -106,7 +111,7 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
 
 #elif defined(RN_BONE_DATA_TYPE_VEC4X2_OLD)
   let ts_x = get_boneTranslateScale(skeletalComponentSID, joint.x);
-  var skinMat: mat4x3<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
+  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
     get_boneQuaternion(skeletalComponentSID, joint.x), ts_x.xyz, vec3(ts_x.w));
   let ts_y = get_boneTranslateScale(skeletalComponentSID, joint.y);
   skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
@@ -128,7 +133,7 @@ fn getSkinMatrix(skeletalComponentSID: u32, joint: vec4<u32>, weight: vec4<f32>)
   let boneCompressedInfo = get_boneCompressedInfo(0.0, 0);
 
   let ts_x = unpackedVec2ToNormalizedVec4(boneCompressedChunksX.zw, criteria.y)*boneCompressedInfo;
-  var skinMat: mat4x3<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
+  var skinMat: mat4x4<f32> = weight.x * createMatrixFromQuaternionTranslationScale(
     unpackedVec2ToNormalizedVec4(boneCompressedChunksX.xy, criteria.x), ts_x.xyz, vec3(ts_x.w));
   let ts_y = unpackedVec2ToNormalizedVec4(boneCompressedChunksY.zw, criteria.y)*boneCompressedInfo;
   skinMat += weight.y * createMatrixFromQuaternionTranslationScale(
