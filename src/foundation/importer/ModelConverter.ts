@@ -601,11 +601,23 @@ export class ModelConverter {
 
         const rnPrimitive = new Primitive();
 
-        const material =
+        const rnMaterial =
           primitive.material != null
             ? rnMaterials[primitive.material]
             : this.__setupMaterial(gltfModel);
         setupMaterialVariants(rnPrimitive, primitive);
+
+        if (rnMaterial.materialTypeName.indexOf('MToon') !== -1) {
+          const VRMProperties = gltfModel.extensions.VRM;
+          const rnExtension = VRMProperties.rnExtension;
+          if (rnExtension != null) {
+            const renderPassOutline = rnExtension.renderPassOutline;
+            const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial;
+            if (outlineMaterial != null) {
+              renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+            }
+          }
+        }
 
         // indices
         let indicesRnAccessor;
@@ -654,7 +666,7 @@ export class ModelConverter {
           }
         }
 
-        rnPrimitive.setData(map, rnPrimitiveMode, material, indicesRnAccessor);
+        rnPrimitive.setData(map, rnPrimitiveMode, rnMaterial, indicesRnAccessor);
 
         // morph targets
         if (primitive.targets != null) {
@@ -833,7 +845,6 @@ export class ModelConverter {
 
   private static __setVRM1Material(
     gltfModel: RnM2,
-    // primitive: RnM2Primitive,
     materialJson: RnM2Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
@@ -887,7 +898,7 @@ export class ModelConverter {
           outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
-        // renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+        materialJson.extras!.outlineMaterial = outlineMaterial;
       }
 
       const material = MaterialHelper.createMToonMaterial({
@@ -970,7 +981,7 @@ export class ModelConverter {
           outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
-        // renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+        materialJson.extras!.outlineMaterial = outlineMaterial;
       }
 
       const material = MaterialHelper.createMToonMaterial({
