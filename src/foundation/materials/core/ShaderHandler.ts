@@ -265,7 +265,14 @@ export function _createProgramAsSingleOperationWebGpu(
   const attributeSemantics = primitive.attributeSemantics;
   for (const attributeSemantic of attributeSemantics) {
     if (attributeSemantic.indexOf('POSITION') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_POSITION\n`;
+      const accessor = primitive.getAttribute(attributeSemantic);
+      if (accessor!.componentType.isFloatingPoint()) {
+        vertexAttributeDefines += `#define RN_USE_POSITION_FLOAT\n`;
+      } else if (accessor!.componentType.isInteger()) {
+        vertexAttributeDefines += `#define RN_USE_POSITION_INT\n`;
+      } else {
+        vertexAttributeDefines += `#define RN_USE_POSITION_UINT\n`;
+      }
     }
     if (attributeSemantic.indexOf('NORMAL') !== -1) {
       vertexAttributeDefines += `#define RN_USE_NORMAL\n`;
@@ -280,7 +287,14 @@ export function _createProgramAsSingleOperationWebGpu(
       vertexAttributeDefines += `#define RN_USE_TEXCOORD_1\n`;
     }
     if (attributeSemantic.indexOf('COLOR_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_COLOR_0\n`;
+      const accessor = primitive.getAttribute(attributeSemantic);
+      if (accessor!.componentType.isFloatingPoint()) {
+        vertexAttributeDefines += `#define RN_USE_COLOR_0_FLOAT\n`;
+      } else if (accessor!.componentType.isInteger()) {
+        vertexAttributeDefines += `#define RN_USE_COLOR_0_INT\n`;
+      } else {
+        vertexAttributeDefines += `#define RN_USE_COLOR_0_UINT\n`;
+      }
     }
     if (attributeSemantic.indexOf('JOINTS_0') !== -1) {
       vertexAttributeDefines += `#define RN_USE_JOINTS_0\n`;

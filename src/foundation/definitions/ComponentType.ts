@@ -60,15 +60,23 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   isInteger() {
     if (
       this.index === 5120 || // Byte
-      this.index === 5121 || // UnsignedByte
       this.index === 5122 || // Short
-      this.index === 5123 || // UnsignedShort
-      this.index === 5124 || // Int
-      this.index === 5125 // UnsignedInt
+      this.index === 5124 // Int
     ) {
       return true;
     }
 
+    return false;
+  }
+
+  isUnsignedInteger() {
+    if (
+      this.index === 5121 || // UnsignedByte
+      this.index === 5123 || // UnsignedShort
+      this.index === 5125 // UnsignedInt
+    ) {
+      return true;
+    }
     return false;
   }
 }

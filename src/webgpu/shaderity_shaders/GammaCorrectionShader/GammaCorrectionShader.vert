@@ -7,15 +7,7 @@
 
 @vertex
 fn main(
-#ifdef RN_USE_INSTANCE
-  @location(8) instance_ids: vec4<f32>,
-#endif
-#ifdef RN_USE_POSITION
-  @location(0) position: vec3<f32>,
-#endif
-#ifdef RN_USE_TEXCOORD_0
-  @location(3) texcoord_0: vec2<f32>,
-#endif
+#pragma shaderity: require(../common/vertexInput.wgsl)
 ) -> VertexOutput {
   var output : VertexOutput;
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
