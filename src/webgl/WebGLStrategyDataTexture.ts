@@ -819,7 +819,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__lastMaterial = material;
     }
 
-    if (firstTime) {
+    if (firstTime || displayIdx === 1) {
       this.__setCurrentComponentSIDsForEachPrimitive(
         gl,
         material,

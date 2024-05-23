@@ -468,7 +468,7 @@ bool get_isBillboard(float instanceId) {
         this.__lastMaterial = material;
       }
 
-      if (firstTime) {
+      if (firstTime || displayIdx === 1) {
         WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
         material._setParametersToGpuWebGL({
           material,
