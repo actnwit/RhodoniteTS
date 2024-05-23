@@ -3,7 +3,7 @@
 import { DataUtil } from '../foundation/misc/DataUtil';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { AbstractTexture } from '../foundation/textures/AbstractTexture';
-import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
+import { ComponentType, ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute, VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
@@ -501,14 +501,27 @@ export class WebGpuResourceRepository
    */
   public createIndexBuffer(accessor: Accessor): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const size = DataUtil.addPaddingBytes(accessor.byteLength, 4);
+
+    let uint8Array = accessor.getUint8Array();
+    if (accessor.componentType === ComponentType.UnsignedByte) {
+      // WebGPU does not support uint8 for index buffer.
+      // So we need to convert uint8 to uint16.
+      const uint16Array = new Uint16Array(accessor.byteLength);
+      const typedArray = accessor.getTypedArray();
+      for (let i = 0; i < typedArray.length; i++) {
+        uint16Array[i] = typedArray[i];
+      }
+      uint8Array = new Uint8Array(uint16Array.buffer);
+    }
+
+    const size = DataUtil.addPaddingBytes(uint8Array.byteLength, 4);
     const indexBuffer = gpuDevice.createBuffer({
       size: size,
       usage: GPUBufferUsage.INDEX,
       mappedAtCreation: true,
     });
 
-    new Uint8Array(indexBuffer.getMappedRange()).set(accessor.getUint8Array());
+    new Uint8Array(indexBuffer.getMappedRange()).set(uint8Array);
     indexBuffer.unmap();
 
     const bufferHandle = this.__registerResource(indexBuffer);
@@ -535,7 +548,18 @@ export class WebGpuResourceRepository
     }
 
     indexBuffer.mapAsync(GPUMapMode.WRITE).then(() => {
-      new Uint8Array(indexBuffer.getMappedRange()).set(accessor.getUint8Array());
+      let uint8Array = accessor.getUint8Array();
+      if (accessor.componentType === ComponentType.UnsignedByte) {
+        // WebGPU does not support uint8 for index buffer.
+        // So we need to convert uint8 to uint16.
+        const uint16Array = new Uint16Array(accessor.byteLength);
+        const typedArray = accessor.getTypedArray();
+        for (let i = 0; i < typedArray.length; i++) {
+          uint16Array[i] = typedArray[i];
+        }
+        uint8Array = new Uint8Array(uint16Array.buffer);
+      }
+      new Uint8Array(indexBuffer.getMappedRange()).set(uint8Array);
       indexBuffer.unmap();
     });
   }
