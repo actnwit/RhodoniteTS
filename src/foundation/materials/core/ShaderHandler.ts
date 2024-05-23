@@ -298,6 +298,9 @@ export function _createProgramAsSingleOperationWebGpu(
       vertexAttributeDefines += `#define RN_USE_TEXCOORD_2\n`;
     }
   }
+  if (primitive.targets != null && primitive.targets.length > 0) {
+    vertexAttributeDefines += '#define RN_IS_MORPHING\n';
+  }
 
   vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
 
