@@ -26,32 +26,27 @@ import { Vrm0xMaterialProperty } from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
 import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
-import { ShaderityObject } from 'shaderity';
-import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
-import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
   static readonly _Color = new ShaderSemanticsClass({ str: 'litColor' });
   static readonly _ShadeColor = new ShaderSemanticsClass({ str: 'shadeColor' });
-  static readonly _MainTex = new ShaderSemanticsClass({ str: 'litColorTexture' });
-  static readonly _ShadeTexture = new ShaderSemanticsClass({
+  static readonly _litColorTexture = new ShaderSemanticsClass({ str: 'litColorTexture' });
+  static readonly _shadeColorTexture = new ShaderSemanticsClass({
     str: 'shadeColorTexture',
   });
   static readonly _BumpScale = new ShaderSemanticsClass({ str: 'normalScale' });
-  static readonly _BumpMap = new ShaderSemanticsClass({ str: 'normalTexture' });
+  static readonly _normalTexture = new ShaderSemanticsClass({ str: 'normalTexture' });
   static readonly _ReceiveShadowRate = new ShaderSemanticsClass({
     str: 'receiveShadowRate',
   });
-  static readonly _ReceiveShadowTexture = new ShaderSemanticsClass({
+  static readonly _receiveShadowTexture = new ShaderSemanticsClass({
     str: 'receiveShadowTexture',
   });
   static readonly _ShadingGradeRate = new ShaderSemanticsClass({
     str: 'shadingGradeRate',
   });
-  static readonly _ShadingGradeTexture = new ShaderSemanticsClass({
+  static readonly _shadingGradeTexture = new ShaderSemanticsClass({
     str: 'shadingGradeTexture',
   });
   static readonly _ShadeShift = new ShaderSemanticsClass({ str: 'shadeShift' });
@@ -63,7 +58,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'ambientColor',
   });
   // static readonly _IndirectLightIntensity = new ShaderSemanticsClass({ str: 'indirectLightIntensity' });
-  static readonly _RimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
+  static readonly _rimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
   static readonly _RimColor = new ShaderSemanticsClass({ str: 'rimColor' });
   static readonly _RimLightingMix = new ShaderSemanticsClass({
     str: 'rimLightingMix',
@@ -72,11 +67,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'rimFresnelPower',
   });
   static readonly _RimLift = new ShaderSemanticsClass({ str: 'rimLift' });
-  static readonly _SphereAdd = new ShaderSemanticsClass({ str: 'matCapTexture' });
+  static readonly _matCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
   static readonly _EmissionColor = new ShaderSemanticsClass({
     str: 'emissionColor',
   });
-  static readonly _EmissionMap = new ShaderSemanticsClass({
+  static readonly _emissionTexture = new ShaderSemanticsClass({
     str: 'emissionTexture',
   });
   static readonly _OutlineWidthTexture = new ShaderSemanticsClass({
@@ -604,7 +599,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   ) {
     shaderSemanticsInfoArray.push(
       {
-        semantic: MToonMaterialContent._MainTex,
+        semantic: MToonMaterialContent._litColorTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -619,7 +614,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._ShadeTexture,
+        semantic: MToonMaterialContent._shadeColorTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -634,7 +629,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._ReceiveShadowTexture,
+        semantic: MToonMaterialContent._receiveShadowTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -649,7 +644,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._ShadingGradeTexture,
+        semantic: MToonMaterialContent._shadingGradeTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -664,7 +659,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._RimTexture,
+        semantic: MToonMaterialContent._rimTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -679,7 +674,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._SphereAdd,
+        semantic: MToonMaterialContent._matCapTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -694,7 +689,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._EmissionMap,
+        semantic: MToonMaterialContent._emissionTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -713,7 +708,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     shaderSemanticsInfoArray.push(
       {
         // number 7 of texture is the data Texture
-        semantic: MToonMaterialContent._BumpMap,
+        semantic: MToonMaterialContent._normalTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
