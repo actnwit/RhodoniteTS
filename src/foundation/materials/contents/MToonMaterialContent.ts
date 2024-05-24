@@ -46,22 +46,22 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
   static readonly _Color = new ShaderSemanticsClass({ str: 'litColor' });
   static readonly _ShadeColor = new ShaderSemanticsClass({ str: 'shadeColor' });
-  static readonly _litColorTexture = new ShaderSemanticsClass({ str: 'litColorTexture' });
-  static readonly _shadeColorTexture = new ShaderSemanticsClass({
+  public static readonly _litColorTexture = new ShaderSemanticsClass({ str: 'litColorTexture' });
+  public static readonly _shadeColorTexture = new ShaderSemanticsClass({
     str: 'shadeColorTexture',
   });
   static readonly _BumpScale = new ShaderSemanticsClass({ str: 'normalScale' });
-  static readonly _normalTexture = new ShaderSemanticsClass({ str: 'normalTexture' });
+  public static readonly _normalTexture = new ShaderSemanticsClass({ str: 'normalTexture' });
   static readonly _ReceiveShadowRate = new ShaderSemanticsClass({
     str: 'receiveShadowRate',
   });
-  static readonly _receiveShadowTexture = new ShaderSemanticsClass({
+  public static readonly _receiveShadowTexture = new ShaderSemanticsClass({
     str: 'receiveShadowTexture',
   });
   static readonly _ShadingGradeRate = new ShaderSemanticsClass({
     str: 'shadingGradeRate',
   });
-  static readonly _shadingGradeTexture = new ShaderSemanticsClass({
+  public static readonly _shadingGradeTexture = new ShaderSemanticsClass({
     str: 'shadingGradeTexture',
   });
   static readonly _ShadeShift = new ShaderSemanticsClass({ str: 'shadeShift' });
@@ -73,7 +73,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'ambientColor',
   });
   // static readonly _IndirectLightIntensity = new ShaderSemanticsClass({ str: 'indirectLightIntensity' });
-  static readonly _rimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
+  public static readonly _rimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
   static readonly _RimColor = new ShaderSemanticsClass({ str: 'rimColor' });
   static readonly _RimLightingMix = new ShaderSemanticsClass({
     str: 'rimLightingMix',
@@ -82,14 +82,14 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'rimFresnelPower',
   });
   static readonly _RimLift = new ShaderSemanticsClass({ str: 'rimLift' });
-  static readonly _matCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
+  public static readonly _matCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
   static readonly _EmissionColor = new ShaderSemanticsClass({
     str: 'emissionColor',
   });
-  static readonly _emissionTexture = new ShaderSemanticsClass({
+  public static readonly _emissionTexture = new ShaderSemanticsClass({
     str: 'emissionTexture',
   });
-  static readonly _OutlineWidthTexture = new ShaderSemanticsClass({
+  public static readonly _OutlineWidthTexture = new ShaderSemanticsClass({
     str: 'outlineWidthTexture',
   });
   static readonly _OutlineWidth = new ShaderSemanticsClass({
