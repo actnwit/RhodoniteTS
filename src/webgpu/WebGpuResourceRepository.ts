@@ -1580,11 +1580,11 @@ export class WebGpuResourceRepository
   updateStorageBuffer(
     storageBufferHandle: WebGPUResourceHandle,
     inputArray: Float32Array,
-    updateByteLength: Byte
+    updateComponentSize: Count
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
   }
 
   createStorageBlendShapeBuffer(inputArray: Float32Array) {
@@ -1605,11 +1605,11 @@ export class WebGpuResourceRepository
   updateStorageBlendShapeBuffer(
     storageBufferHandle: WebGPUResourceHandle,
     inputArray: Float32Array,
-    updateByteLength: Byte
+    updateComponentSize: Count
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
-    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateByteLength);
+    gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
   }
 
   createUniformMorphOffsetsBuffer() {
