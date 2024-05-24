@@ -70,9 +70,7 @@ fn main(
 
   output.normal_inView = vec3(viewMatrix * vec4(geom.normal_inWorld, 0.0));
 
-  #ifndef RN_MTOON_IS_OUTLINE
-    output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
-  #else
+  #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE
       let outlineTex = textureSample(outlineWidthTexture, outlineWidthSampler, texcoord_0).r;
     #else
@@ -102,6 +100,8 @@ fn main(
     #else
       output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
     #endif
+  #else
+    output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
   #endif
 
   #ifdef RN_USE_TANGENT

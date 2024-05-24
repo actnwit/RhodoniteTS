@@ -69,9 +69,7 @@ void main(){
 
   v_normal_inView = vec3(viewMatrix * vec4(v_normal_inWorld, 0.0));
 
-  #ifndef RN_MTOON_IS_OUTLINE
-    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
-  #else
+  #ifdef RN_MTOON_IS_OUTLINE
     #if defined(RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE)
       float outlineTex = texture(u_outlineWidthTexture, a_texcoord_0).r;
     #else
@@ -101,6 +99,8 @@ void main(){
     #else
       gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
     #endif
+  #else
+    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   #endif
 
   #ifdef RN_USE_TANGENT
