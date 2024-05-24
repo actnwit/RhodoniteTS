@@ -1112,7 +1112,8 @@ function createMToonMaterial({
     isLighting,
     useTangentAttribute,
     debugMode,
-    makeOutputSrgb
+    makeOutputSrgb,
+    materialName
   );
 
   materialNode.isSingleOperation = true;

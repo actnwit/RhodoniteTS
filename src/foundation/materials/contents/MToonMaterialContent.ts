@@ -129,17 +129,14 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     isLighting: boolean,
     useTangentAttribute: boolean,
     debugMode: Count | undefined,
-    makeOutputSrgb: boolean
+    makeOutputSrgb: boolean,
+    materialName: string
   ) {
-    super(
-      null,
-      'MToonShading' +
-        (isMorphing ? '+morphing' : '') +
-        (isSkinning ? '+skinning' : '') +
-        (isLighting ? '' : '-lighting') +
-        (useTangentAttribute ? '+tangentAttribute' : ''),
-      { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting }
-    );
+    super(null, materialName, {
+      isMorphing: isMorphing,
+      isSkinning: isSkinning,
+      isLighting: isLighting,
+    });
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
       mToonSingleShaderVertex,
@@ -845,17 +842,17 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       MToonMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
     } else {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContextAsWebGL2();
-    if (glw!.isWebGL2) {
-      MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
-    } else if (glw!.webgl1ExtBM) {
-      MToonMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
-    } else {
-      MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
+      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const glw = webGLResourceRepository.currentWebGLContextWrapper;
+      const gl = glw!.getRawContextAsWebGL2();
+      if (glw!.isWebGL2) {
+        MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
+      } else if (glw!.webgl1ExtBM) {
+        MToonMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
+      } else {
+        MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
+      }
     }
-  }
   }
 
   _setCustomSettingParametersToGpuWebGL({
