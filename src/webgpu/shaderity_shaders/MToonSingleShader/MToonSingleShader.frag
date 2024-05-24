@@ -77,7 +77,7 @@ fn main (
   #ifdef RN_ALPHATEST_ON
     alpha = litTextureColor.a * litColorFactor.a;
     let cutoff: f32 = get_cutoff(materialSID, 0);
-    if (alpha < cutoff) { discard };
+    if (alpha < cutoff) { discard; }
   #elif defined(RN_ALPHABLEND_ON)
     alpha = litTextureColor.a * litColorFactor.a;
   #endif
@@ -92,9 +92,9 @@ fn main (
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_COLOR_FIXED
       let outlineColor: vec3f = get_outlineColor(materialSID, 0);
-      rt0.xyz = outlineColor;
+      rt0 = vec4f(outlineColor, rt0.w);
 
-      rt0.xyz = srgbToLinear(rt0.xyz);
+      rt0 = vec4(srgbToLinear(rt0.xyz), rt0.w);
       return rt0;
     #endif
   #endif
@@ -122,7 +122,7 @@ fn main (
   // TODO: shadowmap computation
 
   let receiveShadowRate: f32 = get_receiveShadowRate(materialSID, 0);
-  let lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, input.texcoord_0).r);
+  var lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, input.texcoord_0).r);
 
   let shadingGradeRate: f32 = get_shadingGradeRate(materialSID, 0);
   let shadingGrade: f32 = 1.0 - shadingGradeRate * (1.0 - textureSample(shadingGradeTexture, shadingGradeSampler, input.texcoord_0).r);
@@ -133,17 +133,18 @@ fn main (
   shadeColor = srgbToLinear(shadeColor.xyz);
 
   var litColor: vec3f = litColorFactor.xyz * litTextureColor.xyz;
-  litColor.xyz = srgbToLinear(litColor.xyz);
+  litColor = srgbToLinear(litColor.xyz);
 
 
   let shadeShift: f32 = get_shadeShift(materialSID, 0);
   let shadeToony: f32 = get_shadeToony(materialSID, 0);
 
-  var lightings[/* shaderity: @{Config.maxLightNumberInShader} */]: array<vec3<f32>;
+  var lightings: array<vec3<f32>, /* shaderity: @{Config.maxLightNumberInShader} */>;
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
     var lightIntensities[/* shaderity: @{Config.maxLightNumberInShader} */]: array<f32>;
   #endif
-  for (var i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+  let lightNumber = u32(get_lightNumber(0u, 0u));
+  for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
     if (i >= lightNumber) {
       break;
     }
@@ -167,7 +168,7 @@ fn main (
     #endif
 
     // Albedo color
-    let col: vec3f = mix(shadeColor, litColor, lightIntensity);
+    var col: vec3f = mix(shadeColor, litColor, lightIntensity);
 
     // Direct Light
     var lighting: vec3f = light.attenuatedIntensity;
@@ -186,7 +187,7 @@ fn main (
     col *= lighting;
     lightings[i] = lighting;
 
-    rt0.xyz += col;
+    rt0 += vec4f(col, 0.0);
 
     lightAttenuation = 1.0;
   }
@@ -198,8 +199,8 @@ fn main (
   indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
   // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
 
-  rt0.xyz += indirectLighting * litColor;
-  rt0.xyz = min(rt0.xyz, litColor); // comment out if you want to PBR absolutely.
+  rt0 += vec4f(indirectLighting * litColor, 0.0);
+  rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
 
 
   #ifdef RN_MTOON_IS_OUTLINE
@@ -207,7 +208,7 @@ fn main (
       var outlineColor: vec3f = get_outlineColor(materialSID, 0);
       outlineColor = srgbToLinear(outlineColor);
       let outlineLightingMix: f32 = get_outlineLightingMix(materialSID, 0);
-      rt0.xyz = outlineColor * mix(vec3f(1.0), rt0.xyz, outlineLightingMix);
+      rt0 = vec4f(outlineColor * mix(vec3f(1.0), rt0.xyz, outlineLightingMix), rt0.w);
     #endif
   #else
     let viewDirection: vec3f = normalize(viewVector);
@@ -219,30 +220,30 @@ fn main (
     let rimColor: vec3f = srgbToLinear(rimColorFactor * rimTextureColor);
     let rim: vec3f = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
-    let staticRimLighting = 1.0;
+    var staticRimLighting = 1.0;
     let rimLightingMix: f32 = get_rimLightingMix(materialSID, 0);
-    for (var i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
-      if (i >= lightNumber) { break };
+    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberInShader} */u; i++) {
+      if (i >= lightNumber) { break; }
 
-      if (i > 0) { staticRimLighting = 0.0 };
+      if (i > 0) { staticRimLighting = 0.0; }
 
       let rimLighting: vec3f = mix(vec3f(staticRimLighting), lightings[i], vec3f(rimLightingMix));
-      rt0.xyz += rim * rimLighting;
+      rt0 += vec4f(rim * rimLighting, 0.0);
     }
 
     // additive matcap
-    let cameraUp: vec3f = get_cameraUp(0.0, 0); //solo datum
+    let cameraUp: vec3f = get_cameraUp(0u, 0u); //solo datum
     let worldViewUp: vec3f = normalize(cameraUp - viewDirection * dot(viewDirection, cameraUp));
     let worldViewRight: vec3f = normalize(cross(viewDirection, worldViewUp));
     let matcapUv: vec2f = vec2f(dot(worldViewRight, normal_inWorld), dot(worldViewUp, normal_inWorld)) * 0.5 + 0.5;
-    let matCapColor: vec3f = srgbToLinear(texture(u_matCapTexture, matcapUv).xyz);
-    rt0.xyz += matCapColor;
+    let matCapColor: vec3f = srgbToLinear(textureSample(matCapTexture, matCapSampler, matcapUv).xyz);
+    rt0 += vec4f(matCapColor, 0.0);
 
 
     // Emission
     let emissionColor: vec3f = get_emissionColor(materialSID, 0);
-    let emission: vec3f = srgbToLinear(texture(u_emissionTexture, v_texcoord_0).xyz) * emissionColor;
-    rt0.xyz += emission;
+    let emission: vec3f = srgbToLinear(textureSample(emissionTexture, emissionSampler, input.texcoord_0).xyz) * emissionColor;
+    rt0 += vec4f(emission, 0.0);
   #endif
 
 
@@ -250,16 +251,16 @@ fn main (
   #ifdef RN_MTOON_DEBUG_NORMAL
     rt0 = vec4f(normal_inWorld * 0.5 + 0.5, alpha);
 
-    rt0.xyz = srgbToLinear(rt0.xyz);
+    rt0 = vec4f(srgbToLinear(rt0.xyz), rt0.w);
     return rt0;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4f(0.0);
-    for (var i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberInShader} */u; i++) {
       if (i >= lightNumber) { break; }
       rt0 += vec4f(lightIntensities[i] * lightings[i], alpha);
     }
 
-    rt0.xyz = srgbToLinear(rt0.xyz);
+    rt0 = vec4f(srgbToLinear(rt0.xyz), rt0.w);
     return rt0;
   #endif
 
@@ -274,10 +275,10 @@ fn main (
   }
   var wireframeResult = rt0;
   let wireframeColor = vec4f(0.2, 0.75, 0.0, 1.0);
-  let edgeRatio: f32 = edge_ratio(v_baryCentricCoord, wireframeWidthInner, wireframeWidthRelativeScale);
+  let edgeRatio: f32 = edge_ratio(input.baryCentricCoord, wireframeWidthInner, wireframeWidthRelativeScale);
   let edgeRatioModified: f32 = mix(step(threshold, edgeRatio), clamp(edgeRatio*4.0, 0.0, 1.0), wireframeWidthInner / wireframeWidthRelativeScale/4.0);
   // if r0.a is 0.0, it is wireframe not on shaded
-  wireframeResult.rgb = wireframeColor.rgb * edgeRatioModified + rt0.rgb * (1.0 - edgeRatioModified);
+  wireframeResult = vec4f(wireframeColor.rgb * edgeRatioModified + rt0.rgb * (1.0 - edgeRatioModified), wireframeResult.a);
   wireframeResult.a = max(rt0.a, wireframeColor.a * mix(edgeRatioModified, pow(edgeRatioModified, 100.0), wireframeWidthInner / wireframeWidthRelativeScale/1.0));
 
   if (wireframe.x > 0.5) {
@@ -288,7 +289,7 @@ fn main (
   }
 
   let makeOutputSrgb = get_makeOutputSrgb(materialSID, 0);
-  rt0 = vec4f(mix(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.w);
+  rt0 = vec4f(select(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.w);
 
   return rt0;
 }
