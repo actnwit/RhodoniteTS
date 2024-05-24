@@ -10,8 +10,10 @@
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
+#ifdef RN_MTOON_IS_OUTLINE
 @group(1) @binding(9) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(9) var outlineWidthSampler: sampler;
+#endif
 
 @vertex
 fn main(
@@ -72,7 +74,7 @@ fn main(
 
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE
-      let outlineTex = textureSample(outlineWidthTexture, outlineWidthSampler, texcoord_0).r;
+      let outlineTex = 1.0;//textureSample(outlineWidthTexture, outlineWidthSampler, texcoord_0).r;
     #else
       let outlineTex = 1.0;
     #endif
