@@ -22,10 +22,25 @@ import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MTo
 import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vrm0xMaterialProperty } from '../../../types';
+import {
+  GL_DST_ALPHA,
+  GL_DST_COLOR,
+  GL_ONE,
+  GL_ONE_MINUS_DST_ALPHA,
+  GL_ONE_MINUS_DST_COLOR,
+  GL_ONE_MINUS_SRC_ALPHA,
+  GL_ONE_MINUS_SRC_COLOR,
+  GL_SRC_ALPHA,
+  GL_SRC_ALPHA_SATURATE,
+  GL_SRC_COLOR,
+  GL_ZERO,
+  Vrm0xMaterialProperty,
+} from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
 import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach, ProcessApproachClass } from '../../definitions';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -827,6 +842,9 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      MToonMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
+    } else {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper;
     const gl = glw!.getRawContextAsWebGL2();
@@ -837,6 +855,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     } else {
       MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
     }
+  }
   }
 
   _setCustomSettingParametersToGpuWebGL({
@@ -894,44 +913,40 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContext();
-
-    let result = gl.ZERO as number;
+    let result = GL_ZERO as number; // gl.ZERO
     switch (enumNumber) {
       case 0:
-        result = gl.ZERO;
+        result = GL_ZERO;
         break;
       case 1:
-        result = gl.ONE;
+        result = GL_ONE;
         break;
       case 2:
-        result = gl.DST_COLOR;
+        result = GL_DST_COLOR;
         break;
       case 3:
-        result = gl.SRC_COLOR;
+        result = GL_SRC_COLOR;
         break;
       case 4:
-        result = gl.ONE_MINUS_DST_COLOR;
+        result = GL_ONE_MINUS_DST_COLOR;
         break;
       case 5:
-        result = gl.SRC_ALPHA;
+        result = GL_SRC_ALPHA;
         break;
       case 6:
-        result = gl.ONE_MINUS_SRC_COLOR;
+        result = GL_ONE_MINUS_SRC_COLOR;
         break;
       case 7:
-        result = gl.DST_ALPHA;
+        result = GL_DST_ALPHA;
         break;
       case 8:
-        result = gl.ONE_MINUS_DST_ALPHA;
+        result = GL_ONE_MINUS_DST_ALPHA;
         break;
       case 9:
-        result = gl.SRC_ALPHA_SATURATE;
+        result = GL_SRC_ALPHA_SATURATE;
         break;
       case 10:
-        result = gl.ONE_MINUS_SRC_ALPHA;
+        result = GL_ONE_MINUS_SRC_ALPHA;
         break;
     }
     return result;
