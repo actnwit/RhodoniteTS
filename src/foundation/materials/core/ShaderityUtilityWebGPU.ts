@@ -290,15 +290,23 @@ export class ShaderityUtilityWebGPU {
     initialValueText: string
   ) {
     let initialValue;
+    const sampler = new Sampler({
+      magFilter: TextureParameter.Linear,
+      minFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      wrapR: TextureParameter.ClampToEdge,
+      anisotropy: false,
+    });
     if (
       shaderSemanticsInfo.compositionType === CompositionType.Texture2D ||
       shaderSemanticsInfo.compositionType === CompositionType.Texture2DShadow
     ) {
       const color = initialValueText.charAt(0).toUpperCase() + initialValueText.slice(1);
-      initialValue = [binding, (DefaultTextures as any)[`dummy${color}Texture`]];
+      initialValue = [binding, (DefaultTextures as any)[`dummy${color}Texture`], sampler];
     } else if (shaderSemanticsInfo.compositionType === CompositionType.TextureCube) {
       const color = initialValueText.charAt(0).toUpperCase() + initialValueText.slice(1);
-      initialValue = [binding, (DefaultTextures as any)[`dummy${color}CubeTexture`]];
+      initialValue = [binding, (DefaultTextures as any)[`dummy${color}CubeTexture`], sampler];
     }
     return initialValue;
   }
