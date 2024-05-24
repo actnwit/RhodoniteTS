@@ -17,6 +17,7 @@ fn main(
   var output : VertexOutput;
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_NONE
+      output.position = vec4<f32>(0.0, 0.0, 0.0, 1.0);
       return output;
     #endif
   #endif
@@ -102,7 +103,7 @@ fn main(
   #endif
 
   #ifdef RN_USE_TANGENT
-    output.tangent_inWorld = normalMatrix * a_tangent.xyz;
+    output.tangent_inWorld = normalMatrix * tangent.xyz;
     output.binormal_inWorld = cross(geom.normal_inWorld, output.tangent_inWorld) * tangent.w;
   #endif
 
