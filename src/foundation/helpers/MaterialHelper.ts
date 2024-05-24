@@ -70,6 +70,7 @@ import GaussianBlurSingleShaderFragment from '../../webgl/shaderity_shaders/Gaus
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import { Scalar } from '../math/Scalar';
+import { TextureParameter } from '../definitions';
 
 function createMaterial(
   materialName: string,
@@ -182,6 +183,13 @@ function createPbrUberMaterial({
     ];
   }
 
+  const sampler = new Sampler({
+    minFilter: TextureParameter.Linear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+  });
+
   let textureSlotIdx = 8;
   if (isClearCoat) {
     additionalShaderSemanticInfo.push({
@@ -191,7 +199,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -202,7 +210,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -213,7 +221,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyBlueTexture],
+      initialValue: [textureSlotIdx++, dummyBlueTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -227,7 +235,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -238,7 +246,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyBlackTexture],
+      initialValue: [textureSlotIdx++, dummyBlackTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -252,7 +260,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -266,7 +274,7 @@ function createPbrUberMaterial({
       stage: ShaderType.PixelShader,
       isCustomSetting: false,
       soloDatum: false,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -278,7 +286,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -290,7 +298,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, sheenLutTexture],
+      initialValue: [textureSlotIdx++, sheenLutTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -305,7 +313,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -317,7 +325,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -332,7 +340,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -344,7 +352,7 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -358,7 +366,7 @@ function createPbrUberMaterial({
       isCustomSetting: true,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyAnisotropyTexture],
+      initialValue: [textureSlotIdx++, dummyAnisotropyTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
       needUniformInDataTextureMode: true,
@@ -374,14 +382,14 @@ function createPbrUberMaterial({
       isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
   }
 
   const materialNode = new CustomMaterialContent({
-    name: 'PbrUber',
+    name: materialName,
     isSkinning,
     isLighting,
     isMorphing,

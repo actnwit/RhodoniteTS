@@ -61,22 +61,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     vertexShaderWebGpu?: ShaderityObject;
     pixelShaderWebGpu?: ShaderityObject;
   }) {
-    super(
-      null,
-      name +
-        (isMorphing ? '+morphing' : '') +
-        (isSkinning ? '+skinning' : '') +
-        (isLighting ? '' : '-lighting') +
-        (isClearCoat ? '+clearcoat' : '') +
-        (isTransmission ? '+transmission' : '') +
-        (isVolume ? '+volume' : '') +
-        (isSpecular ? '+specular' : '') +
-        (isSheen ? '+sheen' : '') +
-        (isIridescence ? '+iridescence' : '') +
-        (isAnisotropy ? '+anisotropy' : '') +
-        (useTangentAttribute ? '+tangentAttribute' : ''),
-      { isMorphing, isSkinning, isLighting }
-    );
+    super(null, name, { isMorphing, isSkinning, isLighting });
 
     // Shader Reflection
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
@@ -134,13 +119,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
-    } else {
-      this.setShaderSemanticsInfoArray(
-        shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo)
-      );
-    }
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 
   _setCustomSettingParametersToGpuWebGL({

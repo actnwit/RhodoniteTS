@@ -63,22 +63,11 @@
 // #param clearCoatTexcoordIndex: u32; // initialValue=(0)
 // #param clearCoatRoughnessTexcoordIndex: u32; // initialValue=(0)
 // #param clearCoatNormalTexcoordIndex: u32; // initialValue=(0)
-
-@group(1) @binding(5) var clearCoatTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(5) var clearCoatSampler: sampler;
-@group(1) @binding(6) var clearCoatRoughnessTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(6) var clearCoatRoughnessSampler: sampler;
-@group(1) @binding(7) var clearCoatNormalTexture: texture_2d<f32>; // initialValue=blue
-@group(2) @binding(7) var clearCoatNormalSampler: sampler;
 #endif // RN_USE_CLEARCOAT
 
 
 #ifdef RN_USE_TRANSMISSION
 // #param transmissionFactor: f32; // initialValue=(0)
-@group(1) @binding(8) var transmissionTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(8) var transmissionSampler: sampler;
-@group(1) @binding(9) var backBufferTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(9) var backBufferSampler: sampler; // initialValue=white
 #endif // RN_USE_TRANSMISSION
 
 
