@@ -136,8 +136,15 @@ fn get_isVisible(instanceId: u32) -> bool {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.str.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
+
     if (isTexture) {
-      return '';
+      const isCubeMap = info.compositionType === CompositionType.TextureCube;
+      const textureType = isCubeMap ? 'texture_cube<f32>' : 'texture_2d<f32>';
+      const samplerName = methodName.replace('Texture', 'Sampler');
+      return `
+@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
+`;
     }
 
     // inner contents of 'get_' shader function

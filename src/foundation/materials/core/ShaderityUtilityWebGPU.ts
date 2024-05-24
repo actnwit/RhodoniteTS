@@ -108,7 +108,6 @@ export class ShaderityUtilityWebGPU {
         textureMap.set(binding, shaderSemanticsInfo);
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
-        uniformOmittedShaderRows.push(row);
       } else if (matchSamplerDeclaration) {
         const binding = parseInt(matchSamplerDeclaration[1]);
         const variableName = matchSamplerDeclaration[2];
@@ -127,7 +126,6 @@ export class ShaderityUtilityWebGPU {
             textureShaderSemanticsInfo.initialValue[2] = sampler;
           }
         }
-        uniformOmittedShaderRows.push(row);
       } else {
         // not match
         uniformOmittedShaderRows.push(row);
