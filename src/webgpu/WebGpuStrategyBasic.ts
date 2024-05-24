@@ -449,11 +449,11 @@ ${indexStr}
     const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
     if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const bufferSizeForDataTextureInByte = gpuInstanceDataBuffer!.takenSizeInByte;
+      const dataSizeForDataTexture = gpuInstanceDataBuffer!.takenSizeInByte / 4;
       webGpuResourceRepository.updateStorageBuffer(
         this.__storageBufferUid,
         float32Array,
-        bufferSizeForDataTextureInByte
+        dataSizeForDataTexture
       );
     } else {
       // Create
@@ -477,11 +477,11 @@ ${indexStr}
     const float32Array = new Float32Array(blendShapeDataBuffer!.getArrayBuffer());
     if (this.__storageBlendShapeBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       // Update
-      const bufferSizeForDataTextureInByte = blendShapeDataBuffer!.takenSizeInByte;
-      webGpuResourceRepository.updateStorageBuffer(
+      const componentSizeForDataTexture = blendShapeDataBuffer!.takenSizeInByte / 4;
+      webGpuResourceRepository.updateStorageBlendShapeBuffer(
         this.__storageBlendShapeBufferUid,
         float32Array,
-        bufferSizeForDataTextureInByte
+        componentSizeForDataTexture
       );
     } else {
       // Create
