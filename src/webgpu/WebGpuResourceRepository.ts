@@ -1712,6 +1712,24 @@ export class WebGpuResourceRepository
           },
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
+      } else {
+        const dummyBuffer = gpuDevice.createBuffer({
+          size: 16,
+          usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+        });
+        entries.push({
+          binding: 1,
+          resource: {
+            buffer: dummyBuffer,
+          },
+        });
+        bindGroupLayoutEntries.push({
+          binding: 1,
+          buffer: {
+            type: 'read-only-storage',
+          },
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+        });
       }
 
       if (this.__uniformMorphOffsetsBuffer != null) {

@@ -9,23 +9,6 @@ const EPS_COL: f32 = 0.00001;
 
 #pragma shaderity: require(../common/opticalDefinition.wgsl)
 
-@group(1) @binding(0) var litColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var litColorSampler: sampler;
-@group(1) @binding(1) var shadeColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(1) var shadeColorSampler: sampler;
-@group(1) @binding(2) var receiveShadowTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(2) var receiveShadowSampler: sampler;
-@group(1) @binding(3) var shadingGradeTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(3) var shadingGradeSampler: sampler;
-@group(1) @binding(4) var rimTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(4) var rimSampler: sampler;
-@group(1) @binding(5) var matCapTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(5) var matCapSampler: sampler;
-@group(1) @binding(6) var emissionTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(6) var emissionSampler: sampler;
-@group(1) @binding(8) var normalTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(8) var normalSampler: sampler;
-
 fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScale: f32) -> f32 {
   let d: vec3f = fwidth(bary3);
   let x: vec3f = bary3 + vec3f(1.0 - wireframeWidthInner) * d;

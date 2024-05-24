@@ -318,6 +318,7 @@ export class Vrm0xImporter {
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
     });
+    dummySampler.create();
     rnSamplers.push(dummySampler);
     rnSamplers.push(dummySampler);
 

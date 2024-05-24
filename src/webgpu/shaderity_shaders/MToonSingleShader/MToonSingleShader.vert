@@ -10,11 +10,6 @@
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
-#ifdef RN_MTOON_IS_OUTLINE
-@group(1) @binding(9) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(9) var outlineWidthSampler: sampler;
-#endif
-
 @vertex
 fn main(
 #pragma shaderity: require(../common/vertexInput.wgsl)

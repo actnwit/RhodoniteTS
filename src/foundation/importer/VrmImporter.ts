@@ -24,6 +24,7 @@ import { ConstraintComponent } from '../components/Constraint';
 import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
 import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
 import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
+import { TextureParameter } from '../definitions/TextureParameter';
 
 export class VrmImporter {
   private constructor() {}
@@ -308,6 +309,17 @@ export class VrmImporter {
       const rnTexture = ModelConverter._createSampler(gltfTextures[i]);
       rnSamplers[i] = rnTexture;
     }
+
+    const dummySampler = new Sampler({
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+    });
+    dummySampler.create();
+    rnSamplers.push(dummySampler);
+    rnSamplers.push(dummySampler);
+
     return rnSamplers;
   }
 
