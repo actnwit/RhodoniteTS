@@ -1305,6 +1305,8 @@ export class WebGpuResourceRepository
       primitive: {
         topology: topology as GPUPrimitiveTopology,
         stripIndexFormat: stripIndexFormat,
+        frontFace: material.cullFrontFaceCCW ? 'ccw' : 'cw',
+        cullMode: material.cullFace ? 'back' : 'none',
       },
       depthStencil: {
         depthWriteEnabled: renderPass.isDepthTest ? true : false,
