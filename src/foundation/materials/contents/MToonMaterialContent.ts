@@ -18,6 +18,8 @@ import { Array3, Array4, Count } from '../../../types/CommonTypes';
 import { Texture } from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
+import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
+import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 import { RenderingArg } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vrm0xMaterialProperty } from '../../../types';
@@ -126,12 +128,15 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         (isSkinning ? '+skinning' : '') +
         (isLighting ? '' : '-lighting') +
         (useTangentAttribute ? '+tangentAttribute' : ''),
-      { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting },
-      mToonSingleShaderVertex,
-      mToonSingleShaderFragment
+      { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting }
     );
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
+      mToonSingleShaderVertex,
+      mToonSingleShaderFragment,
+      mToonSingleShaderVertexWebGpu,
+      mToonSingleShaderFragmentWebGpu
+    );
 
     if (materialProperties != null) {
       this.__floatProperties = materialProperties.floatProperties;
@@ -580,54 +585,6 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         }
       );
     }
-
-    // Shader Reflection
-    let vertexShaderData: {
-      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
-      shaderityObject: ShaderityObject;
-    };
-    let pixelShaderData: {
-      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
-      shaderityObject: ShaderityObject;
-    };
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-    } else {
-      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        mToonSingleShaderVertex,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        mToonSingleShaderFragment,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-
-      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
-
-      for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
-        vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
-        shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
-      }
-      for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
-        const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
-          (vertexInfo: ShaderSemanticsInfo) => {
-            if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        );
-        if (foundShaderSemanticsInfo) {
-          foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
-        } else {
-          pixelShaderSemanticsInfo.stage = ShaderType.PixelShader;
-          shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
-        }
-      }
-    }
-
-
 
     if (useTangentAttribute) {
       this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
