@@ -70,7 +70,8 @@ fn main(
 
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE
-      let outlineTex = 1.0;//textureSample(outlineWidthTexture, outlineWidthSampler, texcoord_0).r;
+      let textureSize = textureDimensions(outlineWidthTexture, 0);
+      let outlineTex = textureLoad(outlineWidthTexture, vec2u(vec2f(textureSize) * texcoord_0), 0).r;
     #else
       let outlineTex = 1.0;
     #endif
