@@ -7,7 +7,7 @@ import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
 import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
@@ -131,7 +131,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -255,7 +255,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  private static __setupHdriParameters(args: RenderingArg) {
+  private static __setupHdriParameters(args: RenderingArgWebGL) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

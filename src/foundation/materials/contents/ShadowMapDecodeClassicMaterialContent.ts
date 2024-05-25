@@ -24,7 +24,7 @@ import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MutableVector4 } from '../../math/MutableVector4';
 import ShadowMapDecodeSingleShaderVertex from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.vert';
 import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shaders/ShadowMapDecodeClassicSingleShader/ShadowMapDecodeClassicSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 
@@ -368,7 +368,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {

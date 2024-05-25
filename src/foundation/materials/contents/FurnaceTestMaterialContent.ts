@@ -11,7 +11,7 @@ import { Material } from '../core/Material';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import FurnaceTestShaderVertex from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.vert';
 import FurnaceTestShaderFragment from '../../../webgl/shaderity_shaders/FurnaceTestShader/FurnaceTestShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyWhiteTexture } from '../core/DummyTextures';
 
@@ -134,7 +134,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

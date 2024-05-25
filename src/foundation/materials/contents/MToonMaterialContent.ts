@@ -20,7 +20,7 @@ import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingl
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
 import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import {
   GL_DST_ALPHA,
@@ -41,6 +41,7 @@ import { Blend } from '../../definitions/Blend';
 import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach, ProcessApproachClass } from '../../definitions';
+import { WellKnownComponentTIDs } from '../../components';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
@@ -854,6 +855,23 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       }
     }
   }
+  _setCustomSettingParametersToGpuWebGpu({
+    material,
+    args,
+  }: {
+    material: Material;
+    args: RenderingArgWebGpu;
+  }) {
+    let cameraComponent = ComponentRepository.getComponentFromComponentTID(
+      WellKnownComponentTIDs.CameraComponentTID,
+      args.cameraComponentSid
+    ) as CameraComponent;
+    material.setParameter(MToonMaterialContent.CameraUp, cameraComponent.upInner);
+
+    if (this.__OutlineWidthModeIsScreen) {
+      material.setParameter(MToonMaterialContent.Aspect, cameraComponent.aspect);
+    }
+  }
 
   _setCustomSettingParametersToGpuWebGL({
     material,
@@ -864,7 +882,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {

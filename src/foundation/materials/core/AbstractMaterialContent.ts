@@ -28,7 +28,7 @@ import { ModuleManager } from '../../system/ModuleManager';
 import { RnXR } from '../../../xr/main';
 import { LightComponent } from '../../components/Light/LightComponent';
 import { IMatrix33 } from '../../math/IMatrix';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
@@ -261,7 +261,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   }
 
   protected setupBasicInfo(
-    args: RenderingArg,
+    args: RenderingArgWebGL,
     shaderProgram: WebGLProgram,
     firstTime: boolean,
     material: Material,
@@ -574,7 +574,15 @@ export abstract class AbstractMaterialContent extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
+  }) {}
+
+  _setCustomSettingParametersToGpuWebGpu({
+    material,
+    args,
+  }: {
+    material: Material;
+    args: RenderingArgWebGpu;
   }) {}
 
   setDefaultInputValue(inputName: string, value: any) {
