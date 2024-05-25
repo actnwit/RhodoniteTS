@@ -2602,14 +2602,14 @@ function setup_KHR_materials_specular(
       const rnSampler = ModelConverter._createSampler(specularTexture.texture!);
       material.setTextureParameter(ShaderSemantics.SpecularTexture, rnSpecularTexture, rnSampler);
     }
-    const SpecularColorFactor = Is.exist(KHR_materials_specular.SpecularColorFactor)
-      ? KHR_materials_specular.SpecularColorFactor
+    const SpecularColorFactor = Is.exist(KHR_materials_specular.specularColorFactor)
+      ? KHR_materials_specular.specularColorFactor
       : [1.0, 1.0, 1.0];
     material.setParameter(
       ShaderSemantics.SpecularColorFactor,
       Vector3.fromCopyArray3(SpecularColorFactor)
     );
-    const SpecularColorTexture = KHR_materials_specular.SpecularColorTexture;
+    const SpecularColorTexture = KHR_materials_specular.specularColorTexture;
     if (SpecularColorTexture != null) {
       const rnSpecularColorTexture = ModelConverter._createTexture(
         SpecularColorTexture.texture!,
