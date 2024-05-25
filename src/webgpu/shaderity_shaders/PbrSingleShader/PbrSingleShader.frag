@@ -70,6 +70,10 @@
 // #param transmissionFactor: f32; // initialValue=(0)
 #endif // RN_USE_TRANSMISSION
 
+#ifdef RN_USE_SPECULAR
+// #param specularFactor: f32; // initialValue=1.0
+// #param specularColorFactor: vec3<f32>; // initialValue=(1,1,1)
+#endif
 
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
@@ -110,6 +114,8 @@ fn main(
   let baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
   let textureColor = textureSample(baseColorTexture, baseColorSampler, baseColorTexUv);
   baseColor *= vec4(srgbToLinear(textureColor.rgb), textureColor.a);
+#else
+  let baseColorTexUv = vec2f(0.0, 0.0);
 #endif
 
 // Normal
@@ -180,8 +186,15 @@ fn main(
   let transmission = 0.0;
 #endif // RN_USE_TRANSMISSION
 
+#ifdef RN_USE_SPECULAR
+  let specularTexture: f32 = textureSample(specularTexture, specularSampler, baseColorTexUv).a;
+  let specular: f32 = get_specularFactor(materialSID, 0) * specularTexture;
+  let specularColorTexture: vec3f = srgbToLinear(textureSample(specularColorTexture, specularColorSampler, baseColorTexUv).rgb);
+  let specularColor: vec3f = get_specularColorFactor(materialSID, 0) * specularColorTexture;
+#else
   let specular = 1.0;
   let specularColor = vec3f(1.0, 1.0, 1.0);
+#endif // RN_USE_SPECULAR
 
   // F0, F90
   let ior = get_ior(materialSID, 0);
