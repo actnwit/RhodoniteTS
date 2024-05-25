@@ -2,7 +2,7 @@
 
 ![Rhodonite](./assets/images/Rhodonite_Logo_2.png)
 
-Rhodonite is a WebGL library written in TypeScript.
+Rhodonite is a Web3D library written in TypeScript.
 
 ![npm](https://img.shields.io/npm/v/rhodonite)
 ![license](https://img.shields.io/npm/l/rhodonite)
@@ -14,6 +14,7 @@ Rhodonite is a WebGL library written in TypeScript.
 * Physically-based Rendering with Image-based Lighting
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
 * Support [Draco compression](https://google.github.io/draco/), [Basis Universal](https://github.com/BinomialLLC/basis_universal) and [KTX2](http://github.khronos.org/KTX-Specification/), etc
+* WebGPU Support (under development, about 70% complete)
 
 ## What's the "Blittable Memory Architecture"
 
@@ -27,7 +28,7 @@ For example, Rhodonite can handle and blend all morph targets (38 targets) of VR
 
 You can try our library via https://editor.librn.com/.
 This viewer supports glTF/VRM files Drag & Drop to display.
-(Drag & Drop all files if glTF data is consists of multiple files.)
+(Drag & Drop all files if glTF data consists of multiple files.)
 
 ![poly](./assets/images/screenshot_poly.webp)
 
