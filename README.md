@@ -154,7 +154,7 @@ See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .
 
 ### Prerequisites
 
-* Node.js 14.15.5 or later
+* Node.js 18 or later
 
 ### Setup Project
 
