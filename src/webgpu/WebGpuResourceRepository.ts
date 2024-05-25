@@ -1535,7 +1535,7 @@ export class WebGpuResourceRepository
       dimension: '2d',
       size: [width, height, 6],
       format:
-        (mipmaps[0][0] as any).hdriFormat === HdriFormat.HDR_LINEAR ? 'rgba16float' : 'rgba8unorm',
+        (mipmaps[0][0] as any).hdriFormat === HdriFormat.HDR_LINEAR ? 'rgba32float' : 'rgba8unorm',
       mipLevelCount: mipLevelCount,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
@@ -1546,11 +1546,60 @@ export class WebGpuResourceRepository
     for (let i = 0; i < mipLevelCount; i++) {
       for (let j = 0; j < mipmaps[i].length; j++) {
         const imageBitmap = mipmaps[i][j];
-        gpuDevice.queue.copyExternalImageToTexture(
-          { source: imageBitmap },
-          { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
-          [imageBitmap.width, imageBitmap.height, 1]
-        );
+        if ((imageBitmap as any).hdriFormat === HdriFormat.HDR_LINEAR) {
+          // HDR image is 3 channels, so we need to convert it to 4 channels
+          const newFloat323Array = new Float32Array(imageBitmap.width * imageBitmap.height * 4);
+          const dataFloat = (imageBitmap as any).dataFloat;
+          const size = imageBitmap.width * imageBitmap.height;
+          for (let k = 0; k < size; k++) {
+            newFloat323Array[k * 4] = dataFloat[k * 3];
+            newFloat323Array[k * 4 + 1] = dataFloat[k * 3 + 1];
+            newFloat323Array[k * 4 + 2] = dataFloat[k * 3 + 2];
+            newFloat323Array[k * 4 + 3] = 1.0;
+          }
+
+          // Align the row data size to multiple of 256 bytes
+          const bytesPerRow = imageBitmap.width * 4 * Float32Array.BYTES_PER_ELEMENT;
+          const paddedBytesPerRow = Math.ceil(bytesPerRow / 256) * 256; // 256-byte alignment (GPUImageCopyBuffer.bytesPerRow). See: https://www.w3.org/TR/webgpu/#gpuimagecopybuffer
+          const paddedRowSize = paddedBytesPerRow / Float32Array.BYTES_PER_ELEMENT;
+          const paddedFloatData = new Float32Array(paddedRowSize * imageBitmap.height);
+          for (let y = 0; y < imageBitmap.height; y++) {
+            const sourceStart = y * imageBitmap.width * 4;
+            const sourceEnd = sourceStart + imageBitmap.width * 4;
+            const destStart = y * paddedRowSize;
+            paddedFloatData.set(newFloat323Array.subarray(sourceStart, sourceEnd), destStart);
+          }
+
+          const buffer = gpuDevice.createBuffer({
+            size: paddedFloatData.byteLength,
+            usage: GPUBufferUsage.COPY_SRC,
+            mappedAtCreation: true,
+          });
+
+          new Float32Array(buffer.getMappedRange()).set(paddedFloatData);
+          buffer.unmap();
+
+          const commandEncoder = gpuDevice.createCommandEncoder();
+
+          commandEncoder.copyBufferToTexture(
+            {
+              buffer: buffer,
+              bytesPerRow: paddedBytesPerRow,
+              rowsPerImage: imageBitmap.height,
+            },
+            { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
+            [imageBitmap.width, imageBitmap.height, 1]
+          );
+
+          const commandBuffer = commandEncoder.finish();
+          gpuDevice.queue.submit([commandBuffer]);
+        } else {
+          gpuDevice.queue.copyExternalImageToTexture(
+            { source: imageBitmap },
+            { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
+            [imageBitmap.width, imageBitmap.height, 1]
+          );
+        }
       }
     }
 

@@ -477,7 +477,9 @@ export class System {
       const module = ModuleManager.getInstance().getModule('webgpu');
       const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
       const adapter = await navigator.gpu.requestAdapter();
-      const device = await adapter!.requestDevice();
+      const device = await adapter!.requestDevice({
+        requiredFeatures: ['float32-filterable'],
+      });
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
       webGpuResourceRepository.recreateSystemDepthTexture();
