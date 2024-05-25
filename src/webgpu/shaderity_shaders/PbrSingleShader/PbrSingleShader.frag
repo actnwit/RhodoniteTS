@@ -9,7 +9,7 @@
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
 #pragma shaderity: require(../common/pbrDefinition.wgsl)
 
-// #param makeOutputSrgb: f32; // initialValue=1
+// #param makeOutputSrgb: bool; // initialValue=1
 
 // Color
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)

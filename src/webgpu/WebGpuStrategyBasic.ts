@@ -206,7 +206,7 @@ ${indexStr}
         } else if (info.componentType === ComponentType.UnsignedInt) {
           str += '  let val = u32(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
-          str += `  let val = bool(col0.x);`;
+          str += `  let val = col0.x >= 0.5;`;
         } else {
           str += '  let val = col0.x;';
         }
@@ -218,7 +218,7 @@ ${indexStr}
         } else if (info.componentType === ComponentType.UnsignedInt) {
           str += '  let val = u32(col0);';
         } else if (info.componentType === ComponentType.Bool) {
-          str += '  let val = bool(col0);';
+          str += '  let val = col0 >= 0.5;';
         } else {
           str += '  let val = col0;';
         }
