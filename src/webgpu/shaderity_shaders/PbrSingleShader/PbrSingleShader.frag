@@ -19,25 +19,25 @@
 // #param baseColorTextureRotation: f32; // initialValue=0
 // #param baseColorTexcoordIndex: f32; // initialValue=0
 
+// #param ior: f32; // initialValue=1.5
+
+// #param metallicRoughnessFactor: vec2<f32>; // initialValue=(1,1)
+@group(1) @binding(1) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(1) var metallicRoughnessSampler: sampler;
+// #param metallicRoughnessTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param metallicRoughnessTextureRotation: f32; // initialValue=0
+// #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
+
 #ifdef RN_USE_NORMAL_TEXTURE
-  @group(1) @binding(1) var normalTexture: texture_2d<f32>; // initialValue=blue
-  @group(2) @binding(1) var normalSampler: sampler;
+  @group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
+  @group(2) @binding(2) var normalSampler: sampler;
   // #param normalTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
   // #param normalTextureRotation: f32; // initialValue=(0)
   // #param normalTexcoordIndex: f32; // initialValue=(0)
   // #param normalScale: f32; // initialValue=(1)
 #endif
 
-// #param ior: f32; // initialValue=1.5
-
-// #param metallicRoughnessFactor: vec2<f32>; // initialValue=(1,1)
-@group(1) @binding(2) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=blue
-@group(2) @binding(2) var metallicRoughnessSampler: sampler;
-// #param metallicRoughnessTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param metallicRoughnessTextureRotation: f32; // initialValue=0
-// #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
-
-@group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=blue
+@group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(3) var occlusionSampler: sampler;
 // #param occlusionTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
 // #param occlusionTextureRotation: f32; // initialValue=0
@@ -129,10 +129,13 @@ fn main(
   let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, normalTexUv, isFront);
   #ifdef RN_USE_NORMAL_TEXTURE
     let normalTexValue: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz;
-    let normalTex = normalTexValue * 2.0 - 1.0;
-    let normalScale = get_normalScale(materialSID, 0);
-    let scaledNormal = normalize(normalTex * vec3(normalScale, normalScale, 1.0));
-    normal_inWorld = normalize(TBN * scaledNormal);
+    if(normalTexValue.b >= 128.0 / 255.0) {
+      // normal texture is existence
+      let normalTex = normalTexValue * 2.0 - 1.0;
+      let normalScale = get_normalScale(materialSID, 0);
+      let scaledNormal = normalize(normalTex * vec3(normalScale, normalScale, 1.0));
+      normal_inWorld = normalize(TBN * scaledNormal);
+    }
   #endif
 
 
