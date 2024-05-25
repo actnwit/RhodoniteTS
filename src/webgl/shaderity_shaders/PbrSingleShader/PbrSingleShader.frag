@@ -279,7 +279,7 @@ void main ()
   #ifdef RN_USE_SPECULAR
     float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
     float specular = get_specularFactor(materialSID, 0) * specularTexture;
-    vec3 specularColorTexture = srgbToLinear(texture(u_specularTexture, baseColorTexUv).rgb);
+    vec3 specularColorTexture = srgbToLinear(texture(u_specularColorTexture, baseColorTexUv).rgb);
     vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
   #else
     float specular = 1.0;
