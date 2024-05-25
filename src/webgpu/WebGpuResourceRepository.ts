@@ -1547,12 +1547,7 @@ export class WebGpuResourceRepository
       for (let j = 0; j < mipmaps[i].length; j++) {
         const imageBitmap = mipmaps[i][j];
         if ((imageBitmap as any).hdriFormat === HdriFormat.HDR_LINEAR) {
-          const buffer = gpuDevice.createBuffer({
-            size: imageBitmap.width * imageBitmap.height * 4 * 4,
-            usage: GPUBufferUsage.COPY_SRC,
-            mappedAtCreation: true,
-          });
-
+          // HDR image is 3 channels, so we need to convert it to 4 channels
           const newFloat323Array = new Float32Array(imageBitmap.width * imageBitmap.height * 4);
           const dataFloat = (imageBitmap as any).dataFloat;
           const size = imageBitmap.width * imageBitmap.height;
@@ -1563,24 +1558,39 @@ export class WebGpuResourceRepository
             newFloat323Array[k * 4 + 3] = 1.0;
           }
 
-          new Float32Array(buffer.getMappedRange()).set(newFloat323Array);
+          // Align the row data size to multiple of 256 bytes
+          const bytesPerRow = imageBitmap.width * 4 * Float32Array.BYTES_PER_ELEMENT;
+          const paddedBytesPerRow = Math.ceil(bytesPerRow / 256) * 256; // 256-byte alignment (GPUImageCopyBuffer.bytesPerRow). See: https://www.w3.org/TR/webgpu/#gpuimagecopybuffer
+          const paddedRowSize = paddedBytesPerRow / Float32Array.BYTES_PER_ELEMENT;
+          const paddedFloatData = new Float32Array(paddedRowSize * imageBitmap.height);
+          for (let y = 0; y < imageBitmap.height; y++) {
+            const sourceStart = y * imageBitmap.width * 4;
+            const sourceEnd = sourceStart + imageBitmap.width * 4;
+            const destStart = y * paddedRowSize;
+            paddedFloatData.set(newFloat323Array.subarray(sourceStart, sourceEnd), destStart);
+          }
+
+          const buffer = gpuDevice.createBuffer({
+            size: paddedFloatData.byteLength,
+            usage: GPUBufferUsage.COPY_SRC,
+            mappedAtCreation: true,
+          });
+
+          new Float32Array(buffer.getMappedRange()).set(paddedFloatData);
           buffer.unmap();
 
-          // Create a command encoder to encode the copy commands
           const commandEncoder = gpuDevice.createCommandEncoder();
 
-          // Copy buffer to texture
           commandEncoder.copyBufferToTexture(
             {
               buffer: buffer,
-              bytesPerRow: imageBitmap.width * 4 * 4,
+              bytesPerRow: paddedBytesPerRow,
               rowsPerImage: imageBitmap.height,
-            }, // 3 floats per pixel, 4 bytes per float
+            },
             { texture: cubemapTexture, origin: [0, 0, j], mipLevel: i },
             [imageBitmap.width, imageBitmap.height, 1]
           );
 
-          // Submit the commands
           const commandBuffer = commandEncoder.finish();
           gpuDevice.queue.submit([commandBuffer]);
         } else {
