@@ -34,7 +34,10 @@ import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
 import { HdriFormat, HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import { dummyBlackCubeTexture } from '../foundation/materials/core/DummyTextures';
+import {
+  dummyBlackCubeTexture,
+  dummyWhiteTexture,
+} from '../foundation/materials/core/DummyTextures';
 import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { MutableVector2 } from '../foundation/math/MutableVector2';
 import { MutableVector4 } from '../foundation/math/MutableVector4';
@@ -1302,6 +1305,8 @@ export class WebGpuResourceRepository
       primitive: {
         topology: topology as GPUPrimitiveTopology,
         stripIndexFormat: stripIndexFormat,
+        frontFace: material.cullFrontFaceCCW ? 'ccw' : 'cw',
+        cullMode: material.cullFace ? 'back' : 'none',
       },
       depthStencil: {
         depthWriteEnabled: renderPass.isDepthTest ? true : false,
@@ -1709,6 +1714,24 @@ export class WebGpuResourceRepository
           },
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
         });
+      } else {
+        const dummyBuffer = gpuDevice.createBuffer({
+          size: 16,
+          usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+        });
+        entries.push({
+          binding: 1,
+          resource: {
+            buffer: dummyBuffer,
+          },
+        });
+        bindGroupLayoutEntries.push({
+          binding: 1,
+          buffer: {
+            type: 'read-only-storage',
+          },
+          visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+        });
       }
 
       if (this.__uniformMorphOffsetsBuffer != null) {
@@ -1778,9 +1801,22 @@ export class WebGpuResourceRepository
 
           // Texture
           const type = texture instanceof CubeTexture ? 'cube' : '2d';
-          const gpuTextureView = this.__webGpuResources.get(
+          let gpuTextureView = this.__webGpuResources.get(
             texture._textureViewResourceUid
           ) as GPUTextureView;
+          if (gpuTextureView == null) {
+            if (texture instanceof CubeTexture) {
+              const gpuTexture = this.__webGpuResources.get(
+                dummyBlackCubeTexture._textureResourceUid
+              ) as GPUTexture;
+              gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
+            } else {
+              const gpuTexture = this.__webGpuResources.get(
+                dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
+              gpuTextureView = gpuTexture.createView();
+            }
+          }
           entriesForTexture.push({
             binding: slot,
             resource: gpuTextureView,

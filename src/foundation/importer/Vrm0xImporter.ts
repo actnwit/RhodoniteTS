@@ -18,6 +18,7 @@ import { assertIsOk, Err, Result, Ok } from '../misc/Result';
 import { VrmComponent, VrmExpression } from '../components/Vrm/VrmComponent';
 import { Sampler } from '../textures/Sampler';
 import { VRMSpringBone } from '../physics/VRMSpring/VRMSpringBone';
+import { TextureParameter } from '../definitions';
 
 /**
  * The VRM Importer class.
@@ -310,6 +311,17 @@ export class Vrm0xImporter {
       const rnSampler = ModelConverter._createSampler(gltfTextures[i]);
       rnSamplers[i] = rnSampler;
     }
+
+    const dummySampler = new Sampler({
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+    });
+    dummySampler.create();
+    rnSamplers.push(dummySampler);
+    rnSamplers.push(dummySampler);
+
     return rnSamplers;
   }
 

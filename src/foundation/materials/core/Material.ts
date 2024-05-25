@@ -26,7 +26,7 @@ import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUp
 import { Is } from '../../misc/Is';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
-import type { RenderingArg } from '../../../webgl/types/CommonTypes';
+import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo, TextureParameter } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
@@ -380,6 +380,19 @@ export class Material extends RnObject {
     );
   }
 
+  _setCustomSettingParametersToGpuWebGpu({
+    material,
+    args,
+  }: {
+    material: Material;
+    args: RenderingArgWebGpu;
+  }) {
+    this._materialContent._setCustomSettingParametersToGpuWebGpu({
+      material,
+      args,
+    });
+  }
+
   /**
    * @internal
    * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
@@ -393,20 +406,18 @@ export class Material extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     // For Auto Parameters
     this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    if (Is.exist(this._materialContent._setCustomSettingParametersToGpuWebGL)) {
-      this._materialContent._setCustomSettingParametersToGpuWebGL({
-        material,
-        shaderProgram,
-        firstTime,
-        args,
-      });
-    }
+    this._materialContent._setCustomSettingParametersToGpuWebGL({
+      material,
+      shaderProgram,
+      firstTime,
+      args,
+    });
 
     // For SoloDatum Parameters
     this.__setSoloDatumParametersToGpuWebGL({
@@ -425,7 +436,7 @@ export class Material extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     // For Auto Parameters
     this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
@@ -475,7 +486,7 @@ export class Material extends RnObject {
   }
 
   private __setAutoParametersToGpuWebGL(
-    args: RenderingArg,
+    args: RenderingArgWebGL,
     firstTime: boolean,
     shaderProgram: WebGLProgram
   ) {
@@ -531,7 +542,7 @@ export class Material extends RnObject {
   }: {
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;

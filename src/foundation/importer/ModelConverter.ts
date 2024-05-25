@@ -82,6 +82,7 @@ import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
+import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
 
 declare let DracoDecoderModule: any;
 
@@ -916,6 +917,8 @@ export class ModelConverter {
         makeOutputSrgb,
       });
 
+      ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
+
       return material;
     } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray![0].isOutline) {
       return MaterialHelper.createEmptyMaterial();
@@ -923,6 +926,87 @@ export class ModelConverter {
 
     // use another material
     return undefined;
+  }
+
+  private static setMToonTextures(
+    textures: any,
+    materialProperties: Vrm0xMaterialProperty,
+    material: Material,
+    samplers: any
+  ) {
+    const litColorTexture = textures[materialProperties.textureProperties._MainTex];
+    if (litColorTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._litColorTexture,
+        litColorTexture,
+        samplers[materialProperties.textureProperties._MainTex]
+      );
+    }
+    const shadeColorTexture = textures[materialProperties.textureProperties._ShadeTexture];
+    if (shadeColorTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._shadeColorTexture,
+        shadeColorTexture,
+        samplers[materialProperties.textureProperties._ShadeTexture]
+      );
+    }
+    const receiveShadowTexture =
+      textures[materialProperties.textureProperties._ReceiveShadowTexture];
+    if (receiveShadowTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._receiveShadowTexture,
+        receiveShadowTexture,
+        samplers[materialProperties.textureProperties._ReceiveShadowTexture]
+      );
+    }
+    const shadingGradeTexture = textures[materialProperties.textureProperties._ShadingGradeTexture];
+    if (shadingGradeTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._shadingGradeTexture,
+        shadingGradeTexture,
+        samplers[materialProperties.textureProperties._ShadingGradeTexture]
+      );
+    }
+    const rimTexture = textures[materialProperties.textureProperties._RimTexture];
+    if (rimTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._rimTexture,
+        rimTexture,
+        samplers[materialProperties.textureProperties._RimTexture]
+      );
+    }
+    const matCapTexture = textures[materialProperties.textureProperties._SphereAdd];
+    if (matCapTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._matCapTexture,
+        matCapTexture,
+        samplers[materialProperties.textureProperties._SphereAdd]
+      );
+    }
+    const emissionTexture = textures[materialProperties.textureProperties._EmissionMap];
+    if (emissionTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._emissionTexture,
+        emissionTexture,
+        samplers[materialProperties.textureProperties._EmissionMap]
+      );
+    }
+    const normalTexture = textures[materialProperties.textureProperties._BumpMap];
+    if (normalTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._normalTexture,
+        normalTexture,
+        samplers[materialProperties.textureProperties._BumpMap]
+      );
+    }
+    const outlineWidthTexture = textures[materialProperties.textureProperties._OutlineWidthTexture];
+    if (outlineWidthTexture != null) {
+      material.setTextureParameter(
+        MToonMaterialContent._OutlineWidthTexture,
+        outlineWidthTexture,
+        samplers[materialProperties.textureProperties._OutlineWidthTexture]
+      );
+    }
   }
 
   private static __setVRM0xMaterial(
@@ -998,6 +1082,8 @@ export class ModelConverter {
         maxInstancesNumber,
         makeOutputSrgb,
       });
+
+      ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
 
       return material;
     } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray![0].isOutline) {

@@ -7,7 +7,7 @@ import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
 import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
@@ -61,81 +61,15 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     vertexShaderWebGpu?: ShaderityObject;
     pixelShaderWebGpu?: ShaderityObject;
   }) {
-    super(
-      null,
-      name +
-        (isMorphing ? '+morphing' : '') +
-        (isSkinning ? '+skinning' : '') +
-        (isLighting ? '' : '-lighting') +
-        (isClearCoat ? '+clearcoat' : '') +
-        (isTransmission ? '+transmission' : '') +
-        (isVolume ? '+volume' : '') +
-        (isSpecular ? '+specular' : '') +
-        (isSheen ? '+sheen' : '') +
-        (isIridescence ? '+iridescence' : '') +
-        (isAnisotropy ? '+anisotropy' : '') +
-        (useTangentAttribute ? '+tangentAttribute' : ''),
-      { isMorphing, isSkinning, isLighting }
-    );
+    super(null, name, { isMorphing, isSkinning, isLighting });
 
     // Shader Reflection
-    let vertexShaderData: {
-      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
-      shaderityObject: ShaderityObject;
-    };
-    let pixelShaderData: {
-      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
-      shaderityObject: ShaderityObject;
-    };
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
-        vertexShaderWebGpu!,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
-        pixelShaderWebGpu!,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-
-      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
-    } else {
-      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        vertexShader,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        pixelShader,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-
-      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
-    }
-
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
-
-    for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
-      vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
-      shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
-    }
-    for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
-      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
-        (vertexInfo: ShaderSemanticsInfo) => {
-          if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-      );
-      if (foundShaderSemanticsInfo) {
-        foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
-      } else {
-        pixelShaderSemanticsInfo.stage = ShaderType.PixelShader;
-        shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
-      }
-    }
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
+      vertexShader,
+      pixelShader,
+      vertexShaderWebGpu!,
+      pixelShaderWebGpu!
+    );
 
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
@@ -185,13 +119,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }
 
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
-    } else {
-      this.setShaderSemanticsInfoArray(
-        shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo)
-      );
-    }
+    this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 
   _setCustomSettingParametersToGpuWebGL({
@@ -203,7 +131,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
@@ -327,7 +255,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  private static __setupHdriParameters(args: RenderingArg) {
+  private static __setupHdriParameters(args: RenderingArgWebGL) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;

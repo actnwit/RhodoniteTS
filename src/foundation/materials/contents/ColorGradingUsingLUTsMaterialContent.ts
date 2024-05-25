@@ -14,7 +14,7 @@ import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import ColorGradingUsingLUTsShaderVertex from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.vert';
 import ColorGradingUsingLUTsShaderFragment from '../../../webgl/shaderity_shaders/ColorGradingUsingLUTsShader/ColorGradingUsingLUTsShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Sampler } from '../../textures/Sampler';
 import { dummyBlackTexture } from '../core/DummyTextures';
@@ -115,7 +115,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

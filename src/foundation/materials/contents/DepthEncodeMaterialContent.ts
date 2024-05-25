@@ -12,7 +12,7 @@ import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Vector3 } from '../../math/Vector3';
 import DepthEncodeSingleShaderVertex from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.vert';
 import DepthEncodeSingleShaderFragment from '../../../webgl/shaderity_shaders/DepthEncodeSingleShader/DepthEncodeSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { Is } from '../../misc/Is';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
@@ -125,7 +125,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent as CameraComponent;
     if (cameraComponent == null) {

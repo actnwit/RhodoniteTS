@@ -7,7 +7,7 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class ShaderityMaterialContent extends AbstractMaterialContent {
@@ -63,7 +63,7 @@ export class ShaderityMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

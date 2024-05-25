@@ -18,38 +18,51 @@ import { Array3, Array4, Count } from '../../../types/CommonTypes';
 import { Texture } from '../../textures/Texture';
 import mToonSingleShaderVertex from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
 import mToonSingleShaderFragment from '../../../webgl/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import mToonSingleShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.vert';
+import mToonSingleShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/MToonSingleShader/MToonSingleShader.frag';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vrm0xMaterialProperty } from '../../../types';
+import {
+  GL_DST_ALPHA,
+  GL_DST_COLOR,
+  GL_ONE,
+  GL_ONE_MINUS_DST_ALPHA,
+  GL_ONE_MINUS_DST_COLOR,
+  GL_ONE_MINUS_SRC_ALPHA,
+  GL_ONE_MINUS_SRC_COLOR,
+  GL_SRC_ALPHA,
+  GL_SRC_ALPHA_SATURATE,
+  GL_SRC_COLOR,
+  GL_ZERO,
+  Vrm0xMaterialProperty,
+} from '../../../types';
 import { Sampler } from '../../textures/Sampler';
 import { Blend } from '../../definitions/Blend';
 import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
-import { ShaderityObject } from 'shaderity';
 import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
-import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
+import { ProcessApproach, ProcessApproachClass } from '../../definitions';
+import { WellKnownComponentTIDs } from '../../components';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
   static readonly _Color = new ShaderSemanticsClass({ str: 'litColor' });
   static readonly _ShadeColor = new ShaderSemanticsClass({ str: 'shadeColor' });
-  static readonly _MainTex = new ShaderSemanticsClass({ str: 'litColorTexture' });
-  static readonly _ShadeTexture = new ShaderSemanticsClass({
+  public static readonly _litColorTexture = new ShaderSemanticsClass({ str: 'litColorTexture' });
+  public static readonly _shadeColorTexture = new ShaderSemanticsClass({
     str: 'shadeColorTexture',
   });
   static readonly _BumpScale = new ShaderSemanticsClass({ str: 'normalScale' });
-  static readonly _BumpMap = new ShaderSemanticsClass({ str: 'normalTexture' });
+  public static readonly _normalTexture = new ShaderSemanticsClass({ str: 'normalTexture' });
   static readonly _ReceiveShadowRate = new ShaderSemanticsClass({
     str: 'receiveShadowRate',
   });
-  static readonly _ReceiveShadowTexture = new ShaderSemanticsClass({
+  public static readonly _receiveShadowTexture = new ShaderSemanticsClass({
     str: 'receiveShadowTexture',
   });
   static readonly _ShadingGradeRate = new ShaderSemanticsClass({
     str: 'shadingGradeRate',
   });
-  static readonly _ShadingGradeTexture = new ShaderSemanticsClass({
+  public static readonly _shadingGradeTexture = new ShaderSemanticsClass({
     str: 'shadingGradeTexture',
   });
   static readonly _ShadeShift = new ShaderSemanticsClass({ str: 'shadeShift' });
@@ -61,7 +74,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'ambientColor',
   });
   // static readonly _IndirectLightIntensity = new ShaderSemanticsClass({ str: 'indirectLightIntensity' });
-  static readonly _RimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
+  public static readonly _rimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
   static readonly _RimColor = new ShaderSemanticsClass({ str: 'rimColor' });
   static readonly _RimLightingMix = new ShaderSemanticsClass({
     str: 'rimLightingMix',
@@ -70,14 +83,14 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     str: 'rimFresnelPower',
   });
   static readonly _RimLift = new ShaderSemanticsClass({ str: 'rimLift' });
-  static readonly _SphereAdd = new ShaderSemanticsClass({ str: 'matCapTexture' });
+  public static readonly _matCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
   static readonly _EmissionColor = new ShaderSemanticsClass({
     str: 'emissionColor',
   });
-  static readonly _EmissionMap = new ShaderSemanticsClass({
+  public static readonly _emissionTexture = new ShaderSemanticsClass({
     str: 'emissionTexture',
   });
-  static readonly _OutlineWidthTexture = new ShaderSemanticsClass({
+  public static readonly _OutlineWidthTexture = new ShaderSemanticsClass({
     str: 'outlineWidthTexture',
   });
   static readonly _OutlineWidth = new ShaderSemanticsClass({
@@ -117,21 +130,21 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     isLighting: boolean,
     useTangentAttribute: boolean,
     debugMode: Count | undefined,
-    makeOutputSrgb: boolean
+    makeOutputSrgb: boolean,
+    materialName: string
   ) {
-    super(
-      null,
-      'MToonShading' +
-        (isMorphing ? '+morphing' : '') +
-        (isSkinning ? '+skinning' : '') +
-        (isLighting ? '' : '-lighting') +
-        (useTangentAttribute ? '+tangentAttribute' : ''),
-      { isMorphing: isMorphing, isSkinning: isSkinning, isLighting: isLighting },
-      mToonSingleShaderVertex,
-      mToonSingleShaderFragment
-    );
+    super(null, materialName, {
+      isMorphing: isMorphing,
+      isSkinning: isSkinning,
+      isLighting: isLighting,
+    });
 
-    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
+      mToonSingleShaderVertex,
+      mToonSingleShaderFragment,
+      mToonSingleShaderVertexWebGpu,
+      mToonSingleShaderFragmentWebGpu
+    );
 
     if (materialProperties != null) {
       this.__floatProperties = materialProperties.floatProperties;
@@ -581,54 +594,6 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       );
     }
 
-    // Shader Reflection
-    let vertexShaderData: {
-      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
-      shaderityObject: ShaderityObject;
-    };
-    let pixelShaderData: {
-      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
-      shaderityObject: ShaderityObject;
-    };
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-    } else {
-      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        mToonSingleShaderVertex,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        mToonSingleShaderFragment,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-
-      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
-
-      for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
-        vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
-        shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
-      }
-      for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
-        const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
-          (vertexInfo: ShaderSemanticsInfo) => {
-            if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
-              return true;
-            } else {
-              return false;
-            }
-          }
-        );
-        if (foundShaderSemanticsInfo) {
-          foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
-        } else {
-          pixelShaderSemanticsInfo.stage = ShaderType.PixelShader;
-          shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
-        }
-      }
-    }
-
-
-
     if (useTangentAttribute) {
       this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
     }
@@ -647,7 +612,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   ) {
     shaderSemanticsInfoArray.push(
       {
-        semantic: MToonMaterialContent._MainTex,
+        semantic: MToonMaterialContent._litColorTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -662,7 +627,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._ShadeTexture,
+        semantic: MToonMaterialContent._shadeColorTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -677,7 +642,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._ReceiveShadowTexture,
+        semantic: MToonMaterialContent._receiveShadowTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -692,7 +657,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._ShadingGradeTexture,
+        semantic: MToonMaterialContent._shadingGradeTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -707,7 +672,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._RimTexture,
+        semantic: MToonMaterialContent._rimTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -722,7 +687,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._SphereAdd,
+        semantic: MToonMaterialContent._matCapTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -737,7 +702,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._EmissionMap,
+        semantic: MToonMaterialContent._emissionTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -756,7 +721,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     shaderSemanticsInfoArray.push(
       {
         // number 7 of texture is the data Texture
-        semantic: MToonMaterialContent._BumpMap,
+        semantic: MToonMaterialContent._normalTexture,
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -875,15 +840,36 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContextAsWebGL2();
-    if (glw!.isWebGL2) {
-      MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
-    } else if (glw!.webgl1ExtBM) {
-      MToonMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      MToonMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
     } else {
-      MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
+      const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      const glw = webGLResourceRepository.currentWebGLContextWrapper;
+      const gl = glw!.getRawContextAsWebGL2();
+      if (glw!.isWebGL2) {
+        MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
+      } else if (glw!.webgl1ExtBM) {
+        MToonMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
+      } else {
+        MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
+      }
+    }
+  }
+  _setCustomSettingParametersToGpuWebGpu({
+    material,
+    args,
+  }: {
+    material: Material;
+    args: RenderingArgWebGpu;
+  }) {
+    let cameraComponent = ComponentRepository.getComponentFromComponentTID(
+      WellKnownComponentTIDs.CameraComponentTID,
+      args.cameraComponentSid
+    ) as CameraComponent;
+    material.setParameter(MToonMaterialContent.CameraUp, cameraComponent.upInner);
+
+    if (this.__OutlineWidthModeIsScreen) {
+      material.setParameter(MToonMaterialContent.Aspect, cameraComponent.aspect);
     }
   }
 
@@ -896,7 +882,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     let cameraComponent = args.renderPass.cameraComponent;
     if (cameraComponent == null) {
@@ -942,44 +928,40 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   static unityBlendEnumCorrespondence(enumNumber: number) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const glw = webGLResourceRepository.currentWebGLContextWrapper;
-    const gl = glw!.getRawContext();
-
-    let result = gl.ZERO as number;
+    let result = GL_ZERO as number; // gl.ZERO
     switch (enumNumber) {
       case 0:
-        result = gl.ZERO;
+        result = GL_ZERO;
         break;
       case 1:
-        result = gl.ONE;
+        result = GL_ONE;
         break;
       case 2:
-        result = gl.DST_COLOR;
+        result = GL_DST_COLOR;
         break;
       case 3:
-        result = gl.SRC_COLOR;
+        result = GL_SRC_COLOR;
         break;
       case 4:
-        result = gl.ONE_MINUS_DST_COLOR;
+        result = GL_ONE_MINUS_DST_COLOR;
         break;
       case 5:
-        result = gl.SRC_ALPHA;
+        result = GL_SRC_ALPHA;
         break;
       case 6:
-        result = gl.ONE_MINUS_SRC_COLOR;
+        result = GL_ONE_MINUS_SRC_COLOR;
         break;
       case 7:
-        result = gl.DST_ALPHA;
+        result = GL_DST_ALPHA;
         break;
       case 8:
-        result = gl.ONE_MINUS_DST_ALPHA;
+        result = GL_ONE_MINUS_DST_ALPHA;
         break;
       case 9:
-        result = gl.SRC_ALPHA_SATURATE;
+        result = GL_SRC_ALPHA_SATURATE;
         break;
       case 10:
-        result = gl.ONE_MINUS_SRC_ALPHA;
+        result = GL_ONE_MINUS_SRC_ALPHA;
         break;
     }
     return result;

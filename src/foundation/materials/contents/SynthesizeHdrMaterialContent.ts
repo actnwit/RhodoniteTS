@@ -13,7 +13,7 @@ import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
 import SynthesizeHDRTextureShaderVertex from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.vert';
 import SynthesizeHDRTextureShaderFragment from '../../../webgl/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlackTexture } from '../core/DummyTextures';
 
@@ -194,7 +194,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);

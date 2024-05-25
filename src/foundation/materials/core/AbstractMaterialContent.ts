@@ -28,10 +28,12 @@ import { ModuleManager } from '../../system/ModuleManager';
 import { RnXR } from '../../../xr/main';
 import { LightComponent } from '../../components/Light/LightComponent';
 import { IMatrix33 } from '../../math/IMatrix';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
+import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -259,7 +261,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   }
 
   protected setupBasicInfo(
-    args: RenderingArg,
+    args: RenderingArgWebGL,
     shaderProgram: WebGLProgram,
     firstTime: boolean,
     material: Material,
@@ -572,7 +574,15 @@ export abstract class AbstractMaterialContent extends RnObject {
     material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArg;
+    args: RenderingArgWebGL;
+  }) {}
+
+  _setCustomSettingParametersToGpuWebGpu({
+    material,
+    args,
+  }: {
+    material: Material;
+    args: RenderingArgWebGpu;
   }) {}
 
   setDefaultInputValue(inputName: string, value: any) {
@@ -581,5 +591,71 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   getDefinition() {
     return '';
+  }
+
+  protected doShaderReflection(
+    vertexShader: ShaderityObject,
+    pixelShader: ShaderityObject,
+    vertexShaderWebGpu: ShaderityObject,
+    pixelShaderWebGpu: ShaderityObject
+  ) {
+    let vertexShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    let pixelShaderData: {
+      shaderSemanticsInfoArray: ShaderSemanticsInfo[];
+      shaderityObject: ShaderityObject;
+    };
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
+        vertexShaderWebGpu!,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
+        pixelShaderWebGpu!,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+    } else {
+      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        vertexShader,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
+        pixelShader,
+        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
+      );
+
+      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
+      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+    }
+
+    const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
+
+    for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
+      vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
+      shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
+    }
+    for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
+      const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
+        (vertexInfo: ShaderSemanticsInfo) => {
+          if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+      );
+      if (foundShaderSemanticsInfo) {
+        foundShaderSemanticsInfo.stage = ShaderType.VertexAndPixelShader;
+      } else {
+        pixelShaderSemanticsInfo.stage = ShaderType.PixelShader;
+        shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
+      }
+    }
+    return shaderSemanticsInfoArray;
   }
 }

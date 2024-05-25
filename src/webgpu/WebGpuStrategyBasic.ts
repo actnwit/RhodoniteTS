@@ -136,8 +136,15 @@ fn get_isVisible(instanceId: u32) -> bool {
     const returnType = info.compositionType.toWGSLType(info.componentType);
     const methodName = info.semantic.str.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
+
     if (isTexture) {
-      return '';
+      const isCubeMap = info.compositionType === CompositionType.TextureCube;
+      const textureType = isCubeMap ? 'texture_cube<f32>' : 'texture_2d<f32>';
+      const samplerName = methodName.replace('Texture', 'Sampler');
+      return `
+@group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};
+@group(2) @binding(${info.initialValue[0]}) var ${samplerName}: sampler;
+`;
     }
 
     // inner contents of 'get_' shader function
@@ -199,7 +206,7 @@ ${indexStr}
         } else if (info.componentType === ComponentType.UnsignedInt) {
           str += '  let val = u32(col0.x);';
         } else if (info.componentType === ComponentType.Bool) {
-          str += `  let val = bool(col0.x);`;
+          str += `  let val = col0.x >= 0.5;`;
         } else {
           str += '  let val = col0.x;';
         }
@@ -211,7 +218,7 @@ ${indexStr}
         } else if (info.componentType === ComponentType.UnsignedInt) {
           str += '  let val = u32(col0);';
         } else if (info.componentType === ComponentType.Bool) {
-          str += '  let val = bool(col0);';
+          str += '  let val = col0 >= 0.5;';
         } else {
           str += '  let val = col0;';
         }
@@ -429,8 +436,14 @@ ${indexStr}
     }
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    const cameraID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraID);
+    const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
+    material._setCustomSettingParametersToGpuWebGpu({
+      material: material,
+      args: {
+        cameraComponentSid: cameraSID,
+      },
+    });
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID);
 
     return true;
   }
