@@ -49,13 +49,17 @@ export class MemoryManager {
     return this.__instance;
   }
 
-  private __createBuffer(bufferUse: BufferUseEnum) {
-    const memorySize =
+  getMemorySize() {
+    return (
       MemoryManager.bufferWidthLength *
       MemoryManager.bufferHeightLength /*width*height*/ *
       4 /*rgba*/ *
-      4 /*byte*/ *
-      this.__memorySizeRatios[bufferUse.str];
+      4 /*byte*/
+    );
+  }
+
+  private __createBuffer(bufferUse: BufferUseEnum) {
+    const memorySize = this.getMemorySize() * this.__memorySizeRatios[bufferUse.str];
     const arrayBuffer = new ArrayBuffer(this.__makeMultipleOf4byteSize(memorySize));
 
     let byteAlign = 4;

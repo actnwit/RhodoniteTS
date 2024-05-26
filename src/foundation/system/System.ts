@@ -467,18 +467,38 @@ export class System {
     SystemState.currentProcessApproach = desc.approach;
     Config.eventTargetDom = desc.canvas;
 
-    let gl;
+    // Memory Settings
+    MemoryManager.createInstanceIfNotCreated({
+      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
+      gpuInstanceData: Is.exist(desc.memoryUsageOrder)
+        ? desc.memoryUsageOrder.gpuInstanceData
+        : 0.5,
+      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
+    });
 
+    let gl;
     System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
+
+      const memoryManager = MemoryManager.getInstance();
+      const requiredBufferSize = memoryManager.getMemorySize();
+
       const webGpuResourceRepository =
         CGAPIResourceRepository.getCgApiResourceRepository() as WebGpuResourceRepository;
       const module = ModuleManager.getInstance().getModule('webgpu');
       const WebGpuDeviceWrapperClass = module.WebGpuDeviceWrapper as typeof WebGpuDeviceWrapper;
       const adapter = await navigator.gpu.requestAdapter();
+      const { maxBufferSize, maxStorageBufferBindingSize } = adapter!.limits;
+      if (maxBufferSize < requiredBufferSize || maxStorageBufferBindingSize < requiredBufferSize) {
+        throw new Error('The required buffer size is too large for this device.');
+      }
       const device = await adapter!.requestDevice({
         requiredFeatures: ['float32-filterable'],
+        requiredLimits: {
+          maxStorageBufferBindingSize,
+          maxBufferSize,
+        },
       });
       const webGpuDeviceWrapper = new WebGpuDeviceWrapperClass(desc.canvas, adapter!, device);
       webGpuResourceRepository.addWebGpuDeviceWrapper(webGpuDeviceWrapper);
@@ -499,14 +519,6 @@ export class System {
       repo.switchDepthTest(true);
     }
 
-    // Memory Settings
-    MemoryManager.createInstanceIfNotCreated({
-      cpuGeneric: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.cpuGeneric : 0.1,
-      gpuInstanceData: Is.exist(desc.memoryUsageOrder)
-        ? desc.memoryUsageOrder.gpuInstanceData
-        : 0.5,
-      gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
-    });
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
 
