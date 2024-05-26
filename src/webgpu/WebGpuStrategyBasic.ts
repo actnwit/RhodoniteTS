@@ -437,12 +437,6 @@ ${indexStr}
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
-    material._setCustomSettingParametersToGpuWebGpu({
-      material: material,
-      args: {
-        cameraComponentSid: cameraSID,
-      },
-    });
     webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID);
 
     return true;

@@ -34,15 +34,16 @@ import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture;
   private __specularCubeMap?: CubeTexture;
-  public diffuseCubeMapContribution = 1.0;
-  public specularCubeMapContribution = 1.0;
-  public rotationOfCubeMap = 0;
+  private __diffuseCubeMapContribution = 1.0;
+  private __specularCubeMapContribution = 1.0;
+  private __rotationOfCubeMap = 0;
 
   private static __cgApiRenderingStrategy?: CGAPIStrategy;
   public static isDepthMaskTrueForTransparencies = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
-  public _updateCount = 0;
+  private __updateCount = 0;
+  private static __updateCount = 0;
 
   constructor(
     entityUid: EntityUID,
@@ -67,6 +68,41 @@ export class MeshRendererComponent extends Component {
 
   get specularCubeMap() {
     return this.__specularCubeMap;
+  }
+
+  get updateCount() {
+    return this.__updateCount;
+  }
+
+  static get updateCount() {
+    return MeshRendererComponent.__updateCount;
+  }
+
+  get diffuseCubeMapContribution() {
+    return this.__diffuseCubeMapContribution;
+  }
+
+  set diffuseCubeMapContribution(contribution: number) {
+    this.__diffuseCubeMapContribution = contribution;
+    MeshRendererComponent.__updateCount++;
+  }
+
+  get specularCubeMapContribution() {
+    return this.__specularCubeMapContribution;
+  }
+
+  set specularCubeMapContribution(contribution: number) {
+    this.__specularCubeMapContribution = contribution;
+    MeshRendererComponent.__updateCount++;
+  }
+
+  get rotationOfCubeMap() {
+    return this.__rotationOfCubeMap;
+  }
+
+  set rotationOfCubeMap(rotation: number) {
+    this.__rotationOfCubeMap = rotation;
+    MeshRendererComponent.__updateCount++;
   }
 
   setIBLCubeMap(diffuseCubeTexture: CubeTexture, specularCubeTexture: CubeTexture) {
@@ -110,7 +146,8 @@ export class MeshRendererComponent extends Component {
     );
 
     return Promise.all(promises).then(() => {
-      this._updateCount++;
+      this.__updateCount++;
+      MeshRendererComponent.__updateCount++;
     });
   }
 

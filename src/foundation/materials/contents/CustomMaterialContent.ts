@@ -7,7 +7,7 @@ import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
 import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
@@ -120,6 +120,27 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
+  }
+
+  _setCustomSettingParametersToGpuWebGpu({
+    material,
+    args,
+  }: {
+    material: Material;
+    args: RenderingArgWebGpu;
+  }) {
+    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+      CustomMaterialContent.__setupHdriParameters(args);
+    const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+    tmp_vector4.x = mipmapLevelNumber;
+    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+    material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
+    const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+    tmp_vector2.x = diffuseHdriType;
+    tmp_vector2.y = specularHdriType;
+    material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
   }
 
   _setCustomSettingParametersToGpuWebGL({
@@ -255,7 +276,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  private static __setupHdriParameters(args: RenderingArgWebGL) {
+  private static __setupHdriParameters(args: RenderingArgWebGL | RenderingArgWebGpu) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
       mipmapLevelNumber = args.specularCube.mipmapLevelNumber;
