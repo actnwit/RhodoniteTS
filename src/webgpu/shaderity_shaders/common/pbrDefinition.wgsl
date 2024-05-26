@@ -84,6 +84,27 @@ fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f3
   let D = d_GGX(NdotHt, alphaRoughness);
   return V * D;
 }
+
+
+////////////////////////////////////////
+// glTF KHR_materials_volume
+////////////////////////////////////////
+
+#ifdef RN_USE_VOLUME
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
+fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensity: vec3f, transmissionDistance: f32) -> vec3f
+{
+  if (attenuationDistance == 0.0) { // means Infinite distance
+    return intensity; // No attenuation
+  } else {
+    let attenuationCo: vec3f = -log(attenuationColor) / attenuationDistance;
+    let attenuatedTransmittance: vec3f = exp(-attenuationCo * transmissionDistance);
+    return intensity * attenuatedTransmittance;
+  }
+}
+#endif
+
+
 ////////////////////////////////////////
 // glTF BRDF for punctual lights
 ////////////////////////////////////////
@@ -102,6 +123,8 @@ fn gltfBRDF(
   clearcoatRoughness: f32,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
+  attenuationColor: vec3f,
+  attenuationDistance: f32
   ) -> vec3f
 {
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -130,9 +153,9 @@ fn gltfBRDF(
 
   var transmittedContrib = (vec3f(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
 
-// #ifdef RN_USE_VOLUME
-//   transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
-// #endif // RN_USE_VOLUME
+#ifdef RN_USE_VOLUME
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+#endif // RN_USE_VOLUME
 
   let diffuseContrib = mix(pureDiffuse, vec3f(transmittedContrib), transmission);
 #else

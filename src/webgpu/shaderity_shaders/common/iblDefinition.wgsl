@@ -198,11 +198,11 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   refractionCoords /= 2.0;
   var transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
 
-// #ifdef RN_USE_VOLUME
-//   let attenuationColor = get_attenuationColor(materialSID, 0);
-//   let attenuationDistance = get_attenuationDistance(materialSID, 0);
-//   transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
-// #endif
+#ifdef RN_USE_VOLUME
+  let attenuationColor = get_attenuationColor(materialSID, 0);
+  let attenuationDistance = get_attenuationDistance(materialSID, 0);
+  transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
+#endif
 
   let transmissionComp = (vec3f(1.0) - baseRadianceResult.FssEss) * transmittedLight * albedo;
   let diffuse = mix(baseLambertianResult.diffuse, transmissionComp, transmission);

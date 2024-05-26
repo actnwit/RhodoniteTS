@@ -70,6 +70,12 @@
 // #param transmissionFactor: f32; // initialValue=(0)
 #endif // RN_USE_TRANSMISSION
 
+#ifdef RN_USE_VOLUME
+// #param thicknessFactor: f32; // initialValue=(0)
+// #param attenuationDistance: f32; // initialValue=(0.000001)
+// #param attenuationColor: vec3<f32>; // initialValue=(1,1,1)
+#endif
+
 #ifdef RN_USE_SPECULAR
 // #param specularFactor: f32; // initialValue=1.0
 // #param specularColorFactor: vec3<f32>; // initialValue=(1,1,1)
@@ -236,9 +242,18 @@ fn main(
 #endif // RN_USE_CLEARCOAT
 
 
+#ifdef RN_USE_VOLUME
+  // Volume
+  let thicknessFactor: f32 = get_thicknessFactor(materialSID, 0);
+  let thicknessTexture: f32 = textureSample(thicknessTexture, thicknessSampler, baseColorTexUv).g;
+  let attenuationDistance: f32 = get_attenuationDistance(materialSID, 0);
+  let attenuationColor: vec3f = get_attenuationColor(materialSID, 0);
+  let thickness: f32 = thicknessFactor * thicknessTexture;
+#else
   let thickness = 0.0;
   let attenuationColor = vec3f(0.0);
   let attenuationDistance = 0.000001;
+#endif // RN_USE_VOLUME
 
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = 0.0;
@@ -251,7 +266,8 @@ fn main(
     resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
                             NdotV, albedo, perceptualRoughness, F0, F90,
                             transmission, ior,
-                            clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc);
+                            clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
+                            attenuationColor, attenuationDistance);
   }
 
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
