@@ -857,6 +857,15 @@ export class WebGpuResourceRepository
     const sceneGraphComponent = entity.getSceneGraph()!;
     sceneGraphComponent.normalMatrixInner; // update normal matrix. do not remove this line.
 
+    material._setCustomSettingParametersToGpuWebGpu({
+      material: material,
+      args: {
+        cameraComponentSid: cameraId,
+        entity,
+        specularCube: meshRendererComponent.specularCubeMap,
+      },
+    });
+
     const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent._updateCount} ${cameraId}`;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
