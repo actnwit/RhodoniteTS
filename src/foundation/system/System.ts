@@ -35,6 +35,7 @@ import { CameraControllerComponent } from '../components/CameraController/Camera
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { Primitive } from '../geometry/Primitive';
+import { VERSION } from '../../version';
 declare const spector: any;
 
 /**
@@ -442,6 +443,20 @@ export class System {
     }
   }
 
+  private static __displayVersion() {
+    console.log(
+      `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}`,
+      `font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);`,
+      `padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);`,
+      ``,
+      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
+      `background: firebrick; padding: 4px; border-radius: 0px 6px 6px 0px`,
+      ``,
+      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
+      `background: green; padding: 4px; border-radius: 0px 6px 6px 0px`
+    );
+  }
+
   /**
    * Initialize the Rhodonite system.
    *
@@ -460,6 +475,7 @@ export class System {
    * @returns
    */
   public static async init(desc: SystemInitDescription) {
+    this.__displayVersion();
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
@@ -512,7 +528,7 @@ export class System {
         desc.canvas,
         desc.approach.webGLVersion,
         true,
-        desc.rnWebGLDebug ? desc.rnWebGLDebug : true,
+        desc.rnWebGLDebug ? desc.rnWebGLDebug : false,
         desc.webglOption,
         desc.fallback3dApi
       );

@@ -777,12 +777,6 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   private async __setIblInner() {
-    if (this.__expressions.length === 0) {
-      console.warn(
-        'No effect because there are no expressions to set IBL yet. call setExpressions before this method.'
-      );
-    }
-
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
