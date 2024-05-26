@@ -167,7 +167,7 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__isMouseDown = true;
     this.__lastMouseDownTimeStamp = e.timeStamp;
 
-    console.log('original', this.__originalX, this.__originalY);
+    // console.log('original', this.__originalX, this.__originalY);
 
     this.__updated = false;
     this._updateCount();
