@@ -42,7 +42,6 @@ import { Buffer } from '../memory/Buffer';
 import { GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER } from '../../types/WebGLConstants';
 import { AnimationChannel, AnimationPathName } from '../../types/AnimationTypes';
 import { CompositionType } from '../definitions/CompositionType';
-import { ComponentTypeEnum, CompositionTypeEnum, Sampler, Texture } from '../..';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import {
   IAnimationEntity,
@@ -54,9 +53,16 @@ import { createEffekseer } from './Gltf2ExporterEffekseer';
 import { Vector4 } from '../math/Vector4';
 import { Tag } from '../core/RnObject';
 import { Primitive } from '../geometry';
-import { CameraType, TextureParameter } from '../definitions';
-import { MathUtil } from '../math';
-const _VERSION = require('./../../../VERSION-FILE').default;
+import {
+  CameraType,
+  ComponentTypeEnum,
+  CompositionTypeEnum,
+  TextureParameter,
+} from '../definitions';
+import { MathUtil } from '../math/MathUtil';
+import { VERSION } from '../../version';
+import { Texture } from '../textures/Texture';
+import { Sampler } from '../textures/Sampler';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
@@ -239,7 +245,7 @@ export class Gltf2Exporter {
     const json: Gltf2Ex = {
       asset: {
         version: '2.0',
-        generator: `Rhodonite (${_VERSION.version})`,
+        generator: `Rhodonite (${VERSION.version})`,
       },
       buffers: [{ uri: fileName + '.bin', byteLength: 0 }],
       bufferViews: [],
