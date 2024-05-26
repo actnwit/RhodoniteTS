@@ -710,6 +710,7 @@ export class SceneGraphComponent extends Component {
     }
 
     this.matrixInner;
+    this.normalMatrixInner;
 
     this.__updateGizmos();
 
