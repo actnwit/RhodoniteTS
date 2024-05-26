@@ -148,7 +148,9 @@ export class WebGLContextWrapper {
         if (this.webgl2ExtMLTVIEW) {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
-          console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
+          if (this.__isDebugMode) {
+            console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
+          }
           this.is_multiview = false;
         }
       }
@@ -385,7 +387,7 @@ export class WebGLContextWrapper {
 
     if (!this.__extensions.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
-      if (extObj == null) {
+      if (extObj == null && this.__isDebugMode) {
         const text = `${extension.toString()} Not Available in this environment`;
         console.info(text);
       }
@@ -405,7 +407,7 @@ export class WebGLContextWrapper {
         gl.getExtension('MOZ_' + extensionName) ??
         gl.getExtension('WEBKIT_' + extensionName);
 
-      if (extObj == null) {
+      if (extObj == null && this.__isDebugMode) {
         const text = `${extension.toString()} Not Available in this environment`;
         console.info(text);
       } else {

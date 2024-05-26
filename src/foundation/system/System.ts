@@ -528,7 +528,7 @@ export class System {
         desc.canvas,
         desc.approach.webGLVersion,
         true,
-        desc.rnWebGLDebug ? desc.rnWebGLDebug : true,
+        desc.rnWebGLDebug ? desc.rnWebGLDebug : false,
         desc.webglOption,
         desc.fallback3dApi
       );
