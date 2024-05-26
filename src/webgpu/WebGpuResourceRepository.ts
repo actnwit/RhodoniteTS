@@ -139,6 +139,7 @@ export class WebGpuResourceRepository
 
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
+    this.__commandEncoder = this.__webGpuDeviceWrapper.gpuDevice.createCommandEncoder();
   }
 
   static getInstance(): WebGpuResourceRepository {
@@ -352,9 +353,6 @@ export class WebGpuResourceRepository
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
-    if (this.__commandEncoder == null) {
-      this.__commandEncoder = gpuDevice.createCommandEncoder({});
-    }
     for (let j = 0; j < depthOrArrayLayers; ++j) {
       let srcView = texture.createView({
         baseMipLevel: 0,
@@ -368,7 +366,7 @@ export class WebGpuResourceRepository
           baseArrayLayer: j,
         });
 
-        const passEncoder = this.__commandEncoder.beginRenderPass({
+        const passEncoder = this.__commandEncoder!.beginRenderPass({
           colorAttachments: [
             {
               view: dstView,
@@ -840,10 +838,7 @@ export class WebGpuResourceRepository
       depthStencilAttachment: depthStencilAttachment,
       label: renderPass.uniqueName,
     };
-    if (this.__commandEncoder == null) {
-      this.__commandEncoder = gpuDevice.createCommandEncoder();
-    }
-    const passEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+    const passEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
     passEncoder.end();
   }
 
@@ -942,10 +937,6 @@ export class WebGpuResourceRepository
   }
 
   private createRenderPassEncoder(renderPass: RenderPass) {
-    if (this.__commandEncoder == null) {
-      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-      this.__commandEncoder = gpuDevice.createCommandEncoder();
-    }
     if (this.__renderPassEncoder == null) {
       const framebuffer = renderPass.getFramebuffer();
       const resolveFramebuffer = renderPass.getResolveFramebuffer();
@@ -1001,7 +992,7 @@ export class WebGpuResourceRepository
           });
         }
         renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
-        this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+        this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
       } else if (framebuffer != null) {
         let depthTextureView = this.__systemDepthTextureView!;
         if (framebuffer.depthAttachment != null) {
@@ -1037,7 +1028,7 @@ export class WebGpuResourceRepository
           });
         }
         renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
-        this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+        this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
       } else {
         if (this.__contextCurrentTextureView == null) {
           const context = this.__webGpuDeviceWrapper!.context;
@@ -1060,7 +1051,7 @@ export class WebGpuResourceRepository
           },
           label: renderPass.uniqueName,
         };
-        this.__renderPassEncoder = this.__commandEncoder.beginRenderPass(renderPassDescriptor);
+        this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
       }
     }
   }
@@ -1340,11 +1331,9 @@ export class WebGpuResourceRepository
   }
 
   flush() {
-    if (this.__commandEncoder != null) {
-      const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-      gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
-      this.__commandEncoder = undefined;
-    }
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    gpuDevice.queue.submit([this.__commandEncoder!.finish()]);
+    this.__commandEncoder = gpuDevice.createCommandEncoder();
 
     if (this.__contextCurrentTextureView != null) {
       this.__contextCurrentTextureView = undefined;
@@ -2191,10 +2180,7 @@ export class WebGpuResourceRepository
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
-    if (this.__commandEncoder == null) {
-      this.__commandEncoder = gpuDevice.createCommandEncoder();
-    }
-    this.__commandEncoder.copyTextureToTexture(
+    this.__commandEncoder!.copyTextureToTexture(
       {
         texture: from,
       },
@@ -2241,13 +2227,9 @@ export class WebGpuResourceRepository
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
-    // Create a command encoder
-    if (this.__commandEncoder == null) {
-      this.__commandEncoder = gpuDevice.createCommandEncoder();
-    }
 
     // Copy the texture to the new texture
-    this.__commandEncoder.copyTextureToTexture(
+    this.__commandEncoder!.copyTextureToTexture(
       { texture: texture },
       { texture: newTexture },
       { width: texture.width, height: texture.height, depthOrArrayLayers: 1 }
