@@ -1,7 +1,7 @@
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { ShaderityObject } from 'shaderity';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export declare class CustomMaterialContent extends AbstractMaterialContent {
     private static __globalDataRepository;
@@ -31,7 +31,7 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
     private static __setupHdriParameters;
 }

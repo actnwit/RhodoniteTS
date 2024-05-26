@@ -4,7 +4,7 @@ import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { RenderPass } from '../../renderer/RenderPass';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
     static lookupTableTexture: ShaderSemanticsClass;
     constructor(targetRenderPass: RenderPass, colorAttachmentsNumber: Count, uri?: string, texture?: AbstractTexture);
@@ -12,6 +12,6 @@ export declare class ColorGradingUsingLUTsMaterialContent extends AbstractMateri
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
 }

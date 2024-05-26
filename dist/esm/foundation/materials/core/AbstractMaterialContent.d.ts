@@ -17,7 +17,7 @@ import { ShaderityObject } from 'shaderity';
 import { ShaderTypeEnum } from '../../definitions/ShaderType';
 import { LightComponent } from '../../components/Light/LightComponent';
 import { IMatrix33 } from '../../math/IMatrix';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
@@ -94,7 +94,7 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     getPixelInputs(): ShaderSocket[];
     getPixelOutput(name: string): ShaderSocket | undefined;
     getPixelOutputs(): ShaderSocket[];
-    protected setupBasicInfo(args: RenderingArg, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
+    protected setupBasicInfo(args: RenderingArgWebGL, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
     protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44): void;
     protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33): void;
     protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean): void;
@@ -107,9 +107,14 @@ export declare abstract class AbstractMaterialContent extends RnObject {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
+    }): void;
+    _setCustomSettingParametersToGpuWebGpu({ material, args, }: {
+        material: Material;
+        args: RenderingArgWebGpu;
     }): void;
     setDefaultInputValue(inputName: string, value: any): void;
     getDefinition(): string;
+    protected doShaderReflection(vertexShader: ShaderityObject, pixelShader: ShaderityObject, vertexShaderWebGpu: ShaderityObject, pixelShaderWebGpu: ShaderityObject): ShaderSemanticsInfo[];
 }
 export {};

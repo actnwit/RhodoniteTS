@@ -51,7 +51,6 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __createAndUpdateUBO;
     attachGPUData(primitive: Primitive): void;
     attachGPUDataInner(gl: WebGLRenderingContext, shaderProgram: WebGLProgram): void;
-    attachShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     static getInstance(): WebGLStrategyDataTexture;

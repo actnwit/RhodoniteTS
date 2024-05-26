@@ -97,6 +97,7 @@ export declare class System {
     private static createCamera;
     private static setViewportForNormalRendering;
     private static bindFramebufferWebGL;
+    private static __displayVersion;
     /**
      * Initialize the Rhodonite system.
      *

@@ -3,7 +3,7 @@ import { RenderPass } from '../../renderer/RenderPass';
 import { Count } from '../../../types/CommonTypes';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
     static LuminanceCriterion: ShaderSemanticsEnum;
     static LuminanceReduce: ShaderSemanticsEnum;
@@ -13,6 +13,6 @@ export declare class DetectHighLuminanceMaterialContent extends AbstractMaterial
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
 }

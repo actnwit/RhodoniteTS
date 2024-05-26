@@ -34,6 +34,7 @@ export declare class ModelConverter {
     static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void;
     static setDefaultTextures(material: Material, gltfModel: RnM2): void;
     private static __setVRM1Material;
+    private static setMToonTextures;
     private static __setVRM0xMaterial;
     private static __generateAppropriateMaterial;
     private static __isLighting;

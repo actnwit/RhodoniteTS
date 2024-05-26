@@ -1,7 +1,7 @@
 import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class FurnaceTestMaterialContent extends AbstractMaterialContent {
     static mode: ShaderSemanticsClass;
     static debugView: ShaderSemanticsClass;
@@ -13,6 +13,6 @@ export declare class FurnaceTestMaterialContent extends AbstractMaterialContent 
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
 }

@@ -7,7 +7,7 @@ import { RenderPass } from '../../foundation/renderer/RenderPass';
 import { CubeTexture } from '../../foundation/textures/CubeTexture';
 import { Index } from '../../types/CommonTypes';
 import { WebGLContextWrapper } from '../WebGLContextWrapper';
-export type RenderingArg = {
+export type RenderingArgWebGL = {
     glw: WebGLContextWrapper;
     entity: IMeshEntity;
     primitive: Primitive;
@@ -21,5 +21,8 @@ export type RenderingArg = {
     isVr: boolean;
     displayIdx: Index;
     setUniform: boolean;
+};
+export type RenderingArgWebGpu = {
+    cameraComponentSid: Index;
 };
 export type AttributeNames = Array<string>;

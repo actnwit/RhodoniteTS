@@ -4,7 +4,7 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
 import { RenderPass } from '../../renderer/RenderPass';
 import { Count } from '../../../types/CommonTypes';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
     static IsPointLight: ShaderSemanticsClass;
     static DepthTexture: ShaderSemanticsClass;
@@ -47,7 +47,7 @@ export declare class VarianceShadowMapDecodeClassicMaterialContent extends Abstr
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
     set depthCameraComponent(depthCameraComponent: CameraComponent);
 }

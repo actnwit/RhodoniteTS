@@ -22,6 +22,7 @@ export declare class MemoryManager {
     }): MemoryManager;
     private __makeMultipleOf4byteSize;
     static getInstance(): MemoryManager;
+    getMemorySize(): number;
     private __createBuffer;
     getBuffer(bufferUse: BufferUseEnum): Buffer | undefined;
     createOrGetBuffer(bufferUse: BufferUseEnum): Buffer;

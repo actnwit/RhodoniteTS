@@ -3,7 +3,7 @@ import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { RenderPass } from '../../renderer/RenderPass';
 import { Count } from '../../../types/CommonTypes';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
     static ShadowColorFactor: ShaderSemanticsEnum;
     static ShadowAlpha: ShaderSemanticsEnum;
@@ -37,6 +37,6 @@ export declare class ShadowMapDecodeClassicMaterialContent extends AbstractMater
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
 }

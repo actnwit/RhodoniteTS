@@ -35,7 +35,6 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
     $load(meshComponent: MeshComponent): boolean;
     prerender(): void;
     attachGPUData(primitive: Primitive): void;
-    attachShaderProgram(material: Material): void;
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveUid: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     dettachVertexData(glw: WebGLContextWrapper): void;

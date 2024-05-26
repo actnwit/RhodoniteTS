@@ -2,7 +2,7 @@ import { AbstractTexture } from '../../textures/AbstractTexture';
 import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { Sampler } from '../../textures/Sampler';
 export declare class MatCapMaterialContent extends AbstractMaterialContent {
     static MatCapTexture: ShaderSemanticsClass;
@@ -11,6 +11,6 @@ export declare class MatCapMaterialContent extends AbstractMaterialContent {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
 }

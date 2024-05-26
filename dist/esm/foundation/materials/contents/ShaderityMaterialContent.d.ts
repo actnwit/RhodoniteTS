@@ -1,7 +1,7 @@
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { ShaderityObject } from 'shaderity';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class ShaderityMaterialContent extends AbstractMaterialContent {
     constructor({ name, vertexShaderityObj, pixelShaderityObj, }: {
         name: string;
@@ -12,7 +12,7 @@ export declare class ShaderityMaterialContent extends AbstractMaterialContent {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
     private static __removeUselessShaderSemantics;
 }

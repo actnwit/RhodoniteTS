@@ -2,7 +2,7 @@ import { AbstractTexture } from '../../textures/AbstractTexture';
 import { ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
-import { RenderingArg } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     static SynthesizeCoefficient: ShaderSemanticsClass;
     static TargetRegionTexture: ShaderSemanticsClass;
@@ -34,7 +34,7 @@ export declare class SynthesizeHdrMaterialContent extends AbstractMaterialConten
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
     get existTargetRegionTexture(): boolean;
     get synthesizeTextureNumber(): number;

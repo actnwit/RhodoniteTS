@@ -35,8 +35,6 @@ export declare class Primitive extends RnObject {
     private __aabb;
     private __targets;
     private __vertexHandles?;
-    private __latestPositionAccessorVersion;
-    private __positionAccessorVersion;
     private __mesh?;
     private static __primitives;
     _sortkey: PrimitiveSortKey;
@@ -45,11 +43,15 @@ export declare class Primitive extends RnObject {
     private static __idxPrimitiveUidHasMorph;
     private static __primitiveCountHasMorph;
     private static __tmpVec3_0;
+    private __latestPositionAccessorVersion;
+    private __positionAccessorVersion;
+    private static __variantUpdateCount;
     constructor();
     static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined;
     static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined;
     getIndexBitSize(): 'uint16' | 'uint32';
     get _vertexHandles(): VertexHandles | undefined;
+    static get variantUpdateCount(): number;
     setMaterialVariant(variantName: string, material: Material): void;
     applyMaterialVariant(variantName: string): void;
     getVariantNames(): string[];

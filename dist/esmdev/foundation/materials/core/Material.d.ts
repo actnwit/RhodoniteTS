@@ -6,7 +6,7 @@ import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Index, CGAPIResourceHandle, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
-import type { RenderingArg } from '../../../webgl/types/CommonTypes';
+import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions';
 import { MaterialTypeName, ShaderVariable } from './MaterialTypes';
 import { Sampler } from '../../textures/Sampler';
@@ -22,7 +22,8 @@ export declare class Material extends RnObject {
     _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable>;
     _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>;
     private __belongPrimitives;
-    _shaderProgramUid: CGAPIResourceHandle;
+    private _shaderProgramUidMap;
+    private _primitiveUid;
     __materialUid: MaterialUID;
     private __materialTid;
     __materialSid: MaterialSID;
@@ -51,13 +52,14 @@ export declare class Material extends RnObject {
      * return whether the shader program ready or not
      * @returns is shader program ready or not
      */
-    isShaderProgramReady(): boolean;
+    isShaderProgramReady(primitive: Primitive): boolean;
     /**
      * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
      * @param isUniformOnlyMode
      */
-    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean): void;
+    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive?: Primitive): void;
+    getShaderProgramUid(primitive?: Primitive): CGAPIResourceHandle;
     /**
      * @internal
      * called from Primitive class only
@@ -88,12 +90,16 @@ export declare class Material extends RnObject {
      * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
-    _setupBasicUniformsLocations(): void;
+    _setupBasicUniformsLocations(primitive?: Primitive): void;
     /**
      * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
-    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean): WebGLProgram;
+    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive?: Primitive): void;
+    _setCustomSettingParametersToGpuWebGpu({ material, args, }: {
+        material: Material;
+        args: RenderingArgWebGpu;
+    }): void;
     /**
      * @internal
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
@@ -102,13 +108,13 @@ export declare class Material extends RnObject {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
     _setParametersToGpuWebGL2({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArg;
+        args: RenderingArgWebGL;
     }): void;
     /**
      * @internal
@@ -168,4 +174,5 @@ export declare class Material extends RnObject {
     get isLighting(): boolean;
     get materialTypeName(): string;
     get stateVersion(): number;
+    makeShadersInvalidate(): void;
 }
