@@ -118,6 +118,7 @@ export class WebGpuResourceRepository
   private __lastCurrentCameraComponentSid = -1;
   private __lastEntityRepositoryUpdateCount = -1;
   private __lastPrimitivesMaterialVariantUpdateCount = -1;
+  private __lastMeshRendererComponentsUpdateCount = -1;
 
   private static __iblParameterVec4 = MutableVector4.zero();
   private static __hdriFormatVec2 = MutableVector2.zero();
@@ -866,7 +867,7 @@ export class WebGpuResourceRepository
       },
     });
 
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent._updateCount} ${cameraId}`;
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent.updateCount} ${cameraId}`;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
@@ -1069,7 +1070,8 @@ export class WebGpuResourceRepository
       Material.stateVersion !== this.__lastMaterialsUpdateCount ||
       CameraComponent.current !== this.__lastCurrentCameraComponentSid ||
       EntityRepository.updateCount !== this.__lastEntityRepositoryUpdateCount ||
-      Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount
+      Primitive.variantUpdateCount !== this.__lastPrimitivesMaterialVariantUpdateCount ||
+      MeshRendererComponent.updateCount !== this.__lastMeshRendererComponentsUpdateCount
     ) {
       this.__renderBundles.clear();
       SystemState.webgpuRenderBundleMode = false;
@@ -1077,6 +1079,7 @@ export class WebGpuResourceRepository
       this.__lastMaterialsUpdateCount = Material.stateVersion;
       this.__lastEntityRepositoryUpdateCount = EntityRepository.updateCount;
       this.__lastPrimitivesMaterialVariantUpdateCount = Primitive.variantUpdateCount;
+      this.__lastMeshRendererComponentsUpdateCount = MeshRendererComponent.updateCount;
     }
   }
 

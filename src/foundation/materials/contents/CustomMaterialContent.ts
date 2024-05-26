@@ -121,6 +121,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
+
   _setCustomSettingParametersToGpuWebGpu({
     material,
     args,
