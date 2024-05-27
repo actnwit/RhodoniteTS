@@ -473,7 +473,7 @@ export class System {
    * @param desc
    * @returns
    */
-  public static async init(desc: SystemInitDescription) {
+  public static async init(desc: SystemInitDescription): Promise<void> {
     if (desc.notToDisplayRnInfoAtInit !== true) {
       this.__displayRnInfo();
     }
@@ -493,7 +493,6 @@ export class System {
       gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
     });
 
-    let gl;
     System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
@@ -525,7 +524,7 @@ export class System {
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-      gl = repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
+      repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
     }
 
@@ -561,8 +560,6 @@ export class System {
     await initDefaultTextures();
 
     SystemState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
-
-    return gl;
   }
 
   public static get processApproach() {

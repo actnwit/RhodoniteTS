@@ -57,17 +57,10 @@ function readyBasicVerticesData() {
 }
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-const gl = await Rn.System.init({
+await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
-
-gl.enable(gl.DEPTH_TEST);
-
-gl.viewport(0, 0, 600, 600);
-
-gl.clearColor(0.8, 0.8, 0.8, 1.0);
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 const primitive = readyBasicVerticesData();
 
@@ -106,6 +99,7 @@ let count = 0;
 // renderPass
 const renderPass = new Rn.RenderPass();
 renderPass.toClearColorBuffer = true;
+renderPass.toClearDepthBuffer = true;
 renderPass.addEntities(entities);
 
 // expression

@@ -35,6 +35,9 @@ const setupRenderPassRendering = function (rootGroup, cameraComponent) {
   const renderPass = new Rn.RenderPass();
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([rootGroup]);
+  renderPass.toClearColorBuffer = true;
+  renderPass.toClearDepthBuffer = true;
+  renderPass.clearColor = Rn.Vector4.fromCopy4(0.8, 0.8, 0.8, 1.0);
 
   return renderPass;
 };
@@ -45,7 +48,7 @@ const load = async function () {
   Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
-  const gl = await Rn.System.init({
+  await Rn.System.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas,
   });
@@ -94,13 +97,6 @@ const load = async function () {
   let count = 0;
   const draw = function (time) {
     if (p == null && count > 0) {
-      if (response != null) {
-        gl.enable(gl.DEPTH_TEST);
-        gl.viewport(0, 0, 600, 600);
-        gl.clearColor(0.8, 0.8, 0.8, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      }
-
       p = document.createElement('p');
       p.setAttribute('id', 'rendered');
       p.innerText = 'Rendered.';

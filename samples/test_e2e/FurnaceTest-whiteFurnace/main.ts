@@ -18,7 +18,7 @@ declare global {
 // prepare memory
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
-const gl = await Rn.System.init({
+await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
@@ -34,7 +34,7 @@ const expressions = [expressionMain];
 // draw
 draw(expressions, true);
 
-attachGlobalFunctions(gl, expressions);
+attachGlobalFunctions(expressions);
 
 // ---functions-----------------------------------------------------------------------------------------
 
@@ -126,13 +126,12 @@ function draw(expressions: Rn.Expression[], createPElem = false) {
   }
 }
 
-function attachGlobalFunctions(gl: WebGLRenderingContext, expressions: Rn.Expression[]) {
+function attachGlobalFunctions(expressions: Rn.Expression[]) {
   window.setRoughness = setRoughness;
   window.setDebugView = setDebugView;
   window.setGType = setGType;
   window.setF0 = setF0;
   window.setDisableFresnel = setDisableFresnel;
-  window.setClearColor = setClearColor;
   window.setMode = setMode;
 
   const material = window.material;
@@ -162,11 +161,6 @@ function attachGlobalFunctions(gl: WebGLRenderingContext, expressions: Rn.Expres
   function setDisableFresnel(intValue: number) {
     material.setParameter(Rn.FurnaceTestMaterialContent.disable_fresnel, intValue);
     draw(expressions);
-  }
-
-  function setClearColor(x, y, z) {
-    gl.clearColor(x, y, z, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
   function setMode(intValue: number) {

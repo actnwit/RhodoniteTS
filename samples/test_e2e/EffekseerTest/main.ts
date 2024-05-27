@@ -13,7 +13,7 @@ const effekseerModule = await moduleManager.loadModule('effekseer', {
 });
 
 Rn.Config.cgApiDebugConsoleOutput = true;
-const gl = await Rn.System.init({
+await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
   memoryUsageOrder: {
