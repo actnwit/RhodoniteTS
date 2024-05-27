@@ -103,37 +103,10 @@ struct IblResult
   vec3 FssEss;
 };
 
-IblResult getIBLRadianceGGX(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection)
-{
-  // get radiance
-  float mipCount = iblParameter.x;
-  float lod = (perceptualRoughness * (mipCount - 1.0));
-  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
-
-  // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
-  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = kS * f_ab.x + f_ab.y;
-  IblResult result;
-  result.FssEss = FssEss;
-
-  // Specular IBL
-  vec3 specular = FssEss * radiance;
-
-  // scale with user parameters
-  float IBLSpecularContribution = iblParameter.z;
-  specular *= IBLSpecularContribution;
-
-  result.specular = specular;
-
-  return result;
-}
-
+#ifdef RN_USE_IRIDESCENCE
 IblResult getIBLRadianceGGXWithIridescence(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
   float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection, vec3 iridescenceFresnel, float iridescence)
+  vec3 normal_forEnv, vec3 reflection, vec3 iridescenceFresnel, float iridescence, float specularWeight)
 {
   // get radiance
   float mipCount = iblParameter.x;
@@ -148,7 +121,7 @@ IblResult getIBLRadianceGGXWithIridescence(float materialSID, float NdotV, vec3 
   result.FssEss = FssEss;
 
   // Specular IBL
-  vec3 specular = FssEss * radiance;
+  vec3 specular = FssEss * radiance * specularWeight;
 
   // scale with user parameters
   float IBLSpecularContribution = iblParameter.z;
@@ -159,41 +132,9 @@ IblResult getIBLRadianceGGXWithIridescence(float materialSID, float NdotV, vec3 
   return result;
 }
 
-IblResult getIBLRadianceLambertian(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection)
-{
-  // get irradiance
-  vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
-
-  // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
-  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = kS * f_ab.x + f_ab.y;
-  IblResult result;
-  result.FssEss = FssEss;
-
-  // Multiple scattering, Fdez-Aguera's approach
-  float Ems = (1.0 - (f_ab.x + f_ab.y));
-  vec3 F_avg = F0 + (1.0 - F0) / 21.0;
-  vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
-  vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
-
-  // Diffuse IBL
-  vec3 diffuse = (FmsEms + k_D) * irradiance;
-
-  // scale with user parameters
-  float IBLDiffuseContribution = iblParameter.y;
-  diffuse *= IBLDiffuseContribution;
-
-  result.diffuse = diffuse;
-
-  return result;
-}
-
 IblResult getIBLRadianceLambertianWithIridescence(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
   float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection, vec3 iridescenceF0, float iridescence)
+  vec3 normal_forEnv, vec3 reflection, vec3 iridescenceF0, float iridescence, float specularWeight)
 {
   // get irradiance
   vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
@@ -208,13 +149,13 @@ IblResult getIBLRadianceLambertianWithIridescence(float materialSID, float NdotV
   // Roughness dependent fresnel
   vec3 kS = fresnelSchlickRoughness(mixedF0, NdotV, perceptualRoughness);
   vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = kS * f_ab.x + f_ab.y;
+  vec3 FssEss = specularWeight * kS * f_ab.x + f_ab.y;
   IblResult result;
   result.FssEss = FssEss;
 
   // Multiple scattering, Fdez-Aguera's approach
   float Ems = (1.0 - (f_ab.x + f_ab.y));
-  vec3 F_avg = mixedF0 + (1.0 - mixedF0) / 21.0;
+  vec3 F_avg = specularWeight * (mixedF0 + (1.0 - mixedF0) / 21.0);
   vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
   vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
 
@@ -226,6 +167,67 @@ IblResult getIBLRadianceLambertianWithIridescence(float materialSID, float NdotV
   diffuse *= IBLDiffuseContribution;
 
   result.diffuse = diffuse;
+
+  return result;
+}
+#endif // RN_USE_IRIDESCENCE
+
+IblResult getIBLRadianceLambertian(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
+  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
+  vec3 normal_forEnv, vec3 reflection, float specularWeight)
+{
+  // get irradiance
+  vec3 irradiance = get_irradiance(normal_forEnv, materialSID, hdriFormat);
+
+  // Roughness dependent fresnel
+  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
+  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
+  vec3 FssEss = specularWeight * kS * f_ab.x + f_ab.y;
+  IblResult result;
+  result.FssEss = FssEss;
+
+  // Multiple scattering, Fdez-Aguera's approach
+  float Ems = (1.0 - (f_ab.x + f_ab.y));
+  vec3 F_avg = specularWeight * (F0 + (1.0 - F0) / 21.0);
+  vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
+  vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
+
+  // Diffuse IBL
+  vec3 diffuse = (FmsEms + k_D) * irradiance;
+
+  // scale with user parameters
+  float IBLDiffuseContribution = iblParameter.y;
+  diffuse *= IBLDiffuseContribution;
+
+  result.diffuse = diffuse;
+
+  return result;
+}
+
+IblResult getIBLRadianceGGX(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
+  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
+  vec3 normal_forEnv, vec3 reflection, float specularWeight)
+{
+  // get radiance
+  float mipCount = iblParameter.x;
+  float lod = (perceptualRoughness * (mipCount - 1.0));
+  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
+
+  // Roughness dependent fresnel
+  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
+  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
+  vec3 FssEss = kS * f_ab.x + f_ab.y;
+  IblResult result;
+  result.FssEss = FssEss;
+
+  // Specular IBL
+  vec3 specular = FssEss * radiance * specularWeight;
+
+  // scale with user parameters
+  float IBLSpecularContribution = iblParameter.z;
+  specular *= IBLSpecularContribution;
+
+  result.specular = specular;
 
   return result;
 }
@@ -277,7 +279,8 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
   float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
-  vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence, float anisotropy, vec3 anisotropyDirection)
+  vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence, float anisotropy, vec3 anisotropyDirection,
+  float specularWeight)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w + 3.1415;
@@ -290,14 +293,14 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   // IBL
   #ifdef RN_USE_IRIDESCENCE
     IblResult baseRadianceResult = getIBLRadianceGGXWithIridescence(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceFresnel, iridescence);
+      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceFresnel, iridescence, specularWeight);
     IblResult baseLambertianResult = getIBLRadianceLambertianWithIridescence(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceF0, iridescence);
+      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceF0, iridescence, specularWeight);
   #else
     IblResult baseRadianceResult = getIBLRadianceGGX(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection);
+      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, specularWeight);
     IblResult baseLambertianResult = getIBLRadianceLambertian(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection);
+      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, specularWeight);
   #endif
 
 #ifdef RN_USE_TRANSMISSION
@@ -333,7 +336,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   float VdotNg = dot(geomNormal_inWorld, viewDirection);
   vec3 clearcoatNormal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   IblResult coatResult = getIBLRadianceGGX(materialSID, VdotNc, viewDirection, vec3(0.0), F0,
-    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, reflection);
+    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, reflection, specularWeight);
   vec3 coatLayer = coatResult.specular;
 
   float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);

@@ -307,10 +307,8 @@ void main ()
     float iridescenceThicknessMinimum = get_iridescenceThicknessMinimum(materialSID, 0);
     float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
-
     vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
     vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
-
   #else
     float iridescence = 0.0;
     vec3 iridescenceFresnel = vec3(0.0);
@@ -385,7 +383,8 @@ void main ()
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
-                        sheenColor, sheenRoughness, albedoSheenScalingNdotV);
+                        sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+                        iridescence, iridescenceFresnel, specular);
   }
 
   #ifdef RN_USE_SHADOW_MAPPING
@@ -402,7 +401,9 @@ void main ()
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV, ior, iridescenceFresnel, iridescenceF0, iridescence, anisotropy, anisotropicB);
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    ior, iridescenceFresnel, iridescenceF0, iridescence,
+    anisotropy, anisotropicB, specular);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

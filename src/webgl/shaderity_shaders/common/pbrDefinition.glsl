@@ -111,20 +111,20 @@ vec3 fresnel(vec3 f0, float VdotH)
   return fresnel(f0, f90, VdotH);
 }
 
-vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness) {
+vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness, float specularWeight) {
   float D = d_ggx(NH, alphaRoughness);
   float V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
-  return vec3(D)*vec3(V)*F;
+  return vec3(D) * vec3(V) * F * specularWeight;
 //      float G = g_shielding(NL, NV, alphaRoughness);
 //      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
 
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-vec3 diffuse_brdf(vec3 albedo)
+vec3 diffuse_brdf(vec3 albedo, vec3 F, float specularWeight)
 {
   // (1/pi) * diffuseAlbedo
-  return RECIPROCAL_PI * albedo;
+  return (vec3(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
@@ -165,12 +165,12 @@ vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float Nd
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
-vec3 dielectric_brdf(float ior, vec3 baseColor, float perceptualRoughness, float NdotL, float NdotV, float NdotH, float VdotH) {
-  vec3 base = diffuse_brdf(baseColor);
-  float alphaRoughness = perceptualRoughness * perceptualRoughness;
-  vec3 layer = vec3(specular_brdf(alphaRoughness, NdotL, NdotV, NdotH));
-  return fresnel_mix(ior, base, layer, VdotH);
-}
+// vec3 dielectric_brdf(float ior, vec3 baseColor, float perceptualRoughness, float NdotL, float NdotV, float NdotH, float VdotH) {
+//   vec3 base = diffuse_brdf(baseColor);
+//   float alphaRoughness = perceptualRoughness * perceptualRoughness;
+//   vec3 layer = vec3(specular_brdf(alphaRoughness, NdotL, NdotV, NdotH));
+//   return fresnel_mix(ior, base, layer, VdotH);
+// }
 
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
 vec3 coated_material_s(vec3 base, float perceptualRoughness, float clearcoatRoughness, float clearcoat, float VdotNc, float LdotNc, float NdotHc) {
@@ -206,16 +206,6 @@ vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
 {
   vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
   vec3 k_S = F0 + Fr * pow(1.0 - cosTheta, 5.0);
-  return k_S;
-}
-
-vec3 fresnelSchlickRoughnessWithIridescence(
-  vec3 F0, float cosTheta, float roughness,
-  vec3 iridescenceFresnel, float iridescence
-  )
-{
-  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
-  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
   return k_S;
 }
 
@@ -407,6 +397,16 @@ const mat3 XYZ_TO_REC709 = mat3(
     -0.4985314,  0.0415560,  1.0572252
 );
 
+vec3 fresnelSchlickRoughnessWithIridescence(
+  vec3 F0, float cosTheta, float roughness,
+  vec3 iridescenceFresnel, float iridescence
+  )
+{
+  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
+  return k_S;
+}
+
 // Assume air interface for top
 vec3 Fresnel0ToIor(vec3 F0) {
     vec3 sqrtF0 = sqrt(F0);
@@ -522,7 +522,28 @@ vec3 calcIridescence(float outsideIor, float eta2, float cosTheta1, float thinFi
 
   return F_iridescence;
 }
-#endif
+
+//https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#acknowledgments AppendixB
+vec3 BRDF_lambertianIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, float iridescenceFactor, vec3 diffuseColor, float specularWeight, float VdotH)
+{
+    vec3 iridescenceFresnelMax = vec3(max(max(iridescenceFresnel.r, iridescenceFresnel.g), iridescenceFresnel.b));
+    vec3 schlickFresnel = Schlick_to_F0(f0, f90, VdotH);
+    vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
+
+    // see https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+    return (1.0 - specularWeight * F) * (diffuseColor / M_PI);
+}
+
+vec3 BRDF_specularGGXIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, float alphaRoughness, float iridescenceFactor, float specularWeight, float VdotH, float NdotL, float NdotV, float NdotH)
+{
+    vec3 F = mix(Schlick_to_F0(f0, f90, VdotH), iridescenceFresnel, iridescenceFactor);
+    float Vis = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+    float D = d_ggx(NdotH, alphaRoughness);
+
+    return specularWeight * F * Vis * D;
+}
+
+#endif // RN_USE_IRIDESCENCE
 
 
 
@@ -556,7 +577,10 @@ vec3 gltfBRDF(
   float TdotV,
   vec3 sheenColor,
   float sheenRoughness,
-  float albedoSheenScalingNdotV
+  float albedoSheenScalingNdotV,
+  float iridescenceFactor,
+  vec3 iridescenceFresnel,
+  float specularWeight
   )
 {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -569,8 +593,13 @@ vec3 gltfBRDF(
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
-  vec3 diffuseBrdf = diffuse_brdf(albedo);
-  vec3 pureDiffuse = (vec3(1.0) - F) * diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
+#ifdef RN_USE_IRIDESCENCE
+  vec3 diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
+#else
+  vec3 diffuseBrdf = diffuse_brdf(albedo, F, specularWeight);
+#endif
+
+  vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
   vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
@@ -596,14 +625,17 @@ vec3 gltfBRDF(
 
   // Specular
   float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
-#ifdef RN_USE_ANISOTROPY
+
+#ifdef RN_USE_IRIDESCENCE
+  vec3 specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH) * vec3(NdotL) * light.attenuatedIntensity;
+#elif defined(RN_USE_ANISOTROPY)
   float TdotL = dot(anisotropicT, light.direction);
   float BdotL = dot(anisotropicB, light.direction);
   float TdotH = dot(anisotropicT, halfVector);
   float BdotH = dot(anisotropicB, halfVector);
   vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
 #else
-  vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
 #endif // RN_USE_ANISOTROPY
 
   // Base Layer
