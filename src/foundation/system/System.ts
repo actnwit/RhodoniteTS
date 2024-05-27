@@ -50,6 +50,7 @@ interface SystemInitDescription {
     gpuVertexData: number;
   };
   webglOption?: WebGLContextAttributes;
+  notToDisplayRnInfoAtInit?: boolean;
 }
 
 type ComponentMethodName = string;
@@ -441,7 +442,7 @@ export class System {
     }
   }
 
-  private static __displayVersion() {
+  private static __displayRnInfo() {
     console.log(
       `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}`,
       `font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);`,
@@ -473,7 +474,9 @@ export class System {
    * @returns
    */
   public static async init(desc: SystemInitDescription) {
-    this.__displayVersion();
+    if (desc.notToDisplayRnInfoAtInit !== true) {
+      this.__displayRnInfo();
+    }
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
