@@ -1718,12 +1718,12 @@ export class WebGpuResourceRepository
     return uniformBufferHandle;
   }
 
-  updateUniformMorphOffsetsBuffer(inputArray: Uint32Array) {
+  updateUniformMorphOffsetsBuffer(inputArray: Uint32Array, elementNum: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     if (this.__uniformMorphOffsetsBuffer == null) {
       throw new Error('Not found uniform morph buffer.');
     }
-    gpuDevice.queue.writeBuffer(this.__uniformMorphOffsetsBuffer, 0, inputArray);
+    gpuDevice.queue.writeBuffer(this.__uniformMorphOffsetsBuffer, 0, inputArray, 0, elementNum);
   }
 
   createUniformMorphWeightsBuffer() {
@@ -1746,12 +1746,12 @@ export class WebGpuResourceRepository
     return uniformBufferHandle;
   }
 
-  updateUniformMorphWeightsBuffer(inputArray: Float32Array) {
+  updateUniformMorphWeightsBuffer(inputArray: Float32Array, elementNum: Count) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     if (this.__uniformMorphWeightsBuffer == null) {
       throw new Error('Not found uniform morph buffer.');
     }
-    gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray);
+    gpuDevice.queue.writeBuffer(this.__uniformMorphWeightsBuffer, 0, inputArray, 0, elementNum);
   }
 
   private __createBindGroup(
