@@ -401,7 +401,9 @@ void main ()
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV, ior, iridescenceFresnel, iridescenceF0, iridescence, anisotropy, anisotropicB);
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    ior, iridescenceFresnel, iridescenceF0, iridescence,
+    anisotropy, anisotropicB, specular);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

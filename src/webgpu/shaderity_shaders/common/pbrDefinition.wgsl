@@ -69,10 +69,9 @@ fn fresnelSchlickRoughness(F0: vec3f, cosTheta: f32, roughness: f32) -> vec3f
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-fn diffuse_brdf(albedo: vec3f) -> vec3f
+fn diffuse_brdf(albedo: vec3f, F: vec3f, specularWeight: f32) -> vec3f
 {
-  // (1/pi) * diffuseAlbedo
-  return RECIPROCAL_PI * albedo;
+  return (vec3f(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
 }
 
 
@@ -92,10 +91,10 @@ fn v_SmithGGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
   return 0.5 / (GGXV + GGXL);
 }
 
-fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, F: vec3f, alphaRoughness: f32) -> vec3f {
+fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, F: vec3f, alphaRoughness: f32, specularWeight: f32) -> vec3f {
   let D = d_GGX(NH, alphaRoughness);
   let V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
-  return vec3f(D)*vec3f(V)*F;
+  return vec3f(D) * vec3f(V) * F * specularWeight;
 }
 
 // this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
@@ -443,9 +442,9 @@ fn gltfBRDF(
 #ifdef RN_USE_IRIDESCENCE
   let diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
 #else
-  let diffuseBrdf = diffuse_brdf(albedo);
+  let diffuseBrdf = diffuse_brdf(albedo, F, specularWeight);
 #endif
-  let pureDiffuse = (vec3f(1.0) - F) * diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
+  let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
   let refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
@@ -482,7 +481,7 @@ fn gltfBRDF(
   let BdotH = dot(anisotropicB, halfVector);
   let specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
 #else
-  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3f(NdotL) * light.attenuatedIntensity;
 #endif
 
   // Base Layer

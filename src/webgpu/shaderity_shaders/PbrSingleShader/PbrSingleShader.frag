@@ -351,7 +351,7 @@ fn main(
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel, iridescenceF0, iridescence,
-    anisotropy, anisotropicB
+    anisotropy, anisotropicB, specular
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
