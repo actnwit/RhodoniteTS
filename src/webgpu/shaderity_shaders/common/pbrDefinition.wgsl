@@ -104,6 +104,43 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
 }
 #endif
 
+
+////////////////////////////////////////
+// glTF KHR_materials_anisotropy
+////////////////////////////////////////
+#ifdef RN_USE_ANISOTROPY
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_anisotropy
+fn D_GGX_anisotropic(NdotH: f32, TdotH: f32, BdotH: f32, at: f32, ab: f32) -> f32
+{
+    let a2 = at * ab;
+    let f = vec3f(ab * TdotH, at * BdotH, a2 * NdotH);
+    let w2 = a2 / dot(f, f);
+    return a2 * w2 * w2 / M_PI;
+}
+
+fn V_GGX_anisotropic(NdotL: f32, NdotV: f32, BdotV: f32, TdotV: f32, TdotL: f32, BdotL: f32,
+    at: f32, ab: f32) -> f32
+{
+    let GGXV = NdotL * length(vec3(at * TdotV, ab * BdotV, NdotV));
+    let GGXL = NdotV * length(vec3(at * TdotL, ab * BdotL, NdotL));
+    let v = 0.5 / (GGXV + GGXL);
+    return clamp(v, 0.0, 1.0);
+}
+
+fn BRDF_specularAnisotropicGGX(F: vec3f, alphaRoughness: f32,
+    VdotH: f32, NdotL: f32, NdotV: f32, NdotH: f32, BdotV: f32, TdotV: f32,
+    TdotL: f32, BdotL: f32, TdotH: f32, BdotH: f32, anisotropy: f32) -> vec3f
+{
+    let at = mix(alphaRoughness, 1.0, anisotropy * anisotropy);
+    let ab = alphaRoughness;
+
+    let V = V_GGX_anisotropic(NdotL, NdotV, BdotV, TdotV, TdotL, BdotL, at, ab);
+    let D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
+
+    return F * V * D;
+}
+#endif
+
 ////////////////////////////////////////
 // glTF KHR_materials_sheen
 ////////////////////////////////////////
@@ -173,6 +210,11 @@ fn gltfBRDF(
   VdotNc: f32,
   attenuationColor: vec3f,
   attenuationDistance: f32,
+  anisotropy: f32,
+  anisotropicT: vec3f,
+  anisotropicB: vec3f,
+  BdotV: f32,
+  TdotV: f32,
   sheenColor: vec3f,
   sheenRoughness: f32,
   albedoSheenScalingNdotV: f32
@@ -214,8 +256,17 @@ fn gltfBRDF(
 #endif // RN_USE_TRANSMISSION
 
   // Specular
-  let NdotH = clamp(dot(normal_inWorld, halfVector), Epsilon, 1.0);
+  let NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+
+#ifdef RN_USE_ANISOTROPY
+  let TdotL = dot(anisotropicT, light.direction);
+  let BdotL = dot(anisotropicB, light.direction);
+  let TdotH = dot(anisotropicT, halfVector);
+  let BdotH = dot(anisotropicB, halfVector);
+  let specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
+#else
   let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
+#endif
 
   // Base Layer
   let baseLayer = diffuseContrib + specularContrib;
