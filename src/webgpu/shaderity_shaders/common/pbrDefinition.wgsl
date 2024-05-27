@@ -371,6 +371,29 @@ fn calcIridescence(outsideIor: f32, eta2: f32, cosTheta1: f32, thinFilmThickness
 
   return F_iridescence;
 }
+
+//https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#acknowledgments AppendixB
+fn BRDF_lambertianIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f, iridescenceFactor: f32, diffuseColor: vec3f, specularWeight: f32, VdotH: f32) -> vec3f
+{
+    let iridescenceFresnelMax = vec3f(max(max(iridescenceFresnel.r, iridescenceFresnel.g), iridescenceFresnel.b));
+
+    let schlickFresnel = Schlick_to_F0_F90(f0, f90, VdotH);
+
+    let F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
+
+    // see https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+    return (1.0 - specularWeight * F) * (diffuseColor / M_PI);
+}
+
+fn BRDF_specularGGXIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f, alphaRoughness: f32, iridescenceFactor: f32, specularWeight: f32, VdotH: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f
+{
+    let F = mix(Schlick_to_F0_F90(f0, f90, VdotH), iridescenceFresnel, iridescenceFactor);
+    let Vis = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+    let D = d_GGX(NdotH, alphaRoughness);
+
+    return specularWeight * F * Vis * D;
+}
+
 #endif // RN_USE_IRIDESCENCE
 
 
@@ -401,7 +424,10 @@ fn gltfBRDF(
   TdotV: f32,
   sheenColor: vec3f,
   sheenRoughness: f32,
-  albedoSheenScalingNdotV: f32
+  albedoSheenScalingNdotV: f32,
+  iridescenceFactor: f32,
+  iridescenceFresnel: vec3f,
+  specularWeight: f32,
   ) -> vec3f
 {
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -414,7 +440,11 @@ fn gltfBRDF(
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 
   // Diffuse
+#ifdef RN_USE_IRIDESCENCE
+  let diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
+#else
   let diffuseBrdf = diffuse_brdf(albedo);
+#endif
   let pureDiffuse = (vec3f(1.0) - F) * diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
@@ -442,7 +472,10 @@ fn gltfBRDF(
   // Specular
   let NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
 
-#ifdef RN_USE_ANISOTROPY
+
+#ifdef RN_USE_IRIDESCENCE
+  let specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH);
+#elif defined(RN_USE_ANISOTROPY)
   let TdotL = dot(anisotropicT, light.direction);
   let BdotL = dot(anisotropicB, light.direction);
   let TdotH = dot(anisotropicT, halfVector);

@@ -340,7 +340,8 @@ fn main(
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
-                            sheenColor, sheenRoughness, albedoSheenScalingNdotV
+                            sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+                            iridescence, iridescenceFresnel, specular
                             );
   }
 
