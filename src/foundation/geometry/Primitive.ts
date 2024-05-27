@@ -448,7 +448,7 @@ export class Primitive extends RnObject {
 
   setBlendShapeTargets(targets: Array<Attributes>) {
     if (Primitive.__primitiveUidIdxHasMorph.size >= Config.maxVertexPrimitiveNumberInShader) {
-      console.warn(
+      console.error(
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumber'
       );
     } else {

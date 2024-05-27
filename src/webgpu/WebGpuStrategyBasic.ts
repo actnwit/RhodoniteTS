@@ -496,7 +496,8 @@ ${indexStr}
         webGpuResourceRepository.createStorageBlendShapeBuffer(float32Array);
     }
 
-    for (let i = 0; i < Config.maxVertexPrimitiveNumberInShader; i++) {
+    let i = 0;
+    for (; i < Config.maxVertexPrimitiveNumberInShader; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {
@@ -505,9 +506,15 @@ ${indexStr}
           this.__uniformMorphOffsetsTypedArray![Config.maxVertexMorphNumberInShader * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
+      } else {
+        break;
       }
     }
-    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(this.__uniformMorphOffsetsTypedArray!);
+    const elementNumToCopy = Config.maxVertexMorphNumberInShader * i;
+    webGpuResourceRepository.updateUniformMorphOffsetsBuffer(
+      this.__uniformMorphOffsetsTypedArray!,
+      elementNumToCopy
+    );
   }
 
   private __updateUniformMorph() {
@@ -532,8 +539,10 @@ ${indexStr}
       }
     }
     if (blendShapeComponents.length > 0) {
+      const elementNumToCopy = Config.maxVertexMorphNumberInShader * blendShapeComponents.length;
       webGpuResourceRepository.updateUniformMorphWeightsBuffer(
-        this.__uniformMorphWeightsTypedArray!
+        this.__uniformMorphWeightsTypedArray!,
+        elementNumToCopy
       );
     }
   }
