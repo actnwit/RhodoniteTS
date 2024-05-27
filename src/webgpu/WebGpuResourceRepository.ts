@@ -737,19 +737,23 @@ export class WebGpuResourceRepository
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
     });
-    vsModule.getCompilationInfo().then((info) => {
-      if (info.messages.length > 0) {
-        this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
-      }
-    });
+    if (Config.cgApiDebugConsoleOutput) {
+      vsModule.getCompilationInfo().then((info) => {
+        if (info.messages.length > 0) {
+          this.__checkShaderCompileStatus(material.materialTypeName, vertexShaderStr, info);
+        }
+      });
+    }
     const fsModule = gpuDevice.createShaderModule({
       code: fragmentShaderStr,
     });
-    fsModule.getCompilationInfo().then((info) => {
-      if (info.messages.length > 0) {
-        this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
-      }
-    });
+    if (Config.cgApiDebugConsoleOutput) {
+      fsModule.getCompilationInfo().then((info) => {
+        if (info.messages.length > 0) {
+          this.__checkShaderCompileStatus(material.materialTypeName, fragmentShaderStr, info);
+        }
+      });
+    }
 
     const modules = {
       vsModule,
