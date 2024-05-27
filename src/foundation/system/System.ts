@@ -238,6 +238,7 @@ export class System {
               // clear Framebuffer
               this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
 
+              renderPass._isChangedSortRenderResult = false;
               const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
               let doRender = renderPass._renderedSomethingBefore;
               if (doRender) {
@@ -325,6 +326,7 @@ export class System {
                   this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
                 }
 
+                renderPass._isChangedSortRenderResult = false;
                 const primitiveUids = MeshRendererComponent.sort_$render(renderPass);
                 let doRender = renderPass._renderedSomethingBefore;
                 if (doRender) {
