@@ -9,6 +9,7 @@ Rn.Config.maxEntityNumber = 20000;
 Rn.Config.dataTextureWidth = Math.pow(2, 13);
 Rn.Config.dataTextureHeight = Math.pow(2, 13);
 Rn.Config.maxSkeletonNumber = 200;
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,

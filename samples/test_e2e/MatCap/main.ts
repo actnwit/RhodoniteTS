@@ -1,6 +1,7 @@
 import Rn from '../../../dist/esmdev/index.js';
 
 // prepare memory
+Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,

@@ -17,6 +17,7 @@ Rn.Config.dataTextureWidth = 2 ** 12;
 Rn.Config.dataTextureHeight = 2 ** 11;
 Rn.Config.maxMorphTargetNumber = 1;
 Rn.Config.isUboEnabled = false;
+Rn.Config.cgApiDebugConsoleOutput = true;
 
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,

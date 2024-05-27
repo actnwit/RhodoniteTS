@@ -9,6 +9,7 @@ declare const window: any;
 Rn.Config.dataTextureWidth = Math.pow(2, 8);
 Rn.Config.dataTextureHeight = Math.pow(2, 9);
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,

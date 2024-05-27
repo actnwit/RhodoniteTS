@@ -8,7 +8,6 @@ const world = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: world,
-  rnWebGLDebug: true,
 });
 
 // camera

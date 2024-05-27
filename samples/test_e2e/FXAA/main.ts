@@ -10,6 +10,7 @@ let framebuffer: Rn.FrameBuffer;
 let renderPassMain: Rn.RenderPass;
 
 const canvas = document.getElementById('world') as HTMLCanvasElement;
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,

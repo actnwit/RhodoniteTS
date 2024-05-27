@@ -17,6 +17,7 @@ const resolutionDepthCamera = 1024;
 // ---main algorithm-----------------------------------------------------------------------------------------
 
 // prepare memory
+Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,

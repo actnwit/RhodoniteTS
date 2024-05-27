@@ -62,6 +62,7 @@ let p: any;
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 window.canvas = canvas;
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,

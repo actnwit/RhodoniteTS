@@ -16,6 +16,7 @@ declare global {
 }
 
 // prepare memory
+Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,

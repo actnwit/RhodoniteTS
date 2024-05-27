@@ -4,6 +4,7 @@ let p: HTMLParagraphElement | undefined;
 
 declare const window: any;
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,

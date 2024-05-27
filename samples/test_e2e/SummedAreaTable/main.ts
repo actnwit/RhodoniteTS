@@ -31,6 +31,7 @@ Rn.System.startRenderLoop(() => {
 });
 
 async function initRn() {
+  Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   await Rn.System.init({
     approach: Rn.ProcessApproach.DataTexture,

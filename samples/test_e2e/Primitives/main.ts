@@ -97,6 +97,7 @@ function createSphere() {
 }
 
 async function setupRhodonite() {
+  Rn.Config.cgApiDebugConsoleOutput = true;
   await Rn.System.init({
     approach: Rn.ProcessApproach.Uniform,
     canvas: document.getElementById('world') as HTMLCanvasElement,

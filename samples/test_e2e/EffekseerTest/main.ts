@@ -12,6 +12,7 @@ const effekseerModule = await moduleManager.loadModule('effekseer', {
   // wasm: '../../../vendor/effekseer.wasm',
 });
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,

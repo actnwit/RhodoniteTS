@@ -42,6 +42,7 @@ const setupRenderPassRendering = function (rootGroup, cameraComponent) {
 let p = null;
 
 const load = async function () {
+  Rn.Config.cgApiDebugConsoleOutput = true;
   const canvas = document.getElementById('world') as HTMLCanvasElement;
   window.canvas = canvas;
   const gl = await Rn.System.init({

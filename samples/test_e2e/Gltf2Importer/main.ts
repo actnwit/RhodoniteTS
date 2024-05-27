@@ -4,6 +4,7 @@ let p: any;
 declare const window: any;
 
 //-------------------------------
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,

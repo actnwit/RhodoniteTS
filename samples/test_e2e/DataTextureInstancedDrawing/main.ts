@@ -57,6 +57,7 @@ function readyBasicVerticesData() {
   return primitive;
 }
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 const gl = await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,

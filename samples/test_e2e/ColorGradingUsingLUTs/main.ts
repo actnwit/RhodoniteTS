@@ -5,7 +5,6 @@ const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
-  rnWebGLDebug: true,
 });
 
 // prepare renderPasses
