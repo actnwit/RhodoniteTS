@@ -76,6 +76,11 @@
 // #param attenuationColor: vec3<f32>; // initialValue=(1,1,1)
 #endif
 
+#ifdef RN_USE_SHEEN
+// #param sheenColorFactor: vec3<f32>; // initialValue=(0,0,0)
+// #param sheenRoughnessFactor: f32; // initialValue=(0)
+#endif
+
 #ifdef RN_USE_SPECULAR
 // #param specularFactor: f32; // initialValue=1.0
 // #param specularColorFactor: vec3<f32>; // initialValue=(1,1,1)
@@ -255,6 +260,21 @@ fn main(
   let attenuationDistance = 0.000001;
 #endif // RN_USE_VOLUME
 
+#ifdef RN_USE_SHEEN
+  // Sheen
+  let sheenColorFactor: vec3f = get_sheenColorFactor(materialSID, 0);
+  let sheenColorTexture: vec3f = textureSample(sheenColorTexture, sheenColorSampler, baseColorTexUv).rgb;
+  let sheenRoughnessFactor: f32 = get_sheenRoughnessFactor(materialSID, 0);
+  let sheenRoughnessTexture: f32 = textureSample(sheenRoughnessTexture, sheenRoughnessSampler, baseColorTexUv).a;
+  let sheenColor: vec3f = sheenColorFactor * sheenColorTexture;
+  let sheenRoughness: f32 = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
+  let albedoSheenScalingNdotV: f32 = 1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotV, sheenRoughness)).r;
+#else
+  let sheenColor = vec3f(0.0);
+  let sheenRoughness = 0.000001;
+  let albedoSheenScalingNdotV = 1.0;
+#endif // RN_USE_SHEEN
+
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = 0.0;
 
@@ -267,13 +287,16 @@ fn main(
                             NdotV, albedo, perceptualRoughness, F0, F90,
                             transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
-                            attenuationColor, attenuationDistance);
+                            attenuationColor, attenuationDistance,
+                            sheenColor, sheenRoughness, albedoSheenScalingNdotV
+                            );
   }
 
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
-    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior
+    transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);

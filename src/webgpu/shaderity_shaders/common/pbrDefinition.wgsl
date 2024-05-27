@@ -104,6 +104,54 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
 }
 #endif
 
+////////////////////////////////////////
+// glTF KHR_materials_sheen
+////////////////////////////////////////
+
+#ifdef RN_USE_SHEEN
+fn d_Charlie(sheenPerceptualRoughness: f32, NoH: f32) -> f32 {
+  // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+  let alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  let invAlpha  = 1.0 / alphaG;
+  let cos2h = NoH * NoH;
+  let sin2h = 1.0 - cos2h;
+  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * M_PI);
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
+fn sheenSimpleVisibility(NdotL: f32, NdotV: f32) -> f32 {
+  return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+}
+
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen#sheen-visibility
+fn charlieL(x: f32, alphaG: f32) -> f32 {
+  let oneMinusAlphaSq = (1.0 - alphaG) * (1.0 - alphaG);
+  let a = mix(21.5473, 25.3245, oneMinusAlphaSq);
+  let b = mix(3.82987, 3.32435, oneMinusAlphaSq);
+  let c = mix(0.19823, 0.16801, oneMinusAlphaSq);
+  let d = mix(-1.97760, -1.27393, oneMinusAlphaSq);
+  let e = mix(-4.32054, -4.85967, oneMinusAlphaSq);
+  return a / (1.0 + b * pow(x, c)) + d * x + e;
+}
+
+fn lambdaSheen(cosTheta: f32, alphaG: f32) -> f32
+{
+  return select(exp(2.0 * charlieL(0.5, alphaG) - charlieL(1.0 - cosTheta, alphaG)), exp(charlieL(cosTheta, alphaG)), abs(cosTheta) < 0.5);
+}
+
+fn sheenCharlieVisibility(NdotL: f32, NdotV: f32, sheenPerceptualRoughness: f32) -> f32 {
+  let alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  let sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
+  return sheenVisibility;
+}
+
+fn sheen_brdf(sheenColor: vec3f, sheenPerceptualRoughness: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f {
+  let sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
+  let sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
+  return sheenColor * sheenDistribution * sheenVisibility;
+}
+#endif
+
 
 ////////////////////////////////////////
 // glTF BRDF for punctual lights
@@ -124,7 +172,10 @@ fn gltfBRDF(
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
   attenuationColor: vec3f,
-  attenuationDistance: f32
+  attenuationDistance: f32,
+  sheenColor: vec3f,
+  sheenRoughness: f32,
+  albedoSheenScalingNdotV: f32
   ) -> vec3f
 {
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -168,7 +219,18 @@ fn gltfBRDF(
 
   // Base Layer
   let baseLayer = diffuseContrib + specularContrib;
+
+#ifdef RN_USE_SHEEN
+  // Sheen
+  let sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  let albedoSheenScaling = min(
+    albedoSheenScalingNdotV,
+    1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
+  let color = sheenContrib + baseLayer * albedoSheenScaling;
+#else
   let color = baseLayer;
+  let albedoSheenScaling = 1.0;
+#endif // RN_USE_SHEEN
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer

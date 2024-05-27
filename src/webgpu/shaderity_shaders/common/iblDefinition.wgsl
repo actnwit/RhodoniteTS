@@ -36,6 +36,22 @@ fn get_radiance(reflection: vec3f, lod: f32, hdriFormat: vec2<i32>) -> vec3f {
   return radiance;
 }
 
+#ifdef RN_USE_SHEEN
+fn sheenIBL(NdotV: f32, sheenPerceptualRoughness: f32, sheenColor: vec3f, iblParameter: vec4f, reflection: vec3f, hdriFormat: vec2i) -> vec3f
+{
+  let mipCount = iblParameter.x;
+  let lod = (sheenPerceptualRoughness * (mipCount - 1.0));
+
+  let sheenLutUV = vec2f(NdotV, sheenPerceptualRoughness);
+  let brdf = textureSample(sheenLutTexture, sheenLutSampler, sheenLutUV).b;
+  var sheenLight = get_radiance(reflection, lod, hdriFormat);
+  let IBLSpecularContribution = iblParameter.z;
+  sheenLight *= IBLSpecularContribution;
+
+  return sheenLight * sheenColor * brdf;
+}
+#endif
+
 fn getNormalForEnv(rotEnvMatrix: mat3x3<f32>, normal_inWorld: vec3f, materialSID: u32) -> vec3f {
   var normal_forEnv = rotEnvMatrix * normal_inWorld;
   if (get_inverseEnvironment(materialSID, 0)) {
@@ -171,7 +187,8 @@ fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, 
 fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
   albedo: vec3f, F0: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, VdotNc: f32, geomNormal_inWorld: vec3f,
-  transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32
+  transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
+  sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
@@ -211,7 +228,12 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let base: vec3f = baseLambertianResult.diffuse + baseRadianceResult.specular;
 #endif
 
+#ifdef RN_USE_SHEEN
+  let sheen = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
+  let color = sheen + base * albedoSheenScalingNdotV;
+#else
   let color = base;
+#endif
 
 #ifdef RN_USE_CLEARCOAT
   let VdotNg = dot(geomNormal_inWorld, viewDirection);

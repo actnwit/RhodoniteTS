@@ -23,7 +23,7 @@ export type DirectTextureData =
   | HTMLCanvasElement
   | ImageBitmap;
 
-export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
+export type ImageBitmapData = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 
 export abstract class CGAPIResourceRepository {
   static readonly InvalidCGAPIResourceUid = -1;
@@ -272,6 +272,24 @@ export interface ICGAPIResourceRepository {
     }
   ): Promise<CGAPIResourceHandle>;
 
+  createTextureFromDataUri(
+    dataUri: string,
+    {
+      level,
+      internalFormat,
+      border,
+      format,
+      type,
+      generateMipmap,
+    }: {
+      level: Index;
+      internalFormat: TextureParameterEnum;
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+      generateMipmap: boolean;
+    }
+  ): Promise<CGAPIResourceHandle>;
   /**
    * create a RenderTargetTexture
    * @param param0

@@ -208,3 +208,8 @@ fn saturateEpsilonToOne(x: f32) -> f32 {
   let Epsilon = 0.0000001;
   return clamp(x, Epsilon, 1.0);
 }
+
+fn max3(v: vec3f) -> f32
+{
+  return max(max(v.x, v.y), v.z);
+}
