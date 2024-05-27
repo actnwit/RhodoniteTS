@@ -21,7 +21,7 @@ let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
-let cacheWebGpuRenderBundles = true;
+let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable cache
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
