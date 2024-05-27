@@ -1105,7 +1105,7 @@ export class WebGpuResourceRepository
 
   executeRenderBundle(renderPass: RenderPass) {
     this.__toClearRenderBundles();
-    if (renderPass._isChangedSortRenderResult) {
+    if (renderPass._isChangedSortRenderResult || !Config.cacheWebGpuRenderBundles) {
       this.__renderBundles.clear();
     }
 
