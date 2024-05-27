@@ -2,7 +2,8 @@ import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 declare const Stats: any;
-const gl = await Rn.System.init({
+Rn.Config.cgApiDebugConsoleOutput = true;
+await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -175,9 +176,6 @@ Rn.System.startRenderLoop(() => {
     p.innerText = 'Rendered.';
     document.body.appendChild(p);
   }
-
-  gl.enable(gl.DEPTH_TEST);
-  gl.viewport(0, 0, 600, 600);
 
   const date = new Date();
 

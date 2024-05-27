@@ -50,8 +50,7 @@ interface SystemInitDescription {
     gpuVertexData: number;
   };
   webglOption?: WebGLContextAttributes;
-  rnWebGLDebug?: boolean;
-  fallback3dApi?: boolean;
+  notToDisplayRnInfoAtInit?: boolean;
 }
 
 type ComponentMethodName = string;
@@ -443,7 +442,7 @@ export class System {
     }
   }
 
-  private static __displayVersion() {
+  private static __displayRnInfo() {
     console.log(
       `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}`,
       `font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);`,
@@ -474,8 +473,10 @@ export class System {
    * @param desc
    * @returns
    */
-  public static async init(desc: SystemInitDescription) {
-    this.__displayVersion();
+  public static async init(desc: SystemInitDescription): Promise<void> {
+    if (desc.notToDisplayRnInfoAtInit !== true) {
+      this.__displayRnInfo();
+    }
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
@@ -492,7 +493,6 @@ export class System {
       gpuVertexData: Is.exist(desc.memoryUsageOrder) ? desc.memoryUsageOrder.gpuVertexData : 0.5,
     });
 
-    let gl;
     System.__cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     if (desc.approach === ProcessApproach.WebGPU) {
       // WebGPU
@@ -524,27 +524,16 @@ export class System {
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-      gl = repo.generateWebGLContext(
-        desc.canvas,
-        desc.approach.webGLVersion,
-        true,
-        desc.rnWebGLDebug ? desc.rnWebGLDebug : false,
-        desc.webglOption,
-        desc.fallback3dApi
-      );
+      repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
     }
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
 
-    if (
-      desc.rnWebGLDebug &&
-      MiscUtil.isMobile() &&
-      ProcessApproach.isUniformApproach(desc.approach)
-    ) {
-      alert(
-        'Use the DataTexture/DataTexture as the argument of setProcessApproachAndCanvas method for this device.'
+    if (MiscUtil.isMobile() && ProcessApproach.isUniformApproach(desc.approach)) {
+      console.warn(
+        'The number of Uniform variables available on mobile devices is limited and may interfere with rendering. Use the DataTexture ProcessApproach for this device.'
       );
     }
 
@@ -571,8 +560,6 @@ export class System {
     await initDefaultTextures();
 
     SystemState.viewportAspectRatio = desc.canvas.width / desc.canvas.height;
-
-    return gl;
   }
 
   public static get processApproach() {

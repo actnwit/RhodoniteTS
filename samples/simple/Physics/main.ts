@@ -4,7 +4,8 @@ let p: any;
 
 declare const window: any;
 
-const gl = await Rn.System.init({
+Rn.Config.cgApiDebugConsoleOutput = true;
+await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -114,7 +115,6 @@ Rn.System.startRenderLoop(() => {
     p.innerText = 'Rendered.';
     document.body.appendChild(p);
   }
-
 
   for (const entity of entities) {
     if (entity.position.y < -40) {

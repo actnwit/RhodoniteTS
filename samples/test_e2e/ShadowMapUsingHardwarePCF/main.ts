@@ -5,6 +5,7 @@ document.body.appendChild(p);
 
 declare const window: any;
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,

@@ -21,6 +21,7 @@ await Promise.all([
 ]);
 
 // prepare memory
+Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,

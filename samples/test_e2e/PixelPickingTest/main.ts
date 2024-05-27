@@ -62,7 +62,8 @@ let p: any;
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 window.canvas = canvas;
 
-const gl = await Rn.System.init({
+Rn.Config.cgApiDebugConsoleOutput = true;
+await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
 });
@@ -136,13 +137,6 @@ let count = 0;
 
 Rn.System.startRenderLoop(async () => {
   if (p == null && count > 0) {
-    if (response != null) {
-      gl.enable(gl.DEPTH_TEST);
-      gl.viewport(0, 0, 600, 600);
-      gl.clearColor(0.8, 0.8, 0.8, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    }
-
     window._pickedEntityUID = await pick({ offsetX: 300, offsetY: 300 });
 
     p = document.createElement('p');

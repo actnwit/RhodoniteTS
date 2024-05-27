@@ -39,7 +39,8 @@ declare const window: any;
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgpu'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('pbr'));
   Promise.all(promises).then(async () => {
-    const gl = await Rn.System.init({
+    Rn.Config.cgApiDebugConsoleOutput = true;
+    await Rn.System.init({
       approach: Rn.ProcessApproach.WebGPU,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });

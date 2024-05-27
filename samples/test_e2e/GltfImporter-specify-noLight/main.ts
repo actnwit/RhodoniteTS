@@ -3,6 +3,7 @@ import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 let p = null;
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,

@@ -9,7 +9,8 @@ Rn.Config.maxEntityNumber = 20000;
 Rn.Config.dataTextureWidth = Math.pow(2, 13);
 Rn.Config.dataTextureHeight = Math.pow(2, 13);
 Rn.Config.maxSkeletonNumber = 200;
-const gl = await Rn.System.init({
+Rn.Config.cgApiDebugConsoleOutput = true;
+await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
@@ -52,6 +53,7 @@ for (let i = 0; i < 2; i++) {
 // renderPass
 const renderPass = new Rn.RenderPass();
 renderPass.toClearColorBuffer = true;
+renderPass.toClearDepthBuffer = true;
 renderPass.addEntities([rootGroup]);
 renderPass.addEntities(groups);
 
@@ -71,13 +73,6 @@ let count = 0;
 
 Rn.System.startRenderLoop(() => {
   if (p == null && count > 0) {
-    if (response != null) {
-      gl.enable(gl.DEPTH_TEST);
-      gl.viewport(0, 0, 600, 600);
-      gl.clearColor(0.8, 0.8, 0.8, 1.0);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    }
-
     p = document.createElement('p');
     p.setAttribute('id', 'rendered');
     p.innerText = 'Rendered.';

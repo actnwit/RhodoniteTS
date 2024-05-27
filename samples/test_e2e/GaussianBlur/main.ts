@@ -8,6 +8,7 @@ const gaussianVariance = 8.0;
 // ---main algorithm-----------------------------------------------------------------------------------------
 
 // prepare memory
+Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,

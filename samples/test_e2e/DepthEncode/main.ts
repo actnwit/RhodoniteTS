@@ -1,6 +1,7 @@
 import Rn from '../../../dist/esmdev/index.js';
 let p: any;
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,

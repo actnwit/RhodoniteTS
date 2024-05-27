@@ -4,10 +4,10 @@ declare const window: any;
 const p = document.createElement('p');
 document.body.appendChild(p);
 
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
-  rnWebGLDebug: true,
 });
 
 // expressions

@@ -4,6 +4,7 @@ const p = document.createElement('p');
 document.body.appendChild(p);
 
 Rn.Config.isUboEnabled = false;
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
