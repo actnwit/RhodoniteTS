@@ -5,7 +5,7 @@ import { MiscUtil } from '../misc';
 let maxEntityNumber = 5000;
 let maxLightNumberInShader = 4;
 let maxVertexMorphNumberInShader = 100;
-let maxVertexPrimitiveNumberInShader = 10;
+let maxVertexPrimitiveNumberInShader = 20;
 let maxMaterialInstanceForEachType = 10;
 let maxSkeletonNumber = 33;
 let maxCameraNumber = 20;
