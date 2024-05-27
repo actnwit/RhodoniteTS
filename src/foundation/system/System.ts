@@ -50,8 +50,6 @@ interface SystemInitDescription {
     gpuVertexData: number;
   };
   webglOption?: WebGLContextAttributes;
-  rnWebGLDebug?: boolean;
-  fallback3dApi?: boolean;
 }
 
 type ComponentMethodName = string;
@@ -524,27 +522,16 @@ export class System {
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
-      gl = repo.generateWebGLContext(
-        desc.canvas,
-        desc.approach.webGLVersion,
-        true,
-        desc.rnWebGLDebug ? desc.rnWebGLDebug : false,
-        desc.webglOption,
-        desc.fallback3dApi
-      );
+      gl = repo.generateWebGLContext(desc.canvas, true, desc.webglOption);
       repo.switchDepthTest(true);
     }
 
     const globalDataRepository = GlobalDataRepository.getInstance();
     globalDataRepository.initialize(desc.approach);
 
-    if (
-      desc.rnWebGLDebug &&
-      MiscUtil.isMobile() &&
-      ProcessApproach.isUniformApproach(desc.approach)
-    ) {
-      alert(
-        'Use the DataTexture/DataTexture as the argument of setProcessApproachAndCanvas method for this device.'
+    if (MiscUtil.isMobile() && ProcessApproach.isUniformApproach(desc.approach)) {
+      console.warn(
+        'The number of Uniform variables available on mobile devices is limited and may interfere with rendering. Use the DataTexture ProcessApproach for this device.'
       );
     }
 

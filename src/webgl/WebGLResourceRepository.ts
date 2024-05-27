@@ -123,13 +123,8 @@ export class WebGLResourceRepository
     return this.__instance;
   }
 
-  addWebGLContext(
-    gl: WebGL2RenderingContext,
-    canvas: HTMLCanvasElement,
-    asCurrent: boolean,
-    isDebug: boolean
-  ) {
-    const glw = new WebGLContextWrapper(gl, canvas, isDebug);
+  addWebGLContext(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean) {
+    const glw = new WebGLContextWrapper(gl, canvas);
     this.__webglContexts.set('default', glw);
     if (asCurrent) {
       this.__glw = glw;
@@ -138,14 +133,11 @@ export class WebGLResourceRepository
 
   generateWebGLContext(
     canvas: HTMLCanvasElement,
-    version: number,
     asCurrent: boolean,
-    isDebug: boolean,
-    webglOption?: WebGLContextAttributes,
-    fallback = true
+    webglOption?: WebGLContextAttributes
   ) {
     const gl = canvas.getContext('webgl2', webglOption) as WebGL2RenderingContext;
-    this.addWebGLContext(gl, canvas, asCurrent, isDebug);
+    this.addWebGLContext(gl, canvas, asCurrent);
 
     if (MiscUtil.isSafari()) {
       // Safari (WebGL2 via Metal) does't support UBO properly at 2022/04/15
@@ -393,7 +385,7 @@ export class WebGLResourceRepository
     if (gl == null) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
-    const isDebugMode = this.__glw!.isDebugMode;
+    const isDebugMode = Config.webGLDebugConsoleOutput;
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vertexShader, vertexShaderStr);
@@ -560,7 +552,7 @@ export class WebGLResourceRepository
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
-        if (location == null && glw.isDebugMode) {
+        if (location == null && Config.webGLDebugConsoleOutput) {
           console.info(
             `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
           );

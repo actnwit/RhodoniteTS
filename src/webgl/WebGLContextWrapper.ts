@@ -2,7 +2,7 @@ import { WebGLExtensionEnum, WebGLExtension } from './WebGLExtension';
 import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
 import { Index, Size } from '../types/CommonTypes';
 import { Vector4 } from '../foundation/math/Vector4';
-import { Logger } from '../foundation/misc/Logger';
+import { Config } from '../foundation/core/Config';
 
 const INVALID_SIZE = -1;
 
@@ -80,7 +80,6 @@ export class WebGLContextWrapper {
   private __activeTexturesCube: WebGLTexture[] = [];
   private __boundTextures: Map<Index, WebGLTexture> = new Map();
   private __boundSamplers: Map<Index, WebGLSampler> = new Map();
-  private __isDebugMode = false;
   private __viewport_left = 0;
   private __viewport_top = 0;
   private __viewport_width = 0;
@@ -102,7 +101,7 @@ export class WebGLContextWrapper {
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
 
-  constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, isDebug: boolean) {
+  constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement) {
     this.__gl = gl;
     this.width = canvas.width;
     this.height = canvas.height;
@@ -110,7 +109,6 @@ export class WebGLContextWrapper {
     this.__viewport_width = this.__default_viewport_width = this.width;
     this.__viewport_height = this.__default_viewport_height = this.height;
 
-    this.__isDebugMode = isDebug;
     this.is_multiview = true;
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
@@ -148,7 +146,7 @@ export class WebGLContextWrapper {
         if (this.webgl2ExtMLTVIEW) {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
-          if (this.__isDebugMode) {
+          if (Config.webGLDebugConsoleOutput) {
             console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           }
           this.is_multiview = false;
@@ -200,10 +198,6 @@ export class WebGLContextWrapper {
 
   isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum) {
     return !this.isSupportWebGL1Extension(webGLExtension);
-  }
-
-  get isDebugMode() {
-    return this.__isDebugMode;
   }
 
   getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext {
@@ -387,7 +381,7 @@ export class WebGLContextWrapper {
 
     if (!this.__extensions.has(extension)) {
       const extObj = gl.getExtension(extension.toString());
-      if (extObj == null && this.__isDebugMode) {
+      if (extObj == null && Config.webGLDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
         console.info(text);
       }
@@ -407,7 +401,7 @@ export class WebGLContextWrapper {
         gl.getExtension('MOZ_' + extensionName) ??
         gl.getExtension('WEBKIT_' + extensionName);
 
-      if (extObj == null && this.__isDebugMode) {
+      if (extObj == null && Config.webGLDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
         console.info(text);
       } else {

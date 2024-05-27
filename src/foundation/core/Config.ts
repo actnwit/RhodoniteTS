@@ -22,6 +22,7 @@ let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
 let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable cache
+let webGLDebugConsoleOutput = true;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -51,4 +52,5 @@ export const Config = {
   isUboEnabled,
   eventTargetDom,
   cacheWebGpuRenderBundles,
+  webGLDebugConsoleOutput,
 };
