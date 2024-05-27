@@ -372,8 +372,8 @@ export class Texture extends AbstractTexture {
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
     const pbrModule = moduleManager.getModule(moduleName)! as any;
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const textureHandle = await webglResourceRepository!.createTextureFromDataUri(
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const textureHandle = await cgApiResourceRepository!.createTextureFromDataUri(
       pbrModule.sheen_E_and_DGTerm,
       {
         level: 0,
@@ -385,6 +385,11 @@ export class Texture extends AbstractTexture {
       }
     );
     this._textureResourceUid = textureHandle;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(textureHandle, this);
   }

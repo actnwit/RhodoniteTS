@@ -52,7 +52,6 @@ import { RenderBuffer } from '../foundation/textures/RenderBuffer';
 import { Vector2 } from '../foundation/math/Vector2';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { EntityRepository } from '../foundation/core/EntityRepository';
-import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { SystemState } from '../foundation/system/SystemState';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
@@ -193,34 +192,60 @@ export class WebGpuResourceRepository
       generateMipmap: boolean;
     }
   ): WebGPUResourceHandle {
-    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const textureDescriptor: GPUTextureDescriptor = {
-      size: [width, height, 1],
-      format: 'rgba8unorm',
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
-    };
-
-    if (generateMipmap) {
-      textureDescriptor.mipLevelCount = Math.floor(Math.log2(Math.max(width, height))) + 1;
-    }
-
-    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
-
-    gpuDevice.queue.copyExternalImageToTexture({ source: imageData }, { texture: gpuTexture }, [
+    const textureHandle = this.__createTextureInner(
       width,
       height,
-    ]);
-
-    if (generateMipmap) {
-      this.generateMipmaps(gpuTexture, textureDescriptor, 1);
-    }
-
-    const textureHandle = this.__registerResource(gpuTexture);
+      internalFormat,
+      generateMipmap,
+      imageData
+    );
 
     return textureHandle;
+  }
+
+  async createTextureFromDataUri(
+    dataUri: string,
+    {
+      level,
+      internalFormat,
+      border,
+      format,
+      type,
+      generateMipmap,
+    }: {
+      level: Index;
+      internalFormat: TextureParameterEnum;
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+      generateMipmap: boolean;
+    }
+  ): Promise<WebGPUResourceHandle> {
+    return new Promise<WebGPUResourceHandle>((resolve) => {
+      const img = new Image();
+      if (!dataUri.match(/^data:/)) {
+        img.crossOrigin = 'Anonymous';
+      }
+      img.onload = async () => {
+        const width = img.width;
+        const height = img.height;
+
+        const texture = await this.createTextureFromHTMLImageElement(img, {
+          level,
+          internalFormat,
+          width,
+          height,
+          border,
+          format,
+          type,
+          generateMipmap,
+        });
+
+        resolve(texture);
+      };
+
+      img.src = dataUri;
+    });
   }
 
   generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
@@ -2075,22 +2100,51 @@ export class WebGpuResourceRepository
   ): Promise<WebGPUResourceHandle> {
     imageData.crossOrigin = 'Anonymous';
 
-    let handler = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-    await imageData.decode();
-    const imageBitmap = await createImageBitmap(imageData);
-
-    handler = this.createTextureFromImageBitmapData(imageBitmap, {
-      level,
-      internalFormat,
+    const textureHandle = this.__createTextureInner(
       width,
       height,
-      border,
-      format,
-      type,
+      internalFormat,
       generateMipmap,
-    });
+      imageData
+    );
 
-    return handler;
+    return textureHandle;
+  }
+
+  private __createTextureInner(
+    width: number,
+    height: number,
+    internalFormat: TextureParameterEnum,
+    generateMipmap: boolean,
+    imageData: ImageBitmapData
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, 1],
+      format: internalFormat.webgpu as GPUTextureFormat,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    if (generateMipmap) {
+      textureDescriptor.mipLevelCount = Math.floor(Math.log2(Math.max(width, height))) + 1;
+    }
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    gpuDevice.queue.copyExternalImageToTexture({ source: imageData }, { texture: gpuTexture }, [
+      width,
+      height,
+    ]);
+
+    if (generateMipmap) {
+      this.generateMipmaps(gpuTexture, textureDescriptor, 1);
+    }
+
+    const textureHandle = this.__registerResource(gpuTexture);
+    return textureHandle;
   }
 
   /**
