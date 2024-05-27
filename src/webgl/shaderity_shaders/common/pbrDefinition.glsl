@@ -209,16 +209,6 @@ vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
   return k_S;
 }
 
-vec3 fresnelSchlickRoughnessWithIridescence(
-  vec3 F0, float cosTheta, float roughness,
-  vec3 iridescenceFresnel, float iridescence
-  )
-{
-  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
-  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
-  return k_S;
-}
-
 // From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
 vec3 Schlick_to_F0(vec3 f, vec3 f90, float VdotH) {
     float x = clamp(1.0 - VdotH, 0.0, 1.0);
@@ -407,6 +397,16 @@ const mat3 XYZ_TO_REC709 = mat3(
     -0.4985314,  0.0415560,  1.0572252
 );
 
+vec3 fresnelSchlickRoughnessWithIridescence(
+  vec3 F0, float cosTheta, float roughness,
+  vec3 iridescenceFresnel, float iridescence
+  )
+{
+  vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+  vec3 k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
+  return k_S;
+}
+
 // Assume air interface for top
 vec3 Fresnel0ToIor(vec3 F0) {
     vec3 sqrtF0 = sqrt(F0);
@@ -522,7 +522,7 @@ vec3 calcIridescence(float outsideIor, float eta2, float cosTheta1, float thinFi
 
   return F_iridescence;
 }
-#endif
+#endif // RN_USE_IRIDESCENCE
 
 
 

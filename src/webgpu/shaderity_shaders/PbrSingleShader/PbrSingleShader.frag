@@ -86,6 +86,13 @@
 // #param specularColorFactor: vec3<f32>; // initialValue=(1,1,1)
 #endif
 
+#ifdef RN_USE_IRIDESCENCE
+// #param iridescenceFactor: f32; // initialValue=0
+// #param iridescenceIor: f32; // initialValue=1.3
+// #param iridescenceThicknessMinimum: f32; // initialValue=100
+// #param iridescenceThicknessMaximum: f32; // initialValue=400
+#endif
+
 #ifdef RN_USE_ANISOTROPY
 // #param anisotropyStrength: f32; // initialValue=0
 // #param anisotropyRotation: vec2<f32>; // initialValue=(1,0)
@@ -247,8 +254,26 @@ fn main(
   let F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
   let F90 = mix(dielectricSpecularF90, vec3f(1.0), metallic);
 
+// Iridescence
+#ifdef RN_USE_IRIDESCENCE
+  let iridescenceFactor: f32 = get_iridescenceFactor(materialSID, 0);
+  let iridescenceTexture: f32 = textureSample(iridescenceTexture, iridescenceSampler, baseColorTexUv).r;
+  let iridescence: f32 = iridescenceFactor * iridescenceTexture;
+  let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
+  let thicknessRatio: f32 = textureSample(iridescenceThicknessTexture, iridescenceThicknessSampler, baseColorTexUv).r;
+  let iridescenceThicknessMinimum: f32 = get_iridescenceThicknessMinimum(materialSID, 0);
+  let iridescenceThicknessMaximum: f32 = get_iridescenceThicknessMaximum(materialSID, 0);
+  let iridescenceThickness: f32 = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
+  let iridescenceFresnel: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+  let iridescenceF0: vec3f = Schlick_to_F0(iridescenceFresnel, NdotV);
+#else
+  let iridescence = 0.0;
+  let iridescenceFresnel = vec3f(0.0);
+  let iridescenceF0: vec3f = F0;
+#endif // RN_USE_IRIDESCENCE
+
+// Clearcoat
 #ifdef RN_USE_CLEARCOAT
-  // Clearcoat
   let clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
   let clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
   let clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex, input);
@@ -324,6 +349,7 @@ fn main(
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    iridescenceFresnel, iridescenceF0, iridescence,
     anisotropy, anisotropicB
   );
 

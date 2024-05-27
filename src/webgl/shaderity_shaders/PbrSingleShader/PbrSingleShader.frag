@@ -307,10 +307,8 @@ void main ()
     float iridescenceThicknessMinimum = get_iridescenceThicknessMinimum(materialSID, 0);
     float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
-
     vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
     vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
-
   #else
     float iridescence = 0.0;
     vec3 iridescenceFresnel = vec3(0.0);

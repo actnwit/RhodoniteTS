@@ -6,12 +6,57 @@ fn linearToSrgb(linearColor: vec3f) -> vec3f {
   return pow(linearColor, vec3f(1.0/2.2));
 }
 
+// From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
+fn Schlick_to_F0_F90(f: vec3f, f90: vec3f, VdotH: f32) -> vec3f {
+    let x = clamp(1.0 - VdotH, 0.0, 1.0);
+    let x2 = x * x;
+    let x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+fn Schlick_to_F0_F90_F32(f: f32, f90: f32, VdotH: f32) -> f32 {
+    let x = clamp(1.0 - VdotH, 0.0, 1.0);
+    let x2 = x * x;
+    let x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+fn Schlick_to_F0(f: vec3f, VdotH: f32) -> vec3f {
+    return Schlick_to_F0_F90(f, vec3(1.0), VdotH);
+}
+
+fn Schlick_to_F0_F32(f: f32, VdotH: f32) -> f32 {
+    return Schlick_to_F0_F90_F32(f, 1.0, VdotH);
+}
+
+
 // The Schlick Approximation to Fresnel
 fn fresnel(f0 : vec3f, f90 : vec3f, VdotH : f32) -> vec3f {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
     let x5 = x * x2 * x2;
     return f0 + (f90 - f0) * x5;
+}
+
+fn fresnelF32(f0 : f32, f90 : f32, VdotH : f32) -> f32 {
+    let x = clamp(1.0 - VdotH, 0.0, 1.0);
+    let x2 = x * x;
+    let x5 = x * x2 * x2;
+    return f0 + (f90 - f0) * x5;
+}
+
+fn fresnel2(f0: vec3f, VdotH: f32) -> vec3f
+{
+  let f90 = vec3f(1.0); //clamp(50.0 * f0, 0.0, 1.0);
+  return fresnel(f0, f90, VdotH);
+}
+
+fn fresnel2F32(f0: f32, VdotH: f32) -> f32
+{
+  let f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
+  return fresnelF32(f0, f90, VdotH);
 }
 
 // Roughness Dependent Fresnel
@@ -187,7 +232,146 @@ fn sheen_brdf(sheenColor: vec3f, sheenPerceptualRoughness: f32, NdotL: f32, Ndot
   let sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
   return sheenColor * sheenDistribution * sheenVisibility;
 }
-#endif
+#endif // RN_USE_SHEEN
+
+////////////////////////////////////////
+// glTF KHR_materials_irirdescence
+////////////////////////////////////////
+
+#ifdef RN_USE_IRIDESCENCE
+// XYZ to REC709(sRGB) conversion matrix
+const XYZ_TO_REC709 = mat3x3<f32>(
+     3.2404542, -0.9692660,  0.0556434,
+    -1.5371385,  1.8760108, -0.2040259,
+    -0.4985314,  0.0415560,  1.0572252
+);
+
+fn fresnelSchlickRoughnessWithIridescence(
+  F0: vec3f, cosTheta: f32, roughness: f32,
+  iridescenceFresnel: vec3f, iridescence: f32
+  ) -> vec3f
+{
+  let Fr = max(vec3f(1.0 - roughness), F0) - F0;
+  let k_S = mix(F0 + Fr * pow(1.0 - cosTheta, 5.0), iridescenceFresnel, iridescence);
+  return k_S;
+}
+
+// Assume air interface for top
+fn Fresnel0ToIor(F0: vec3f) -> vec3f {
+    let sqrtF0 = sqrt(F0);
+    return (vec3(1.0) + sqrtF0) / (vec3(1.0) - sqrtF0);
+}
+
+// Conversion from IOR to F0
+// ior is a value between 1.0 and 3.0. 1.0 is air interface
+fn IorToFresnel0Vec3f(transmittedIor: vec3f, incidentIor: f32) -> vec3f {
+    return sqVec3f((transmittedIor - vec3f(incidentIor)) / (transmittedIor + vec3(incidentIor)));
+}
+fn IorToFresnel0F32(transmittedIor: f32, incidentIor: f32) -> f32 {
+    return sqF32((transmittedIor - incidentIor) / (transmittedIor + incidentIor));
+}
+
+/**
+ * From: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_iridescence#analytic-spectral-integration
+ */
+fn evalSensitivity(OPD: f32, shift: vec3f) -> vec3f {
+    let phase = 2.0 * M_PI * OPD * 1.0e-9;
+    let val = vec3f(5.4856e-13, 4.4201e-13, 5.2481e-13);
+    let pos = vec3f(1.6810e+06, 1.7953e+06, 2.2084e+06);
+    let var_ = vec3f(4.3278e+09, 9.3046e+09, 6.6121e+09);
+
+    var xyz = val * sqrt(2.0 * M_PI * var_) * cos(pos * phase + shift) * exp(-(phase * phase) * var_);
+    xyz.x += 9.7470e-14 * sqrt(2.0 * M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift[0]) * exp(-4.5282e+09 * (phase * phase));
+    xyz /= 1.0685e-7;
+
+    let rgb = XYZ_TO_REC709 * xyz;
+    return rgb;
+}
+
+/**
+ * From: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_iridescence#iridescence-fresnel
+ */
+fn calcIridescence(outsideIor: f32, eta2: f32, cosTheta1: f32, thinFilmThickness: f32, baseF0: vec3f) -> vec3f {
+
+
+  // iridescenceIor is the index of refraction of the thin-film layer
+  // Force iridescenceIor -> outsideIOR when thinFilmThickness -> 0.0
+  let iridescenceIor = mix(outsideIor, eta2, smoothstep(0.0, 0.03, thinFilmThickness));
+
+  // To calculate the reflectances R12 and R23 at the viewing angles (angle hitting the thin-film layer)
+  // and (angle after refraction in the thin-film) Schlick Fresnel is again used.
+  // This approximation allows to eliminate the split into S and P polarization for the exact Fresnel equations.
+  // can be calculated using Snell's law (with  being outsideIor and being iridescenceIor):
+  let sinTheta2Sq = sqF32(outsideIor / iridescenceIor) * (1.0 - sqF32(cosTheta1));
+  let cosTheta2Sq = 1.0 - sinTheta2Sq;
+
+  // Handle total internal reflection
+  if (cosTheta2Sq < 0.0) {
+      return vec3f(1.0);
+  }
+
+  let cosTheta2 = sqrt(cosTheta2Sq);
+
+  /// Material Interfaces
+  // The iridescence model defined by Belcour/Barla models two material interfaces
+  // - one from the outside to the thin-film layer
+  // and another one from the thin-film to the base material. These two interfaces are defined as follows:
+
+  // First interface (from the outside to the thin-film layer)
+  let R0 = IorToFresnel0F32(iridescenceIor, outsideIor);
+  let R12 = fresnel2F32(R0, cosTheta1);
+  let R21 = R12;
+  let T121 = 1.0 - R12;
+
+  // Second interface (from the thin-film to the base material)
+  let baseIor = Fresnel0ToIor(baseF0 + 0.0001); // guard against 1.0
+  let R1 = IorToFresnel0Vec3f(baseIor, iridescenceIor);
+  let R23 = fresnel2(R1, cosTheta2);
+
+  // phi12 and phi23 define the base phases per interface and are approximated with 0.0
+  // if the IOR of the hit material (iridescenceIor or baseIor) is higher
+  // than the IOR of the previous material (outsideIor or iridescenceIor) and π otherwise.
+  // Also here, polarization is ignored.  float phi12 = 0.0;
+
+  // First interface (from the outside to the thin-film layer)
+  var phi12 = 0.0;
+  if (iridescenceIor < outsideIor) { phi12 = M_PI; }
+  let phi21 = M_PI - phi12;
+
+  // Second interface (from the thin-film to the base material)
+  var phi23 = vec3f(0.0);
+  if (baseIor[0] < iridescenceIor) { phi23[0] = M_PI; }
+  if (baseIor[1] < iridescenceIor) { phi23[1] = M_PI; }
+  if (baseIor[2] < iridescenceIor) { phi23[2] = M_PI; }
+
+  // OPD (optical path difference)
+  let OPD = 2.0 * iridescenceIor * thinFilmThickness * cosTheta2;
+  // Phase shift
+  let phi = vec3f(phi21) + phi23;
+
+  // Compound terms
+  let R123 = clamp(R12 * R23, vec3f(1e-5), vec3f(0.9999));
+  let r123 = sqrt(R123);
+  let Rs = (T121 * T121) * R23 / (vec3f(1.0) - R123);
+
+  // Reflectance term for m = 0 (DC term amplitude)
+  let C0 = R12 + Rs;
+  var I = C0;
+
+  // Reflectance term for m > 0 (pairs of diracs)
+  var Cm = Rs - T121;
+  for (var m = 1; m <= 2; m++)
+  {
+      Cm *= r123;
+      let Sm = 2.0 * evalSensitivity(f32(m) * OPD, f32(m) * phi);
+      I += Cm * Sm;
+  }
+
+  let F_iridescence = max(I, vec3f(0.0));
+
+  return F_iridescence;
+}
+#endif // RN_USE_IRIDESCENCE
 
 
 ////////////////////////////////////////

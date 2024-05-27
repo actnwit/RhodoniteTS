@@ -213,3 +213,23 @@ fn max3(v: vec3f) -> f32
 {
   return max(max(v.x, v.y), v.z);
 }
+
+fn sqF32(t: f32) -> f32
+{
+  return t * t;
+}
+
+fn sqVec2f(t: vec2f) -> vec2f
+{
+  return t * t;
+}
+
+fn sqVec3f(t: vec3f) -> vec3f
+{
+  return t * t;
+}
+
+fn sqVec4f(t: vec4f) -> vec4f
+{
+  return t * t;
+}
