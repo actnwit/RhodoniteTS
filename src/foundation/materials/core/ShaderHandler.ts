@@ -265,6 +265,7 @@ export function _createProgramAsSingleOperationWebGpu(
   const attributeSemantics = primitive.attributeSemantics;
   for (const attributeSemantic of attributeSemantics) {
     if (attributeSemantic.indexOf('POSITION') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_POSITION\n`;
       const accessor = primitive.getAttribute(attributeSemantic);
       if (accessor!.componentType.isFloatingPoint()) {
         vertexAttributeDefines += `#define RN_USE_POSITION_FLOAT\n`;
@@ -287,6 +288,7 @@ export function _createProgramAsSingleOperationWebGpu(
       vertexAttributeDefines += `#define RN_USE_TEXCOORD_1\n`;
     }
     if (attributeSemantic.indexOf('COLOR_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_COLOR_0\n`;
       const accessor = primitive.getAttribute(attributeSemantic);
       if (accessor!.componentType.isFloatingPoint()) {
         vertexAttributeDefines += `#define RN_USE_COLOR_0_FLOAT\n`;

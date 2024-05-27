@@ -71,6 +71,8 @@ fn main(
 
 #ifdef RN_USE_COLOR_0
   output.color_0 = color_0;
+#else
+  output.color_0 = vec4f(1.0, 1.0, 1.0, 1.0);
 #endif
 
   output.normal_inWorld = normalMatrix * normal;
