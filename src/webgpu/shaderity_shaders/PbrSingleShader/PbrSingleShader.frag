@@ -86,6 +86,11 @@
 // #param specularColorFactor: vec3<f32>; // initialValue=(1,1,1)
 #endif
 
+#ifdef RN_USE_ANISOTROPY
+// #param anisotropyStrength: f32; // initialValue=0
+// #param anisotropyRotation: vec2<f32>; // initialValue=(1,0)
+#endif
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
@@ -175,6 +180,27 @@ fn main(
 
   // NdotV
   let NdotV = clamp(dot(normal_inWorld, viewDirection), Epsilon, 1.0);
+
+#ifdef RN_USE_ANISOTROPY
+  // Anisotropy
+  var anisotropy: f32 = get_anisotropyStrength(materialSID, 0);
+  let anisotropyRotation: vec2f = get_anisotropyRotation(materialSID, 0);
+  var direction: vec2f = anisotropyRotation;
+  let anisotropyTex: vec3f = textureSample(anisotropyTexture, anisotropySampler, baseColorTexUv).rgb;
+  direction = anisotropyTex.rg * 2.0 - vec2f(1.0);
+  direction = mat2x2<f32>(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
+  anisotropy *= anisotropyTex.b;
+  let anisotropicT: vec3f = normalize(TBN * vec3f(direction, 0.0));
+  let anisotropicB: vec3f = normalize(cross(geomNormal_inWorld, anisotropicT));
+  let BdotV: f32 = dot(anisotropicB, viewDirection);
+  let TdotV: f32 = dot(anisotropicT, viewDirection);
+#else
+  let anisotropy = 0.0;
+  let anisotropicT = vec3f(0.0, 0.0, 0.0);
+  let anisotropicB = vec3f(0.0, 0.0, 0.0);
+  let BdotV = 0.0;
+  let TdotV = 0.0;
+#endif
 
   // Clearcoat
 #ifdef RN_USE_CLEARCOAT
@@ -288,6 +314,7 @@ fn main(
                             transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
+                            anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV
                             );
   }
@@ -296,7 +323,8 @@ fn main(
     albedo, F0, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    anisotropy, anisotropicB
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);

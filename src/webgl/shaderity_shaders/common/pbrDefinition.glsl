@@ -605,6 +605,7 @@ vec3 gltfBRDF(
 #else
   vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
 #endif // RN_USE_ANISOTROPY
+
   // Base Layer
   vec3 baseLayer = diffuseContrib + specularContrib;
 

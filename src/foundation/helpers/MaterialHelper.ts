@@ -363,13 +363,12 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      isCustomSetting: true,
+      isCustomSetting: false,
       soloDatum: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [textureSlotIdx++, dummyAnisotropyTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
-      needUniformInDataTextureMode: true,
     });
   }
 

@@ -61,8 +61,20 @@ fn getNormalForEnv(rotEnvMatrix: mat3x3<f32>, normal_inWorld: vec3f, materialSID
 }
 
 fn getReflection(rotEnvMatrix: mat3x3<f32>, viewDirection: vec3f, normal_inWorld: vec3f,
-  materialSID: u32, perceptualRoughness: f32) -> vec3f {
+  materialSID: u32, perceptualRoughness: f32,
+  anisotropy: f32, anisotropyDirection: vec3f
+  ) -> vec3f {
+#ifdef RN_USE_ANISOTROPY
+  let tangentRoughness = mix(perceptualRoughness, 1.0, anisotropy * anisotropy);
+  let anisotropicTangent  = cross(anisotropyDirection, viewDirection);
+  let anisotropicNormal   = cross(anisotropicTangent, anisotropyDirection);
+  let bendFactor          = 1.0 - anisotropy * (1.0 - perceptualRoughness);
+  let bendFactorPow4      = bendFactor * bendFactor * bendFactor * bendFactor;
+  let bentNormal          = normalize(mix(anisotropicNormal, normal_inWorld, bendFactorPow4));
+  var reflection = rotEnvMatrix * reflect(-viewDirection, bentNormal);
+#else
   var reflection = rotEnvMatrix * reflect(-viewDirection, normal_inWorld);
+#endif
   if (get_inverseEnvironment(materialSID, 0)) {
     reflection.x *= -1.0;
   }
@@ -188,7 +200,8 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   albedo: vec3f, F0: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, VdotNc: f32, geomNormal_inWorld: vec3f,
   transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
-  sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32
+  sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
+  anisotropy: f32, anisotropyDirection: vec3f
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
@@ -197,7 +210,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let hdriFormat: vec2<i32> = get_hdriFormat(materialSID, 0);
 
   let normal_forEnv: vec3f = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness);
+  let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
   // IBL
   let baseRadianceResult: IblResult = getIBLRadianceGGX(materialSID, NdotV, viewDirection, albedo, F0,
