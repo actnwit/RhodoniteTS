@@ -22,6 +22,7 @@ let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
+let cacheWebGpuRenderBundles = true;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -51,4 +52,5 @@ export const Config = {
   totalSizeOfGPUShaderDataStorageExceptMorphData,
   isUboEnabled,
   eventTargetDom,
+  cacheWebGpuRenderBundles,
 };

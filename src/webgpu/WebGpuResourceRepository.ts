@@ -1099,7 +1099,9 @@ export class WebGpuResourceRepository
   finishRenderBundleEncoder(renderPass: RenderPass) {
     if (this.__renderPassEncoder != null && this.__renderBundleEncoder != null) {
       const renderBundle = this.__renderBundleEncoder.finish();
-      this.__renderBundles.set(renderPass.renderPassUID, renderBundle);
+      if (Config.cacheWebGpuRenderBundles) {
+        this.__renderBundles.set(renderPass.renderPassUID, renderBundle);
+      }
       this.__renderPassEncoder.executeBundles([renderBundle]);
       this.__renderPassEncoder.end();
       this.__renderBundleEncoder = undefined;
