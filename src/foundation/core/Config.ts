@@ -17,11 +17,11 @@ let maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
 let dataTextureWidth = Math.pow(2, 12);
 let dataTextureHeight = Math.pow(2, 12);
 let boneDataType = BoneDataType.Mat43x1;
-let noWebGLTex2DStateCache = false;
 let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
+let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable cache
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -46,9 +46,9 @@ export const Config = {
   maxSkeletalBoneNumberForUniformMode,
   dataTextureWidth,
   dataTextureHeight,
-  noWebGLTex2DStateCache,
   maxMorphTargetNumber,
   totalSizeOfGPUShaderDataStorageExceptMorphData,
   isUboEnabled,
   eventTargetDom,
+  cacheWebGpuRenderBundles,
 };
