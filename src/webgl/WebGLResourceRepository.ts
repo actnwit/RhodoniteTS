@@ -385,7 +385,7 @@ export class WebGLResourceRepository
     if (gl == null) {
       throw new Error('No WebGLRenderingContext set as Default.');
     }
-    const isDebugMode = Config.webGLDebugConsoleOutput;
+    const isDebugMode = Config.cgApiDebugConsoleOutput;
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
     gl.shaderSource(vertexShader, vertexShaderStr);
@@ -552,7 +552,7 @@ export class WebGLResourceRepository
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
-        if (location == null && Config.webGLDebugConsoleOutput) {
+        if (location == null && Config.cgApiDebugConsoleOutput) {
           console.info(
             `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
           );
