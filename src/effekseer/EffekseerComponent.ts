@@ -50,7 +50,6 @@ export class EffekseerComponent extends Component {
     isReUse: boolean
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
-    Config.noWebGLTex2DStateCache = true;
   }
 
   static get componentTID(): ComponentTID {
