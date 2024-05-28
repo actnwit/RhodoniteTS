@@ -100,14 +100,14 @@ float g_shielding(float roughness, float NV, float NL) {
   return localShadowing * localMasking;
 }
 
-float v_SmithGGXCorrelatedForWeak(float roughness, float NV, float NL) {
+float v_GGXCorrelatedForWeak(float roughness, float NV, float NL) {
   float a = roughnessRemap( roughness );
   float a2 = a * a;
   float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
   return 0.5 / (GGXV);
 }
 
-float v_SmithGGXCorrelated(float roughness, float NV, float NL) {
+float v_GGXCorrelated(float roughness, float NV, float NL) {
   float a = roughnessRemap( roughness );
   float a2 = a * a;
   float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
@@ -199,7 +199,7 @@ float weakWhiteFurnaceTest(float roughness, float NoV, float f0, int g_type, int
     } else if (g_type == 1) {
       g1 = g_shieldingForWeak(roughness, NoV, NoL);
     } else if (g_type == 2) {
-      g1 = v_SmithGGXCorrelatedForWeak(roughness, NoV, NoL) * 4.0 * NoV * NoL;
+      g1 = v_GGXCorrelatedForWeak(roughness, NoV, NoL) * 4.0 * NoV * NoL;
     }
 
     float pdf = 4.0 * VoH / NoH;
@@ -248,7 +248,7 @@ float whiteFurnaceTest(float roughness, float NoV, float f0, int g_type, int dis
     } else if (g_type == 1){
       g = g_shielding(roughness, NoV, NoL);
     } else if (g_type == 2){
-      g = v_SmithGGXCorrelated(roughness, NoV, NoL) * (4.0 * NoV * NoL);
+      g = v_GGXCorrelated(roughness, NoV, NoL) * (4.0 * NoV * NoL);
     } else if (g_type == 3) {
       g = 0.0;
     }
