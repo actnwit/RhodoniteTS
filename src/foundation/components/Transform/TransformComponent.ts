@@ -14,7 +14,6 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ITransformEntity } from '../../helpers';
 import { MutableQuaternion, Transform3D } from '../../math';
 import { Is } from '../../misc';
-import { SceneGraphComponent } from '../SceneGraph';
 
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
