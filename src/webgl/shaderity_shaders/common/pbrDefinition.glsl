@@ -25,7 +25,7 @@ vec2 envBRDFApprox( float Roughness, float NoV ) {
 }
 
 // GGX NDF
-float d_ggx(float NH, float alphaRoughness) {
+float d_GGX(float NH, float alphaRoughness) {
   float roughnessSqr = alphaRoughness * alphaRoughness;
   float f = (roughnessSqr - 1.0) * NH * NH + 1.0;
   return roughnessSqr / (M_PI * f * f);
@@ -63,14 +63,14 @@ float g_shielding(float NL, float NV, float alphaRoughness) {
 
 // The code from https://google.github.io/filament/Filament.html#listing_approximatedspecularv
 // The idea is from [Heitz14] Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs.
-float v_SmithGGXCorrelated(float NL, float NV, float alphaRoughness) {
+float v_GGXCorrelated(float NL, float NV, float alphaRoughness) {
   float a2 = alphaRoughness * alphaRoughness;
   float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
   float GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
   return 0.5 / (GGXV + GGXL);
 }
 
-float v_SmithGGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
+float v_GGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
   float a = alphaRoughness;
   float GGXV = NL * (NV * (1.0 - a) + a);
   float GGXL = NV * (NL * (1.0 - a) + a);
@@ -112,8 +112,8 @@ vec3 fresnel(vec3 f0, float VdotH)
 }
 
 vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness, float specularWeight) {
-  float D = d_ggx(NH, alphaRoughness);
-  float V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
+  float D = d_GGX(NH, alphaRoughness);
+  float V = v_GGXCorrelated(NL, NV, alphaRoughness);
   return vec3(D) * vec3(V) * F * specularWeight;
 //      float G = g_shielding(NL, NV, alphaRoughness);
 //      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
@@ -121,7 +121,7 @@ vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alp
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-vec3 diffuse_brdf(vec3 albedo, vec3 F, float specularWeight)
+vec3 BRDF_lambertian(vec3 albedo, vec3 F, float specularWeight)
 {
   // (1/pi) * diffuseAlbedo
   return (vec3(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
@@ -129,15 +129,15 @@ vec3 diffuse_brdf(vec3 albedo, vec3 F, float specularWeight)
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
 float specular_brdf(float alphaRoughness, float NdotL, float NdotV, float NdotH) {
-  float V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
-  float D = d_ggx(NdotH, alphaRoughness);
+  float V = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
+  float D = d_GGX(NdotH, alphaRoughness);
   return V * D;
 }
 
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_transmission#implementation-notes
 float specular_btdf(float alphaRoughness, float NdotL, float NdotV, float NdotHt) {
-  float V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
-  float D = d_ggx(NdotHt, alphaRoughness);
+  float V = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
+  float D = d_GGX(NdotHt, alphaRoughness);
   return V * D;
 }
 
@@ -166,7 +166,7 @@ vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float Nd
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#metal-brdf-and-dielectric-brdf
 // vec3 dielectric_brdf(float ior, vec3 baseColor, float perceptualRoughness, float NdotL, float NdotV, float NdotH, float VdotH) {
-//   vec3 base = diffuse_brdf(baseColor);
+//   vec3 base = BRDF_lambertian(baseColor);
 //   float alphaRoughness = perceptualRoughness * perceptualRoughness;
 //   vec3 layer = vec3(specular_brdf(alphaRoughness, NdotL, NdotV, NdotH));
 //   return fresnel_mix(ior, base, layer, VdotH);
@@ -177,8 +177,8 @@ vec3 coated_material_s(vec3 base, float perceptualRoughness, float clearcoatRoug
   float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
   float clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
-  float D = d_ggx(NdotHc, clearcoatAlpha);
-  float V = v_SmithGGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
+  float D = d_GGX(NdotHc, clearcoatAlpha);
+  float V = v_GGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
   float f_clearcoat = clearcoatFresnel * D * V;
 
   // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
@@ -537,8 +537,8 @@ vec3 BRDF_lambertianIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, floa
 vec3 BRDF_specularGGXIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, float alphaRoughness, float iridescenceFactor, float specularWeight, float VdotH, float NdotL, float NdotV, float NdotH)
 {
     vec3 F = mix(Schlick_to_F0(f0, f90, VdotH), iridescenceFresnel, iridescenceFactor);
-    float Vis = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
-    float D = d_ggx(NdotH, alphaRoughness);
+    float Vis = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
+    float D = d_GGX(NdotH, alphaRoughness);
 
     return specularWeight * F * Vis * D;
 }
@@ -550,9 +550,9 @@ vec3 BRDF_specularGGXIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, flo
 
 
 ////////////////////////////////////////
-// glTF BRDF for punctual lights
+// lighting with a punctual light
 ////////////////////////////////////////
-vec3 gltfBRDF(
+vec3 lightingWithPunctualLight(
   Light light,
   vec3 normal_inWorld,
   vec3 viewDirection,
@@ -596,7 +596,7 @@ vec3 gltfBRDF(
 #ifdef RN_USE_IRIDESCENCE
   vec3 diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
 #else
-  vec3 diffuseBrdf = diffuse_brdf(albedo, F, specularWeight);
+  vec3 diffuseBrdf = BRDF_lambertian(albedo, F, specularWeight);
 #endif
 
   vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;

@@ -69,7 +69,7 @@ fn fresnelSchlickRoughness(F0: vec3f, cosTheta: f32, roughness: f32) -> vec3f
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-fn diffuse_brdf(albedo: vec3f, F: vec3f, specularWeight: f32) -> vec3f
+fn BRDF_lambertian(albedo: vec3f, F: vec3f, specularWeight: f32) -> vec3f
 {
   return (vec3f(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
 }
@@ -84,7 +84,7 @@ fn d_GGX(NH: f32, alphaRoughness: f32) -> f32 {
 
 // The code from https://google.github.io/filament/Filament.html#listing_approximatedspecularv
 // The idea is from [Heitz14] Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs.
-fn v_SmithGGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
+fn v_GGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
   let a2 = alphaRoughness * alphaRoughness;
   let GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
   let GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
@@ -93,7 +93,7 @@ fn v_SmithGGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
 
 fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, F: vec3f, alphaRoughness: f32, specularWeight: f32) -> vec3f {
   let D = d_GGX(NH, alphaRoughness);
-  let V = v_SmithGGXCorrelated(NL, NV, alphaRoughness);
+  let V = v_GGXCorrelated(NL, NV, alphaRoughness);
   return vec3f(D) * vec3f(V) * F * specularWeight;
 }
 
@@ -115,7 +115,7 @@ fn coated_material_s(base: vec3f, perceptualRoughness: f32, clearcoatRoughness: 
   let clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
   let D = d_GGX(NdotHc, clearcoatAlpha);
-  let V = v_SmithGGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
+  let V = v_GGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
   let f_clearcoat = clearcoatFresnel * D * V;
 
   // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
@@ -124,7 +124,7 @@ fn coated_material_s(base: vec3f, perceptualRoughness: f32, clearcoatRoughness: 
 
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_transmission#implementation-notes
 fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f32 {
-  let V = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+  let V = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
   let D = d_GGX(NdotHt, alphaRoughness);
   return V * D;
 }
@@ -387,7 +387,7 @@ fn BRDF_lambertianIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f, 
 fn BRDF_specularGGXIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f, alphaRoughness: f32, iridescenceFactor: f32, specularWeight: f32, VdotH: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f
 {
     let F = mix(Schlick_to_F0_F90(f0, f90, VdotH), iridescenceFresnel, iridescenceFactor);
-    let Vis = v_SmithGGXCorrelated(NdotL, NdotV, alphaRoughness);
+    let Vis = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
     let D = d_GGX(NdotH, alphaRoughness);
 
     return specularWeight * F * Vis * D;
@@ -397,9 +397,9 @@ fn BRDF_specularGGXIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f,
 
 
 ////////////////////////////////////////
-// glTF BRDF for punctual lights
+// lighting with a punctual light
 ////////////////////////////////////////
-fn gltfBRDF(
+fn lightingWithPunctualLight(
   light: Light,
   normal_inWorld: vec3f,
   viewDirection: vec3f,
@@ -442,7 +442,7 @@ fn gltfBRDF(
 #ifdef RN_USE_IRIDESCENCE
   let diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
 #else
-  let diffuseBrdf = diffuse_brdf(albedo, F, specularWeight);
+  let diffuseBrdf = BRDF_lambertian(albedo, F, specularWeight);
 #endif
   let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 

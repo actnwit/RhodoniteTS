@@ -371,14 +371,9 @@ void main ()
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Lighting
-  for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
-    if (i >= lightNumber) {
-      break;
-    }
-
-    // Light
+  for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
-    rt0.xyz += gltfBRDF(light, normal_inWorld, viewDirection, NdotV, albedo,
+    rt0.xyz += lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
                         perceptualRoughness, metallic, F0, F90, ior, transmission,
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,

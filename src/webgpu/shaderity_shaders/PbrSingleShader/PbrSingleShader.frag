@@ -333,8 +333,7 @@ fn main(
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
-
-    resultColor += gltfBRDF(light, normal_inWorld, viewDirection,
+    resultColor += lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, albedo, perceptualRoughness, F0, F90,
                             transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
