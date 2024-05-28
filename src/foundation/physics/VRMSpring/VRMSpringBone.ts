@@ -1,7 +1,7 @@
 import { SceneGraphComponent } from '../../components';
 import { RnObject } from '../../core/RnObject';
 import { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { IVector3, Matrix44, Quaternion } from '../../math';
+import { IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 
 export class VRMSpringBone extends RnObject {
@@ -19,6 +19,8 @@ export class VRMSpringBone extends RnObject {
 
   initialized = false;
 
+  private static __tmp_vec3_0 = MutableVector3.zero();
+
   constructor(node: ISceneGraphEntity) {
     super();
     this.node = node;
@@ -28,7 +30,10 @@ export class VRMSpringBone extends RnObject {
     if (!this.initialized) {
       const scenegraph = this.node.getSceneGraph();
       this.node.getTransform()._backupTransformAsRest();
-      const worldChildPosition = scenegraph.getWorldPositionOf(localChildPosition);
+      const worldChildPosition = scenegraph.getWorldPositionOfTo(
+        localChildPosition,
+        VRMSpringBone.__tmp_vec3_0
+      );
       this.currentTail =
         center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
       this.prevTail = this.currentTail.clone();
