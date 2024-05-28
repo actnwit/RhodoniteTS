@@ -61,6 +61,9 @@ export abstract class AbstractQuaternion implements IQuaternion {
   transformVector3(vec: IVector3): IVector3 {
     throw new Error('Method not implemented.');
   }
+  transformVector3To(vec: IVector3, out: IMutableVector3): IVector3 {
+    throw new Error('Method not implemented.');
+  }
   transformVector3Inverse(vec: IVector3): IVector3 {
     throw new Error('Method not implemented.');
   }

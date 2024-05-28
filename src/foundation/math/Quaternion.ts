@@ -639,11 +639,46 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   /**
+   * divide(static version)
+   */
+  private static _divideTo(vec: IQuaternion, value: number, out: IMutableQuaternion) {
+    let x;
+    let y;
+    let z;
+    let w;
+    if (value !== 0) {
+      x = vec._v[0] / value;
+      y = vec._v[1] / value;
+      z = vec._v[2] / value;
+      w = vec._v[3] / value;
+    } else {
+      console.error('0 division occurred!');
+      x = Infinity;
+      y = Infinity;
+      z = Infinity;
+      w = Infinity;
+    }
+    out._v[0] = x;
+    out._v[1] = y;
+    out._v[2] = z;
+    out._v[3] = w;
+    return out;
+  }
+
+  /**
    * normalize(static version)
    */
   static normalize(vec: IQuaternion) {
     const length = vec.length();
     return this._divide(vec, length);
+  }
+
+  /**
+   * normalize(static version)
+   */
+  static normalizeTo(vec: IQuaternion, out: IMutableQuaternion) {
+    const length = vec.length();
+    return this._divideTo(vec, length, out);
   }
 
   fromToRotation(from: IVector3, to: IVector3) {
@@ -696,6 +731,33 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     }
   }
 
+  static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion) {
+    const v0 = MutableVector3.fromCopyVector3(from);
+    const v1 = MutableVector3.fromCopyVector3(to);
+    v0.normalize();
+    v1.normalize();
+    const d = v0.dot(v1);
+    if (d > -1.0 + Number.EPSILON) {
+      const s = Math.sqrt((1.0 + d) * 2.0);
+      const invs = 1.0 / s;
+      const c = Vector3.multiply(v0.cross(v1), invs);
+      out._v[0] = c.x;
+      out._v[1] = c.y;
+      out._v[2] = c.z;
+      out._v[3] = s * 0.5;
+      return out;
+    } else {
+      let axis = Vector3.fromCopy3(0, 1, 0);
+      let axis2 = v0.cross(axis);
+      if (axis2.length() < Number.EPSILON) {
+        axis = Vector3.fromCopy3(1, 0, 0);
+        axis2 = v0.cross(axis);
+      }
+      axis2.normalize();
+      return Quaternion.fromAxisAngleTo(axis2, Math.PI, out);
+    }
+  }
+
   transformVector3(v: IVector3) {
     const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
     const uv = Vector3.cross(u, v);
@@ -704,6 +766,16 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     const uuv_uvw = Vector3.add(uuv, uvw);
     const uuv_uvw_2 = Vector3.multiply(uuv_uvw, 2);
     return Vector3.add(v, uuv_uvw_2);
+  }
+
+  transformVector3To(v: IVector3, out: IMutableVector3) {
+    const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
+    const uv = Vector3.crossTo(u, v, out);
+    const uuv = Vector3.crossTo(u, uv, out);
+    const uvw = Vector3.multiplyTo(uv, this._v[3], out);
+    const uuv_uvw = Vector3.addTo(uuv, uvw, out);
+    const uuv_uvw_2 = Vector3.multiplyTo(uuv_uvw, 2, out);
+    return Vector3.addTo(v, uuv_uvw_2, out);
   }
 
   transformVector3Inverse(v: IVector3) {
@@ -764,5 +836,15 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     rad = rad * 0.5;
     const s = Math.sin(rad);
     return Quaternion.fromCopy4(s * axis.x, s * axis.y, s * axis.z, Math.cos(rad));
+  }
+
+  static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion) {
+    rad = rad * 0.5;
+    const s = Math.sin(rad);
+    out._v[0] = s * axis.x;
+    out._v[1] = s * axis.y;
+    out._v[2] = s * axis.z;
+    out._v[3] = Math.cos(rad);
+    return out;
   }
 }

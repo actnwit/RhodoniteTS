@@ -91,6 +91,15 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   }
 
   /**
+   * normalize(static version)
+   */
+  static normalizeTo(vec: IVector3, out: IMutableVector3) {
+    const length = vec.length();
+    this.divideTo(vec, length, out);
+    return out;
+  }
+
+  /**
    * add value（static version）
    */
   static _add(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor) {
