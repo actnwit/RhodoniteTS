@@ -11,9 +11,10 @@ import { Is } from '../../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
-  private static __tmp_vec3 = MutableVector3.zero();
-  private static __tmp_vec3_2 = MutableVector3.zero();
-  private static __tmp_quat = MutableQuaternion.identity();
+  private static __tmp_vec3_0 = MutableVector3.zero();
+  private static __tmp_vec3_1 = MutableVector3.zero();
+  private static __tmp_quat_0 = MutableQuaternion.identity();
+  private static __tmp_quat_1 = MutableQuaternion.identity();
   private __spring: VRMSpring | undefined;
 
   constructor() {}
@@ -51,8 +52,15 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         }
         bone.setup(childPositionInLocal, void 0);
       } else {
-        const childPosition = Vector3.multiply(Vector3.normalize(sg.position), 0.07);
-        const childPositionInLocal = sg.getLocalPositionOf(childPosition);
+        const childPosition = Vector3.multiplyTo(
+          Vector3.normalizeTo(sg.position, VRMSpringBonePhysicsStrategy.__tmp_vec3_0),
+          0.07,
+          VRMSpringBonePhysicsStrategy.__tmp_vec3_1
+        );
+        const childPositionInLocal = sg.getLocalPositionOfTo(
+          childPosition,
+          VRMSpringBonePhysicsStrategy.__tmp_vec3_0
+        );
         bone.setup(childPositionInLocal, void 0);
       }
 
