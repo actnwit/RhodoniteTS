@@ -13,8 +13,12 @@ import { VRMSpringBone } from './VRMSpringBone';
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_vec3_0 = MutableVector3.zero();
   private static __tmp_vec3_1 = MutableVector3.zero();
+  private static __tmp_vec3_2 = MutableVector3.zero();
+  private static __tmp_vec3_3 = MutableVector3.zero();
+  private static __tmp_vec3_4 = MutableVector3.zero();
   private static __tmp_quat_0 = MutableQuaternion.identity();
   private static __tmp_quat_1 = MutableQuaternion.identity();
+  private static __tmp_quat_2 = MutableQuaternion.identity();
   private __spring: VRMSpring | undefined;
 
   constructor() {}
@@ -59,7 +63,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         );
         const childPositionInLocal = sg.getLocalPositionOfTo(
           childPosition,
-          VRMSpringBonePhysicsStrategy.__tmp_vec3_0
+          VRMSpringBonePhysicsStrategy.__tmp_vec3_2
         );
         bone.setup(childPositionInLocal, void 0);
       }
@@ -78,17 +82,22 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const prevTail = center != null ? center.getWorldPositionOf(bone.prevTail) : bone.prevTail;
 
     // Continues the previous frame's movement (there is also attenuation)
-    const inertia = MutableVector3.multiply(
-      Vector3.subtract(currentTail, prevTail),
-      1.0 - dragForce
+    const inertia = MutableVector3.multiplyTo(
+      Vector3.subtractTo(currentTail, prevTail, VRMSpringBonePhysicsStrategy.__tmp_vec3_0),
+      1.0 - dragForce,
+      VRMSpringBonePhysicsStrategy.__tmp_vec3_1
     );
 
     // Movement target of child bones due to parent's rotation
-    const rotation = Quaternion.multiply(
+    const rotation = Quaternion.multiplyTo(
       this.getParentRotation(bone.node.getSceneGraph()),
-      bone.node.localRotationRestInner
+      bone.node.localRotationRestInner,
+      VRMSpringBonePhysicsStrategy.__tmp_quat_0
     );
-    const stiffness = Vector3.multiply(rotation.transformVector3(bone.boneAxis), stiffnessForce);
+    const stiffness = Vector3.multiply(
+      rotation.transformVector3To(bone.boneAxis, VRMSpringBonePhysicsStrategy.__tmp_vec3_2),
+      stiffnessForce
+    );
 
     // Calculate the nextTail
     const external = Vector3.multiply(

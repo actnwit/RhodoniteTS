@@ -14,6 +14,11 @@ import { Matrix44 } from './Matrix44';
 
 export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_upVec: any = undefined;
+  private static __tmp_vec3_0: any = MutableVector3.zero();
+  private static __tmp_vec3_1: any = MutableVector3.zero();
+  private static __tmp_vec3_2: any = MutableVector3.zero();
+  private static __tmp_vec3_3: any = MutableVector3.zero();
+  private static __tmp_vec3_4: any = MutableVector3.zero();
 
   constructor(x: Float32Array) {
     super();
@@ -740,7 +745,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     if (d > -1.0 + Number.EPSILON) {
       const s = Math.sqrt((1.0 + d) * 2.0);
       const invs = 1.0 / s;
-      const c = Vector3.multiply(v0.cross(v1), invs);
+      const c = Vector3.multiplyTo(v0.cross(v1), invs, Quaternion.__tmp_vec3_0);
       out._v[0] = c.x;
       out._v[1] = c.y;
       out._v[2] = c.z;
@@ -770,11 +775,11 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
   transformVector3To(v: IVector3, out: IMutableVector3) {
     const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
-    const uv = Vector3.crossTo(u, v, out);
-    const uuv = Vector3.crossTo(u, uv, out);
-    const uvw = Vector3.multiplyTo(uv, this._v[3], out);
-    const uuv_uvw = Vector3.addTo(uuv, uvw, out);
-    const uuv_uvw_2 = Vector3.multiplyTo(uuv_uvw, 2, out);
+    const uv = Vector3.crossTo(u, v, Quaternion.__tmp_vec3_0);
+    const uuv = Vector3.crossTo(u, uv, Quaternion.__tmp_vec3_1);
+    const uvw = Vector3.multiplyTo(uv, this._v[3], Quaternion.__tmp_vec3_2);
+    const uuv_uvw = Vector3.addTo(uuv, uvw, Quaternion.__tmp_vec3_3);
+    const uuv_uvw_2 = Vector3.multiplyTo(uuv_uvw, 2, Quaternion.__tmp_vec3_4);
     return Vector3.addTo(v, uuv_uvw_2, out);
   }
 
