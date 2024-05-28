@@ -14,7 +14,7 @@ import { IRenderable } from '../textures/IRenderable';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { WebGpuResourceRepository } from '../../webgpu';
 export type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
-export type ImageBitmapData = HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
+export type ImageBitmapData = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export declare abstract class CGAPIResourceRepository {
     static readonly InvalidCGAPIResourceUid = -1;
     static getCgApiResourceRepository(): ICGAPIResourceRepository;
@@ -144,6 +144,14 @@ export interface ICGAPIResourceRepository {
         internalFormat: TextureParameterEnum;
         width: Size;
         height: Size;
+        border: Size;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+        generateMipmap: boolean;
+    }): Promise<CGAPIResourceHandle>;
+    createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, generateMipmap, }: {
+        level: Index;
+        internalFormat: TextureParameterEnum;
         border: Size;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;

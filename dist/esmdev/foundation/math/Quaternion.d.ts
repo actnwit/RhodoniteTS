@@ -7,6 +7,11 @@ import { AbstractQuaternion } from './AbstractQuaternion';
 import { Vector3 } from './Vector3';
 export declare class Quaternion extends AbstractQuaternion implements IQuaternion {
     private static __tmp_upVec;
+    private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    private static __tmp_vec3_2;
+    private static __tmp_vec3_3;
+    private static __tmp_vec3_4;
     constructor(x: Float32Array);
     get className(): string;
     static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
@@ -54,12 +59,22 @@ export declare class Quaternion extends AbstractQuaternion implements IQuaternio
      */
     private static _divide;
     /**
+     * divide(static version)
+     */
+    private static _divideTo;
+    /**
      * normalize(static version)
      */
     static normalize(vec: IQuaternion): Quaternion;
+    /**
+     * normalize(static version)
+     */
+    static normalizeTo(vec: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
     fromToRotation(from: IVector3, to: IVector3): Quaternion;
     static fromToRotation(from: IVector3, to: IVector3): Quaternion;
+    static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion): IMutableQuaternion;
     transformVector3(v: IVector3): Vector3;
+    transformVector3To(v: IVector3, out: IMutableVector3): IMutableVector3;
     transformVector3Inverse(v: IVector3): IVector3;
     clone(): IQuaternion;
     static fromFloat32Array(array: Float32Array): Quaternion;
@@ -70,4 +85,5 @@ export declare class Quaternion extends AbstractQuaternion implements IQuaternio
     static fromCopyVector4(vec: IVector4): Quaternion;
     static fromCopyLogQuaternion(x: ILogQuaternion): Quaternion;
     static fromAxisAngle(axis: IVector3, rad: number): Quaternion;
+    static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion): IMutableQuaternion;
 }

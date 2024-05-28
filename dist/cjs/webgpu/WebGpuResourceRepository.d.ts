@@ -50,6 +50,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __lastCurrentCameraComponentSid;
     private __lastEntityRepositoryUpdateCount;
     private __lastPrimitivesMaterialVariantUpdateCount;
+    private __lastMeshRendererComponentsUpdateCount;
     private static __iblParameterVec4;
     private static __hdriFormatVec2;
     private constructor();
@@ -75,6 +76,14 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         type: ComponentTypeEnum;
         generateMipmap: boolean;
     }): WebGPUResourceHandle;
+    createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, generateMipmap, }: {
+        level: Index;
+        internalFormat: TextureParameterEnum;
+        border: Size;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+        generateMipmap: boolean;
+    }): Promise<WebGPUResourceHandle>;
     generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void;
     getTexturePixelData(textureHandle: WebGPUResourceHandle, width: number, height: number, frameBufferUid: WebGPUResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     /**
@@ -192,9 +201,9 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     createStorageBlendShapeBuffer(inputArray: Float32Array): number;
     updateStorageBlendShapeBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count): void;
     createUniformMorphOffsetsBuffer(): number;
-    updateUniformMorphOffsetsBuffer(inputArray: Uint32Array): void;
+    updateUniformMorphOffsetsBuffer(inputArray: Uint32Array, elementNum: Count): void;
     createUniformMorphWeightsBuffer(): number;
-    updateUniformMorphWeightsBuffer(inputArray: Float32Array): void;
+    updateUniformMorphWeightsBuffer(inputArray: Float32Array, elementNum: Count): void;
     private __createBindGroup;
     /**
      * create a Texture
@@ -212,6 +221,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         type: ComponentTypeEnum;
         generateMipmap: boolean;
     }): Promise<WebGPUResourceHandle>;
+    private __createTextureInner;
     /**
      * create a RenderTargetTexture
      * @param param0

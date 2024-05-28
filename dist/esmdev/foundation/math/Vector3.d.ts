@@ -30,6 +30,10 @@ export declare class Vector3_<T extends FloatTypedArrayConstructor> extends Abst
      */
     static _normalize(vec: IVector3, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
     /**
+     * normalize(static version)
+     */
+    static normalizeTo(vec: IVector3, out: IMutableVector3): IMutableVector3;
+    /**
      * add value（static version）
      */
     static _add(l_vec: IVector3, r_vec: IVector3, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;

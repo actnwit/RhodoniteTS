@@ -18,6 +18,7 @@ export declare abstract class AbstractQuaternion implements IQuaternion {
     toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
     toEulerAngles(): IVector3;
     transformVector3(vec: IVector3): IVector3;
+    transformVector3To(vec: IVector3, out: IMutableVector3): IVector3;
     transformVector3Inverse(vec: IVector3): IVector3;
     /**
      * dot product

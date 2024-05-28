@@ -15,6 +15,7 @@ export declare class VRMSpringBone extends RnObject {
     boneAxis: Vector3;
     boneLength: number;
     initialized: boolean;
+    private static __tmp_vec3_0;
     constructor(node: ISceneGraphEntity);
     setup(localChildPosition: IVector3, center?: SceneGraphComponent): void;
 }

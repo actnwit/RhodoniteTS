@@ -45,6 +45,7 @@ export declare class SceneGraphComponent extends Component {
     private static __sceneGraphs;
     private static isJointAABBShouldBeCalculated;
     private static invertedMatrix44;
+    private static __tmp_mat4;
     private static __updateCount;
     private static __tmpAABB;
     private __lastTransformComponentsUpdateCount;
@@ -111,7 +112,9 @@ export declare class SceneGraphComponent extends Component {
     static flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
     get worldPosition(): Vector3;
     getWorldPositionOf(localPosition: Vector3): IVector3;
+    getWorldPositionOfTo(localPosition: Vector3, out: MutableVector3): MutableVector3;
     getLocalPositionOf(worldPosition: Vector3): Vector3;
+    getLocalPositionOfTo(worldPosition: Vector3, out: MutableVector3): Vector3;
     getWorldAABB(): AABB;
     calcWorldMergedAABB(): AABB;
     get worldMergedAABB(): AABB;

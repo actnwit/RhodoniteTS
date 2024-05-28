@@ -14,8 +14,7 @@ interface SystemInitDescription {
         gpuVertexData: number;
     };
     webglOption?: WebGLContextAttributes;
-    rnWebGLDebug?: boolean;
-    fallback3dApi?: boolean;
+    notToDisplayRnInfoAtInit?: boolean;
 }
 /**
  * The system class is the entry point of the Rhodonite library.
@@ -97,7 +96,7 @@ export declare class System {
     private static createCamera;
     private static setViewportForNormalRendering;
     private static bindFramebufferWebGL;
-    private static __displayVersion;
+    private static __displayRnInfo;
     /**
      * Initialize the Rhodonite system.
      *
@@ -115,7 +114,7 @@ export declare class System {
      * @param desc
      * @returns
      */
-    static init(desc: SystemInitDescription): Promise<WebGL2RenderingContext | undefined>;
+    static init(desc: SystemInitDescription): Promise<void>;
     static get processApproach(): import("../definitions/ProcessApproach").ProcessApproachClass;
     static resizeCanvas(width: number, height: number): void;
     static getCanvasSize(): [number, number];

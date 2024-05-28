@@ -1,7 +1,7 @@
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { ShaderityObject } from 'shaderity';
-import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export declare class CustomMaterialContent extends AbstractMaterialContent {
     private static __globalDataRepository;
@@ -27,6 +27,10 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         vertexShaderWebGpu?: ShaderityObject;
         pixelShaderWebGpu?: ShaderityObject;
     });
+    _setCustomSettingParametersToGpuWebGpu({ material, args, }: {
+        material: Material;
+        args: RenderingArgWebGpu;
+    }): void;
     _setCustomSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

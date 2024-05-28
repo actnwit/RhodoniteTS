@@ -24,5 +24,7 @@ export type RenderingArgWebGL = {
 };
 export type RenderingArgWebGpu = {
     cameraComponentSid: Index;
+    entity: IMeshEntity;
+    specularCube?: CubeTexture;
 };
 export type AttributeNames = Array<string>;

@@ -22,6 +22,7 @@ export interface IQuaternion {
     toEulerAngles(): IVector3;
     clone(): IQuaternion;
     transformVector3(vec: IVector3): IVector3;
+    transformVector3To(vec: IVector3, out: IMutableVector3): IVector3;
     transformVector3Inverse(vec: IVector3): IVector3;
 }
 export interface IMutableQuaternion extends IQuaternion {

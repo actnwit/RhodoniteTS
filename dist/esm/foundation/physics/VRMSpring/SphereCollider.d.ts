@@ -4,8 +4,11 @@ export declare class SphereCollider {
     position: Vector3;
     radius: number;
     baseSceneGraph?: SceneGraphComponent;
+    private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    private static __tmp_vec3_2;
     collision(bonePosition: Vector3, boneRadius: number): {
-        direction: Vector3;
+        direction: import("../..").IMutableVector3;
         distance: number;
     };
 }

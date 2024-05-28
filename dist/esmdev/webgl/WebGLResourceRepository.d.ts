@@ -50,8 +50,8 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     private __samplerRepeatAnisotropyLinearUid;
     private constructor();
     static getInstance(): WebGLResourceRepository;
-    addWebGLContext(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean, isDebug: boolean): void;
-    generateWebGLContext(canvas: HTMLCanvasElement, version: number, asCurrent: boolean, isDebug: boolean, webglOption?: WebGLContextAttributes, fallback?: boolean): WebGL2RenderingContext;
+    addWebGLContext(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, asCurrent: boolean): void;
+    generateWebGLContext(canvas: HTMLCanvasElement, asCurrent: boolean, webglOption?: WebGLContextAttributes): WebGL2RenderingContext;
     get currentWebGLContextWrapper(): WebGLContextWrapper | undefined;
     private getResourceNumber;
     private __registerResource;

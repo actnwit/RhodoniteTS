@@ -12,9 +12,10 @@ export declare const Config: {
     maxSkeletalBoneNumberForUniformMode: number;
     dataTextureWidth: number;
     dataTextureHeight: number;
-    noWebGLTex2DStateCache: boolean;
     maxMorphTargetNumber: number;
     totalSizeOfGPUShaderDataStorageExceptMorphData: number;
     isUboEnabled: boolean;
     eventTargetDom: HTMLElement | undefined;
+    cacheWebGpuRenderBundles: boolean;
+    cgApiDebugConsoleOutput: boolean;
 };

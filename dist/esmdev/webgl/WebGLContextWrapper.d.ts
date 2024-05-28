@@ -59,7 +59,6 @@ export declare class WebGLContextWrapper {
     private __activeTexturesCube;
     private __boundTextures;
     private __boundSamplers;
-    private __isDebugMode;
     private __viewport_left;
     private __viewport_top;
     private __viewport_width;
@@ -73,7 +72,7 @@ export declare class WebGLContextWrapper {
     readonly is_multiview: boolean;
     _isWebXRMode: boolean;
     __extensions: Map<WebGLExtensionEnum, WebGLObject>;
-    constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, isDebug: boolean);
+    constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement);
     getRawContext(): WebGLRenderingContext | WebGL2RenderingContext;
     getRawContextAsWebGL1(): WebGLRenderingContext;
     getRawContextAsWebGL2(): WebGL2RenderingContext;
@@ -81,7 +80,6 @@ export declare class WebGLContextWrapper {
     get defaultViewport(): Vector4;
     isSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
     isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
-    get isDebugMode(): boolean;
     getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext;
     get isWebGL2(): boolean;
     createVertexArray(): WebGLVertexArrayObject | null | undefined;
