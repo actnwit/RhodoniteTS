@@ -64,6 +64,8 @@ export class SceneGraphComponent extends Component {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
+  private static __tmp_mat4 = MutableMatrix44.identity();
+
   private static __updateCount = -1;
 
   private static __tmpAABB = new AABB();
@@ -484,8 +486,19 @@ export class SceneGraphComponent extends Component {
     return this.matrixInner.multiplyVector3(localPosition);
   }
 
+  getWorldPositionOfTo(localPosition: Vector3, out: MutableVector3) {
+    return this.matrixInner.multiplyVector3To(localPosition, out);
+  }
+
   getLocalPositionOf(worldPosition: Vector3): Vector3 {
     return Matrix44.invert(this.matrixInner).multiplyVector3(worldPosition);
+  }
+
+  getLocalPositionOfTo(worldPosition: Vector3, out: MutableVector3): Vector3 {
+    return Matrix44.invertTo(this.matrixInner, SceneGraphComponent.__tmp_mat4).multiplyVector3To(
+      worldPosition,
+      out
+    );
   }
 
   getWorldAABB() {
