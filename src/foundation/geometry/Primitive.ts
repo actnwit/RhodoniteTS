@@ -51,7 +51,7 @@ export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private __material: Material = MaterialHelper.createEmptyMaterial();
   private __materialVariants: Map<string, Material> = new Map();
-  private __currentVariantName: string | undefined = undefined;
+  private __currentVariantName = '';
   public _prevMaterial: Material = MaterialHelper.createEmptyMaterial();
   private __attributes: Attributes = new Map();
   private __oIndices: IOption<Accessor> = new None();
@@ -124,6 +124,15 @@ export class Primitive extends RnObject {
       this.__currentVariantName = variantName;
       Primitive.__variantUpdateCount++;
     }
+  }
+
+  getCurrentVariantName() {
+    for (const [name, material] of this.__materialVariants) {
+      if (material === this.__material) {
+        return name;
+      }
+    }
+    return '';
   }
 
   getVariantNames() {

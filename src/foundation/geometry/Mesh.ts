@@ -742,6 +742,21 @@ export class Mesh implements IMesh {
     }
   }
 
+  getCurrentVariantName() {
+    function allEqual(arr: string[]) {
+      return arr.every((val) => val === arr[0]);
+    }
+    const variantNames = this.primitives.map((primitive) => primitive.getCurrentVariantName());
+    if (variantNames.length === 0) {
+      return '';
+    }
+    if (allEqual(variantNames)) {
+      return variantNames[0];
+    }
+
+    return '';
+  }
+
   getVariantNames() {
     const variants: string[] = [];
     for (const primitive of this.primitives) {
