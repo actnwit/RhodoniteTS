@@ -550,9 +550,9 @@ vec3 BRDF_specularGGXIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, flo
 
 
 ////////////////////////////////////////
-// glTF BRDF for punctual lights
+// lighting with a punctual light
 ////////////////////////////////////////
-vec3 gltfBRDF(
+vec3 lightingWithPunctualLight(
   Light light,
   vec3 normal_inWorld,
   vec3 viewDirection,
