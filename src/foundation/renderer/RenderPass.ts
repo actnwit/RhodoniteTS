@@ -85,6 +85,10 @@ export class RenderPass extends RnObject {
     this.__renderPassUID = ++RenderPass.__mesh_uid_count;
   }
 
+  isBufferLessRenderingMode() {
+    return this._drawVertexNumberForBufferLessRendering > 0;
+  }
+
   /**
    * @brief Set this render pass to buffer-less rendering mode.
    * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.

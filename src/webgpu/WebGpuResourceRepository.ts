@@ -119,9 +119,6 @@ export class WebGpuResourceRepository
   private __lastPrimitivesMaterialVariantUpdateCount = -1;
   private __lastMeshRendererComponentsUpdateCount = -1;
 
-  private static __iblParameterVec4 = MutableVector4.zero();
-  private static __hdriFormatVec2 = MutableVector2.zero();
-
   private constructor() {
     super();
   }
@@ -872,32 +869,45 @@ export class WebGpuResourceRepository
   }
 
   draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number) {
+    const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
-    if (VertexHandles == null) {
+    if (!isBufferLessRendering && VertexHandles == null) {
       return;
     }
-    const mesh = primitive.mesh as Mesh;
-    const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
-    const meshRendererComponent = entity.getMeshRenderer()!;
 
-    material._setCustomSettingParametersToGpuWebGpu({
-      material: material,
-      args: {
-        cameraComponentSid: cameraId,
-        entity,
-        specularCube: meshRendererComponent.specularCubeMap,
-      },
-    });
+    let meshRendererComponentSid = -1;
+    let meshRendererComponentUpdateCount = -1;
+    let diffuseCubeMap: CubeTexture | undefined;
+    let specularCubeMap: CubeTexture | undefined;
+    if (!isBufferLessRendering) {
+      const mesh = primitive.mesh as Mesh;
+      const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
+      const meshRendererComponent = entity.getMeshRenderer()!;
 
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponent.componentSID} ${meshRendererComponent.updateCount} ${cameraId}`;
+      material._setCustomSettingParametersToGpuWebGpu({
+        material: material,
+        args: {
+          cameraComponentSid: cameraId,
+          entity,
+          specularCube: meshRendererComponent.specularCubeMap,
+        },
+      });
+      meshRendererComponentSid = meshRendererComponent.componentSID;
+      meshRendererComponentUpdateCount = meshRendererComponent.updateCount;
+      diffuseCubeMap = meshRendererComponent.diffuseCubeMap;
+      specularCubeMap = meshRendererComponent.specularCubeMap;
+    }
+
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}`;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       primitive,
       material,
       renderPass,
-      meshRendererComponent,
-      cameraId
+      cameraId,
+      diffuseCubeMap,
+      specularCubeMap
     );
 
     this.createRenderBundleEncoder(renderPass);
@@ -908,22 +918,30 @@ export class WebGpuResourceRepository
     renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
     renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
 
-    const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
-    renderBundleEncoder.setVertexBuffer(0, variationVBO);
-    VertexHandles.vboHandles.forEach((vboHandle, i) => {
-      const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
-      renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
-    });
-
-    if (primitive.hasIndices()) {
-      const indicesBuffer = this.__webGpuResources.get(VertexHandles.iboHandle!) as GPUBuffer;
-      const indexBitSize = primitive.getIndexBitSize();
-      renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
-      const indicesAccessor = primitive.indicesAccessor!;
-      renderBundleEncoder.drawIndexed(indicesAccessor.elementCount, mesh.meshEntitiesInner.length);
+    if (isBufferLessRendering) {
+      renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
     } else {
-      const vertexCount = primitive.attributeAccessors[0].elementCount;
-      renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
+      const mesh = primitive.mesh as Mesh;
+      const variationVBO = this.__webGpuResources.get(mesh._variationVBOUid) as GPUBuffer;
+      renderBundleEncoder.setVertexBuffer(0, variationVBO);
+      VertexHandles!.vboHandles.forEach((vboHandle, i) => {
+        const vertexBuffer = this.__webGpuResources.get(vboHandle) as GPUBuffer;
+        renderBundleEncoder.setVertexBuffer(i + 1, vertexBuffer);
+      });
+
+      if (primitive.hasIndices()) {
+        const indicesBuffer = this.__webGpuResources.get(VertexHandles!.iboHandle!) as GPUBuffer;
+        const indexBitSize = primitive.getIndexBitSize();
+        renderBundleEncoder.setIndexBuffer(indicesBuffer, indexBitSize);
+        const indicesAccessor = primitive.indicesAccessor!;
+        renderBundleEncoder.drawIndexed(
+          indicesAccessor.elementCount,
+          mesh.meshEntitiesInner.length
+        );
+      } else {
+        const vertexCount = primitive.attributeAccessors[0].elementCount;
+        renderBundleEncoder.draw(vertexCount, mesh.meshEntitiesInner.length);
+      }
     }
 
     this.createRenderPassEncoder(renderPass);
@@ -1138,39 +1156,14 @@ export class WebGpuResourceRepository
     }
   }
 
-  private __setupIBLParameters(material: Material, meshRendererComponent: MeshRendererComponent) {
-    if (
-      meshRendererComponent.diffuseCubeMap == null ||
-      meshRendererComponent.specularCubeMap == null
-    ) {
-      return;
-    }
-    WebGpuResourceRepository.__iblParameterVec4.x =
-      meshRendererComponent.specularCubeMap.mipmapLevelNumber;
-    WebGpuResourceRepository.__iblParameterVec4.y =
-      meshRendererComponent.diffuseCubeMapContribution;
-    WebGpuResourceRepository.__iblParameterVec4.z =
-      meshRendererComponent.specularCubeMapContribution;
-    WebGpuResourceRepository.__iblParameterVec4.w = meshRendererComponent.rotationOfCubeMap;
-    material.setParameter(
-      ShaderSemantics.IBLParameter,
-      WebGpuResourceRepository.__iblParameterVec4
-    );
-
-    WebGpuResourceRepository.__hdriFormatVec2.x =
-      meshRendererComponent.diffuseCubeMap.hdriFormat.index;
-    WebGpuResourceRepository.__hdriFormatVec2.y =
-      meshRendererComponent.specularCubeMap.hdriFormat.index;
-    material.setParameter(ShaderSemantics.HDRIFormat, WebGpuResourceRepository.__hdriFormatVec2);
-  }
-
   getOrCreateRenderPipeline(
     renderPipelineId: string,
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    meshRendererComponent: MeshRendererComponent,
-    cameraId: number
+    cameraId: number,
+    diffuseCubeMap?: CubeTexture,
+    specularCubeMap?: CubeTexture,
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
@@ -1178,8 +1171,6 @@ export class WebGpuResourceRepository
         return [this.__webGpuRenderPipelineMap.get(renderPipelineId)!, false];
       }
     }
-
-    this.__setupIBLParameters(material, meshRendererComponent);
 
     const width = this.__webGpuDeviceWrapper!.canvas.width;
     const height = this.__webGpuDeviceWrapper!.canvas.height;
@@ -1197,7 +1188,7 @@ export class WebGpuResourceRepository
     this.__bindGroupSamplerMap.delete(renderPipelineId);
     this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
 
-    this.__createBindGroup(renderPipelineId, material, primitive, meshRendererComponent);
+    this.__createBindGroup(renderPipelineId, material, diffuseCubeMap, specularCubeMap);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -1212,17 +1203,19 @@ export class WebGpuResourceRepository
     }
 
     const gpuVertexBufferLayouts: GPUVertexBufferLayout[] = [];
-    gpuVertexBufferLayouts.push({
-      stepMode: 'instance',
-      attributes: [
-        {
-          shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
-          offset: 0,
-          format: 'float32x4',
-        },
-      ],
-      arrayStride: 4 * 4,
-    });
+    if (!renderPass.isBufferLessRenderingMode()) {
+      gpuVertexBufferLayouts.push({
+        stepMode: 'instance',
+        attributes: [
+          {
+            shaderLocation: VertexAttribute.Instance.getAttributeSlot(),
+            offset: 0,
+            format: 'float32x4',
+          },
+        ],
+        arrayStride: 4 * 4,
+      });
+    }
     primitive.attributeAccessors.forEach((accessor: Accessor, i: number) => {
       const slotIdx = VertexAttribute.toAttributeSlotFromJoinedString(
         primitive.attributeSemantics[i]
@@ -1279,7 +1272,10 @@ export class WebGpuResourceRepository
       }
     }
 
-    const mode = primitive.primitiveMode;
+    const mode =
+      renderPass.isBufferLessRenderingMode()
+        ? renderPass._primitiveModeForBufferLessRendering
+        : primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
     let stripIndexFormat = undefined;
     if (topology === 'triangle-strip' || topology === 'line-strip') {
@@ -1757,8 +1753,8 @@ export class WebGpuResourceRepository
   private __createBindGroup(
     renderPipelineId: string,
     material: Material,
-    primitive: Primitive,
-    meshRendererComponent: MeshRendererComponent
+    diffuseCubeMap?: CubeTexture,
+    specularCubeMap?: CubeTexture,
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
@@ -1931,8 +1927,8 @@ export class WebGpuResourceRepository
 
       // Diffuse IBL
       const diffuseCubeTextureView = this.__webGpuResources.get(
-        Is.exist(meshRendererComponent.diffuseCubeMap)
-          ? meshRendererComponent.diffuseCubeMap._textureViewResourceUid
+        Is.exist(diffuseCubeMap)
+          ? diffuseCubeMap._textureViewResourceUid
           : -1
       ) as GPUTextureView | undefined;
       if (Is.exist(diffuseCubeTextureView)) {
@@ -1957,8 +1953,8 @@ export class WebGpuResourceRepository
         visibility: GPUShaderStage.FRAGMENT,
       });
       const diffuseCubeSampler = this.__webGpuResources.get(
-        Is.exist(meshRendererComponent.diffuseCubeMap)
-          ? meshRendererComponent.diffuseCubeMap._samplerResourceUid
+        Is.exist(diffuseCubeMap)
+          ? diffuseCubeMap._samplerResourceUid
           : -1
       ) as GPUSampler | undefined;
       if (Is.exist(diffuseCubeSampler)) {
@@ -1985,8 +1981,8 @@ export class WebGpuResourceRepository
 
       // Specular IBL
       const specularCubeTextureView = this.__webGpuResources.get(
-        Is.exist(meshRendererComponent.specularCubeMap)
-          ? meshRendererComponent.specularCubeMap._textureViewResourceUid
+        Is.exist(specularCubeMap)
+          ? specularCubeMap._textureViewResourceUid
           : -1
       ) as GPUTextureView | undefined;
 
@@ -2012,8 +2008,8 @@ export class WebGpuResourceRepository
         visibility: GPUShaderStage.FRAGMENT,
       });
       const specularCubeSampler = this.__webGpuResources.get(
-        Is.exist(meshRendererComponent.specularCubeMap)
-          ? meshRendererComponent.specularCubeMap._samplerResourceUid
+        Is.exist(specularCubeMap)
+          ? specularCubeMap._samplerResourceUid
           : -1
       ) as GPUSampler | undefined;
       if (Is.exist(specularCubeSampler)) {

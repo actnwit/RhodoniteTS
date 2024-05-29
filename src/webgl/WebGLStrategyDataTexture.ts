@@ -705,7 +705,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
-    if (renderPass._drawVertexNumberForBufferLessRendering > 0) {
+    if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass);
       return true;
     }

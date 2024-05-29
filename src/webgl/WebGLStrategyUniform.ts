@@ -359,7 +359,7 @@ bool get_isBillboard(float instanceId) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
-    if (renderPass._drawVertexNumberForBufferLessRendering > 0) {
+    if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(gl, renderPass);
       return true;
     }
