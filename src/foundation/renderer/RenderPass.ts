@@ -6,8 +6,6 @@ import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Vector4 } from '../math/Vector4';
 import { EntityUID, RenderPassUID } from '../../types/CommonTypes';
 import { Material } from '../materials/core/Material';
-import { WebGLStrategy } from '../../webgl/main';
-import { ModuleManager } from '../system/ModuleManager';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { Primitive } from '../geometry/Primitive';
 import { MutableVector4 } from '../math/MutableVector4';
@@ -16,7 +14,6 @@ import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { RenderBufferTargetEnum } from '../definitions';
-import { SystemState } from '../system/SystemState';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 /**
@@ -32,6 +29,10 @@ export class RenderPass extends RnObject {
   private __resolveFrameBuffer?: FrameBuffer;
   private __resolveFrameBuffer2?: FrameBuffer;
   private __viewport?: MutableVector4;
+  private __material?: Material;
+  private __primitiveMaterial: Map<Primitive, Material> = new Map();
+
+  // Public RenderPass Settings
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
@@ -40,8 +41,15 @@ export class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
-  private __material?: Material;
-  private __primitiveMaterial: Map<Primitive, Material> = new Map();
+
+  /*＊
+   * If this value is greater than 1, buffer-less rendering is performed with the specified number of vertices.
+   * In this case, registered Entities are ignored and they are not rendered.
+   */
+  public _drawVertexNumberWithoutEntities = 0;
+  public _dummyPrimitive: Primitive = new Primitive();
+
+  // VR
   public isVrRendering = true;
   public isOutputForVr = false;
 
@@ -73,6 +81,19 @@ export class RenderPass extends RnObject {
   constructor() {
     super();
     this.__renderPassUID = ++RenderPass.__mesh_uid_count;
+  }
+
+  /**
+   * @brief Set this render pass to buffer-less rendering mode.
+   * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+   * This is useful for e.g. full-screen drawing.
+   * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+   * @param drawVertexNumberWithoutEntities The number of vertices to be rendered in buffer-less rendering.
+   * @param material The material to be used in buffer-less rendering.
+   */
+  setBufferLessRendering(drawVertexNumberWithoutEntities: number, material: Material) {
+    this._drawVertexNumberWithoutEntities = drawVertexNumberWithoutEntities;
+    this.__material = material;
   }
 
   clone() {

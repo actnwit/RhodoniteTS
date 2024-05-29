@@ -35,6 +35,7 @@ import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
+import { GL_TRIANGLES } from '../types/WebGLConstants';
 
 declare const spector: any;
 
@@ -356,7 +357,12 @@ bool get_isBillboard(float instanceId) {
     }
 
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
+    const gl = glw.getRawContextAsWebGL2();
+
+    if (renderPass._drawVertexNumberWithoutEntities > 0) {
+      this.__renderWithoutBuffers(gl, renderPass);
+      return true;
+    }
 
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
@@ -410,6 +416,25 @@ bool get_isBillboard(float instanceId) {
     this.__webglResourceRepository.unbindTextureSamplers();
 
     return renderedSomething;
+  }
+
+  private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass) {
+    // setup shader program
+    const material: Material = renderPass.material!;
+    const primitive: Primitive = renderPass._dummyPrimitive;
+    setupShaderProgram(material, primitive, this);
+
+    const shaderProgramUid = material.getShaderProgramUid(primitive);
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(
+      shaderProgramUid
+    )! as WebGLProgram;
+    gl.useProgram(shaderProgram);
+
+    this.bindDataTexture(gl, shaderProgram);
+
+    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+
+    gl.drawArrays(GL_TRIANGLES, 0, renderPass._drawVertexNumberWithoutEntities);
   }
 
   renderInner(
