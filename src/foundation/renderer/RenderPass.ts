@@ -40,13 +40,13 @@ export class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
-  public cullFrontFaceCCW = true;
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();
   private __webglRenderingStrategy?: WebGLStrategy;
   public isVrRendering = true;
   public isOutputForVr = false;
 
+  // Internal use
   public _lastOpaqueIndex = -1;
   public _lastTransparentIndex = -1;
   public _firstTransparentSortKey = -1;
@@ -94,7 +94,6 @@ export class RenderPass extends RnObject {
     renderPass.clearDepth = this.clearDepth;
     renderPass.clearStencil = this.clearStencil;
     renderPass.cameraComponent = this.cameraComponent;
-    renderPass.cullFrontFaceCCW = this.cullFrontFaceCCW;
     renderPass.__material = this.__material;
     renderPass.__primitiveMaterial = new Map(this.__primitiveMaterial);
     renderPass.__webglRenderingStrategy = this.__webglRenderingStrategy;
