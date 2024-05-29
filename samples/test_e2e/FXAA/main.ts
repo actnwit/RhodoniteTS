@@ -30,9 +30,7 @@ framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
 // setup the FXAA RenderPass
 const renderPassFxaa = await setupRenderPassFxaa(
   // framebuffer.getColorAttachedRenderTargetTexture(0),
-  frame.getColorAttachmentFromInputOf(expressionWithFXAA),
-  canvas!.clientWidth,
-  canvas!.clientHeight
+  frame.getColorAttachmentFromInputOf(expressionWithFXAA)
 );
 
 // register renderPasses to expressions
@@ -151,20 +149,12 @@ async function setupRenderPassMain() {
   return renderPass;
 }
 
-function setupRenderPassFxaa(
-  renderable: Promise<Rn.AbstractTexture>,
-  width: number,
-  height: number
-) {
+function setupRenderPassFxaa(renderable: Promise<Rn.AbstractTexture>) {
   const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial({
     noUseCameraTransform: true,
   });
   const renderPassFxaa = Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
   fxaaMaterial.setTextureParameterAsPromise(Rn.ShaderSemantics.BaseColorTexture, renderable);
-  fxaaMaterial.setParameter(
-    Rn.ShaderSemantics.ScreenInfo,
-    Rn.Vector2.fromCopyArray2([width, height])
-  );
 
   return renderPassFxaa;
 }

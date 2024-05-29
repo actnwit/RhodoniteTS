@@ -25,10 +25,6 @@ const framebuffer_fxaatarget = Rn.RenderableHelper.createTexturesForRenderTarget
 renderPass2.setFramebuffer(framebuffer_fxaatarget);
 
 const primitive_fxaa_material = Rn.MaterialHelper.createFXAA3QualityMaterial();
-primitive_fxaa_material.setParameter(
-  Rn.ShaderSemantics.ScreenInfo,
-  Rn.Vector2.fromCopyArray2([600, 600])
-);
 const renderPass_fxaa = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   primitive_fxaa_material,
   framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0)

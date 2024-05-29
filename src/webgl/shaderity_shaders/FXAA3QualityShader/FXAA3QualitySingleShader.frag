@@ -55,7 +55,6 @@
 in vec2 v_texcoord_0;
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
-uniform vec2 u_screenInfo; // initialValue=(0,0)
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -1133,7 +1132,7 @@ uniform vec2 u_screenInfo; // initialValue=(0,0)
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  vec2 screenInfo = get_screenInfo(materialSID, 0);
+  vec2 screenInfo = vec2(textureSize(u_baseColorTexture, 0));
   rt0 = FxaaPixelShader(
       v_texcoord_0,
       vec4(0.0),
