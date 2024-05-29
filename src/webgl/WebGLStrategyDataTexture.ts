@@ -769,7 +769,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     isVRMainPass: boolean,
     displayIdx: Index
   ) {
-    const gl = glw.getRawContext();
+    const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
@@ -838,7 +838,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     if (primitive.indicesAccessor) {
-      glw.drawElementsInstanced(
+      gl.drawElementsInstanced(
         primitive.primitiveMode.index,
         primitive.indicesAccessor.elementCount,
         primitive.indicesAccessor.componentType.index,
@@ -846,7 +846,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         mesh.meshEntitiesInner.length
       );
     } else {
-      glw.drawArraysInstanced(
+      gl.drawArraysInstanced(
         primitive.primitiveMode.index,
         0,
         primitive.getVertexCountAsVerticesBased(),
