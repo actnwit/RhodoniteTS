@@ -6,8 +6,6 @@ import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { Vector4 } from '../math/Vector4';
 import { EntityUID, RenderPassUID } from '../../types/CommonTypes';
 import { Material } from '../materials/core/Material';
-import { WebGLStrategy } from '../../webgl/main';
-import { ModuleManager } from '../system/ModuleManager';
 import { WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
 import { Primitive } from '../geometry/Primitive';
 import { MutableVector4 } from '../math/MutableVector4';
@@ -15,8 +13,8 @@ import { IVector4 } from '../math/IVector';
 import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import { RenderBufferTargetEnum } from '../definitions';
-import { SystemState } from '../system/SystemState';
+import { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 /**
@@ -32,6 +30,10 @@ export class RenderPass extends RnObject {
   private __resolveFrameBuffer?: FrameBuffer;
   private __resolveFrameBuffer2?: FrameBuffer;
   private __viewport?: MutableVector4;
+  private __material?: Material;
+  private __primitiveMaterial: Map<Primitive, Material> = new Map();
+
+  // Public RenderPass Settings
   public toClearColorBuffer = false;
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
@@ -40,13 +42,20 @@ export class RenderPass extends RnObject {
   public clearDepth = 1;
   public clearStencil = 0;
   public cameraComponent?: CameraComponent;
-  public cullFrontFaceCCW = true;
-  private __material?: Material;
-  private __primitiveMaterial: Map<Primitive, Material> = new Map();
-  private __webglRenderingStrategy?: WebGLStrategy;
+
+  /*＊
+   * If this value is greater than 1, buffer-less rendering is performed with the specified number of vertices.
+   * In this case, registered Entities are ignored and they are not rendered.
+   */
+  public _drawVertexNumberForBufferLessRendering = 0;
+  public _primitiveModeForBufferLessRendering = PrimitiveMode.Triangles;
+  public _dummyPrimitiveForBufferLessRendering: Primitive = new Primitive();
+
+  // VR
   public isVrRendering = true;
   public isOutputForVr = false;
 
+  // Internal use
   public _lastOpaqueIndex = -1;
   public _lastTransparentIndex = -1;
   public _firstTransparentSortKey = -1;
@@ -76,6 +85,42 @@ export class RenderPass extends RnObject {
     this.__renderPassUID = ++RenderPass.__mesh_uid_count;
   }
 
+  isBufferLessRenderingMode() {
+    return this._drawVertexNumberForBufferLessRendering > 0;
+  }
+
+  /**
+   * @brief Set this render pass to buffer-less rendering mode.
+   * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+   * This is useful for e.g. full-screen drawing.
+   * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+   * @param primitiveMode The primitive mode to be used in buffer-less rendering.
+   * @param drawVertexNumberWithoutEntities The number of vertices to be rendered in buffer-less rendering.
+   * @param material The material to be used in buffer-less rendering.
+   */
+  setBufferLessRendering(
+    primitiveMode: PrimitiveModeEnum,
+    drawVertexNumberWithoutEntities: number,
+    material: Material
+  ) {
+    this._primitiveModeForBufferLessRendering = primitiveMode;
+    this._drawVertexNumberForBufferLessRendering = drawVertexNumberWithoutEntities;
+    this.__material = material;
+  }
+
+  /**
+   * @brief Set this render pass to buffer-less rendering mode.
+   * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+   * This is useful for e.g. full-screen drawing.
+   * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+   * @param material The material to be used in buffer-less rendering.
+   */
+  setBufferLessFullScreenRendering(material: Material) {
+    this._primitiveModeForBufferLessRendering = PrimitiveMode.Triangles;
+    this._drawVertexNumberForBufferLessRendering = 3;
+    this.__material = material;
+  }
+
   clone() {
     const renderPass = new RenderPass();
     renderPass.__entities = this.__entities.concat();
@@ -94,10 +139,8 @@ export class RenderPass extends RnObject {
     renderPass.clearDepth = this.clearDepth;
     renderPass.clearStencil = this.clearStencil;
     renderPass.cameraComponent = this.cameraComponent;
-    renderPass.cullFrontFaceCCW = this.cullFrontFaceCCW;
     renderPass.__material = this.__material;
     renderPass.__primitiveMaterial = new Map(this.__primitiveMaterial);
-    renderPass.__webglRenderingStrategy = this.__webglRenderingStrategy;
     renderPass.isVrRendering = this.isVrRendering;
     renderPass.isOutputForVr = this.isOutputForVr;
     renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
@@ -373,16 +416,6 @@ export class RenderPass extends RnObject {
     }
   }
 
-  private __setupMaterial(material: Material, primitive: Primitive) {
-    if (material.isEmptyMaterial()) return;
-
-    const webglRenderingStrategy = this.__setWebglRenderingStrategyIfNotYet(
-      this.__webglRenderingStrategy
-    );
-
-    webglRenderingStrategy.setupShaderForMaterial(material, primitive);
-  }
-
   /**
    * Sets a material for the primitive on this render pass.
    * If Rhodonite draw the primitive using this render pass, Rhodonite uses this material instead of the material on the primitive.
@@ -409,23 +442,6 @@ export class RenderPass extends RnObject {
 
   get material() {
     return this.__material;
-  }
-
-  private __setWebglRenderingStrategyIfNotYet(
-    webglRenderingStrategy?: WebGLStrategy
-  ): WebGLStrategy {
-    if (webglRenderingStrategy != null) {
-      return webglRenderingStrategy;
-    }
-    const processApproach = SystemState.currentProcessApproach;
-
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-    const newWebglRenderingStrategyRef = webglModule.getRenderingStrategy(processApproach);
-    this.__webglRenderingStrategy = newWebglRenderingStrategyRef;
-
-    return newWebglRenderingStrategyRef;
   }
 
   _getMaterialOf(primitive: Primitive) {

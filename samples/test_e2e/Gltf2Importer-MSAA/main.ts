@@ -22,27 +22,15 @@ Rn.Config.isUboEnabled = false;
 
 // prepare cameras
 const entityMainCamera = createEntityMainCamera();
-const entityPostEffectCamera = createEntityPostEffectCamera();
 
 // prepare renderPasses
 const renderPassMain = await createRenderPassMain(uriGltf, basePathIBL, entityMainCamera);
 createAndSetFrameBufferAndMSAAFramebuffer(renderPassMain, rnCanvasElement.width);
 
 const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
-const sampler = new Rn.Sampler({
-  wrapS: Rn.TextureParameter.ClampToEdge,
-  wrapT: Rn.TextureParameter.ClampToEdge,
-  minFilter: Rn.TextureParameter.Linear,
-  magFilter: Rn.TextureParameter.Linear,
-});
-materialGamma.setTextureParameter(
-  Rn.ShaderSemantics.BaseColorTexture,
-  renderPassMain.getResolveFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture,
-  sampler
-);
-const renderPassGamma = createRenderPassPostEffect(
+const renderPassGamma = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   materialGamma,
-  entityPostEffectCamera.getCamera()
+  renderPassMain.getResolveFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
 );
 
 const expression = new Rn.Expression();
@@ -144,34 +132,6 @@ async function createEntityGltf2(uriGltf: string) {
   ).unwrapForce();
   const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
   return entityRootGroup;
-}
-
-function createRenderPassPostEffect(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
-  const boardPrimitive = new Rn.Plane();
-  boardPrimitive.generate({
-    width: 1,
-    height: 1,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    material,
-  });
-
-  const boardMesh = new Rn.Mesh();
-  boardMesh.addPrimitive(boardPrimitive);
-
-  const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
-  const boardMeshComponent = boardEntity.getMesh();
-  boardMeshComponent.setMesh(boardMesh);
-
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = false;
-  renderPass.cameraComponent = cameraComponent;
-  renderPass.addEntities([boardEntity]);
-
-  return renderPass;
 }
 
 function createAndSetFrameBufferAndMSAAFramebuffer(

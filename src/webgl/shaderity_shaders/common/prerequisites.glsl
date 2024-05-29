@@ -7,8 +7,6 @@ uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDa
 // uniform int u_morphWeights[]; //
 #endif
 
-
-uniform float u_materialSID; // skipProcess=true
 uniform int u_isMainVr; // skipProcess=true
 uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{widthOfDataTexture} */

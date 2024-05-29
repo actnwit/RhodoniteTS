@@ -7,15 +7,12 @@
 
 @vertex
 fn main(
-#pragma shaderity: require(../common/vertexInput.wgsl)
+  @builtin(vertex_index) vertexIdx : u32,
 ) -> VertexOutput {
   var output : VertexOutput;
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-#pragma shaderity: require(../common/simpleMVPPosition.wgsl)
-
-  output.texcoord_0 = texcoord_0;
-  output.texcoord_0.y = 1.0 - output.texcoord_0.y;
+#pragma shaderity: require(../common/fullscreen.wgsl)
 
   return output;
 

@@ -45,6 +45,7 @@ import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/Rendering
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
+import { GL_TRIANGLES } from '../types';
 
 declare const spector: any;
 
@@ -702,7 +703,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       spector.setMarker('|  |  DataTexture:common_$render#');
     }
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
-    const gl = glw.getRawContext();
+    const gl = glw.getRawContextAsWebGL2();
+
+    if (renderPass.isBufferLessRenderingMode()) {
+      this.__renderWithoutBuffers(gl, renderPass);
+      return true;
+    }
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
@@ -762,6 +768,39 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return renderedSomething;
   }
 
+  private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass) {
+    // setup shader program
+    const material: Material = renderPass.material!;
+    const primitive: Primitive = renderPass._dummyPrimitiveForBufferLessRendering;
+    setupShaderProgram(material, primitive, this);
+
+    const shaderProgramUid = material.getShaderProgramUid(primitive);
+    const shaderProgram = this.__webglResourceRepository.getWebGLResource(
+      shaderProgramUid
+    )! as WebGLProgram;
+    gl.useProgram(shaderProgram);
+    this.__lastShader = shaderProgramUid;
+
+    // Bind DataTexture
+    this.bindDataTexture(gl, shaderProgram);
+
+    this.__setCurrentComponentSIDsForEachPrimitive(gl, material, shaderProgram);
+
+    WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+
+    material._setParametersToGpuWebGLWithOutCustomSetting({
+      shaderProgram,
+      firstTime: true,
+      isUniformMode: false,
+    });
+
+    gl.drawArrays(
+      renderPass._primitiveModeForBufferLessRendering.index,
+      0,
+      renderPass._drawVertexNumberForBufferLessRendering
+    );
+  }
+
   renderInner(
     primitiveUid: PrimitiveUID,
     glw: WebGLContextWrapper,
@@ -769,7 +808,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     isVRMainPass: boolean,
     displayIdx: Index
   ) {
-    const gl = glw.getRawContext();
+    const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
@@ -838,7 +877,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     if (primitive.indicesAccessor) {
-      glw.drawElementsInstanced(
+      gl.drawElementsInstanced(
         primitive.primitiveMode.index,
         primitive.indicesAccessor.elementCount,
         primitive.indicesAccessor.componentType.index,
@@ -846,7 +885,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         mesh.meshEntitiesInner.length
       );
     } else {
-      glw.drawArraysInstanced(
+      gl.drawArraysInstanced(
         primitive.primitiveMode.index,
         0,
         primitive.getVertexCountAsVerticesBased(),

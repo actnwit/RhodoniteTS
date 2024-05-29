@@ -259,25 +259,11 @@ export class WebGLContextWrapper {
     offset: number,
     instanceCount: number
   ) {
-    if (this.getIsWebGL2(this.__gl)) {
-      this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
-    } else {
-      this.webgl1ExtIA!.drawElementsInstancedANGLE(
-        primitiveMode,
-        indexCount,
-        type,
-        offset,
-        instanceCount
-      );
-    }
+    this.__gl.drawElementsInstanced(primitiveMode, indexCount, type, offset, instanceCount);
   }
 
   drawArraysInstanced(primitiveMode: number, first: number, count: number, instanceCount: number) {
-    if (this.getIsWebGL2(this.__gl)) {
-      this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
-    } else {
-      this.webgl1ExtIA!.drawArraysInstancedANGLE(primitiveMode, first, count, instanceCount);
-    }
+    this.__gl.drawArraysInstanced(primitiveMode, first, count, instanceCount);
   }
 
   colorAttachment(index: Index) {

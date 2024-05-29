@@ -409,7 +409,7 @@ export class Material extends RnObject {
     args: RenderingArgWebGL;
   }) {
     // For Auto Parameters
-    this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
+    this.__setAutoParametersToGpuWebGL(args.setUniform, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
     this._materialContent._setCustomSettingParametersToGpuWebGL({
@@ -423,23 +423,28 @@ export class Material extends RnObject {
     this.__setSoloDatumParametersToGpuWebGL({
       shaderProgram,
       firstTime,
-      args,
+      isUniformMode: args.setUniform,
     });
   }
 
-  _setParametersToGpuWebGL2({
-    material,
+  _setParametersToGpuWebGLWithOutCustomSetting({
     shaderProgram,
     firstTime,
-    args,
+    isUniformMode,
   }: {
-    material: Material;
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArgWebGL;
+    isUniformMode: boolean;
   }) {
     // For Auto Parameters
-    this.__setAutoParametersToGpuWebGL(args, firstTime, shaderProgram);
+    this.__setAutoParametersToGpuWebGL(isUniformMode, firstTime, shaderProgram);
+
+    // For SoloDatum Parameters
+    this.__setSoloDatumParametersToGpuWebGL({
+      shaderProgram,
+      firstTime,
+      isUniformMode,
+    });
   }
   /**
    * @internal
@@ -486,7 +491,7 @@ export class Material extends RnObject {
   }
 
   private __setAutoParametersToGpuWebGL(
-    args: RenderingArgWebGL,
+    isUniformMode: boolean,
     firstTime: boolean,
     shaderProgram: WebGLProgram
   ) {
@@ -494,7 +499,7 @@ export class Material extends RnObject {
       Material.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     }
     const webglResourceRepository = Material.__webglResourceRepository!;
-    if (args.setUniform) {
+    if (isUniformMode) {
       this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
         if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
@@ -538,11 +543,11 @@ export class Material extends RnObject {
   private __setSoloDatumParametersToGpuWebGL({
     shaderProgram,
     firstTime,
-    args,
+    isUniformMode,
   }: {
     shaderProgram: WebGLProgram;
     firstTime: boolean;
-    args: RenderingArgWebGL;
+    isUniformMode: boolean;
   }) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const materialTypeName = this.__materialTypeName;
@@ -551,7 +556,7 @@ export class Material extends RnObject {
     const values = map.values();
     for (const value of values) {
       const info = value.info;
-      if (args.setUniform || CompositionType.isTexture(info.compositionType)) {
+      if (isUniformMode || CompositionType.isTexture(info.compositionType)) {
         if (!info.isCustomSetting) {
           if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
             webglResourceRepository.setUniformValue(

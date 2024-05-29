@@ -396,6 +396,11 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
+    if (renderPass.isBufferLessRenderingMode()) {
+      this.__renderWithoutBuffers(renderPass);
+      return true;
+    }
+
     let renderedSomething = false;
     // For opaque primitives
     if (renderPass.toRenderOpaquePrimitives) {
@@ -422,6 +427,15 @@ ${indexStr}
     }
 
     return renderedSomething;
+  }
+
+  private __renderWithoutBuffers(renderPass: RenderPass) {
+    const material = renderPass.material!;
+    const primitive = renderPass._dummyPrimitiveForBufferLessRendering;
+    this._setupShaderProgram(material, primitive);
+
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    webGpuResourceRepository.draw(primitive, material, renderPass, 0);
   }
 
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {

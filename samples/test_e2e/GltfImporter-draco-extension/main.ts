@@ -53,21 +53,12 @@ const rootTransFormComponent = rootGroup.getTransform();
 rootTransFormComponent.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI / 2.0, 0.0]);
 rootTransFormComponent.localPosition = Rn.Vector3.fromCopyArray([0, -0.13, -1.5]);
 
-const postEffectCameraEntity = createPostEffectCameraEntity();
-const postEffectCameraComponent = postEffectCameraEntity.getCamera();
-
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
-const gammaCorrectionRenderPass = createPostEffectRenderPass(
-  gammaCorrectionMaterial,
-  postEffectCameraComponent
-);
-
-setTextureParameterForMeshComponents(
-  gammaCorrectionRenderPass.meshComponents,
-  Rn.ShaderSemantics.BaseColorTexture,
-  gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
-);
-
+const gammaCorrectionRenderPass =
+  Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+    gammaCorrectionMaterial,
+    gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+  );
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // lighting
@@ -87,65 +78,6 @@ Rn.System.startRenderLoop(() => {
   Rn.System.process(expressions);
   count++;
 });
-
-function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
-  const boardPrimitive = new Rn.Plane();
-  boardPrimitive.generate({
-    width: 1,
-    height: 1,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    material,
-  });
-
-  const boardMesh = new Rn.Mesh();
-  boardMesh.addPrimitive(boardPrimitive);
-
-  const boardEntity = Rn.EntityHelper.createMeshEntity();
-  boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
-  boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
-  const boardMeshComponent = boardEntity.getMesh();
-  boardMeshComponent.setMesh(boardMesh);
-
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = false;
-  renderPass.cameraComponent = cameraComponent;
-  renderPass.addEntities([boardEntity]);
-
-  return renderPass;
-}
-
-function createPostEffectCameraEntity() {
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zNearInner = 0.5;
-  cameraComponent.zFarInner = 2.0;
-  return cameraEntity;
-}
-
-function setTextureParameterForMeshComponents(
-  meshComponents: Rn.MeshComponent[],
-  shaderSemantic: Rn.ShaderSemanticsEnum,
-  value: Rn.RenderTargetTexture
-) {
-  const sampler = new Rn.Sampler({
-    magFilter: Rn.TextureParameter.Linear,
-    minFilter: Rn.TextureParameter.Linear,
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-  });
-  for (let i = 0; i < meshComponents.length; i++) {
-    const mesh = meshComponents[i].mesh;
-    if (!mesh) continue;
-
-    const primitiveNumber = mesh.getPrimitiveNumber();
-    for (let j = 0; j < primitiveNumber; j++) {
-      const primitive = mesh.getPrimitiveAt(j);
-      primitive.material.setTextureParameter(shaderSemantic, value, sampler);
-    }
-  }
-}
 
 window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');

@@ -15,6 +15,8 @@ import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableVector2 } from '../../math/MutableVector2';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -141,6 +143,34 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
     material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
+
+    const meshRendererComponent = args.entity.tryToGetMeshRenderer();
+    if (
+      meshRendererComponent != null &&
+      meshRendererComponent.diffuseCubeMap != null &&
+      meshRendererComponent.specularCubeMap != null
+    ) {
+      const iblParameterVec4 = MutableVector4.zero();
+      const hdriFormatVec2 = MutableVector2.zero();
+
+      iblParameterVec4.x =
+        meshRendererComponent.specularCubeMap.mipmapLevelNumber;
+      iblParameterVec4.y =
+        meshRendererComponent.diffuseCubeMapContribution;
+      iblParameterVec4.z =
+        meshRendererComponent.specularCubeMapContribution;
+      iblParameterVec4.w = meshRendererComponent.rotationOfCubeMap;
+      material.setParameter(
+        ShaderSemantics.IBLParameter,
+        iblParameterVec4
+      );
+
+      hdriFormatVec2.x =
+        meshRendererComponent.diffuseCubeMap.hdriFormat.index;
+      hdriFormatVec2.y =
+        meshRendererComponent.specularCubeMap.hdriFormat.index;
+      material.setParameter(ShaderSemantics.HDRIFormat, hdriFormatVec2);
+    }
   }
 
   _setCustomSettingParametersToGpuWebGL({

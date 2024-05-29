@@ -48,3 +48,5 @@
 #ifdef RN_USE_TEXCOORD_2
   @location(11) texcoord_2: vec2<f32>,
 #endif
+  @builtin(vertex_index) vertexIdx : u32,
+

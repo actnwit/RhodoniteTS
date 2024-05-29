@@ -98,7 +98,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __depthMomentExpressions: Expression[] = [];
   private __oGammaExpression: IOption<Expression> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
-  private __oGammaBoardEntity: IOption<IMeshEntity> = new None();
   private __oWebXRSystem: IOption<any> = new None();
   private __oDrawFunc: IOption<DrawFunc> = new None();
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
@@ -343,7 +342,6 @@ export class ForwardRenderPipeline extends RnObject {
       assertHas(this.__oFrameBufferResolve);
       assertHas(this.__oFrameBufferResolveForReference);
       assertHas(this.__oGammaExpression);
-      assertHas(this.__oGammaBoardEntity);
       this.__oFrameBufferMsaa.get().resize(width, height);
       this.__oFrameBufferResolve.get().resize(width, height);
       this.__oFrameBufferResolveForReference.get().resize(width, height);
@@ -692,61 +690,31 @@ export class ForwardRenderPipeline extends RnObject {
     aspect: number
   ) {
     const expressionGammaEffect = new Expression();
-    const materialGamma = MaterialHelper.createGammaCorrectionMaterial({
-      noUseCameraTransform: true,
-    });
-    const entityGamma = MeshHelper.createPlane({
-      width: 2,
-      height: 2,
-      uSpan: 1,
-      vSpan: 1,
-      isUVRepeat: false,
-      flipTextureCoordinateY: false,
-      direction: 'xy',
-      material: materialGamma,
-    });
-    entityGamma.tryToSetUniqueName('Gamma Plane', true);
-    entityGamma.tryToSetTag({
-      tag: 'type',
-      value: 'background-assets',
-    });
-    entityGamma.localPosition = Vector3.fromCopy3(0, 0, 0.5);
-
-    const sampler = new Sampler({
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
-      minFilter: TextureParameter.Linear,
-      magFilter: TextureParameter.Linear,
-      anisotropy: false,
-    });
-    sampler.create();
-    materialGamma.setTextureParameter(
-      ShaderSemantics.BaseColorTexture,
-      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!,
-      sampler
-    );
-
-    this.__oGammaBoardEntity = new Some(entityGamma);
+    const materialGamma = MaterialHelper.createGammaCorrectionMaterial();
 
     // Rendering for Canvas Frame Buffer
-    const renderPassGamma = new RenderPass();
+    const renderPassGamma = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      materialGamma,
+      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
+    );
     renderPassGamma.tryToSetUniqueName('renderPassGamma', true);
     renderPassGamma.toClearColorBuffer = false;
     renderPassGamma.toClearDepthBuffer = false;
     renderPassGamma.isDepthTest = false;
     renderPassGamma.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
-    renderPassGamma.addEntities([entityGamma]);
     renderPassGamma.isVrRendering = false;
     renderPassGamma.isOutputForVr = false;
 
     // Rendering for VR HeadSet Frame Buffer
-    const renderPassGammaVr = new RenderPass();
+    const renderPassGammaVr = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      materialGamma,
+      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
+    );
     renderPassGammaVr.tryToSetUniqueName('renderPassGammaVr', true);
     renderPassGammaVr.toClearColorBuffer = false;
     renderPassGammaVr.toClearDepthBuffer = false;
     renderPassGammaVr.isDepthTest = false;
     renderPassGammaVr.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
-    renderPassGammaVr.addEntities([entityGamma]);
     renderPassGammaVr.isVrRendering = false;
     renderPassGammaVr.isOutputForVr = true;
 
