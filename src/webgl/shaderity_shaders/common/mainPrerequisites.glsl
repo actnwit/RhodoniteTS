@@ -15,9 +15,9 @@
     #endif
   #endif
 
-#else
+#else // RN_IS_UNIFORM_MODE
 
-  float materialSID = u_materialSID;
+  float materialSID = -1.0; // materialSID is not used in Uniform mode
 
   int lightNumber = 0;
   #ifdef RN_IS_LIGHTING
