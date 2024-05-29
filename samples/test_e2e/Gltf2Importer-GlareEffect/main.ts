@@ -70,19 +70,10 @@ const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
 
 const renderPassSynthesizeGlare = renderPassesSynthesizeImages[1];
 const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
-const sampler = new Rn.Sampler({
-  magFilter: Rn.TextureParameter.Linear,
-  minFilter: Rn.TextureParameter.Linear,
-  wrapS: Rn.TextureParameter.ClampToEdge,
-  wrapT: Rn.TextureParameter.ClampToEdge,
-});
-materialGamma.setTextureParameter(
-  Rn.ShaderSemantics.BaseColorTexture,
-  renderPassSynthesizeGlare.getFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture,
-  sampler
+const renderPassGamma = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  materialGamma,
+  renderPassSynthesizeGlare.getFramebuffer().colorAttachments[0] as Rn.RenderTargetTexture
 );
-
-const renderPassGamma = createRenderPassPostEffect(materialGamma, cameraComponentPostEffect);
 
 // prepare expressions
 const expressionDetectHighLuminance = createExpression([renderPassLDR, renderPassHighLuminance]);

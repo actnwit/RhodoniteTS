@@ -13,7 +13,8 @@ import { IVector4 } from '../math/IVector';
 import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import { RenderBufferTargetEnum } from '../definitions';
+import { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 
 /**
@@ -46,8 +47,9 @@ export class RenderPass extends RnObject {
    * If this value is greater than 1, buffer-less rendering is performed with the specified number of vertices.
    * In this case, registered Entities are ignored and they are not rendered.
    */
-  public _drawVertexNumberWithoutEntities = 0;
-  public _dummyPrimitive: Primitive = new Primitive();
+  public _drawVertexNumberForBufferLessRendering = 0;
+  public _primitiveModeForBufferLessRendering = PrimitiveMode.Triangles;
+  public _dummyPrimitiveForBufferLessRendering: Primitive = new Primitive();
 
   // VR
   public isVrRendering = true;
@@ -88,11 +90,30 @@ export class RenderPass extends RnObject {
    * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
    * This is useful for e.g. full-screen drawing.
    * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+   * @param primitiveMode The primitive mode to be used in buffer-less rendering.
    * @param drawVertexNumberWithoutEntities The number of vertices to be rendered in buffer-less rendering.
    * @param material The material to be used in buffer-less rendering.
    */
-  setBufferLessRendering(drawVertexNumberWithoutEntities: number, material: Material) {
-    this._drawVertexNumberWithoutEntities = drawVertexNumberWithoutEntities;
+  setBufferLessRendering(
+    primitiveMode: PrimitiveModeEnum,
+    drawVertexNumberWithoutEntities: number,
+    material: Material
+  ) {
+    this._primitiveModeForBufferLessRendering = primitiveMode;
+    this._drawVertexNumberForBufferLessRendering = drawVertexNumberWithoutEntities;
+    this.__material = material;
+  }
+
+  /**
+   * @brief Set this render pass to buffer-less rendering mode.
+   * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+   * This is useful for e.g. full-screen drawing.
+   * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+   * @param material The material to be used in buffer-less rendering.
+   */
+  setBufferLessFullScreenRendering(material: Material) {
+    this._primitiveModeForBufferLessRendering = PrimitiveMode.Triangles;
+    this._drawVertexNumberForBufferLessRendering = 3;
     this.__material = material;
   }
 

@@ -55,19 +55,14 @@ mainExpression.renderPasses[0].toClearColorBuffer = true;
 mainExpression.renderPasses[0].toClearDepthBuffer = true;
 mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 0]);
 
-const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial({
-  noUseCameraTransform: true,
-});
+const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
 gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Translucent;
+
 const gammaCorrectionRenderPass =
-  Rn.RenderPassHelper.createScreenDrawRenderPass(gammaCorrectionMaterial);
-
-setTextureParameterForMeshComponents(
-  gammaCorrectionRenderPass.meshComponents,
-  Rn.ShaderSemantics.BaseColorTexture,
-  gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
-);
-
+  Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+    gammaCorrectionMaterial,
+    gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
+  );
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // cameraController

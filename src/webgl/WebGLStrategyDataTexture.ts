@@ -705,7 +705,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
-    if (renderPass._drawVertexNumberWithoutEntities > 0) {
+    if (renderPass._drawVertexNumberForBufferLessRendering > 0) {
       this.__renderWithoutBuffers(gl, renderPass);
       return true;
     }
@@ -771,7 +771,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass) {
     // setup shader program
     const material: Material = renderPass.material!;
-    const primitive: Primitive = renderPass._dummyPrimitive;
+    const primitive: Primitive = renderPass._dummyPrimitiveForBufferLessRendering;
     setupShaderProgram(material, primitive, this);
 
     const shaderProgramUid = material.getShaderProgramUid(primitive);
@@ -779,19 +779,26 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       shaderProgramUid
     )! as WebGLProgram;
     gl.useProgram(shaderProgram);
+    this.__lastShader = shaderProgramUid;
 
     // Bind DataTexture
     this.bindDataTexture(gl, shaderProgram);
 
-    this.__setCurrentComponentSIDsForEachPrimitive(
-      gl,
-      material,
-      WebGLStrategyDataTexture.__shaderProgram
-    );
+    this.__setCurrentComponentSIDsForEachPrimitive(gl, material, shaderProgram);
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
-    gl.drawArrays(GL_TRIANGLES, 0, renderPass._drawVertexNumberWithoutEntities);
+    material._setParametersToGpuWebGLWithOutCustomSetting({
+      shaderProgram,
+      firstTime: true,
+      isUniformMode: false,
+    });
+
+    gl.drawArrays(
+      renderPass._primitiveModeForBufferLessRendering.index,
+      0,
+      renderPass._drawVertexNumberForBufferLessRendering
+    );
   }
 
   renderInner(

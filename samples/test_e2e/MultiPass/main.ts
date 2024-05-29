@@ -18,22 +18,24 @@ renderPass1.cameraComponent = cameraComponent;
 const renderPass2 = new Rn.RenderPass();
 renderPass2.toClearColorBuffer = true;
 renderPass2.cameraComponent = cameraComponent;
-const renderPass_fxaa = new Rn.RenderPass();
-renderPass_fxaa.toClearColorBuffer = true;
-const cameraEntity_fxaa = Rn.EntityHelper.createCameraEntity();
-const cameraComponent_fxaa = cameraEntity_fxaa.getCamera();
-cameraEntity_fxaa.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 1.0]);
-cameraComponent_fxaa.type = Rn.CameraType.Orthographic;
-renderPass_fxaa.cameraComponent = cameraComponent_fxaa;
-
-// expression.addRenderPasses([renderPass1]);
-expression.addRenderPasses([renderPass1, renderPass2, renderPass_fxaa]);
 
 const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
 renderPass1.setFramebuffer(framebuffer);
-
 const framebuffer_fxaatarget = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
 renderPass2.setFramebuffer(framebuffer_fxaatarget);
+
+const primitive_fxaa_material = Rn.MaterialHelper.createFXAA3QualityMaterial();
+primitive_fxaa_material.setParameter(
+  Rn.ShaderSemantics.ScreenInfo,
+  Rn.Vector2.fromCopyArray2([600, 600])
+);
+const renderPass_fxaa = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  primitive_fxaa_material,
+  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0)
+);
+
+// expression.addRenderPasses([renderPass1]);
+expression.addRenderPasses([renderPass1, renderPass2, renderPass_fxaa]);
 
 const primitive = new Rn.Plane();
 primitive.generate({
@@ -101,63 +103,8 @@ meshComponent2.setMesh(mesh2);
 entity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 3, 0, 0]);
 entity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
-const primitive_fxaa = new Rn.Plane();
-primitive_fxaa.generate({
-  width: 2,
-  height: 2,
-  uSpan: 1,
-  vSpan: 1,
-  isUVRepeat: false,
-});
-primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
-const sampler2 = new Rn.Sampler({
-  magFilter: Rn.TextureParameter.Linear,
-  minFilter: Rn.TextureParameter.Linear,
-  wrapS: Rn.TextureParameter.Repeat,
-  wrapT: Rn.TextureParameter.Repeat,
-});
-primitive_fxaa.material.setTextureParameter(
-  Rn.ShaderSemantics.BaseColorTexture,
-  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0),
-  sampler2
-);
-primitive_fxaa.material.setParameter(
-  Rn.ShaderSemantics.ScreenInfo,
-  Rn.Vector2.fromCopyArray2([600, 600])
-);
-primitive_fxaa.generate({
-  width: 2,
-  height: 2,
-  uSpan: 1,
-  vSpan: 1,
-  isUVRepeat: false,
-});
-primitive_fxaa.material = Rn.MaterialHelper.createFXAA3QualityMaterial();
-const sampler3 = new Rn.Sampler({
-  magFilter: Rn.TextureParameter.Linear,
-  minFilter: Rn.TextureParameter.Linear,
-  wrapS: Rn.TextureParameter.Repeat,
-  wrapT: Rn.TextureParameter.Repeat,
-});
-primitive_fxaa.material.setTextureParameter(
-  Rn.ShaderSemantics.BaseColorTexture,
-  framebuffer_fxaatarget.getColorAttachedRenderTargetTexture(0),
-  sampler3
-);
-primitive_fxaa.material.setParameter(
-  Rn.ShaderSemantics.ScreenInfo,
-  Rn.Vector2.fromCopyArray2([600, 600])
-);
-const meshComponent_fxaa = entity_fxaa.getMesh();
-const mesh_fxaa = new Rn.Mesh();
-mesh_fxaa.addPrimitive(primitive_fxaa);
-meshComponent_fxaa.setMesh(mesh_fxaa);
-entity_fxaa.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
-entity_fxaa.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
-
 renderPass1.addEntities([entity]);
 renderPass2.addEntities([entity2]);
-renderPass_fxaa.addEntities([entity_fxaa]);
 // renderPass.addEntities([]);
 
 const startTime = Date.now();
