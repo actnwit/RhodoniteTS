@@ -42,7 +42,6 @@ export class RenderPass extends RnObject {
   public cameraComponent?: CameraComponent;
   private __material?: Material;
   private __primitiveMaterial: Map<Primitive, Material> = new Map();
-  private __webglRenderingStrategy?: WebGLStrategy;
   public isVrRendering = true;
   public isOutputForVr = false;
 
@@ -96,7 +95,6 @@ export class RenderPass extends RnObject {
     renderPass.cameraComponent = this.cameraComponent;
     renderPass.__material = this.__material;
     renderPass.__primitiveMaterial = new Map(this.__primitiveMaterial);
-    renderPass.__webglRenderingStrategy = this.__webglRenderingStrategy;
     renderPass.isVrRendering = this.isVrRendering;
     renderPass.isOutputForVr = this.isOutputForVr;
     renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
@@ -372,16 +370,6 @@ export class RenderPass extends RnObject {
     }
   }
 
-  private __setupMaterial(material: Material, primitive: Primitive) {
-    if (material.isEmptyMaterial()) return;
-
-    const webglRenderingStrategy = this.__setWebglRenderingStrategyIfNotYet(
-      this.__webglRenderingStrategy
-    );
-
-    webglRenderingStrategy.setupShaderForMaterial(material, primitive);
-  }
-
   /**
    * Sets a material for the primitive on this render pass.
    * If Rhodonite draw the primitive using this render pass, Rhodonite uses this material instead of the material on the primitive.
@@ -408,23 +396,6 @@ export class RenderPass extends RnObject {
 
   get material() {
     return this.__material;
-  }
-
-  private __setWebglRenderingStrategyIfNotYet(
-    webglRenderingStrategy?: WebGLStrategy
-  ): WebGLStrategy {
-    if (webglRenderingStrategy != null) {
-      return webglRenderingStrategy;
-    }
-    const processApproach = SystemState.currentProcessApproach;
-
-    const moduleManager = ModuleManager.getInstance();
-    const moduleName = 'webgl';
-    const webglModule = moduleManager.getModule(moduleName)! as any;
-    const newWebglRenderingStrategyRef = webglModule.getRenderingStrategy(processApproach);
-    this.__webglRenderingStrategy = newWebglRenderingStrategyRef;
-
-    return newWebglRenderingStrategyRef;
   }
 
   _getMaterialOf(primitive: Primitive) {
