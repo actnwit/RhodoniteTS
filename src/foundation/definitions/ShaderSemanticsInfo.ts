@@ -6,13 +6,12 @@ import { ShaderTypeEnum } from './ShaderType';
 
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum;
-  prefix?: string;
-  arrayLength?: Count; // the array length of the array type shader variable
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
+  stage: ShaderTypeEnum;
   isInternalSetting: boolean;
   initialValue?: any; // initial value
-  stage: ShaderTypeEnum;
+  arrayLength?: Count; // the array length of the array type shader variable
   soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
   needUniformInDataTextureMode?: boolean;
   min: number;
