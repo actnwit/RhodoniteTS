@@ -1136,7 +1136,7 @@ export class ModelConverter {
     const isLighting = this.__isLighting(gltfModel, materialJson);
     let alphaMode = AlphaMode.fromGlTFString(materialJson?.alphaMode || 'OPAQUE');
     alphaMode = Is.exist(materialJson?.extensions?.KHR_materials_transmission)
-      ? AlphaMode.Blend
+      ? AlphaMode.OpaqueTransmission
       : alphaMode;
     const additionalName = '';
 
@@ -1326,7 +1326,7 @@ export class ModelConverter {
       }
     }
     if (Is.exist(materialJson?.extensions?.KHR_materials_transmission)) {
-      material.alphaMode = AlphaMode.Blend;
+      material.alphaMode = AlphaMode.OpaqueTransmission;
     }
 
     const doubleSided = materialJson?.doubleSided;
