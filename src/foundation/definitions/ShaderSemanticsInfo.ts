@@ -9,13 +9,13 @@ export type ShaderSemanticsInfo = {
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   stage: ShaderTypeEnum;
-  isInternalSetting: boolean;
+  min: number;
+  max: number;
   initialValue?: any; // initial value
+  isInternalSetting?: boolean;
   arrayLength?: Count; // the array length of the array type shader variable
   soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
   needUniformInDataTextureMode?: boolean;
-  min: number;
-  max: number;
   valueStep?: number;
   xName?: string;
   yName?: string;
