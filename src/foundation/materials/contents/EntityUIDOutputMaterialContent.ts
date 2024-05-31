@@ -5,7 +5,6 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { Vector3 } from '../../math/Vector3';
 import { ShaderType } from '../../definitions/ShaderType';
 import { Scalar } from '../../math/Scalar';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
@@ -47,7 +46,6 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
         min: 0,
@@ -59,7 +57,6 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
         min: 0,

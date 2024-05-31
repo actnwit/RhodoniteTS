@@ -6,7 +6,6 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { Count } from '../../../types/CommonTypes';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Texture } from '../../textures/Texture';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { RenderPass } from '../../renderer/RenderPass';
@@ -85,7 +84,6 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, targetTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -96,7 +94,6 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, lookupTableTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,

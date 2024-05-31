@@ -6,7 +6,6 @@ import {
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Scalar } from '../../math/Scalar';
@@ -47,7 +46,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(2),
         min: 0,
@@ -59,7 +57,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.25),
         min: 0,
@@ -94,7 +91,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(framebufferWidth),
         min: 0,
@@ -106,7 +102,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, targetTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,

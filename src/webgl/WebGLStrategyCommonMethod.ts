@@ -1,12 +1,7 @@
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
-import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
-import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { Index, IndexOf16Bytes } from '../types/CommonTypes';
-import { Mesh } from '../foundation/geometry/Mesh';
-import { Is } from '../foundation/misc/Is';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { WebGLResourceRepository } from './WebGLResourceRepository';
 import { RnXR } from '../xr/main';
@@ -16,7 +11,6 @@ import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { ShaderType } from '../foundation/definitions/ShaderType';
 import { Scalar } from '../foundation/math/Scalar';
-import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLStrategy } from './WebGLStrategy';
@@ -210,7 +204,6 @@ function getPointSpriteShaderSemanticsInfoArray() {
       min: 0,
       max: Number.MAX_VALUE,
       isInternalSetting: false,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
       semantic: ShaderSemantics.PointDistanceAttenuation,
@@ -221,7 +214,6 @@ function getPointSpriteShaderSemanticsInfoArray() {
       min: 0,
       max: 1,
       isInternalSetting: false,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
   ];
 }

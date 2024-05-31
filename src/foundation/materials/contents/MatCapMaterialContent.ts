@@ -6,7 +6,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
 import { ShaderSemanticsClass, ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Texture } from '../../textures/Texture';
 import { Vector3 } from '../../math/Vector3';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
@@ -54,7 +53,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       compositionType: CompositionType.Vec3,
       stage: ShaderType.PixelShader,
       isInternalSetting: false,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       soloDatum: false,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
       min: 0,
@@ -69,7 +67,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
         min: 0,
@@ -81,7 +78,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
         min: 0,
@@ -99,7 +95,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
       isInternalSetting: false,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [0, matCapTexture, sampler],
       min: 0,
       max: Number.MAX_SAFE_INTEGER,

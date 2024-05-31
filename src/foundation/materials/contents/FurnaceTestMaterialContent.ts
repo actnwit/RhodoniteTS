@@ -3,7 +3,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { Scalar } from '../../math/Scalar';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Vector2 } from '../../math/Vector2';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { ComponentRepository } from '../../core/ComponentRepository';
@@ -32,7 +31,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0),
         min: 0,
@@ -44,7 +42,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0),
         min: 0,
@@ -56,7 +53,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
         min: 0,
@@ -68,7 +64,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0),
         min: 0,
@@ -80,7 +75,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0),
         min: 0,
@@ -92,7 +86,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Vec2,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector2.fromCopyArray2([0, 0]),
         min: 0,
@@ -104,7 +97,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Vec2,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector2.fromCopyArray2([1, 1]),
         min: 0,
@@ -116,7 +108,6 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: [1, dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
