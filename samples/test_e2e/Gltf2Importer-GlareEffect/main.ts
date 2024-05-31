@@ -53,6 +53,7 @@ const renderPassHighLuminance = createRenderPassPostEffect(
   materialHighLuminance,
   cameraComponentPostEffect
 );
+renderPassHighLuminance.tryToSetUniqueName('renderPassHighLuminance', true);
 createAndSetFramebuffer(renderPassHighLuminance, rnCanvasElement.width, 1, {});
 
 const renderPassesBlurredHighLuminance = createRenderPassesBlurredHighLuminance(
@@ -175,6 +176,7 @@ async function createRenderPassLDR(
   entityRenderTargets: Rn.ISceneGraphEntity[]
 ) {
   const renderPass = new Rn.RenderPass();
+  renderPass.tryToSetUniqueName('renderPassLDR', true);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities(entityRenderTargets);
@@ -258,9 +260,11 @@ function createRenderPassesBlurredHighLuminance(
       // need to draw the full viewport size
       renderPassBlurH.setViewport(Rn.Vector4.fromCopyArray([0, 0, resolutionBlur, resolutionBlur]));
     }
+    renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
     renderPassBlurH.cameraComponent = cameraComponentPostEffect;
 
     const renderPassBlurHV = createRenderPassGaussianBlur(renderPassBlurH, false, resolutionBlur);
+    renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
     renderPassBlurHV.cameraComponent = cameraComponentPostEffect;
 
     renderPasses.push(renderPassBlurH, renderPassBlurHV);
@@ -311,6 +315,7 @@ function createRenderPassesSynthesizeImages(
     materialSynthesizeTextures,
     cameraComponentPostEffect
   );
+  renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
   createAndSetFramebuffer(renderPassSynthesizeGlare, rnCanvasElement.width, 1, {});
 
   return [renderPassGlareTarget, renderPassSynthesizeGlare];
