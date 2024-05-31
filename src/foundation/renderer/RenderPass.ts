@@ -68,10 +68,10 @@ export class RenderPass extends RnObject {
   public _isChangedSortRenderResult = false;
 
   /** Whether or not to draw opaque primitives contained in this render pass. */
-  public toRenderOpaquePrimitives = true;
+  public _toRenderOpaquePrimitives = true;
 
   /** Whether or not to draw transparent primitives contained in this render pass. */
-  public toRenderTransparentPrimitives = true;
+  public _toRenderTransparentPrimitives = true;
 
   public toRenderEffekseerEffects = false;
   public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
@@ -83,6 +83,16 @@ export class RenderPass extends RnObject {
   constructor() {
     super();
     this.__renderPassUID = ++RenderPass.__mesh_uid_count;
+  }
+
+  setToRenderOpaquePrimitives(toRender: boolean) {
+    this._toRenderOpaquePrimitives = toRender;
+    this.__calcMeshComponents();
+  }
+
+  setToRenderTransparentPrimitives(toRender: boolean) {
+    this._toRenderTransparentPrimitives = toRender;
+    this.__calcMeshComponents();
   }
 
   isBufferLessRenderingMode() {
@@ -143,8 +153,8 @@ export class RenderPass extends RnObject {
     renderPass.__primitiveMaterial = new Map(this.__primitiveMaterial);
     renderPass.isVrRendering = this.isVrRendering;
     renderPass.isOutputForVr = this.isOutputForVr;
-    renderPass.toRenderOpaquePrimitives = this.toRenderOpaquePrimitives;
-    renderPass.toRenderTransparentPrimitives = this.toRenderTransparentPrimitives;
+    renderPass._toRenderOpaquePrimitives = this._toRenderOpaquePrimitives;
+    renderPass._toRenderTransparentPrimitives = this._toRenderTransparentPrimitives;
     renderPass.__postEachRenderFunc = this.__postEachRenderFunc;
     renderPass.__renderTargetColorAttachments = this.__renderTargetColorAttachments?.concat();
 
@@ -194,10 +204,14 @@ export class RenderPass extends RnObject {
       this.__entities = Array.from(map.values());
     }
 
-    this.__meshComponents = void 0;
+    this.__calcMeshComponents();
     this.__topLevelSceneGraphComponents = void 0;
-    this.__collectMeshComponents();
     this.__collectTopLevelSceneGraphComponents();
+  }
+
+  private __calcMeshComponents() {
+    this.__meshComponents = void 0;
+    this.__collectMeshComponents();
   }
 
   /**
@@ -242,7 +256,13 @@ export class RenderPass extends RnObject {
         const meshComponent = entity.getComponentByComponentTID(
           WellKnownComponentTIDs.MeshComponentTID
         ) as MeshComponent | undefined;
-        if (meshComponent) {
+        if (meshComponent != null && meshComponent.mesh != null) {
+          if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isOpaque()) {
+            return;
+          }
+          if (!this._toRenderTransparentPrimitives && meshComponent.mesh.isAllBlend()) {
+            return;
+          }
           this.__meshComponents!.push(meshComponent);
         }
       });

@@ -9,7 +9,6 @@ import { Expression } from '../Expression';
 import { Frame } from '../Frame';
 import { FrameBuffer } from '../FrameBuffer';
 import { RenderPass } from '../RenderPass';
-import { IMeshEntity } from '../../helpers/EntityHelper';
 import { MaterialHelper } from '../../helpers/MaterialHelper';
 import { Size } from '../../../types';
 import { Err, Ok } from '../../misc/Result';
@@ -23,7 +22,7 @@ import {
   ProcessApproach,
   ProcessApproachClass,
 } from '../../definitions';
-import { MeshHelper, RenderPassHelper } from '../../helpers';
+import { ISceneGraphEntity, MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
 import { Vector3 } from '../../math/Vector3';
@@ -200,12 +199,13 @@ export class ForwardRenderPipeline extends RnObject {
       isTransmission: true,
     }
   ) {
-    this.__setExpressionsInner(expressions, {
+    const expressionsOpaque = expressions.map((expression) => expression.clone());
+    const expressionsTranslucent = expressions.map((expression) => expression.clone());
+    this.__setExpressionsInner(expressionsOpaque, {
       isTransmission: options.isTransmission,
     });
-    const clonedExpressions = expressions.map((expression) => expression.clone());
     if (options.isTransmission) {
-      this.__setTransparentExpressionsForTransmission(clonedExpressions);
+      this.__setTransparentExpressionsForTransmission(expressionsTranslucent);
     }
 
     if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
@@ -235,7 +235,7 @@ export class ForwardRenderPipeline extends RnObject {
         renderPass.toClearColorBuffer = true;
         renderPass.toClearDepthBuffer = true;
         // No need to render transparent primitives to depth buffer.
-        renderPass.toRenderTransparentPrimitives = false;
+        renderPass.setToRenderTransparentPrimitives(false);
 
         renderPass.setMaterial(depthMomentMaterial);
       }
@@ -518,15 +518,15 @@ export class ForwardRenderPipeline extends RnObject {
   ) {
     for (const expression of expressions) {
       for (const rp of expression.renderPasses) {
-        rp.toRenderOpaquePrimitives = true;
+        rp.setToRenderOpaquePrimitives(true);
         if (options.isTransmission) {
           // if options.isTransmission is true, set toRenderTransparentPrimitives to false,
           // because transparent primitives are rendered in later expression.
-          rp.toRenderTransparentPrimitives = false;
+          rp.setToRenderTransparentPrimitives(false);
         } else {
           // if options.isTransmission is false, set toRenderTransparentPrimitives to true.
           // because transparent primitives are rendered in this expression as well as opaque primitives.
-          rp.toRenderTransparentPrimitives = true;
+          rp.setToRenderTransparentPrimitives(true);
         }
 
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
@@ -546,8 +546,8 @@ export class ForwardRenderPipeline extends RnObject {
     for (const expression of expressions) {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
-        rp.toRenderOpaquePrimitives = false; // not to render opaque primitives in transmission expression.
-        rp.toRenderTransparentPrimitives = true;
+        rp.setToRenderOpaquePrimitives(false); // not to render opaque primitives in transmission expression.
+        rp.setToRenderTransparentPrimitives(true);
         rp.toClearDepthBuffer = false;
         if (!this.__isSimple) {
           rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());

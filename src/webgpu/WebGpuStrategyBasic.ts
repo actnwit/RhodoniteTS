@@ -403,7 +403,7 @@ ${indexStr}
 
     let renderedSomething = false;
     // For opaque primitives
-    if (renderPass.toRenderOpaquePrimitives) {
+    if (renderPass._toRenderOpaquePrimitives) {
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, renderPassTickCount);
@@ -412,7 +412,7 @@ ${indexStr}
     }
 
     // For translucent primitives
-    if (renderPass.toRenderTransparentPrimitives) {
+    if (renderPass._toRenderTransparentPrimitives) {
       if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
         // disable depth write for transparent primitives
         // gl.depthMask(false);
