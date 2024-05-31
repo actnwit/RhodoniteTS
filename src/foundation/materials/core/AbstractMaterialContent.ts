@@ -565,7 +565,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,
@@ -577,7 +577,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     args: RenderingArgWebGL;
   }) {}
 
-  _setCustomSettingParametersToGpuWebGpu({
+  _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
   }: {

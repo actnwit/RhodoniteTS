@@ -157,7 +157,6 @@ export class ShaderityUtilityWebGPU {
     }
 
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
-    const none_u_prefix = true;
 
     let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
     if (semantic == null) {
@@ -175,9 +174,8 @@ export class ShaderityUtilityWebGPU {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: false,
+      isInternalSetting: false,
       stage,
-      none_u_prefix,
     };
 
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
@@ -206,8 +204,6 @@ export class ShaderityUtilityWebGPU {
     const compositionType = CompositionType.fromWgslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
-    const none_u_prefix = true;
-
     let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
     if (semantic == null) {
       const semanticInfo = existingShaderInfoMap?.get(variableName);
@@ -224,9 +220,8 @@ export class ShaderityUtilityWebGPU {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: false,
+      isInternalSetting: false,
       stage,
-      none_u_prefix,
     };
 
     this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);
@@ -245,12 +240,12 @@ export class ShaderityUtilityWebGPU {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let isCustomSettingFlg = false;
-    if (isCustomSetting?.[1] === 'true') {
-      isCustomSettingFlg = true;
+    const isInternalSetting = info.match(/isInternalSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    let isInternalSettingFlg = false;
+    if (isInternalSetting?.[1] === 'true') {
+      isInternalSettingFlg = true;
     }
-    shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
+    shaderSemanticsInfo.isInternalSetting = isInternalSettingFlg;
 
     const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;

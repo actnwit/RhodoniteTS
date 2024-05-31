@@ -40,7 +40,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: true,
+        isInternalSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.1),
@@ -52,7 +52,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: true,
+        isInternalSetting: true,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(10000.0),
@@ -64,7 +64,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
@@ -76,7 +76,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(depthPow),
@@ -88,7 +88,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -100,7 +100,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -116,7 +116,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

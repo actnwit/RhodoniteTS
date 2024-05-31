@@ -53,7 +53,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       componentType: ComponentType.Float,
       compositionType: CompositionType.Vec3,
       stage: ShaderType.PixelShader,
-      isCustomSetting: false,
+      isInternalSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       soloDatum: false,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
@@ -68,7 +68,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -80,7 +80,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -98,7 +98,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      isCustomSetting: false,
+      isInternalSetting: false,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: [0, matCapTexture, sampler],
       min: 0,
@@ -108,7 +108,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

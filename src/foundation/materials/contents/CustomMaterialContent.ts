@@ -124,7 +124,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
 
-  _setCustomSettingParametersToGpuWebGpu({
+  _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
   }: {
@@ -153,27 +153,19 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       const iblParameterVec4 = MutableVector4.zero();
       const hdriFormatVec2 = MutableVector2.zero();
 
-      iblParameterVec4.x =
-        meshRendererComponent.specularCubeMap.mipmapLevelNumber;
-      iblParameterVec4.y =
-        meshRendererComponent.diffuseCubeMapContribution;
-      iblParameterVec4.z =
-        meshRendererComponent.specularCubeMapContribution;
+      iblParameterVec4.x = meshRendererComponent.specularCubeMap.mipmapLevelNumber;
+      iblParameterVec4.y = meshRendererComponent.diffuseCubeMapContribution;
+      iblParameterVec4.z = meshRendererComponent.specularCubeMapContribution;
       iblParameterVec4.w = meshRendererComponent.rotationOfCubeMap;
-      material.setParameter(
-        ShaderSemantics.IBLParameter,
-        iblParameterVec4
-      );
+      material.setParameter(ShaderSemantics.IBLParameter, iblParameterVec4);
 
-      hdriFormatVec2.x =
-        meshRendererComponent.diffuseCubeMap.hdriFormat.index;
-      hdriFormatVec2.y =
-        meshRendererComponent.specularCubeMap.hdriFormat.index;
+      hdriFormatVec2.x = meshRendererComponent.diffuseCubeMap.hdriFormat.index;
+      hdriFormatVec2.y = meshRendererComponent.specularCubeMap.hdriFormat.index;
       material.setParameter(ShaderSemantics.HDRIFormat, hdriFormatVec2);
     }
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

@@ -58,7 +58,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: 0,
       max: 1,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
@@ -68,7 +68,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
@@ -78,7 +78,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
@@ -88,7 +88,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
   ];
@@ -434,7 +434,7 @@ bool get_isBillboard(float instanceId) {
     this.bindDataTexture(gl, shaderProgram);
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-    material._setParametersToGpuWebGLWithOutCustomSetting({
+    material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
       firstTime: true,
       isUniformMode: true,

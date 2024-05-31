@@ -61,7 +61,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexAndPixelShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       needUniformInDataTextureMode: true,
       initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber)),
     };
@@ -76,7 +76,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexAndPixelShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       initialValue: MutableMatrix44.identity(),
     };
     const projectionMatrixInfo = {
@@ -86,7 +86,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexAndPixelShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       initialValue: MutableMatrix44.identity(),
     };
     const viewPositionInfo = {
@@ -96,7 +96,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexAndPixelShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
     };
@@ -117,7 +117,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       soloDatum: true,
       initialValue: new VectorN(new Float32Array(0)),
@@ -130,7 +130,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       soloDatum: true,
       initialValue: new VectorN(new Float32Array(0)),
@@ -144,7 +144,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
@@ -156,7 +156,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       soloDatum: true,
       initialValue: new VectorN(new Float32Array(0)),
@@ -170,7 +170,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
@@ -183,7 +183,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
@@ -195,7 +195,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Vector4.zero(),
     };
@@ -206,7 +206,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexAndPixelShader,
       min: 0,
       max: 1,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Scalar.fromCopyNumber(-1),
     };
@@ -236,7 +236,7 @@ export class GlobalDataRepository {
       arrayLength: Config.maxLightNumberInShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
     };
@@ -248,7 +248,7 @@ export class GlobalDataRepository {
       arrayLength: Config.maxLightNumberInShader,
       min: -1,
       max: 1,
-      isCustomSetting: true,
+      isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
@@ -260,7 +260,7 @@ export class GlobalDataRepository {
       arrayLength: Config.maxLightNumberInShader,
       min: 0,
       max: 10,
-      isCustomSetting: true,
+      isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
@@ -272,7 +272,7 @@ export class GlobalDataRepository {
       arrayLength: Config.maxLightNumberInShader,
       min: 0,
       max: 10,
-      isCustomSetting: true,
+      isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
@@ -292,7 +292,7 @@ export class GlobalDataRepository {
       stage: ShaderType.VertexAndPixelShader,
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
-      isCustomSetting: true,
+      isInternalSetting: true,
       updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Scalar.fromCopyNumber(0),
     };
@@ -306,7 +306,7 @@ export class GlobalDataRepository {
       stage: ShaderType.PixelShader,
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
-      isCustomSetting: true,
+      isInternalSetting: true,
       needUniformInDataTextureMode: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),
@@ -321,7 +321,7 @@ export class GlobalDataRepository {
       stage: ShaderType.PixelShader,
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
-      isCustomSetting: true,
+      isInternalSetting: true,
       needUniformInDataTextureMode: true,
       updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),

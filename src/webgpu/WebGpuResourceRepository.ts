@@ -884,7 +884,7 @@ export class WebGpuResourceRepository
       const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
       const meshRendererComponent = entity.getMeshRenderer()!;
 
-      material._setCustomSettingParametersToGpuWebGpu({
+      material._setInternalSettingParametersToGpuWebGpu({
         material: material,
         args: {
           cameraComponentSid: cameraId,
@@ -1163,7 +1163,7 @@ export class WebGpuResourceRepository
     renderPass: RenderPass,
     cameraId: number,
     diffuseCubeMap?: CubeTexture,
-    specularCubeMap?: CubeTexture,
+    specularCubeMap?: CubeTexture
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
@@ -1272,10 +1272,9 @@ export class WebGpuResourceRepository
       }
     }
 
-    const mode =
-      renderPass.isBufferLessRenderingMode()
-        ? renderPass._primitiveModeForBufferLessRendering
-        : primitive.primitiveMode;
+    const mode = renderPass.isBufferLessRenderingMode()
+      ? renderPass._primitiveModeForBufferLessRendering
+      : primitive.primitiveMode;
     const topology = mode.getWebGPUTypeStr();
     let stripIndexFormat = undefined;
     if (topology === 'triangle-strip' || topology === 'line-strip') {
@@ -1754,7 +1753,7 @@ export class WebGpuResourceRepository
     renderPipelineId: string,
     material: Material,
     diffuseCubeMap?: CubeTexture,
-    specularCubeMap?: CubeTexture,
+    specularCubeMap?: CubeTexture
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
@@ -1927,9 +1926,7 @@ export class WebGpuResourceRepository
 
       // Diffuse IBL
       const diffuseCubeTextureView = this.__webGpuResources.get(
-        Is.exist(diffuseCubeMap)
-          ? diffuseCubeMap._textureViewResourceUid
-          : -1
+        Is.exist(diffuseCubeMap) ? diffuseCubeMap._textureViewResourceUid : -1
       ) as GPUTextureView | undefined;
       if (Is.exist(diffuseCubeTextureView)) {
         entriesForTexture.push({
@@ -1953,9 +1950,7 @@ export class WebGpuResourceRepository
         visibility: GPUShaderStage.FRAGMENT,
       });
       const diffuseCubeSampler = this.__webGpuResources.get(
-        Is.exist(diffuseCubeMap)
-          ? diffuseCubeMap._samplerResourceUid
-          : -1
+        Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1
       ) as GPUSampler | undefined;
       if (Is.exist(diffuseCubeSampler)) {
         entriesForSampler.push({
@@ -1981,9 +1976,7 @@ export class WebGpuResourceRepository
 
       // Specular IBL
       const specularCubeTextureView = this.__webGpuResources.get(
-        Is.exist(specularCubeMap)
-          ? specularCubeMap._textureViewResourceUid
-          : -1
+        Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1
       ) as GPUTextureView | undefined;
 
       if (Is.exist(specularCubeTextureView)) {
@@ -2008,9 +2001,7 @@ export class WebGpuResourceRepository
         visibility: GPUShaderStage.FRAGMENT,
       });
       const specularCubeSampler = this.__webGpuResources.get(
-        Is.exist(specularCubeMap)
-          ? specularCubeMap._samplerResourceUid
-          : -1
+        Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
       ) as GPUSampler | undefined;
       if (Is.exist(specularCubeSampler)) {
         entriesForSampler.push({

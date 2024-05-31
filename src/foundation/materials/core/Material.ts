@@ -146,7 +146,7 @@ export class Material extends RnObject {
           info: array.info,
         };
         this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
-        if (!array.info.isCustomSetting) {
+        if (!array.info.isInternalSetting) {
           this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
         }
         if (
@@ -193,7 +193,7 @@ export class Material extends RnObject {
           info: array.info,
         };
         this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
-        if (!array.info.isCustomSetting) {
+        if (!array.info.isInternalSetting) {
           this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
         }
         if (
@@ -380,14 +380,14 @@ export class Material extends RnObject {
     );
   }
 
-  _setCustomSettingParametersToGpuWebGpu({
+  _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
   }: {
     material: Material;
     args: RenderingArgWebGpu;
   }) {
-    this._materialContent._setCustomSettingParametersToGpuWebGpu({
+    this._materialContent._setInternalSettingParametersToGpuWebGpu({
       material,
       args,
     });
@@ -412,7 +412,7 @@ export class Material extends RnObject {
     this.__setAutoParametersToGpuWebGL(args.setUniform, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    this._materialContent._setCustomSettingParametersToGpuWebGL({
+    this._materialContent._setInternalSettingParametersToGpuWebGL({
       material,
       shaderProgram,
       firstTime,
@@ -427,7 +427,7 @@ export class Material extends RnObject {
     });
   }
 
-  _setParametersToGpuWebGLWithOutCustomSetting({
+  _setParametersToGpuWebGLWithOutInternalSetting({
     shaderProgram,
     firstTime,
     isUniformMode,
@@ -557,7 +557,7 @@ export class Material extends RnObject {
     for (const value of values) {
       const info = value.info;
       if (isUniformMode || CompositionType.isTexture(info.compositionType)) {
-        if (!info.isCustomSetting) {
+        if (!info.isInternalSetting) {
           if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
             webglResourceRepository.setUniformValue(
               shaderProgram,
@@ -571,20 +571,6 @@ export class Material extends RnObject {
         }
       }
     }
-  }
-
-  private __getTargetShaderSemantics(uniformName: string) {
-    const targetFieldsInfo = this.fieldsInfoArray.find((fieldsInfo) => {
-      const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
-      return prefix + fieldsInfo.semantic.str === uniformName;
-    });
-
-    if (targetFieldsInfo == null) {
-      console.error(`Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`);
-      return;
-    }
-
-    return targetFieldsInfo.semantic;
   }
 
   /**

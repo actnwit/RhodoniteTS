@@ -217,7 +217,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._Cutoff),
@@ -229,7 +229,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray(this.__vectorProperties._Color as Array4<number>),
@@ -241,7 +241,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray(this.__vectorProperties._ShadeColor),
@@ -253,7 +253,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._BumpScale),
@@ -265,7 +265,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._ReceiveShadowRate),
@@ -277,7 +277,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._ShadingGradeRate),
@@ -289,7 +289,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._ShadeShift),
@@ -301,7 +301,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._ShadeToony),
@@ -313,7 +313,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._LightColorAttenuation),
@@ -325,7 +325,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray([0.5785, 0.5785, 0.5785]),
@@ -334,7 +334,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       },
       // {
       //   semantic: MToonMaterialContent._IndirectLightIntensity, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._IndirectLightIntensity), min: 0, max: 1
       // },
       {
@@ -342,7 +342,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray(this.__vectorProperties._RimColor as Array3<number>),
@@ -354,7 +354,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimLightingMix),
@@ -366,7 +366,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimFresnelPower),
@@ -378,7 +378,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(this.__floatProperties._RimLift),
@@ -390,7 +390,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isCustomSetting: true,
+        isInternalSetting: true,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0, 1, 0]),
         min: 0,
@@ -401,7 +401,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray(
@@ -412,17 +412,17 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       },
       // {
       //   semantic: MToonMaterialContent._UvAnimScrollX, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimScrollX), min: 0, max: 1
       // },
       // {
       //   semantic: MToonMaterialContent._UvAnimScrollY, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue:  Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimScrollY), min: 0, max: 1
       // },
       // {
       //   semantic: MToonMaterialContent._UvAnimRotation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
+      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimRotation), min: 0, max: 1
       // },
 
@@ -431,7 +431,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray([0, 0, 1]),
@@ -445,7 +445,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         stage: ShaderType.PixelShader,
         min: 0,
         max: 1,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         initialValue: Scalar.fromCopyNumber(makeOutputSrgb ? 1 : 0),
       }
@@ -494,7 +494,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          isCustomSetting: false,
+          isInternalSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
           initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineWidth),
@@ -506,7 +506,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          isCustomSetting: false,
+          isInternalSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
           initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineScaledMaxDistance),
@@ -518,7 +518,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader,
-          isCustomSetting: false,
+          isInternalSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
           initialValue: Vector3.fromCopyArray(
@@ -532,7 +532,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.PixelShader,
-          isCustomSetting: false,
+          isInternalSetting: false,
           updateInterval: ShaderVariableUpdateInterval.EveryTime,
           soloDatum: false,
           initialValue: Scalar.fromCopyNumber(this.__floatProperties._OutlineLightingMix),
@@ -544,7 +544,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
-          isCustomSetting: true,
+          isInternalSetting: true,
           soloDatum: true,
           initialValue: Scalar.fromCopyNumber(1.0),
           min: 0,
@@ -571,7 +571,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           compositionType: CompositionType.ScalarArray,
           arrayLength: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isCustomSetting: true,
+          isInternalSetting: true,
           soloDatum: false,
           initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
@@ -584,7 +584,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           compositionType: CompositionType.ScalarArray,
           arrayLength: Config.maxVertexMorphNumberInShader,
           stage: ShaderType.VertexShader,
-          isCustomSetting: true,
+          isInternalSetting: true,
           soloDatum: false,
           initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
           min: -Number.MAX_VALUE,
@@ -616,7 +616,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           0,
@@ -631,7 +631,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           1,
@@ -646,7 +646,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           2,
@@ -661,7 +661,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           3,
@@ -676,7 +676,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           4,
@@ -691,7 +691,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           5,
@@ -706,7 +706,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           6,
@@ -725,7 +725,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           8,
@@ -737,7 +737,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       }
       // {
       //   semantic: MToonMaterialContent._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-      //   stage: ShaderType.PixelShader, isCustomSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
+      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
       //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
       // }
     );
@@ -753,7 +753,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [
           9,
@@ -855,7 +855,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       }
     }
   }
-  _setCustomSettingParametersToGpuWebGpu({
+  _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
   }: {
@@ -873,7 +873,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

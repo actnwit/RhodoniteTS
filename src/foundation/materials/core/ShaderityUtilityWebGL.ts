@@ -170,12 +170,8 @@ export class ShaderityUtilityWebGL {
     const compositionType = CompositionType.fromGlslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
-    let none_u_prefix = true;
     const u_prefixedName = variableName.match(/u_(\w+)/);
-    if (u_prefixedName) {
-      variableName = u_prefixedName[1];
-      none_u_prefix = false;
-    }
+    variableName = u_prefixedName![1];
 
     let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
     if (semantic == null) {
@@ -193,9 +189,8 @@ export class ShaderityUtilityWebGL {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: false,
+      isInternalSetting: false,
       stage,
-      none_u_prefix,
     };
 
     this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);
@@ -214,12 +209,12 @@ export class ShaderityUtilityWebGL {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let isCustomSettingFlg = false;
-    if (isCustomSetting?.[1] === 'true') {
-      isCustomSettingFlg = true;
+    const isInternalSetting = info.match(/isInternalSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    let isInternalSettingFlg = false;
+    if (isInternalSetting?.[1] === 'true') {
+      isInternalSettingFlg = true;
     }
-    shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
+    shaderSemanticsInfo.isInternalSetting = isInternalSettingFlg;
 
     const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;

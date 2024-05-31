@@ -170,7 +170,7 @@ export class MaterialRepository {
             ),
           };
           material._allFieldVariables.set(propertyIndex, shaderVariable);
-          if (!semanticsInfo.isCustomSetting) {
+          if (!semanticsInfo.isInternalSetting) {
             material._autoFieldVariablesOnly.set(propertyIndex, shaderVariable);
           }
         }

@@ -11,22 +11,19 @@ export type ShaderSemanticsInfo = {
   arrayLength?: Count; // the array length of the array type shader variable
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
-  min: number;
-  max: number;
-  valueStep?: number;
-  isCustomSetting: boolean;
+  isInternalSetting: boolean;
   initialValue?: any; // initial value
   updateInterval?: ShaderVariableUpdateIntervalEnum;
   stage: ShaderTypeEnum;
+  soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
+  needUniformInDataTextureMode?: boolean;
+  min: number;
+  max: number;
+  valueStep?: number;
   xName?: string;
   yName?: string;
   zName?: string;
   wName?: string;
-  soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
-  isComponentData?: boolean;
-  noControlUi?: boolean;
-  needUniformInDataTextureMode?: boolean;
-  none_u_prefix?: boolean;
 };
 
 export function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
