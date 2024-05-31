@@ -26,10 +26,6 @@ const config = merge(baseConfig, {
   experiments: {
     outputModule: true,
   },
-  optimization: {
-    usedExports: true,
-    minimize: true,
-  },
 });
 
 module.exports = config;
