@@ -2,7 +2,7 @@ const float Epsilon = 0.0000001;
 #define saturateEpsilonToOne(x) clamp(x, Epsilon, 1.0)
 
 #ifdef RN_IS_MORPHING
-uniform int u_morphTargetNumber; // initialValue=0, isCustomSetting=true, soloDatum=false, needUniformInDataTextureMode=true
+uniform int u_morphTargetNumber; // initialValue=0, isInternalSetting=true, soloDatum=false, needUniformInDataTextureMode=true
 // uniform int u_dataTextureMorphOffsetPosition[];
 // uniform int u_morphWeights[]; //
 #endif

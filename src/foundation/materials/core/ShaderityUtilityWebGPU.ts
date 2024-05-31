@@ -240,12 +240,12 @@ export class ShaderityUtilityWebGPU {
     }
     shaderSemanticsInfo.soloDatum = isSoloDatumFlg;
 
-    const isCustomSetting = info.match(/isCustomSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let isCustomSettingFlg = false;
-    if (isCustomSetting?.[1] === 'true') {
-      isCustomSettingFlg = true;
+    const isInternalSetting = info.match(/isInternalSetting[\t ]*=[\t ]*(\w+)[,\t ]*/);
+    let isInternalSettingFlg = false;
+    if (isInternalSetting?.[1] === 'true') {
+      isInternalSettingFlg = true;
     }
-    shaderSemanticsInfo.isInternalSetting = isCustomSettingFlg;
+    shaderSemanticsInfo.isInternalSetting = isInternalSettingFlg;
 
     const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;

@@ -380,7 +380,7 @@ export class Material extends RnObject {
     );
   }
 
-  _setCustomSettingParametersToGpuWebGpu({
+  _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
   }: {
@@ -427,7 +427,7 @@ export class Material extends RnObject {
     });
   }
 
-  _setParametersToGpuWebGLWithOutCustomSetting({
+  _setParametersToGpuWebGLWithOutInternalSetting({
     shaderProgram,
     firstTime,
     isUniformMode,

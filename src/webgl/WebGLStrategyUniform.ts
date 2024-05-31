@@ -434,7 +434,7 @@ bool get_isBillboard(float instanceId) {
     this.bindDataTexture(gl, shaderProgram);
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-    material._setParametersToGpuWebGLWithOutCustomSetting({
+    material._setParametersToGpuWebGLWithOutInternalSetting({
       shaderProgram,
       firstTime: true,
       isUniformMode: true,
