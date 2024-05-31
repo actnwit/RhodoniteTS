@@ -35,13 +35,11 @@ void main() {
   expect(array.shaderSemanticsInfoArray[0].componentType).toBe(Rn.ComponentType.Float);
   expect(array.shaderSemanticsInfoArray[0].compositionType).toBe(Rn.CompositionType.Scalar);
   expect(array.shaderSemanticsInfoArray[0].soloDatum).toBe(false);
-  expect(array.shaderSemanticsInfoArray[0].none_u_prefix).toBe(false);
   expect(array.shaderSemanticsInfoArray[1].semantic.str).toBe('shadingModel');
   expect(array.shaderSemanticsInfoArray[1].soloDatum).toBe(false);
   expect(
     array.shaderSemanticsInfoArray[1].initialValue.isStrictEqual(Rn.MutableScalar.zero())
   ).toBe(true);
-  expect(array.shaderSemanticsInfoArray[1].none_u_prefix).toBe(true);
   expect(array.shaderSemanticsInfoArray[2].semantic.str).toBe('screenInfo');
   expect(array.shaderSemanticsInfoArray[2].soloDatum).toBe(true);
   expect(
@@ -49,7 +47,6 @@ void main() {
       Rn.MutableVector2.fromCopyArray2([100, 100])
     )
   ).toBe(true);
-  expect(array.shaderSemanticsInfoArray[2].none_u_prefix).toBe(false);
   expect(array.shaderSemanticsInfoArray[3].semantic.str).toBe('diffuseColorTexture');
   expect(array.shaderSemanticsInfoArray[3].compositionType).toBe(Rn.CompositionType.Texture2D);
   expect(array.shaderSemanticsInfoArray[3].initialValue[0]).toBe(7);
