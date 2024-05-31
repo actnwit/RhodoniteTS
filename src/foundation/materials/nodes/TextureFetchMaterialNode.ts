@@ -22,7 +22,6 @@ export class TextureFetchMaterialNode extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        soloDatum: false,
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

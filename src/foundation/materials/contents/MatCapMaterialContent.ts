@@ -52,7 +52,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       componentType: ComponentType.Float,
       compositionType: CompositionType.Vec3,
       stage: ShaderType.PixelShader,
-      soloDatum: false,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
       min: 0,
       max: 10,
