@@ -700,11 +700,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           break;
         case 2:
           this.__definitions += '#define RN_ALPHABLEND_ON\n';
-          material.alphaMode = AlphaMode.Translucent;
+          material.alphaMode = AlphaMode.Blend;
           break;
         case 3:
           this.__definitions += '#define RN_ALPHABLEND_ON\n';
-          material.alphaMode = AlphaMode.Translucent;
+          material.alphaMode = AlphaMode.Blend;
           break;
       }
 

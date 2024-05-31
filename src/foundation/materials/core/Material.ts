@@ -153,7 +153,7 @@ export class Material extends RnObject {
           shaderSemantic === ShaderSemantics.BaseColorTexture
         ) {
           if (texture.isTransparent) {
-            this.alphaMode = AlphaMode.Translucent;
+            this.alphaMode = AlphaMode.Blend;
           }
         }
         this.__stateVersion++;
@@ -200,7 +200,7 @@ export class Material extends RnObject {
           shaderSemantic === ShaderSemantics.BaseColorTexture
         ) {
           if (texture.isTransparent) {
-            this.alphaMode = AlphaMode.Translucent;
+            this.alphaMode = AlphaMode.Blend;
           }
         }
       }
@@ -627,7 +627,7 @@ export class Material extends RnObject {
   }
 
   isBlend() {
-    if (this.alphaMode === AlphaMode.Translucent || this.alphaMode === AlphaMode.Additive) {
+    if (this.alphaMode === AlphaMode.Blend) {
       return true;
     } else {
       return false;
@@ -641,7 +641,7 @@ export class Material extends RnObject {
    * @param alphaToCoverage apply alphaToCoverage to this material or not
    */
   set alphaToCoverage(alphaToCoverage: boolean) {
-    if (alphaToCoverage && this.alphaMode === AlphaMode.Translucent) {
+    if (alphaToCoverage && this.alphaMode === AlphaMode.Blend) {
       console.warn(
         'If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems.'
       );

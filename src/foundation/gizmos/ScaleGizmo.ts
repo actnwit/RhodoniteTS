@@ -283,7 +283,7 @@ export class ScaleGizmo extends Gizmo {
       ShaderSemantics.DiffuseColorFactor,
       Vector4.fromCopyArray4([0, 0.5, 0, 0])
     );
-    ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Translucent;
+    ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__zxPlaneMesh = new Mesh();
     ScaleGizmo.__zxPlanePrimitive = new Plane();
     ScaleGizmo.__zxPlanePrimitive.generate({
@@ -310,7 +310,7 @@ export class ScaleGizmo extends Gizmo {
       MathUtil.degreeToRadian(90)
     );
     ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Translucent;
+    ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__yzPlaneMaterial.setParameter(
       ShaderSemantics.DiffuseColorFactor,
       Vector4.fromCopyArray4([0.5, 0, 0, 0])
@@ -341,7 +341,7 @@ export class ScaleGizmo extends Gizmo {
       0
     );
     ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-    ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Translucent;
+    ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__xyPlaneMaterial.setParameter(
       ShaderSemantics.DiffuseColorFactor,
       Vector4.fromCopyArray4([0, 0, 0.5, 0])

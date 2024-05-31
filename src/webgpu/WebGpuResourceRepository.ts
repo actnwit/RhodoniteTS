@@ -1243,7 +1243,7 @@ export class WebGpuResourceRepository
 
     let blend: GPUBlendState | undefined;
     if (material.isBlend()) {
-      if (material.alphaMode === AlphaMode.Translucent) {
+      if (material.alphaMode === AlphaMode.Blend) {
         blend = {
           color: {
             srcFactor: 'src-alpha',
@@ -1256,19 +1256,19 @@ export class WebGpuResourceRepository
             operation: 'add',
           },
         };
-      } else if (material.alphaMode === AlphaMode.Additive) {
-        blend = {
-          color: {
-            srcFactor: 'one',
-            dstFactor: 'one',
-            operation: 'add',
-          },
-          alpha: {
-            srcFactor: 'one',
-            dstFactor: 'one',
-            operation: 'add',
-          },
-        };
+        // } else if (material.alphaMode === AlphaMode.Additive) {
+        //   blend = {
+        //     color: {
+        //       srcFactor: 'one',
+        //       dstFactor: 'one',
+        //       operation: 'add',
+        //     },
+        //     alpha: {
+        //       srcFactor: 'one',
+        //       dstFactor: 'one',
+        //       operation: 'add',
+        //     },
+        // };
       }
     }
 
