@@ -15,7 +15,6 @@ import { MathClassUtil } from '../math/MathClassUtil';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { ShaderType } from '../definitions/ShaderType';
 import { VectorN } from '../math/VectorN';
-import { ShaderVariableUpdateInterval } from '../definitions/ShaderVariableUpdateInterval';
 import { Config } from './Config';
 import { Scalar } from '../math/Scalar';
 import { Vector4 } from '../math/Vector4';
@@ -97,7 +96,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Vector3.fromCopyArray([0, 0, 1]),
     };
     this.__registerProperty(viewMatrixInfo, Config.maxCameraNumber);
@@ -118,7 +116,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       soloDatum: true,
       initialValue: new VectorN(new Float32Array(0)),
     };
@@ -131,7 +128,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       soloDatum: true,
       initialValue: new VectorN(new Float32Array(0)),
     };
@@ -145,7 +141,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneTranslatePackedQuatInfo = {
@@ -157,7 +152,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       soloDatum: true,
       initialValue: new VectorN(new Float32Array(0)),
     };
@@ -171,7 +165,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneCompressedChunkInfo = {
@@ -184,7 +177,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneCompressedInfoInfo = {
@@ -196,7 +188,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Vector4.zero(),
     };
     const skeletalComponentSIDInfo = {
@@ -207,7 +198,6 @@ export class GlobalDataRepository {
       min: 0,
       max: 1,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Scalar.fromCopyNumber(-1),
     };
     if (Config.boneDataType === BoneDataType.Mat43x1) {
@@ -237,7 +227,6 @@ export class GlobalDataRepository {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
     };
     const lightDirectionInfo = {
@@ -250,7 +239,6 @@ export class GlobalDataRepository {
       max: 1,
       isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
     const lightIntensityInfo = {
       semantic: ShaderSemantics.LightIntensity,
@@ -262,7 +250,6 @@ export class GlobalDataRepository {
       max: 10,
       isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
     const lightPropertyInfo = {
       semantic: ShaderSemantics.LightProperty,
@@ -274,7 +261,6 @@ export class GlobalDataRepository {
       max: 10,
       isInternalSetting: true,
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     };
     this.__registerProperty(lightPositionInfo, 1);
     this.__registerProperty(lightDirectionInfo, 1);
@@ -293,7 +279,6 @@ export class GlobalDataRepository {
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       initialValue: Scalar.fromCopyNumber(0),
     };
     this.__registerProperty(lightNumberInfo, 1);
@@ -308,7 +293,6 @@ export class GlobalDataRepository {
       max: Number.MAX_SAFE_INTEGER,
       isInternalSetting: true,
       needUniformInDataTextureMode: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),
     };
     this.__registerProperty(backBufferTextureSize, 1);
@@ -323,7 +307,6 @@ export class GlobalDataRepository {
       max: Number.MAX_SAFE_INTEGER,
       isInternalSetting: true,
       needUniformInDataTextureMode: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
       initialValue: Vector2.fromCopy2(0, 0),
       // x: 0: not vr, 1: vr
       // y: 0: left eye, 1: right eye

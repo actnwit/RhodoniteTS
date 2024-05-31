@@ -22,7 +22,6 @@ export * from './ShaderSemantics';
 export * from './ShaderSemanticsInfo';
 export * from './ShaderType';
 export * from './ShaderVariableType';
-export * from './ShaderVariableUpdateInterval';
 export * from './ShadingModel';
 export * from './ShadowMap';
 export * from './TextureParameter';

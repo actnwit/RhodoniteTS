@@ -3,7 +3,6 @@ import { ComponentTypeEnum } from './ComponentType';
 import { CompositionType, CompositionTypeEnum } from './CompositionType';
 import { ShaderSemanticsEnum } from './ShaderSemantics';
 import { ShaderTypeEnum } from './ShaderType';
-import { ShaderVariableUpdateIntervalEnum } from './ShaderVariableUpdateInterval';
 
 export type ShaderSemanticsInfo = {
   semantic: ShaderSemanticsEnum;
@@ -13,7 +12,6 @@ export type ShaderSemanticsInfo = {
   componentType: ComponentTypeEnum;
   isInternalSetting: boolean;
   initialValue?: any; // initial value
-  updateInterval?: ShaderVariableUpdateIntervalEnum;
   stage: ShaderTypeEnum;
   soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
   needUniformInDataTextureMode?: boolean;

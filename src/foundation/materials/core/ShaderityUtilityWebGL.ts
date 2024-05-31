@@ -10,7 +10,6 @@ import {
   ShaderSemanticsClass,
   ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -215,13 +214,6 @@ export class ShaderityUtilityWebGL {
       isInternalSettingFlg = true;
     }
     shaderSemanticsInfo.isInternalSetting = isInternalSettingFlg;
-
-    const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
-    let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;
-    if (updateInterval?.[1]?.toLowerCase() === 'everytime') {
-      updateIntervalObj = ShaderVariableUpdateInterval.EveryTime;
-    }
-    shaderSemanticsInfo.updateInterval = updateIntervalObj;
 
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
     if (initialValue) {

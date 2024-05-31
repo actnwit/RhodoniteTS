@@ -10,25 +10,20 @@ import { Vector4 } from '../../math/Vector4';
 import { Vector3 } from '../../math/Vector3';
 import { ShadingModel } from '../../definitions/ShadingModel';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { VectorN } from '../../math/VectorN';
 import { Scalar } from '../../math/Scalar';
 import { Config } from '../../core/Config';
 import { Material } from '../core/Material';
-import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { RenderPass } from '../../renderer/RenderPass';
 import { Count } from '../../../types/CommonTypes';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MeshComponent } from '../../components/Mesh/MeshComponent';
-import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { MutableVector4 } from '../../math/MutableVector4';
 import VarianceShadowMapDecodeClassicShaderVertex from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.vert';
 import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderity_shaders/VarianceShadowMapDecodeClassicShader/VarianceShadowMapDecodeClassicShader.frag';
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
-import { Is } from '../../misc/Is';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 
@@ -148,7 +143,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Float,
         stage: ShaderType.VertexShader,
         isInternalSetting: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: MutableMatrix44.zero(),
         min: -Number.MAX_VALUE,
@@ -160,7 +154,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(ShadingModel.Constant.index),
         min: 0,
@@ -172,7 +165,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(5),
         min: 0,
@@ -184,7 +176,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.0001),
         min: 0,
@@ -196,7 +187,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([0.5, 0.5, 0.5, 1]),
         min: 0,
@@ -208,7 +198,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([1, 1, 1, 1]),
         min: 0,
@@ -220,7 +209,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.1),
         min: 0.0001,
@@ -232,7 +220,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(10000.0),
         min: 0.0001,
@@ -244,7 +231,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(1),
         min: 0,
@@ -256,7 +242,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Vector3.fromCopyArray([0, 0, 1]),
         min: 0,
@@ -268,7 +253,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.0),
         min: 0,
@@ -280,7 +264,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.0),
         min: 0,
@@ -292,7 +275,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.0000001),
         min: 0,
@@ -304,7 +286,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.0),
         min: 0,
@@ -316,7 +297,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, dummyBlueTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -327,7 +307,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, dummyWhiteTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -338,7 +317,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [2, depthTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -349,7 +327,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [3, squareDepthTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -364,7 +341,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
         min: 0,
@@ -376,7 +352,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
         min: 0,
@@ -445,7 +420,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Vector4.fromCopyArray([1, 0, 0, 1]),
         min: 0,

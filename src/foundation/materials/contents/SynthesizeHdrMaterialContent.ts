@@ -6,7 +6,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { Count } from '../../../types/CommonTypes';
 import { ShaderSemantics, ShaderSemanticsClass } from '../../definitions/ShaderSemantics';
 import { ShaderType } from '../../definitions/ShaderType';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { VectorN } from '../../math/VectorN';
@@ -83,7 +82,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(synthesizeTextures[0].width),
         min: 0,
@@ -96,7 +94,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         arrayLength: 6,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: new VectorN(new Float32Array(6)),
         min: 0,
@@ -109,7 +106,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, synthesizeTextures[0] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -120,7 +116,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, synthesizeTextures[1] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -131,7 +126,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [2, synthesizeTextures[2] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -142,7 +136,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [3, synthesizeTextures[3] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -153,7 +146,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [4, synthesizeTextures[4] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -164,7 +156,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [5, synthesizeTextures[5] ?? dummyBlackTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
@@ -175,7 +166,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
         isInternalSetting: false,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [6, targetRegionTexture],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,

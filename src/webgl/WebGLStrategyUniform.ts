@@ -15,7 +15,6 @@ import { MeshRendererComponent } from '../foundation/components/MeshRenderer/Mes
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { Material } from '../foundation/materials/core/Material';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { ShaderVariableUpdateInterval } from '../foundation/definitions/ShaderVariableUpdateInterval';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { MemoryManager } from '../foundation/core/MemoryManager';
 import { ShaderType } from '../foundation/definitions/ShaderType';
@@ -59,7 +58,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       min: 0,
       max: 1,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
       semantic: ShaderSemantics.WorldMatrix,
@@ -69,7 +67,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
       semantic: ShaderSemantics.NormalMatrix,
@@ -79,7 +76,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
     {
       semantic: ShaderSemantics.IsBillboard,
@@ -89,7 +85,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
       isInternalSetting: true,
-      updateInterval: ShaderVariableUpdateInterval.EveryTime,
     },
   ];
 

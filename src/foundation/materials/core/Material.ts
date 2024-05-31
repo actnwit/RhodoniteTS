@@ -22,7 +22,6 @@ import {
   MaterialUID,
 } from '../../../types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUpdateInterval';
 import { Is } from '../../misc/Is';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
@@ -502,24 +501,18 @@ export class Material extends RnObject {
     if (isUniformMode) {
       this._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
-        if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
-          webglResourceRepository.setUniformValue(
-            shaderProgram,
-            info.semantic.str,
-            firstTime,
-            value.value
-          );
-        } else {
-          if (CompositionType.isTexture(info.compositionType)) {
-            webglResourceRepository.bindTexture(info, value.value);
-          }
-        }
+        webglResourceRepository.setUniformValue(
+          shaderProgram,
+          info.semantic.str,
+          firstTime,
+          value.value
+        );
       });
     } else {
       for (const [key, value] of this._autoFieldVariablesOnly) {
         const info = value.info;
         if (CompositionType.isTexture(info.compositionType)) {
-          if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
+          if (firstTime) {
             webglResourceRepository.setUniform1iForTexture(
               shaderProgram,
               info.semantic.str,
@@ -558,7 +551,7 @@ export class Material extends RnObject {
       const info = value.info;
       if (isUniformMode || CompositionType.isTexture(info.compositionType)) {
         if (!info.isInternalSetting) {
-          if (firstTime || info.updateInterval !== ShaderVariableUpdateInterval.FirstTimeOnly) {
+          if (firstTime) {
             webglResourceRepository.setUniformValue(
               shaderProgram,
               info.semantic.str,
