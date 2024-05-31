@@ -24,8 +24,9 @@ export class RenderPass extends RnObject {
   private readonly __renderPassUID: RenderPassUID;
   private __entities: (IMeshEntity | ISceneGraphEntity)[] = [];
   private __sceneGraphDirectlyAdded: SceneGraphComponent[] = [];
-  private __topLevelSceneGraphComponents?: SceneGraphComponent[] = [];
-  private __meshComponents?: MeshComponent[];
+  private __topLevelSceneGraphComponents: SceneGraphComponent[] = [];
+  private __meshComponents: MeshComponent[] = [];
+  private __optimizedMeshComponents: MeshComponent[] = [];
   private __frameBuffer?: FrameBuffer;
   private __resolveFrameBuffer?: FrameBuffer;
   private __resolveFrameBuffer2?: FrameBuffer;
@@ -135,8 +136,9 @@ export class RenderPass extends RnObject {
     const renderPass = new RenderPass();
     renderPass.__entities = this.__entities.concat();
     renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
-    renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents?.concat();
-    renderPass.__meshComponents = this.__meshComponents?.concat();
+    renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents.concat();
+    renderPass.__meshComponents = this.__meshComponents.concat();
+    renderPass.__optimizedMeshComponents = this.__optimizedMeshComponents.concat();
     renderPass.__frameBuffer = this.__frameBuffer;
     renderPass.__resolveFrameBuffer = this.__resolveFrameBuffer;
     renderPass.__resolveFrameBuffer2 = this.__resolveFrameBuffer2;
@@ -205,12 +207,13 @@ export class RenderPass extends RnObject {
     }
 
     this.__calcMeshComponents();
-    this.__topLevelSceneGraphComponents = void 0;
+    this.__topLevelSceneGraphComponents = [];
     this.__collectTopLevelSceneGraphComponents();
   }
 
   private __calcMeshComponents() {
-    this.__meshComponents = void 0;
+    this.__meshComponents = [];
+    this.__optimizedMeshComponents = [];
     this.__collectMeshComponents();
   }
 
@@ -226,47 +229,46 @@ export class RenderPass extends RnObject {
    * Clear entities on this render pass.
    */
   clearEntities() {
-    this.__meshComponents = void 0;
-    this.__topLevelSceneGraphComponents = void 0;
+    this.__meshComponents = [];
+    this.__optimizedMeshComponents = [];
+    this.__topLevelSceneGraphComponents = [];
     this.__entities = [];
   }
 
   private __collectTopLevelSceneGraphComponents() {
-    if (this.__topLevelSceneGraphComponents == null) {
-      const goToTopLevel = (sg: SceneGraphComponent) => {
-        if (sg.parent) {
-          goToTopLevel(sg.parent);
-        }
-        return sg;
-      };
-      this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map(
-        (sg: SceneGraphComponent) => {
-          return goToTopLevel(sg);
-        }
-      );
-      const set = new Set(this.__topLevelSceneGraphComponents);
-      this.__topLevelSceneGraphComponents = Array.from(set);
-    }
+    const goToTopLevel = (sg: SceneGraphComponent) => {
+      if (sg.parent) {
+        goToTopLevel(sg.parent);
+      }
+      return sg;
+    };
+    this.__topLevelSceneGraphComponents = this.__sceneGraphDirectlyAdded.map(
+      (sg: SceneGraphComponent) => {
+        return goToTopLevel(sg);
+      }
+    );
+    const set = new Set(this.__topLevelSceneGraphComponents);
+    this.__topLevelSceneGraphComponents = Array.from(set);
   }
 
   private __collectMeshComponents() {
-    if (this.__meshComponents == null) {
-      this.__meshComponents = [];
-      this.__entities.filter((entity) => {
-        const meshComponent = entity.getComponentByComponentTID(
-          WellKnownComponentTIDs.MeshComponentTID
-        ) as MeshComponent | undefined;
-        if (meshComponent != null && meshComponent.mesh != null) {
-          if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isOpaque()) {
-            return;
-          }
-          if (!this._toRenderTransparentPrimitives && meshComponent.mesh.isAllBlend()) {
-            return;
-          }
-          this.__meshComponents!.push(meshComponent);
+    this.__meshComponents = [];
+    this.__optimizedMeshComponents = [];
+    this.__entities.filter((entity) => {
+      const meshComponent = entity.getComponentByComponentTID(
+        WellKnownComponentTIDs.MeshComponentTID
+      ) as MeshComponent | undefined;
+      if (meshComponent != null && meshComponent.mesh != null) {
+        this.__meshComponents!.push(meshComponent);
+        if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isOpaque()) {
+          return;
         }
-      });
-    }
+        if (!this._toRenderTransparentPrimitives && meshComponent.mesh.isAllBlend()) {
+          return;
+        }
+        this.__optimizedMeshComponents!.push(meshComponent);
+      }
+    });
   }
 
   /**
@@ -274,7 +276,15 @@ export class RenderPass extends RnObject {
    * @return An array of MeshComponents
    */
   get meshComponents() {
-    return this.__meshComponents ?? [];
+    return this.__meshComponents;
+  }
+
+  /**
+   * Get MeshComponents list to render
+   * @return An array of MeshComponents
+   */
+  get _optimizedMeshComponents() {
+    return this.__optimizedMeshComponents;
   }
 
   /**
@@ -282,7 +292,7 @@ export class RenderPass extends RnObject {
    * @return An array of SceneGraphComponents
    */
   get sceneTopLevelGraphComponents(): SceneGraphComponent[] {
-    return this.__topLevelSceneGraphComponents != null ? this.__topLevelSceneGraphComponents : [];
+    return this.__topLevelSceneGraphComponents;
   }
 
   /**

@@ -208,7 +208,7 @@ export class MeshRendererComponent extends Component {
 
     // FrustumCulling
     let primitives: Primitive[] = [];
-    const meshComponents = renderPass.meshComponents;
+    const meshComponents = renderPass._optimizedMeshComponents;
     primitives = MeshRendererComponent.__cullingWithViewFrustum(cameraComponent, meshComponents);
 
     // After Frustum Culling, remove duplicated Primitives
