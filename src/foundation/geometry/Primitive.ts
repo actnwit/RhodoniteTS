@@ -145,7 +145,7 @@ export class Primitive extends RnObject {
 
   set material(mat: Material) {
     this.__material = mat;
-    // this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
+    this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
     this.setSortKey(PrimitiveSortKey_BitOffset_TranslucencyType, mat.alphaMode.index);
     mat._addBelongPrimitive(this);
   }
@@ -216,7 +216,7 @@ export class Primitive extends RnObject {
       });
     }
     this.__mode = mode;
-    // this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, mode.index);
+    this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, mode.index);
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = this;
