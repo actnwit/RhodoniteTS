@@ -170,12 +170,8 @@ export class ShaderityUtilityWebGL {
     const compositionType = CompositionType.fromGlslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
-    let none_u_prefix = true;
     const u_prefixedName = variableName.match(/u_(\w+)/);
-    if (u_prefixedName) {
-      variableName = u_prefixedName[1];
-      none_u_prefix = false;
-    }
+    variableName = u_prefixedName![1];
 
     let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
     if (semantic == null) {
@@ -195,7 +191,6 @@ export class ShaderityUtilityWebGL {
       max: Number.MAX_VALUE,
       isCustomSetting: false,
       stage,
-      none_u_prefix,
     };
 
     this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);

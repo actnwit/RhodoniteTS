@@ -157,7 +157,6 @@ export class ShaderityUtilityWebGPU {
     }
 
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
-    const none_u_prefix = true;
 
     let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
     if (semantic == null) {
@@ -177,7 +176,6 @@ export class ShaderityUtilityWebGPU {
       max: Number.MAX_VALUE,
       isCustomSetting: false,
       stage,
-      none_u_prefix,
     };
 
     const initialValue = info.match(/initialValue[\t ]*=[\t ]*(.+)[,\t ]*/);
@@ -206,8 +204,6 @@ export class ShaderityUtilityWebGPU {
     const compositionType = CompositionType.fromWgslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
-    const none_u_prefix = true;
-
     let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
     if (semantic == null) {
       const semanticInfo = existingShaderInfoMap?.get(variableName);
@@ -226,7 +222,6 @@ export class ShaderityUtilityWebGPU {
       max: Number.MAX_VALUE,
       isCustomSetting: false,
       stage,
-      none_u_prefix,
     };
 
     this.__setRhodoniteOriginalParametersTo(shaderSemanticsInfo, info);

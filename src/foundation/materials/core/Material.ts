@@ -573,20 +573,6 @@ export class Material extends RnObject {
     }
   }
 
-  private __getTargetShaderSemantics(uniformName: string) {
-    const targetFieldsInfo = this.fieldsInfoArray.find((fieldsInfo) => {
-      const prefix = fieldsInfo.none_u_prefix ? '' : 'u_';
-      return prefix + fieldsInfo.semantic.str === uniformName;
-    });
-
-    if (targetFieldsInfo == null) {
-      console.error(`Material.__getTargetShaderSemantics: uniform ${uniformName} is not found`);
-      return;
-    }
-
-    return targetFieldsInfo.semantic;
-  }
-
   /**
    * Change the blendEquations
    * This method works only if this alphaMode is the translucent
