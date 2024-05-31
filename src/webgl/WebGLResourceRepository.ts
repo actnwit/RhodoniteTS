@@ -543,7 +543,7 @@ export class WebGLResourceRepository
 
         const identifier = semanticSingular;
 
-        const shaderVarName = 'u_' + ShaderSemantics.fullSemanticStr(info);
+        const shaderVarName = 'u_' + info.semantic.str;
 
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;

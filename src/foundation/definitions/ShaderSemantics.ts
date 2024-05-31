@@ -580,14 +580,6 @@ type UpdateFunc = ({
   args?: object;
 }) => void;
 
-function fullSemanticStr(info: ShaderSemanticsInfo) {
-  let prefix = '';
-  if (info.prefix != null) {
-    prefix = info.prefix;
-  }
-  return prefix + info.semantic.str;
-}
-
 export type getShaderPropertyFunc = (
   materialTypeName: string,
   info: ShaderSemanticsInfo,
@@ -605,7 +597,7 @@ const getShaderProperty: getShaderPropertyFunc = (
 ) => {
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
-  let variableName = ShaderSemantics.fullSemanticStr(info);
+  let variableName = info.semantic.str;
 
   // definition of uniform variable
   const varType = info.compositionType.getGlslStr(info.componentType);
@@ -748,7 +740,6 @@ export const ShaderSemantics = Object.freeze({
   ThicknessTexture,
   AttenuationDistance,
   AttenuationColor,
-  fullSemanticStr,
   getShaderProperty,
   EntityUID,
   MorphTargetNumber,
