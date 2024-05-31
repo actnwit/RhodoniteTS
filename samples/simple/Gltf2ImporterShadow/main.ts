@@ -140,7 +140,7 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
     Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
     Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5])
   );
-  material.alphaMode = Rn.AlphaMode.Translucent;
+  material.alphaMode = Rn.AlphaMode.Blend;
 
   const primitive = new Rn.Plane();
   primitive.generate({

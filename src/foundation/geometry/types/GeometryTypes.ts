@@ -37,7 +37,7 @@ export interface RaycastResultEx2 {
  *
  * Bit Field
  * --- 0
- *  2 bits: Translucency type (0: Opaque, 1: Mask, 2: Translucency)
+ *  1 bits: Translucency type (0: Opaque, 1: Translucent(draw after opaque))
  * 10 bits: Material TID
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  *  3 bits: Viewport layer
@@ -49,7 +49,7 @@ export interface RaycastResultEx2 {
  * 32 bits: Depth
  */
 export type PrimitiveSortKey = number;
-export const PrimitiveSortKey_BitLength_TranslucencyType = 2;
+export const PrimitiveSortKey_BitLength_TranslucencyType = 1;
 export const PrimitiveSortKey_BitLength_Material = 10;
 export const PrimitiveSortKey_BitLength_PrimitiveType = 3;
 
@@ -73,7 +73,6 @@ export interface IMesh {
   meshUID: MeshUID;
 }
 
-const translucencyBitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
 export function isTranslucent(primitive: Primitive) {
-  return (primitive._sortkey >> translucencyBitOffset) & 1;
+  return primitive._sortkey & 0b00000000_00000000_00000000_00000001;
 }

@@ -148,7 +148,10 @@ export class Primitive extends RnObject {
   set material(mat: Material) {
     this.__material = mat;
     this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
-    this.setSortKey(PrimitiveSortKey_BitOffset_TranslucencyType, mat.alphaMode.index);
+    this.setSortKey(
+      PrimitiveSortKey_BitOffset_TranslucencyType,
+      mat.isBlendOrTranslucent() ? 1 : 0
+    );
     mat._addBelongPrimitive(this);
   }
 

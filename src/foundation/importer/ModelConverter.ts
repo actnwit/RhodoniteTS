@@ -1098,6 +1098,7 @@ export class ModelConverter {
     gltfModel: RnM2,
     materialJson?: RnM2Material
   ): Material {
+    const isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
     // if rnLoaderOptions is set something, do special deal
     if (gltfModel.asset.extras?.rnLoaderOptions != null) {
       const rnLoaderOptions = gltfModel.asset.extras.rnLoaderOptions;
@@ -1117,6 +1118,7 @@ export class ModelConverter {
       if (rnLoaderOptions.__isImportVRM0x) {
         const material = this.__setVRM0xMaterial(gltfModel, materialJson!, rnLoaderOptions);
         if (Is.exist(material)) {
+          material.isTranslucent = isTranslucent;
           return material;
         }
       }
@@ -1134,10 +1136,6 @@ export class ModelConverter {
     const isMorphing = true; // this.__isMorphing(node, gltfModel);
     const isSkinning = true; //this.__isSkinning(node, gltfModel);
     const isLighting = this.__isLighting(gltfModel, materialJson);
-    let alphaMode = AlphaMode.fromGlTFString(materialJson?.alphaMode || 'OPAQUE');
-    alphaMode = Is.exist(materialJson?.extensions?.KHR_materials_transmission)
-      ? AlphaMode.OpaqueTransmission
-      : alphaMode;
     const additionalName = '';
 
     if (Is.exist(materialJson)) {
@@ -1145,6 +1143,7 @@ export class ModelConverter {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
         const material = this.__setVRM1Material(gltfModel, materialJson, rnLoaderOptions);
         if (Is.exist(material)) {
+          material.isTranslucent = isTranslucent;
           return material;
         }
       }
@@ -1177,15 +1176,18 @@ export class ModelConverter {
       if (Is.exist(makeOutputSrgb)) {
         material.setParameter(ShaderSemantics.MakeOutputSrgb, makeOutputSrgb);
       }
+      material.isTranslucent = isTranslucent;
       return material;
     } else {
       // For glTF 1
-      return MaterialHelper.createClassicUberMaterial({
+      const material = MaterialHelper.createClassicUberMaterial({
         isSkinning,
         isLighting,
         additionalName: additionalName,
         maxInstancesNumber: maxMaterialInstanceNumber,
       });
+      material.isTranslucent = isTranslucent;
+      return material;
     }
   }
 
@@ -1325,9 +1327,7 @@ export class ModelConverter {
         );
       }
     }
-    if (Is.exist(materialJson?.extensions?.KHR_materials_transmission)) {
-      material.alphaMode = AlphaMode.OpaqueTransmission;
-    }
+    material.isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
 
     const doubleSided = materialJson?.doubleSided;
     if (doubleSided != null) {

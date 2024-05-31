@@ -20,12 +20,8 @@ const Blend: AlphaModeEnum = new AlphaModeClass({
   index: 2,
   str: 'BLEND',
 });
-const OpaqueTransmission: AlphaModeEnum = new AlphaModeClass({
-  index: 3,
-  str: 'OPAQUE_TRANSMISSION',
-});
 
-const typeList = [Opaque, Mask, Blend, OpaqueTransmission];
+const typeList = [Opaque, Mask, Blend];
 
 function from(index: number): AlphaModeEnum | undefined {
   return _from({ typeList, index }) as AlphaModeEnum;
@@ -43,7 +39,6 @@ export const AlphaMode = Object.freeze({
   Opaque,
   Mask,
   Blend,
-  OpaqueTransmission,
   from,
   fromString,
   fromGlTFString,

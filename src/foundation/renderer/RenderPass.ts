@@ -260,10 +260,10 @@ export class RenderPass extends RnObject {
       ) as MeshComponent | undefined;
       if (meshComponent != null && meshComponent.mesh != null) {
         this.__meshComponents!.push(meshComponent);
-        if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isOpaque()) {
+        if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isAllOpaque()) {
           return;
         }
-        if (!this._toRenderTransparentPrimitives && meshComponent.mesh.isAllBlend()) {
+        if (!this._toRenderTransparentPrimitives && meshComponent.mesh.isAllTranslucent()) {
           return;
         }
         this.__optimizedMeshComponents!.push(meshComponent);

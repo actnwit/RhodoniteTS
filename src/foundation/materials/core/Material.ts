@@ -63,6 +63,7 @@ export class Material extends RnObject {
 
   // Common Rendering States
   private __alphaMode = AlphaMode.Opaque;
+  public isTranslucent = false;
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;
   private __alphaToCoverage = false;
@@ -632,6 +633,18 @@ export class Material extends RnObject {
     } else {
       return false;
     }
+  }
+
+  isBlendOrTranslucent() {
+    if (this.alphaMode === AlphaMode.Blend || this.isTranslucent) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  isOpaque() {
+    return this.alphaMode === AlphaMode.Opaque;
   }
 
   /**
