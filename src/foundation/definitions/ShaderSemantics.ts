@@ -603,10 +603,6 @@ const getShaderProperty: getShaderPropertyFunc = (
   isGlobalData: boolean,
   isWebGL2: boolean
 ) => {
-  if (info.isComponentData) {
-    return '';
-  }
-
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
   let variableName = ShaderSemantics.fullSemanticStr(info);

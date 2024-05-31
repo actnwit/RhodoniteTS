@@ -23,7 +23,6 @@ export type ShaderSemanticsInfo = {
   zName?: string;
   wName?: string;
   soloDatum?: boolean; // is the shader variable's value unique (one resource) in the material
-  isComponentData?: boolean;
   noControlUi?: boolean;
   needUniformInDataTextureMode?: boolean;
   none_u_prefix?: boolean;

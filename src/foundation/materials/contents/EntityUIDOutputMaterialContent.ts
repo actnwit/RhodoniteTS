@@ -9,8 +9,6 @@ import { ShaderVariableUpdateInterval } from '../../definitions/ShaderVariableUp
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
-import { MutableMatrix44 } from '../../math/MutableMatrix44';
-import { MutableMatrix33 } from '../../math/MutableMatrix33';
 import entityUIDOutputSingleShaderVertex from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.vert';
 import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shaders/EntityUIDOutputSingleShader/EntityUIDOutputSingleShader.frag';
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
@@ -27,30 +25,6 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
     );
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
-      {
-        semantic: ShaderSemantics.WorldMatrix,
-        isComponentData: true,
-        compositionType: CompositionType.Mat4,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isCustomSetting: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: MutableMatrix44.zero(),
-      },
-      {
-        semantic: ShaderSemantics.NormalMatrix,
-        isComponentData: true,
-        compositionType: CompositionType.Mat3,
-        componentType: ComponentType.Float,
-        stage: ShaderType.VertexShader,
-        min: -Number.MAX_VALUE,
-        max: Number.MAX_VALUE,
-        isCustomSetting: true,
-        updateInterval: ShaderVariableUpdateInterval.EveryTime,
-        initialValue: MutableMatrix33.zero(),
-      },
       // {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
       //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       // {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
