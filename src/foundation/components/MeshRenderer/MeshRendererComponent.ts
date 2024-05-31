@@ -21,9 +21,8 @@ import {
 } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { PrimitiveSortKey_BitOffset_TranslucencyType } from '../../geometry/types/GeometryTypes';
+import { isTranslucent } from '../../geometry/types/GeometryTypes';
 import { Primitive } from '../../geometry/Primitive';
-import { isSkipDrawing } from '../../renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
@@ -209,7 +208,7 @@ export class MeshRendererComponent extends Component {
 
     // FrustumCulling
     let primitives: Primitive[] = [];
-    const meshComponents = renderPass.meshComponents;
+    const meshComponents = renderPass._optimizedMeshComponents;
     primitives = MeshRendererComponent.__cullingWithViewFrustum(cameraComponent, meshComponents);
 
     // After Frustum Culling, remove duplicated Primitives
@@ -217,11 +216,10 @@ export class MeshRendererComponent extends Component {
 
     // Sort by sortkey
     primitives.sort((a, b) => {
-      const deltaKey = a._sortkey - b._sortkey;
-      if (deltaKey === 0) {
+      if (isTranslucent(a) || isTranslucent(b)) {
         return a._viewDepth - b._viewDepth;
       } else {
-        return deltaKey;
+        return a._sortkey - b._sortkey;
       }
     });
 
@@ -235,9 +233,8 @@ export class MeshRendererComponent extends Component {
 
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
-      const bitOffset = PrimitiveSortKey_BitOffset_TranslucencyType + 1;
-      const isTranslucency = (primitive._sortkey >> bitOffset) & 1;
-      if (isTranslucency) {
+      const translucency = isTranslucent(primitive);
+      if (translucency) {
         _lastOpaqueIndex = i - 1;
         _firstTransparentSortKey = primitive._sortkey;
         break;
