@@ -46,7 +46,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(2),
@@ -58,7 +58,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(0.25),
@@ -93,7 +93,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         soloDatum: false,
         initialValue: Scalar.fromCopyNumber(framebufferWidth),
@@ -105,7 +105,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, targetTexture],
         min: 0,
@@ -116,7 +116,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

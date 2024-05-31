@@ -189,7 +189,7 @@ export class ShaderityUtilityWebGL {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: false,
+      isInternalSetting: false,
       stage,
     };
 
@@ -214,7 +214,7 @@ export class ShaderityUtilityWebGL {
     if (isCustomSetting?.[1] === 'true') {
       isCustomSettingFlg = true;
     }
-    shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
+    shaderSemanticsInfo.isInternalSetting = isCustomSettingFlg;
 
     const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;

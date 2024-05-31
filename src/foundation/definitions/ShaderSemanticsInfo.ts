@@ -11,7 +11,7 @@ export type ShaderSemanticsInfo = {
   arrayLength?: Count; // the array length of the array type shader variable
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
-  isCustomSetting: boolean;
+  isInternalSetting: boolean;
   initialValue?: any; // initial value
   updateInterval?: ShaderVariableUpdateIntervalEnum;
   stage: ShaderTypeEnum;

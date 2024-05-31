@@ -26,9 +26,9 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       // {semantic: ShaderSemantics.ViewMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isInternalSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       // {semantic: ShaderSemantics.ProjectionMatrix, isComponentData: true, compositionType: CompositionType.Mat4, componentType: ComponentType.Float,
-      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isCustomSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
+      //   stage: ShaderType.VertexShader, min: -Number.MAX_VALUE, max: Number.MAX_VALUE, isInternalSetting: true, updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly, initialValue: MutableMatrix44.zero() },
       // {
       //   semantic: ShaderSemantics.ViewPosition,
       //   compositionType: CompositionType.Vec3,
@@ -36,7 +36,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
       //   stage: ShaderType.VertexShader,
       //   min: -Number.MAX_VALUE,
       //   max: Number.MAX_VALUE,
-      //   isCustomSetting: true,
+      //   isInternalSetting: true,
       //   updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
       //   initialValue: Vector3.fromCopyArray([0, 0, 0]),
       //   soloDatum: true
@@ -46,7 +46,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Scalar.fromCopyNumber(30.0),
@@ -58,7 +58,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.FirstTimeOnly,
         soloDatum: true,
         initialValue: Vector3.fromCopyArray([0.0, 0.1, 0.01]),
@@ -74,7 +74,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

@@ -84,7 +84,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [0, targetTexture],
         min: 0,
@@ -95,7 +95,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        isCustomSetting: false,
+        isInternalSetting: false,
         updateInterval: ShaderVariableUpdateInterval.EveryTime,
         initialValue: [1, lookupTableTexture, sampler],
         min: 0,
@@ -106,7 +106,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setCustomSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGL({
     material,
     shaderProgram,
     firstTime,

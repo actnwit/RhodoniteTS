@@ -174,7 +174,7 @@ export class ShaderityUtilityWebGPU {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: false,
+      isInternalSetting: false,
       stage,
     };
 
@@ -220,7 +220,7 @@ export class ShaderityUtilityWebGPU {
       componentType,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,
-      isCustomSetting: false,
+      isInternalSetting: false,
       stage,
     };
 
@@ -245,7 +245,7 @@ export class ShaderityUtilityWebGPU {
     if (isCustomSetting?.[1] === 'true') {
       isCustomSettingFlg = true;
     }
-    shaderSemanticsInfo.isCustomSetting = isCustomSettingFlg;
+    shaderSemanticsInfo.isInternalSetting = isCustomSettingFlg;
 
     const updateInterval = info.match(/updateInterval[\t ]*=[\t ]*(\w+)[,\t ]*/);
     let updateIntervalObj = ShaderVariableUpdateInterval.FirstTimeOnly;
