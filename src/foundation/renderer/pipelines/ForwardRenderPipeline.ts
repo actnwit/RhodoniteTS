@@ -199,9 +199,9 @@ export class ForwardRenderPipeline extends RnObject {
       isTransmission: true,
     }
   ) {
-    const expressionsOpaque = expressions.map((expression) => expression.clone());
+    // const expressionsOpaque = expressions.map((expression) => expression.clone());
     const expressionsTranslucent = expressions.map((expression) => expression.clone());
-    this.__setExpressionsInner(expressionsOpaque, {
+    this.__setExpressionsInner(expressions, {
       isTransmission: options.isTransmission,
     });
     if (options.isTransmission) {
