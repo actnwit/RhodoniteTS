@@ -371,6 +371,9 @@ bool get_isBillboard(float instanceId) {
 
       // For opaque primitives
       if (renderPass._toRenderOpaquePrimitives) {
+        if (!renderPass.depthWriteMask) {
+          gl.depthMask(false);
+        }
         for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
           const primitiveUid = primitiveUids[i];
           const rendered = this.renderInner(
@@ -434,6 +437,12 @@ bool get_isBillboard(float instanceId) {
       firstTime: true,
       isUniformMode: true,
     });
+
+    if (renderPass.depthWriteMask) {
+      gl.depthMask(true);
+    } else {
+      gl.depthMask(false);
+    }
 
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,

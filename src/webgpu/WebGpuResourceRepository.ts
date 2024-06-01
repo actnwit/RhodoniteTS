@@ -868,7 +868,13 @@ export class WebGpuResourceRepository
     passEncoder.end();
   }
 
-  draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number) {
+  draw(
+    primitive: Primitive,
+    material: Material,
+    renderPass: RenderPass,
+    cameraId: number,
+    isOpaque: boolean
+  ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
     if (!isBufferLessRendering && VertexHandles == null) {
@@ -898,7 +904,7 @@ export class WebGpuResourceRepository
       specularCubeMap = meshRendererComponent.specularCubeMap;
     }
 
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}`;
+    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}, ${isOpaque} `;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
@@ -906,6 +912,7 @@ export class WebGpuResourceRepository
       material,
       renderPass,
       cameraId,
+      isOpaque,
       diffuseCubeMap,
       specularCubeMap
     );
@@ -1162,6 +1169,7 @@ export class WebGpuResourceRepository
     material: Material,
     renderPass: RenderPass,
     cameraId: number,
+    isOpaque: boolean,
     diffuseCubeMap?: CubeTexture,
     specularCubeMap?: CubeTexture
   ): [GPURenderPipeline, boolean] {
@@ -1325,7 +1333,14 @@ export class WebGpuResourceRepository
         cullMode: material.cullFace ? 'back' : 'none',
       },
       depthStencil: {
-        depthWriteEnabled: renderPass.isDepthTest ? true : false,
+        depthWriteEnabled:
+          (renderPass.isDepthTest && renderPass.depthWriteMask && isOpaque) ||
+          (renderPass.isDepthTest &&
+            renderPass.depthWriteMask &&
+            !isOpaque &&
+            MeshRendererComponent.isDepthMaskTrueForTransparencies)
+            ? true
+            : false,
         depthCompare: renderPass.isDepthTest ? 'less' : 'always',
         format: depthStencilFormat,
       },

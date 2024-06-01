@@ -726,6 +726,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       // For opaque primitives
       if (renderPass._toRenderOpaquePrimitives) {
+        if (!renderPass.depthWriteMask) {
+          gl.depthMask(false);
+        }
         for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
           const primitiveUid = primitiveUids[i];
           const rendered = this.renderInner(
@@ -793,6 +796,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       firstTime: true,
       isUniformMode: false,
     });
+
+    if (renderPass.depthWriteMask) {
+      gl.depthMask(true);
+    } else {
+      gl.depthMask(false);
+    }
 
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
