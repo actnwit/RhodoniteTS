@@ -72,15 +72,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.FramebufferWidth,
-        componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(synthesizeTextures[0].width),
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-      },
-      {
         semantic: SynthesizeHdrMaterialContent.SynthesizeCoefficient,
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
