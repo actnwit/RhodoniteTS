@@ -51,10 +51,8 @@ const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMateria
   { maxInstancesNumber: 1 },
   renderPassLDR
 );
-const renderPassHighLuminance = createRenderPassPostEffect(
-  materialHighLuminance,
-  cameraComponentPostEffect
-);
+const renderPassHighLuminance =
+  Rn.RenderPassHelper.createScreenDrawRenderPass(materialHighLuminance);
 renderPassHighLuminance.tryToSetUniqueName('renderPassHighLuminance', true);
 createAndSetFramebuffer(renderPassHighLuminance, rnCanvasElement.width, 1, {});
 
@@ -185,29 +183,6 @@ async function createRenderPassLDR(
   return renderPass;
 }
 
-function createRenderPassPostEffect(material: Rn.Material, cameraComponent: Rn.CameraComponent) {
-  const boardEntity = Rn.MeshHelper.createPlane({
-    width: 1,
-    height: 1,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    direction: 'xy',
-    material,
-  });
-
-  boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
-
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = false;
-  renderPass.toClearDepthBuffer = false;
-  renderPass.isDepthTest = false;
-  renderPass.cameraComponent = cameraComponent;
-  renderPass.addEntities([boardEntity]);
-
-  return renderPass;
-}
-
 function createAndSetFramebuffer(
   renderPass: Rn.RenderPass,
   resolution: number,
@@ -333,22 +308,6 @@ function createRenderPassGaussianBlur(
   createAndSetFramebuffer(renderPass, resolutionBlur, 1, {});
 
   return renderPass;
-}
-
-function setParameterForAllMaterialsInMeshComponents(
-  meshComponents: Rn.MeshComponent[],
-  shaderSemantic: Rn.ShaderSemanticsEnum,
-  value: any
-) {
-  for (let i = 0; i < meshComponents.length; i++) {
-    const mesh = meshComponents[i].mesh;
-    const primitiveNumber = mesh.getPrimitiveNumber();
-
-    for (let j = 0; j < primitiveNumber; j++) {
-      const primitive = mesh.getPrimitiveAt(j);
-      primitive.material.setParameter(shaderSemantic, value);
-    }
-  }
 }
 
 function createExpression(renderPasses: Rn.RenderPass[]) {

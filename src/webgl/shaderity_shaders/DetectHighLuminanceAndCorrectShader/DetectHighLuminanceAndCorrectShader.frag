@@ -8,6 +8,8 @@
 
 /* shaderity: @{getters} */
 
+in vec2 v_texcoord_0;
+
 void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
