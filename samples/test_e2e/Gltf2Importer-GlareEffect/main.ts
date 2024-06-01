@@ -306,9 +306,8 @@ function createRenderPassesSynthesizeImages(
     Rn.SynthesizeHdrMaterialContent.SynthesizeCoefficient,
     synthesizeCoefficient
   );
-  const renderPassSynthesizeGlare = createRenderPassPostEffect(
-    materialSynthesizeTextures,
-    cameraComponentPostEffect
+  const renderPassSynthesizeGlare = Rn.RenderPassHelper.createScreenDrawRenderPass(
+    materialSynthesizeTextures
   );
   renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
   createAndSetFramebuffer(renderPassSynthesizeGlare, rnCanvasElement.width, 1, {});
