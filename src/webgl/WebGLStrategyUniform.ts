@@ -359,57 +359,34 @@ bool get_isBillboard(float instanceId) {
       return true;
     }
 
-    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
-
     let renderedSomething = false;
 
-    for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
-      if (isVrMainPass) {
-        WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
+    // For opaque primitives
+    if (renderPass._toRenderOpaquePrimitives) {
+      if (!renderPass.depthWriteMask) {
+        gl.depthMask(false);
       }
-
-      // For opaque primitives
-      if (renderPass._toRenderOpaquePrimitives) {
-        if (!renderPass.depthWriteMask) {
-          gl.depthMask(false);
-        }
-        for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
-          const primitiveUid = primitiveUids[i];
-          const rendered = this.renderInner(
-            primitiveUid,
-            glw,
-            renderPass,
-            renderPassTickCount,
-            isVrMainPass,
-            displayIdx
-          );
-          renderedSomething ||= rendered;
-        }
+      for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
+        const primitiveUid = primitiveUids[i];
+        const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
+        renderedSomething ||= rendered;
       }
-
-      // For translucent primitives
-      if (renderPass._toRenderTransparentPrimitives) {
-        if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-          // disable depth write for transparent primitives
-          gl.depthMask(false);
-        }
-
-        for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
-          const primitiveUid = primitiveUids[i];
-          const rendered = this.renderInner(
-            primitiveUid,
-            glw,
-            renderPass,
-            renderPassTickCount,
-            isVrMainPass,
-            displayIdx
-          );
-          renderedSomething ||= rendered;
-        }
-      }
-      gl.depthMask(true);
     }
+
+    // For translucent primitives
+    if (renderPass._toRenderTransparentPrimitives) {
+      if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
+        // disable depth write for transparent primitives
+        gl.depthMask(false);
+      }
+
+      for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
+        const primitiveUid = primitiveUids[i];
+        const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
+        renderedSomething ||= rendered;
+      }
+    }
+    gl.depthMask(true);
 
     this.__webglResourceRepository.unbindTextureSamplers();
 
@@ -457,9 +434,7 @@ bool get_isBillboard(float instanceId) {
     primitiveUid: PrimitiveUID,
     glw: WebGLContextWrapper,
     renderPass: RenderPass,
-    renderPassTickCount: Count,
-    isVRMainPass: boolean,
-    displayIdx: Index
+    renderPassTickCount: Count
   ) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
@@ -470,6 +445,8 @@ bool get_isBillboard(float instanceId) {
     const meshEntities = mesh.meshEntitiesInner;
 
     let renderedSomething = false;
+    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
     for (const entity of meshEntities) {
       if (entity.getSceneGraph()._isCulled) {
         continue;
@@ -508,41 +485,50 @@ bool get_isBillboard(float instanceId) {
         this.__lastMaterial = material;
       }
 
-      if (firstTime || displayIdx === 1) {
-        WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-        material._setParametersToGpuWebGL({
-          material,
-          shaderProgram,
-          firstTime,
-          args: {
-            setUniform: true,
-            glw: glw,
-            entity,
-            primitive: primitive,
-            worldMatrix: entity.getSceneGraph().matrix,
-            normalMatrix: entity.getSceneGraph().normalMatrix,
-            isBillboard: entity.getSceneGraph().isBillboard,
-            lightComponents: this.__lightComponents!,
-            renderPass: renderPass,
-            diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
-            specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
-            isVr: isVRMainPass,
-            displayIdx,
-          },
-        });
-      }
+      for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
+        if (isVrMainPass) {
+          WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
+        }
 
-      if (primitive.indicesAccessor) {
-        gl.drawElements(
-          primitive.primitiveMode.index,
-          primitive.indicesAccessor.elementCount,
-          primitive.indicesAccessor.componentType.index,
-          0
-        );
-      } else {
-        gl.drawArrays(primitive.primitiveMode.index, 0, primitive.getVertexCountAsVerticesBased());
-      }
+        if (firstTime) {
+          WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+          material._setParametersToGpuWebGL({
+            material,
+            shaderProgram,
+            firstTime,
+            args: {
+              setUniform: true,
+              glw: glw,
+              entity,
+              primitive: primitive,
+              worldMatrix: entity.getSceneGraph().matrix,
+              normalMatrix: entity.getSceneGraph().normalMatrix,
+              isBillboard: entity.getSceneGraph().isBillboard,
+              lightComponents: this.__lightComponents!,
+              renderPass: renderPass,
+              diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
+              specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
+              isVr: isVrMainPass,
+              displayIdx,
+            },
+          });
+        }
 
+        if (primitive.indicesAccessor) {
+          gl.drawElements(
+            primitive.primitiveMode.index,
+            primitive.indicesAccessor.elementCount,
+            primitive.indicesAccessor.componentType.index,
+            0
+          );
+        } else {
+          gl.drawArrays(
+            primitive.primitiveMode.index,
+            0,
+            primitive.getVertexCountAsVerticesBased()
+          );
+        }
+      }
       renderedSomething = true;
     }
 
