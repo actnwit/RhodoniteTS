@@ -9,10 +9,11 @@ const uriGltf =
   '../../../assets/gltf/glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
+const luminanceCriterion = 2.0;
+const luminanceReduce = 0.25;
 const gaussianBlurLevelHighLuminance = 5;
 const gaussianKernelSize = 10;
 const gaussianVariance = 100;
-const rootGroupScale = Rn.Vector3.fromCopyArray([50, 50, 50]);
 
 //  ratio of the final drawing ([original image, glare level 0, glare level 1, glare level 2])
 //  glare level N means the glare effect in size [2^(N-1) * original image size]
@@ -36,7 +37,6 @@ const entityEnvironmentCube = createEntityEnvironmentCube(basePathIBL);
 
 // prepare cameras
 const cameraComponentMain = createEntityMainCamera(rootGroup).getCamera();
-const cameraComponentPostEffect = createEntityPostEffectCamera().getCamera();
 
 // prepare renderPasses
 
@@ -51,8 +51,14 @@ const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMateria
   { maxInstancesNumber: 1 },
   renderPassLDR
 );
-materialHighLuminance.setParameter(Rn.DetectHighLuminanceMaterialContent.LuminanceCriterion, 2.0);
-materialHighLuminance.setParameter(Rn.DetectHighLuminanceMaterialContent.LuminanceReduce, 0.25);
+materialHighLuminance.setParameter(
+  Rn.DetectHighLuminanceMaterialContent.LuminanceCriterion,
+  luminanceCriterion
+);
+materialHighLuminance.setParameter(
+  Rn.DetectHighLuminanceMaterialContent.LuminanceReduce,
+  luminanceReduce
+);
 
 const renderPassHighLuminance =
   Rn.RenderPassHelper.createScreenDrawRenderPass(materialHighLuminance);
@@ -61,13 +67,10 @@ createAndSetFramebuffer(renderPassHighLuminance, rnCanvasElement.width, 1, {});
 
 const renderPassesBlurredHighLuminance = createRenderPassesBlurredHighLuminance(
   renderPassHighLuminance,
-  cameraComponentPostEffect,
   rnCanvasElement.width
 );
 
 const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
-  cameraComponentMain,
-  cameraComponentPostEffect,
   renderPassLDR,
   renderPassesBlurredHighLuminance
 );
@@ -108,7 +111,6 @@ async function createEntityGltf2(uriGltf: string) {
   ).unwrapForce();
 
   const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
-  rootGroup.getTransform().localScale = rootGroupScale;
   return rootGroup;
 }
 
@@ -215,7 +217,6 @@ function createAndSetFramebuffer(
 
 function createRenderPassesBlurredHighLuminance(
   renderPassHighLuminance: Rn.RenderPass,
-  cameraComponentPostEffect: Rn.CameraComponent,
   maxResolution: number
 ) {
   const renderPasses: Rn.RenderPass[] = [];
@@ -236,11 +237,9 @@ function createRenderPassesBlurredHighLuminance(
       renderPassBlurH.setViewport(Rn.Vector4.fromCopyArray([0, 0, resolutionBlur, resolutionBlur]));
     }
     renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
-    renderPassBlurH.cameraComponent = cameraComponentPostEffect;
 
     const renderPassBlurHV = createRenderPassGaussianBlur(renderPassBlurH, false, resolutionBlur);
     renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
-    renderPassBlurHV.cameraComponent = cameraComponentPostEffect;
 
     renderPasses.push(renderPassBlurH, renderPassBlurHV);
   }
@@ -249,8 +248,6 @@ function createRenderPassesBlurredHighLuminance(
 }
 
 function createRenderPassesSynthesizeImages(
-  cameraComponentMain: Rn.CameraComponent,
-  cameraComponentPostEffect: Rn.CameraComponent,
   renderPassLDR: Rn.RenderPass,
   renderPassesBlurredHighLuminance: Rn.RenderPass[]
 ) {
