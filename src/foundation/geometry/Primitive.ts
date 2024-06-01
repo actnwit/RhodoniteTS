@@ -21,7 +21,11 @@ import { IVector3 } from '../math/IVector';
 import {
   IMesh,
   PrimitiveSortKey,
+  PrimitiveSortKeyLength,
   PrimitiveSortKeyOffset,
+  PrimitiveSortKey_BitLength_Material,
+  PrimitiveSortKey_BitLength_PrimitiveType,
+  PrimitiveSortKey_BitLength_TranslucencyType,
   PrimitiveSortKey_BitOffset_Material,
   PrimitiveSortKey_BitOffset_PrimitiveType,
   PrimitiveSortKey_BitOffset_TranslucencyType,
@@ -147,9 +151,14 @@ export class Primitive extends RnObject {
 
   set material(mat: Material) {
     this.__material = mat;
-    this.setSortKey(PrimitiveSortKey_BitOffset_Material, mat.materialTID);
+    this.setSortKey(
+      PrimitiveSortKey_BitOffset_Material,
+      PrimitiveSortKey_BitLength_Material,
+      mat.materialUID
+    );
     this.setSortKey(
       PrimitiveSortKey_BitOffset_TranslucencyType,
+      PrimitiveSortKey_BitLength_TranslucencyType,
       mat.isBlendOrTranslucent() ? 1 : 0
     );
     mat._addBelongPrimitive(this);
@@ -159,9 +168,16 @@ export class Primitive extends RnObject {
     return this.__material;
   }
 
-  setSortKey(offset: PrimitiveSortKeyOffset, value: number) {
+  setSortKey(offset: PrimitiveSortKeyOffset, length: PrimitiveSortKeyLength, value: number) {
     const offsetValue = value << offset;
     this._sortkey |= offsetValue;
+
+    // Creates a mask with the specified bit length
+    let mask = (1 << length) - 1;
+    // Clear designated offset bits
+    this._sortkey &= ~(mask << offset);
+    // Writes a value to the specified offset
+    this._sortkey |= (value & mask) << offset;
   }
 
   /**
@@ -221,7 +237,11 @@ export class Primitive extends RnObject {
       });
     }
     this.__mode = mode;
-    this.setSortKey(PrimitiveSortKey_BitOffset_PrimitiveType, mode.index);
+    this.setSortKey(
+      PrimitiveSortKey_BitOffset_PrimitiveType,
+      PrimitiveSortKey_BitLength_PrimitiveType,
+      mode.index
+    );
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = this;
