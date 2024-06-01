@@ -406,7 +406,7 @@ ${indexStr}
     if (renderPass._toRenderOpaquePrimitives) {
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+        const rendered = this.renderInner(primitiveUid, renderPass, true);
         renderedSomething ||= rendered;
       }
     }
@@ -420,7 +420,7 @@ ${indexStr}
 
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, renderPassTickCount);
+        const rendered = this.renderInner(primitiveUid, renderPass, false);
         renderedSomething ||= rendered;
       }
       // gl.depthMask(true);
@@ -435,10 +435,10 @@ ${indexStr}
     this._setupShaderProgram(material, primitive);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    webGpuResourceRepository.draw(primitive, material, renderPass, 0);
+    webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
   }
 
-  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count) {
+  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, isOpaque: boolean) {
     if (primitiveUid === -1) {
       return false;
     }
@@ -451,7 +451,7 @@ ${indexStr}
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID);
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, isOpaque);
 
     return true;
   }

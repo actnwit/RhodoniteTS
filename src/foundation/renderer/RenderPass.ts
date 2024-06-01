@@ -39,6 +39,13 @@ export class RenderPass extends RnObject {
   public toClearDepthBuffer = true;
   public toClearStencilBuffer = false;
   public isDepthTest = true;
+
+  /**
+   * depth write mask for primitives drawing
+   * false does not prevent depth clear.
+   */
+  public depthWriteMask = true;
+
   public clearColor = Vector4.fromCopyArray([1, 1, 1, 1]);
   public clearDepth = 1;
   public clearStencil = 0;
