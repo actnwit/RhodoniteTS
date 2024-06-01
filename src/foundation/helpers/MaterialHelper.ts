@@ -70,6 +70,7 @@ import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import { Scalar } from '../math/Scalar';
 import { TextureParameter } from '../definitions';
+import { Vector2 } from '../math';
 
 function createMaterial(
   materialName: string,
@@ -825,11 +826,11 @@ function createGaussianBlurMaterial({
       max: 30,
     },
     {
-      semantic: ShaderSemantics.FramebufferWidth,
+      semantic: ShaderSemantics.FramebufferSize,
       componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
+      compositionType: CompositionType.Vec2,
       stage: ShaderType.PixelShader,
-      initialValue: Scalar.fromCopyNumber(1),
+      initialValue: Vector2.fromCopy2(1, 1),
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     },

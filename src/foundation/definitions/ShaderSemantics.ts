@@ -254,6 +254,9 @@ const MakeOutputSrgb: ShaderSemanticsEnum = new ShaderSemanticsClass({
 const FramebufferWidth: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'framebufferWidth',
 });
+const FramebufferSize: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  str: 'framebufferSize',
+});
 const ClearCoatFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
   str: 'clearCoatFactor',
 });
@@ -750,6 +753,7 @@ export const ShaderSemantics = Object.freeze({
   AlphaTexture,
   MakeOutputSrgb,
   FramebufferWidth,
+  FramebufferSize,
   IsOutputHDR,
   BaseColorTextureTransform,
   BaseColorTextureRotation,

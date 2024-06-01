@@ -133,7 +133,10 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-  material.setParameter(Rn.ShaderSemantics.FramebufferWidth, framebufferTarget.width);
+  material.setParameter(
+    Rn.ShaderSemantics.FramebufferSize,
+    Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
+  );
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
   const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
     material,
