@@ -1246,29 +1246,16 @@ export class WebGpuResourceRepository
       if (material.alphaMode === AlphaMode.Blend) {
         blend = {
           color: {
-            srcFactor: 'src-alpha',
-            dstFactor: 'one-minus-src-alpha',
-            operation: 'add',
+            srcFactor: material.blendFuncSrcFactor.webgpu as GPUBlendFactor,
+            dstFactor: material.blendFuncDstFactor.webgpu as GPUBlendFactor,
+            operation: material.blendEquationMode.webgpu as GPUBlendOperation,
           },
           alpha: {
-            srcFactor: 'src-alpha',
-            dstFactor: 'one-minus-src-alpha',
-            operation: 'add',
+            srcFactor: material.blendFuncAlphaSrcFactor.webgpu as GPUBlendFactor,
+            dstFactor: material.blendFuncAlphaDstFactor.webgpu as GPUBlendFactor,
+            operation: material.blendEquationModeAlpha.webgpu as GPUBlendOperation,
           },
         };
-        // } else if (material.alphaMode === AlphaMode.Additive) {
-        //   blend = {
-        //     color: {
-        //       srcFactor: 'one',
-        //       dstFactor: 'one',
-        //       operation: 'add',
-        //     },
-        //     alpha: {
-        //       srcFactor: 'one',
-        //       dstFactor: 'one',
-        //       operation: 'add',
-        //     },
-        // };
       }
     }
 

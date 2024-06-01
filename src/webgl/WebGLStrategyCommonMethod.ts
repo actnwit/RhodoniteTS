@@ -79,9 +79,6 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
       material.blendFuncAlphaDstFactor.index,
       gl
     );
-    // } else if (material.alphaMode === AlphaMode.Additive) {
-    //   setBlendEquationMode(32774, 32774, gl); // gl.FUNC_ADD
-    //   setBlendFuncSrcFactor(1, 1, 1, 1, gl); // gl.ONE
   }
 }
 
