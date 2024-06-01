@@ -872,18 +872,16 @@ function createGaussianBlurMaterial({
 function createSynthesizeHDRMaterial(
   {
     additionalName = '',
-    targetRegionTexture,
     maxInstancesNumber = 1,
   }: {
     additionalName?: string;
-    targetRegionTexture?: AbstractTexture;
     maxInstancesNumber?: Count;
   },
   synthesizeTextures: AbstractTexture[]
 ) {
   const materialName = 'SynthesizeHDR' + `_${additionalName}`;
 
-  const materialNode = new SynthesizeHDRMaterialContent(synthesizeTextures, targetRegionTexture!);
+  const materialNode = new SynthesizeHDRMaterialContent(synthesizeTextures);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 

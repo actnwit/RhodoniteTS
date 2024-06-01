@@ -71,7 +71,7 @@ const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
   renderPassesBlurredHighLuminance
 );
 
-const renderPassSynthesizeGlare = renderPassesSynthesizeImages[1];
+const renderPassSynthesizeGlare = renderPassesSynthesizeImages[0];
 const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
 const renderPassGamma = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   materialGamma,
@@ -284,17 +284,6 @@ function createRenderPassesSynthesizeImages(
   renderPassLDR: Rn.RenderPass,
   renderPassesBlurredHighLuminance: Rn.RenderPass[]
 ) {
-  // the target of glare is non-white (color is not vec4(1.0)) region
-  // you can choose any material that satisfy the above condition
-  const materialGlareTarget = Rn.MaterialHelper.createDepthEncodeMaterial();
-  const renderPassGlareTarget = createRenderPassGlareTargetRegion(
-    materialGlareTarget,
-    cameraComponentMain,
-    rootGroup
-  );
-  renderPassGlareTarget.tryToSetUniqueName('renderPassGlareTarget', true);
-  createAndSetFramebuffer(renderPassGlareTarget, rnCanvasElement.width, 1, {});
-
   const texturesSynthesize = [
     renderPassLDR.getFramebuffer().colorAttachments[0],
   ] as Rn.RenderTargetTexture[];
@@ -307,8 +296,6 @@ function createRenderPassesSynthesizeImages(
 
   const materialSynthesizeTextures = Rn.MaterialHelper.createSynthesizeHDRMaterial(
     {
-      targetRegionTexture: renderPassGlareTarget.getFramebuffer()
-        .colorAttachments[0] as Rn.RenderTargetTexture,
       maxInstancesNumber: 1,
     },
     texturesSynthesize
@@ -324,7 +311,7 @@ function createRenderPassesSynthesizeImages(
   renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
   createAndSetFramebuffer(renderPassSynthesizeGlare, rnCanvasElement.width, 1, {});
 
-  return [renderPassGlareTarget, renderPassSynthesizeGlare];
+  return [renderPassSynthesizeGlare];
 }
 
 function createRenderPassGaussianBlur(
@@ -375,20 +362,6 @@ function setParameterForAllMaterialsInMeshComponents(
       primitive.material.setParameter(shaderSemantic, value);
     }
   }
-}
-
-function createRenderPassGlareTargetRegion(
-  material: Rn.Material,
-  cameraComponent: Rn.CameraComponent,
-  entityGlareTarget: Rn.ISceneGraphEntity
-) {
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = true;
-  renderPass.clearColor = Rn.Vector4.fromCopyArray([1.0, 1.0, 1.0, 1.0]);
-  renderPass.cameraComponent = cameraComponent;
-  renderPass.addEntities([entityGlareTarget]);
-  renderPass.setMaterial(material);
-  return renderPass;
 }
 
 function createExpression(renderPasses: Rn.RenderPass[]) {

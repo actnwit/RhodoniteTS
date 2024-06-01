@@ -42,7 +42,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     str: 'synthesizeTexture5',
   });
 
-  private existTargetRegion: boolean;
   private textureNumber: Count;
 
   /**
@@ -60,10 +59,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
    * @synthesizeTextures Textures to be synthesized. The shader supports up to six texture syntheses.
    * @targetRegionTexture Texture to specify the area where the texture will be synthesized
    */
-  constructor(
-    synthesizeTextures: AbstractTexture[],
-    targetRegionTexture: AbstractTexture = dummyBlackTexture
-  ) {
+  constructor(synthesizeTextures: AbstractTexture[]) {
     super(
       null,
       'synthesizeHDRTextureShading',
@@ -72,7 +68,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
       SynthesizeHDRTextureShaderFragment
     );
 
-    this.existTargetRegion = targetRegionTexture != null ? true : false;
     this.textureNumber = synthesizeTextures.length;
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
@@ -150,15 +145,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
-      {
-        semantic: SynthesizeHdrMaterialContent.TargetRegionTexture,
-        componentType: ComponentType.Int,
-        compositionType: CompositionType.Texture2D,
-        stage: ShaderType.PixelShader,
-        initialValue: [6, targetRegionTexture],
-        min: 0,
-        max: Number.MAX_SAFE_INTEGER,
-      },
     ];
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
@@ -196,10 +182,6 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
       this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
     }
-  }
-
-  get existTargetRegionTexture() {
-    return this.existTargetRegion;
   }
 
   get synthesizeTextureNumber() {
