@@ -22,7 +22,7 @@ const synthesizeCoefficient = [1.0, 1.0 / 5.0, 1.0 / 6.0, 1.0 / 10.0];
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.Uniform,
   canvas: rnCanvasElement,
 });
 
@@ -250,22 +250,25 @@ function createRenderPassesBlurredHighLuminance(
         true,
         resolutionBlur
       );
-
-      setParameterForAllMaterialsInMeshComponents(
-        renderPassBlurH.meshComponents,
-        Rn.ShaderSemantics.FramebufferWidth,
-        resolutionBlur
-      );
-
       // need to draw the full viewport size
       renderPassBlurH.setViewport(Rn.Vector4.fromCopyArray([0, 0, resolutionBlur, resolutionBlur]));
     }
+    setParameterForAllMaterialsInMeshComponents(
+      renderPassBlurH.meshComponents,
+      Rn.ShaderSemantics.FramebufferWidth,
+      resolutionBlur
+    );
     renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
     renderPassBlurH.cameraComponent = cameraComponentPostEffect;
 
     const renderPassBlurHV = createRenderPassGaussianBlur(renderPassBlurH, false, resolutionBlur);
     renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
     renderPassBlurHV.cameraComponent = cameraComponentPostEffect;
+    setParameterForAllMaterialsInMeshComponents(
+      renderPassBlurHV.meshComponents,
+      Rn.ShaderSemantics.FramebufferWidth,
+      resolutionBlur
+    );
 
     renderPasses.push(renderPassBlurH, renderPassBlurHV);
   }
