@@ -200,6 +200,8 @@ function createRenderPassPostEffect(material: Rn.Material, cameraComponent: Rn.C
 
   const renderPass = new Rn.RenderPass();
   renderPass.toClearColorBuffer = false;
+  renderPass.toClearDepthBuffer = false;
+  renderPass.isDepthTest = false;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities([boardEntity]);
 
