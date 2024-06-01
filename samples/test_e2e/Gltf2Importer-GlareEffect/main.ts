@@ -51,6 +51,9 @@ const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMateria
   { maxInstancesNumber: 1 },
   renderPassLDR
 );
+materialHighLuminance.setParameter(Rn.DetectHighLuminanceMaterialContent.LuminanceCriterion, 2.0);
+materialHighLuminance.setParameter(Rn.DetectHighLuminanceMaterialContent.LuminanceReduce, 0.25);
+
 const renderPassHighLuminance =
   Rn.RenderPassHelper.createScreenDrawRenderPass(materialHighLuminance);
 renderPassHighLuminance.tryToSetUniqueName('renderPassHighLuminance', true);

@@ -22,9 +22,9 @@ void main ()
   float luminance = length(baseColor);
 
   float luminanceCriterion = get_luminanceCriterion(materialSID, 0);
-  if(luminance < luminanceCriterion){
-    baseColor = vec4(0.0);
-  }else{
+  if (luminance < luminanceCriterion) {
+    baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+  } else {
     float luminanceReduce = get_luminanceReduce(materialSID, 0);
     baseColor.rgb = pow(baseColor.rgb, vec3(luminanceReduce));
   }
