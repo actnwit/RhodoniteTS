@@ -760,8 +760,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           );
           renderedSomething ||= rendered;
         }
-        gl.depthMask(true);
       }
+      gl.depthMask(true);
     }
 
     this.__lastRenderPassTickCount = renderPassTickCount;
