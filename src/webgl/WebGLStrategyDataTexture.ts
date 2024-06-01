@@ -643,7 +643,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return this.__instance;
   }
 
-  private __setCurrentComponentSIDsForEachRenderPass(
+  private __setCurrentComponentSIDsForEachDisplayIdx(
     renderPass: RenderPass,
     displayIdx: 0 | 1,
     isVRMainPass: boolean
@@ -690,10 +690,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     shaderProgram: WebGLProgram
   ) {
     WebGLStrategyDataTexture.__currentComponentSIDs!._v[0] = material.materialSID;
-    gl.uniform1fv(
-      (shaderProgram as any).currentComponentSIDs,
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
-    );
   }
 
   common_$render(
@@ -766,6 +762,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     this.__setCurrentComponentSIDsForEachPrimitive(gl, material, shaderProgram);
 
+    gl.uniform1fv(
+      (shaderProgram as any).currentComponentSIDs,
+      WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
+    );
+
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
     material._setParametersToGpuWebGLWithOutInternalSetting({
@@ -828,46 +829,52 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    if (firstTime) {
+      this.__setCurrentComponentSIDsForEachPrimitive(
+        gl,
+        material,
+        WebGLStrategyDataTexture.__shaderProgram
+      );
+
+      WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
+
+      material._setParametersToGpuWebGL({
+        material: material,
+        shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+        firstTime: firstTime,
+        args: {
+          glw: glw,
+          entity: entity,
+          worldMatrix: entity.getSceneGraph()!.matrixInner,
+          normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
+          isBillboard: entity.getSceneGraph().isBillboard,
+          lightComponents: this.__lightComponents!,
+          renderPass: renderPass,
+          primitive: primitive,
+          diffuseCube: meshRendererComponent.diffuseCubeMap,
+          specularCube: meshRendererComponent.specularCubeMap!,
+          setUniform: false,
+          isVr: isVRMainPass,
+          displayIdx: -1,
+        },
+      });
+    }
+
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
-      this.__setCurrentComponentSIDsForEachRenderPass(
+      this.__setCurrentComponentSIDsForEachDisplayIdx(
         renderPass,
         displayIdx as 0 | 1,
         isVRMainPass
       );
-      if (firstTime) {
-        this.__setCurrentComponentSIDsForEachPrimitive(
-          gl,
-          material,
-          WebGLStrategyDataTexture.__shaderProgram
-        );
 
-        WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
-
-        material._setParametersToGpuWebGL({
-          material: material,
-          shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
-          firstTime: firstTime,
-          args: {
-            glw: glw,
-            entity: entity,
-            worldMatrix: entity.getSceneGraph()!.matrixInner,
-            normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
-            isBillboard: entity.getSceneGraph().isBillboard,
-            lightComponents: this.__lightComponents!,
-            renderPass: renderPass,
-            primitive: primitive,
-            diffuseCube: meshRendererComponent.diffuseCubeMap,
-            specularCube: meshRendererComponent.specularCubeMap!,
-            setUniform: false,
-            isVr: isVRMainPass,
-            displayIdx,
-          },
-        });
-      }
+      gl.uniform1fv(
+        (WebGLStrategyDataTexture.__shaderProgram as any).currentComponentSIDs,
+        WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
+      );
 
       if (primitive.indicesAccessor) {
         gl.drawElementsInstanced(
