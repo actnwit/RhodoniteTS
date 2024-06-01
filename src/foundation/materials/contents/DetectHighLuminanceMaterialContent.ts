@@ -96,19 +96,18 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
-    }
-
-    /// Matrices
-    let cameraComponent = args.renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
-    }
-    if (cameraComponent) {
-      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      /// Matrices
+      let cameraComponent = args.renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
+      }
+      if (cameraComponent) {
+        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      }
     }
   }
 }

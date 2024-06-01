@@ -169,25 +169,24 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
   }) {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
-    } else {
-      (shaderProgram as any)._gl.uniform1fv(
-        (shaderProgram as any).synthesizeCoefficient,
-        material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)._v
-      );
-    }
 
-    /// Matrices
-    let cameraComponent = args.renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
+      /// Matrices
+      let cameraComponent = args.renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
+      }
+      if (cameraComponent) {
+        this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+        this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      }
     }
-    if (cameraComponent) {
-      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-    }
+    (shaderProgram as any)._gl.uniform1fv(
+      (shaderProgram as any).synthesizeCoefficient,
+      material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)._v
+    );
   }
 
   get synthesizeTextureNumber() {
