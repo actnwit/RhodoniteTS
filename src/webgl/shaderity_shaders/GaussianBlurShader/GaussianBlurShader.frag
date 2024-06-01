@@ -32,20 +32,17 @@ void main ()
     blurDirection = vec2(0.0,1.0);
   }
 
-  vec4 color = vec4(0.0);
+  vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
   int gaussianKernelSize = get_gaussianKernelSize(materialSID, 0);
   float minStrideLength = -float(gaussianKernelSize - 1) / 2.0;
 
-  for(int i=0; i < 30; i++) {
-    if(gaussianKernelSize == i) {
-      break;
-    }
+  for(int i=0; i < gaussianKernelSize; i++) {
 
     float strideLength = minStrideLength + float(i);
     vec2 stride = strideLength * blurDirection;
 
     float gaussianRatio = u_gaussianRatio[i];
-    color += texture(u_baseColorTexture, (offset + stride) * tFrag) * gaussianRatio;
+    color.rgb += texture(u_baseColorTexture, (offset + stride) * tFrag).rgb * gaussianRatio;
   }
 
   rt0 = color;

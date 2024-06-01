@@ -5,17 +5,19 @@ declare const window: any;
 // ---parameters---------------------------------------------------------------------------------------------
 
 const uriGltf =
-  '../../../assets/gltf/glTF-Sample-Models/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf';
+  // '../../../assets/gltf/glTF-Sample-Models/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf';
+  '../../../assets/gltf/glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
-const gaussianBlurLevelHighLuminance = 3;
-const gaussianKernelSize = 5;
-const gaussianVariance = 3;
+const gaussianBlurLevelHighLuminance = 5;
+const gaussianKernelSize = 10;
+const gaussianVariance = 100;
 const rootGroupScale = Rn.Vector3.fromCopyArray([50, 50, 50]);
 
 //  ratio of the final drawing ([original image, glare level 0, glare level 1, glare level 2])
 //  glare level N means the glare effect in size [2^(N-1) * original image size]
-const synthesizeCoefficient = [1.0, 1.0 / 5.0, 1.0 / 6.0, 1.0 / 10.0];
+// const synthesizeCoefficient = [1.0, 1.0 / 5.0, 1.0 / 6.0, 1.0 / 10.0];
+const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
 // ---main algorithm-----------------------------------------------------------------------------------------
 
 // prepare memory
@@ -290,6 +292,7 @@ function createRenderPassesSynthesizeImages(
     cameraComponentMain,
     rootGroup
   );
+  renderPassGlareTarget.tryToSetUniqueName('renderPassGlareTarget', true);
   createAndSetFramebuffer(renderPassGlareTarget, rnCanvasElement.width, 1, {});
 
   const texturesSynthesize = [
