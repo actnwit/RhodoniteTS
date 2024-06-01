@@ -9,7 +9,7 @@ import { Material } from '../materials/core/Material';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { PrimitiveUID, TypedArray, Count, Index } from '../../types/CommonTypes';
 import { IVector3 } from '../math/IVector';
-import { IMesh, PrimitiveSortKey, PrimitiveSortKeyOffset, RaycastResultEx1 } from './types/GeometryTypes';
+import { IMesh, PrimitiveSortKey, PrimitiveSortKeyLength, PrimitiveSortKeyOffset, RaycastResultEx1 } from './types/GeometryTypes';
 import { Mesh } from './Mesh';
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 export interface IAnyPrimitiveDescriptor {
@@ -54,11 +54,12 @@ export declare class Primitive extends RnObject {
     static get variantUpdateCount(): number;
     setMaterialVariant(variantName: string, material: Material): void;
     applyMaterialVariant(variantName: string): void;
+    getCurrentVariantName(): string;
     getVariantNames(): string[];
     getVariantMaterial(variantName: string): Material | undefined;
     set material(mat: Material);
     get material(): Material;
-    setSortKey(offset: PrimitiveSortKeyOffset, value: number): void;
+    setSortKey(offset: PrimitiveSortKeyOffset, length: PrimitiveSortKeyLength, value: number): void;
     /**
      * belong to mesh (weak reference)
      * @param mesh

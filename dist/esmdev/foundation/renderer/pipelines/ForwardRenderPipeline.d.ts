@@ -71,7 +71,6 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __depthMomentExpressions;
     private __oGammaExpression;
     private __transparentOnlyExpressions;
-    private __oGammaBoardEntity;
     private __oWebXRSystem;
     private __oDrawFunc;
     private __oDiffuseCubeTexture;

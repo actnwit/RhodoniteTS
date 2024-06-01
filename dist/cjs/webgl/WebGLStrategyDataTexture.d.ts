@@ -57,6 +57,7 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __setCurrentComponentSIDsForEachRenderPass;
     private __setCurrentComponentSIDsForEachPrimitive;
     common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    private __renderWithoutBuffers;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, isVRMainPass: boolean, displayIdx: Index): boolean;
     private bindDataTexture;
 }

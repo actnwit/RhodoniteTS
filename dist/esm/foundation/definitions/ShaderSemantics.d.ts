@@ -23,7 +23,6 @@ export declare class ShaderSemanticsClass extends EnumClass implements ShaderSem
 declare function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum;
 declare function fromString(str: string): ShaderSemanticsEnum;
 declare function fromStringCaseSensitively(str: string): ShaderSemanticsEnum;
-declare function fullSemanticStr(info: ShaderSemanticsInfo): string;
 export type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, propertyIndex: Index, isGlobalData: boolean, isWebGL2: boolean) => string;
 /**
  * @internal
@@ -102,7 +101,6 @@ export declare const ShaderSemantics: Readonly<{
     ThicknessTexture: ShaderSemanticsEnum;
     AttenuationDistance: ShaderSemanticsEnum;
     AttenuationColor: ShaderSemanticsEnum;
-    fullSemanticStr: typeof fullSemanticStr;
     getShaderProperty: getShaderPropertyFunc;
     EntityUID: ShaderSemanticsEnum;
     MorphTargetNumber: ShaderSemanticsEnum;

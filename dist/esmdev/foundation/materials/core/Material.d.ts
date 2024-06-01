@@ -28,6 +28,7 @@ export declare class Material extends RnObject {
     private __materialTid;
     __materialSid: MaterialSID;
     private __alphaMode;
+    isTranslucent: boolean;
     cullFace: boolean;
     cullFrontFaceCCW: boolean;
     private __alphaToCoverage;
@@ -96,7 +97,7 @@ export declare class Material extends RnObject {
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
     _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive?: Primitive): void;
-    _setCustomSettingParametersToGpuWebGpu({ material, args, }: {
+    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;
     }): void;
@@ -110,11 +111,10 @@ export declare class Material extends RnObject {
         firstTime: boolean;
         args: RenderingArgWebGL;
     }): void;
-    _setParametersToGpuWebGL2({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
+    _setParametersToGpuWebGLWithOutInternalSetting({ shaderProgram, firstTime, isUniformMode, }: {
         shaderProgram: WebGLProgram;
         firstTime: boolean;
-        args: RenderingArgWebGL;
+        isUniformMode: boolean;
     }): void;
     /**
      * @internal
@@ -126,7 +126,6 @@ export declare class Material extends RnObject {
     };
     private __setAutoParametersToGpuWebGL;
     private __setSoloDatumParametersToGpuWebGL;
-    private __getTargetShaderSemantics;
     /**
      * Change the blendEquations
      * This method works only if this alphaMode is the translucent
@@ -146,6 +145,8 @@ export declare class Material extends RnObject {
     setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum): void;
     isEmptyMaterial(): boolean;
     isBlend(): boolean;
+    isBlendOrTranslucent(): boolean;
+    isOpaque(): boolean;
     /**
      * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
      * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
@@ -159,12 +160,12 @@ export declare class Material extends RnObject {
      */
     get materialTID(): MaterialTID;
     get fieldsInfoArray(): ShaderSemanticsInfo[];
-    get blendEquationMode(): import("../..").EnumIO;
-    get blendEquationModeAlpha(): import("../..").EnumIO;
-    get blendFuncSrcFactor(): import("../..").EnumIO;
-    get blendFuncDstFactor(): import("../..").EnumIO;
-    get blendFuncAlphaSrcFactor(): import("../..").EnumIO;
-    get blendFuncAlphaDstFactor(): import("../..").EnumIO;
+    get blendEquationMode(): BlendEnum;
+    get blendEquationModeAlpha(): BlendEnum;
+    get blendFuncSrcFactor(): BlendEnum;
+    get blendFuncDstFactor(): BlendEnum;
+    get blendFuncAlphaSrcFactor(): BlendEnum;
+    get blendFuncAlphaDstFactor(): BlendEnum;
     get alphaMode(): AlphaModeEnum;
     set alphaMode(mode: AlphaModeEnum);
     get materialUID(): MaterialUID;

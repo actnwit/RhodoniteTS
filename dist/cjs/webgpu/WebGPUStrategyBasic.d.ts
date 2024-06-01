@@ -34,6 +34,7 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
     renderWithRenderBundle(renderPass: RenderPass): boolean;
     prerender(): void;
     common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: number): boolean;
+    private __renderWithoutBuffers;
     renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     private __createAndUpdateStorageBuffer;
     private __createOrUpdateStorageBlendShapeBuffer;

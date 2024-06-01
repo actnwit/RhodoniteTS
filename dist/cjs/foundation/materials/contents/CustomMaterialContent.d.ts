@@ -27,11 +27,11 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         vertexShaderWebGpu?: ShaderityObject;
         pixelShaderWebGpu?: ShaderityObject;
     });
-    _setCustomSettingParametersToGpuWebGpu({ material, args, }: {
+    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;
     }): void;
-    _setCustomSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

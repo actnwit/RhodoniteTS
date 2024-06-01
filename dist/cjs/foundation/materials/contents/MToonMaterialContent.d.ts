@@ -45,11 +45,11 @@ export declare class MToonMaterialContent extends AbstractMaterialContent {
     private __setTextures;
     setMaterialParameters(material: Material, isOutline: boolean): void;
     private static __initializeUsableBlendEquationModeAlpha;
-    _setCustomSettingParametersToGpuWebGpu({ material, args, }: {
+    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;
     }): void;
-    _setCustomSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;

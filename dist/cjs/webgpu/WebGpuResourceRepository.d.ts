@@ -14,7 +14,7 @@ import { VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { HdriFormatEnum } from '../foundation/definitions/HdriFormat';
-import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
+import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
@@ -51,8 +51,6 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __lastEntityRepositoryUpdateCount;
     private __lastPrimitivesMaterialVariantUpdateCount;
     private __lastMeshRendererComponentsUpdateCount;
-    private static __iblParameterVec4;
-    private static __hdriFormatVec2;
     private constructor();
     clearCache(): void;
     addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper): void;
@@ -169,8 +167,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __toClearRenderBundles;
     executeRenderBundle(renderPass: RenderPass): boolean;
     finishRenderBundleEncoder(renderPass: RenderPass): void;
-    private __setupIBLParameters;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, meshRendererComponent: MeshRendererComponent, cameraId: number): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, diffuseCubeMap?: CubeTexture, specularCubeMap?: CubeTexture): [GPURenderPipeline, boolean];
     flush(): void;
     /**
      * Create Cube Texture from image files.

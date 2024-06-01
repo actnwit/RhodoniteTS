@@ -1,11 +1,13 @@
 import { EnumIO } from '../misc/EnumIO';
-export type BlendEnum = EnumIO;
+export interface BlendEnum extends EnumIO {
+    webgpu: string;
+}
 declare function from(index: number): BlendEnum;
 export declare const Blend: Readonly<{
-    EquationFuncAdd: EnumIO;
-    One: EnumIO;
-    SrcAlpha: EnumIO;
-    OneMinusSrcAlpha: EnumIO;
+    EquationFuncAdd: BlendEnum;
+    One: BlendEnum;
+    SrcAlpha: BlendEnum;
+    OneMinusSrcAlpha: BlendEnum;
     from: typeof from;
 }>;
 export {};

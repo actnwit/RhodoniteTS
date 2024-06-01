@@ -17,8 +17,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
     initialValue: Scalar;
     min: number;
     max: number;
-    isCustomSetting: boolean;
-    updateInterval: import("..").EnumIO;
+    isInternalSetting: boolean;
 } | {
     semantic: import("../foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
     compositionType: import("../foundation/definitions/CompositionType").CompositionTypeEnum;
@@ -27,8 +26,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
     initialValue: Vector3;
     min: number;
     max: number;
-    isCustomSetting: boolean;
-    updateInterval: import("..").EnumIO;
+    isInternalSetting: boolean;
 })[];
 export declare function setupShaderProgram(material: Material, primitive: Primitive, webglStrategy: WebGLStrategy): void;
 declare const _default: Readonly<{

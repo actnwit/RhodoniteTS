@@ -10,7 +10,8 @@ import { MutableVector4 } from '../math/MutableVector4';
 import { IVector4 } from '../math/IVector';
 import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { CameraComponent } from '../components/Camera/CameraComponent';
-import { RenderBufferTargetEnum } from '../definitions';
+import { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
+import { PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
@@ -18,12 +19,15 @@ export declare class RenderPass extends RnObject {
     private readonly __renderPassUID;
     private __entities;
     private __sceneGraphDirectlyAdded;
-    private __topLevelSceneGraphComponents?;
-    private __meshComponents?;
+    private __topLevelSceneGraphComponents;
+    private __meshComponents;
+    private __optimizedMeshComponents;
     private __frameBuffer?;
     private __resolveFrameBuffer?;
     private __resolveFrameBuffer2?;
     private __viewport?;
+    private __material?;
+    private __primitiveMaterial;
     toClearColorBuffer: boolean;
     toClearDepthBuffer: boolean;
     toClearStencilBuffer: boolean;
@@ -32,10 +36,9 @@ export declare class RenderPass extends RnObject {
     clearDepth: number;
     clearStencil: number;
     cameraComponent?: CameraComponent;
-    cullFrontFaceCCW: boolean;
-    private __material?;
-    private __primitiveMaterial;
-    private __webglRenderingStrategy?;
+    _drawVertexNumberForBufferLessRendering: number;
+    _primitiveModeForBufferLessRendering: PrimitiveModeEnum;
+    _dummyPrimitiveForBufferLessRendering: Primitive;
     isVrRendering: boolean;
     isOutputForVr: boolean;
     _lastOpaqueIndex: number;
@@ -49,15 +52,36 @@ export declare class RenderPass extends RnObject {
     _renderedSomethingBefore: boolean;
     _isChangedSortRenderResult: boolean;
     /** Whether or not to draw opaque primitives contained in this render pass. */
-    toRenderOpaquePrimitives: boolean;
+    _toRenderOpaquePrimitives: boolean;
     /** Whether or not to draw transparent primitives contained in this render pass. */
-    toRenderTransparentPrimitives: boolean;
+    _toRenderTransparentPrimitives: boolean;
     toRenderEffekseerEffects: boolean;
     __renderTargetColorAttachments?: RenderBufferTargetEnum[];
     private __postEachRenderFunc?;
     private static __tmp_Vector4_0;
     static __mesh_uid_count: number;
     constructor();
+    setToRenderOpaquePrimitives(toRender: boolean): void;
+    setToRenderTransparentPrimitives(toRender: boolean): void;
+    isBufferLessRenderingMode(): boolean;
+    /**
+     * @brief Set this render pass to buffer-less rendering mode.
+     * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+     * This is useful for e.g. full-screen drawing.
+     * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+     * @param primitiveMode The primitive mode to be used in buffer-less rendering.
+     * @param drawVertexNumberWithoutEntities The number of vertices to be rendered in buffer-less rendering.
+     * @param material The material to be used in buffer-less rendering.
+     */
+    setBufferLessRendering(primitiveMode: PrimitiveModeEnum, drawVertexNumberWithoutEntities: number, material: Material): void;
+    /**
+     * @brief Set this render pass to buffer-less rendering mode.
+     * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+     * This is useful for e.g. full-screen drawing.
+     * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+     * @param material The material to be used in buffer-less rendering.
+     */
+    setBufferLessFullScreenRendering(material: Material): void;
     clone(): RenderPass;
     setPostRenderFunction(func: () => void): void;
     doPostRender(): void;
@@ -66,6 +90,7 @@ export declare class RenderPass extends RnObject {
      * @param entities An array of entities.
      */
     addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]): void;
+    private __calcMeshComponents;
     /**
      * Gets the list of entities on this render pass.
      * @return An array of entities
@@ -82,6 +107,11 @@ export declare class RenderPass extends RnObject {
      * @return An array of MeshComponents
      */
     get meshComponents(): MeshComponent[];
+    /**
+     * Get MeshComponents list to render
+     * @return An array of MeshComponents
+     */
+    get _optimizedMeshComponents(): MeshComponent[];
     /**
      * Get all the highest level SceneGraphComponents list of the entities on this render pass.
      * @return An array of SceneGraphComponents
@@ -121,7 +151,6 @@ export declare class RenderPass extends RnObject {
     _copyFramebufferToResolveFramebuffersWebGL(): void;
     private __copyFramebufferToResolveFramebufferInner;
     _copyResolve1ToResolve2WebGpu(): void;
-    private __setupMaterial;
     /**
      * Sets a material for the primitive on this render pass.
      * If Rhodonite draw the primitive using this render pass, Rhodonite uses this material instead of the material on the primitive.
@@ -137,7 +166,6 @@ export declare class RenderPass extends RnObject {
      */
     setMaterial(material: Material): void;
     get material(): Material | undefined;
-    private __setWebglRenderingStrategyIfNotYet;
     _getMaterialOf(primitive: Primitive): Material | undefined;
     private __hasMaterialOf;
     getAppropriateMaterial(primitive: Primitive): Material;

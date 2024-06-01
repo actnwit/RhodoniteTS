@@ -8,8 +8,7 @@ declare function fromGlTFString(str: string): AlphaModeEnum | undefined;
 export declare const AlphaMode: Readonly<{
     Opaque: AlphaModeEnum;
     Mask: AlphaModeEnum;
-    Translucent: AlphaModeEnum;
-    Additive: AlphaModeEnum;
+    Blend: AlphaModeEnum;
     from: typeof from;
     fromString: typeof fromString;
     fromGlTFString: typeof fromGlTFString;

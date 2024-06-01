@@ -68,15 +68,15 @@ export declare class Mesh implements IMesh {
     /**
      * Gets true if these primitives are all 'Blend' type
      */
-    isAllBlend(): boolean;
+    isAllTranslucent(): boolean;
     /**
      * Gets true if some primitives are 'Blend' type
      */
-    isBlendPartially(): boolean;
+    isPartiallyTranslucent(): boolean;
     /**
      * Gets true if these primitives are all 'Opaque' type
      */
-    isOpaque(): boolean;
+    isAllOpaque(): boolean;
     getPrimitiveAt(i: number): Primitive;
     getPrimitiveNumber(): number;
     /**
@@ -130,6 +130,7 @@ export declare class Mesh implements IMesh {
      * @param variantName a variant name
      */
     applyMaterialVariant(variantName: string): void;
+    getCurrentVariantName(): string;
     getVariantNames(): string[];
     isSetUpDone(): boolean;
 }

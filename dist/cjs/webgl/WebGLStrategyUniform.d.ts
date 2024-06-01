@@ -40,6 +40,7 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
     dettachVertexData(glw: WebGLContextWrapper): void;
     static getInstance(): WebGLStrategyUniform;
     common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
+    private __renderWithoutBuffers;
     renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, renderPassTickCount: Count, isVRMainPass: boolean, displayIdx: Index): boolean;
     private bindDataTexture;
 }

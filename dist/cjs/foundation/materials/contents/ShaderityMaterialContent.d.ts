@@ -8,7 +8,7 @@ export declare class ShaderityMaterialContent extends AbstractMaterialContent {
         vertexShaderityObj: ShaderityObject;
         pixelShaderityObj: ShaderityObject;
     });
-    _setCustomSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
