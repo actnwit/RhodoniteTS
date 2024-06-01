@@ -35,17 +35,19 @@ void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  float framebufferWidth = get_framebufferWidth(materialSID, 0);
-	float tFrag = 1.0 / framebufferWidth;
+  float framebufferSize;
   vec2 offset = gl_FragCoord.st;
 
   vec2 blurDirection;
   bool isHorizontal = get_isHorizontal(materialSID, 0);
   if(isHorizontal){
+    framebufferSize = get_framebufferSize(materialSID, 0).x;
     blurDirection = vec2(1.0,0.0);
   }else{
+    framebufferSize = get_framebufferSize(materialSID, 0).y;
     blurDirection = vec2(0.0,1.0);
   }
+	float tFrag = 1.0 / framebufferSize;
 
   float depth = 0.0;
   int gaussianKernelSize = get_gaussianKernelSize(materialSID, 0);
