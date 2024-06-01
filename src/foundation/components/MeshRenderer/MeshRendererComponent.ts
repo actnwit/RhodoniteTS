@@ -216,7 +216,7 @@ export class MeshRendererComponent extends Component {
 
     // Sort by sortkey
     primitives.sort((a, b) => {
-      if (isTranslucent(a) || isTranslucent(b)) {
+      if (isTranslucent(a) && isTranslucent(b)) {
         return a._viewDepth - b._viewDepth;
       } else {
         return a._sortkey - b._sortkey;

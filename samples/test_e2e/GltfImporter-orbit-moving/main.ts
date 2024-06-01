@@ -56,7 +56,7 @@ mainExpression.renderPasses[0].toClearDepthBuffer = true;
 mainExpression.renderPasses[0].clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 0]);
 
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
-gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Translucent;
+gammaCorrectionMaterial.alphaMode = Rn.AlphaMode.Blend;
 
 const gammaCorrectionRenderPass =
   Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(

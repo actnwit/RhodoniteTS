@@ -111,7 +111,10 @@ export class Mesh implements IMesh {
   public addPrimitive(primitive: Primitive): void {
     primitive._belongToMesh(this);
 
-    if (primitive.material == null || !primitive.material.isBlend()) {
+    if (
+      primitive.material == null ||
+      (!primitive.material.isBlend() && !primitive.material.isTranslucent)
+    ) {
       this.__opaquePrimitives.push(primitive);
     } else {
       this.__transparentPrimitives.push(primitive);
@@ -126,7 +129,7 @@ export class Mesh implements IMesh {
   /**
    * Gets true if these primitives are all 'Blend' type
    */
-  public isAllBlend(): boolean {
+  public isAllTranslucent(): boolean {
     if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length === 0) {
       return true;
     } else {
@@ -137,7 +140,7 @@ export class Mesh implements IMesh {
   /**
    * Gets true if some primitives are 'Blend' type
    */
-  public isBlendPartially(): boolean {
+  public isPartiallyTranslucent(): boolean {
     if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length > 0) {
       return true;
     } else {
@@ -148,7 +151,7 @@ export class Mesh implements IMesh {
   /**
    * Gets true if these primitives are all 'Opaque' type
    */
-  public isOpaque(): boolean {
+  public isAllOpaque(): boolean {
     if (this.__transparentPrimitives.length === 0 && this.__opaquePrimitives.length > 0) {
       return true;
     } else {

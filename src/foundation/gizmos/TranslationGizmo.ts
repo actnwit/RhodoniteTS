@@ -283,7 +283,7 @@ export class TranslationGizmo extends Gizmo {
         0
       );
       TranslationGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-      TranslationGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Translucent;
+      TranslationGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__xyPlaneMaterial.setParameter(
         ShaderSemantics.DiffuseColorFactor,
         Vector4.fromCopyArray4([0, 0, 0.5, 0])
@@ -315,7 +315,7 @@ export class TranslationGizmo extends Gizmo {
         MathUtil.degreeToRadian(90)
       );
       TranslationGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
-      TranslationGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Translucent;
+      TranslationGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__yzPlaneMaterial.setParameter(
         ShaderSemantics.DiffuseColorFactor,
         Vector4.fromCopyArray4([0.5, 0, 0, 0])
@@ -346,7 +346,7 @@ export class TranslationGizmo extends Gizmo {
         ShaderSemantics.DiffuseColorFactor,
         Vector4.fromCopyArray4([0, 0.5, 0, 0])
       );
-      TranslationGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Translucent;
+      TranslationGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__zxPlaneMesh = new Mesh();
       TranslationGizmo.__zxPlanePrimitive = new Plane();
       TranslationGizmo.__zxPlanePrimitive.generate({
