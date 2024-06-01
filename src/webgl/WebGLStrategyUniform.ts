@@ -407,8 +407,8 @@ bool get_isBillboard(float instanceId) {
           );
           renderedSomething ||= rendered;
         }
-        gl.depthMask(true);
       }
+      gl.depthMask(true);
     }
 
     this.__webglResourceRepository.unbindTextureSamplers();
