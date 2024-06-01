@@ -14,8 +14,8 @@ void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  float framebufferWidth = get_framebufferWidth(materialSID, 0);
-	float tFrag = 1.0 / framebufferWidth;
+  vec2 framebufferSize = get_framebufferSize(materialSID, 0);
+	vec2 tFrag = 1.0 / framebufferSize;
   vec2 offset = gl_FragCoord.st;
   vec4 baseColor = texture(u_baseColorTexture, offset * tFrag);
 

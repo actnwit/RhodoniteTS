@@ -18,6 +18,7 @@ import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderit
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlackTexture } from '../core/DummyTextures';
+import { Vector2 } from '../../math';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -25,9 +26,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   });
   static LuminanceReduce: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'luminanceReduce',
-  });
-  static FramebufferWidth: ShaderSemanticsEnum = new ShaderSemanticsClass({
-    str: 'framebufferWidth',
   });
 
   constructor(HDRRenderPass: RenderPass, colorAttachmentsNumber: Count) {
@@ -62,14 +60,17 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
 
     let targetTexture;
     let framebufferWidth;
+    let framebufferHeight;
 
     const framebuffer = HDRRenderPass.getFramebuffer();
     if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
       framebufferWidth = framebuffer.width;
+      framebufferHeight = framebuffer.height;
     } else {
       targetTexture = dummyBlackTexture;
       framebufferWidth = 1;
+      framebufferHeight = 1;
 
       if (framebuffer != null) {
         console.warn(
@@ -82,11 +83,11 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
 
     shaderSemanticsInfoArray.push(
       {
-        semantic: ShaderSemantics.FramebufferWidth,
+        semantic: ShaderSemantics.FramebufferSize,
         componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
+        compositionType: CompositionType.Vec2,
         stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(framebufferWidth),
+        initialValue: Vector2.fromCopy2(framebufferWidth, framebufferHeight),
         min: 0,
         max: Number.MAX_VALUE,
       },
