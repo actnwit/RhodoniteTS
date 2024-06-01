@@ -17,8 +17,5 @@ out vec2 v_texcoord_0;
 
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
-
-#pragma shaderity: require(../common/simpleMVPPosition.glsl)
-
-  v_texcoord_0 = a_texcoord_0;
+#pragma shaderity: require(../common/fullscreen.glsl)
 }

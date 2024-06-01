@@ -257,22 +257,12 @@ function createRenderPassesBlurredHighLuminance(
       // need to draw the full viewport size
       renderPassBlurH.setViewport(Rn.Vector4.fromCopyArray([0, 0, resolutionBlur, resolutionBlur]));
     }
-    setParameterForAllMaterialsInMeshComponents(
-      renderPassBlurH.meshComponents,
-      Rn.ShaderSemantics.FramebufferWidth,
-      resolutionBlur
-    );
     renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
     renderPassBlurH.cameraComponent = cameraComponentPostEffect;
 
     const renderPassBlurHV = createRenderPassGaussianBlur(renderPassBlurH, false, resolutionBlur);
     renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
     renderPassBlurHV.cameraComponent = cameraComponentPostEffect;
-    setParameterForAllMaterialsInMeshComponents(
-      renderPassBlurHV.meshComponents,
-      Rn.ShaderSemantics.FramebufferWidth,
-      resolutionBlur
-    );
 
     renderPasses.push(renderPassBlurH, renderPassBlurHV);
   }
@@ -328,6 +318,7 @@ function createRenderPassGaussianBlur(
   });
   material.setParameter(Rn.ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
   material.setParameter(Rn.ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
+  material.setParameter(Rn.ShaderSemantics.FramebufferWidth, resolutionBlur);
 
   if (isHorizontal === false) {
     material.setParameter(Rn.ShaderSemantics.IsHorizontal, false);
@@ -335,15 +326,10 @@ function createRenderPassGaussianBlur(
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const sampler = new Rn.Sampler({
-    magFilter: Rn.TextureParameter.Linear,
-    minFilter: Rn.TextureParameter.Linear,
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-  });
-  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget, sampler);
-
-  const renderPass = createRenderPassPostEffect(material, cameraComponentPostEffect);
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+    material,
+    TextureTarget
+  );
   createAndSetFramebuffer(renderPass, resolutionBlur, 1, {});
 
   return renderPass;
