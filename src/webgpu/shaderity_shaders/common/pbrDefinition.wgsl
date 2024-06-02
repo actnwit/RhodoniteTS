@@ -473,7 +473,7 @@ fn lightingWithPunctualLight(
 
 
 #ifdef RN_USE_IRIDESCENCE
-  let specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH);
+  let specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH) * vec3f(NdotL) * light.attenuatedIntensity;
 #elif defined(RN_USE_ANISOTROPY)
   let TdotL = dot(anisotropicT, light.direction);
   let BdotL = dot(anisotropicB, light.direction);
