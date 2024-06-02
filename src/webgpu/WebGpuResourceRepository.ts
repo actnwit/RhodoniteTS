@@ -249,7 +249,7 @@ export class WebGpuResourceRepository
     const gpuTexture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
-      format: 'rgba8unorm',
+      format: gpuTexture.format,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_DST |

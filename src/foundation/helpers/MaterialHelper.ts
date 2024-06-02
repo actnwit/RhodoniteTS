@@ -66,10 +66,14 @@ import {
 } from '../materials/core/DummyTextures';
 import GaussianBlurSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
 import GaussianBlurSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import GaussianBlurSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import { Scalar } from '../math/Scalar';
 import { TextureParameter } from '../definitions';
+import { Vector2 } from '../math';
+import { FrameBuffer } from '../renderer/FrameBuffer';
 
 function createMaterial(
   materialName: string,
@@ -676,11 +680,11 @@ function createGaussianBlurForEncodedDepthMaterial({
       max: 30,
     },
     {
-      semantic: ShaderSemantics.FramebufferWidth,
+      semantic: ShaderSemantics.FramebufferSize,
       componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
+      compositionType: CompositionType.Vec2,
       stage: ShaderType.PixelShader,
-      initialValue: Scalar.fromCopyNumber(1),
+      initialValue: Vector2.fromCopy2(1, 1),
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     },
@@ -772,14 +776,11 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
 }
 
 function createDetectHighLuminanceMaterial(
-  { additionalName = '', colorAttachmentsNumber = 0, maxInstancesNumber = 5 } = {},
-  HDRRenderPass: RenderPass
+  { additionalName = '', maxInstancesNumber = 5 } = {},
+  textureToDetectHighLuminance: AbstractTexture
 ) {
   const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
-  const materialNode = new DetectHighLuminanceMaterialContent(
-    HDRRenderPass,
-    colorAttachmentsNumber
-  );
+  const materialNode = new DetectHighLuminanceMaterialContent(textureToDetectHighLuminance);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   return material;
@@ -813,7 +814,7 @@ function createGaussianBlurMaterial({
       initialValue: new VectorN(gaussianRatio),
       min: 0,
       max: 1,
-      needUniformInDataTextureMode: true,
+      // needUniformInDataTextureMode: true,
     },
     {
       semantic: ShaderSemantics.GaussianKernelSize,
@@ -825,11 +826,11 @@ function createGaussianBlurMaterial({
       max: 30,
     },
     {
-      semantic: ShaderSemantics.FramebufferWidth,
+      semantic: ShaderSemantics.FramebufferSize,
       componentType: ComponentType.Float,
-      compositionType: CompositionType.Scalar,
+      compositionType: CompositionType.Vec2,
       stage: ShaderType.PixelShader,
-      initialValue: Scalar.fromCopyNumber(1),
+      initialValue: Vector2.fromCopy2(1, 1),
       min: 0,
       max: Number.MAX_SAFE_INTEGER,
     },
@@ -860,6 +861,8 @@ function createGaussianBlurMaterial({
     useNormalTexture: false,
     vertexShader: GaussianBlurSingleShaderVertex,
     pixelShader: GaussianBlurSingleShaderFragment,
+    vertexShaderWebGpu: GaussianBlurSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: GaussianBlurSingleShaderFragmentWebGpu,
     noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
@@ -872,18 +875,16 @@ function createGaussianBlurMaterial({
 function createSynthesizeHDRMaterial(
   {
     additionalName = '',
-    targetRegionTexture,
     maxInstancesNumber = 1,
   }: {
     additionalName?: string;
-    targetRegionTexture?: AbstractTexture;
     maxInstancesNumber?: Count;
   },
   synthesizeTextures: AbstractTexture[]
 ) {
   const materialName = 'SynthesizeHDR' + `_${additionalName}`;
 
-  const materialNode = new SynthesizeHDRMaterialContent(synthesizeTextures, targetRegionTexture!);
+  const materialNode = new SynthesizeHDRMaterialContent(synthesizeTextures);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 

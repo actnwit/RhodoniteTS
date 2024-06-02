@@ -269,30 +269,15 @@ function createRenderPassGaussianBlurForDepth(
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-  material.setParameter(Rn.ShaderSemantics.FramebufferWidth, framebufferTarget.width);
+  material.setParameter(
+    Rn.ShaderSemantics.FramebufferSize,
+    Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
+  );
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const sampler = new Rn.Sampler({
-    magFilter: Rn.TextureParameter.Linear,
-    minFilter: Rn.TextureParameter.Linear,
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-  });
-  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget, sampler);
-
-  const boardEntity = Rn.MeshHelper.createPlane({
-    width: 2,
-    height: 2,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    flipTextureCoordinateY: false,
-    direction: 'xy',
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
     material,
-  });
-
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = false;
-  renderPass.addEntities([boardEntity]);
+    TextureTarget
+  );
 
   return renderPass;
 }

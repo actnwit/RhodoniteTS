@@ -18,6 +18,8 @@ let sampler: Sampler | undefined;
 function createScreenDrawRenderPass(material: Material) {
   const renderPass = new RenderPass();
   renderPass.toClearColorBuffer = false;
+  renderPass.toClearDepthBuffer = false;
+  renderPass.isDepthTest = false;
   renderPass.setBufferLessFullScreenRendering(material);
 
   return renderPass;
@@ -48,6 +50,8 @@ function createScreenDrawRenderPassWithBaseColorTexture(
 
   const renderPass = new RenderPass();
   renderPass.toClearColorBuffer = false;
+  renderPass.toClearDepthBuffer = false;
+  renderPass.isDepthTest = false;
   renderPass.setBufferLessFullScreenRendering(material);
 
   return renderPass;

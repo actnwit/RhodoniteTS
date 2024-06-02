@@ -8,21 +8,20 @@
 
 /* shaderity: @{getters} */
 
+in vec2 v_texcoord_0;
+
 void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  float framebufferWidth = get_framebufferWidth(materialSID, 0);
-	float tFrag = 1.0 / framebufferWidth;
-  vec2 offset = gl_FragCoord.st;
-  vec4 baseColor = texture(u_baseColorTexture, offset * tFrag);
+  vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 
   float luminance = length(baseColor);
 
   float luminanceCriterion = get_luminanceCriterion(materialSID, 0);
-  if(luminance < luminanceCriterion){
-    baseColor = vec4(0.0);
-  }else{
+  if (luminance < luminanceCriterion) {
+    baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+  } else {
     float luminanceReduce = get_luminanceReduce(materialSID, 0);
     baseColor.rgb = pow(baseColor.rgb, vec3(luminanceReduce));
   }

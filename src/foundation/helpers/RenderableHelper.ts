@@ -46,7 +46,7 @@ function createTexturesForRenderTarget(
 
   if (isMSAA) {
     const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, TextureParameter.RGBA8, {
+    renderBuffer.create(width, height, internalFormat, {
       isMSAA,
       sampleCountMSAA,
     });

@@ -36,16 +36,6 @@ const expressions = [expressionMain, expressionPostEffect];
 draw(expressions, true);
 
 // ---functions-----------------------------------------------------------------------------------------
-
-function loadRnModules(moduleNames: string[]) {
-  const promises = [];
-  const moduleManagerInstance = Rn.ModuleManager.getInstance();
-  for (const moduleName of moduleNames) {
-    promises.push(moduleManagerInstance.loadModule(moduleName));
-  }
-  return Promise.all(promises);
-}
-
 function createEntityMainCamera() {
   const entityCamera = Rn.EntityHelper.createCameraEntity();
 
@@ -143,31 +133,15 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
-  material.setParameter(Rn.ShaderSemantics.FramebufferWidth, framebufferTarget.width);
+  material.setParameter(
+    Rn.ShaderSemantics.FramebufferSize,
+    Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
+  );
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
-  const sampler = new Rn.Sampler({
-    magFilter: Rn.TextureParameter.Linear,
-    minFilter: Rn.TextureParameter.Linear,
-    wrapS: Rn.TextureParameter.ClampToEdge,
-    wrapT: Rn.TextureParameter.ClampToEdge,
-    anisotropy: false,
-  });
-  material.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, TextureTarget, sampler);
-
-  const boardEntity = Rn.MeshHelper.createPlane({
-    width: 2,
-    height: 2,
-    uSpan: 1,
-    vSpan: 1,
-    isUVRepeat: false,
-    flipTextureCoordinateY: false,
-    direction: 'xy',
+  const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
     material,
-  });
-
-  const renderPass = new Rn.RenderPass();
-  renderPass.toClearColorBuffer = false;
-  renderPass.addEntities([boardEntity]);
+    TextureTarget
+  );
 
   return renderPass;
 }

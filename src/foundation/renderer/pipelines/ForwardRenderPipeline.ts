@@ -22,11 +22,12 @@ import {
   ProcessApproach,
   ProcessApproachClass,
 } from '../../definitions';
-import { ISceneGraphEntity, MeshHelper, RenderPassHelper } from '../../helpers';
+import { ExpressionHelper, ISceneGraphEntity, MeshHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
 import { Vector3 } from '../../math/Vector3';
 import { SystemState } from '../../system';
+import { RenderTargetTexture } from '../../textures';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -81,6 +82,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __width = 0;
   private __height = 0;
   private __isShadow = false;
+  private __isBloom = false;
   private __isSimple = false;
   private __shadowMapSize = 1024;
   private __oFrame: IOption<Frame> = new None();
@@ -95,6 +97,7 @@ export class ForwardRenderPipeline extends RnObject {
 
   private __oGenerateMipmapsExpression: IOption<Expression> = new None();
   private __depthMomentExpressions: Expression[] = [];
+  private __oBloomExpression: IOption<Expression> = new None();
   private __oGammaExpression: IOption<Expression> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
   private __oWebXRSystem: IOption<any> = new None();
@@ -115,10 +118,12 @@ export class ForwardRenderPipeline extends RnObject {
   async setup(
     canvasWidth: number,
     canvasHeight: number,
-    { isShadow = false, shadowMapSize = 1024, isSimple = false } = {}
+    { isShadow = false, isBloom = false, shadowMapSize = 1024, isSimple = false } = {}
   ) {
     this.__width = canvasWidth;
     this.__height = canvasHeight;
+    this.__isBloom = isBloom;
+    this.__isShadow = isShadow;
     this.__isSimple = isSimple;
     this.__shadowMapSize = shadowMapSize;
     if (this.__oFrame.has()) {
@@ -152,8 +157,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
 
       // depth moment FrameBuffer
-      if (isShadow) {
-        this.__isShadow = true;
+      if (isShadow && !this.__isSimple) {
         this.__oFrameDepthMoment = this.__setupDepthMomentFramebuffer(shadowMapSize);
       }
 
@@ -162,12 +166,22 @@ export class ForwardRenderPipeline extends RnObject {
         this.__oFrameBufferResolveForReference.unwrapForce()
       );
 
+      let gammaTargetRenderTargetTexture: RenderTargetTexture = this.__oFrameBufferResolve
+        .unwrapForce()
+        .getColorAttachedRenderTargetTexture(0)!;
+      if (isBloom && !this.__isSimple) {
+        const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
+          textureToBloom: this.__oFrameBufferResolve
+            .unwrapForce()
+            .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
+          parameters: {},
+        });
+        this.__oBloomExpression = new Some(bloomExpression);
+        gammaTargetRenderTargetTexture = bloomedRenderTarget;
+      }
+
       // gamma Expression
-      const gammaExpression = this.__setupGammaExpression(
-        sFrame,
-        this.__oFrameBufferResolve.unwrapForce(),
-        canvasWidth / canvasHeight
-      );
+      const gammaExpression = this.__setupGammaExpression(gammaTargetRenderTargetTexture);
       this.__oGammaExpression = new Some(gammaExpression);
     }
 
@@ -209,7 +223,9 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
-      this.__setDepthTextureToEntityMaterials();
+      if (this.__oFrameDepthMoment.has()) {
+        this.__setDepthTextureToEntityMaterials();
+      }
     }
   }
 
@@ -346,6 +362,19 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolve.get().resize(width, height);
       this.__oFrameBufferResolveForReference.get().resize(width, height);
 
+      if (this.__isBloom) {
+        const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
+          textureToBloom: this.__oFrameBufferResolve
+            .unwrapForce()
+            .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
+          parameters: {},
+        });
+        this.__oBloomExpression = new Some(bloomExpression);
+        const gammaExpression = this.__setupGammaExpression(bloomedRenderTarget);
+        this.__oGammaExpression = new Some(gammaExpression);
+      }
+
+      assertHas(this.__oGammaExpression);
       this.__oGammaExpression
         .get()
         .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
@@ -628,6 +657,8 @@ export class ForwardRenderPipeline extends RnObject {
       {
         isMSAA: true,
         sampleCountMSAA: 4,
+        internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
       }
     );
     framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfGammaMsaa', true);
@@ -639,6 +670,8 @@ export class ForwardRenderPipeline extends RnObject {
       1,
       {
         createDepthBuffer: true,
+        internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
       }
     );
     framebufferResolve.tryToSetUniqueName('FramebufferTargetOfGammaResolve', true);
@@ -650,7 +683,8 @@ export class ForwardRenderPipeline extends RnObject {
       1,
       {
         createDepthBuffer: false,
-        // minFilter: TextureParameter.LinearMipmapLinear,
+        internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
       }
     );
     framebufferResolveForReference.tryToSetUniqueName(
@@ -684,18 +718,14 @@ export class ForwardRenderPipeline extends RnObject {
     return new Some(expression);
   }
 
-  private __setupGammaExpression(
-    sFrame: Some<Frame>,
-    gammaTargetFramebuffer: FrameBuffer,
-    aspect: number
-  ) {
+  private __setupGammaExpression(gammaTargetRenderTargetTexture: RenderTargetTexture) {
     const expressionGammaEffect = new Expression();
     const materialGamma = MaterialHelper.createGammaCorrectionMaterial();
 
     // Rendering for Canvas Frame Buffer
     const renderPassGamma = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
       materialGamma,
-      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
+      gammaTargetRenderTargetTexture
     );
     renderPassGamma.tryToSetUniqueName('renderPassGamma', true);
     renderPassGamma.toClearColorBuffer = false;
@@ -708,7 +738,7 @@ export class ForwardRenderPipeline extends RnObject {
     // Rendering for VR HeadSet Frame Buffer
     const renderPassGammaVr = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
       materialGamma,
-      gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)!
+      gammaTargetRenderTargetTexture
     );
     renderPassGammaVr.tryToSetUniqueName('renderPassGammaVr', true);
     renderPassGammaVr.toClearColorBuffer = false;
@@ -803,6 +833,11 @@ export class ForwardRenderPipeline extends RnObject {
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
     }
+
+    if (!this.__isSimple && this.__isBloom) {
+      frame.addExpression(this.__oBloomExpression.unwrapForce());
+    }
+
     if (!this.__isSimple) {
       frame.addExpression(this.getGammaExpression()!);
     }
