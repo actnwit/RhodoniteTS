@@ -50,6 +50,7 @@
 // #param emissiveTexcoordIndex: u32; // initialValue=0
 @group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(4) var emissiveSampler: sampler;
+// #param emissiveStrength: f32; // initialValue=1
 
 #ifdef RN_USE_CLEARCOAT
 // #param clearCoatFactor: f32; // initialValue=0
@@ -371,7 +372,8 @@ fn main(
   let emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
   let emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
   let emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
-  let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+  let emissiveStrength = get_emissiveStrength(materialSID, 0);
+  let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz) * emissiveStrength;
 
 #ifdef RN_USE_CLEARCOAT
   let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
