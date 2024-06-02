@@ -17,7 +17,9 @@ Rn.MeshRendererComponent.isDepthMaskTrueForTransparencies = true;
 
 // create ForwardRenderPipeline
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
-forwardRenderPipeline.setup(canvas.width, canvas.height);
+forwardRenderPipeline.setup(canvas.width, canvas.height, {
+  isBloom: true,
+});
 
 // camera
 const { cameraComponent, cameraEntity } = createCamera();

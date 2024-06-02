@@ -33,7 +33,10 @@ function createBloomExpression({
     gaussianVariance?: number;
     synthesizeCoefficient?: [number, number, number, number, number, number];
   };
-}) {
+}): {
+  bloomExpression: Expression;
+  bloomedRenderTarget: RenderTargetTexture;
+} {
   // Setup DetectHighLuminanceMaterial
   const renderPassDetectHighLuminance = createRenderPassDetectHighLuminance(
     textureToBloom,
