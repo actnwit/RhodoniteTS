@@ -9,9 +9,9 @@ const uriGltf =
   '../../../assets/gltf/glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
-const luminanceCriterion = 2.0;
+const luminanceCriterion = 3.0;
 const luminanceReduce = 0.25;
-const gaussianBlurLevelHighLuminance = 5;
+const gaussianBlurLevelHighLuminance = 4;
 const gaussianKernelSize = 10;
 const gaussianVariance = 100;
 
@@ -40,16 +40,20 @@ const cameraComponentMain = createEntityMainCamera(rootGroup).getCamera();
 
 // prepare renderPasses
 
-const renderPassLDR = await createRenderPassLDR(cameraComponentMain, [
+const renderPassMain = await createRenderPassMain(cameraComponentMain, [
   rootGroup,
   entityEnvironmentCube,
 ]);
-createAndSetFramebuffer(renderPassLDR, rnCanvasElement.width, rnCanvasElement.height, 1, {});
-renderPassLDR.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
+createAndSetFramebuffer(renderPassMain, rnCanvasElement.width, rnCanvasElement.height, 1, {
+  internalFormat: Rn.TextureParameter.RGBA16F,
+  format: Rn.PixelFormat.RGBA,
+  type: Rn.ComponentType.Float,
+});
+renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
 const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMaterial(
   { maxInstancesNumber: 1 },
-  renderPassLDR
+  renderPassMain
 );
 materialHighLuminance.setParameter(
   Rn.DetectHighLuminanceMaterialContent.LuminanceCriterion,
@@ -78,7 +82,7 @@ const renderPassesBlurredHighLuminance = createRenderPassesBlurredHighLuminance(
 );
 
 const renderPassesSynthesizeImages = createRenderPassesSynthesizeImages(
-  renderPassLDR,
+  renderPassMain,
   renderPassesBlurredHighLuminance
 );
 
@@ -90,7 +94,7 @@ const renderPassGamma = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseCo
 );
 
 // prepare expressions
-const expressionDetectHighLuminance = createExpression([renderPassLDR, renderPassHighLuminance]);
+const expressionDetectHighLuminance = createExpression([renderPassMain, renderPassHighLuminance]);
 const expressionHighLuminance = createExpression(renderPassesBlurredHighLuminance);
 const expressionSynthesizeImages = createExpression(renderPassesSynthesizeImages);
 const expressionGamma = createExpression([renderPassGamma]);
@@ -174,21 +178,12 @@ function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
   return entityCamera as Rn.ICameraEntity;
 }
 
-function createEntityPostEffectCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
-  const cameraComponent = entityCamera.getCamera();
-  cameraComponent.zNearInner = 0.5;
-  cameraComponent.zFarInner = 2.0;
-
-  return entityCamera as Rn.ICameraEntity;
-}
-
-async function createRenderPassLDR(
+async function createRenderPassMain(
   cameraComponent: Rn.CameraComponent,
   entityRenderTargets: Rn.ISceneGraphEntity[]
 ) {
   const renderPass = new Rn.RenderPass();
-  renderPass.tryToSetUniqueName('renderPassLDR', true);
+  renderPass.tryToSetUniqueName('renderPassMain', true);
   renderPass.toClearColorBuffer = true;
   renderPass.cameraComponent = cameraComponent;
   renderPass.addEntities(entityRenderTargets);
