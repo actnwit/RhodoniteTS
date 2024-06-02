@@ -20,6 +20,8 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { Sampler } from '../../textures/Sampler';
+import { TextureParameter } from '../../definitions';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -31,6 +33,13 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
 
   constructor(textureToDetectHighLuminance: AbstractTexture) {
     super(null, 'HighLuminanceDetectShading', {});
+
+    const sampler = new Sampler({
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+    });
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
@@ -56,7 +65,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [0, textureToDetectHighLuminance],
+        initialValue: [0, textureToDetectHighLuminance, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

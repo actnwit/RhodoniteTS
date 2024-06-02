@@ -4,9 +4,6 @@
 
 /* shaderity: @{getters} */
 
-@group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var baseColorSampler: sampler;
-
 @fragment
 fn main (
   input: VertexOutput,
@@ -22,7 +19,7 @@ fn main (
     baseColor = vec4f(0.0, 0.0, 0.0, 1.0);
   } else {
     let luminanceReduce = get_luminanceReduce(materialSID, 0);
-    baseColor = vec4f(pow(baseColor.rgb, vec3(luminanceReduce), 1.0));
+    baseColor = vec4f(pow(baseColor.rgb, vec3f(luminanceReduce)), 1.0);
   }
 
   return baseColor;

@@ -261,7 +261,7 @@ export function _createProgramAsSingleOperationWebGpu(
 ) {
   const materialNode = material._materialContent;
 
-  let vertexAttributeDefines = '';
+  let vertexAttributeDefines = ``;
   const attributeSemantics = primitive.attributeSemantics;
   for (const attributeSemantic of attributeSemantics) {
     if (attributeSemantic.indexOf('POSITION') !== -1) {
@@ -320,7 +320,8 @@ export function _createProgramAsSingleOperationWebGpu(
 
   vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
 
-  let definitions = materialNode.getDefinitions(material);
+  let definitions = `// Material Type: ${material.materialTypeName}\n`;
+  definitions += materialNode.getDefinitions(material);
   definitions += vertexAttributeDefines;
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {

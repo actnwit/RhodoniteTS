@@ -4,20 +4,16 @@
 
 /* shaderity: @{getters} */
 
-@group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(0) var baseColorSampler: sampler;
-
 @fragment
 fn main(
   input: VertexOutput,
-  @builtin(frag_coord) fragCoord: vec4<f32>,
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  let offset = fragCoord.st;
+  let offset = input.position.xy;
 
   var framebufferSize: f32;
-  var blurDirection: vec2<f32>;
+  var blurDirection: vec2f;
   let isHorizontal: bool = get_isHorizontal(materialSID, 0);
   if (isHorizontal) {
     framebufferSize = get_framebufferSize(materialSID, 0).x;
@@ -32,13 +28,15 @@ fn main(
   let gaussianKernelSize: i32 = get_gaussianKernelSize(materialSID, 0);
   let minStrideLength = - f32(gaussianKernelSize - 1) / 2.0;
 
-  for (let i=0; i < gaussianKernelSize; i++) {
+  for (var i=0u; i < u32(gaussianKernelSize); i++) {
 
     let strideLength = minStrideLength + f32(i);
     let stride: vec2f = strideLength * blurDirection;
 
-    let gaussianRatio = get_gaussianRatio(materialSID, 0)[i];
-    color += vec4f(textureSample(baseColorTexture, baseColorSampler, (offset + stride) * tFrag).rgb, 1.0) * gaussianRatio;
+    let gaussianRatio = get_gaussianRatio(materialSID, i);
+    var uv = (offset + stride) * tFrag;
+    // uv.y = 1.0 - uv.y;
+    color += vec4f(textureSample(baseColorTexture, baseColorSampler, uv).rgb, 1.0) * gaussianRatio;
   }
 
   return color;

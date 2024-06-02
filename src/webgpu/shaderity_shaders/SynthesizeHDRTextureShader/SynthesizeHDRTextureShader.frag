@@ -4,19 +4,20 @@
 
 /* shaderity: @{getters} */
 
-void main ()
-{
+@fragment
+fn main (
+  input: VertexOutput,
+) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  let synthesizeCoefficients = get_synthesizeCoefficient(materialSID, 0);
-  let synthesizeCoefficient0 = synthesizeCoefficients[0];
+  let synthesizeCoefficient0 = get_synthesizeCoefficient(materialSID, 0);
   var color: vec3f = synthesizeCoefficient0 * textureSample(synthesizeTexture0, synthesizeSampler0, input.texcoord_0).rgb;
 
-  let synthesizeCoefficient1 = synthesizeCoefficients[1];
-  let synthesizeCoefficient2 = synthesizeCoefficients[2];
-  let synthesizeCoefficient3 = synthesizeCoefficients[3];
-  let synthesizeCoefficient4 = synthesizeCoefficients[4];
-  let synthesizeCoefficient5 = synthesizeCoefficients[5];
+  let synthesizeCoefficient1 = get_synthesizeCoefficient(materialSID, 1);
+  let synthesizeCoefficient2 = get_synthesizeCoefficient(materialSID, 2);
+  let synthesizeCoefficient3 = get_synthesizeCoefficient(materialSID, 3);
+  let synthesizeCoefficient4 = get_synthesizeCoefficient(materialSID, 4);
+  let synthesizeCoefficient5 = get_synthesizeCoefficient(materialSID, 5);
 
   color += synthesizeCoefficient1 * textureSample(synthesizeTexture1, synthesizeSampler0, input.texcoord_0).rgb;
   color += synthesizeCoefficient2 * textureSample(synthesizeTexture2, synthesizeSampler0, input.texcoord_0).rgb;
