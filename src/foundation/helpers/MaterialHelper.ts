@@ -814,7 +814,7 @@ function createGaussianBlurMaterial({
       initialValue: new VectorN(gaussianRatio),
       min: 0,
       max: 1,
-      needUniformInDataTextureMode: true,
+      // needUniformInDataTextureMode: true,
     },
     {
       semantic: ShaderSemantics.GaussianKernelSize,

@@ -39,7 +39,7 @@ void main ()
     float strideLength = minStrideLength + float(i);
     vec2 stride = strideLength * blurDirection;
 
-    float gaussianRatio = u_gaussianRatio[i];
+    float gaussianRatio = get_gaussianRatio(materialSID, i);
     color.rgb += texture(u_baseColorTexture, (offset + stride) * tFrag).rgb * gaussianRatio;
   }
 

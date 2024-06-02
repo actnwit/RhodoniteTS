@@ -1,7 +1,7 @@
 import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
-
+window.Rn = Rn;
 // ---parameters---------------------------------------------------------------------------------------------
 
 const uriGltf =
@@ -32,7 +32,7 @@ const synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0] as [
 Rn.Config.cgApiDebugConsoleOutput = true;
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
 

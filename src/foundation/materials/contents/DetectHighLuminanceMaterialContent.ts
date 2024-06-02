@@ -40,6 +40,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       minFilter: TextureParameter.Linear,
       magFilter: TextureParameter.Linear,
     });
+    sampler.create();
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

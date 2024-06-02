@@ -245,10 +245,12 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
       console.error('Could not get the location offset of the property.');
     }
 
-    const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+    let instanceSize = vec4SizeOfProperty;
     indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId;\n`;
     if (CompositionType.isArray(info.compositionType)) {
-      const instanceSizeInScalar = scalarSizeOfProperty * (info.arrayLength ?? 1);
+      instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
+      const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
       indexStr = `int vec4_idx = ${offsetOfProperty} + ${instanceSize} * instanceId + ${vec4SizeOfProperty} * idxOfArray;\n`;
       indexStr += `int scalar_idx = ${
         // IndexOf4Bytes

@@ -162,10 +162,12 @@ fn get_isVisible(instanceId: u32) -> bool {
     }
 
     let indexStr;
-    const instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+    let instanceSize = vec4SizeOfProperty;
     indexStr = `  let vec4_idx: u32 = ${offsetOfProperty}u + ${instanceSize}u * instanceId;\n`;
     if (CompositionType.isArray(info.compositionType)) {
-      const instanceSizeInScalar = scalarSizeOfProperty * (info.arrayLength ?? 1);
+      instanceSize = vec4SizeOfProperty * (info.arrayLength ?? 1);
+      const paddedAsVec4 = Math.ceil(scalarSizeOfProperty / 4) * 4;
+      const instanceSizeInScalar = paddedAsVec4 * (info.arrayLength ?? 1);
       indexStr = `  let vec4_idx: u32 = ${offsetOfProperty}u + ${instanceSize} * instanceId + ${vec4SizeOfProperty}u * idxOfArray;\n`;
       indexStr += `  let scalar_idx: u32 = ${
         // IndexOf4Bytes

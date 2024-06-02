@@ -11,6 +11,7 @@ import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { Expression } from '../renderer/Expression';
 import { AbstractTexture } from '../textures/AbstractTexture';
+import { VectorN } from '../math/VectorN';
 
 function createBloomExpression({
   textureToBloom,
@@ -176,7 +177,10 @@ function createRenderPassGaussianBlur(
     variance: gaussianVariance,
   });
   material.setParameter(ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
-  material.setParameter(ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
+  material.setParameter(
+    ShaderSemantics.GaussianRatio,
+    new VectorN(new Float32Array(gaussianDistributionRatio))
+  );
   material.setParameter(
     ShaderSemantics.FramebufferSize,
     Vector2.fromCopy2(resolutionWidthBlur, resolutionHeightBlur)
