@@ -53,7 +53,7 @@ renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
 const materialHighLuminance = Rn.MaterialHelper.createDetectHighLuminanceMaterial(
   { maxInstancesNumber: 1 },
-  renderPassMain
+  renderPassMain.getFramebuffer()
 );
 materialHighLuminance.setParameter(
   Rn.DetectHighLuminanceMaterialContent.LuminanceCriterion,

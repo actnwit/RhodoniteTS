@@ -71,6 +71,7 @@ import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderi
 import { Scalar } from '../math/Scalar';
 import { TextureParameter } from '../definitions';
 import { Vector2 } from '../math';
+import { FrameBuffer } from '../renderer/FrameBuffer';
 
 function createMaterial(
   materialName: string,
@@ -774,13 +775,10 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
 
 function createDetectHighLuminanceMaterial(
   { additionalName = '', colorAttachmentsNumber = 0, maxInstancesNumber = 5 } = {},
-  HDRRenderPass: RenderPass
+  framebuffer: FrameBuffer
 ) {
   const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
-  const materialNode = new DetectHighLuminanceMaterialContent(
-    HDRRenderPass,
-    colorAttachmentsNumber
-  );
+  const materialNode = new DetectHighLuminanceMaterialContent(framebuffer, colorAttachmentsNumber);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   return material;

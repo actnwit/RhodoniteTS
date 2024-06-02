@@ -19,6 +19,7 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlackTexture } from '../core/DummyTextures';
 import { Vector2 } from '../../math';
+import { FrameBuffer } from '../../renderer';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -28,7 +29,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     str: 'luminanceReduce',
   });
 
-  constructor(HDRRenderPass: RenderPass, colorAttachmentsNumber: Count) {
+  constructor(framebuffer: FrameBuffer, colorAttachmentsNumber: Count) {
     super(
       null,
       'HighLuminanceDetectShading',
@@ -62,7 +63,6 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     let framebufferWidth;
     let framebufferHeight;
 
-    const framebuffer = HDRRenderPass.getFramebuffer();
     if (framebuffer != null && framebuffer.colorAttachments[colorAttachmentsNumber] != null) {
       targetTexture = framebuffer.colorAttachments[colorAttachmentsNumber];
       framebufferWidth = framebuffer.width;
