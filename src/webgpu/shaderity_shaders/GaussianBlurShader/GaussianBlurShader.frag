@@ -12,17 +12,15 @@ fn main(
 
   let offset = input.position.xy;
 
-  var framebufferSize: f32;
+  let framebufferSize: vec2f = get_framebufferSize(materialSID, 0);
   var blurDirection: vec2f;
   let isHorizontal: bool = get_isHorizontal(materialSID, 0);
   if (isHorizontal) {
-    framebufferSize = get_framebufferSize(materialSID, 0).x;
     blurDirection = vec2f(1.0, 0.0);
   } else { // vertical
-    framebufferSize = get_framebufferSize(materialSID, 0).y;
     blurDirection = vec2f(0.0, 1.0);
   }
-	let tFrag = 1.0 / framebufferSize;
+	let tFrag: vec2f = 1.0 / framebufferSize;
 
   var color = vec4f(0.0, 0.0, 0.0, 1.0);
   let gaussianKernelSize: i32 = get_gaussianKernelSize(materialSID, 0);

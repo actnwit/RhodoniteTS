@@ -18,17 +18,15 @@ void main ()
 
   vec2 offset = gl_FragCoord.st;
 
-  float framebufferSize;
+  vec2 framebufferSize = get_framebufferSize(materialSID, 0);
   vec2 blurDirection;
   bool isHorizontal = get_isHorizontal(materialSID, 0);
   if (isHorizontal) {
-    framebufferSize = get_framebufferSize(materialSID, 0).x;
     blurDirection = vec2(1.0, 0.0);
   } else { // vertical
-    framebufferSize = get_framebufferSize(materialSID, 0).y;
     blurDirection = vec2(0.0, 1.0);
   }
-	float tFrag = 1.0 / framebufferSize;
+	vec2 tFrag = 1.0 / framebufferSize;
 
   vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
   int gaussianKernelSize = get_gaussianKernelSize(materialSID, 0);

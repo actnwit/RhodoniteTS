@@ -362,6 +362,19 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolve.get().resize(width, height);
       this.__oFrameBufferResolveForReference.get().resize(width, height);
 
+      if (this.__isBloom) {
+        const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
+          textureToBloom: this.__oFrameBufferResolve
+            .unwrapForce()
+            .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
+          parameters: {},
+        });
+        this.__oBloomExpression = new Some(bloomExpression);
+        const gammaExpression = this.__setupGammaExpression(bloomedRenderTarget);
+        this.__oGammaExpression = new Some(gammaExpression);
+      }
+
+      assertHas(this.__oGammaExpression);
       this.__oGammaExpression
         .get()
         .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
