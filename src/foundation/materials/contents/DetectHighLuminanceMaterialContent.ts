@@ -27,9 +27,9 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'luminanceCriterion',
   });
-  static LuminanceReduce: ShaderSemanticsEnum = new ShaderSemanticsClass({
-    str: 'luminanceReduce',
-  });
+  // static LuminanceReduce: ShaderSemanticsEnum = new ShaderSemanticsClass({
+  //   str: 'luminanceReduce',
+  // });
 
   constructor(textureToDetectHighLuminance: AbstractTexture) {
     super(null, 'HighLuminanceDetectShading', {});
@@ -52,15 +52,15 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         min: 0,
         max: Number.MAX_VALUE,
       },
-      {
-        semantic: DetectHighLuminanceMaterialContent.LuminanceReduce,
-        componentType: ComponentType.Float,
-        compositionType: CompositionType.Scalar,
-        stage: ShaderType.PixelShader,
-        initialValue: Scalar.fromCopyNumber(0.25),
-        min: 0,
-        max: 1,
-      },
+      // {
+      //   semantic: DetectHighLuminanceMaterialContent.LuminanceReduce,
+      //   componentType: ComponentType.Float,
+      //   compositionType: CompositionType.Scalar,
+      //   stage: ShaderType.PixelShader,
+      //   initialValue: Scalar.fromCopyNumber(0.25),
+      //   min: 0,
+      //   max: 1,
+      // },
       {
         semantic: ShaderSemantics.BaseColorTexture,
         componentType: ComponentType.Int,

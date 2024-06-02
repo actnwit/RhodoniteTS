@@ -15,12 +15,7 @@ fn main (
   let luminance = length(baseColor);
 
   let luminanceCriterion: f32 = get_luminanceCriterion(materialSID, 0);
-  if (luminance < luminanceCriterion) {
-    baseColor = vec4f(0.0, 0.0, 0.0, 1.0);
-  } else {
-    let luminanceReduce = get_luminanceReduce(materialSID, 0);
-    baseColor = vec4f(pow(baseColor.rgb, vec3f(luminanceReduce)), 1.0);
-  }
+  baseColor = vec4f(mix(vec3f(0.0), baseColor.rgb, (luminance - luminanceCriterion) / luminanceCriterion), 1.0);
 
   return baseColor;
 }
