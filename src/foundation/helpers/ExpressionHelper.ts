@@ -1,5 +1,4 @@
 import { MaterialHelper } from './MaterialHelper';
-import { FrameBuffer } from '../renderer/FrameBuffer';
 import { DetectHighLuminanceMaterialContent } from '../materials/contents/DetectHighLuminanceMaterialContent';
 import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
@@ -11,9 +10,10 @@ import { Vector2 } from '../math/Vector2';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
 import { Expression } from '../renderer';
+import { AbstractTexture } from '../textures';
 
 function createBloomExpression({
-  framebuffer,
+  textureToBloom,
   parameters: {
     luminanceCriterion = 3.0,
     luminanceReduce = 0.25,
@@ -23,7 +23,7 @@ function createBloomExpression({
     synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
   },
 }: {
-  framebuffer: FrameBuffer;
+  textureToBloom: AbstractTexture;
   parameters: {
     luminanceCriterion?: number;
     luminanceReduce?: number;
@@ -35,7 +35,7 @@ function createBloomExpression({
 }) {
   // Setup DetectHighLuminanceMaterial
   const renderPassDetectHighLuminance = createRenderPassDetectHighLuminance(
-    framebuffer,
+    textureToBloom,
     luminanceCriterion,
     luminanceReduce
   );
@@ -46,13 +46,13 @@ function createBloomExpression({
     gaussianBlurLevelHighLuminance,
     gaussianKernelSize,
     gaussianVariance,
-    framebuffer.width,
-    framebuffer.height
+    textureToBloom.width,
+    textureToBloom.height
   );
 
   // Setup SynthesizeMaterial
   const renderPassSynthesizeImage = createRenderPassSynthesizeImage(
-    framebuffer,
+    textureToBloom,
     renderPassesBlurredHighLuminance,
     synthesizeCoefficient
   );
@@ -73,13 +73,13 @@ function createBloomExpression({
 }
 
 function createRenderPassDetectHighLuminance(
-  framebuffer: FrameBuffer,
+  texture: AbstractTexture,
   luminanceCriterion: number,
   luminanceReduce: number
 ) {
   const materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
     { maxInstancesNumber: 1 },
-    framebuffer
+    texture
   );
   materialDetectHighLuminance.setParameter(
     DetectHighLuminanceMaterialContent.LuminanceCriterion,
@@ -96,8 +96,8 @@ function createRenderPassDetectHighLuminance(
   renderPassDetectHighLuminance.tryToSetUniqueName('renderPassDetectHighLuminance', true);
 
   const framebufferDetectHighLuminance = RenderableHelper.createTexturesForRenderTarget(
-    framebuffer.width,
-    framebuffer.height,
+    texture.width,
+    texture.height,
     1,
     {}
   );
@@ -205,15 +205,15 @@ function createRenderPassGaussianBlur(
 }
 
 function createRenderPassSynthesizeImage(
-  framebuffer: FrameBuffer,
+  texture: AbstractTexture,
   renderPassesBlurredHighLuminance: RenderPass[],
   synthesizeCoefficient: [number, number, number, number, number, number]
 ) {
-  const texturesSynthesize = [framebuffer.colorAttachments[0]] as RenderTargetTexture[];
+  const texturesSynthesize = [texture] as AbstractTexture[]; // original texture
   for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
     texturesSynthesize.push(
-      renderPassesBlurredHighLuminance[i].getFramebuffer()!
-        .colorAttachments[0] as RenderTargetTexture
+      renderPassesBlurredHighLuminance[i].getFramebuffer()! // blurred textures
+        .colorAttachments[0] as unknown as AbstractTexture
     );
   }
 
@@ -232,8 +232,8 @@ function createRenderPassSynthesizeImage(
   );
   renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
   const framebufferSynthesizeImages = RenderableHelper.createTexturesForRenderTarget(
-    framebuffer.width,
-    framebuffer.height,
+    texture.width,
+    texture.height,
     1,
     {}
   );

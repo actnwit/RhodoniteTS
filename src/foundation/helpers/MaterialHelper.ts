@@ -774,11 +774,11 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
 }
 
 function createDetectHighLuminanceMaterial(
-  { additionalName = '', colorAttachmentsNumber = 0, maxInstancesNumber = 5 } = {},
-  framebuffer: FrameBuffer
+  { additionalName = '', maxInstancesNumber = 5 } = {},
+  textureToDetectHighLuminance: AbstractTexture
 ) {
   const materialName = 'DetectHighLuminance' + `_${additionalName}_`;
-  const materialNode = new DetectHighLuminanceMaterialContent(framebuffer, colorAttachmentsNumber);
+  const materialNode = new DetectHighLuminanceMaterialContent(textureToDetectHighLuminance);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   return material;
