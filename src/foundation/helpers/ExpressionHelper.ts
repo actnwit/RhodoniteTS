@@ -89,10 +89,10 @@ function createRenderPassDetectHighLuminance(
     DetectHighLuminanceMaterialContent.LuminanceCriterion,
     luminanceCriterion
   );
-  materialDetectHighLuminance.setParameter(
-    DetectHighLuminanceMaterialContent.LuminanceReduce,
-    luminanceReduce
-  );
+  // materialDetectHighLuminance.setParameter(
+  //   DetectHighLuminanceMaterialContent.LuminanceReduce,
+  //   luminanceReduce
+  // );
 
   const renderPassDetectHighLuminance = RenderPassHelper.createScreenDrawRenderPass(
     materialDetectHighLuminance
