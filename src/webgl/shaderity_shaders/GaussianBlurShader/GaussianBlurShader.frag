@@ -8,12 +8,6 @@
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
-// uniform bool isHorizontal; // initialValue=1
-// uniform int gaussianKernelSize; // initialValue=1
-// uniform float framebufferWidth; // initialValue=1
-// uniform sampler2D baseColorTexture; // initialValue=(0,white)
-
-
 /* shaderity: @{getters} */
 
 in vec2 v_texcoord_0;

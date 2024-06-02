@@ -66,6 +66,8 @@ import {
 } from '../materials/core/DummyTextures';
 import GaussianBlurSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
 import GaussianBlurSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
+import GaussianBlurSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.vert';
+import GaussianBlurSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import { Scalar } from '../math/Scalar';
@@ -859,6 +861,8 @@ function createGaussianBlurMaterial({
     useNormalTexture: false,
     vertexShader: GaussianBlurSingleShaderVertex,
     pixelShader: GaussianBlurSingleShaderFragment,
+    vertexShaderWebGpu: GaussianBlurSingleShaderVertexWebGpu,
+    pixelShaderWebGpu: GaussianBlurSingleShaderFragmentWebGpu,
     noUseCameraTransform,
     additionalShaderSemanticInfo,
   });

@@ -9,8 +9,8 @@ import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Vector2 } from '../math/Vector2';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHdrMaterialContent';
-import { Expression } from '../renderer';
-import { AbstractTexture } from '../textures';
+import { Expression } from '../renderer/Expression';
+import { AbstractTexture } from '../textures/AbstractTexture';
 
 function createBloomExpression({
   textureToBloom,

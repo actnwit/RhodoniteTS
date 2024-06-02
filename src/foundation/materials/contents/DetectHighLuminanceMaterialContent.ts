@@ -13,9 +13,13 @@ import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import DetectHighLuminanceAndCorrectShaderVertex from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
 import DetectHighLuminanceAndCorrectShaderFragment from '../../../webgl/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
+import DetectHighLuminanceAndCorrectShaderVertexWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.vert';
+import DetectHighLuminanceAndCorrectShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/DetectHighLuminanceAndCorrectShader/DetectHighLuminanceAndCorrectShader.frag';
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { AbstractTexture } from '../../textures';
+import { AbstractTexture } from '../../textures/AbstractTexture';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
 
 export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
   static LuminanceCriterion: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -26,13 +30,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   });
 
   constructor(textureToDetectHighLuminance: AbstractTexture) {
-    super(
-      null,
-      'HighLuminanceDetectShading',
-      {},
-      DetectHighLuminanceAndCorrectShaderVertex,
-      DetectHighLuminanceAndCorrectShaderFragment
-    );
+    super(null, 'HighLuminanceDetectShading', {});
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
@@ -63,6 +61,14 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
         max: Number.MAX_SAFE_INTEGER,
       },
     ];
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this.__vertexShaderityObject = DetectHighLuminanceAndCorrectShaderVertexWebGpu;
+      this.__pixelShaderityObject = DetectHighLuminanceAndCorrectShaderFragmentWebGpu;
+    } else {
+      this.__vertexShaderityObject = DetectHighLuminanceAndCorrectShaderVertex;
+      this.__pixelShaderityObject = DetectHighLuminanceAndCorrectShaderFragment;
+    }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
