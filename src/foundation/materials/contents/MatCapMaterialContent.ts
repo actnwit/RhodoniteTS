@@ -112,21 +112,21 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     if (args.setUniform) {
       this.setWorldMatrix(shaderProgram, args.worldMatrix);
       this.setNormalMatrix(shaderProgram, args.normalMatrix);
-    }
 
-    /// Matrices
-    let cameraComponent = args.renderPass.cameraComponent;
-    if (cameraComponent == null) {
-      cameraComponent = ComponentRepository.getComponent(
-        CameraComponent,
-        CameraComponent.current
-      ) as CameraComponent;
-    }
-    this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
-    this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      /// Matrices
+      let cameraComponent = args.renderPass.cameraComponent;
+      if (cameraComponent == null) {
+        cameraComponent = ComponentRepository.getComponent(
+          CameraComponent,
+          CameraComponent.current
+        ) as CameraComponent;
+      }
+      this.setViewInfo(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
+      this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
 
-    /// Skinning
-    const skeletalComponent = args.entity.tryToGetSkeletal();
-    this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+      /// Skinning
+      const skeletalComponent = args.entity.tryToGetSkeletal();
+      this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
+    }
   }
 }
