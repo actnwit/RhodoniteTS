@@ -9,8 +9,7 @@ const uriGltf =
   '../../../assets/gltf/glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
-const luminanceCriterion = 3.0;
-const luminanceReduce = 0.25;
+const luminanceCriterion = 1.0;
 const gaussianBlurLevelHighLuminance = 4;
 const gaussianKernelSize = 10;
 const gaussianVariance = 10;
@@ -62,7 +61,6 @@ const { bloomExpression, bloomedRenderTarget } = Rn.ExpressionHelper.createBloom
     .colorAttachments[0] as unknown as Rn.AbstractTexture,
   parameters: {
     luminanceCriterion,
-    luminanceReduce,
     gaussianBlurLevelHighLuminance,
     gaussianKernelSize,
     gaussianVariance,
