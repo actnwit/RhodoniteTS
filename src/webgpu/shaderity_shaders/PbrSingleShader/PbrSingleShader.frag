@@ -99,6 +99,8 @@
 // #param anisotropyRotation: vec2<f32>; // initialValue=(1,0)
 #endif
 
+// #param alphaCutoff: f32; // initialValue=0.01
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
@@ -141,6 +143,8 @@ fn main(
 #else
   let baseColorTexUv = vec2f(0.0, 0.0);
 #endif
+
+#pragma shaderity: require(../common/alphaMask.wgsl)
 
 // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
