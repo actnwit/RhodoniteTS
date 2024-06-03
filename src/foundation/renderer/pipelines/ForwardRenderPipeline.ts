@@ -29,6 +29,7 @@ import { Vector3 } from '../../math/Vector3';
 import { SystemState } from '../../system';
 import { RenderTargetTexture } from '../../textures';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
+import { RnXR } from '../../../xr/main';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -150,7 +151,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oSamplerForBackBuffer.unwrapForce().create();
 
       // create Frame Buffers
-      this.__createRenderTargets(canvasWidth, canvasHeight);
+      this.__recreateRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
       if (isShadow && !this.__isSimple) {
@@ -368,18 +369,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     if (!this.__isSimple) {
       assertHas(this.__oGammaExpression);
-      if (this.__oFrameBufferMultiView.has()) {
-        this.__oFrameBufferMultiView.get().resize(width, height);
-      }
-      if (this.__oFrameBufferMsaa.has()) {
-        this.__oFrameBufferMsaa.get().resize(width, height);
-      }
-      if (this.__oFrameBufferResolve.has()) {
-        this.__oFrameBufferResolve.get().resize(width, height);
-      }
-      if (this.__oFrameBufferResolveForReference.has()) {
-        this.__oFrameBufferResolveForReference.get().resize(width, height);
-      }
+      this.__recreateRenderTargets(width, height);
 
       if (this.__isBloom) {
         const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
@@ -672,25 +662,42 @@ export class ForwardRenderPipeline extends RnObject {
     return expression;
   }
 
-  private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
+  private __recreateRenderTargets(canvasWidth: number, canvasHeight: number) {
+    if (this.__oFrameBufferMultiView.has()) {
+      this.__oFrameBufferMultiView.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferMsaa.has()) {
+      this.__oFrameBufferMsaa.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferResolve.has()) {
+      this.__oFrameBufferResolve.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferResolveForReference.has()) {
+      this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
+    }
+
+    const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
+    const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    // if (cgApiResourceRepository.isSupportMultiViewVRRendering()) {
-    if (false) {
-      // const framebufferMultiView = RenderableHelper.createTextureArrayForRenderTarget(
-      //   canvasWidth,
-      //   canvasHeight,
-      //   2,
-      //   {
-      //     level: 0,
-      //     internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
-      //     format: PixelFormat.RGBA,
-      //     type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-      //     createDepthBuffer: true,
-      //     isMSAA: true,
-      //     sampleCountMSAA: 4,
-      //   }
-      // );
-      // this.__oFrameBufferMultiView = new Some(framebufferMultiView);
+    if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode && cgApiResourceRepository.isSupportMultiViewVRRendering()) {
+      const framebufferMultiView = RenderableHelper.createTextureArrayForRenderTarget(
+        canvasWidth / 2,
+        canvasHeight,
+        2,
+        {
+          level: 0,
+          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+          format: PixelFormat.RGBA,
+          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+          createDepthBuffer: true,
+          isMSAA: true,
+          sampleCountMSAA: 4,
+        }
+      );
+      this.__oFrameBufferMultiView = new Some(framebufferMultiView);
+      this.__oFrameBufferMsaa = new None();
+      this.__oFrameBufferResolve = new None();
+      this.__oFrameBufferResolveForReference = new None();
     } else {
       // MSAA depth
       const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
@@ -736,6 +743,7 @@ export class ForwardRenderPipeline extends RnObject {
       );
 
       // FrameBuffers
+      this.__oFrameBufferMultiView = new None();
       this.__oFrameBufferMsaa = new Some(framebufferMsaa);
       this.__oFrameBufferResolve = new Some(framebufferResolve);
       this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
