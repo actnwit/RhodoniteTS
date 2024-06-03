@@ -2173,6 +2173,30 @@ export class WebGpuResourceRepository
   }
 
   /**
+   * create a RenderTargetTextureArray
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureArray({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+    arrayLength,
+  }: {
+    width: Size;
+    height: Size;
+    level: Index;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    arrayLength: Count;
+  }): WebGPUResourceHandle {
+    return -1;
+  }
+  /**
    * create Renderbuffer
    */
   createRenderBuffer(
@@ -2389,5 +2413,9 @@ export class WebGpuResourceRepository
     canvas.width = width;
     canvas.height = height;
     this.recreateSystemDepthTexture();
+  }
+
+  isSupportMultiViewVRRendering(): boolean {
+    return false;
   }
 }

@@ -1456,7 +1456,7 @@ export class WebGLResourceRepository
     index: Index,
     renderable: IRenderable
   ) {
-    const gl = this.__glw!.getRawContext();
+    const gl = this.__glw!.getRawContextAsWebGL2();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID)! as WebGLFramebuffer;
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -1465,7 +1465,31 @@ export class WebGLResourceRepository
       renderable._textureResourceUid
     )! as WebGLTexture;
     const attachmentId = this.__glw!.colorAttachment(index);
-    if (renderable instanceof RenderTargetTexture) {
+
+    if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
+      // It's must be TextureArray for MultiView VR Rendering
+      (renderable as RenderTargetTexture)._fbo = framebuffer;
+      if (this.__glw!.webgl2ExtMLTVIEW!.is_multisample) {
+        this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultisampleMultiviewOVR(
+          gl.DRAW_FRAMEBUFFER,
+          attachmentId,
+          renderableWebGLResource,
+          0,
+          4, // sample count
+          0,
+          renderable.arrayLength
+        );
+      } else {
+        this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultiviewOVR(
+          gl.DRAW_FRAMEBUFFER,
+          attachmentId,
+          renderableWebGLResource,
+          0,
+          0,
+          renderable.arrayLength
+        );
+      }
+    } else if (renderable instanceof RenderTargetTexture && renderable.arrayLength === 0) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
@@ -1520,7 +1544,7 @@ export class WebGLResourceRepository
     renderable: IRenderable,
     attachmentType: number
   ) {
-    const gl = this.__glw!.getRawContext();
+    const gl = this.__glw!.getRawContextAsWebGL2();
     const fbo = this.getWebGLResource(framebuffer.framebufferUID)! as WebGLFramebuffer;
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -1528,7 +1552,31 @@ export class WebGLResourceRepository
     const renderableWebGLResource = this.getWebGLResource(
       renderable._textureResourceUid
     )! as WebGLTexture;
-    if (renderable instanceof RenderTargetTexture) {
+
+    if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
+      // It's must be TextureArray for MultiView VR Rendering
+      (renderable as RenderTargetTexture)._fbo = framebuffer;
+      if (this.__glw!.webgl2ExtMLTVIEW!.is_multisample) {
+        this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultisampleMultiviewOVR(
+          gl.DRAW_FRAMEBUFFER,
+          attachmentType,
+          renderableWebGLResource,
+          0,
+          4, // sample count
+          0,
+          renderable.arrayLength
+        );
+      } else {
+        this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultiviewOVR(
+          gl.DRAW_FRAMEBUFFER,
+          attachmentType,
+          renderableWebGLResource,
+          0,
+          0,
+          renderable.arrayLength
+        );
+      }
+    } else if (renderable instanceof RenderTargetTexture && renderable.arrayLength === 0) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
@@ -1663,6 +1711,39 @@ export class WebGLResourceRepository
     );
 
     this.__glw!.unbindTexture2D(15);
+
+    return resourceHandle;
+  }
+
+  /**
+   * create a RenderTargetTextureArray
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureArray({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+    arrayLength,
+  }: {
+    width: Size;
+    height: Size;
+    level: Index;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    arrayLength: Count;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2DArray(15, texture);
+    gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, internalFormat.index, width, height, arrayLength);
 
     return resourceHandle;
   }
@@ -2758,5 +2839,9 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     for (let i = 0; i < 16; i++) {
       gl.bindSampler(i, null);
     }
+  }
+
+  isSupportMultiViewVRRendering(): boolean {
+    return this.__glw!.webgl2ExtMLTVIEW!.is_multisample;
   }
 }

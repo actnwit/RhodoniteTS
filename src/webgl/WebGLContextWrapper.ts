@@ -78,6 +78,7 @@ export class WebGLContextWrapper {
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
+  private __activeTextures2DArray: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
   private __boundTextures: Map<Index, WebGLTexture> = new Map();
   private __boundSamplers: Map<Index, WebGLSampler> = new Map();
@@ -311,6 +312,17 @@ export class WebGLContextWrapper {
     this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
+  bindTexture2DArray(activeTextureIndex: Index, texture: WebGLTexture) {
+    const tex = this.__boundTextures.get(activeTextureIndex);
+    if (tex !== texture) {
+      this.__activeTexture(activeTextureIndex);
+      this.__gl.bindTexture(this.__gl.TEXTURE_2D_ARRAY, texture);
+      this.__boundTextures.set(activeTextureIndex, texture);
+    }
+
+    this.__activeTextures2DArray[activeTextureIndex] = texture;
+  }
+
   bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
     // const samp = this.__boundSamplers.get(activeTextureIndex);
     // if (samp !== sampler) {
@@ -349,16 +361,25 @@ export class WebGLContextWrapper {
       if (this.__activeTextures2D[i] == null) {
         continue;
       }
-      this.__activeTexture(i);
+      this.__activeTexture(15);
       this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
       delete this.__activeTextures2D[i];
+    }
+
+    for (let i = 0; i < this.__activeTextures2DArray.length; i++) {
+      if (this.__activeTextures2DArray[i] == null) {
+        continue;
+      }
+      this.__activeTexture(15);
+      this.__gl.bindTexture(this.__gl.TEXTURE_2D_ARRAY, null);
+      delete this.__activeTextures2DArray[i];
     }
 
     for (let i = 0; i < this.__activeTexturesCube.length; i++) {
       if (this.__activeTexturesCube[i] == null) {
         continue;
       }
-      this.__activeTexture(i);
+      this.__activeTexture(15);
       this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
       delete this.__activeTexturesCube[i];
     }

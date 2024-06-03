@@ -28,6 +28,7 @@ import { Sampler } from '../../textures/Sampler';
 import { Vector3 } from '../../math/Vector3';
 import { SystemState } from '../../system';
 import { RenderTargetTexture } from '../../textures';
+import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -87,6 +88,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __shadowMapSize = 1024;
   private __oFrame: IOption<Frame> = new None();
   private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
+  private __oFrameBufferMultiView: IOption<FrameBuffer> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
@@ -148,13 +150,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oSamplerForBackBuffer.unwrapForce().create();
 
       // create Frame Buffers
-      const { framebufferMsaa, framebufferResolve, framebufferResolveForReference } =
-        this.__createRenderTargets(canvasWidth, canvasHeight);
-
-      // FrameBuffers
-      this.__oFrameBufferMsaa = new Some(framebufferMsaa);
-      this.__oFrameBufferResolve = new Some(framebufferResolve);
-      this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
+      this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
       if (isShadow && !this.__isSimple) {
@@ -649,53 +645,72 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
-    // MSAA depth
-    const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
-      canvasWidth,
-      canvasHeight,
-      0,
-      {
-        isMSAA: true,
-        sampleCountMSAA: 4,
-        internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
-        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-      }
-    );
-    framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfGammaMsaa', true);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    if (cgApiResourceRepository.isSupportMultiViewVRRendering()) {
+      const framebufferMultiView = RenderableHelper.createTextureArrayForRenderTarget(
+        canvasWidth,
+        canvasHeight,
+        2,
+        {
+          level: 0,
+          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+          format: PixelFormat.RGBA,
+          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+          createDepthBuffer: true,
+          isMSAA: true,
+          sampleCountMSAA: 4,
+        }
+      );
+      this.__oFrameBufferMultiView = new Some(framebufferMultiView);
+    } else {
+      // MSAA depth
+      const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
+        canvasWidth,
+        canvasHeight,
+        0,
+        {
+          isMSAA: true,
+          sampleCountMSAA: 4,
+          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+        }
+      );
+      framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfGammaMsaa', true);
 
-    // Resolve Color 1
-    const framebufferResolve = RenderableHelper.createTexturesForRenderTarget(
-      canvasWidth,
-      canvasHeight,
-      1,
-      {
-        createDepthBuffer: true,
-        internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
-        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-      }
-    );
-    framebufferResolve.tryToSetUniqueName('FramebufferTargetOfGammaResolve', true);
+      // Resolve Color 1
+      const framebufferResolve = RenderableHelper.createTexturesForRenderTarget(
+        canvasWidth,
+        canvasHeight,
+        1,
+        {
+          createDepthBuffer: true,
+          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+        }
+      );
+      framebufferResolve.tryToSetUniqueName('FramebufferTargetOfGammaResolve', true);
 
-    // Resolve Color 2
-    const framebufferResolveForReference = RenderableHelper.createTexturesForRenderTarget(
-      canvasWidth,
-      canvasHeight,
-      1,
-      {
-        createDepthBuffer: false,
-        internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
-        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-      }
-    );
-    framebufferResolveForReference.tryToSetUniqueName(
-      'FramebufferTargetOfGammaResolveForReference',
-      true
-    );
-    return {
-      framebufferMsaa,
-      framebufferResolve,
-      framebufferResolveForReference,
-    };
+      // Resolve Color 2
+      const framebufferResolveForReference = RenderableHelper.createTexturesForRenderTarget(
+        canvasWidth,
+        canvasHeight,
+        1,
+        {
+          createDepthBuffer: false,
+          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+        }
+      );
+      framebufferResolveForReference.tryToSetUniqueName(
+        'FramebufferTargetOfGammaResolveForReference',
+        true
+      );
+
+      // FrameBuffers
+      this.__oFrameBufferMsaa = new Some(framebufferMsaa);
+      this.__oFrameBufferResolve = new Some(framebufferResolve);
+      this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
+    }
   }
 
   private __setupGenerateMipmapsExpression(sFrame: Some<Frame>, resolveFramebuffer2: FrameBuffer) {

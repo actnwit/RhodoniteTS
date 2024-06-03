@@ -56,6 +56,51 @@ function createTexturesForRenderTarget(
   return frameBuffer;
 }
 
+function createTextureArrayForRenderTarget(
+  width: number,
+  height: number,
+  arrayLength: number,
+  {
+    level = 0,
+    internalFormat = TextureParameter.RGBA8,
+    format = PixelFormat.RGBA,
+    type = ComponentType.UnsignedByte,
+    createDepthBuffer = true,
+    isMSAA = false,
+    sampleCountMSAA = 4,
+  }
+) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(width, height);
+
+  const renderTargetTexture = new RenderTargetTexture();
+  renderTargetTexture.createTextureArray({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+    arrayLength,
+  });
+  frameBuffer.setColorAttachmentAt(0, renderTargetTexture);
+
+  const renderTargetDepthStencilTexture = new RenderTargetTexture();
+  renderTargetDepthStencilTexture.createTextureArray({
+    width,
+    height,
+    level,
+    internalFormat: TextureParameter.Depth32FStencil8,
+    format,
+    type,
+    arrayLength,
+  });
+
+  frameBuffer.setDepthStencilAttachment(renderTargetDepthStencilTexture);
+
+  return frameBuffer;
+}
+
 function createDepthBuffer(
   width: number,
   height: number,
@@ -86,5 +131,6 @@ function createDepthBuffer(
 
 export const RenderableHelper = Object.freeze({
   createTexturesForRenderTarget,
+  createTextureArrayForRenderTarget,
   createDepthBuffer,
 });
