@@ -153,7 +153,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oSamplerForBackBuffer.unwrapForce().create();
 
       // create Frame Buffers
-      this.__recreateRenderTargets(canvasWidth, canvasHeight);
+      this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
       if (isShadow && !this.__isSimple) {
@@ -378,7 +378,21 @@ export class ForwardRenderPipeline extends RnObject {
 
     if (!this.__isSimple) {
       assertHas(this.__oGammaExpression);
-      this.__recreateRenderTargets(width, height);
+      if (this.__oFrameBufferMultiView.has()) {
+        this.__oFrameBufferMultiView.get().resize(width, height);
+      }
+      if (this.__oFrameBufferMultiViewBlit.has()) {
+        this.__oFrameBufferMultiViewBlit.get().resize(width, height);
+      }
+      if (this.__oFrameBufferMsaa.has()) {
+        this.__oFrameBufferMsaa.get().resize(width, height);
+      }
+      if (this.__oFrameBufferResolve.has()) {
+        this.__oFrameBufferResolve.get().resize(width, height);
+      }
+      if (this.__oFrameBufferResolveForReference.has()) {
+        this.__oFrameBufferResolveForReference.get().resize(width, height);
+      }
 
       if (this.__isBloom) {
         const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
@@ -671,23 +685,7 @@ export class ForwardRenderPipeline extends RnObject {
     return expression;
   }
 
-  private __recreateRenderTargets(canvasWidth: number, canvasHeight: number) {
-    if (this.__oFrameBufferMultiView.has()) {
-      this.__oFrameBufferMultiView.get().destroy3DAPIResources();
-    }
-    if (this.__oFrameBufferMultiViewBlit.has()) {
-      this.__oFrameBufferMultiViewBlit.get().destroy3DAPIResources();
-    }
-    if (this.__oFrameBufferMsaa.has()) {
-      this.__oFrameBufferMsaa.get().destroy3DAPIResources();
-    }
-    if (this.__oFrameBufferResolve.has()) {
-      this.__oFrameBufferResolve.get().destroy3DAPIResources();
-    }
-    if (this.__oFrameBufferResolveForReference.has()) {
-      this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
-    }
-
+  private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
     const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
@@ -928,6 +926,10 @@ export class ForwardRenderPipeline extends RnObject {
 
     if (!this.__isSimple) {
       frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+    }
+
+    if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
+      frame.addExpression(this.__oMultiViewBlitExpression.unwrapForce());
     }
 
     for (const exp of this.__transparentOnlyExpressions) {
