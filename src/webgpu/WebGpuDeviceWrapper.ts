@@ -13,7 +13,7 @@ export class WebGpuDeviceWrapper {
     this.__context.configure({
       device: this.__gpuDevice,
       format: presentationFormat,
-      alphaMode: 'opaque',
+      alphaMode: 'premultiplied',
     });
   }
 
