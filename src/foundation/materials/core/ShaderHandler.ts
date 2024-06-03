@@ -138,7 +138,10 @@ export function _createProgramAsSingleOperationWebGL(
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
   if (material.isBlend()) {
-    pixelShader += '#define RN_IS_BLEND\n';
+    pixelShader += '#define RN_IS_ALPHA_MODE_BLEND\n';
+  }
+  if (material.isMask()) {
+    pixelShader += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
 
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
@@ -351,16 +354,19 @@ export function _createProgramAsSingleOperationWebGpu(
     }
   );
 
-  let isBlend = '';
+  let alphaMode = '';
   if (material.isBlend()) {
-    isBlend = '#define RN_IS_BLEND\n';
+    alphaMode += '#define RN_IS_ALPHA_MODE_BLEND\n';
+  }
+  if (material.isMask()) {
+    alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
 
   const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
       getters: pixelPropertiesStr,
-      definitions: '// RN_IS_PIXEL_SHADER\n' + definitions + isBlend,
+      definitions: '// RN_IS_PIXEL_SHADER\n' + definitions + alphaMode,
       matricesGetters: vertexShaderMethodDefinitions,
       maxMorphDataNumber:
         '' +

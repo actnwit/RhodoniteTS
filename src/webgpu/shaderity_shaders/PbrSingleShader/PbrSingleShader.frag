@@ -386,7 +386,7 @@ fn main(
   resultColor += emissive;
 #endif // RN_USE_CLEARCOAT
 
-#ifdef RN_IS_BLEND
+#ifdef RN_IS_ALPHA_MODE_BLEND
   resultAlpha = baseColor.a;
 #else
   resultAlpha = 1.0;
