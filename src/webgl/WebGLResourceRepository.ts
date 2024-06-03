@@ -63,6 +63,7 @@ import { Sampler } from '../foundation/textures/Sampler';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { SystemState } from '../foundation/system/SystemState';
 import { Logger } from '../foundation/misc/Logger';
+import { WebGLStereoUtil } from './WebGLStereoUtil';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
@@ -2843,5 +2844,20 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
   isSupportMultiViewVRRendering(): boolean {
     return this.__glw!.webgl2ExtMLTVIEW!.is_multisample;
+  }
+
+  blitToTexture2dFromTexture2dArray(
+    srcTextureUid: WebGLResourceHandle,
+    dstFboUid: WebGLResourceHandle,
+    dstWidth: number,
+    dstHeight: number
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const srcTexture = this.getWebGLResource(srcTextureUid) as WebGLTexture;
+    const dstFbo = this.getWebGLResource(dstFboUid) as WebGLFramebuffer;
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, dstFbo);
+
+    const webStereoUtil = WebGLStereoUtil.getInstance(gl);
+    webStereoUtil.blit(srcTexture, 0, 0, 1, 1, dstWidth, dstHeight);
   }
 }

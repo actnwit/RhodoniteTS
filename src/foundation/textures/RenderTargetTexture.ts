@@ -202,4 +202,17 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
   }
+
+  blitToTexture2dFromTexture2dArray(targetTexture2D: RenderTargetTexture) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArray(
+      this._textureResourceUid,
+      targetTexture2D.__fbo!.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
 }

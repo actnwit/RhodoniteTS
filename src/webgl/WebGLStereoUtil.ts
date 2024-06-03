@@ -54,6 +54,7 @@ const FSMultiview = [
 ].join('\n');
 
 export class WebGLStereoUtil {
+  private static __instance: WebGLStereoUtil;
   private __gl: WebGL2RenderingContext;
   private __vao: WebGLVertexArrayObject;
   private __vertexShader?: WebGLShader;
@@ -73,6 +74,14 @@ export class WebGLStereoUtil {
     });
     this.__getUniformLocations();
     this.__gl.linkProgram(this.__program);
+  }
+
+  static getInstance(gl: WebGL2RenderingContext) {
+    if (!this.__instance) {
+      this.__instance = new WebGLStereoUtil(gl);
+    }
+
+    return this.__instance;
   }
 
   private __attachShaderSource(source: string, type: number) {
@@ -136,7 +145,7 @@ export class WebGLStereoUtil {
     const gl = this.__gl;
     const program = this.__program!;
 
-    gl.activeTexture(gl.TEXTURE0);
+    gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, source_texture);
 
     gl.useProgram(program);
