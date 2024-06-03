@@ -157,6 +157,32 @@ void main ()
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
   vec3 viewDirection = normalize(viewVector);
 
+  // BaseColor
+  vec3 baseColor = vec3(0.0, 0.0, 0.0);
+  float alpha = 1.0;
+  vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
+  if (v_color != baseColor && baseColorFactor.rgb != baseColor) {
+    baseColor = v_color * baseColorFactor.rgb;
+    alpha = baseColorFactor.a;
+  } else if (v_color == baseColor) {
+    baseColor = baseColorFactor.rgb;
+    alpha = baseColorFactor.a;
+  } else if (baseColorFactor.rgb == baseColor) {
+    baseColor = v_color;
+  } else {
+    baseColor = vec3(1.0, 1.0, 1.0);
+  }
+  vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
+  float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
+  int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
+  vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
+  vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
+  vec4 textureColor = texture(u_baseColorTexture, baseColorTexUv);
+  baseColor *= srgbToLinear(textureColor.rgb);
+  alpha *= textureColor.a;
+
+#pragma shaderity: require(../common/alphaMask.glsl)
+
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   vec3 geomNormal_inWorld = normal_inWorld;
@@ -176,35 +202,6 @@ void main ()
       normal_inWorld = normalize(TBN * scaledNormal);
     }
   #endif
-
-  // BaseColorFactor
-  vec3 baseColor = vec3(0.0, 0.0, 0.0);
-  float alpha = 1.0;
-  vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
-  if (v_color != baseColor && baseColorFactor.rgb != baseColor) {
-    baseColor = v_color * baseColorFactor.rgb;
-    alpha = baseColorFactor.a;
-  } else if (v_color == baseColor) {
-    baseColor = baseColorFactor.rgb;
-    alpha = baseColorFactor.a;
-  } else if (baseColorFactor.rgb == baseColor) {
-    baseColor = v_color;
-  } else {
-    baseColor = vec3(1.0, 1.0, 1.0);
-  }
-
-  // BaseColor (take account for BaseColorTexture)
-  vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
-  float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
-  int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
-  vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
-  vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
-  vec4 textureColor = texture(u_baseColorTexture, baseColorTexUv);
-  baseColor *= srgbToLinear(textureColor.rgb);
-  alpha *= textureColor.a;
-
-#pragma shaderity: require(../common/alphaMask.glsl)
-
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
