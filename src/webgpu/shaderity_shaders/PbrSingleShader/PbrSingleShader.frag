@@ -99,6 +99,8 @@
 // #param anisotropyRotation: vec2<f32>; // initialValue=(1,0)
 #endif
 
+// #param alphaCutoff: f32; // initialValue=0.01
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
@@ -142,6 +144,9 @@ fn main(
   let baseColorTexUv = vec2f(0.0, 0.0);
 #endif
 
+#pragma shaderity: require(../common/alphaMask.wgsl)
+
+
 // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
   let geomNormal_inWorld = normal_inWorld;
@@ -162,7 +167,7 @@ fn main(
     }
   #endif
 
-
+#ifdef RN_IS_LIGHTING
   // Metallic & Roughness
   let metallicRoughnessFactor: vec2f = get_metallicRoughnessFactor(materialSID, 0);
   var metallic = metallicRoughnessFactor.x;
@@ -328,7 +333,7 @@ fn main(
 #endif // RN_USE_SHEEN
 
   var resultColor = vec3<f32>(0, 0, 0);
-  var resultAlpha = 0.0;
+  var resultAlpha = baseColor.a;
 
   // Lighting
   let lightNumber = u32(get_lightNumber(0u, 0u));
@@ -364,6 +369,10 @@ fn main(
 
   // Occlution to Indirect Lights
   resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
+#else
+  var resultColor = baseColor.rgb;
+  var resultAlpha = baseColor.a;
+#endif // RN_IS_LIGHTING
 
   // Emissive
   let emissiveFactor = get_emissiveFactor(materialSID, 0);
@@ -382,7 +391,11 @@ fn main(
   resultColor += emissive;
 #endif // RN_USE_CLEARCOAT
 
-  resultAlpha = baseColor.a;
+#ifdef RN_IS_ALPHA_MODE_BLEND
+#else
+  resultAlpha = 1.0;
+#endif
+
 #pragma shaderity: require(../common/outputSrgb.wgsl)
   return vec4f(resultColor * resultAlpha, resultAlpha);
 }

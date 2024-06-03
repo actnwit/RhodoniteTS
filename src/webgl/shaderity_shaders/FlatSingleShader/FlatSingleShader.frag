@@ -33,6 +33,8 @@ void main ()
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
+#pragma shaderity: require(../common/alphaMask.glsl)
+
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 
@@ -62,12 +64,13 @@ void main ()
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 
-// #pragma shaderity: require(../common/alphaMask.glsl)
+
+#ifdef RN_IS_ALPHA_MODE_BLEND
+#else
+  alpha = 1.0;
+#endif
 
   rt0 = vec4(diffuseColor * alpha, alpha);
-  // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
-
-// #pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 

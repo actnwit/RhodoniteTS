@@ -22,7 +22,6 @@ import {
   MaterialUID,
 } from '../../../types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { Is } from '../../misc/Is';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
 import type { Primitive } from '../../geometry/Primitive';
 import type { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
@@ -69,10 +68,10 @@ export class Material extends RnObject {
   private __alphaToCoverage = false;
   private __blendEquationMode = Blend.EquationFuncAdd; // gl.FUNC_ADD
   private __blendEquationModeAlpha = Blend.EquationFuncAdd; // gl.FUNC_ADD
-  private __blendFuncSrcFactor = Blend.SrcAlpha; // gl.SRC_ALPHA
+  private __blendFuncSrcFactor = Blend.One; // Not SrcAlpha. Because In Rhodonite, premultiplied alpha is used
   private __blendFuncDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
   private __blendFuncAlphaSrcFactor = Blend.One; // gl.ONE
-  private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
+  private __blendFuncAlphaDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
 
   private __stateVersion = 0;
   private static __stateVersion = 0;
@@ -569,7 +568,7 @@ export class Material extends RnObject {
 
   /**
    * Change the blendEquations
-   * This method works only if this alphaMode is the translucent
+   * This method works only if this alphaMode is the blend
    * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
    * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
    */
@@ -582,7 +581,7 @@ export class Material extends RnObject {
 
   /**
    * Change the blendFuncSeparateFactors
-   * This method works only if this alphaMode is the translucent
+   * This method works only if this alphaMode is the blend
    */
   public setBlendFuncSeparateFactor(
     blendFuncSrcFactor: BlendEnum,
@@ -600,7 +599,7 @@ export class Material extends RnObject {
 
   /**
    * Change the blendFuncFactors
-   * This method works only if this alphaMode is the translucent
+   * This method works only if this alphaMode is the blend
    */
   public setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum) {
     this.__blendFuncSrcFactor = blendFuncSrcFactor;
@@ -645,6 +644,10 @@ export class Material extends RnObject {
 
   isOpaque() {
     return this.alphaMode === AlphaMode.Opaque;
+  }
+
+  isMask() {
+    return this.alphaMode === AlphaMode.Mask;
   }
 
   /**
