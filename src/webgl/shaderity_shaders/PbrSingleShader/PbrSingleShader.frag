@@ -435,8 +435,6 @@ void main ()
     return;
   }
 
-#pragma shaderity: require(../common/setAlphaIfNotInAlphaBlendMode.glsl)
-
   // Wireframe
   float threshold = 0.001;
   vec3 wireframe = get_wireframe(materialSID, 0);
@@ -460,13 +458,14 @@ void main ()
     }
   }
 
-  // rt0.rgb = vec3(texture(u_depthTexture, v_shadowCoord.xy/v_shadowCoord.w).r);
 
-  // premultiplied alpha
-  // rt0.rgb /= alpha;
-  // rt0 = vec4(perceptualRoughness, 0.0, 0.0, 1.0);
+#ifdef RN_IS_ALPHA_MODE_BLEND
+#else
+  rt0.a = 1.0;
+#endif
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
+rt0.rgb = rt0.rgb * rt0.a; // alpha premultiplied
 rt1 = rt0;
 rt2 = rt0;
 rt3 = rt0;
