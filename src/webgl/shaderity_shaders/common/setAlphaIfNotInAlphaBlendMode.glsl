@@ -1,5 +1,4 @@
-#ifdef RN_IS_ALPHAMODE_OPAQUE
-  rt0.a = 1.0;
-#elif defined(RN_IS_ALPHAMODE_MASK)
+#ifdef RN_IS_BLEND
+#else
   rt0.a = 1.0;
 #endif

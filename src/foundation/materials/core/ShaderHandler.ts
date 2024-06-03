@@ -137,6 +137,9 @@ export function _createProgramAsSingleOperationWebGL(
   vertexShader += '#define RN_IS_VERTEX_SHADER\n';
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
+  if (material.isBlend()) {
+    pixelShader += '#define RN_IS_BLEND\n';
+  }
 
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.vertexShaderityObject!,
@@ -338,7 +341,7 @@ export function _createProgramAsSingleOperationWebGpu(
     materialNode.vertexShaderityObject!,
     {
       getters: vertexPropertiesStr,
-      definitions: '#define RN_IS_VERTEX_SHADER\n' + definitions,
+      definitions: '// RN_IS_VERTEX_SHADER\n' + definitions,
       matricesGetters: vertexShaderMethodDefinitions,
       maxMorphDataNumber:
         '' +
@@ -348,11 +351,16 @@ export function _createProgramAsSingleOperationWebGpu(
     }
   );
 
+  let isBlend = '';
+  if (material.isBlend()) {
+    isBlend = '#define RN_IS_BLEND\n';
+  }
+
   const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
       getters: pixelPropertiesStr,
-      definitions: '#define RN_IS_PIXEL_SHADER\n' + definitions,
+      definitions: '// RN_IS_PIXEL_SHADER\n' + definitions + isBlend,
       matricesGetters: vertexShaderMethodDefinitions,
       maxMorphDataNumber:
         '' +

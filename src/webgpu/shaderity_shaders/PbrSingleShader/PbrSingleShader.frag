@@ -386,7 +386,12 @@ fn main(
   resultColor += emissive;
 #endif // RN_USE_CLEARCOAT
 
+#ifdef RN_IS_BLEND
   resultAlpha = baseColor.a;
+#else
+  resultAlpha = 1.0;
+#endif
+
 #pragma shaderity: require(../common/outputSrgb.wgsl)
   return vec4f(resultColor * resultAlpha, resultAlpha);
 }
