@@ -444,6 +444,8 @@ bool get_isBillboard(float instanceId) {
       gl.depthMask(false);
     }
 
+    this.__webglResourceRepository.setViewport(renderPass.getViewport());
+
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
       0,

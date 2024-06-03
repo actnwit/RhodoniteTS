@@ -805,6 +805,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       gl.depthMask(false);
     }
 
+    this.__webglResourceRepository.setViewport(renderPass.getViewport());
+
     gl.drawArrays(
       renderPass._primitiveModeForBufferLessRendering.index,
       0,
