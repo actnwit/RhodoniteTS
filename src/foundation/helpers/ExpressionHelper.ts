@@ -142,10 +142,6 @@ function createRenderPassesBlurredHighLuminance(
         resolutionWidthBlur,
         resolutionHeightBlur
       );
-      // need to draw the full viewport size
-      renderPassBlurH.setViewport(
-        Vector4.fromCopyArray([0, 0, resolutionWidthBlur, resolutionHeightBlur])
-      );
     }
     renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
 
