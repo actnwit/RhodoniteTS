@@ -71,7 +71,7 @@ export class Material extends RnObject {
   private __blendFuncSrcFactor = Blend.One; // Not SrcAlpha. Because In Rhodonite, premultiplied alpha is used
   private __blendFuncDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
   private __blendFuncAlphaSrcFactor = Blend.One; // gl.ONE
-  private __blendFuncAlphaDstFactor = Blend.One; // gl.ONE
+  private __blendFuncAlphaDstFactor = Blend.OneMinusSrcAlpha; // gl.ONE_MINUS_SRC_ALPHA
 
   private __stateVersion = 0;
   private static __stateVersion = 0;
