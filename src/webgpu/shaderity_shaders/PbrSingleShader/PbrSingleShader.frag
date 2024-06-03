@@ -146,6 +146,7 @@ fn main(
 
 #pragma shaderity: require(../common/alphaMask.wgsl)
 
+
 // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
   let geomNormal_inWorld = normal_inWorld;
@@ -166,7 +167,7 @@ fn main(
     }
   #endif
 
-
+#ifdef RN_IS_LIGHTING
   // Metallic & Roughness
   let metallicRoughnessFactor: vec2f = get_metallicRoughnessFactor(materialSID, 0);
   var metallic = metallicRoughnessFactor.x;
@@ -332,7 +333,7 @@ fn main(
 #endif // RN_USE_SHEEN
 
   var resultColor = vec3<f32>(0, 0, 0);
-  var resultAlpha = 0.0;
+  var resultAlpha = baseColor.a;
 
   // Lighting
   let lightNumber = u32(get_lightNumber(0u, 0u));
@@ -368,6 +369,10 @@ fn main(
 
   // Occlution to Indirect Lights
   resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
+#else
+  var resultColor = baseColor.rgb;
+  var resultAlpha = baseColor.a;
+#endif // RN_IS_LIGHTING
 
   // Emissive
   let emissiveFactor = get_emissiveFactor(materialSID, 0);
@@ -387,7 +392,6 @@ fn main(
 #endif // RN_USE_CLEARCOAT
 
 #ifdef RN_IS_ALPHA_MODE_BLEND
-  resultAlpha = baseColor.a;
 #else
   resultAlpha = 1.0;
 #endif
