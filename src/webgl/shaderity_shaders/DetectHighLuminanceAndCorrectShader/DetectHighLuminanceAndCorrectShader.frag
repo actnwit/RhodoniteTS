@@ -16,7 +16,7 @@ void main ()
 
   vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 
-  float luminance = length(baseColor);
+  float luminance = dot(baseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 
   float luminanceCriterion = get_luminanceCriterion(materialSID, 0);
 

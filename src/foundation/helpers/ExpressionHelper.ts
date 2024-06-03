@@ -16,8 +16,7 @@ import { VectorN } from '../math/VectorN';
 function createBloomExpression({
   textureToBloom,
   parameters: {
-    luminanceCriterion = 3.0,
-    luminanceReduce = 0.25,
+    luminanceCriterion = 1.0,
     gaussianBlurLevelHighLuminance = 4,
     gaussianKernelSize = 10,
     gaussianVariance = 10,
@@ -27,7 +26,6 @@ function createBloomExpression({
   textureToBloom: AbstractTexture;
   parameters: {
     luminanceCriterion?: number;
-    luminanceReduce?: number;
     gaussianBlurLevelHighLuminance?: number;
     gaussianKernelSize?: number;
     gaussianVariance?: number;
@@ -40,8 +38,7 @@ function createBloomExpression({
   // Setup DetectHighLuminanceMaterial
   const renderPassDetectHighLuminance = createRenderPassDetectHighLuminance(
     textureToBloom,
-    luminanceCriterion,
-    luminanceReduce
+    luminanceCriterion
   );
 
   // Setup RenderPasses for GaussianBlur
@@ -76,11 +73,7 @@ function createBloomExpression({
   };
 }
 
-function createRenderPassDetectHighLuminance(
-  texture: AbstractTexture,
-  luminanceCriterion: number,
-  luminanceReduce: number
-) {
+function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminanceCriterion: number) {
   const materialDetectHighLuminance = MaterialHelper.createDetectHighLuminanceMaterial(
     { maxInstancesNumber: 1 },
     texture

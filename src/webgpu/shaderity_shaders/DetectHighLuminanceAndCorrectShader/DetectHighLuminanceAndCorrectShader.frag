@@ -12,7 +12,7 @@ fn main (
 
   var baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
 
-  let luminance = length(baseColor);
+  let luminance = dot(baseColor.rgb, vec3f(0.2126, 0.7152, 0.0722));
 
   let luminanceCriterion: f32 = get_luminanceCriterion(materialSID, 0);
   baseColor = vec4f(mix(vec3f(0.0), baseColor.rgb, (luminance - luminanceCriterion) / luminanceCriterion), 1.0);
