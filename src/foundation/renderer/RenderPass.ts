@@ -397,6 +397,10 @@ export class RenderPass extends RnObject {
       resolveFrameBuffer!.cgApiResourceUid
     ) as WebGLFramebuffer;
 
+    if (webGLResourceFrameBuffer == null || webGLResourceResolveFramebuffer == null) {
+      return;
+    }
+
     const glw = repo.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, webGLResourceFrameBuffer);

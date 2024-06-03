@@ -134,6 +134,11 @@ export class ForwardRenderPipeline extends RnObject {
     if (this.__oFrameBufferResolveForReference.has()) {
       this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
     }
+    this.__oFrame = new None();
+    this.__oGenerateMipmapsExpression = new None();
+    this.__oMultiViewBlitExpression = new None();
+    this.__oBloomExpression = new None();
+    this.__oGammaExpression = new None();
   }
 
   /**
@@ -224,6 +229,10 @@ export class ForwardRenderPipeline extends RnObject {
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
     if (Is.exist(rnXRModule)) {
       this.__oWebXRSystem = new Some(rnXRModule.WebXRSystem.getInstance());
+    }
+
+    if (this.__expressions.length > 0) {
+      this.setExpressions(this.__expressions);
     }
 
     return new Ok();
@@ -378,15 +387,12 @@ export class ForwardRenderPipeline extends RnObject {
         error: undefined,
       });
     }
-    assertHas(this.__oFrame);
     const webXRSystem = this.__oWebXRSystem.unwrapOrUndefined();
     if (Is.exist(webXRSystem) && webXRSystem.isWebXRMode) {
       width = webXRSystem.getCanvasWidthForVr();
       height = webXRSystem.getCanvasHeightForVr();
     }
     System.resizeCanvas(width, height);
-
-    this.__oFrame.get().setViewport(Vector4.fromCopy4(0, 0, width, height));
 
     this.__destroyResources();
     this.setup(width, height, {
@@ -395,51 +401,6 @@ export class ForwardRenderPipeline extends RnObject {
       shadowMapSize: this.__shadowMapSize,
       isSimple: this.__isSimple,
     });
-
-    // if (this.__oFrameDepthMoment.has()) {
-    //   this.__oFrameDepthMoment
-    //     .get()
-    //     .resize(
-    //       Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
-    //       this.__shadowMapSize
-    //     );
-    // }
-
-    // if (!this.__isSimple) {
-    //   assertHas(this.__oGammaExpression);
-    //   if (this.__oFrameBufferMultiView.has()) {
-    //     this.__oFrameBufferMultiView.get().resize(width, height);
-    //   }
-    //   if (this.__oFrameBufferMultiViewBlit.has()) {
-    //     this.__oFrameBufferMultiViewBlit.get().resize(width, height);
-    //   }
-    //   if (this.__oFrameBufferMsaa.has()) {
-    //     this.__oFrameBufferMsaa.get().resize(width, height);
-    //   }
-    //   if (this.__oFrameBufferResolve.has()) {
-    //     this.__oFrameBufferResolve.get().resize(width, height);
-    //   }
-    //   if (this.__oFrameBufferResolveForReference.has()) {
-    //     this.__oFrameBufferResolveForReference.get().resize(width, height);
-    //   }
-
-    //   if (this.__isBloom) {
-    //     const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
-    //       textureToBloom: this.__oFrameBufferResolve
-    //         .unwrapForce()
-    //         .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
-    //       parameters: {},
-    //     });
-    //     this.__oBloomExpression = new Some(bloomExpression);
-    //     const gammaExpression = this.__setupGammaExpression(bloomedRenderTarget);
-    //     this.__oGammaExpression = new Some(gammaExpression);
-    //   }
-
-    //   assertHas(this.__oGammaExpression);
-    //   this.__oGammaExpression
-    //     .get()
-    //     .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
-    // }
 
     return new Ok();
   }
@@ -950,12 +911,12 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
     }
 
-    if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
-      frame.addExpression(this.__oMultiViewBlitExpression.unwrapForce());
-    }
-
     for (const exp of this.__transparentOnlyExpressions) {
       frame.addExpression(exp);
+    }
+
+    if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
+      frame.addExpression(this.__oMultiViewBlitExpression.unwrapForce());
     }
 
     if (!this.__isSimple && this.__isBloom) {
