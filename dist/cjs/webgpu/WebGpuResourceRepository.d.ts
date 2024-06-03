@@ -161,13 +161,13 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         onError?: (message: string) => void;
     }): number;
     clearFrameBuffer(renderPass: RenderPass): void;
-    draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number): void;
+    draw(primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, isOpaque: boolean): void;
     private createRenderBundleEncoder;
     private createRenderPassEncoder;
     private __toClearRenderBundles;
     executeRenderBundle(renderPass: RenderPass): boolean;
     finishRenderBundleEncoder(renderPass: RenderPass): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, diffuseCubeMap?: CubeTexture, specularCubeMap?: CubeTexture): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, isOpaque: boolean, diffuseCubeMap?: CubeTexture, specularCubeMap?: CubeTexture): [GPURenderPipeline, boolean];
     flush(): void;
     /**
      * Create Cube Texture from image files.

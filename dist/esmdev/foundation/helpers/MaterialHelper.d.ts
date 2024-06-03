@@ -95,19 +95,17 @@ declare function createVarianceShadowMapDecodeClassicSingleMaterial({ additional
     depthCameraComponent?: CameraComponent;
     maxInstancesNumber?: Count;
 }, encodedDepthRenderPasses: RenderPass[]): Material;
-declare function createDetectHighLuminanceMaterial({ additionalName, colorAttachmentsNumber, maxInstancesNumber }: {
+declare function createDetectHighLuminanceMaterial({ additionalName, maxInstancesNumber }: {
     additionalName?: string | undefined;
-    colorAttachmentsNumber?: number | undefined;
     maxInstancesNumber?: number | undefined;
-} | undefined, HDRRenderPass: RenderPass): Material;
+} | undefined, textureToDetectHighLuminance: AbstractTexture): Material;
 declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
     noUseCameraTransform?: boolean | undefined;
 }): Material;
-declare function createSynthesizeHDRMaterial({ additionalName, targetRegionTexture, maxInstancesNumber, }: {
+declare function createSynthesizeHDRMaterial({ additionalName, maxInstancesNumber, }: {
     additionalName?: string;
-    targetRegionTexture?: AbstractTexture;
     maxInstancesNumber?: Count;
 }, synthesizeTextures: AbstractTexture[]): Material;
 declare function createColorGradingUsingLUTsMaterial({ additionalName, colorAttachmentsNumber, uri, texture, maxInstancesNumber, }: {

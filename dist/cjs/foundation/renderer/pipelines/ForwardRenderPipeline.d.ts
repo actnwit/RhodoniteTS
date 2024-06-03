@@ -57,6 +57,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __width;
     private __height;
     private __isShadow;
+    private __isBloom;
     private __isSimple;
     private __shadowMapSize;
     private __oFrame;
@@ -69,6 +70,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __expressions;
     private __oGenerateMipmapsExpression;
     private __depthMomentExpressions;
+    private __oBloomExpression;
     private __oGammaExpression;
     private __transparentOnlyExpressions;
     private __oWebXRSystem;
@@ -82,8 +84,9 @@ export declare class ForwardRenderPipeline extends RnObject {
      * @param canvasWidth - The width of the canvas.
      * @param canvasHeight - The height of the canvas.
      */
-    setup(canvasWidth: number, canvasHeight: number, { isShadow, shadowMapSize, isSimple }?: {
+    setup(canvasWidth: number, canvasHeight: number, { isShadow, isBloom, shadowMapSize, isSimple }?: {
         isShadow?: boolean | undefined;
+        isBloom?: boolean | undefined;
         shadowMapSize?: number | undefined;
         isSimple?: boolean | undefined;
     }): Promise<Err<unknown, undefined> | Ok<unknown, unknown>>;

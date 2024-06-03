@@ -1,14 +1,11 @@
 import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
-import { RenderPass } from '../../renderer/RenderPass';
-import { Count } from '../../../types/CommonTypes';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
 import { Material } from '../core/Material';
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
+import { AbstractTexture } from '../../textures/AbstractTexture';
 export declare class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
     static LuminanceCriterion: ShaderSemanticsEnum;
-    static LuminanceReduce: ShaderSemanticsEnum;
-    static FramebufferWidth: ShaderSemanticsEnum;
-    constructor(HDRRenderPass: RenderPass, colorAttachmentsNumber: Count);
+    constructor(textureToDetectHighLuminance: AbstractTexture);
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

@@ -32,6 +32,11 @@ export declare class RenderPass extends RnObject {
     toClearDepthBuffer: boolean;
     toClearStencilBuffer: boolean;
     isDepthTest: boolean;
+    /**
+     * depth write mask for primitives drawing
+     * false does not prevent depth clear.
+     */
+    depthWriteMask: boolean;
     clearColor: Vector4;
     clearDepth: number;
     clearStencil: number;

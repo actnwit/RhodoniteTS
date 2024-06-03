@@ -110,7 +110,7 @@ export declare const ShaderSemantics: Readonly<{
     AlphaCutoff: ShaderSemanticsEnum;
     AlphaTexture: ShaderSemanticsEnum;
     MakeOutputSrgb: ShaderSemanticsEnum;
-    FramebufferWidth: ShaderSemanticsEnum;
+    FramebufferSize: ShaderSemanticsEnum;
     IsOutputHDR: ShaderSemanticsClass;
     BaseColorTextureTransform: ShaderSemanticsClass;
     BaseColorTextureRotation: ShaderSemanticsClass;
@@ -160,5 +160,6 @@ export declare const ShaderSemantics: Readonly<{
     AnisotropyStrength: ShaderSemanticsClass;
     AnisotropyRotation: ShaderSemanticsClass;
     AnisotropyTexture: ShaderSemanticsClass;
+    EmissiveStrength: ShaderSemanticsClass;
 }>;
 export {};
