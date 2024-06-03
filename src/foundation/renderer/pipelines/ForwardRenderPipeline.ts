@@ -115,6 +115,27 @@ export class ForwardRenderPipeline extends RnObject {
     super();
   }
 
+  private __destroyResources() {
+    if (this.__oFrameDepthMoment.has()) {
+      this.__oFrameDepthMoment.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferMultiView.has()) {
+      this.__oFrameBufferMultiView.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferMultiViewBlit.has()) {
+      this.__oFrameBufferMultiViewBlit.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferMsaa.has()) {
+      this.__oFrameBufferMsaa.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferResolve.has()) {
+      this.__oFrameBufferResolve.get().destroy3DAPIResources();
+    }
+    if (this.__oFrameBufferResolveForReference.has()) {
+      this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
+    }
+  }
+
   /**
    * Initializes the pipeline.
    * @param canvasWidth - The width of the canvas.
@@ -195,7 +216,7 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Initial Expression
     const initialExpression = this.__setupInitialExpression(
-      this.__oFrameBufferMsaa,
+      this.__getMainFrameBuffer(),
       this.__oFrameDepthMoment
     );
     this.__oInitialExpression = new Some(initialExpression);
@@ -367,50 +388,58 @@ export class ForwardRenderPipeline extends RnObject {
 
     this.__oFrame.get().setViewport(Vector4.fromCopy4(0, 0, width, height));
 
-    if (this.__oFrameDepthMoment.has()) {
-      this.__oFrameDepthMoment
-        .get()
-        .resize(
-          Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
-          this.__shadowMapSize
-        );
-    }
+    this.__destroyResources();
+    this.setup(width, height, {
+      isShadow: this.__isShadow,
+      isBloom: this.__isBloom,
+      shadowMapSize: this.__shadowMapSize,
+      isSimple: this.__isSimple,
+    });
 
-    if (!this.__isSimple) {
-      assertHas(this.__oGammaExpression);
-      if (this.__oFrameBufferMultiView.has()) {
-        this.__oFrameBufferMultiView.get().resize(width, height);
-      }
-      if (this.__oFrameBufferMultiViewBlit.has()) {
-        this.__oFrameBufferMultiViewBlit.get().resize(width, height);
-      }
-      if (this.__oFrameBufferMsaa.has()) {
-        this.__oFrameBufferMsaa.get().resize(width, height);
-      }
-      if (this.__oFrameBufferResolve.has()) {
-        this.__oFrameBufferResolve.get().resize(width, height);
-      }
-      if (this.__oFrameBufferResolveForReference.has()) {
-        this.__oFrameBufferResolveForReference.get().resize(width, height);
-      }
+    // if (this.__oFrameDepthMoment.has()) {
+    //   this.__oFrameDepthMoment
+    //     .get()
+    //     .resize(
+    //       Math.floor(this.__shadowMapSize * (this.__width / this.__height)),
+    //       this.__shadowMapSize
+    //     );
+    // }
 
-      if (this.__isBloom) {
-        const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
-          textureToBloom: this.__oFrameBufferResolve
-            .unwrapForce()
-            .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
-          parameters: {},
-        });
-        this.__oBloomExpression = new Some(bloomExpression);
-        const gammaExpression = this.__setupGammaExpression(bloomedRenderTarget);
-        this.__oGammaExpression = new Some(gammaExpression);
-      }
+    // if (!this.__isSimple) {
+    //   assertHas(this.__oGammaExpression);
+    //   if (this.__oFrameBufferMultiView.has()) {
+    //     this.__oFrameBufferMultiView.get().resize(width, height);
+    //   }
+    //   if (this.__oFrameBufferMultiViewBlit.has()) {
+    //     this.__oFrameBufferMultiViewBlit.get().resize(width, height);
+    //   }
+    //   if (this.__oFrameBufferMsaa.has()) {
+    //     this.__oFrameBufferMsaa.get().resize(width, height);
+    //   }
+    //   if (this.__oFrameBufferResolve.has()) {
+    //     this.__oFrameBufferResolve.get().resize(width, height);
+    //   }
+    //   if (this.__oFrameBufferResolveForReference.has()) {
+    //     this.__oFrameBufferResolveForReference.get().resize(width, height);
+    //   }
 
-      assertHas(this.__oGammaExpression);
-      this.__oGammaExpression
-        .get()
-        .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
-    }
+    //   if (this.__isBloom) {
+    //     const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
+    //       textureToBloom: this.__oFrameBufferResolve
+    //         .unwrapForce()
+    //         .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
+    //       parameters: {},
+    //     });
+    //     this.__oBloomExpression = new Some(bloomExpression);
+    //     const gammaExpression = this.__setupGammaExpression(bloomedRenderTarget);
+    //     this.__oGammaExpression = new Some(gammaExpression);
+    //   }
+
+    //   assertHas(this.__oGammaExpression);
+    //   this.__oGammaExpression
+    //     .get()
+    //     .renderPasses[0].setViewport(Vector4.fromCopy4(0, 0, width, height));
+    // }
 
     return new Ok();
   }
@@ -849,13 +878,6 @@ export class ForwardRenderPipeline extends RnObject {
     expressionGammaEffect.addRenderPasses([renderPassGamma, renderPassGammaVr]);
 
     return expressionGammaEffect;
-  }
-
-  private __setupSatExpression() {
-    const satMaterial = MaterialHelper.createSummedAreaTableMaterial({
-      noUseCameraTransform: true,
-    });
-    const renderPassSat = RenderPassHelper.createScreenDrawRenderPass(satMaterial);
   }
 
   private __setupDepthMomentFramebuffer(shadowMapSize: number) {
