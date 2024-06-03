@@ -157,17 +157,19 @@ export class ForwardRenderPipeline extends RnObject {
         this.__oFrameDepthMoment = this.__setupDepthMomentFramebuffer(shadowMapSize);
       }
 
-      this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
-        sFrame,
-        this.__oFrameBufferResolveForReference.unwrapForce()
-      );
+      if (this.__oFrameBufferResolveForReference.has()) {
+        this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
+          sFrame,
+          this.__oFrameBufferResolveForReference.unwrapForce()
+        );
+      }
 
-      let gammaTargetRenderTargetTexture: RenderTargetTexture = this.__oFrameBufferResolve
+      let gammaTargetRenderTargetTexture: RenderTargetTexture = this.__getMainFrameBufferResolve()
         .unwrapForce()
         .getColorAttachedRenderTargetTexture(0)!;
       if (isBloom && !this.__isSimple) {
         const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
-          textureToBloom: this.__oFrameBufferResolve
+          textureToBloom: this.__getMainFrameBufferResolve()
             .unwrapForce()
             .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
           parameters: {},
@@ -196,6 +198,21 @@ export class ForwardRenderPipeline extends RnObject {
     return new Ok();
   }
 
+  private __getMainFrameBufferResolve(): IOption<FrameBuffer> {
+    if (this.__oFrameBufferMultiView.has()) {
+      return this.__oFrameBufferMultiView;
+    } else {
+      return this.__oFrameBufferResolve;
+    }
+  }
+
+  private __getMainFrameBuffer(): IOption<FrameBuffer> {
+    if (this.__oFrameBufferMultiView.has()) {
+      return this.__oFrameBufferMultiView;
+    } else {
+      return this.__oFrameBufferMsaa;
+    }
+  }
   /**
    * set Expressions for drawing
    * @param expressions - expressions to draw
@@ -350,13 +367,19 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (!this.__isSimple) {
-      assertHas(this.__oFrameBufferMsaa);
-      assertHas(this.__oFrameBufferResolve);
-      assertHas(this.__oFrameBufferResolveForReference);
       assertHas(this.__oGammaExpression);
-      this.__oFrameBufferMsaa.get().resize(width, height);
-      this.__oFrameBufferResolve.get().resize(width, height);
-      this.__oFrameBufferResolveForReference.get().resize(width, height);
+      if (this.__oFrameBufferMultiView.has()) {
+        this.__oFrameBufferMultiView.get().resize(width, height);
+      }
+      if (this.__oFrameBufferMsaa.has()) {
+        this.__oFrameBufferMsaa.get().resize(width, height);
+      }
+      if (this.__oFrameBufferResolve.has()) {
+        this.__oFrameBufferResolve.get().resize(width, height);
+      }
+      if (this.__oFrameBufferResolveForReference.has()) {
+        this.__oFrameBufferResolveForReference.get().resize(width, height);
+      }
 
       if (this.__isBloom) {
         const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
@@ -557,9 +580,11 @@ export class ForwardRenderPipeline extends RnObject {
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
         if (!this.__isSimple) {
-          rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-          rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
-          rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+          rp.setFramebuffer(this.__getMainFrameBuffer().unwrapForce());
+          if (this.__oFrameBufferMsaa.has()) {
+            rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+            rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+          }
         }
       }
     }
@@ -575,23 +600,26 @@ export class ForwardRenderPipeline extends RnObject {
         rp.setToRenderTransparentPrimitives(true);
         rp.toClearDepthBuffer = false;
         if (!this.__isSimple) {
-          rp.setFramebuffer(this.__oFrameBufferMsaa.unwrapForce());
-          rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
-
-          for (const entity of rp.entities) {
-            const meshComponent = entity.tryToGetMesh();
-            if (Is.exist(meshComponent)) {
-              const mesh = meshComponent.mesh;
-              if (Is.exist(mesh)) {
-                for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
-                  const primitive = mesh.getPrimitiveAt(i);
-                  primitive.material.setTextureParameter(
-                    ShaderSemantics.BackBufferTexture,
-                    this.__oFrameBufferResolveForReference
-                      .unwrapForce()
-                      .getColorAttachedRenderTargetTexture(0)!,
-                    this.__oSamplerForBackBuffer.unwrapForce()
-                  );
+          rp.setFramebuffer(this.__getMainFrameBuffer().unwrapForce());
+          if (this.__oFrameBufferResolve.has()) {
+            rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+          }
+          if (this.__oFrameBufferResolveForReference.has()) {
+            for (const entity of rp.entities) {
+              const meshComponent = entity.tryToGetMesh();
+              if (Is.exist(meshComponent)) {
+                const mesh = meshComponent.mesh;
+                if (Is.exist(mesh)) {
+                  for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+                    const primitive = mesh.getPrimitiveAt(i);
+                    primitive.material.setTextureParameter(
+                      ShaderSemantics.BackBufferTexture,
+                      this.__oFrameBufferResolveForReference
+                        .unwrapForce()
+                        .getColorAttachedRenderTargetTexture(0)!,
+                      this.__oSamplerForBackBuffer.unwrapForce()
+                    );
+                  }
                 }
               }
             }
@@ -646,22 +674,23 @@ export class ForwardRenderPipeline extends RnObject {
 
   private __createRenderTargets(canvasWidth: number, canvasHeight: number) {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    if (cgApiResourceRepository.isSupportMultiViewVRRendering()) {
-      const framebufferMultiView = RenderableHelper.createTextureArrayForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        2,
-        {
-          level: 0,
-          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
-          format: PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-          createDepthBuffer: true,
-          isMSAA: true,
-          sampleCountMSAA: 4,
-        }
-      );
-      this.__oFrameBufferMultiView = new Some(framebufferMultiView);
+    // if (cgApiResourceRepository.isSupportMultiViewVRRendering()) {
+    if (false) {
+      // const framebufferMultiView = RenderableHelper.createTextureArrayForRenderTarget(
+      //   canvasWidth,
+      //   canvasHeight,
+      //   2,
+      //   {
+      //     level: 0,
+      //     internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+      //     format: PixelFormat.RGBA,
+      //     type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+      //     createDepthBuffer: true,
+      //     isMSAA: true,
+      //     sampleCountMSAA: 4,
+      //   }
+      // );
+      // this.__oFrameBufferMultiView = new Some(framebufferMultiView);
     } else {
       // MSAA depth
       const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
