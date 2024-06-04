@@ -429,7 +429,9 @@ export class RenderPass extends RnObject {
     for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
       if (
         this.__resolveFrameBuffer.colorAttachments[i] == null ||
-        this.__resolveFrameBuffer2.colorAttachments[i] == null
+        this.__resolveFrameBuffer2.colorAttachments[i] == null ||
+        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid === -1 ||
+        this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid === -1
       ) {
         continue;
       }
