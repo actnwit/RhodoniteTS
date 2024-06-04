@@ -35,7 +35,6 @@ vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perce
   vec2 backBufferTextureSize = vec2(textureSize(u_backBufferTexture, 0));
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
 
-  #ifndef WEBGL2_MULTI_VIEW
   if (vrState.x == 1) { // For VR
     backBufferTextureLength = max(backBufferTextureSize.x / 2.0, backBufferTextureSize.y);
     sampleCoord.x = sampleCoord.x * 0.5;
@@ -43,7 +42,6 @@ vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perce
       sampleCoord.x += 0.5;
     }
   }
-  #endif // WEBGL2_MULTI_VIEW
 
   float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
 
