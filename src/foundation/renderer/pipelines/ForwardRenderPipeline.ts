@@ -91,6 +91,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
   private __oFrameBufferMultiView: IOption<FrameBuffer> = new None();
   private __oFrameBufferMultiViewBlit: IOption<FrameBuffer> = new None();
+  private __oFrameBufferMultiViewBlitBackBuffer: IOption<FrameBuffer> = new None();
   private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
   private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
@@ -100,6 +101,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __expressions: Expression[] = [];
 
   private __oGenerateMipmapsExpression: IOption<Expression> = new None();
+  private __oMultiViewBlitBackBufferExpression: IOption<Expression> = new None();
   private __oMultiViewBlitExpression: IOption<Expression> = new None();
   private __depthMomentExpressions: Expression[] = [];
   private __oBloomExpression: IOption<Expression> = new None();
@@ -200,7 +202,10 @@ export class ForwardRenderPipeline extends RnObject {
       }
 
       if (this.__oFrameBufferMultiView.has()) {
-        // multi view blit expression
+        // Make Blit Expression if VR MultiView is enabled
+        this.__oMultiViewBlitBackBufferExpression = this.__setupMultiViewBlitBackBufferExpression(
+          this.__oFrameBufferMultiView.unwrapForce()
+        );
         this.__oMultiViewBlitExpression = this.__setupMultiViewBlitExpression(
           this.__oFrameBufferMultiView.unwrapForce()
         );
@@ -209,6 +214,8 @@ export class ForwardRenderPipeline extends RnObject {
       let gammaTargetRenderTargetTexture: RenderTargetTexture = this.__getMainFrameBufferResolve()
         .unwrapForce()
         .getColorAttachedRenderTargetTexture(0)!;
+
+      // Bloom Expression
       if (isBloom && !this.__isSimple) {
         const frameBufferToBloom = this.__getMainFrameBufferResolve();
         const textureToBloom = frameBufferToBloom
@@ -244,6 +251,14 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     return new Ok();
+  }
+
+  private __getMainFrameBufferBackBuffer(): IOption<FrameBuffer> {
+    if (this.__oFrameBufferMultiView.has()) {
+      return this.__oFrameBufferMultiViewBlitBackBuffer;
+    } else {
+      return this.__oFrameBufferResolveForReference;
+    }
   }
 
   private __getMainFrameBufferResolve(): IOption<FrameBuffer> {
@@ -615,22 +630,20 @@ export class ForwardRenderPipeline extends RnObject {
           if (this.__oFrameBufferResolve.has()) {
             rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
           }
-          if (this.__oFrameBufferResolveForReference.has()) {
-            for (const entity of rp.entities) {
-              const meshComponent = entity.tryToGetMesh();
-              if (Is.exist(meshComponent)) {
-                const mesh = meshComponent.mesh;
-                if (Is.exist(mesh)) {
-                  for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
-                    const primitive = mesh.getPrimitiveAt(i);
-                    primitive.material.setTextureParameter(
-                      ShaderSemantics.BackBufferTexture,
-                      this.__oFrameBufferResolveForReference
-                        .unwrapForce()
-                        .getColorAttachedRenderTargetTexture(0)!,
-                      this.__oSamplerForBackBuffer.unwrapForce()
-                    );
-                  }
+          for (const entity of rp.entities) {
+            const meshComponent = entity.tryToGetMesh();
+            if (Is.exist(meshComponent)) {
+              const mesh = meshComponent.mesh;
+              if (Is.exist(mesh)) {
+                for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+                  const primitive = mesh.getPrimitiveAt(i);
+                  primitive.material.setTextureParameter(
+                    ShaderSemantics.BackBufferTexture,
+                    this.__getMainFrameBufferBackBuffer()
+                      .unwrapForce()
+                      .getColorAttachedRenderTargetTexture(0)!,
+                    this.__oSamplerForBackBuffer.unwrapForce()
+                  );
                 }
               }
             }
@@ -719,8 +732,24 @@ export class ForwardRenderPipeline extends RnObject {
       );
       framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfGammaMultiViewBlit', true);
 
+      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createTexturesForRenderTarget(
+        canvasWidth,
+        canvasHeight,
+        1,
+        {
+          isMSAA: false,
+          internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
+          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+        }
+      );
+      framebufferMultiViewBlit.tryToSetUniqueName(
+        'FramebufferTargetOfGammaMultiViewBlitBackBuffer',
+        true
+      );
+
       this.__oFrameBufferMultiView = new Some(framebufferMultiView);
       this.__oFrameBufferMultiViewBlit = new Some(framebufferMultiViewBlit);
+      this.__oFrameBufferMultiViewBlitBackBuffer = new Some(framebufferMultiViewBlitBackBuffer);
       this.__oFrameBufferMsaa = new None();
       this.__oFrameBufferResolve = new None();
       this.__oFrameBufferResolveForReference = new None();
@@ -771,6 +800,7 @@ export class ForwardRenderPipeline extends RnObject {
       // FrameBuffers
       this.__oFrameBufferMultiView = new None();
       this.__oFrameBufferMultiViewBlit = new None();
+      this.__oFrameBufferMultiViewBlitBackBuffer = new None();
       this.__oFrameBufferMsaa = new Some(framebufferMsaa);
       this.__oFrameBufferResolve = new Some(framebufferResolve);
       this.__oFrameBufferResolveForReference = new Some(framebufferResolveForReference);
@@ -794,6 +824,27 @@ export class ForwardRenderPipeline extends RnObject {
 
     return new Some(expression);
   }
+  private __setupMultiViewBlitBackBufferExpression(multiViewFrameBuffer: FrameBuffer) {
+    const expression = new Expression();
+    expression.tryToSetUniqueName('MultiViewBlitBackBuffer', true);
+    const renderPass = new RenderPass();
+    expression.addRenderPasses([renderPass]);
+    renderPass.tryToSetUniqueName('MultiViewBlitBackBuffer', true);
+
+    renderPass.toClearDepthBuffer = false;
+
+    // Generate Mipmap of resolve Framebuffer 2
+    renderPass.setPostRenderFunction(() => {
+      const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
+        .colorAttachments[0] as RenderTargetTexture;
+      (
+        multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+      ).blitToTexture2dFromTexture2dArray(texture);
+      texture.generateMipmap();
+    });
+
+    return new Some(expression);
+  }
 
   private __setupMultiViewBlitExpression(multiViewFrameBuffer: FrameBuffer) {
     const expression = new Expression();
@@ -806,11 +857,11 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Generate Mipmap of resolve Framebuffer 2
     renderPass.setPostRenderFunction(() => {
+      const texture = this.__oFrameBufferMultiViewBlit.unwrapForce()
+        .colorAttachments[0] as RenderTargetTexture;
       (
         multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
-      ).blitToTexture2dFromTexture2dArray(
-        this.__oFrameBufferMultiViewBlit.unwrapForce().colorAttachments[0] as RenderTargetTexture
-      );
+      ).blitToTexture2dFromTexture2dArray(texture);
     });
 
     return new Some(expression);
@@ -919,6 +970,9 @@ export class ForwardRenderPipeline extends RnObject {
 
     if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
       frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+    }
+    if (!this.__isSimple && this.__oMultiViewBlitBackBufferExpression.has()) {
+      frame.addExpression(this.__oMultiViewBlitBackBufferExpression.unwrapForce());
     }
 
     for (const exp of this.__transparentOnlyExpressions) {
