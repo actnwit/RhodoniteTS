@@ -676,7 +676,7 @@ export class ForwardRenderPipeline extends RnObject {
       initialRenderPassForFrameBuffer.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
       initialRenderPassForFrameBuffer.toClearColorBuffer = true;
       initialRenderPassForFrameBuffer.toClearDepthBuffer = true;
-      initialRenderPassForFrameBuffer.setFramebuffer(oFramebufferTargetOfGammaMsaa.unwrapForce());
+      initialRenderPassForFrameBuffer.setFramebuffer(this.__getMainFrameBuffer().unwrapForce());
       initialRenderPassForFrameBuffer.tryToSetUniqueName('InitialRenderPassForFrameBuffer', true);
       expression.addRenderPasses([initialRenderPassForFrameBuffer]);
     }

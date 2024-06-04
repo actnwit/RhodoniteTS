@@ -2859,5 +2859,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
     const webStereoUtil = WebGLStereoUtil.getInstance(gl);
     webStereoUtil.blit(srcTexture, 0, 0, 1, 1, dstWidth, dstHeight);
+
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
   }
 }
