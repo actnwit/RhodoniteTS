@@ -32,7 +32,8 @@
 #endif
 
 float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
-#ifdef WEBGL2_MULTI_VIEW
+
+#if defined(WEBGL2_MULTI_VIEW) && defined(RN_IS_VERTEX_SHADER)
 // if (u_isMainVr == 1) {
   cameraSID += float(gl_ViewID_OVR);
 // }
