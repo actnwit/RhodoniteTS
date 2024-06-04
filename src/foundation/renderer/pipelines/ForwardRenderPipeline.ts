@@ -835,12 +835,14 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Generate Mipmap of resolve Framebuffer 2
     renderPass.setPostRenderFunction(() => {
-      const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
-        .colorAttachments[0] as RenderTargetTexture;
-      (
-        multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
-      ).blitToTexture2dFromTexture2dArray(texture);
-      texture.generateMipmap();
+      if (this.__oFrameBufferMultiViewBlitBackBuffer.has()) {
+        const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
+          .colorAttachments[0] as RenderTargetTexture;
+        (
+          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+        ).blitToTexture2dFromTexture2dArray(texture);
+        texture.generateMipmap();
+      }
     });
 
     return new Some(expression);
@@ -857,11 +859,13 @@ export class ForwardRenderPipeline extends RnObject {
 
     // Generate Mipmap of resolve Framebuffer 2
     renderPass.setPostRenderFunction(() => {
-      const texture = this.__oFrameBufferMultiViewBlit.unwrapForce()
-        .colorAttachments[0] as RenderTargetTexture;
-      (
-        multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
-      ).blitToTexture2dFromTexture2dArray(texture);
+      if (this.__oFrameBufferMultiViewBlit.has()) {
+        const texture = this.__oFrameBufferMultiViewBlit.unwrapForce()
+          .colorAttachments[0] as RenderTargetTexture;
+        (
+          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+        ).blitToTexture2dFromTexture2dArray(texture);
+      }
     });
 
     return new Some(expression);
