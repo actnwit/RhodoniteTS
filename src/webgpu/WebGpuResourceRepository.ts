@@ -1180,14 +1180,14 @@ export class WebGpuResourceRepository
       }
     }
 
-    const width = this.__webGpuDeviceWrapper!.canvas.width;
-    const height = this.__webGpuDeviceWrapper!.canvas.height;
-    const backBufferTextureSize = GlobalDataRepository.getInstance().getValue(
-      ShaderSemantics.BackBufferTextureSize,
-      0
-    ) as Vector2;
-    backBufferTextureSize._v[0] = width;
-    backBufferTextureSize._v[1] = height;
+    // const width = this.__webGpuDeviceWrapper!.canvas.width;
+    // const height = this.__webGpuDeviceWrapper!.canvas.height;
+    // const backBufferTextureSize = GlobalDataRepository.getInstance().getValue(
+    //   ShaderSemantics.BackBufferTextureSize,
+    //   0
+    // ) as Vector2;
+    // backBufferTextureSize._v[0] = width;
+    // backBufferTextureSize._v[1] = height;
 
     this.__webGpuRenderPipelineMap.delete(renderPipelineId);
     this.__materialStateVersionMap.delete(renderPipelineId);

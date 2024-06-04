@@ -32,8 +32,10 @@ float scaleForLod(float perceptualRoughness, float ior)
 #ifdef RN_USE_TRANSMISSION
 vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
   ivec2 vrState = get_vrState(0.0, 0);
-  vec2 backBufferTextureSize = get_backBufferTextureSize(materialSID, 0);
+  vec2 backBufferTextureSize = vec2(textureSize(u_backBufferTexture, 0));
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
+
+  #ifndef WEBGL2_MULTI_VIEW
   if (vrState.x == 1) { // For VR
     backBufferTextureLength = max(backBufferTextureSize.x / 2.0, backBufferTextureSize.y);
     sampleCoord.x = sampleCoord.x * 0.5;
@@ -41,6 +43,8 @@ vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perce
       sampleCoord.x += 0.5;
     }
   }
+  #endif // WEBGL2_MULTI_VIEW
+
   float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
 
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD

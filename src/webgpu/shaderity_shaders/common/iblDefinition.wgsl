@@ -96,7 +96,7 @@ fn scaleForLod(perceptualRoughness: f32, ior: f32) -> f32
 #ifdef RN_USE_TRANSMISSION
 fn get_sample_from_backbuffer(materialSID: u32, sampleCoord: vec2f, perceptualRoughness: f32, ior: f32) -> vec3f {
   let vrState: vec2<i32> = get_vrState(0, 0);
-  let backBufferTextureSize = get_backBufferTextureSize(0, 0);
+  let backBufferTextureSize = vec2f(textureDimensions(backBufferTexture, 0));
   var backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
   var newSampleCoord = sampleCoord;
   newSampleCoord.y = 1.0 - newSampleCoord.y;
