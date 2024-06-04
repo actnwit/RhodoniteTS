@@ -809,7 +809,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     let firstTime = false;
     const shaderProgramUid = material.getShaderProgramUid(primitive);
-    if (shaderProgramUid !== this.__lastShader) {
+    if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
       if (isSkipDrawing(material, primitive)) {
         return false;
       }
@@ -818,7 +818,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         shaderProgramUid
       )! as WebGLProgram;
       gl.useProgram(shaderProgram);
-
+      (gl as any).__changedProgram = false;
       // Bind DataTexture
       this.bindDataTexture(gl, shaderProgram);
 

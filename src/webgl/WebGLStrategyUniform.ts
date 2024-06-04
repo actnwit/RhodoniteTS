@@ -404,7 +404,6 @@ bool get_isBillboard(float instanceId) {
       shaderProgramUid
     )! as WebGLProgram;
     gl.useProgram(shaderProgram);
-    this.__lastShader = shaderProgramUid;
 
     this.bindDataTexture(gl, shaderProgram);
 
@@ -468,11 +467,12 @@ bool get_isBillboard(float instanceId) {
 
       let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
 
-      if (shaderProgramUid !== this.__lastShader) {
+      if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
         if (isSkipDrawing(material, primitive)) {
           return false;
         }
         firstTime = true;
+        (gl as any).__changedProgram = false;
 
         gl.useProgram(shaderProgram);
         this.bindDataTexture(gl, shaderProgram);

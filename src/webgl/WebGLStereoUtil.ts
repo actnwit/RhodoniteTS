@@ -56,7 +56,7 @@ const FSMultiview = [
 export class WebGLStereoUtil {
   private static __instance: WebGLStereoUtil;
   private __gl: WebGL2RenderingContext;
-  private __vao: WebGLVertexArrayObject;
+  // private __vao: WebGLVertexArrayObject;
   private __vertexShader?: WebGLShader;
   private __fragmentShader?: WebGLShader;
   private __program?: WebGLProgram;
@@ -65,7 +65,7 @@ export class WebGLStereoUtil {
 
   constructor(gl: WebGL2RenderingContext) {
     this.__gl = gl;
-    this.__vao = gl.createVertexArray()!;
+    // this.__vao = gl.createVertexArray()!;
     this.__program = gl.createProgram()!;
     this.__attachShaderSource(VSMultiview, gl.VERTEX_SHADER);
     this.__attachShaderSource(FSMultiview, gl.FRAGMENT_SHADER);
@@ -150,22 +150,38 @@ export class WebGLStereoUtil {
 
     gl.useProgram(program);
 
+    const depthTestEnabled = gl.getParameter(gl.DEPTH_TEST);
+    const depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+
     gl.disable(gl.SCISSOR_TEST);
-    gl.disable(gl.DEPTH_TEST);
+    if (depthTestEnabled) {
+      gl.disable(gl.DEPTH_TEST);
+    }
     gl.disable(gl.STENCIL_TEST);
     gl.colorMask(true, true, true, true);
-    gl.depthMask(false);
-
+    if (depthMask) {
+      gl.depthMask(false);
+    }
+    const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
 
     gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
     gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
     gl.uniform1i(this.__uniform!['u_source_texture'], 15);
 
-    gl.bindVertexArray(this.__vao);
+    // gl.bindVertexArray(this.__vao);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
 
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthMask(true);
+    // gl.useProgram((gl as any).__lastUseProgram);
+    (gl as any).__changedProgram = true;
+
+    gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    if (depthTestEnabled) {
+      gl.enable(gl.DEPTH_TEST);
+    }
+    gl.depthMask(depthMask);
+
+    gl.flush();
   }
 }
