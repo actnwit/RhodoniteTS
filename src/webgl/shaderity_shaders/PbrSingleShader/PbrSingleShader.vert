@@ -22,6 +22,7 @@ out vec2 v_texcoord_1;
 out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
 out float v_instanceInfo;
+out float v_displayIdx;
 #ifdef RN_USE_TANGENT
   in vec4 a_tangent;
   out vec3 v_tangent_inWorld;
@@ -90,6 +91,10 @@ void main()
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
   v_instanceInfo = a_instanceInfo.x;
+
+#ifdef WEBGL2_MULTI_VIEW
+  v_displayIdx = float(gl_ViewID_OVR);
+#endif
 
   bool visibility = get_isVisible(a_instanceInfo.x);
   if (!visibility)
