@@ -118,21 +118,27 @@ export class ForwardRenderPipeline extends RnObject {
   private __destroyResources() {
     if (this.__oFrameDepthMoment.has()) {
       this.__oFrameDepthMoment.get().destroy3DAPIResources();
+      this.__oFrameDepthMoment = new None();
     }
     if (this.__oFrameBufferMultiView.has()) {
       this.__oFrameBufferMultiView.get().destroy3DAPIResources();
+      this.__oFrameBufferMultiView = new None();
     }
     if (this.__oFrameBufferMultiViewBlit.has()) {
       this.__oFrameBufferMultiViewBlit.get().destroy3DAPIResources();
+      this.__oFrameBufferMultiViewBlit = new None();
     }
     if (this.__oFrameBufferMsaa.has()) {
       this.__oFrameBufferMsaa.get().destroy3DAPIResources();
+      this.__oFrameBufferMsaa = new None();
     }
     if (this.__oFrameBufferResolve.has()) {
       this.__oFrameBufferResolve.get().destroy3DAPIResources();
+      this.__oFrameBufferResolve = new None();
     }
     if (this.__oFrameBufferResolveForReference.has()) {
       this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
+      this.__oFrameBufferResolveForReference = new None();
     }
     this.__oFrame = new None();
     this.__oGenerateMipmapsExpression = new None();
@@ -204,10 +210,12 @@ export class ForwardRenderPipeline extends RnObject {
         .unwrapForce()
         .getColorAttachedRenderTargetTexture(0)!;
       if (isBloom && !this.__isSimple) {
+        const frameBufferToBloom = this.__getMainFrameBufferResolve();
+        const textureToBloom = frameBufferToBloom
+          .unwrapForce()
+          .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture;
         const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
-          textureToBloom: this.__getMainFrameBufferResolve()
-            .unwrapForce()
-            .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture,
+          textureToBloom,
           parameters: {},
         });
         this.__oBloomExpression = new Some(bloomExpression);
@@ -698,16 +706,18 @@ export class ForwardRenderPipeline extends RnObject {
           sampleCountMSAA: 4,
         }
       );
+      framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfGammaMultiView', true);
       const framebufferMultiViewBlit = RenderableHelper.createTexturesForRenderTarget(
         canvasWidth,
         canvasHeight,
-        0,
+        1,
         {
           isMSAA: false,
           internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
         }
       );
+      framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfGammaMultiViewBlit', true);
 
       this.__oFrameBufferMultiView = new Some(framebufferMultiView);
       this.__oFrameBufferMultiViewBlit = new Some(framebufferMultiViewBlit);
@@ -907,7 +917,7 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(exp);
     }
 
-    if (!this.__isSimple) {
+    if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
       frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
     }
 
@@ -923,7 +933,7 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(this.__oBloomExpression.unwrapForce());
     }
 
-    if (!this.__isSimple) {
+    if (!this.__isSimple && this.__oGammaExpression.has()) {
       frame.addExpression(this.getGammaExpression()!);
     }
   }

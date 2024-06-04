@@ -2855,7 +2855,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const srcTexture = this.getWebGLResource(srcTextureUid) as WebGLTexture;
     const dstFbo = this.getWebGLResource(dstFboUid) as WebGLFramebuffer;
-    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, dstFbo);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFbo);
 
     const webStereoUtil = WebGLStereoUtil.getInstance(gl);
     webStereoUtil.blit(srcTexture, 0, 0, 1, 1, dstWidth, dstHeight);
