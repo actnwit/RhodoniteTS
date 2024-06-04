@@ -9,7 +9,3 @@
 #ifdef WEBGL1_EXT_DRAW_BUFFERS
 #extension GL_EXT_draw_buffers : require
 #endif
-
-#ifdef WEBGL2_MULTI_VIEW
-#extension GL_OVR_multiview : require
-#endif

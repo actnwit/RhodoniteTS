@@ -33,7 +33,7 @@
 
 float cameraSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.CameraComponentTID} */];
 #ifdef WEBGL2_MULTI_VIEW
-if (u_isMainVr == 1) {
+// if (u_isMainVr == 1) {
   cameraSID += float(gl_ViewID_OVR);
-}
+// }
 #endif

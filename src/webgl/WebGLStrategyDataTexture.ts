@@ -46,6 +46,7 @@ import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { GL_TRIANGLES } from '../types';
+import { WebXRSystem } from '../xr';
 
 declare const spector: any;
 
@@ -64,6 +65,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
+  private static __webxrSystem: WebXRSystem;
 
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
@@ -638,6 +640,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGLStrategyDataTexture();
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      WebGLStrategyDataTexture.__webxrSystem = webxrSystem;
     }
 
     return this.__instance;
@@ -649,9 +654,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     isVRMainPass: boolean
   ) {
     if (isVRMainPass) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       let cameraComponentSid = -1;
+      const webxrSystem = WebGLStrategyDataTexture.__webxrSystem;
       if (webxrSystem.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
@@ -860,6 +864,61 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       });
     }
 
+    if (
+      WebGLStrategyDataTexture.__webxrSystem.isWebXRMode &&
+      WebGLStrategyDataTexture.__webxrSystem.isMultiView()
+    ) {
+      this.__drawInnerWithMultiViewExtension(isVRMainPass, renderPass, gl, primitive, mesh);
+    } else {
+      this.__drawInnerWithoutMultiViewExtension(isVRMainPass, renderPass, gl, primitive, mesh);
+    }
+
+    this.__lastShader = shaderProgramUid;
+
+    return true;
+  }
+  private __drawInnerWithMultiViewExtension(
+    isVRMainPass: boolean,
+    renderPass: RenderPass,
+    gl: WebGL2RenderingContext,
+    primitive: Primitive,
+    mesh: Mesh
+  ) {
+    if (isVRMainPass) {
+      WebGLStrategyCommonMethod.setVRViewport(renderPass, 0);
+    }
+    this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, 0, isVRMainPass);
+
+    gl.uniform1fv(
+      (WebGLStrategyDataTexture.__shaderProgram as any).currentComponentSIDs,
+      WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
+    );
+
+    if (primitive.indicesAccessor) {
+      gl.drawElementsInstanced(
+        primitive.primitiveMode.index,
+        primitive.indicesAccessor.elementCount,
+        primitive.indicesAccessor.componentType.index,
+        0,
+        mesh.meshEntitiesInner.length
+      );
+    } else {
+      gl.drawArraysInstanced(
+        primitive.primitiveMode.index,
+        0,
+        primitive.getVertexCountAsVerticesBased(),
+        mesh.meshEntitiesInner.length
+      );
+    }
+  }
+
+  private __drawInnerWithoutMultiViewExtension(
+    isVRMainPass: boolean,
+    renderPass: RenderPass,
+    gl: WebGL2RenderingContext,
+    primitive: Primitive,
+    mesh: Mesh
+  ) {
     const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
     for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
       if (isVRMainPass) {
@@ -893,9 +952,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         );
       }
     }
-    this.__lastShader = shaderProgramUid;
-
-    return true;
   }
 
   private bindDataTexture(

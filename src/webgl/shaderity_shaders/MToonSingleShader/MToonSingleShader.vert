@@ -1,5 +1,5 @@
 #pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexStereoExtensions.glsl)
+#pragma shaderity: require(../common/enableVertexoExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: @{definitions} */

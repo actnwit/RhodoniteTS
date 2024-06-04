@@ -234,7 +234,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
   //   definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
   // }
 
-  if (glw.is_multiview) {
+  if (webglResourceRepository.isSupportMultiViewVRRendering()) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';
   }
 
