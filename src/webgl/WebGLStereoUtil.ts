@@ -69,11 +69,11 @@ export class WebGLStereoUtil {
     this.__program = gl.createProgram()!;
     this.__attachShaderSource(VSMultiview, gl.VERTEX_SHADER);
     this.__attachShaderSource(FSMultiview, gl.FRAGMENT_SHADER);
+    this.__gl.linkProgram(this.__program);
     this.__bindAttribLocation({
       v_texcoord: 0,
     });
     this.__getUniformLocations();
-    this.__gl.linkProgram(this.__program);
   }
 
   static getInstance(gl: WebGL2RenderingContext) {
@@ -160,7 +160,7 @@ export class WebGLStereoUtil {
 
     gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
     gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.__uniform!['u_source_texture'], 0);
+    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
 
     gl.bindVertexArray(this.__vao);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
