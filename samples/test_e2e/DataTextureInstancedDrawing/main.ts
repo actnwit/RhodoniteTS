@@ -1,4 +1,5 @@
 import Rn from '../../../dist/esmdev/index.js';
+import { getProcessApproach } from '../common/testHelpers.js';
 
 declare const Stats: any;
 declare const window: any;
@@ -58,8 +59,9 @@ function readyBasicVerticesData() {
 }
 
 Rn.Config.cgApiDebugConsoleOutput = true;
+const processApproach = getProcessApproach(Rn);
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 

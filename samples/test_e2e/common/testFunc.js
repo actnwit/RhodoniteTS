@@ -90,3 +90,16 @@ exports.testCheckPtoDocument = async (
 
   await page.close();
 };
+
+exports.defineTest = (name, mode, errorThreshold) => {
+  const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}`;
+  test(`${name} ${mode}`, async () => {
+    await exports.testCheckWindowRendered(jest, browser, url, expect, errorThreshold, true);
+  });
+};
+
+exports.doTests = (name, modes, errorThreshold = 0.03) => {
+  for (const mode of modes) {
+    exports.defineTest(name, mode, errorThreshold);
+  }
+};
