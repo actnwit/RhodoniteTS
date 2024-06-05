@@ -625,6 +625,8 @@ export class ForwardRenderPipeline extends RnObject {
         rp.setToRenderOpaquePrimitives(false); // not to render opaque primitives in transmission expression.
         rp.setToRenderTransparentPrimitives(true);
         rp.toClearDepthBuffer = false;
+        // rp.isDepthTest = false;
+        // rp.depthWriteMask = false;
         if (!this.__isSimple) {
           rp.setFramebuffer(this.__getMainFrameBuffer().unwrapForce());
           if (this.__oFrameBufferResolve.has()) {

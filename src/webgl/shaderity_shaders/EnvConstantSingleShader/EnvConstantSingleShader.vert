@@ -4,6 +4,10 @@
 
 /* shaderity: @{definitions} */
 
+#ifdef WEBGL2_MULTI_VIEW
+  layout(num_views=2) in;
+#endif
+
 in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
 in vec3 a_position;
