@@ -482,6 +482,7 @@ export class System {
     await ModuleManager.getInstance().loadModule('webgl');
     await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
+    await ModuleManager.getInstance().loadModule('xr');
     this.__processApproach = desc.approach;
     SystemState.currentProcessApproach = desc.approach;
     Config.eventTargetDom = desc.canvas;
