@@ -8,7 +8,7 @@ let maxVertexMorphNumberInShader = 100;
 let maxVertexPrimitiveNumberInShader = 20;
 let maxMaterialInstanceForEachType = 10;
 let maxSkeletonNumber = 33;
-let maxCameraNumber = 20;
+let maxCameraNumber = 30;
 let maxSizeLimitOfNonCompressedTexture = 512;
 
 /// ShaderGlobalStorageSize ///
