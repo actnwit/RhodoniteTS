@@ -393,6 +393,14 @@ export class Component extends RnObject {
    * @param count a number of entities to need allocate
    */
   submitToAllocation(count: Count, isReUse: boolean): void {
+    if (this._component_sid >= count) {
+      const componentClass = this.constructor;
+      console.error(
+        `%c${componentClass.name}: The number of components is over the limit. This may lead to incorrect processing results. Please consider to increase the limit. You can set the limit on Rn.Config.xxxxxx.`,
+        'color: red; background: yellow; font-size: 2em;'
+      );
+    }
+
     const componentClass = this.constructor;
     const memberInfoArray = Component.__memberInfo.get(componentClass)!;
 
