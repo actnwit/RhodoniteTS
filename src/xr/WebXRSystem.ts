@@ -252,23 +252,20 @@ export class WebXRSystem {
   }
 
   get framebuffer() {
-    if (this.__multiviewFramebufferHandle > 0) {
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const framebuffer = webglResourceRepository.getWebGLResource(
-        this.__multiviewFramebufferHandle
-      );
-      return framebuffer as WebGLFramebuffer | undefined;
-    }
+    // if (this.__multiviewFramebufferHandle > 0) {
+    //   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    //   const framebuffer = webglResourceRepository.getWebGLResource(
+    //     this.__multiviewFramebufferHandle
+    //   );
+    //   return framebuffer as WebGLFramebuffer | undefined;
+    // }
 
     return this.__xrSession?.renderState.baseLayer?.framebuffer;
   }
 
   isMultiView() {
-    if (this.__multiviewFramebufferHandle > 0) {
-      return true;
-    } else {
-      return false;
-    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    return webglResourceRepository.isSupportMultiViewVRRendering();
   }
 
   get requestedToEnterWebXR() {
@@ -365,7 +362,7 @@ export class WebXRSystem {
    * @returns The viewport vector of right eye
    */
   _getRightViewport() {
-    if (this.__multiviewFramebufferHandle > 0) {
+    if (this.isMultiView()) {
       return Vector4.fromCopyArray([0, 0, this.__canvasWidthForVR / 2, this.__canvasHeightForVR]);
     } else {
       return Vector4.fromCopyArray([
@@ -466,33 +463,27 @@ export class WebXRSystem {
    */
   _postRender() {
     if (this.__isWebXRMode) {
-      const gl = this.__glw!.getRawContextAsWebGL2()!;
-      if (this.__multiviewFramebufferHandle > 0) {
-        const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-
-        gl.invalidateFramebuffer(gl.DRAW_FRAMEBUFFER, [gl.DEPTH_STENCIL_ATTACHMENT]);
-
-        gl.bindFramebuffer(
-          gl.DRAW_FRAMEBUFFER,
-          this.__xrSession!.renderState.baseLayer!.framebuffer!
-        );
-
-        const colorTexture = webglResourceRepository.getWebGLResource(
-          this.__multiviewColorTextureHandle
-        ) as WebGLTexture;
-        this.__webglStereoUtil!.blit(
-          colorTexture!,
-          0,
-          0,
-          1,
-          1,
-          this.__canvasWidthForVR,
-          this.__canvasHeightForVR
-        );
-      }
-    }
-    if (this.requestedToEnterWebVR) {
-      // this.__isWebXRMode = true;
+      // const gl = this.__glw!.getRawContextAsWebGL2()!;
+      // if (this.__multiviewFramebufferHandle > 0) {
+      //   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      //   gl.invalidateFramebuffer(gl.DRAW_FRAMEBUFFER, [gl.DEPTH_STENCIL_ATTACHMENT]);
+      //   gl.bindFramebuffer(
+      //     gl.DRAW_FRAMEBUFFER,
+      //     this.__xrSession!.renderState.baseLayer!.framebuffer!
+      //   );
+      //   const colorTexture = webglResourceRepository.getWebGLResource(
+      //     this.__multiviewColorTextureHandle
+      //   ) as WebGLTexture;
+      //   this.__webglStereoUtil!.blit(
+      //     colorTexture!,
+      //     0,
+      //     0,
+      //     1,
+      //     1,
+      //     this.__canvasWidthForVR,
+      //     this.__canvasHeightForVR
+      //   );
+      // }
     }
   }
 
@@ -618,16 +609,16 @@ export class WebXRSystem {
       console.log(this.__canvasWidthForVR);
       console.log(this.__canvasHeightForVR);
 
-      if (this.__multiviewFramebufferHandle === -1) {
-        // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-        // [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
-        //   webglResourceRepository.createMultiviewFramebuffer(
-        //     webglLayer.framebufferWidth,
-        //     webglLayer.framebufferHeight,
-        //     4
-        //   );
-        // this.__webglStereoUtil = new WebGLStereoUtil(gl);
-      }
+      // if (this.__multiviewFramebufferHandle === -1) {
+      // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+      // [this.__multiviewFramebufferHandle, this.__multiviewColorTextureHandle] =
+      //   webglResourceRepository.createMultiviewFramebuffer(
+      //     webglLayer.framebufferWidth,
+      //     webglLayer.framebufferHeight,
+      //     4
+      //   );
+      // this.__webglStereoUtil = new WebGLStereoUtil(gl);
+      // }
 
       MaterialRepository._makeShaderInvalidateToAllMaterials();
 

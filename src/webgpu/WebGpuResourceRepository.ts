@@ -1180,14 +1180,14 @@ export class WebGpuResourceRepository
       }
     }
 
-    const width = this.__webGpuDeviceWrapper!.canvas.width;
-    const height = this.__webGpuDeviceWrapper!.canvas.height;
-    const backBufferTextureSize = GlobalDataRepository.getInstance().getValue(
-      ShaderSemantics.BackBufferTextureSize,
-      0
-    ) as Vector2;
-    backBufferTextureSize._v[0] = width;
-    backBufferTextureSize._v[1] = height;
+    // const width = this.__webGpuDeviceWrapper!.canvas.width;
+    // const height = this.__webGpuDeviceWrapper!.canvas.height;
+    // const backBufferTextureSize = GlobalDataRepository.getInstance().getValue(
+    //   ShaderSemantics.BackBufferTextureSize,
+    //   0
+    // ) as Vector2;
+    // backBufferTextureSize._v[0] = width;
+    // backBufferTextureSize._v[1] = height;
 
     this.__webGpuRenderPipelineMap.delete(renderPipelineId);
     this.__materialStateVersionMap.delete(renderPipelineId);
@@ -2173,6 +2173,30 @@ export class WebGpuResourceRepository
   }
 
   /**
+   * create a RenderTargetTextureArray
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureArray({
+    width,
+    height,
+    level,
+    internalFormat,
+    format,
+    type,
+    arrayLength,
+  }: {
+    width: Size;
+    height: Size;
+    level: Index;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    arrayLength: Count;
+  }): WebGPUResourceHandle {
+    return -1;
+  }
+  /**
    * create Renderbuffer
    */
   createRenderBuffer(
@@ -2389,5 +2413,9 @@ export class WebGpuResourceRepository
     canvas.width = width;
     canvas.height = height;
     this.recreateSystemDepthTexture();
+  }
+
+  isSupportMultiViewVRRendering(): boolean {
+    return false;
   }
 }

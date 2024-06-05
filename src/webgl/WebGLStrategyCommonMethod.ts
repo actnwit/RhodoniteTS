@@ -14,6 +14,7 @@ import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLStrategy } from './WebGLStrategy';
+import { WebXRSystem } from '../xr/WebXRSystem';
 
 let lastIsTransparentMode: boolean;
 let lastBlendEquationMode: number;
@@ -175,9 +176,15 @@ function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   }
 }
 
-function getDisplayNumber(isVRMainPass: boolean): 1 | 2 {
-  if (isVRMainPass) {
-    return 2;
+function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2 {
+  if (webxrSystem.isWebXRMode) {
+    if (webxrSystem.isMultiView()) {
+      return 1;
+    } else if (isVRMainPass) {
+      return 2;
+    } else {
+      return 1;
+    }
   } else {
     return 1;
   }
@@ -243,7 +250,7 @@ export function setupShaderProgram(
 export default Object.freeze({
   setWebGLParameters,
   setVRViewport,
-  getDisplayNumber,
+  getDisplayCount,
   isVrMainPass,
   getPointSpriteShaderSemanticsInfoArray,
 });

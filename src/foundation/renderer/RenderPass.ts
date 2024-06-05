@@ -397,6 +397,10 @@ export class RenderPass extends RnObject {
       resolveFrameBuffer!.cgApiResourceUid
     ) as WebGLFramebuffer;
 
+    if (webGLResourceFrameBuffer == null || webGLResourceResolveFramebuffer == null) {
+      return;
+    }
+
     const glw = repo.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, webGLResourceFrameBuffer);
@@ -425,7 +429,9 @@ export class RenderPass extends RnObject {
     for (let i = 0; i < this.__resolveFrameBuffer.colorAttachments.length; i++) {
       if (
         this.__resolveFrameBuffer.colorAttachments[i] == null ||
-        this.__resolveFrameBuffer2.colorAttachments[i] == null
+        this.__resolveFrameBuffer2.colorAttachments[i] == null ||
+        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid === -1 ||
+        this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid === -1
       ) {
         continue;
       }

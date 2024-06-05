@@ -78,6 +78,7 @@ export class WebGLContextWrapper {
 
   private __activeTextureBackup: Index = -1;
   private __activeTextures2D: WebGLTexture[] = [];
+  private __activeTextures2DArray: WebGLTexture[] = [];
   private __activeTexturesCube: WebGLTexture[] = [];
   private __boundTextures: Map<Index, WebGLTexture> = new Map();
   private __boundSamplers: Map<Index, WebGLSampler> = new Map();
@@ -97,7 +98,7 @@ export class WebGLContextWrapper {
   #maxConventionUniformBlocks = INVALID_SIZE;
   private __maxVertexUniformVectors = INVALID_SIZE;
   private __maxFragmentUniformVectors = INVALID_SIZE;
-  public readonly is_multiview: boolean;
+  private readonly __is_multiview: boolean;
   _isWebXRMode = false;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
@@ -110,7 +111,7 @@ export class WebGLContextWrapper {
     this.__viewport_width = this.__default_viewport_width = this.width;
     this.__viewport_height = this.__default_viewport_height = this.height;
 
-    this.is_multiview = true;
+    this.__is_multiview = true;
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
@@ -151,7 +152,7 @@ export class WebGLContextWrapper {
           if (Config.cgApiDebugConsoleOutput) {
             console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           }
-          this.is_multiview = false;
+          this.__is_multiview = false;
         }
       }
       this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
@@ -311,6 +312,17 @@ export class WebGLContextWrapper {
     this.__activeTextures2D[activeTextureIndex] = texture;
   }
 
+  bindTexture2DArray(activeTextureIndex: Index, texture: WebGLTexture) {
+    const tex = this.__boundTextures.get(activeTextureIndex);
+    if (tex !== texture) {
+      this.__activeTexture(activeTextureIndex);
+      this.__gl.bindTexture(this.__gl.TEXTURE_2D_ARRAY, texture);
+      this.__boundTextures.set(activeTextureIndex, texture);
+    }
+
+    this.__activeTextures2DArray[activeTextureIndex] = texture;
+  }
+
   bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
     // const samp = this.__boundSamplers.get(activeTextureIndex);
     // if (samp !== sampler) {
@@ -349,16 +361,25 @@ export class WebGLContextWrapper {
       if (this.__activeTextures2D[i] == null) {
         continue;
       }
-      this.__activeTexture(i);
+      this.__activeTexture(15);
       this.__gl.bindTexture(this.__gl.TEXTURE_2D, null);
       delete this.__activeTextures2D[i];
+    }
+
+    for (let i = 0; i < this.__activeTextures2DArray.length; i++) {
+      if (this.__activeTextures2DArray[i] == null) {
+        continue;
+      }
+      this.__activeTexture(15);
+      this.__gl.bindTexture(this.__gl.TEXTURE_2D_ARRAY, null);
+      delete this.__activeTextures2DArray[i];
     }
 
     for (let i = 0; i < this.__activeTexturesCube.length; i++) {
       if (this.__activeTexturesCube[i] == null) {
         continue;
       }
-      this.__activeTexture(i);
+      this.__activeTexture(15);
       this.__gl.bindTexture(this.__gl.TEXTURE_CUBE_MAP, null);
       delete this.__activeTexturesCube[i];
     }
@@ -480,5 +501,9 @@ export class WebGLContextWrapper {
     }
 
     return undefined;
+  }
+
+  isMultiview() {
+    return this.__is_multiview && Config.multiViewForWebVR;
   }
 }

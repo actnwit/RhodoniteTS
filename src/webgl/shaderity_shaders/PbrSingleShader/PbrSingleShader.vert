@@ -1,8 +1,12 @@
 #pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexStereoExtensions.glsl)
+#pragma shaderity: require(../common/enableVertexExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: @{definitions} */
+
+#ifdef WEBGL2_MULTI_VIEW
+  layout(num_views=2) in;
+#endif
 
 in vec3 a_position;
 in vec3 a_color;
@@ -22,6 +26,7 @@ out vec2 v_texcoord_1;
 out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
 out float v_instanceInfo;
+out float v_displayIdx;
 #ifdef RN_USE_TANGENT
   in vec4 a_tangent;
   out vec3 v_tangent_inWorld;
@@ -90,6 +95,10 @@ void main()
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
   v_instanceInfo = a_instanceInfo.x;
+
+#ifdef WEBGL2_MULTI_VIEW
+  v_displayIdx = float(gl_ViewID_OVR);
+#endif
 
   bool visibility = get_isVisible(a_instanceInfo.x);
   if (!visibility)

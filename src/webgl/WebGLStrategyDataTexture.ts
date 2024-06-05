@@ -46,6 +46,7 @@ import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { GL_TRIANGLES } from '../types';
+import { WebXRSystem } from '../xr';
 
 declare const spector: any;
 
@@ -64,6 +65,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __currentComponentSIDs?: VectorN;
   public _totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
   private static __isDebugOperationToDataTextureBufferDone = true;
+  private static __webxrSystem: WebXRSystem;
 
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
@@ -638,6 +640,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGLStrategyDataTexture();
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      WebGLStrategyDataTexture.__webxrSystem = webxrSystem;
     }
 
     return this.__instance;
@@ -649,9 +654,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     isVRMainPass: boolean
   ) {
     if (isVRMainPass) {
-      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
-      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
       let cameraComponentSid = -1;
+      const webxrSystem = WebGLStrategyDataTexture.__webxrSystem;
       if (webxrSystem.isWebXRMode) {
         if (webxrSystem.isMultiView()) {
           cameraComponentSid = webxrSystem._getCameraComponentSIDAt(0);
@@ -717,7 +721,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
     }
@@ -731,7 +735,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
     }
@@ -790,7 +794,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass) {
+  private __renderInner(
+    primitiveUid: PrimitiveUID,
+    glw: WebGLContextWrapper,
+    renderPass: RenderPass
+  ) {
     const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
@@ -805,7 +813,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     let firstTime = false;
     const shaderProgramUid = material.getShaderProgramUid(primitive);
-    if (shaderProgramUid !== this.__lastShader) {
+    if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
       if (isSkipDrawing(material, primitive)) {
         return false;
       }
@@ -814,7 +822,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         shaderProgramUid
       )! as WebGLProgram;
       gl.useProgram(shaderProgram);
-
+      (gl as any).__changedProgram = false;
       // Bind DataTexture
       this.bindDataTexture(gl, shaderProgram);
 
@@ -860,8 +868,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       });
     }
 
-    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
-    for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
+      isVRMainPass,
+      WebGLStrategyDataTexture.__webxrSystem
+    );
+    for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
@@ -893,6 +904,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         );
       }
     }
+
     this.__lastShader = shaderProgramUid;
 
     return true;

@@ -54,8 +54,9 @@ const FSMultiview = [
 ].join('\n');
 
 export class WebGLStereoUtil {
+  private static __instance: WebGLStereoUtil;
   private __gl: WebGL2RenderingContext;
-  private __vao: WebGLVertexArrayObject;
+  // private __vao: WebGLVertexArrayObject;
   private __vertexShader?: WebGLShader;
   private __fragmentShader?: WebGLShader;
   private __program?: WebGLProgram;
@@ -64,15 +65,23 @@ export class WebGLStereoUtil {
 
   constructor(gl: WebGL2RenderingContext) {
     this.__gl = gl;
-    this.__vao = gl.createVertexArray()!;
+    // this.__vao = gl.createVertexArray()!;
     this.__program = gl.createProgram()!;
     this.__attachShaderSource(VSMultiview, gl.VERTEX_SHADER);
     this.__attachShaderSource(FSMultiview, gl.FRAGMENT_SHADER);
+    this.__gl.linkProgram(this.__program);
     this.__bindAttribLocation({
       v_texcoord: 0,
     });
     this.__getUniformLocations();
-    this.__gl.linkProgram(this.__program);
+  }
+
+  static getInstance(gl: WebGL2RenderingContext) {
+    if (!this.__instance) {
+      this.__instance = new WebGLStereoUtil(gl);
+    }
+
+    return this.__instance;
   }
 
   private __attachShaderSource(source: string, type: number) {
@@ -136,27 +145,180 @@ export class WebGLStereoUtil {
     const gl = this.__gl;
     const program = this.__program!;
 
-    gl.activeTexture(gl.TEXTURE0);
+    gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D_ARRAY, source_texture);
 
     gl.useProgram(program);
 
+    const depthTestEnabled = gl.getParameter(gl.DEPTH_TEST);
+    const depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+
     gl.disable(gl.SCISSOR_TEST);
-    gl.disable(gl.DEPTH_TEST);
+    if (depthTestEnabled) {
+      gl.disable(gl.DEPTH_TEST);
+    }
     gl.disable(gl.STENCIL_TEST);
     gl.colorMask(true, true, true, true);
-    gl.depthMask(false);
-
+    if (depthMask) {
+      gl.depthMask(false);
+    }
+    const viewport = gl.getParameter(gl.VIEWPORT);
     gl.viewport(0, 0, dest_surface_width, dest_surface_height);
 
     gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
     gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
-    gl.uniform1i(this.__uniform!['u_source_texture'], 0);
+    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
 
-    gl.bindVertexArray(this.__vao);
+    // gl.bindVertexArray(this.__vao);
     gl.drawArrays(gl.TRIANGLES, 0, 12);
 
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthMask(true);
+    // gl.useProgram((gl as any).__lastUseProgram);
+    (gl as any).__changedProgram = true;
+
+    gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    if (depthTestEnabled) {
+      gl.enable(gl.DEPTH_TEST);
+    }
+    gl.depthMask(depthMask);
+
+    gl.flush();
+  }
+  public blitFake(
+    source_texture: WebGLTexture,
+    source_rect_uv_x: number,
+    source_rect_uv_y: number,
+    source_rect_uv_width: number,
+    source_rect_uv_height: number,
+    dest_surface_width: number,
+    dest_surface_height: number
+  ) {
+    const gl = this.__gl;
+    const program = this.__program!;
+
+    gl.activeTexture(gl.TEXTURE15);
+    gl.bindTexture(gl.TEXTURE_2D_ARRAY, source_texture);
+
+    gl.useProgram(program);
+
+    // const depthTestEnabled = gl.getParameter(gl.DEPTH_TEST);
+    // const depthMask = gl.getParameter(gl.DEPTH_WRITEMASK);
+
+    // gl.disable(gl.SCISSOR_TEST);
+    // if (depthTestEnabled) {
+    //   gl.disable(gl.DEPTH_TEST);
+    // }
+    // gl.disable(gl.STENCIL_TEST);
+    // gl.colorMask(true, true, true, true);
+    // if (depthMask) {
+    //   gl.depthMask(false);
+    // }
+    const viewport = gl.getParameter(gl.VIEWPORT);
+    gl.viewport(0, 0, dest_surface_width, dest_surface_height);
+
+    gl.uniform2f(this.__uniform!['u_scale'], source_rect_uv_width, source_rect_uv_height);
+    gl.uniform2f(this.__uniform!['u_offset'], source_rect_uv_x, source_rect_uv_y);
+    gl.uniform1i(this.__uniform!['u_source_texture'], 15);
+    gl.drawArrays(gl.TRIANGLES, 0, 12);
+
+    // gl.useProgram((gl as any).__lastUseProgram);
+    (gl as any).__changedProgram = true;
+
+    gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    // if (depthTestEnabled) {
+    //   gl.enable(gl.DEPTH_TEST);
+    // }
+    // gl.depthMask(depthMask);
+  }
+
+  blit2(srcTexture: WebGLTexture, dstTexture: WebGLTexture, width: number, height: number) {
+    const gl = this.__gl;
+
+    const readFramebuffer = gl.createFramebuffer();
+    const drawFramebuffer = gl.createFramebuffer();
+    // ブリットの関数
+    function blitTextureArrayLayer(layer: number, xOffset: number) {
+      // gl.bindFramebuffer(gl.FRAMEBUFFER, readFramebuffer);
+      // gl.framebufferTextureLayer(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, srcTexture, 0, layer);
+
+      // gl.bindFramebuffer(gl.FRAMEBUFFER, drawFramebuffer);
+      // gl.framebufferTexture2D(
+      //   gl.DRAW_FRAMEBUFFER,
+      //   gl.COLOR_ATTACHMENT0,
+      //   gl.TEXTURE_2D,
+      //   dstTexture,
+      //   0
+      // );
+      // // ブリット
+      // gl.blitFramebuffer(
+      //   0,
+      //   0,
+      //   width,
+      //   height, // ソースの範囲
+      //   xOffset,
+      //   0,
+      //   xOffset + width,
+      //   height, // コピー先の範囲
+      //   gl.COLOR_BUFFER_BIT,
+      //   gl.NEAREST
+      // );
+
+      // レイヤーごとに個別のテクスチャを作成
+      const tempTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tempTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+      gl.bindFramebuffer(gl.READ_FRAMEBUFFER, readFramebuffer);
+      gl.framebufferTextureLayer(gl.READ_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, srcTexture, 0, layer);
+
+      // 一時的なテクスチャにレイヤーをコピー
+      gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, drawFramebuffer);
+      gl.framebufferTexture2D(
+        gl.DRAW_FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        tempTexture,
+        0
+      );
+      gl.blitFramebuffer(0, 0, width, height, 0, 0, width, height, gl.COLOR_BUFFER_BIT, gl.NEAREST);
+
+      // 一時的なテクスチャから最終テクスチャにコピー
+      gl.framebufferTexture2D(
+        gl.READ_FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        tempTexture,
+        0
+      );
+      gl.framebufferTexture2D(
+        gl.DRAW_FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        dstTexture,
+        0
+      );
+      gl.blitFramebuffer(
+        0,
+        0,
+        width,
+        height,
+        xOffset,
+        0,
+        xOffset + width,
+        height,
+        gl.COLOR_BUFFER_BIT,
+        gl.NEAREST
+      );
+    }
+
+    // 0番目のレイヤーを左側にコピー
+    blitTextureArrayLayer(0, 0);
+    // 1番目のレイヤーを右側にコピー
+    blitTextureArrayLayer(1, width);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 }

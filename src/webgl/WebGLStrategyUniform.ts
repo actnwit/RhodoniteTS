@@ -34,7 +34,9 @@ import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
-import { GL_TRIANGLES } from '../types/WebGLConstants';
+import { ModuleManager } from '../foundation/system/ModuleManager';
+import { RnXR } from '../xr/main';
+import { WebXRSystem } from '../xr/WebXRSystem';
 
 declare const spector: any;
 
@@ -48,6 +50,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __webxrSystem: WebXRSystem;
 
   private static readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
@@ -337,6 +340,9 @@ bool get_isBillboard(float instanceId) {
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGLStrategyUniform();
+      const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
+      const webxrSystem = rnXRModule.WebXRSystem.getInstance();
+      WebGLStrategyUniform.__webxrSystem = webxrSystem;
     }
 
     return this.__instance;
@@ -404,7 +410,6 @@ bool get_isBillboard(float instanceId) {
       shaderProgramUid
     )! as WebGLProgram;
     gl.useProgram(shaderProgram);
-    this.__lastShader = shaderProgramUid;
 
     this.bindDataTexture(gl, shaderProgram);
 
@@ -446,7 +451,10 @@ bool get_isBillboard(float instanceId) {
 
     let renderedSomething = false;
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVrMainPass);
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
+      isVrMainPass,
+      WebGLStrategyUniform.__webxrSystem
+    );
     for (const entity of meshEntities) {
       if (entity.getSceneGraph()._isCulled) {
         continue;
@@ -468,11 +476,12 @@ bool get_isBillboard(float instanceId) {
 
       let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
 
-      if (shaderProgramUid !== this.__lastShader) {
+      if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
         if (isSkipDrawing(material, primitive)) {
           return false;
         }
         firstTime = true;
+        (gl as any).__changedProgram = false;
 
         gl.useProgram(shaderProgram);
         this.bindDataTexture(gl, shaderProgram);
@@ -485,7 +494,7 @@ bool get_isBillboard(float instanceId) {
         this.__lastMaterial = material;
       }
 
-      for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
+      for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
         if (isVrMainPass) {
           WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
         }

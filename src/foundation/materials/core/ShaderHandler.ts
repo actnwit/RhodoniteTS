@@ -14,6 +14,9 @@ import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 import { Primitive } from '../../geometry/Primitive';
+import { ModuleManager } from '../../system/ModuleManager';
+import { Is } from '../../misc/Is';
+import { RnXR } from '../../../xr/main';
 
 export class ShaderHandler {
   private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
@@ -233,8 +236,13 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
   // if (glw.webgl1ExtDB) {
   //   definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
   // }
-
-  if (glw.is_multiview) {
+  const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
+  const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
+  if (
+    Is.exist(webXRSystem) &&
+    webXRSystem.isWebXRMode &&
+    webglResourceRepository.isSupportMultiViewVRRendering()
+  ) {
     definitions += '#define WEBGL2_MULTI_VIEW\n';
   }
 

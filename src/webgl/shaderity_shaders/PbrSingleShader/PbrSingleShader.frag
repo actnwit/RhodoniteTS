@@ -14,6 +14,7 @@ in vec2 v_texcoord_1;
 in vec2 v_texcoord_2;
 in vec3 v_baryCentricCoord;
 in float v_instanceInfo;
+in float v_displayIdx;
 
 #ifdef RN_USE_TANGENT
   in vec3 v_tangent_inWorld;

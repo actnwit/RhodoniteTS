@@ -1,8 +1,12 @@
 #pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexStereoExtensions.glsl)
+#pragma shaderity: require(../common/enableVertexExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 /* shaderity: @{definitions} */
+
+#ifdef WEBGL2_MULTI_VIEW
+  layout(num_views=2) in;
+#endif
 
 in vec3 a_position;
 in vec3 a_color;

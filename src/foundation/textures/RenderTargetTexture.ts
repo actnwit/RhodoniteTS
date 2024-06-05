@@ -13,6 +13,7 @@ import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository'
 
 export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
+  private __arrayLength: number = 0;
   constructor() {
     super();
   }
@@ -42,12 +43,44 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this.__createRenderTargetTexture();
   }
 
+  createTextureArray({
+    width,
+    height,
+    level = 0,
+    internalFormat = TextureParameter.RGB8,
+    format = PixelFormat.RGBA,
+    type = ComponentType.UnsignedByte,
+    arrayLength,
+  }: {
+    width: Size;
+    height: Size;
+    level: number;
+    internalFormat: TextureParameterEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    arrayLength: number;
+  }) {
+    this.__width = width;
+    this.__height = height;
+    this.__level = level;
+    this.__internalFormat = internalFormat;
+    this.__format = format;
+    this.__type = type;
+    this.__arrayLength = arrayLength;
+
+    this.__createRenderTargetTextureArray();
+  }
+
   set _fbo(fbo: FrameBuffer) {
     this.__fbo = fbo;
   }
 
   get fbo() {
     return this.__fbo;
+  }
+
+  get arrayLength() {
+    return this.__arrayLength;
   }
 
   private __createRenderTargetTexture() {
@@ -71,11 +104,31 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     AbstractTexture.__textureMap.set(texture, this);
   }
 
+  private __createRenderTargetTextureArray() {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = cgApiResourceRepository.createRenderTargetTextureArray({
+      width: this.__width,
+      height: this.__height,
+      level: this.__level,
+      internalFormat: this.__internalFormat,
+      format: this.__format,
+      type: this.__type,
+      arrayLength: this.__arrayLength,
+    });
+    this._textureResourceUid = texture;
+
+    AbstractTexture.__textureMap.set(texture, this);
+  }
+
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();
     this.__width = width;
     this.__height = height;
-    this.__createRenderTargetTexture();
+    if (this.__arrayLength > 0) {
+      this.__createRenderTargetTextureArray();
+    } else {
+      this.__createRenderTargetTexture();
+    }
   }
 
   destroy3DAPIResources() {
@@ -148,5 +201,42 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   generateMipmap() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
+  }
+
+  blitToTexture2dFromTexture2dArray(targetTexture2D: RenderTargetTexture) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArray(
+      this._textureResourceUid,
+      targetTexture2D.__fbo!.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  blitToTexture2dFromTexture2dArrayFake(targetTexture2D: RenderTargetTexture) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
+      this._textureResourceUid,
+      targetTexture2D.__fbo!.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  blitToTexture2dFromTexture2dArray2(targetTexture2D: RenderTargetTexture) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArray2(
+      this._textureResourceUid,
+      targetTexture2D._textureResourceUid,
+      targetTexture2D.width / 2,
+      targetTexture2D.height
+    );
   }
 }
