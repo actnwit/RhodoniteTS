@@ -728,6 +728,7 @@ export class ForwardRenderPipeline extends RnObject {
           isMSAA: false,
           internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+          createDepthBuffer: false,
         }
       );
       framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfGammaMultiViewBlit', true);
@@ -740,6 +741,7 @@ export class ForwardRenderPipeline extends RnObject {
           isMSAA: false,
           internalFormat: this.__isBloom ? TextureParameter.RGBA16F : TextureParameter.RGBA8,
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+          createDepthBuffer: false,
         }
       );
       framebufferMultiViewBlit.tryToSetUniqueName(
