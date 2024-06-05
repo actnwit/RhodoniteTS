@@ -50,21 +50,14 @@ import { Material } from '../foundation/materials/core/Material';
 import { System } from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import { Config } from '../foundation/core/Config';
-import {
-  GL_DEPTH_COMPONENT,
-  GL_DEPTH_COMPONENT16,
-  GL_DEPTH_COMPONENT24,
-  GL_DEPTH_COMPONENT32F,
-  GL_TEXTURE_2D,
-} from '../types/WebGLConstants';
+import { GL_TEXTURE_2D } from '../types/WebGLConstants';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { Sampler } from '../foundation/textures/Sampler';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { SystemState } from '../foundation/system/SystemState';
-import { Logger } from '../foundation/misc/Logger';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
-import { ProcessApproach, ProcessStage } from '../foundation';
+import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
