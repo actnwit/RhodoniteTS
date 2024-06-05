@@ -410,6 +410,7 @@ bool get_isBillboard(float instanceId) {
       shaderProgramUid
     )! as WebGLProgram;
     gl.useProgram(shaderProgram);
+    this.__lastShader = shaderProgramUid;
 
     this.bindDataTexture(gl, shaderProgram);
 
