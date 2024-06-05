@@ -842,7 +842,7 @@ export class ForwardRenderPipeline extends RnObject {
           .colorAttachments[0] as RenderTargetTexture;
         (
           multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
-        ).blitToTexture2dFromTexture2dArray(texture);
+        ).blitToTexture2dFromTexture2dArrayFake(texture);
         texture.generateMipmap();
       }
     });
@@ -866,7 +866,7 @@ export class ForwardRenderPipeline extends RnObject {
           .colorAttachments[0] as RenderTargetTexture;
         (
           multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
-        ).blitToTexture2dFromTexture2dArray(texture);
+        ).blitToTexture2dFromTexture2dArrayFake(texture);
       }
     });
 

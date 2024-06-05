@@ -2862,4 +2862,32 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
   }
+  blitToTexture2dFromTexture2dArrayFake(
+    srcTextureUid: WebGLResourceHandle,
+    dstFboUid: WebGLResourceHandle,
+    dstWidth: number,
+    dstHeight: number
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const srcTexture = this.getWebGLResource(srcTextureUid) as WebGLTexture;
+    const dstFbo = this.getWebGLResource(dstFboUid) as WebGLFramebuffer;
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFbo);
+
+    const webStereoUtil = WebGLStereoUtil.getInstance(gl);
+    webStereoUtil.blitFake(srcTexture, 0, 0, 1, 1, dstWidth, dstHeight);
+
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+  }
+  blitToTexture2dFromTexture2dArray2(
+    srcTextureUid: WebGLResourceHandle,
+    dstTextureUid: WebGLResourceHandle,
+    dstWidth: number,
+    dstHeight: number
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const srcTexture = this.getWebGLResource(srcTextureUid) as WebGLTexture;
+    const dstTexture = this.getWebGLResource(dstTextureUid) as WebGLTexture;
+    const webStereoUtil = WebGLStereoUtil.getInstance(gl);
+    webStereoUtil.blit2(srcTexture, dstTexture, dstWidth, dstHeight);
+  }
 }

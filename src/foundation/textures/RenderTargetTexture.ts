@@ -215,4 +215,28 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       targetTexture2D.height
     );
   }
+  blitToTexture2dFromTexture2dArrayFake(targetTexture2D: RenderTargetTexture) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
+      this._textureResourceUid,
+      targetTexture2D.__fbo!.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  blitToTexture2dFromTexture2dArray2(targetTexture2D: RenderTargetTexture) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArray2(
+      this._textureResourceUid,
+      targetTexture2D._textureResourceUid,
+      targetTexture2D.width / 2,
+      targetTexture2D.height
+    );
+  }
 }
