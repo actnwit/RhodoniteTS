@@ -721,7 +721,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
     }
@@ -735,7 +735,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
     }
@@ -794,7 +794,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
   }
 
-  renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass) {
+  private __renderInner(
+    primitiveUid: PrimitiveUID,
+    glw: WebGLContextWrapper,
+    renderPass: RenderPass
+  ) {
     const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
     const mesh = primitive.mesh as Mesh;
@@ -864,63 +868,11 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       });
     }
 
-    if (
-      WebGLStrategyDataTexture.__webxrSystem.isWebXRMode &&
-      WebGLStrategyDataTexture.__webxrSystem.isMultiView()
-    ) {
-      this.__drawInnerWithMultiViewExtension(isVRMainPass, renderPass, gl, primitive, mesh);
-    } else {
-      this.__drawInnerWithoutMultiViewExtension(isVRMainPass, renderPass, gl, primitive, mesh);
-    }
-
-    this.__lastShader = shaderProgramUid;
-
-    return true;
-  }
-  private __drawInnerWithMultiViewExtension(
-    isVRMainPass: boolean,
-    renderPass: RenderPass,
-    gl: WebGL2RenderingContext,
-    primitive: Primitive,
-    mesh: Mesh
-  ) {
-    if (isVRMainPass) {
-      WebGLStrategyCommonMethod.setVRViewport(renderPass, 0);
-    }
-    this.__setCurrentComponentSIDsForEachDisplayIdx(renderPass, 0, isVRMainPass);
-
-    gl.uniform1fv(
-      (WebGLStrategyDataTexture.__shaderProgram as any).currentComponentSIDs,
-      WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
+      isVRMainPass,
+      WebGLStrategyDataTexture.__webxrSystem
     );
-
-    if (primitive.indicesAccessor) {
-      gl.drawElementsInstanced(
-        primitive.primitiveMode.index,
-        primitive.indicesAccessor.elementCount,
-        primitive.indicesAccessor.componentType.index,
-        0,
-        mesh.meshEntitiesInner.length
-      );
-    } else {
-      gl.drawArraysInstanced(
-        primitive.primitiveMode.index,
-        0,
-        primitive.getVertexCountAsVerticesBased(),
-        mesh.meshEntitiesInner.length
-      );
-    }
-  }
-
-  private __drawInnerWithoutMultiViewExtension(
-    isVRMainPass: boolean,
-    renderPass: RenderPass,
-    gl: WebGL2RenderingContext,
-    primitive: Primitive,
-    mesh: Mesh
-  ) {
-    const displayNumber = WebGLStrategyCommonMethod.getDisplayNumber(isVRMainPass);
-    for (let displayIdx = 0; displayIdx < displayNumber; displayIdx++) {
+    for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
       }
@@ -952,6 +904,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         );
       }
     }
+
+    this.__lastShader = shaderProgramUid;
+
+    return true;
   }
 
   private bindDataTexture(

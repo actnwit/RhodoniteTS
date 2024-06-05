@@ -64,6 +64,7 @@ import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { SystemState } from '../foundation/system/SystemState';
 import { Logger } from '../foundation/misc/Logger';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
+import { ProcessApproach, ProcessStage } from '../foundation';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
@@ -2843,7 +2844,11 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   isSupportMultiViewVRRendering(): boolean {
-    return this.__glw!.isMultiview();
+    if (SystemState.currentProcessApproach === ProcessApproach.DataTexture) {
+      return this.__glw!.isMultiview();
+    } else {
+      return false;
+    }
   }
 
   blitToTexture2dFromTexture2dArray(
