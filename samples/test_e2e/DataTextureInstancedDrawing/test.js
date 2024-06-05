@@ -1,8 +1,6 @@
-const testCheckWindowRendered =
-  require('../common/testFunc').testCheckWindowRendered;
-const SetURL =
-  'http://localhost:8082/samples/test_e2e/DataTextureInstancedDrawing';
+const doTests =
+  require('../common/testFunc').doTests;
 
-test('regression test DataTextureInstancedDrawing', async () => {
-  await testCheckWindowRendered(jest, browser, SetURL, expect, 0.03, true);
-});
+const modes = ['uniform', 'datatexture', 'webgpu'];
+
+doTests('DataTextureInstancedDrawing', modes);
