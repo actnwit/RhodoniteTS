@@ -8,7 +8,6 @@ Rn.Config.maxEntityNumber = 200;
 Rn.Config.maxLightNumberInShader = 1;
 Rn.Config.maxVertexMorphNumberInShader = 1;
 Rn.Config.maxMaterialInstanceForEachType = 30;
-Rn.Config.maxCameraNumber = 3;
 Rn.Config.maxSkeletalBoneNumber = 1;
 Rn.Config.dataTextureWidth = 2 ** 8;
 Rn.Config.dataTextureHeight = 2 ** 9;
