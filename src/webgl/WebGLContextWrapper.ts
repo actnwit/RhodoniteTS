@@ -98,7 +98,7 @@ export class WebGLContextWrapper {
   #maxConventionUniformBlocks = INVALID_SIZE;
   private __maxVertexUniformVectors = INVALID_SIZE;
   private __maxFragmentUniformVectors = INVALID_SIZE;
-  public readonly is_multiview: boolean;
+  private readonly __is_multiview: boolean;
   _isWebXRMode = false;
 
   __extensions: Map<WebGLExtensionEnum, WebGLObject> = new Map();
@@ -111,7 +111,7 @@ export class WebGLContextWrapper {
     this.__viewport_width = this.__default_viewport_width = this.width;
     this.__viewport_height = this.__default_viewport_height = this.height;
 
-    this.is_multiview = true;
+    this.__is_multiview = true;
 
     if (this.__gl.constructor.name === 'WebGL2RenderingContext') {
       this.__webglVersion = 2;
@@ -152,7 +152,7 @@ export class WebGLContextWrapper {
           if (Config.cgApiDebugConsoleOutput) {
             console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           }
-          this.is_multiview = false;
+          this.__is_multiview = false;
         }
       }
       this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
@@ -501,5 +501,9 @@ export class WebGLContextWrapper {
     }
 
     return undefined;
+  }
+
+  isMultiview() {
+    return this.__is_multiview && Config.multiViewForWebVR;
   }
 }

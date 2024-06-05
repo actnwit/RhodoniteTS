@@ -23,6 +23,7 @@ let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
 let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable cache
 let cgApiDebugConsoleOutput = false;
+let multiViewForWebVR = false;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -53,4 +54,5 @@ export const Config = {
   eventTargetDom,
   cacheWebGpuRenderBundles,
   cgApiDebugConsoleOutput,
+  multiViewForWebVR,
 };

@@ -2843,7 +2843,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   }
 
   isSupportMultiViewVRRendering(): boolean {
-    return this.__glw!.is_multiview;
+    return this.__glw!.isMultiview();
   }
 
   blitToTexture2dFromTexture2dArray(
