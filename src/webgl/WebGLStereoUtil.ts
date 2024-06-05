@@ -230,8 +230,6 @@ export class WebGLStereoUtil {
     //   gl.enable(gl.DEPTH_TEST);
     // }
     // gl.depthMask(depthMask);
-
-    gl.finish();
   }
 
   blit2(srcTexture: WebGLTexture, dstTexture: WebGLTexture, width: number, height: number) {
