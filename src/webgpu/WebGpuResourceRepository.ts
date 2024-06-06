@@ -1338,7 +1338,7 @@ export class WebGpuResourceRepository
           (renderPass.isDepthTest &&
             renderPass.depthWriteMask &&
             !isOpaque &&
-            MeshRendererComponent.isDepthMaskTrueForTransparencies)
+            MeshRendererComponent.isDepthMaskTrueForBlendPrimitives)
             ? true
             : false,
         depthCompare: renderPass.isDepthTest ? 'less' : 'always',

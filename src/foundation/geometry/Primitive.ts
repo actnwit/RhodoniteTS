@@ -156,10 +156,17 @@ export class Primitive extends RnObject {
       PrimitiveSortKey_BitLength_Material,
       mat.materialUID
     );
+
+    let translucencyType = 0; // opaque
+    if (mat.isTranslucentOpaque()) {
+      translucencyType = 1; // translucent
+    } else if (mat.isBlend()) {
+      translucencyType = 2; // blend
+    }
     this.setSortKey(
       PrimitiveSortKey_BitOffset_TranslucencyType,
       PrimitiveSortKey_BitLength_TranslucencyType,
-      mat.isBlendOrTranslucent() ? 1 : 0
+      translucencyType
     );
     mat._addBelongPrimitive(this);
   }

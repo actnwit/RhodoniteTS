@@ -634,6 +634,18 @@ export class Material extends RnObject {
     }
   }
 
+  /**
+   *
+   * @returns return true if (alphaMode is Opaque or Mask) and translucent
+   */
+  isTranslucentOpaque() {
+    if (this.alphaMode !== AlphaMode.Blend && this.isTranslucent) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   isBlendOrTranslucent() {
     if (this.alphaMode === AlphaMode.Blend || this.isTranslucent) {
       return true;

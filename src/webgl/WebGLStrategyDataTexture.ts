@@ -729,12 +729,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     // For translucent primitives
     if (renderPass._toRenderTransparentPrimitives) {
-      if (!MeshRendererComponent.isDepthMaskTrueForTransparencies) {
-        // disable depth write for transparent primitives
+      for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
+        const primitiveUid = primitiveUids[i];
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
+        renderedSomething ||= rendered;
+      }
+
+      if (!MeshRendererComponent.isDepthMaskTrueForBlendPrimitives) {
+        // disable depth write for blend primitives
         gl.depthMask(false);
       }
 
-      for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTransparentIndex; i++) {
+      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;

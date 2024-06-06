@@ -21,7 +21,7 @@ import {
 } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { isTranslucent } from '../../geometry/types/GeometryTypes';
+import { isBlend, isTranslucent } from '../../geometry/types/GeometryTypes';
 import { Primitive } from '../../geometry/Primitive';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
@@ -38,7 +38,7 @@ export class MeshRendererComponent extends Component {
   private __rotationOfCubeMap = 0;
 
   private static __cgApiRenderingStrategy?: CGAPIStrategy;
-  public static isDepthMaskTrueForTransparencies = false;
+  public static isDepthMaskTrueForBlendPrimitives = false;
   static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle> =
     new Map();
   private __updateCount = 0;
@@ -216,7 +216,7 @@ export class MeshRendererComponent extends Component {
 
     // Sort by sortkey
     primitives.sort((a, b) => {
-      if (isTranslucent(a) && isTranslucent(b)) {
+      if (isBlend(a) && isBlend(b)) {
         return a._viewDepth - b._viewDepth;
       } else {
         return a._sortkey - b._sortkey;
@@ -227,7 +227,8 @@ export class MeshRendererComponent extends Component {
     primitiveUids.push(-1);
 
     let _lastOpaqueIndex = primitives.length - 1;
-    let _lastTransparentIndex = -1;
+    let _lastTranslucentIndex = primitives.length - 1;
+    let _lastBlendIndex = primitives.length - 1;
 
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
@@ -236,10 +237,20 @@ export class MeshRendererComponent extends Component {
         _lastOpaqueIndex = i - 1;
         break;
       }
+      const blend = isBlend(primitive);
+      if (blend) {
+        _lastOpaqueIndex = i - 1;
+        break;
+      }
     }
 
-    if (primitives.length > 0) {
-      _lastTransparentIndex = primitives.length - 1;
+    for (let i = _lastOpaqueIndex + 1; i < primitives.length; i++) {
+      const primitive = primitives[i];
+      const translucency = isBlend(primitive);
+      if (translucency) {
+        _lastTranslucentIndex = i - 1;
+        break;
+      }
     }
 
     let resultChanged = false;
@@ -247,8 +258,12 @@ export class MeshRendererComponent extends Component {
       renderPass._lastOpaqueIndex = _lastOpaqueIndex;
       resultChanged ||= true;
     }
-    if (_lastTransparentIndex != renderPass._lastTransparentIndex) {
-      renderPass._lastTransparentIndex = _lastTransparentIndex;
+    if (_lastTranslucentIndex != renderPass._lastTranslucentIndex) {
+      renderPass._lastTranslucentIndex = _lastTranslucentIndex;
+      resultChanged ||= true;
+    }
+    if (_lastBlendIndex != renderPass._lastBlendIndex) {
+      renderPass._lastBlendIndex = _lastBlendIndex;
       resultChanged ||= true;
     }
 
