@@ -13,8 +13,6 @@ await Rn.System.init({
   canvas,
 });
 
-Rn.MeshRendererComponent.isDepthMaskTrueForTransparencies = true;
-
 // create ForwardRenderPipeline
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
 forwardRenderPipeline.setup(canvas.width, canvas.height, {
