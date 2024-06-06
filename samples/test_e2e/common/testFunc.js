@@ -103,3 +103,19 @@ exports.doTests = (name, modes, errorThreshold = 0.03) => {
     exports.defineTest(name, mode, errorThreshold);
   }
 };
+
+
+exports.defineGltfTest = (name, mode, gltfName, gltfFormat,errorThreshold) => {
+  const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}&gltf=${gltfName}&gltfformat=${gltfFormat}`;
+  test(`${name} ${mode} ${gltfName}`, async () => {
+    await exports.testCheckWindowRendered(jest, browser, url, expect, errorThreshold, true);
+  });
+};
+
+exports.doGltfTests = (name, modes, gltfInfo, errorThreshold = 0.03) => {
+  for (const mode of modes) {
+    for (const gltf of gltfInfo) {
+      exports.defineGltfTest(name, mode, gltf.name, gltf.format, errorThreshold);
+    }
+  }
+};

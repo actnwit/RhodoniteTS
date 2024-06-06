@@ -1,5 +1,5 @@
 import Rn from '../../../dist/esmdev/index.js';
-import { getProcessApproach } from '../common/testHelpers.js';
+import { getGltfFilePath, getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 
@@ -22,18 +22,16 @@ forwardRenderPipeline.setup(canvas.width, canvas.height, {
 const { cameraComponent, cameraEntity } = createCamera();
 
 // gltf
+const gltfFilePath = getGltfFilePath();
 const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )
+  await Rn.GltfImporter.importFromUri(gltfFilePath, {
+    cameraComponent: cameraComponent,
+    defaultMaterialHelperArgumentArray: [
+      {
+        makeOutputSrgb: false,
+      },
+    ],
+  })
 ).unwrapForce();
 
 // env

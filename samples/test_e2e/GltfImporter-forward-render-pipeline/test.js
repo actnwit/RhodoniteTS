@@ -1,6 +1,9 @@
-const doTests =
-  require('../common/testFunc').doTests;
+const doGltfTests =
+  require('../common/testFunc').doGltfTests;
 
 const modes = ['uniform', 'datatexture', 'webgpu'];
+const gltfInfo = [
+  {name: 'IridescentDishWithOlives', format: 'glb'},
+];
 
-doTests('GltfImporter-forward-render-pipeline', modes, 0.03);
+doGltfTests('GltfImporter-forward-render-pipeline', modes, gltfInfo, 0.03);

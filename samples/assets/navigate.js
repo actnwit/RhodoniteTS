@@ -19,9 +19,10 @@ if (isTestTopPage) {
   a.setAttribute('href', parent.location.href.replace('#', ''));
   a.setAttribute('target', '_parent');
 } else {
-  const newUri = document.location.href.replace(/samples\//, 'samples/#');
+  const chopLastSlash = document.location.href.replace(/\/$/, '');
+  const newUri = chopLastSlash.replace(/samples\//, 'samples/#');
   a.innerText = 'Show Index';
-  a.setAttribute('href', sanitize(newUri));
+  a.setAttribute('href', newUri);
 }
 
 document.body.insertBefore(a, document.body.firstChild);
