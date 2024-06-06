@@ -58,6 +58,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastMaterial?: Material;
+  private __lastMaterialStateVersion = -1;
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
@@ -834,6 +835,10 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (this.__lastMaterial !== material) {
       firstTime = true;
       this.__lastMaterial = material;
+    }
+    if (this.__lastMaterialStateVersion !== material.stateVersion) {
+      firstTime = true;
+      this.__lastMaterialStateVersion = material.stateVersion;
     }
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
