@@ -15,7 +15,8 @@ await Rn.System.init({
 // create ForwardRenderPipeline
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
 forwardRenderPipeline.setup(canvas.width, canvas.height, {
-  isBloom: true,
+  isBloom: false,
+  isShadow: false,
 });
 
 // camera
