@@ -150,7 +150,8 @@ export class WebXRSystem {
 
     if (glw != null && this.__isReadyForWebXR) {
       let referenceSpace: XRReferenceSpace;
-      const session = (await navigator.xr!.requestSession('immersive-vr')) as XRSession;
+      const sessionInit = { requiredFeatures: [ 'local-floor', ], optionalFeatures: [ 'high-fixed-foveation-level', ]};
+      const session = (await navigator.xr!.requestSession('immersive-vr', sessionInit)) as XRSession;
       this.__xrSession = session;
 
       session.addEventListener('end', () => {
@@ -179,17 +180,18 @@ export class WebXRSystem {
       };
       const promise = new Promise(promiseFn);
 
-      // try {
-      //   referenceSpace = await session.requestReferenceSpace('local-floor');
-      //   this.__spaceType = 'local-floor';
-      //   this.__defaultPositionInLocalSpaceMode =
-      //     initialUserPosition ?? Vector3.zero();
-      // } catch (err) {
-      // console.error(`Failed to start XRSession: ${err}`);
-      // eslint-disable-next-line prefer-const
-      referenceSpace = await session.requestReferenceSpace('local');
-      this.__spaceType = 'local';
-      this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
+      try {
+        referenceSpace = await session.requestReferenceSpace('local-floor');
+        this.__spaceType = 'local-floor';
+        this.__defaultPositionInLocalSpaceMode =
+          initialUserPosition ?? Vector3.zero();
+      } catch (err) {
+        console.error(`Failed to start XRSession: ${err}`);
+        // eslint-disable-next-line prefer-const
+        referenceSpace = await session.requestReferenceSpace('local');
+        this.__spaceType = 'local';
+        this.__defaultPositionInLocalSpaceMode = initialUserPosition ?? defaultUserPositionInVR;
+      }
       this.__xrReferenceSpace = referenceSpace;
       System.stopRenderLoop();
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
