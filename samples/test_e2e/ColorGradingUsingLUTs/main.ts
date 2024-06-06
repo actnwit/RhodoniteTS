@@ -1,5 +1,7 @@
 import Rn from '../../../dist/esmdev/index.js';
 
+declare const window: any;
+
 // prepare memory
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
@@ -158,15 +160,12 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
   return expression;
 }
 
-function draw(expressions: Rn.Expression[], isFirstLoop: boolean, pElem?: HTMLElement) {
+function draw(expressions: Rn.Expression[], isFirstLoop: boolean) {
   // for e2e-test
-  if (pElem === undefined && !isFirstLoop) {
-    pElem = document.createElement('p');
-    pElem.setAttribute('id', 'rendered');
-    pElem.innerText = 'Rendered.';
-    document.body.appendChild(pElem);
+  if (!isFirstLoop) {
+    window._rendered = true;
   }
 
   Rn.System.process(expressions);
-  requestAnimationFrame(draw.bind(null, expressions, false, pElem));
+  requestAnimationFrame(draw.bind(null, expressions, false));
 }
