@@ -39,7 +39,7 @@ export interface RaycastResultEx2 {
  * --- 0
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  * 10 bits: Material TID
- *  1 bits: Translucency type (0: Opaque, 1: Translucent(draw after opaque))
+ *  2 bits: Translucency type (0: Opaque, 1: Translucent(draw after opaque), 2: Blend(draw after translucent) )
  *  3 bits: Viewport layer
  *  3 bits: Viewport
  *  2 bits: Fullscreen layer
@@ -49,7 +49,7 @@ export interface RaycastResultEx2 {
  * 32 bits: Depth
  */
 export type PrimitiveSortKey = number;
-export const PrimitiveSortKey_BitLength_TranslucencyType = 1;
+export const PrimitiveSortKey_BitLength_TranslucencyType = 2;
 export const PrimitiveSortKey_BitLength_Material = 10;
 export const PrimitiveSortKey_BitLength_PrimitiveType = 3;
 
@@ -96,12 +96,22 @@ function readBits(
 //   return (primitive._sortkey >> translucencyBitOffset) & 1;
 // }
 
+export function isBlend(primitive: Primitive) {
+  return (
+    readBits(
+      primitive,
+      PrimitiveSortKey_BitOffset_TranslucencyType,
+      PrimitiveSortKey_BitLength_TranslucencyType
+    ) === 2 // blend
+  );
+}
+
 export function isTranslucent(primitive: Primitive) {
   return (
     readBits(
       primitive,
       PrimitiveSortKey_BitOffset_TranslucencyType,
       PrimitiveSortKey_BitLength_TranslucencyType
-    ) === 1
+    ) === 1 // translucent
   );
 }

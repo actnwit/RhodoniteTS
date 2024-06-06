@@ -65,9 +65,8 @@ export class RenderPass extends RnObject {
 
   // Internal use
   public _lastOpaqueIndex = -1;
-  public _lastTransparentIndex = -1;
-  public _firstTransparentSortKey = -1;
-  public _lastTransparentSortKey = -1;
+  public _lastTranslucentIndex = -1;
+  public _lastBlendIndex = -1;
   public _lastPrimitiveUids: number[] = [];
   public _lastTransformComponentsUpdateCount = -1;
   public _lastCameraControllerComponentsUpdateCount = -1;
