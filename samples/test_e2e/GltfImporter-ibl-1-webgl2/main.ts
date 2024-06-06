@@ -24,7 +24,7 @@ cameraComponent.aspect = 1.0;
 // gltf
 const mainExpression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

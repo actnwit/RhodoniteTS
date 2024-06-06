@@ -23,7 +23,7 @@ cameraComponent.aspect = 1.0;
 // gltf
 const mainExpression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/ClearCoatTest/glTF-Binary/ClearCoatTest.glb',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/ClearCoatTest/glTF-Binary/ClearCoatTest.glb',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

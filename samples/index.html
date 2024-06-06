@@ -291,7 +291,7 @@
               alink.textContent = file;
               alink.name = name;
               $(alink).addClass('example');
-              alink.href = './' + name + '/index.html';
+              alink.href = './' + name;// + '/index.html';
               $(alink).attr('target', 'viewer');
 
               alink.addEventListener("click", function(){
@@ -313,7 +313,7 @@
 
           if ( selected !== null ) divs.get(selected).className = 'link';
 
-          file = file.replace(new RegExp('\/$'), '');
+          file = file.match( /([\w-]+\/[\w-]+[\/\?\w=&]+)/ )[ 1 ];
           divs.get(file).className = 'link selected';
 
           window.location.hash = file;
@@ -329,7 +329,7 @@
 
         if ( window.location.hash !== '' ) {
 
-          loadNormal( window.location.hash.substring(1).split('?')[0]);
+          loadNormal( window.location.hash);
 
         }
       });

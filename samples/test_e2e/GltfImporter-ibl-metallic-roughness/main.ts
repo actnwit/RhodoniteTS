@@ -22,7 +22,7 @@ cameraComponent.aspect = 1.0;
 // gltf
 const mainExpression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/MetalRoughSpheresNoTextures/glTF/MetalRoughSpheresNoTextures.gltf',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

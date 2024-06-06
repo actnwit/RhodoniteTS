@@ -23,7 +23,7 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 0, 5.5]);
 // gltf
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/TextureTransformTest/glTF/TextureTransformTest.gltf',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/TextureTransformTest/glTF/TextureTransformTest.gltf',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

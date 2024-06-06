@@ -104,7 +104,7 @@ lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 
 //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
 const response = (
   await Rn.Gltf2Importer.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+    '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
   )
 ).unwrapForce();
 //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');

@@ -6,7 +6,7 @@ window.Rn = Rn;
 
 const uriGltf =
   // '../../../assets/gltf/glTF-Sample-Models/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf';
-  '../../../assets/gltf/glTF-Sample-Models/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb';
+  '../../../assets/gltf/glTF-Sample-Assets/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
 const luminanceCriterion = 1.0;

@@ -23,7 +23,7 @@ cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI / 4, 0])
 // gltf
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/AnimatedMorphSphere/glTF-Binary/AnimatedMorphSphere.glb',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/AnimatedMorphCube/glTF-Binary/AnimatedMorphCube.glb',
     {
       cameraComponent: cameraComponent,
     }

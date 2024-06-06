@@ -26,7 +26,7 @@ cameraComponent.aspect = 1.0;
 
 // gltf
 const mainExpressionResult = await Rn.GltfImporter.importFromUri(
-  '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf',
+  '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
   {
     cameraComponent: cameraComponent,
   },

@@ -1,40 +1,38 @@
 import Rn from '../../../dist/esmdev/index.js';
-
-const p = document.createElement('p');
-document.body.appendChild(p);
+import { getGltfFilePath, getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
+const processApproach = getProcessApproach(Rn);
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: processApproach,
   canvas,
 });
 
 // create ForwardRenderPipeline
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
 forwardRenderPipeline.setup(canvas.width, canvas.height, {
-  isBloom: true,
+  isBloom: false,
+  isShadow: false,
 });
 
 // camera
 const { cameraComponent, cameraEntity } = createCamera();
 
 // gltf
+const gltfFilePath = getGltfFilePath();
 const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/IridescentDishWithOlives/glTF-Binary/IridescentDishWithOlives.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )
+  await Rn.GltfImporter.importFromUri(gltfFilePath, {
+    cameraComponent: cameraComponent,
+    defaultMaterialHelperArgumentArray: [
+      {
+        makeOutputSrgb: false,
+      },
+    ],
+  })
 ).unwrapForce();
 
 // env
@@ -69,12 +67,8 @@ await forwardRenderPipeline.setIBL({
 let count = 0;
 let startTime = Date.now();
 const draw = function (frame) {
-  if (count > 1) {
-    p.id = 'rendered';
-    p.innerText = 'Rendered.';
-  } else if (count === 1) {
-    p.id = 'started';
-    p.innerText = 'Started.';
+  if (count > 0) {
+    window._rendered = true;
   }
 
   if (window.isAnimating) {

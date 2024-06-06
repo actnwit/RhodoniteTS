@@ -12,7 +12,7 @@ await Rn.System.init({
 
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/Fox/glTF-Binary/Fox.glb'
+    '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'
   )
 ).unwrapForce();
 // camera

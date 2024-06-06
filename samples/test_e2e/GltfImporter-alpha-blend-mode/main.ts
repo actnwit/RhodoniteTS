@@ -26,7 +26,7 @@ cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([-0.1, 0, 0]);
 // gltf
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    './../../../assets/gltf/glTF-Sample-Models/2.0/AlphaBlendModeTest/glTF/AlphaBlendModeTest.gltf',
+    './../../../assets/gltf/glTF-Sample-Assets/Models/AlphaBlendModeTest/glTF-Binary/AlphaBlendModeTest.glb',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [
