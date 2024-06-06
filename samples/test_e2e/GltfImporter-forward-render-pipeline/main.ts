@@ -1,15 +1,14 @@
 import Rn from '../../../dist/esmdev/index.js';
-
-const p = document.createElement('p');
-document.body.appendChild(p);
+import { getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
+const processApproach = getProcessApproach(Rn);
 const canvas = document.getElementById('world') as HTMLCanvasElement;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: processApproach,
   canvas,
 });
 
@@ -69,12 +68,8 @@ await forwardRenderPipeline.setIBL({
 let count = 0;
 let startTime = Date.now();
 const draw = function (frame) {
-  if (count > 1) {
-    p.id = 'rendered';
-    p.innerText = 'Rendered.';
-  } else if (count === 1) {
-    p.id = 'started';
-    p.innerText = 'Started.';
+  if (count > 0) {
+    window._rendered = true;
   }
 
   if (window.isAnimating) {

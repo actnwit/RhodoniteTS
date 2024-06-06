@@ -1,27 +1,6 @@
-test('regression test GltfImporter-forward-render-pipeline', async () => {
+const doTests =
+  require('../common/testFunc').doTests;
 
-  const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(2000000);
-  await page.goto(
-    'http://localhost:8082/samples/test_e2e/GltfImporter-forward-render-pipeline'
-  );
-  await page.setViewport({width: 1000, height: 1000});
-  await page.waitForSelector('p#started', {timeout: 2000000});
+const modes = ['uniform', 'datatexture', 'webgpu'];
 
-  await page.mouse.down();
-  await page.mouse.move(0, 0);
-  await page.mouse.move(0, 100);
-  await page.mouse.move(50, 100);
-  await page.mouse.up();
-
-  await page.waitForSelector('p#rendered', {timeout: 2000000});
-
-  const canvasElement = await page.$('#world');
-  const image = await canvasElement.screenshot();
-  expect(image).toMatchImageSnapshot({
-    failureThreshold: 0.03,
-    failureThresholdType: 'percent',
-  });
-
-  await page.close();
-});
+doTests('GltfImporter-forward-render-pipeline', modes, 0.03);
