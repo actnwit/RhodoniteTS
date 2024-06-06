@@ -57,6 +57,7 @@ export declare class WebGLContextWrapper {
     readonly webgl2ExtGmanWM?: any;
     private __activeTextureBackup;
     private __activeTextures2D;
+    private __activeTextures2DArray;
     private __activeTexturesCube;
     private __boundTextures;
     private __boundSamplers;
@@ -70,7 +71,7 @@ export declare class WebGLContextWrapper {
     private __default_viewport_height;
     private __maxVertexUniformVectors;
     private __maxFragmentUniformVectors;
-    readonly is_multiview: boolean;
+    private readonly __is_multiview;
     _isWebXRMode: boolean;
     __extensions: Map<WebGLExtensionEnum, WebGLObject>;
     constructor(gl: WebGL2RenderingContext, canvas: HTMLCanvasElement);
@@ -93,6 +94,7 @@ export declare class WebGLContextWrapper {
     drawBuffers(buffers: RenderBufferTargetEnum[]): void;
     private __activeTexture;
     bindTexture2D(activeTextureIndex: Index, texture: WebGLTexture): void;
+    bindTexture2DArray(activeTextureIndex: Index, texture: WebGLTexture): void;
     bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler): void;
     bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture): void;
     unbindTexture2D(activeTextureIndex: Index): void;
@@ -109,5 +111,6 @@ export declare class WebGLContextWrapper {
     getMaxVertexUniformVectors(): number;
     getMaxFragmentUniformVectors(): number;
     getWebGLMemoryInfo(): any;
+    isMultiview(): boolean;
 }
 export {};

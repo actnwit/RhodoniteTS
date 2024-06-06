@@ -128,25 +128,31 @@ export declare class Material extends RnObject {
     private __setSoloDatumParametersToGpuWebGL;
     /**
      * Change the blendEquations
-     * This method works only if this alphaMode is the translucent
+     * This method works only if this alphaMode is the blend
      * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
      * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
      */
     setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum): void;
     /**
      * Change the blendFuncSeparateFactors
-     * This method works only if this alphaMode is the translucent
+     * This method works only if this alphaMode is the blend
      */
     setBlendFuncSeparateFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum, blendFuncAlphaSrcFactor: BlendEnum, blendFuncAlphaDstFactor: BlendEnum): void;
     /**
      * Change the blendFuncFactors
-     * This method works only if this alphaMode is the translucent
+     * This method works only if this alphaMode is the blend
      */
     setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum): void;
     isEmptyMaterial(): boolean;
     isBlend(): boolean;
+    /**
+     *
+     * @returns return true if (alphaMode is Opaque or Mask) and translucent
+     */
+    isTranslucentOpaque(): boolean;
     isBlendOrTranslucent(): boolean;
     isOpaque(): boolean;
+    isMask(): boolean;
     /**
      * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
      * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.

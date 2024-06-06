@@ -16,6 +16,7 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
     private __lastRenderPassTickCount;
     private __lightComponents?;
     private static __globalDataRepository;
+    private static __webxrSystem;
     private static readonly componentMatrices;
     private constructor();
     private static __vertexShaderMethodDefinitions_uniform;
@@ -41,6 +42,6 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
     static getInstance(): WebGLStrategyUniform;
     common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
     private __renderWithoutBuffers;
-    renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, renderPassTickCount: Count, isVRMainPass: boolean, displayIdx: Index): boolean;
+    renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, renderPassTickCount: Count): boolean;
     private bindDataTexture;
 }

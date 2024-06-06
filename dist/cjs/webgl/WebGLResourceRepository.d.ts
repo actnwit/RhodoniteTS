@@ -318,6 +318,20 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         type: ComponentTypeEnum;
     }): number;
     /**
+     * create a RenderTargetTextureArray
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTextureArray({ width, height, level, internalFormat, format, type, arrayLength, }: {
+        width: Size;
+        height: Size;
+        level: Index;
+        internalFormat: TextureParameterEnum;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+        arrayLength: Count;
+    }): WebGLResourceHandle;
+    /**
      * create a CubeTexture
      *
      * @param mipLevelCount
@@ -414,4 +428,8 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     getPixelDataFromTexture(texUid: WebGLResourceHandle, x: number, y: number, width: number, height: number): Uint8Array;
     setWebGLStateToDefault(): void;
     unbindTextureSamplers(): void;
+    isSupportMultiViewVRRendering(): boolean;
+    blitToTexture2dFromTexture2dArray(srcTextureUid: WebGLResourceHandle, dstFboUid: WebGLResourceHandle, dstWidth: number, dstHeight: number): void;
+    blitToTexture2dFromTexture2dArrayFake(srcTextureUid: WebGLResourceHandle, dstFboUid: WebGLResourceHandle, dstWidth: number, dstHeight: number): void;
+    blitToTexture2dFromTexture2dArray2(srcTextureUid: WebGLResourceHandle, dstTextureUid: WebGLResourceHandle, dstWidth: number, dstHeight: number): void;
 }

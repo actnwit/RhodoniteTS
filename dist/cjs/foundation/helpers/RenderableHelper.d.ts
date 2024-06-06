@@ -8,6 +8,15 @@ declare function createTexturesForRenderTarget(width: number, height: number, te
     isMSAA?: boolean | undefined;
     sampleCountMSAA?: number | undefined;
 }): FrameBuffer;
+declare function createTextureArrayForRenderTarget(width: number, height: number, arrayLength: number, { level, internalFormat, format, type, createDepthBuffer, isMSAA, sampleCountMSAA, }: {
+    level?: number | undefined;
+    internalFormat?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
+    format?: import("..").EnumIO | undefined;
+    type?: import("../definitions/ComponentType").ComponentTypeEnum | undefined;
+    createDepthBuffer?: boolean | undefined;
+    isMSAA?: boolean | undefined;
+    sampleCountMSAA?: number | undefined;
+}): FrameBuffer;
 declare function createDepthBuffer(width: number, height: number, { level, internalFormat, format, type, }: {
     level?: number | undefined;
     internalFormat?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
@@ -16,6 +25,7 @@ declare function createDepthBuffer(width: number, height: number, { level, inter
 }): FrameBuffer;
 export declare const RenderableHelper: Readonly<{
     createTexturesForRenderTarget: typeof createTexturesForRenderTarget;
+    createTextureArrayForRenderTarget: typeof createTextureArrayForRenderTarget;
     createDepthBuffer: typeof createDepthBuffer;
 }>;
 export {};

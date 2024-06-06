@@ -5,9 +5,10 @@ import { Scalar } from '../foundation/math/Scalar';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLStrategy } from './WebGLStrategy';
+import { WebXRSystem } from '../xr/WebXRSystem';
 declare function setWebGLParameters(material: Material, gl: WebGLRenderingContext): void;
 declare function setVRViewport(renderPass: RenderPass, displayIdx: Index): void;
-declare function getDisplayNumber(isVRMainPass: boolean): 1 | 2;
+declare function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2;
 declare function isVrMainPass(renderPass: RenderPass): boolean;
 declare function getPointSpriteShaderSemanticsInfoArray(): ({
     semantic: import("../foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
@@ -32,7 +33,7 @@ export declare function setupShaderProgram(material: Material, primitive: Primit
 declare const _default: Readonly<{
     setWebGLParameters: typeof setWebGLParameters;
     setVRViewport: typeof setVRViewport;
-    getDisplayNumber: typeof getDisplayNumber;
+    getDisplayCount: typeof getDisplayCount;
     isVrMainPass: typeof isVrMainPass;
     getPointSpriteShaderSemanticsInfoArray: typeof getPointSpriteShaderSemanticsInfoArray;
 }>;

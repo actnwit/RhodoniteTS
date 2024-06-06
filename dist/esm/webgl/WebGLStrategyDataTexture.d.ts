@@ -14,6 +14,7 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __dataUBOUid;
     private __lastShader;
     private __lastMaterial?;
+    private __lastMaterialStateVersion;
     private static __shaderProgram;
     private __lastRenderPassTickCount;
     private __lightComponents?;
@@ -21,6 +22,7 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private static __currentComponentSIDs?;
     _totalSizeOfGPUShaderDataStorageExceptMorphData: number;
     private static __isDebugOperationToDataTextureBufferDone;
+    private static __webxrSystem;
     private __lastMaterialsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
@@ -54,10 +56,10 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     attachVertexDataInner(mesh: Mesh, primitive: Primitive, primitiveIndex: Index, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
     static getInstance(): WebGLStrategyDataTexture;
-    private __setCurrentComponentSIDsForEachRenderPass;
+    private __setCurrentComponentSIDsForEachDisplayIdx;
     private __setCurrentComponentSIDsForEachPrimitive;
     common_$render(primitiveUids: PrimitiveUID[], renderPass: RenderPass, renderPassTickCount: Count): boolean;
     private __renderWithoutBuffers;
-    renderInner(primitiveUid: PrimitiveUID, glw: WebGLContextWrapper, renderPass: RenderPass, isVRMainPass: boolean, displayIdx: Index): boolean;
+    private __renderInner;
     private bindDataTexture;
 }

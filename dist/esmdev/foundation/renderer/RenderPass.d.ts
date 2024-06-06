@@ -47,9 +47,8 @@ export declare class RenderPass extends RnObject {
     isVrRendering: boolean;
     isOutputForVr: boolean;
     _lastOpaqueIndex: number;
-    _lastTransparentIndex: number;
-    _firstTransparentSortKey: number;
-    _lastTransparentSortKey: number;
+    _lastTranslucentIndex: number;
+    _lastBlendIndex: number;
     _lastPrimitiveUids: number[];
     _lastTransformComponentsUpdateCount: number;
     _lastCameraControllerComponentsUpdateCount: number;

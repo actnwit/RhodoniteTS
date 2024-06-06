@@ -18,4 +18,5 @@ export declare const Config: {
     eventTargetDom: HTMLElement | undefined;
     cacheWebGpuRenderBundles: boolean;
     cgApiDebugConsoleOutput: boolean;
+    multiViewForWebVR: boolean;
 };

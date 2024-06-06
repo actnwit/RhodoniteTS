@@ -62,6 +62,9 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __shadowMapSize;
     private __oFrame;
     private __oFrameDepthMoment;
+    private __oFrameBufferMultiView;
+    private __oFrameBufferMultiViewBlit;
+    private __oFrameBufferMultiViewBlitBackBuffer;
     private __oFrameBufferMsaa;
     private __oFrameBufferResolve;
     private __oFrameBufferResolveForReference;
@@ -69,6 +72,8 @@ export declare class ForwardRenderPipeline extends RnObject {
     /** main expressions */
     private __expressions;
     private __oGenerateMipmapsExpression;
+    private __oMultiViewBlitBackBufferExpression;
+    private __oMultiViewBlitExpression;
     private __depthMomentExpressions;
     private __oBloomExpression;
     private __oGammaExpression;
@@ -79,6 +84,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __oSpecularCubeTexture;
     private __oSamplerForBackBuffer;
     constructor();
+    private __destroyResources;
     /**
      * Initializes the pipeline.
      * @param canvasWidth - The width of the canvas.
@@ -90,6 +96,9 @@ export declare class ForwardRenderPipeline extends RnObject {
         shadowMapSize?: number | undefined;
         isSimple?: boolean | undefined;
     }): Promise<Err<unknown, undefined> | Ok<unknown, unknown>>;
+    private __getMainFrameBufferBackBuffer;
+    private __getMainFrameBufferResolve;
+    private __getMainFrameBuffer;
     /**
      * set Expressions for drawing
      * @param expressions - expressions to draw
@@ -159,8 +168,9 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __setupInitialExpression;
     private __createRenderTargets;
     private __setupGenerateMipmapsExpression;
+    private __setupMultiViewBlitBackBufferExpression;
+    private __setupMultiViewBlitExpression;
     private __setupGammaExpression;
-    private __setupSatExpression;
     private __setupDepthMomentFramebuffer;
     private __setIblInner;
     private __setIblInnerForTransparentOnly;

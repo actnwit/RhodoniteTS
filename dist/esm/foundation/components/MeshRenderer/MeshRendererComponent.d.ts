@@ -14,7 +14,7 @@ export declare class MeshRendererComponent extends Component {
     private __specularCubeMapContribution;
     private __rotationOfCubeMap;
     private static __cgApiRenderingStrategy?;
-    static isDepthMaskTrueForTransparencies: boolean;
+    static isDepthMaskTrueForBlendPrimitives: boolean;
     static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
     private __updateCount;
     private static __updateCount;

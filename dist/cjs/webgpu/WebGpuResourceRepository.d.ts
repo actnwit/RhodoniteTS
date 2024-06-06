@@ -233,6 +233,20 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         type: ComponentTypeEnum;
     }): WebGPUResourceHandle;
     /**
+     * create a RenderTargetTextureArray
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTextureArray({ width, height, level, internalFormat, format, type, arrayLength, }: {
+        width: Size;
+        height: Size;
+        level: Index;
+        internalFormat: TextureParameterEnum;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+        arrayLength: Count;
+    }): WebGPUResourceHandle;
+    /**
      * create Renderbuffer
      */
     createRenderBuffer(width: Size, height: Size, internalFormat: TextureParameterEnum, isMSAA: boolean, sampleCountMSAA: Count): WebGPUResourceHandle;
@@ -288,4 +302,5 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     deleteTexture(textureHandle: WebGLResourceHandle): void;
     recreateSystemDepthTexture(): void;
     resizeCanvas(width: Size, height: Size): void;
+    isSupportMultiViewVRRendering(): boolean;
 }
