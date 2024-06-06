@@ -1,14 +1,23 @@
 import { EnumClass, EnumIO, _from, _fromString } from '../misc/EnumIO';
 
+type BlockInfo = {
+  byteSize: number;
+  width: number;
+  height: number;
+};
+
 export interface CompressionTextureTypeEnum extends EnumIO {
   webgpu?: string;
+  blockInfo?: BlockInfo
 }
 
 class CompressionTextureTypeClass extends EnumClass implements CompressionTextureTypeEnum {
   readonly __webgpu?: string;
-  constructor({ index, str, webgpu }: { index: number; str: string; webgpu?: string }) {
+  readonly __blockInfo?: BlockInfo;
+  constructor({ index, str, webgpu, blockInfo }: { index: number; str: string; webgpu?: string, blockInfo?: BlockInfo }) {
     super({ index, str });
     this.__webgpu = webgpu;
+    this.__blockInfo = blockInfo;
   }
 
   get webgpu(): string {
@@ -17,12 +26,24 @@ class CompressionTextureTypeClass extends EnumClass implements CompressionTextur
     }
     return this.__webgpu;
   }
+
+  get blockInfo(): BlockInfo {
+    if (this.__blockInfo === undefined) {
+      throw new Error(`does not support ${this.str}`);
+    }
+    return this.__blockInfo;
+  }
 }
 
 const ASTC_RGBA_4x4: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37808,
   str: 'COMPRESSED_RGBA_ASTC_4x4_KHR',
   webgpu: 'astc-4x4-unorm',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const ASTC_RGBA_5x4: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37809,
@@ -93,6 +114,11 @@ const ASTC_SRGB_4x4: CompressionTextureTypeEnum = new CompressionTextureTypeClas
   index: 37840,
   str: 'COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR',
   webgpu: 'astc-4x4-unorm-srgb',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const ASTC_SRGB_5x4: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37841,
@@ -164,44 +190,89 @@ const S3TC_RGB_DXT1: CompressionTextureTypeEnum = new CompressionTextureTypeClas
   index: 33776,
   str: 'COMPRESSED_RGB_S3TC_DXT1_EXT',
   webgpu: 'bc1-rgba-unorm',
+  blockInfo: {
+    byteSize: 8,
+    width: 4,
+    height: 4,
+  }
 });
 const S3TC_RGBA_DXT1: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 33777,
   str: 'COMPRESSED_RGBA_S3TC_DXT1_EXT',
   webgpu: 'bc1-rgba-unorm',
+  blockInfo: {
+    byteSize: 8,
+    width: 4,
+    height: 4,
+  }
 });
 const S3TC_RGBA_DXT3: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 33778,
   str: 'COMPRESSED_RGBA_S3TC_DXT3_EXT',
   webgpu: 'bc2-rgba-unorm',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const S3TC_RGBA_DXT5: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 33779,
   str: 'COMPRESSED_RGBA_S3TC_DXT5_EXT',
   webgpu: 'bc3-rgba-unorm',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const BPTC_RGBA: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 36492,
   str: 'COMPRESSED_RGBA_BPTC_UNORM_EXT',
   webgpu: 'bc7-rgba-unorm',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const PVRTC_RGBA_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 35842,
   str: 'COMPRESSED_RGBA_PVRTC_4BPPV1_IMG',
+  blockInfo: {
+    byteSize: 8,
+    width: 4,
+    height: 4,
+  }
 });
 const PVRTC_RGB_4BPPV1: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 35840,
   str: 'COMPRESSED_RGB_PVRTC_4BPPV1_IMG',
+  blockInfo: {
+    byteSize: 8,
+    width: 4,
+    height: 4,
+  }
 });
 const ETC2_RGBA8_EAC: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37496,
   str: 'COMPRESSED_RGBA8_ETC2_EAC',
   webgpu: 'etc2-rgba8unorm',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const ETC2_RGB8: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 37492,
   str: 'COMPRESSED_RGB8_ETC2',
   webgpu: 'etc2-rgb8unorm',
+  blockInfo: {
+    byteSize: 16,
+    width: 4,
+    height: 4,
+  }
 });
 const ETC1_RGB: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 36196,
@@ -210,6 +281,11 @@ const ETC1_RGB: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
 const RGBA8_EXT: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   index: 32856,
   str: 'RGBA8_EXT',
+  blockInfo: {
+    byteSize: 4,
+    width: 1,
+    height: 1,
+  }
 });
 
 const typeList = [

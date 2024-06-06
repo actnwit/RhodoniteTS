@@ -2222,13 +2222,13 @@ export class WebGpuResourceRepository
     compressionTextureType: CompressionTextureTypeEnum
   ): WebGLResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const blockInfo = { blockBytes: 16, blockWidth: 4, blockHeight: 4 };
+    const blockInfo = compressionTextureType.blockInfo || { byteSize: 4, width: 1, height: 1 };
 
     const textureDataLevel0 = textureDataArray[0];
     const textureDescriptor: GPUTextureDescriptor = {
       size: [
-        Math.ceil(textureDataLevel0.width / blockInfo.blockWidth) * blockInfo.blockWidth,
-        Math.ceil(textureDataLevel0.height / blockInfo.blockHeight) * blockInfo.blockHeight,
+        Math.ceil(textureDataLevel0.width / blockInfo.width) * blockInfo.width,
+        Math.ceil(textureDataLevel0.height / blockInfo.height) * blockInfo.height,
         1,
       ],
       format: compressionTextureType.webgpu as GPUTextureFormat,
@@ -2243,7 +2243,7 @@ export class WebGpuResourceRepository
       const textureData = textureDataArray[level];
       const mipWidth = textureData.width;
       const mipHeight = textureData.height;
-      const bytesPerRow = Math.ceil(mipWidth / blockInfo.blockWidth) * blockInfo.blockBytes;
+      const bytesPerRow = Math.ceil(mipWidth / blockInfo.width) * blockInfo.byteSize;
       const compressedTextureData = new Uint8Array(textureData.buffer.buffer);
       gpuDevice.queue.writeTexture(
         {
@@ -2256,8 +2256,8 @@ export class WebGpuResourceRepository
           bytesPerRow,
         },
         {
-          width: Math.ceil(mipWidth / blockInfo.blockWidth) * blockInfo.blockWidth,
-          height: Math.ceil(mipHeight / blockInfo.blockHeight) * blockInfo.blockHeight,
+          width: Math.ceil(mipWidth / blockInfo.width) * blockInfo.width,
+          height: Math.ceil(mipHeight / blockInfo.height) * blockInfo.height,
         }
       );
     }
