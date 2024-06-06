@@ -24,7 +24,7 @@ cameraTransform.localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 6, Math.
 // gltf
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/MultiUVTest/glTF/MultiUVTest.gltf',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/MultiUVTest/glTF-Binary/MultiUVTest.glb',
     {
       cameraComponent: cameraComponent,
     }

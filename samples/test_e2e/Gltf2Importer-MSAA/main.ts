@@ -2,7 +2,8 @@ import Rn from '../../../dist/esmdev/index.js';
 
 // ---parameters---------------------------------------------------------------------------------------------
 
-const uriGltf = '../../../assets/gltf/glTF-Sample-Models/2.0/AntiqueCamera/glTF/AntiqueCamera.gltf';
+const uriGltf =
+  '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb';
 const basePathIBL = '../../../assets/ibl/shanghai_bund';
 
 // ---main algorithm-----------------------------------------------------------------------------------------

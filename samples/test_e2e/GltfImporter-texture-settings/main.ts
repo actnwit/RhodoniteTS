@@ -19,7 +19,7 @@ cameraComponent.setFovyAndChangeFocalLength(25.0);
 // gltf
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    './../../../assets/gltf/glTF-Sample-Models/2.0/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
+    './../../../assets/gltf/glTF-Sample-Assets/Models/TextureSettingsTest/glTF-Binary/TextureSettingsTest.glb',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

@@ -47,7 +47,7 @@ cameraComponent.aspect = 1;
 // 3D Model for Test
 const response = (
   await Rn.Gltf2Importer.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BoxAnimated/glTF/BoxAnimated.gltf'
+    '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
   )
 ).unwrapForce();
 const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);

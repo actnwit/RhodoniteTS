@@ -30,7 +30,7 @@ cameraEntity.localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 4, -Math.PI
 
 const response = await Rn.Gltf2Importer.importFromUri(
   // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
-  '../../../assets/gltf/glTF-Sample-Models/2.0/BrainStem/glTF/BrainStem.gltf'
+  '../../../assets/gltf/glTF-Sample-Assets/Models/BrainStem/glTF-Binary/BrainStem.glb'
 );
 
 const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());

@@ -27,7 +27,7 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 1, 5]);
 // gltf
 const expression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
     {
       cameraComponent: cameraComponent,
     }

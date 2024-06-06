@@ -23,7 +23,7 @@ cameraComponent.aspect = 1.0;
 // gltf
 const mainExpression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/BoomBoxWithAxes/glTF/BoomBoxWithAxes.gltf',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [

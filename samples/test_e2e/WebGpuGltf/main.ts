@@ -13,7 +13,7 @@ await Rn.System.init({
 let count = 0;
 
 const response = await Rn.Gltf2Importer.importFromUri(
-  '../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf'
+  '../../../assets/gltf/glTF-Sample-Assets/Models/FlightHelmet/glTF/FlightHelmet.gltf'
 );
 //---------------------------
 const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());

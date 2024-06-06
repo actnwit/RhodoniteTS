@@ -23,7 +23,7 @@ cameraComponent.aspect = 1.0;
 // gltf
 const mainExpression = (
   await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Models/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb',
+    '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Binary/BarramundiFish.glb',
     {
       cameraComponent: cameraComponent,
       defaultMaterialHelperArgumentArray: [
