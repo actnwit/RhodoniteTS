@@ -438,13 +438,18 @@ export class Texture extends AbstractTexture {
       buffer: typedArray,
     } as TextureData;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createCompressedTexture(
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = cgApiResourceRepository.createCompressedTexture(
       [textureData],
       compressionTextureType
     );
 
     this._textureResourceUid = texture;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }
@@ -461,13 +466,18 @@ export class Texture extends AbstractTexture {
     this.__width = originalTextureData.width;
     this.__height = originalTextureData.height;
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createCompressedTexture(
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = cgApiResourceRepository.createCompressedTexture(
       textureDataArray,
       compressionTextureType
     );
 
     this._textureResourceUid = texture;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
   }

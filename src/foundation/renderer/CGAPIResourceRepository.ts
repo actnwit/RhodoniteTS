@@ -1,5 +1,9 @@
 import { ModuleManager } from '../system/ModuleManager';
-import type { VertexHandles, WebGLResourceRepository } from '../../webgl/WebGLResourceRepository';
+import type {
+  TextureData,
+  VertexHandles,
+  WebGLResourceRepository,
+} from '../../webgl/WebGLResourceRepository';
 import type { CGAPIResourceHandle, Count, Index, Size, TypedArray } from '../../types/CommonTypes';
 import type { PixelFormatEnum } from '../definitions/PixelFormat';
 import type { ComponentTypeEnum } from '../definitions/ComponentType';
@@ -7,7 +11,12 @@ import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
 import { SystemState } from '../system/SystemState';
-import { HdriFormatEnum, ProcessApproach, VertexAttributeEnum } from '../definitions';
+import {
+  CompressionTextureTypeEnum,
+  HdriFormatEnum,
+  ProcessApproach,
+  VertexAttributeEnum,
+} from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
@@ -125,6 +134,17 @@ export interface ICGAPIResourceRepository {
       type: ComponentTypeEnum;
     }
   ): CGAPIResourceHandle;
+
+  /**
+   * Create and bind compressed texture object
+   * @param textureDataArray transcoded texture data for each mipmaps(levels)
+   * @param compressionTextureType
+   */
+  createCompressedTexture(
+    textureDataArray: TextureData[],
+    compressionTextureType: CompressionTextureTypeEnum
+  ): CGAPIResourceHandle;
+
   /**
    * create a Vertex Buffer
    * @param accessor

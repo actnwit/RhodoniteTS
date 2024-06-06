@@ -24,12 +24,15 @@ import {
   TranscodedImage,
   UastcImageTranscoder,
 } from '../../types/KTX2Texture';
+import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
+import { SystemState } from '../../foundation/system/SystemState';
 
 const CompressedTextureFormat = {
   ETC1S: 0,
   UASTC4x4: 1,
 } as const;
-type CompressedTextureFormat = typeof CompressedTextureFormat[keyof typeof CompressedTextureFormat];
+type CompressedTextureFormat =
+  (typeof CompressedTextureFormat)[keyof typeof CompressedTextureFormat];
 
 const TranscodeTarget = {
   ETC1_RGB: 'ETC1_RGB',
@@ -53,7 +56,7 @@ const TranscodeTarget = {
   EAC_R11: 'EAC_R11',
   EAC_RG11: 'EAC_RG11',
 } as const;
-type TranscodeTarget = typeof TranscodeTarget[keyof typeof TranscodeTarget];
+type TranscodeTarget = (typeof TranscodeTarget)[keyof typeof TranscodeTarget];
 
 interface KTX2GlobalDataBasisLZImageDesc {
   imageFlags: number;
@@ -141,7 +144,7 @@ export class KTX2TextureLoader {
     });
   }
 
-  private __getDeviceDependentParameters(hasAlpha: boolean) {
+  private __getDeviceDependentParametersWebGL(hasAlpha: boolean) {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const glw = webGLResourceRepository.currentWebGLContextWrapper as WebGLContextWrapper;
 
@@ -194,6 +197,42 @@ export class KTX2TextureLoader {
 
     return { transcodeTargetStr, compressionTextureType };
   }
+  private __getDeviceDependentParametersWebGPU(hasAlpha: boolean) {
+    const webGpuResourceRepository = CGAPIResourceRepository.getWebGpuResourceRepository();
+    const adapter = webGpuResourceRepository.getWebGpuDeviceWrapper().gpuAdapter;
+
+    const astc = adapter.features.has('texture-compression-astc');
+    const s3tc = adapter.features.has('texture-compression-bc');
+    const etc2 = adapter.features.has('texture-compression-etc2');
+
+    let transcodeTargetStr: TranscodeTarget;
+    let compressionTextureType: CompressionTextureTypeEnum;
+    if (astc) {
+      transcodeTargetStr = TranscodeTarget.ASTC_4x4_RGBA;
+      compressionTextureType = CompressionTextureType.ASTC_RGBA_4x4;
+    } else if (s3tc) {
+      if (hasAlpha) {
+        transcodeTargetStr = TranscodeTarget.BC3_RGBA;
+        compressionTextureType = CompressionTextureType.S3TC_RGBA_DXT5;
+      } else {
+        transcodeTargetStr = TranscodeTarget.BC1_RGB;
+        compressionTextureType = CompressionTextureType.S3TC_RGB_DXT1;
+      }
+    } else if (etc2) {
+      if (hasAlpha) {
+        transcodeTargetStr = TranscodeTarget.ETC2_RGBA;
+        compressionTextureType = CompressionTextureType.ETC2_RGBA8_EAC;
+      } else {
+        transcodeTargetStr = TranscodeTarget.ETC1_RGB;
+        compressionTextureType = CompressionTextureType.ETC2_RGB8;
+      }
+    } else {
+      transcodeTargetStr = TranscodeTarget.RGBA32;
+      compressionTextureType = CompressionTextureType.RGBA8_EXT;
+    }
+
+    return { transcodeTargetStr, compressionTextureType };
+  }
 
   private __parse(uint8Array: Uint8Array): KTX2Container {
     // The parser can detect an invalid identifier.
@@ -227,7 +266,9 @@ export class KTX2TextureLoader {
         : transcoderModule.TextureFormat.ETC1S;
 
     const { transcodeTargetStr, compressionTextureType } =
-      this.__getDeviceDependentParameters(hasAlpha);
+      SystemState.currentProcessApproach === ProcessApproach.WebGPU
+        ? this.__getDeviceDependentParametersWebGPU(hasAlpha)
+        : this.__getDeviceDependentParametersWebGL(hasAlpha);
 
     const transcodeTarget = transcoderModule.TranscodeTarget[transcodeTargetStr];
 

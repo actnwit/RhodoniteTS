@@ -29,7 +29,7 @@ import {
   WebGLResourceHandle,
   WebGPUResourceHandle,
 } from '../types/CommonTypes';
-import { VertexHandles } from '../webgl/WebGLResourceRepository';
+import { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { Config } from '../foundation/core/Config';
@@ -54,7 +54,11 @@ import { CameraComponent } from '../foundation/components/Camera/CameraComponent
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { SystemState } from '../foundation/system/SystemState';
 import { BasisFile } from '../types/BasisTexture';
-import { BasisCompressionType, BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
+import {
+  BasisCompressionType,
+  BasisCompressionTypeEnum,
+} from '../foundation/definitions/BasisCompressionType';
+import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -138,6 +142,10 @@ export class WebGpuResourceRepository
   addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper) {
     this.__webGpuDeviceWrapper = webGpuDeviceWrapper;
     this.__commandEncoder = this.__webGpuDeviceWrapper.gpuDevice.createCommandEncoder();
+  }
+
+  getWebGpuDeviceWrapper(): WebGpuDeviceWrapper {
+    return this.__webGpuDeviceWrapper!;
   }
 
   static getInstance(): WebGpuResourceRepository {
@@ -2146,10 +2154,7 @@ export class WebGpuResourceRepository
       size: [width, height, 1],
       format: compressionType!,
       mipLevelCount: mipmapDepth,
-      usage:
-        GPUTextureUsage.TEXTURE_BINDING |
-        GPUTextureUsage.COPY_DST |
-        GPUTextureUsage.RENDER_ATTACHMENT,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
     };
 
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
@@ -2158,11 +2163,14 @@ export class WebGpuResourceRepository
       const width = basisFile.getImageWidth(0, i);
       const height = basisFile.getImageHeight(0, i);
       const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, i);
-      gpuDevice.queue.copyExternalImageToTexture({ source: textureSource}, { texture: gpuTexture, mipLevel: i }, [
-        width,
-        height,
-        1,
-      ]);
+
+      const imageData = new ImageData(new Uint8ClampedArray(textureSource), width, height);
+
+      gpuDevice.queue.copyExternalImageToTexture(
+        { source: imageData },
+        { texture: gpuTexture, mipLevel: i },
+        [width, height, 1]
+      );
     }
 
     const textureHandle = this.__registerResource(gpuTexture);
@@ -2202,6 +2210,60 @@ export class WebGpuResourceRepository
       console.error('failed to transcode the image.');
     }
     return textureSource;
+  }
+
+  /**
+   * Create and bind compressed texture object
+   * @param textureDataArray transcoded texture data for each mipmaps(levels)
+   * @param compressionTextureType
+   */
+  createCompressedTexture(
+    textureDataArray: TextureData[],
+    compressionTextureType: CompressionTextureTypeEnum
+  ): WebGLResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const blockInfo = { blockBytes: 16, blockWidth: 4, blockHeight: 4 };
+
+    const textureDataLevel0 = textureDataArray[0];
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [
+        Math.ceil(textureDataLevel0.width / blockInfo.blockWidth) * blockInfo.blockWidth,
+        Math.ceil(textureDataLevel0.height / blockInfo.blockHeight) * blockInfo.blockHeight,
+        1,
+      ],
+      format: compressionTextureType.webgpu as GPUTextureFormat,
+      mipLevelCount: textureDataArray.length,
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    };
+
+    const texture = gpuDevice.createTexture(textureDescriptor);
+
+
+    for (let level = 0; level < textureDataArray.length; level++) {
+      const textureData = textureDataArray[level];
+      const mipWidth = textureData.width;
+      const mipHeight = textureData.height;
+      const bytesPerRow = Math.ceil(mipWidth / blockInfo.blockWidth) * blockInfo.blockBytes;
+      const compressedTextureData = new Uint8Array(textureData.buffer.buffer);
+      gpuDevice.queue.writeTexture(
+        {
+          texture,
+          mipLevel: level
+        },
+        compressedTextureData,
+        {
+          offset: 0,
+          bytesPerRow,
+        },
+        {
+          width: Math.ceil(mipWidth / blockInfo.blockWidth) * blockInfo.blockWidth,
+          height: Math.ceil(mipHeight / blockInfo.blockHeight) * blockInfo.blockHeight,
+        }
+      );
+    }
+
+    const textureHandle = this.__registerResource(texture);
+    return textureHandle;
   }
 
   private __createTextureInner(
