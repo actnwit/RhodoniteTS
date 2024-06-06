@@ -47,7 +47,6 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = -1;
   private __lastMaterial?: Material;
-  private __lastMaterialStateVersion = -1;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -476,7 +475,7 @@ bool get_isBillboard(float instanceId) {
         shaderProgramUid
       )! as WebGLProgram;
 
-      let firstTime = false;
+      let firstTime = true;
 
       if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
         if (isSkipDrawing(material, primitive)) {
@@ -494,11 +493,6 @@ bool get_isBillboard(float instanceId) {
       if (this.__lastMaterial !== material) {
         firstTime = true;
         this.__lastMaterial = material;
-      }
-
-      if (this.__lastMaterialStateVersion !== material.stateVersion) {
-        firstTime = true;
-        this.__lastMaterialStateVersion = material.stateVersion;
       }
 
       for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
