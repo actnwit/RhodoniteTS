@@ -104,8 +104,8 @@ export class Texture extends AbstractTexture {
       return;
     }
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createCompressedTextureFromBasis(basisFile, {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = cgApiResourceRepository.createCompressedTextureFromBasis(basisFile, {
       border: 0,
       format,
       type,

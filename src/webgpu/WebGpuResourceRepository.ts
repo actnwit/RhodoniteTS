@@ -53,6 +53,8 @@ import { Vector2 } from '../foundation/math/Vector2';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { SystemState } from '../foundation/system/SystemState';
+import { BasisFile } from '../types/BasisTexture';
+import { BasisCompressionType, BasisCompressionTypeEnum } from '../foundation/definitions/BasisCompressionType';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -2096,6 +2098,110 @@ export class WebGpuResourceRepository
     );
 
     return textureHandle;
+  }
+
+  /**
+   * create CompressedTextureFromBasis
+   * @param basisFile
+   * @param param1
+   * @returns
+   */
+  createCompressedTextureFromBasis(
+    basisFile: BasisFile,
+    {
+      border,
+      format,
+      type,
+    }: {
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+    }
+  ): WebGPUResourceHandle {
+    let basisCompressionType: BasisCompressionTypeEnum;
+    let compressionType: GPUTextureFormat | undefined;
+    const mipmapDepth = basisFile.getNumLevels(0);
+    const width = basisFile.getImageWidth(0, 0);
+    const height = basisFile.getImageHeight(0, 0);
+
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const gpuAdapter = this.__webGpuDeviceWrapper!.gpuAdapter;
+
+    const s3tc = gpuAdapter.features.has('texture-compression-bc');
+    if (s3tc) {
+      basisCompressionType = BasisCompressionType.BC3;
+      compressionType = 'bc3-rgba-unorm'; // s3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    }
+    const etc2 = gpuAdapter.features.has('texture-compression-etc2');
+    if (etc2) {
+      basisCompressionType = BasisCompressionType.ETC2;
+      compressionType = 'etc2-rgba8unorm'; // etc2.COMPRESSED_RGBA8_ETC2_EAC;
+    }
+    const astc = gpuAdapter.features.has('texture-compression-astc');
+    if (astc) {
+      basisCompressionType = BasisCompressionType.ASTC;
+      compressionType = 'astc-4x4-unorm'; // astc.COMPRESSED_RGBA_ASTC_4x4_KHR;
+    }
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, 1],
+      format: compressionType!,
+      mipLevelCount: mipmapDepth,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    for (let i = 0; i < mipmapDepth; i++) {
+      const width = basisFile.getImageWidth(0, i);
+      const height = basisFile.getImageHeight(0, i);
+      const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, i);
+      gpuDevice.queue.copyExternalImageToTexture({ source: textureSource}, { texture: gpuTexture, mipLevel: i }, [
+        width,
+        height,
+        1,
+      ]);
+    }
+
+    const textureHandle = this.__registerResource(gpuTexture);
+    return textureHandle;
+  }
+
+  /**
+   * decode the BasisImage
+   * @param basisFile
+   * @param basisCompressionType
+   * @param imageIndex
+   * @param levelIndex
+   * @returns
+   */
+  private decodeBasisImage(
+    basisFile: BasisFile,
+    basisCompressionType: BasisCompressionTypeEnum,
+    imageIndex: Index,
+    levelIndex: Index
+  ) {
+    const extractSize = basisFile.getImageTranscodedSizeInBytes(
+      imageIndex,
+      levelIndex,
+      basisCompressionType!.index
+    );
+    const textureSource = new Uint8Array(extractSize);
+    if (
+      !basisFile.transcodeImage(
+        textureSource,
+        imageIndex,
+        levelIndex,
+        basisCompressionType!.index,
+        0,
+        0
+      )
+    ) {
+      console.error('failed to transcode the image.');
+    }
+    return textureSource;
   }
 
   private __createTextureInner(

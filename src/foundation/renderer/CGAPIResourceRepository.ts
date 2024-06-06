@@ -15,6 +15,7 @@ import { RenderPass } from './RenderPass';
 import { IRenderable } from '../textures/IRenderable';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { WebGpuResourceRepository } from '../../webgpu';
+import { BasisFile } from '../../types/BasisTexture';
 
 export type DirectTextureData =
   | TypedArray
@@ -106,6 +107,24 @@ export interface ICGAPIResourceRepository {
     }
   ): CGAPIResourceHandle;
 
+  /**
+   * create CompressedTextureFromBasis
+   * @param basisFile
+   * @param param1
+   * @returns
+   */
+  createCompressedTextureFromBasis(
+    basisFile: BasisFile,
+    {
+      border,
+      format,
+      type,
+    }: {
+      border: Size;
+      format: PixelFormatEnum;
+      type: ComponentTypeEnum;
+    }
+  ): CGAPIResourceHandle;
   /**
    * create a Vertex Buffer
    * @param accessor
