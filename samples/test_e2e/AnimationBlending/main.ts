@@ -1,10 +1,12 @@
 import Rn from '../../../dist/esmdev/index.js';
+import { getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
+const processApproach = getProcessApproach(Rn);
 await Rn.System.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 

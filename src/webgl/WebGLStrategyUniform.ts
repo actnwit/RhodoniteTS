@@ -475,7 +475,7 @@ bool get_isBillboard(float instanceId) {
         shaderProgramUid
       )! as WebGLProgram;
 
-      let firstTime = renderPassTickCount !== this.__lastRenderPassTickCount;
+      let firstTime = true;
 
       if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
         if (isSkipDrawing(material, primitive)) {

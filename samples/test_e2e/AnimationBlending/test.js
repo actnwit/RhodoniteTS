@@ -1,7 +1,6 @@
-const testCheckWindowRendered =
-  require('../common/testFunc').testCheckWindowRendered;
-const SetURL = 'http://localhost:8082/samples/test_e2e/AnimationBlending';
+const doTests =
+  require('../common/testFunc').doTests;
 
-test('regression test Animation Blending', async () => {
-  await testCheckWindowRendered(jest, browser, SetURL, expect, 0.01);
-});
+const modes = ['uniform', 'datatexture', 'webgpu'];
+
+doTests('AnimationBlending', modes, 0.01);
