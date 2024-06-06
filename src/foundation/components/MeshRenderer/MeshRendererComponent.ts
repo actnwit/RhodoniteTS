@@ -228,22 +228,18 @@ export class MeshRendererComponent extends Component {
 
     let _lastOpaqueIndex = primitives.length - 1;
     let _lastTransparentIndex = -1;
-    let _firstTransparentSortKey = -1;
-    let _lastTransparentSortKey = -1;
 
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
       const translucency = isTranslucent(primitive);
       if (translucency) {
         _lastOpaqueIndex = i - 1;
-        _firstTransparentSortKey = primitive._sortkey;
         break;
       }
     }
 
     if (primitives.length > 0) {
       _lastTransparentIndex = primitives.length - 1;
-      _lastTransparentSortKey = primitives[primitives.length - 1]._sortkey;
     }
 
     let resultChanged = false;
@@ -253,14 +249,6 @@ export class MeshRendererComponent extends Component {
     }
     if (_lastTransparentIndex != renderPass._lastTransparentIndex) {
       renderPass._lastTransparentIndex = _lastTransparentIndex;
-      resultChanged ||= true;
-    }
-    if (_firstTransparentSortKey != renderPass._firstTransparentSortKey) {
-      renderPass._firstTransparentSortKey = _firstTransparentSortKey;
-      resultChanged ||= true;
-    }
-    if (_lastTransparentSortKey != renderPass._lastTransparentSortKey) {
-      renderPass._lastTransparentSortKey = _lastTransparentSortKey;
       resultChanged ||= true;
     }
 
