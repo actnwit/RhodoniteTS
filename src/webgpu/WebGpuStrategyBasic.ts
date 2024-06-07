@@ -328,7 +328,7 @@ ${indexStr}
   }
 
   private _setupShaderProgram(material: Material, primitive: Primitive) {
-    if (material == null || material.isEmptyMaterial()) {
+    if (material == null) {
       return;
     }
 

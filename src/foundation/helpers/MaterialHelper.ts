@@ -106,13 +106,6 @@ function recreateMaterial(
   return material;
 }
 
-function createEmptyMaterial() {
-  const materialName = 'Empty';
-  const material = createMaterial(materialName, undefined, Config.maxMaterialInstanceForEachType);
-  material.tryToSetUniqueName('EmptyMaterial', true);
-  return material;
-}
-
 function createPbrUberMaterial({
   additionalName = '',
   isMorphing = true,
@@ -1135,7 +1128,6 @@ export const MaterialHelper = Object.freeze({
   recreateMaterial,
   recreateCustomMaterial,
   recreateShaderityMaterial,
-  createEmptyMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
   createFlatMaterial,

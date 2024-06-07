@@ -879,7 +879,7 @@ export class ModelConverter {
 
       //exist outline
       if (renderPassOutline != null) {
-        let outlineMaterial: Material;
+        let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
           outlineMaterial = MaterialHelper.createMToonMaterial({
             additionalName,
@@ -895,8 +895,6 @@ export class ModelConverter {
             maxInstancesNumber,
             makeOutputSrgb,
           });
-        } else {
-          outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
         materialJson.extras!.outlineMaterial = outlineMaterial;
@@ -920,8 +918,6 @@ export class ModelConverter {
       ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
 
       return material;
-    } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray![0].isOutline) {
-      return MaterialHelper.createEmptyMaterial();
     }
 
     // use another material
@@ -1045,7 +1041,7 @@ export class ModelConverter {
 
       //exist outline
       if (renderPassOutline != null) {
-        let outlineMaterial: Material;
+        let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
           outlineMaterial = MaterialHelper.createMToonMaterial({
             additionalName,
@@ -1061,8 +1057,6 @@ export class ModelConverter {
             maxInstancesNumber,
             makeOutputSrgb,
           });
-        } else {
-          outlineMaterial = MaterialHelper.createEmptyMaterial();
         }
 
         materialJson.extras!.outlineMaterial = outlineMaterial;
@@ -1086,8 +1080,6 @@ export class ModelConverter {
       ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
 
       return material;
-    } else if (rnLoaderOptions.defaultMaterialHelperArgumentArray![0].isOutline) {
-      return MaterialHelper.createEmptyMaterial();
     }
 
     // use another material
@@ -1394,9 +1386,7 @@ export class ModelConverter {
       }
     }
 
-    if (material.isEmptyMaterial() === false) {
-      ModelConverter.setDefaultTextures(material, gltfModel);
-    }
+    ModelConverter.setDefaultTextures(material, gltfModel);
 
     return material;
   }
@@ -2735,8 +2725,7 @@ function setup_KHR_materials_emissive_strength(
   material: Material,
   gltfModel: RnM2
 ) {
-  const KHR_materials_emissive_strength =
-    materialJson?.extensions?.KHR_materials_emissive_strength;
+  const KHR_materials_emissive_strength = materialJson?.extensions?.KHR_materials_emissive_strength;
   if (Is.exist(KHR_materials_emissive_strength)) {
     const emissiveStrength = Is.exist(KHR_materials_emissive_strength.emissiveStrength)
       ? KHR_materials_emissive_strength.emissiveStrength

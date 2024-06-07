@@ -55,10 +55,11 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
 
 export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
-  private __material: Material = MaterialHelper.createEmptyMaterial();
+  private static readonly __defaultMaterial = MaterialHelper.createClassicUberMaterial();
+  private __material: Material = Primitive.__defaultMaterial;
   private __materialVariants: Map<string, Material> = new Map();
   private __currentVariantName = '';
-  public _prevMaterial: Material = MaterialHelper.createEmptyMaterial();
+  public _prevMaterial: Material = Primitive.__defaultMaterial;
   private __attributes: Attributes = new Map();
   private __oIndices: IOption<Accessor> = new None();
   private static __primitiveCount: Count = 0;
