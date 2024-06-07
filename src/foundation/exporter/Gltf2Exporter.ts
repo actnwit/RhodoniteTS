@@ -63,6 +63,7 @@ import { MathUtil } from '../math/MathUtil';
 import { VERSION } from '../../version';
 import { Texture } from '../textures/Texture';
 import { Sampler } from '../textures/Sampler';
+import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
 
 export const GLTF2_EXPORT_GLTF = 'glTF';
 export const GLTF2_EXPORT_GLB = 'glTF-Binary';
@@ -1574,31 +1575,6 @@ interface Gltf2BufferViewDesc {
   componentType: ComponentTypeEnum;
   compositionType: CompositionTypeEnum;
   uint8Array: Uint8Array;
-}
-
-export function createAndAddGltf2BufferView(
-  json: Gltf2Ex,
-  bufferIdx: Index,
-  uint8Array: Uint8Array
-): Gltf2BufferViewEx {
-  const bufferViewByteLengthAccumulated =
-    json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx];
-  const gltfBufferViewEx: Gltf2BufferViewEx = {
-    buffer: bufferIdx,
-    byteLength: uint8Array.byteLength,
-    byteOffset: bufferViewByteLengthAccumulated,
-    extras: {
-      uint8Array,
-    },
-  };
-
-  const nextBufferViewBytesLengthAccumulated =
-    DataUtil.addPaddingBytes(gltfBufferViewEx.byteLength, 4) + bufferViewByteLengthAccumulated;
-
-  json.bufferViews.push(gltfBufferViewEx);
-  json.extras.bufferViewByteLengthAccumulatedArray[bufferIdx] =
-    nextBufferViewBytesLengthAccumulated;
-  return gltfBufferViewEx;
 }
 
 function createGltf2BufferViewForAnimation({

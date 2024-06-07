@@ -40,7 +40,7 @@ import { Blend } from '../../definitions/Blend';
 import { dummyBlackTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach, ProcessApproachClass } from '../../definitions';
-import { WellKnownComponentTIDs } from '../../components';
+import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 
 export class MToonMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
