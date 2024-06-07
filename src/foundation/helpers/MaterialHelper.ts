@@ -72,8 +72,7 @@ import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import { Scalar } from '../math/Scalar';
 import { TextureParameter } from '../definitions';
-import { Vector2 } from '../math';
-import { FrameBuffer } from '../renderer/FrameBuffer';
+import { Vector2 } from '../math/Vector2';
 
 function createMaterial(
   materialName: string,
@@ -93,14 +92,7 @@ function createMaterial(
     group++;
   } while (isFull);
 
-  const isRegisteredMaterialType = MaterialRepository.isRegisteredMaterialType(materialName);
-
-  if (!isRegisteredMaterialType) {
-    MaterialRepository.registerMaterial(materialName, materialNode, maxInstancesNumber!);
-  }
-
-  const material = MaterialRepository.createMaterial(materialName, materialNode);
-  return material;
+  throw new Error('Failed to create material');
 }
 
 function recreateMaterial(
