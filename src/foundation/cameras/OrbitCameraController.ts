@@ -295,6 +295,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   set rotX(value: number) {
     this.__rot_x = value;
+    this.__updated = false;
+    this._updateCount();
   }
 
   get rotX() {
@@ -303,6 +305,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   set rotY(value: number) {
     this.__rot_y = value;
+    this.__updated = false;
+    this._updateCount();
   }
 
   get rotY() {
@@ -894,6 +898,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
   set scaleOfZNearAndZFar(value: number) {
     this.__scaleOfZNearAndZFar = value;
+    this.__updated = false;
+    this._updateCount();
   }
 
   get scaleOfZNearAndZFar() {
