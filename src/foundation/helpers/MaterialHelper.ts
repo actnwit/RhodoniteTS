@@ -76,7 +76,7 @@ import { Vector2 } from '../math/Vector2';
 
 function createMaterial(
   materialName: string,
-  materialNode?: AbstractMaterialContent,
+  materialNode: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
   let group = 0;
@@ -97,10 +97,10 @@ function createMaterial(
 
 function recreateMaterial(
   materialName: string,
-  materialNode?: AbstractMaterialContent,
+  materialNode: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
-  MaterialRepository.forceRegisterMaterial(materialName, materialNode!, maxInstancesNumber!);
+  MaterialRepository.forceRegisterMaterial(materialName, materialNode, maxInstancesNumber!);
 
   const material = MaterialRepository.createMaterial(materialName, materialNode);
   return material;
