@@ -270,7 +270,8 @@ export class MeshRendererComponent extends Component {
     if (primitiveUids.length !== renderPass._lastPrimitiveUids.length) {
       resultChanged ||= true;
     } else {
-      for (let i = _lastOpaqueIndex + 1; i < primitiveUids.length; i++) {
+      // Check if the order of the blend primitives has changed
+      for (let i = _lastTranslucentIndex + 1; i < primitiveUids.length; i++) {
         if (primitiveUids[i] !== renderPass._lastPrimitiveUids[i]) {
           resultChanged ||= true;
           break;
