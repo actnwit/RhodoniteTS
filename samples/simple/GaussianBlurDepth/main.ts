@@ -16,8 +16,8 @@ await Rn.System.init({
 });
 
 // prepare entities
-const entitySphere = createEntitySphereWithEmptyMaterial();
-const entityBoard = createEntityBoardWithEmptyMaterial();
+const entitySphere = createEntitySphere();
+const entityBoard = createEntityBoard();
 const entitiesRenderTarget = [entitySphere, entityBoard];
 
 // prepare cameras
@@ -79,13 +79,12 @@ function createRenderPassDepthEncode(
   return renderPass;
 }
 
-function createEntitySphereWithEmptyMaterial() {
+function createEntitySphere() {
   const primitive = new Rn.Sphere();
   primitive.generate({
     radius: 10,
     widthSegments: 20,
     heightSegments: 20,
-    material: Rn.MaterialHelper.createEmptyMaterial(),
   });
 
   const entity = Rn.EntityHelper.createMeshEntity();
@@ -102,7 +101,7 @@ function createEntitySphereWithEmptyMaterial() {
   return entity;
 }
 
-function createEntityBoardWithEmptyMaterial() {
+function createEntityBoard() {
   const primitive = new Rn.Plane();
   primitive.generate({
     width: 20,
@@ -110,7 +109,6 @@ function createEntityBoardWithEmptyMaterial() {
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: Rn.MaterialHelper.createEmptyMaterial(),
   });
 
   const entity = Rn.EntityHelper.createMeshEntity();

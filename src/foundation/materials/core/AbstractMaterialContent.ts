@@ -72,7 +72,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   protected __shaderFunctionName: string;
   public isSingleOperation = false;
 
-  protected __webglResourceRepository: WebGLResourceRepository;
   protected static __gl?: WebGLRenderingContext;
   protected __definitions = '';
   protected static __tmp_vector4 = MutableVector4.zero();
@@ -109,7 +108,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
 
-    this.__webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
   }
 

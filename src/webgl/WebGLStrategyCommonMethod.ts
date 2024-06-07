@@ -227,7 +227,7 @@ export function setupShaderProgram(
   primitive: Primitive,
   webglStrategy: WebGLStrategy
 ): void {
-  if (material == null || material.isEmptyMaterial()) {
+  if (material == null) {
     return;
   }
 

@@ -29,7 +29,7 @@ await Rn.System.init({
 });
 
 // prepare entities
-const entitySmallBoard = createEntityBoardWithEmptyMaterial();
+const entitySmallBoard = createEntityBoard();
 setTransformParameterToEntity(
   entitySmallBoard,
   Rn.Vector3.fromCopyArray([0.2, 0.2, 0.2]),
@@ -37,7 +37,7 @@ setTransformParameterToEntity(
   Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0])
 );
 
-const entityLargeBoard = createEntityBoardWithEmptyMaterial();
+const entityLargeBoard = createEntityBoard();
 setTransformParameterToEntity(
   entityLargeBoard,
   Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]),
@@ -164,7 +164,7 @@ function createRenderPassMain(
   return renderPass;
 }
 
-function createEntityBoardWithEmptyMaterial() {
+function createEntityBoard() {
   const primitive = new Rn.Plane();
   primitive.generate({
     width: 1,
@@ -172,7 +172,6 @@ function createEntityBoardWithEmptyMaterial() {
     uSpan: 1,
     vSpan: 1,
     isUVRepeat: false,
-    material: Rn.MaterialHelper.createEmptyMaterial(),
   });
 
   const entity = Rn.EntityHelper.createMeshEntity();
