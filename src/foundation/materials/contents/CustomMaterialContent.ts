@@ -17,6 +17,7 @@ import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -202,28 +203,29 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       this.setSkinning(shaderProgram, args.setUniform, skeletalComponent);
     }
 
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      this.__webglResourceRepository.setUniform1iForTexture(
+      webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         [5, args.diffuseCube]
       );
     } else {
-      this.__webglResourceRepository.setUniform1iForTexture(
+      webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
         [5, dummyBlackCubeTexture]
       );
     }
     if (args.specularCube && args.specularCube.isTextureReady) {
-      this.__webglResourceRepository.setUniform1iForTexture(
+      webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         [6, args.specularCube]
       );
     } else {
-      this.__webglResourceRepository.setUniform1iForTexture(
+      webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
         [6, dummyBlackCubeTexture]
@@ -235,7 +237,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       if (firstTime) {
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
           CustomMaterialContent.__setupHdriParameters(args);
-        this.__webglResourceRepository.setUniformValue(
+        webglResourceRepository.setUniformValue(
           shaderProgram,
           ShaderSemantics.IBLParameter.str,
           firstTime,
@@ -246,7 +248,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
             w: meshRenderComponent!.rotationOfCubeMap,
           }
         );
-        this.__webglResourceRepository.setUniformValue(
+        webglResourceRepository.setUniformValue(
           shaderProgram,
           ShaderSemantics.HDRIFormat.str,
           firstTime,

@@ -55,11 +55,11 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
 
 export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
-  private static readonly __defaultMaterial = MaterialHelper.createClassicUberMaterial();
-  private __material: Material = Primitive.__defaultMaterial;
+  private static __defaultMaterial?: Material;
+  private __material: Material;
   private __materialVariants: Map<string, Material> = new Map();
   private __currentVariantName = '';
-  public _prevMaterial: Material = Primitive.__defaultMaterial;
+  public _prevMaterial: Material;
   private __attributes: Attributes = new Map();
   private __oIndices: IOption<Accessor> = new None();
   private static __primitiveCount: Count = 0;
@@ -84,6 +84,16 @@ export class Primitive extends RnObject {
 
   constructor() {
     super();
+
+    if (Primitive.__defaultMaterial == null) {
+      Primitive.__defaultMaterial = MaterialHelper.createClassicUberMaterial({
+        isSkinning: true,
+        isLighting: true,
+      });
+    }
+
+    this.__material = Primitive.__defaultMaterial;
+    this._prevMaterial = Primitive.__defaultMaterial;
   }
 
   static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
