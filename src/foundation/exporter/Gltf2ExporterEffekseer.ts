@@ -6,12 +6,11 @@ import {
   RnM2ExtensionsEffekseerTimeline,
   RnM2ExtensionsEffekseerTimelineItem,
 } from '../../types/RnM2';
-import { defaultAnimationTrackName } from '../components/Animation/AnimationConstants';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { IEntity } from '../core';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
-import { createAndAddGltf2BufferView } from './Gltf2Exporter';
+import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
 
 export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
   let effekseerExists = false;

@@ -13,8 +13,6 @@ import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
-import { MathUtil } from '../foundation/math/MathUtil';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 import { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { RenderTargetTexture } from '../foundation/textures/RenderTargetTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
@@ -47,7 +45,6 @@ import { RnWebGLProgram, RnWebGLTexture } from './WebGLExtendedTypes';
 import { Is } from '../foundation/misc/Is';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 import { Material } from '../foundation/materials/core/Material';
-import { System } from '../foundation/system/System';
 import getRenderingStrategy from './getRenderingStrategy';
 import { Config } from '../foundation/core/Config';
 import { GL_TEXTURE_2D } from '../types/WebGLConstants';
@@ -2716,7 +2713,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
       return false;
     }
 
-    const processApproach = System.processApproach;
+    const processApproach = SystemState.currentProcessApproach;
     const renderingStrategy = getRenderingStrategy(processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
@@ -2749,7 +2746,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     updatedVertexSourceCode: string, // The new vertex shader source
     updatedFragmentSourceCode: string // The new fragment shader source
   ) {
-    const processApproach = System.processApproach;
+    const processApproach = SystemState.currentProcessApproach;
     const renderingStrategy = getRenderingStrategy(processApproach);
 
     const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
