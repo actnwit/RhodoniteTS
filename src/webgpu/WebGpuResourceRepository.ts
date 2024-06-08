@@ -914,7 +914,9 @@ export class WebGpuResourceRepository
       specularCubeMap = meshRendererComponent.specularCubeMap;
     }
 
-    const renderPipelineId = `${primitive.primitiveUid} ${material.materialUID} ${renderPass.renderPassUID} ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}, ${isOpaque} `;
+    const renderPipelineId = `${primitive._getFingerPrint()} ${material.materialUID} ${
+      renderPass.renderPassUID
+    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}, ${isOpaque} `;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
@@ -2238,7 +2240,6 @@ export class WebGpuResourceRepository
 
     const texture = gpuDevice.createTexture(textureDescriptor);
 
-
     for (let level = 0; level < textureDataArray.length; level++) {
       const textureData = textureDataArray[level];
       const mipWidth = textureData.width;
@@ -2248,7 +2249,7 @@ export class WebGpuResourceRepository
       gpuDevice.queue.writeTexture(
         {
           texture,
-          mipLevel: level
+          mipLevel: level,
         },
         compressedTextureData,
         {

@@ -101,7 +101,9 @@ export class Primitive extends RnObject {
   calcFingerPrint() {
     let str = '';
     str += this.__mode.index;
-    str += this.getIndexBitSize();
+    if (this.__oIndices.has()) {
+      str += this.getIndexBitSize();
+    }
     str += this.targets.length;
     str += Primitive.getPrimitiveIdxHasMorph(this.__primitiveUid);
     for (const [semantic, accessor] of this.__attributes) {
@@ -109,7 +111,12 @@ export class Primitive extends RnObject {
       str += accessor.componentType.webgpu + accessor.compositionType.webgpu;
       str += accessor.actualByteStride;
     }
-    return str;
+
+    this.__fingerPrint = str;
+  }
+
+  _getFingerPrint() {
+    return this.__fingerPrint;
   }
 
   static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
