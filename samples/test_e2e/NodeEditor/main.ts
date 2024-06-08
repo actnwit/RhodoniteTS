@@ -61,6 +61,6 @@ pElem.setAttribute('id', 'rendered');
 pElem.innerText = 'Rendered.';
 document.body.appendChild(pElem);
 
-const rnMaterial = Rn.MaterialHelper.recreateCustomMaterial(vertexRet.shader, pixelRet.shader);
-console.log('material');
-console.log(rnMaterial);
+// const rnMaterial = Rn.MaterialHelper.reuseOrRecreateCustomMaterial(vertexRet.shader, pixelRet.shader);
+// console.log('material');
+// console.log(rnMaterial);

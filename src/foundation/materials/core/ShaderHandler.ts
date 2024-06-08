@@ -19,7 +19,6 @@ import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
 
 export class ShaderHandler {
-  private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 
   /**
@@ -39,31 +38,25 @@ export class ShaderHandler {
     attributeNames: AttributeNames,
     attributeSemantics: VertexAttributeEnum[],
     onError?: (message: string) => void
-  ): CGAPIResourceHandle {
+  ): [CGAPIResourceHandle, boolean] {
     // Cache
     const wholeShaderText = vertexShader + pixelShader;
     let shaderProgramUid = this.__shaderStringMap.get(wholeShaderText);
     if (shaderProgramUid) {
-      return shaderProgramUid;
+      return [shaderProgramUid, false];
     }
-    const hash = DataUtil.toCRC32(wholeShaderText);
-    shaderProgramUid = this.__shaderHashMap.get(hash);
-    if (shaderProgramUid) {
-      return shaderProgramUid;
-    } else {
-      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-      const shaderProgramUid = cgApiResourceRepository.createShaderProgram({
-        material,
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: pixelShader,
-        attributeNames: attributeNames,
-        attributeSemantics: attributeSemantics,
-        onError,
-      });
-      this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
-      this.__shaderHashMap.set(hash, shaderProgramUid);
-      return shaderProgramUid;
-    }
+
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    shaderProgramUid = cgApiResourceRepository.createShaderProgram({
+      material,
+      vertexShaderStr: vertexShader,
+      fragmentShaderStr: pixelShader,
+      attributeNames: attributeNames,
+      attributeSemantics: attributeSemantics,
+      onError,
+    });
+    this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
+    return [shaderProgramUid, true];
   }
 }
 
@@ -72,10 +65,10 @@ export function _createProgramAsSingleOperationByUpdatedSources(
   materialNode: AbstractMaterialContent,
   updatedShaderSources: ShaderSources,
   onError?: (message: string) => void
-) {
+): [CGAPIResourceHandle, boolean] {
   const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
 
-  const shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
+  const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
     updatedShaderSources.vertex,
     updatedShaderSources.pixel,
@@ -84,7 +77,7 @@ export function _createProgramAsSingleOperationByUpdatedSources(
     onError
   );
 
-  return shaderProgramUid;
+  return [shaderProgramUid, newOne];
 }
 
 export function _getAttributeInfo(materialNode: AbstractMaterialContent) {
@@ -129,7 +122,7 @@ export function _createProgramAsSingleOperationWebGL(
   pixelPropertiesStr: string,
   vertexShaderMethodDefinitions_uniform: string,
   isWebGL2: boolean
-): CGAPIResourceHandle {
+): [CGAPIResourceHandle, boolean] {
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const materialNode = material._materialContent;
 
@@ -157,10 +150,6 @@ export function _createProgramAsSingleOperationWebGL(
       matricesGetters: vertexShaderMethodDefinitions_uniform,
     }
   );
-  const vertexShaderBody = ShaderityUtilityWebGL.transformWebGLVersion(
-    vertexShaderityObject,
-    isWebGL2
-  ).code;
 
   const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.pixelShaderityObject!,
@@ -174,13 +163,9 @@ export function _createProgramAsSingleOperationWebGL(
       renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
     }
   );
-  const pixelShaderBody = ShaderityUtilityWebGL.transformWebGLVersion(
-    pixelShaderityObject,
-    isWebGL2
-  ).code;
 
-  vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
-  pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
+  vertexShader += vertexShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
+  pixelShader += pixelShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
 
   const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(
@@ -189,7 +174,7 @@ export function _createProgramAsSingleOperationWebGL(
   );
   vertexShader += vertexAttributesBinding;
 
-  const shaderProgramUid = ShaderHandler._createShaderProgramWithCache(
+  const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
     vertexShader,
     pixelShader,
@@ -197,7 +182,7 @@ export function _createProgramAsSingleOperationWebGL(
     attributeSemantics
   );
 
-  return shaderProgramUid;
+  return [shaderProgramUid, newOne];
 }
 
 export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, primitive: Primitive) {
@@ -387,7 +372,7 @@ export function _createProgramAsSingleOperationWebGpu(
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
   const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
 
-  const programUid = ShaderHandler._createShaderProgramWithCache(
+  const [programUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
     preprocessedVertex.code,
     preprocessedPixel.code,

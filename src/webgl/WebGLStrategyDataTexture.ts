@@ -151,26 +151,28 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material._createProgramWebGL(
+    const [programUid, newOne] = material._createProgramWebGL(
       WebGLStrategyDataTexture.getVertexShaderMethodDefinitions_dataTexture(),
       WebGLStrategyDataTexture.__getShaderProperty,
       primitive,
       glw.isWebGL2
     );
 
-    material._setupBasicUniformsLocations(primitive);
+    if (newOne) {
+      material._setupBasicUniformsLocations(primitive);
 
-    material._setUniformLocationsOfMaterialNodes(false, primitive);
+      material._setUniformLocationsOfMaterialNodes(false, primitive);
 
-    material._setupAdditionalUniformLocations(
-      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
-      false,
-      primitive
-    );
+      material._setupAdditionalUniformLocations(
+        WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
+        false,
+        primitive
+      );
 
-    WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
-      material.getShaderProgramUid(primitive)
-    );
+      WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
+        material.getShaderProgramUid(primitive)
+      );
+    }
 
     return programUid;
   }
@@ -187,19 +189,24 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle {
-    const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
+    const [programUid, newOne] = material._createProgramByUpdatedSources(
+      updatedShaderSources,
+      onError
+    );
     if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return programUid;
     }
 
-    material._setupBasicUniformsLocations();
+    if (newOne) {
+      material._setupBasicUniformsLocations();
 
-    material._setUniformLocationsOfMaterialNodes(false);
+      material._setUniformLocationsOfMaterialNodes(false);
 
-    material._setupAdditionalUniformLocations(
-      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
-      false
-    );
+      material._setupAdditionalUniformLocations(
+        WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
+        false
+      );
+    }
 
     WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
       material.getShaderProgramUid()

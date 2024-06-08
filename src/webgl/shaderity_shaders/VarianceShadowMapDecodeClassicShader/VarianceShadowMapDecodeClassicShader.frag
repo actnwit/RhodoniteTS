@@ -47,8 +47,8 @@ float reduceLightBleeding(float p_max, float parameter){
 }
 
 float chebyshevUpperBound(float materialSID){
-  float textureDepth = decodeRGBAToDepth(texture2DProj(u_depthTexture, v_texcoord_1));
-  float textureSquareDepth = decodeRGBAToDepth(texture2DProj(u_squareDepthTexture, v_texcoord_1));
+  float textureDepth = decodeRGBAToDepth(textureProj(u_depthTexture, v_texcoord_1));
+  float textureSquareDepth = decodeRGBAToDepth(textureProj(u_squareDepthTexture, v_texcoord_1));
   if(textureDepth == 1.0 || textureSquareDepth == 1.0){
     return 1.0;
   }
