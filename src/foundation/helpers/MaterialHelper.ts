@@ -95,6 +95,32 @@ function createMaterial(
   throw new Error('Failed to create material');
 }
 
+function reuseOrRecreateMaterial(
+  materialName: string,
+  currentMaterial: Material,
+  materialNode: AbstractMaterialContent,
+  maxInstancesNumber?: Count
+): Material {
+  let group = 0;
+  let isFull = false;
+  do {
+    const actualMaterialName = materialName + `__${group}`;
+    isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialName);
+    if (!isFull) {
+      MaterialRepository.registerMaterial(actualMaterialName, materialNode, maxInstancesNumber!);
+      const material = MaterialRepository.reuseOrRecreateMaterial(
+        actualMaterialName,
+        currentMaterial,
+        materialNode
+      );
+      return material;
+    }
+    group++;
+  } while (isFull);
+
+  throw new Error('Failed to create material');
+}
+
 function recreateMaterial(
   materialName: string,
   materialNode: AbstractMaterialContent,
@@ -1049,7 +1075,8 @@ function createMToonMaterial({
   return material;
 }
 
-function recreateCustomMaterial(
+function reuseOrRecreateCustomMaterial(
+  currentMaterial: Material,
   vertexShaderStr: string,
   pixelShaderStr: string,
   {
@@ -1088,7 +1115,12 @@ function recreateCustomMaterial(
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
-  const material = recreateMaterial(materialName, materialNode, maxInstancesNumber);
+  const material = reuseOrRecreateMaterial(
+    materialName,
+    currentMaterial,
+    materialNode,
+    maxInstancesNumber
+  );
 
   return material;
 }
@@ -1126,7 +1158,7 @@ function changeMaterial(
 export const MaterialHelper = Object.freeze({
   createMaterial,
   recreateMaterial,
-  recreateCustomMaterial,
+  reuseOrRecreateCustomMaterial,
   recreateShaderityMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,

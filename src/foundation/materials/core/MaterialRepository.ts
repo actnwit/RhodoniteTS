@@ -101,9 +101,24 @@ export class MaterialRepository {
       materialNode
     );
 
-    this.__initialize(material, countOfThisType);
+    this.__initializeMaterial(material, countOfThisType);
 
     return material;
+  }
+
+  public static reuseOrRecreateMaterial(
+    materialTypeName: string,
+    currentMaterial: Material,
+    materialNode: AbstractMaterialContent
+  ) {
+    if (MaterialRepository.isMaterialCompatible(currentMaterial, materialNode)) {
+      currentMaterial._materialContent = materialNode;
+      currentMaterial.makeShadersInvalidate();
+      return currentMaterial;
+    }
+
+    const newMaterial = MaterialRepository.createMaterial(materialTypeName, materialNode);
+    return newMaterial;
   }
 
   public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
@@ -119,10 +134,30 @@ export class MaterialRepository {
     return countOfThisType >= maxCountOfThisType;
   }
 
+  static isMaterialCompatible(
+    currentMaterial: Material,
+    newMaterialNode: AbstractMaterialContent
+  ): boolean {
+    const existingMaterial = MaterialRepository.__materialMap.get(currentMaterial.materialUID);
+    if (Is.not.exist(existingMaterial)) {
+      return false;
+    }
+
+    const existingShaderSemanticsInfoList = Array.from(existingMaterial._allFieldsInfo.values());
+    const newShaderSemanticsInfoList = newMaterialNode._semanticsInfoArray;
+    if (
+      JSON.stringify(existingShaderSemanticsInfoList) !== JSON.stringify(newShaderSemanticsInfoList)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
   /**
-   * Initialize Method
+   * Initialize Material Method
    */
-  private static __initialize(material: Material, countOfThisType: Count) {
+  private static __initializeMaterial(material: Material, countOfThisType: Count) {
     // Set name
     material.tryToSetUniqueName(material.__materialTypeName, true);
 
