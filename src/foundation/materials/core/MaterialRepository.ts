@@ -89,8 +89,6 @@ export class MaterialRepository {
     materialTypeName: string,
     materialNode: AbstractMaterialContent
   ): Material {
-    materialNode = MaterialRepository.__materialNodes.get(materialTypeName)!;
-
     // get the count of instance for the material type
     let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(
       materialTypeName
