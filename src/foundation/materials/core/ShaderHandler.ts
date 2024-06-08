@@ -157,10 +157,6 @@ export function _createProgramAsSingleOperationWebGL(
       matricesGetters: vertexShaderMethodDefinitions_uniform,
     }
   );
-  const vertexShaderBody = ShaderityUtilityWebGL.transformWebGLVersion(
-    vertexShaderityObject,
-    isWebGL2
-  ).code;
 
   const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.pixelShaderityObject!,
@@ -174,13 +170,9 @@ export function _createProgramAsSingleOperationWebGL(
       renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
     }
   );
-  const pixelShaderBody = ShaderityUtilityWebGL.transformWebGLVersion(
-    pixelShaderityObject,
-    isWebGL2
-  ).code;
 
-  vertexShader += vertexShaderBody.replace(/#version\s+(100|300\s+es)/, '');
-  pixelShader += pixelShaderBody.replace(/#version\s+(100|300\s+es)/, '');
+  vertexShader += vertexShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
+  pixelShader += pixelShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
 
   const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(
