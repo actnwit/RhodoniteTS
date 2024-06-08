@@ -19,7 +19,6 @@ import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
 
 export class ShaderHandler {
-  private static __shaderHashMap: Map<number, CGAPIResourceHandle> = new Map();
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 
   /**
@@ -46,24 +45,18 @@ export class ShaderHandler {
     if (shaderProgramUid) {
       return [shaderProgramUid, false];
     }
-    const hash = DataUtil.toCRC32(wholeShaderText);
-    shaderProgramUid = this.__shaderHashMap.get(hash);
-    if (shaderProgramUid) {
-      return [shaderProgramUid, false];
-    } else {
-      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-      const shaderProgramUid = cgApiResourceRepository.createShaderProgram({
-        material,
-        vertexShaderStr: vertexShader,
-        fragmentShaderStr: pixelShader,
-        attributeNames: attributeNames,
-        attributeSemantics: attributeSemantics,
-        onError,
-      });
-      this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
-      this.__shaderHashMap.set(hash, shaderProgramUid);
-      return [shaderProgramUid, true];
-    }
+
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    shaderProgramUid = cgApiResourceRepository.createShaderProgram({
+      material,
+      vertexShaderStr: vertexShader,
+      fragmentShaderStr: pixelShader,
+      attributeNames: attributeNames,
+      attributeSemantics: attributeSemantics,
+      onError,
+    });
+    this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
+    return [shaderProgramUid, true];
   }
 }
 
