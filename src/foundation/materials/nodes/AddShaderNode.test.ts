@@ -4,6 +4,7 @@ import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { AttributePositionShaderNode } from './AttributePositionShaderNode';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 import { MaterialRepository } from '../core/MaterialRepository';
+import { CustomMaterialContent } from '../contents/CustomMaterialContent';
 
 test.skip('AttributePosition works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -13,8 +14,29 @@ test.skip('AttributePosition works correctly 1', async () => {
     gpuVertexData: 1,
   });
 
+  const materialNode = new CustomMaterialContent({
+    name: 'material test',
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    useTangentAttribute: false,
+    useNormalTexture: true,
+    vertexShader: {
+      code: '',
+      shaderStage: 'vertex',
+      isFragmentShader: false,
+    },
+    pixelShader: {
+      code: '',
+      shaderStage: 'fragment',
+      isFragmentShader: true,
+    },
+    noUseCameraTransform: false,
+    additionalShaderSemanticInfo: [],
+  });
+
   // Material.registerMaterial('MyMaterial', undefined);
-  const material = MaterialRepository.createMaterial('MyMaterial')!;
+  const material = MaterialRepository.createMaterial('MyMaterial', materialNode)!;
 
   const a_position = new AttributePositionShaderNode();
 
