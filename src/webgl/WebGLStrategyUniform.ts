@@ -167,29 +167,32 @@ bool get_isBillboard(float instanceId) {
     const webglResourceRepository = WebGLResourceRepository.getInstance();
     const glw = webglResourceRepository.currentWebGLContextWrapper!;
 
-    const programUid = material._createProgramWebGL(
+    const [programUid, newOne] = material._createProgramWebGL(
       WebGLStrategyUniform.__vertexShaderMethodDefinitions_uniform,
       ShaderSemantics.getShaderProperty,
       primitive,
       glw.isWebGL2
     );
-    material._setupBasicUniformsLocations(primitive);
 
-    material._setUniformLocationsOfMaterialNodes(true, primitive);
+    if (newOne) {
+      material._setupBasicUniformsLocations(primitive);
 
-    const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
-    const shaderSemanticsInfosPointSprite =
-      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+      material._setUniformLocationsOfMaterialNodes(true, primitive);
 
-    material._setupAdditionalUniformLocations(
-      shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
-      true,
-      primitive
-    );
+      const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+      const shaderSemanticsInfosPointSprite =
+        WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
-    WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-      material.getShaderProgramUid(primitive)
-    );
+      material._setupAdditionalUniformLocations(
+        shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
+        true,
+        primitive
+      );
+
+      WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
+        material.getShaderProgramUid(primitive)
+      );
+    }
 
     return programUid;
   }
@@ -206,23 +209,28 @@ bool get_isBillboard(float instanceId) {
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle {
-    const programUid = material._createProgramByUpdatedSources(updatedShaderSources, onError);
+    const [programUid, newOne] = material._createProgramByUpdatedSources(
+      updatedShaderSources,
+      onError
+    );
     if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
       return programUid;
     }
 
-    material._setupBasicUniformsLocations();
+    if (newOne) {
+      material._setupBasicUniformsLocations();
 
-    material._setUniformLocationsOfMaterialNodes(true);
+      material._setUniformLocationsOfMaterialNodes(true);
 
-    const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
-    const shaderSemanticsInfosPointSprite =
-      WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
+      const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
+      const shaderSemanticsInfosPointSprite =
+        WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray();
 
-    material._setupAdditionalUniformLocations(
-      shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
-      true
-    );
+      material._setupAdditionalUniformLocations(
+        shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
+        true
+      );
+    }
 
     WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
       material.getShaderProgramUid()

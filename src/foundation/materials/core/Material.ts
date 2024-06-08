@@ -278,13 +278,13 @@ export class Material extends RnObject {
     propertySetter: getShaderPropertyFunc,
     primitive: Primitive,
     isWebGL2: boolean
-  ): CGAPIResourceHandle {
+  ): [CGAPIResourceHandle, boolean] {
     const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
       propertySetter,
       isWebGL2
     );
 
-    const programUid = _createProgramAsSingleOperationWebGL(
+    const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
       primitive,
       vertexPropertiesStr,
@@ -297,7 +297,7 @@ export class Material extends RnObject {
 
     Material.__stateVersion++;
 
-    return programUid;
+    return [programUid, newOne];
   }
 
   _createProgramWebGpu(
@@ -331,8 +331,8 @@ export class Material extends RnObject {
   _createProgramByUpdatedSources(
     updatedShaderSources: ShaderSources,
     onError?: (message: string) => void
-  ): CGAPIResourceHandle {
-    const programUid = _createProgramAsSingleOperationByUpdatedSources(
+  ): [CGAPIResourceHandle, boolean] {
+    const [programUid, newOne] = _createProgramAsSingleOperationByUpdatedSources(
       this,
       this._materialContent,
       updatedShaderSources,
@@ -345,7 +345,7 @@ export class Material extends RnObject {
     }
 
     Material.__stateVersion++;
-    return programUid;
+    return [programUid, newOne];
   }
 
   /**
