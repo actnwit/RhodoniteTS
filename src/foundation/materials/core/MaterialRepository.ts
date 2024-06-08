@@ -46,7 +46,7 @@ export class MaterialRepository {
    */
   public static registerMaterial(
     materialTypeName: string,
-    materialNode?: AbstractMaterialContent,
+    materialNode: AbstractMaterialContent,
     maxInstanceNumber: number = Config.maxMaterialInstanceForEachType
   ): boolean {
     if (!MaterialRepository.__materialNodes.has(materialTypeName)) {
@@ -87,13 +87,8 @@ export class MaterialRepository {
    */
   public static createMaterial(
     materialTypeName: string,
-    materialNode_?: AbstractMaterialContent
+    materialNode: AbstractMaterialContent
   ): Material {
-    let materialNode = materialNode_;
-    if (!materialNode) {
-      materialNode = MaterialRepository.__materialNodes.get(materialTypeName)!;
-    }
-
     // get the count of instance for the material type
     let countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(
       materialTypeName
@@ -205,7 +200,7 @@ export class MaterialRepository {
 
   private static __registerInner(
     materialTypeName: string,
-    materialNode: AbstractMaterialContent | undefined,
+    materialNode: AbstractMaterialContent,
     maxInstanceNumber: number
   ) {
     const materialTid = ++MaterialRepository.__materialTidCount;
@@ -213,9 +208,7 @@ export class MaterialRepository {
     MaterialRepository.__materialTids.set(materialTypeName, materialTid);
     MaterialRepository.__maxInstances.set(materialTypeName, maxInstanceNumber);
 
-    if (Is.exist(materialNode)) {
-      MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
-    }
+    MaterialRepository.__allocateBufferView(materialTypeName, materialNode);
     MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
   }
 
