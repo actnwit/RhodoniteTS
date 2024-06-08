@@ -82,6 +82,8 @@ export class Primitive extends RnObject {
   private __positionAccessorVersion = 0;
   private static __variantUpdateCount = 0;
 
+  private __fingerPrint: string = '';
+
   constructor() {
     super();
 
@@ -94,6 +96,20 @@ export class Primitive extends RnObject {
 
     this.__material = Primitive.__defaultMaterial;
     this._prevMaterial = Primitive.__defaultMaterial;
+  }
+
+  calcFingerPrint() {
+    let str = '';
+    str += this.__mode.index;
+    str += this.getIndexBitSize();
+    str += this.targets.length;
+    str += Primitive.getPrimitiveIdxHasMorph(this.__primitiveUid);
+    for (const [semantic, accessor] of this.__attributes) {
+      str += semantic;
+      str += accessor.componentType.webgpu + accessor.compositionType.webgpu;
+      str += accessor.actualByteStride;
+    }
+    return str;
   }
 
   static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
@@ -263,6 +279,7 @@ export class Primitive extends RnObject {
 
     this.__primitiveUid = Primitive.__primitiveCount++;
     Primitive.__primitives[this.__primitiveUid] = this;
+    this.calcFingerPrint();
   }
 
   static get maxPrimitiveCount() {
@@ -512,6 +529,7 @@ export class Primitive extends RnObject {
     }
 
     this.__targets = targets;
+    this.calcFingerPrint();
   }
 
   getBlendShapeTargets() {
