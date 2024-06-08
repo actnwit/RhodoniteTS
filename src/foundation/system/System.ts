@@ -512,13 +512,14 @@ export class System {
       if (maxBufferSize < requiredBufferSize || maxStorageBufferBindingSize < requiredBufferSize) {
         throw new Error('The required buffer size is too large for this device.');
       }
-      const features: GPUFeatureName[]  = [];
+      const features: GPUFeatureName[] = [];
       function addFeature(feature: GPUFeatureName) {
         if (adapter!.features.has(feature)) {
           features.push(feature);
         }
       }
       addFeature('float32-filterable');
+      addFeature('rg11b10ufloat-renderable');
       addFeature('texture-compression-bc');
       addFeature('texture-compression-etc2');
       addFeature('texture-compression-astc');

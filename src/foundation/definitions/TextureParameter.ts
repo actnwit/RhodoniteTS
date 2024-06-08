@@ -147,6 +147,11 @@ const RGBA32F: TextureParameterEnum = new TextureParameterClass({
   str: 'RGBA32F',
   webgpu: 'rgba32float',
 });
+const R11F_G11F_B10F: TextureParameterEnum = new TextureParameterClass({
+  index: 0x8c3a,
+  str: 'R11F_G11F_B10F',
+  webgpu: 'rg11b10ufloat',
+});
 const Depth16: TextureParameterEnum = new TextureParameterClass({
   index: 0x81a5,
   str: 'DEPTH_COMPONENT16',
@@ -201,6 +206,7 @@ const typeList = [
   RGB32F,
   RGBA16F,
   RGBA32F,
+  R11F_G11F_B10F,
   Depth16,
   Depth24,
   Depth32F,
@@ -249,6 +255,7 @@ export const TextureParameter = Object.freeze({
   RGB32F,
   RGBA16F,
   RGBA32F,
+  R11F_G11F_B10F,
   Depth16,
   Depth24,
   Depth32F,
