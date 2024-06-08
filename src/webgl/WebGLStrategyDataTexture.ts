@@ -47,6 +47,8 @@ import { CameraControllerComponent } from '../foundation/components/CameraContro
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { GL_TRIANGLES } from '../types';
 import { WebXRSystem } from '../xr';
+import { CustomMaterialContent } from '../foundation/materials/contents/CustomMaterialContent';
+import { Vector2 } from '../foundation/math/Vector2';
 
 declare const spector: any;
 
@@ -785,6 +787,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
     );
 
+    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    if ((WebGLStrategyDataTexture.__shaderProgram as any).vrState != null && isVRMainPass) {
+      const vrState =  GlobalDataRepository.getInstance().getValue(
+        ShaderSemantics.VrState,
+        0
+      ) as Vector2;
+      vrState._v[0] = isVRMainPass ? 1 : 0;
+      vrState._v[1] = 0;
+      (WebGLStrategyDataTexture.__shaderProgram as any)._gl.uniform2iv((WebGLStrategyDataTexture.__shaderProgram as any).vrState, vrState._v);
+    }
+
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
 
     material._setParametersToGpuWebGLWithOutInternalSetting({
@@ -904,6 +917,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         (WebGLStrategyDataTexture.__shaderProgram as any).currentComponentSIDs,
         WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
       );
+
+      if ((WebGLStrategyDataTexture.__shaderProgram as any).vrState != null && isVRMainPass && displayCount > 1) {
+        const vrState =  GlobalDataRepository.getInstance().getValue(
+          ShaderSemantics.VrState,
+          0
+        ) as Vector2;
+        vrState._v[0] = isVRMainPass ? 1 : 0;
+        vrState._v[1] = displayIdx;
+        (WebGLStrategyDataTexture.__shaderProgram as any)._gl.uniform2iv((WebGLStrategyDataTexture.__shaderProgram as any).vrState, vrState._v);
+      }
 
       if (primitive.indicesAccessor) {
         gl.drawElementsInstanced(

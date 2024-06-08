@@ -274,15 +274,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
 
-    if ((shaderProgram as any).vrState != null && args.isVr) {
-      const vrState = CustomMaterialContent.__globalDataRepository.getValue(
-        ShaderSemantics.VrState,
-        0
-      ) as Vector2;
-      vrState._v[0] = args.isVr ? 1 : 0;
-      vrState._v[1] = args.displayIdx;
-      (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
-    }
   }
 
   private static __setupHdriParameters(args: RenderingArgWebGL | RenderingArgWebGpu) {
