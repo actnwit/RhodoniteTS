@@ -4,7 +4,6 @@ import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
 import { Matrix44 } from '../../math/Matrix44';
-import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Material } from './Material';
 import { MutableVector2 } from '../../math/MutableVector2';
@@ -50,7 +49,6 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     static materialNodes: AbstractMaterialContent[];
     protected __shaderFunctionName: string;
     isSingleOperation: boolean;
-    protected __webglResourceRepository: WebGLResourceRepository;
     protected static __gl?: WebGLRenderingContext;
     protected __definitions: string;
     protected static __tmp_vector4: MutableVector4;

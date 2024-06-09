@@ -23,7 +23,7 @@ export declare class Material extends RnObject {
     _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>;
     private __belongPrimitives;
     private _shaderProgramUidMap;
-    private _primitiveUid;
+    private _primitiveFingerPrintBackUp;
     __materialUid: MaterialUID;
     private __materialTid;
     __materialSid: MaterialSID;
@@ -40,9 +40,12 @@ export declare class Material extends RnObject {
     private __blendFuncAlphaDstFactor;
     private __stateVersion;
     private static __stateVersion;
+    private __fingerPrint;
     private static __webglResourceRepository?;
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
+    calcFingerPrint(): void;
+    _getFingerPrint(): string;
     static get stateVersion(): number;
     setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
     setTextureParameter(shaderSemantic: ShaderSemanticsEnum, texture: AbstractTexture, sampler: Sampler): void;
@@ -75,7 +78,7 @@ export declare class Material extends RnObject {
      * @param isWebGL2
      * @returns
      */
-    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, primitive: Primitive, isWebGL2: boolean): CGAPIResourceHandle;
+    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, primitive: Primitive, isWebGL2: boolean): [CGAPIResourceHandle, boolean];
     _createProgramWebGpu(primitive: Primitive, vertexShaderMethodDefinitions: string, propertySetter: getShaderPropertyFunc): void;
     /**
      * create program by updated shader source code
@@ -86,7 +89,7 @@ export declare class Material extends RnObject {
      * @param onError
      * @returns
      */
-    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, onError?: (message: string) => void): CGAPIResourceHandle;
+    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
     /**
      * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
@@ -143,7 +146,6 @@ export declare class Material extends RnObject {
      * This method works only if this alphaMode is the blend
      */
     setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum): void;
-    isEmptyMaterial(): boolean;
     isBlend(): boolean;
     /**
      *

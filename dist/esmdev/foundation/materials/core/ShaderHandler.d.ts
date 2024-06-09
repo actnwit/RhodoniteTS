@@ -6,7 +6,6 @@ import { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import { Primitive } from '../../geometry/Primitive';
 export declare class ShaderHandler {
-    private static __shaderHashMap;
     private static __shaderStringMap;
     /**
      * Create a shader program Or Get a shader program from cache
@@ -18,9 +17,9 @@ export declare class ShaderHandler {
      * @param onError
      * @returns
      */
-    static _createShaderProgramWithCache(material: Material, vertexShader: string, pixelShader: string, attributeNames: AttributeNames, attributeSemantics: VertexAttributeEnum[], onError?: (message: string) => void): CGAPIResourceHandle;
+    static _createShaderProgramWithCache(material: Material, vertexShader: string, pixelShader: string, attributeNames: AttributeNames, attributeSemantics: VertexAttributeEnum[], onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
 }
-export declare function _createProgramAsSingleOperationByUpdatedSources(material: Material, materialNode: AbstractMaterialContent, updatedShaderSources: ShaderSources, onError?: (message: string) => void): number;
+export declare function _createProgramAsSingleOperationByUpdatedSources(material: Material, materialNode: AbstractMaterialContent, updatedShaderSources: ShaderSources, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
 export declare function _getAttributeInfo(materialNode: AbstractMaterialContent): {
     attributeNames: string[];
     attributeSemantics: VertexAttributeEnum[];
@@ -41,6 +40,6 @@ export declare function _outputVertexAttributeBindingInfo(attributeNames: string
  * @param isWebGL2 - A flag whether the current WebGL context is WebGL2 or not
  * @returns
  */
-export declare function _createProgramAsSingleOperationWebGL(material: Material, primitive: Primitive, vertexPropertiesStr: string, pixelPropertiesStr: string, vertexShaderMethodDefinitions_uniform: string, isWebGL2: boolean): CGAPIResourceHandle;
+export declare function _createProgramAsSingleOperationWebGL(material: Material, primitive: Primitive, vertexPropertiesStr: string, pixelPropertiesStr: string, vertexShaderMethodDefinitions_uniform: string, isWebGL2: boolean): [CGAPIResourceHandle, boolean];
 export declare function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, primitive: Primitive): string;
 export declare function _createProgramAsSingleOperationWebGpu(material: Material, primitive: Primitive, vertexShaderMethodDefinitions: string, vertexPropertiesStr: string, pixelPropertiesStr: string): number;

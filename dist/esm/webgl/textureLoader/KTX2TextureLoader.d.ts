@@ -1,4 +1,5 @@
 import { TextureData } from '../WebGLResourceRepository';
+import { CompressionTextureTypeEnum } from '../../foundation/definitions/CompressionTextureType';
 export declare class KTX2TextureLoader {
     private static __instance;
     private static __mscTranscoderModule;
@@ -9,12 +10,13 @@ export declare class KTX2TextureLoader {
     transcode(uint8Array: Uint8Array): Promise<{
         width: number;
         height: number;
-        compressionTextureType: import("../..").EnumIO;
+        compressionTextureType: CompressionTextureTypeEnum;
         mipmapData: TextureData[];
         needGammaCorrection: boolean;
     }>;
     private __loadMSCTranscoder;
-    private __getDeviceDependentParameters;
+    private __getDeviceDependentParametersWebGL;
+    private __getDeviceDependentParametersWebGPU;
     private __parse;
     private __transcodeData;
     private __hasAlpha;

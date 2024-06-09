@@ -10,9 +10,8 @@ import { ShaderityObject } from 'shaderity';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
-declare function createMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
-declare function recreateMaterial(materialName: string, materialNode?: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
-declare function createEmptyMaterial(): Material;
+declare function createMaterial(materialName: string, materialNode: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
+declare function recreateMaterial(materialName: string, materialNode: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
@@ -151,7 +150,7 @@ declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, i
     maxInstancesNumber?: Count;
     makeOutputSrgb?: boolean;
 }): Material;
-declare function recreateCustomMaterial(vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber, }?: {
+declare function reuseOrRecreateCustomMaterial(currentMaterial: Material, vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
@@ -166,9 +165,8 @@ declare function changeMaterial(entity: IMeshRendererEntityMethods, primitive: P
 export declare const MaterialHelper: Readonly<{
     createMaterial: typeof createMaterial;
     recreateMaterial: typeof recreateMaterial;
-    recreateCustomMaterial: typeof recreateCustomMaterial;
+    reuseOrRecreateCustomMaterial: typeof reuseOrRecreateCustomMaterial;
     recreateShaderityMaterial: typeof recreateShaderityMaterial;
-    createEmptyMaterial: typeof createEmptyMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
     createDepthMomentEncodeMaterial: typeof createDepthMomentEncodeMaterial;
     createFlatMaterial: typeof createFlatMaterial;

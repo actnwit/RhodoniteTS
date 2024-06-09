@@ -10,13 +10,15 @@ import { CGAPIResourceRepository, DirectTextureData, ICGAPIResourceRepository, I
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Sampler } from '../foundation/textures/Sampler';
 import { Count, Index, Size, TypedArray, WebGLResourceHandle, WebGPUResourceHandle } from '../types/CommonTypes';
-import { VertexHandles } from '../webgl/WebGLResourceRepository';
+import { TextureData, VertexHandles } from '../webgl/WebGLResourceRepository';
 import { AttributeNames } from '../webgl/types/CommonTypes';
 import { WebGpuDeviceWrapper } from './WebGpuDeviceWrapper';
 import { HdriFormatEnum } from '../foundation/definitions/HdriFormat';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import { BasisFile } from '../types/BasisTexture';
+import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
 export declare class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private static __instance;
@@ -54,6 +56,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private constructor();
     clearCache(): void;
     addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper): void;
+    getWebGpuDeviceWrapper(): WebGpuDeviceWrapper;
     static getInstance(): WebGpuResourceRepository;
     private getResourceNumber;
     private __registerResource;
@@ -218,6 +221,32 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         type: ComponentTypeEnum;
         generateMipmap: boolean;
     }): Promise<WebGPUResourceHandle>;
+    /**
+     * create CompressedTextureFromBasis
+     * @param basisFile
+     * @param param1
+     * @returns
+     */
+    createCompressedTextureFromBasis(basisFile: BasisFile, { border, format, type, }: {
+        border: Size;
+        format: PixelFormatEnum;
+        type: ComponentTypeEnum;
+    }): WebGPUResourceHandle;
+    /**
+     * decode the BasisImage
+     * @param basisFile
+     * @param basisCompressionType
+     * @param imageIndex
+     * @param levelIndex
+     * @returns
+     */
+    private decodeBasisImage;
+    /**
+     * Create and bind compressed texture object
+     * @param textureDataArray transcoded texture data for each mipmaps(levels)
+     * @param compressionTextureType
+     */
+    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): WebGLResourceHandle;
     private __createTextureInner;
     /**
      * create a RenderTargetTexture

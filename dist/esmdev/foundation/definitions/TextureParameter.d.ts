@@ -32,6 +32,7 @@ export declare const TextureParameter: Readonly<{
     RGB32F: TextureParameterEnum;
     RGBA16F: TextureParameterEnum;
     RGBA32F: TextureParameterEnum;
+    R11F_G11F_B10F: TextureParameterEnum;
     Depth16: TextureParameterEnum;
     Depth24: TextureParameterEnum;
     Depth32F: TextureParameterEnum;

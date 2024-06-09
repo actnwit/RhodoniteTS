@@ -1,6 +1,5 @@
 import { Gltf2 } from '../../types/glTF2';
-import { Gltf2BufferViewEx, Gltf2Ex } from '../../types/glTF2ForOutput';
-import { Index } from '../../types/CommonTypes';
+import { Gltf2Ex } from '../../types/glTF2ForOutput';
 import { ISceneGraphEntity, IMeshEntity } from '../helpers/EntityHelper';
 import { Tag } from '../core/RnObject';
 export declare const GLTF2_EXPORT_GLTF = "glTF";
@@ -79,4 +78,3 @@ export declare class Gltf2Exporter {
      */
     static __downloadGltf(json: Gltf2, filename: string, arraybuffer: ArrayBuffer): void;
 }
-export declare function createAndAddGltf2BufferView(json: Gltf2Ex, bufferIdx: Index, uint8Array: Uint8Array): Gltf2BufferViewEx;

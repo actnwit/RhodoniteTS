@@ -24,6 +24,7 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
 }
 export declare class Primitive extends RnObject {
     private __mode;
+    private static __defaultMaterial?;
     private __material;
     private __materialVariants;
     private __currentVariantName;
@@ -46,7 +47,10 @@ export declare class Primitive extends RnObject {
     private __latestPositionAccessorVersion;
     private __positionAccessorVersion;
     private static __variantUpdateCount;
+    private __fingerPrint;
     constructor();
+    calcFingerPrint(): void;
+    _getFingerPrint(): string;
     static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined;
     static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined;
     getIndexBitSize(): 'uint16' | 'uint32';

@@ -19,7 +19,7 @@ export declare class MaterialRepository {
      * @param materialNodes The material nodes to register.
      * @param maxInstancesNumber The maximum number to create the material instances.
      */
-    static registerMaterial(materialTypeName: string, materialNode?: AbstractMaterialContent, maxInstanceNumber?: number): boolean;
+    static registerMaterial(materialTypeName: string, materialNode: AbstractMaterialContent, maxInstanceNumber?: number): boolean;
     static forceRegisterMaterial(materialTypeName: string, materialNode: AbstractMaterialContent, maxInstanceNumber?: number): boolean;
     static isRegisteredMaterialType(materialTypeName: string): boolean;
     static getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined;
@@ -29,12 +29,14 @@ export declare class MaterialRepository {
      * @param materialTypeName The material type to create.
      * @param materialNodes_ The material nodes to add to the created material.
      */
-    static createMaterial(materialTypeName: string, materialNode_?: AbstractMaterialContent): Material;
+    static createMaterial(materialTypeName: string, materialNode: AbstractMaterialContent): Material;
+    static reuseOrRecreateMaterial(materialTypeName: string, currentMaterial: Material, materialNode: AbstractMaterialContent): Material;
     static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean;
+    static isMaterialCompatible(currentMaterial: Material, newMaterialNode: AbstractMaterialContent): boolean;
     /**
-     * Initialize Method
+     * Initialize Material Method
      */
-    private static __initialize;
+    private static __initializeMaterial;
     static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): IndexOf16Bytes;
     /**
      * @internal
