@@ -40,6 +40,8 @@ import {
 import { Texture } from '../../textures';
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 
+type PrimitiveFingerPrint = string;
+
 /**
  * The material class.
  * This class has one or more material nodes.
@@ -54,8 +56,8 @@ export class Material extends RnObject {
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
 
   // Ids
-  private _shaderProgramUidMap: Map<PrimitiveUID, CGAPIResourceHandle> = new Map();
-  private _primitiveUid: PrimitiveUID = -1;
+  private _shaderProgramUidMap: Map<PrimitiveFingerPrint, CGAPIResourceHandle> = new Map();
+  private _primitiveFingerPrintBackUp: PrimitiveFingerPrint = '';
   __materialUid: MaterialUID = -1;
   private __materialTid: MaterialTID;
   __materialSid: MaterialSID = -1; // material serial Id in the material type
@@ -75,6 +77,7 @@ export class Material extends RnObject {
 
   private __stateVersion = 0;
   private static __stateVersion = 0;
+  private __fingerPrint = '';
 
   private static __webglResourceRepository?: WebGLResourceRepository;
 
@@ -95,6 +98,34 @@ export class Material extends RnObject {
     this.__materialUid = materialUid;
     this.__materialSid = materialSid;
     this.__materialTypeName = materialTypeName;
+  }
+
+  calcFingerPrint() {
+    let str = '';
+    str += this.alphaMode.index;
+    str += this.blendFuncSrcFactor.webgpu;
+    str += this.blendFuncDstFactor.webgpu;
+    str += this.blendFuncAlphaSrcFactor.webgpu;
+    str += this.blendFuncAlphaDstFactor.webgpu;
+    str += this.blendEquationMode.webgpu;
+    str += this.blendEquationModeAlpha.webgpu;
+    str += this.cullFace ? '1' : '0';
+    str += this.cullFrontFaceCCW ? '1' : '0';
+
+    // for (const [key, value] of this._autoFieldVariablesOnly) {
+    //   if (CompositionType.isTexture(value.info.compositionType)) {
+    //     str += value.info.semantic.str;
+    //     str += value.value[0];
+    //     str += value.value[1];
+    //     str += value.value[2];
+    //   }
+    // }
+
+    this.__fingerPrint = str;
+  }
+
+  _getFingerPrint() {
+    return this.__fingerPrint;
   }
 
   static get stateVersion() {
@@ -120,6 +151,7 @@ export class Material extends RnObject {
       if (updated) {
         this.__stateVersion++;
         Material.__stateVersion++;
+        this.calcFingerPrint();
       }
     }
   }
@@ -158,6 +190,7 @@ export class Material extends RnObject {
         }
         this.__stateVersion++;
         Material.__stateVersion++;
+        this.calcFingerPrint();
       };
 
       if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
@@ -206,6 +239,7 @@ export class Material extends RnObject {
       }
       this.__stateVersion++;
       Material.__stateVersion++;
+      this.calcFingerPrint();
     });
   }
 
@@ -228,7 +262,7 @@ export class Material extends RnObject {
    * @returns is shader program ready or not
    */
   public isShaderProgramReady(primitive: Primitive): boolean {
-    return this._shaderProgramUidMap.has(primitive.primitiveUid);
+    return this._shaderProgramUidMap.has(primitive._getFingerPrint());
   }
 
   /**
@@ -246,14 +280,15 @@ export class Material extends RnObject {
     }
 
     const shaderProgramUid = this._shaderProgramUidMap.get(
-      primitive != null ? primitive.primitiveUid : this._primitiveUid
+      primitive != null ? primitive._getFingerPrint() : this._primitiveFingerPrintBackUp
     );
     webglResourceRepository.setupUniformLocations(shaderProgramUid!, array, isUniformOnlyMode);
   }
 
   getShaderProgramUid(primitive?: Primitive): CGAPIResourceHandle {
-    const primitiveUid = primitive !== undefined ? primitive.primitiveUid : this._primitiveUid;
-    return this._shaderProgramUidMap.get(primitiveUid) ?? -1;
+    const primitiveFingerPrint =
+      primitive !== undefined ? primitive._getFingerPrint() : this._primitiveFingerPrintBackUp;
+    return this._shaderProgramUidMap.get(primitiveFingerPrint) ?? -1;
   }
 
   /**
@@ -292,8 +327,8 @@ export class Material extends RnObject {
       vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );
-    this._shaderProgramUidMap.set(primitive.primitiveUid, programUid);
-    this._primitiveUid = primitive.primitiveUid;
+    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    this._primitiveFingerPrintBackUp = primitive._getFingerPrint();
 
     Material.__stateVersion++;
 
@@ -314,8 +349,8 @@ export class Material extends RnObject {
       pixelPropertiesStr
     );
 
-    this._shaderProgramUidMap.set(primitive.primitiveUid, programUid);
-    this._primitiveUid = primitive.primitiveUid;
+    this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
+    this._primitiveFingerPrintBackUp = primitive._getFingerPrint();
     Material.__stateVersion++;
   }
 
@@ -338,7 +373,7 @@ export class Material extends RnObject {
       updatedShaderSources,
       onError
     );
-    this._shaderProgramUidMap.set(this._primitiveUid, programUid);
+    this._shaderProgramUidMap.set(this._primitiveFingerPrintBackUp, programUid);
 
     if (programUid > 0) {
       // this.__updatedShaderSources = updatedShaderSources;
@@ -355,8 +390,9 @@ export class Material extends RnObject {
   _setupBasicUniformsLocations(primitive?: Primitive) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
-    const primitiveUid = primitive != null ? primitive.primitiveUid : this._primitiveUid;
-    const shaderProgramUid = this._shaderProgramUidMap.get(primitiveUid);
+    const primitiveFingerPrint =
+      primitive != null ? primitive._getFingerPrint() : this._primitiveFingerPrintBackUp;
+    const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
     webglResourceRepository.setupBasicUniformLocations(shaderProgramUid!);
   }
 
@@ -370,8 +406,9 @@ export class Material extends RnObject {
     primitive?: Primitive
   ) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const primitiveUid = primitive != null ? primitive.primitiveUid : this._primitiveUid;
-    const shaderProgramUid = this._shaderProgramUidMap.get(primitiveUid);
+    const primitiveFingerPrint =
+      primitive != null ? primitive._getFingerPrint() : this._primitiveFingerPrintBackUp;
+    const shaderProgramUid = this._shaderProgramUidMap.get(primitiveFingerPrint);
     webglResourceRepository.setupUniformLocations(
       shaderProgramUid!,
       shaderSemantics,
@@ -577,6 +614,7 @@ export class Material extends RnObject {
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
 
   /**
@@ -595,6 +633,7 @@ export class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
 
   /**
@@ -608,6 +647,7 @@ export class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {
@@ -669,6 +709,7 @@ export class Material extends RnObject {
     this.__alphaToCoverage = alphaToCoverage;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
   get alphaToCoverage(): boolean {
     return this.__alphaToCoverage;
