@@ -606,13 +606,16 @@ export class ForwardRenderPipeline extends RnObject {
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
         rp.toClearDepthBuffer = false;
         if (!this.__isSimple) {
-          rp.setFramebuffer(this.__getMainFrameBuffer().unwrapForce());
+          const mainFrameBuffer = this.__getMainFrameBuffer();
+          if (mainFrameBuffer.has()) {
+            rp.setFramebuffer(mainFrameBuffer.get());
           if (this.__oFrameBufferMsaa.has()) {
             rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
             rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
           }
         }
       }
+    }
     }
     this.__expressions = expressions;
     await this.__setIblInner();
