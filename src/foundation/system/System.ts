@@ -446,7 +446,7 @@ export class System {
 
   private static __displayRnInfo() {
     console.log(
-      `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}`,
+      `%cRhodonite%cWeb3D Library%c %cversion%c${VERSION.version}%c %cbranch%c${VERSION.branch}%c %cmode%c${this.__processApproach.str}`,
       `font-weight: bold; padding: 4px 8px; border-radius: 6px 0px 0px 6px; background: linear-gradient(to right, #ff0084 0%,#ff0022 100%);`,
       `padding: 4px; border-radius: 0px 6px 6px 0px; background: linear-gradient(to right, #8400ff 0%,#4400ff 100%);`,
       ``,
@@ -454,7 +454,10 @@ export class System {
       `background: firebrick; padding: 4px; border-radius: 0px 6px 6px 0px`,
       ``,
       `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
-      `background: green; padding: 4px; border-radius: 0px 6px 6px 0px`
+      `background: green; padding: 4px; border-radius: 0px 6px 6px 0px`,
+      ``,
+      `background: #666; padding: 4px; border-radius: 6px 0px 0px 6px`,
+      `background: blue; padding: 4px; border-radius: 0px 6px 6px 0px`
     );
   }
 
@@ -476,6 +479,8 @@ export class System {
    * @returns
    */
   public static async init(desc: SystemInitDescription): Promise<void> {
+    this.__processApproach = desc.approach;
+    SystemState.currentProcessApproach = desc.approach;
     if (desc.notToDisplayRnInfoAtInit !== true) {
       this.__displayRnInfo();
     }
@@ -483,8 +488,6 @@ export class System {
     await ModuleManager.getInstance().loadModule('webgpu');
     await ModuleManager.getInstance().loadModule('pbr');
     await ModuleManager.getInstance().loadModule('xr');
-    this.__processApproach = desc.approach;
-    SystemState.currentProcessApproach = desc.approach;
     Config.eventTargetDom = desc.canvas;
 
     // Memory Settings
