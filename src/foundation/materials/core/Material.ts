@@ -77,6 +77,7 @@ export class Material extends RnObject {
 
   private __stateVersion = 0;
   private static __stateVersion = 0;
+  private __fingerPrint = '';
 
   private static __webglResourceRepository?: WebGLResourceRepository;
 
@@ -97,6 +98,34 @@ export class Material extends RnObject {
     this.__materialUid = materialUid;
     this.__materialSid = materialSid;
     this.__materialTypeName = materialTypeName;
+  }
+
+  calcFingerPrint() {
+    let str = '';
+    str += this.alphaMode.index;
+    str += this.blendFuncSrcFactor.webgpu;
+    str += this.blendFuncDstFactor.webgpu;
+    str += this.blendFuncAlphaSrcFactor.webgpu;
+    str += this.blendFuncAlphaDstFactor.webgpu;
+    str += this.blendEquationMode.webgpu;
+    str += this.blendEquationModeAlpha.webgpu;
+    str += this.cullFace ? '1' : '0';
+    str += this.cullFrontFaceCCW ? '1' : '0';
+
+    // for (const [key, value] of this._autoFieldVariablesOnly) {
+    //   if (CompositionType.isTexture(value.info.compositionType)) {
+    //     str += value.info.semantic.str;
+    //     str += value.value[0];
+    //     str += value.value[1];
+    //     str += value.value[2];
+    //   }
+    // }
+
+    this.__fingerPrint = str;
+  }
+
+  _getFingerPrint() {
+    return this.__fingerPrint;
   }
 
   static get stateVersion() {
@@ -122,6 +151,7 @@ export class Material extends RnObject {
       if (updated) {
         this.__stateVersion++;
         Material.__stateVersion++;
+        this.calcFingerPrint();
       }
     }
   }
@@ -160,6 +190,7 @@ export class Material extends RnObject {
         }
         this.__stateVersion++;
         Material.__stateVersion++;
+        this.calcFingerPrint();
       };
 
       if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
@@ -208,6 +239,7 @@ export class Material extends RnObject {
       }
       this.__stateVersion++;
       Material.__stateVersion++;
+      this.calcFingerPrint();
     });
   }
 
@@ -582,6 +614,7 @@ export class Material extends RnObject {
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
 
   /**
@@ -600,6 +633,7 @@ export class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
 
   /**
@@ -613,6 +647,7 @@ export class Material extends RnObject {
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
 
   // setMaterialNode(materialNode: AbstractMaterialNode) {
@@ -674,6 +709,7 @@ export class Material extends RnObject {
     this.__alphaToCoverage = alphaToCoverage;
     this.__stateVersion++;
     Material.__stateVersion++;
+    this.calcFingerPrint();
   }
   get alphaToCoverage(): boolean {
     return this.__alphaToCoverage;
