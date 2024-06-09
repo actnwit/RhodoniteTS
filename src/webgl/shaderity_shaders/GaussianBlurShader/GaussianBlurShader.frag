@@ -12,12 +12,13 @@
 
 in vec2 v_texcoord_0;
 
+
 void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   vec2 offset = gl_FragCoord.st;
-
+  ivec2 vrState = get_vrState(materialSID, 0);
   vec2 framebufferSize = get_framebufferSize(materialSID, 0);
   vec2 blurDirection;
   bool isHorizontal = get_isHorizontal(materialSID, 0);
@@ -32,13 +33,19 @@ void main ()
   int gaussianKernelSize = get_gaussianKernelSize(materialSID, 0);
   float minStrideLength = -float(gaussianKernelSize - 1) / 2.0;
 
-  for(int i=0; i < gaussianKernelSize; i++) {
-
+  for(int i = 0; i < gaussianKernelSize; i++) {
     float strideLength = minStrideLength + float(i);
     vec2 stride = strideLength * blurDirection;
-
     float gaussianRatio = get_gaussianRatio(materialSID, i);
-    color.rgb += texture(u_baseColorTexture, (offset + stride) * tFrag).rgb * gaussianRatio;
+    vec2 uv = (offset + stride) * tFrag;
+    if (vrState.x == 1 && isHorizontal) { // if in VR mode and horizontal blur
+      if (gl_FragCoord.x < framebufferSize.x / 2.0) { // left eye
+        uv.x = min(uv.x * 0.5, 0.5);
+      } else { // right eye
+        uv.x = max(uv.x * 0.5 - 0.5, 0.5);
+      }
+    }
+    color.rgb += texture(u_baseColorTexture, uv).rgb * gaussianRatio;
   }
 
   rt0 = color;

@@ -37,6 +37,7 @@ import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
 import { WebXRSystem } from '../xr/WebXRSystem';
+import { Vector2 } from '../foundation/math/Vector2';
 
 declare const spector: any;
 
@@ -435,6 +436,17 @@ bool get_isBillboard(float instanceId) {
       isUniformMode: true,
     });
 
+    const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    if ((shaderProgram as any).vrState != null && isVrMainPass) {
+      const vrState =  GlobalDataRepository.getInstance().getValue(
+        ShaderSemantics.VrState,
+        0
+      ) as Vector2;
+      vrState._v[0] = isVrMainPass ? 1 : 0;
+      vrState._v[1] = 0;
+      (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
+    }
+
     if (renderPass.depthWriteMask) {
       gl.depthMask(true);
     } else {
@@ -536,6 +548,15 @@ bool get_isBillboard(float instanceId) {
               displayIdx,
             },
           });
+        }
+        if ((shaderProgram as any).vrState != null && isVrMainPass) {
+          const vrState =  GlobalDataRepository.getInstance().getValue(
+            ShaderSemantics.VrState,
+            0
+          ) as Vector2;
+          vrState._v[0] = isVrMainPass ? 1 : 0;
+          vrState._v[1] = displayIdx;
+          (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
         }
 
         if (primitive.indicesAccessor) {
