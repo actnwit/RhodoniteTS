@@ -113,8 +113,8 @@ function createRenderPassesBlurredHighLuminance(
   const renderPasses: RenderPass[] = [];
 
   for (let i = 0; i < gaussianBlurLevelHighLuminance; i++) {
-    const resolutionWidthBlur = maxResolutionWidth / Math.pow(2.0, i);
-    const resolutionHeightBlur = maxResolutionHeight / Math.pow(2.0, i);
+    const resolutionWidthBlur = Math.max(maxResolutionWidth >> (i + 1), 1);
+    const resolutionHeightBlur = Math.max(maxResolutionHeight >> (i + 1), 1);
 
     let renderPassBlurH;
     if (i === 0) {
