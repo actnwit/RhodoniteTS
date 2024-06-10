@@ -8,7 +8,7 @@ import { Scalar } from '../../math/Scalar';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 import { Socket } from '../core/Socket';
 
-test('ScalarToVector4 works correctly 2', async () => {
+test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
@@ -30,29 +30,33 @@ test('ScalarToVector4 works correctly 2', async () => {
   const scalarToVector4MaterialNode = new ScalarToVector4ShaderNode();
 
   // connect ConstantVariable shader nodes to ScalarToVector4 shader node as inputs
-  scalarToVector4MaterialNode.addInputConnection2(
+  scalarToVector4MaterialNode.addInputConnection(
     constant1,
     constant1.getSocketOutput(),
     scalarToVector4MaterialNode.getSocketX()
   );
-  scalarToVector4MaterialNode.addInputConnection2(
+  scalarToVector4MaterialNode.addInputConnection(
     constant2,
     constant2.getSocketOutput(),
     scalarToVector4MaterialNode.getSocketY()
   );
-  scalarToVector4MaterialNode.addInputConnection2(
+  scalarToVector4MaterialNode.addInputConnection(
     constant3,
     constant3.getSocketOutput(),
     scalarToVector4MaterialNode.getSocketZ()
   );
-  scalarToVector4MaterialNode.addInputConnection2(
+  scalarToVector4MaterialNode.addInputConnection(
     constant4,
     constant4.getSocketOutput(),
     scalarToVector4MaterialNode.getSocketW()
   );
 
   const endMaterialNode = new OutPositionShaderNode();
-  endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');
+  endMaterialNode.addInputConnection(
+    scalarToVector4MaterialNode,
+    scalarToVector4MaterialNode.getSocketOutput(),
+    endMaterialNode.getSocketInput()
+  );
 
   // nodes are intentionally made the order random to confirm the method sort them properly
   const retVal = ShaderGraphResolver.createVertexShaderCode(

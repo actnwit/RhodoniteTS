@@ -9,8 +9,6 @@ export abstract class ConstantVariableShaderNode<
   N extends CompositionTypeEnum,
   T extends ComponentTypeEnum
 > extends AbstractShaderNode {
-  private __outValueSocket: Socket<string, N, T>;
-
   constructor(compositionType: N, componentType: T) {
     super('constantVariable', undefined, undefined);
 
@@ -22,9 +20,7 @@ export abstract class ConstantVariableShaderNode<
       componentType
     );
 
-    const outValueSocket = new Socket('outValue', compositionType, componentType);
-    this.__outputs.push(outValueSocket);
-    this.__outValueSocket = outValueSocket;
+    this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }
 
   setDefaultInputValue(value: IVector) {
@@ -32,6 +28,6 @@ export abstract class ConstantVariableShaderNode<
   }
 
   getSocketOutput() {
-    return this.__outValueSocket;
+    return this.__outputs[0];
   }
 }

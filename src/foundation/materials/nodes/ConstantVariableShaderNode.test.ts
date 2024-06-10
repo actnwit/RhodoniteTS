@@ -8,7 +8,7 @@ import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 import { ModuleManager } from '../../system/ModuleManager';
 import { ConstantVector4VariableShaderNode } from './ConstantVector4VariableShaderNode';
 
-test.skip('ConstantVariable works correctly 1', async () => {
+test('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
@@ -22,14 +22,17 @@ test.skip('ConstantVariable works correctly 1', async () => {
   constant2.setDefaultInputValue(Vector4.fromCopyArray([4, 3, 2, 1]));
 
   const add = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
-  add.addInputConnection(constant1, 'outValue', 'lhs');
-  add.addInputConnection(constant2, 'outValue', 'rhs');
+  add.addInputConnection(constant1, constant1.getSocketOutput(), add.getSocketInputLhs());
+  add.addInputConnection(constant2, constant2.getSocketOutput(), add.getSocketInputRhs());
 
   const outPosition = new OutPositionShaderNode();
-  outPosition.addInputConnection(add, 'outValue', 'value');
+  outPosition.addInputConnection(add, add.getSocketOutput(), outPosition.getSocketInput());
 
   // nodes are intentionally made the order random
-  const ret = ShaderGraphResolver.createVertexShaderCode([constant1, constant2, add, outPosition]);
+  const ret = ShaderGraphResolver.createVertexShaderCode(
+    [constant1, constant2, add, outPosition],
+    false
+  );
 
   // console.log(ret.shaderBody, ret.shader);
 
@@ -66,34 +69,6 @@ test.skip('ConstantVariable works correctly 1', async () => {
         }
 
         void main() {
-        #ifdef RN_IS_DATATEXTURE_MODE
-      float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
-      #endif
-
-    #else
-
-      float materialSID = u_materialSID;
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = get_lightNumber(0.0, 0);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = float(get_skinningMode(0.0, 0));
-      #endif
-
-    #endif
     vec4 outValue_0_to_2=vec4(0.0,0.0,0.0,0.0);
     vec4 outValue_1_to_2=vec4(0.0,0.0,0.0,0.0);
     vec4 outValue_2_to_3=vec4(0.0,0.0,0.0,0.0);
