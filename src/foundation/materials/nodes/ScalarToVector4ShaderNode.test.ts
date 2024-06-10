@@ -16,6 +16,7 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
     gpuVertexData: 1,
   });
 
+  // create ConstantVariable shader nodes
   const constant1 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant1.setDefaultInputValue('value', Scalar.fromCopyNumber(1));
   const constant2 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
@@ -25,7 +26,10 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
   const constant4 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
   constant4.setDefaultInputValue('value', Scalar.fromCopyNumber(4));
 
+  // create ScalarToVector4 shader node
   const scalarToVector4MaterialNode = new ScalarToVector4ShaderNode();
+
+  // connect ConstantVariable shader nodes to ScalarToVector4 shader node as inputs
   scalarToVector4MaterialNode.addInputConnection(constant1, 'outValue', 'x');
   scalarToVector4MaterialNode.addInputConnection(constant2, 'outValue', 'y');
   scalarToVector4MaterialNode.addInputConnection(constant3, 'outValue', 'z');
@@ -34,7 +38,7 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
   const endMaterialNode = new OutPositionShaderNode();
   endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');
 
-  // nodes are intentionally made the order random
+  // nodes are intentionally made the order random to confirm the method sort them properly
   const retVal = ShaderGraphResolver.createVertexShaderCode([
     endMaterialNode,
     scalarToVector4MaterialNode,
