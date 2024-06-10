@@ -35,15 +35,6 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 
-export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
-
-export type ShaderSocket = {
-  compositionType: CompositionTypeEnum;
-  componentType: ComponentTypeEnum;
-  name: ShaderAttributeOrSemanticsOrString;
-  isClosed?: boolean;
-};
-
 type MaterialNodeTypeName = string;
 type MaterialNodeUID = number;
 

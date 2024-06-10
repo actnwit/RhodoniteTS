@@ -1,9 +1,8 @@
-import { ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
+import { ShaderNodeUID, AbstractShaderNode, ShaderSocket } from './AbstractShaderNode';
 import { Index } from '../../../types/CommonTypes';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
-import { ShaderSocket } from './AbstractMaterialContent';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';

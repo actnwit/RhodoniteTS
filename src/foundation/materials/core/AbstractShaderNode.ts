@@ -1,6 +1,18 @@
 import { RnObject } from '../../core/RnObject';
-import { ShaderSocket } from './AbstractMaterialContent';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
+
+export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
+
+export type ShaderSocket = {
+  compositionType: CompositionTypeEnum;
+  componentType: ComponentTypeEnum;
+  name: ShaderAttributeOrSemanticsOrString;
+  isClosed?: boolean;
+};
 
 export type ShaderNodeUID = number;
 type ShaderNodeInputConnectionType = {
