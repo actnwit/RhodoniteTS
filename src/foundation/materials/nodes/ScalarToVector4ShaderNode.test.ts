@@ -1,14 +1,14 @@
 import { ModuleManager } from '../../system/ModuleManager';
 import { MemoryManager } from '../../core/MemoryManager';
-import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
-import { CompositionType } from '../../definitions/CompositionType';
+import { ConstantScalarVariableShaderNode } from './ConstantScalarVariableShaderNode';
 import { ComponentType } from '../../definitions/ComponentType';
 import { ScalarToVector4ShaderNode } from './ScalarToVector4ShaderNode';
 import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { Scalar } from '../../math/Scalar';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
+import { Socket } from '../core/Socket';
 
-test('ScalarToVector4 works correctly 1', async () => {
+test('ScalarToVector4 works correctly 2', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
@@ -17,23 +17,39 @@ test('ScalarToVector4 works correctly 1', async () => {
   });
 
   // create ConstantVariable shader nodes
-  const constant1 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant1.setDefaultInputValue('value', Scalar.fromCopyNumber(1));
-  const constant2 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant2.setDefaultInputValue('value', Scalar.fromCopyNumber(2));
-  const constant3 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant3.setDefaultInputValue('value', Scalar.fromCopyNumber(3));
-  const constant4 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant4.setDefaultInputValue('value', Scalar.fromCopyNumber(4));
+  const constant1 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant1.setDefaultInputValue(Scalar.fromCopyNumber(1));
+  const constant2 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant2.setDefaultInputValue(Scalar.fromCopyNumber(2));
+  const constant3 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant3.setDefaultInputValue(Scalar.fromCopyNumber(3));
+  const constant4 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant4.setDefaultInputValue(Scalar.fromCopyNumber(4));
 
   // create ScalarToVector4 shader node
   const scalarToVector4MaterialNode = new ScalarToVector4ShaderNode();
 
   // connect ConstantVariable shader nodes to ScalarToVector4 shader node as inputs
-  scalarToVector4MaterialNode.addInputConnection(constant1, 'outValue', 'x');
-  scalarToVector4MaterialNode.addInputConnection(constant2, 'outValue', 'y');
-  scalarToVector4MaterialNode.addInputConnection(constant3, 'outValue', 'z');
-  scalarToVector4MaterialNode.addInputConnection(constant4, 'outValue', 'w');
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant1,
+    constant1.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketX()
+  );
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant2,
+    constant2.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketY()
+  );
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant3,
+    constant3.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketZ()
+  );
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant4,
+    constant4.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketW()
+  );
 
   const endMaterialNode = new OutPositionShaderNode();
   endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');

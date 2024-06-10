@@ -1,5 +1,4 @@
 import { MemoryManager } from '../../core/MemoryManager';
-import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { AddShaderNode } from './AddShaderNode';
@@ -7,6 +6,7 @@ import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { Vector4 } from '../../math/Vector4';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 import { ModuleManager } from '../../system/ModuleManager';
+import { ConstantVector4VariableShaderNode } from './ConstantVector4VariableShaderNode';
 
 test.skip('ConstantVariable works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
@@ -16,10 +16,10 @@ test.skip('ConstantVariable works correctly 1', async () => {
     gpuVertexData: 1,
   });
 
-  const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
-  constant1.setDefaultInputValue('value', Vector4.fromCopyArray([1, 2, 3, 4]));
-  const constant2 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
-  constant2.setDefaultInputValue('value', Vector4.fromCopyArray([4, 3, 2, 1]));
+  const constant1 = new ConstantVector4VariableShaderNode(ComponentType.Float);
+  constant1.setDefaultInputValue(Vector4.fromCopyArray([1, 2, 3, 4]));
+  const constant2 = new ConstantVector4VariableShaderNode(ComponentType.Float);
+  constant2.setDefaultInputValue(Vector4.fromCopyArray([4, 3, 2, 1]));
 
   const add = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
   add.addInputConnection(constant1, 'outValue', 'lhs');

@@ -1,17 +1,17 @@
 import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { CompositionType } from '../../definitions';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { IVector4 } from '../../math/IVector';
+import { IVector3 } from '../../math/IVector';
 import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
 
-export class ConstantVector4VariableShaderNode<
+export class ConstantVector3VariableShaderNode<
   T extends ComponentTypeEnum
-> extends ConstantVariableShaderNode<typeof CompositionType.Vec4, T> {
+> extends ConstantVariableShaderNode<typeof CompositionType.Vec3, T> {
   constructor(componentType: T) {
-    super(CompositionType.Vec4, componentType);
+    super(CompositionType.Vec3, componentType);
   }
 
-  setDefaultInputValue(value: IVector4) {
+  setDefaultInputValue(value: IVector3) {
     (this.__shader as ConstantVariableShader).setConstantValue(value);
   }
 }

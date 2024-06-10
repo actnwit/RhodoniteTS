@@ -11,18 +11,12 @@ Rn.MemoryManager.createInstanceIfNotCreated({
 });
 
 // Constant 1
-const constant1 = new Rn.ConstantVariableShaderNode(
-  Rn.CompositionType.Vec4,
-  Rn.ComponentType.Float
-);
-constant1.setDefaultInputValue('value', Rn.Vector4.fromCopyArray([1, 2, 3, 4]));
+const constant1 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
+constant1.setDefaultInputValue(Rn.Vector4.fromCopyArray([1, 2, 3, 4]));
 
 // Constant 2
-const constant2 = new Rn.ConstantVariableShaderNode(
-  Rn.CompositionType.Vec4,
-  Rn.ComponentType.Float
-);
-constant2.setDefaultInputValue('value', Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
+const constant2 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
+constant2.setDefaultInputValue(Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
 
 // Add (Constant 1 + Constant 2)
 const addShaderNode = new Rn.AddShaderNode(Rn.CompositionType.Vec4, Rn.ComponentType.Float);

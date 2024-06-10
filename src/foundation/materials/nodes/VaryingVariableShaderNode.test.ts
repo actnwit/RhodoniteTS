@@ -1,8 +1,8 @@
 import { ModuleManager } from '../../system/ModuleManager';
 import { MemoryManager } from '../../core/MemoryManager';
-import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
 import { VaryingInVariableShaderNode } from './VaryingInVariableShaderNode';
 import { VaryingOutVariableShaderNode } from './VaryingOutVariableShaderNode';
+import { ConstantVector4VariableShaderNode } from './ConstantVector4VariableShaderNode';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { OutPositionShaderNode } from './OutPositionShaderNode';
@@ -22,8 +22,8 @@ test.skip('VaryingVariable works correctly 1', async () => {
   varyingOut1.setVaryingVariableName('v_position');
   const varyingIn1 = new VaryingInVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
   varyingIn1.setVaryingVariableName('v_position');
-  const constant1 = new ConstantVariableShaderNode(CompositionType.Vec4, ComponentType.Float);
-  constant1.setDefaultInputValue('value', Vector4.fromCopyArray([4, 3, 2, 1]));
+  const constant1 = new ConstantVector4VariableShaderNode(ComponentType.Float);
+  constant1.setDefaultInputValue(Vector4.fromCopyArray([4, 3, 2, 1]));
   const outPositionNode = new OutPositionShaderNode();
   const outColorNode = new OutColorShaderNode();
 
