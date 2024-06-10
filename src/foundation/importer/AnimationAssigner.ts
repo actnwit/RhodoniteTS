@@ -36,6 +36,8 @@ export class AnimationAssigner {
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
+    this.__resetAnimationAndPose(rootEntity);
+
     this.__setupAnimationForSameSkeleton(
       rootEntity,
       gltfModel,
@@ -47,34 +49,14 @@ export class AnimationAssigner {
     return rootEntity;
   }
 
+
   assignAnimationWithVrma(
     rootEntity: ISceneGraphEntity,
     vrmaModel: RnM2Vrma,
     addPrefixToAnimationTrackName?: string
   ) {
-    const resetAnimationTracks = (vrma: RnM2Vrma) => {
-      if (vrma.animations && vrma.animations.length > 0) {
-        for (const animation of vrma.animations) {
-          for (const channel of animation.channels) {
-            // find the corresponding joint entity
-            // const node = gltfModel.nodes[channel.target!.node!];
-            const rnEntity = this.__getCorrespondingEntityWithVrma(
-              rootEntity,
-              vrma,
-              channel.target!.node!
-            );
-            if (rnEntity) {
-              const newRnEntity = EntityRepository.addComponentToEntity(
-                AnimationComponent,
-                rnEntity
-              );
-              const animationComponent = newRnEntity.getAnimation();
-              animationComponent.resetAnimationTracks();
-            }
-          }
-        }
-      }
-    };
+
+    this.__resetAnimationAndPose(rootEntity);
 
     let trackNames: string[] = [];
     const setRetarget = (vrma: RnM2Vrma) => {
@@ -125,9 +107,6 @@ export class AnimationAssigner {
       }
     };
 
-    // Reset animation tracks
-    // resetAnimationTracks(vrmaModel);
-
     // Set retarget
     setRetarget(vrmaModel);
 
@@ -135,6 +114,20 @@ export class AnimationAssigner {
   }
 
   private constructor() {}
+
+  private __resetAnimationAndPose(rootEntity: ISceneGraphEntity) {
+    function resetAnimationAndPose(entity: ISceneGraphEntity) {
+      const animationComponent = entity.tryToGetAnimation();
+      if (animationComponent != null) {
+        animationComponent.resetAnimationTracks();
+      }
+      entity.getTransform()._restoreTransformFromRest();
+      for (const child of entity.children) {
+        resetAnimationAndPose(child.entity);
+      }
+    }
+    resetAnimationAndPose(rootEntity);
+  }
 
   /**
    * The static method to get singleton instance of this class.
@@ -363,7 +356,6 @@ export class AnimationAssigner {
               } else {
                 throw new Error('unknown retarget mode');
               }
-              animationComponent.resetAnimationTracks();
               animationComponent._setRetarget(retarget);
             }
           }
