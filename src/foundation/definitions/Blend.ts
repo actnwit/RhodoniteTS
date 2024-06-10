@@ -44,13 +44,18 @@ const OneMinusSrcAlpha: BlendEnum = new BlendClass({
   str: 'ONE_MINUS_SRC_ALPHA',
   webgpu: 'one-minus-src-alpha',
 });
+const Min: BlendEnum = new BlendClass({
+  index: 0x8007,
+  str: 'Equation_FUNC_MIN',
+  webgpu: 'min',
+});
 const Max: BlendEnum = new BlendClass({
   index: 0x8008,
   str: 'Equation_FUNC_MAX',
   webgpu: 'max',
 });
 
-const typeList = [EquationFuncAdd, Zero, One, SrcAlpha, OneMinusSrcAlpha, Max];
+const typeList = [EquationFuncAdd, Zero, One, SrcAlpha, OneMinusSrcAlpha, Min, Max];
 
 function from(index: number): BlendEnum {
   return _from({ typeList, index }) as BlendEnum;
@@ -62,6 +67,7 @@ export const Blend = Object.freeze({
   One,
   SrcAlpha,
   OneMinusSrcAlpha,
+  Min,
   Max,
   from,
 });
