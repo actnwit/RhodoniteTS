@@ -14,7 +14,6 @@ export * from './OutColorShaderNode';
 export * from './OutPositionShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './ScalarToVector4ShaderNode';
-export * from './TextureFetchMaterialNode';
 export * from './UniformDataShaderNode';
 export * from './VaryingInVariableShaderNode';
 export * from './VaryingOutVariableShaderNode';
