@@ -10,10 +10,11 @@ export interface ComponentTypeEnum extends EnumIO {
   isInteger(): boolean;
 }
 
-class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
+class ComponentTypeClass<TypeName extends string> extends EnumClass implements ComponentTypeEnum {
   readonly __webgpu: string;
   readonly __wgsl: string;
   readonly __sizeInBytes: number;
+  readonly __dummyStr: TypeName;
   constructor({
     index,
     str,
@@ -22,7 +23,7 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
     webgpu,
   }: {
     index: number;
-    str: string;
+    str: TypeName;
     sizeInBytes: number;
     wgsl: string;
     webgpu: string;
@@ -31,6 +32,7 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
     this.__sizeInBytes = sizeInBytes;
     this.__webgpu = webgpu;
     this.__wgsl = wgsl;
+    this.__dummyStr = str;
   }
 
   get wgsl(): string {
@@ -81,77 +83,77 @@ class ComponentTypeClass extends EnumClass implements ComponentTypeEnum {
   }
 }
 
-const Unknown: ComponentTypeEnum = new ComponentTypeClass({
+const Unknown = new ComponentTypeClass({
   index: 5119,
   str: 'UNKNOWN',
   sizeInBytes: 0,
   wgsl: 'unknown',
   webgpu: 'unknown',
 });
-const Byte: ComponentTypeEnum = new ComponentTypeClass({
+const Byte = new ComponentTypeClass({
   index: 5120,
   str: 'BYTE',
   sizeInBytes: 1,
   wgsl: 'i32',
   webgpu: 'sint8',
 });
-const UnsignedByte: ComponentTypeEnum = new ComponentTypeClass({
+const UnsignedByte = new ComponentTypeClass({
   index: 5121,
   str: 'UNSIGNED_BYTE',
   sizeInBytes: 1,
   wgsl: 'u32',
   webgpu: 'uint8',
 });
-const Short: ComponentTypeEnum = new ComponentTypeClass({
+const Short = new ComponentTypeClass({
   index: 5122,
   str: 'SHORT',
   sizeInBytes: 2,
   wgsl: 'i32',
   webgpu: 'sint16',
 });
-const UnsignedShort: ComponentTypeEnum = new ComponentTypeClass({
+const UnsignedShort = new ComponentTypeClass({
   index: 5123,
   str: 'UNSIGNED_SHORT',
   sizeInBytes: 2,
   wgsl: 'u32',
   webgpu: 'uint16',
 });
-const Int: ComponentTypeEnum = new ComponentTypeClass({
+const Int = new ComponentTypeClass({
   index: 5124,
   str: 'INT',
   sizeInBytes: 4,
   wgsl: 'i32',
   webgpu: 'sint32',
 });
-const UnsignedInt: ComponentTypeEnum = new ComponentTypeClass({
+const UnsignedInt = new ComponentTypeClass({
   index: 5125,
   str: 'UNSIGNED_INT',
   sizeInBytes: 4,
   wgsl: 'u32',
   webgpu: 'uint32',
 });
-const Float: ComponentTypeEnum = new ComponentTypeClass({
+const Float = new ComponentTypeClass({
   index: 5126,
   str: 'FLOAT',
   sizeInBytes: 4,
   wgsl: 'f32',
   webgpu: 'float32',
 });
-const Double: ComponentTypeEnum = new ComponentTypeClass({
+const Double = new ComponentTypeClass({
   index: 5127,
   str: 'DOUBLE',
   sizeInBytes: 8,
   wgsl: 'f32',
   webgpu: 'float64',
 });
-const Bool: ComponentTypeEnum = new ComponentTypeClass({
+const Bool = new ComponentTypeClass({
   index: 35670,
   str: 'BOOL',
   sizeInBytes: 1,
   wgsl: 'bool',
   webgpu: 'bool',
 });
-const HalfFloat: ComponentTypeEnum = new ComponentTypeClass({
+const HalfFloat = new ComponentTypeClass({
   index: 0x140b,
   str: 'HALF_FLOAT',
   sizeInBytes: 2,
@@ -351,7 +353,7 @@ export type Gltf2AccessorComponentType =
   | typeof Float;
 
 function toGltf2AccessorComponentType(
-  componentTypeForGltf2: Gltf2AccessorComponentType
+  componentTypeForGltf2: ComponentTypeEnum
 ): Gltf2AccessorComponentTypeNumber {
   return componentTypeForGltf2.index as Gltf2AccessorComponentTypeNumber;
 }

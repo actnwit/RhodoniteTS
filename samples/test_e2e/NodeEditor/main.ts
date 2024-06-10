@@ -11,29 +11,39 @@ Rn.MemoryManager.createInstanceIfNotCreated({
 });
 
 // Constant 1
-const constant1 = new Rn.ConstantVariableShaderNode(
-  Rn.CompositionType.Vec4,
-  Rn.ComponentType.Float
-);
-constant1.setDefaultInputValue('value', Rn.Vector4.fromCopyArray([1, 2, 3, 4]));
+const constant1 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
+constant1.setDefaultInputValue(Rn.Vector4.fromCopyArray([1, 2, 3, 4]));
 
 // Constant 2
-const constant2 = new Rn.ConstantVariableShaderNode(
-  Rn.CompositionType.Vec4,
-  Rn.ComponentType.Float
-);
-constant2.setDefaultInputValue('value', Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
+const constant2 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
+constant2.setDefaultInputValue(Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
 
 // Add (Constant 1 + Constant 2)
 const addShaderNode = new Rn.AddShaderNode(Rn.CompositionType.Vec4, Rn.ComponentType.Float);
-addShaderNode.addInputConnection(constant1, 'outValue', 'lhs');
-addShaderNode.addInputConnection(constant2, 'outValue', 'rhs');
+addShaderNode.addInputConnection(
+  constant1,
+  constant1.getSocketOutput(),
+  addShaderNode.getSocketInputLhs()
+);
+addShaderNode.addInputConnection(
+  constant2,
+  constant2.getSocketOutput(),
+  addShaderNode.getSocketInputRhs()
+);
 
 // Out
 const outPositionShaderNode = new Rn.OutPositionShaderNode();
 const outColorShaderNode = new Rn.OutColorShaderNode();
-outPositionShaderNode.addInputConnection(addShaderNode, 'outValue', 'value');
-outColorShaderNode.addInputConnection(constant2, 'outValue', 'value');
+outPositionShaderNode.addInputConnection(
+  addShaderNode,
+  addShaderNode.getSocketOutput(),
+  outPositionShaderNode.getSocketInput()
+);
+outColorShaderNode.addInputConnection(
+  constant2,
+  constant2.getSocketOutput(),
+  outColorShaderNode.getSocketInput()
+);
 
 const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode([
   outPositionShaderNode,

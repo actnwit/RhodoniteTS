@@ -1,14 +1,14 @@
 import { ModuleManager } from '../../system/ModuleManager';
 import { MemoryManager } from '../../core/MemoryManager';
-import { ConstantVariableShaderNode } from './ConstantVariableShaderNode';
-import { CompositionType } from '../../definitions/CompositionType';
+import { ConstantScalarVariableShaderNode } from './ConstantScalarVariableShaderNode';
 import { ComponentType } from '../../definitions/ComponentType';
 import { ScalarToVector4ShaderNode } from './ScalarToVector4ShaderNode';
 import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { Scalar } from '../../math/Scalar';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
+import { Socket } from '../core/Socket';
 
-test.skip('ScalarToVector4 works correctly 1', async () => {
+test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
@@ -16,33 +16,53 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
     gpuVertexData: 1,
   });
 
-  const constant1 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant1.setDefaultInputValue('value', Scalar.fromCopyNumber(1));
-  const constant2 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant2.setDefaultInputValue('value', Scalar.fromCopyNumber(2));
-  const constant3 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant3.setDefaultInputValue('value', Scalar.fromCopyNumber(3));
-  const constant4 = new ConstantVariableShaderNode(CompositionType.Scalar, ComponentType.Float);
-  constant4.setDefaultInputValue('value', Scalar.fromCopyNumber(4));
+  // create ConstantVariable shader nodes
+  const constant1 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant1.setDefaultInputValue(Scalar.fromCopyNumber(1));
+  const constant2 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant2.setDefaultInputValue(Scalar.fromCopyNumber(2));
+  const constant3 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant3.setDefaultInputValue(Scalar.fromCopyNumber(3));
+  const constant4 = new ConstantScalarVariableShaderNode(ComponentType.Float);
+  constant4.setDefaultInputValue(Scalar.fromCopyNumber(4));
 
+  // create ScalarToVector4 shader node
   const scalarToVector4MaterialNode = new ScalarToVector4ShaderNode();
-  scalarToVector4MaterialNode.addInputConnection(constant1, 'outValue', 'x');
-  scalarToVector4MaterialNode.addInputConnection(constant2, 'outValue', 'y');
-  scalarToVector4MaterialNode.addInputConnection(constant3, 'outValue', 'z');
-  scalarToVector4MaterialNode.addInputConnection(constant4, 'outValue', 'w');
+
+  // connect ConstantVariable shader nodes to ScalarToVector4 shader node as inputs
+  scalarToVector4MaterialNode.addInputConnection(
+    constant1,
+    constant1.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketX()
+  );
+  scalarToVector4MaterialNode.addInputConnection(
+    constant2,
+    constant2.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketY()
+  );
+  scalarToVector4MaterialNode.addInputConnection(
+    constant3,
+    constant3.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketZ()
+  );
+  scalarToVector4MaterialNode.addInputConnection(
+    constant4,
+    constant4.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketW()
+  );
 
   const endMaterialNode = new OutPositionShaderNode();
-  endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');
-
-  // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode([
-    endMaterialNode,
+  endMaterialNode.addInputConnection(
     scalarToVector4MaterialNode,
-    constant1,
-    constant2,
-    constant3,
-    constant4,
-  ]);
+    scalarToVector4MaterialNode.getSocketOutput(),
+    endMaterialNode.getSocketInput()
+  );
+
+  // nodes are intentionally made the order random to confirm the method sort them properly
+  const retVal = ShaderGraphResolver.createVertexShaderCode(
+    [endMaterialNode, scalarToVector4MaterialNode, constant1, constant2, constant3, constant4],
+    false
+  );
 
   // console.log(retVal.shaderBody);
   expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
@@ -79,34 +99,6 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
         }
 
         void main() {
-        #ifdef RN_IS_DATATEXTURE_MODE
-      float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
-      #endif
-
-    #else
-
-      float materialSID = u_materialSID;
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = get_lightNumber(0.0, 0);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = float(get_skinningMode(0.0, 0));
-      #endif
-
-    #endif
     float outValue_0_to_4=0.0;
     float outValue_1_to_4=0.0;
     float outValue_2_to_4=0.0;

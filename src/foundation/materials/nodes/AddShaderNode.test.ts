@@ -41,10 +41,14 @@ test.skip('AttributePosition works correctly 1', async () => {
   const a_position = new AttributePositionShaderNode();
 
   const outPositionNode = new OutPositionShaderNode();
-  outPositionNode.addInputConnection(a_position, 'outValue', 'value');
+  outPositionNode.addInputConnection(
+    a_position,
+    a_position.getSocketOutput(),
+    outPositionNode.getSocketInput()
+  );
 
   // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode([outPositionNode, a_position]);
+  const retVal = ShaderGraphResolver.createVertexShaderCode([outPositionNode, a_position], false);
 
   expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
     `
@@ -60,34 +64,6 @@ test.skip('AttributePosition works correctly 1', async () => {
         }
 
         void main() {
-        #ifdef RN_IS_DATATEXTURE_MODE
-      float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
-      #endif
-
-    #else
-
-      float materialSID = u_materialSID;
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = get_lightNumber(0.0, 0);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = float(get_skinningMode(0.0, 0));
-      #endif
-
-    #endif
     vec4 outValue_0_to_1=vec4(0.0,0.0,0.0,0.0);
     attributePosition(outValue_0_to_1);
     outPosition(outValue_0_to_1);

@@ -35,22 +35,8 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 
-export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
-
-export type ShaderSocket = {
-  compositionType: CompositionTypeEnum;
-  componentType: ComponentTypeEnum;
-  name: ShaderAttributeOrSemanticsOrString;
-  isClosed?: boolean;
-};
-
 type MaterialNodeTypeName = string;
 type MaterialNodeUID = number;
-type InputConnectionType = {
-  materialNodeUid: number;
-  outputNameOfPrev: string;
-  inputNameOfThis: string;
-};
 
 export abstract class AbstractMaterialContent extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
@@ -58,16 +44,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     MaterialNodeTypeName,
     Map<ShaderSemanticsName, ShaderSemanticsInfo>
   > = new Map();
-  protected __vertexInputs: ShaderSocket[] = [];
-  protected __pixelInputs: ShaderSocket[] = [];
-  protected __vertexOutputs: ShaderSocket[] = [];
-  protected __pixelOutputs: ShaderSocket[] = [];
-  protected __defaultInputValues: Map<string, any> = new Map();
-  private static readonly __invalidMaterialNodeUid = -1;
-  private static __invalidMaterialNodeCount = -1;
-  protected __materialNodeUid: MaterialNodeUID;
-  protected __vertexInputConnections: InputConnectionType[] = [];
-  protected __pixelInputConnections: InputConnectionType[] = [];
   static materialNodes: AbstractMaterialContent[] = [];
   protected __shaderFunctionName: string;
   public isSingleOperation = false;
@@ -97,9 +73,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   ) {
     super();
     this.__shaderFunctionName = shaderFunctionName;
-    this.__materialNodeUid = ++AbstractMaterialContent.__invalidMaterialNodeCount;
-    AbstractMaterialContent.materialNodes[AbstractMaterialContent.__invalidMaterialNodeCount] =
-      this;
 
     this.__isMorphing = isMorphing;
     this.__isSkinning = isSkinning;
@@ -135,10 +108,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     return AbstractMaterialContent.materialNodes[materialNodeUid];
   }
 
-  get materialNodeUid() {
-    return this.__materialNodeUid;
-  }
-
   get _semanticsInfoArray() {
     return this.__semantics;
   }
@@ -172,90 +141,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   getShaderSemanticInfoFromName(name: string) {
     const map = AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)!;
     return map.get(name);
-  }
-
-  addVertexInputConnection(
-    inputMaterialNode: AbstractMaterialContent,
-    outputNameOfPrev: string,
-    inputNameOfThis: string
-  ) {
-    this.__vertexInputConnections.push({
-      materialNodeUid: inputMaterialNode.materialNodeUid,
-      outputNameOfPrev: outputNameOfPrev,
-      inputNameOfThis: inputNameOfThis,
-    });
-  }
-
-  addPixelInputConnection(
-    inputMaterialNode: AbstractMaterialContent,
-    outputNameOfPrev: string,
-    inputNameOfThis: string
-  ) {
-    this.__pixelInputConnections.push({
-      materialNodeUid: inputMaterialNode.materialNodeUid,
-      outputNameOfPrev: outputNameOfPrev,
-      inputNameOfThis: inputNameOfThis,
-    });
-  }
-
-  get vertexInputConnections(): InputConnectionType[] {
-    return this.__vertexInputConnections;
-  }
-
-  get pixelInputConnections(): InputConnectionType[] {
-    return this.__pixelInputConnections;
-  }
-
-  getVertexInput(name: string): ShaderSocket | undefined {
-    for (const input of this.__vertexInputs) {
-      if (input.name === name) {
-        return input;
-      }
-    }
-    return void 0;
-  }
-
-  getVertexInputs() {
-    return this.__vertexInputs;
-  }
-
-  getVertexOutput(name: string): ShaderSocket | undefined {
-    for (const output of this.__vertexOutputs) {
-      if (output.name === name) {
-        return output;
-      }
-    }
-    return void 0;
-  }
-
-  getVertexOutputs() {
-    return this.__vertexOutputs;
-  }
-
-  getPixelInput(name: string): ShaderSocket | undefined {
-    for (const input of this.__pixelInputs) {
-      if (input.name === name) {
-        return input;
-      }
-    }
-    return void 0;
-  }
-
-  getPixelInputs() {
-    return this.__pixelInputs;
-  }
-
-  getPixelOutput(name: string): ShaderSocket | undefined {
-    for (const output of this.__pixelOutputs) {
-      if (output.name === name) {
-        return output;
-      }
-    }
-    return void 0;
-  }
-
-  getPixelOutputs() {
-    return this.__pixelOutputs;
   }
 
   protected setupBasicInfo(
@@ -582,10 +467,6 @@ export abstract class AbstractMaterialContent extends RnObject {
     material: Material;
     args: RenderingArgWebGpu;
   }) {}
-
-  setDefaultInputValue(inputName: string, value: any) {
-    this.__defaultInputValues.set(inputName, value);
-  }
 
   getDefinition() {
     return '';

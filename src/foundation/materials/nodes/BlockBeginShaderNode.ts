@@ -1,8 +1,7 @@
 import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
 import { BlockBeginShader } from '../../../webgl/shaders/nodes/BlockBeginShader';
-import { AbstractShaderNode } from '../core/AbstractShaderNode';
-import { ShaderSocket } from '../core/AbstractMaterialContent';
+import { AbstractShaderNode, ShaderSocket } from '../core/AbstractShaderNode';
 
 export class BlockBeginShaderNode extends AbstractShaderNode {
   private __valueInputs: ShaderSocket[] = [];

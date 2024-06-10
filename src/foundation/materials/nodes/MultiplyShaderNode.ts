@@ -13,7 +13,7 @@ export class MultiplyShaderNode extends AbstractShaderNode {
   ) {
     super('multiply', MultiplyShaderityObject.code);
 
-    let outValueCompositionType = CompositionType.Unknown;
+    let outValueCompositionType: CompositionTypeEnum = CompositionType.Unknown;
     if (
       lhsCompositionType === CompositionType.Mat4 &&
       rhsCompositionType === CompositionType.Mat4

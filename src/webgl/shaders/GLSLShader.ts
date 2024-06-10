@@ -1,11 +1,11 @@
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractMaterialContent';
 import { ShaderSemanticsClass } from '../../foundation/definitions/ShaderSemantics';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
 import { AttributeNames } from '../types/CommonTypes';
+import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractShaderNode';
 
 export abstract class GLSLShader {
   static __instance: GLSLShader;

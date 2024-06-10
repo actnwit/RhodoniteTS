@@ -1,9 +1,8 @@
-import { ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
+import { ShaderNodeUID, AbstractShaderNode, ShaderSocket } from './AbstractShaderNode';
 import { Index } from '../../../types/CommonTypes';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
-import { ShaderSocket } from './AbstractMaterialContent';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
@@ -11,7 +10,7 @@ import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/c
 import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
 
 export class ShaderGraphResolver {
-  static createVertexShaderCode(vertexNodes: AbstractShaderNode[]) {
+  static createVertexShaderCode(vertexNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = vertexNodes.concat();
 
     // Find Start Node
@@ -22,23 +21,22 @@ export class ShaderGraphResolver {
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
-    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    let in_ = 'attribute';
-    if (webglResourceRepository.currentWebGLContextWrapper?.isWebGL2) {
-      in_ = 'in';
-    }
-    vertexShaderPrerequisites += `
+
+    if (isFullVersion) {
+      const in_ = 'in';
+      vertexShaderPrerequisites += `
 #version 300 es
 precision highp float;
 precision highp int;
 ${prerequisitesShaderityObject.code}
 
-    ${in_} vec4 a_instanceInfo;\n`;
-    vertexShaderPrerequisites += `
+${in_} vec4 a_instanceInfo;\n`;
+      vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;
-    vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
-    vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
+      vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+    }
 
     let shaderBody = '';
 
@@ -49,14 +47,14 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes, isFullVersion);
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
     return { shader, shaderBody };
   }
 
-  static createPixelShaderCode(pixelNodes: AbstractShaderNode[]) {
+  static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = pixelNodes.concat();
 
     // Find Start Node
@@ -67,15 +65,16 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
-    pixelShaderPrerequisites += `
+    if (isFullVersion) {
+      pixelShaderPrerequisites += `
 #version 300 es
 precision highp float;
 precision highp int;
 ${prerequisitesShaderityObject.code}
 `;
-    pixelShaderPrerequisites += '/* shaderity: @{getters} */';
-    pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
-
+      pixelShaderPrerequisites += '/* shaderity: @{getters} */';
+      pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
+    }
     let shaderBody = '';
 
     // function definitions
@@ -85,7 +84,7 @@ ${prerequisitesShaderityObject.code}
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes);
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes, isFullVersion);
 
     const shader = pixelShaderPrerequisites + shaderBody;
 
@@ -156,7 +155,10 @@ ${prerequisitesShaderityObject.code}
     return shaderText;
   }
 
-  private static __constructShaderWithNodes(materialNodes: AbstractShaderNode[]) {
+  private static __constructShaderWithNodes(
+    materialNodes: AbstractShaderNode[],
+    isFullVersion: boolean
+  ) {
     let shaderBody = '';
     const isAnyTypeInput = function (input: ShaderSocket) {
       return (
@@ -165,7 +167,10 @@ ${prerequisitesShaderityObject.code}
       );
     };
     shaderBody += GLSLShader.glslMainBegin;
-    shaderBody += mainPrerequisitesShaderityObject.code;
+
+    if (isFullVersion) {
+      shaderBody += mainPrerequisitesShaderityObject.code;
+    }
 
     // Collects varInputNames and varOutputNames
     const varInputNames: Array<Array<string>> = []; // input names of topological sorted Nodes

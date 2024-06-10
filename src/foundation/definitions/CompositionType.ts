@@ -19,7 +19,10 @@ export interface CompositionTypeEnum extends EnumIO {
   getVec4SizeOfProperty(): IndexOf16Bytes;
 }
 
-class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
+class CompositionTypeClass<TypeName extends string>
+  extends EnumClass
+  implements CompositionTypeEnum
+{
   readonly __numberOfComponents: number;
   readonly __glslStr: string;
   readonly __hlslStr: string;
@@ -27,6 +30,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
   readonly __wgslStr: string;
   readonly __isArray: boolean;
   readonly __vec4SizeOfProperty: IndexOf16Bytes;
+  readonly __dummyStr: TypeName;
   constructor({
     index,
     str,
@@ -39,7 +43,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     isArray = false,
   }: {
     index: number;
-    str: string;
+    str: TypeName;
     glslStr: string;
     hlslStr: string;
     wgsl: string;
@@ -56,6 +60,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
     this.__isArray = isArray;
     this.__webgpuStr = webgpu;
     this.__wgslStr = wgsl;
+    this.__dummyStr = str;
   }
 
   get webgpu() {
@@ -168,7 +173,7 @@ class CompositionTypeClass extends EnumClass implements CompositionTypeEnum {
   }
 }
 
-const Unknown: CompositionTypeEnum = new CompositionTypeClass({
+const Unknown = new CompositionTypeClass({
   index: -1,
   str: 'UNKNOWN',
   glslStr: 'unknown',
@@ -178,7 +183,7 @@ const Unknown: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 0,
   vec4SizeOfProperty: 0,
 });
-const Scalar: CompositionTypeEnum = new CompositionTypeClass({
+const Scalar = new CompositionTypeClass({
   index: 0,
   str: 'SCALAR',
   glslStr: 'float',
@@ -188,7 +193,7 @@ const Scalar: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
-const Vec2: CompositionTypeEnum = new CompositionTypeClass({
+const Vec2 = new CompositionTypeClass({
   index: 1,
   str: 'VEC2',
   glslStr: 'vec2',
@@ -198,7 +203,7 @@ const Vec2: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 2,
   vec4SizeOfProperty: 1,
 });
-const Vec3: CompositionTypeEnum = new CompositionTypeClass({
+const Vec3 = new CompositionTypeClass({
   index: 2,
   str: 'VEC3',
   glslStr: 'vec3',
@@ -208,7 +213,7 @@ const Vec3: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 3,
   vec4SizeOfProperty: 1,
 });
-const Vec4: CompositionTypeEnum = new CompositionTypeClass({
+const Vec4 = new CompositionTypeClass({
   index: 3,
   str: 'VEC4',
   glslStr: 'vec4',
@@ -218,7 +223,7 @@ const Vec4: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 4,
   vec4SizeOfProperty: 1,
 });
-const Mat2: CompositionTypeEnum = new CompositionTypeClass({
+const Mat2 = new CompositionTypeClass({
   index: 4,
   str: 'MAT2',
   glslStr: 'mat2',
@@ -228,7 +233,7 @@ const Mat2: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 4,
   vec4SizeOfProperty: 2,
 });
-const Mat3: CompositionTypeEnum = new CompositionTypeClass({
+const Mat3 = new CompositionTypeClass({
   index: 5,
   str: 'MAT3',
   glslStr: 'mat3',
@@ -238,7 +243,7 @@ const Mat3: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 9,
   vec4SizeOfProperty: 3,
 });
-const Mat4: CompositionTypeEnum = new CompositionTypeClass({
+const Mat4 = new CompositionTypeClass({
   index: 6,
   str: 'MAT4',
   glslStr: 'mat4',
@@ -248,7 +253,7 @@ const Mat4: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 16,
   vec4SizeOfProperty: 4,
 });
-const Texture2D: CompositionTypeEnum = new CompositionTypeClass({
+const Texture2D = new CompositionTypeClass({
   index: 7,
   str: 'TEXTURE_2D',
   glslStr: 'sampler2D',
@@ -258,7 +263,7 @@ const Texture2D: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
-const TextureCube: CompositionTypeEnum = new CompositionTypeClass({
+const TextureCube = new CompositionTypeClass({
   index: 8,
   str: 'TEXTURE_CUBE_MAP',
   glslStr: 'samplerCube',
@@ -268,7 +273,7 @@ const TextureCube: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
-const ScalarArray: CompositionTypeEnum = new CompositionTypeClass({
+const ScalarArray = new CompositionTypeClass({
   index: 9,
   str: 'SCALAR_ARRAY',
   glslStr: 'float',
@@ -279,7 +284,7 @@ const ScalarArray: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 1,
   isArray: true,
 });
-const Vec2Array: CompositionTypeEnum = new CompositionTypeClass({
+const Vec2Array = new CompositionTypeClass({
   index: 10,
   str: 'VEC2_ARRAY',
   glslStr: 'vec2',
@@ -290,7 +295,7 @@ const Vec2Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 1,
   isArray: true,
 });
-const Vec3Array: CompositionTypeEnum = new CompositionTypeClass({
+const Vec3Array = new CompositionTypeClass({
   index: 11,
   str: 'VEC3_ARRAY',
   glslStr: 'vec3',
@@ -301,7 +306,7 @@ const Vec3Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 1,
   isArray: true,
 });
-const Vec4Array: CompositionTypeEnum = new CompositionTypeClass({
+const Vec4Array = new CompositionTypeClass({
   index: 12,
   str: 'VEC4_ARRAY',
   glslStr: 'vec4',
@@ -312,7 +317,7 @@ const Vec4Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 1,
   isArray: true,
 });
-const Mat4Array: CompositionTypeEnum = new CompositionTypeClass({
+const Mat4Array = new CompositionTypeClass({
   index: 13,
   str: 'MAT4_ARRAY',
   glslStr: 'mat4',
@@ -323,7 +328,7 @@ const Mat4Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 4,
   isArray: true,
 });
-const Mat3Array: CompositionTypeEnum = new CompositionTypeClass({
+const Mat3Array = new CompositionTypeClass({
   index: 14,
   str: 'MAT3_ARRAY',
   glslStr: 'mat3',
@@ -334,7 +339,7 @@ const Mat3Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 3,
   isArray: true,
 });
-const Mat2Array: CompositionTypeEnum = new CompositionTypeClass({
+const Mat2Array = new CompositionTypeClass({
   index: 15,
   str: 'MAT2_ARRAY',
   glslStr: 'mat2',
@@ -345,7 +350,7 @@ const Mat2Array: CompositionTypeEnum = new CompositionTypeClass({
   vec4SizeOfProperty: 2,
   isArray: true,
 });
-const Texture2DShadow: CompositionTypeEnum = new CompositionTypeClass({
+const Texture2DShadow = new CompositionTypeClass({
   index: 16,
   str: 'TEXTURE_2D_SHADOW',
   glslStr: 'highp sampler2DShadow',
@@ -355,7 +360,7 @@ const Texture2DShadow: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
-const Texture2DRect: CompositionTypeEnum = new CompositionTypeClass({
+const Texture2DRect = new CompositionTypeClass({
   index: 17,
   str: 'TEXTURE_2D_RECT',
   glslStr: 'sampler2DRect',
@@ -365,7 +370,7 @@ const Texture2DRect: CompositionTypeEnum = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
-const Mat4x3Array: CompositionTypeEnum = new CompositionTypeClass({
+const Mat4x3Array = new CompositionTypeClass({
   index: 18,
   str: 'MAT4x3_ARRAY',
   glslStr: 'mat4x3',

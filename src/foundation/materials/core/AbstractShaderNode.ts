@@ -1,6 +1,19 @@
 import { RnObject } from '../../core/RnObject';
-import { ShaderSocket } from './AbstractMaterialContent';
 import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
+import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
+import { CompositionTypeEnum } from '../../definitions/CompositionType';
+import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import { Socket } from './Socket';
+
+export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
+
+export type ShaderSocket = {
+  compositionType: CompositionTypeEnum;
+  componentType: ComponentTypeEnum;
+  name: ShaderAttributeOrSemanticsOrString;
+  isClosed?: boolean;
+};
 
 export type ShaderNodeUID = number;
 type ShaderNodeInputConnectionType = {
@@ -10,14 +23,14 @@ type ShaderNodeInputConnectionType = {
 };
 
 /**
- * AbstractShaderNode is a class that represents a shader node.
+ * AbstractShaderNode is a abstract class that represents a shader node.
  */
 export abstract class AbstractShaderNode extends RnObject {
   static _shaderNodes: AbstractShaderNode[] = [];
   protected __shaderFunctionName: string;
   private __shaderCode?: string;
-  protected __inputs: ShaderSocket[] = [];
-  protected __outputs: ShaderSocket[] = [];
+  protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
+  protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
@@ -32,15 +45,21 @@ export abstract class AbstractShaderNode extends RnObject {
     this.__shader = shader;
   }
 
-  addInputConnection(
+  /**
+   * Add a node connection to this node as an input.
+   * @param inputShaderNode - a shader node to connect to this node.
+   * @param outputSocketOfInput- the output socket of the inputShaderNode.
+   * @param inputSocketOfThis - the input socket of this node.
+   */
+  addInputConnection<N extends CompositionTypeEnum, T extends ComponentTypeEnum>(
     inputShaderNode: AbstractShaderNode,
-    outputNameOfPrev: string,
-    inputNameOfThis: string
+    outputSocketOfInput: Socket<string, N, T>,
+    inputSocketOfThis: Socket<string, N, T>
   ): void {
     this.__inputConnections.push({
       shaderNodeUid: inputShaderNode.shaderNodeUid,
-      outputNameOfPrev: outputNameOfPrev,
-      inputNameOfThis: inputNameOfThis,
+      outputNameOfPrev: outputSocketOfInput.name,
+      inputNameOfThis: inputSocketOfThis.name,
     });
   }
 
@@ -56,7 +75,7 @@ export abstract class AbstractShaderNode extends RnObject {
     return this.__shaderNodeUid;
   }
 
-  getInput(name: string): ShaderSocket | undefined {
+  getInput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined {
     for (const input of this.__inputs) {
       if (input.name === name) {
         return input;
@@ -65,11 +84,11 @@ export abstract class AbstractShaderNode extends RnObject {
     return void 0;
   }
 
-  getInputs(): ShaderSocket[] {
+  getInputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] {
     return this.__inputs;
   }
 
-  getOutput(name: string): ShaderSocket | undefined {
+  getOutput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined {
     for (const output of this.__outputs) {
       if (output.name === name) {
         return output;
@@ -78,7 +97,7 @@ export abstract class AbstractShaderNode extends RnObject {
     return void 0;
   }
 
-  getOutputs(): ShaderSocket[] {
+  getOutputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] {
     return this.__outputs;
   }
 

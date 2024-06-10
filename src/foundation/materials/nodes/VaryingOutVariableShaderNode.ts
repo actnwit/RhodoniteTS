@@ -2,6 +2,7 @@ import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { VaryingVariableShader } from '../../../webgl/shaders/nodes/VaryingVariableShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { Socket } from '../core/Socket';
 
 export class VaryingOutVariableShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
@@ -15,14 +16,14 @@ export class VaryingOutVariableShaderNode extends AbstractShaderNode {
       componentType
     );
 
-    this.__inputs.push({
-      compositionType: compositionType,
-      componentType: componentType,
-      name: 'value',
-    });
+    this.__inputs.push(new Socket('value', compositionType, componentType));
   }
 
   setVaryingVariableName(value: any) {
     (this.__shader as VaryingVariableShader).setVariableName(value);
+  }
+
+  getSocketInput() {
+    return this.__inputs[0];
   }
 }
