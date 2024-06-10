@@ -34,6 +34,18 @@ export class ScalarToVector4ShaderNode extends AbstractShaderNode {
       name: 'outValue',
     });
   }
+  getSocketX() {
+    return new Socket('x', CompositionType.Scalar, ComponentType.Float);
+  }
+  getSocketY() {
+    return new Socket('y', CompositionType.Scalar, ComponentType.Float);
+  }
+  getSocketZ() {
+    return new Socket('z', CompositionType.Scalar, ComponentType.Float);
+  }
+  getSocketW() {
+    return new Socket('w', CompositionType.Scalar, ComponentType.Float);
+  }
 
   getSocketOutput() {
     return new Socket('outValue', CompositionType.Vec4, ComponentType.Float);

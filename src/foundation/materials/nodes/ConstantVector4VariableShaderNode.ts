@@ -26,16 +26,7 @@ export class ConstantVector4VariableShaderNode<
     (this.__shader as ConstantVariableShader).setConstantValue(value);
   }
 
-  getSocketX(): Socket<'x', typeof CompositionType.Scalar, T> {
-    return new Socket('x', CompositionType.Scalar, this.__componentType);
-  }
-  getSocketY(): Socket<'y', typeof CompositionType.Scalar, T> {
-    return new Socket('y', CompositionType.Scalar, this.__componentType);
-  }
-  getSocketZ(): Socket<'z', typeof CompositionType.Scalar, T> {
-    return new Socket('z', CompositionType.Scalar, this.__componentType);
-  }
-  getSocketW(): Socket<'w', typeof CompositionType.Scalar, T> {
-    return new Socket('w', CompositionType.Scalar, this.__componentType);
+  getSocketOutput() {
+    return new Socket('outValue', CompositionType.Vec4, this.__componentType);
   }
 }

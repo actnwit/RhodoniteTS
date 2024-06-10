@@ -26,7 +26,7 @@ export class ConstantScalarVariableShaderNode<
     (this.__shader as ConstantVariableShader).setConstantValue(value);
   }
 
-  getSocketX(): Socket<'x', typeof CompositionType.Scalar, T> {
-    return new Socket('x', CompositionType.Scalar, this.__componentType);
+  getSocketOutput() {
+    return new Socket('outValue', CompositionType.Scalar, this.__componentType);
   }
 }

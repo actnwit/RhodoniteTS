@@ -1,8 +1,7 @@
 import { ModuleManager } from '../../system/ModuleManager';
 import { MemoryManager } from '../../core/MemoryManager';
 import { ConstantScalarVariableShaderNode } from './ConstantScalarVariableShaderNode';
-import { CompositionType, CompositionTypeClass } from '../../definitions/CompositionType';
-import { ComponentType, ComponentTypeClass } from '../../definitions/ComponentType';
+import { ComponentType } from '../../definitions/ComponentType';
 import { ScalarToVector4ShaderNode } from './ScalarToVector4ShaderNode';
 import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { Scalar } from '../../math/Scalar';
@@ -33,13 +32,24 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
   // connect ConstantVariable shader nodes to ScalarToVector4 shader node as inputs
   scalarToVector4MaterialNode.addInputConnection2(
     constant1,
-    scalarToVector4MaterialNode.getSocketOutput(),
-    // constant1.getSocketX()
-    new Socket('x', CompositionType.Vec2, ComponentType.Float)
+    constant1.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketX()
   );
-
-  scalarToVector4MaterialNode.addInputConnection2(constant3, 'outValue', 'z');
-  scalarToVector4MaterialNode.addInputConnection2(constant4, 'outValue', 'w');
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant2,
+    constant2.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketY()
+  );
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant3,
+    constant3.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketZ()
+  );
+  scalarToVector4MaterialNode.addInputConnection2(
+    constant4,
+    constant4.getSocketOutput(),
+    scalarToVector4MaterialNode.getSocketW()
+  );
 
   const endMaterialNode = new OutPositionShaderNode();
   endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');

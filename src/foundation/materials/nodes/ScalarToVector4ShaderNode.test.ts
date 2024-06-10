@@ -8,7 +8,7 @@ import { OutPositionShaderNode } from './OutPositionShaderNode';
 import { Scalar } from '../../math/Scalar';
 import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
 
-test.skip('ScalarToVector4 works correctly 1', async () => {
+test('ScalarToVector4 works correctly 1', async () => {
   await ModuleManager.getInstance().loadModule('webgl');
   MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
@@ -39,14 +39,10 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
   endMaterialNode.addInputConnection(scalarToVector4MaterialNode, 'outValue', 'value');
 
   // nodes are intentionally made the order random to confirm the method sort them properly
-  const retVal = ShaderGraphResolver.createVertexShaderCode([
-    endMaterialNode,
-    scalarToVector4MaterialNode,
-    constant1,
-    constant2,
-    constant3,
-    constant4,
-  ]);
+  const retVal = ShaderGraphResolver.createVertexShaderCode(
+    [endMaterialNode, scalarToVector4MaterialNode, constant1, constant2, constant3, constant4],
+    false
+  );
 
   // console.log(retVal.shaderBody);
   expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
@@ -83,34 +79,6 @@ test.skip('ScalarToVector4 works correctly 1', async () => {
         }
 
         void main() {
-        #ifdef RN_IS_DATATEXTURE_MODE
-      float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = int(u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.LightComponentTID} */]);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = u_currentComponentSIDs[/* shaderity: @{WellKnownComponentTIDs.SkeletalComponentTID} */];
-      #endif
-
-    #else
-
-      float materialSID = u_materialSID;
-
-      int lightNumber = 0;
-      #ifdef RN_IS_LIGHTING
-        lightNumber = get_lightNumber(0.0, 0);
-      #endif
-
-      float skeletalComponentSID = -1.0;
-      #ifdef RN_IS_SKINNING
-        skeletalComponentSID = float(get_skinningMode(0.0, 0));
-      #endif
-
-    #endif
     float outValue_0_to_4=0.0;
     float outValue_1_to_4=0.0;
     float outValue_2_to_4=0.0;
