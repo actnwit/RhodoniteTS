@@ -148,7 +148,7 @@ export class ShaderityUtilityWebGPU {
     existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
   ): ShaderSemanticsInfo {
     const componentType = ComponentType.Int;
-    let compositionType = CompositionType.Texture2D;
+    let compositionType: CompositionTypeEnum = CompositionType.Texture2D;
     if (type.indexOf('texture_2d') !== -1) {
       compositionType = CompositionType.Texture2D;
     } else if (type.indexOf('texture_cube') !== -1) {

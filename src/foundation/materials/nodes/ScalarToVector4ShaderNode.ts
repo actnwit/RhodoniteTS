@@ -2,6 +2,7 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import ScalarToVector4ShaderityObject from '../../../webgl/shaderity_shaders/nodes/ScalarToVector4.glsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { Socket } from '../core/Socket';
 
 export class ScalarToVector4ShaderNode extends AbstractShaderNode {
   constructor() {
@@ -32,5 +33,9 @@ export class ScalarToVector4ShaderNode extends AbstractShaderNode {
       componentType: ComponentType.Float,
       name: 'outValue',
     });
+  }
+
+  getSocketOutput() {
+    return new Socket('outValue', CompositionType.Vec4, ComponentType.Float);
   }
 }

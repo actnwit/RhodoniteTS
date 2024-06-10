@@ -1,41 +1,32 @@
 import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { CompositionType } from '../../definitions';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { IVector4 } from '../../math/IVector';
+import { Scalar } from '../../math/Scalar';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
-export class ConstantVector4VariableShaderNode<
+export class ConstantScalarVariableShaderNode<
   T extends ComponentTypeEnum
 > extends AbstractShaderNode {
   private __componentType: T;
 
   constructor(componentType: T) {
-    super('constantVector4Variable', undefined, undefined);
+    super('constantScalarVariable', undefined, undefined);
     this.__componentType = componentType;
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
     this.__shader = new ConstantVariableShader(
       this.__shaderFunctionName,
-      CompositionType.Vec4,
+      CompositionType.Scalar,
       componentType
     );
   }
 
-  setDefaultInputValue(value: IVector4) {
+  setDefaultInputValue(value: Scalar) {
     (this.__shader as ConstantVariableShader).setConstantValue(value);
   }
 
   getSocketX(): Socket<'x', typeof CompositionType.Scalar, T> {
     return new Socket('x', CompositionType.Scalar, this.__componentType);
-  }
-  getSocketY(): Socket<'y', typeof CompositionType.Scalar, T> {
-    return new Socket('y', CompositionType.Scalar, this.__componentType);
-  }
-  getSocketZ(): Socket<'z', typeof CompositionType.Scalar, T> {
-    return new Socket('z', CompositionType.Scalar, this.__componentType);
-  }
-  getSocketW(): Socket<'w', typeof CompositionType.Scalar, T> {
-    return new Socket('w', CompositionType.Scalar, this.__componentType);
   }
 }

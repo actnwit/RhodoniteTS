@@ -4,6 +4,7 @@ import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
+import { Socket } from './Socket';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -59,6 +60,18 @@ export abstract class AbstractShaderNode extends RnObject {
       shaderNodeUid: inputShaderNode.shaderNodeUid,
       outputNameOfPrev: outputNameOfPrev,
       inputNameOfThis: inputNameOfThis,
+    });
+  }
+
+  addInputConnection2<N extends CompositionTypeEnum, T extends ComponentTypeEnum>(
+    inputShaderNode: AbstractShaderNode,
+    outputSocketOfInput: Socket<string, N, T>,
+    inputSocketOfThis: Socket<string, N, T>
+  ): void {
+    this.__inputConnections.push({
+      shaderNodeUid: inputShaderNode.shaderNodeUid,
+      outputNameOfPrev: outputSocketOfInput.name,
+      inputNameOfThis: inputSocketOfThis.name,
     });
   }
 

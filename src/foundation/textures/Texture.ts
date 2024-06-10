@@ -89,7 +89,7 @@ export class Texture extends AbstractTexture {
       level = 0,
       internalFormat = TextureParameter.RGBA8,
       format = PixelFormat.RGBA,
-      type = ComponentType.UnsignedByte,
+      type = ComponentType.UnsignedByte as ComponentTypeEnum,
       generateMipmap = true,
     } = {}
   ): void {

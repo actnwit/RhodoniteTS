@@ -609,13 +609,13 @@ export class ForwardRenderPipeline extends RnObject {
           const mainFrameBuffer = this.__getMainFrameBuffer();
           if (mainFrameBuffer.has()) {
             rp.setFramebuffer(mainFrameBuffer.get());
-          if (this.__oFrameBufferMsaa.has()) {
-            rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
-            rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+            if (this.__oFrameBufferMsaa.has()) {
+              rp.setResolveFramebuffer(this.__oFrameBufferResolve.unwrapForce());
+              rp.setResolveFramebuffer2(this.__oFrameBufferResolveForReference.unwrapForce());
+            }
           }
         }
       }
-    }
     }
     this.__expressions = expressions;
     await this.__setIblInner();
