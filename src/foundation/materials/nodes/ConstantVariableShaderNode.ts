@@ -2,6 +2,7 @@ import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { ConstantVariableShader } from '../../../webgl/shaders/nodes/ConstantVariableShader';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
+import { IVector } from '../../math/IVector';
 
 export class ConstantVariableShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
@@ -22,7 +23,7 @@ export class ConstantVariableShaderNode extends AbstractShaderNode {
     });
   }
 
-  setDefaultInputValue(inputName: string, value: any) {
+  setDefaultInputValue(inputName: string, value: IVector) {
     if (inputName === 'value') {
       (this.__shader as ConstantVariableShader).setConstantValue(value);
     }

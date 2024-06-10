@@ -9,6 +9,7 @@ import { CompositionTypeEnum } from '../../../foundation/definitions/Composition
 import { MaterialNodeUID } from '../../../types/CommonTypes';
 import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types';
+import { IVector } from '../../../foundation';
 
 export class ConstantVariableShader extends GLSLShader {
   private __constantValueStr = '';
@@ -20,7 +21,7 @@ export class ConstantVariableShader extends GLSLShader {
     super();
   }
 
-  setConstantValue(value: any) {
+  setConstantValue(value: IVector) {
     let constant = '';
     if (this.__componentType.isFloatingPoint()) {
       constant = value.glslStrAsFloat;

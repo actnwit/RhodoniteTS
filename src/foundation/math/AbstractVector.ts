@@ -7,6 +7,10 @@ import { IVector } from './IVector';
 export abstract class AbstractVector implements IVector {
   _v: TypedArray = new Float32Array();
 
+  get x(): number {
+    return this._v[0];
+  }
+
   get glslStrAsFloat(): string {
     throw new Error('Method not implemented.');
   }
