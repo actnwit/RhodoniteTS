@@ -10,7 +10,7 @@ type ShaderNodeInputConnectionType = {
 };
 
 /**
- * AbstractShaderNode is a class that represents a shader node.
+ * AbstractShaderNode is a abstract class that represents a shader node.
  */
 export abstract class AbstractShaderNode extends RnObject {
   static _shaderNodes: AbstractShaderNode[] = [];
@@ -32,6 +32,12 @@ export abstract class AbstractShaderNode extends RnObject {
     this.__shader = shader;
   }
 
+  /**
+   * Add a node connection to this node as an input.
+   * @param inputShaderNode - a shader node to connect to this node.
+   * @param outputNameOfPrev - the name of the output socket of the inputShaderNode.
+   * @param inputNameOfThis - the name of the input socket of this node.
+   */
   addInputConnection(
     inputShaderNode: AbstractShaderNode,
     outputNameOfPrev: string,
