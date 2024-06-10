@@ -612,9 +612,27 @@ export class Material extends RnObject {
   public setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum) {
     this.__blendEquationMode = blendEquationMode;
     this.__blendEquationModeAlpha = blendEquationModeAlpha ?? blendEquationMode;
+
+    this.__treatForMinMax();
+
     this.__stateVersion++;
     Material.__stateVersion++;
     this.calcFingerPrint();
+  }
+
+  private __treatForMinMax() {
+    // due to the limitation of WebGPU, See the last part of https://www.w3.org/TR/webgpu/#fragment-state
+    if (this.__blendEquationMode === Blend.Min || this.__blendEquationMode === Blend.Max) {
+      this.__blendFuncDstFactor = Blend.One;
+      this.__blendFuncSrcFactor = Blend.One;
+    }
+    if (
+      this.__blendEquationModeAlpha === Blend.Min ||
+      this.__blendEquationModeAlpha === Blend.Max
+    ) {
+      this.__blendFuncAlphaDstFactor = Blend.One;
+      this.__blendFuncAlphaSrcFactor = Blend.One;
+    }
   }
 
   /**
@@ -631,6 +649,9 @@ export class Material extends RnObject {
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncAlphaSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncAlphaDstFactor;
+
+    this.__treatForMinMax();
+
     this.__stateVersion++;
     Material.__stateVersion++;
     this.calcFingerPrint();
@@ -645,6 +666,9 @@ export class Material extends RnObject {
     this.__blendFuncDstFactor = blendFuncDstFactor;
     this.__blendFuncAlphaSrcFactor = blendFuncSrcFactor;
     this.__blendFuncAlphaDstFactor = blendFuncDstFactor;
+
+    this.__treatForMinMax();
+
     this.__stateVersion++;
     Material.__stateVersion++;
     this.calcFingerPrint();
