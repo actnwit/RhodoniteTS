@@ -246,6 +246,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
 
     this.__isMouseDown = true;
     this.__lastMouseDownTimeStamp = e.timeStamp;
+    this.__updated = false;
+    this._updateCount();
   }
 
   __touchMove(e: TouchEvent) {
@@ -273,6 +275,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
     this.__originalX = currentTouchX;
     this.__originalY = currentTouchY;
+    this.__updated = false;
+    this._updateCount();
   }
 
   __touchUp(e: TouchEvent) {
@@ -291,6 +295,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
     this.__isMouseDown = false;
     this.__lastMouseUpTimeStamp = e.timeStamp;
+    this.__updated = false;
+    this._updateCount();
   }
 
   set rotX(value: number) {
@@ -406,6 +412,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.dolly *= Math.pow(ratio * this.__efficiency, 2.2 / 15.0);
 
     this.__pinchInOutOriginalDistance = currentDistance;
+    this.__updated = false;
+    this._updateCount();
   }
 
   __pinchInOutEnd(e: TouchEvent) {
@@ -413,6 +421,8 @@ export class OrbitCameraController extends AbstractCameraController implements I
       this.__pinchInOutControl = false;
       this.__pinchInOutOriginalDistance = null;
     }
+    this.__updated = false;
+    this._updateCount();
   }
 
   private __tryToPreventDefault(evt: Event) {
