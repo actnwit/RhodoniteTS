@@ -19,7 +19,6 @@ export class VaryingInVariableShaderNode extends AbstractShaderNode {
       compositionType: compositionType,
       componentType: componentType,
       name: 'outValue',
-      isClosed: true,
     });
   }
 

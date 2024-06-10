@@ -29,8 +29,8 @@ export abstract class AbstractShaderNode extends RnObject {
   static _shaderNodes: AbstractShaderNode[] = [];
   protected __shaderFunctionName: string;
   private __shaderCode?: string;
-  protected __inputs: ShaderSocket[] = [];
-  protected __outputs: ShaderSocket[] = [];
+  protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
+  protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;

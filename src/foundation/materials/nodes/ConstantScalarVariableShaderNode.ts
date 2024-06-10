@@ -20,6 +20,12 @@ export class ConstantScalarVariableShaderNode<
       CompositionType.Scalar,
       componentType
     );
+
+    this.__outputs.push({
+      compositionType: CompositionType.Scalar,
+      componentType: componentType,
+      name: 'outValue',
+    });
   }
 
   setDefaultInputValue(value: Scalar) {

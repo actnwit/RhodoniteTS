@@ -20,6 +20,12 @@ export class ConstantVector4VariableShaderNode<
       CompositionType.Vec4,
       componentType
     );
+
+    this.__outputs.push({
+      compositionType: CompositionType.Vec4,
+      componentType: componentType,
+      name: 'outValue',
+    });
   }
 
   setDefaultInputValue(value: IVector4) {
