@@ -36,14 +36,14 @@ test('ConstantVariable works correctly 1', async () => {
 
   // console.log(ret.shaderBody, ret.shader);
 
-  expect(ret.shaderBody.replace(/\s+/g, '')).toEqual(
+  expect(ret!.shaderBody.replace(/\s+/g, '')).toEqual(
     `
-        void constantVariable_1(
+        void ConstantVector4_1(
           out vec4 outValue) {
           outValue = vec4(4.0, 3.0, 2.0, 1.0);
         }
 
-        void constantVariable_0(
+        void ConstantVector4_0(
           out vec4 outValue) {
           outValue = vec4(1.0, 2.0, 3.0, 4.0);
         }
@@ -72,8 +72,8 @@ test('ConstantVariable works correctly 1', async () => {
     vec4 outValue_0_to_2=vec4(0.0,0.0,0.0,0.0);
     vec4 outValue_1_to_2=vec4(0.0,0.0,0.0,0.0);
     vec4 outValue_2_to_3=vec4(0.0,0.0,0.0,0.0);
-    constantVariable_1(outValue_1_to_2);
-    constantVariable_0(outValue_0_to_2);
+    ConstantVector4_1(outValue_1_to_2);
+    ConstantVector4_0(outValue_0_to_2);
     add(outValue_0_to_2, outValue_1_to_2, outValue_2_to_3);
     outPosition(outValue_2_to_3);
 

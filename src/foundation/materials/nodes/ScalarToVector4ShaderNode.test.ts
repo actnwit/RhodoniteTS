@@ -65,24 +65,24 @@ test('ScalarToVector4 works correctly 1', async () => {
   );
 
   // console.log(retVal.shaderBody);
-  expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
+  expect(retVal!.shaderBody.replace(/\s+/g, '')).toEqual(
     `
-        void constantVariable_3(
+        void ConstantScalar_3(
           out float outValue) {
           outValue = 4.0;
         }
 
-        void constantVariable_2(
+        void ConstantScalar_2(
           out float outValue) {
           outValue = 3.0;
         }
 
-        void constantVariable_1(
+        void ConstantScalar_1(
           out float outValue) {
           outValue = 2.0;
         }
 
-        void constantVariable_0(
+        void ConstantScalar_0(
           out float outValue) {
           outValue = 1.0;
         }
@@ -104,10 +104,10 @@ test('ScalarToVector4 works correctly 1', async () => {
     float outValue_2_to_4=0.0;
     float outValue_3_to_4=0.0;
     vec4 outValue_4_to_5=vec4(0.0,0.0,0.0,0.0);
-    constantVariable_3(outValue_3_to_4);
-    constantVariable_2(outValue_2_to_4);
-    constantVariable_1(outValue_1_to_4);
-    constantVariable_0(outValue_0_to_4);
+    ConstantScalar_3(outValue_3_to_4);
+    ConstantScalar_2(outValue_2_to_4);
+    ConstantScalar_1(outValue_1_to_4);
+    ConstantScalar_0(outValue_0_to_4);
     scalarToVector4(outValue_0_to_4, outValue_1_to_4, outValue_2_to_4, outValue_3_to_4, outValue_4_to_5);
     outPosition(outValue_4_to_5);
 

@@ -51,10 +51,10 @@ test('VaryingVariable works correctly 1', async () => {
   const pixelRet = ShaderGraphResolver.createPixelShaderCode([outColorNode, varyingIn1], false);
 
   // console.log(vertexRet.shaderBody + pixelRet.shaderBody);
-  expect((vertexRet.shaderBody + pixelRet.shaderBody).replace(/\s+/g, '')).toEqual(
+  expect((vertexRet!.shaderBody + pixelRet!.shaderBody).replace(/\s+/g, '')).toEqual(
     `
 
-    void constantVariable_2(
+    void ConstantVector4_2(
       out vec4 outValue) {
       outValue = vec4(4.0, 3.0, 2.0, 1.0);
     }
@@ -71,7 +71,7 @@ test('VaryingVariable works correctly 1', async () => {
 
 void main() {
 vec4 outValue_2_to_0 = vec4(0.0, 0.0, 0.0, 0.0);
-constantVariable_2(outValue_2_to_0);
+ConstantVector4_2(outValue_2_to_0);
 varyingOutVariable_0(outValue_2_to_0);
 outPosition(outValue_2_to_0);
 
