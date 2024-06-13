@@ -45,6 +45,10 @@ export abstract class AbstractShaderNode extends RnObject {
     this.__shader = shader;
   }
 
+  static getShaderNodeByUid(uid: ShaderNodeUID): AbstractShaderNode {
+    return AbstractShaderNode._shaderNodes[uid];
+  }
+
   /**
    * Add a node connection to this node as an input.
    * @param inputShaderNode - a shader node to connect to this node.
