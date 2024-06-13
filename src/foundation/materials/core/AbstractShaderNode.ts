@@ -56,11 +56,19 @@ export abstract class AbstractShaderNode extends RnObject {
     outputSocketOfInput: Socket<string, N, T>,
     inputSocketOfThis: Socket<string, N, T>
   ): void {
-    this.__inputConnections.push({
+    let idx = -1;
+    for (let i = 0; i < this.__inputs.length; i++) {
+      if (this.__inputs[i].name === inputSocketOfThis.name) {
+        idx = i;
+        break;
+      }
+    }
+
+    this.__inputConnections[idx] = {
       shaderNodeUid: inputShaderNode.shaderNodeUid,
       outputNameOfPrev: outputSocketOfInput.name,
       inputNameOfThis: inputSocketOfThis.name,
-    });
+    };
   }
 
   get shaderFunctionName(): string {
