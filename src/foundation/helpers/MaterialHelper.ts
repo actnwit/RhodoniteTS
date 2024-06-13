@@ -95,30 +95,32 @@ function createMaterial(
   throw new Error('Failed to create material');
 }
 
+type MaterialTypeName = string;
+type ChangeCount = number;
+let lastChangeCountMap = new Map<MaterialTypeName, ChangeCount>();
 function reuseOrRecreateMaterial(
   materialName: string,
   currentMaterial: Material,
   materialNode: AbstractMaterialContent,
-  maxInstancesNumber?: Count
+  maxInstancesNumber: Count
 ): Material {
-  let group = 0;
-  let isFull = false;
-  do {
-    const actualMaterialName = materialName + `__${group}`;
-    isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialName);
-    if (!isFull) {
-      MaterialRepository.registerMaterial(actualMaterialName, materialNode, maxInstancesNumber!);
-      const material = MaterialRepository.reuseOrRecreateMaterial(
-        actualMaterialName,
-        currentMaterial,
-        materialNode
-      );
-      return material;
+  let material = currentMaterial;
+  if (MaterialRepository.isMaterialCompatible(material, materialNode)) {
+    material._materialContent = materialNode;
+    material.makeShadersInvalidate();
+    return material;
+  } else {
+    let changeCount = 0;
+    const lastChangeCount = lastChangeCountMap.get(materialName);
+    if (lastChangeCount != null) {
+      changeCount = lastChangeCount;
     }
-    group++;
-  } while (isFull);
-
-  throw new Error('Failed to create material');
+    const actualMaterialName = materialName + `___${changeCount++}`;
+    lastChangeCountMap.set(materialName, changeCount);
+    MaterialRepository.registerMaterial(actualMaterialName, materialNode, maxInstancesNumber);
+    material = MaterialRepository.createMaterial(actualMaterialName, materialNode);
+    return material;
+  }
 }
 
 function recreateMaterial(

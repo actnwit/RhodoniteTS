@@ -106,21 +106,6 @@ export class MaterialRepository {
     return material;
   }
 
-  public static reuseOrRecreateMaterial(
-    materialTypeName: string,
-    currentMaterial: Material,
-    materialNode: AbstractMaterialContent
-  ) {
-    if (MaterialRepository.isMaterialCompatible(currentMaterial, materialNode)) {
-      currentMaterial._materialContent = materialNode;
-      currentMaterial.makeShadersInvalidate();
-      return currentMaterial;
-    }
-
-    const newMaterial = MaterialRepository.createMaterial(materialTypeName, materialNode);
-    return newMaterial;
-  }
-
   public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
     const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName);
     if (Is.not.exist(countOfThisType)) {
