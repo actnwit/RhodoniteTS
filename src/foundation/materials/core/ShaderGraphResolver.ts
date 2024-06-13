@@ -277,7 +277,6 @@ ${prerequisitesShaderityObject.code}
     }
 
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
-    let ifCondition = '';
     for (let i = 0; i < materialNodes.length; i++) {
       const materialNode = materialNodes[i];
       const functionName = materialNode.shaderFunctionName;
@@ -289,42 +288,27 @@ ${prerequisitesShaderityObject.code}
       }
 
       let rowStr = '';
-      if (functionName === 'ifStatement') {
-        ifCondition = varInputNames[i][0];
-      } else {
-        if (functionName.match(/^blockBegin_/)) {
-          rowStr += `if (${ifCondition}) {\n`;
-          ifCondition = '';
-        }
-
-        // Normal Node Process Begin
-        if (
-          materialNode.getInputs().length !== varInputNames[i].length ||
-          materialNode.getOutputs().length !== varOutputNames[i].length
-        ) {
-          continue;
-        }
-        const varNames = varInputNames[i].concat(varOutputNames[i]);
-        if (varNames.length > 0) {
-          // Call node functions
-          rowStr += `${functionName}(`;
-          for (let k = 0; k < varNames.length; k++) {
-            const varName = varNames[k];
-            if (varName == null) {
-              continue;
-            }
-            if (k !== 0) {
-              rowStr += ', ';
-            }
-            rowStr += varNames[k];
+      if (
+        materialNode.getInputs().length !== varInputNames[i].length ||
+        materialNode.getOutputs().length !== varOutputNames[i].length
+      ) {
+        continue;
+      }
+      const varNames = varInputNames[i].concat(varOutputNames[i]);
+      if (varNames.length > 0) {
+        // Call node functions
+        rowStr += `${functionName}(`;
+        for (let k = 0; k < varNames.length; k++) {
+          const varName = varNames[k];
+          if (varName == null) {
+            continue;
           }
-          rowStr += ');\n';
+          if (k !== 0) {
+            rowStr += ', ';
+          }
+          rowStr += varNames[k];
         }
-        // Normal Node Process End
-
-        if (functionName.match(/^blockEnd_/)) {
-          rowStr += '}\n';
-        }
+        rowStr += ');\n';
       }
 
       shaderBody += rowStr;
