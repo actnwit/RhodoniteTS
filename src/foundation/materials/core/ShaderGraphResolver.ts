@@ -13,6 +13,11 @@ export class ShaderGraphResolver {
   static createVertexShaderCode(vertexNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = vertexNodes.concat();
 
+    const isValid = this.__validateShaderNodes(shaderNodes);
+    if (!isValid) {
+      return undefined;
+    }
+
     // Find Start Node
     const firstShaderNode: AbstractShaderNode = this.__findBeginNode(shaderNodes);
 
@@ -57,6 +62,11 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
   static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = pixelNodes.concat();
 
+    const isValid = this.__validateShaderNodes(shaderNodes);
+    if (!isValid) {
+      return undefined;
+    }
+
     // Find Start Node
     const firstShaderNode: AbstractShaderNode = this.__findBeginNode(shaderNodes);
 
@@ -100,6 +110,20 @@ ${prerequisitesShaderityObject.code}
       }
     }
     return firstShaderNode!;
+  }
+
+  private static __validateShaderNodes(shaderNodes: AbstractShaderNode[]) {
+    const shaderNodeUids: ShaderNodeUID[] = [];
+    for (let i = 0; i < shaderNodes.length; i++) {
+      const shaderNode = shaderNodes[i];
+      for (let j = 0; j < shaderNode.inputConnections.length; j++) {
+        const inputConnection = shaderNode.inputConnections[j];
+        if (inputConnection == null) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private static __sortTopologically(
