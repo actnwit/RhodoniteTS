@@ -205,15 +205,10 @@ ${prerequisitesShaderityObject.code}
   }
 
   private static __constructShaderWithNodes(
-    materialNodes_: AbstractShaderNode[],
+    materialNodes: AbstractShaderNode[],
     isVertexStage: boolean,
     isFullVersion: boolean
   ) {
-    let materialNodes = materialNodes_;
-    // if (isVertexStage) {
-    //   materialNodes = materialNodes_.filter((node) => node.getShaderStage() !== 'Fragment');
-    // }
-
     let shaderBody = '';
     const isAnyTypeInput = function (input: ShaderSocket) {
       return (
@@ -335,12 +330,7 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
-    // if (isVertexStage) {
-    //   materialNodes = materialNodes.filter((node) => node.getShaderStage() !== 'Fragment');
-    // }
-
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
-    let varNames: string[] = [];
     for (let i = 0; i < materialNodes.length; i++) {
       const materialNode = materialNodes[i];
       const functionName = materialNode.shaderFunctionName;
@@ -358,7 +348,7 @@ ${prerequisitesShaderityObject.code}
       }
 
       let rowStr = '';
-      varNames = varInputNames[i].concat(varOutputNames[i]);
+      const varNames = varInputNames[i].concat(varOutputNames[i]);
       if (
         materialNode.getInputs().length === varInputNames[i].length &&
         materialNode.getOutputs().length === varOutputNames[i].length
@@ -383,15 +373,10 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
-    // if (isVertexStage) {
-    //   materialNodes = materialNodes.concat(
-    //     materialNodes_.filter((node) => node.getShaderStage() === 'Fragment')
-    //   );
-    // }
-
     for (let i = 0; i < materialNodes.length; i++) {
       if (isVertexStage) {
         const materialNode = materialNodes[i];
+        const varNames = varInputNames[i].concat(varOutputNames[i]);
         for (let j = 0; j < materialNode.inputConnections.length; j++) {
           const inputConnection = materialNode.inputConnections[j];
           const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);

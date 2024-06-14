@@ -7,6 +7,8 @@ export class ViewMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('viewMatrix', ViewMatrixShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push({
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
