@@ -61,20 +61,16 @@ test('ScalarToVector4 works correctly 1', async () => {
   // nodes are intentionally made the order random to confirm the method sort them properly
   const retVal = ShaderGraphResolver.createVertexShaderCode(
     [endMaterialNode, scalarToVector4MaterialNode, constant1, constant2, constant3, constant4],
+    [],
     false
   );
 
   // console.log(retVal.shaderBody);
   expect(retVal!.shaderBody.replace(/\s+/g, '')).toEqual(
     `
-        void ConstantScalar_3(
+        void ConstantScalar_0(
           out float outValue) {
-          outValue = 4.0;
-        }
-
-        void ConstantScalar_2(
-          out float outValue) {
-          outValue = 3.0;
+          outValue = 1.0;
         }
 
         void ConstantScalar_1(
@@ -82,9 +78,14 @@ test('ScalarToVector4 works correctly 1', async () => {
           outValue = 2.0;
         }
 
-        void ConstantScalar_0(
+        void ConstantScalar_2(
           out float outValue) {
-          outValue = 1.0;
+          outValue = 3.0;
+        }
+
+        void ConstantScalar_3(
+          out float outValue) {
+          outValue = 4.0;
         }
 
     void scalarToVector4(in float x, in float y, in float z, in float w, out vec4 outValue) {
@@ -98,21 +99,20 @@ test('ScalarToVector4 works correctly 1', async () => {
           gl_Position = inPosition;
         }
 
-        void main() {
-    float outValue_0_to_4=0.0;
-    float outValue_1_to_4=0.0;
-    float outValue_2_to_4=0.0;
-    float outValue_3_to_4=0.0;
-    vec4 outValue_4_to_5=vec4(0.0,0.0,0.0,0.0);
-    ConstantScalar_3(outValue_3_to_4);
-    ConstantScalar_2(outValue_2_to_4);
-    ConstantScalar_1(outValue_1_to_4);
+    void main() {
+    float outValue_0_to_4 = 0.0;
+    float outValue_1_to_4 = 0.0;
+    float outValue_2_to_4 = 0.0;
+    float outValue_3_to_4 = 0.0;
+    vec4 outValue_4_to_5 = vec4(0.0, 0.0, 0.0, 0.0);
     ConstantScalar_0(outValue_0_to_4);
+    ConstantScalar_1(outValue_1_to_4);
+    ConstantScalar_2(outValue_2_to_4);
+    ConstantScalar_3(outValue_3_to_4);
     scalarToVector4(outValue_0_to_4, outValue_1_to_4, outValue_2_to_4, outValue_3_to_4, outValue_4_to_5);
     outPosition(outValue_4_to_5);
 
-        }
-
+    }
     `.replace(/\s+/g, '')
   );
 });

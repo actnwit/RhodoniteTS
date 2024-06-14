@@ -46,6 +46,7 @@ test('VaryingVariable works correctly 1', async () => {
   // nodes are intentionally made the order random
   const vertexRet = ShaderGraphResolver.createVertexShaderCode(
     [outPositionNode, varyingOut1, constant1],
+    [],
     false
   );
   const pixelRet = ShaderGraphResolver.createPixelShaderCode([outColorNode, varyingIn1], false);
@@ -53,50 +54,47 @@ test('VaryingVariable works correctly 1', async () => {
   // console.log(vertexRet.shaderBody + pixelRet.shaderBody);
   expect((vertexRet!.shaderBody + pixelRet!.shaderBody).replace(/\s+/g, '')).toEqual(
     `
+        void ConstantVector4_2(
+          out vec4 outValue) {
+          outValue = vec4(4.0, 3.0, 2.0, 1.0);
+        }
 
-    void ConstantVector4_2(
-      out vec4 outValue) {
-      outValue = vec4(4.0, 3.0, 2.0, 1.0);
-    }
+        void outPosition(in vec4 inPosition) {
+          gl_Position = inPosition;
+        }
 
-    out vec4 v_position;
-    void varyingOutVariable_0(
-      in vec4 value) {
-      v_position = value;
-    }
+        out vec4 v_position;
+        void varyingOutVariable_0(
+          in vec4 value) {
+          v_position = value;
+        }
 
-    void outPosition(in vec4 inPosition) {
-      gl_Position = inPosition;
-    }
-
-void main() {
-vec4 outValue_2_to_0 = vec4(0.0, 0.0, 0.0, 0.0);
-ConstantVector4_2(outValue_2_to_0);
-varyingOutVariable_0(outValue_2_to_0);
-outPosition(outValue_2_to_0);
-
-}
-
-    in vec4 v_position;
-    void varyingInVariable_1(
-      out vec4 outValue) {
-      outValue = v_position;
-    }
-
-    void outColor(in vec4 inColor) {
-      vec4 rt0 = inColor;
-      gl_FragColor = rt0;
+    void main() {
+    vec4 outValue_2_to_3 = vec4(0.0, 0.0, 0.0, 0.0);
+    ConstantVector4_2(outValue_2_to_3);
+    outPosition(outValue_2_to_3);
+    varyingOutVariable_0(outValue_2_to_3);
 
     }
 
-void main() {
-vec4 outValue_1_to_4 = vec4(0.0, 0.0, 0.0, 0.0);
-varyingInVariable_1(outValue_1_to_4);
-outColor(outValue_1_to_4);
+        in vec4 v_position;
+        void varyingInVariable_1(
+          out vec4 outValue) {
+          outValue = v_position;
+        }
 
-}
+        void outColor(in vec4 inColor) {
+          vec4 rt0 = inColor;
+          gl_FragColor = rt0;
 
+        }
 
+    void main() {
+    vec4 outValue_1_to_4 = vec4(0.0, 0.0, 0.0, 0.0);
+    varyingInVariable_1(outValue_1_to_4);
+    outColor(outValue_1_to_4);
+
+    }
     `.replace(/\s+/g, '')
   );
 });
