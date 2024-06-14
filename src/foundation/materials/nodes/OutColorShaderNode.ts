@@ -8,6 +8,8 @@ export class OutColorShaderNode extends AbstractShaderNode {
   constructor() {
     super('outColor', undefined, EndShader.getInstance());
 
+    this.setShaderStage('Fragment');
+
     this.__inputs.push(new Socket('value', CompositionType.Vec4, ComponentType.Float));
   }
 

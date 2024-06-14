@@ -7,6 +7,8 @@ export class AttributeNormalShaderNode extends AbstractShaderNode {
   constructor() {
     super('attributeNormal', AttributeNormalShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push({
       compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,

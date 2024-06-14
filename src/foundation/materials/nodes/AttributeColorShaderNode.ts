@@ -7,6 +7,8 @@ export class AttributeColorShaderNode extends AbstractShaderNode {
   constructor() {
     super('attributeColor', AttributeNormalShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push({
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
