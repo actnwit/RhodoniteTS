@@ -10,7 +10,11 @@ import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/c
 import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
 
 export class ShaderGraphResolver {
-  static createVertexShaderCode(vertexNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
+  static createVertexShaderCode(
+    vertexNodes: AbstractShaderNode[],
+    varyingNodes: AbstractShaderNode[],
+    isFullVersion: boolean = true
+  ) {
     const shaderNodes = vertexNodes.concat();
 
     const isValid = this.__validateShaderNodes(shaderNodes);
@@ -20,6 +24,7 @@ export class ShaderGraphResolver {
 
     // Topological Sorting
     const sortedShaderNodes = this.__sortTopologically(shaderNodes);
+    // const sortedVaryingNodes = this.__sortTopologically(varyingNodes);
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
@@ -45,11 +50,17 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     // function definitions
     shaderBody += ShaderGraphResolver.getFunctionDefinition(
       sortedShaderNodes,
+      // sortedShaderNodes.concat(varyingNodes.filter((node) => node.getShaderStage() === 'Vertex')),
       ShaderType.VertexShader
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes, isFullVersion);
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
+      sortedShaderNodes,
+      // sortedShaderNodes.concat(varyingNodes),
+      true,
+      isFullVersion
+    );
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
@@ -88,7 +99,11 @@ ${prerequisitesShaderityObject.code}
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(sortedShaderNodes, isFullVersion);
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
+      sortedShaderNodes,
+      false,
+      isFullVersion
+    );
 
     const shader = pixelShaderPrerequisites + shaderBody;
 
@@ -124,7 +139,7 @@ ${prerequisitesShaderityObject.code}
     const outputNodes: AbstractShaderNode[][] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
-        for (const inputConnection of shaderNode.inputConnections) {
+      for (const inputConnection of shaderNode.inputConnections) {
         const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
         const inputNodeIdx = shaderNodes.indexOf(inputNode);
         if (outputNodes[inputNodeIdx] == null) {
@@ -156,12 +171,12 @@ ${prerequisitesShaderityObject.code}
         if (inputNumArray[shaderNodes.indexOf(outputNode)] === 0) {
           queue.push(outputNode);
         }
-          }
-        }
+      }
+    }
 
     if (sortedNodeArray.length != shaderNodes.length) {
       console.error('graph is cyclic');
-        }
+    }
 
     return sortedNodeArray;
   }
@@ -191,8 +206,14 @@ ${prerequisitesShaderityObject.code}
 
   private static __constructShaderWithNodes(
     materialNodes: AbstractShaderNode[],
+    isVertexStage: boolean,
     isFullVersion: boolean
   ) {
+    // let materialNodes = materialNodes_;
+    // if (isVertexStage) {
+    //   materialNodes = materialNodes_.filter((node) => node.getShaderStage() !== 'Fragment');
+    // }
+
     let shaderBody = '';
     const isAnyTypeInput = function (input: ShaderSocket) {
       return (
@@ -201,6 +222,25 @@ ${prerequisitesShaderityObject.code}
       );
     };
     shaderBody += GLSLShader.glslMainBegin;
+
+    // Define out variables
+    for (let i = 0; i < materialNodes.length; i++) {
+      const materialNode = materialNodes[i];
+      for (let j = 0; j < materialNode.inputConnections.length; j++) {
+        const inputConnection = materialNode.inputConnections[j];
+        const input = materialNode.getInputs()[j];
+        const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+        if (
+          inputNode.getShaderStage() === 'Vertex' &&
+          materialNode.getShaderStage() === 'Fragment'
+        ) {
+          const type = input.compositionType.getGlslStr(input.componentType);
+          shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} v_${
+            inputNode.shaderFunctionName
+          }_${inputNode.shaderNodeUid};\n`;
+        }
+      }
+    }
 
     if (isFullVersion) {
       shaderBody += mainPrerequisitesShaderityObject.code;
@@ -286,6 +326,13 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
+    // if (isVertexStage) {
+    //   materialNodes = materialNodes.concat(
+    //     materialNodes_.filter((node) => node.getShaderStage() === 'Fragment')
+    //   );
+    // }
+
+    materialNodes = materialNodes.filter((node) => node.getShaderStage() !== 'Fragment');
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
     for (let i = 0; i < materialNodes.length; i++) {
       const materialNode = materialNodes[i];
@@ -322,6 +369,19 @@ ${prerequisitesShaderityObject.code}
       }
 
       shaderBody += rowStr;
+
+      if (isVertexStage) {
+        for (let j = 0; j < materialNode.inputConnections.length; j++) {
+          const inputConnection = materialNode.inputConnections[j];
+          const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+          if (
+            inputNode.getShaderStage() === 'Vertex' &&
+            materialNode.getShaderStage() === 'Fragment'
+          ) {
+            shaderBody += `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
+          }
+        }
+      }
     }
 
     shaderBody += GLSLShader.glslMainEnd;
