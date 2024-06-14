@@ -22,6 +22,8 @@ type ShaderNodeInputConnectionType = {
   inputNameOfThis: string;
 };
 
+type ShaderStage = 'Neutral' | 'Fragment';
+
 /**
  * AbstractShaderNode is a abstract class that represents a shader node.
  */
@@ -35,6 +37,7 @@ export abstract class AbstractShaderNode extends RnObject {
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
   protected __shader?: GLSLShader;
+  protected _shaderStage: ShaderStage = 'Neutral';
 
   constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader) {
     super();
@@ -43,6 +46,10 @@ export abstract class AbstractShaderNode extends RnObject {
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
     AbstractShaderNode._shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
     this.__shader = shader;
+  }
+
+  setShaderStage(stage: ShaderStage) {
+    this._shaderStage = stage;
   }
 
   static getShaderNodeByUid(uid: ShaderNodeUID): AbstractShaderNode {
