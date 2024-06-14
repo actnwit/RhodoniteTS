@@ -18,11 +18,8 @@ export class ShaderGraphResolver {
       return undefined;
     }
 
-    // Find Start Node
-    const firstShaderNode: AbstractShaderNode = this.__findBeginNode(shaderNodes);
-
     // Topological Sorting
-    const sortedShaderNodes = this.__sortTopologically(firstShaderNode, shaderNodes);
+    const sortedShaderNodes = this.__sortTopologically(shaderNodes);
 
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
@@ -67,11 +64,8 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       return undefined;
     }
 
-    // Find Start Node
-    const firstShaderNode: AbstractShaderNode = this.__findBeginNode(shaderNodes);
-
     // Topological Sorting
-    const sortedShaderNodes = this.__sortTopologically(firstShaderNode, shaderNodes);
+    const sortedShaderNodes = this.__sortTopologically(shaderNodes);
 
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
@@ -101,17 +95,6 @@ ${prerequisitesShaderityObject.code}
     return { shader, shaderBody };
   }
 
-  private static __findBeginNode(shaderNodes: AbstractShaderNode[]) {
-    let firstShaderNode: AbstractShaderNode | undefined;
-    for (let i = 0; i < shaderNodes.length; i++) {
-      const shaderNode = shaderNodes[i];
-      if (shaderNode.inputConnections.length === 0) {
-        firstShaderNode = shaderNode;
-      }
-    }
-    return firstShaderNode!;
-  }
-
   private static __validateShaderNodes(shaderNodes: AbstractShaderNode[]) {
     const shaderNodeUids: ShaderNodeUID[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -126,32 +109,59 @@ ${prerequisitesShaderityObject.code}
     return true;
   }
 
-  private static __sortTopologically(
-    firstShaderNode: AbstractShaderNode,
-    shaderNodes: AbstractShaderNode[]
-  ) {
-    const ignoredInputUids: Index[] = [firstShaderNode!.shaderNodeUid];
-    const sortedNodeArray: AbstractShaderNode[] = [firstShaderNode!];
+  private static __sortTopologically(shaderNodes: AbstractShaderNode[]) {
+    const sortedNodeArray: AbstractShaderNode[] = [];
+    const inputNumArray: Index[] = [];
 
-    // remove node which don't have inputConnections (except first node)
-    shaderNodes.splice(shaderNodes.indexOf(firstShaderNode!), 1);
-    do {
-      let shaderNodeWhichHasNoInputs: AbstractShaderNode;
-      shaderNodes.forEach((shaderNode) => {
-        let inputCount = 0;
+    // calculate inputNumArray
+    const queue: AbstractShaderNode[] = [];
+    for (let i = 0; i < shaderNodes.length; i++) {
+      const shaderNode = shaderNodes[i];
+      inputNumArray[i] = shaderNode.inputConnections.length;
+    }
+
+    // collect output nodes
+    const outputNodes: AbstractShaderNode[][] = [];
+    for (let i = 0; i < shaderNodes.length; i++) {
+      const shaderNode = shaderNodes[i];
         for (const inputConnection of shaderNode.inputConnections) {
-          if (ignoredInputUids.indexOf(inputConnection.shaderNodeUid) === -1) {
-            inputCount++;
+        const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+        const inputNodeIdx = shaderNodes.indexOf(inputNode);
+        if (outputNodes[inputNodeIdx] == null) {
+          outputNodes[inputNodeIdx] = [];
+        }
+        outputNodes[inputNodeIdx].push(shaderNode);
+      }
+    }
+    for (let i = 0; i < shaderNodes.length; i++) {
+      if (outputNodes[i] == null) {
+        outputNodes[i] = [];
+      }
+    }
+
+    // collect nodes which have no input
+    for (let i = 0; i < shaderNodes.length; i++) {
+      if (inputNumArray[i] === 0) {
+        queue.push(shaderNodes[i]);
+      }
+    }
+
+    // topological sort (BFS)
+    while (queue.length > 0) {
+      const now = queue.shift()!;
+      sortedNodeArray.push(now);
+      const nowIdx = shaderNodes.indexOf(now);
+      for (const outputNode of outputNodes[nowIdx]) {
+        inputNumArray[shaderNodes.indexOf(outputNode)]--;
+        if (inputNumArray[shaderNodes.indexOf(outputNode)] === 0) {
+          queue.push(outputNode);
+        }
           }
         }
-        if (inputCount === 0) {
-          shaderNodeWhichHasNoInputs = shaderNode;
+
+    if (sortedNodeArray.length != shaderNodes.length) {
+      console.error('graph is cyclic');
         }
-      });
-      sortedNodeArray.push(shaderNodeWhichHasNoInputs!);
-      ignoredInputUids.push(shaderNodeWhichHasNoInputs!.shaderNodeUid);
-      shaderNodes.splice(shaderNodes.indexOf(shaderNodeWhichHasNoInputs!), 1);
-    } while (shaderNodes.length !== 0);
 
     return sortedNodeArray;
   }
