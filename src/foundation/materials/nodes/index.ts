@@ -19,8 +19,6 @@ export * from './OutPositionShaderNode';
 export * from './ProjectionMatrixShaderNode';
 export * from './ScalarToVector4ShaderNode';
 export * from './UniformDataShaderNode';
-export * from './VaryingInVariableShaderNode';
-export * from './VaryingOutVariableShaderNode';
 export * from './Vector3AndScalarToVector4ShaderNode';
 export * from './ViewMatrixShaderNode';
 export * from './WireframeMaterialNode';
