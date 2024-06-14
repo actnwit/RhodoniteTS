@@ -1,4 +1,5 @@
 export * from './AddShaderNode';
+export * from './AttributeColorShaderNode';
 export * from './AttributeNormalShaderNode';
 export * from './AttributePositionShaderNode';
 export * from './BlockBeginShaderNode';

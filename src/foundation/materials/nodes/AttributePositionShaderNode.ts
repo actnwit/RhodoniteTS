@@ -8,6 +8,8 @@ export class AttributePositionShaderNode extends AbstractShaderNode {
   constructor() {
     super('attributePosition', AttributePositionShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push(new Socket('outValue', CompositionType.Vec4, ComponentType.Float));
   }
 

@@ -7,6 +7,8 @@ export class ProjectionMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('projectionMatrix', ProjectionMatrixShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push({
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,

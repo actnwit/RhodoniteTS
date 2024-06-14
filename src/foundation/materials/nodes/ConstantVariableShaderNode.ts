@@ -9,8 +9,8 @@ export abstract class ConstantVariableShaderNode<
   N extends CompositionTypeEnum,
   T extends ComponentTypeEnum
 > extends AbstractShaderNode {
-  constructor(compositionType: N, componentType: T) {
-    super('constantVariable', undefined, undefined);
+  constructor(nodeName: string, compositionType: N, componentType: T) {
+    super(nodeName, undefined, undefined);
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 

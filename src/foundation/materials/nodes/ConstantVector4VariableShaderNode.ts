@@ -8,7 +8,7 @@ export class ConstantVector4VariableShaderNode<
   T extends ComponentTypeEnum
 > extends ConstantVariableShaderNode<typeof CompositionType.Vec4, T> {
   constructor(componentType: T) {
-    super(CompositionType.Vec4, componentType);
+    super('ConstantVector4', CompositionType.Vec4, componentType);
   }
 
   setDefaultInputValue(value: IVector4) {

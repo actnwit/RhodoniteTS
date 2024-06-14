@@ -48,9 +48,13 @@ test.skip('AttributePosition works correctly 1', async () => {
   );
 
   // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode([outPositionNode, a_position], false);
+  const retVal = ShaderGraphResolver.createVertexShaderCode(
+    [outPositionNode, a_position],
+    [],
+    false
+  );
 
-  expect(retVal.shaderBody.replace(/\s+/g, '')).toEqual(
+  expect(retVal!.shaderBody.replace(/\s+/g, '')).toEqual(
     `
 
     in vec4 a_position;

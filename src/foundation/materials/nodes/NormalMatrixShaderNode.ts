@@ -7,6 +7,8 @@ export class NormalMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('normalMatrix', NormalMatrixShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push({
       compositionType: CompositionType.Mat3,
       componentType: ComponentType.Float,

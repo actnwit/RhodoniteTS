@@ -8,7 +8,7 @@ export class ConstantScalarVariableShaderNode<
   T extends ComponentTypeEnum
 > extends ConstantVariableShaderNode<typeof CompositionType.Scalar, T> {
   constructor(componentType: T) {
-    super(CompositionType.Scalar, componentType);
+    super('ConstantScalar', CompositionType.Scalar, componentType);
   }
 
   setDefaultInputValue(value: IScalar) {

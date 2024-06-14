@@ -7,6 +7,8 @@ export class WorldMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('worldMatrix', WorldMatrixShaderityObject.code);
 
+    this.setShaderStage('Vertex');
+
     this.__outputs.push({
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
