@@ -50,7 +50,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     // function definitions
     shaderBody += ShaderGraphResolver.getFunctionDefinition(
       // sortedShaderNodes,
-      sortedShaderNodes.concat(varyingNodes.filter((node) => node.getShaderStage() === 'Vertex')),
+      sortedShaderNodes.concat(varyingNodes.filter((node) => node.getShaderStage() !== 'Fragment')),
       ShaderType.VertexShader
     );
 
@@ -94,7 +94,7 @@ ${prerequisitesShaderityObject.code}
 
     // function definitions
     shaderBody += ShaderGraphResolver.getFunctionDefinition(
-      sortedShaderNodes,
+      sortedShaderNodes.filter((node) => node.getShaderStage() !== 'Vertex'),
       ShaderType.PixelShader
     );
 
@@ -221,7 +221,6 @@ ${prerequisitesShaderityObject.code}
         input.componentType === ComponentType.Unknown
       );
     };
-    shaderBody += GLSLShader.glslMainBegin;
 
     // Define out variables
     for (let i = 0; i < materialNodes.length; i++) {
@@ -241,6 +240,8 @@ ${prerequisitesShaderityObject.code}
         }
       }
     }
+
+    shaderBody += GLSLShader.glslMainBegin;
 
     if (isFullVersion) {
       shaderBody += mainPrerequisitesShaderityObject.code;
@@ -288,7 +289,15 @@ ${prerequisitesShaderityObject.code}
             const glslInitialValue = inputSocketOfThis!.compositionType.getGlslInitialValue(
               inputSocketOfThis!.componentType
             );
-            const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+            let rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+            if (!isVertexStage) {
+              if (
+                inputNode.getShaderStage() === 'Vertex' &&
+                materialNode.getShaderStage() === 'Fragment'
+              ) {
+                rowStr = `${glslTypeStr} ${varName} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
+              }
+            }
             shaderBody += rowStr;
           }
           const existVarName = existingOutputsVarName.get(inputNode.shaderNodeUid);
@@ -326,9 +335,9 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
-    if (isVertexStage) {
-      materialNodes = materialNodes.filter((node) => node.getShaderStage() !== 'Fragment');
-    }
+    // if (isVertexStage) {
+    //   materialNodes = materialNodes.filter((node) => node.getShaderStage() !== 'Fragment');
+    // }
 
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
     let varNames: string[] = [];
@@ -340,6 +349,12 @@ ${prerequisitesShaderityObject.code}
       }
       if (varOutputNames[i] == null) {
         varOutputNames[i] = [];
+      }
+
+      if (isVertexStage && materialNode.getShaderStage() === 'Fragment') {
+        continue;
+      } else if (!isVertexStage && materialNode.getShaderStage() === 'Vertex') {
+        continue;
       }
 
       let rowStr = '';
@@ -368,11 +383,11 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
-    if (isVertexStage) {
-      materialNodes = materialNodes.concat(
-        materialNodes_.filter((node) => node.getShaderStage() === 'Fragment')
-      );
-    }
+    // if (isVertexStage) {
+    //   materialNodes = materialNodes.concat(
+    //     materialNodes_.filter((node) => node.getShaderStage() === 'Fragment')
+    //   );
+    // }
 
     for (let i = 0; i < materialNodes.length; i++) {
       if (isVertexStage) {
