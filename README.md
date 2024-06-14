@@ -12,6 +12,7 @@ Rhodonite is a Web3D library written in TypeScript.
 * Component-oriented
 * Blittable Memory Architecture (Original GPU data storage system with floating point texture)
 * Physically-based Rendering with Image-based Lighting
+* Node-based Shader System
 * Support loading the following 3D model files: [glTF2](https://github.com/KhronosGroup/glTF), glTF1, [VRM](https://vrm.dev/en/)
 * Support [Draco compression](https://google.github.io/draco/), [Basis Universal](https://github.com/BinomialLLC/basis_universal) and [KTX2](http://github.khronos.org/KTX-Specification/), etc
 * WebGPU Support (under development, about 85% complete)
@@ -32,6 +33,8 @@ This viewer supports glTF/VRM files Drag & Drop to display.
 (Drag & Drop all files if glTF data consists of multiple files.)
 
 ![poly](./assets/images/screenshot_poly.webp)
+
+![ShaderNodeEditor](./assets/images/screenshot_shader_node_editor.jpg)
 
 ## Supported Browsers
 
