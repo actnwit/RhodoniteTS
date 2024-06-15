@@ -381,9 +381,7 @@ ${prerequisitesShaderityObject.code}
             inputNode.getShaderStage() === 'Vertex' &&
             shaderNode.getShaderStage() === 'Fragment'
           ) {
-            shaderBody += `v_${inputNode.shaderFunctionName}_${
-              inputNode.shaderNodeUid
-            } = ${varNames.at(-1)};\n`;
+            shaderBody += `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
           }
         }
       }
