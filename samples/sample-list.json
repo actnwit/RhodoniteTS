@@ -41,6 +41,7 @@
     "InstancedSkinMesh",
     "MatCap",
     "MultiPass",
+    "NodeBaseShader",
     "NodeEditor",
     "PixelPickingTest",
     "Primitives",
