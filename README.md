@@ -32,10 +32,16 @@ You can try our library via https://editor.librn.com/.
 This viewer supports glTF/VRM files Drag & Drop to display.
 (Drag & Drop all files if glTF data consists of multiple files.)
 
-![poly](./assets/images/screenshot_poly.webp)
+Poly model
+![poly](./assets/images/screenshot_poly.jpg)
 
-![VRM](./assets/images/capture_vrm.jpg)
+Advanced PBR
+![PBR](./assets/images/screenshot_pbr.jpg)
 
+VRM avatar model
+![VRM](./assets/images/screenshot_vrm.jpg)
+
+Shader Node Editor
 ![ShaderNodeEditor](./assets/images/screenshot_shader_node_editor.jpg)
 
 ## Supported Browsers
