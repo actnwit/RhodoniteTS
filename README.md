@@ -34,6 +34,8 @@ This viewer supports glTF/VRM files Drag & Drop to display.
 
 ![poly](./assets/images/screenshot_poly.webp)
 
+![VRM](./assets/images/capture_vrm.jpg)
+
 ![ShaderNodeEditor](./assets/images/screenshot_shader_node_editor.jpg)
 
 ## Supported Browsers
