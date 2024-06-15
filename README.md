@@ -44,6 +44,9 @@ VRM avatar model
 Shader Node Editor
 ![ShaderNodeEditor](./assets/images/screenshot_shader_node_editor.jpg)
 
+WebXR(VR)
+![WebXR_VR](./assets/images/screenshot_webxr_vr.jpg)
+
 ## Supported Browsers
 
 Google Chrome, Firefox, Safari, Microsoft Edge (chromium-based), and other modern browsers are supported.
