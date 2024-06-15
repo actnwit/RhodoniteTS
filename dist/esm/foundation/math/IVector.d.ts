@@ -1,6 +1,7 @@
 import { TypedArray } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
 export interface IVector {
+    readonly x: number;
     readonly _v: TypedArray;
     readonly className: string;
     readonly glslStrAsFloat: string;

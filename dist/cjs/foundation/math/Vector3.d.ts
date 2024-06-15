@@ -15,7 +15,28 @@ export declare class Vector3_<T extends FloatTypedArrayConstructor> extends Abst
     get w(): number;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
-    static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
+    static get compositionType(): {
+        readonly __numberOfComponents: number;
+        readonly __glslStr: string;
+        readonly __hlslStr: string;
+        readonly __webgpuStr: string;
+        readonly __wgslStr: string;
+        readonly __isArray: boolean;
+        readonly __vec4SizeOfProperty: number;
+        readonly __dummyStr: "VEC3";
+        readonly webgpu: string;
+        readonly wgsl: string;
+        getNumberOfComponents(): number;
+        getGlslStr(componentType: import("..").ComponentTypeEnum): string;
+        getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        toWGSLType(componentType: import("..").ComponentTypeEnum): string;
+        getVec4SizeOfProperty(): number;
+        readonly index: number;
+        readonly symbol: symbol;
+        readonly str: string;
+        toString(): string;
+        toJSON(): number;
+    };
     /**
      * to square length(static version)
      */

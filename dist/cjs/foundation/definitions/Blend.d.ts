@@ -9,6 +9,7 @@ export declare const Blend: Readonly<{
     One: BlendEnum;
     SrcAlpha: BlendEnum;
     OneMinusSrcAlpha: BlendEnum;
+    Min: BlendEnum;
     Max: BlendEnum;
     from: typeof from;
 }>;

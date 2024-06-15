@@ -30,7 +30,6 @@ export declare class MaterialRepository {
      * @param materialNodes_ The material nodes to add to the created material.
      */
     static createMaterial(materialTypeName: string, materialNode: AbstractMaterialContent): Material;
-    static reuseOrRecreateMaterial(materialTypeName: string, currentMaterial: Material, materialNode: AbstractMaterialContent): Material;
     static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean;
     static isMaterialCompatible(currentMaterial: Material, newMaterialNode: AbstractMaterialContent): boolean;
     /**

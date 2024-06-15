@@ -20,6 +20,7 @@ export declare class AnimationAssigner {
     assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: Vrm0x | Vrm1, isSameSkeleton: boolean, retargetMode: RetargetMode): ISceneGraphEntity;
     assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, addPrefixToAnimationTrackName?: string): string[];
     private constructor();
+    private __resetAnimationAndPose;
     /**
      * The static method to get singleton instance of this class.
      * @return The singleton instance of ModelConverter class

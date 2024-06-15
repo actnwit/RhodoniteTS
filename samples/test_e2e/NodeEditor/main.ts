@@ -45,12 +45,10 @@ outColorShaderNode.addInputConnection(
   outColorShaderNode.getSocketInput()
 );
 
-const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode([
-  outPositionShaderNode,
-  addShaderNode,
-  constant1,
-  constant2,
-]);
+const vertexRet = Rn.ShaderGraphResolver.createVertexShaderCode(
+  [outPositionShaderNode, addShaderNode, constant1, constant2],
+  []
+);
 const pixelRet = Rn.ShaderGraphResolver.createPixelShaderCode([
   outColorShaderNode,
   addShaderNode,

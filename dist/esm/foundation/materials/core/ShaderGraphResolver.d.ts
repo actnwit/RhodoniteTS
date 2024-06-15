@@ -1,15 +1,15 @@
 import { AbstractShaderNode } from './AbstractShaderNode';
 import { ShaderTypeEnum } from '../../definitions/ShaderType';
 export declare class ShaderGraphResolver {
-    static createVertexShaderCode(vertexNodes: AbstractShaderNode[]): {
+    static createVertexShaderCode(vertexNodes: AbstractShaderNode[], varyingNodes: AbstractShaderNode[], isFullVersion?: boolean): {
         shader: string;
         shaderBody: string;
-    };
-    static createPixelShaderCode(pixelNodes: AbstractShaderNode[]): {
+    } | undefined;
+    static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion?: boolean): {
         shader: string;
         shaderBody: string;
-    };
-    private static __findBeginNode;
+    } | undefined;
+    private static __validateShaderNodes;
     private static __sortTopologically;
     static getFunctionDefinition(shaderNodes: AbstractShaderNode[], shaderType: ShaderTypeEnum): string;
     private static __constructShaderWithNodes;

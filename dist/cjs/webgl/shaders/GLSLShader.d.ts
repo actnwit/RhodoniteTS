@@ -1,8 +1,8 @@
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractMaterialContent';
 import { VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { AttributeNames } from '../types/CommonTypes';
+import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractShaderNode';
 export declare abstract class GLSLShader {
     static __instance: GLSLShader;
     __webglResourceRepository?: WebGLResourceRepository;

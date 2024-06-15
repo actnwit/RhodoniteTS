@@ -136,6 +136,7 @@ export declare class Material extends RnObject {
      * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
      */
     setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum): void;
+    private __treatForMinMax;
     /**
      * Change the blendFuncSeparateFactors
      * This method works only if this alphaMode is the blend

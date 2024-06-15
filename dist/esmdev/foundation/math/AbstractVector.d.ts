@@ -5,6 +5,7 @@ import { IVector } from './IVector';
  */
 export declare abstract class AbstractVector implements IVector {
     _v: TypedArray;
+    get x(): number;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
     isEqual(vec: IVector, delta?: number): boolean;

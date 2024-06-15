@@ -19,7 +19,28 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
     get m12(): number;
     get m22(): number;
     get className(): string;
-    static get compositionType(): import("../definitions/CompositionType").CompositionTypeEnum;
+    static get compositionType(): {
+        readonly __numberOfComponents: number;
+        readonly __glslStr: string;
+        readonly __hlslStr: string;
+        readonly __webgpuStr: string;
+        readonly __wgslStr: string;
+        readonly __isArray: boolean;
+        readonly __vec4SizeOfProperty: number;
+        readonly __dummyStr: "MAT3";
+        readonly webgpu: string;
+        readonly wgsl: string;
+        getNumberOfComponents(): number;
+        getGlslStr(componentType: import("..").ComponentTypeEnum): string;
+        getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        toWGSLType(componentType: import("..").ComponentTypeEnum): string;
+        getVec4SizeOfProperty(): number;
+        readonly index: number;
+        readonly symbol: symbol;
+        readonly str: string;
+        toString(): string;
+        toJSON(): number;
+    };
     /**
      * zero matrix(static version)
      */

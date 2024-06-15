@@ -1,8 +1,8 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { GLSLShader } from '../GLSLShader';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { ShaderSocket } from '../../../foundation/materials/core/AbstractMaterialContent';
 import { AttributeNames } from '../../types/CommonTypes';
+import { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
 export declare class BlockBeginShader extends GLSLShader {
     private __functionName;
     private __valueInputs;
