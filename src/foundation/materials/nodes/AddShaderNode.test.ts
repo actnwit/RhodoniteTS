@@ -54,7 +54,7 @@ test.skip('AttributePosition works correctly 1', async () => {
     false
   );
 
-  expect(retVal!.shaderBody.replace(/\s+/g, '')).toEqual(
+  expect(retVal!.replace(/\s+/g, '')).toEqual(
     `
 
     in vec4 a_position;

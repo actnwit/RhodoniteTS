@@ -37,7 +37,7 @@ test('ConstantVariable works correctly 1', async () => {
 
   // console.log(ret.shaderBody, ret.shader);
 
-  expect(ret!.shaderBody.replace(/\s+/g, '')).toEqual(
+  expect(ret!.replace(/\s+/g, '')).toEqual(
     `
         void ConstantVector4_0(
           out vec4 outValue) {

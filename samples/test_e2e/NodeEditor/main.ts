@@ -57,12 +57,12 @@ const pixelRet = Rn.ShaderGraphResolver.createPixelShaderCode([
 ]);
 
 console.log('vertex shader');
-console.log(vertexRet.shader);
+console.log(vertexRet);
 console.log('pixel shader');
-console.log(pixelRet.shader);
+console.log(pixelRet);
 
-(window as any).vertexShader = vertexRet.shader;
-(window as any).pixelShader = pixelRet.shader;
+(window as any).vertexShader = vertexRet;
+(window as any).pixelShader = pixelRet;
 
 const pElem = document.createElement('p');
 pElem.setAttribute('id', 'rendered');
