@@ -218,15 +218,7 @@ ${prerequisitesShaderityObject.code}
       if (existVertexFunctions.indexOf(materialNode.shaderFunctionName) !== -1) {
         continue;
       }
-      if (materialNode.shaderCode) {
-        shaderText += materialNode.shaderCode;
-      } else {
-        if (shaderType === ShaderType.VertexShader) {
-          shaderText += (materialNode.shader as any).vertexShaderDefinitions;
-        } else {
-          shaderText += (materialNode.shader as any).pixelShaderDefinitions;
-        }
-      }
+      shaderText += materialNode.getShaderCode(shaderType);
       existVertexFunctions.push(materialNode.shaderFunctionName);
     }
 

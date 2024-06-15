@@ -5,6 +5,7 @@ import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { Socket } from './Socket';
+import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -90,8 +91,16 @@ export abstract class AbstractShaderNode extends RnObject {
     return this.__shaderFunctionName;
   }
 
-  get shaderCode(): string | undefined {
-    return this.__shaderCode;
+  getShaderCode(shaderStage: ShaderTypeEnum): string {
+    if (this.__shaderCode != null) {
+      return this.__shaderCode;
+    } else {
+      if (shaderStage === ShaderType.VertexShader) {
+        return this.__shader!.vertexShaderDefinitions;
+      } else {
+        return this.__shader!.pixelShaderDefinitions;
+      }
+    }
   }
 
   get shaderNodeUid(): ShaderNodeUID {
@@ -126,9 +135,5 @@ export abstract class AbstractShaderNode extends RnObject {
 
   get inputConnections(): ShaderNodeInputConnectionType[] {
     return this.__inputConnections;
-  }
-
-  get shader(): GLSLShader | undefined {
-    return this.__shader;
   }
 }

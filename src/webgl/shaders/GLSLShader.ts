@@ -73,4 +73,6 @@ void main() {
   abstract get attributeNames(): AttributeNames;
   abstract get attributeSemantics(): Array<VertexAttributeEnum>;
   abstract get attributeCompositions(): Array<CompositionTypeEnum>;
+  abstract get vertexShaderDefinitions(): string;
+  abstract get pixelShaderDefinitions(): string;
 }
