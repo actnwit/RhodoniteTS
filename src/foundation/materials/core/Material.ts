@@ -731,8 +731,7 @@ export class Material extends RnObject {
       );
     }
     this.__alphaToCoverage = alphaToCoverage;
-    this.__stateVersion++;
-    Material.__stateVersion++;
+    this.makeShadersInvalidate();
     this.calcFingerPrint();
   }
   get alphaToCoverage(): boolean {
@@ -780,7 +779,7 @@ export class Material extends RnObject {
 
   set alphaMode(mode: AlphaModeEnum) {
     this.__alphaMode = mode;
-    this._shaderProgramUidMap.clear();
+    this.makeShadersInvalidate();
   }
 
   get materialUID(): MaterialUID {
