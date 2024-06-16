@@ -7,8 +7,8 @@ import { SystemState } from '../../foundation/system/SystemState';
 import { AttributeNames } from '../types/CommonTypes';
 import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractShaderNode';
 
-export abstract class GLSLShader {
-  static __instance: GLSLShader;
+export abstract class CommonShaderPart {
+  static __instance: CommonShaderPart;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   constructor() {}
 

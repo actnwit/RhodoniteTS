@@ -1,10 +1,10 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../GLSLShader';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types';
 
-export class VaryingVariableShader extends GLSLShader {
+export class VaryingVariableShader extends CommonShaderPart {
   private __variableName = '';
   constructor(
     private __functionName: string,

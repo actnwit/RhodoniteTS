@@ -5,7 +5,7 @@ import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/GLSLShader';
 import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
 import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
@@ -254,7 +254,7 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
-    shaderBody += GLSLShader.glslMainBegin;
+    shaderBody += CommonShaderPart.glslMainBegin;
 
     if (isFullVersion) {
       shaderBody += mainPrerequisitesShaderityObject.code;
@@ -408,7 +408,7 @@ ${prerequisitesShaderityObject.code}
       }
     }
 
-    shaderBody += GLSLShader.glslMainEnd;
+    shaderBody += CommonShaderPart.glslMainEnd;
 
     return shaderBody;
   }

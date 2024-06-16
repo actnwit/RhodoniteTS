@@ -2,7 +2,7 @@ import {
   VertexAttributeEnum,
   VertexAttribute,
 } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../GLSLShader';
 import { Config } from '../../../foundation/core/Config';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
@@ -11,7 +11,7 @@ import { ComponentTypeEnum, ComponentType } from '../../../foundation/definition
 import { AttributeNames } from '../../types';
 import { IVector } from '../../../foundation';
 
-export class ConstantVariableShader extends GLSLShader {
+export class ConstantVariableShader extends CommonShaderPart {
   private __constantValueStr = '';
   constructor(
     private __functionName: string,

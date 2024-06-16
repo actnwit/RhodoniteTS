@@ -1,5 +1,5 @@
 import { RnObject } from '../../core/RnObject';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/GLSLShader';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
@@ -37,10 +37,10 @@ export abstract class AbstractShaderNode extends RnObject {
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
-  protected __shader?: GLSLShader;
+  protected __shader?: CommonShaderPart;
   private _shaderStage: ShaderStage = 'Neutral';
 
-  constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader) {
+  constructor(shaderNodeName: string, shaderCode?: string, shader?: CommonShaderPart) {
     super();
     this.__shaderFunctionName = shaderNodeName;
     this.__shaderCode = shaderCode;
