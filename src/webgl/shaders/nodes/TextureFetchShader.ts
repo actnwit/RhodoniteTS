@@ -23,6 +23,14 @@ export class TextureFetchShader extends GLSLShader {
     `;
   }
 
+  get vertexShaderDefinitions() {
+    return '';
+  }
+
+  get pixelShaderDefinitions() {
+    return '';
+  }
+
   get attributeNames(): AttributeNames {
     return [];
   }
