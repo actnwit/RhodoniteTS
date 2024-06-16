@@ -1,12 +1,14 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import ViewMatrixShaderityObject from '../../../webgl/shaderity_shaders/nodes/ViewMatrix.vert';
+import ViewMatrixShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/ViewMatrix.vert';
+import ViewMatrixShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/ViewMatrix.vert.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class ViewMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('viewMatrix', {
-      codeGLSL: ViewMatrixShaderityObject.code,
+      codeGLSL: ViewMatrixShaderityObjectGLSL.code,
+      codeWGSL: ViewMatrixShaderityObjectWGSL.code,
     });
 
     this.setShaderStage('Vertex');
