@@ -20,14 +20,6 @@ export abstract class GLSLShader {
       return 'gl_FragColor = rt0;\n';
     }
   }
-  get glsl_textureCube() {
-    const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper!.isWebGL2) {
-      return 'texture';
-    } else {
-      return 'textureCube';
-    }
-  }
 
   static get glslMainBegin() {
     return `
@@ -41,35 +33,6 @@ void main() {
     `;
   }
 
-  getGlslVertexShaderProperies(str = '') {
-    return str;
-  }
-
-  get prerequisites() {
-    return `uniform float u_materialSID;
-`;
-  }
-
-  get mainPrerequisites() {
-    const processApproach = SystemState.currentProcessApproach;
-    if (ProcessApproach.isDataTextureApproach(processApproach)) {
-      return `
-`;
-    } else {
-      return `
-      `;
-    }
-  }
-
-  static getStringFromShaderAnyDataType(data: ShaderAttributeOrSemanticsOrString): string {
-    if (data instanceof ShaderSemanticsClass) {
-      return 'u_' + data.str;
-    } else if (VertexAttribute.isInstanceOfVertexAttributeClass(data)) {
-      return data.shaderStr;
-    } else {
-      return data as string;
-    }
-  }
   abstract get attributeNames(): AttributeNames;
   abstract get attributeSemantics(): Array<VertexAttributeEnum>;
   abstract get attributeCompositions(): Array<CompositionTypeEnum>;
