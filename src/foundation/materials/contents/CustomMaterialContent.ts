@@ -57,8 +57,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isShadow?: boolean;
     useTangentAttribute: boolean;
     useNormalTexture: boolean;
-    vertexShader: ShaderityObject;
-    pixelShader: ShaderityObject;
+    vertexShader?: ShaderityObject;
+    pixelShader?: ShaderityObject;
     noUseCameraTransform: boolean;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
     vertexShaderWebGpu?: ShaderityObject;
@@ -68,8 +68,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     // Shader Reflection
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(
-      vertexShader,
-      pixelShader,
+      vertexShader!,
+      pixelShader!,
       vertexShaderWebGpu!,
       pixelShaderWebGpu!
     );
@@ -273,7 +273,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
-
   }
 
   private static __setupHdriParameters(args: RenderingArgWebGL | RenderingArgWebGpu) {

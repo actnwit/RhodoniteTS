@@ -71,8 +71,9 @@ import GaussianBlurSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shade
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import { Scalar } from '../math/Scalar';
-import { TextureParameter } from '../definitions';
+import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
+import { SystemState } from '../system/SystemState';
 
 function createMaterial(
   materialName: string,
@@ -1096,26 +1097,50 @@ function reuseOrRecreateCustomMaterial(
     (isSkinning ? '+skinning' : '') +
     (isLighting ? '' : '-lighting');
 
-  const materialNode = new CustomMaterialContent({
-    name: materialName,
-    isSkinning,
-    isLighting,
-    isMorphing,
-    useTangentAttribute: false,
-    useNormalTexture: true,
-    vertexShader: {
-      code: vertexShaderStr,
-      shaderStage: 'vertex',
-      isFragmentShader: false,
-    },
-    pixelShader: {
-      code: pixelShaderStr,
-      shaderStage: 'fragment',
-      isFragmentShader: true,
-    },
-    noUseCameraTransform: false,
-    additionalShaderSemanticInfo: [],
-  });
+  let materialNode: CustomMaterialContent;
+  if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+    materialNode = new CustomMaterialContent({
+      name: materialName,
+      isSkinning,
+      isLighting,
+      isMorphing,
+      useTangentAttribute: false,
+      useNormalTexture: true,
+      vertexShaderWebGpu: {
+        code: vertexShaderStr,
+        shaderStage: 'vertex',
+        isFragmentShader: false,
+      },
+      pixelShaderWebGpu: {
+        code: pixelShaderStr,
+        shaderStage: 'fragment',
+        isFragmentShader: true,
+      },
+      noUseCameraTransform: false,
+      additionalShaderSemanticInfo: [],
+    });
+  } else {
+    materialNode = new CustomMaterialContent({
+      name: materialName,
+      isSkinning,
+      isLighting,
+      isMorphing,
+      useTangentAttribute: false,
+      useNormalTexture: true,
+      vertexShader: {
+        code: vertexShaderStr,
+        shaderStage: 'vertex',
+        isFragmentShader: false,
+      },
+      pixelShader: {
+        code: pixelShaderStr,
+        shaderStage: 'fragment',
+        isFragmentShader: true,
+      },
+      noUseCameraTransform: false,
+      additionalShaderSemanticInfo: [],
+    });
+  }
   materialNode.isSingleOperation = true;
   const material = reuseOrRecreateMaterial(
     materialName,
