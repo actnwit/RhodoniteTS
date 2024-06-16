@@ -59,19 +59,7 @@ export class ShaderGraphResolver {
     let vertexShaderPrerequisites = '';
 
     if (isFullVersion) {
-      const in_ = 'in';
-      vertexShaderPrerequisites += `
-#version 300 es
-precision highp float;
-precision highp int;
-${prerequisitesShaderityObject.code}
-
-${in_} vec4 a_instanceInfo;\n`;
-      vertexShaderPrerequisites += `
-uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
-`;
-      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
-      vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+      vertexShaderPrerequisites += CommonShaderPart.getVertexPrerequisites();
     }
 
     let shaderBody = '';
@@ -110,14 +98,7 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
     if (isFullVersion) {
-      pixelShaderPrerequisites += `
-#version 300 es
-precision highp float;
-precision highp int;
-${prerequisitesShaderityObject.code}
-`;
-      pixelShaderPrerequisites += '/* shaderity: @{getters} */';
-      pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
+      pixelShaderPrerequisites += CommonShaderPart.getPixelPrerequisites();
     }
     let shaderBody = '';
 

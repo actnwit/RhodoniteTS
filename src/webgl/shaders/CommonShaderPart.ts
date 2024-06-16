@@ -5,7 +5,7 @@ import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitio
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
 import { AttributeNames } from '../types/CommonTypes';
-import { ShaderAttributeOrSemanticsOrString } from '../../foundation/materials/core/AbstractShaderNode';
+import prerequisitesShaderityObjectGLSL from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -31,6 +31,46 @@ void main() {
     return `
 }
     `;
+  }
+
+  static getVertexPrerequisites() {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return '';
+    } else {
+      let vertexShaderPrerequisites = '';
+      const in_ = 'in';
+      vertexShaderPrerequisites += `
+#version 300 es
+precision highp float;
+precision highp int;
+${prerequisitesShaderityObjectGLSL.code}
+
+${in_} vec4 a_instanceInfo;\n`;
+      vertexShaderPrerequisites += `
+uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
+`;
+      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
+      vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+
+      return vertexShaderPrerequisites;
+    }
+  }
+
+  static getPixelPrerequisites() {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return '';
+    } else {
+      let pixelShaderPrerequisites = '';
+      pixelShaderPrerequisites += `
+      #version 300 es
+      precision highp float;
+      precision highp int;
+      ${prerequisitesShaderityObjectGLSL.code}
+      `;
+      pixelShaderPrerequisites += '/* shaderity: @{getters} */';
+      pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
+      return pixelShaderPrerequisites;
+    }
   }
 
   abstract get attributeNames(): AttributeNames;
