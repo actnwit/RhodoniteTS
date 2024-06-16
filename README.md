@@ -38,13 +38,13 @@ Poly model
 Advanced PBR
 ![PBR](./assets/images/screenshot_pbr.jpg)
 
-VRM avatar model
+VRM avatar model and VRMA animation
 ![VRM](./assets/images/screenshot_vrm.jpg)
 
 Shader Node Editor
 ![ShaderNodeEditor](./assets/images/screenshot_shader_node_editor.jpg)
 
-WebXR(VR)
+WebXR(VR) with [multiview](https://blog.mozvr.com/multiview-on-webxr/) extension
 ![WebXR_VR](./assets/images/screenshot_webxr_vr.jpg)
 
 ## Supported Browsers
