@@ -1,5 +1,6 @@
 import { CompositionType } from '../../definitions/CompositionType';
-import MultiplyShaderityObject from '../../../webgl/shaderity_shaders/nodes/Multiply.glsl';
+import MultiplyShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/Multiply.glsl';
+import MultiplyShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Multiply.wgsl';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
@@ -12,7 +13,8 @@ export class MultiplyShaderNode extends AbstractShaderNode {
     rhsComponentType: ComponentTypeEnum
   ) {
     super('multiply', {
-      codeGLSL: MultiplyShaderityObject.code,
+      codeGLSL: MultiplyShaderityObjectGLSL.code,
+      codeWGSL: MultiplyShaderityObjectWGSL.code,
     });
 
     let outValueCompositionType: CompositionTypeEnum = CompositionType.Unknown;
