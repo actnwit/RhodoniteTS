@@ -2,7 +2,7 @@
 
 ![Rhodonite](./assets/images/Rhodonite_Logo_2.png)
 
-Rhodonite is a Web3D library written in TypeScript.
+Rhodonite is a Web3D(WebGL2/WebGPU) library written in TypeScript.
 
 ![npm](https://img.shields.io/npm/v/rhodonite)
 ![license](https://img.shields.io/npm/l/rhodonite)
