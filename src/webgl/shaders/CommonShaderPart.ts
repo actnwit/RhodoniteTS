@@ -1,12 +1,13 @@
-import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
-import { AttributeNames } from '../types/CommonTypes';
 import prerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/prerequisites.glsl';
 import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
+import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import prerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/prerequisites.wgsl';
+import { AttributeNames } from '../types/CommonTypes';
+import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -22,13 +23,25 @@ export abstract class CommonShaderPart {
     }
   }
 
-  static get glslMainBegin() {
-    return `
+  static getMainBegin(isVertexStage: boolean) {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      let str = '';
+      const stage = isVertexStage ? '@vertex' : '@fragment';
+      str += stage;
+      str += `
+rn main(
+${vertexInputWGSL.code}
+) -> VertexOutput {
+`;
+      return str;
+    } else {
+      return `
 void main() {
 `;
+    }
   }
 
-  static get glslMainEnd() {
+  static getMainEnd() {
     return `
 }
     `;

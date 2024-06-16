@@ -37,6 +37,8 @@ import { BlockBeginShaderNode } from '../nodes/BlockBeginShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
+import { System, SystemState } from '../../system';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -235,7 +237,7 @@ export class ShaderGraphResolver {
       }
     }
 
-    shaderBody += CommonShaderPart.glslMainBegin;
+    shaderBody += CommonShaderPart.getMainBegin(isVertexStage);
 
     if (isFullVersion) {
       shaderBody += mainPrerequisitesShaderityObject.code;
@@ -313,9 +315,14 @@ export class ShaderGraphResolver {
             if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
               if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
                 const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
-                const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
-                  targetMaterialNode.shaderNodeUid
-                }`;
+
+                let prefix = '';
+                if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+                  prefix = '&';
+                }
+                const varName = `${prefix}${outputSocketOfPrev!.name}_${
+                  inputConnection.shaderNodeUid
+                }_to_${targetMaterialNode.shaderNodeUid}`;
 
                 if (i - 1 >= 0) {
                   varOutputNames[i - 1].push(varName);
@@ -389,7 +396,7 @@ export class ShaderGraphResolver {
       }
     }
 
-    shaderBody += CommonShaderPart.glslMainEnd;
+    shaderBody += CommonShaderPart.getMainEnd();
 
     return shaderBody;
   }
