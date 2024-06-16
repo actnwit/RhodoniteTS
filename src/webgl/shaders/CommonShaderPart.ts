@@ -1,11 +1,12 @@
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
-import { ShaderSemanticsClass } from '../../foundation/definitions/ShaderSemantics';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
 import { AttributeNames } from '../types/CommonTypes';
-import prerequisitesShaderityObjectGLSL from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
+import prerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/prerequisites.glsl';
+import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
+import prerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/prerequisites.wgsl';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -35,7 +36,14 @@ void main() {
 
   static getVertexPrerequisites() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return '';
+      let vertexShaderPrerequisites = '';
+      vertexShaderPrerequisites += `/* shaderity: @{definitions} */
+${vertexOutputWGSL.code}
+${prerequisitesShaderityObjectWGSL.code}
+/* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
+`;
+      return vertexShaderPrerequisites;
     } else {
       let vertexShaderPrerequisites = '';
       const in_ = 'in';
@@ -58,7 +66,14 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
 
   static getPixelPrerequisites() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return '';
+      let pixelShaderPrerequisites = '';
+      pixelShaderPrerequisites += `/* shaderity: @{definitions} */
+${vertexOutputWGSL.code}
+${prerequisitesShaderityObjectWGSL.code}
+/* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
+`;
+      return pixelShaderPrerequisites;
     } else {
       let pixelShaderPrerequisites = '';
       pixelShaderPrerequisites += `
