@@ -11,7 +11,9 @@ export class MultiplyShaderNode extends AbstractShaderNode {
     rhsCompositionType: CompositionTypeEnum,
     rhsComponentType: ComponentTypeEnum
   ) {
-    super('multiply', MultiplyShaderityObject.code);
+    super('multiply', {
+      codeGLSL: MultiplyShaderityObject.code,
+    });
 
     let outValueCompositionType: CompositionTypeEnum = CompositionType.Unknown;
     if (

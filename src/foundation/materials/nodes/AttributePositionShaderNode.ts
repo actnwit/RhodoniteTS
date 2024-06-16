@@ -7,7 +7,9 @@ import { Socket } from '../core/Socket';
 
 export class AttributePositionShaderNode extends AbstractShaderNode {
   constructor() {
-    super('attributePosition', AttributePositionShaderityObject.code);
+    super('attributePosition', {
+      codeGLSL: AttributePositionShaderityObject.code,
+    });
 
     this.setShaderStage('Vertex');
 

@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class ProjectionMatrixShaderNode extends AbstractShaderNode {
   constructor() {
-    super('projectionMatrix', ProjectionMatrixShaderityObject.code);
+    super('projectionMatrix', {
+      codeGLSL: ProjectionMatrixShaderityObject.code,
+    });
 
     this.setShaderStage('Vertex');
 

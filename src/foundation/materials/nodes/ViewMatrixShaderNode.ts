@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class ViewMatrixShaderNode extends AbstractShaderNode {
   constructor() {
-    super('viewMatrix', ViewMatrixShaderityObject.code);
+    super('viewMatrix', {
+      codeGLSL: ViewMatrixShaderityObject.code,
+    });
 
     this.setShaderStage('Vertex');
 

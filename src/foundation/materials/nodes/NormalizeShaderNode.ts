@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class NormalizeShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super('_normalize', NormalizeShaderityObject.code);
+    super('_normalize', {
+      codeGLSL: NormalizeShaderityObject.code,
+    });
 
     this.__inputs.push({
       compositionType: compositionType,

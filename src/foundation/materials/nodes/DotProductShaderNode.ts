@@ -7,7 +7,9 @@ import { ComponentType } from '../../definitions/ComponentType';
 
 export class DotProductShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super('dotProduct', DotProductShaderityObject.code);
+    super('dotProduct', {
+      codeGLSL: DotProductShaderityObject.code,
+    });
 
     this.__inputs.push({
       compositionType: compositionType,

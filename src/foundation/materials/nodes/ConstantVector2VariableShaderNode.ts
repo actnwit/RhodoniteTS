@@ -12,6 +12,6 @@ export class ConstantVector2VariableShaderNode<
   }
 
   setDefaultInputValue(value: IVector2) {
-    (this.__shader as ConstantVariableShader).setConstantValue(value);
+    (this.__commonPart as ConstantVariableShader).setConstantValue(value);
   }
 }

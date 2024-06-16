@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class NormalMatrixShaderNode extends AbstractShaderNode {
   constructor() {
-    super('normalMatrix', NormalMatrixShaderityObject.code);
+    super('normalMatrix', {
+      codeGLSL: NormalMatrixShaderityObject.code,
+    });
 
     this.setShaderStage('Vertex');
 

@@ -6,7 +6,9 @@ import { Socket } from '../core/Socket';
 
 export class ScalarToVector4ShaderNode extends AbstractShaderNode {
   constructor() {
-    super('scalarToVector4', ScalarToVector4ShaderityObject.code);
+    super('scalarToVector4', {
+      codeGLSL: ScalarToVector4ShaderityObject.code,
+    });
 
     this.__inputs.push({
       compositionType: CompositionType.Scalar,

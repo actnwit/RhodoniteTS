@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class IfStatementShaderNode extends AbstractShaderNode {
   constructor() {
-    super('ifStatement', undefined, new IfStatementShader());
+    super('ifStatement', {
+      commonPart: new IfStatementShader(),
+    });
 
     this.__inputs.push({
       compositionType: CompositionType.Scalar,

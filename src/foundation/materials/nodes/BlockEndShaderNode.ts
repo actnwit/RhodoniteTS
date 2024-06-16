@@ -5,11 +5,15 @@ import { BlockEndShader } from '../../../webgl/shaders/nodes/BlockEndShader';
 
 export class BlockEndShaderNode extends AbstractShaderNode {
   constructor() {
-    super('blockEnd');
+    super('blockEnd', {});
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__shader = new BlockEndShader(this.__shaderFunctionName, this.__inputs, this.__outputs);
+    this.__commonPart = new BlockEndShader(
+      this.__shaderFunctionName,
+      this.__inputs,
+      this.__outputs
+    );
   }
 
   addInputAndOutput(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {

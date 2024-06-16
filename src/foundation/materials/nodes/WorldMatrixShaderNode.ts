@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class WorldMatrixShaderNode extends AbstractShaderNode {
   constructor() {
-    super('worldMatrix', WorldMatrixShaderityObject.code);
+    super('worldMatrix', {
+      codeGLSL: WorldMatrixShaderityObject.code,
+    });
 
     this.setShaderStage('Vertex');
 

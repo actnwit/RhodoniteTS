@@ -12,6 +12,6 @@ export class ConstantScalarVariableShaderNode<
   }
 
   setDefaultInputValue(value: IScalar) {
-    (this.__shader as ConstantVariableShader).setConstantValue(value);
+    (this.__commonPart as ConstantVariableShader).setConstantValue(value);
   }
 }

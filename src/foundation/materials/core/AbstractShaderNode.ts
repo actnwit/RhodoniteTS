@@ -31,22 +31,29 @@ type ShaderStage = 'Neutral' | 'Vertex' | 'Fragment';
 export abstract class AbstractShaderNode extends RnObject {
   static _shaderNodes: AbstractShaderNode[] = [];
   protected __shaderFunctionName: string;
-  private __shaderCode?: string;
+  private __codeGLSL?: string;
   protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
   protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
-  protected __shader?: CommonShaderPart;
+  protected __commonPart?: CommonShaderPart;
   private _shaderStage: ShaderStage = 'Neutral';
 
-  constructor(shaderNodeName: string, shaderCode?: string, shader?: CommonShaderPart) {
+  constructor(
+    shaderNodeName: string,
+    shader: {
+      codeGLSL?: string;
+      codeWGSL?: string;
+      commonPart?: CommonShaderPart;
+    }
+  ) {
     super();
     this.__shaderFunctionName = shaderNodeName;
-    this.__shaderCode = shaderCode;
+    this.__codeGLSL = shader.codeGLSL;
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
     AbstractShaderNode._shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
-    this.__shader = shader;
+    this.__commonPart = shader.commonPart;
   }
 
   setShaderStage(stage: ShaderStage) {
@@ -92,13 +99,13 @@ export abstract class AbstractShaderNode extends RnObject {
   }
 
   getShaderCode(shaderStage: ShaderTypeEnum): string {
-    if (this.__shaderCode != null) {
-      return this.__shaderCode;
+    if (this.__codeGLSL != null) {
+      return this.__codeGLSL;
     } else {
       if (shaderStage === ShaderType.VertexShader) {
-        return this.__shader!.vertexShaderDefinitions;
+        return this.__commonPart!.vertexShaderDefinitions;
       } else {
-        return this.__shader!.pixelShaderDefinitions;
+        return this.__commonPart!.pixelShaderDefinitions;
       }
     }
   }

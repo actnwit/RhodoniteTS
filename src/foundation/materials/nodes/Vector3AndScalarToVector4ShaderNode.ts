@@ -5,7 +5,9 @@ import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class Vector3AndScalarToVector4ShaderNode extends AbstractShaderNode {
   constructor() {
-    super('vector3AndScalarToVector4', Vector3AndScalarToVector4ShaderityObject.code);
+    super('vector3AndScalarToVector4', {
+      codeGLSL: Vector3AndScalarToVector4ShaderityObject.code,
+    });
 
     this.__inputs.push({
       compositionType: CompositionType.Vec3,

@@ -5,7 +5,9 @@ import WireframeShaderityObject from '../../../webgl/shaderity_shaders/nodes/Wir
 
 export class WireframeMaterialNode extends AbstractShaderNode {
   constructor() {
-    super('wireframe', WireframeShaderityObject.code);
+    super('wireframe', {
+      codeGLSL: WireframeShaderityObject.code,
+    });
 
     // Input
     this.__inputs.push({

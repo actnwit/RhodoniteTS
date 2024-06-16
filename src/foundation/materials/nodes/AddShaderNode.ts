@@ -6,7 +6,9 @@ import { Socket } from '../core/Socket';
 
 export class AddShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super('add', AddShaderityObject.code);
+    super('add', {
+      codeGLSL: AddShaderityObject.code,
+    });
 
     this.__inputs.push(new Socket('lhs', compositionType, componentType));
     this.__inputs.push(new Socket('rhs', compositionType, ComponentType.Float));

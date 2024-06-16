@@ -1,11 +1,13 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import AttributeNormalShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributeTexcoord.vert';
+import AttributeTexcoordShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributeTexcoord.vert';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class AttributeTexcoordShaderNode extends AbstractShaderNode {
   constructor() {
-    super('attributeTexcoord', AttributeNormalShaderityObject.code);
+    super('attributeTexcoord', {
+      codeGLSL: AttributeTexcoordShaderityObject.code,
+    });
 
     this.setShaderStage('Vertex');
 
