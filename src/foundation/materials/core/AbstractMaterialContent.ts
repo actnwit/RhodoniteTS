@@ -2,7 +2,7 @@ import { RnObject } from '../../core/RnObject';
 import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { CommonShaderPart } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';

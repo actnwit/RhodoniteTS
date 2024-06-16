@@ -1,5 +1,5 @@
 import getRenderingStrategy from './getRenderingStrategy';
-import { CommonShaderPart } from './shaders/GLSLShader';
+import { CommonShaderPart } from './shaders/CommonShaderPart';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
 import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';

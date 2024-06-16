@@ -2,7 +2,7 @@ import {
   VertexAttributeEnum,
   VertexAttribute,
 } from '../../../foundation/definitions/VertexAttribute';
-import { CommonShaderPart } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { Config } from '../../../foundation/core/Config';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';

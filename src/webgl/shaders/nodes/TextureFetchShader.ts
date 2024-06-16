@@ -1,5 +1,5 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { CommonShaderPart } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { MaterialNodeUID } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../types';

@@ -5,7 +5,7 @@ import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import { CommonShaderPart } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
 import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
