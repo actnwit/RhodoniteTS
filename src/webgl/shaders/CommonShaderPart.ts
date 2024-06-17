@@ -16,19 +16,13 @@ export abstract class CommonShaderPart {
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   constructor() {}
 
-  get glsl_fragColor() {
-    const repo = this.__webglResourceRepository!;
-    if (repo.currentWebGLContextWrapper != null && repo.currentWebGLContextWrapper!.isWebGL2) {
-      return '';
-    } else {
-      return 'gl_FragColor = rt0;\n';
-    }
-  }
-
   static getMainBegin(isVertexStage: boolean) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       let str = '';
-      const stage = isVertexStage ? '@vertex' : '@fragment';
+      const stage = isVertexStage
+        ? '@vertex'
+        : `var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+@fragment`;
       str += stage;
       str += `
 rn main(
@@ -43,10 +37,17 @@ void main() {
     }
   }
 
-  static getMainEnd() {
-    return `
+  static getMainEnd(isVertexStage: boolean) {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU && !isVertexStage) {
+      return `
+  return rt0;
 }
     `;
+    } else {
+      return `
+}
+    `;
+    }
   }
 
   static getVertexPrerequisites() {

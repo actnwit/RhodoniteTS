@@ -1,8 +1,10 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { CommonShaderPart } from '../CommonShaderPart';
 import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
+import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import { SystemState } from '../../../foundation/system/SystemState';
+import { AttributeNames } from '../../types/CommonTypes';
+import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { AttributeNames } from '../../types';
 
 export class EndShader extends CommonShaderPart {
   static __instance: EndShader;
@@ -19,11 +21,19 @@ export class EndShader extends CommonShaderPart {
   }
 
   get vertexShaderDefinitions() {
-    return `
-    void outPosition(in vec4 inPosition) {
-      gl_Position = inPosition;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+      fn outPosition(in vec4 inPosition) {
+        gl_Position = inPosition;
+      }
+      `;
+    } else {
+      return `
+      void outPosition(in vec4 inPosition) {
+        gl_Position = inPosition;
+      }
+      `;
     }
-    `;
   }
 
   get vertexShaderBody() {
@@ -33,17 +43,19 @@ export class EndShader extends CommonShaderPart {
   }
 
   get pixelShaderDefinitions() {
-    const _def_fragColor = this.glsl_fragColor;
-    let vec4StrOrNot = '';
-    if (_def_fragColor !== '') {
-      vec4StrOrNot = 'vec4';
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+      fn outColor(inColor: vec4<f32>) {
+        rt0 = inColor;
+      }
+      `;
+    } else {
+      return `
+      void outColor(in vec4 inColor) {
+        rt0 = inColor;
+      }
+      `;
     }
-    return `
-    void outColor(in vec4 inColor) {
-      ${vec4StrOrNot} rt0 = inColor;
-      ${_def_fragColor}
-    }
-    `;
   }
 
   getPixelShaderBody() {

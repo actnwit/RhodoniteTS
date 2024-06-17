@@ -395,7 +395,7 @@ export class ShaderGraphResolver {
       }
     }
 
-    shaderBody += CommonShaderPart.getMainEnd();
+    shaderBody += CommonShaderPart.getMainEnd(isVertexStage);
 
     return shaderBody;
   }
