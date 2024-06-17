@@ -59,8 +59,10 @@ export class ShaderGraphResolver {
     // Add additional functions by system
     let vertexShaderPrerequisites = '';
 
+    const nodes = sortedShaderNodes.concat(varyingNodes);
+
     if (isFullVersion) {
-      vertexShaderPrerequisites += CommonShaderPart.getVertexPrerequisites();
+      vertexShaderPrerequisites += CommonShaderPart.getVertexPrerequisites(nodes);
     }
 
     let shaderBody = '';
@@ -73,12 +75,7 @@ export class ShaderGraphResolver {
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-      // sortedShaderNodes,
-      sortedShaderNodes.concat(varyingNodes),
-      true,
-      isFullVersion
-    );
+    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
@@ -99,7 +96,7 @@ export class ShaderGraphResolver {
     // Add additional functions by system
     let pixelShaderPrerequisites = '';
     if (isFullVersion) {
-      pixelShaderPrerequisites += CommonShaderPart.getPixelPrerequisites();
+      pixelShaderPrerequisites += CommonShaderPart.getPixelPrerequisites(sortedShaderNodes);
     }
     let shaderBody = '';
 
@@ -221,17 +218,22 @@ export class ShaderGraphResolver {
     };
 
     // Define varying(out) variables
-    for (let i = 0; i < shaderNodes.length; i++) {
-      const shaderNode = shaderNodes[i];
-      for (let j = 0; j < shaderNode.inputConnections.length; j++) {
-        const inputConnection = shaderNode.inputConnections[j];
-        const input = shaderNode.getInputs()[j];
-        const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
-        if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
-          const type = input.compositionType.getGlslStr(input.componentType);
-          shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} v_${
-            inputNode.shaderFunctionName
-          }_${inputNode.shaderNodeUid};\n`;
+    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+      for (let i = 0; i < shaderNodes.length; i++) {
+        const shaderNode = shaderNodes[i];
+        for (let j = 0; j < shaderNode.inputConnections.length; j++) {
+          const inputConnection = shaderNode.inputConnections[j];
+          const input = shaderNode.getInputs()[j];
+          const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+          if (
+            inputNode.getShaderStage() === 'Vertex' &&
+            shaderNode.getShaderStage() === 'Fragment'
+          ) {
+            const type = input.compositionType.getGlslStr(input.componentType);
+            shaderBody += `${isVertexStage ? 'out' : 'in'} ${type} v_${
+              inputNode.shaderFunctionName
+            }_${inputNode.shaderNodeUid};\n`;
+          }
         }
       }
     }
@@ -284,7 +286,7 @@ export class ShaderGraphResolver {
                 inputNode.getShaderStage() === 'Vertex' &&
                 shaderNode.getShaderStage() === 'Fragment'
               ) {
-                rowStr = CommonShaderPart.getAssignmentVaryingStatement(
+                rowStr = CommonShaderPart.getAssignmentVaryingStatementInPixelShader(
                   varName,
                   inputSocketOfThis!,
                   inputNode
@@ -389,7 +391,11 @@ export class ShaderGraphResolver {
             inputNode.getShaderStage() === 'Vertex' &&
             shaderNode.getShaderStage() === 'Fragment'
           ) {
-            shaderBody += `v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid} = ${varNames[j]};\n`;
+            shaderBody += CommonShaderPart.getAssignmentVaryingStatementInVertexShader(
+              inputNode,
+              varNames,
+              j
+            );
           }
         }
       }
