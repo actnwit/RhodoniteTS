@@ -6,7 +6,9 @@ import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types';
-import { IVector, ProcessApproach, SystemState } from '../../../foundation';
+import { IVector } from '../../../foundation/math/IVector';
+import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import { SystemState } from '../../../foundation/system/SystemState';
 
 export class ConstantVariableShader extends CommonShaderPart {
   private __constantValueStr = '';
