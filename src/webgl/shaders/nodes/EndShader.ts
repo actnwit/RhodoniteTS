@@ -24,7 +24,7 @@ export class EndShader extends CommonShaderPart {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
       fn outPosition(in vec4 inPosition) {
-        gl_Position = inPosition;
+        output.position = inPosition;
       }
       `;
     } else {

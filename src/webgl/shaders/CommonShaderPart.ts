@@ -18,18 +18,26 @@ export abstract class CommonShaderPart {
 
   static getMainBegin(isVertexStage: boolean) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      let str = '';
-      const stage = isVertexStage
-        ? '@vertex'
-        : `var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-@fragment`;
-      str += stage;
-      str += `
+      if (isVertexStage) {
+        let str = `
+var<private> output : VertexOutput;
+@vertex
 rn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
 `;
-      return str;
+        return str;
+      } else {
+        let str = `
+var<private> rt0: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+@fragment
+rn main(
+  input: VertexOutput,
+  @builtin(front_facing) isFront: bool,
+) -> @location(0) vec4<f32> {
+`;
+        return str;
+      }
     } else {
       return `
 void main() {
@@ -38,11 +46,18 @@ void main() {
   }
 
   static getMainEnd(isVertexStage: boolean) {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU && !isVertexStage) {
-      return `
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (isVertexStage) {
+        return `
+  return output;
+}
+`;
+      } else {
+        return `
   return rt0;
 }
-    `;
+`;
+      }
     } else {
       return `
 }
