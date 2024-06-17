@@ -7,7 +7,6 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
-import prerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/prerequisites.glsl';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { Scalar } from '../../math/Scalar';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
@@ -240,7 +239,7 @@ export class ShaderGraphResolver {
     shaderBody += CommonShaderPart.getMainBegin(isVertexStage);
 
     if (isFullVersion) {
-      shaderBody += mainPrerequisitesShaderityObject.code;
+      shaderBody += CommonShaderPart.getMainPrerequisites();
     }
 
     // Collects varInputNames and varOutputNames

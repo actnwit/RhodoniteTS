@@ -8,6 +8,8 @@ import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.w
 import prerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/prerequisites.wgsl';
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
+import mainPrerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
+import mainPrerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/mainPrerequisites.wgsl';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -98,6 +100,14 @@ ${prerequisitesShaderityObjectWGSL.code}
       pixelShaderPrerequisites += '/* shaderity: @{getters} */';
       pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
       return pixelShaderPrerequisites;
+    }
+  }
+
+  static getMainPrerequisites() {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return mainPrerequisitesShaderityObjectWGSL.code;
+    } else {
+      return mainPrerequisitesShaderityObjectGLSL.code;
     }
   }
 
