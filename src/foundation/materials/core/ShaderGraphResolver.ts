@@ -220,7 +220,7 @@ export class ShaderGraphResolver {
       );
     };
 
-    // Define out variables
+    // Define varying(out) variables
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
       for (let j = 0; j < shaderNode.inputConnections.length; j++) {
@@ -278,19 +278,17 @@ export class ShaderGraphResolver {
 
           //
           if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
-            const glslTypeStr = inputSocketOfThis!.compositionType.getGlslStr(
-              inputSocketOfThis!.componentType
-            );
-            const glslInitialValue = inputSocketOfThis!.compositionType.getGlslInitialValue(
-              inputSocketOfThis!.componentType
-            );
-            let rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+            let rowStr = CommonShaderPart.getAssignmentStatement(varName, inputSocketOfThis!);
             if (!isVertexStage) {
               if (
                 inputNode.getShaderStage() === 'Vertex' &&
                 shaderNode.getShaderStage() === 'Fragment'
               ) {
-                rowStr = `${glslTypeStr} ${varName} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
+                rowStr = CommonShaderPart.getAssignmentVaryingStatement(
+                  varName,
+                  inputSocketOfThis!,
+                  inputNode
+                );
               }
             }
             shaderBody += rowStr;

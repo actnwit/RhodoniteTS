@@ -16,6 +16,7 @@ export interface CompositionTypeEnum extends EnumIO {
   getGlslStr(componentType: ComponentTypeEnum): string;
   getGlslInitialValue(componentType: ComponentTypeEnum): string;
   toWGSLType(componentType: ComponentTypeEnum): string;
+  getWgslInitialValue(componentType: ComponentTypeEnum): string;
   getVec4SizeOfProperty(): IndexOf16Bytes;
 }
 
@@ -158,6 +159,68 @@ class CompositionTypeClass<TypeName extends string>
           return this.__glslStr + '(false, false, false)';
         } else if (this.__numberOfComponents === 4) {
           return this.__glslStr + '(false, false, false, false)';
+        }
+      }
+    }
+    return 'unknown';
+  }
+
+  getWgslInitialValue(componentType: ComponentTypeEnum) {
+    const type = this.toWGSLType(componentType);
+    if (
+      componentType.index === 5126 || // FLOAT
+      componentType.index === 5127 // DOUBLE
+    ) {
+      if (this === CompositionType.Scalar) {
+        return '0.0';
+      } else {
+        if (this.__numberOfComponents === 2) {
+          return type + '(0.0, 0.0)';
+        } else if (this.__numberOfComponents === 3) {
+          return type + '(0.0, 0.0, 0.0)';
+        } else if (this.__numberOfComponents === 4) {
+          return type + '(0.0, 0.0, 0.0, 0.0)';
+        } else if (this.__numberOfComponents === 9) {
+          return type + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
+        } else if (this.__numberOfComponents === 16) {
+          return (
+            type +
+            '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
+          );
+        }
+      }
+    } else if (
+      componentType.index === 5120 || // BYTE
+      componentType.index === 5122 || // SHORT
+      componentType.index === 5124 // INT
+    ) {
+      if (this === CompositionType.Scalar) {
+        return '0';
+      } else {
+        if (this.__numberOfComponents === 2) {
+          return type + '(0, 0)';
+        } else if (this.__numberOfComponents === 3) {
+          return type + '(0, 0, 0)';
+        } else if (this.__numberOfComponents === 4) {
+          return type + '(0, 0, 0, 0)';
+        } else if (this.__numberOfComponents === 9) {
+          return type + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
+        } else if (this.__numberOfComponents === 16) {
+          return type + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
+        }
+      }
+      // eslint-disable-next-line prettier/prettier
+    } else if (componentType.index === 35670) {
+      // BOOL
+      if (this === CompositionType.Scalar) {
+        return 'false';
+      } else {
+        if (this.__numberOfComponents === 2) {
+          return type + '(false, false)';
+        } else if (this.__numberOfComponents === 3) {
+          return type + '(false, false, false)';
+        } else if (this.__numberOfComponents === 4) {
+          return type + '(false, false, false, false)';
         }
       }
     }

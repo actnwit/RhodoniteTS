@@ -10,6 +10,9 @@ import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import mainPrerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
 import mainPrerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/mainPrerequisites.wgsl';
+import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
+import { Socket } from '../../foundation/materials/core/Socket';
+import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -124,6 +127,43 @@ ${prerequisitesShaderityObjectWGSL.code}
       return mainPrerequisitesShaderityObjectWGSL.code;
     } else {
       return mainPrerequisitesShaderityObjectGLSL.code;
+    }
+  }
+
+  static getAssignmentStatement(
+    varName: string,
+    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>
+  ) {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
+      const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(
+        inputSocket!.componentType
+      );
+      const rowStr = `let ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
+      return rowStr;
+    } else {
+      const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
+      const glslInitialValue = inputSocket!.compositionType.getGlslInitialValue(
+        inputSocket!.componentType
+      );
+      const rowStr = `${glslTypeStr} ${varName} = ${glslInitialValue};\n`;
+      return rowStr;
+    }
+  }
+
+  static getAssignmentVaryingStatement(
+    varName: string,
+    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>,
+    inputNode: AbstractShaderNode
+  ) {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
+      const rowStr = `let ${varName}: ${wgslTypeStr} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
+      return rowStr;
+    } else {
+      const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
+      const rowStr = `${glslTypeStr} ${varName} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
+      return rowStr;
     }
   }
 
