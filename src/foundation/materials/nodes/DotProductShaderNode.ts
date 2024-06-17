@@ -1,14 +1,18 @@
-import DotProductShaderityObject from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl';
+import DotProductShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/DotProduct.glsl';
+import DotProductShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/DotProduct.wgsl';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
+import { SystemState } from '../../system/SystemState';
+import { ProcessApproach } from '../../definitions/ProcessApproach';
 
 export class DotProductShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('dotProduct', {
-      codeGLSL: DotProductShaderityObject.code,
+      codeGLSL: DotProductShaderityObjectGLSL.code,
+      codeWGSL: DotProductShaderityObjectWGSL.code,
     });
 
     this.__inputs.push({
@@ -26,5 +30,21 @@ export class DotProductShaderNode extends AbstractShaderNode {
       componentType: componentType,
       name: 'outValue',
     });
+  }
+
+  getShaderFunctionNameDerivative(): string {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (this.__inputs[0].compositionType === CompositionType.Vec2) {
+        return this.__shaderFunctionName + 'Vec2f';
+      } else if (this.__inputs[0].compositionType === CompositionType.Vec3) {
+        return this.__shaderFunctionName + 'Vec3f';
+      } else if (this.__inputs[0].compositionType === CompositionType.Vec4) {
+        return this.__shaderFunctionName + 'Vec4f';
+      } else {
+        throw new Error('Not supported composition type.');
+      }
+    } else {
+      return this.__shaderFunctionName;
+    }
   }
 }

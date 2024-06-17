@@ -28,8 +28,25 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
+#ifdef RN_USE_INSTANCE
 a_instanceIds = instance_ids;
-a_position = position;
+#endif
+
+#ifdef RN_USE_POSITION
+a_position = vec3<f32>(position);
+#endif
+
+#ifdef RN_USE_NORMAL
+a_normal = normal;
+#endif
+
+#ifdef RN_USE_TEXCOORD_0
+a_texcoord_0 = texcoord_0;
+#endif
+
+#ifdef RN_USE_COLOR_0
+a_color_0 = vec4<f32>(color_0);
+#endif
 `;
         return str;
       } else {
@@ -74,9 +91,41 @@ void main() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       let vertexShaderPrerequisites = '';
       vertexShaderPrerequisites += `
-var<private> a_instanceIds: vec4<f32>;
-var<private> a_position: vec3<f32>;
 /* shaderity: @{definitions} */
+
+#ifdef RN_USE_INSTANCE
+var<private> a_instanceIds: vec4<f32>;
+#endif
+
+#ifdef RN_USE_POSITION_FLOAT
+var<private> a_position: vec3<f32>;
+#endif
+#ifdef RN_USE_POSITION_INT
+var<private> a_position: vec3<i32>;
+#endif
+#ifdef RN_USE_POSITION_UINT
+var<private> a_position: vec3<u32>;
+#endif
+
+#ifdef RN_USE_NORMAL
+var<private> a_normal: vec3<f32>;
+#endif
+
+#ifdef RN_USE_TEXCOORD_0
+var<private> a_texcoord_0: vec2<f32>;
+#endif
+
+#ifdef RN_USE_COLOR_0_FLOAT
+var<private> a_color_0: vec4<f32>,
+#endif
+#ifdef RN_USE_COLOR_0_INT
+var<private> a_color_0: vec4<i32>,
+#endif
+#ifdef RN_USE_COLOR_0_UINT
+var<private> a_color_0: vec4<u32>,
+#endif
+
+
 ${vertexOutputWGSL.code}
 ${prerequisitesShaderityObjectWGSL.code}
 /* shaderity: @{getters} */

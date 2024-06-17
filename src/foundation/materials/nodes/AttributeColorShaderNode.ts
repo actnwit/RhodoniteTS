@@ -1,12 +1,14 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import AttributeNormalShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributeColor.vert';
+import AttributeNormalShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeColor.vert';
+import AttributeNormalShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeColor.vert.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class AttributeColorShaderNode extends AbstractShaderNode {
   constructor() {
     super('attributeColor', {
-      codeGLSL: AttributeNormalShaderityObject.code,
+      codeGLSL: AttributeNormalShaderityObjectGLSL.code,
+      codeWGSL: AttributeNormalShaderityObjectWGSL.code,
     });
 
     this.setShaderStage('Vertex');
