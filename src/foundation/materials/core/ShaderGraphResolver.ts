@@ -313,13 +313,9 @@ export class ShaderGraphResolver {
               if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
                 const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
 
-                let prefix = '';
-                if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-                  prefix = '&';
-                }
-                const varName = `${prefix}${outputSocketOfPrev!.name}_${
-                  inputConnection.shaderNodeUid
-                }_to_${targetMaterialNode.shaderNodeUid}`;
+                const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
+                  targetMaterialNode.shaderNodeUid
+                }`;
 
                 if (i - 1 >= 0) {
                   varOutputNames[i - 1].push(varName);
@@ -366,6 +362,12 @@ export class ShaderGraphResolver {
             }
             if (k !== 0) {
               rowStr += ', ';
+            }
+            if (
+              SystemState.currentProcessApproach === ProcessApproach.WebGPU &&
+              k >= varInputNames[i].length
+            ) {
+              rowStr += '&';
             }
             rowStr += varNames[k];
           }

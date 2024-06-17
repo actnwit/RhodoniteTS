@@ -28,7 +28,8 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
-a_instanceIds = instanceIds;
+a_instanceIds = instance_ids;
+a_position = position;
 `;
         return str;
       } else {
@@ -39,7 +40,6 @@ fn main(
   input: VertexOutput,
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
-a_instanceIds = instanceIds;
 `;
         return str;
       }
@@ -74,7 +74,8 @@ void main() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       let vertexShaderPrerequisites = '';
       vertexShaderPrerequisites += `
-var<private> a_instanceIds: vec4<i32>;
+var<private> a_instanceIds: vec4<f32>;
+var<private> a_position: vec3<f32>;
 /* shaderity: @{definitions} */
 ${vertexOutputWGSL.code}
 ${prerequisitesShaderityObjectWGSL.code}
@@ -106,7 +107,6 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       let pixelShaderPrerequisites = '';
       pixelShaderPrerequisites += `
-var<private> a_instanceIds: vec4<i32>;
 /* shaderity: @{definitions} */
 ${vertexOutputWGSL.code}
 ${prerequisitesShaderityObjectWGSL.code}
