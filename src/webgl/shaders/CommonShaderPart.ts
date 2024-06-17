@@ -28,6 +28,7 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
+a_instanceIds = instanceIds;
 `;
         return str;
       } else {
@@ -38,6 +39,7 @@ fn main(
   input: VertexOutput,
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
+a_instanceIds = instanceIds;
 `;
         return str;
       }
@@ -71,7 +73,9 @@ void main() {
   static getVertexPrerequisites() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       let vertexShaderPrerequisites = '';
-      vertexShaderPrerequisites += `/* shaderity: @{definitions} */
+      vertexShaderPrerequisites += `
+var<private> a_instanceIds: vec4<i32>;
+/* shaderity: @{definitions} */
 ${vertexOutputWGSL.code}
 ${prerequisitesShaderityObjectWGSL.code}
 /* shaderity: @{getters} */
@@ -101,7 +105,9 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
   static getPixelPrerequisites() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       let pixelShaderPrerequisites = '';
-      pixelShaderPrerequisites += `/* shaderity: @{definitions} */
+      pixelShaderPrerequisites += `
+var<private> a_instanceIds: vec4<i32>;
+/* shaderity: @{definitions} */
 ${vertexOutputWGSL.code}
 ${prerequisitesShaderityObjectWGSL.code}
 /* shaderity: @{getters} */
@@ -139,7 +145,7 @@ ${prerequisitesShaderityObjectWGSL.code}
       const wgslInitialValue = inputSocket!.compositionType.getWgslInitialValue(
         inputSocket!.componentType
       );
-      const rowStr = `let ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
+      const rowStr = `var ${varName}: ${wgslTypeStr} = ${wgslInitialValue};\n`;
       return rowStr;
     } else {
       const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);
@@ -158,7 +164,7 @@ ${prerequisitesShaderityObjectWGSL.code}
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
-      const rowStr = `let ${varName}: ${wgslTypeStr} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
+      const rowStr = `var ${varName}: ${wgslTypeStr} = v_${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid};\n`;
       return rowStr;
     } else {
       const glslTypeStr = inputSocket!.compositionType.getGlslStr(inputSocket!.componentType);

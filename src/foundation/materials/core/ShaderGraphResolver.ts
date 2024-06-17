@@ -336,7 +336,7 @@ export class ShaderGraphResolver {
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
-      const functionName = shaderNode.shaderFunctionName;
+      const functionName = shaderNode.getShaderFunctionNameDerivative();
       if (varInputNames[i] == null) {
         varInputNames[i] = [];
       }

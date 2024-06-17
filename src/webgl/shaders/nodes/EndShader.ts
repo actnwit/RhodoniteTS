@@ -23,7 +23,7 @@ export class EndShader extends CommonShaderPart {
   get vertexShaderDefinitions() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       return `
-      fn outPosition(in vec4 inPosition) {
+      fn outPosition(inPosition: vec4<f32>) {
         output.position = inPosition;
       }
       `;

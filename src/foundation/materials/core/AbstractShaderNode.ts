@@ -102,6 +102,10 @@ export abstract class AbstractShaderNode extends RnObject {
     return this.__shaderFunctionName;
   }
 
+  getShaderFunctionNameDerivative(): string {
+    return this.__shaderFunctionName;
+  }
+
   getShaderCode(shaderStage: ShaderTypeEnum): string {
     if (this.__commonPart != null) {
       if (shaderStage === ShaderType.VertexShader) {
