@@ -1,12 +1,14 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import ProjectionMatrixShaderityObject from '../../../webgl/shaderity_shaders/nodes/ProjectionMatrix.vert';
+import ProjectionMatrixShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/ProjectionMatrix.vert';
+import ProjectionMatrixShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/ProjectionMatrix.vert.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class ProjectionMatrixShaderNode extends AbstractShaderNode {
   constructor() {
     super('projectionMatrix', {
-      codeGLSL: ProjectionMatrixShaderityObject.code,
+      codeGLSL: ProjectionMatrixShaderityObjectGLSL.code,
+      codeWGSL: ProjectionMatrixShaderityObjectWGSL.code,
     });
 
     this.setShaderStage('Vertex');
