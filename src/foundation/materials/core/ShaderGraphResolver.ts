@@ -612,6 +612,25 @@ export default function constructNodes(json: any) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'Add': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: AddShaderNode;
+        if (socketName === 'Scalar') {
+          nodeInstance = new AddShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName === 'Vector2') {
+          nodeInstance = new AddShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new AddShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          console.log('Add node: Unknown socket name: ' + socketName);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'AddScalar': {
         const nodeInstance = new AddShaderNode(CompositionType.Scalar, ComponentType.Float);
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -771,8 +790,12 @@ export default function constructNodes(json: any) {
   // for (const connection of json.connections) {
   for (let i = 0; i < json.connections.length; i++) {
     const connection = json.connections[i];
-    const inputNodeInstance = nodeInstances[connection.from.id] as AbstractShaderNode;
-    const outputNodeInstance = nodeInstances[connection.to.id] as AbstractShaderNode;
+    const inputNodeInstance = nodeInstances[connection.from.id] as AbstractShaderNode | undefined;
+    const outputNodeInstance = nodeInstances[connection.to.id] as AbstractShaderNode | undefined;
+    if (inputNodeInstance == null || outputNodeInstance == null) {
+      console.error('inputNodeInstance or outputNodeInstance is null');
+      continue;
+    }
     let idx = 0;
     for (const key in nodes[connection.to.id].inputs) {
       if (key === connection.to.portName) {
