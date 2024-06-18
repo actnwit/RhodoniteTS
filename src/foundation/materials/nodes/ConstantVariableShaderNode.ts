@@ -10,11 +10,11 @@ export abstract class ConstantVariableShaderNode<
   T extends ComponentTypeEnum
 > extends AbstractShaderNode {
   constructor(nodeName: string, compositionType: N, componentType: T) {
-    super(nodeName, undefined, undefined);
+    super(nodeName, {});
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__shader = new ConstantVariableShader(
+    this.__commonPart = new ConstantVariableShader(
       this.__shaderFunctionName,
       compositionType,
       componentType
@@ -24,7 +24,7 @@ export abstract class ConstantVariableShaderNode<
   }
 
   setDefaultInputValue(value: IVector) {
-    (this.__shader as ConstantVariableShader).setConstantValue(value);
+    (this.__commonPart as ConstantVariableShader).setConstantValue(value);
   }
 
   getSocketOutput() {

@@ -1,10 +1,13 @@
 import { RnObject } from '../../core/RnObject';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { Socket } from './Socket';
+import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
+import { SystemState } from '../../system';
+import { ProcessApproach } from '../../definitions';
 
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 
@@ -30,22 +33,31 @@ type ShaderStage = 'Neutral' | 'Vertex' | 'Fragment';
 export abstract class AbstractShaderNode extends RnObject {
   static _shaderNodes: AbstractShaderNode[] = [];
   protected __shaderFunctionName: string;
-  private __shaderCode?: string;
   protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
   protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
-  protected __shader?: GLSLShader;
+  private __codeGLSL?: string;
+  private __codeWGSL?: string;
+  protected __commonPart?: CommonShaderPart;
   private _shaderStage: ShaderStage = 'Neutral';
 
-  constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader) {
+  constructor(
+    shaderNodeName: string,
+    shader: {
+      codeGLSL?: string;
+      codeWGSL?: string;
+      commonPart?: CommonShaderPart;
+    }
+  ) {
     super();
     this.__shaderFunctionName = shaderNodeName;
-    this.__shaderCode = shaderCode;
+    this.__codeGLSL = shader.codeGLSL;
+    this.__codeWGSL = shader.codeWGSL;
     this.__shaderNodeUid = ++AbstractShaderNode.__invalidShaderNodeCount;
     AbstractShaderNode._shaderNodes[AbstractShaderNode.__invalidShaderNodeCount] = this;
-    this.__shader = shader;
+    this.__commonPart = shader.commonPart;
   }
 
   setShaderStage(stage: ShaderStage) {
@@ -90,8 +102,24 @@ export abstract class AbstractShaderNode extends RnObject {
     return this.__shaderFunctionName;
   }
 
-  get shaderCode(): string | undefined {
-    return this.__shaderCode;
+  getShaderFunctionNameDerivative(): string {
+    return this.__shaderFunctionName;
+  }
+
+  getShaderCode(shaderStage: ShaderTypeEnum): string {
+    if (this.__commonPart != null) {
+      if (shaderStage === ShaderType.VertexShader) {
+        return this.__commonPart.vertexShaderDefinitions;
+      } else {
+        return this.__commonPart.pixelShaderDefinitions;
+      }
+    } else {
+      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+        return this.__codeWGSL!;
+      } else {
+        return this.__codeGLSL!;
+      }
+    }
   }
 
   get shaderNodeUid(): ShaderNodeUID {
@@ -126,9 +154,5 @@ export abstract class AbstractShaderNode extends RnObject {
 
   get inputConnections(): ShaderNodeInputConnectionType[] {
     return this.__inputConnections;
-  }
-
-  get shader(): GLSLShader | undefined {
-    return this.__shader;
   }
 }

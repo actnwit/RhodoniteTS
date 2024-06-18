@@ -6,7 +6,9 @@ import { Socket } from '../core/Socket';
 
 export class OutColorShaderNode extends AbstractShaderNode {
   constructor() {
-    super('outColor', undefined, EndShader.getInstance());
+    super('outColor', {
+      commonPart: EndShader.getInstance(),
+    });
 
     this.setShaderStage('Fragment');
 

@@ -1,10 +1,10 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AttributeNames } from '../../types/CommonTypes';
 import { ShaderSocket } from '../../../foundation/materials/core/AbstractShaderNode';
 
-export class BlockEndShader extends GLSLShader {
+export class BlockEndShader extends CommonShaderPart {
   constructor(
     private __functionName: string,
     private __valueInputs: ShaderSocket[],

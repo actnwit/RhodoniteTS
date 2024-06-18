@@ -1,12 +1,16 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import ScalarToVector4ShaderityObject from '../../../webgl/shaderity_shaders/nodes/ScalarToVector4.glsl';
+import ScalarToVector4ShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/ScalarToVector4.glsl';
+import ScalarToVector4ShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/ScalarToVector4.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
 export class ScalarToVector4ShaderNode extends AbstractShaderNode {
   constructor() {
-    super('scalarToVector4', ScalarToVector4ShaderityObject.code);
+    super('scalarToVector4', {
+      codeGLSL: ScalarToVector4ShaderityObjectGLSL.code,
+      codeWGSL: ScalarToVector4ShaderityObjectWGSL.code,
+    });
 
     this.__inputs.push({
       compositionType: CompositionType.Scalar,

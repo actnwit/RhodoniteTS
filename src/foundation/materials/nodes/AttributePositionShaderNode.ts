@@ -1,12 +1,16 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import AttributePositionShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributePosition.vert';
+import AttributePositionShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributePosition.vert';
+import AttributePositionShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributePosition.vert.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import { Socket } from '../core/Socket';
 
 export class AttributePositionShaderNode extends AbstractShaderNode {
   constructor() {
-    super('attributePosition', AttributePositionShaderityObject.code);
+    super('attributePosition', {
+      codeGLSL: AttributePositionShaderityObjectGLSL.code,
+      codeWGSL: AttributePositionShaderityObjectWGSL.code,
+    });
 
     this.setShaderStage('Vertex');
 

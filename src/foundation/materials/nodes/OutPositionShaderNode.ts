@@ -6,7 +6,9 @@ import { Socket } from '../core/Socket';
 
 export class OutPositionShaderNode extends AbstractShaderNode {
   constructor() {
-    super('outPosition', undefined, EndShader.getInstance());
+    super('outPosition', {
+      commonPart: EndShader.getInstance(),
+    });
 
     this.__inputs.push(new Socket('value', CompositionType.Vec4, ComponentType.Float));
   }

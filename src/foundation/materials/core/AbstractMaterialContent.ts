@@ -2,7 +2,7 @@ import { RnObject } from '../../core/RnObject';
 import { ShaderSemanticsEnum, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Matrix44 } from '../../math/Matrix44';
 import { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
@@ -65,7 +65,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   constructor(
-    shader: GLSLShader | null,
+    shader: CommonShaderPart | null,
     shaderFunctionName: string,
     { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject,

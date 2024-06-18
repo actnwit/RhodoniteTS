@@ -5,7 +5,9 @@ import GreaterShaderityObject from '../../../webgl/shaderity_shaders/nodes/Great
 
 export class GreaterShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super('greater', GreaterShaderityObject.code);
+    super('greater', {
+      codeGLSL: GreaterShaderityObject.code,
+    });
 
     this.__inputs.push({
       compositionType: compositionType,

@@ -1,2 +1,2 @@
-export * from './GLSLShader';
+export * from './CommonShaderPart';
 export * from './nodes/index';

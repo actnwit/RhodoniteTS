@@ -1,10 +1,10 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { MaterialNodeUID } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../types';
 
-export class TextureFetchShader extends GLSLShader {
+export class TextureFetchShader extends CommonShaderPart {
   static __instance: TextureFetchShader;
   private __materialNodeUid: MaterialNodeUID = 0;
   constructor() {
@@ -21,6 +21,14 @@ export class TextureFetchShader extends GLSLShader {
   getPixelShaderBody() {
     return `
     `;
+  }
+
+  get vertexShaderDefinitions() {
+    return '';
+  }
+
+  get pixelShaderDefinitions() {
+    return '';
   }
 
   get attributeNames(): AttributeNames {

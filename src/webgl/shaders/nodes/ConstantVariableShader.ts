@@ -2,16 +2,15 @@ import {
   VertexAttributeEnum,
   VertexAttribute,
 } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
-import { Config } from '../../../foundation/core/Config';
-import { ShaderNode } from '../../../foundation/definitions/ShaderNode';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
-import { MaterialNodeUID } from '../../../types/CommonTypes';
 import { ComponentTypeEnum, ComponentType } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types';
-import { IVector } from '../../../foundation';
+import { IVector } from '../../../foundation/math/IVector';
+import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import { SystemState } from '../../../foundation/system/SystemState';
 
-export class ConstantVariableShader extends GLSLShader {
+export class ConstantVariableShader extends CommonShaderPart {
   private __constantValueStr = '';
   constructor(
     private __functionName: string,
@@ -34,21 +33,39 @@ export class ConstantVariableShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-    return `
-    void ${this.__functionName}(
-      out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-      outValue = ${this.__constantValueStr};
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+      fn ${this.__functionName}(
+        outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
+        *outValue = ${this.__constantValueStr};
+      }
+      `;
+    } else {
+      return `
+      void ${this.__functionName}(
+        out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
+        outValue = ${this.__constantValueStr};
+      }
+      `;
     }
-    `;
   }
 
   get pixelShaderDefinitions() {
-    return `
-    void ${this.__functionName}(
-      out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
-      outValue = ${this.__constantValueStr};
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+      fn ${this.__functionName}(
+        outValue: ptr<function, ${this.__compositionType.toWGSLType(this.__componentType)}>) {
+        *outValue = ${this.__constantValueStr};
+      }
+      `;
+    } else {
+      return `
+      void ${this.__functionName}(
+        out ${this.__compositionType.getGlslStr(this.__componentType)} outValue) {
+        outValue = ${this.__constantValueStr};
+      }
+      `;
     }
-    `;
   }
 
   get attributeNames(): AttributeNames {

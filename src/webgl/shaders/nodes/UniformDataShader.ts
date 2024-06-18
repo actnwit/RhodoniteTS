@@ -1,10 +1,12 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
+import { ProcessApproach } from '../../../foundation/definitions/ProcessApproach';
+import { SystemState } from '../../../foundation/system/SystemState';
 import { AttributeNames } from '../../types/CommonTypes';
+import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
 
-export class UniformDataShader extends GLSLShader {
+export class UniformDataShader extends CommonShaderPart {
   private __variableName = '';
   private __valueStr = '';
   constructor(
@@ -24,32 +26,57 @@ export class UniformDataShader extends GLSLShader {
   }
 
   get vertexShaderDefinitions() {
-    return `
-    uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
-      this.__variableName
-    }; // initialValue=${this.__valueStr}
-    void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
-      this.__componentType
-    )} outValue) {
-#ifdef RN_IS_DATATEXTURE_MODE
-  float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
-#else
-  float materialSID = u_materialSID;
-#endif
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+// #param ${this.__variableName}: ${this.__compositionType.toWGSLType(
+        this.__componentType
+      )}; // initialValue=${this.__valueStr}
+fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(
+        this.__componentType
+      )}>) {
+  *outValue = get_${this.__variableName}(_materialSID, 0);
+}
+`;
+    } else {
+      return `
+uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
+        this.__variableName
+      }; // initialValue=${this.__valueStr}
+void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
+        this.__componentType
+      )} outValue) {
+  #ifdef RN_IS_DATATEXTURE_MODE
+    float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
+  #else
+    float materialSID = u_materialSID;
+  #endif
 
-outValue = get_${this.__variableName}(materialSID, 0);
+  outValue = get_${this.__variableName}(materialSID, 0);
+}
+`;
     }
-    `;
   }
 
   get pixelShaderDefinitions() {
-    return `
-    uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
-      this.__variableName
-    }; // initialValue=${this.__valueStr}
-    void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
-      this.__componentType
-    )} outValue) {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return `
+// #param ${this.__variableName}: ${this.__compositionType.toWGSLType(
+        this.__componentType
+      )}; // initialValue=${this.__valueStr}
+fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(
+        this.__componentType
+      )}>) {
+  *outValue = get_${this.__variableName}(_materialSID, 0);
+}
+`;
+    } else {
+      return `
+uniform ${this.__compositionType.getGlslStr(this.__componentType)} u_${
+        this.__variableName
+      }; // initialValue=${this.__valueStr}
+void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
+        this.__componentType
+      )} outValue) {
 #ifdef RN_IS_DATATEXTURE_MODE
   float materialSID = u_currentComponentSIDs[0]; // index 0 data is the materialSID
 #else
@@ -59,6 +86,7 @@ outValue = get_${this.__variableName}(materialSID, 0);
 outValue = get_${this.__variableName}(materialSID, 0);
     }
     `;
+    }
   }
 
   get attributeNames(): AttributeNames {

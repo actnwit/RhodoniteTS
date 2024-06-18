@@ -6,11 +6,11 @@ import { Socket } from '../core/Socket';
 
 export class UniformDataShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
-    super('uniformData');
+    super('uniformData', {});
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__shader = new UniformDataShader(
+    this.__commonPart = new UniformDataShader(
       this.__shaderFunctionName,
       compositionType,
       componentType
@@ -21,11 +21,11 @@ export class UniformDataShaderNode extends AbstractShaderNode {
 
   setDefaultInputValue(inputName: string, value: any) {
     if (inputName === 'value') {
-      (this.__shader as UniformDataShader).setDefaultValue(value);
+      (this.__commonPart as UniformDataShader).setDefaultValue(value);
     }
   }
 
   setUniformDataName(value: any) {
-    (this.__shader as UniformDataShader).setVariableName(value);
+    (this.__commonPart as UniformDataShader).setVariableName(value);
   }
 }

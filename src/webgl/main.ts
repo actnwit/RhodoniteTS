@@ -1,5 +1,5 @@
 import getRenderingStrategy from './getRenderingStrategy';
-import { GLSLShader } from './shaders/GLSLShader';
+import { CommonShaderPart } from './shaders/CommonShaderPart';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { VertexHandles as vertexHandles, WebGLResourceRepository } from './WebGLResourceRepository';
 import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
@@ -8,7 +8,7 @@ import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 
 const WebGL = Object.freeze({
   getRenderingStrategy,
-  GLSLShader,
+  CommonShaderPart,
   WebGLContextWrapper,
   WebGLResourceRepository,
   WebGLStrategyUniform,

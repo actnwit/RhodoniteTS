@@ -192,6 +192,8 @@ fn uvTransform(scale: vec2f, offset: vec2f, rotation: f32, uv: vec2f) -> vec2f {
   return uvTransformed;
 }
 
+#ifdef RN_IS_NODE_SHADER
+#else
 fn getTexcoord(texcoordIndex: u32, input: VertexOutput) -> vec2<f32> {
   var texcoord: vec2f;
   if(texcoordIndex == 2){
@@ -203,6 +205,7 @@ fn getTexcoord(texcoordIndex: u32, input: VertexOutput) -> vec2<f32> {
   }
   return texcoord;
 }
+#endif
 
 fn saturateEpsilonToOne(x: f32) -> f32 {
   let Epsilon = 0.0000001;

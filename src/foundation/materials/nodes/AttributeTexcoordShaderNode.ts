@@ -1,11 +1,15 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import AttributeNormalShaderityObject from '../../../webgl/shaderity_shaders/nodes/AttributeTexcoord.vert';
+import AttributeTexcoordShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/AttributeTexcoord.vert';
+import AttributeTexcoordShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/AttributeTexcoord.vert.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class AttributeTexcoordShaderNode extends AbstractShaderNode {
   constructor() {
-    super('attributeTexcoord', AttributeNormalShaderityObject.code);
+    super('attributeTexcoord', {
+      codeGLSL: AttributeTexcoordShaderityObjectGLSL.code,
+      codeWGSL: AttributeTexcoordShaderityObjectWGSL.code,
+    });
 
     this.setShaderStage('Vertex');
 

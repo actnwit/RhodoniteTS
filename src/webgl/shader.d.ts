@@ -4,3 +4,4 @@ declare module '*.vs';
 declare module '*.fs';
 declare module '*.ps';
 declare module '*.glsl';
+declare module '*.wgsl';

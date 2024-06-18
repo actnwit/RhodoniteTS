@@ -7,11 +7,11 @@ export class BlockBeginShaderNode extends AbstractShaderNode {
   private __valueInputs: ShaderSocket[] = [];
   private __valueOutputs: ShaderSocket[] = [];
   constructor() {
-    super('blockBegin');
+    super('blockBegin', {});
 
     this.__shaderFunctionName += '_' + this.__shaderNodeUid;
 
-    this.__shader = new BlockBeginShader(
+    this.__commonPart = new BlockBeginShader(
       this.__shaderFunctionName,
       this.__valueInputs,
       this.__valueOutputs

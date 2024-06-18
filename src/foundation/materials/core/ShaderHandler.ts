@@ -126,7 +126,9 @@ export function _createProgramAsSingleOperationWebGL(
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const materialNode = material._materialContent;
 
-  const definitions = materialNode.getDefinitions(material);
+  const vertexAttributeDefines = defineAttributes(primitive);
+  let definitions = materialNode.getDefinitions(material);
+  definitions += vertexAttributeDefines;
 
   // Shader Code Construction
   let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
@@ -202,25 +204,6 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
     definitions += '#define RN_IS_UNIFORM_MODE\n';
   }
 
-  const attributeSemantics = primitive.attributeSemantics;
-  for (const attributeSemantic of attributeSemantics) {
-    if (attributeSemantic.indexOf('TANGENT') !== -1) {
-      definitions += `#define RN_USE_TANGENT\n`;
-    }
-  }
-  if (primitive.targets != null && primitive.targets.length > 0) {
-    definitions += '#define RN_IS_MORPHING\n';
-  }
-
-  // if (glw.webgl1ExtSTL) {
-  //   definitions += '#define WEBGL1_EXT_SHADER_TEXTURE_LOD\n';
-  // }
-  // if (glw.webgl1ExtDRV) {
-  //   definitions += '#define WEBGL1_EXT_STANDARD_DERIVATIVES\n';
-  // }
-  // if (glw.webgl1ExtDB) {
-  //   definitions += '#define WEBGL1_EXT_DRAW_BUFFERS\n';
-  // }
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
   const webXRSystem = rnXRModule?.WebXRSystem.getInstance();
   if (
@@ -260,64 +243,7 @@ export function _createProgramAsSingleOperationWebGpu(
 ) {
   const materialNode = material._materialContent;
 
-  let vertexAttributeDefines = ``;
-  const attributeSemantics = primitive.attributeSemantics;
-  for (const attributeSemantic of attributeSemantics) {
-    if (attributeSemantic.indexOf('POSITION') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_POSITION\n`;
-      const accessor = primitive.getAttribute(attributeSemantic);
-      if (accessor!.componentType.isFloatingPoint()) {
-        vertexAttributeDefines += `#define RN_USE_POSITION_FLOAT\n`;
-      } else if (accessor!.componentType.isInteger()) {
-        vertexAttributeDefines += `#define RN_USE_POSITION_INT\n`;
-      } else {
-        vertexAttributeDefines += `#define RN_USE_POSITION_UINT\n`;
-      }
-    }
-    if (attributeSemantic.indexOf('NORMAL') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_NORMAL\n`;
-    }
-    if (attributeSemantic.indexOf('TANGENT') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TANGENT\n`;
-    }
-    if (attributeSemantic.indexOf('TEXCOORD_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TEXCOORD_0\n`;
-    }
-    if (attributeSemantic.indexOf('TEXCOORD_1') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TEXCOORD_1\n`;
-    }
-    if (attributeSemantic.indexOf('COLOR_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_COLOR_0\n`;
-      const accessor = primitive.getAttribute(attributeSemantic);
-      if (accessor!.componentType.isFloatingPoint()) {
-        vertexAttributeDefines += `#define RN_USE_COLOR_0_FLOAT\n`;
-      } else if (accessor!.componentType.isInteger()) {
-        vertexAttributeDefines += `#define RN_USE_COLOR_0_INT\n`;
-      } else {
-        vertexAttributeDefines += `#define RN_USE_COLOR_0_UINT\n`;
-      }
-    }
-    if (attributeSemantic.indexOf('JOINTS_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_JOINTS_0\n`;
-    }
-    if (attributeSemantic.indexOf('WEIGHTS_0') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_WEIGHTS_0\n`;
-    }
-    if (attributeSemantic.indexOf('FACE_NORMAL') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_FACE_NORMAL\n`;
-    }
-    if (attributeSemantic.indexOf('BARY_CENTRIC_COORD') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_BARY_CENTRIC_COORD\n`;
-    }
-    if (attributeSemantic.indexOf('TEXCOORD_2') !== -1) {
-      vertexAttributeDefines += `#define RN_USE_TEXCOORD_2\n`;
-    }
-  }
-  if (primitive.targets != null && primitive.targets.length > 0) {
-    vertexAttributeDefines += '#define RN_IS_MORPHING\n';
-  }
-
-  vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
+  const vertexAttributeDefines = defineAttributes(primitive);
 
   let definitions = `// Material Type: ${material.materialTypeName}\n`;
   definitions += materialNode.getDefinitions(material);
@@ -380,4 +306,66 @@ export function _createProgramAsSingleOperationWebGpu(
     []
   );
   return programUid;
+}
+
+function defineAttributes(primitive: Primitive) {
+  let vertexAttributeDefines = '';
+  const attributeSemantics = primitive.attributeSemantics;
+  for (const attributeSemantic of attributeSemantics) {
+    if (attributeSemantic.indexOf('POSITION') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_POSITION\n`;
+      const accessor = primitive.getAttribute(attributeSemantic);
+      if (accessor!.componentType.isFloatingPoint()) {
+        vertexAttributeDefines += `#define RN_USE_POSITION_FLOAT\n`;
+      } else if (accessor!.componentType.isInteger()) {
+        vertexAttributeDefines += `#define RN_USE_POSITION_INT\n`;
+      } else {
+        vertexAttributeDefines += `#define RN_USE_POSITION_UINT\n`;
+      }
+    }
+    if (attributeSemantic.indexOf('NORMAL') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_NORMAL\n`;
+    }
+    if (attributeSemantic.indexOf('TANGENT') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TANGENT\n`;
+    }
+    if (attributeSemantic.indexOf('TEXCOORD_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TEXCOORD_0\n`;
+    }
+    if (attributeSemantic.indexOf('TEXCOORD_1') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TEXCOORD_1\n`;
+    }
+    if (attributeSemantic.indexOf('COLOR_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_COLOR_0\n`;
+      const accessor = primitive.getAttribute(attributeSemantic);
+      if (accessor!.componentType.isFloatingPoint()) {
+        vertexAttributeDefines += `#define RN_USE_COLOR_0_FLOAT\n`;
+      } else if (accessor!.componentType.isInteger()) {
+        vertexAttributeDefines += `#define RN_USE_COLOR_0_INT\n`;
+      } else {
+        vertexAttributeDefines += `#define RN_USE_COLOR_0_UINT\n`;
+      }
+    }
+    if (attributeSemantic.indexOf('JOINTS_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_JOINTS_0\n`;
+    }
+    if (attributeSemantic.indexOf('WEIGHTS_0') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_WEIGHTS_0\n`;
+    }
+    if (attributeSemantic.indexOf('FACE_NORMAL') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_FACE_NORMAL\n`;
+    }
+    if (attributeSemantic.indexOf('BARY_CENTRIC_COORD') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_BARY_CENTRIC_COORD\n`;
+    }
+    if (attributeSemantic.indexOf('TEXCOORD_2') !== -1) {
+      vertexAttributeDefines += `#define RN_USE_TEXCOORD_2\n`;
+    }
+  }
+  if (primitive.targets != null && primitive.targets.length > 0) {
+    vertexAttributeDefines += '#define RN_IS_MORPHING\n';
+  }
+
+  vertexAttributeDefines += `#define RN_USE_INSTANCE\n`;
+  return vertexAttributeDefines;
 }

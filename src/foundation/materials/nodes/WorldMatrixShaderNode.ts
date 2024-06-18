@@ -1,11 +1,15 @@
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
-import WorldMatrixShaderityObject from '../../../webgl/shaderity_shaders/nodes/WorldMatrix.vert';
+import WorldMatrixShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/WorldMatrix.vert';
+import WorldMatrixShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/WorldMatrix.vert.wgsl';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 
 export class WorldMatrixShaderNode extends AbstractShaderNode {
   constructor() {
-    super('worldMatrix', WorldMatrixShaderityObject.code);
+    super('worldMatrix', {
+      codeGLSL: WorldMatrixShaderityObjectGLSL.code,
+      codeWGSL: WorldMatrixShaderityObjectWGSL.code,
+    });
 
     this.setShaderStage('Vertex');
 
