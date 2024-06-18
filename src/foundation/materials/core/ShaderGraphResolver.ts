@@ -38,6 +38,7 @@ import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { System, SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { TransformShaderNode } from '../nodes/TransformShaderNode';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -612,59 +613,112 @@ export default function constructNodes(json: any) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'AddScalar': {
-        const nodeInstance = new AddShaderNode(CompositionType.Scalar, ComponentType.Float);
+      case 'Add': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: AddShaderNode;
+        if (socketName === 'Scalar') {
+          nodeInstance = new AddShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName === 'Vector2') {
+          nodeInstance = new AddShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new AddShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          console.log('Add node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'AddVector4': {
-        const nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
+      case 'Normalize': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: NormalizeShaderNode;
+        if (socketName === 'Vector2') {
+          nodeInstance = new NormalizeShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new NormalizeShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new NormalizeShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          console.log('Normalize node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'NormalizeVector3': {
-        const nodeInstance = new NormalizeShaderNode(CompositionType.Vec3, ComponentType.Float);
+      case 'Dot': {
+        const socketName = node.inputs.in1.socket.name;
+        let nodeInstance: DotProductShaderNode;
+        if (socketName === 'Vector2') {
+          nodeInstance = new DotProductShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new DotProductShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new DotProductShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          console.log('Dot node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'DotProductVector3': {
-        const nodeInstance = new DotProductShaderNode(CompositionType.Vec3, ComponentType.Float);
+      case 'Multiply': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: MultiplyShaderNode;
+        if (socketName === 'Scalar') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName === 'Vector2') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else if (socketName === 'Matrix2') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Mat2, ComponentType.Float);
+        } else if (socketName === 'Matrix3') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Mat3, ComponentType.Float);
+        } else if (socketName === 'Matrix4') {
+          nodeInstance = new MultiplyShaderNode(CompositionType.Mat4, ComponentType.Float);
+        } else {
+          console.log('Multiply node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'MultiplyMatrix3xVector3': {
-        const nodeInstance = new MultiplyShaderNode(
-          CompositionType.Mat3,
-          ComponentType.Float,
-          CompositionType.Vec3,
-          ComponentType.Float
-        );
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'MultiplyMatrix4xVector4': {
-        const nodeInstance = new MultiplyShaderNode(
-          CompositionType.Mat4,
-          ComponentType.Float,
-          CompositionType.Vec4,
-          ComponentType.Float
-        );
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'MultiplyMatrix4xMatrix4': {
-        const nodeInstance = new MultiplyShaderNode(
-          CompositionType.Mat4,
-          ComponentType.Float,
-          CompositionType.Mat4,
-          ComponentType.Float
-        );
+      case 'Transform': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: TransformShaderNode;
+        if (socketName === 'Vector2') {
+          nodeInstance = new TransformShaderNode(
+            CompositionType.Mat2,
+            ComponentType.Float,
+            CompositionType.Vec2,
+            ComponentType.Float
+          );
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new TransformShaderNode(
+            CompositionType.Mat3,
+            ComponentType.Float,
+            CompositionType.Vec3,
+            ComponentType.Float
+          );
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new TransformShaderNode(
+            CompositionType.Mat4,
+            ComponentType.Float,
+            CompositionType.Vec4,
+            ComponentType.Float
+          );
+        } else {
+          console.log('Transform node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
@@ -771,8 +825,12 @@ export default function constructNodes(json: any) {
   // for (const connection of json.connections) {
   for (let i = 0; i < json.connections.length; i++) {
     const connection = json.connections[i];
-    const inputNodeInstance = nodeInstances[connection.from.id] as AbstractShaderNode;
-    const outputNodeInstance = nodeInstances[connection.to.id] as AbstractShaderNode;
+    const inputNodeInstance = nodeInstances[connection.from.id] as AbstractShaderNode | undefined;
+    const outputNodeInstance = nodeInstances[connection.to.id] as AbstractShaderNode | undefined;
+    if (inputNodeInstance == null || outputNodeInstance == null) {
+      console.error('inputNodeInstance or outputNodeInstance is null');
+      continue;
+    }
     let idx = 0;
     for (const key in nodes[connection.to.id].inputs) {
       if (key === connection.to.portName) {
