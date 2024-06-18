@@ -49,7 +49,7 @@ a_texcoord_0 = texcoord_0;
 #ifdef RN_USE_COLOR_0
 a_color_0 = vec4<f32>(color_0);
 #else
-a_color_0 = vec4<f32>(1.0, 1.0, 1.0, 1.0);
+a_color_0 = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 #endif
 `;
         return str;
