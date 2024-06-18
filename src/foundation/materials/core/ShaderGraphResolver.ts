@@ -631,18 +631,6 @@ export default function constructNodes(json: any) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'AddScalar': {
-        const nodeInstance = new AddShaderNode(CompositionType.Scalar, ComponentType.Float);
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'AddVector4': {
-        const nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
       case 'NormalizeVector3': {
         const nodeInstance = new NormalizeShaderNode(CompositionType.Vec3, ComponentType.Float);
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
