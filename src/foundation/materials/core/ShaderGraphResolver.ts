@@ -38,6 +38,7 @@ import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { System, SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
+import { TransformShaderNode } from '../nodes/TransformShaderNode';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -643,35 +644,80 @@ export default function constructNodes(json: any) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'MultiplyMatrix3xVector3': {
-        const nodeInstance = new MultiplyShaderNode(
-          CompositionType.Mat3,
-          ComponentType.Float,
-          CompositionType.Vec3,
-          ComponentType.Float
-        );
+      case 'Multiply': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: MultiplyShaderNode;
+        if (socketName === 'Scalar') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Scalar,
+            ComponentType.Float,
+          );
+        } else if (socketName === 'Vector2') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Vec2,
+            ComponentType.Float,
+          );
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Vec3,
+            ComponentType.Float,
+          );
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Vec4,
+            ComponentType.Float,
+          );
+        } else if (socketName === 'Matrix2') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Mat2,
+            ComponentType.Float,
+          );
+        } else if (socketName === 'Matrix3') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Mat3,
+            ComponentType.Float,
+          );
+        } else if (socketName === 'Matrix4') {
+          nodeInstance = new MultiplyShaderNode(
+            CompositionType.Mat4,
+            ComponentType.Float,
+          );
+        } else {
+          console.log('Multiply node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'MultiplyMatrix4xVector4': {
-        const nodeInstance = new MultiplyShaderNode(
-          CompositionType.Mat4,
-          ComponentType.Float,
-          CompositionType.Vec4,
-          ComponentType.Float
-        );
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'MultiplyMatrix4xMatrix4': {
-        const nodeInstance = new MultiplyShaderNode(
-          CompositionType.Mat4,
-          ComponentType.Float,
-          CompositionType.Mat4,
-          ComponentType.Float
-        );
+      case 'Transform': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: TransformShaderNode;
+        if (socketName === 'Vector2') {
+          nodeInstance = new TransformShaderNode(
+            CompositionType.Mat2,
+            ComponentType.Float,
+            CompositionType.Vec2,
+            ComponentType.Float
+          );
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new TransformShaderNode(
+            CompositionType.Mat3,
+            ComponentType.Float,
+            CompositionType.Vec3,
+            ComponentType.Float
+          );
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new TransformShaderNode(
+            CompositionType.Mat4,
+            ComponentType.Float,
+            CompositionType.Vec4,
+            ComponentType.Float
+          );
+        } else {
+          console.log('Transform node: Unknown socket name: ' + socketName);
+          break;
+        }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
