@@ -343,12 +343,12 @@ export class ShaderGraphResolver {
         continue;
       }
 
-      let rowStr = '';
       const varNames = varInputNames[i].concat(varOutputNames[i]);
       if (
         shaderNode.getInputs().length === varInputNames[i].length &&
         shaderNode.getOutputs().length === varOutputNames[i].length
       ) {
+        let rowStr = '';
         if (varNames.length > 0) {
           // Call node functions
           rowStr += `${functionName}(`;
