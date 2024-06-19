@@ -2,11 +2,12 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import SplitVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/SplitVector.glsl';
+import SplitVectorShaderityObjectGLSL2 from '../../../webgl/shaderity_shaders/nodes/SplitVector2.glsl';
 
 export class SplitVectorShaderNode extends AbstractShaderNode {
   constructor() {
     super('splitVector', {
-      codeGLSL: SplitVectorShaderityObjectGLSL.code,
+      codeGLSL: SplitVectorShaderityObjectGLSL2.code,
     });
 
     this.__inputs.push({
@@ -25,6 +26,21 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
       name: 'xy',
     });
 
+    this.__outputs.push({
+      compositionType: CompositionType.Vec3,
+      componentType: ComponentType.Float,
+      name: 'xyz',
+    });
+    this.__outputs.push({
+      compositionType: CompositionType.Vec2,
+      componentType: ComponentType.Float,
+      name: 'xy',
+    });
+    this.__outputs.push({
+      compositionType: CompositionType.Vec2,
+      componentType: ComponentType.Float,
+      name: 'zw',
+    });
     this.__outputs.push({
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Float,

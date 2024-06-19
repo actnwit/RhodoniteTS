@@ -307,24 +307,24 @@ export class ShaderGraphResolver {
             if (
               !existingOutputs.has(`${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`)
             ) {
-                const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
+              const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
 
-                const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
+              const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
                 targetShaderNode.shaderNodeUid
-                }`;
+              }`;
 
-                if (i - 1 >= 0) {
-                  varOutputNames[i - 1].push(varName);
-                }
-                existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
+              if (i - 1 >= 0) {
+                varOutputNames[i - 1].push(varName);
               }
+              existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
+            }
             existingOutputs.add(
               `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`
             );
-            }
           }
         }
       }
+    }
 
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -718,9 +718,9 @@ export default function constructNodes(json: any) {
         break;
       }
       case 'SplitVector': {
-        let nodeInstance: SplitVectorShaderNode;
-        if (node.inputs.inXYZW != null) {
-        }
+        const nodeInstance = new SplitVectorShaderNode();
+        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstances[node.id] = nodeInstance;
         break;
       }
       case 'ScalarToVector4': {
