@@ -245,7 +245,7 @@ export class ShaderGraphResolver {
     const varOutputNames: Array<Array<string>> = []; // output names of topological sorted Nodes
     {
       const existingInputs: ShaderNodeUID[] = [];
-      const existingOutputs: ShaderNodeUID[] = [];
+      const existingOutputs: Set<string> = new Set();
       const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
       for (let i = 1; i < shaderNodes.length; i++) {
         const shaderNode = shaderNodes[i];
@@ -304,7 +304,9 @@ export class ShaderGraphResolver {
               continue;
             }
             const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
-              if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
+            if (
+              !existingOutputs.has(`${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`)
+            ) {
                 const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
 
                 const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
@@ -316,7 +318,9 @@ export class ShaderGraphResolver {
                 }
                 existingOutputsVarName.set(inputConnection.shaderNodeUid, varName);
               }
-              existingOutputs.push(inputConnection.shaderNodeUid);
+            existingOutputs.add(
+              `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`
+            );
             }
           }
         }
