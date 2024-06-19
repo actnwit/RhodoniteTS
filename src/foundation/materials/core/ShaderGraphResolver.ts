@@ -295,12 +295,12 @@ export class ShaderGraphResolver {
 
         // Collects ExistingOutputs
         for (let j = i; j < shaderNodes.length; j++) {
-          const targetMaterialNode = shaderNodes[j];
-          const prevMaterialNodeInner = shaderNodes[i - 1];
-          const targetNodeInputConnections = targetMaterialNode.inputConnections;
+          const targetShaderNode = shaderNodes[j];
+          const prevShaderNodeInner = shaderNodes[i - 1];
+          const targetNodeInputConnections = targetShaderNode.inputConnections;
           for (let k = 0; k < targetNodeInputConnections.length; k++) {
             const inputConnection = targetNodeInputConnections[k];
-            if (prevMaterialNodeInner?.shaderNodeUid !== inputConnection.shaderNodeUid) {
+            if (prevShaderNodeInner?.shaderNodeUid !== inputConnection.shaderNodeUid) {
               continue;
             }
             const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
@@ -308,7 +308,7 @@ export class ShaderGraphResolver {
                 const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
 
                 const varName = `${outputSocketOfPrev!.name}_${inputConnection.shaderNodeUid}_to_${
-                  targetMaterialNode.shaderNodeUid
+                targetShaderNode.shaderNodeUid
                 }`;
 
                 if (i - 1 >= 0) {
