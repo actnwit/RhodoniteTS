@@ -150,11 +150,13 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
       const shaderNode = shaderNodes[i];
       for (let j = 0; j < shaderNode.inputConnections.length; j++) {
         const inputConnection = shaderNode.inputConnections[j];
+        if (inputConnection == null) {
+          continue;
+        }
         const input = shaderNode.getInputs()[j];
         const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
         if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Fragment') {
           const type = input.compositionType.toWGSLType(input.componentType);
-          // varyingVariables += `@location(${i}) ${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid}: ${type},\n`;
           varyings.push({
             type: type,
             name: `${inputNode.shaderFunctionName}_${inputNode.shaderNodeUid}`,

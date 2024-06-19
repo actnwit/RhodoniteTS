@@ -2,14 +2,15 @@ import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import SplitVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/SplitVector.glsl';
-import SplitVectorShaderityObjectGLSL2 from '../../../webgl/shaderity_shaders/nodes/SplitVector2.glsl';
+import SplitVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/SplitVector.wgsl';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 
 export class SplitVectorShaderNode extends AbstractShaderNode {
   constructor() {
     super('splitVector', {
-      codeGLSL: SplitVectorShaderityObjectGLSL2.code,
+      codeGLSL: SplitVectorShaderityObjectGLSL.code,
+      codeWGSL: SplitVectorShaderityObjectWGSL.code,
     });
 
     this.__inputs.push({
@@ -65,6 +66,24 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
     });
   }
 
+  getShaderFunctionNameDerivative() {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      for (const inputConnection of this.inputConnections) {
+        if (inputConnection != null) {
+          if (inputConnection.inputNameOfThis === 'xyzw') {
+            return this.__shaderFunctionName + 'XYZW';
+          } else if (inputConnection.inputNameOfThis === 'xyz') {
+            return this.__shaderFunctionName + 'XYZ';
+          } else if (inputConnection.inputNameOfThis === 'xy') {
+            return this.__shaderFunctionName + 'XY';
+          }
+        }
+      }
+      throw new Error('Not implemented');
+    } else {
+      return this.__shaderFunctionName;
+    }
+  }
   makeCallStatement(
     i: number,
     shaderNode: AbstractShaderNode,
@@ -75,15 +94,26 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
     let str = '';
     let rowStr = '';
     if (varInputNames[i].length > 0 && varOutputNames[i].length > 0) {
-      const dummyOutputVarDefines = [
-        `vec3 dummyXYZ_${i};`,
-        `vec2 dummyXY_${i};`,
-        `vec2 dummyZW_${i};`,
-        `float dummyX_${i};`,
-        `float dummyY_${i};`,
-        `float dummyZ_${i};`,
-        `float dummyW_${i};`,
-      ];
+      const dummyOutputVarDefines =
+        SystemState.currentProcessApproach === ProcessApproach.WebGPU
+          ? [
+              `var dummyXYZ_${i}: vec3<f32>;`,
+              `var dummyXY_${i}: vec2<f32>;`,
+              `var dummyZW_${i}: vec2<f32>;`,
+              `var dummyX_${i}: f32;`,
+              `var dummyY_${i}: f32;`,
+              `var dummyZ_${i}: f32;`,
+              `var dummyW_${i}: f32;`,
+            ]
+          : [
+              `vec3 dummyXYZ_${i};`,
+              `vec2 dummyXY_${i};`,
+              `vec2 dummyZW_${i};`,
+              `float dummyX_${i};`,
+              `float dummyY_${i};`,
+              `float dummyZ_${i};`,
+              `float dummyW_${i};`,
+            ];
 
       const dummyOutputArguments = [
         `dummyXYZ_${i}`,
@@ -118,6 +148,12 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
         } else if (outputName.indexOf('w') >= 0) {
           dummyOutputVarDefines[6] = '';
           dummyOutputArguments[6] = outputName;
+        }
+      }
+
+      if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+        for (let i = 0; i < dummyOutputArguments.length; i++) {
+          dummyOutputArguments[i] = '&' + dummyOutputArguments[i];
         }
       }
 
