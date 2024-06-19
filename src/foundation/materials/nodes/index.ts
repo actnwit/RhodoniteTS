@@ -26,3 +26,4 @@ export * from './ViewMatrixShaderNode';
 export * from './WireframeMaterialNode';
 export * from './WorldMatrixShaderNode';
 export * from './SplitVectorShaderNode';
+export * from './MergeVectorShaderNode';

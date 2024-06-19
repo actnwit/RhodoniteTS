@@ -39,7 +39,7 @@ import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { System, SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
-import { SplitVectorShaderNode } from '../nodes';
+import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -732,6 +732,12 @@ export default function constructNodes(json: any) {
       }
       case 'SplitVector': {
         const nodeInstance = new SplitVectorShaderNode();
+        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'MergeVector': {
+        const nodeInstance = new MergeVectorShaderNode();
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
