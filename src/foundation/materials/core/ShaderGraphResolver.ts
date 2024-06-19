@@ -212,12 +212,6 @@ export class ShaderGraphResolver {
     isFullVersion: boolean
   ) {
     let shaderBody = '';
-    const isAnyTypeInput = function (input: ShaderSocket) {
-      return (
-        input.compositionType === CompositionType.Unknown ||
-        input.componentType === ComponentType.Unknown
-      );
-    };
 
     // Define varying(out) variables
     if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
@@ -270,9 +264,6 @@ export class ShaderGraphResolver {
         for (let j = 0; j < inputConnections.length; j++) {
           const inputConnection = inputConnections[j];
           const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
-          if (isAnyTypeInput(shaderNode.getInputs()[j])) {
-            continue;
-          }
 
           const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
           const inputSocketOfThis = shaderNode.getInput(inputConnection.inputNameOfThis);
@@ -313,7 +304,6 @@ export class ShaderGraphResolver {
               continue;
             }
             const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
-            if (!isAnyTypeInput(targetMaterialNode.getInputs()[k])) {
               if (existingOutputs.indexOf(inputNode.shaderNodeUid) === -1) {
                 const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
 
@@ -331,7 +321,6 @@ export class ShaderGraphResolver {
           }
         }
       }
-    }
 
     // generate shader code by topological sorted nodes, varInputNames and varOutputNames
     for (let i = 0; i < shaderNodes.length; i++) {
