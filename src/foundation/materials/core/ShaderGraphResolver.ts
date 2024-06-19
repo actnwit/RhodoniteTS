@@ -845,7 +845,14 @@ export default function constructNodes(json: any) {
       }
       idx++;
     }
-    const outputOfInputNode = inputNodeInstance.getOutputs()[0];
+    let idx2 = 0;
+    for (const key in nodes[connection.from.id].outputs) {
+      if (key === connection.from.portName) {
+        break;
+      }
+      idx2++;
+    }
+    const outputOfInputNode = inputNodeInstance.getOutputs()[idx2];
     const inputOfOutputNode = outputNodeInstance.getInputs()[idx];
     outputNodeInstance.addInputConnection(inputNodeInstance, outputOfInputNode, inputOfOutputNode);
   }
