@@ -25,3 +25,4 @@ export * from './Vector2AndScalarToVector4ShaderNode';
 export * from './ViewMatrixShaderNode';
 export * from './WireframeMaterialNode';
 export * from './WorldMatrixShaderNode';
+export * from './SplitVectorShaderNode';
