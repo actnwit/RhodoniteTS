@@ -49,10 +49,10 @@ export class ShaderGraphResolver {
   ) {
     const shaderNodes = vertexNodes.concat();
 
-    const isValid = this.__validateShaderNodes(shaderNodes);
-    if (!isValid) {
-      return undefined;
-    }
+    // const isValid = this.__validateShaderNodes(shaderNodes);
+    // if (!isValid) {
+    //   return undefined;
+    // }
 
     // Topological Sorting
     const sortedShaderNodes = this.__sortTopologically(shaderNodes);
@@ -87,10 +87,10 @@ export class ShaderGraphResolver {
   static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = pixelNodes.concat();
 
-    const isValid = this.__validateShaderNodes(shaderNodes);
-    if (!isValid) {
-      return undefined;
-    }
+    // const isValid = this.__validateShaderNodes(shaderNodes);
+    // if (!isValid) {
+    //   return undefined;
+    // }
 
     // Topological Sorting
     const sortedShaderNodes = this.__sortTopologically(shaderNodes);
@@ -142,7 +142,13 @@ export class ShaderGraphResolver {
     const queue: AbstractShaderNode[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
-      inputNumArray[i] = shaderNode.inputConnections.length;
+      let count = 0;
+      for (const inputConnection of shaderNode.inputConnections) {
+        if (inputConnection != null) {
+          count++;
+        }
+      }
+      inputNumArray[i] = count;
     }
 
     // collect output nodes
@@ -150,6 +156,9 @@ export class ShaderGraphResolver {
     for (let i = 0; i < shaderNodes.length; i++) {
       const shaderNode = shaderNodes[i];
       for (const inputConnection of shaderNode.inputConnections) {
+        if (inputConnection == null) {
+          continue;
+        }
         const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
         const inputNodeIdx = shaderNodes.indexOf(inputNode);
         if (outputNodes[inputNodeIdx] == null) {
@@ -219,6 +228,9 @@ export class ShaderGraphResolver {
         const shaderNode = shaderNodes[i];
         for (let j = 0; j < shaderNode.inputConnections.length; j++) {
           const inputConnection = shaderNode.inputConnections[j];
+          if (inputConnection == null) {
+            continue;
+          }
           const input = shaderNode.getInputs()[j];
           const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
           if (
@@ -263,6 +275,9 @@ export class ShaderGraphResolver {
         // Collects ExistingInputs
         for (let j = 0; j < inputConnections.length; j++) {
           const inputConnection = inputConnections[j];
+          if (inputConnection == null) {
+            continue;
+          }
           const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
 
           const outputSocketOfPrev = inputNode.getOutput(inputConnection.outputNameOfPrev);
@@ -304,6 +319,9 @@ export class ShaderGraphResolver {
           const targetNodeInputConnections = targetShaderNode.inputConnections;
           for (let k = 0; k < targetNodeInputConnections.length; k++) {
             const inputConnection = targetNodeInputConnections[k];
+            if (inputConnection == null) {
+              continue;
+            }
             if (prevShaderNodeInner?.shaderNodeUid !== inputConnection.shaderNodeUid) {
               continue;
             }
@@ -362,6 +380,9 @@ export class ShaderGraphResolver {
         const varNames = varInputNames[i].concat(varOutputNames[i]);
         for (let j = 0; j < shaderNode.inputConnections.length; j++) {
           const inputConnection = shaderNode.inputConnections[j];
+          if (inputConnection == null) {
+            continue;
+          }
           const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
           if (
             inputNode.getShaderStage() === 'Vertex' &&
@@ -425,10 +446,12 @@ function filterNodesInner(nodes: AbstractShaderNode[], endNodeName: string) {
   function traverseNodes(node: AbstractShaderNode) {
     for (let i = 0; i < node.inputConnections.length; i++) {
       const inputConnection = node.inputConnections[i];
-      const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
-      if (inputNode != null) {
-        filteredNodes.push(inputNode);
-        traverseNodes(inputNode);
+      if (inputConnection != null) {
+        const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
+        if (inputNode != null) {
+          filteredNodes.push(inputNode);
+          traverseNodes(inputNode);
+        }
       }
     }
   }
@@ -456,6 +479,9 @@ function resolveShaderStage(shaderNodes: AbstractShaderNode[]) {
   for (let i = 0; i < shaderNodes.length; i++) {
     const shaderNode = shaderNodes[i];
     for (const inputConnection of shaderNode.inputConnections) {
+      if (inputConnection == null) {
+        continue;
+      }
       const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
       if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Neutral') {
         shaderNode.setShaderStage('Vertex');
@@ -487,6 +513,9 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
   function traverseNodesAll(node: AbstractShaderNode) {
     for (let i = 0; i < node.inputConnections.length; i++) {
       const inputConnection = node.inputConnections[i];
+      if (inputConnection == null) {
+        continue;
+      }
       const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
       varyingNodes.push(inputNode);
       traverseNodesAll(inputNode);
@@ -496,6 +525,9 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
   function traverseNodes(node: AbstractShaderNode) {
     for (let i = 0; i < node.inputConnections.length; i++) {
       const inputConnection = node.inputConnections[i];
+      if (inputConnection == null) {
+        continue;
+      }
       const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
       if (
         inputNode != null &&
