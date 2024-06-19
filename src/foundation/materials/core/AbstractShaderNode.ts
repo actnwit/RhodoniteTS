@@ -155,4 +155,41 @@ export abstract class AbstractShaderNode extends RnObject {
   get inputConnections(): ShaderNodeInputConnectionType[] {
     return this.__inputConnections;
   }
+
+  makeCallStatement(i: number, shaderNode: AbstractShaderNode,
+    functionName: string, varInputNames: string[][], varOutputNames: string[][]): string {
+    let str = '';
+    const varNames = varInputNames[i].concat(varOutputNames[i]);
+    if (
+      shaderNode.getInputs().length === varInputNames[i].length &&
+      shaderNode.getOutputs().length === varOutputNames[i].length
+    ) {
+      let rowStr = '';
+      if (varNames.length > 0) {
+        // Call node functions
+        rowStr += `${functionName}(`;
+        for (let k = 0; k < varNames.length; k++) {
+          const varName = varNames[k];
+          if (varName == null) {
+            continue;
+          }
+          if (k !== 0) {
+            rowStr += ', ';
+          }
+          if (
+            SystemState.currentProcessApproach === ProcessApproach.WebGPU &&
+            k >= varInputNames[i].length
+          ) {
+            rowStr += '&';
+          }
+          rowStr += varNames[k];
+        }
+        rowStr += ');\n';
+      }
+
+      str += rowStr;
+    }
+
+    return str;
+  }
 }

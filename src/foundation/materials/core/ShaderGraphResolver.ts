@@ -244,7 +244,7 @@ export class ShaderGraphResolver {
     const varInputNames: Array<Array<string>> = []; // input names of topological sorted Nodes
     const varOutputNames: Array<Array<string>> = []; // output names of topological sorted Nodes
     {
-      const existingInputs: ShaderNodeUID[] = [];
+      const existingInputs: Set<string> = new Set();
       const existingOutputs: Set<string> = new Set();
       const existingOutputsVarName: Map<ShaderNodeUID, string> = new Map();
       for (let i = 1; i < shaderNodes.length; i++) {
@@ -272,7 +272,9 @@ export class ShaderGraphResolver {
           }`;
 
           //
-          if (existingInputs.indexOf(inputNode.shaderNodeUid) === -1) {
+          if (
+            !existingInputs.has(`${inputNode.shaderNodeUid}_${inputConnection.outputNameOfPrev}`)
+          ) {
             let rowStr = CommonShaderPart.getAssignmentStatement(varName, inputSocketOfThis!);
             if (!isVertexStage) {
               if (
@@ -290,7 +292,9 @@ export class ShaderGraphResolver {
           }
           const existVarName = existingOutputsVarName.get(inputNode.shaderNodeUid);
           varInputNames[i].push(existVarName ? existVarName : varName);
-          existingInputs.push(inputConnection.shaderNodeUid);
+          existingInputs.add(
+            `${inputConnection.shaderNodeUid}_${inputConnection.outputNameOfPrev}`
+          );
         }
 
         // Collects ExistingOutputs
@@ -343,36 +347,13 @@ export class ShaderGraphResolver {
         continue;
       }
 
-      const varNames = varInputNames[i].concat(varOutputNames[i]);
-      if (
-        shaderNode.getInputs().length === varInputNames[i].length &&
-        shaderNode.getOutputs().length === varOutputNames[i].length
-      ) {
-        let rowStr = '';
-        if (varNames.length > 0) {
-          // Call node functions
-          rowStr += `${functionName}(`;
-          for (let k = 0; k < varNames.length; k++) {
-            const varName = varNames[k];
-            if (varName == null) {
-              continue;
-            }
-            if (k !== 0) {
-              rowStr += ', ';
-            }
-            if (
-              SystemState.currentProcessApproach === ProcessApproach.WebGPU &&
-              k >= varInputNames[i].length
-            ) {
-              rowStr += '&';
-            }
-            rowStr += varNames[k];
-          }
-          rowStr += ');\n';
-        }
-
-        shaderBody += rowStr;
-      }
+      shaderBody += shaderNode.makeCallStatement(
+        i,
+        shaderNode,
+        functionName,
+        varInputNames,
+        varOutputNames
+      );
     }
 
     if (isVertexStage) {
