@@ -15,7 +15,7 @@ export class AddShaderNode extends AbstractShaderNode {
     });
 
     this.__inputs.push(new Socket('lhs', compositionType, componentType));
-    this.__inputs.push(new Socket('rhs', compositionType, ComponentType.Float));
+    this.__inputs.push(new Socket('rhs', compositionType, componentType));
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }
 
