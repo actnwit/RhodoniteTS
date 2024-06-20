@@ -77,7 +77,12 @@ export class ShaderGraphResolver {
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
+    try {
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
@@ -109,11 +114,16 @@ export class ShaderGraphResolver {
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-      sortedShaderNodes,
-      false,
-      isFullVersion
-    );
+    try {
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
+        sortedShaderNodes,
+        false,
+        isFullVersion
+      );
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
 
     const shader = pixelShaderPrerequisites + shaderBody;
 

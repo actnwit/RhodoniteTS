@@ -5,7 +5,7 @@ void mergeVectorXYZ_W(in vec3 xyz, in float w, out vec4 outXYZW, out vec3 outXYZ
   outXYZW.w = w;
   outXYZ = xyz;
   outXY = xyz.xy;
-  outZW = xyz.zw;
+  outZW = vec2(xyz.z, w);
 }
 
 void mergeVectorXY_ZW(in vec2 xy, in vec2 zw, out vec4 outXYZW, out vec3 outXYZ, out vec2 outXY, out vec2 outZW) {

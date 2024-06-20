@@ -170,11 +170,4 @@ export class SplitVectorShaderNode extends AbstractShaderNode {
 
     return str;
   }
-
-  // getShaderFunctionNameDerivative() {
-  //   if (this.inputConnections[0].inputNameOfThis === 'inXYZW') {
-  //     // if ()
-  //     return 'splitVector';
-  //   }
-  // }
 }
