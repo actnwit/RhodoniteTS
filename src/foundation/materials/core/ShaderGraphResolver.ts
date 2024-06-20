@@ -413,7 +413,8 @@ export class ShaderGraphResolver {
   public static generateShaderCodeFromJson(
     json: any
   ): { vertexShader: string; pixelShader: string } | undefined {
-    const nodes = Object.values(constructNodes(json));
+    const constructedNodes = Object.values(constructNodes(json));
+    const nodes = this.__sortTopologically(constructedNodes);
     resolveShaderStage(nodes);
     const varyingNodes = filterNodesForVarying(nodes, 'outColor');
 
@@ -492,11 +493,8 @@ function resolveShaderStage(shaderNodes: AbstractShaderNode[]) {
       const inputNode = AbstractShaderNode.getShaderNodeByUid(inputConnection.shaderNodeUid);
       if (inputNode.getShaderStage() === 'Vertex' && shaderNode.getShaderStage() === 'Neutral') {
         shaderNode.setShaderStage('Vertex');
-        break;
-      }
-      if (inputNode.getShaderStage() === 'Fragment') {
+      } else if (inputNode.getShaderStage() === 'Fragment') {
         shaderNode.setShaderStage('Fragment');
-        break;
       }
     }
   }
