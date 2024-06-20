@@ -20,9 +20,6 @@ import { AddShaderNode } from '../nodes/AddShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { ScalarToVector4ShaderNode } from '../nodes/ScalarToVector4ShaderNode';
-import { Vector3AndScalarToVector4ShaderNode } from '../nodes/Vector3AndScalarToVector4ShaderNode';
-import { Vector2AndScalarToVector4ShaderNode } from '../nodes/Vector2AndScalarToVector4ShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
@@ -39,7 +36,7 @@ import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
 import { System, SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
-import { SplitVectorShaderNode } from '../nodes';
+import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -77,7 +74,12 @@ export class ShaderGraphResolver {
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
+    try {
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
 
     const shader = vertexShaderPrerequisites + shaderBody;
 
@@ -109,11 +111,16 @@ export class ShaderGraphResolver {
     );
 
     // main process
-    shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
-      sortedShaderNodes,
-      false,
-      isFullVersion
-    );
+    try {
+      shaderBody += ShaderGraphResolver.__constructShaderWithNodes(
+        sortedShaderNodes,
+        false,
+        isFullVersion
+      );
+    } catch (e) {
+      console.error(e);
+      return undefined;
+    }
 
     const shader = pixelShaderPrerequisites + shaderBody;
 
@@ -736,20 +743,8 @@ export default function constructNodes(json: any) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
-      case 'ScalarToVector4': {
-        const nodeInstance = new ScalarToVector4ShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'Vector3AndScalarToVector4': {
-        const nodeInstance = new Vector3AndScalarToVector4ShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'Vector2AndScalarToVector4': {
-        const nodeInstance = new Vector2AndScalarToVector4ShaderNode();
+      case 'MergeVector': {
+        const nodeInstance = new MergeVectorShaderNode();
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
