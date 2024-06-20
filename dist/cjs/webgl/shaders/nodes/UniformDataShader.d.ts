@@ -1,9 +1,9 @@
-import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types/CommonTypes';
-export declare class UniformDataShader extends GLSLShader {
+import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
+export declare class UniformDataShader extends CommonShaderPart {
     private __functionName;
     private __compositionType;
     private __componentType;

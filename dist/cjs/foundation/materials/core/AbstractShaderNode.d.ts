@@ -1,10 +1,11 @@
 import { RnObject } from '../../core/RnObject';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { Socket } from './Socket';
+import { ShaderTypeEnum } from '../../definitions/ShaderType';
 export type ShaderAttributeOrSemanticsOrString = string | VertexAttributeEnum | ShaderSemanticsEnum;
 export type ShaderSocket = {
     compositionType: CompositionTypeEnum;
@@ -25,15 +26,20 @@ type ShaderStage = 'Neutral' | 'Vertex' | 'Fragment';
 export declare abstract class AbstractShaderNode extends RnObject {
     static _shaderNodes: AbstractShaderNode[];
     protected __shaderFunctionName: string;
-    private __shaderCode?;
     protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
     protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
     protected __inputConnections: ShaderNodeInputConnectionType[];
     private static __invalidShaderNodeCount;
     protected __shaderNodeUid: ShaderNodeUID;
-    protected __shader?: GLSLShader;
+    private __codeGLSL?;
+    private __codeWGSL?;
+    protected __commonPart?: CommonShaderPart;
     private _shaderStage;
-    constructor(shaderNodeName: string, shaderCode?: string, shader?: GLSLShader);
+    constructor(shaderNodeName: string, shader: {
+        codeGLSL?: string;
+        codeWGSL?: string;
+        commonPart?: CommonShaderPart;
+    });
     setShaderStage(stage: ShaderStage): void;
     getShaderStage(): ShaderStage;
     static getShaderNodeByUid(uid: ShaderNodeUID): AbstractShaderNode;
@@ -45,13 +51,14 @@ export declare abstract class AbstractShaderNode extends RnObject {
      */
     addInputConnection<N extends CompositionTypeEnum, T extends ComponentTypeEnum>(inputShaderNode: AbstractShaderNode, outputSocketOfInput: Socket<string, N, T>, inputSocketOfThis: Socket<string, N, T>): void;
     get shaderFunctionName(): string;
-    get shaderCode(): string | undefined;
+    getShaderFunctionNameDerivative(): string;
+    getShaderCode(shaderStage: ShaderTypeEnum): string;
     get shaderNodeUid(): ShaderNodeUID;
     getInput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined;
     getInputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
     getOutput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined;
     getOutputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
     get inputConnections(): ShaderNodeInputConnectionType[];
-    get shader(): GLSLShader | undefined;
+    makeCallStatement(i: number, shaderNode: AbstractShaderNode, functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
 }
 export {};

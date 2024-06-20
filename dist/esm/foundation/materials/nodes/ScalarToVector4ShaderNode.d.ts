@@ -16,6 +16,7 @@ export declare class ScalarToVector4ShaderNode extends AbstractShaderNode {
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;
@@ -54,6 +55,7 @@ export declare class ScalarToVector4ShaderNode extends AbstractShaderNode {
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;
@@ -92,6 +94,7 @@ export declare class ScalarToVector4ShaderNode extends AbstractShaderNode {
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;
@@ -130,6 +133,7 @@ export declare class ScalarToVector4ShaderNode extends AbstractShaderNode {
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;
@@ -168,6 +172,7 @@ export declare class ScalarToVector4ShaderNode extends AbstractShaderNode {
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../../definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;

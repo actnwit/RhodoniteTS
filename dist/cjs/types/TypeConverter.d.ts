@@ -12,6 +12,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -33,6 +34,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -54,6 +56,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -75,6 +78,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -96,6 +100,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -117,6 +122,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -138,6 +144,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;
@@ -159,6 +166,7 @@ export declare function fromTensorToCompositionType(vec: any): {
     getNumberOfComponents(): number;
     getGlslStr(componentType: import("..").ComponentTypeEnum): string;
     getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
     toWGSLType(componentType: import("..").ComponentTypeEnum): string;
     getVec4SizeOfProperty(): number;
     readonly index: number;

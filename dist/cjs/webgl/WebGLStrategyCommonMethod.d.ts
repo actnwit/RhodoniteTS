@@ -26,6 +26,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;
@@ -72,6 +73,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
         toWGSLType(componentType: import("../foundation/definitions/ComponentType").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;

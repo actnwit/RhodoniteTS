@@ -9,6 +9,7 @@ export interface CompositionTypeEnum extends EnumIO {
     getGlslStr(componentType: ComponentTypeEnum): string;
     getGlslInitialValue(componentType: ComponentTypeEnum): string;
     toWGSLType(componentType: ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: ComponentTypeEnum): string;
     getVec4SizeOfProperty(): IndexOf16Bytes;
 }
 declare class CompositionTypeClass<TypeName extends string> extends EnumClass implements CompositionTypeEnum {
@@ -36,6 +37,7 @@ declare class CompositionTypeClass<TypeName extends string> extends EnumClass im
     getNumberOfComponents(): Count;
     getGlslStr(componentType: ComponentTypeEnum): string;
     getGlslInitialValue(componentType: ComponentTypeEnum): string;
+    getWgslInitialValue(componentType: ComponentTypeEnum): string;
     toWGSLType(componentType: ComponentTypeEnum): string;
     getVec4SizeOfProperty(): IndexOf16Bytes;
 }

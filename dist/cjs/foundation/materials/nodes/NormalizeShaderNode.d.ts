@@ -3,4 +3,5 @@ import { CompositionTypeEnum } from '../../../foundation/definitions/Composition
 import { AbstractShaderNode } from '../core/AbstractShaderNode';
 export declare class NormalizeShaderNode extends AbstractShaderNode {
     constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
+    getShaderFunctionNameDerivative(): string;
 }

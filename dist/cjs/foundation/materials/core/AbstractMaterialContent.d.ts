@@ -1,6 +1,6 @@
 import { RnObject } from '../../core/RnObject';
 import { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { GLSLShader } from '../../../webgl/shaders/GLSLShader';
+import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { Matrix44 } from '../../math/Matrix44';
 import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Material } from './Material';
@@ -38,7 +38,7 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     protected __vertexShaderityObject?: ShaderityObject;
     protected __pixelShaderityObject?: ShaderityObject;
     shaderType: ShaderTypeEnum;
-    constructor(shader: GLSLShader | null, shaderFunctionName: string, { isMorphing, isSkinning, isLighting }?: {
+    constructor(shader: CommonShaderPart | null, shaderFunctionName: string, { isMorphing, isSkinning, isLighting }?: {
         isMorphing?: boolean | undefined;
         isSkinning?: boolean | undefined;
         isLighting?: boolean | undefined;

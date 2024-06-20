@@ -1,8 +1,8 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { AttributeNames } from '../../types/CommonTypes';
-export declare class ClassicShadingShader extends GLSLShader {
+export declare class ClassicShadingShader extends CommonShaderPart {
     static __instance: ClassicShadingShader;
     static readonly materialElement: import("../../..").EnumIO;
     private constructor();

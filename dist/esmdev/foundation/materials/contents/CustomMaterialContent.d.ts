@@ -20,8 +20,8 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         isShadow?: boolean;
         useTangentAttribute: boolean;
         useNormalTexture: boolean;
-        vertexShader: ShaderityObject;
-        pixelShader: ShaderityObject;
+        vertexShader?: ShaderityObject;
+        pixelShader?: ShaderityObject;
         noUseCameraTransform: boolean;
         additionalShaderSemanticInfo: ShaderSemanticsInfo[];
         vertexShaderWebGpu?: ShaderityObject;

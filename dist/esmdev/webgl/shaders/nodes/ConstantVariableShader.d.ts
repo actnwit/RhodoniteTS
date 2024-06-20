@@ -1,10 +1,10 @@
 import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttribute';
-import { GLSLShader } from '../GLSLShader';
+import { CommonShaderPart } from '../CommonShaderPart';
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../../foundation/definitions/ComponentType';
 import { AttributeNames } from '../../types';
-import { IVector } from '../../../foundation';
-export declare class ConstantVariableShader extends GLSLShader {
+import { IVector } from '../../../foundation/math/IVector';
+export declare class ConstantVariableShader extends CommonShaderPart {
     private __functionName;
     private __compositionType;
     private __componentType;

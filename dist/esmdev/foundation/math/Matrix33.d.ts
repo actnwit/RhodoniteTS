@@ -33,6 +33,7 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
         getNumberOfComponents(): number;
         getGlslStr(componentType: import("..").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
         toWGSLType(componentType: import("..").ComponentTypeEnum): string;
         getVec4SizeOfProperty(): number;
         readonly index: number;
