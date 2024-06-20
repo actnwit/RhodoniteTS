@@ -20,9 +20,6 @@ import { AddShaderNode } from '../nodes/AddShaderNode';
 import { NormalizeShaderNode } from '../nodes/NormalizeShaderNode';
 import { DotProductShaderNode } from '../nodes/DotProductShaderNode';
 import { MultiplyShaderNode } from '../nodes/MultiplyShaderNode';
-import { ScalarToVector4ShaderNode } from '../nodes/ScalarToVector4ShaderNode';
-import { Vector3AndScalarToVector4ShaderNode } from '../nodes/Vector3AndScalarToVector4ShaderNode';
-import { Vector2AndScalarToVector4ShaderNode } from '../nodes/Vector2AndScalarToVector4ShaderNode';
 import { AttributeColorShaderNode } from '../nodes/AttributeColorShaderNode';
 import { AttributeNormalShaderNode } from '../nodes/AttributeNormalShaderNode';
 import { AttributePositionShaderNode } from '../nodes/AttributePositionShaderNode';
@@ -748,24 +745,6 @@ export default function constructNodes(json: any) {
       }
       case 'MergeVector': {
         const nodeInstance = new MergeVectorShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'ScalarToVector4': {
-        const nodeInstance = new ScalarToVector4ShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'Vector3AndScalarToVector4': {
-        const nodeInstance = new Vector3AndScalarToVector4ShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
-      case 'Vector2AndScalarToVector4': {
-        const nodeInstance = new Vector2AndScalarToVector4ShaderNode();
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
