@@ -37,6 +37,7 @@ import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendSh
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { Mesh } from '../foundation/geometry/Mesh';
+import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
@@ -376,6 +377,7 @@ ${indexStr}
 
   prerender(): void {
     if (
+      AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||

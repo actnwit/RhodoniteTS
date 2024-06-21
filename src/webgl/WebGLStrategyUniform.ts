@@ -38,6 +38,7 @@ import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
 import { WebXRSystem } from '../xr/WebXRSystem';
 import { Vector2 } from '../foundation/math/Vector2';
+import { AnimationComponent, Scalar } from '../foundation';
 
 declare const spector: any;
 
@@ -438,7 +439,7 @@ bool get_isBillboard(float instanceId) {
 
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     if ((shaderProgram as any).vrState != null && isVrMainPass) {
-      const vrState =  GlobalDataRepository.getInstance().getValue(
+      const vrState = GlobalDataRepository.getInstance().getValue(
         ShaderSemantics.VrState,
         0
       ) as Vector2;
@@ -513,6 +514,14 @@ bool get_isBillboard(float instanceId) {
         gl.useProgram(shaderProgram);
         this.bindDataTexture(gl, shaderProgram);
 
+        if (AnimationComponent.isAnimating) {
+          const time = GlobalDataRepository.getInstance().getValue(
+            ShaderSemantics.Time,
+            0
+          ) as Scalar;
+          (shaderProgram as any)._gl.uniform1f((shaderProgram as any).time, time._v[0]);
+        }
+
         this.__lastShader = shaderProgramUid;
       }
 
@@ -550,7 +559,7 @@ bool get_isBillboard(float instanceId) {
           });
         }
         if ((shaderProgram as any).vrState != null && isVrMainPass) {
-          const vrState =  GlobalDataRepository.getInstance().getValue(
+          const vrState = GlobalDataRepository.getInstance().getValue(
             ShaderSemantics.VrState,
             0
           ) as Vector2;

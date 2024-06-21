@@ -39,6 +39,7 @@ import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
+import { TimeShaderNode } from '../nodes/TimeShaderNode';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -624,6 +625,11 @@ export default function constructNodes(json: any) {
           ])
         );
         nodeInstance.setUniformDataName(node.controls['name'].value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Time': {
+        const nodeInstance = new TimeShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
