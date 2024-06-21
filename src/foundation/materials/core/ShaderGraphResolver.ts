@@ -38,6 +38,7 @@ import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 import { SinShaderNode } from '../nodes/SinShaderNode';
+import { StepShaderNode } from '../nodes/StepShaderNode';
 
 export class ShaderGraphResolver {
   static createVertexShaderCode(
@@ -658,6 +659,25 @@ export default function constructNodes(json: any) {
           nodeInstance = new SinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           console.log('Sin node: Unknown socket name: ' + socketName);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'Step': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: StepShaderNode;
+        if (socketName === 'Scalar') {
+          nodeInstance = new StepShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName === 'Vector2') {
+          nodeInstance = new StepShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new StepShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new StepShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          console.log('Add node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
