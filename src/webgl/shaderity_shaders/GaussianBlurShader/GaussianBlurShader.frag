@@ -18,7 +18,7 @@ void main ()
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   vec2 offset = gl_FragCoord.st;
-  ivec2 vrState = get_vrState(materialSID, 0);
+  ivec2 vrState = get_vrState(0.0, 0);
   vec2 framebufferSize = get_framebufferSize(materialSID, 0);
   vec2 blurDirection;
   bool isHorizontal = get_isHorizontal(materialSID, 0);
