@@ -41,7 +41,17 @@ import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 
+/**
+ * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
+ */
 export class ShaderGraphResolver {
+  /**
+   * Create a vertex shader code from the given vertex nodes.
+   * @param vertexNodes - Vertex nodes
+   * @param varyingNodes - Varying nodes
+   * @param isFullVersion - Whether to generate a full version of the shader code
+   * @returns Vertex shader code
+   */
   static createVertexShaderCode(
     vertexNodes: AbstractShaderNode[],
     varyingNodes: AbstractShaderNode[],
@@ -70,7 +80,7 @@ export class ShaderGraphResolver {
     let shaderBody = '';
 
     // function definitions
-    shaderBody += ShaderGraphResolver.getFunctionDefinition(
+    shaderBody += ShaderGraphResolver.__getFunctionDefinition(
       // sortedShaderNodes,
       sortedShaderNodes.concat(varyingNodes.filter((node) => node.getShaderStage() !== 'Fragment')),
       ShaderType.VertexShader
@@ -89,6 +99,13 @@ export class ShaderGraphResolver {
     return shader;
   }
 
+  /**
+   * Create a pixel shader code from the given pixel nodes.
+   *
+   * @param pixelNodes - Pixel nodes
+   * @param isFullVersion - Whether to generate a full version of the shader code
+   * @returns Pixel shader code
+   */
   static createPixelShaderCode(pixelNodes: AbstractShaderNode[], isFullVersion: boolean = true) {
     const shaderNodes = pixelNodes.concat();
 
@@ -108,7 +125,7 @@ export class ShaderGraphResolver {
     let shaderBody = '';
 
     // function definitions
-    shaderBody += ShaderGraphResolver.getFunctionDefinition(
+    shaderBody += ShaderGraphResolver.__getFunctionDefinition(
       sortedShaderNodes.filter((node) => node.getShaderStage() !== 'Vertex'),
       ShaderType.PixelShader
     );
@@ -144,6 +161,12 @@ export class ShaderGraphResolver {
     return true;
   }
 
+  /**
+   * Sort shader nodes topologically.
+   *
+   * @param shaderNodes - Shader nodes to sort
+   * @returns Sorted shader nodes
+   */
   private static __sortTopologically(shaderNodes: AbstractShaderNode[]) {
     const sortedNodeArray: AbstractShaderNode[] = [];
     const inputNumArray: Index[] = [];
@@ -210,7 +233,17 @@ export class ShaderGraphResolver {
     return sortedNodeArray;
   }
 
-  static getFunctionDefinition(shaderNodes: AbstractShaderNode[], shaderType: ShaderTypeEnum) {
+  /**
+   * Get function definition from shader nodes.
+   *
+   * @param shaderNodes - Shader nodes
+   * @param shaderType - Shader type
+   * @returns Function definition as a string
+   */
+  private static __getFunctionDefinition(
+    shaderNodes: AbstractShaderNode[],
+    shaderType: ShaderTypeEnum
+  ) {
     let shaderText = '';
     const existVertexFunctions: string[] = [];
     for (let i = 0; i < shaderNodes.length; i++) {
@@ -225,6 +258,14 @@ export class ShaderGraphResolver {
     return shaderText;
   }
 
+  /**
+   * Construct shader code with shader nodes.
+   *
+   * @param shaderNodes - Shader nodes
+   * @param isVertexStage - Whether the shader is a vertex shader
+   * @param isFullVersion - Whether to generate a full version of the shader code
+   * @returns Shader code
+   */
   private static __constructShaderWithNodes(
     shaderNodes: AbstractShaderNode[],
     isVertexStage: boolean,
@@ -413,6 +454,12 @@ export class ShaderGraphResolver {
     return shaderBody;
   }
 
+  /**
+   * Generate shader code from JSON.
+   *
+   * @param json - JSON data of a shader node graph
+   * @returns Shader code
+   */
   public static generateShaderCodeFromJson(
     json: any
   ): { vertexShader: string; pixelShader: string } | undefined {
@@ -561,7 +608,13 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
   return varyingNodes.reverse();
 }
 
-export default function constructNodes(json: any) {
+/**
+ * Construct shader nodes from JSON.
+ *
+ * @param json - JSON data of a shader node graph
+ * @returns Constructed shader nodes
+ */
+function constructNodes(json: any) {
   // Create Node Instances
   const nodeInstances: Record<number, AbstractShaderNode> = {};
   const nodes: Record<string, any> = {};
