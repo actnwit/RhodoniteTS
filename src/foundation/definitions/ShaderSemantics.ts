@@ -424,6 +424,9 @@ const AnisotropyTexture = new ShaderSemanticsClass({
 const EmissiveStrength = new ShaderSemanticsClass({
   str: 'emissiveStrength',
 });
+const Time = new ShaderSemanticsClass({
+  str: 'time',
+});
 
 const typeList = [
   WorldMatrix,
@@ -553,6 +556,7 @@ const typeList = [
   AnisotropyRotation,
   AnisotropyTexture,
   EmissiveStrength,
+  Time,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -802,4 +806,5 @@ export const ShaderSemantics = Object.freeze({
   AnisotropyRotation,
   AnisotropyTexture,
   EmissiveStrength,
+  Time,
 });

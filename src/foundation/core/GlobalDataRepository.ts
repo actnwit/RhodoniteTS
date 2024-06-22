@@ -284,6 +284,7 @@ export class GlobalDataRepository {
     this.__registerProperty(lightNumberInfo, 1);
     this.takeOne(ShaderSemantics.LightNumber);
 
+    // BackBufferTextureSize
     const backBufferTextureSize = {
       semantic: ShaderSemantics.BackBufferTextureSize,
       compositionType: CompositionType.Vec2,
@@ -298,6 +299,7 @@ export class GlobalDataRepository {
     this.__registerProperty(backBufferTextureSize, 1);
     this.takeOne(ShaderSemantics.BackBufferTextureSize);
 
+    // VrState
     const vrState = {
       semantic: ShaderSemantics.VrState,
       compositionType: CompositionType.Vec2,
@@ -313,6 +315,20 @@ export class GlobalDataRepository {
     };
     this.__registerProperty(vrState, 1);
     this.takeOne(ShaderSemantics.VrState);
+
+    // Time
+    const timeInfo = {
+      semantic: ShaderSemantics.Time,
+      compositionType: CompositionType.Scalar,
+      componentType: ComponentType.Float,
+      stage: ShaderType.VertexAndPixelShader,
+      min: 0,
+      max: Number.MAX_SAFE_INTEGER,
+      isInternalSetting: true,
+      initialValue: Scalar.fromCopyNumber(0),
+    };
+    this.__registerProperty(timeInfo, 1);
+    this.takeOne(ShaderSemantics.Time);
   }
 
   static getInstance() {

@@ -36,6 +36,8 @@ import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererCo
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { Primitive } from '../geometry/Primitive';
 import { VERSION } from '../../version';
+import { ShaderSemantics } from '../definitions/ShaderSemantics';
+import { Scalar } from '../math/Scalar';
 declare const spector: any;
 
 /**
@@ -223,6 +225,9 @@ export class System {
     if (CameraComponent.current === Component.InvalidObjectUID) {
       System.createCamera();
     }
+
+    const time = GlobalDataRepository.getInstance().getValue(ShaderSemantics.Time, 0) as Scalar;
+    time._v[0] = Time.timeFromSystemStart;
 
     if (this.processApproach === ProcessApproach.WebGPU) {
       const componentTids = ComponentRepository.getComponentTIDs();
