@@ -38,7 +38,8 @@ import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
 import { WebXRSystem } from '../xr/WebXRSystem';
 import { Vector2 } from '../foundation/math/Vector2';
-import { AnimationComponent, Scalar } from '../foundation';
+import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { Scalar } from '../foundation/math/Scalar';
 
 declare const spector: any;
 
