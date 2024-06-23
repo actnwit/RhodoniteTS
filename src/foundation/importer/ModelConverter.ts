@@ -390,7 +390,7 @@ export class ModelConverter {
         if (Is.exist(inverseBindMatAccessor)) {
           const rnBufferOfInverseBindMatAccessor = this.__getRnBufferViewAndRnAccessor(
             inverseBindMatAccessor,
-            rnBuffers[inverseBindMatAccessor.bufferViewObject!.buffer!]
+            rnBuffers
           );
           skeletalComponent!.setInverseBindMatricesAccessor(rnBufferOfInverseBindMatAccessor);
         }
@@ -634,7 +634,7 @@ export class ModelConverter {
           if (Is.exist(primitive.indices)) {
             indicesRnAccessor = this.__getRnBufferViewAndRnAccessor(
               primitive.indicesObject!,
-              rnBuffers[primitive.indicesObject!.bufferViewObject!.buffer!]
+              rnBuffers
             );
           }
 
@@ -689,7 +689,7 @@ export class ModelConverter {
               const attributeAccessor = target[attributeName];
               const attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(
                 attributeAccessor,
-                rnBuffers[attributeAccessor.bufferViewObject!.buffer!]
+                rnBuffers
               );
               const attributeRnAccessorInGPUVertexData =
                 this.__copyRnAccessorAndBufferView(attributeRnAccessor);
@@ -714,30 +714,31 @@ export class ModelConverter {
   }
 
   static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void {
-    const buffer: Uint8Array = accessor.bufferViewObject!.bufferObject!.buffer!;
     const count = accessor.sparse!.count;
 
     // get sparse indices
-    const accessorIndices = accessor.sparse!.indices!;
-    const bufferViewIndices = accessorIndices.bufferViewObject;
-    const byteOffsetBufferViewAndAccessorIndices: number =
-      (bufferViewIndices.byteOffset ?? 0) + (accessorIndices.byteOffset ?? 0);
+    const sparseIndices = accessor.sparse!.indices!;
+    const indicesBufferView = sparseIndices.bufferViewObject;
+    let buffer: Uint8Array = sparseIndices.bufferViewObject.bufferObject!.buffer!;
+    const byteOffsetBufferViewAndSparseIndices: number =
+      (indicesBufferView.byteOffset ?? 0) + (sparseIndices.byteOffset ?? 0);
 
-    const componentBytesIndices = this._checkBytesPerComponent(accessorIndices);
+    const componentBytesIndices = this._checkBytesPerComponent(sparseIndices);
     const byteLengthIndices = componentBytesIndices * count; // index is scalar
     const dataViewIndices: any = new DataView(
       buffer.buffer,
-      byteOffsetBufferViewAndAccessorIndices + buffer.byteOffset,
+      byteOffsetBufferViewAndSparseIndices + buffer.byteOffset,
       byteLengthIndices
     );
 
-    const dataViewMethodIndices = this._checkDataViewMethod(accessorIndices);
+    const dataViewMethodIndices = this._checkDataViewMethod(sparseIndices);
 
     // get sparse values
-    const accessorValues = accessor.sparse!.values!;
-    const bufferViewValues = accessorValues.bufferViewObject;
+    const sparseValues = accessor.sparse!.values!;
+    const valueBufferView = sparseValues.bufferViewObject;
+    buffer = sparseValues.bufferViewObject.bufferObject!.buffer!;
     const byteOffsetBufferViewAndAccessorValues: number =
-      (bufferViewValues.byteOffset ?? 0) + (accessorValues.byteOffset ?? 0);
+      (valueBufferView.byteOffset ?? 0) + (sparseValues.byteOffset ?? 0);
 
     const componentBytesValues = this._checkBytesPerComponent(accessor);
     const componentNValues = this._checkComponentNumber(accessor);
@@ -1811,19 +1812,50 @@ export class ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  private static __getRnAccessor(accessor: RnM2Accessor, rnBufferView: BufferView) {
-    const rnAccessor = rnBufferView
-      .takeAccessorWithByteOffset({
-        compositionType: CompositionType.fromString(accessor.type),
-        componentType: ComponentType.from(accessor.componentType),
-        count: accessor.count,
-        byteOffsetInBufferView: accessor.byteOffset ?? 0,
-        byteStride: accessor.byteStride,
-        max: accessor.max,
-        min: accessor.min,
-        normalized: accessor.normalized,
-      })
-      .unwrapForce();
+  private static __getRnAccessor(accessor: RnM2Accessor, rnBufferView?: BufferView) {
+    let rnAccessor: Accessor;
+    if (rnBufferView != null) {
+      rnAccessor = rnBufferView
+        .takeAccessorWithByteOffset({
+          compositionType: CompositionType.fromString(accessor.type),
+          componentType: ComponentType.from(accessor.componentType),
+          count: accessor.count,
+          byteOffsetInBufferView: accessor.byteOffset ?? 0,
+          byteStride: accessor.byteStride,
+          max: accessor.max,
+          min: accessor.min,
+          normalized: accessor.normalized,
+        })
+        .unwrapForce();
+    } else {
+      // if accessor.bufferView is not defined, the accessor MUST be initialized with zeros.
+      // See: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_accessor_bufferview
+      const rnBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
+
+      const compositionType = CompositionType.fromString(accessor.type);
+      const componentType = ComponentType.from(accessor.componentType);
+
+      const rnBufferView = rnBuffer
+        .takeBufferView({
+          byteLengthToNeed:
+            accessor.count *
+            compositionType.getNumberOfComponents() *
+            componentType.getSizeInBytes(),
+          byteStride: compositionType.getNumberOfComponents() * componentType.getSizeInBytes(),
+        })
+        .unwrapForce();
+
+      rnAccessor = rnBufferView
+        .takeAccessor({
+          compositionType: compositionType,
+          componentType: componentType,
+          count: accessor.count,
+          max: accessor.max,
+          min: accessor.min,
+          normalized: accessor.normalized,
+        })
+        .unwrapForce();
+    }
 
     if (Is.exist(accessor.sparse)) {
       this.setSparseAccessor(accessor, rnAccessor);
@@ -1838,9 +1870,13 @@ export class ModelConverter {
    * @param rnBuffer
    * @returns
    */
-  private static __getRnBufferViewAndRnAccessor(accessor: RnM2Accessor, rnBuffer: Buffer) {
-    const gltfBufferView = accessor.bufferViewObject!;
-    const rnBufferView = this.__getRnBufferView(gltfBufferView, rnBuffer);
+  private static __getRnBufferViewAndRnAccessor(accessor: RnM2Accessor, rnBuffers: Buffer[]) {
+    const gltfBufferView = accessor.bufferViewObject;
+    let rnBufferView: BufferView | undefined;
+    if (gltfBufferView != null) {
+      const rnBuffer = rnBuffers[gltfBufferView.buffer!];
+      rnBufferView = this.__getRnBufferView(gltfBufferView, rnBuffer);
+    }
     const rnAccessor = this.__getRnAccessor(accessor, rnBufferView);
     return rnAccessor;
   }
@@ -2028,7 +2064,7 @@ export class ModelConverter {
 
         attributeRnAccessor = this.__getRnBufferViewAndRnAccessor(
           attributeGltf2Accessor!,
-          rnBuffers[attributeGltf2Accessor!.bufferViewObject!.buffer!]
+          rnBuffers
         );
       } else {
         // encoded data

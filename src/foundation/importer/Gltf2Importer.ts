@@ -580,10 +580,9 @@ export class Gltf2Importer {
   static _loadDependenciesOfAccessors(gltfJson: RnM2) {
     // Accessor
     for (const accessor of gltfJson.accessors) {
-      if (accessor.bufferView == null) {
-        accessor.bufferView = 0;
+      if (accessor.bufferView != null) {
+        accessor.bufferViewObject = gltfJson.bufferViews[accessor.bufferView];
       }
-      accessor.bufferViewObject = gltfJson.bufferViews[accessor.bufferView];
 
       if (Is.exist(accessor.sparse)) {
         const sparse = accessor.sparse;
