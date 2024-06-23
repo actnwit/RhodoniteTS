@@ -66,6 +66,8 @@ fn main(
 
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
+  output.position_inWorld = geom.position_inWorld.xyz;
+  output.normal_inWorld = geom.normal_inWorld;
   output.normal_inView = (viewMatrix * vec4(geom.normal_inWorld, 0.0)).xyz;
 
   #ifdef RN_MTOON_IS_OUTLINE
