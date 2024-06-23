@@ -718,26 +718,26 @@ export class ModelConverter {
     const count = accessor.sparse!.count;
 
     // get sparse indices
-    const accessorIndices = accessor.sparse!.indices!;
-    const bufferViewIndices = accessorIndices.bufferViewObject;
-    const byteOffsetBufferViewAndAccessorIndices: number =
-      (bufferViewIndices.byteOffset ?? 0) + (accessorIndices.byteOffset ?? 0);
+    const sparseIndices = accessor.sparse!.indices!;
+    const indicesBufferView = sparseIndices.bufferViewObject;
+    const byteOffsetBufferViewAndSparseIndices: number =
+      (indicesBufferView.byteOffset ?? 0) + (sparseIndices.byteOffset ?? 0);
 
-    const componentBytesIndices = this._checkBytesPerComponent(accessorIndices);
+    const componentBytesIndices = this._checkBytesPerComponent(sparseIndices);
     const byteLengthIndices = componentBytesIndices * count; // index is scalar
     const dataViewIndices: any = new DataView(
       buffer.buffer,
-      byteOffsetBufferViewAndAccessorIndices + buffer.byteOffset,
+      byteOffsetBufferViewAndSparseIndices + buffer.byteOffset,
       byteLengthIndices
     );
 
-    const dataViewMethodIndices = this._checkDataViewMethod(accessorIndices);
+    const dataViewMethodIndices = this._checkDataViewMethod(sparseIndices);
 
     // get sparse values
-    const accessorValues = accessor.sparse!.values!;
-    const bufferViewValues = accessorValues.bufferViewObject;
+    const sparseValues = accessor.sparse!.values!;
+    const valueBufferView = sparseValues.bufferViewObject;
     const byteOffsetBufferViewAndAccessorValues: number =
-      (bufferViewValues.byteOffset ?? 0) + (accessorValues.byteOffset ?? 0);
+      (valueBufferView.byteOffset ?? 0) + (sparseValues.byteOffset ?? 0);
 
     const componentBytesValues = this._checkBytesPerComponent(accessor);
     const componentNValues = this._checkComponentNumber(accessor);
