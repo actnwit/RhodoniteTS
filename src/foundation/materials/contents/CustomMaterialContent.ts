@@ -74,10 +74,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       pixelShaderWebGpu!
     );
 
-    // if (isSkinning) {
-    this.__definitions += '#define RN_IS_SKINNING\n';
-    // }
-
     if (noUseCameraTransform) {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
     }

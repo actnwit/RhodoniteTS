@@ -421,6 +421,8 @@ function createPbrUberMaterial({
     material.addShaderDefine('RN_USE_ANISOTROPY');
   }
 
+  material.addShaderDefine('RN_IS_SKINNING');
+
   return material;
 }
 
@@ -491,6 +493,7 @@ function createClassicUberMaterial({
     material.addShaderDefine('RN_USE_SHADOW_MAPPING');
   }
   material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -545,6 +548,7 @@ function createDepthMomentEncodeMaterial({
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -573,6 +577,7 @@ function createFlatMaterial({
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -1184,6 +1189,7 @@ function reuseOrRecreateCustomMaterial(
     materialNode,
     maxInstancesNumber
   );
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
