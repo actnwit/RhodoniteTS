@@ -62,10 +62,6 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
       },
     ];
 
-    if (true) {
-      this.__definitions += '#define RN_IS_SKINNING\n';
-    }
-
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 

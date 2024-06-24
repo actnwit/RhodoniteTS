@@ -626,6 +626,9 @@ function createDepthEncodeMaterial({
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
 
   return material;
 }
@@ -660,6 +663,18 @@ function createShadowMapDecodeClassicSingleMaterial(
   );
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    material.addShaderDefine('RN_IS_MORPHING');
+  }
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isDebugging) {
+    material.addShaderDefine('RN_IS_DEBUGGING');
+  }
 
   return material;
 }
@@ -785,6 +800,18 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
   );
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isMorphing) {
+    material.addShaderDefine('RN_IS_MORPHING');
+  }
+  if (isDebugging) {
+    material.addShaderDefine('RN_IS_DEBUGGING');
+  }
   return material;
 }
 
@@ -978,6 +1005,9 @@ function createMatCapMaterial({
   const materialNode = new MatCapMaterialContent(isSkinning, uri, texture, sampler);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
 
   return material;
 }
@@ -988,7 +1018,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
   const materialNode = new EntityUIDOutputMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
-
+  material.addShaderDefine('RN_IS_SKINNING');
   return material;
 }
 

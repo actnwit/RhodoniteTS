@@ -92,10 +92,6 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
       },
     ];
 
-    if (isSkinning) {
-      this.__definitions += '#define RN_IS_SKINNING';
-    }
-
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
