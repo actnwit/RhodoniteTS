@@ -127,7 +127,7 @@ export function _createProgramAsSingleOperationWebGL(
   const materialNode = material._materialContent;
 
   const vertexAttributeDefines = defineAttributes(primitive);
-  let definitions = materialNode.getDefinitions(material);
+  let definitions = materialNode.getDefinitions();
   definitions += vertexAttributeDefines;
 
   // Shader Code Construction
@@ -246,7 +246,7 @@ export function _createProgramAsSingleOperationWebGpu(
   const vertexAttributeDefines = defineAttributes(primitive);
 
   let definitions = `// Material Type: ${material.materialTypeName}\n`;
-  definitions += materialNode.getDefinitions(material);
+  definitions += materialNode.getDefinitions();
   definitions += vertexAttributeDefines;
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
