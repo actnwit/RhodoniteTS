@@ -19,8 +19,6 @@ import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/cont
 import { Texture } from '../textures/Texture';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { Count } from '../../types/CommonTypes';
-import { ShaderityObject } from 'shaderity';
-import { ShaderityMaterialContent } from '../materials/contents/ShaderityMaterialContent';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { ComponentType } from '../definitions/ComponentType';
@@ -1190,26 +1188,6 @@ function reuseOrRecreateCustomMaterial(
   return material;
 }
 
-// create or update shaderity material
-function recreateShaderityMaterial(
-  vertexShaderityObj: ShaderityObject,
-  pixelShaderityObj: ShaderityObject,
-  { additionalName = '', maxInstancesNumber = Config.maxMaterialInstanceForEachType } = {}
-) {
-  const name = `Shaderity_${additionalName}`;
-
-  const materialNode = new ShaderityMaterialContent({
-    name,
-    vertexShaderityObj,
-    pixelShaderityObj,
-  });
-
-  materialNode.isSingleOperation = true;
-  const material = recreateMaterial(name, materialNode, maxInstancesNumber);
-
-  return material;
-}
-
 function changeMaterial(
   entity: IMeshRendererEntityMethods,
   primitive: Primitive,
@@ -1224,7 +1202,6 @@ export const MaterialHelper = Object.freeze({
   createMaterial,
   recreateMaterial,
   reuseOrRecreateCustomMaterial,
-  recreateShaderityMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
   createFlatMaterial,

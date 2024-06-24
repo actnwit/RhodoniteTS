@@ -6,7 +6,6 @@ export * from './EntityUIDOutputMaterialContent';
 export * from './FurnaceTestMaterialContent';
 export * from './MToonMaterialContent';
 export * from './MatCapMaterialContent';
-export * from './ShaderityMaterialContent';
 export * from './ShadowMapDecodeClassicMaterialContent';
 export * from './SynthesizeHdrMaterialContent';
 export * from './VarianceShadowMapDecodeClassicMaterialContent';
