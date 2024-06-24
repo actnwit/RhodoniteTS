@@ -126,8 +126,12 @@ export function _createProgramAsSingleOperationWebGL(
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const materialNode = material._materialContent;
 
-  const vertexAttributeDefines = defineAttributes(primitive);
   let definitions = materialNode.getDefinitions();
+  const shaderDefines = material.getShaderDefines();
+  for (const shaderDefine of shaderDefines) {
+    definitions += `#define ${shaderDefine}`;
+  }
+  const vertexAttributeDefines = defineAttributes(primitive);
   definitions += vertexAttributeDefines;
 
   // Shader Code Construction
@@ -243,10 +247,13 @@ export function _createProgramAsSingleOperationWebGpu(
 ) {
   const materialNode = material._materialContent;
 
-  const vertexAttributeDefines = defineAttributes(primitive);
-
   let definitions = `// Material Type: ${material.materialTypeName}\n`;
   definitions += materialNode.getDefinitions();
+  const shaderDefines = material.getShaderDefines();
+  for (const shaderDefine of shaderDefines) {
+    definitions += `#define ${shaderDefine}`;
+  }
+  const vertexAttributeDefines = defineAttributes(primitive);
   definitions += vertexAttributeDefines;
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
