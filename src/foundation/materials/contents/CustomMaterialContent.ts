@@ -1,20 +1,14 @@
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { ShaderType } from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
-import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
-import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
@@ -38,7 +32,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     useNormalTexture,
     vertexShader,
     pixelShader,
-    noUseCameraTransform,
     additionalShaderSemanticInfo,
     vertexShaderWebGpu,
     pixelShaderWebGpu,
@@ -59,7 +52,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     useNormalTexture: boolean;
     vertexShader?: ShaderityObject;
     pixelShader?: ShaderityObject;
-    noUseCameraTransform: boolean;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
     vertexShaderWebGpu?: ShaderityObject;
     pixelShaderWebGpu?: ShaderityObject;
@@ -73,10 +65,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       vertexShaderWebGpu!,
       pixelShaderWebGpu!
     );
-
-    if (noUseCameraTransform) {
-      this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
-    }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }

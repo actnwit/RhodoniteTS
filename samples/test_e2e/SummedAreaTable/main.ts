@@ -42,9 +42,7 @@ async function initRn() {
 
 function createSat(expressions: Rn.Expression[]) {
   const expressionSat = new Rn.Expression();
-  const materialSat = Rn.MaterialHelper.createSummedAreaTableMaterial({
-    noUseCameraTransform: true,
-  });
+  const materialSat = Rn.MaterialHelper.createSummedAreaTableMaterial();
   const renderPassSat = Rn.RenderPassHelper.createScreenDrawRenderPass(materialSat);
   expressionSat.addRenderPasses([renderPassSat]);
   expressions.push(expressionSat);

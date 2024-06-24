@@ -28,7 +28,6 @@ test('MaterialTID are processed correctly', () => {
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
 

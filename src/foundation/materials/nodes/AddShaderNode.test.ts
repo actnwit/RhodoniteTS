@@ -31,7 +31,6 @@ test.skip('AttributePosition works correctly 1', async () => {
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
 

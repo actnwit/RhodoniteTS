@@ -118,7 +118,6 @@ function createRenderPassGaussianBlur(renderPassBlurTarget: Rn.RenderPass, isHor
   const material = Rn.MaterialHelper.createGaussianBlurMaterial({
     additionalName: '',
     maxInstancesNumber: 10,
-    noUseCameraTransform: true,
   });
 
   const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({

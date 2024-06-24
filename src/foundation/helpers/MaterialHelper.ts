@@ -383,7 +383,6 @@ function createPbrUberMaterial({
     pixelShader: pbrSingleShaderFragment,
     vertexShaderWebGpu: pbrSingleShaderVertexWebGpu,
     pixelShaderWebGpu: pbrSingleShaderFragmentWebGpu,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
 
@@ -481,7 +480,6 @@ function createClassicUberMaterial({
     pixelShader: ClassicSingleShaderFragment,
     vertexShaderWebGpu: ClassicSingleShaderVertexWebGpu,
     pixelShaderWebGpu: ClassicSingleShaderFragmentWebgpu,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
@@ -543,7 +541,6 @@ function createDepthMomentEncodeMaterial({
     useNormalTexture: true,
     vertexShader: DepthMomentEncodeShaderVertex,
     pixelShader: DepthMomentEncodeShaderFragment,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
@@ -570,7 +567,6 @@ function createFlatMaterial({
     useNormalTexture: true,
     vertexShader: FlatSingleShaderVertex,
     pixelShader: FlatSingleShaderFragment,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
     vertexShaderWebGpu: FlatSingleShaderVertexWebGpu,
     pixelShaderWebGpu: FlatSingleShaderFragmentWebGpu,
@@ -600,7 +596,6 @@ function createEnvConstantMaterial({
     pixelShader: EnvConstantSingleShaderFragment,
     vertexShaderWebGpu: EnvConstantSingleShaderVertexWebGpu,
     pixelShaderWebGpu: EnvConstantSingleShaderFragmentWebGpu,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -609,11 +604,7 @@ function createEnvConstantMaterial({
   return material;
 }
 
-function createFXAA3QualityMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-  noUseCameraTransform = false,
-} = {}) {
+function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
   const materialNode = new CustomMaterialContent({
@@ -625,7 +616,6 @@ function createFXAA3QualityMaterial({
     useNormalTexture: true,
     vertexShader: FXAA3QualityShaderVertex,
     pixelShader: FXAA3QualityShaderFragment,
-    noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -698,7 +688,6 @@ function createShadowMapDecodeClassicSingleMaterial(
 function createGaussianBlurForEncodedDepthMaterial({
   additionalName = '',
   maxInstancesNumber = 10,
-  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
 
@@ -770,7 +759,6 @@ function createGaussianBlurForEncodedDepthMaterial({
     useNormalTexture: false,
     vertexShader: GaussianBlurForEncodedDepthSingleShaderVertex,
     pixelShader: GaussianBlurForEncodedDepthSingleShaderFragment,
-    noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
 
@@ -841,11 +829,7 @@ function createDetectHighLuminanceMaterial(
   return material;
 }
 
-function createGaussianBlurMaterial({
-  additionalName = '',
-  maxInstancesNumber = 10,
-  noUseCameraTransform = false,
-} = {}) {
+function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -918,7 +902,6 @@ function createGaussianBlurMaterial({
     pixelShader: GaussianBlurSingleShaderFragment,
     vertexShaderWebGpu: GaussianBlurSingleShaderVertexWebGpu,
     pixelShaderWebGpu: GaussianBlurSingleShaderFragmentWebGpu,
-    noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
@@ -976,11 +959,7 @@ function createColorGradingUsingLUTsMaterial(
   return material;
 }
 
-function createGammaCorrectionMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-  noUseCameraTransform = false,
-} = {}) {
+function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
   const materialNode = new CustomMaterialContent({
@@ -994,7 +973,6 @@ function createGammaCorrectionMaterial({
     pixelShader: GammaCorrectionShaderFragment,
     vertexShaderWebGpu: GammaCorrectionShaderVertexWebGpu,
     pixelShaderWebGpu: GammaCorrectionShaderFragmentWebGpu,
-    noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -1003,11 +981,7 @@ function createGammaCorrectionMaterial({
   return material;
 }
 
-function createSummedAreaTableMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-  noUseCameraTransform = false,
-} = {}) {
+function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'SummedAreaTable' + `_${additionalName}`;
 
   const materialNode = new CustomMaterialContent({
@@ -1019,7 +993,6 @@ function createSummedAreaTableMaterial({
     useNormalTexture: true,
     vertexShader: SummedAreaTableShaderVertex,
     pixelShader: SummedAreaTableShaderFragment,
-    noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -1157,7 +1130,6 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      noUseCameraTransform: false,
       additionalShaderSemanticInfo: [],
     });
   } else {
@@ -1178,7 +1150,6 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      noUseCameraTransform: false,
       additionalShaderSemanticInfo: [],
     });
   }

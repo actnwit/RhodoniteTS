@@ -45,9 +45,7 @@ import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/Rendering
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { GL_TRIANGLES } from '../types';
 import { WebXRSystem } from '../xr';
-import { CustomMaterialContent } from '../foundation/materials/contents/CustomMaterialContent';
 import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 

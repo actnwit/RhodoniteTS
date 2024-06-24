@@ -150,9 +150,7 @@ async function setupRenderPassMain() {
 }
 
 function setupRenderPassFxaa(renderable: Promise<Rn.AbstractTexture>) {
-  const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial({
-    noUseCameraTransform: true,
-  });
+  const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
   const renderPassFxaa = Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
   fxaaMaterial.setTextureParameterAsPromise(Rn.ShaderSemantics.BaseColorTexture, renderable);
 
