@@ -20,16 +20,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isMorphing,
     isSkinning,
     isLighting,
-    isClearCoat,
-    isTransmission,
-    isVolume,
-    isSheen,
-    isSpecular,
-    isIridescence,
-    isAnisotropy,
-    isShadow,
-    useTangentAttribute,
-    useNormalTexture,
     vertexShader,
     pixelShader,
     additionalShaderSemanticInfo,
@@ -40,16 +30,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isMorphing: boolean;
     isSkinning: boolean;
     isLighting: boolean;
-    isClearCoat?: boolean;
-    isTransmission?: boolean;
-    isVolume?: boolean;
-    isSheen?: boolean;
-    isSpecular?: boolean;
-    isIridescence?: boolean;
-    isAnisotropy?: boolean;
-    isShadow?: boolean;
-    useTangentAttribute: boolean;
-    useNormalTexture: boolean;
     vertexShader?: ShaderityObject;
     pixelShader?: ShaderityObject;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
