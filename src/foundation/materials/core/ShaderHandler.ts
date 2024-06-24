@@ -129,7 +129,7 @@ export function _createProgramAsSingleOperationWebGL(
   let definitions = materialNode.getDefinitions();
   const shaderDefines = material.getShaderDefines();
   for (const shaderDefine of shaderDefines) {
-    definitions += `#define ${shaderDefine}`;
+    definitions += `#define ${shaderDefine}\n`;
   }
   const vertexAttributeDefines = defineAttributes(primitive);
   definitions += vertexAttributeDefines;
@@ -251,7 +251,7 @@ export function _createProgramAsSingleOperationWebGpu(
   definitions += materialNode.getDefinitions();
   const shaderDefines = material.getShaderDefines();
   for (const shaderDefine of shaderDefines) {
-    definitions += `#define ${shaderDefine}`;
+    definitions += `#define ${shaderDefine}\n`;
   }
   const vertexAttributeDefines = defineAttributes(primitive);
   definitions += vertexAttributeDefines;

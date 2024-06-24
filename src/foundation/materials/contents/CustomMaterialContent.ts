@@ -74,49 +74,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       pixelShaderWebGpu!
     );
 
-    if (isLighting) {
-      this.__definitions += '#define RN_IS_LIGHTING\n';
-    }
-
     // if (isSkinning) {
     this.__definitions += '#define RN_IS_SKINNING\n';
     // }
-
-    // if (isMorphing) {
-    // this.__definitions += '#define RN_IS_MORPHING\n';
-    // }
-
-    if (isClearCoat) {
-      this.__definitions += '#define RN_USE_CLEARCOAT\n';
-    }
-
-    if (isTransmission) {
-      this.__definitions += '#define RN_USE_TRANSMISSION\n';
-    }
-    if (isVolume) {
-      this.__definitions += '#define RN_USE_VOLUME\n';
-    }
-    if (isSheen) {
-      this.__definitions += '#define RN_USE_SHEEN\n';
-    }
-    if (isSpecular) {
-      this.__definitions += '#define RN_USE_SPECULAR\n';
-    }
-    if (isIridescence) {
-      this.__definitions += '#define RN_USE_IRIDESCENCE\n';
-    }
-    if (isAnisotropy) {
-      this.__definitions += '#define RN_USE_ANISOTROPY\n';
-    }
-    if (isShadow) {
-      this.__definitions += '#define RN_USE_SHADOW_MAPPING\n';
-    }
-    // if (useTangentAttribute) {
-    //   this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
-    // }
-    if (useNormalTexture) {
-      this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
-    }
 
     if (noUseCameraTransform) {
       this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';

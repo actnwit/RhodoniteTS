@@ -392,6 +392,37 @@ function createPbrUberMaterial({
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
 
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isShadow) {
+    material.addShaderDefine('RN_USE_SHADOW_MAPPING');
+  }
+  if (useNormalTexture) {
+    material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
+  }
+  if (isClearCoat) {
+    material.addShaderDefine('RN_USE_CLEARCOAT');
+  }
+  if (isTransmission) {
+    material.addShaderDefine('RN_USE_TRANSMISSION');
+  }
+  if (isVolume) {
+    material.addShaderDefine('RN_USE_VOLUME');
+  }
+  if (isSheen) {
+    material.addShaderDefine('RN_USE_SHEEN');
+  }
+  if (isSpecular) {
+    material.addShaderDefine('RN_USE_SPECULAR');
+  }
+  if (isIridescence) {
+    material.addShaderDefine('RN_USE_IRIDESCENCE');
+  }
+  if (isAnisotropy) {
+    material.addShaderDefine('RN_USE_ANISOTROPY');
+  }
+
   return material;
 }
 
@@ -455,6 +486,13 @@ function createClassicUberMaterial({
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isShadow) {
+    material.addShaderDefine('RN_USE_SHADOW_MAPPING');
+  }
+  material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
 
   return material;
 }
