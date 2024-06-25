@@ -44,6 +44,10 @@ import GammaCorrectionShaderVertex from '../../webgl/shaderity_shaders/GammaCorr
 import GammaCorrectionShaderFragment from '../../webgl/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
 import GammaCorrectionShaderVertexWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.vert';
 import GammaCorrectionShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GammaCorrectionShader/GammaCorrectionShader.frag';
+import ToneMappingShaderVertexGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert';
+import ToneMappingShaderFragmentGLSL from '../../webgl/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag';
+import ToneMappingShaderVertexWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.vert.wgsl';
+import ToneMappingShaderFragmentWGSL from '../../webgpu/shaderity_shaders/ToneMappingShader/ToneMappingShader.frag.wgsl';
 import SummedAreaTableShaderVertex from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.vert';
 import SummedAreaTableShaderFragment from '../../webgl/shaderity_shaders/SummedAreaTableShader/SummedAreaTableShader.frag';
 import FlatSingleShaderVertex from '../../webgl/shaderity_shaders/FlatSingleShader/FlatSingleShader.vert';
@@ -967,6 +971,26 @@ function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
+function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+  const materialName = 'ToneMapping' + `_${additionalName}`;
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    vertexShader: ToneMappingShaderVertexGLSL,
+    pixelShader: ToneMappingShaderFragmentGLSL,
+    vertexShaderWebGpu: ToneMappingShaderVertexWGSL,
+    pixelShaderWebGpu: ToneMappingShaderFragmentWGSL,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+
+  return material;
+}
+
 function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'SummedAreaTable' + `_${additionalName}`;
 
@@ -1171,6 +1195,7 @@ export const MaterialHelper = Object.freeze({
   createDepthEncodeMaterial,
   createShadowMapDecodeClassicSingleMaterial,
   createGammaCorrectionMaterial,
+  createToneMappingMaterial,
   createSummedAreaTableMaterial,
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
