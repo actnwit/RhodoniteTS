@@ -19,8 +19,6 @@ import { VarianceShadowMapDecodeClassicMaterialContent } from '../materials/cont
 import { Texture } from '../textures/Texture';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { Count } from '../../types/CommonTypes';
-import { ShaderityObject } from 'shaderity';
-import { ShaderityMaterialContent } from '../materials/contents/ShaderityMaterialContent';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { ComponentType } from '../definitions/ComponentType';
@@ -371,26 +369,48 @@ function createPbrUberMaterial({
     isSkinning,
     isLighting,
     isMorphing,
-    isClearCoat,
-    isTransmission,
-    isVolume,
-    isSheen,
-    isSpecular,
-    isIridescence,
-    isAnisotropy,
-    isShadow,
-    useTangentAttribute,
-    useNormalTexture,
     vertexShader: pbrSingleShaderVertex,
     pixelShader: pbrSingleShaderFragment,
     vertexShaderWebGpu: pbrSingleShaderVertexWebGpu,
     pixelShaderWebGpu: pbrSingleShaderFragmentWebGpu,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
 
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isShadow) {
+    material.addShaderDefine('RN_USE_SHADOW_MAPPING');
+  }
+  if (useNormalTexture) {
+    material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
+  }
+  if (isClearCoat) {
+    material.addShaderDefine('RN_USE_CLEARCOAT');
+  }
+  if (isTransmission) {
+    material.addShaderDefine('RN_USE_TRANSMISSION');
+  }
+  if (isVolume) {
+    material.addShaderDefine('RN_USE_VOLUME');
+  }
+  if (isSheen) {
+    material.addShaderDefine('RN_USE_SHEEN');
+  }
+  if (isSpecular) {
+    material.addShaderDefine('RN_USE_SPECULAR');
+  }
+  if (isIridescence) {
+    material.addShaderDefine('RN_USE_IRIDESCENCE');
+  }
+  if (isAnisotropy) {
+    material.addShaderDefine('RN_USE_ANISOTROPY');
+  }
+
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -443,18 +463,22 @@ function createClassicUberMaterial({
     isSkinning,
     isLighting,
     isMorphing,
-    isShadow,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: ClassicSingleShaderVertex,
     pixelShader: ClassicSingleShaderFragment,
     vertexShaderWebGpu: ClassicSingleShaderVertexWebGpu,
     pixelShaderWebGpu: ClassicSingleShaderFragmentWebgpu,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isShadow) {
+    material.addShaderDefine('RN_USE_SHADOW_MAPPING');
+  }
+  material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -500,15 +524,13 @@ function createDepthMomentEncodeMaterial({
     isSkinning,
     isLighting: false,
     isMorphing,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: DepthMomentEncodeShaderVertex,
     pixelShader: DepthMomentEncodeShaderFragment,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -526,17 +548,15 @@ function createFlatMaterial({
     isSkinning,
     isLighting: false,
     isMorphing,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: FlatSingleShaderVertex,
     pixelShader: FlatSingleShaderFragment,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
     vertexShaderWebGpu: FlatSingleShaderVertexWebGpu,
     pixelShaderWebGpu: FlatSingleShaderFragmentWebGpu,
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -553,13 +573,10 @@ function createEnvConstantMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    useTangentAttribute: false,
-    useNormalTexture: false,
     vertexShader: EnvConstantSingleShaderVertex,
     pixelShader: EnvConstantSingleShaderFragment,
     vertexShaderWebGpu: EnvConstantSingleShaderVertexWebGpu,
     pixelShaderWebGpu: EnvConstantSingleShaderFragmentWebGpu,
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -568,11 +585,7 @@ function createEnvConstantMaterial({
   return material;
 }
 
-function createFXAA3QualityMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-  noUseCameraTransform = false,
-} = {}) {
+function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
   const materialNode = new CustomMaterialContent({
@@ -580,11 +593,8 @@ function createFXAA3QualityMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: FXAA3QualityShaderVertex,
     pixelShader: FXAA3QualityShaderFragment,
-    noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -616,6 +626,9 @@ function createDepthEncodeMaterial({
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
 
   return material;
 }
@@ -650,6 +663,18 @@ function createShadowMapDecodeClassicSingleMaterial(
   );
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    material.addShaderDefine('RN_IS_MORPHING');
+  }
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isDebugging) {
+    material.addShaderDefine('RN_IS_DEBUGGING');
+  }
 
   return material;
 }
@@ -657,7 +682,6 @@ function createShadowMapDecodeClassicSingleMaterial(
 function createGaussianBlurForEncodedDepthMaterial({
   additionalName = '',
   maxInstancesNumber = 10,
-  noUseCameraTransform = false,
 } = {}) {
   const materialName = 'GaussianBlurForEncodedDepth' + `_${additionalName}`;
 
@@ -718,18 +742,8 @@ function createGaussianBlurForEncodedDepthMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    isClearCoat: false,
-    isTransmission: false,
-    isVolume: false,
-    isSheen: false,
-    isSpecular: false,
-    isIridescence: false,
-    isShadow: false,
-    useTangentAttribute: false,
-    useNormalTexture: false,
     vertexShader: GaussianBlurForEncodedDepthSingleShaderVertex,
     pixelShader: GaussianBlurForEncodedDepthSingleShaderFragment,
-    noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
 
@@ -786,6 +800,18 @@ function createVarianceShadowMapDecodeClassicSingleMaterial(
   );
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
+  if (isLighting) {
+    material.addShaderDefine('RN_IS_LIGHTING');
+  }
+  if (isMorphing) {
+    material.addShaderDefine('RN_IS_MORPHING');
+  }
+  if (isDebugging) {
+    material.addShaderDefine('RN_IS_DEBUGGING');
+  }
   return material;
 }
 
@@ -800,11 +826,7 @@ function createDetectHighLuminanceMaterial(
   return material;
 }
 
-function createGaussianBlurMaterial({
-  additionalName = '',
-  maxInstancesNumber = 10,
-  noUseCameraTransform = false,
-} = {}) {
+function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -864,20 +886,10 @@ function createGaussianBlurMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    isClearCoat: false,
-    isTransmission: false,
-    isVolume: false,
-    isSheen: false,
-    isSpecular: false,
-    isIridescence: false,
-    isShadow: false,
-    useTangentAttribute: false,
-    useNormalTexture: false,
     vertexShader: GaussianBlurSingleShaderVertex,
     pixelShader: GaussianBlurSingleShaderFragment,
     vertexShaderWebGpu: GaussianBlurSingleShaderVertexWebGpu,
     pixelShaderWebGpu: GaussianBlurSingleShaderFragmentWebGpu,
-    noUseCameraTransform,
     additionalShaderSemanticInfo,
   });
   materialNode.isSingleOperation = true;
@@ -935,11 +947,7 @@ function createColorGradingUsingLUTsMaterial(
   return material;
 }
 
-function createGammaCorrectionMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-  noUseCameraTransform = false,
-} = {}) {
+function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
   const materialNode = new CustomMaterialContent({
@@ -947,13 +955,10 @@ function createGammaCorrectionMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: GammaCorrectionShaderVertex,
     pixelShader: GammaCorrectionShaderFragment,
     vertexShaderWebGpu: GammaCorrectionShaderVertexWebGpu,
     pixelShaderWebGpu: GammaCorrectionShaderFragmentWebGpu,
-    noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -962,11 +967,7 @@ function createGammaCorrectionMaterial({
   return material;
 }
 
-function createSummedAreaTableMaterial({
-  additionalName = '',
-  maxInstancesNumber = 1,
-  noUseCameraTransform = false,
-} = {}) {
+function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
   const materialName = 'SummedAreaTable' + `_${additionalName}`;
 
   const materialNode = new CustomMaterialContent({
@@ -974,11 +975,8 @@ function createSummedAreaTableMaterial({
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: SummedAreaTableShaderVertex,
     pixelShader: SummedAreaTableShaderFragment,
-    noUseCameraTransform: noUseCameraTransform,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
@@ -1007,6 +1005,9 @@ function createMatCapMaterial({
   const materialNode = new MatCapMaterialContent(isSkinning, uri, texture, sampler);
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+  if (isSkinning) {
+    material.addShaderDefine('RN_IS_SKINNING');
+  }
 
   return material;
 }
@@ -1017,7 +1018,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
   const materialNode = new EntityUIDOutputMaterialContent();
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
-
+  material.addShaderDefine('RN_IS_SKINNING');
   return material;
 }
 
@@ -1104,8 +1105,6 @@ function reuseOrRecreateCustomMaterial(
       isSkinning,
       isLighting,
       isMorphing,
-      useTangentAttribute: false,
-      useNormalTexture: true,
       vertexShaderWebGpu: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1116,7 +1115,6 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      noUseCameraTransform: false,
       additionalShaderSemanticInfo: [],
     });
   } else {
@@ -1125,8 +1123,6 @@ function reuseOrRecreateCustomMaterial(
       isSkinning,
       isLighting,
       isMorphing,
-      useTangentAttribute: false,
-      useNormalTexture: true,
       vertexShader: {
         code: vertexShaderStr,
         shaderStage: 'vertex',
@@ -1137,7 +1133,6 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      noUseCameraTransform: false,
       additionalShaderSemanticInfo: [],
     });
   }
@@ -1148,26 +1143,7 @@ function reuseOrRecreateCustomMaterial(
     materialNode,
     maxInstancesNumber
   );
-
-  return material;
-}
-
-// create or update shaderity material
-function recreateShaderityMaterial(
-  vertexShaderityObj: ShaderityObject,
-  pixelShaderityObj: ShaderityObject,
-  { additionalName = '', maxInstancesNumber = Config.maxMaterialInstanceForEachType } = {}
-) {
-  const name = `Shaderity_${additionalName}`;
-
-  const materialNode = new ShaderityMaterialContent({
-    name,
-    vertexShaderityObj,
-    pixelShaderityObj,
-  });
-
-  materialNode.isSingleOperation = true;
-  const material = recreateMaterial(name, materialNode, maxInstancesNumber);
+  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -1186,7 +1162,6 @@ export const MaterialHelper = Object.freeze({
   createMaterial,
   recreateMaterial,
   reuseOrRecreateCustomMaterial,
-  recreateShaderityMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
   createFlatMaterial,

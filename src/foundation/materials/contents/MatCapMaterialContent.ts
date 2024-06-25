@@ -81,10 +81,6 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
       }
     );
 
-    if (isSkinning) {
-      this.__definitions += '#define RN_IS_SKINNING\n';
-    }
-
     shaderSemanticsInfoArray.push({
       semantic: MatCapMaterialContent.MatCapTexture,
       componentType: ComponentType.Int,

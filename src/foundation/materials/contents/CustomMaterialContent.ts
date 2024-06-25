@@ -1,20 +1,14 @@
 import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { AbstractMaterialContent } from '../core/AbstractMaterialContent';
-import { ShaderType } from '../../definitions/ShaderType';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Material } from '../core/Material';
 import { HdriFormat } from '../../definitions/HdriFormat';
 import { ShaderityObject } from 'shaderity';
-import { ShaderityUtilityWebGL } from '../core/ShaderityUtilityWebGL';
 import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../../math/Vector2';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
 import { dummyBlackCubeTexture } from '../core/DummyTextures';
-import { SystemState } from '../../system/SystemState';
-import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { ShaderityUtilityWebGPU } from '../core/ShaderityUtilityWebGPU';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
@@ -26,19 +20,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isMorphing,
     isSkinning,
     isLighting,
-    isClearCoat,
-    isTransmission,
-    isVolume,
-    isSheen,
-    isSpecular,
-    isIridescence,
-    isAnisotropy,
-    isShadow,
-    useTangentAttribute,
-    useNormalTexture,
     vertexShader,
     pixelShader,
-    noUseCameraTransform,
     additionalShaderSemanticInfo,
     vertexShaderWebGpu,
     pixelShaderWebGpu,
@@ -47,19 +30,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     isMorphing: boolean;
     isSkinning: boolean;
     isLighting: boolean;
-    isClearCoat?: boolean;
-    isTransmission?: boolean;
-    isVolume?: boolean;
-    isSheen?: boolean;
-    isSpecular?: boolean;
-    isIridescence?: boolean;
-    isAnisotropy?: boolean;
-    isShadow?: boolean;
-    useTangentAttribute: boolean;
-    useNormalTexture: boolean;
     vertexShader?: ShaderityObject;
     pixelShader?: ShaderityObject;
-    noUseCameraTransform: boolean;
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
     vertexShaderWebGpu?: ShaderityObject;
     pixelShaderWebGpu?: ShaderityObject;
@@ -73,54 +45,6 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       vertexShaderWebGpu!,
       pixelShaderWebGpu!
     );
-
-    if (isLighting) {
-      this.__definitions += '#define RN_IS_LIGHTING\n';
-    }
-
-    // if (isSkinning) {
-    this.__definitions += '#define RN_IS_SKINNING\n';
-    // }
-
-    // if (isMorphing) {
-    // this.__definitions += '#define RN_IS_MORPHING\n';
-    // }
-
-    if (isClearCoat) {
-      this.__definitions += '#define RN_USE_CLEARCOAT\n';
-    }
-
-    if (isTransmission) {
-      this.__definitions += '#define RN_USE_TRANSMISSION\n';
-    }
-    if (isVolume) {
-      this.__definitions += '#define RN_USE_VOLUME\n';
-    }
-    if (isSheen) {
-      this.__definitions += '#define RN_USE_SHEEN\n';
-    }
-    if (isSpecular) {
-      this.__definitions += '#define RN_USE_SPECULAR\n';
-    }
-    if (isIridescence) {
-      this.__definitions += '#define RN_USE_IRIDESCENCE\n';
-    }
-    if (isAnisotropy) {
-      this.__definitions += '#define RN_USE_ANISOTROPY\n';
-    }
-    if (isShadow) {
-      this.__definitions += '#define RN_USE_SHADOW_MAPPING\n';
-    }
-    // if (useTangentAttribute) {
-    //   this.__definitions += '#define RN_USE_TANGENT_ATTRIBUTE\n';
-    // }
-    if (useNormalTexture) {
-      this.__definitions += '#define RN_USE_NORMAL_TEXTURE\n';
-    }
-
-    if (noUseCameraTransform) {
-      this.__definitions += '#define RN_NO_CAMERA_TRANSFORM\n';
-    }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }

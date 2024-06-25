@@ -253,7 +253,6 @@ function createRenderPassGaussianBlurForDepth(
   const material = Rn.MaterialHelper.createGaussianBlurForEncodedDepthMaterial({
     additionalName: '',
     maxInstancesNumber: 10,
-    noUseCameraTransform: true,
   });
 
   const gaussianDistributionRatio = Rn.MathUtil.computeGaussianDistributionRatioWhoseSumIsOne({

@@ -96,12 +96,8 @@ export abstract class AbstractMaterialContent extends RnObject {
     return this.__pixelShaderityObject;
   }
 
-  getDefinitions(material: Material) {
-    let definitions = this.__definitions.concat();
-
-    definitions += '#define RN_IS_ALPHAMODE_' + material.alphaMode.str + '\n';
-
-    return definitions;
+  getDefinitions() {
+    return this.__definitions;
   }
 
   static getMaterialNode(materialNodeUid: MaterialNodeUID) {

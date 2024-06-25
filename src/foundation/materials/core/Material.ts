@@ -79,6 +79,8 @@ export class Material extends RnObject {
   private static __stateVersion = 0;
   private __fingerPrint = '';
 
+  private __shaderDefines: Set<string> = new Set();
+
   private static __webglResourceRepository?: WebGLResourceRepository;
 
   // static fields
@@ -98,6 +100,20 @@ export class Material extends RnObject {
     this.__materialUid = materialUid;
     this.__materialSid = materialSid;
     this.__materialTypeName = materialTypeName;
+  }
+
+  addShaderDefine(define: string) {
+    this.__shaderDefines.add(define);
+    this.makeShadersInvalidate();
+  }
+
+  removeShaderDefine(define: string) {
+    this.__shaderDefines.delete(define);
+    this.makeShadersInvalidate();
+  }
+
+  getShaderDefines() {
+    return this.__shaderDefines;
   }
 
   calcFingerPrint() {

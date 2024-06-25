@@ -19,8 +19,6 @@ test.skip('AttributePosition works correctly 1', async () => {
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: {
       code: '',
       shaderStage: 'vertex',
@@ -31,7 +29,6 @@ test.skip('AttributePosition works correctly 1', async () => {
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
 

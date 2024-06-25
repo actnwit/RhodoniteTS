@@ -16,8 +16,6 @@ test('MaterialTID are processed correctly', () => {
     isSkinning: false,
     isLighting: false,
     isMorphing: false,
-    useTangentAttribute: false,
-    useNormalTexture: true,
     vertexShader: {
       code: '',
       shaderStage: 'vertex',
@@ -28,7 +26,6 @@ test('MaterialTID are processed correctly', () => {
       shaderStage: 'fragment',
       isFragmentShader: true,
     },
-    noUseCameraTransform: false,
     additionalShaderSemanticInfo: [],
   });
 

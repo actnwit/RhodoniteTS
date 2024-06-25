@@ -248,17 +248,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
       }
     );
 
-    if (isSkinning) {
-      this.__definitions += '#define RN_IS_SKINNING\n';
-    }
-
-    if (isLighting) {
-      this.__definitions += '#define RN_IS_LIGHTING\n';
-    }
-
     if (isMorphing) {
-      this.__definitions += '#define RN_IS_MORPHING\n';
-
       shaderSemanticsInfoArray.push(
         {
           semantic: ShaderSemantics.MorphTargetNumber,
@@ -302,7 +292,6 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     }
 
     if (isDebugging) {
-      this.__definitions += '#define RN_IS_DEBUGGING\n';
       shaderSemanticsInfoArray.push({
         semantic: ShadowMapDecodeClassicMaterialContent.DebugColorFactor,
         compositionType: CompositionType.Vec4,
