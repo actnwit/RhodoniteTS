@@ -44,7 +44,7 @@ vec3 PBRNeutralToneMapping( vec3 color ) {
 
 #ifdef RN_USE_REINHARD
 vec3 ReinhardToneMapping( vec3 color ) {
-  return color / (vec3(1.0) - color);
+  return color / (vec3(1.0) + color);
 }
 #endif
 

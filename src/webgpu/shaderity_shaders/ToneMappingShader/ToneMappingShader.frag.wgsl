@@ -39,7 +39,7 @@ fn PBRNeutralToneMapping( inColor: vec3f ) -> vec3f {
 
 #ifdef RN_USE_REINHARD
 fn ReinhardToneMapping(color: vec3<f32> ) -> vec3<f32> {
-  return color / (vec3<f32>(1.0) - color);
+  return color / (vec3<f32>(1.0) + color);
 }
 #endif
 

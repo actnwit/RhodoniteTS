@@ -15,7 +15,14 @@ import { Err, Ok } from '../../misc/Result';
 import { System } from '../../system/System';
 import { RnObject } from '../../core/RnObject';
 import { ModuleManager } from '../../system/ModuleManager';
-import { ComponentType, HdriFormatEnum, PixelFormat, ProcessApproach } from '../../definitions';
+import {
+  ComponentType,
+  HdriFormatEnum,
+  PixelFormat,
+  ProcessApproach,
+  ToneMappingType,
+  ToneMappingTypeEnum,
+} from '../../definitions';
 import { ExpressionHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
@@ -23,6 +30,7 @@ import { SystemState } from '../../system';
 import { RenderTargetTexture } from '../../textures';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
+import { Material } from '../../materials/core/Material';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -99,6 +107,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __depthMomentExpressions: Expression[] = [];
   private __oBloomExpression: IOption<Expression> = new None();
   private __oToneMappingExpression: IOption<Expression> = new None();
+  private __oToneMappingMaterial: IOption<Material> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
   private __oWebXRSystem: IOption<any> = new None();
   private __oDrawFunc: IOption<DrawFunc> = new None();
@@ -877,6 +886,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __setupToneMappingExpression(toneMappingTargetRenderTargetTexture: RenderTargetTexture) {
     const expressionToneMappingEffect = new Expression();
     const materialToneMapping = MaterialHelper.createToneMappingMaterial();
+    this.__oToneMappingMaterial = new Some(materialToneMapping);
 
     // Rendering for Canvas Frame Buffer
     const renderPassToneMapping = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
@@ -952,6 +962,20 @@ export class ForwardRenderPipeline extends RnObject {
           }
         }
       }
+    }
+  }
+
+  public setToneMappingType(type: ToneMappingTypeEnum) {
+    if (!this.__oToneMappingMaterial.has()) {
+      return;
+    }
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_REINHARD');
+
+    if (type === ToneMappingType.KhronosPbrNeutral) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
+    } else if (type === ToneMappingType.Reinhard) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_REINHARD');
     }
   }
 
