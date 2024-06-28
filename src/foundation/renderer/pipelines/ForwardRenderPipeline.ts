@@ -972,6 +972,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_REINHARD');
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_GT_TONEMAP');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_NARKOWICZ');
 
     if (type === ToneMappingType.KhronosPbrNeutral) {
       this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
@@ -979,6 +980,8 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_REINHARD');
     } else if (type === ToneMappingType.GT_ToneMap) {
       this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_GT_TONEMAP');
+    } else if (type === ToneMappingType.ACES_Narkowicz) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_NARKOWICZ');
     }
   }
 

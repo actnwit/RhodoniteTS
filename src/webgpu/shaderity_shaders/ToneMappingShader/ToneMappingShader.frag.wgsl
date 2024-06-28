@@ -43,6 +43,20 @@ fn ReinhardToneMapping(color: vec3<f32> ) -> vec3<f32> {
 }
 #endif
 
+#ifdef RN_USE_ACES_NARKOWICZ
+// ACES tone map (faster approximation)
+// see: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+fn ACES_Narkowicz_ToneMapping(color: vec3<f32>) -> vec3<f32>
+{
+    const A = 2.51;
+    const B = 0.03;
+    const C = 2.43;
+    const D = 0.59;
+    const E = 0.14;
+    return clamp((color * (A * color + B)) / (color * (C * color + D) + E), vec3<f32>(0.0), vec3<f32>(1.0));
+}
+#endif
+
 
 #ifdef RN_USE_GT_TONEMAP
   fn W_f(x: f32, e0: f32, e1: f32) -> f32 {
@@ -92,6 +106,10 @@ fn main (
 
 #ifdef RN_USE_REINHARD
   baseColor = vec4f(ReinhardToneMapping(baseColor.rgb), baseColor.a);
+#endif
+
+#ifdef RN_USE_ACES_NARKOWICZ
+  baseColor = vec4f(ACES_Narkowicz_ToneMapping(baseColor.rgb), baseColor.a);
 #endif
 
 #ifdef RN_USE_GT_TONEMAP

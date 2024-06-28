@@ -48,6 +48,20 @@ vec3 ReinhardToneMapping( vec3 color ) {
 }
 #endif
 
+#ifdef RN_USE_ACES_NARKOWICZ
+// ACES tone map (faster approximation)
+// see: https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+vec3 ACES_Narkowicz_ToneMapping(vec3 color)
+{
+    const float A = 2.51;
+    const float B = 0.03;
+    const float C = 2.43;
+    const float D = 0.59;
+    const float E = 0.14;
+    return clamp((color * (A * color + B)) / (color * (C * color + D) + E), 0.0, 1.0);
+}
+#endif
+
 #ifdef RN_USE_GT_TONEMAP
 float W_f(float x, float e0, float e1) {
   return smoothstep(e0, e1, x);
@@ -98,6 +112,10 @@ baseColor.rgb = PBRNeutralToneMapping(baseColor.rgb);
 
 #ifdef RN_USE_REINHARD
 baseColor.rgb = ReinhardToneMapping(baseColor.rgb);
+#endif
+
+#ifdef RN_USE_ACES_NARKOWICZ
+baseColor.rgb = ACES_Narkowicz_ToneMapping(baseColor.rgb);
 #endif
 
 #ifdef RN_USE_GT_TONEMAP

@@ -24,8 +24,12 @@ const GT_ToneMap: ToneMappingTypeEnum = new ToneMappingTypeClass({
   index: 2,
   str: 'GT_ToneMap',
 });
+const ACES_Narkowicz: ToneMappingTypeEnum = new ToneMappingTypeClass({
+  index: 3,
+  str: 'ACES_Filmic_ToneMap_Narkowicz',
+});
 
-const typeList = [None, KhronosPbrNeutral, Reinhard, GT_ToneMap];
+const typeList = [None, KhronosPbrNeutral, Reinhard, GT_ToneMap, ACES_Narkowicz];
 
 function from(index: number): ToneMappingTypeEnum {
   return _from({ typeList, index }) as ToneMappingTypeEnum;
@@ -36,5 +40,6 @@ export const ToneMappingType = Object.freeze({
   KhronosPbrNeutral,
   Reinhard,
   GT_ToneMap,
+  ACES_Narkowicz,
   from,
 });
