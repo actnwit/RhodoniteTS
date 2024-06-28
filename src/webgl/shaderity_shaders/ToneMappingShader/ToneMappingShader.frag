@@ -48,6 +48,42 @@ vec3 ReinhardToneMapping( vec3 color ) {
 }
 #endif
 
+#ifdef RN_USE_GT_TONEMAP
+float W_f(float x, float e0, float e1) {
+  return smoothstep(e0, e1, x);
+}
+float H_f(float x, float e0, float e1) {
+  if (x <= e0)
+    return 0.;
+  if (x >= e1)
+    return 1.;
+  return (x - e0) / (e1 - e0);
+}
+
+const float e = 2.71828;
+
+float GT_ToneMaping(float x) {
+  float P = 1.; // peak luminance
+  float a = 1.; // contrast parameter
+  float m = 0.22; // beginning of the linear part
+  float l = 0.4; // length of the linear part
+  float c = 1.33; // parameter of black color
+  float b = 0.; // parameter of black color
+  float l0 = (P - m) * l / a;
+  float T_x = m * pow(x / m, c) + b;
+  float L_x = m + a * (x - m);
+  float S0 = m + l0;
+  float S1 = m + a * l0;
+  float C2 = a * P / (P - S1);
+  float S_x = P - (P - S1) * pow(e, -(C2 * (x - S0) / P));
+  float w0_x = 1. - W_f(x, 0., m);
+  float w2_x = H_f(x, m + l0, m + l0);
+  float w1_x = 1. - w0_x - w2_x;
+  float f_x = T_x * w0_x + L_x * w1_x + S_x * w2_x;
+  return f_x;
+}
+#endif
+
 void main ()
 {
 
@@ -63,6 +99,13 @@ baseColor.rgb = PBRNeutralToneMapping(baseColor.rgb);
 #ifdef RN_USE_REINHARD
 baseColor.rgb = ReinhardToneMapping(baseColor.rgb);
 #endif
+
+#ifdef RN_USE_GT_TONEMAP
+baseColor.r = GT_ToneMaping(baseColor.r);
+baseColor.g = GT_ToneMaping(baseColor.g);
+baseColor.b = GT_ToneMaping(baseColor.b);
+#endif
+
 
 // Convert linear color to sRGB color space.
 if (get_enableLinearToSrgb(materialSID, 0)) {
