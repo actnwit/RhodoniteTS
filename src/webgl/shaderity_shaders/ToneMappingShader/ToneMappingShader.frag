@@ -18,6 +18,7 @@ uniform bool u_enableLinearToSrgb; // initialValue=true
 #pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.glsl)
 
 
+#ifdef RN_USE_KHRONOS_PBR_NEUTRAL
 // Input color is non-negative and resides in the Linear Rec. 709 color space.
 // Output color is also Linear Rec. 709, but in the [0, 1] range.
 // See: https://github.com/KhronosGroup/ToneMapping/tree/main/PBR_Neutral
@@ -39,6 +40,13 @@ vec3 PBRNeutralToneMapping( vec3 color ) {
   float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
   return mix(color, newPeak * vec3(1, 1, 1), g);
 }
+#endif
+
+#ifdef RN_USE_REINHARD
+vec3 ReinhardToneMapping( vec3 color ) {
+  return color / (vec3(1.0) - color);
+}
+#endif
 
 void main ()
 {
@@ -48,7 +56,13 @@ void main ()
 vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 
 // Apply Tone Mapping
+#ifdef RN_USE_KHRONOS_PBR_NEUTRAL
 baseColor.rgb = PBRNeutralToneMapping(baseColor.rgb);
+#endif
+
+#ifdef RN_USE_REINHARD
+baseColor.rgb = ReinhardToneMapping(baseColor.rgb);
+#endif
 
 // Convert linear color to sRGB color space.
 if (get_enableLinearToSrgb(materialSID, 0)) {
