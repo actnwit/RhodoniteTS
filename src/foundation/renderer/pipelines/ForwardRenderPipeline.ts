@@ -114,6 +114,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
   private __oSpecularCubeTexture: IOption<CubeTexture> = new None();
   private __oSamplerForBackBuffer: IOption<Sampler> = new None();
+  private __toneMappingType = ToneMappingType.KhronosPbrNeutral;
 
   constructor() {
     super();
@@ -887,6 +888,7 @@ export class ForwardRenderPipeline extends RnObject {
     const expressionToneMappingEffect = new Expression();
     const materialToneMapping = MaterialHelper.createToneMappingMaterial();
     this.__oToneMappingMaterial = new Some(materialToneMapping);
+    this.setToneMappingType(this.__toneMappingType);
 
     // Rendering for Canvas Frame Buffer
     const renderPassToneMapping = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
@@ -969,10 +971,14 @@ export class ForwardRenderPipeline extends RnObject {
     if (!this.__oToneMappingMaterial.has()) {
       return;
     }
+    this.__toneMappingType = type;
+
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_REINHARD');
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_GT_TONEMAP');
     this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_NARKOWICZ');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_HILL');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_HILL_EXPOSURE_BOOST');
 
     if (type === ToneMappingType.KhronosPbrNeutral) {
       this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
@@ -982,6 +988,10 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_GT_TONEMAP');
     } else if (type === ToneMappingType.ACES_Narkowicz) {
       this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_NARKOWICZ');
+    } else if (type === ToneMappingType.ACES_Hill) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_HILL');
+    } else if (type === ToneMappingType.ACES_Hill_Exposure_Boost) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_HILL_EXPOSURE_BOOST');
     }
   }
 

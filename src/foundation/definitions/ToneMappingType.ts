@@ -28,8 +28,24 @@ const ACES_Narkowicz: ToneMappingTypeEnum = new ToneMappingTypeClass({
   index: 3,
   str: 'ACES_Filmic_ToneMap_Narkowicz',
 });
+const ACES_Hill: ToneMappingTypeEnum = new ToneMappingTypeClass({
+  index: 4,
+  str: 'ACES_Filmic_ToneMap_Hill',
+});
+const ACES_Hill_Exposure_Boost: ToneMappingTypeEnum = new ToneMappingTypeClass({
+  index: 5,
+  str: 'ACES_Filmic_ToneMap_Hill_Exposure_Boost',
+});
 
-const typeList = [None, KhronosPbrNeutral, Reinhard, GT_ToneMap, ACES_Narkowicz];
+const typeList = [
+  None,
+  KhronosPbrNeutral,
+  Reinhard,
+  GT_ToneMap,
+  ACES_Narkowicz,
+  ACES_Hill,
+  ACES_Hill_Exposure_Boost,
+];
 
 function from(index: number): ToneMappingTypeEnum {
   return _from({ typeList, index }) as ToneMappingTypeEnum;
@@ -41,5 +57,7 @@ export const ToneMappingType = Object.freeze({
   Reinhard,
   GT_ToneMap,
   ACES_Narkowicz,
+  ACES_Hill,
+  ACES_Hill_Exposure_Boost,
   from,
 });
