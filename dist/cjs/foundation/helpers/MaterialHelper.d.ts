@@ -6,7 +6,6 @@ import { AbstractTexture } from '../textures/AbstractTexture';
 import { Texture } from '../textures/Texture';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { Count } from '../../types/CommonTypes';
-import { ShaderityObject } from 'shaderity';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
@@ -54,10 +53,9 @@ declare function createEnvConstantMaterial({ additionalName, maxInstancesNumber,
     maxInstancesNumber?: number | undefined;
     makeOutputSrgb?: boolean | undefined;
 }): Material;
-declare function createFXAA3QualityMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
+declare function createFXAA3QualityMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
-    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createFurnaceTestMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
@@ -78,10 +76,9 @@ declare function createShadowMapDecodeClassicSingleMaterial({ additionalName, is
     colorAttachmentsNumber?: number | undefined;
     maxInstancesNumber?: number | undefined;
 } | undefined, depthEncodeRenderPass: RenderPass): Material;
-declare function createGaussianBlurForEncodedDepthMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
+declare function createGaussianBlurForEncodedDepthMaterial({ additionalName, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
-    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createVarianceShadowMapDecodeClassicSingleMaterial({ additionalName, isMorphing, isSkinning, isDebugging, isLighting, colorAttachmentsNumberDepth, colorAttachmentsNumberSquareDepth, depthCameraComponent, maxInstancesNumber, }: {
     additionalName?: string;
@@ -98,10 +95,9 @@ declare function createDetectHighLuminanceMaterial({ additionalName, maxInstance
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 } | undefined, textureToDetectHighLuminance: AbstractTexture): Material;
-declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
+declare function createGaussianBlurMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
-    noUseCameraTransform?: boolean | undefined;
 }): Material;
 declare function createSynthesizeHDRMaterial({ additionalName, maxInstancesNumber, }: {
     additionalName?: string;
@@ -114,15 +110,17 @@ declare function createColorGradingUsingLUTsMaterial({ additionalName, colorAtta
     texture?: Texture;
     maxInstancesNumber?: Count;
 }, targetRenderPass: RenderPass): Material;
-declare function createGammaCorrectionMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
+declare function createGammaCorrectionMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
-    noUseCameraTransform?: boolean | undefined;
 }): Material;
-declare function createSummedAreaTableMaterial({ additionalName, maxInstancesNumber, noUseCameraTransform, }?: {
+declare function createToneMappingMaterial({ additionalName, maxInstancesNumber }?: {
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
-    noUseCameraTransform?: boolean | undefined;
+}): Material;
+declare function createSummedAreaTableMaterial({ additionalName, maxInstancesNumber }?: {
+    additionalName?: string | undefined;
+    maxInstancesNumber?: number | undefined;
 }): Material;
 declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture, sampler, maxInstancesNumber, }: {
     additionalName?: string;
@@ -157,16 +155,11 @@ declare function reuseOrRecreateCustomMaterial(currentMaterial: Material, vertex
     isMorphing?: boolean | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function recreateShaderityMaterial(vertexShaderityObj: ShaderityObject, pixelShaderityObj: ShaderityObject, { additionalName, maxInstancesNumber }?: {
-    additionalName?: string | undefined;
-    maxInstancesNumber?: number | undefined;
-}): Material;
 declare function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive, material: Material): void;
 export declare const MaterialHelper: Readonly<{
     createMaterial: typeof createMaterial;
     recreateMaterial: typeof recreateMaterial;
     reuseOrRecreateCustomMaterial: typeof reuseOrRecreateCustomMaterial;
-    recreateShaderityMaterial: typeof recreateShaderityMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
     createDepthMomentEncodeMaterial: typeof createDepthMomentEncodeMaterial;
     createFlatMaterial: typeof createFlatMaterial;
@@ -176,6 +169,7 @@ export declare const MaterialHelper: Readonly<{
     createDepthEncodeMaterial: typeof createDepthEncodeMaterial;
     createShadowMapDecodeClassicSingleMaterial: typeof createShadowMapDecodeClassicSingleMaterial;
     createGammaCorrectionMaterial: typeof createGammaCorrectionMaterial;
+    createToneMappingMaterial: typeof createToneMappingMaterial;
     createSummedAreaTableMaterial: typeof createSummedAreaTableMaterial;
     createVarianceShadowMapDecodeClassicSingleMaterial: typeof createVarianceShadowMapDecodeClassicSingleMaterial;
     createEntityUIDOutputMaterial: typeof createEntityUIDOutputMaterial;

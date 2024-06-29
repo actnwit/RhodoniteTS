@@ -41,9 +41,13 @@ export declare class Material extends RnObject {
     private __stateVersion;
     private static __stateVersion;
     private __fingerPrint;
+    private __shaderDefines;
     private static __webglResourceRepository?;
     static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
+    addShaderDefine(define: string): void;
+    removeShaderDefine(define: string): void;
+    getShaderDefines(): Set<string>;
     calcFingerPrint(): void;
     _getFingerPrint(): string;
     static get stateVersion(): number;

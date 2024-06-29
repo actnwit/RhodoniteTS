@@ -4,7 +4,7 @@ import { Frame } from '../Frame';
 import { Size } from '../../../types';
 import { Err, Ok } from '../../misc/Result';
 import { RnObject } from '../../core/RnObject';
-import { HdriFormatEnum } from '../../definitions';
+import { HdriFormatEnum, ToneMappingTypeEnum } from '../../definitions';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 type IBLCubeTextureParameter = {
     baseUri: string;
@@ -76,13 +76,15 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __oMultiViewBlitExpression;
     private __depthMomentExpressions;
     private __oBloomExpression;
-    private __oGammaExpression;
+    private __oToneMappingExpression;
+    private __oToneMappingMaterial;
     private __transparentOnlyExpressions;
     private __oWebXRSystem;
     private __oDrawFunc;
     private __oDiffuseCubeTexture;
     private __oSpecularCubeTexture;
     private __oSamplerForBackBuffer;
+    private __toneMappingType;
     constructor();
     private __destroyResources;
     /**
@@ -144,9 +146,9 @@ export declare class ForwardRenderPipeline extends RnObject {
      */
     getInitialExpression(): Expression | undefined;
     /**
-     * getter of gamma expression
+     * getter of ToneMapping expression
      */
-    getGammaExpression(): Expression | undefined;
+    getToneMappingExpression(): Expression | undefined;
     /**
      * set diffuse IBL contribution
      * @param value - 0.0 ~ 1.0 or greater
@@ -170,10 +172,11 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __setupGenerateMipmapsExpression;
     private __setupMultiViewBlitBackBufferExpression;
     private __setupMultiViewBlitExpression;
-    private __setupGammaExpression;
+    private __setupToneMappingExpression;
     private __setupDepthMomentFramebuffer;
     private __setIblInner;
     private __setIblInnerForTransparentOnly;
+    setToneMappingType(type: ToneMappingTypeEnum): void;
     /**
      * setUp Frame
      *

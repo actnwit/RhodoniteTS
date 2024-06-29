@@ -161,5 +161,6 @@ export declare const ShaderSemantics: Readonly<{
     AnisotropyRotation: ShaderSemanticsClass;
     AnisotropyTexture: ShaderSemanticsClass;
     EmissiveStrength: ShaderSemanticsClass;
+    Time: ShaderSemanticsClass;
 }>;
 export {};

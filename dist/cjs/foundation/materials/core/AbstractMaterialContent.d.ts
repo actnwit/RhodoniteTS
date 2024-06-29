@@ -46,7 +46,7 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     get shaderFunctionName(): string;
     get vertexShaderityObject(): import("shaderity/dist/esm/types/type").ShaderityObject | undefined;
     get pixelShaderityObject(): import("shaderity/dist/esm/types/type").ShaderityObject | undefined;
-    getDefinitions(material: Material): string;
+    getDefinitions(): string;
     static getMaterialNode(materialNodeUid: MaterialNodeUID): AbstractMaterialContent;
     get _semanticsInfoArray(): ShaderSemanticsInfo[];
     get isSkinning(): boolean;

@@ -27,3 +27,4 @@ export * from './ShadowMap';
 export * from './TextureParameter';
 export * from './VertexAttribute';
 export * from './Visibility';
+export * from './ToneMappingType';
