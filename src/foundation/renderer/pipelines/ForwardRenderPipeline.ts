@@ -20,16 +20,17 @@ import {
   HdriFormatEnum,
   PixelFormat,
   ProcessApproach,
-  ProcessApproachClass,
+  ToneMappingType,
+  ToneMappingTypeEnum,
 } from '../../definitions';
-import { ExpressionHelper, ISceneGraphEntity, MeshHelper, RenderPassHelper } from '../../helpers';
+import { ExpressionHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
-import { Vector3 } from '../../math/Vector3';
 import { SystemState } from '../../system';
 import { RenderTargetTexture } from '../../textures';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
+import { Material } from '../../materials/core/Material';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -105,13 +106,15 @@ export class ForwardRenderPipeline extends RnObject {
   private __oMultiViewBlitExpression: IOption<Expression> = new None();
   private __depthMomentExpressions: Expression[] = [];
   private __oBloomExpression: IOption<Expression> = new None();
-  private __oGammaExpression: IOption<Expression> = new None();
+  private __oToneMappingExpression: IOption<Expression> = new None();
+  private __oToneMappingMaterial: IOption<Material> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
   private __oWebXRSystem: IOption<any> = new None();
   private __oDrawFunc: IOption<DrawFunc> = new None();
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
   private __oSpecularCubeTexture: IOption<CubeTexture> = new None();
   private __oSamplerForBackBuffer: IOption<Sampler> = new None();
+  private __toneMappingType = ToneMappingType.KhronosPbrNeutral;
 
   constructor() {
     super();
@@ -146,7 +149,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oGenerateMipmapsExpression = new None();
     this.__oMultiViewBlitExpression = new None();
     this.__oBloomExpression = new None();
-    this.__oGammaExpression = new None();
+    this.__oToneMappingExpression = new None();
   }
 
   /**
@@ -211,9 +214,8 @@ export class ForwardRenderPipeline extends RnObject {
         );
       }
 
-      let gammaTargetRenderTargetTexture: RenderTargetTexture = this.__getMainFrameBufferResolve()
-        .unwrapForce()
-        .getColorAttachedRenderTargetTexture(0)!;
+      let toneMappingTargetRenderTargetTexture: RenderTargetTexture =
+        this.__getMainFrameBufferResolve().unwrapForce().getColorAttachedRenderTargetTexture(0)!;
 
       // Bloom Expression
       if (isBloom && !this.__isSimple) {
@@ -226,19 +228,18 @@ export class ForwardRenderPipeline extends RnObject {
           parameters: {},
         });
         this.__oBloomExpression = new Some(bloomExpression);
-        gammaTargetRenderTargetTexture = bloomedRenderTarget;
+        toneMappingTargetRenderTargetTexture = bloomedRenderTarget;
       }
 
-      // gamma Expression
-      const gammaExpression = this.__setupGammaExpression(gammaTargetRenderTargetTexture);
-      this.__oGammaExpression = new Some(gammaExpression);
+      // ToneMapping Expression
+      const toneMappingExpression = this.__setupToneMappingExpression(
+        toneMappingTargetRenderTargetTexture
+      );
+      this.__oToneMappingExpression = new Some(toneMappingExpression);
     }
 
     // Initial Expression
-    const initialExpression = this.__setupInitialExpression(
-      this.__getMainFrameBuffer(),
-      this.__oFrameDepthMoment
-    );
+    const initialExpression = this.__setupInitialExpression(this.__oFrameDepthMoment);
     this.__oInitialExpression = new Some(initialExpression);
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
@@ -471,10 +472,10 @@ export class ForwardRenderPipeline extends RnObject {
   }
 
   /**
-   * getter of gamma expression
+   * getter of ToneMapping expression
    */
-  getGammaExpression(): Expression | undefined {
-    return this.__oGammaExpression.unwrapOrUndefined();
+  getToneMappingExpression(): Expression | undefined {
+    return this.__oToneMappingExpression.unwrapOrUndefined();
   }
 
   /**
@@ -660,10 +661,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInnerForTransparentOnly();
   }
 
-  private __setupInitialExpression(
-    oFramebufferTargetOfGammaMsaa: IOption<FrameBuffer>,
-    oFrameDepthMoment: IOption<FrameBuffer>
-  ) {
+  private __setupInitialExpression(oFrameDepthMoment: IOption<FrameBuffer>) {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
 
@@ -724,7 +722,7 @@ export class ForwardRenderPipeline extends RnObject {
           sampleCountMSAA: 4,
         }
       );
-      framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfGammaMultiView', true);
+      framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiView', true);
       const framebufferMultiViewBlit = RenderableHelper.createTexturesForRenderTarget(
         canvasWidth,
         canvasHeight,
@@ -737,7 +735,10 @@ export class ForwardRenderPipeline extends RnObject {
           createDepthBuffer: false,
         }
       );
-      framebufferMultiViewBlit.tryToSetUniqueName('FramebufferTargetOfGammaMultiViewBlit', true);
+      framebufferMultiViewBlit.tryToSetUniqueName(
+        'FramebufferTargetOfToneMappingMultiViewBlit',
+        true
+      );
 
       const framebufferMultiViewBlitBackBuffer = RenderableHelper.createTexturesForRenderTarget(
         canvasWidth,
@@ -752,7 +753,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       );
       framebufferMultiViewBlit.tryToSetUniqueName(
-        'FramebufferTargetOfGammaMultiViewBlitBackBuffer',
+        'FramebufferTargetOfToneMappingMultiViewBlitBackBuffer',
         true
       );
 
@@ -776,7 +777,7 @@ export class ForwardRenderPipeline extends RnObject {
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
         }
       );
-      framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfGammaMsaa', true);
+      framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
       // Resolve Color 1
       const framebufferResolve = RenderableHelper.createTexturesForRenderTarget(
@@ -790,7 +791,7 @@ export class ForwardRenderPipeline extends RnObject {
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
         }
       );
-      framebufferResolve.tryToSetUniqueName('FramebufferTargetOfGammaResolve', true);
+      framebufferResolve.tryToSetUniqueName('FramebufferTargetOfToneMappingResolve', true);
 
       // Resolve Color 2
       const framebufferResolveForReference = RenderableHelper.createTexturesForRenderTarget(
@@ -805,7 +806,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       );
       framebufferResolveForReference.tryToSetUniqueName(
-        'FramebufferTargetOfGammaResolveForReference',
+        'FramebufferTargetOfToneMappingResolveForReference',
         true
       );
 
@@ -883,39 +884,41 @@ export class ForwardRenderPipeline extends RnObject {
     return new Some(expression);
   }
 
-  private __setupGammaExpression(gammaTargetRenderTargetTexture: RenderTargetTexture) {
-    const expressionGammaEffect = new Expression();
-    const materialGamma = MaterialHelper.createGammaCorrectionMaterial();
+  private __setupToneMappingExpression(toneMappingTargetRenderTargetTexture: RenderTargetTexture) {
+    const expressionToneMappingEffect = new Expression();
+    const materialToneMapping = MaterialHelper.createToneMappingMaterial();
+    this.__oToneMappingMaterial = new Some(materialToneMapping);
+    this.setToneMappingType(this.__toneMappingType);
 
     // Rendering for Canvas Frame Buffer
-    const renderPassGamma = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-      materialGamma,
-      gammaTargetRenderTargetTexture
+    const renderPassToneMapping = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      materialToneMapping,
+      toneMappingTargetRenderTargetTexture
     );
-    renderPassGamma.tryToSetUniqueName('renderPassGamma', true);
-    renderPassGamma.toClearColorBuffer = false;
-    renderPassGamma.toClearDepthBuffer = false;
-    renderPassGamma.isDepthTest = false;
-    renderPassGamma.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
-    renderPassGamma.isVrRendering = false;
-    renderPassGamma.isOutputForVr = false;
+    renderPassToneMapping.tryToSetUniqueName('renderPassToneMapping', true);
+    renderPassToneMapping.toClearColorBuffer = false;
+    renderPassToneMapping.toClearDepthBuffer = false;
+    renderPassToneMapping.isDepthTest = false;
+    renderPassToneMapping.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
+    renderPassToneMapping.isVrRendering = false;
+    renderPassToneMapping.isOutputForVr = false;
 
     // Rendering for VR HeadSet Frame Buffer
-    const renderPassGammaVr = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
-      materialGamma,
-      gammaTargetRenderTargetTexture
+    const renderPassToneMappingVr = RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+      materialToneMapping,
+      toneMappingTargetRenderTargetTexture
     );
-    renderPassGammaVr.tryToSetUniqueName('renderPassGammaVr', true);
-    renderPassGammaVr.toClearColorBuffer = false;
-    renderPassGammaVr.toClearDepthBuffer = false;
-    renderPassGammaVr.isDepthTest = false;
-    renderPassGammaVr.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
-    renderPassGammaVr.isVrRendering = false;
-    renderPassGammaVr.isOutputForVr = true;
+    renderPassToneMappingVr.tryToSetUniqueName('renderPassToneMappingVr', true);
+    renderPassToneMappingVr.toClearColorBuffer = false;
+    renderPassToneMappingVr.toClearDepthBuffer = false;
+    renderPassToneMappingVr.isDepthTest = false;
+    renderPassToneMappingVr.clearColor = Vector4.fromCopyArray4([0.0, 0.0, 0.0, 0.0]);
+    renderPassToneMappingVr.isVrRendering = false;
+    renderPassToneMappingVr.isOutputForVr = true;
 
-    expressionGammaEffect.addRenderPasses([renderPassGamma, renderPassGammaVr]);
+    expressionToneMappingEffect.addRenderPasses([renderPassToneMapping, renderPassToneMappingVr]);
 
-    return expressionGammaEffect;
+    return expressionToneMappingEffect;
   }
 
   private __setupDepthMomentFramebuffer(shadowMapSize: number) {
@@ -964,6 +967,34 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
+  public setToneMappingType(type: ToneMappingTypeEnum) {
+    if (!this.__oToneMappingMaterial.has()) {
+      return;
+    }
+    this.__toneMappingType = type;
+
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_REINHARD');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_GT_TONEMAP');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_NARKOWICZ');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_HILL');
+    this.__oToneMappingMaterial.get().removeShaderDefine('RN_USE_ACES_HILL_EXPOSURE_BOOST');
+
+    if (type === ToneMappingType.KhronosPbrNeutral) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
+    } else if (type === ToneMappingType.Reinhard) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_REINHARD');
+    } else if (type === ToneMappingType.GT_ToneMap) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_GT_TONEMAP');
+    } else if (type === ToneMappingType.ACES_Narkowicz) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_NARKOWICZ');
+    } else if (type === ToneMappingType.ACES_Hill) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_HILL');
+    } else if (type === ToneMappingType.ACES_Hill_Exposure_Boost) {
+      this.__oToneMappingMaterial.get().addShaderDefine('RN_USE_ACES_HILL_EXPOSURE_BOOST');
+    }
+  }
+
   /**
    * setUp Frame
    *
@@ -1003,8 +1034,8 @@ export class ForwardRenderPipeline extends RnObject {
       frame.addExpression(this.__oBloomExpression.unwrapForce());
     }
 
-    if (!this.__isSimple && this.__oGammaExpression.has()) {
-      frame.addExpression(this.getGammaExpression()!);
+    if (!this.__isSimple && this.__oToneMappingExpression.has()) {
+      frame.addExpression(this.getToneMappingExpression()!);
     }
   }
 }

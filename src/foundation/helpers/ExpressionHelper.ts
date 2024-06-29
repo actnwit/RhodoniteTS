@@ -12,6 +12,9 @@ import { SynthesizeHdrMaterialContent } from '../materials/contents/SynthesizeHd
 import { Expression } from '../renderer/Expression';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { VectorN } from '../math/VectorN';
+import { TextureParameter } from '../definitions/TextureParameter';
+import { PixelFormat } from '../definitions/PixelFormat';
+import { ComponentType } from '../definitions/ComponentType';
 
 function createBloomExpression({
   textureToBloom,
@@ -21,6 +24,7 @@ function createBloomExpression({
     gaussianKernelSize = 10,
     gaussianVariance = 10,
     synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+    // synthesizeCoefficient = [1.0 / 2, 1.0 / 4, 1.0 / 8, 1.0 / 16, 1.0 / 32, 1.0 / 64],
   },
 }: {
   textureToBloom: AbstractTexture;
@@ -96,7 +100,11 @@ function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminance
     texture.width,
     texture.height,
     1,
-    {}
+    {
+      // internalFormat: TextureParameter.R11F_G11F_B10F,
+      // format: PixelFormat.RGB,
+      // type: ComponentType.Float,
+    }
   );
   renderPassDetectHighLuminance.setFramebuffer(framebufferDetectHighLuminance);
   return renderPassDetectHighLuminance;
@@ -193,7 +201,11 @@ function createRenderPassGaussianBlur(
     resolutionWidthBlur,
     resolutionHeightBlur,
     1,
-    {}
+    {
+      // internalFormat: TextureParameter.R11F_G11F_B10F,
+      // format: PixelFormat.RGB,
+      // type: ComponentType.Float,
+    }
   );
   renderPass.setFramebuffer(framebuffer);
 
@@ -231,7 +243,11 @@ function createRenderPassSynthesizeImage(
     texture.width,
     texture.height,
     1,
-    {}
+    {
+      internalFormat: TextureParameter.R11F_G11F_B10F,
+      format: PixelFormat.RGB,
+      type: ComponentType.Float,
+    }
   );
   renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);
 
