@@ -78,7 +78,7 @@
     "ts-jest": "^29.1.2",
     "ts-loader": "^9.3.0",
     "tsc-watch": "^5.0.3",
-    "typedoc": "^0.22.17",
+    "typedoc": "^0.26.3",
     "typescript": "^5.3.3",
     "version-loader": "^0.1.0",
     "webpack": "^5.73.0",
