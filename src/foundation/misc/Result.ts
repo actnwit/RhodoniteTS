@@ -114,7 +114,7 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
     return true;
   }
 
-  _isErr(): false {
+  _isErr(): this is Err<T, ErrObj> {
     return false;
   }
 
@@ -150,7 +150,7 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
     return false;
   }
 
-  _isOk(): false {
+  _isOk(): this is Ok<T, ErrObj> {
     return false;
   }
 
