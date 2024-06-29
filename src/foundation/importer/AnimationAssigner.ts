@@ -49,14 +49,12 @@ export class AnimationAssigner {
     return rootEntity;
   }
 
-
   assignAnimationWithVrma(
     rootEntity: ISceneGraphEntity,
     vrmaModel: RnM2Vrma,
-    addPrefixToAnimationTrackName?: string
+    addPostfixToAnimationTrackName?: string
   ) {
-
-    this.__resetAnimationAndPose(rootEntity);
+    this.__resetAnimationAndPose(rootEntity, addPostfixToAnimationTrackName);
 
     let trackNames: string[] = [];
     const setRetarget = (vrma: RnM2Vrma) => {
@@ -99,7 +97,7 @@ export class AnimationAssigner {
               }
               trackNames = animationComponent._setRetarget(
                 retarget!,
-                addPrefixToAnimationTrackName
+                addPostfixToAnimationTrackName
               );
             }
           }
@@ -115,18 +113,24 @@ export class AnimationAssigner {
 
   private constructor() {}
 
-  private __resetAnimationAndPose(rootEntity: ISceneGraphEntity) {
-    function resetAnimationAndPose(entity: ISceneGraphEntity) {
+  private __resetAnimationAndPose(
+    rootEntity: ISceneGraphEntity,
+    addPostfixToAnimationTrackName?: string
+  ) {
+    function resetAnimationAndPose(
+      entity: ISceneGraphEntity,
+      addPostfixToAnimationTrackName?: string
+    ) {
       const animationComponent = entity.tryToGetAnimation();
       if (animationComponent != null) {
-        animationComponent.resetAnimationTracks();
+        animationComponent.resetAnimationTracksWithPostfixString(addPostfixToAnimationTrackName);
       }
       entity.getTransform()._restoreTransformFromRest();
       for (const child of entity.children) {
-        resetAnimationAndPose(child.entity);
+        resetAnimationAndPose(child.entity, addPostfixToAnimationTrackName);
       }
     }
-    resetAnimationAndPose(rootEntity);
+    resetAnimationAndPose(rootEntity, addPostfixToAnimationTrackName);
   }
 
   /**
