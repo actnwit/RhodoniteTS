@@ -826,6 +826,18 @@ export class AnimationComponent extends Component {
     this.__animationTracks.clear();
   }
 
+  resetAnimationTracksWithPostfixString(postFixString?: string) {
+    for (const [trackName, animationTrack] of this.__animationTracks!) {
+      if (postFixString != null) {
+        if (trackName.match(`${postFixString}$`) != null) {
+          this.__animationTracks.delete(trackName);
+        }
+      } else {
+        this.__animationTracks.delete(trackName);
+      }
+    }
+  }
+
   _destroy(): void {
     this.__animationTracks.clear();
     this.__isAnimating = false;
