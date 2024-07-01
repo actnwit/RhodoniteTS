@@ -1,12 +1,9 @@
-import { ShaderNodeUID, AbstractShaderNode, ShaderSocket } from './AbstractShaderNode';
+import { ShaderNodeUID, AbstractShaderNode } from './AbstractShaderNode';
 import { Index } from '../../../types/CommonTypes';
-import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
-import { VertexAttribute } from '../../definitions/VertexAttribute';
 import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
 import { CompositionType } from '../../definitions/CompositionType';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
-import mainPrerequisitesShaderityObject from '../../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
 import { ConstantScalarVariableShaderNode } from '../nodes/ConstantScalarVariableShaderNode';
 import { Scalar } from '../../math/Scalar';
 import { ConstantVector2VariableShaderNode } from '../nodes/ConstantVector2VariableShaderNode';
@@ -28,18 +25,17 @@ import { WorldMatrixShaderNode } from '../nodes/WorldMatrixShaderNode';
 import { ViewMatrixShaderNode } from '../nodes/ViewMatrixShaderNode';
 import { ProjectionMatrixShaderNode } from '../nodes/ProjectionMatrixShaderNode';
 import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
-import { IfStatementShaderNode } from '../nodes/IfStatementShaderNode';
-import { BlockBeginShaderNode } from '../nodes/BlockBeginShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
-import { System, SystemState } from '../../system';
+import { SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
 import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
+import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -461,7 +457,7 @@ export class ShaderGraphResolver {
    * @returns Shader code
    */
   public static generateShaderCodeFromJson(
-    json: any
+    json: ShaderNodeJson
   ): { vertexShader: string; pixelShader: string } | undefined {
     const constructedNodes = Object.values(constructNodes(json));
     const nodes = this.__sortTopologically(constructedNodes);
@@ -614,19 +610,19 @@ function filterNodesForVarying(nodes: AbstractShaderNode[], endNodeName: string)
  * @param json - JSON data of a shader node graph
  * @returns Constructed shader nodes
  */
-function constructNodes(json: any) {
+function constructNodes(json: ShaderNodeJson) {
   // Create Node Instances
-  const nodeInstances: Record<number, AbstractShaderNode> = {};
+  const nodeInstances: Record<string, AbstractShaderNode> = {};
   const nodes: Record<string, any> = {};
   for (const node of json.nodes) {
     nodes[node.id] = node;
     switch (node.name) {
-      case 'ConstantBool': {
-        const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Bool);
-        nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.data.bool ? 1 : 0));
-        nodeInstances[node.id] = nodeInstance;
-        break;
-      }
+      // case 'ConstantBool': {
+      //   const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Bool);
+      //   nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.data.bool ? 1 : 0));
+      //   nodeInstances[node.id] = nodeInstance;
+      //   break;
+      // }
       case 'ConstantScalar': {
         const nodeInstance = new ConstantScalarVariableShaderNode(ComponentType.Float);
         nodeInstance.setDefaultInputValue(Scalar.fromCopyNumber(node.controls['in1'].value));
