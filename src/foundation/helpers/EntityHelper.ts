@@ -21,6 +21,7 @@ import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { LightComponent } from '../components/Light/LightComponent';
 import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
+import { IAnimationStateEntityMethods } from '../components/AnimationState';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;
 export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
@@ -33,6 +34,10 @@ export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
 export type IConstraintEntity = ISceneGraphEntity & IConstraintEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {}
+export interface IAnimationStateEntity
+  extends ISceneGraphEntity,
+    IAnimationEntityMethods,
+    IAnimationStateEntityMethods {}
 
 function createEntity(): IEntity {
   return EntityRepository.createEntity();

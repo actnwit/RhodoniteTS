@@ -17,6 +17,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import { VrmComponent } from '../components/Vrm/VrmComponent';
 import { ConstraintComponent } from '../components/Constraint/ConstraintComponent';
 import { EffekseerComponent } from '../../effekseer';
+import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 
 /**
  * The Interface for an Entity.
@@ -41,6 +42,7 @@ export interface IEntity extends IRnObject {
   tryToGetSkeletal(): SkeletalComponent | undefined;
   tryToGetTransform(): TransformComponent | undefined;
   tryToGetAnimation(): AnimationComponent | undefined;
+  tryToGetAnimationState(): AnimationStateComponent | undefined;
   tryToGetVrm(): VrmComponent | undefined;
   tryToGetConstraint(): ConstraintComponent | undefined;
   tryToGetEffekseer(): EffekseerComponent | undefined;
@@ -149,6 +151,12 @@ export class Entity extends RnObject implements IEntity {
   tryToGetAnimation() {
     return this.getComponentByComponentTID(WellKnownComponentTIDs.AnimationComponentTID) as
       | AnimationComponent
+      | undefined;
+  }
+
+  tryToGetAnimationState() {
+    return this.getComponentByComponentTID(WellKnownComponentTIDs.AnimationStateComponentTID) as
+      | AnimationStateComponent
       | undefined;
   }
 
