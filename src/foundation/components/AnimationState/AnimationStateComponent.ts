@@ -14,6 +14,7 @@ export class AnimationStateComponent extends Component {
   private __interpolationStartTime = performance.now();
   private __blendingDuration = 1.0;
   private __isBlending = false;
+  private __blendingRatio = 0.0;
 
   constructor(
     entityUid: EntityUID,
@@ -34,6 +35,14 @@ export class AnimationStateComponent extends Component {
     return WellKnownComponentTIDs.AnimationStateComponentTID;
   }
 
+  get isBlending() {
+    return this.__isBlending;
+  }
+
+  get blendingRatio() {
+    return this.__blendingRatio;
+  }
+
   $logic() {
     if (!this.__isBlending) {
       return;
@@ -45,6 +54,7 @@ export class AnimationStateComponent extends Component {
     }
     const ratio = Math.min(blendingTime, 1);
     this.setAnimationBlendingRatio(ratio);
+    this.__blendingRatio = ratio;
   }
 
   setFirstActiveAnimationTrack(trackName: AnimationTrackName) {
