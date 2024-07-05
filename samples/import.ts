@@ -9,7 +9,7 @@
  * ESM (CommonJS Wrapped) version.
  * You will use this when you installed RhodoniteTS as the npm package.
  */
-import Rn from '../dist/esm';
+import Rn from '../dist/esmdev';
 
 // importing the source code version of Rhodonite object for type annotations
 import RnForType from '../src/index';

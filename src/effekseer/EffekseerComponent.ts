@@ -13,7 +13,6 @@ import { Config } from '../foundation/core/Config';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { Is } from '../foundation/misc/Is';
 import { IVector3 } from '../foundation/math/IVector';
-import type { Unzip } from 'zlib';
 import { IEntity } from '../foundation/core/Entity';
 import { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { RenderPass } from '../foundation/renderer/RenderPass';
@@ -22,7 +21,7 @@ export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
   public static readonly ANIMATION_EVENT_PAUSE = 1;
   public static readonly ANIMATION_EVENT_END = 2;
-  public static Unzip?: Unzip;
+  public static Unzip?: any;
   public uri?: string;
   public arrayBuffer?: ArrayBuffer;
   public type = 'efk';

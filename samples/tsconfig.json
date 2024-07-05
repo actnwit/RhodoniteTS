@@ -6,10 +6,14 @@
     "module": "ESNext",
     "declaration": false,
     "declarationDir": null,
-
+    "lib": ["es2019", "DOM"],
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
-    "noImplicitThis": false
+    "noImplicitThis": false,
+    "types": [
+      "../node_modules/@webgpu/types/dist/index.d.ts",
+      "../node_modules/@types/webgl-ext/index.d.ts",
+      "../node_modules/@types/webxr/index.d.ts"],
   }
 }
