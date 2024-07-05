@@ -61,7 +61,7 @@
     "@types/webxr": "^0.5.10",
     "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "7.8.0",
-    "@webgpu/types": "^0.1.40",
+    "@webgpu/types": "^0.1.43",
     "cross-env": "^7.0.3",
     "eslint-config-prettier": "^8.5.0",
     "express": "^4.18.1",

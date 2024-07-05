@@ -27,16 +27,18 @@ import { VrmComponent } from './Vrm/VrmComponent';
 import { IVrmEntityMethods } from './Vrm/IVrmEntity';
 import { ConstraintComponent } from './Constraint/ConstraintComponent';
 import { IConstraintEntityMethods } from './Constraint/IConstraintEntity';
+import { AnimationStateComponent, IAnimationStateEntityMethods } from './AnimationState';
 
 export type ComponentMixinFunction = <EntityBaseClass extends MixinBase>(
   baseClass: EntityBaseClass,
-  components: typeof Component[]
+  components: (typeof Component)[]
 ) => {
   entityClass: MixinBase;
-  components: typeof Component[];
+  components: (typeof Component)[];
 };
 
 type AllWellKnownComponentMethodsTypes =
+  | IAnimationStateEntityMethods
   | IAnimationEntityMethods
   | ITransformEntityMethods
   | ISceneGraphEntityMethods
@@ -50,6 +52,13 @@ type AllWellKnownComponentMethodsTypes =
   | IPhysicsEntityMethods
   | IEffekseerEntityMethods
   | IVrmEntityMethods;
+
+type IsThisAnimationState<
+  T extends typeof Component,
+  Possibles extends AllWellKnownComponentMethodsTypes
+> = T extends typeof AnimationStateComponent
+  ? IAnimationStateEntityMethods
+  : Exclude<Possibles, IAnimationStateEntityMethods>;
 
 type IsThisAnimation<
   T extends typeof Component,
@@ -167,7 +176,13 @@ export type ComponentToComponentMethods<T extends typeof Component> = IsThisCons
                       T,
                       IsThisSceneGraph<
                         T,
-                        IsThisTransform<T, IsThisAnimation<T, AllWellKnownComponentMethodsTypes>>
+                        IsThisTransform<
+                          T,
+                          IsThisAnimation<
+                            T,
+                            IsThisAnimationState<T, AllWellKnownComponentMethodsTypes>
+                          >
+                        >
                       >
                     >
                   >

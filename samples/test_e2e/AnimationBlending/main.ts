@@ -29,14 +29,17 @@ let count = 0;
 
 const rootEntity = expression.renderPasses[0].sceneTopLevelGraphComponents[0].entity;
 
-rootEntity.getSceneGraph().setActiveAnimationTrack('Survey');
-rootEntity.getSceneGraph().setSecondActiveAnimationTrack('Run');
-rootEntity.getSceneGraph().setAnimationBlendingRatio(0.5);
+const animationStateComponent = rootEntity.tryToGetAnimationState();
+if (animationStateComponent != null) {
+  animationStateComponent.setActiveAnimationTrack('Survey');
+  animationStateComponent.setSecondActiveAnimationTrack('Run');
+  animationStateComponent.setAnimationBlendingRatio(0.5);
 
-const slider = document.getElementById('slider') as HTMLInputElement;
-slider.addEventListener('input', (e: any) => {
-  rootEntity.getSceneGraph().setAnimationBlendingRatio(parseFloat(e.target.value));
-});
+  const slider = document.getElementById('slider') as HTMLInputElement;
+  slider.addEventListener('input', (e: any) => {
+    animationStateComponent.setAnimationBlendingRatio(parseFloat(e.target.value));
+  });
+}
 
 const endInputValue = 1.16;
 

@@ -1237,10 +1237,10 @@
     "@webassemblyjs/ast" "1.12.1"
     "@xtuc/long" "4.2.2"
 
-"@webgpu/types@^0.1.40":
-  version "0.1.40"
-  resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.40.tgz#cf72d1df6f9f8adc5d39556041f20ff2e8a58885"
-  integrity sha512-/BBkHLS6/eQjyWhY2H7Dx5DHcVrS2ICj9owvSRdgtQT6KcafLZA86tPze0xAOsd4FbsYKCUBUQyNi87q7gV7kw==
+"@webgpu/types@^0.1.43":
+  version "0.1.43"
+  resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.43.tgz#ae8f4f0ed0c2fe624a95b1cd84eea82a6f14e7ea"
+  integrity sha512-HoP+d+m+Kuq8CsE63BZ3+BYBKAemrqbHUNrCalxrUju5XW+q/094Q3oeIa+2pTraEbO8ckJmGpibzyGT4OV4YQ==
 
 "@webpack-cli/configtest@^1.2.0":
   version "1.2.0"
