@@ -12,6 +12,7 @@ import { Vrm1 } from '../../types/VRM1';
 import { RnM2Vrma } from '../../types';
 import { Vector3 } from '../math';
 import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
+import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -54,45 +55,44 @@ export class AnimationAssigner {
 
     let trackNames: string[] = [];
     const setRetarget = (vrma: RnM2Vrma) => {
-      if (vrma.animations) {
-        for (const animation of vrma.animations) {
-          for (const sampler of animation.samplers) {
-            ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
-            ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
-          }
+      if (vrma.animations == null || vrma.animations.length === 0) {
+        return;
+      }
+
+      EntityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
+
+      for (const animation of vrma.animations) {
+        for (const sampler of animation.samplers) {
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
+          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
         }
       }
 
-      if (vrma.animations && vrma.animations.length > 0) {
-        for (const animation of vrma.animations) {
-          for (const channel of animation.channels) {
-            // find the corresponding joint entity
-            // const node = gltfModel.nodes[channel.target!.node!];
-            const rnEntity = this.__getCorrespondingEntityWithVrma(
-              rootEntity,
-              vrma,
-              channel.target!.node!
-            );
-            if (rnEntity) {
-              const newRnEntity = EntityRepository.addComponentToEntity(
-                AnimationComponent,
-                rnEntity
-              );
-              const animationComponent = newRnEntity.getAnimation();
+      for (const animation of vrma.animations) {
+        for (const channel of animation.channels) {
+          // find the corresponding joint entity
+          // const node = gltfModel.nodes[channel.target!.node!];
+          const rnEntity = this.__getCorrespondingEntityWithVrma(
+            rootEntity,
+            vrma,
+            channel.target!.node!
+          );
+          if (rnEntity) {
+            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+            const animationComponent = newRnEntity.getAnimation();
 
-              const gltfEntity = vrma.extras.rnEntities[channel.target!.node!];
-              const humanBones = vrma.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
-              const humanoidBoneName = humanBones.get(channel.target!.node!)!;
-              gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
+            const gltfEntity = vrma.extras.rnEntities[channel.target!.node!];
+            const humanBones = vrma.extensions.VRMC_vrm_animation.humanoidBoneNameMap!;
+            const humanoidBoneName = humanBones.get(channel.target!.node!)!;
+            gltfEntity.tryToSetUniqueName(humanoidBoneName, true);
 
-              let retarget: IAnimationRetarget | undefined;
-              if (rootEntity.tryToGetVrm()!._version === '0.x') {
-                retarget = new GlobalRetargetReverse(gltfEntity);
-              } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
-                retarget = new GlobalRetarget(gltfEntity);
-              }
-              trackNames = animationComponent._setRetarget(retarget!, trackName);
+            let retarget: IAnimationRetarget | undefined;
+            if (rootEntity.tryToGetVrm()!._version === '0.x') {
+              retarget = new GlobalRetargetReverse(gltfEntity);
+            } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
+              retarget = new GlobalRetarget(gltfEntity);
             }
+            trackNames = animationComponent._setRetarget(retarget!, trackName);
           }
         }
       }
@@ -275,84 +275,86 @@ export class AnimationAssigner {
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
-    if (gltfModel.animations) {
-      for (const animation of gltfModel.animations) {
-        for (const sampler of animation.samplers) {
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
-          ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
-        }
+    if (gltfModel.animations == null || gltfModel.animations.length === 0) {
+      return;
+    }
+
+    EntityRepository.addComponentToEntity(AnimationStateComponent, rootEntity);
+
+    for (const animation of gltfModel.animations) {
+      for (const sampler of animation.samplers) {
+        ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!);
+        ModelConverter._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!);
       }
     }
 
-    if (gltfModel.animations && gltfModel.animations.length > 0) {
-      for (const animation of gltfModel.animations) {
-        for (const channel of animation.channels) {
-          // get animation data
-          const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
-          const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
-          const interpolation =
-            channel.samplerObject!.interpolation != null
-              ? channel.samplerObject!.interpolation
-              : 'LINEAR';
+    for (const animation of gltfModel.animations) {
+      for (const channel of animation.channels) {
+        // get animation data
+        const animInputArray = channel.samplerObject?.inputObject?.extras!.typedDataArray;
+        const animOutputArray = channel.samplerObject?.outputObject?.extras!.typedDataArray;
+        const interpolation =
+          channel.samplerObject!.interpolation != null
+            ? channel.samplerObject!.interpolation
+            : 'LINEAR';
 
-          // find the corresponding joint entity
-          const node = gltfModel.nodes[channel.target!.node!];
-          const rnEntity = this.__getCorrespondingEntity(
-            rootEntity,
-            gltfModel,
-            vrmModel,
-            channel.target!.node!,
-            node.name,
-            isSameSkeleton
-          );
-          if (rnEntity) {
-            const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
-            const animationComponent = newRnEntity.getAnimation();
+        // find the corresponding joint entity
+        const node = gltfModel.nodes[channel.target!.node!];
+        const rnEntity = this.__getCorrespondingEntity(
+          rootEntity,
+          gltfModel,
+          vrmModel,
+          channel.target!.node!,
+          node.name,
+          isSameSkeleton
+        );
+        if (rnEntity) {
+          const newRnEntity = EntityRepository.addComponentToEntity(AnimationComponent, rnEntity);
+          const animationComponent = newRnEntity.getAnimation();
 
-            if (retargetMode === 'none') {
-              // apply animation data to the target joint entity
-              let animationAttributeType = 'translate';
-              if (channel.target!.path === 'translation') {
-                animationAttributeType = 'translate';
-              } else if (channel.target!.path! === 'rotation') {
-                animationAttributeType = 'quaternion';
-              } else {
-                animationAttributeType = channel.target!.path;
-              }
-              if (animationAttributeType === 'quaternion') {
-                animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name! : 'Untitled',
-                  animationAttributeType,
-                  animInputArray!,
-                  animOutputArray!,
-                  4, // Quaternion
-                  AnimationInterpolation.fromString(interpolation)
-                );
-              } else if (
-                animationAttributeType === 'translate' &&
-                this.__isHips(rootEntity, vrmModel, channel.target!.node!)
-              ) {
-                animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name! : 'Untitled',
-                  animationAttributeType,
-                  animInputArray!,
-                  animOutputArray!,
-                  3, // translate
-                  AnimationInterpolation.fromString(interpolation)
-                );
-              }
+          if (retargetMode === 'none') {
+            // apply animation data to the target joint entity
+            let animationAttributeType = 'translate';
+            if (channel.target!.path === 'translation') {
+              animationAttributeType = 'translate';
+            } else if (channel.target!.path! === 'rotation') {
+              animationAttributeType = 'quaternion';
             } else {
-              const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
-              let retarget: IAnimationRetarget | undefined;
-              if (retargetMode === 'global') {
-                retarget = new GlobalRetarget(gltfEntity);
-              } else if (retargetMode === 'absolute') {
-                retarget = new AbsoluteAnimation(gltfEntity);
-              } else {
-                throw new Error('unknown retarget mode');
-              }
-              animationComponent._setRetarget(retarget);
+              animationAttributeType = channel.target!.path;
             }
+            if (animationAttributeType === 'quaternion') {
+              animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name! : 'Untitled',
+                animationAttributeType,
+                animInputArray!,
+                animOutputArray!,
+                4, // Quaternion
+                AnimationInterpolation.fromString(interpolation)
+              );
+            } else if (
+              animationAttributeType === 'translate' &&
+              this.__isHips(rootEntity, vrmModel, channel.target!.node!)
+            ) {
+              animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name! : 'Untitled',
+                animationAttributeType,
+                animInputArray!,
+                animOutputArray!,
+                3, // translate
+                AnimationInterpolation.fromString(interpolation)
+              );
+            }
+          } else {
+            const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];
+            let retarget: IAnimationRetarget | undefined;
+            if (retargetMode === 'global') {
+              retarget = new GlobalRetarget(gltfEntity);
+            } else if (retargetMode === 'absolute') {
+              retarget = new AbsoluteAnimation(gltfEntity);
+            } else {
+              throw new Error('unknown retarget mode');
+            }
+            animationComponent._setRetarget(retarget);
           }
         }
       }
