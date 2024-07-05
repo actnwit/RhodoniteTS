@@ -718,7 +718,7 @@ export class AnimationComponent extends Component {
     this.__isAnimating = component.__isAnimating;
   }
 
-  _setRetarget(retarget: IAnimationRetarget, trackNameToOverride?: string): string[] {
+  _setRetarget(retarget: IAnimationRetarget, postfixToTrackName?: string): string[] {
     const srcEntity = retarget.getEntity();
     const srcAnim = srcEntity.tryToGetAnimation();
     const dstEntity = this.entity;
@@ -729,7 +729,7 @@ export class AnimationComponent extends Component {
     srcAnim.useGlobalTime = false;
     const trackNames: string[] = [];
     for (const [_trackName, track] of srcAnim.__animationTracks) {
-      const trackName = trackNameToOverride ?? _trackName;
+      const trackName = _trackName + (postfixToTrackName ?? '');
       trackNames.push(trackName);
       for (const [pathName, channel] of track) {
         if (channel == null) {
@@ -825,6 +825,15 @@ export class AnimationComponent extends Component {
 
   resetAnimationTrack(trackName: string) {
     this.__animationTracks.delete(trackName);
+  }
+
+  resetAnimationTrackByPostfix(postfix: string) {
+    const trackNames = this.getAnimationTrackNames();
+    for (const trackName of trackNames) {
+      if (trackName.endsWith(postfix)) {
+        this.__animationTracks.delete(trackName);
+      }
+    }
   }
 
   _destroy(): void {

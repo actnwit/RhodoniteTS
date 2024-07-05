@@ -50,10 +50,14 @@ export class AnimationAssigner {
     return rootEntity;
   }
 
-  assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, trackName?: string) {
-    this.__resetAnimationAndPose(rootEntity, trackName);
+  assignAnimationWithVrma(
+    rootEntity: ISceneGraphEntity,
+    vrmaModel: RnM2Vrma,
+    postfixToTrackName?: string
+  ) {
+    this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
 
-    let trackNames: string[] = [];
+    let trackNames: Set<string> = new Set();
     const setRetarget = (vrma: RnM2Vrma) => {
       if (vrma.animations == null || vrma.animations.length === 0) {
         return;
@@ -92,7 +96,10 @@ export class AnimationAssigner {
             } else if (rootEntity.tryToGetVrm()!._version === '1.0') {
               retarget = new GlobalRetarget(gltfEntity);
             }
-            trackNames = animationComponent._setRetarget(retarget!, trackName);
+            const names = animationComponent._setRetarget(retarget!, postfixToTrackName);
+            names.forEach((name) => {
+              trackNames.add(name);
+            });
           }
         }
       }
@@ -101,27 +108,27 @@ export class AnimationAssigner {
     // Set retarget
     setRetarget(vrmaModel);
 
-    return trackNames;
+    return Array.from(trackNames);
   }
 
   private constructor() {}
 
-  private __resetAnimationAndPose(rootEntity: ISceneGraphEntity, trackName?: string) {
-    function resetAnimationAndPose(entity: ISceneGraphEntity, trackName?: string) {
+  private __resetAnimationAndPose(rootEntity: ISceneGraphEntity, postfixToTrackName?: string) {
+    function resetAnimationAndPose(entity: ISceneGraphEntity, postfixToTrackName?: string) {
       const animationComponent = entity.tryToGetAnimation();
       if (animationComponent != null) {
-        if (trackName != null) {
-          animationComponent.resetAnimationTrack(trackName);
+        if (postfixToTrackName != null) {
+          animationComponent.resetAnimationTrackByPostfix(postfixToTrackName);
         } else {
           animationComponent.resetAnimationTracks();
         }
       }
       entity.getTransform()._restoreTransformFromRest();
       for (const child of entity.children) {
-        resetAnimationAndPose(child.entity, trackName);
+        resetAnimationAndPose(child.entity, postfixToTrackName);
       }
     }
-    resetAnimationAndPose(rootEntity, trackName);
+    resetAnimationAndPose(rootEntity, postfixToTrackName);
   }
 
   /**
