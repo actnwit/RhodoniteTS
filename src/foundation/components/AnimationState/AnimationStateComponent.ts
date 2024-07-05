@@ -10,6 +10,11 @@ import { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 export class AnimationStateComponent extends Component {
+  private __activeAnimationTrack: AnimationTrackName = '';
+  private __interpolationStartTime = performance.now();
+  private __blendingDuration = 1.0;
+  private __isBlending = false;
+
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -27,6 +32,38 @@ export class AnimationStateComponent extends Component {
 
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.AnimationStateComponentTID;
+  }
+
+  $logic() {
+    if (!this.__isBlending) {
+      return;
+    }
+    const elapsedTime = (performance.now() - this.__interpolationStartTime) / 1000;
+    const blendingTime = elapsedTime / this.__blendingDuration;
+    if (blendingTime >= 1) {
+      this.__isBlending = false;
+    }
+    const ratio = Math.min(blendingTime, 1);
+    this.setAnimationBlendingRatio(ratio);
+  }
+
+  setFirstActiveAnimationTrack(trackName: AnimationTrackName) {
+    this.__activeAnimationTrack = trackName;
+    this.setActiveAnimationTrack(trackName);
+    this.setAnimationBlendingRatio(0);
+    this.__isBlending = false;
+  }
+
+  forceTransitionTo(trackName: AnimationTrackName, duration: number) {
+    const prevTrack = this.__activeAnimationTrack;
+
+    this.setActiveAnimationTrack(prevTrack);
+    this.setSecondActiveAnimationTrack(trackName);
+    this.__interpolationStartTime = performance.now();
+    this.__blendingDuration = duration;
+    this.__activeAnimationTrack = trackName;
+
+    this.__isBlending = true;
   }
 
   setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
