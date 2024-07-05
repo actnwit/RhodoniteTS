@@ -1,9 +1,11 @@
+import { AnimationTrackName } from '../../../types/AnimationTypes';
 import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
+import { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
@@ -25,6 +27,92 @@ export class AnimationStateComponent extends Component {
 
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.AnimationStateComponentTID;
+  }
+
+  setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim.setActiveAnimationTrack(animationTrackName);
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
+  }
+
+  setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim.setSecondActiveAnimationTrack(animationTrackName);
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
+  }
+
+  setUseGlobalTime(flg: boolean) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim.useGlobalTime = flg;
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
+  }
+
+  setIsLoop(flg: boolean) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim.isLoop = flg;
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
+  }
+
+  setTime(time: number) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim.time = time;
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
+  }
+
+  setAnimationBlendingRatio(ratio: number) {
+    function processRecursively(entity: ISceneGraphEntity) {
+      const anim = entity.tryToGetAnimation();
+      if (anim != null) {
+        anim.animationBlendingRatio = ratio;
+      }
+      for (const child of entity.children) {
+        processRecursively(child.entity);
+      }
+    }
+    processRecursively(this.entity);
+  }
+
+  /**
+   * get the entity which has this component.
+   * @returns the entity which has this component
+   */
+  get entity(): IAnimationStateEntity {
+    return EntityRepository.getEntity(this.__entityUid) as unknown as IAnimationStateEntity;
   }
 
   /**

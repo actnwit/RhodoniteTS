@@ -34,10 +34,7 @@ export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
 export type IConstraintEntity = ISceneGraphEntity & IConstraintEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {}
-export interface IAnimationStateEntity
-  extends ISceneGraphEntity,
-    IAnimationEntityMethods,
-    IAnimationStateEntityMethods {}
+export interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStateEntityMethods {}
 
 function createEntity(): IEntity {
   return EntityRepository.createEntity();

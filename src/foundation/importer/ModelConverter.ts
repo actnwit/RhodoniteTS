@@ -83,6 +83,7 @@ import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
 import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
+import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 
 declare let DracoDecoderModule: any;
 
@@ -159,8 +160,10 @@ export class ModelConverter {
     // Transform
     this._setupTransform(gltfModel, rnEntities);
 
+    const rootGroup = this.__generateGroupEntity(gltfModel);
+
     // Animation
-    this._setupAnimation(gltfModel, rnEntities, rnBuffers);
+    this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup);
 
     // Skeleton
     this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
@@ -168,11 +171,6 @@ export class ModelConverter {
     // Hierarchy
     this._setupHierarchy(gltfModel, rnEntities);
 
-    // Animation
-    this._setupAnimation(gltfModel, rnEntities, rnBuffers);
-
-    // Root Group
-    const rootGroup = this.__generateGroupEntity(gltfModel);
     rootGroup.tryToSetUniqueName('FileRoot', true);
     rootGroup.tryToSetTag({ tag: 'ObjectType', value: 'top' });
     if (gltfModel.scenes[0].nodes) {
@@ -292,54 +290,61 @@ export class ModelConverter {
   /**
    * @internal
    */
-  static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]) {
-    if (gltfModel.animations) {
-      for (const animation of gltfModel.animations) {
-        for (const sampler of animation.samplers) {
-          this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!, rnBuffers);
-          this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!, rnBuffers);
-        }
+  static _setupAnimation(
+    gltfModel: RnM2,
+    rnEntities: ISceneGraphEntity[],
+    rnBuffers: Buffer[],
+    rootGroup: ISceneGraphEntity
+  ) {
+    if (gltfModel.animations == null || gltfModel.animations.length === 0) {
+      return;
+    }
+
+    const newRootGroup = EntityRepository.addComponentToEntity(AnimationStateComponent, rootGroup);
+
+    for (const animation of gltfModel.animations) {
+      for (const sampler of animation.samplers) {
+        this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.inputObject!, rnBuffers);
+        this._readBinaryFromAccessorAndSetItToAccessorExtras(sampler.outputObject!, rnBuffers);
       }
     }
 
-    if (Is.exist(gltfModel.animations) && gltfModel.animations.length > 0) {
-      for (const animation of gltfModel.animations) {
-        for (const channel of animation.channels) {
-          if (Is.exist(channel.samplerObject)) {
-            const animInputArray = channel.samplerObject.inputObject!.extras!.typedDataArray!;
-            const animOutputArray = channel.samplerObject.outputObject!.extras!.typedDataArray!;
-            const interpolation = channel.samplerObject.interpolation ?? 'LINEAR';
+    for (const animation of gltfModel.animations) {
+      for (const channel of animation.channels) {
+        if (Is.exist(channel.samplerObject)) {
+          const animInputArray = channel.samplerObject.inputObject!.extras!.typedDataArray!;
+          const animOutputArray = channel.samplerObject.outputObject!.extras!.typedDataArray!;
+          const interpolation = channel.samplerObject.interpolation ?? 'LINEAR';
 
-            let animationAttributeType: AnimationPathName = 'undefined';
-            if (channel.target!.path === 'translation') {
-              animationAttributeType = 'translate';
-            } else if (channel.target!.path === 'rotation') {
-              animationAttributeType = 'quaternion';
-            } else {
-              animationAttributeType = channel.target!.path as AnimationPathName;
+          let animationAttributeType: AnimationPathName = 'undefined';
+          if (channel.target!.path === 'translation') {
+            animationAttributeType = 'translate';
+          } else if (channel.target!.path === 'rotation') {
+            animationAttributeType = 'quaternion';
+          } else {
+            animationAttributeType = channel.target!.path as AnimationPathName;
+          }
+
+          const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
+          if (Is.exist(rnEntity)) {
+            let animationComponent = rnEntity.tryToGetAnimation();
+            if (Is.not.exist(animationComponent)) {
+              const newRnEntity = EntityRepository.addComponentToEntity(
+                AnimationComponent,
+                rnEntity
+              );
+              animationComponent = newRnEntity.getAnimation();
             }
-
-            const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
-            if (Is.exist(rnEntity)) {
-              let animationComponent = rnEntity.tryToGetAnimation();
-              if (Is.not.exist(animationComponent)) {
-                const newRnEntity = EntityRepository.addComponentToEntity(
-                  AnimationComponent,
-                  rnEntity
-                );
-                animationComponent = newRnEntity.getAnimation();
-              }
-              if (Is.exist(animationComponent)) {
-                const outputComponentN = channel.samplerObject.outputObject!.extras!.componentN!;
-                animationComponent.setAnimation(
-                  Is.exist(animation.name) ? animation.name : 'Untitled_Animation',
-                  animationAttributeType,
-                  animInputArray,
-                  animOutputArray,
-                  outputComponentN as VectorComponentN,
-                  AnimationInterpolation.fromString(interpolation)
-                );
-              }
+            if (Is.exist(animationComponent)) {
+              const outputComponentN = channel.samplerObject.outputObject!.extras!.componentN!;
+              animationComponent.setAnimation(
+                Is.exist(animation.name) ? animation.name : 'Untitled_Animation',
+                animationAttributeType,
+                animInputArray,
+                animOutputArray,
+                outputComponentN as VectorComponentN,
+                AnimationInterpolation.fromString(interpolation)
+              );
             }
           }
         }
