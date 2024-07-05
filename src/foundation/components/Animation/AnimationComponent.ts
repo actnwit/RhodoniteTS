@@ -77,9 +77,6 @@ export class AnimationComponent extends Component {
     PlayEnd,
   };
   private static __pubsub = new EventPubSub();
-  private static __vector3Zero = Vector3.zero();
-  private static __vector3One = Vector3.one();
-  private static __identityQuaternion = Quaternion.identity();
 
   constructor(
     entityUid: EntityUID,
@@ -721,7 +718,7 @@ export class AnimationComponent extends Component {
     this.__isAnimating = component.__isAnimating;
   }
 
-  _setRetarget(retarget: IAnimationRetarget, postFixToTrackName?: string): string[] {
+  _setRetarget(retarget: IAnimationRetarget, trackNameToOverride?: string): string[] {
     const srcEntity = retarget.getEntity();
     const srcAnim = srcEntity.tryToGetAnimation();
     const dstEntity = this.entity;
@@ -732,7 +729,7 @@ export class AnimationComponent extends Component {
     srcAnim.useGlobalTime = false;
     const trackNames: string[] = [];
     for (const [_trackName, track] of srcAnim.__animationTracks) {
-      const trackName = _trackName + (postFixToTrackName ?? '');
+      const trackName = trackNameToOverride ?? _trackName;
       trackNames.push(trackName);
       for (const [pathName, channel] of track) {
         if (channel == null) {
@@ -826,16 +823,8 @@ export class AnimationComponent extends Component {
     this.__animationTracks.clear();
   }
 
-  resetAnimationTracksWithPostfixString(postFixString?: string) {
-    for (const [trackName, animationTrack] of this.__animationTracks!) {
-      if (postFixString != null) {
-        if (trackName.match(`${postFixString}$`) != null) {
-          this.__animationTracks.delete(trackName);
-        }
-      } else {
-        this.__animationTracks.delete(trackName);
-      }
-    }
+  resetAnimationTrack(trackName: string) {
+    this.__animationTracks.delete(trackName);
   }
 
   _destroy(): void {
