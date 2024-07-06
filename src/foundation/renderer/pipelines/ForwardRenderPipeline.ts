@@ -114,7 +114,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
   private __oSpecularCubeTexture: IOption<CubeTexture> = new None();
   private __oSamplerForBackBuffer: IOption<Sampler> = new None();
-  private __toneMappingType = ToneMappingType.KhronosPbrNeutral;
+  private __toneMappingType = ToneMappingType.GT_ToneMap;
 
   constructor() {
     super();
