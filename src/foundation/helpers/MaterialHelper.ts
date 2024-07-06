@@ -987,7 +987,7 @@ function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
-  material.addShaderDefine('RN_USE_KHRONOS_PBR_NEUTRAL');
+  material.addShaderDefine('RN_USE_GT_TONEMAP');
 
   return material;
 }
