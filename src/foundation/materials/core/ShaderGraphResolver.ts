@@ -35,6 +35,7 @@ import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
+import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 
 /**
@@ -731,6 +732,25 @@ function constructNodes(json: ShaderNodeJson) {
           nodeInstance = new StepShaderNode(CompositionType.Vec3, ComponentType.Float);
         } else if (socketName === 'Vector4') {
           nodeInstance = new StepShaderNode(CompositionType.Vec4, ComponentType.Float);
+        } else {
+          console.log('Add node: Unknown socket name: ' + socketName);
+          break;
+        }
+        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'SmoothStep': {
+        const socketName = node.outputs.out1.socket.name;
+        let nodeInstance: StepShaderNode;
+        if (socketName === 'Scalar') {
+          nodeInstance = new SmoothStepShaderNode(CompositionType.Scalar, ComponentType.Float);
+        } else if (socketName === 'Vector2') {
+          nodeInstance = new SmoothStepShaderNode(CompositionType.Vec2, ComponentType.Float);
+        } else if (socketName === 'Vector3') {
+          nodeInstance = new SmoothStepShaderNode(CompositionType.Vec3, ComponentType.Float);
+        } else if (socketName === 'Vector4') {
+          nodeInstance = new SmoothStepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           console.log('Add node: Unknown socket name: ' + socketName);
           break;
