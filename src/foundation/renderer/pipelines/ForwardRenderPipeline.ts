@@ -59,20 +59,17 @@ type IBLCubeTextureParameter = {
  * // Set expressions before calling other setter methods
  * forwardRenderPipeline.setExpressions(expressions);
  * // Set IBLs
- * forwardRenderPipeline.setIBL(
- *     diffuse: {
- *     baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
- *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
- *     isNamePosNeg: true,
- *     mipmapLevelNumber: 1,
- *   },
- *   specular: {
- *     baseUri: './../../../assets/ibl/papermill/specular/specular',
- *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
- *     isNamePosNeg: true,
- *     mipmapLevelNumber: 10,
- *   },
- * );
+ * const diffuseCubeTexture = new Rn.CubeTexture();
+ * diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
+ * diffuseCubeTexture.isNamePosNeg = true;
+ * diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+ * diffuseCubeTexture.mipmapLevelNumber = 1;
+ * const specularCubeTexture = new Rn.CubeTexture();
+ * specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
+ * specularCubeTexture.isNamePosNeg = true;
+ * specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+ * specularCubeTexture.mipmapLevelNumber = 10;
+ * forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
  * // Set BiasViewProjectionMatrix for Shadow
  * forwardRenderPipeline.setBiasViewProjectionMatrixForShadow(matrix);
  * // Start Render Loop
@@ -427,29 +424,6 @@ export class ForwardRenderPipeline extends RnObject {
     });
 
     return new Ok();
-  }
-
-  /**
-   * set IBL textures from uri
-   * @param arg - argument for diffuse and specular IBL
-   */
-  async setIBL(arg: { diffuse: IBLCubeTextureParameter; specular: IBLCubeTextureParameter }) {
-    const diffuseCubeTexture = new CubeTexture();
-    diffuseCubeTexture.baseUriToLoad = arg.diffuse.baseUri;
-    diffuseCubeTexture.hdriFormat = arg.diffuse.hdriFormat;
-    diffuseCubeTexture.isNamePosNeg = arg.diffuse.isNamePosNeg;
-    diffuseCubeTexture.mipmapLevelNumber = arg.diffuse.mipmapLevelNumber;
-    this.__oDiffuseCubeTexture = new Some(diffuseCubeTexture);
-
-    const specularCubeTexture = new CubeTexture();
-    specularCubeTexture.baseUriToLoad = arg.specular.baseUri;
-    specularCubeTexture.isNamePosNeg = arg.specular.isNamePosNeg;
-    specularCubeTexture.hdriFormat = arg.specular.hdriFormat;
-    specularCubeTexture.mipmapLevelNumber = arg.specular.mipmapLevelNumber;
-    this.__oSpecularCubeTexture = new Some(specularCubeTexture);
-
-    await this.__setIblInner();
-    await this.__setIblInnerForTransparentOnly();
   }
 
   /**

@@ -49,20 +49,19 @@ controller.dolly = 0.83;
 await forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
 
 // lighting
-await forwardRenderPipeline.setIBL({
-  diffuse: {
-    baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-    isNamePosNeg: true,
-    mipmapLevelNumber: 1,
-  },
-  specular: {
-    baseUri: './../../../assets/ibl/papermill/specular/specular',
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-    isNamePosNeg: true,
-    mipmapLevelNumber: 10,
-  },
-});
+const diffuseCubeTexture = new Rn.CubeTexture();
+diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
+diffuseCubeTexture.isNamePosNeg = true;
+diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+diffuseCubeTexture.mipmapLevelNumber = 1;
+
+const specularCubeTexture = new Rn.CubeTexture();
+specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
+specularCubeTexture.isNamePosNeg = true;
+specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+specularCubeTexture.mipmapLevelNumber = 10;
+
+await forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
 
 let count = 0;
 let startTime = Date.now();
