@@ -74,6 +74,7 @@ export class WebGLContextWrapper {
   public readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
   public readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
   public readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
+  public readonly webgl2ExtClipCtrl?: any;
   public readonly webgl2ExtGmanWM?: any;
 
   private __activeTextureBackup: Index = -1;
@@ -155,7 +156,8 @@ export class WebGLContextWrapper {
           this.__is_multiview = false;
         }
       }
-      this.webgl2ExtGmanWM = this.__getCompressedTextureExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
+      this.webgl2ExtClipCtrl = this.__getExtension(WebGLExtension.ClipControl);
+      this.webgl2ExtGmanWM = this.__getExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
     }
     this.__getUniformBufferInfo();
     this.__getMaxUniformVectors();

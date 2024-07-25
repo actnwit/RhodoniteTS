@@ -108,6 +108,10 @@ const OvrMultiview2: WebGLExtensionEnum = new WebGLExtensionClass({
   index: 25,
   str: 'OVR_multiview2',
 });
+const ClipControl: WebGLExtensionEnum = new WebGLExtensionClass({
+  index: 26,
+  str: 'EXT_clip_control',
+});
 
 const typeList = [
   VertexArrayObject,
@@ -135,6 +139,7 @@ const typeList = [
   OculusMultiview,
   OvrMultiview2,
   GMAN_WEBGL_MEMORY,
+  ClipControl,
 ];
 
 function from({ index }: { index: number }): WebGLExtensionEnum {
@@ -167,4 +172,5 @@ export const WebGLExtension = Object.freeze({
   OculusMultiview,
   OvrMultiview2,
   GMAN_WEBGL_MEMORY,
+  ClipControl,
 });
