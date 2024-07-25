@@ -18,9 +18,7 @@ function createFramebuffer(
   textureNum: number,
   textureParametersList: TextureParameters[],
   createDepthBuffer: boolean,
-  depthBufferInternalFormat: TextureParameterEnum = TextureParameter.Depth24,
-  isMSAA: boolean = false,
-  sampleCountMSAA = 4
+  depthBufferInternalFormat: TextureParameterEnum = TextureParameter.Depth32F
 ) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
@@ -39,22 +37,51 @@ function createFramebuffer(
   }
 
   if (createDepthBuffer) {
-    const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, depthBufferInternalFormat, {
-      isMSAA,
-      sampleCountMSAA,
+    const depthTexture = new RenderTargetTexture();
+    depthTexture.create({
+      width,
+      height,
+      level: 0,
+      type:
+        depthBufferInternalFormat === TextureParameter.Depth32F ||
+        depthBufferInternalFormat === TextureParameter.Depth32FStencil8
+          ? ComponentType.Float
+          : ComponentType.UnsignedByte,
+      internalFormat: depthBufferInternalFormat,
+      format: PixelFormat.DepthComponent,
     });
-    frameBuffer.setDepthAttachment(renderBuffer);
+    frameBuffer.setDepthAttachment(depthTexture);
   }
 
-  if (isMSAA) {
+  return frameBuffer;
+}
+
+function createFramebufferMSAA(
+  width: number,
+  height: number,
+  colorBufferNum: number,
+  colorInternalFormatList: TextureParameterEnum[],
+  sampleCountMSAA: number,
+  depthBufferInternalFormat: TextureParameterEnum = TextureParameter.Depth32F
+) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(width, height);
+
+  for (let i = 0; i < colorBufferNum; i++) {
     const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, textureParametersList[0].internalFormat, {
-      isMSAA,
+    renderBuffer.create(width, height, colorInternalFormatList[i], {
+      isMSAA: true,
       sampleCountMSAA,
     });
-    frameBuffer.setColorAttachmentAt(0, renderBuffer);
+    frameBuffer.setColorAttachmentAt(i, renderBuffer);
   }
+
+  const renderBuffer = new RenderBuffer();
+  renderBuffer.create(width, height, depthBufferInternalFormat, {
+    isMSAA: true,
+    sampleCountMSAA,
+  });
+  frameBuffer.setDepthAttachment(renderBuffer);
 
   return frameBuffer;
 }
