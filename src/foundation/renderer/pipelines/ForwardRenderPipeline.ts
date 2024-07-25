@@ -682,20 +682,15 @@ export class ForwardRenderPipeline extends RnObject {
       webXRSystem.isWebXRMode &&
       cgApiResourceRepository.isSupportMultiViewVRRendering()
     ) {
-      const framebufferMultiView = RenderableHelper.createTextureArrayForRenderTarget(
-        canvasWidth / 2,
-        canvasHeight,
-        2,
-        {
-          level: 0,
-          internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-          createDepthBuffer: true,
-          isMSAA: true,
-          sampleCountMSAA: 4,
-        }
-      );
+      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArray({
+        width: canvasWidth / 2,
+        height: canvasHeight,
+        arrayLength: 2,
+        level: 0,
+        internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
+        format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
+        type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+      });
       framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiView', true);
       const framebufferMultiViewBlit = RenderableHelper.createFrameBuffer({
         width: canvasWidth,

@@ -13,6 +13,10 @@ const DepthComponent: PixelFormatEnum = new PixelFormatClass({
   index: 0x1902,
   str: 'DEPTH_COMPONENT',
 });
+const DepthStencil: PixelFormatEnum = new PixelFormatClass({
+  index: 0x84f9,
+  str: 'DEPTH_STENCIL',
+});
 const Alpha: PixelFormatEnum = new PixelFormatClass({
   index: 0x1906,
   str: 'ALPHA',
@@ -38,7 +42,7 @@ const LuminanceAlpha: PixelFormatEnum = new PixelFormatClass({
   str: 'LUMINANCE_ALPHA',
 });
 
-const typeList = [DepthComponent, Alpha, RG, RGB, RGBA, Luminance, LuminanceAlpha];
+const typeList = [DepthComponent, DepthStencil, Alpha, RG, RGB, RGBA, Luminance, LuminanceAlpha];
 
 function from(index: number): PixelFormatEnum {
   return _from({ typeList, index }) as PixelFormatEnum;
@@ -46,6 +50,7 @@ function from(index: number): PixelFormatEnum {
 
 export const PixelFormat = Object.freeze({
   DepthComponent,
+  DepthStencil,
   Alpha,
   RG,
   RGB,

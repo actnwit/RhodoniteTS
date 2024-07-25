@@ -172,44 +172,41 @@ function createTexturesForRenderTarget(
   return frameBuffer;
 }
 
-function createTextureArrayForRenderTarget(
-  width: number,
-  height: number,
-  arrayLength: number,
-  {
-    level = 0,
-    internalFormat = TextureParameter.RGBA8,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte as ComponentTypeEnum,
-    createDepthBuffer = true,
-    isMSAA = false,
-    sampleCountMSAA = 4,
-  }
-) {
+export interface FrameBufferTextureArrayDescriptor {
+  width: number;
+  height: number;
+  arrayLength: number;
+  level: number;
+  internalFormat: TextureParameterEnum;
+  format: PixelFormatEnum;
+  type: ComponentTypeEnum;
+}
+
+function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) {
   const frameBuffer = new FrameBuffer();
-  frameBuffer.create(width, height);
+  frameBuffer.create(desc.width, desc.height);
 
   const renderTargetTexture = new RenderTargetTexture();
   renderTargetTexture.createTextureArray({
-    width,
-    height,
-    level,
-    internalFormat,
-    format,
-    type,
-    arrayLength,
+    width: desc.width,
+    height: desc.height,
+    level: desc.level,
+    internalFormat: desc.internalFormat,
+    format: desc.format,
+    type: desc.type,
+    arrayLength: desc.arrayLength,
   });
   frameBuffer.setColorAttachmentAt(0, renderTargetTexture);
 
   const renderTargetDepthStencilTexture = new RenderTargetTexture();
   renderTargetDepthStencilTexture.createTextureArray({
-    width,
-    height,
-    level,
+    width: desc.width,
+    height: desc.height,
+    level: desc.level,
     internalFormat: TextureParameter.Depth32FStencil8,
-    format,
-    type,
-    arrayLength,
+    format: PixelFormat.DepthStencil,
+    type: ComponentType.Float,
+    arrayLength: desc.arrayLength,
   });
 
   frameBuffer.setDepthStencilAttachment(renderTargetDepthStencilTexture);
@@ -249,6 +246,6 @@ export const RenderableHelper = Object.freeze({
   createFrameBuffer,
   createFrameBufferMSAA,
   createTexturesForRenderTarget,
-  createTextureArrayForRenderTarget,
+  createFrameBufferTextureArray,
   createDepthBuffer,
 });
