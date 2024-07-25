@@ -739,46 +739,55 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolveForReference = new None();
     } else {
       // MSAA depth
-      const framebufferMsaa = RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        0,
-        {
-          isMSAA: true,
+      const framebufferMsaa = RenderableHelper.createFramebufferMSAA({
+        width: canvasWidth,
+        height: canvasHeight,
+        colorBufferNum: 1,
+        colorInternalFormatList: [
+          this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
+        ],
           sampleCountMSAA: 4,
-          internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-        }
-      );
+        depthBufferInternalFormat: TextureParameter.Depth32F,
+      });
       framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
       // Resolve Color 1
-      const framebufferResolve = RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        1,
+      const framebufferResolve = RenderableHelper.createFramebuffer({
+        width: canvasWidth,
+        height: canvasHeight,
+        textureNum: 1,
+        textureParametersList: [
         {
-          createDepthBuffer: true,
-          internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
+            level: 0,
+            internalFormat: this.__isBloom
+              ? TextureParameter.R11F_G11F_B10F
+              : TextureParameter.RGBA8,
           format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-        }
-      );
+          },
+        ],
+        createDepthBuffer: true,
+        depthBufferInternalFormat: TextureParameter.Depth32F,
+      });
       framebufferResolve.tryToSetUniqueName('FramebufferTargetOfToneMappingResolve', true);
 
       // Resolve Color 2
-      const framebufferResolveForReference = RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        1,
+      const framebufferResolveForReference = RenderableHelper.createFramebuffer({
+        width: canvasWidth,
+        height: canvasHeight,
+        textureNum: 1,
+        textureParametersList: [
         {
-          createDepthBuffer: false,
-          internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
+            level: 0,
+            internalFormat: this.__isBloom
+              ? TextureParameter.R11F_G11F_B10F
+              : TextureParameter.RGBA8,
           format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
           type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-        }
-      );
+          },
+        ],
+        createDepthBuffer: false,
+      });
       framebufferResolveForReference.tryToSetUniqueName(
         'FramebufferTargetOfToneMappingResolveForReference',
         true

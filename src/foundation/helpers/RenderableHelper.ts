@@ -12,75 +12,108 @@ export interface TextureParameters {
   type: ComponentTypeEnum;
 }
 
-function createFramebuffer(
-  width: number,
-  height: number,
-  textureNum: number,
-  textureParametersList: TextureParameters[],
-  createDepthBuffer: boolean,
-  depthBufferInternalFormat: TextureParameterEnum = TextureParameter.Depth32F
-) {
-  const frameBuffer = new FrameBuffer();
-  frameBuffer.create(width, height);
+export interface FrameBufferDescriptor {
+  width: number;
+  height: number;
+  textureNum: number;
+  textureParametersList: TextureParameters[];
+  createDepthBuffer: boolean;
+  depthBufferInternalFormat?: TextureParameterEnum;
+}
 
-  for (let i = 0; i < textureNum; i++) {
+function createFramebuffer(desc: FrameBufferDescriptor) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(desc.width, desc.height);
+
+  for (let i = 0; i < desc.textureNum; i++) {
     const renderTargetTexture = new RenderTargetTexture();
     renderTargetTexture.create({
-      width,
-      height,
-      level: textureParametersList[i].level,
-      internalFormat: textureParametersList[i].internalFormat,
-      format: textureParametersList[i].format,
-      type: textureParametersList[i].type,
+      width: desc.width,
+      height: desc.height,
+      level: desc.textureParametersList[i].level,
+      internalFormat: desc.textureParametersList[i].internalFormat,
+      format: desc.textureParametersList[i].format,
+      type: desc.textureParametersList[i].type,
     });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
 
-  if (createDepthBuffer) {
+  if (desc.createDepthBuffer) {
     const depthTexture = new RenderTargetTexture();
+    const depthBufferInternalFormat = desc.depthBufferInternalFormat ?? TextureParameter.Depth32F;
+    let type = ComponentType.UnsignedShort as ComponentTypeEnum;
+    if (depthBufferInternalFormat === TextureParameter.Depth16) {
+      type = ComponentType.UnsignedShort;
+    } else if (
+      depthBufferInternalFormat === TextureParameter.Depth24 ||
+      depthBufferInternalFormat === TextureParameter.Depth24Stencil8
+    ) {
+      type = ComponentType.UnsignedInt;
+    } else if (
+      depthBufferInternalFormat === TextureParameter.Depth32F ||
+      depthBufferInternalFormat === TextureParameter.Depth32FStencil8
+    ) {
+      type = ComponentType.Float;
+    }
+
     depthTexture.create({
-      width,
-      height,
+      width: desc.width,
+      height: desc.height,
       level: 0,
-      type:
-        depthBufferInternalFormat === TextureParameter.Depth32F ||
-        depthBufferInternalFormat === TextureParameter.Depth32FStencil8
-          ? ComponentType.Float
-          : ComponentType.UnsignedByte,
+      type: type,
       internalFormat: depthBufferInternalFormat,
       format: PixelFormat.DepthComponent,
     });
     frameBuffer.setDepthAttachment(depthTexture);
+
+    // const renderBuffer = new RenderBuffer();
+    // renderBuffer.create(
+    //   desc.width,
+    //   desc.height,
+    //   desc.depthBufferInternalFormat ?? TextureParameter.Depth24,
+    //   {
+    //     isMSAA: false,
+    //     sampleCountMSAA: 4,
+    //   }
+    // );
+    // frameBuffer.setDepthAttachment(renderBuffer);
   }
 
   return frameBuffer;
 }
 
-function createFramebufferMSAA(
-  width: number,
-  height: number,
-  colorBufferNum: number,
-  colorInternalFormatList: TextureParameterEnum[],
-  sampleCountMSAA: number,
-  depthBufferInternalFormat: TextureParameterEnum = TextureParameter.Depth32F
-) {
-  const frameBuffer = new FrameBuffer();
-  frameBuffer.create(width, height);
+export interface FrameBufferMSAADescriptor {
+  width: number;
+  height: number;
+  colorBufferNum: number;
+  colorInternalFormatList: TextureParameterEnum[];
+  sampleCountMSAA: number;
+  depthBufferInternalFormat?: TextureParameterEnum;
+}
 
-  for (let i = 0; i < colorBufferNum; i++) {
+function createFramebufferMSAA(desc: FrameBufferMSAADescriptor) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(desc.width, desc.height);
+
+  for (let i = 0; i < desc.colorBufferNum; i++) {
     const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, colorInternalFormatList[i], {
+    renderBuffer.create(desc.width, desc.height, desc.colorInternalFormatList[i], {
       isMSAA: true,
-      sampleCountMSAA,
+      sampleCountMSAA: desc.sampleCountMSAA,
     });
     frameBuffer.setColorAttachmentAt(i, renderBuffer);
   }
 
   const renderBuffer = new RenderBuffer();
-  renderBuffer.create(width, height, depthBufferInternalFormat, {
-    isMSAA: true,
-    sampleCountMSAA,
-  });
+  renderBuffer.create(
+    desc.width,
+    desc.height,
+    desc.depthBufferInternalFormat ?? TextureParameter.Depth24,
+    {
+      isMSAA: true,
+      sampleCountMSAA: desc.sampleCountMSAA,
+    }
+  );
   frameBuffer.setDepthAttachment(renderBuffer);
 
   return frameBuffer;
@@ -213,6 +246,8 @@ function createDepthBuffer(
 }
 
 export const RenderableHelper = Object.freeze({
+  createFramebuffer,
+  createFramebufferMSAA,
   createTexturesForRenderTarget,
   createTextureArrayForRenderTarget,
   createDepthBuffer,
