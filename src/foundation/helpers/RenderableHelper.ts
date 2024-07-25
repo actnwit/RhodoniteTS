@@ -76,17 +76,19 @@ function createTexturesForRenderTarget(
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
 
-  for (let i = 0; i < textureNum; i++) {
-    const renderTargetTexture = new RenderTargetTexture();
-    renderTargetTexture.create({
-      width,
-      height,
-      level,
-      internalFormat,
-      format,
-      type,
-    });
-    frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
+  if (!isMSAA) {
+    for (let i = 0; i < textureNum; i++) {
+      const renderTargetTexture = new RenderTargetTexture();
+      renderTargetTexture.create({
+        width,
+        height,
+        level,
+        internalFormat,
+        format,
+        type,
+      });
+      frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
+    }
   }
 
   if (createDepthBuffer) {
