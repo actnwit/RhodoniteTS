@@ -1,9 +1,63 @@
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { TextureParameter } from '../definitions/TextureParameter';
+import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { PixelFormat } from '../definitions/PixelFormat';
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { RenderBuffer } from '../textures/RenderBuffer';
+
+export interface TextureParameters {
+  level: number;
+  internalFormat: TextureParameterEnum;
+  format: PixelFormatEnum;
+  type: ComponentTypeEnum;
+}
+
+function createFramebuffer(
+  width: number,
+  height: number,
+  textureNum: number,
+  textureParametersList: TextureParameters[],
+  createDepthBuffer: boolean,
+  depthBufferInternalFormat: TextureParameterEnum = TextureParameter.Depth24,
+  isMSAA: boolean = false,
+  sampleCountMSAA = 4
+) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(width, height);
+
+  for (let i = 0; i < textureNum; i++) {
+    const renderTargetTexture = new RenderTargetTexture();
+    renderTargetTexture.create({
+      width,
+      height,
+      level: textureParametersList[i].level,
+      internalFormat: textureParametersList[i].internalFormat,
+      format: textureParametersList[i].format,
+      type: textureParametersList[i].type,
+    });
+    frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
+  }
+
+  if (createDepthBuffer) {
+    const renderBuffer = new RenderBuffer();
+    renderBuffer.create(width, height, depthBufferInternalFormat, {
+      isMSAA,
+      sampleCountMSAA,
+    });
+    frameBuffer.setDepthAttachment(renderBuffer);
+  }
+
+  if (isMSAA) {
+    const renderBuffer = new RenderBuffer();
+    renderBuffer.create(width, height, textureParametersList[0].internalFormat, {
+      isMSAA,
+      sampleCountMSAA,
+    });
+    frameBuffer.setColorAttachmentAt(0, renderBuffer);
+  }
+
+  return frameBuffer;
+}
 
 function createTexturesForRenderTarget(
   width: number,
