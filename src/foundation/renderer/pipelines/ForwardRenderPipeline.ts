@@ -697,35 +697,44 @@ export class ForwardRenderPipeline extends RnObject {
         }
       );
       framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiView', true);
-      const framebufferMultiViewBlit = RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        1,
-        {
-          isMSAA: false,
-          internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-          createDepthBuffer: false,
-        }
-      );
+      const framebufferMultiViewBlit = RenderableHelper.createFramebuffer({
+        width: canvasWidth,
+        height: canvasHeight,
+        textureNum: 1,
+        textureParametersList: [
+          {
+            level: 0,
+            internalFormat: this.__isBloom
+              ? TextureParameter.R11F_G11F_B10F
+              : TextureParameter.RGBA8,
+            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
+            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+          },
+        ],
+        createDepthBuffer: false,
+      });
+
       framebufferMultiViewBlit.tryToSetUniqueName(
         'FramebufferTargetOfToneMappingMultiViewBlit',
         true
       );
 
-      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createTexturesForRenderTarget(
-        canvasWidth,
-        canvasHeight,
-        1,
-        {
-          isMSAA: false,
-          internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
-          createDepthBuffer: false,
-        }
-      );
+      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createFramebuffer({
+        width: canvasWidth,
+        height: canvasHeight,
+        textureNum: 1,
+        textureParametersList: [
+          {
+            level: 0,
+            internalFormat: this.__isBloom
+              ? TextureParameter.R11F_G11F_B10F
+              : TextureParameter.RGBA8,
+            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
+            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+          },
+        ],
+        createDepthBuffer: false,
+      });
       framebufferMultiViewBlit.tryToSetUniqueName(
         'FramebufferTargetOfToneMappingMultiViewBlitBackBuffer',
         true
@@ -746,7 +755,7 @@ export class ForwardRenderPipeline extends RnObject {
         colorInternalFormatList: [
           this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
         ],
-          sampleCountMSAA: 4,
+        sampleCountMSAA: 4,
         depthBufferInternalFormat: TextureParameter.Depth32F,
       });
       framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
@@ -757,13 +766,13 @@ export class ForwardRenderPipeline extends RnObject {
         height: canvasHeight,
         textureNum: 1,
         textureParametersList: [
-        {
+          {
             level: 0,
             internalFormat: this.__isBloom
               ? TextureParameter.R11F_G11F_B10F
               : TextureParameter.RGBA8,
-          format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
+            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
           },
         ],
         createDepthBuffer: true,
@@ -777,13 +786,13 @@ export class ForwardRenderPipeline extends RnObject {
         height: canvasHeight,
         textureNum: 1,
         textureParametersList: [
-        {
+          {
             level: 0,
             internalFormat: this.__isBloom
               ? TextureParameter.R11F_G11F_B10F
               : TextureParameter.RGBA8,
-          format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-          type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
+            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
+            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
           },
         ],
         createDepthBuffer: false,
