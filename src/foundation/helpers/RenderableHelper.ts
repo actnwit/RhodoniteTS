@@ -21,7 +21,7 @@ export interface FrameBufferDescriptor {
   depthBufferInternalFormat?: TextureParameterEnum;
 }
 
-function createFramebuffer(desc: FrameBufferDescriptor) {
+function createFrameBuffer(desc: FrameBufferDescriptor) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(desc.width, desc.height);
 
@@ -91,7 +91,7 @@ export interface FrameBufferMSAADescriptor {
   depthBufferInternalFormat?: TextureParameterEnum;
 }
 
-function createFramebufferMSAA(desc: FrameBufferMSAADescriptor) {
+function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(desc.width, desc.height);
 
@@ -246,8 +246,8 @@ function createDepthBuffer(
 }
 
 export const RenderableHelper = Object.freeze({
-  createFramebuffer,
-  createFramebufferMSAA,
+  createFrameBuffer,
+  createFrameBufferMSAA,
   createTexturesForRenderTarget,
   createTextureArrayForRenderTarget,
   createDepthBuffer,

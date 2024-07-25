@@ -697,7 +697,7 @@ export class ForwardRenderPipeline extends RnObject {
         }
       );
       framebufferMultiView.tryToSetUniqueName('FramebufferTargetOfToneMappingMultiView', true);
-      const framebufferMultiViewBlit = RenderableHelper.createFramebuffer({
+      const framebufferMultiViewBlit = RenderableHelper.createFrameBuffer({
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -719,7 +719,7 @@ export class ForwardRenderPipeline extends RnObject {
         true
       );
 
-      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createFramebuffer({
+      const framebufferMultiViewBlitBackBuffer = RenderableHelper.createFrameBuffer({
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -748,7 +748,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolveForReference = new None();
     } else {
       // MSAA depth
-      const framebufferMsaa = RenderableHelper.createFramebufferMSAA({
+      const framebufferMsaa = RenderableHelper.createFrameBufferMSAA({
         width: canvasWidth,
         height: canvasHeight,
         colorBufferNum: 1,
@@ -761,7 +761,7 @@ export class ForwardRenderPipeline extends RnObject {
       framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
       // Resolve Color 1
-      const framebufferResolve = RenderableHelper.createFramebuffer({
+      const framebufferResolve = RenderableHelper.createFrameBuffer({
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
@@ -781,7 +781,7 @@ export class ForwardRenderPipeline extends RnObject {
       framebufferResolve.tryToSetUniqueName('FramebufferTargetOfToneMappingResolve', true);
 
       // Resolve Color 2
-      const framebufferResolveForReference = RenderableHelper.createFramebuffer({
+      const framebufferResolveForReference = RenderableHelper.createFrameBuffer({
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
