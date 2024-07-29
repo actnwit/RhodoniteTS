@@ -306,7 +306,7 @@ export class RenderPass extends RnObject {
    * If two or more render pass share a framebuffer, Rhodonite renders entities to the same framebuffer in those render passes.
    * @param framebuffer A framebuffer
    */
-  setFramebuffer(framebuffer: FrameBuffer) {
+  setFramebuffer(framebuffer?: FrameBuffer) {
     this.__frameBuffer = framebuffer;
     if (framebuffer != null) {
       this.setViewport(Vector4.fromCopyArray([0, 0, framebuffer.width, framebuffer.height]));
@@ -363,7 +363,7 @@ export class RenderPass extends RnObject {
     return viewport;
   }
 
-  setResolveFramebuffer(framebuffer: FrameBuffer) {
+  setResolveFramebuffer(framebuffer?: FrameBuffer) {
     this.__resolveFrameBuffer = framebuffer;
   }
 
@@ -371,7 +371,7 @@ export class RenderPass extends RnObject {
     return this.__resolveFrameBuffer;
   }
 
-  setResolveFramebuffer2(framebuffer: FrameBuffer) {
+  setResolveFramebuffer2(framebuffer?: FrameBuffer) {
     this.__resolveFrameBuffer2 = framebuffer;
   }
 

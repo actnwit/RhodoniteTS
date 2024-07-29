@@ -322,6 +322,8 @@ export class ForwardRenderPipeline extends RnObject {
       for (const renderPass of expression.renderPasses) {
         // Draw opaque primitives to depth moment FrameBuffer
         renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
+        renderPass.setResolveFramebuffer(undefined);
+        renderPass.setResolveFramebuffer2(undefined);
         renderPass.toClearColorBuffer = true;
         renderPass.toClearDepthBuffer = true;
         // No need to render transparent primitives to depth buffer.
