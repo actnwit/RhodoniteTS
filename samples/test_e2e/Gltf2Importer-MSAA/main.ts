@@ -143,9 +143,9 @@ function createAndSetFrameBufferAndMSAAFramebuffer(
     width: resolutionFramebuffer,
     height: resolutionFramebuffer,
     colorBufferNum: 1,
-    colorFormats: [Rn.TextureParameter.RGBA8],
+    colorFormats: [Rn.TextureFormat.RGBA8],
     sampleCountMSAA: 4,
-    depthBufferFormat: Rn.TextureParameter.Depth32F,
+    depthBufferFormat: Rn.TextureFormat.Depth32F,
   });
   renderPass.setFramebuffer(framebuffer);
 
@@ -153,7 +153,7 @@ function createAndSetFrameBufferAndMSAAFramebuffer(
     width: resolutionFramebuffer,
     height: resolutionFramebuffer,
     textureNum: 1,
-    textureFormats: [Rn.TextureParameter.RGBA8],
+    textureFormats: [Rn.TextureFormat.RGBA8],
     createDepthBuffer: false,
   });
   renderPass.setResolveFramebuffer(framebufferMSAA);

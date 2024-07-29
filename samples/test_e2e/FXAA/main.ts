@@ -23,7 +23,7 @@ framebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: canvas.clientWidth,
   height: canvas.clientHeight,
   textureNum: 1,
-  textureFormats: [Rn.TextureParameter.RGBA8],
+  textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
 // renderPassMain.setFramebuffer(framebuffer);

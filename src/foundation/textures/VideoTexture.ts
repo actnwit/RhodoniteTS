@@ -5,6 +5,7 @@ import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Size } from '../../types/CommonTypes';
 import { DataUtil } from '../misc/DataUtil';
+import { TextureFormat } from '../definitions/TextureFormat';
 
 export type VideoTextureArguments = {
   level: number;
@@ -76,7 +77,7 @@ export class VideoTexture extends AbstractTexture {
     video: HTMLVideoElement,
     {
       level = 0,
-      internalFormat = TextureParameter.RGBA8,
+      internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       generateMipmap = false,
@@ -117,7 +118,7 @@ export class VideoTexture extends AbstractTexture {
     videoUri: string,
     {
       level = 0,
-      internalFormat = TextureParameter.RGBA8,
+      internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       generateMipmap = false,

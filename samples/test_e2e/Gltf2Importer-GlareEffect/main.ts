@@ -50,7 +50,7 @@ const renderPassMain = await createRenderPassMain(cameraComponentMain, [
   entityEnvironmentCube,
 ]);
 createAndSetFramebuffer(renderPassMain, rnCanvasElement.width, rnCanvasElement.height, 1, {
-  internalFormat: Rn.TextureParameter.RGBA16F,
+  internalFormat: Rn.TextureFormat.RGBA16F,
 });
 renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 

@@ -15,6 +15,7 @@ import { ModuleManager } from '../system/ModuleManager';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SystemState } from '../system/SystemState';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { TextureFormat } from '../definitions/TextureFormat';
 
 declare const BASIS: BASIS;
 
@@ -87,7 +88,7 @@ export class Texture extends AbstractTexture {
     uint8Array: Uint8Array,
     {
       level = 0,
-      internalFormat = TextureParameter.RGBA8,
+      internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte as ComponentTypeEnum,
       generateMipmap = true,
@@ -136,7 +137,7 @@ export class Texture extends AbstractTexture {
     image: HTMLImageElement,
     {
       level = 0,
-      internalFormat = TextureParameter.RGBA8,
+      internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       generateMipmap = true,
@@ -158,7 +159,7 @@ export class Texture extends AbstractTexture {
     }
     const image = this.__imgToLoadLazy!;
     const level = this.__optionsToLoadLazy?.level ?? 0;
-    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureParameter.RGBA8;
+    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureFormat.RGBA8;
     const format = this.__optionsToLoadLazy?.format ?? PixelFormat.RGBA;
     const type = this.__optionsToLoadLazy?.type ?? ComponentType.UnsignedByte;
     const generateMipmap = this.__optionsToLoadLazy?.generateMipmap ?? true;
@@ -232,7 +233,7 @@ export class Texture extends AbstractTexture {
     imageUri: string,
     {
       level = 0,
-      internalFormat = TextureParameter.RGBA8,
+      internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       type = ComponentType.UnsignedByte,
       generateMipmap = true,
@@ -254,7 +255,7 @@ export class Texture extends AbstractTexture {
     }
     const imageUri = this.__uriToLoadLazy;
     const level = this.__optionsToLoadLazy?.level ?? 0;
-    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureParameter.RGBA8;
+    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureFormat.RGBA8;
     const format = this.__optionsToLoadLazy?.format ?? PixelFormat.RGBA;
     const type = this.__optionsToLoadLazy?.type ?? ComponentType.UnsignedByte;
     const generateMipmap = this.__optionsToLoadLazy?.generateMipmap ?? true;
@@ -349,7 +350,7 @@ export class Texture extends AbstractTexture {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(canvas, {
       level: 0,
-      internalFormat: TextureParameter.RGBA8,
+      internalFormat: TextureFormat.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -377,7 +378,7 @@ export class Texture extends AbstractTexture {
       pbrModule.sheen_E_and_DGTerm,
       {
         level: 0,
-        internalFormat: TextureParameter.RGBA8,
+        internalFormat: TextureFormat.RGBA8,
         border: 0,
         format: PixelFormat.RGBA,
         type: ComponentType.UnsignedByte,
@@ -398,7 +399,7 @@ export class Texture extends AbstractTexture {
     typedArray: TypedArray,
     {
       level = 0,
-      internalFormat = TextureParameter.RGBA8,
+      internalFormat = TextureFormat.RGBA8,
       format = PixelFormat.RGBA,
       generateMipmap = true,
     } = {}

@@ -96,7 +96,7 @@ function createAndSetFramebuffer(
     width: resolution,
     height: resolution,
     textureNum,
-    textureFormats: [Rn.TextureParameter.RGBA8],
+    textureFormats: [Rn.TextureFormat.RGBA8],
     createDepthBuffer: true,
   });
   renderPass.setFramebuffer(framebuffer);

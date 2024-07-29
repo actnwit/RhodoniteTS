@@ -46,7 +46,7 @@ const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: 600,
   height: 600,
   textureNum: 1,
-  textureFormats: [Rn.TextureParameter.RGBA8],
+  textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
 mainRenderPass.setFramebuffer(gammaTargetFramebuffer);

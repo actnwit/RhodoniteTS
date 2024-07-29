@@ -17,7 +17,7 @@ const setupRenderPassEntityUidOutput = function (
     width: canvas.clientWidth,
     height: canvas.clientHeight,
     textureNum: 1,
-    textureFormats: [Rn.TextureParameter.RGBA8],
+    textureFormats: [Rn.TextureFormat.RGBA8],
     createDepthBuffer: true,
   });
   renderPass.setFramebuffer(framebuffer);

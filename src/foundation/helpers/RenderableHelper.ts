@@ -4,6 +4,7 @@ import { TextureParameter, TextureParameterEnum } from '../definitions/TexturePa
 import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { RenderBuffer } from '../textures/RenderBuffer';
+import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 export interface TextureParameters {
   level: number;
@@ -14,9 +15,9 @@ export interface FrameBufferDescriptor {
   width: number;
   height: number;
   textureNum: number;
-  textureFormats: TextureParameterEnum[];
+  textureFormats: TextureFormatEnum[];
   createDepthBuffer: boolean;
-  depthTextureFormat?: TextureParameterEnum;
+  depthTextureFormat?: TextureFormatEnum;
 }
 
 function createFrameBuffer(desc: FrameBufferDescriptor) {
@@ -37,7 +38,7 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
 
   if (desc.createDepthBuffer) {
     const depthTexture = new RenderTargetTexture();
-    const depthBufferInternalFormat = desc.depthTextureFormat ?? TextureParameter.Depth32F;
+    const depthBufferInternalFormat = desc.depthTextureFormat ?? TextureFormat.Depth32F;
 
     depthTexture.create({
       width: desc.width,
@@ -55,9 +56,9 @@ export interface FrameBufferMSAADescriptor {
   width: number;
   height: number;
   colorBufferNum: number;
-  colorFormats: TextureParameterEnum[];
+  colorFormats: TextureFormatEnum[];
   sampleCountMSAA: number;
-  depthBufferFormat: TextureParameterEnum;
+  depthBufferFormat: TextureFormatEnum;
 }
 
 function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
@@ -74,7 +75,7 @@ function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
   }
 
   const renderBuffer = new RenderBuffer();
-  renderBuffer.create(desc.width, desc.height, desc.depthBufferFormat ?? TextureParameter.Depth24, {
+  renderBuffer.create(desc.width, desc.height, desc.depthBufferFormat, {
     isMSAA: true,
     sampleCountMSAA: desc.sampleCountMSAA,
   });
@@ -88,7 +89,7 @@ export interface FrameBufferTextureArrayDescriptor {
   height: number;
   arrayLength: number;
   level: number;
-  internalFormat: TextureParameterEnum;
+  internalFormat: TextureFormatEnum;
   format: PixelFormatEnum;
   type: ComponentTypeEnum;
 }
@@ -114,7 +115,7 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
     width: desc.width,
     height: desc.height,
     level: desc.level,
-    internalFormat: TextureParameter.Depth32FStencil8,
+    internalFormat: TextureFormat.Depth32FStencil8,
     format: PixelFormat.DepthStencil,
     type: ComponentType.Float,
     arrayLength: desc.arrayLength,
@@ -128,7 +129,7 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
 function createDepthBuffer(
   width: number,
   height: number,
-  { level = 0, internalFormat = TextureParameter.Depth32F }
+  { level = 0, internalFormat = TextureFormat.Depth32F }
 ) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);

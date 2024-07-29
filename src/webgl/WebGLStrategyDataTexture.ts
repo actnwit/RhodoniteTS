@@ -48,6 +48,7 @@ import { TransformComponent } from '../foundation/components/Transform/Transform
 import { WebXRSystem } from '../xr';
 import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { TextureFormat } from '../foundation/definitions/TextureFormat';
 
 declare const spector: any;
 
@@ -537,7 +538,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         floatDataTextureBuffer!,
         {
           level: 0,
-          internalFormat: TextureParameter.RGBA32F,
+          internalFormat: TextureFormat.RGBA32F,
           width: MemoryManager.bufferWidthLength,
           height: MemoryManager.bufferHeightLength,
           border: 0,

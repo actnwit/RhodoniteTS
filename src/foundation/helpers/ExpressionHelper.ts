@@ -12,6 +12,7 @@ import { Expression } from '../renderer/Expression';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { VectorN } from '../math/VectorN';
 import { TextureParameter } from '../definitions/TextureParameter';
+import { TextureFormat } from '../definitions/TextureFormat';
 
 function createBloomExpression({
   textureToBloom,
@@ -97,7 +98,7 @@ function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminance
     width: texture.width,
     height: texture.height,
     textureNum: 1,
-    textureFormats: [TextureParameter.RGBA8],
+    textureFormats: [TextureFormat.RGBA8],
     createDepthBuffer: false,
   });
 
@@ -196,7 +197,7 @@ function createRenderPassGaussianBlur(
     width: resolutionWidthBlur,
     height: resolutionHeightBlur,
     textureNum: 1,
-    textureFormats: [TextureParameter.RGBA8],
+    textureFormats: [TextureFormat.RGBA8],
     createDepthBuffer: false,
   });
   renderPass.setFramebuffer(framebuffer);
@@ -235,7 +236,7 @@ function createRenderPassSynthesizeImage(
     width: texture.width,
     height: texture.height,
     textureNum: 1,
-    textureFormats: [TextureParameter.R11F_G11F_B10F],
+    textureFormats: [TextureFormat.R11F_G11F_B10F],
     createDepthBuffer: false,
   });
   renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);

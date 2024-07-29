@@ -31,6 +31,7 @@ import { RenderTargetTexture } from '../../textures';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
 import { Material } from '../../materials/core/Material';
+import { TextureFormat } from '../../definitions/TextureFormat';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -689,7 +690,7 @@ export class ForwardRenderPipeline extends RnObject {
         height: canvasHeight,
         arrayLength: 2,
         level: 0,
-        internalFormat: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
+        internalFormat: this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8,
         format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
         type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
       });
@@ -698,7 +699,7 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
+        textureFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false,
       });
 
@@ -711,7 +712,7 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
+        textureFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false,
       });
       framebufferMultiViewBlit.tryToSetUniqueName(
@@ -731,9 +732,9 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         colorBufferNum: 1,
-        colorFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
+        colorFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         sampleCountMSAA: 4,
-        depthBufferFormat: TextureParameter.Depth32F,
+        depthBufferFormat: TextureFormat.Depth32F,
       });
       framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
@@ -742,9 +743,9 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
+        textureFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: true,
-        depthTextureFormat: TextureParameter.Depth32F,
+        depthTextureFormat: TextureFormat.Depth32F,
       });
       framebufferResolve.tryToSetUniqueName('FramebufferTargetOfToneMappingResolve', true);
 
@@ -753,7 +754,7 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
+        textureFormats: [this.__isBloom ? TextureFormat.R11F_G11F_B10F : TextureFormat.RGBA8],
         createDepthBuffer: false,
       });
       framebufferResolveForReference.tryToSetUniqueName(
@@ -878,9 +879,9 @@ export class ForwardRenderPipeline extends RnObject {
         width: shadowMapSize,
         height: shadowMapSize,
         textureNum: 1,
-        textureFormats: [TextureParameter.RG32F],
+        textureFormats: [TextureFormat.RG32F],
         createDepthBuffer: true,
-        depthTextureFormat: TextureParameter.Depth32F,
+        depthTextureFormat: TextureFormat.Depth32F,
       })
     );
   }

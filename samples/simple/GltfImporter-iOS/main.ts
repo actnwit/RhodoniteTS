@@ -65,7 +65,7 @@ const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: displayResolution,
   height: displayResolution,
   textureNum: 1,
-  textureFormats: [Rn.TextureParameter.RGBA8],
+  textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
 for (const renderPass of vrmExpression.renderPasses) {
@@ -96,7 +96,7 @@ const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: displayResolution,
   height: displayResolution,
   textureNum: 1,
-  textureFormats: [Rn.TextureParameter.RGBA8],
+  textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
 gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);

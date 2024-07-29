@@ -23,7 +23,7 @@ const framebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: 600,
   height: 600,
   textureNum: 1,
-  textureFormats: [Rn.TextureParameter.RGBA8],
+  textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
 renderPass1.setFramebuffer(framebuffer);
@@ -31,7 +31,7 @@ const framebuffer_fxaatarget = Rn.RenderableHelper.createFrameBuffer({
   width: 600,
   height: 600,
   textureNum: 1,
-  textureFormats: [Rn.TextureParameter.RGBA8],
+  textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
 renderPass2.setFramebuffer(framebuffer_fxaatarget);
