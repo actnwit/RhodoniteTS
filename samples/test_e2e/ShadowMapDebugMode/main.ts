@@ -21,7 +21,7 @@ mainCameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([-0.1, 
 
 // setting render passes
 const renderPassDepth = createRenderPassSpecifyingCameraComponent(depthCameraComponent);
-createFramebuffer(renderPassDepth, 1024, 1024, 1, {});
+createFramebuffer(renderPassDepth, 1024, 1024, 1);
 
 const renderPassMain = createRenderPassSpecifyingCameraComponent(mainCameraComponent);
 
@@ -133,13 +133,14 @@ function createCameraControllerComponent() {
   return cameraComponent;
 }
 
-function createFramebuffer(renderPass, height, width, textureNum, property) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    height,
+function createFramebuffer(renderPass, height, width, textureNum) {
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
     width,
+    height,
     textureNum,
-    property
-  );
+    textureFormats: [Rn.TextureParameter.RGBA8],
+    createDepthBuffer: true,
+  });
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }

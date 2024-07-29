@@ -19,9 +19,21 @@ const renderPass2 = new Rn.RenderPass();
 renderPass2.toClearColorBuffer = true;
 renderPass2.cameraComponent = cameraComponent;
 
-const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
+const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  width: 600,
+  height: 600,
+  textureNum: 1,
+  textureFormats: [Rn.TextureParameter.RGBA8],
+  createDepthBuffer: true,
+});
 renderPass1.setFramebuffer(framebuffer);
-const framebuffer_fxaatarget = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
+const framebuffer_fxaatarget = Rn.RenderableHelper.createFrameBuffer({
+  width: 600,
+  height: 600,
+  textureNum: 1,
+  textureFormats: [Rn.TextureParameter.RGBA8],
+  createDepthBuffer: true,
+});
 renderPass2.setFramebuffer(framebuffer_fxaatarget);
 
 const primitive_fxaa_material = Rn.MaterialHelper.createFXAA3QualityMaterial();

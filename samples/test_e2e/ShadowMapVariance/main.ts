@@ -222,26 +222,15 @@ function createEntityBoard() {
 function createAndSetFramebuffer(
   renderPass: Rn.RenderPass,
   resolution: number,
-  textureNum: number,
-  property: {
-    level?: number | undefined;
-    internalFormat?: Rn.TextureParameterEnum | undefined;
-    format?: Rn.PixelFormatEnum | undefined;
-    type?: Rn.ComponentTypeEnum | undefined;
-    magFilter?: Rn.TextureParameterEnum | undefined;
-    minFilter?: Rn.TextureParameterEnum | undefined;
-    wrapS?: Rn.TextureParameterEnum | undefined;
-    wrapT?: Rn.TextureParameterEnum | undefined;
-    createDepthBuffer?: boolean | undefined;
-    isMSAA?: boolean | undefined;
-  } = {}
+  textureNum: number
 ) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    resolution,
-    resolution,
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+    width: resolution,
+    height: resolution,
     textureNum,
-    property
-  );
+    textureFormats: [Rn.TextureParameter.RGBA8],
+    createDepthBuffer: true,
+  });
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }

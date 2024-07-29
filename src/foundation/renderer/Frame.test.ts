@@ -19,12 +19,7 @@ describe('Frame Test', () => {
       width: 800,
       height: 600,
       textureNum: 1,
-      textureParametersList: [
-        {
-          level: 0,
-          format: Rn.TextureParameter.RGBA8,
-        },
-      ],
+      textureFormats: [Rn.TextureParameter.RGBA8],
       createDepthBuffer: false,
     });
     renderPass0_0.setFramebuffer(framebuffer_0);

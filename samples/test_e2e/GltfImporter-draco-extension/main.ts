@@ -42,7 +42,13 @@ const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction
-const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(600, 600, 1, {});
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+  width: 600,
+  height: 600,
+  textureNum: 1,
+  textureFormats: [Rn.TextureParameter.RGBA8],
+  createDepthBuffer: true,
+});
 const mainRenderPass = mainExpression.renderPasses[0];
 mainRenderPass.setFramebuffer(gammaTargetFramebuffer);
 mainRenderPass.toClearColorBuffer = true;

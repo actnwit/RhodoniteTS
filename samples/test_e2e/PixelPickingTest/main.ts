@@ -13,12 +13,13 @@ const setupRenderPassEntityUidOutput = function (
   renderPass.setMaterial(entityUidOutputMaterial);
   renderPass.cameraComponent = cameraComponent;
 
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    canvas.clientWidth,
-    canvas.clientHeight,
-    1,
-    {}
-  );
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+    width: canvas.clientWidth,
+    height: canvas.clientHeight,
+    textureNum: 1,
+    textureFormats: [Rn.TextureParameter.RGBA8],
+    createDepthBuffer: true,
+  });
   renderPass.setFramebuffer(framebuffer);
   renderPass.clearColor = Rn.Vector4.fromCopyArray([0, 0, 0, 1]);
   renderPass.toClearColorBuffer = true;

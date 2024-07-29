@@ -83,55 +83,6 @@ function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
   return frameBuffer;
 }
 
-function createTexturesForRenderTarget(
-  width: number,
-  height: number,
-  textureNum: number,
-  {
-    level = 0,
-    internalFormat = TextureParameter.RGBA8,
-    createDepthBuffer = true,
-    isMSAA = false,
-    sampleCountMSAA = 4,
-  }
-) {
-  const frameBuffer = new FrameBuffer();
-  frameBuffer.create(width, height);
-
-  if (!isMSAA) {
-    for (let i = 0; i < textureNum; i++) {
-      const renderTargetTexture = new RenderTargetTexture();
-      renderTargetTexture.create({
-        width,
-        height,
-        level,
-        format: internalFormat,
-      });
-      frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
-    }
-  }
-
-  if (createDepthBuffer) {
-    const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, TextureParameter.Depth24, {
-      isMSAA,
-      sampleCountMSAA,
-    });
-    frameBuffer.setDepthAttachment(renderBuffer);
-  }
-
-  if (isMSAA) {
-    const renderBuffer = new RenderBuffer();
-    renderBuffer.create(width, height, internalFormat, {
-      isMSAA,
-      sampleCountMSAA,
-    });
-    frameBuffer.setColorAttachmentAt(0, renderBuffer);
-  }
-
-  return frameBuffer;
-}
-
 export interface FrameBufferTextureArrayDescriptor {
   width: number;
   height: number;
@@ -198,7 +149,6 @@ function createDepthBuffer(
 export const RenderableHelper = Object.freeze({
   createFrameBuffer,
   createFrameBufferMSAA,
-  createTexturesForRenderTarget,
   createFrameBufferTextureArray,
   createDepthBuffer,
 });

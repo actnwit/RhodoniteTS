@@ -136,12 +136,6 @@ function createBoardEntityWithMaterial() {
 
 function createFramebuffer(renderPass, height, width) {
   const framebuffer = Rn.RenderableHelper.createDepthBuffer(height, width, {});
-  // const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-  //   height,
-  //   width,
-  //   1,
-  //   {}
-  // );
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }
