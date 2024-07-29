@@ -21,21 +21,67 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   create({
     width,
     height,
-    level = 0,
-    internalFormat = TextureParameter.RGB8,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte,
+    level,
+    internalFormat,
   }: {
     width: Size;
     height: Size;
     level: number;
     internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
   }) {
     this.__width = width;
     this.__height = height;
     this.__level = level;
+
+    let format = PixelFormat.RGBA as PixelFormatEnum;
+    let type = ComponentType.UnsignedByte as ComponentTypeEnum;
+    if (internalFormat === TextureParameter.RGB8) {
+      format = PixelFormat.RGB;
+      type = ComponentType.UnsignedByte;
+    } else if (internalFormat === TextureParameter.RGBA8) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.UnsignedByte;
+    } else if (internalFormat === TextureParameter.RGB10_A2) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.UnsignedByte;
+    } else if (internalFormat === TextureParameter.RG16F) {
+      format = PixelFormat.RG;
+      type = ComponentType.HalfFloat;
+    } else if (internalFormat === TextureParameter.RG32F) {
+      format = PixelFormat.RG;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureParameter.RGB16F) {
+      format = PixelFormat.RGB;
+      type = ComponentType.HalfFloat;
+    } else if (internalFormat === TextureParameter.RGB32F) {
+      format = PixelFormat.RGB;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureParameter.RGBA16F) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.HalfFloat;
+    } else if (internalFormat === TextureParameter.RGBA32F) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureParameter.R11F_G11F_B10F) {
+      format = PixelFormat.RGB;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureParameter.Depth16) {
+      format = PixelFormat.DepthComponent;
+      type = ComponentType.UnsignedShort;
+    } else if (
+      internalFormat === TextureParameter.Depth24 ||
+      internalFormat === TextureParameter.Depth24Stencil8
+    ) {
+      format = PixelFormat.DepthComponent;
+      type = ComponentType.UnsignedInt;
+    } else if (
+      internalFormat === TextureParameter.Depth32F ||
+      internalFormat === TextureParameter.Depth32FStencil8
+    ) {
+      format = PixelFormat.DepthComponent;
+      type = ComponentType.Float;
+    }
+
     this.__internalFormat = internalFormat;
     this.__format = format;
     this.__type = type;

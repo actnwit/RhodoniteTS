@@ -704,8 +704,6 @@ export class ForwardRenderPipeline extends RnObject {
             internalFormat: this.__isBloom
               ? TextureParameter.R11F_G11F_B10F
               : TextureParameter.RGBA8,
-            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
           },
         ],
         createDepthBuffer: false,
@@ -726,8 +724,6 @@ export class ForwardRenderPipeline extends RnObject {
             internalFormat: this.__isBloom
               ? TextureParameter.R11F_G11F_B10F
               : TextureParameter.RGBA8,
-            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
           },
         ],
         createDepthBuffer: false,
@@ -768,8 +764,6 @@ export class ForwardRenderPipeline extends RnObject {
             internalFormat: this.__isBloom
               ? TextureParameter.R11F_G11F_B10F
               : TextureParameter.RGBA8,
-            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
           },
         ],
         createDepthBuffer: true,
@@ -788,8 +782,6 @@ export class ForwardRenderPipeline extends RnObject {
             internalFormat: this.__isBloom
               ? TextureParameter.R11F_G11F_B10F
               : TextureParameter.RGBA8,
-            format: this.__isBloom ? PixelFormat.RGB : PixelFormat.RGBA,
-            type: this.__isBloom ? ComponentType.Float : ComponentType.UnsignedByte,
           },
         ],
         createDepthBuffer: false,
@@ -920,8 +912,6 @@ export class ForwardRenderPipeline extends RnObject {
           {
             level: 0,
             internalFormat: TextureParameter.RG32F,
-            format: PixelFormat.RG,
-            type: ComponentType.Float,
           },
         ],
         createDepthBuffer: true,

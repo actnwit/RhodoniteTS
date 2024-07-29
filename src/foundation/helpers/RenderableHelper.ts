@@ -8,8 +8,6 @@ import { RenderBuffer } from '../textures/RenderBuffer';
 export interface TextureParameters {
   level: number;
   internalFormat: TextureParameterEnum;
-  format: PixelFormatEnum;
-  type: ComponentTypeEnum;
 }
 
 export interface FrameBufferDescriptor {
@@ -27,13 +25,12 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
 
   for (let i = 0; i < desc.textureNum; i++) {
     const renderTargetTexture = new RenderTargetTexture();
+
     renderTargetTexture.create({
       width: desc.width,
       height: desc.height,
       level: desc.textureParametersList[i].level,
       internalFormat: desc.textureParametersList[i].internalFormat,
-      format: desc.textureParametersList[i].format,
-      type: desc.textureParametersList[i].type,
     });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
@@ -41,42 +38,14 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
   if (desc.createDepthBuffer) {
     const depthTexture = new RenderTargetTexture();
     const depthBufferInternalFormat = desc.depthBufferInternalFormat ?? TextureParameter.Depth32F;
-    let type = ComponentType.UnsignedShort as ComponentTypeEnum;
-    if (depthBufferInternalFormat === TextureParameter.Depth16) {
-      type = ComponentType.UnsignedShort;
-    } else if (
-      depthBufferInternalFormat === TextureParameter.Depth24 ||
-      depthBufferInternalFormat === TextureParameter.Depth24Stencil8
-    ) {
-      type = ComponentType.UnsignedInt;
-    } else if (
-      depthBufferInternalFormat === TextureParameter.Depth32F ||
-      depthBufferInternalFormat === TextureParameter.Depth32FStencil8
-    ) {
-      type = ComponentType.Float;
-    }
 
     depthTexture.create({
       width: desc.width,
       height: desc.height,
       level: 0,
-      type: type,
       internalFormat: depthBufferInternalFormat,
-      format: PixelFormat.DepthComponent,
     });
     frameBuffer.setDepthAttachment(depthTexture);
-
-    // const renderBuffer = new RenderBuffer();
-    // renderBuffer.create(
-    //   desc.width,
-    //   desc.height,
-    //   desc.depthBufferInternalFormat ?? TextureParameter.Depth24,
-    //   {
-    //     isMSAA: false,
-    //     sampleCountMSAA: 4,
-    //   }
-    // );
-    // frameBuffer.setDepthAttachment(renderBuffer);
   }
 
   return frameBuffer;
@@ -126,8 +95,6 @@ function createTexturesForRenderTarget(
   {
     level = 0,
     internalFormat = TextureParameter.RGBA8,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte as ComponentTypeEnum,
     createDepthBuffer = true,
     isMSAA = false,
     sampleCountMSAA = 4,
@@ -144,8 +111,6 @@ function createTexturesForRenderTarget(
         height,
         level,
         internalFormat,
-        format,
-        type,
       });
       frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
     }
@@ -217,12 +182,7 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
 function createDepthBuffer(
   width: number,
   height: number,
-  {
-    level = 0,
-    internalFormat = TextureParameter.Depth32F,
-    format = PixelFormat.DepthComponent,
-    type = ComponentType.Float,
-  }
+  { level = 0, internalFormat = TextureParameter.Depth32F }
 ) {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(width, height);
@@ -232,9 +192,7 @@ function createDepthBuffer(
     width,
     height,
     level,
-    type,
     internalFormat,
-    format,
   });
 
   frameBuffer.setDepthAttachment(depthTexture);

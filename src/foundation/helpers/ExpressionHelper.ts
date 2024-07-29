@@ -106,6 +106,7 @@ function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminance
       // type: ComponentType.Float,
     }
   );
+
   renderPassDetectHighLuminance.setFramebuffer(framebufferDetectHighLuminance);
   return renderPassDetectHighLuminance;
 }
@@ -245,8 +246,6 @@ function createRenderPassSynthesizeImage(
     1,
     {
       internalFormat: TextureParameter.R11F_G11F_B10F,
-      format: PixelFormat.RGB,
-      type: ComponentType.Float,
     }
   );
   renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);
