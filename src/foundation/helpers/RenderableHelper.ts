@@ -14,9 +14,9 @@ export interface FrameBufferDescriptor {
   width: number;
   height: number;
   textureNum: number;
-  textureParametersList: TextureParameters[];
+  textureFormats: TextureParameterEnum[];
   createDepthBuffer: boolean;
-  depthBufferInternalFormat?: TextureParameterEnum;
+  depthTextureFormat?: TextureParameterEnum;
 }
 
 function createFrameBuffer(desc: FrameBufferDescriptor) {
@@ -29,15 +29,15 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
     renderTargetTexture.create({
       width: desc.width,
       height: desc.height,
-      level: desc.textureParametersList[i].level,
-      format: desc.textureParametersList[i].format,
+      level: 0,
+      format: desc.textureFormats[i],
     });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
 
   if (desc.createDepthBuffer) {
     const depthTexture = new RenderTargetTexture();
-    const depthBufferInternalFormat = desc.depthBufferInternalFormat ?? TextureParameter.Depth32F;
+    const depthBufferInternalFormat = desc.depthTextureFormat ?? TextureParameter.Depth32F;
 
     depthTexture.create({
       width: desc.width,
@@ -55,9 +55,9 @@ export interface FrameBufferMSAADescriptor {
   width: number;
   height: number;
   colorBufferNum: number;
-  colorInternalFormatList: TextureParameterEnum[];
+  colorFormats: TextureParameterEnum[];
   sampleCountMSAA: number;
-  depthBufferInternalFormat: TextureParameterEnum;
+  depthBufferFormat: TextureParameterEnum;
 }
 
 function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
@@ -66,7 +66,7 @@ function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
 
   for (let i = 0; i < desc.colorBufferNum; i++) {
     const renderBuffer = new RenderBuffer();
-    renderBuffer.create(desc.width, desc.height, desc.colorInternalFormatList[i], {
+    renderBuffer.create(desc.width, desc.height, desc.colorFormats[i], {
       isMSAA: true,
       sampleCountMSAA: desc.sampleCountMSAA,
     });
@@ -74,15 +74,10 @@ function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
   }
 
   const renderBuffer = new RenderBuffer();
-  renderBuffer.create(
-    desc.width,
-    desc.height,
-    desc.depthBufferInternalFormat ?? TextureParameter.Depth24,
-    {
-      isMSAA: true,
-      sampleCountMSAA: desc.sampleCountMSAA,
-    }
-  );
+  renderBuffer.create(desc.width, desc.height, desc.depthBufferFormat ?? TextureParameter.Depth24, {
+    isMSAA: true,
+    sampleCountMSAA: desc.sampleCountMSAA,
+  });
   frameBuffer.setDepthAttachment(renderBuffer);
 
   return frameBuffer;

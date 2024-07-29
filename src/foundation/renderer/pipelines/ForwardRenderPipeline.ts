@@ -698,12 +698,7 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureParametersList: [
-          {
-            level: 0,
-            format: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          },
-        ],
+        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
         createDepthBuffer: false,
       });
 
@@ -716,12 +711,7 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureParametersList: [
-          {
-            level: 0,
-            format: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          },
-        ],
+        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
         createDepthBuffer: false,
       });
       framebufferMultiViewBlit.tryToSetUniqueName(
@@ -741,11 +731,9 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         colorBufferNum: 1,
-        colorInternalFormatList: [
-          this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-        ],
+        colorFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
         sampleCountMSAA: 4,
-        depthBufferInternalFormat: TextureParameter.Depth32F,
+        depthBufferFormat: TextureParameter.Depth32F,
       });
       framebufferMsaa.tryToSetUniqueName('FramebufferTargetOfToneMappingMsaa', true);
 
@@ -754,14 +742,9 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureParametersList: [
-          {
-            level: 0,
-            format: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          },
-        ],
+        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
         createDepthBuffer: true,
-        depthBufferInternalFormat: TextureParameter.Depth32F,
+        depthTextureFormat: TextureParameter.Depth32F,
       });
       framebufferResolve.tryToSetUniqueName('FramebufferTargetOfToneMappingResolve', true);
 
@@ -770,12 +753,7 @@ export class ForwardRenderPipeline extends RnObject {
         width: canvasWidth,
         height: canvasHeight,
         textureNum: 1,
-        textureParametersList: [
-          {
-            level: 0,
-            format: this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8,
-          },
-        ],
+        textureFormats: [this.__isBloom ? TextureParameter.R11F_G11F_B10F : TextureParameter.RGBA8],
         createDepthBuffer: false,
       });
       framebufferResolveForReference.tryToSetUniqueName(
@@ -900,14 +878,9 @@ export class ForwardRenderPipeline extends RnObject {
         width: shadowMapSize,
         height: shadowMapSize,
         textureNum: 1,
-        textureParametersList: [
-          {
-            level: 0,
-            format: TextureParameter.RG32F,
-          },
-        ],
+        textureFormats: [TextureParameter.RG32F],
         createDepthBuffer: true,
-        depthBufferInternalFormat: TextureParameter.Depth32F,
+        depthTextureFormat: TextureParameter.Depth32F,
       })
     );
   }

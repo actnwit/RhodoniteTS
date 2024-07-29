@@ -65,12 +65,7 @@ const framebufferDepth = Rn.RenderableHelper.createFrameBuffer({
   width: resolutionDepthCamera,
   height: resolutionDepthCamera,
   textureNum: 1,
-  textureParametersList: [
-    {
-      level: 0,
-      format: Rn.TextureParameter.RGBA8,
-    },
-  ],
+  textureFormats: [Rn.TextureParameter.RGBA8],
   createDepthBuffer: true,
 });
 renderPassDepth.setFramebuffer(framebufferDepth);

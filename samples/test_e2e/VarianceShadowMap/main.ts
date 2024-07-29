@@ -143,12 +143,7 @@ function createFramebuffer(renderPass, height, width) {
     width,
     height,
     textureNum: 1,
-    textureParametersList: [
-      {
-        level: 0,
-        format: Rn.TextureParameter.RG32F,
-      },
-    ],
+    textureFormats: [Rn.TextureParameter.RG32F],
     createDepthBuffer: true,
   });
   renderPass.setFramebuffer(framebuffer);
