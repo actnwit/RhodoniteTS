@@ -29,9 +29,6 @@ export declare class AnimationComponent extends Component {
         PlayEnd: symbol;
     };
     private static __pubsub;
-    private static __vector3Zero;
-    private static __vector3One;
-    private static __identityQuaternion;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     $load(): void;
     $logic(): void;
@@ -100,7 +97,9 @@ export declare class AnimationComponent extends Component {
     hasKeyFramesAtFrame(trackName: AnimationTrackName, pathName: AnimationPathName, frame: Index, fps: number): boolean;
     static setIsAnimating(flag: boolean): void;
     _shallowCopyFrom(component_: Component): void;
-    _setRetarget(retarget: IAnimationRetarget, postFixToTrackName?: string): string[];
+    _setRetarget(retarget: IAnimationRetarget, postfixToTrackName?: string): string[];
     resetAnimationTracks(): void;
+    resetAnimationTrack(trackName: string): void;
+    resetAnimationTrackByPostfix(postfix: string): void;
     _destroy(): void;
 }

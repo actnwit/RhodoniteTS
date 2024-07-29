@@ -126,7 +126,7 @@ export declare class RenderPass extends RnObject {
      * If two or more render pass share a framebuffer, Rhodonite renders entities to the same framebuffer in those render passes.
      * @param framebuffer A framebuffer
      */
-    setFramebuffer(framebuffer: FrameBuffer): void;
+    setFramebuffer(framebuffer?: FrameBuffer): void;
     setRenderTargetColorAttachments(indeces?: RenderBufferTargetEnum[]): void;
     getRenderTargetColorAttachments(): RenderBufferTargetEnum[] | undefined;
     /**
@@ -148,9 +148,9 @@ export declare class RenderPass extends RnObject {
      * @return A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
      */
     getViewport(): MutableVector4 | undefined;
-    setResolveFramebuffer(framebuffer: FrameBuffer): void;
+    setResolveFramebuffer(framebuffer?: FrameBuffer): void;
     getResolveFramebuffer(): FrameBuffer | undefined;
-    setResolveFramebuffer2(framebuffer: FrameBuffer): void;
+    setResolveFramebuffer2(framebuffer?: FrameBuffer): void;
     getResolveFramebuffer2(): FrameBuffer | undefined;
     _copyFramebufferToResolveFramebuffersWebGL(): void;
     private __copyFramebufferToResolveFramebufferInner;

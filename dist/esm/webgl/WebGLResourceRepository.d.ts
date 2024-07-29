@@ -1,4 +1,3 @@
-/// <reference types="webgl-ext" />
 import { Accessor } from '../foundation/memory/Accessor';
 import { CGAPIResourceRepository, DirectTextureData, ICGAPIResourceRepository, ImageBitmapData } from '../foundation/renderer/CGAPIResourceRepository';
 import { Primitive } from '../foundation/geometry/Primitive';
@@ -21,6 +20,7 @@ import { Material } from '../foundation/materials/core/Material';
 import { AttributeNames } from './types';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { Sampler } from '../foundation/textures/Sampler';
+import { TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 export type VertexHandles = {
     vaoHandle: CGAPIResourceHandle;
     iboHandle?: CGAPIResourceHandle;
@@ -189,7 +189,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      */
     createTextureFromImageBitmapData(imageData: ImageBitmapData, { level, internalFormat, width, height, border, format, type, generateMipmap, }: {
         level: Index;
-        internalFormat: TextureParameterEnum;
+        internalFormat: TextureFormatEnum;
         width: Size;
         height: Size;
         border: Size;
@@ -222,7 +222,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      */
     createTextureFromTypedArray(imageData: TypedArray, { level, internalFormat, width, height, border, format, type, generateMipmap, }: {
         level: Index;
-        internalFormat: TextureParameterEnum;
+        internalFormat: TextureFormatEnum;
         width: Size;
         height: Size;
         border: Size;

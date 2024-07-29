@@ -1,4 +1,3 @@
-/// <reference types="webgl-ext" />
 import { WebGLExtensionEnum } from './WebGLExtension';
 import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTarget';
 import { Index, Size } from '../types/CommonTypes';
@@ -54,6 +53,7 @@ export declare class WebGLContextWrapper {
     readonly webgl2ExtCTEtc1?: WEBGL_compressed_texture_etc1;
     readonly webgl2ExtCTBptc?: WEBGL_compressed_texture_bptc;
     readonly webgl2ExtMLTVIEW?: WEBGL_multiview;
+    readonly webgl2ExtClipCtrl?: any;
     readonly webgl2ExtGmanWM?: any;
     private __activeTextureBackup;
     private __activeTextures2D;

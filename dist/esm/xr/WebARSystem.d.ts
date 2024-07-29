@@ -1,4 +1,3 @@
-/// <reference types="webxr" />
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { Vector3 } from '../foundation/math/Vector3';
 export declare class WebARSystem {

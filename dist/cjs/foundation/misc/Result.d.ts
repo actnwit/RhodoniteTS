@@ -50,8 +50,8 @@ interface IResult<T, ErrObj> {
     name(): string;
 }
 declare abstract class CResult<T, ErrObj> {
-    protected val?: T | RnError<ErrObj> | undefined;
-    constructor(val?: T | RnError<ErrObj> | undefined);
+    protected val?: (T | RnError<ErrObj>) | undefined;
+    constructor(val?: (T | RnError<ErrObj>) | undefined);
     match<R, ErrObj2>(obj: {
         Ok: (value: T) => R;
         Err: (value: RnError<ErrObj>) => RnError<ErrObj2>;
@@ -71,7 +71,7 @@ export declare class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult
     unwrapForce(): T;
     true(): this is Ok<T, ErrObj>;
     _isOk(): this is Ok<T, ErrObj>;
-    _isErr(): false;
+    _isErr(): this is Err<T, ErrObj>;
     /**
      * get the inner value safely.
      * @returns the inner value
@@ -87,7 +87,7 @@ export declare class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResul
     unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T;
     unwrapForce(): never;
     false(): false;
-    _isOk(): false;
+    _isOk(): this is Ok<T, ErrObj>;
     _isErr(): this is Err<T, ErrObj>;
     /**
      * get the RnError object.

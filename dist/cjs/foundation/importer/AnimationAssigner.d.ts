@@ -18,7 +18,7 @@ export declare class AnimationAssigner {
      * @returns
      */
     assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: Vrm0x | Vrm1, isSameSkeleton: boolean, retargetMode: RetargetMode): ISceneGraphEntity;
-    assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, addPrefixToAnimationTrackName?: string): string[];
+    assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string): string[];
     private constructor();
     private __resetAnimationAndPose;
     /**

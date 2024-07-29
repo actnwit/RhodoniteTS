@@ -1,48 +1,48 @@
 import { FrameBuffer } from '../renderer/FrameBuffer';
+import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
-declare function createTexturesForRenderTarget(width: number, height: number, textureNum: number, { level, internalFormat, format, type, createDepthBuffer, isMSAA, sampleCountMSAA, }: {
+import { PixelFormatEnum } from '../definitions/PixelFormat';
+import { TextureFormatEnum } from '../definitions/TextureFormat';
+export interface TextureParameters {
+    level: number;
+    format: TextureParameterEnum;
+}
+export interface FrameBufferDescriptor {
+    width: number;
+    height: number;
+    textureNum: number;
+    textureFormats: TextureFormatEnum[];
+    createDepthBuffer: boolean;
+    depthTextureFormat?: TextureFormatEnum;
+}
+declare function createFrameBuffer(desc: FrameBufferDescriptor): FrameBuffer;
+export interface FrameBufferMSAADescriptor {
+    width: number;
+    height: number;
+    colorBufferNum: number;
+    colorFormats: TextureFormatEnum[];
+    sampleCountMSAA: number;
+    depthBufferFormat: TextureFormatEnum;
+}
+declare function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor): FrameBuffer;
+export interface FrameBufferTextureArrayDescriptor {
+    width: number;
+    height: number;
+    arrayLength: number;
+    level: number;
+    internalFormat: TextureFormatEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+}
+declare function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor): FrameBuffer;
+declare function createDepthBuffer(width: number, height: number, { level, internalFormat }: {
     level?: number | undefined;
-    internalFormat?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
-    format?: import("..").EnumIO | undefined;
-    type?: ComponentTypeEnum | undefined;
-    createDepthBuffer?: boolean | undefined;
-    isMSAA?: boolean | undefined;
-    sampleCountMSAA?: number | undefined;
-}): FrameBuffer;
-declare function createTextureArrayForRenderTarget(width: number, height: number, arrayLength: number, { level, internalFormat, format, type, createDepthBuffer, isMSAA, sampleCountMSAA, }: {
-    level?: number | undefined;
-    internalFormat?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
-    format?: import("..").EnumIO | undefined;
-    type?: ComponentTypeEnum | undefined;
-    createDepthBuffer?: boolean | undefined;
-    isMSAA?: boolean | undefined;
-    sampleCountMSAA?: number | undefined;
-}): FrameBuffer;
-declare function createDepthBuffer(width: number, height: number, { level, internalFormat, format, type, }: {
-    level?: number | undefined;
-    internalFormat?: import("../definitions/TextureParameter").TextureParameterEnum | undefined;
-    format?: import("..").EnumIO | undefined;
-    type?: {
-        readonly __webgpu: string;
-        readonly __wgsl: string;
-        readonly __sizeInBytes: number;
-        readonly __dummyStr: "FLOAT";
-        readonly wgsl: string;
-        readonly webgpu: string;
-        getSizeInBytes(): number;
-        isFloatingPoint(): boolean;
-        isInteger(): boolean;
-        isUnsignedInteger(): boolean;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    } | undefined;
+    internalFormat?: TextureFormatEnum | undefined;
 }): FrameBuffer;
 export declare const RenderableHelper: Readonly<{
-    createTexturesForRenderTarget: typeof createTexturesForRenderTarget;
-    createTextureArrayForRenderTarget: typeof createTextureArrayForRenderTarget;
+    createFrameBuffer: typeof createFrameBuffer;
+    createFrameBufferMSAA: typeof createFrameBufferMSAA;
+    createFrameBufferTextureArray: typeof createFrameBufferTextureArray;
     createDepthBuffer: typeof createDepthBuffer;
 }>;
 export {};

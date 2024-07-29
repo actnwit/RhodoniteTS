@@ -1,5 +1,5 @@
 export declare const IsObj: {
-    defined(val: unknown, ...args: unknown[]): val is Object;
+    defined(val: unknown, ...args: unknown[]): val is Exclude<Object, undefined>;
     undefined(val: unknown, ...args: unknown[]): val is undefined;
     null(val: unknown, ...args: unknown[]): val is null;
     exist(val?: unknown, ...args: unknown[]): val is Object;
@@ -14,8 +14,8 @@ declare const NotObj: {
     defined(val: unknown, ...args: unknown[]): val is undefined;
     undefined(val: unknown, ...args: unknown[]): val is Object;
     null(val: unknown, ...args: unknown[]): val is Object;
-    exist(val?: unknown, ...args: unknown[]): val is null | undefined;
-    function(val: unknown, ...args: unknown[]): val is unknown;
+    exist(val?: unknown, ...args: unknown[]): val is undefined | null;
+    function(val: unknown, ...args: unknown[]): val is Exclude<unknown, Function>;
     true(val: unknown, ...args: unknown[]): boolean;
     truly(val: unknown, ...args: unknown[]): boolean;
     false(val: unknown, ...args: unknown[]): boolean;

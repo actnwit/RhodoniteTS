@@ -1,4 +1,4 @@
-export type TextureFormat = {
+type TextureFormat = {
     value: number;
 };
 type _TextureFormat = {

@@ -27,7 +27,7 @@ export declare class Texture extends AbstractTexture {
     generateTextureFromKTX2(uint8Array: Uint8Array): Promise<void>;
     generateTextureFromImage(image: HTMLImageElement, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: TextureParameterEnum | undefined;
+        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: {
             readonly __webgpu: string;
@@ -51,7 +51,7 @@ export declare class Texture extends AbstractTexture {
     loadFromImgLazy(): Promise<void>;
     generateTextureFromUri(imageUri: string, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: TextureParameterEnum | undefined;
+        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: {
             readonly __webgpu: string;
@@ -77,7 +77,7 @@ export declare class Texture extends AbstractTexture {
     generateSheenLutTextureFromDataUri(): Promise<void>;
     generateTextureFromTypedArray(typedArray: TypedArray, { level, internalFormat, format, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: TextureParameterEnum | undefined;
+        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         generateMipmap?: boolean | undefined;
     }): void;

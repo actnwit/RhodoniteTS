@@ -1,28 +1,26 @@
 import { AbstractTexture } from './AbstractTexture';
-import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { IRenderable } from './IRenderable';
 import { Size, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { Vector4 } from '../math/Vector4';
+import { TextureFormatEnum } from '../definitions/TextureFormat';
 export declare class RenderTargetTexture extends AbstractTexture implements IRenderable {
     private __fbo?;
     private __arrayLength;
     constructor();
-    create({ width, height, level, internalFormat, format, type, }: {
+    create({ width, height, level, format: internalFormat, }: {
         width: Size;
         height: Size;
         level: number;
-        internalFormat: TextureParameterEnum;
-        format: PixelFormatEnum;
-        type: ComponentTypeEnum;
+        format: TextureFormatEnum;
     }): void;
     createTextureArray({ width, height, level, internalFormat, format, type, arrayLength, }: {
         width: Size;
         height: Size;
         level: number;
-        internalFormat: TextureParameterEnum;
+        internalFormat: TextureFormatEnum;
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         arrayLength: number;

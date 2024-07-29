@@ -1,7 +1,6 @@
 import { RnObject } from '../core/RnObject';
 import { PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { CGAPIResourceHandle, Size, Index } from '../../types/CommonTypes';
 import { TextureDataFloat } from './TextureDataFloat';
 import { ColorRgb } from '../math/ColorRgb';
@@ -11,11 +10,12 @@ import { MutableVector4 } from '../math/MutableVector4';
 import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Sampler } from './Sampler';
+import { TextureFormatEnum } from '../definitions/TextureFormat';
 export declare abstract class AbstractTexture extends RnObject {
     protected __width: Size;
     protected __height: Size;
     protected __level: Index;
-    protected __internalFormat: TextureParameterEnum;
+    protected __internalFormat: TextureFormatEnum;
     protected __format: PixelFormatEnum;
     protected __type: ComponentTypeEnum;
     protected __hasTransparentPixels: boolean;

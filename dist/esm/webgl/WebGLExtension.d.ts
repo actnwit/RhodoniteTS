@@ -26,4 +26,5 @@ export declare const WebGLExtension: Readonly<{
     OculusMultiview: EnumIO;
     OvrMultiview2: EnumIO;
     GMAN_WEBGL_MEMORY: EnumIO;
+    ClipControl: EnumIO;
 }>;

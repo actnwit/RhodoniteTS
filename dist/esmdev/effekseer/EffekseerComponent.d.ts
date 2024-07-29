@@ -1,10 +1,7 @@
-/// <reference path="../../../vendor/effekseer.d.ts" />
-/// <reference types="node" />
 import { Component } from '../foundation/core/Component';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
 import { IVector3 } from '../foundation/math/IVector';
-import type { Unzip } from 'zlib';
 import { IEntity } from '../foundation/core/Entity';
 import { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { RenderPass } from '../foundation/renderer/RenderPass';
@@ -12,7 +9,7 @@ export declare class EffekseerComponent extends Component {
     static readonly ANIMATION_EVENT_PLAY = 0;
     static readonly ANIMATION_EVENT_PAUSE = 1;
     static readonly ANIMATION_EVENT_END = 2;
-    static Unzip?: Unzip;
+    static Unzip?: any;
     uri?: string;
     arrayBuffer?: ArrayBuffer;
     type: string;

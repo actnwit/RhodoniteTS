@@ -1,4 +1,5 @@
 import { AbstractShaderNode } from './AbstractShaderNode';
+import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
  */
@@ -50,7 +51,7 @@ export declare class ShaderGraphResolver {
      * @param json - JSON data of a shader node graph
      * @returns Shader code
      */
-    static generateShaderCodeFromJson(json: any): {
+    static generateShaderCodeFromJson(json: ShaderNodeJson): {
         vertexShader: string;
         pixelShader: string;
     } | undefined;

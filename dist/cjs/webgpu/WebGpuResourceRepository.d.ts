@@ -1,4 +1,3 @@
-/// <reference types="@webgpu/types" />
 import { ComponentTypeEnum } from '../foundation/definitions/ComponentType';
 import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameterEnum } from '../foundation/definitions/TextureParameter';

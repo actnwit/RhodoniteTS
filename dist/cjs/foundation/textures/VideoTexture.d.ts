@@ -28,7 +28,7 @@ export declare class VideoTexture extends AbstractTexture {
     private __getResizedCanvas;
     generateTextureFromVideo(video: HTMLVideoElement, { level, internalFormat, format, type, generateMipmap, mutedAutoPlay, }?: {
         level?: number | undefined;
-        internalFormat?: TextureParameterEnum | undefined;
+        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: {
             readonly __webgpu: string;
@@ -52,7 +52,7 @@ export declare class VideoTexture extends AbstractTexture {
     }): void;
     generateTextureFromUri(videoUri: string, { level, internalFormat, format, type, generateMipmap, mutedAutoPlay, playButtonDomElement, }?: {
         level?: number | undefined;
-        internalFormat?: TextureParameterEnum | undefined;
+        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: {
             readonly __webgpu: string;

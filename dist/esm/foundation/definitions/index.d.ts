@@ -24,6 +24,7 @@ export * from './ShaderType';
 export * from './ShaderVariableType';
 export * from './ShadingModel';
 export * from './ShadowMap';
+export * from './TextureFormat';
 export * from './TextureParameter';
 export * from './VertexAttribute';
 export * from './Visibility';

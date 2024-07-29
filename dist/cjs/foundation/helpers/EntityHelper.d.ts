@@ -11,6 +11,7 @@ import { ISkeletalEntityMethods } from '../components/Skeletal/ISkeletalEntity';
 import { IPhysicsEntityMethods } from '../components/Physics/IPhysicsEntity';
 import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
+import { IAnimationStateEntityMethods } from '../components/AnimationState';
 export type ITransformEntity = IEntity & ITransformEntityMethods;
 export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
 export type IMeshEntity = ISceneGraphEntity & IMeshEntityMethods & IMeshRendererEntityMethods;
@@ -22,6 +23,8 @@ export type IPhysicsEntity = ISceneGraphEntity & IPhysicsEntityMethods;
 export type IBlendShapeEntity = IMeshEntity & IBlendShapeEntityMethods;
 export type IConstraintEntity = ISceneGraphEntity & IConstraintEntityMethods;
 export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMethods {
+}
+export interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStateEntityMethods {
 }
 declare function createEntity(): IEntity;
 declare function createTransformEntity(): ITransformEntity;

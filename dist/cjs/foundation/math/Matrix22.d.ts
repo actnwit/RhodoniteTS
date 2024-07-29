@@ -18,19 +18,17 @@ export declare class Matrix22 extends AbstractMatrix implements IMatrix22 {
         readonly __hlslStr: string;
         readonly __webgpuStr: string;
         readonly __wgslStr: string;
-        readonly __isArray: boolean; /**
-         * Create identity matrix
-         */
-        readonly __vec4SizeOfProperty: number;
+        readonly __isArray: boolean;
+        readonly __vec4SizeOfProperty: import("../../types").IndexOf16Bytes;
         readonly __dummyStr: "MAT2";
         readonly webgpu: string;
         readonly wgsl: string;
-        getNumberOfComponents(): number;
+        getNumberOfComponents(): import("../../types").Count;
         getGlslStr(componentType: import("..").ComponentTypeEnum): string;
         getGlslInitialValue(componentType: import("..").ComponentTypeEnum): string;
         getWgslInitialValue(componentType: import("..").ComponentTypeEnum): string;
         toWGSLType(componentType: import("..").ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): number;
+        getVec4SizeOfProperty(): import("../../types").IndexOf16Bytes;
         readonly index: number;
         readonly symbol: symbol;
         readonly str: string;

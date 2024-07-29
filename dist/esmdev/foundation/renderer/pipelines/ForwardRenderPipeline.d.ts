@@ -4,14 +4,8 @@ import { Frame } from '../Frame';
 import { Size } from '../../../types';
 import { Err, Ok } from '../../misc/Result';
 import { RnObject } from '../../core/RnObject';
-import { HdriFormatEnum, ToneMappingTypeEnum } from '../../definitions';
+import { ToneMappingTypeEnum } from '../../definitions';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
-type IBLCubeTextureParameter = {
-    baseUri: string;
-    isNamePosNeg: boolean;
-    hdriFormat: HdriFormatEnum;
-    mipmapLevelNumber: number;
-};
 /**
  * ForwardRenderPipeline is a one of render pipelines
  *
@@ -31,20 +25,17 @@ type IBLCubeTextureParameter = {
  * // Set expressions before calling other setter methods
  * forwardRenderPipeline.setExpressions(expressions);
  * // Set IBLs
- * forwardRenderPipeline.setIBL(
- *     diffuse: {
- *     baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
- *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
- *     isNamePosNeg: true,
- *     mipmapLevelNumber: 1,
- *   },
- *   specular: {
- *     baseUri: './../../../assets/ibl/papermill/specular/specular',
- *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
- *     isNamePosNeg: true,
- *     mipmapLevelNumber: 10,
- *   },
- * );
+ * const diffuseCubeTexture = new Rn.CubeTexture();
+ * diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
+ * diffuseCubeTexture.isNamePosNeg = true;
+ * diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+ * diffuseCubeTexture.mipmapLevelNumber = 1;
+ * const specularCubeTexture = new Rn.CubeTexture();
+ * specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
+ * specularCubeTexture.isNamePosNeg = true;
+ * specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
+ * specularCubeTexture.mipmapLevelNumber = 10;
+ * forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
  * // Set BiasViewProjectionMatrix for Shadow
  * forwardRenderPipeline.setBiasViewProjectionMatrixForShadow(matrix);
  * // Start Render Loop
@@ -128,14 +119,6 @@ export declare class ForwardRenderPipeline extends RnObject {
      */
     resize(width: Size, height: Size): Err<unknown, undefined> | Ok<unknown, unknown>;
     /**
-     * set IBL textures from uri
-     * @param arg - argument for diffuse and specular IBL
-     */
-    setIBL(arg: {
-        diffuse: IBLCubeTextureParameter;
-        specular: IBLCubeTextureParameter;
-    }): Promise<void>;
-    /**
      * set IBL cube textures
      * @param diffuse - diffuse IBL Cube Texture
      * @param specular - specular IBL Cube Texture
@@ -185,4 +168,3 @@ export declare class ForwardRenderPipeline extends RnObject {
      */
     private __setExpressions;
 }
-export {};
