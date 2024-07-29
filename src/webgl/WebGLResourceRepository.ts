@@ -55,6 +55,7 @@ import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { SystemState } from '../foundation/system/SystemState';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
 import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
+import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
@@ -1129,7 +1130,7 @@ export class WebGLResourceRepository
       generateMipmap,
     }: {
       level: Index;
-      internalFormat: TextureParameterEnum;
+      internalFormat: TextureFormatEnum;
       width: Size;
       height: Size;
       border: Size;
@@ -1242,7 +1243,7 @@ export class WebGLResourceRepository
       generateMipmap,
     }: {
       level: Index;
-      internalFormat: TextureParameterEnum;
+      internalFormat: TextureFormatEnum;
       width: Size;
       height: Size;
       border: Size;
@@ -2288,7 +2289,7 @@ export class WebGLResourceRepository
 
     return this.createTextureFromImageBitmapData(canvas, {
       level: 0,
-      internalFormat: TextureParameter.RGBA8,
+      internalFormat: TextureFormat.RGBA8,
       width: 1,
       height: 1,
       border: 0,
@@ -2320,7 +2321,7 @@ export class WebGLResourceRepository
     const arrayBuffer = DataUtil.base64ToArrayBuffer(base64);
     return this.createTextureFromTypedArray(new Uint8Array(arrayBuffer), {
       level: 0,
-      internalFormat: TextureParameter.RGBA8,
+      internalFormat: TextureFormat.RGBA8,
       width: 1,
       height: 1,
       border: 0,

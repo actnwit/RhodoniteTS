@@ -10,6 +10,7 @@ import { Vector4 } from '../math/Vector4';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 export class RenderTargetTexture extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
@@ -21,21 +22,67 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   create({
     width,
     height,
-    level = 0,
-    internalFormat = TextureParameter.RGB8,
-    format = PixelFormat.RGBA,
-    type = ComponentType.UnsignedByte,
+    level,
+    format: internalFormat,
   }: {
     width: Size;
     height: Size;
     level: number;
-    internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
+    format: TextureFormatEnum;
   }) {
     this.__width = width;
     this.__height = height;
     this.__level = level;
+
+    let format = PixelFormat.RGBA as PixelFormatEnum;
+    let type = ComponentType.UnsignedByte as ComponentTypeEnum;
+    if (internalFormat === TextureFormat.RGB8) {
+      format = PixelFormat.RGB;
+      type = ComponentType.UnsignedByte;
+    } else if (internalFormat === TextureFormat.RGBA8) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.UnsignedByte;
+    } else if (internalFormat === TextureFormat.RGB10_A2) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.UnsignedByte;
+    } else if (internalFormat === TextureFormat.RG16F) {
+      format = PixelFormat.RG;
+      type = ComponentType.HalfFloat;
+    } else if (internalFormat === TextureFormat.RG32F) {
+      format = PixelFormat.RG;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureFormat.RGB16F) {
+      format = PixelFormat.RGB;
+      type = ComponentType.HalfFloat;
+    } else if (internalFormat === TextureFormat.RGB32F) {
+      format = PixelFormat.RGB;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureFormat.RGBA16F) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.HalfFloat;
+    } else if (internalFormat === TextureFormat.RGBA32F) {
+      format = PixelFormat.RGBA;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureFormat.R11F_G11F_B10F) {
+      format = PixelFormat.RGB;
+      type = ComponentType.Float;
+    } else if (internalFormat === TextureFormat.Depth16) {
+      format = PixelFormat.DepthComponent;
+      type = ComponentType.UnsignedShort;
+    } else if (
+      internalFormat === TextureFormat.Depth24 ||
+      internalFormat === TextureFormat.Depth24Stencil8
+    ) {
+      format = PixelFormat.DepthComponent;
+      type = ComponentType.UnsignedInt;
+    } else if (
+      internalFormat === TextureFormat.Depth32F ||
+      internalFormat === TextureFormat.Depth32FStencil8
+    ) {
+      format = PixelFormat.DepthComponent;
+      type = ComponentType.Float;
+    }
+
     this.__internalFormat = internalFormat;
     this.__format = format;
     this.__type = type;
@@ -47,7 +94,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     width,
     height,
     level = 0,
-    internalFormat = TextureParameter.RGB8,
+    internalFormat = TextureFormat.RGB8,
     format = PixelFormat.RGBA,
     type = ComponentType.UnsignedByte,
     arrayLength,
@@ -55,7 +102,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     width: Size;
     height: Size;
     level: number;
-    internalFormat: TextureParameterEnum;
+    internalFormat: TextureFormatEnum;
     format: PixelFormatEnum;
     type: ComponentTypeEnum;
     arrayLength: number;

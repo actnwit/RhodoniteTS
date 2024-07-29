@@ -50,9 +50,7 @@ const renderPassMain = await createRenderPassMain(cameraComponentMain, [
   entityEnvironmentCube,
 ]);
 createAndSetFramebuffer(renderPassMain, rnCanvasElement.width, rnCanvasElement.height, 1, {
-  internalFormat: Rn.TextureParameter.RGBA16F,
-  format: Rn.PixelFormat.RGBA,
-  type: Rn.ComponentType.Float,
+  internalFormat: Rn.TextureFormat.RGBA16F,
 });
 renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
@@ -182,12 +180,13 @@ function createAndSetFramebuffer(
     isMSAA?: boolean | undefined;
   }
 ) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    resolutionWidth,
-    resolutionHeight,
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+    width: resolutionWidth,
+    height: resolutionHeight,
     textureNum,
-    property
-  );
+    textureFormats: [property.internalFormat],
+    createDepthBuffer: true,
+  });
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;
 }

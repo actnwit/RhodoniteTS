@@ -40,6 +40,7 @@ import { WebXRSystem } from '../xr/WebXRSystem';
 import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { Scalar } from '../foundation/math/Scalar';
+import { TextureFormat } from '../foundation/definitions/TextureFormat';
 
 declare const spector: any;
 
@@ -289,7 +290,7 @@ bool get_isBillboard(float instanceId) {
         floatDataTextureBuffer,
         {
           level: 0,
-          internalFormat: TextureParameter.RGBA32F,
+          internalFormat: TextureFormat.RGBA32F,
           width: MemoryManager.bufferWidthLength,
           height: MemoryManager.bufferHeightLength,
           border: 0,

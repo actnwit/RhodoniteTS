@@ -102,81 +102,6 @@ const MirroredRepeat: TextureParameterEnum = new TextureParameterClass({
   str: 'MIRRORED_REPEAT',
   webgpu: 'mirror-repeat',
 });
-const RGB8: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8051,
-  str: 'RGB8',
-  webgpu: 'rgb8unorm',
-});
-const RGBA8: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8058,
-  str: 'RGBA8',
-  webgpu: 'rgba8unorm',
-});
-const RGB10_A2: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8059,
-  str: 'RGB10_A2',
-  webgpu: 'rgb10a2unorm',
-});
-const RG16F: TextureParameterEnum = new TextureParameterClass({
-  index: GL_RG16F,
-  str: 'RG16F',
-  webgpu: 'rg16float',
-});
-const RG32F: TextureParameterEnum = new TextureParameterClass({
-  index: GL_RG32F,
-  str: 'RG32F',
-  webgpu: 'rg32float',
-});
-const RGB16F: TextureParameterEnum = new TextureParameterClass({
-  index: 0x881b,
-  str: 'RGB16F',
-  webgpu: 'rgba16float',
-});
-const RGB32F: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8815,
-  str: 'RGB32F',
-  webgpu: 'rgba32float',
-});
-const RGBA16F: TextureParameterEnum = new TextureParameterClass({
-  index: 0x881a,
-  str: 'RGBA16F',
-  webgpu: 'rgba16float',
-});
-const RGBA32F: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8814,
-  str: 'RGBA32F',
-  webgpu: 'rgba32float',
-});
-const R11F_G11F_B10F: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8c3a,
-  str: 'R11F_G11F_B10F',
-  webgpu: 'rg11b10ufloat',
-});
-const Depth16: TextureParameterEnum = new TextureParameterClass({
-  index: 0x81a5,
-  str: 'DEPTH_COMPONENT16',
-  webgpu: 'depth16unorm',
-});
-const Depth24: TextureParameterEnum = new TextureParameterClass({
-  index: 0x81a6,
-  str: 'DEPTH_COMPONENT24',
-  webgpu: 'depth24plus',
-});
-const Depth32F: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8cac,
-  str: 'DEPTH_COMPONENT32F',
-  webgpu: 'depth32float',
-});
-const Depth24Stencil8: TextureParameterEnum = new TextureParameterClass({
-  index: 0x88f0,
-  str: 'DEPTH24_STENCIL8',
-  webgpu: 'depth24plus-stencil8',
-});
-const Depth32FStencil8: TextureParameterEnum = new TextureParameterClass({
-  index: 0x8cad,
-  str: 'DEPTH32F_STENCIL8',
-  webgpu: 'depth32float-stencil8',
-});
 
 const typeList = [
   Nearest,
@@ -197,34 +122,10 @@ const typeList = [
   Repeat,
   ClampToEdge,
   MirroredRepeat,
-  RGB8,
-  RGBA8,
-  RGB10_A2,
-  RG16F,
-  RG32F,
-  RGB16F,
-  RGB32F,
-  RGBA16F,
-  RGBA32F,
-  R11F_G11F_B10F,
-  Depth16,
-  Depth24,
-  Depth32F,
-  Depth24Stencil8,
-  Depth32FStencil8,
 ];
 
 function from(index: number): TextureParameterEnum {
   return _from({ typeList, index }) as TextureParameterEnum;
-}
-
-function migrateToWebGL1InternalFormat(tp: TextureParameterEnum): TextureParameterEnum {
-  if (tp.index === RGBA8.index) {
-    return PixelFormat.RGBA as TextureParameterEnum;
-  } else if (tp.index === RGB8.index) {
-    return PixelFormat.RGB as TextureParameterEnum;
-  }
-  throw new Error('Unsupported texture parameter');
 }
 
 export const TextureParameter = Object.freeze({
@@ -246,21 +147,5 @@ export const TextureParameter = Object.freeze({
   Repeat,
   ClampToEdge,
   MirroredRepeat,
-  RGB8,
-  RGBA8,
-  RGB10_A2,
-  RG16F,
-  RG32F,
-  RGB16F,
-  RGB32F,
-  RGBA16F,
-  RGBA32F,
-  R11F_G11F_B10F,
-  Depth16,
-  Depth24,
-  Depth32F,
-  Depth24Stencil8,
-  Depth32FStencil8,
   from,
-  migrateToWebGL1InternalFormat,
 });

@@ -139,20 +139,23 @@ function createAndSetFrameBufferAndMSAAFramebuffer(
   renderPass: Rn.RenderPass,
   resolutionFramebuffer: number
 ) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-    resolutionFramebuffer,
-    resolutionFramebuffer,
-    0,
-    { isMSAA: true }
-  );
+  const framebuffer = Rn.RenderableHelper.createFrameBufferMSAA({
+    width: resolutionFramebuffer,
+    height: resolutionFramebuffer,
+    colorBufferNum: 1,
+    colorFormats: [Rn.TextureFormat.RGBA8],
+    sampleCountMSAA: 4,
+    depthBufferFormat: Rn.TextureFormat.Depth32F,
+  });
   renderPass.setFramebuffer(framebuffer);
 
-  const framebufferMSAA = Rn.RenderableHelper.createTexturesForRenderTarget(
-    resolutionFramebuffer,
-    resolutionFramebuffer,
-    1,
-    { createDepthBuffer: false }
-  );
+  const framebufferMSAA = Rn.RenderableHelper.createFrameBuffer({
+    width: resolutionFramebuffer,
+    height: resolutionFramebuffer,
+    textureNum: 1,
+    textureFormats: [Rn.TextureFormat.RGBA8],
+    createDepthBuffer: false,
+  });
   renderPass.setResolveFramebuffer(framebufferMSAA);
 }
 

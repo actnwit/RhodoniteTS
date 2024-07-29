@@ -1,7 +1,6 @@
 import { RnObject } from '../core/RnObject';
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { CGAPIResourceHandle, TextureUID, Size, Index } from '../../types/CommonTypes';
 import { TextureDataFloat } from './TextureDataFloat';
 import { CompositionType, CompositionTypeEnum } from '../definitions/CompositionType';
@@ -13,12 +12,13 @@ import { Vector3 } from '../math/Vector3';
 import { Vector4 } from '../math/Vector4';
 import { Is } from '../misc/Is';
 import { Sampler } from './Sampler';
+import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
   protected __level: Index = 0;
-  protected __internalFormat: TextureParameterEnum = TextureParameter.RGBA8;
+  protected __internalFormat: TextureFormatEnum = TextureFormat.RGBA8;
   protected __format: PixelFormatEnum = PixelFormat.RGBA;
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
 

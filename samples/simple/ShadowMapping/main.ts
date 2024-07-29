@@ -61,12 +61,13 @@ controller.registerEventListeners(document.getElementById('world'));
 
 // prepare render passes
 const renderPassDepth = createRenderPassDepth(cameraComponentDepth, entitiesRenderTarget);
-const framebufferDepth = Rn.RenderableHelper.createTexturesForRenderTarget(
-  resolutionDepthCamera,
-  resolutionDepthCamera,
-  1,
-  {}
-);
+const framebufferDepth = Rn.RenderableHelper.createFrameBuffer({
+  width: resolutionDepthCamera,
+  height: resolutionDepthCamera,
+  textureNum: 1,
+  textureFormats: [Rn.TextureFormat.RGBA8],
+  createDepthBuffer: true,
+});
 renderPassDepth.setFramebuffer(framebufferDepth);
 
 const renderPassMain = createRenderPassMain(

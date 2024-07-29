@@ -1,4 +1,4 @@
-export type TextureFormat = { value: number };
+type TextureFormat = { value: number };
 type _TextureFormat = {
   ETC1S: TextureFormat;
   UASTC4x4: TextureFormat;

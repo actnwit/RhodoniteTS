@@ -139,14 +139,12 @@ function createBoardEntityWithMaterial() {
 }
 
 function createFramebuffer(renderPass, height, width) {
-  const framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(height, width, 1, {
-    level: 0,
-    internalFormat: Rn.TextureParameter.RG32F,
-    format: Rn.PixelFormat.RG,
-    type: Rn.ComponentType.Float,
+  const framebuffer = Rn.RenderableHelper.createFrameBuffer({
+    width,
+    height,
+    textureNum: 1,
+    textureFormats: [Rn.TextureFormat.RG32F],
     createDepthBuffer: true,
-    isMSAA: false,
-    sampleCountMSAA: 1,
   });
   renderPass.setFramebuffer(framebuffer);
   return framebuffer;

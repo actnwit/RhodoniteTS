@@ -7,11 +7,12 @@ import { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 export class RenderBuffer extends RnObject implements IRenderable {
   width = 0;
   height = 0;
-  private __internalFormat: TextureParameterEnum = TextureParameter.Depth24;
+  private __internalFormat: TextureFormatEnum = TextureFormat.Depth24;
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;

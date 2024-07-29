@@ -3,7 +3,6 @@ import { DetectHighLuminanceMaterialContent } from '../materials/contents/Detect
 import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
 import { RenderPass } from '../renderer/RenderPass';
-import { Vector4 } from '../math/Vector4';
 import { MathUtil } from '../math/MathUtil';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Vector2 } from '../math/Vector2';
@@ -13,8 +12,7 @@ import { Expression } from '../renderer/Expression';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { VectorN } from '../math/VectorN';
 import { TextureParameter } from '../definitions/TextureParameter';
-import { PixelFormat } from '../definitions/PixelFormat';
-import { ComponentType } from '../definitions/ComponentType';
+import { TextureFormat } from '../definitions/TextureFormat';
 
 function createBloomExpression({
   textureToBloom,
@@ -96,16 +94,14 @@ function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminance
   );
   renderPassDetectHighLuminance.tryToSetUniqueName('renderPassDetectHighLuminance', true);
 
-  const framebufferDetectHighLuminance = RenderableHelper.createTexturesForRenderTarget(
-    texture.width,
-    texture.height,
-    1,
-    {
-      // internalFormat: TextureParameter.R11F_G11F_B10F,
-      // format: PixelFormat.RGB,
-      // type: ComponentType.Float,
-    }
-  );
+  const framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer({
+    width: texture.width,
+    height: texture.height,
+    textureNum: 1,
+    textureFormats: [TextureFormat.RGBA8],
+    createDepthBuffer: false,
+  });
+
   renderPassDetectHighLuminance.setFramebuffer(framebufferDetectHighLuminance);
   return renderPassDetectHighLuminance;
 }
@@ -197,16 +193,13 @@ function createRenderPassGaussianBlur(
     TextureTarget
   );
 
-  const framebuffer = RenderableHelper.createTexturesForRenderTarget(
-    resolutionWidthBlur,
-    resolutionHeightBlur,
-    1,
-    {
-      // internalFormat: TextureParameter.R11F_G11F_B10F,
-      // format: PixelFormat.RGB,
-      // type: ComponentType.Float,
-    }
-  );
+  const framebuffer = RenderableHelper.createFrameBuffer({
+    width: resolutionWidthBlur,
+    height: resolutionHeightBlur,
+    textureNum: 1,
+    textureFormats: [TextureFormat.RGBA8],
+    createDepthBuffer: false,
+  });
   renderPass.setFramebuffer(framebuffer);
 
   return renderPass;
@@ -239,16 +232,13 @@ function createRenderPassSynthesizeImage(
     materialSynthesizeTextures
   );
   renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
-  const framebufferSynthesizeImages = RenderableHelper.createTexturesForRenderTarget(
-    texture.width,
-    texture.height,
-    1,
-    {
-      internalFormat: TextureParameter.R11F_G11F_B10F,
-      format: PixelFormat.RGB,
-      type: ComponentType.Float,
-    }
-  );
+  const framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+    width: texture.width,
+    height: texture.height,
+    textureNum: 1,
+    textureFormats: [TextureFormat.R11F_G11F_B10F],
+    createDepthBuffer: false,
+  });
   renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);
 
   return renderPassSynthesizeGlare;
