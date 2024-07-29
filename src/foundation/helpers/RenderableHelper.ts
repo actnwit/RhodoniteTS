@@ -7,7 +7,7 @@ import { RenderBuffer } from '../textures/RenderBuffer';
 
 export interface TextureParameters {
   level: number;
-  internalFormat: TextureParameterEnum;
+  format: TextureParameterEnum;
 }
 
 export interface FrameBufferDescriptor {
@@ -30,7 +30,7 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
       width: desc.width,
       height: desc.height,
       level: desc.textureParametersList[i].level,
-      internalFormat: desc.textureParametersList[i].internalFormat,
+      format: desc.textureParametersList[i].format,
     });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
   }
@@ -43,7 +43,7 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
       width: desc.width,
       height: desc.height,
       level: 0,
-      internalFormat: depthBufferInternalFormat,
+      format: depthBufferInternalFormat,
     });
     frameBuffer.setDepthAttachment(depthTexture);
   }
@@ -110,7 +110,7 @@ function createTexturesForRenderTarget(
         width,
         height,
         level,
-        internalFormat,
+        format: internalFormat,
       });
       frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
     }
@@ -192,7 +192,7 @@ function createDepthBuffer(
     width,
     height,
     level,
-    internalFormat,
+    format: internalFormat,
   });
 
   frameBuffer.setDepthAttachment(depthTexture);

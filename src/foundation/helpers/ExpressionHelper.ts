@@ -96,16 +96,18 @@ function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminance
   );
   renderPassDetectHighLuminance.tryToSetUniqueName('renderPassDetectHighLuminance', true);
 
-  const framebufferDetectHighLuminance = RenderableHelper.createTexturesForRenderTarget(
-    texture.width,
-    texture.height,
-    1,
-    {
-      // internalFormat: TextureParameter.R11F_G11F_B10F,
-      // format: PixelFormat.RGB,
-      // type: ComponentType.Float,
-    }
-  );
+  const framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer({
+    width: texture.width,
+    height: texture.height,
+    textureNum: 1,
+    textureParametersList: [
+      {
+        level: 0,
+        format: TextureParameter.RGBA8,
+      },
+    ],
+    createDepthBuffer: false,
+  });
 
   renderPassDetectHighLuminance.setFramebuffer(framebufferDetectHighLuminance);
   return renderPassDetectHighLuminance;
@@ -198,16 +200,18 @@ function createRenderPassGaussianBlur(
     TextureTarget
   );
 
-  const framebuffer = RenderableHelper.createTexturesForRenderTarget(
-    resolutionWidthBlur,
-    resolutionHeightBlur,
-    1,
-    {
-      // internalFormat: TextureParameter.R11F_G11F_B10F,
-      // format: PixelFormat.RGB,
-      // type: ComponentType.Float,
-    }
-  );
+  const framebuffer = RenderableHelper.createFrameBuffer({
+    width: resolutionWidthBlur,
+    height: resolutionHeightBlur,
+    textureNum: 1,
+    textureParametersList: [
+      {
+        level: 0,
+        format: TextureParameter.RGBA8,
+      },
+    ],
+    createDepthBuffer: false,
+  });
   renderPass.setFramebuffer(framebuffer);
 
   return renderPass;
@@ -240,14 +244,18 @@ function createRenderPassSynthesizeImage(
     materialSynthesizeTextures
   );
   renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
-  const framebufferSynthesizeImages = RenderableHelper.createTexturesForRenderTarget(
-    texture.width,
-    texture.height,
-    1,
-    {
-      internalFormat: TextureParameter.R11F_G11F_B10F,
-    }
-  );
+  const framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+    width: texture.width,
+    height: texture.height,
+    textureNum: 1,
+    textureParametersList: [
+      {
+        level: 0,
+        format: TextureParameter.R11F_G11F_B10F,
+      },
+    ],
+    createDepthBuffer: false,
+  });
   renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);
 
   return renderPassSynthesizeGlare;

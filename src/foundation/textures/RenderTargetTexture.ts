@@ -22,12 +22,12 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     width,
     height,
     level,
-    internalFormat,
+    format: internalFormat,
   }: {
     width: Size;
     height: Size;
     level: number;
-    internalFormat: TextureParameterEnum;
+    format: TextureParameterEnum;
   }) {
     this.__width = width;
     this.__height = height;
