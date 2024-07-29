@@ -15,7 +15,18 @@ describe('Frame Test', () => {
     const expression0 = new Rn.Expression();
     const renderPass0_0 = new Rn.RenderPass();
     expression0.addRenderPasses([renderPass0_0]);
-    const framebuffer_0 = Rn.RenderableHelper.createTexturesForRenderTarget(800, 600, 1, {});
+    const framebuffer_0 = Rn.RenderableHelper.createFrameBuffer({
+      width: 800,
+      height: 600,
+      textureNum: 1,
+      textureParametersList: [
+        {
+          level: 0,
+          format: Rn.TextureParameter.RGBA8,
+        },
+      ],
+      createDepthBuffer: false,
+    });
     renderPass0_0.setFramebuffer(framebuffer_0);
 
     const expression1 = new Rn.Expression();

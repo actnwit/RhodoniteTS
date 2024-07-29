@@ -61,12 +61,18 @@ const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction
-const gammaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-  displayResolution,
-  displayResolution,
-  1,
-  {}
-);
+const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+  width: displayResolution,
+  height: displayResolution,
+  textureNum: 1,
+  textureParametersList: [
+    {
+      level: 0,
+      format: Rn.TextureParameter.RGBA8,
+    },
+  ],
+  createDepthBuffer: true,
+});
 for (const renderPass of vrmExpression.renderPasses) {
   renderPass.setFramebuffer(gammaTargetFramebuffer);
   renderPass.toClearColorBuffer = false;
@@ -91,12 +97,18 @@ setTextureParameterForMeshComponents(
 );
 
 // fxaa
-const fxaaTargetFramebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-  displayResolution,
-  displayResolution,
-  1,
-  {}
-);
+const fxaaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+  width: displayResolution,
+  height: displayResolution,
+  textureNum: 1,
+  textureParametersList: [
+    {
+      level: 0,
+      format: Rn.TextureParameter.RGBA8,
+    },
+  ],
+  createDepthBuffer: true,
+});
 gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 
 const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(gammaCorrectionRenderPass);

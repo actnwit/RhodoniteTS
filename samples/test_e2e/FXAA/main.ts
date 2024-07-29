@@ -19,12 +19,18 @@ await Rn.System.init({
 
 // setup the Main RenderPass
 renderPassMain = await setupRenderPassMain();
-framebuffer = Rn.RenderableHelper.createTexturesForRenderTarget(
-  canvas!.clientWidth,
-  canvas!.clientHeight,
-  1,
-  {}
-);
+framebuffer = Rn.RenderableHelper.createFrameBuffer({
+  width: canvas.clientWidth,
+  height: canvas.clientHeight,
+  textureNum: 1,
+  textureParametersList: [
+    {
+      level: 0,
+      format: Rn.TextureParameter.RGBA8,
+    },
+  ],
+  createDepthBuffer: true,
+});
 // renderPassMain.setFramebuffer(framebuffer);
 
 // setup the FXAA RenderPass
