@@ -910,14 +910,20 @@ export class ForwardRenderPipeline extends RnObject {
 
   private __setupDepthMomentFramebuffer(shadowMapSize: number) {
     return new Some(
-      RenderableHelper.createTexturesForRenderTarget(shadowMapSize, shadowMapSize, 1, {
-        level: 0,
-        internalFormat: TextureParameter.RG32F,
-        format: PixelFormat.RG,
-        type: ComponentType.Float,
+      RenderableHelper.createFrameBuffer({
+        width: shadowMapSize,
+        height: shadowMapSize,
+        textureNum: 1,
+        textureParametersList: [
+          {
+            level: 0,
+            internalFormat: TextureParameter.RG32F,
+            format: PixelFormat.RG,
+            type: ComponentType.Float,
+          },
+        ],
         createDepthBuffer: true,
-        isMSAA: false,
-        sampleCountMSAA: 1,
+        depthBufferInternalFormat: TextureParameter.Depth32F,
       })
     );
   }

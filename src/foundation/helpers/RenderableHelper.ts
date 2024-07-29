@@ -88,7 +88,7 @@ export interface FrameBufferMSAADescriptor {
   colorBufferNum: number;
   colorInternalFormatList: TextureParameterEnum[];
   sampleCountMSAA: number;
-  depthBufferInternalFormat?: TextureParameterEnum;
+  depthBufferInternalFormat: TextureParameterEnum;
 }
 
 function createFrameBufferMSAA(desc: FrameBufferMSAADescriptor) {
