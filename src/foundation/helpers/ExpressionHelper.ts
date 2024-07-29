@@ -3,7 +3,6 @@ import { DetectHighLuminanceMaterialContent } from '../materials/contents/Detect
 import { RenderPassHelper } from './RenderPassHelper';
 import { RenderableHelper } from './RenderableHelper';
 import { RenderPass } from '../renderer/RenderPass';
-import { Vector4 } from '../math/Vector4';
 import { MathUtil } from '../math/MathUtil';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Vector2 } from '../math/Vector2';
@@ -13,8 +12,6 @@ import { Expression } from '../renderer/Expression';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { VectorN } from '../math/VectorN';
 import { TextureParameter } from '../definitions/TextureParameter';
-import { PixelFormat } from '../definitions/PixelFormat';
-import { ComponentType } from '../definitions/ComponentType';
 
 function createBloomExpression({
   textureToBloom,
