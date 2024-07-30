@@ -15,7 +15,7 @@ import { ModuleManager } from '../system/ModuleManager';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SystemState } from '../system/SystemState';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat } from '../definitions/TextureFormat';
+import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 declare const BASIS: BASIS;
 
@@ -395,27 +395,27 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
-  generateTextureFromTypedArray(
-    typedArray: TypedArray,
-    {
-      level = 0,
-      internalFormat = TextureFormat.RGBA8,
-      format = PixelFormat.RGBA,
-      generateMipmap = true,
-    } = {}
-  ) {
-    const type = ComponentType.fromTypedArray(typedArray);
+  generateTextureFromTypedArray(desc: {
+    typedArray: TypedArray;
+    level: number;
+    width: number;
+    height: number;
+    internalFormat: TextureFormatEnum;
+    format: PixelFormatEnum;
+    generateMipmap: boolean;
+  }) {
+    const type = ComponentType.fromTypedArray(desc.typedArray);
 
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTextureFromTypedArray(typedArray, {
-      level,
-      internalFormat,
-      width: this.__width,
-      height: this.__height,
+    const texture = webGLResourceRepository.createTextureFromTypedArray(desc.typedArray, {
+      level: desc.level,
+      internalFormat: desc.internalFormat,
+      width: desc.width,
+      height: desc.height,
       border: 0,
-      format,
+      format: desc.format,
       type,
-      generateMipmap,
+      generateMipmap: desc.generateMipmap,
     });
 
     this._textureResourceUid = texture;
