@@ -3,7 +3,14 @@ import { ComponentType } from '../definitions/ComponentType';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { TypedArray, Count, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
+import {
+  TypedArray,
+  Count,
+  CGAPIResourceHandle,
+  Index,
+  Size,
+  Offset,
+} from '../../types/CommonTypes';
 import { Config } from '../core/Config';
 import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -18,6 +25,17 @@ import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository'
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 declare const BASIS: BASIS;
+
+export interface LoadImageToMipLevelDescriptor {
+  mipLevel: Index; // mip level to load
+  xOffset: Offset; // x offset in the texture to copy data
+  yOffset: Offset; // y offset in the texture to copy data
+  width: Size; // width in the texture to copy
+  height: Size; // height in the texture to copy
+  data: TypedArray; // image data in TypedArray
+  rowSizeByPixel: Size; // row size by pixel of the image data
+  type: ComponentTypeEnum; // component type of the image data
+}
 
 export class Texture extends AbstractTexture {
   public autoResize = true;
@@ -426,44 +444,23 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  async loadImageToMipLevel({
-    mipLevel,
-    xOffset,
-    yOffset,
-    width,
-    height,
-    data,
-    type,
-    rowSizeByPixel,
-  }: {
-    mipLevel: Index;
-    xOffset?: number;
-    yOffset?: number;
-    width?: number;
-    height?: number;
-    data: TypedArray;
-    rowSizeByPixel?: number;
-    type: ComponentTypeEnum;
-  }) {
+  async loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor) {
     const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const widthAtTheMipLevel = Math.max(1, Math.floor(this.__width / Math.pow(2, mipLevel)));
-    const heightAtTheMipLevel = Math.max(1, Math.floor(this.__height / Math.pow(2, mipLevel)));
-    rowSizeByPixel = rowSizeByPixel ?? widthAtTheMipLevel;
 
     await webGLResourceRepository.loadImageToMipLevelOfTexture2D({
-      mipLevel,
+      mipLevel: desc.mipLevel,
       textureUid: this._textureResourceUid,
       format: this.__internalFormat,
-      type,
-      xOffset: xOffset ?? 0,
-      yOffset: yOffset ?? 0,
-      width: width ?? widthAtTheMipLevel,
-      height: height ?? heightAtTheMipLevel,
-      rowSizeByPixel: rowSizeByPixel,
-      data,
+      type: desc.type,
+      xOffset: desc.xOffset,
+      yOffset: desc.yOffset,
+      width: desc.width,
+      height: desc.height,
+      rowSizeByPixel: desc.rowSizeByPixel,
+      data: desc.data,
     });
 
-    if (mipLevel === 0) {
+    if (desc.mipLevel === 0) {
       this.__isTextureReady = true;
     }
   }

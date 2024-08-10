@@ -39,6 +39,7 @@ texture.loadImageToMipLevel({
   yOffset: 0,
   width: 100,
   height: 256,
+  rowSizeByPixel: 256,
   type: Rn.ComponentType.UnsignedByte,
 });
 
