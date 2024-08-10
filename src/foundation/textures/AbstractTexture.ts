@@ -55,6 +55,14 @@ export abstract class AbstractTexture extends RnObject {
     return this.__width;
   }
 
+  getWidthAtMipLevel(mipLevel: Index) {
+    return Math.max(1, Math.floor(this.__width / Math.pow(2, mipLevel)));
+  }
+
+  getHeightAtMipLevel(mipLevel: Index) {
+    return Math.max(1, Math.floor(this.__height / Math.pow(2, mipLevel)));
+  }
+
   set width(val: Size) {
     this.__width = val;
   }
