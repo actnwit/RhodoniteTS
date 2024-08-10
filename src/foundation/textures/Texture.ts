@@ -401,12 +401,12 @@ export class Texture extends AbstractTexture {
     height: number;
     format: TextureFormatEnum;
   }) {
-    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
     desc.mipLevelCount =
       desc.mipLevelCount ?? Math.floor(Math.log2(Math.max(desc.width, desc.height))) + 1;
 
-    const texture = webGLResourceRepository.allocateTexture({
+    const texture = cgApiResourceRepository.allocateTexture({
       mipLevelCount: desc.mipLevelCount,
       width: desc.width,
       height: desc.height,
@@ -414,6 +414,11 @@ export class Texture extends AbstractTexture {
     });
 
     this._textureResourceUid = texture;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
     this.__width = desc.width;
     this.__height = desc.height;
     this.__mipLevelCount = desc.mipLevelCount;
@@ -421,7 +426,7 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
-  loadImageToMipLevel({
+  async loadImageToMipLevel({
     mipLevel,
     xOffset,
     yOffset,
@@ -429,6 +434,7 @@ export class Texture extends AbstractTexture {
     height,
     data,
     type,
+    rowSizeByPixel,
   }: {
     mipLevel: Index;
     xOffset?: number;
@@ -436,13 +442,15 @@ export class Texture extends AbstractTexture {
     width?: number;
     height?: number;
     data: TypedArray;
+    rowSizeByPixel?: number;
     type: ComponentTypeEnum;
   }) {
     const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const widthAtTheMipLevel = Math.max(1, Math.floor(this.__width / Math.pow(2, mipLevel)));
     const heightAtTheMipLevel = Math.max(1, Math.floor(this.__height / Math.pow(2, mipLevel)));
+    rowSizeByPixel = rowSizeByPixel ?? widthAtTheMipLevel;
 
-    webGLResourceRepository.loadImageToMipLevelOfTexture2D({
+    await webGLResourceRepository.loadImageToMipLevelOfTexture2D({
       mipLevel,
       textureUid: this._textureResourceUid,
       format: this.__internalFormat,
@@ -451,6 +459,7 @@ export class Texture extends AbstractTexture {
       yOffset: yOffset ?? 0,
       width: width ?? widthAtTheMipLevel,
       height: height ?? heightAtTheMipLevel,
+      rowSizeByPixel: rowSizeByPixel,
       data,
     });
 

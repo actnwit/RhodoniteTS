@@ -287,6 +287,7 @@ export interface ICGAPIResourceRepository {
     yOffset,
     width,
     height,
+    rowSizeByPixel,
     data,
   }: {
     mipLevel: Index;
@@ -297,6 +298,7 @@ export interface ICGAPIResourceRepository {
     yOffset: number;
     width: number;
     height: number;
+    rowSizeByPixel: number;
     data: TypedArray;
   }): void;
 

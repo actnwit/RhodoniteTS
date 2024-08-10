@@ -2317,7 +2317,7 @@ export class WebGpuResourceRepository
    * @param height - the height of the image
    * @param data - the typedarray data of the image
    */
-  loadImageToMipLevelOfTexture2D({
+  async loadImageToMipLevelOfTexture2D({
     mipLevel,
     textureUid,
     format,
@@ -2326,6 +2326,7 @@ export class WebGpuResourceRepository
     yOffset,
     width,
     height,
+    rowSizeByPixel,
     data,
   }: {
     mipLevel: Index;
@@ -2336,6 +2337,7 @@ export class WebGpuResourceRepository
     yOffset: number;
     width: number;
     height: number;
+    rowSizeByPixel: number;
     data: TypedArray;
   }) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
@@ -2343,7 +2345,10 @@ export class WebGpuResourceRepository
     const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
     const compositionNum = PixelFormat.getCompositionNumFromPixelFormat(pixelFormat);
 
-    const bytesPerRow = width * compositionNum * type.getSizeInBytes();
+    const bytesPerRow = rowSizeByPixel * compositionNum * type.getSizeInBytes();
+
+    // Align the row data size to multiple of 256 bytes due to the WebGPU spec
+    const paddedBytesPerRow = Math.ceil(bytesPerRow / 256) * 256;
 
     xOffset = xOffset ?? 0;
     yOffset = yOffset ?? 0;
@@ -2364,7 +2369,7 @@ export class WebGpuResourceRepository
       {
         buffer,
         offset: 0,
-        bytesPerRow,
+        bytesPerRow: paddedBytesPerRow,
         rowsPerImage: height,
       },
       {
@@ -2381,6 +2386,12 @@ export class WebGpuResourceRepository
 
     const commandBuffer = commandEncoder.finish();
     gpuDevice.queue.submit([commandBuffer]);
+
+    try {
+      await gpuDevice.queue.onSubmittedWorkDone();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private __createTextureInner(

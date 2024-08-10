@@ -10,6 +10,7 @@ await Rn.System.init({
 });
 
 const texture = new Rn.Texture();
+texture.tryToSetUniqueName('checkerTexture', true);
 texture.allocate({
   width: 256,
   height: 256,
@@ -34,6 +35,10 @@ for (let i = 0; i < 256; i++) {
 texture.loadImageToMipLevel({
   mipLevel: 0,
   data: pixels,
+  xOffset: 0,
+  yOffset: 0,
+  width: 100,
+  height: 256,
   type: Rn.ComponentType.UnsignedByte,
 });
 
@@ -52,6 +57,15 @@ const planeEntity = Rn.MeshHelper.createPlane({
 });
 planeEntity.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
 planeEntity.localScale = Rn.Vector3.fromCopy3(1, 1, 1);
+planeEntity.localPosition = Rn.Vector3.fromCopy3(0, 0, 0.5);
+
+const expression = new Rn.Expression();
+const renderPass = new Rn.RenderPass();
+renderPass.addEntities([planeEntity]);
+renderPass.toClearColorBuffer = true;
+renderPass.toClearDepthBuffer = true;
+renderPass.clearColor = Rn.Vector4.fromCopy4(0.5, 0.5, 0.5, 1.0);
+expression.addRenderPasses([renderPass]);
 
 // Render Loop
 let count = 0;
@@ -65,6 +79,6 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.processAuto();
+  Rn.System.process([expression]);
   count++;
 });

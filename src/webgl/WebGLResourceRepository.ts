@@ -1275,6 +1275,7 @@ export class WebGLResourceRepository
     yOffset,
     width,
     height,
+    rowSizeByPixel,
     data,
   }: {
     mipLevel: Index;
@@ -1285,13 +1286,26 @@ export class WebGLResourceRepository
     yOffset: number;
     width: number;
     height: number;
+    rowSizeByPixel: number;
     data: TypedArray;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
-
     const texture = this.getWebGLResource(textureUid) as RnWebGLTexture;
-
     const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
+    const compositionNum = PixelFormat.getCompositionNumFromPixelFormat(pixelFormat);
+
+    const reducedData = new (data.constructor as any)(width * height * compositionNum);
+
+    for (let y = 0; y < height; y++) {
+      const srcOffset = y * rowSizeByPixel * compositionNum;
+      const destOffset = y * width * compositionNum;
+      for (let x = 0; x < width; x++) {
+        reducedData.set(
+          data.subarray(srcOffset + x * compositionNum, srcOffset + (x + 1) * compositionNum),
+          destOffset + x * compositionNum
+        );
+      }
+    }
 
     xOffset = xOffset ?? 0;
     yOffset = yOffset ?? 0;
@@ -1306,7 +1320,7 @@ export class WebGLResourceRepository
       height,
       pixelFormat.index,
       type.index,
-      data
+      reducedData
     );
     this.__glw!.unbindTexture2D(15);
   }
