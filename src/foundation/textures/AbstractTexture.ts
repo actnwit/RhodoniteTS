@@ -18,6 +18,7 @@ export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
   protected __level: Index = 0;
+  protected __mipLevelCount: Index = 1;
   protected __internalFormat: TextureFormatEnum = TextureFormat.RGBA8;
   protected __format: PixelFormatEnum = PixelFormat.RGBA;
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;

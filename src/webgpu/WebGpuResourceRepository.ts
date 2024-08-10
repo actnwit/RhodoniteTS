@@ -59,6 +59,7 @@ import {
   BasisCompressionTypeEnum,
 } from '../foundation/definitions/BasisCompressionType';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
+import { TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -2264,6 +2265,45 @@ export class WebGpuResourceRepository
     }
 
     const textureHandle = this.__registerResource(texture);
+    return textureHandle;
+  }
+
+  /**
+   * allocate a Texture
+   * @param format - the format of the texture
+   * @param width - the width of the texture
+   * @param height - the height of the texture
+   * @param mipmapCount - the number of mipmap levels
+   * @returns the handle of the texture
+   */
+  allocateTexture({
+    format,
+    width,
+    height,
+    mipLevelCount,
+  }: {
+    format: TextureFormatEnum;
+    width: Size;
+    height: Size;
+    mipLevelCount?: Count;
+  }): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+
+    mipLevelCount = mipLevelCount || Math.floor(Math.log2(Math.max(width, height))) + 1;
+
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, 1],
+      mipLevelCount: mipLevelCount,
+      format: format.webgpu as GPUTextureFormat,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const textureHandle = this.__registerResource(gpuTexture);
     return textureHandle;
   }
 

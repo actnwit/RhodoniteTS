@@ -395,31 +395,20 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
-  generateTextureFromTypedArray(desc: {
-    typedArray: TypedArray;
-    level: number;
-    width: number;
-    height: number;
-    internalFormat: TextureFormatEnum;
-    format: PixelFormatEnum;
-    generateMipmap: boolean;
-  }) {
-    const type = ComponentType.fromTypedArray(desc.typedArray);
-
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTextureFromTypedArray(desc.typedArray, {
-      level: desc.level,
-      internalFormat: desc.internalFormat,
+  allocate(desc: { mipmapCount: Count; width: number; height: number; format: TextureFormatEnum }) {
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const texture = webGLResourceRepository.allocateTexture({
+      mipLevelCount: desc.mipmapCount,
       width: desc.width,
       height: desc.height,
-      border: 0,
       format: desc.format,
-      type,
-      generateMipmap: desc.generateMipmap,
     });
 
     this._textureResourceUid = texture;
-    this.__isTextureReady = true;
+    this.__width = desc.width;
+    this.__height = desc.height;
+    this.__mipLevelCount = desc.mipmapCount;
+    this.__internalFormat = desc.format;
     AbstractTexture.__textureMap.set(texture, this);
   }
 

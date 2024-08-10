@@ -1225,6 +1225,38 @@ export class WebGLResourceRepository
   }
 
   /**
+   * allocate a Texture
+   * @param format - the internal format of the texture
+   * @param width - the width of the texture
+   * @param height - the height of the texture
+   * @param mipmapCount - the number of mipmap levels
+   * @returns the handle of the texture
+   */
+  allocateTexture({
+    format,
+    width,
+    height,
+    mipLevelCount,
+  }: {
+    format: TextureFormatEnum;
+    width: Size;
+    height: Size;
+    mipLevelCount?: Count;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
+
+    this.__glw!.bindTexture2D(15, texture);
+    gl.texStorage2D(GL_TEXTURE_2D, mipLevelCount, format.index, width, height);
+    this.__glw!.unbindTexture2D(15);
+
+    return resourceHandle;
+  }
+
+  /**
    * create a Texture from TypedArray
    * @param imageData
    * @param param1

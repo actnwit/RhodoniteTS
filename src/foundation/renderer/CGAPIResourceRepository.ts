@@ -15,6 +15,7 @@ import {
   CompressionTextureTypeEnum,
   HdriFormatEnum,
   ProcessApproach,
+  TextureFormatEnum,
   VertexAttributeEnum,
 } from '../definitions';
 import { Material } from '../materials/core/Material';
@@ -244,6 +245,26 @@ export interface ICGAPIResourceRepository {
     isNamePosNeg: boolean,
     hdriFormat: HdriFormatEnum
   ): Promise<[number, Sampler]>;
+
+  /**
+   * allocate a Texture
+   * @param format - the format of the texture
+   * @param width - the width of the texture
+   * @param height - the height of the texture
+   * @param mipmapCount - the number of mipmap levels
+   * @returns the handle of the texture
+   */
+  allocateTexture({
+    format,
+    width,
+    height,
+    mipLevelCount,
+  }: {
+    format: TextureFormatEnum;
+    width: Size;
+    height: Size;
+    mipLevelCount?: Count;
+  }): CGAPIResourceHandle;
 
   /**
    * create a Cube Texture
