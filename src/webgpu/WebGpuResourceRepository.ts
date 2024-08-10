@@ -2350,17 +2350,25 @@ export class WebGpuResourceRepository
     // Align the row data size to multiple of 256 bytes due to the WebGPU spec
     const paddedBytesPerRow = Math.ceil(bytesPerRow / 256) * 256;
 
+    // Copy data to padded buffer
+    const paddedData = new Uint8Array(paddedBytesPerRow * height);
+    for (let row = 0; row < height; row++) {
+      const srcOffset = row * bytesPerRow;
+      const dstOffset = row * paddedBytesPerRow;
+      paddedData.set(new Uint8Array(data.buffer, srcOffset, bytesPerRow), dstOffset);
+    }
+
     xOffset = xOffset ?? 0;
     yOffset = yOffset ?? 0;
 
     // バッファの作成
     const buffer = gpuDevice.createBuffer({
-      size: data.byteLength,
+      size: paddedData.byteLength,
       usage: GPUBufferUsage.COPY_SRC,
       mappedAtCreation: true,
     });
 
-    new Uint8Array(buffer.getMappedRange()).set(data);
+    new Uint8Array(buffer.getMappedRange()).set(paddedData);
     buffer.unmap();
 
     const commandEncoder = gpuDevice.createCommandEncoder();

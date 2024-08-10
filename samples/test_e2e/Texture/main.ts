@@ -5,42 +5,49 @@ declare const window: any;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.WebGPU,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+
+const textureWidth = 255;
+const textureHeight = 256;
+const componentSize: number = 4;
+const imageComponentType = Rn.ComponentType.Float;
 
 const texture = new Rn.Texture();
 texture.tryToSetUniqueName('checkerTexture', true);
 texture.allocate({
-  width: 256,
-  height: 256,
-  format: Rn.TextureFormat.RGBA8,
+  width: textureWidth,
+  height: textureHeight,
+  format: Rn.TextureFormat.RGBA32F,
 });
 
-const pixels = new Uint8Array(256 * 256 * 4);
+const pixels = new Float32Array(textureWidth * textureHeight * componentSize);
 
 // Checker pattern image
 const checkerSize = 8;
-for (let i = 0; i < 256; i++) {
-  for (let j = 0; j < 256; j++) {
-    const index = (i * 256 + j) * 4;
+for (let i = 0; i < textureHeight; i++) {
+  for (let j = 0; j < textureWidth; j++) {
+    const index = (i * textureWidth + j) * componentSize;
     const isWhite = Math.floor(i / checkerSize) % 2 === Math.floor(j / checkerSize) % 2 ? 255 : 0;
     pixels[index] = isWhite; // R
     pixels[index + 1] = 0; // G
     pixels[index + 2] = 0; // B
-    pixels[index + 3] = 255; // A
+    if (componentSize === 4) {
+      pixels[index + 3] = 255; // A
+    }
   }
 }
 
 texture.loadImageToMipLevel({
   mipLevel: 0,
   data: pixels,
-  xOffset: 0,
-  yOffset: 0,
+  xOffset: 25,
+  yOffset: 50,
   width: 100,
-  height: 256,
-  rowSizeByPixel: 256,
-  type: Rn.ComponentType.UnsignedByte,
+  height: 70,
+  rowSizeByPixel: textureWidth,
+  type: imageComponentType,
 });
 
 const material = Rn.MaterialHelper.createClassicUberMaterial();
