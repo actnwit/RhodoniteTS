@@ -267,6 +267,40 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
+   * Load an image to a specific mip level of a texture
+   * @param mipLevel - the mip level to load the image to
+   * @param textureUid - the handle of the texture
+   * @param format - the format of the image
+   * @param type - the type of the data
+   * @param xOffset - the x offset of copy region
+   * @param yOffset - the y offset of copy region
+   * @param width - the width of the image
+   * @param height - the height of the image
+   * @param data - the typedarray data of the image
+   */
+  loadImageToMipLevelOfTexture2D({
+    mipLevel,
+    textureUid,
+    format,
+    type,
+    xOffset,
+    yOffset,
+    width,
+    height,
+    data,
+  }: {
+    mipLevel: Index;
+    textureUid: CGAPIResourceHandle;
+    format: TextureFormatEnum;
+    type: ComponentTypeEnum;
+    xOffset: number;
+    yOffset: number;
+    width: number;
+    height: number;
+    data: TypedArray;
+  }): void;
+
+  /**
    * create a Cube Texture
    */
   createCubeTexture(

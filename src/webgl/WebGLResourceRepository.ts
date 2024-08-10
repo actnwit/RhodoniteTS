@@ -1257,6 +1257,63 @@ export class WebGLResourceRepository
   }
 
   /**
+   * Load an image to a specific mip level of a texture
+   * @param mipLevel - the mip level to load the image to
+   * @param textureUid - the handle of the texture
+   * @param format - the format of the image
+   * @param type - the type of the data
+   * @param xOffset - the x offset of copy region
+   * @param yOffset - the y offset of copy region
+   * @param width - the width of the image
+   * @param height - the height of the image
+   * @param data - the typedarray data of the image
+   */
+  loadImageToMipLevelOfTexture2D({
+    mipLevel,
+    textureUid,
+    format,
+    type,
+    xOffset,
+    yOffset,
+    width,
+    height,
+    data,
+  }: {
+    mipLevel: Index;
+    textureUid: WebGLResourceHandle;
+    format: TextureFormatEnum;
+    type: ComponentTypeEnum;
+    xOffset: number;
+    yOffset: number;
+    width: number;
+    height: number;
+    data: TypedArray;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    const texture = this.getWebGLResource(textureUid) as RnWebGLTexture;
+
+    const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
+
+    xOffset = xOffset ?? 0;
+    yOffset = yOffset ?? 0;
+
+    this.__glw!.bindTexture2D(15, texture);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      mipLevel,
+      xOffset,
+      yOffset,
+      width,
+      height,
+      pixelFormat.index,
+      type.index,
+      data
+    );
+    this.__glw!.unbindTexture2D(15);
+  }
+
+  /**
    * create a Texture from TypedArray
    * @param imageData
    * @param param1

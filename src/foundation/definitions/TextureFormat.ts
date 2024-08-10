@@ -1,5 +1,6 @@
 import { GL_RG16F, GL_RG32F } from '../../types';
 import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
+import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
 export interface TextureFormatEnum extends EnumIO {
   webgpu: string;
@@ -96,6 +97,43 @@ const Depth32FStencil8: TextureFormatEnum = new TextureFormatClass({
   webgpu: 'depth32float-stencil8',
 });
 
+function getPixelFormatFromTextureFormat(textureFormat: TextureFormatEnum): PixelFormatEnum {
+  switch (textureFormat) {
+    case RGB8:
+      return PixelFormat.RGB;
+    case RGBA8:
+      return PixelFormat.RGBA;
+    case RGB10_A2:
+      return PixelFormat.RGBA;
+    case RG16F:
+      return PixelFormat.RG;
+    case RG32F:
+      return PixelFormat.RG;
+    case RGB16F:
+      return PixelFormat.RGB;
+    case RGB32F:
+      return PixelFormat.RGB;
+    case RGBA16F:
+      return PixelFormat.RGBA;
+    case RGBA32F:
+      return PixelFormat.RGBA;
+    case R11F_G11F_B10F:
+      return PixelFormat.RGB;
+    case Depth16:
+      return PixelFormat.DepthComponent;
+    case Depth24:
+      return PixelFormat.DepthComponent;
+    case Depth32F:
+      return PixelFormat.DepthComponent;
+    case Depth24Stencil8:
+      return PixelFormat.DepthStencil;
+    case Depth32FStencil8:
+      return PixelFormat.DepthStencil;
+    default:
+      throw new Error(`Not implemented yet: ${textureFormat}`);
+  }
+}
+
 const typeList = [
   RGB8,
   RGBA8,
@@ -134,5 +172,6 @@ export const TextureFormat = Object.freeze({
   Depth32F,
   Depth24Stencil8,
   Depth32FStencil8,
+  getPixelFormatFromTextureFormat,
   from,
 });

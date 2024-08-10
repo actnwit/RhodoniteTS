@@ -4,7 +4,7 @@ import { DataUtil } from '../foundation/misc/DataUtil';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { AbstractTexture } from '../foundation/textures/AbstractTexture';
 import { ComponentType, ComponentTypeEnum } from '../foundation/definitions/ComponentType';
-import { PixelFormatEnum } from '../foundation/definitions/PixelFormat';
+import { PixelFormat, PixelFormatEnum } from '../foundation/definitions/PixelFormat';
 import { TextureParameter, TextureParameterEnum } from '../foundation/definitions/TextureParameter';
 import { VertexAttribute, VertexAttributeEnum } from '../foundation/definitions/VertexAttribute';
 import { Mesh } from '../foundation/geometry/Mesh';
@@ -59,7 +59,7 @@ import {
   BasisCompressionTypeEnum,
 } from '../foundation/definitions/BasisCompressionType';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
-import { TextureFormatEnum } from '../foundation/definitions/TextureFormat';
+import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -2305,6 +2305,84 @@ export class WebGpuResourceRepository
 
     const textureHandle = this.__registerResource(gpuTexture);
     return textureHandle;
+  }
+
+  /**
+   * Load an image to a specific mip level of a texture
+   * @param mipLevel - the mip level to load the image to
+   * @param textureUid - the handle of the texture
+   * @param format - the format of the image
+   * @param type - the type of the data
+   * @param xOffset - the x offset of copy region
+   * @param yOffset - the y offset of copy region
+   * @param width - the width of the image
+   * @param height - the height of the image
+   * @param data - the typedarray data of the image
+   */
+  loadImageToMipLevelOfTexture2D({
+    mipLevel,
+    textureUid,
+    format,
+    type,
+    xOffset,
+    yOffset,
+    width,
+    height,
+    data,
+  }: {
+    mipLevel: Index;
+    textureUid: WebGLResourceHandle;
+    format: TextureFormatEnum;
+    type: ComponentTypeEnum;
+    xOffset: number;
+    yOffset: number;
+    width: number;
+    height: number;
+    data: TypedArray;
+  }) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const texture = this.__webGpuResources.get(textureUid) as GPUTexture;
+    const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
+    const compositionNum = PixelFormat.getCompositionNumFromPixelFormat(pixelFormat);
+
+    const bytesPerRow = width * compositionNum * type.getSizeInBytes();
+
+    xOffset = xOffset ?? 0;
+    yOffset = yOffset ?? 0;
+
+    // バッファの作成
+    const buffer = gpuDevice.createBuffer({
+      size: data.byteLength,
+      usage: GPUBufferUsage.COPY_SRC,
+      mappedAtCreation: true,
+    });
+
+    new Uint8Array(buffer.getMappedRange()).set(data);
+    buffer.unmap();
+
+    const commandEncoder = gpuDevice.createCommandEncoder();
+
+    commandEncoder.copyBufferToTexture(
+      {
+        buffer,
+        offset: 0,
+        bytesPerRow,
+        rowsPerImage: height,
+      },
+      {
+        texture,
+        mipLevel,
+        origin: { x: xOffset, y: yOffset, z: 0 },
+      },
+      {
+        width: width,
+        height: height,
+        depthOrArrayLayers: 1,
+      }
+    );
+
+    const commandBuffer = commandEncoder.finish();
+    gpuDevice.queue.submit([commandBuffer]);
   }
 
   private __createTextureInner(

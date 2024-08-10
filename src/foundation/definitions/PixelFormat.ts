@@ -42,6 +42,29 @@ const LuminanceAlpha: PixelFormatEnum = new PixelFormatClass({
   str: 'LUMINANCE_ALPHA',
 });
 
+function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number {
+  switch (pixelFormat) {
+    case DepthComponent:
+      return 1;
+    case DepthStencil:
+      return 2;
+    case Alpha:
+      return 1;
+    case RG:
+      return 2;
+    case RGB:
+      return 3;
+    case RGBA:
+      return 4;
+    case Luminance:
+      return 1;
+    case LuminanceAlpha:
+      return 2;
+    default:
+      throw new Error(`Not supported ${pixelFormat}`);
+  }
+}
+
 const typeList = [DepthComponent, DepthStencil, Alpha, RG, RGB, RGBA, Luminance, LuminanceAlpha];
 
 function from(index: number): PixelFormatEnum {
@@ -57,4 +80,6 @@ export const PixelFormat = Object.freeze({
   RGBA,
   Luminance,
   LuminanceAlpha,
+  from,
+  getCompositionNumFromPixelFormat,
 });
