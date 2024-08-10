@@ -245,7 +245,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     return color;
   }
 
-  generateMipmap() {
+  generateMipmaps() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
   }

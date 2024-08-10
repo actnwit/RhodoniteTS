@@ -784,7 +784,7 @@ export class ForwardRenderPipeline extends RnObject {
     // Generate Mipmap of resolve Framebuffer 2
     renderPass.setPostRenderFunction(function (this: RenderPass): void {
       const renderTargetTexture = resolveFramebuffer2.getColorAttachedRenderTargetTexture(0)!;
-      renderTargetTexture.generateMipmap();
+      renderTargetTexture.generateMipmaps();
     });
 
     return new Some(expression);
@@ -806,7 +806,7 @@ export class ForwardRenderPipeline extends RnObject {
         (
           multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
         ).blitToTexture2dFromTexture2dArrayFake(texture);
-        texture.generateMipmap();
+        texture.generateMipmaps();
       }
     });
 
