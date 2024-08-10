@@ -1307,9 +1307,6 @@ export class WebGLResourceRepository
       }
     }
 
-    xOffset = xOffset ?? 0;
-    yOffset = yOffset ?? 0;
-
     this.__glw!.bindTexture2D(15, texture);
     gl.texSubImage2D(
       gl.TEXTURE_2D,

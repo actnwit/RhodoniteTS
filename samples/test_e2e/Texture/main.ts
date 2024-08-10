@@ -5,12 +5,14 @@ declare const window: any;
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.WebGPU,
+  approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const textureWidth = 255;
+const textureWidth = 256;
 const textureHeight = 256;
+const imageDataWidth = 250;
+const imageDataHeight = 256;
 const componentSize: number = 4;
 const imageComponentType = Rn.ComponentType.Float;
 
@@ -22,13 +24,13 @@ texture.allocate({
   format: Rn.TextureFormat.RGBA32F,
 });
 
-const pixels = new Float32Array(textureWidth * textureHeight * componentSize);
+const pixels = new Float32Array(imageDataWidth * imageDataHeight * componentSize);
 
 // Checker pattern image
 const checkerSize = 8;
-for (let i = 0; i < textureHeight; i++) {
-  for (let j = 0; j < textureWidth; j++) {
-    const index = (i * textureWidth + j) * componentSize;
+for (let i = 0; i < imageDataHeight; i++) {
+  for (let j = 0; j < imageDataWidth; j++) {
+    const index = (i * imageDataWidth + j) * componentSize;
     const isWhite = Math.floor(i / checkerSize) % 2 === Math.floor(j / checkerSize) % 2 ? 255 : 0;
     pixels[index] = isWhite; // R
     pixels[index + 1] = 0; // G
@@ -46,7 +48,7 @@ texture.loadImageToMipLevel({
   yOffset: 50,
   width: 100,
   height: 70,
-  rowSizeByPixel: textureWidth,
+  rowSizeByPixel: imageDataWidth,
   type: imageComponentType,
 });
 

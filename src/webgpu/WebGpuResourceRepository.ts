@@ -2358,9 +2358,6 @@ export class WebGpuResourceRepository
       paddedData.set(new Uint8Array(data.buffer, srcOffset, bytesPerRow), dstOffset);
     }
 
-    xOffset = xOffset ?? 0;
-    yOffset = yOffset ?? 0;
-
     // バッファの作成
     const buffer = gpuDevice.createBuffer({
       size: paddedData.byteLength,
