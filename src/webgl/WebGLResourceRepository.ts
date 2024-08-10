@@ -1241,13 +1241,11 @@ export class WebGLResourceRepository
     format: TextureFormatEnum;
     width: Size;
     height: Size;
-    mipLevelCount?: Count;
+    mipLevelCount: Count;
   }): WebGLResourceHandle {
     const gl = this.__glw!.getRawContextAsWebGL2();
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
-
-    mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
     this.__glw!.bindTexture2D(15, texture);
     gl.texStorage2D(GL_TEXTURE_2D, mipLevelCount, format.index, width, height);

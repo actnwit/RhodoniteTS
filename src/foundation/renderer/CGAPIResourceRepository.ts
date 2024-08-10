@@ -263,7 +263,7 @@ export interface ICGAPIResourceRepository {
     format: TextureFormatEnum;
     width: Size;
     height: Size;
-    mipLevelCount?: Count;
+    mipLevelCount: Count;
   }): CGAPIResourceHandle;
 
   /**

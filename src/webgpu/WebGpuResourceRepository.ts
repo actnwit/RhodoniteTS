@@ -2285,11 +2285,9 @@ export class WebGpuResourceRepository
     format: TextureFormatEnum;
     width: Size;
     height: Size;
-    mipLevelCount?: Count;
+    mipLevelCount: Count;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-
-    mipLevelCount = mipLevelCount || Math.floor(Math.log2(Math.max(width, height))) + 1;
 
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],

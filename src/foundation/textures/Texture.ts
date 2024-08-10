@@ -395,10 +395,19 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
-  allocate(desc: { mipmapCount: Count; width: number; height: number; format: TextureFormatEnum }) {
+  allocate(desc: {
+    mipLevelCount?: Count;
+    width: number;
+    height: number;
+    format: TextureFormatEnum;
+  }) {
     const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+
+    desc.mipLevelCount =
+      desc.mipLevelCount ?? Math.floor(Math.log2(Math.max(desc.width, desc.height))) + 1;
+
     const texture = webGLResourceRepository.allocateTexture({
-      mipLevelCount: desc.mipmapCount,
+      mipLevelCount: desc.mipLevelCount,
       width: desc.width,
       height: desc.height,
       format: desc.format,
@@ -407,7 +416,7 @@ export class Texture extends AbstractTexture {
     this._textureResourceUid = texture;
     this.__width = desc.width;
     this.__height = desc.height;
-    this.__mipLevelCount = desc.mipmapCount;
+    this.__mipLevelCount = desc.mipLevelCount;
     this.__internalFormat = desc.format;
     AbstractTexture.__textureMap.set(texture, this);
   }
