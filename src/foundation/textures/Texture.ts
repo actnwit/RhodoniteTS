@@ -525,6 +525,18 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(texture, this);
   }
 
+  /**
+   * Generate mipmaps for the texture.
+   */
+  generateMipmaps() {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.generateMipmaps2d(
+      this._textureResourceUid,
+      this.__width,
+      this.__height
+    );
+  }
+
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
