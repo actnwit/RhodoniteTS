@@ -51,7 +51,7 @@
     "ShadowMapVariance",
     "Simple",
     "SummedAreaTable",
-    "Texture",
+    "Texture/?mode=datatexture",
     "VarianceShadowMap",
     "VRMAnimation",
     "VRMImporter",
