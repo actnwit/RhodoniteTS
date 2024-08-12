@@ -2443,22 +2443,19 @@ export class WebGpuResourceRepository
   createRenderTargetTexture({
     width,
     height,
-    level,
-    internalFormat,
+    mipLevelCount,
     format,
-    type,
   }: {
     width: Size;
     height: Size;
-    level: Index;
-    internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
+    mipLevelCount: Count;
+    format: TextureParameterEnum;
   }): WebGPUResourceHandle {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
-      format: internalFormat.webgpu as GPUTextureFormat,
+      format: format.webgpu as GPUTextureFormat,
+      // mipLevelCount,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_SRC |

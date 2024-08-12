@@ -1770,17 +1770,13 @@ export class WebGLResourceRepository
   createRenderTargetTexture({
     width,
     height,
-    level,
-    internalFormat,
+    mipLevelCount,
     format,
-    type,
   }: {
     width: Size;
     height: Size;
-    level: Index;
-    internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
+    mipLevelCount: Count;
+    format: TextureParameterEnum;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
@@ -1789,17 +1785,7 @@ export class WebGLResourceRepository
 
     this.__glw!.bindTexture2D(15, texture);
 
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      level,
-      internalFormat.index,
-      width,
-      height,
-      0,
-      format.index,
-      type.index,
-      null
-    );
+    gl.texStorage2D(gl.TEXTURE_2D, mipLevelCount, format.index, width, height);
 
     this.__glw!.unbindTexture2D(15);
 

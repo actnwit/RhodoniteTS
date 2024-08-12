@@ -16,6 +16,7 @@ export interface FrameBufferDescriptor {
   height: number;
   textureNum: number;
   textureFormats: TextureFormatEnum[];
+  mipLevelCount?: number;
   createDepthBuffer: boolean;
   depthTextureFormat?: TextureFormatEnum;
 }
@@ -30,7 +31,7 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
     renderTargetTexture.create({
       width: desc.width,
       height: desc.height,
-      level: 0,
+      mipLevelCount: desc.mipLevelCount,
       format: desc.textureFormats[i],
     });
     frameBuffer.setColorAttachmentAt(i, renderTargetTexture);
@@ -43,7 +44,7 @@ function createFrameBuffer(desc: FrameBufferDescriptor) {
     depthTexture.create({
       width: desc.width,
       height: desc.height,
-      level: 0,
+      mipLevelCount: 1,
       format: depthBufferInternalFormat,
     });
     frameBuffer.setDepthAttachment(depthTexture);
@@ -138,7 +139,7 @@ function createDepthBuffer(
   depthTexture.create({
     width,
     height,
-    level,
+    mipLevelCount: 1,
     format: internalFormat,
   });
 

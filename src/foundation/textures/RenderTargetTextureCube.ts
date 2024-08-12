@@ -23,12 +23,12 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
   }: {
     width: number;
     height: number;
-    mipLevelCount: number;
+    mipLevelCount?: number;
     format: TextureFormatEnum;
   }) {
     this.__width = width;
     this.__height = height;
-    this.__mipLevelCount = mipLevelCount;
+    this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
     const { format, type } =
       TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);

@@ -1,5 +1,4 @@
 import { AbstractTexture } from './AbstractTexture';
-import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import { IRenderable } from './IRenderable';
@@ -22,66 +21,20 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   create({
     width,
     height,
-    level,
+    mipLevelCount,
     format: internalFormat,
   }: {
     width: Size;
     height: Size;
-    level: number;
+    mipLevelCount?: number;
     format: TextureFormatEnum;
   }) {
     this.__width = width;
     this.__height = height;
-    this.__level = level;
+    this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
 
-    let format = PixelFormat.RGBA as PixelFormatEnum;
-    let type = ComponentType.UnsignedByte as ComponentTypeEnum;
-    if (internalFormat === TextureFormat.RGB8) {
-      format = PixelFormat.RGB;
-      type = ComponentType.UnsignedByte;
-    } else if (internalFormat === TextureFormat.RGBA8) {
-      format = PixelFormat.RGBA;
-      type = ComponentType.UnsignedByte;
-    } else if (internalFormat === TextureFormat.RGB10_A2) {
-      format = PixelFormat.RGBA;
-      type = ComponentType.UnsignedByte;
-    } else if (internalFormat === TextureFormat.RG16F) {
-      format = PixelFormat.RG;
-      type = ComponentType.HalfFloat;
-    } else if (internalFormat === TextureFormat.RG32F) {
-      format = PixelFormat.RG;
-      type = ComponentType.Float;
-    } else if (internalFormat === TextureFormat.RGB16F) {
-      format = PixelFormat.RGB;
-      type = ComponentType.HalfFloat;
-    } else if (internalFormat === TextureFormat.RGB32F) {
-      format = PixelFormat.RGB;
-      type = ComponentType.Float;
-    } else if (internalFormat === TextureFormat.RGBA16F) {
-      format = PixelFormat.RGBA;
-      type = ComponentType.HalfFloat;
-    } else if (internalFormat === TextureFormat.RGBA32F) {
-      format = PixelFormat.RGBA;
-      type = ComponentType.Float;
-    } else if (internalFormat === TextureFormat.R11F_G11F_B10F) {
-      format = PixelFormat.RGB;
-      type = ComponentType.Float;
-    } else if (internalFormat === TextureFormat.Depth16) {
-      format = PixelFormat.DepthComponent;
-      type = ComponentType.UnsignedShort;
-    } else if (
-      internalFormat === TextureFormat.Depth24 ||
-      internalFormat === TextureFormat.Depth24Stencil8
-    ) {
-      format = PixelFormat.DepthComponent;
-      type = ComponentType.UnsignedInt;
-    } else if (
-      internalFormat === TextureFormat.Depth32F ||
-      internalFormat === TextureFormat.Depth32FStencil8
-    ) {
-      format = PixelFormat.DepthComponent;
-      type = ComponentType.Float;
-    }
+    const { format, type } =
+      TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
 
     this.__internalFormat = internalFormat;
     this.__format = format;
@@ -135,10 +88,8 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     const texture = cgApiResourceRepository.createRenderTargetTexture({
       width: this.__width,
       height: this.__height,
-      level: this.__level,
-      internalFormat: this.__internalFormat,
-      format: this.__format,
-      type: this.__type,
+      mipLevelCount: this.__mipLevelCount,
+      format: this.__internalFormat,
     });
     this._textureResourceUid = texture;
 
