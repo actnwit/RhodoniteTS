@@ -11,10 +11,12 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
+// Load HDR image
 const response = await fetch('../../../assets/hdr/near_the_river_02_1k.hdr');
 const arrayBuffer = await response.arrayBuffer();
 const data = await loadHDR(new Uint8Array(arrayBuffer));
 
+// Create HDR texture
 const hdrTexture = new Rn.Texture();
 hdrTexture.allocate({
   width: data.width,
@@ -43,26 +45,14 @@ hdrTexture.loadImageToMipLevel({
   type: Rn.ComponentType.Float,
 });
 
+// Create material
 const panoramaToCubeMaterial = Rn.MaterialHelper.createPanoramaToCubeMaterial();
-
 panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
 
+// Create expression
 const expression = new Rn.Expression();
 
-// const sampler = new Rn.Sampler({
-//   magFilter: Rn.TextureParameter.Nearest,
-//   minFilter: Rn.TextureParameter.Nearest,
-//   wrapS: Rn.TextureParameter.ClampToEdge,
-//   wrapT: Rn.TextureParameter.ClampToEdge,
-// });
-// sampler.create();
-
-// panoramaToCubeMaterial.setTextureParameter(
-//   Rn.ShaderSemantics.BaseColorTexture,
-//   hdrTexture,
-//   sampler
-// );
-
+// Create renderPass and set hdrTexture to panoramaToCubeMaterial
 const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   panoramaToCubeMaterial,
   hdrTexture

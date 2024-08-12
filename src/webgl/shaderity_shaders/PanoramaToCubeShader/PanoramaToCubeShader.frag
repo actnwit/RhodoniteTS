@@ -38,6 +38,7 @@ vec3 uvToDirection(int faceId, vec2 uv)
     return vec3(-uv.x, +uv.y, -1.f);
 }
 
+// learned a lot from https://github.com/KhronosGroup/glTF-Sample-Viewer
 void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
