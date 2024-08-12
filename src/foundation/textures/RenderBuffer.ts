@@ -15,6 +15,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
   private __internalFormat: TextureFormatEnum = TextureFormat.Depth24;
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewMipmapCountOneResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
   private __isMSAA = false;
   private __sampleCountMSAA = 4;
