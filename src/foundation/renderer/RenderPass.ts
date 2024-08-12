@@ -435,26 +435,26 @@ export class RenderPass extends RnObject {
         continue;
       }
 
-      if (
-        webGpuResourceRepository.isMippmappedTexture(
-          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
-        )
-      ) {
-        webGpuResourceRepository.copyTextureData(
-          this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
-          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
-        );
-      } else {
-        webGpuResourceRepository.deleteTexture(
-          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
-        );
-        [
-          this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid,
-          this.__resolveFrameBuffer2.colorAttachments[i]._textureViewResourceUid,
-        ] = webGpuResourceRepository.duplicateTextureAsMipmapped(
-          this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid
-        );
-      }
+      // if (
+      //   webGpuResourceRepository.isMippmappedTexture(
+      //     this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+      //   )
+      // ) {
+      webGpuResourceRepository.copyTextureData(
+        this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid,
+        this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+      );
+      // } else {
+      //   webGpuResourceRepository.deleteTexture(
+      //     this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid
+      //   );
+      //   [
+      //     this.__resolveFrameBuffer2.colorAttachments[i]._textureResourceUid,
+      //     this.__resolveFrameBuffer2.colorAttachments[i]._textureViewResourceUid,
+      //   ] = webGpuResourceRepository.duplicateTextureAsMipmapped(
+      //     this.__resolveFrameBuffer.colorAttachments[i]._textureResourceUid
+      //   );
+      // }
     }
   }
 

@@ -1045,12 +1045,18 @@ export class WebGpuResourceRepository
           const textureView = this.__webGpuResources.get(
             colorAttachment._textureViewResourceUid
           ) as GPUTextureView;
-          const resolveTextureView = this.__webGpuResources.get(
-            resolveColorAttachment._textureViewResourceUid
-          ) as GPUTextureView;
+          // const resolveTextureView = this.__webGpuResources.get(
+          //   resolveColorAttachment._textureViewResourceUid
+          // ) as GPUTextureView;
+          const resolveTexture = this.__webGpuResources.get(
+            resolveColorAttachment._textureResourceUid
+          ) as GPUTexture;
           colorAttachments.push({
             view: textureView,
-            resolveTarget: resolveTextureView,
+            // resolveTexture: resolveTextureView,
+            resolveTarget: resolveTexture.createView({
+              mipLevelCount: 1,
+            }),
             clearValue: clearValue,
             loadOp: renderPass.toClearColorBuffer ? 'clear' : 'load',
             storeOp: 'store',
@@ -2455,7 +2461,7 @@ export class WebGpuResourceRepository
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
       format: format.webgpu as GPUTextureFormat,
-      // mipLevelCount,
+      mipLevelCount,
       usage:
         GPUTextureUsage.TEXTURE_BINDING |
         GPUTextureUsage.COPY_SRC |
