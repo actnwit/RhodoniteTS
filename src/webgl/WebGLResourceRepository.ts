@@ -1840,6 +1840,36 @@ export class WebGLResourceRepository
   }
 
   /**
+   * create a RenderTargetTextureCube
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureCube({
+    width,
+    height,
+    mipLevelCount,
+    format,
+  }: {
+    width: Size;
+    height: Size;
+    mipLevelCount: Size;
+    format: TextureParameterEnum;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2D(15, texture);
+
+    gl.texStorage2D(gl.TEXTURE_CUBE_MAP, mipLevelCount, format.index, width, height);
+
+    this.__glw!.unbindTexture2D(15);
+
+    return resourceHandle;
+  }
+
+  /**
    * create a CubeTexture
    *
    * @param mipLevelCount

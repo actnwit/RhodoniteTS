@@ -431,6 +431,23 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
+   * create a RenderTargetTextureCube
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureCube({
+    width,
+    height,
+    mipLevelCount,
+    format,
+  }: {
+    width: Size;
+    height: Size;
+    mipLevelCount: Size;
+    format: TextureParameterEnum;
+  }): CGAPIResourceHandle;
+
+  /**
    * delete a Texture
    * @param textureHandle
    */

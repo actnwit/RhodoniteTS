@@ -1,5 +1,6 @@
 import { GL_RG16F, GL_RG32F } from '../../types';
 import { EnumClass, EnumIO, _from } from '../misc/EnumIO';
+import { ComponentType, ComponentTypeEnum } from './ComponentType';
 import { PixelFormat, PixelFormatEnum } from './PixelFormat';
 
 export interface TextureFormatEnum extends EnumIO {
@@ -134,6 +135,59 @@ function getPixelFormatFromTextureFormat(textureFormat: TextureFormatEnum): Pixe
   }
 }
 
+function getPixelFormatAndComponentTypeFromTextureFormat(internalFormat: TextureFormatEnum) {
+  let format = PixelFormat.RGBA as PixelFormatEnum;
+  let type = ComponentType.UnsignedByte as ComponentTypeEnum;
+  if (internalFormat === TextureFormat.RGB8) {
+    format = PixelFormat.RGB;
+    type = ComponentType.UnsignedByte;
+  } else if (internalFormat === TextureFormat.RGBA8) {
+    format = PixelFormat.RGBA;
+    type = ComponentType.UnsignedByte;
+  } else if (internalFormat === TextureFormat.RGB10_A2) {
+    format = PixelFormat.RGBA;
+    type = ComponentType.UnsignedByte;
+  } else if (internalFormat === TextureFormat.RG16F) {
+    format = PixelFormat.RG;
+    type = ComponentType.HalfFloat;
+  } else if (internalFormat === TextureFormat.RG32F) {
+    format = PixelFormat.RG;
+    type = ComponentType.Float;
+  } else if (internalFormat === TextureFormat.RGB16F) {
+    format = PixelFormat.RGB;
+    type = ComponentType.HalfFloat;
+  } else if (internalFormat === TextureFormat.RGB32F) {
+    format = PixelFormat.RGB;
+    type = ComponentType.Float;
+  } else if (internalFormat === TextureFormat.RGBA16F) {
+    format = PixelFormat.RGBA;
+    type = ComponentType.HalfFloat;
+  } else if (internalFormat === TextureFormat.RGBA32F) {
+    format = PixelFormat.RGBA;
+    type = ComponentType.Float;
+  } else if (internalFormat === TextureFormat.R11F_G11F_B10F) {
+    format = PixelFormat.RGB;
+    type = ComponentType.Float;
+  } else if (internalFormat === TextureFormat.Depth16) {
+    format = PixelFormat.DepthComponent;
+    type = ComponentType.UnsignedShort;
+  } else if (
+    internalFormat === TextureFormat.Depth24 ||
+    internalFormat === TextureFormat.Depth24Stencil8
+  ) {
+    format = PixelFormat.DepthComponent;
+    type = ComponentType.UnsignedInt;
+  } else if (
+    internalFormat === TextureFormat.Depth32F ||
+    internalFormat === TextureFormat.Depth32FStencil8
+  ) {
+    format = PixelFormat.DepthComponent;
+    type = ComponentType.Float;
+  }
+
+  return { format, type };
+}
+
 const typeList = [
   RGB8,
   RGBA8,
@@ -173,5 +227,6 @@ export const TextureFormat = Object.freeze({
   Depth24Stencil8,
   Depth32FStencil8,
   getPixelFormatFromTextureFormat,
+  getPixelFormatAndComponentTypeFromTextureFormat,
   from,
 });

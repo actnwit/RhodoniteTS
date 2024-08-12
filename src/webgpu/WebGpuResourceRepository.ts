@@ -2497,6 +2497,43 @@ export class WebGpuResourceRepository
   }): WebGPUResourceHandle {
     return -1;
   }
+
+  /**
+   * create a RenderTargetTextureCube
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureCube({
+    width,
+    height,
+    mipLevelCount,
+    format,
+  }: {
+    width: Size;
+    height: Size;
+    mipLevelCount: Count;
+    format: TextureParameterEnum;
+  }): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      dimension: '2d',
+      size: [width, height, 6],
+      format: format.webgpu as GPUTextureFormat,
+      mipLevelCount,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_SRC |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const textureHandle = this.__registerResource(gpuTexture);
+
+    return textureHandle;
+  }
+
   /**
    * create Renderbuffer
    */
