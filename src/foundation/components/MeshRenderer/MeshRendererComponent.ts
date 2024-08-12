@@ -29,6 +29,7 @@ import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { SystemState } from '../../system/SystemState';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture;
@@ -364,6 +365,11 @@ export class MeshRendererComponent extends Component {
   }
 
   static common_$prerender() {
+    if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
+      // Possible if there is no mesh entity in the scene
+      const processApproach = SystemState.currentProcessApproach;
+      this.common_$load({ processApproach });
+    }
     // Call common_$prerender of WebGLRenderingStrategy
     MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
   }
