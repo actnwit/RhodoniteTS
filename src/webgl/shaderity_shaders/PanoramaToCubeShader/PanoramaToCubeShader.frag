@@ -42,8 +42,8 @@ void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-	vec2 uv = v_texCoord_0 * 2.0 - 1.0;
-	vec3 direction = normalize(uvToDirection(u_cubeMapFaceId, uv));
+	vec2 uv = v_texcoord_0 * 2.0 - 1.0;
+	vec3 direction = normalize(uvToDirection(get_cubeMapFaceId(materialSID, 0), uv));
 	vec2 panoramaUv = dirToPanoramaUV(direction);
 	rt0 = vec4(texture(u_baseColorTexture, panoramaUv).rgb, 1.0);
 
