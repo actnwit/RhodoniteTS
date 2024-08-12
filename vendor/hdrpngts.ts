@@ -16,7 +16,11 @@ function rgbeToFloat(buffer: Uint8Array): Float32Array {
   return res;
 }
 
-export function loadHDR(uint8Array: Uint8Array) {
+export function loadHDR(uint8Array: Uint8Array): {
+  width: number;
+  height: number;
+  dataFloat: Float32Array;
+} {
   let header = '';
   let pos = 0;
   const d8 = uint8Array;
