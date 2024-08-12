@@ -427,6 +427,9 @@ const EmissiveStrength = new ShaderSemanticsClass({
 const Time = new ShaderSemanticsClass({
   str: 'time',
 });
+const CubeMapFaceId = new ShaderSemanticsClass({
+  str: 'cubeMapFaceId',
+});
 
 const typeList = [
   WorldMatrix,
@@ -557,6 +560,7 @@ const typeList = [
   AnisotropyTexture,
   EmissiveStrength,
   Time,
+  CubeMapFaceId,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -807,4 +811,5 @@ export const ShaderSemantics = Object.freeze({
   AnisotropyTexture,
   EmissiveStrength,
   Time,
+  CubeMapFaceId,
 });

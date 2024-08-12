@@ -9,6 +9,7 @@
 in vec2 v_texcoord_0;
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
+uniform int u_cubeMapFaceId; // initialValue=0
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -41,12 +42,10 @@ void main ()
 {
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-	vec2 texCoordNew = v_texCoord_0 * 2.0 - 1.0;
-	vec3 scan = uvToDirection(face, texCoordNew);
-	vec3 direction = normalize(scan);
-	vec2 src = dirToPanoramaUV(direction);
-
-	rt0 = vec4(texture(u_panorama, src).rgb, 1.0);
+	vec2 uv = v_texCoord_0 * 2.0 - 1.0;
+	vec3 direction = normalize(uvToDirection(u_cubeMapFaceId, uv));
+	vec2 panoramaUv = dirToPanoramaUV(direction);
+	rt0 = vec4(texture(u_baseColorTexture, panoramaUv).rgb, 1.0);
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }
