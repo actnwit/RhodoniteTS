@@ -38,6 +38,7 @@
     "GltfImporter-texture-transform",
     "GltfImporter-walk-through-eye-direction-moving",
     "GltfImporter-walk-through-fixed-direction-moving",
+    "IBLfromHDR",
     "InstancedSkinMesh",
     "MatCap",
     "MultiPass",
