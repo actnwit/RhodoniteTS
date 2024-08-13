@@ -76,6 +76,8 @@ float d_GGX(float NH, float alphaRoughness) {
   return roughnessSqr / (M_PI * f * f);
 }
 
+// We learnd a lot from the following resources
+// https://bruop.github.io/ibl/
 vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness)
 {
     vec2 xi = hammersley2d(sampleIndex, u_sampleCount);
@@ -97,10 +99,16 @@ vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness)
     return vec4(direction, importanceSample.pdf);
 }
 
+// We learnd a lot from the following resources
+// https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-20-gpu-based-importance-sampling
+// https://cgg.mff.cuni.cz/~jaroslav/papers/2007-sketch-fis/Final_sap_0073.pdf
+// https://google.github.io/filament/Filament.html#annex/importancesamplingfortheibl/pre-filteredimportancesampling
 float computeLod(float pdf, float width)
 {
-    float lod = 0.5 * log2( 6.0 * float(width) * float(width) / (float(u_sampleCount) * pdf));
-    return lod;
+    // 6.0 is the number of faces of the cubemap
+    // log4 = 0.5 * log2
+    // We don't use the constant K in the filament document
+    return 0.5 * log2( 6.0 * float(width) * float(width) / (float(u_sampleCount) * pdf));
 }
 
 vec3 prefilter(vec3 N)
