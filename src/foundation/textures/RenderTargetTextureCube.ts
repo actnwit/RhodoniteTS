@@ -59,6 +59,11 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     AbstractTexture.__textureMap.set(texture, this);
   }
 
+  generateMipmaps() {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.generateMipmapsCube(this._textureResourceUid, this.width, this.height);
+  }
+
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();
     this.__width = width;

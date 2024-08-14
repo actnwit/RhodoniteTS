@@ -7,7 +7,7 @@ import { AbstractTexture } from '../textures/AbstractTexture';
 import { Sampler } from '../textures/Sampler';
 import { MeshHelper } from './MeshHelper';
 
-let sampler: Sampler | undefined;
+let _sampler: Sampler | undefined;
 
 /**
  * Creates a RenderPass for Screen rendering.
@@ -33,18 +33,19 @@ function createScreenDrawRenderPass(material: Material) {
  */
 function createScreenDrawRenderPassWithBaseColorTexture(
   material: Material,
-  texture: AbstractTexture
+  texture: AbstractTexture,
+  sampler?: Sampler
 ) {
-  if (sampler === undefined) {
-    sampler = new Sampler({
+  if (_sampler === undefined) {
+    _sampler = new Sampler({
       magFilter: TextureParameter.Linear,
       minFilter: TextureParameter.Linear,
       wrapS: TextureParameter.ClampToEdge,
       wrapT: TextureParameter.ClampToEdge,
     });
-    sampler.create();
+    _sampler.create();
   }
-  material.setTextureParameter(ShaderSemantics.BaseColorTexture, texture, sampler);
+  material.setTextureParameter(ShaderSemantics.BaseColorTexture, texture, sampler ?? _sampler);
 
   const renderPass = new RenderPass();
   renderPass.toClearColorBuffer = false;

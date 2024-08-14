@@ -2489,6 +2489,14 @@ export class WebGLResourceRepository
     this.__glw!.unbindTexture2D(15);
   }
 
+  generateMipmapsCube(textureHandle: WebGLResourceHandle, width: number, height: number): void {
+    const gl = this.__glw!.getRawContext();
+    const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
+    this.__glw!.bindTextureCube(15, texture);
+    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+    this.__glw!.unbindTextureCube(15);
+  }
+
   async getTexturePixelData(
     textureHandle: WebGLResourceHandle,
     width: number,

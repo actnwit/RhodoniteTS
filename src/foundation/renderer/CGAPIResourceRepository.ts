@@ -454,6 +454,11 @@ export interface ICGAPIResourceRepository {
    */
   generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
 
+  /**
+   * generate Mipmaps
+   */
+  generateMipmapsCube(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
+
   getTexturePixelData(
     textureHandle: CGAPIResourceHandle,
     width: number,
