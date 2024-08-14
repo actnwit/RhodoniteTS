@@ -5,6 +5,7 @@ import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { RenderBuffer } from '../textures/RenderBuffer';
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { RenderTargetTextureCube } from '../textures';
 
 export interface TextureParameters {
   level: number;
@@ -127,6 +128,33 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
   return frameBuffer;
 }
 
+export interface FrameBufferCubeMapDescriptor {
+  width: number;
+  height: number;
+  textureFormat: TextureFormatEnum;
+  mipLevelCount?: number;
+}
+
+function createFrameBufferCubeMap(
+  desc: FrameBufferCubeMapDescriptor
+): [FrameBuffer, RenderTargetTextureCube] {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(desc.width, desc.height);
+
+  const renderTargetTexture = new RenderTargetTextureCube();
+
+  renderTargetTexture.create({
+    width: desc.width,
+    height: desc.height,
+    mipLevelCount: desc.mipLevelCount,
+    format: desc.textureFormat,
+  });
+
+  frameBuffer.setColorAttachmentCubeAt(0, 0, 0, renderTargetTexture);
+
+  return [frameBuffer, renderTargetTexture];
+}
+
 function createDepthBuffer(
   width: number,
   height: number,
@@ -152,5 +180,6 @@ export const RenderableHelper = Object.freeze({
   createFrameBuffer,
   createFrameBufferMSAA,
   createFrameBufferTextureArray,
+  createFrameBufferCubeMap,
   createDepthBuffer,
 });

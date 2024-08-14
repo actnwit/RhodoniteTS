@@ -85,6 +85,31 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  setColorAttachmentCubeAt(
+    attachmentIndex: Index,
+    faceIndex: Index,
+    mipLevel: Index,
+    renderable: IRenderable
+  ) {
+    if (renderable.width !== this.width || renderable.height !== this.height) {
+      return false;
+    }
+    this.__colorAttachments[attachmentIndex] = renderable;
+
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.attachColorBufferCubeToFrameBufferObject(
+      this,
+      attachmentIndex,
+      faceIndex,
+      mipLevel,
+      renderable
+    );
+
+    this.__colorAttachmentMap.set(RenderBufferTarget.from(attachmentIndex), renderable);
+
+    return true;
+  }
+
   setDepthAttachment(renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;

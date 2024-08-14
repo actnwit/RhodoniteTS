@@ -1604,6 +1604,42 @@ export class WebGLResourceRepository
   }
 
   /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param faceIndex a face index
+   * @param mipLevel a mip level
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferCubeToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    faceIndex: Index,
+    mipLevel: Index,
+    renderable: IRenderable
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)! as WebGLFramebuffer;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(
+      renderable._textureResourceUid
+    )! as WebGLTexture;
+    const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
+
+    (renderable as RenderBuffer)._fbo = framebuffer;
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      attachmentId,
+      gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex,
+      renderableWebGLResource,
+      mipLevel
+    );
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  /**
    * attach the DepthBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
    * @param renderable a DepthBuffer
@@ -1846,11 +1882,11 @@ export class WebGLResourceRepository
     const texture = gl.createTexture() as RnWebGLTexture;
     const resourceHandle = this.__registerResource(texture);
 
-    this.__glw!.bindTexture2D(15, texture);
+    this.__glw!.bindTextureCube(15, texture);
 
     gl.texStorage2D(gl.TEXTURE_CUBE_MAP, mipLevelCount, format.index, width, height);
 
-    this.__glw!.unbindTexture2D(15);
+    this.__glw!.unbindTextureCube(15);
 
     return resourceHandle;
   }

@@ -2710,6 +2710,22 @@ export class WebGpuResourceRepository
     return;
   }
 
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param faceIndex a face index
+   * @param mipLevel a mip level
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferCubeToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    faceIndex: Index,
+    mipLevel: Index,
+    renderable: IRenderable
+  ) {}
+
   createTextureView2d(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView();

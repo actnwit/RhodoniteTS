@@ -52,6 +52,13 @@ panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
 // Create expression
 const expression = new Rn.Expression();
 
+const [framebuffer, renderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
+  width: 512,
+  height: 512,
+  textureFormat: Rn.TextureFormat.RGBA32F,
+  mipLevelCount: 1,
+});
+
 // Create renderPass and set hdrTexture to panoramaToCubeMaterial
 const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   panoramaToCubeMaterial,
@@ -59,7 +66,9 @@ const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTe
 );
 
 renderPass.clearColor = Rn.Vector4.fromCopy4(0, 0, 0, 1);
-renderPass.toClearColorBuffer = true;
+renderPass.toClearColorBuffer = false;
+renderPass.isDepthTest = false;
+renderPass.setFramebuffer(framebuffer);
 expression.addRenderPasses([renderPass]);
 
 // Render Loop
@@ -74,6 +83,10 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
-  Rn.System.process([expression]);
+  for (let i = 0; i < 6; i++) {
+    panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
+    framebuffer.setColorAttachmentCubeAt(0, i, 0, renderTargetCube);
+    Rn.System.process([expression]);
+  }
   count++;
 });

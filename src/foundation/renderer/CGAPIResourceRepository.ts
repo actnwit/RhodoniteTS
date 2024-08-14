@@ -480,6 +480,22 @@ export interface ICGAPIResourceRepository {
   ): void;
 
   /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param faceIndex a face index
+   * @param mipLevel a mip level
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferCubeToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    faceIndex: Index,
+    mipLevel: Index,
+    renderable: IRenderable
+  ): void;
+
+  /**
    * create a Renderbuffer
    */
   createRenderBuffer(
