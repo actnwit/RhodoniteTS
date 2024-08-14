@@ -4,6 +4,8 @@ import { loadHDR } from '../../../vendor/hdrpngts.js';
 declare const window: any;
 declare const HDRImage: any;
 
+const cubeMapSize = 512;
+
 // Init Rhodonite
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
@@ -54,8 +56,8 @@ const panoramaToCubeExpression = new Rn.Expression();
 
 const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] =
   Rn.RenderableHelper.createFrameBufferCubeMap({
-    width: 512,
-    height: 512,
+    width: cubeMapSize,
+    height: cubeMapSize,
     textureFormat: Rn.TextureFormat.RGBA32F,
     // mipLevelCount: 1,
   });
@@ -79,10 +81,16 @@ const prefilterIblExpression = new Rn.Expression();
 
 const [diffuseIblFramebuffer, DiffuseIblRenderTargetCube] =
   Rn.RenderableHelper.createFrameBufferCubeMap({
-    width: 512,
-    height: 512,
+    width: cubeMapSize,
+    height: cubeMapSize,
     textureFormat: Rn.TextureFormat.RGBA32F,
     mipLevelCount: 1,
+  });
+const [specularIblFramebuffer, specularIblRenderTargetCube] =
+  Rn.RenderableHelper.createFrameBufferCubeMap({
+    width: cubeMapSize,
+    height: cubeMapSize,
+    textureFormat: Rn.TextureFormat.RGBA32F,
   });
 
 const sampler = new Rn.Sampler({
@@ -93,17 +101,17 @@ const sampler = new Rn.Sampler({
   wrapR: Rn.TextureParameter.ClampToEdge,
 });
 sampler.create();
-const diffuseIblRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+const prefilterIblRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   prefilterIblMaterial,
   panoramaToCubeRenderTargetCube,
   sampler
 );
 
-diffuseIblRenderPass.toClearColorBuffer = false;
-diffuseIblRenderPass.toClearDepthBuffer = false;
-diffuseIblRenderPass.isDepthTest = false;
-diffuseIblRenderPass.setFramebuffer(diffuseIblFramebuffer);
-prefilterIblExpression.addRenderPasses([diffuseIblRenderPass]);
+prefilterIblRenderPass.toClearColorBuffer = false;
+prefilterIblRenderPass.toClearDepthBuffer = false;
+prefilterIblRenderPass.isDepthTest = false;
+prefilterIblRenderPass.setFramebuffer(diffuseIblFramebuffer);
+prefilterIblExpression.addRenderPasses([prefilterIblRenderPass]);
 
 // Render Loop
 let count = 0;
@@ -117,6 +125,8 @@ Rn.System.startRenderLoop(() => {
     document.body.appendChild(p);
   }
 
+  panoramaToCubeRenderPass.setFramebuffer(panoramaToCubeFramebuffer);
+
   for (let i = 0; i < 6; i++) {
     panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
     panoramaToCubeFramebuffer.setColorAttachmentCubeAt(0, i, 0, panoramaToCubeRenderTargetCube);
@@ -125,10 +135,31 @@ Rn.System.startRenderLoop(() => {
 
   panoramaToCubeRenderTargetCube.generateMipmaps();
 
+  prefilterIblRenderPass.setFramebuffer(diffuseIblFramebuffer);
+  prefilterIblMaterial.setParameter(Rn.ShaderSemantics.DistributionType, 0);
+
   for (let i = 0; i < 6; i++) {
     prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
     diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, DiffuseIblRenderTargetCube);
     Rn.System.process([prefilterIblExpression]);
   }
+
+  prefilterIblRenderPass.setFramebuffer(specularIblFramebuffer);
+  prefilterIblMaterial.setParameter(Rn.ShaderSemantics.DistributionType, 1);
+
+  const mipLevelCount = Math.floor(Math.log2(cubeMapSize)) + 1;
+  for (let i = 0; i < mipLevelCount; i++) {
+    const roughness = i / (mipLevelCount - 1);
+    prefilterIblMaterial.setParameter(Rn.ShaderSemantics.Roughness, roughness);
+    for (let face = 0; face < 6; face++) {
+      prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, face);
+      specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
+      prefilterIblRenderPass.setViewport(
+        Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
+      );
+      Rn.System.process([prefilterIblExpression]);
+    }
+  }
+
   count++;
 });

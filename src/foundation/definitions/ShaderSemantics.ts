@@ -430,6 +430,12 @@ const Time = new ShaderSemanticsClass({
 const CubeMapFaceId = new ShaderSemanticsClass({
   str: 'cubeMapFaceId',
 });
+const Roughness = new ShaderSemanticsClass({
+  str: 'roughness',
+});
+const DistributionType = new ShaderSemanticsClass({
+  str: 'distributionType',
+});
 
 const typeList = [
   WorldMatrix,
@@ -561,6 +567,8 @@ const typeList = [
   EmissiveStrength,
   Time,
   CubeMapFaceId,
+  Roughness,
+  DistributionType,
 ];
 
 function from(index: ShaderSemanticsIndex): ShaderSemanticsEnum {
@@ -812,4 +820,6 @@ export const ShaderSemantics = Object.freeze({
   EmissiveStrength,
   Time,
   CubeMapFaceId,
+  Roughness,
+  DistributionType,
 });

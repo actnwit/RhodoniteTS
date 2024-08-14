@@ -60,6 +60,7 @@ import {
 } from '../foundation/definitions/BasisCompressionType';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
+import { Vector4 } from '../foundation/math/Vector4';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -2789,6 +2790,8 @@ export class WebGpuResourceRepository
     canvas.height = height;
     this.recreateSystemDepthTexture();
   }
+
+  setViewport(viewport?: Vector4) {}
 
   isSupportMultiViewVRRendering(): boolean {
     return false;

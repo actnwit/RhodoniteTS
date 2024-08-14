@@ -26,6 +26,7 @@ import { IRenderable } from '../textures/IRenderable';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { WebGpuResourceRepository } from '../../webgpu';
 import { BasisFile } from '../../types/BasisTexture';
+import { Vector4 } from '../math/Vector4';
 
 export type DirectTextureData =
   | TypedArray
@@ -548,4 +549,6 @@ export interface ICGAPIResourceRepository {
   deleteFrameBufferObject(frameBufferObjectHandle: CGAPIResourceHandle): void;
 
   isSupportMultiViewVRRendering(): boolean;
+
+  setViewport(viewport?: Vector4): void;
 }
