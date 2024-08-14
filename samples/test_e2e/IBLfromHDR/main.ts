@@ -50,26 +50,60 @@ const panoramaToCubeMaterial = Rn.MaterialHelper.createPanoramaToCubeMaterial();
 panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
 
 // Create expression
-const expression = new Rn.Expression();
+const panoramaToCubeExpression = new Rn.Expression();
 
-const [framebuffer, renderTargetCube] = Rn.RenderableHelper.createFrameBufferCubeMap({
-  width: 512,
-  height: 512,
-  textureFormat: Rn.TextureFormat.RGBA32F,
-  mipLevelCount: 1,
-});
+const [panoramaToCubeFramebuffer, panoramaToCubeRenderTargetCube] =
+  Rn.RenderableHelper.createFrameBufferCubeMap({
+    width: 512,
+    height: 512,
+    textureFormat: Rn.TextureFormat.RGBA32F,
+    // mipLevelCount: 1,
+  });
 
 // Create renderPass and set hdrTexture to panoramaToCubeMaterial
-const renderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+const panoramaToCubeRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
   panoramaToCubeMaterial,
   hdrTexture
 );
 
-renderPass.clearColor = Rn.Vector4.fromCopy4(0, 0, 0, 1);
-renderPass.toClearColorBuffer = false;
-renderPass.isDepthTest = false;
-renderPass.setFramebuffer(framebuffer);
-expression.addRenderPasses([renderPass]);
+panoramaToCubeRenderPass.toClearColorBuffer = false;
+panoramaToCubeRenderPass.toClearDepthBuffer = false;
+panoramaToCubeRenderPass.isDepthTest = false;
+panoramaToCubeRenderPass.setFramebuffer(panoramaToCubeFramebuffer);
+panoramaToCubeExpression.addRenderPasses([panoramaToCubeRenderPass]);
+
+const prefilterIblMaterial = Rn.MaterialHelper.createPrefilterIBLMaterial();
+prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
+
+const prefilterIblExpression = new Rn.Expression();
+
+const [diffuseIblFramebuffer, DiffuseIblRenderTargetCube] =
+  Rn.RenderableHelper.createFrameBufferCubeMap({
+    width: 512,
+    height: 512,
+    textureFormat: Rn.TextureFormat.RGBA32F,
+    mipLevelCount: 1,
+  });
+
+const sampler = new Rn.Sampler({
+  magFilter: Rn.TextureParameter.Linear,
+  minFilter: Rn.TextureParameter.LinearMipmapLinear,
+  wrapS: Rn.TextureParameter.ClampToEdge,
+  wrapT: Rn.TextureParameter.ClampToEdge,
+  wrapR: Rn.TextureParameter.ClampToEdge,
+});
+sampler.create();
+const diffuseIblRenderPass = Rn.RenderPassHelper.createScreenDrawRenderPassWithBaseColorTexture(
+  prefilterIblMaterial,
+  panoramaToCubeRenderTargetCube,
+  sampler
+);
+
+diffuseIblRenderPass.toClearColorBuffer = false;
+diffuseIblRenderPass.toClearDepthBuffer = false;
+diffuseIblRenderPass.isDepthTest = false;
+diffuseIblRenderPass.setFramebuffer(diffuseIblFramebuffer);
+prefilterIblExpression.addRenderPasses([diffuseIblRenderPass]);
 
 // Render Loop
 let count = 0;
@@ -85,8 +119,16 @@ Rn.System.startRenderLoop(() => {
 
   for (let i = 0; i < 6; i++) {
     panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
-    framebuffer.setColorAttachmentCubeAt(0, i, 0, renderTargetCube);
-    Rn.System.process([expression]);
+    panoramaToCubeFramebuffer.setColorAttachmentCubeAt(0, i, 0, panoramaToCubeRenderTargetCube);
+    Rn.System.process([panoramaToCubeExpression]);
+  }
+
+  panoramaToCubeRenderTargetCube.generateMipmaps();
+
+  for (let i = 0; i < 6; i++) {
+    prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
+    diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, DiffuseIblRenderTargetCube);
+    Rn.System.process([prefilterIblExpression]);
   }
   count++;
 });

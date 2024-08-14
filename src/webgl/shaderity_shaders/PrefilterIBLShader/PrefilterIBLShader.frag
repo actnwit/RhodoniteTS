@@ -163,7 +163,7 @@ vec3 prefilter(vec3 N, float materialSID)
         color /= float(sampleCount);
     }
 
-    return color.rgb ;
+    return color.rgb;
 }
 
 vec3 uvToDir(int faceId, vec2 uv)
