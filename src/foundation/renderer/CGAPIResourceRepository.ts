@@ -46,16 +46,16 @@ export abstract class CGAPIResourceRepository {
       : 'webgpu';
     // const moduleName = 'webgl';
     const moduleManager = ModuleManager.getInstance();
-    const webglModule = moduleManager.getModule(moduleName)! as any;
+    const cgApiModule = moduleManager.getModule(moduleName)! as any;
 
     if (moduleName === 'webgl') {
       const webGLResourceRepository: ICGAPIResourceRepository =
-        webglModule.WebGLResourceRepository.getInstance();
+        cgApiModule.WebGLResourceRepository.getInstance();
       return webGLResourceRepository;
     } else {
       // WebGPU
       const webGLResourceRepository: ICGAPIResourceRepository =
-        webglModule.WebGpuResourceRepository.getInstance();
+        cgApiModule?.WebGpuResourceRepository.getInstance();
       return webGLResourceRepository;
     }
   }

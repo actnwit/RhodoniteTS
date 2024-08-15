@@ -34,7 +34,7 @@ export class Sampler {
 
   create() {
     const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    this.__samplerResourceUid = webGLResourceRepository.createTextureSampler({
+    this.__samplerResourceUid = webGLResourceRepository?.createTextureSampler({
       minFilter: this.__minFilter,
       magFilter: this.__magFilter,
       wrapS: this.__wrapS,
