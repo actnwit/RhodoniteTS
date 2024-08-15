@@ -24,7 +24,7 @@ import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
 import { IRenderable } from '../textures/IRenderable';
 import { FrameBuffer } from '../renderer/FrameBuffer';
-import { WebGpuResourceRepository } from '../../webgpu';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { BasisFile } from '../../types/BasisTexture';
 import { Vector4 } from '../math/Vector4';
 
