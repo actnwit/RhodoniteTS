@@ -17,7 +17,14 @@ import { TextureParameter } from '../../definitions/TextureParameter';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
-  private static __iblCubeMapSampler = new Sampler({
+  private static __diffuseIblCubeMapSampler = new Sampler({
+    minFilter: TextureParameter.Linear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+    wrapR: TextureParameter.ClampToEdge,
+  });
+  private static __specularIblCubeMapSampler = new Sampler({
     minFilter: TextureParameter.LinearMipmapLinear,
     magFilter: TextureParameter.Linear,
     wrapS: TextureParameter.ClampToEdge,
@@ -56,8 +63,12 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       pixelShaderWebGpu!
     );
 
-    if (!CustomMaterialContent.__iblCubeMapSampler.created) {
-      CustomMaterialContent.__iblCubeMapSampler.create();
+    if (!CustomMaterialContent.__diffuseIblCubeMapSampler.created) {
+      CustomMaterialContent.__diffuseIblCubeMapSampler.create();
+    }
+
+    if (!CustomMaterialContent.__specularIblCubeMapSampler.created) {
+      CustomMaterialContent.__specularIblCubeMapSampler.create();
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
@@ -147,7 +158,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
-        [5, args.diffuseCube, CustomMaterialContent.__iblCubeMapSampler]
+        [5, args.diffuseCube, CustomMaterialContent.__diffuseIblCubeMapSampler]
       );
     } else {
       webglResourceRepository.setUniform1iForTexture(
@@ -160,7 +171,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
-        [6, args.specularCube, CustomMaterialContent.__iblCubeMapSampler]
+        [6, args.specularCube, CustomMaterialContent.__specularIblCubeMapSampler]
       );
     } else {
       webglResourceRepository.setUniform1iForTexture(
