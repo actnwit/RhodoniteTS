@@ -157,8 +157,8 @@ const renderIBL = () => {
 // camera
 const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
-cameraComponent.zNear = 0.1;
-cameraComponent.zFar = 1000.0;
+cameraComponent.zNear = 0.001;
+cameraComponent.zFar = 100.0;
 cameraComponent.setFovyAndChangeFocalLength(20.0);
 cameraComponent.aspect = 1.0;
 

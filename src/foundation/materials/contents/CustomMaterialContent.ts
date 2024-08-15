@@ -12,9 +12,20 @@ import { dummyBlackCubeTexture } from '../core/DummyTextures';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { Sampler } from '../../textures/Sampler';
+import { TextureParameter } from '../../definitions';
+import { wrap } from 'module';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
+  private static __iblCubeMapSampler = new Sampler({
+    minFilter: TextureParameter.LinearMipmapLinear,
+    magFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.ClampToEdge,
+    wrapT: TextureParameter.ClampToEdge,
+    wrapR: TextureParameter.ClampToEdge,
+  });
+
   constructor({
     name,
     isMorphing,
@@ -45,6 +56,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       vertexShaderWebGpu!,
       pixelShaderWebGpu!
     );
+
+    if (!CustomMaterialContent.__iblCubeMapSampler.created) {
+      CustomMaterialContent.__iblCubeMapSampler.create();
+    }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray.concat(additionalShaderSemanticInfo));
   }
@@ -133,7 +148,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
-        [5, args.diffuseCube]
+        [5, args.diffuseCube, CustomMaterialContent.__iblCubeMapSampler]
       );
     } else {
       webglResourceRepository.setUniform1iForTexture(
@@ -146,7 +161,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
-        [6, args.specularCube]
+        [6, args.specularCube, CustomMaterialContent.__iblCubeMapSampler]
       );
     } else {
       webglResourceRepository.setUniform1iForTexture(
