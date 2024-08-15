@@ -61,7 +61,7 @@ import {
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Vector4 } from '../foundation/math/Vector4';
-import { RenderTargetTextureCube } from '../foundation';
+import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 

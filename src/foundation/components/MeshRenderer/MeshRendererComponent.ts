@@ -30,7 +30,7 @@ import { CameraControllerComponent } from '../CameraController/CameraControllerC
 import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
-import { RenderTargetTextureCube } from '../../textures';
+import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;

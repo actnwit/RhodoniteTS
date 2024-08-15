@@ -13,8 +13,7 @@ import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Sampler } from '../../textures/Sampler';
-import { TextureParameter } from '../../definitions';
-import { wrap } from 'module';
+import { TextureParameter } from '../../definitions/TextureParameter';
 
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
