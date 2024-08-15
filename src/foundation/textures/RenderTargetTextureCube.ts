@@ -1,5 +1,6 @@
 import { Size } from '../../types/CommonTypes';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { HdriFormat } from '../definitions/HdriFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
@@ -10,6 +11,7 @@ import { IRenderable } from './IRenderable';
 
 export class RenderTargetTextureCube extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
+  public hdriFormat = HdriFormat.HDR_LINEAR;
 
   constructor() {
     super();
@@ -86,5 +88,13 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
 
   get fbo() {
     return this.__fbo;
+  }
+
+  get mipmapLevelNumber() {
+    return this.__mipLevelCount;
+  }
+
+  setIsTextureReady() {
+    this.__isTextureReady = true;
   }
 }

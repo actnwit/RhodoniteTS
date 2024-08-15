@@ -79,7 +79,7 @@ prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
 
 const prefilterIblExpression = new Rn.Expression();
 
-const [diffuseIblFramebuffer, DiffuseIblRenderTargetCube] =
+const [diffuseIblFramebuffer, diffuseIblRenderTargetCube] =
   Rn.RenderableHelper.createFrameBufferCubeMap({
     width: cubeMapSize,
     height: cubeMapSize,
@@ -116,15 +116,7 @@ prefilterIblExpression.addRenderPasses([prefilterIblRenderPass]);
 // Render Loop
 let count = 0;
 
-Rn.System.startRenderLoop(() => {
-  if (!window._rendered && count > 0) {
-    window._rendered = true;
-    const p = document.createElement('p');
-    p.setAttribute('id', 'rendered');
-    p.innerText = 'Rendered.';
-    document.body.appendChild(p);
-  }
-
+const renderIBL = () => {
   panoramaToCubeRenderPass.setFramebuffer(panoramaToCubeFramebuffer);
 
   for (let i = 0; i < 6; i++) {
@@ -140,7 +132,7 @@ Rn.System.startRenderLoop(() => {
 
   for (let i = 0; i < 6; i++) {
     prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
-    diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, DiffuseIblRenderTargetCube);
+    diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, diffuseIblRenderTargetCube);
     Rn.System.process([prefilterIblExpression]);
   }
 
@@ -160,6 +152,61 @@ Rn.System.startRenderLoop(() => {
       Rn.System.process([prefilterIblExpression]);
     }
   }
+};
+
+// camera
+const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000.0;
+cameraComponent.setFovyAndChangeFocalLength(20.0);
+cameraComponent.aspect = 1.0;
+
+const expressions = [];
+
+const mainExpressionResult = await Rn.GltfImporter.importFromUri(
+  '../../../assets/gltf/glTF-Sample-Assets/Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb',
+  {
+    cameraComponent: cameraComponent,
+  },
+  (obj: Rn.RnPromiseCallbackObj) => {
+    // this callback won't be called
+    console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
+  }
+);
+if (Rn.isOk(mainExpressionResult)) {
+  expressions.push(mainExpressionResult.get());
+
+  // cameraController
+  const mainRenderPass = mainExpressionResult.get().renderPasses[0];
+  const mainCameraControllerComponent = cameraEntity.getCameraController();
+  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
+} else {
+  console.error(mainExpressionResult.toString());
+}
+
+const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
+  Rn.MeshRendererComponent
+) as Rn.MeshRendererComponent[];
+for (const meshRendererComponent of meshRendererComponents) {
+  await meshRendererComponent.setIBLCubeMap(
+    diffuseIblRenderTargetCube as any,
+    specularIblRenderTargetCube as any
+  );
+}
+renderIBL();
+
+Rn.System.startRenderLoop(() => {
+  if (!window._rendered && count > 0) {
+    window._rendered = true;
+    const p = document.createElement('p');
+    p.setAttribute('id', 'rendered');
+    p.innerText = 'Rendered.';
+    document.body.appendChild(p);
+  }
+
+  Rn.System.process(expressions);
 
   count++;
 });

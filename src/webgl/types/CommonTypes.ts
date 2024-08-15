@@ -1,4 +1,4 @@
-import { Matrix44 } from '../..';
+import { Matrix44, RenderTargetTextureCube } from '../..';
 import { LightComponent } from '../../foundation/components/Light/LightComponent';
 import { Primitive } from '../../foundation/geometry/Primitive';
 import { IMeshEntity } from '../../foundation/helpers/EntityHelper';
@@ -17,8 +17,8 @@ export type RenderingArgWebGL = {
   isBillboard: boolean;
   lightComponents: LightComponent[];
   renderPass: RenderPass;
-  diffuseCube?: CubeTexture;
-  specularCube?: CubeTexture;
+  diffuseCube?: CubeTexture | RenderTargetTextureCube;
+  specularCube?: CubeTexture | RenderTargetTextureCube;
   isVr: boolean;
   displayIdx: Index;
   setUniform: boolean;
@@ -27,6 +27,6 @@ export type RenderingArgWebGL = {
 export type RenderingArgWebGpu = {
   cameraComponentSid: Index;
   entity: IMeshEntity;
-  specularCube?: CubeTexture;
+  specularCube?: CubeTexture | RenderTargetTextureCube;
 };
 export type AttributeNames = Array<string>;

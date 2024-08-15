@@ -61,6 +61,7 @@ import {
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Vector4 } from '../foundation/math/Vector4';
+import { RenderTargetTextureCube } from '../foundation';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -909,8 +910,8 @@ export class WebGpuResourceRepository
 
     let meshRendererComponentSid = -1;
     let meshRendererComponentUpdateCount = -1;
-    let diffuseCubeMap: CubeTexture | undefined;
-    let specularCubeMap: CubeTexture | undefined;
+    let diffuseCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
+    let specularCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
     if (!isBufferLessRendering) {
       const mesh = primitive.mesh as Mesh;
       const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
@@ -1208,8 +1209,8 @@ export class WebGpuResourceRepository
     renderPass: RenderPass,
     cameraId: number,
     isOpaque: boolean,
-    diffuseCubeMap?: CubeTexture,
-    specularCubeMap?: CubeTexture
+    diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
+    specularCubeMap?: CubeTexture | RenderTargetTextureCube
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
@@ -1792,8 +1793,8 @@ export class WebGpuResourceRepository
   private __createBindGroup(
     renderPipelineId: string,
     material: Material,
-    diffuseCubeMap?: CubeTexture,
-    specularCubeMap?: CubeTexture
+    diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
+    specularCubeMap?: CubeTexture | RenderTargetTextureCube
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
