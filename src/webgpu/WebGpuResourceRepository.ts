@@ -988,7 +988,7 @@ export class WebGpuResourceRepository
       const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
       const framebuffer = renderPass.getFramebuffer();
       let colorFormats = [navigator.gpu.getPreferredCanvasFormat()];
-      let depthStencilFormat = this.__systemDepthTexture!.format;
+      let depthStencilFormat: GPUTextureFormat | undefined = this.__systemDepthTexture!.format;
       if (framebuffer != null) {
         colorFormats = [];
         for (let colorAttachment of framebuffer.colorAttachments) {
@@ -1002,6 +1002,8 @@ export class WebGpuResourceRepository
             framebuffer.depthAttachment._textureResourceUid
           ) as GPUTexture;
           depthStencilFormat = depthTexture.format;
+        } else {
+          depthStencilFormat = undefined;
         }
       }
       const renderBundleDescriptor: GPURenderBundleEncoderDescriptor = {
@@ -1327,7 +1329,7 @@ export class WebGpuResourceRepository
         blend,
       },
     ];
-    let depthStencilFormat = 'depth24plus' as GPUTextureFormat;
+    let depthStencilFormat: GPUTextureFormat | undefined = 'depth24plus' as GPUTextureFormat;
     if (framebuffer != null) {
       targets = [];
       for (let colorAttachment of framebuffer.colorAttachments) {
@@ -1344,6 +1346,8 @@ export class WebGpuResourceRepository
           framebuffer.depthAttachment._textureResourceUid
         ) as GPUTexture;
         depthStencilFormat = depthTexture.format;
+      } else {
+        depthStencilFormat = undefined;
       }
     }
 
@@ -1375,18 +1379,21 @@ export class WebGpuResourceRepository
         frontFace: material.cullFrontFaceCCW ? 'ccw' : 'cw',
         cullMode: material.cullFace ? 'back' : 'none',
       },
-      depthStencil: {
-        depthWriteEnabled:
-          (renderPass.isDepthTest && renderPass.depthWriteMask && isOpaque) ||
-          (renderPass.isDepthTest &&
-            renderPass.depthWriteMask &&
-            !isOpaque &&
-            MeshRendererComponent.isDepthMaskTrueForBlendPrimitives)
-            ? true
-            : false,
-        depthCompare: renderPass.isDepthTest ? 'less' : 'always',
-        format: depthStencilFormat,
-      },
+      depthStencil:
+        depthStencilFormat == null
+          ? undefined
+          : {
+              depthWriteEnabled:
+                (renderPass.isDepthTest && renderPass.depthWriteMask && isOpaque) ||
+                (renderPass.isDepthTest &&
+                  renderPass.depthWriteMask &&
+                  !isOpaque &&
+                  MeshRendererComponent.isDepthMaskTrueForBlendPrimitives)
+                  ? true
+                  : false,
+              depthCompare: renderPass.isDepthTest ? 'less' : 'always',
+              format: depthStencilFormat,
+            },
       multisample: {
         count:
           renderPass.getResolveFramebuffer() != null
