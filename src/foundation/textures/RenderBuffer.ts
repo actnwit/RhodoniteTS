@@ -2,7 +2,7 @@ import { RnObject } from '../core/RnObject';
 import { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
-import { Size, CGAPIResourceHandle } from '../../types/CommonTypes';
+import { Size, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
@@ -66,6 +66,8 @@ export class RenderBuffer extends RnObject implements IRenderable {
       ).createTextureView2d(this._textureResourceUid);
     }
   }
+
+  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
 
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();

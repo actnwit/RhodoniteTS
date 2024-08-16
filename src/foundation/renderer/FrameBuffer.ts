@@ -106,6 +106,8 @@ export class FrameBuffer extends RnObject {
       renderable
     );
 
+    renderable.createCubeTextureViewAsRenderTarget(faceIndex, mipLevel);
+
     this.__colorAttachmentMap.set(RenderBufferTarget.from(attachmentIndex), renderable);
 
     return true;

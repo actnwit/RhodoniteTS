@@ -1,4 +1,4 @@
-import { Size } from '../../types/CommonTypes';
+import { Index, Size } from '../../types/CommonTypes';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { HdriFormat } from '../definitions/HdriFormat';
 import { ProcessApproach } from '../definitions/ProcessApproach';
@@ -85,6 +85,13 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
 
     return true;
+  }
+
+  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    this._textureViewAsRenderTargetResourceUid = (
+      cgApiResourceRepository as WebGpuResourceRepository
+    ).createCubeTextureViewAsRenderTarget(this._textureResourceUid, faceIdx, mipLevel);
   }
 
   set _fbo(fbo: FrameBuffer) {

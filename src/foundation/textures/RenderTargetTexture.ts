@@ -238,6 +238,8 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     );
   }
 
+  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
+
   get _textureViewAsRenderTargetResourceUid() {
     return this._textureViewResourceUid;
   }
