@@ -24,6 +24,7 @@ hdrTexture.allocate({
   width: data.width,
   height: data.height,
   format: Rn.TextureFormat.RGBA32F,
+  mipLevelCount: 1,
 });
 
 const dataFloat = data.dataFloat;

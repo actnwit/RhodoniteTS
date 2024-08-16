@@ -43,7 +43,6 @@ fn main (
 	let uv: vec2f = input.texcoord_0 * 2.0 - 1.0;
 	let direction: vec3f = normalize(uvToDirection(get_cubeMapFaceId(materialSID, 0), uv));
   let panoramaUv: vec2f = dirToPanoramaUV(direction);
-	let rt0: vec4f = vec4f(textureSample(baseColorTexture, baseColorSampler, panoramaUv).rgb, 1.0);
-
+	let rt0: vec4f = vec4f(textureSampleLevel(baseColorTexture, baseColorSampler, panoramaUv, 0.0).rgb, 1.0);
   return rt0;
 }
