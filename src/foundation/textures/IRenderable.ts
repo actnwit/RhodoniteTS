@@ -7,6 +7,7 @@ export interface IRenderable {
   _textureResourceUid: CGAPIResourceHandle;
   _textureViewResourceUid: CGAPIResourceHandle;
   _textureViewMipmapCountOneResourceUid: CGAPIResourceHandle;
+  _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle;
   resize(width: Size, height: Size): void;
   destroy3DAPIResources(): boolean;
   fbo?: FrameBuffer;

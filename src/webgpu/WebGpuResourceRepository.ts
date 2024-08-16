@@ -833,7 +833,7 @@ export class WebGpuResourceRepository
       if (framebuffer != null) {
         for (let colorAttachment of framebuffer.colorAttachments) {
           const textureView = this.__webGpuResources.get(
-            colorAttachment._textureViewResourceUid
+            colorAttachment._textureViewAsRenderTargetResourceUid
           ) as GPUTextureView;
           colorAttachments.push({
             view: textureView,
@@ -868,7 +868,7 @@ export class WebGpuResourceRepository
       const framebuffer = renderPass.getFramebuffer();
       if (framebuffer != null && framebuffer.depthAttachment != null) {
         const depthTextureView = this.__webGpuResources.get(
-          framebuffer.depthAttachment._textureViewResourceUid
+          framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
         ) as GPUTextureView;
         depthStencilAttachment = {
           view: depthTextureView,
@@ -1059,7 +1059,7 @@ export class WebGpuResourceRepository
           const colorAttachment = framebuffer.colorAttachments[i] as RenderBuffer;
           const resolveColorAttachment = resolveFramebuffer.colorAttachments[i] as RenderBuffer;
           const textureView = this.__webGpuResources.get(
-            colorAttachment._textureViewResourceUid
+            colorAttachment._textureViewAsRenderTargetResourceUid
           ) as GPUTextureView;
           let resolveTextureView = this.__webGpuResources.get(
             resolveColorAttachment._textureViewMipmapCountOneResourceUid
@@ -1085,31 +1085,35 @@ export class WebGpuResourceRepository
         renderPassDescriptor.colorAttachments = colorAttachments as GPURenderPassColorAttachment[];
         this.__renderPassEncoder = this.__commandEncoder!.beginRenderPass(renderPassDescriptor);
       } else if (framebuffer != null) {
-        let depthTextureView = this.__systemDepthTextureView!;
+        let depthTextureView = undefined;
         if (framebuffer.depthAttachment != null) {
           const depthTexture = this.__webGpuResources.get(
             framebuffer.depthAttachment._textureResourceUid
           ) as GPUTexture;
           if (depthTexture != null) {
             depthTextureView = this.__webGpuResources.get(
-              framebuffer.depthAttachment._textureViewResourceUid
+              framebuffer.depthAttachment._textureViewAsRenderTargetResourceUid
             ) as GPUTextureView;
           }
         }
-        const renderPassDescriptor: GPURenderPassDescriptor = {
-          colorAttachments: [],
-          depthStencilAttachment: {
+        let depthStencilAttachment: GPURenderPassDepthStencilAttachment | undefined = undefined;
+        if (depthTextureView != null) {
+          depthStencilAttachment = {
             view: depthTextureView,
             depthClearValue: depthClearValue,
             depthLoadOp: renderPass.toClearDepthBuffer ? 'clear' : 'load',
             depthStoreOp: 'store',
-          },
+          };
+        }
+        const renderPassDescriptor: GPURenderPassDescriptor = {
+          colorAttachments: [],
+          depthStencilAttachment: depthStencilAttachment,
           label: renderPass.uniqueName,
         };
         const colorAttachments = [];
         for (let colorAttachment of framebuffer.colorAttachments) {
           const textureView = this.__webGpuResources.get(
-            colorAttachment._textureViewResourceUid
+            colorAttachment._textureViewAsRenderTargetResourceUid
           ) as GPUTextureView;
           colorAttachments.push({
             view: textureView,
@@ -2753,6 +2757,25 @@ export class WebGpuResourceRepository
   createTextureViewCube(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView({ dimension: 'cube' });
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
+  createCubeTextureViewAsRenderTarget(
+    textureHandle: WebGPUResourceHandle,
+    faceIdx: Index,
+    mipLevel: Index
+  ): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({
+      dimension: '2d',
+      arrayLayerCount: 1,
+      baseArrayLayer: faceIdx,
+      baseMipLevel: mipLevel,
+      mipLevelCount: 1,
+      aspect: 'all',
+    });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;

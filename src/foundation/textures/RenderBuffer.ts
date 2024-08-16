@@ -36,6 +36,10 @@ export class RenderBuffer extends RnObject implements IRenderable {
     return this.__sampleCountMSAA;
   }
 
+  get _textureViewAsRenderTargetResourceUid() {
+    return this._textureViewResourceUid;
+  }
+
   create(
     width: Size,
     height: Size,

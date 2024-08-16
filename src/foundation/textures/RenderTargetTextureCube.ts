@@ -12,6 +12,7 @@ import { IRenderable } from './IRenderable';
 export class RenderTargetTextureCube extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
   public hdriFormat = HdriFormat.HDR_LINEAR;
+  public _textureViewAsRenderTargetResourceUid: number = -1;
 
   constructor() {
     super();
@@ -56,6 +57,10 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewCube(this._textureResourceUid);
+
+      this._textureViewAsRenderTargetResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createCubeTextureViewAsRenderTarget(this._textureResourceUid, 0, 0);
     }
 
     AbstractTexture.__textureMap.set(texture, this);

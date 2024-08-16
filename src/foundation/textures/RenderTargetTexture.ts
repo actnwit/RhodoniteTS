@@ -237,4 +237,8 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       targetTexture2D.height
     );
   }
+
+  get _textureViewAsRenderTargetResourceUid() {
+    return this._textureViewResourceUid;
+  }
 }
