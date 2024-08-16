@@ -12,8 +12,8 @@
 fn dirToPanoramaUV(dir: vec3f) -> vec2f
 {
 	return vec2f(
-		0.5f + 0.5f * atan(dir.z, dir.x) / PI,
-		1.f - acos(dir.y) / PI);
+		0.5f + 0.5f * atan2(dir.z, dir.x) / M_PI,
+		1.f - acos(dir.y) / M_PI);
 }
 
 fn uvToDirection(faceId: i32, uv: vec2f) -> vec3f
@@ -23,13 +23,13 @@ fn uvToDirection(faceId: i32, uv: vec2f) -> vec3f
   } else if(faceId == 1) {
 		return vec3f(-1.f, uv.y, uv.x);
   } else if(faceId == 2) {
-		return vec3f(+uv.x, -1.f, +uv.y);
+		return vec3f(uv.x, -1.f, uv.y);
   } else if(faceId == 3) {
-		return vec3f(+uv.x, 1.f, -uv.y);
+		return vec3f(uv.x, 1.f, -uv.y);
   } else if(faceId == 4) {
-		return vec3f(+uv.x, uv.y, 1.f);
+		return vec3f(uv.x, uv.y, 1.f);
   } else {
-    return vec3f(-uv.x, +uv.y, -1.f);
+    return vec3f(-uv.x, uv.y, -1.f);
   }
 }
 
@@ -43,7 +43,7 @@ fn main (
 	let uv: vec2f = input.texcoord_0 * 2.0 - 1.0;
 	let direction: vec3f = normalize(uvToDirection(get_cubeMapFaceId(materialSID, 0), uv));
   let panoramaUv: vec2f = dirToPanoramaUV(direction);
-	let rt0: vec4f = vec4f(texture(u_baseColorTexture, panoramaUv).rgb, 1.0);
+	let rt0: vec4f = vec4f(textureSample(baseColorTexture, baseColorSampler, panoramaUv).rgb, 1.0);
 
   return rt0;
 }
