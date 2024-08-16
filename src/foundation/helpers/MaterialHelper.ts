@@ -74,6 +74,8 @@ import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
 import PanoramaToCubeShaderVertex from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert';
 import PanoramaToCubeShaderFragment from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag';
+import PanoramaToCubeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert.wgsl';
+import PanoramaToCubeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag.wgsl';
 import PrefilterIBLShaderVertex from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
 import PrefilterIBLShaderFragment from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
 import { Scalar } from '../math/Scalar';
@@ -1024,6 +1026,8 @@ function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber 
     isMorphing: false,
     vertexShader: PanoramaToCubeShaderVertex,
     pixelShader: PanoramaToCubeShaderFragment,
+    vertexShaderWebGpu: PanoramaToCubeShaderVertexWebGpu,
+    pixelShaderWebGpu: PanoramaToCubeShaderFragmentWebGpu,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
