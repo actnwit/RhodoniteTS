@@ -85,17 +85,65 @@ const renderIBL = () => {
     panoramaToCubeFramebuffer.setColorAttachmentCubeAt(0, i, 0, panoramaToCubeRenderTargetCube);
     Rn.System.process([panoramaToCubeExpression]);
   }
+
+  panoramaToCubeRenderTargetCube.generateMipmaps();
 };
 
 // camera
 const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
-cameraComponent.zNear = 0.001;
-cameraComponent.zFar = 100.0;
-cameraComponent.setFovyAndChangeFocalLength(20.0);
-cameraComponent.aspect = 1.0;
+// cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 10000.0;
+// cameraComponent.setFovyAndChangeFocalLength(20.0);
+// cameraComponent.aspect = 1.0;
 
-renderIBL();
+// renderIBL();
+
+const createEntityEnvironmentCube = () => {
+  panoramaToCubeRenderTargetCube.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
+
+  const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
+    makeOutputSrgb: false,
+  });
+  materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
+  const sampler = new Rn.Sampler({
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+    minFilter: Rn.TextureParameter.Linear,
+    magFilter: Rn.TextureParameter.Linear,
+  });
+  materialSphere.setTextureParameter(
+    Rn.ShaderSemantics.ColorEnvTexture,
+    panoramaToCubeRenderTargetCube,
+    sampler
+  );
+
+  const primitiveSphere = new Rn.Sphere();
+  primitiveSphere.generate({
+    radius: 2500,
+    widthSegments: 40,
+    heightSegments: 40,
+    material: materialSphere,
+  });
+  const meshSphere = new Rn.Mesh();
+  meshSphere.addPrimitive(primitiveSphere);
+
+  const entitySphere = Rn.EntityHelper.createMeshEntity();
+  const meshComponentSphere = entitySphere.getMesh();
+  meshComponentSphere.setMesh(meshSphere);
+
+  entitySphere.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
+  entitySphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
+
+  return entitySphere;
+};
+const basePathIBL = '../../../assets/ibl/shanghai_bund';
+const expression = new Rn.Expression();
+const renderPass = new Rn.RenderPass();
+const entityEnvironmentCube = createEntityEnvironmentCube();
+renderPass.addEntities([entityEnvironmentCube]);
+renderPass.cameraComponent = cameraComponent;
+expression.addRenderPasses([renderPass]);
 
 Rn.System.startRenderLoop(() => {
   if (!window._rendered && count > 0) {
@@ -107,6 +155,7 @@ Rn.System.startRenderLoop(() => {
   }
 
   renderIBL();
+  Rn.System.process([expression]);
 
   count++;
 });
