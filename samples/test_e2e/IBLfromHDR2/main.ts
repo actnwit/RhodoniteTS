@@ -135,15 +135,16 @@ const createEntityEnvironmentCube = () => {
   entitySphere.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
   entitySphere.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
 
-  return entitySphere;
+  const expression = new Rn.Expression();
+  const renderPass = new Rn.RenderPass();
+  renderPass.addEntities([entitySphere]);
+  renderPass.cameraComponent = cameraComponent;
+  expression.addRenderPasses([renderPass]);
+
+  return expression;
 };
-const basePathIBL = '../../../assets/ibl/shanghai_bund';
-const expression = new Rn.Expression();
-const renderPass = new Rn.RenderPass();
-const entityEnvironmentCube = createEntityEnvironmentCube();
-renderPass.addEntities([entityEnvironmentCube]);
-renderPass.cameraComponent = cameraComponent;
-expression.addRenderPasses([renderPass]);
+
+const expression = createEntityEnvironmentCube();
 
 Rn.System.startRenderLoop(() => {
   if (!window._rendered && count > 0) {

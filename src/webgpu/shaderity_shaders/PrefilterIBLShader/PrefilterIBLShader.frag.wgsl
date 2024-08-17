@@ -7,13 +7,13 @@
 
 @group(1) @binding(0) var baseColorTexture: texture_cube<f32>; // initialValue=white
 @group(2) @binding(0) var baseColorSampler: sampler;
-// #param u_cubeMapFaceId: i32; // initialValue=0
+// #param cubeMapFaceId: i32; // initialValue=0
 // #param distributionType: i32; // initialValue=0
 // #param roughness: f32; // initialValue=0.0
 // #param sampleCount: i32; // initialValue=1024
 
-const int cLambertian = 0;
-const int cGGX = 1;
+const cLambertian: i32 = 0;
+const cGGX: i32 = 1;
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
 fn radicalInverse_VdC(_bits: u32) -> f32
@@ -30,7 +30,7 @@ fn hammersley2d(i: i32, N: i32) -> vec2f {
     return vec2f(f32(i)/f32(N), radicalInverse_VdC(u32(i)));
 }
 
-fn createTBN(vec3 normal) -> mat3x3<f32>
+fn createTBN(normal: vec3f) -> mat3x3<f32>
 {
     var bitangent = vec3f(0.0, 1.0, 0.0);
     let NdotUp = dot(normal, vec3f(0.0, 1.0, 0.0));
@@ -44,7 +44,7 @@ fn createTBN(vec3 normal) -> mat3x3<f32>
     return mat3x3<f32>(tangent, bitangent, normal);
 }
 
-fn getImportanceSampleLambertian(int sampleIndex, vec3 N, float roughness, float materialSID) -> vec4
+fn getImportanceSampleLambertian(sampleIndex: i32, N: vec3f, roughness: f32, materialSID: u32) -> vec4f
 {
     let xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0));
 
@@ -72,7 +72,7 @@ fn d_GGX(NH: f32, alphaRoughness: f32) -> f32 {
 
 // We learnd a lot from the following resources
 // https://bruop.github.io/ibl/
-fn getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, float materialSID) -> vec4
+fn getImportanceSampleGGX(sampleIndex: i32, N: vec3f, roughness: f32, materialSID: u32) -> vec4f
 {
     let xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0));
 
@@ -97,7 +97,7 @@ fn getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, float materi
 // https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-20-gpu-based-importance-sampling
 // https://cgg.mff.cuni.cz/~jaroslav/papers/2007-sketch-fis/Final_sap_0073.pdf
 // https://google.github.io/filament/Filament.html#annex/importancesamplingfortheibl/pre-filteredimportancesampling
-fn computeLod(float pdf, int width, int sampleCount) -> f32
+fn computeLod(pdf: f32, width: u32, sampleCount: i32) -> f32
 {
     // 6.0 is the number of faces of the cubemap
     // log4 = 0.5 * log2
@@ -111,7 +111,7 @@ fn prefilter(N: vec3f, materialSID: u32) -> vec3f
     var weight = 0.0f;
     let sampleCount = get_sampleCount(materialSID, 0);
 
-    let texSize: vec2<u32> = textureDimensions(u_baseColorTexture, 0);
+    let texSize: vec2<u32> = textureDimensions(baseColorTexture, 0);
 
     for(var i = 0; i < get_sampleCount(materialSID, 0); i++)
     {
@@ -130,7 +130,7 @@ fn prefilter(N: vec3f, materialSID: u32) -> vec3f
 
         if(distributionType == cLambertian)
         {
-            let lambertian = textureLod(u_baseColorTexture, H, lod).rgb;
+            let lambertian = textureSampleLevel(baseColorTexture, baseColorSampler, H, lod).rgb;
             color += lambertian;
         }
         else if(distributionType == cGGX)
@@ -141,7 +141,7 @@ fn prefilter(N: vec3f, materialSID: u32) -> vec3f
 
             if (NdotL > 0.0)
             {
-                let sampleColor = textureLod(u_baseColorTexture, L, lod).rgb;
+                let sampleColor = textureSampleLevel(baseColorTexture, baseColorSampler, L, lod).rgb;
                 color += sampleColor * NdotL;
                 weight += NdotL;
             }
@@ -184,12 +184,12 @@ fn main (
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  vec2 uv = v_texcoord_0 * 2.0 - 1.0;
-  vec3 scan = uvToDir(get_cubeMapFaceId(materialSID, 0), uv);
-  vec3 direction = normalize(scan);
+  let uv = input.texcoord_0 * 2.0 - 1.0;
+  let scan = uvToDir(get_cubeMapFaceId(materialSID, 0), uv);
+  var direction = normalize(scan);
   direction.y = -direction.y;
 
-  rt0 = vec4f(prefilter(direction, materialSID), 1.0);
+  let rt0 = vec4f(prefilter(direction, materialSID), 1.0);
 
   return rt0;
 }
