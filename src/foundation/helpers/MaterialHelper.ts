@@ -72,6 +72,14 @@ import GaussianBlurSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders
 import GaussianBlurSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/GaussianBlurShader/GaussianBlurShader.frag';
 import GaussianBlurForEncodedDepthSingleShaderVertex from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.vert';
 import GaussianBlurForEncodedDepthSingleShaderFragment from '../../webgl/shaderity_shaders/GaussianBlurForEncodedDepthShader/GaussianBlurForEncodedDepthShader.frag';
+import PanoramaToCubeShaderVertex from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert';
+import PanoramaToCubeShaderFragment from '../../webgl/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag';
+import PanoramaToCubeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.vert.wgsl';
+import PanoramaToCubeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag.wgsl';
+import PrefilterIBLShaderVertex from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
+import PrefilterIBLShaderFragment from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
+import PrefilterIBLShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert.wgsl';
+import PrefilterIBLShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag.wgsl';
 import { Scalar } from '../math/Scalar';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
@@ -1010,6 +1018,46 @@ function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
+function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+  const materialName = 'PanoramaToCube' + `_${additionalName}`;
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    vertexShader: PanoramaToCubeShaderVertex,
+    pixelShader: PanoramaToCubeShaderFragment,
+    vertexShaderWebGpu: PanoramaToCubeShaderVertexWebGpu,
+    pixelShaderWebGpu: PanoramaToCubeShaderFragmentWebGpu,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+
+  return material;
+}
+
+function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+  const materialName = 'PrefilterIBL' + `_${additionalName}`;
+
+  const materialNode = new CustomMaterialContent({
+    name: materialName,
+    isSkinning: false,
+    isLighting: false,
+    isMorphing: false,
+    vertexShader: PrefilterIBLShaderVertex,
+    pixelShader: PrefilterIBLShaderFragment,
+    vertexShaderWebGpu: PrefilterIBLShaderVertexWebGpu,
+    pixelShaderWebGpu: PrefilterIBLShaderFragmentWebGpu,
+    additionalShaderSemanticInfo: [],
+  });
+  materialNode.isSingleOperation = true;
+  const material = createMaterial(materialName, materialNode, maxInstancesNumber);
+
+  return material;
+}
+
 function createMatCapMaterial({
   additionalName = '',
   isSkinning = false,
@@ -1197,6 +1245,8 @@ export const MaterialHelper = Object.freeze({
   createShadowMapDecodeClassicSingleMaterial,
   createGammaCorrectionMaterial,
   createToneMappingMaterial,
+  createPanoramaToCubeMaterial,
+  createPrefilterIBLMaterial,
   createSummedAreaTableMaterial,
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,

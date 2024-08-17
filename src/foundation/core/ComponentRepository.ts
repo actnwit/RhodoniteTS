@@ -200,9 +200,8 @@ export class ComponentRepository {
     this.__componentTIDs = componentTids;
 
     const renderingComponentTids: ComponentTID[] = [];
-    if (this.__components.has(WellKnownComponentTIDs.MeshRendererComponentTID)) {
-      renderingComponentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID);
-    }
+    renderingComponentTids.push(WellKnownComponentTIDs.MeshRendererComponentTID); // MeshRendererComponent is always active
+
     if (this.__components.has(WellKnownComponentTIDs.EffekseerComponentTID)) {
       renderingComponentTids.push(WellKnownComponentTIDs.EffekseerComponentTID);
     }

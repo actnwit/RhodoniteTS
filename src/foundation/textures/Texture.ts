@@ -3,7 +3,14 @@ import { ComponentType } from '../definitions/ComponentType';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
-import { TypedArray, Count, CGAPIResourceHandle } from '../../types/CommonTypes';
+import {
+  TypedArray,
+  Count,
+  CGAPIResourceHandle,
+  Index,
+  Size,
+  Offset,
+} from '../../types/CommonTypes';
 import { Config } from '../core/Config';
 import { BasisFile, BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
@@ -15,9 +22,20 @@ import { ModuleManager } from '../system/ModuleManager';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SystemState } from '../system/SystemState';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
-import { TextureFormat } from '../definitions/TextureFormat';
+import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
 declare const BASIS: BASIS;
+
+export interface LoadImageToMipLevelDescriptor {
+  mipLevel: Index; // mip level to load
+  xOffset: Offset; // x offset in the texture to copy data
+  yOffset: Offset; // y offset in the texture to copy data
+  width: Size; // width in the texture to copy
+  height: Size; // height in the texture to copy
+  data: TypedArray; // image data in TypedArray
+  rowSizeByPixel: Size; // row size by pixel of the image data
+  type: ComponentTypeEnum; // component type of the image data
+}
 
 export class Texture extends AbstractTexture {
   public autoResize = true;
@@ -395,32 +413,56 @@ export class Texture extends AbstractTexture {
     AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
-  generateTextureFromTypedArray(
-    typedArray: TypedArray,
-    {
-      level = 0,
-      internalFormat = TextureFormat.RGBA8,
-      format = PixelFormat.RGBA,
-      generateMipmap = true,
-    } = {}
-  ) {
-    const type = ComponentType.fromTypedArray(typedArray);
+  allocate(desc: {
+    mipLevelCount?: Count;
+    width: number;
+    height: number;
+    format: TextureFormatEnum;
+  }) {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    const texture = webGLResourceRepository.createTextureFromTypedArray(typedArray, {
-      level,
-      internalFormat,
-      width: this.__width,
-      height: this.__height,
-      border: 0,
-      format,
-      type,
-      generateMipmap,
+    desc.mipLevelCount =
+      desc.mipLevelCount ?? Math.floor(Math.log2(Math.max(desc.width, desc.height))) + 1;
+
+    const texture = cgApiResourceRepository.allocateTexture({
+      mipLevelCount: desc.mipLevelCount,
+      width: desc.width,
+      height: desc.height,
+      format: desc.format,
     });
 
     this._textureResourceUid = texture;
-    this.__isTextureReady = true;
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2d(this._textureResourceUid);
+    }
+    this.__width = desc.width;
+    this.__height = desc.height;
+    this.__mipLevelCount = desc.mipLevelCount;
+    this.__internalFormat = desc.format;
     AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  async loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor) {
+    const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+
+    await webGLResourceRepository.loadImageToMipLevelOfTexture2D({
+      mipLevel: desc.mipLevel,
+      textureUid: this._textureResourceUid,
+      format: this.__internalFormat,
+      type: desc.type,
+      xOffset: desc.xOffset,
+      yOffset: desc.yOffset,
+      width: desc.width,
+      height: desc.height,
+      rowSizeByPixel: desc.rowSizeByPixel,
+      data: desc.data,
+    });
+
+    if (desc.mipLevel === 0) {
+      this.__isTextureReady = true;
+    }
   }
 
   generateCompressedTextureFromTypedArray(
@@ -481,6 +523,18 @@ export class Texture extends AbstractTexture {
     }
     this.__isTextureReady = true;
     AbstractTexture.__textureMap.set(texture, this);
+  }
+
+  /**
+   * Generate mipmaps for the texture.
+   */
+  generateMipmaps() {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.generateMipmaps2d(
+      this._textureResourceUid,
+      this.__width,
+      this.__height
+    );
   }
 
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {

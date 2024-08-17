@@ -90,3 +90,5 @@ samples/**/types.js*
 .envrc
 actions-runner
 
+vendor/hdrpngts.js
+vendor/hdrpngts.js.map

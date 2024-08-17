@@ -29,10 +29,12 @@ import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { SystemState } from '../../system/SystemState';
+import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 
 export class MeshRendererComponent extends Component {
-  private __diffuseCubeMap?: CubeTexture;
-  private __specularCubeMap?: CubeTexture;
+  private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
+  private __specularCubeMap?: CubeTexture | RenderTargetTextureCube;
   private __diffuseCubeMapContribution = 1.0;
   private __specularCubeMapContribution = 1.0;
   private __rotationOfCubeMap = 0;
@@ -104,7 +106,10 @@ export class MeshRendererComponent extends Component {
     MeshRendererComponent.__updateCount++;
   }
 
-  setIBLCubeMap(diffuseCubeTexture: CubeTexture, specularCubeTexture: CubeTexture) {
+  setIBLCubeMap(
+    diffuseCubeTexture: CubeTexture | RenderTargetTextureCube,
+    specularCubeTexture: CubeTexture | RenderTargetTextureCube
+  ) {
     if (diffuseCubeTexture == null || specularCubeTexture == null) {
       return;
     }
@@ -113,36 +118,56 @@ export class MeshRendererComponent extends Component {
     this.__specularCubeMap = specularCubeTexture;
 
     const promises = [];
-    promises.push(
-      new Promise<void>((resolve) => {
-        if (!diffuseCubeTexture.startedToLoad) {
-          diffuseCubeTexture.loadTextureImagesAsync().then(() => {
-            resolve();
-          });
-        } else if (diffuseCubeTexture.isTextureReady) {
+
+    if (diffuseCubeTexture instanceof RenderTargetTextureCube) {
+      promises.push(
+        new Promise<void>((resolve) => {
+          diffuseCubeTexture.setIsTextureReady();
           resolve();
-        } else {
-          diffuseCubeTexture.registerOnTextureLoaded(() => {
+        })
+      );
+    } else {
+      promises.push(
+        new Promise<void>((resolve) => {
+          if (!diffuseCubeTexture.startedToLoad) {
+            diffuseCubeTexture.loadTextureImagesAsync().then(() => {
+              resolve();
+            });
+          } else if (diffuseCubeTexture.isTextureReady) {
             resolve();
-          });
-        }
-      })
-    );
-    promises.push(
-      new Promise<void>((resolve) => {
-        if (!specularCubeTexture.startedToLoad) {
-          specularCubeTexture.loadTextureImagesAsync().then(() => {
-            resolve();
-          });
-        } else if (specularCubeTexture.isTextureReady) {
+          } else {
+            diffuseCubeTexture.registerOnTextureLoaded(() => {
+              resolve();
+            });
+          }
+        })
+      );
+    }
+
+    if (specularCubeTexture instanceof RenderTargetTextureCube) {
+      promises.push(
+        new Promise<void>((resolve) => {
+          specularCubeTexture.setIsTextureReady();
           resolve();
-        } else {
-          specularCubeTexture.registerOnTextureLoaded(() => {
+        })
+      );
+    } else {
+      promises.push(
+        new Promise<void>((resolve) => {
+          if (!specularCubeTexture.startedToLoad) {
+            specularCubeTexture.loadTextureImagesAsync().then(() => {
+              resolve();
+            });
+          } else if (specularCubeTexture.isTextureReady) {
             resolve();
-          });
-        }
-      })
-    );
+          } else {
+            specularCubeTexture.registerOnTextureLoaded(() => {
+              resolve();
+            });
+          }
+        })
+      );
+    }
 
     return Promise.all(promises).then(() => {
       this.__updateCount++;
@@ -364,6 +389,11 @@ export class MeshRendererComponent extends Component {
   }
 
   static common_$prerender() {
+    if (MeshRendererComponent.__cgApiRenderingStrategy == null) {
+      // Possible if there is no mesh entity in the scene
+      const processApproach = SystemState.currentProcessApproach;
+      this.common_$load({ processApproach });
+    }
     // Call common_$prerender of WebGLRenderingStrategy
     MeshRendererComponent.__cgApiRenderingStrategy!.prerender();
   }

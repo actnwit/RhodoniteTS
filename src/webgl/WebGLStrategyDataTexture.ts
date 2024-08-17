@@ -704,6 +704,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     material: Material,
     shaderProgram: WebGLProgram
   ) {
+    if (WebGLStrategyDataTexture.__currentComponentSIDs == null) {
+      WebGLStrategyDataTexture.__currentComponentSIDs =
+        WebGLStrategyDataTexture.__globalDataRepository.getValue(
+          ShaderSemantics.CurrentComponentSIDs,
+          0
+        );
+    }
+
     WebGLStrategyDataTexture.__currentComponentSIDs!._v[0] = material.materialSID;
   }
 
@@ -789,17 +797,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     );
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
-    if ((WebGLStrategyDataTexture.__shaderProgram as any).vrState != null && isVRMainPass) {
+    if ((shaderProgram as any).vrState != null && isVRMainPass) {
       const vrState = GlobalDataRepository.getInstance().getValue(
         ShaderSemantics.VrState,
         0
       ) as Vector2;
       vrState._v[0] = isVRMainPass ? 1 : 0;
       vrState._v[1] = 0;
-      (WebGLStrategyDataTexture.__shaderProgram as any)._gl.uniform2iv(
-        (WebGLStrategyDataTexture.__shaderProgram as any).vrState,
-        vrState._v
-      );
+      (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
     }
 
     WebGLStrategyCommonMethod.setWebGLParameters(material, gl);

@@ -18,6 +18,7 @@ export abstract class AbstractTexture extends RnObject {
   protected __width: Size = 0;
   protected __height: Size = 0;
   protected __level: Index = 0;
+  protected __mipLevelCount: Index = 1;
   protected __internalFormat: TextureFormatEnum = TextureFormat.RGBA8;
   protected __format: PixelFormatEnum = PixelFormat.RGBA;
   protected __type: ComponentTypeEnum = ComponentType.UnsignedByte;
@@ -39,6 +40,7 @@ export abstract class AbstractTexture extends RnObject {
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _samplerResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle = -1;
   public _recommendedTextureSampler?: Sampler;
 
   constructor() {
@@ -52,6 +54,14 @@ export abstract class AbstractTexture extends RnObject {
 
   get width() {
     return this.__width;
+  }
+
+  getWidthAtMipLevel(mipLevel: Index) {
+    return Math.max(1, Math.floor(this.__width / Math.pow(2, mipLevel)));
+  }
+
+  getHeightAtMipLevel(mipLevel: Index) {
+    return Math.max(1, Math.floor(this.__height / Math.pow(2, mipLevel)));
   }
 
   set width(val: Size) {

@@ -2,7 +2,7 @@ import { RnObject } from '../core/RnObject';
 import { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { TextureParameter, TextureParameterEnum } from '../definitions/TextureParameter';
-import { Size, CGAPIResourceHandle } from '../../types/CommonTypes';
+import { Size, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
@@ -15,6 +15,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
   private __internalFormat: TextureFormatEnum = TextureFormat.Depth24;
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
   private __isMSAA = false;
   private __sampleCountMSAA = 4;
@@ -59,8 +60,13 @@ export class RenderBuffer extends RnObject implements IRenderable {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
+      this._textureViewAsRenderTargetResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureViewAsRenderTarget(this._textureResourceUid);
     }
   }
+
+  createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
 
   resize(width: Size, height: Size) {
     this.destroy3DAPIResources();

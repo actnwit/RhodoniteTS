@@ -1225,6 +1225,104 @@ export class WebGLResourceRepository
   }
 
   /**
+   * allocate a Texture
+   * @param format - the internal format of the texture
+   * @param width - the width of the texture
+   * @param height - the height of the texture
+   * @param mipmapCount - the number of mipmap levels
+   * @returns the handle of the texture
+   */
+  allocateTexture({
+    format,
+    width,
+    height,
+    mipLevelCount,
+  }: {
+    format: TextureFormatEnum;
+    width: Size;
+    height: Size;
+    mipLevelCount: Count;
+  }): WebGLResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2D(15, texture);
+    gl.texStorage2D(GL_TEXTURE_2D, mipLevelCount, format.index, width, height);
+    this.__glw!.unbindTexture2D(15);
+
+    return resourceHandle;
+  }
+
+  /**
+   * Load an image to a specific mip level of a texture
+   * @param mipLevel - the mip level to load the image to
+   * @param textureUid - the handle of the texture
+   * @param format - the format of the image
+   * @param type - the type of the data
+   * @param xOffset - the x offset of copy region
+   * @param yOffset - the y offset of copy region
+   * @param width - the width of the image
+   * @param height - the height of the image
+   * @param data - the typedarray data of the image
+   */
+  loadImageToMipLevelOfTexture2D({
+    mipLevel,
+    textureUid,
+    format,
+    type,
+    xOffset,
+    yOffset,
+    width,
+    height,
+    rowSizeByPixel,
+    data,
+  }: {
+    mipLevel: Index;
+    textureUid: WebGLResourceHandle;
+    format: TextureFormatEnum;
+    type: ComponentTypeEnum;
+    xOffset: number;
+    yOffset: number;
+    width: number;
+    height: number;
+    rowSizeByPixel: number;
+    data: TypedArray;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = this.getWebGLResource(textureUid) as RnWebGLTexture;
+    const pixelFormat = TextureFormat.getPixelFormatFromTextureFormat(format);
+    const compositionNum = PixelFormat.getCompositionNumFromPixelFormat(pixelFormat);
+
+    const reducedData = new (data.constructor as any)(width * height * compositionNum);
+
+    for (let y = 0; y < height; y++) {
+      const srcOffset = y * rowSizeByPixel * compositionNum;
+      const destOffset = y * width * compositionNum;
+      for (let x = 0; x < width; x++) {
+        reducedData.set(
+          data.subarray(srcOffset + x * compositionNum, srcOffset + (x + 1) * compositionNum),
+          destOffset + x * compositionNum
+        );
+      }
+    }
+
+    this.__glw!.bindTexture2D(15, texture);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      mipLevel,
+      xOffset,
+      yOffset,
+      width,
+      height,
+      pixelFormat.index,
+      type.index,
+      reducedData
+    );
+    this.__glw!.unbindTexture2D(15);
+  }
+
+  /**
    * create a Texture from TypedArray
    * @param imageData
    * @param param1
@@ -1506,6 +1604,42 @@ export class WebGLResourceRepository
   }
 
   /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param faceIndex a face index
+   * @param mipLevel a mip level
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferCubeToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    faceIndex: Index,
+    mipLevel: Index,
+    renderable: IRenderable
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)! as WebGLFramebuffer;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(
+      renderable._textureResourceUid
+    )! as WebGLTexture;
+    const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
+
+    (renderable as RenderBuffer)._fbo = framebuffer;
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      attachmentId,
+      gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex,
+      renderableWebGLResource,
+      mipLevel
+    );
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  /**
    * attach the DepthBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
    * @param renderable a DepthBuffer
@@ -1672,17 +1806,13 @@ export class WebGLResourceRepository
   createRenderTargetTexture({
     width,
     height,
-    level,
-    internalFormat,
+    mipLevelCount,
     format,
-    type,
   }: {
     width: Size;
     height: Size;
-    level: Index;
-    internalFormat: TextureParameterEnum;
-    format: PixelFormatEnum;
-    type: ComponentTypeEnum;
+    mipLevelCount: Count;
+    format: TextureParameterEnum;
   }) {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
@@ -1691,17 +1821,7 @@ export class WebGLResourceRepository
 
     this.__glw!.bindTexture2D(15, texture);
 
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      level,
-      internalFormat.index,
-      width,
-      height,
-      0,
-      format.index,
-      type.index,
-      null
-    );
+    gl.texStorage2D(gl.TEXTURE_2D, mipLevelCount, format.index, width, height);
 
     this.__glw!.unbindTexture2D(15);
 
@@ -1737,6 +1857,36 @@ export class WebGLResourceRepository
 
     this.__glw!.bindTexture2DArray(15, texture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, internalFormat.index, width, height, arrayLength);
+
+    return resourceHandle;
+  }
+
+  /**
+   * create a RenderTargetTextureCube
+   * @param param0
+   * @returns
+   */
+  createRenderTargetTextureCube({
+    width,
+    height,
+    mipLevelCount,
+    format,
+  }: {
+    width: Size;
+    height: Size;
+    mipLevelCount: Size;
+    format: TextureParameterEnum;
+  }) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTextureCube(15, texture);
+
+    gl.texStorage2D(gl.TEXTURE_CUBE_MAP, mipLevelCount, format.index, width, height);
+
+    this.__glw!.unbindTextureCube(15);
 
     return resourceHandle;
   }
@@ -2337,6 +2487,14 @@ export class WebGLResourceRepository
     this.__glw!.bindTexture2D(15, texture);
     gl.generateMipmap(gl.TEXTURE_2D);
     this.__glw!.unbindTexture2D(15);
+  }
+
+  generateMipmapsCube(textureHandle: WebGLResourceHandle, width: number, height: number): void {
+    const gl = this.__glw!.getRawContext();
+    const texture = this.getWebGLResource(textureHandle) as WebGLTexture;
+    this.__glw!.bindTextureCube(15, texture);
+    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+    this.__glw!.unbindTextureCube(15);
   }
 
   async getTexturePixelData(

@@ -4,6 +4,7 @@ import { IRenderable } from '../textures/IRenderable';
 import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
 import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
+import { Vector4 } from '../math';
 
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
@@ -81,6 +82,33 @@ export class FrameBuffer extends RnObject {
     cgApiResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
+
+    return true;
+  }
+
+  setColorAttachmentCubeAt(
+    attachmentIndex: Index,
+    faceIndex: Index,
+    mipLevel: Index,
+    renderable: IRenderable
+  ) {
+    if (renderable.width !== this.width || renderable.height !== this.height) {
+      return false;
+    }
+    this.__colorAttachments[attachmentIndex] = renderable;
+
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.attachColorBufferCubeToFrameBufferObject(
+      this,
+      attachmentIndex,
+      faceIndex,
+      mipLevel,
+      renderable
+    );
+
+    renderable.createCubeTextureViewAsRenderTarget(faceIndex, mipLevel);
+
+    this.__colorAttachmentMap.set(RenderBufferTarget.from(attachmentIndex), renderable);
 
     return true;
   }
