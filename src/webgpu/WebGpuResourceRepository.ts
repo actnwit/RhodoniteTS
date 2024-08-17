@@ -1928,12 +1928,15 @@ export class WebGpuResourceRepository
           const sampler = value.value[2] as Sampler;
 
           // Texture
-          const type = texture instanceof CubeTexture ? 'cube' : '2d';
+          const type =
+            texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube
+              ? 'cube'
+              : '2d';
           let gpuTextureView = this.__webGpuResources.get(
             texture._textureViewResourceUid
           ) as GPUTextureView;
           if (gpuTextureView == null) {
-            if (texture instanceof CubeTexture) {
+            if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
               const gpuTexture = this.__webGpuResources.get(
                 dummyBlackCubeTexture._textureResourceUid
               ) as GPUTexture;
