@@ -78,6 +78,8 @@ import PanoramaToCubeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/Pan
 import PanoramaToCubeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PanoramaToCubeShader/PanoramaToCubeShader.frag.wgsl';
 import PrefilterIBLShaderVertex from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert';
 import PrefilterIBLShaderFragment from '../../webgl/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag';
+import PrefilterIBLShaderVertexWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.vert.wgsl';
+import PrefilterIBLShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/PrefilterIBLShader/PrefilterIBLShader.frag.wgsl';
 import { Scalar } from '../math/Scalar';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
@@ -1046,6 +1048,8 @@ function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 
     isMorphing: false,
     vertexShader: PrefilterIBLShaderVertex,
     pixelShader: PrefilterIBLShaderFragment,
+    vertexShaderWebGpu: PrefilterIBLShaderVertexWebGpu,
+    pixelShaderWebGpu: PrefilterIBLShaderFragmentWebGpu,
     additionalShaderSemanticInfo: [],
   });
   materialNode.isSingleOperation = true;
