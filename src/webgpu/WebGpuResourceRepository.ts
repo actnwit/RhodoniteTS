@@ -1067,18 +1067,8 @@ export class WebGpuResourceRepository
             colorAttachment._textureViewAsRenderTargetResourceUid
           ) as GPUTextureView;
           let resolveTextureView = this.__webGpuResources.get(
-            resolveColorAttachment._textureViewMipmapCountOneResourceUid
+            resolveColorAttachment._textureViewAsRenderTargetResourceUid
           ) as GPUTextureView;
-          if (resolveTextureView == null) {
-            const resolveTexture = this.__webGpuResources.get(
-              resolveColorAttachment._textureResourceUid
-            ) as GPUTexture;
-            resolveTextureView = resolveTexture.createView({
-              mipLevelCount: 1,
-            });
-            const handle = this.__registerResource(resolveTextureView);
-            resolveColorAttachment._textureViewMipmapCountOneResourceUid = handle;
-          }
           colorAttachments.push({
             view: textureView,
             resolveTarget: resolveTextureView,
@@ -2762,6 +2752,14 @@ export class WebGpuResourceRepository
   createTextureView2d(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView();
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
+  createTextureViewAsRenderTarget(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({ baseMipLevel: 0, mipLevelCount: 1 });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;

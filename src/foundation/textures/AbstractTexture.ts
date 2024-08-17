@@ -40,7 +40,7 @@ export abstract class AbstractTexture extends RnObject {
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _samplerResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
-  public _textureViewMipmapCountOneResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle = -1;
   public _recommendedTextureSampler?: Sampler;
 
   constructor() {

@@ -97,6 +97,9 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
+      this._textureViewAsRenderTargetResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureViewAsRenderTarget(this._textureResourceUid);
     }
 
     AbstractTexture.__textureMap.set(texture, this);
@@ -239,8 +242,4 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}
-
-  get _textureViewAsRenderTargetResourceUid() {
-    return this._textureViewResourceUid;
-  }
 }

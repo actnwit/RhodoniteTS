@@ -15,7 +15,7 @@ export class RenderBuffer extends RnObject implements IRenderable {
   private __internalFormat: TextureFormatEnum = TextureFormat.Depth24;
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
-  public _textureViewMipmapCountOneResourceUid: CGAPIResourceHandle = -1;
+  public _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle = -1;
   private __fbo?: FrameBuffer;
   private __isMSAA = false;
   private __sampleCountMSAA = 4;
@@ -34,10 +34,6 @@ export class RenderBuffer extends RnObject implements IRenderable {
 
   get sampleCount() {
     return this.__sampleCountMSAA;
-  }
-
-  get _textureViewAsRenderTargetResourceUid() {
-    return this._textureViewResourceUid;
   }
 
   create(
@@ -64,6 +60,9 @@ export class RenderBuffer extends RnObject implements IRenderable {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
+      this._textureViewAsRenderTargetResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureViewAsRenderTarget(this._textureResourceUid);
     }
   }
 
