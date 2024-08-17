@@ -31,8 +31,9 @@ export function loadHDR(uint8Array: Uint8Array): {
 
   // check format.
   format = header.match(/FORMAT=(.*)$/m)![1];
-  if (format != '32-bit_rle_rgbe')
-    return console.warn('unknown format : ' + format), this.onerror();
+  if (format != '32-bit_rle_rgbe') {
+    throw new Error('unknown format : ' + format);
+  }
 
   // parse resolution
   let rez = header.split(/\n/).reverse()[1].split(' ');
@@ -42,6 +43,8 @@ export function loadHDR(uint8Array: Uint8Array): {
   // Create image.
   const img = new Uint8Array(width * height * 4);
   let ipos = 0;
+
+  let i = 0;
 
   // Read all scanlines
   for (let j = 0; j < height; j++) {
@@ -67,9 +70,10 @@ export function loadHDR(uint8Array: Uint8Array): {
         }
       }
     } else {
-      if ((rgbe[2] << 8) + rgbe[3] != width)
-        return console.warn('HDR line mismatch ..'), this.onerror();
-      for (let i = 0; i < 4; i++) {
+      if ((rgbe[2] << 8) + rgbe[3] != width) {
+        throw new Error('HDR line mismatch ..');
+      }
+      for (i = 0; i < 4; i++) {
         let ptr = i * width,
           ptr_end = (i + 1) * width,
           buf,
@@ -86,7 +90,7 @@ export function loadHDR(uint8Array: Uint8Array): {
           }
         }
       }
-      for (var i = 0; i < width; i++) {
+      for (i = 0; i < width; i++) {
         img[ipos++] = scanline[i];
         img[ipos++] = scanline[i + width];
         img[ipos++] = scanline[i + 2 * width];
