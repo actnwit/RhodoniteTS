@@ -269,7 +269,7 @@ export class WebGpuResourceRepository
         GPUTextureUsage.RENDER_ATTACHMENT,
       mipLevelCount: Math.floor(Math.log2(Math.max(width, height))) + 1,
     };
-    this.generateMipmaps(gpuTexture, textureDescriptor, 1);
+    this.generateMipmaps(gpuTexture, textureDescriptor);
   }
 
   generateMipmapsCube(textureHandle: WebGPUResourceHandle, width: number, height: number): void {
@@ -283,7 +283,7 @@ export class WebGpuResourceRepository
         GPUTextureUsage.RENDER_ATTACHMENT,
       mipLevelCount: Math.floor(Math.log2(Math.max(width, height))) + 1,
     };
-    this.generateMipmaps(gpuTexture, textureDescriptor, 6);
+    this.generateMipmaps(gpuTexture, textureDescriptor);
   }
 
   async getTexturePixelData(
@@ -315,49 +315,44 @@ export class WebGpuResourceRepository
   }
 
   /**
-   * create a WebGPU Texture Mipmaps
+   * create a WebGPU Texture Mipmaps (including CubeMap support)
    *
    * @remarks
-   * Thanks to: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
+   * Adapted from: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
    * @param texture - a texture
    * @param textureDescriptor - a texture descriptor
-   * @param depthOrArrayLayers - depth or array layers
    */
-  generateMipmaps(
-    texture: GPUTexture,
-    textureDescriptor: GPUTextureDescriptor,
-    depthOrArrayLayers: number
-  ) {
+  generateMipmaps(texture: GPUTexture, textureDescriptor: GPUTextureDescriptor) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
     if (this.__generateMipmapsShaderModule == null) {
       this.__generateMipmapsShaderModule = gpuDevice.createShaderModule({
         code: `
-        var<private> pos : array<vec2f, 4> = array<vec2f, 4>(
-          vec2f(-1, 1), vec2f(1, 1),
-          vec2f(-1, -1), vec2f(1, -1));
+          var<private> pos : array<vec2f, 4> = array<vec2f, 4>(
+            vec2f(-1, 1), vec2f(1, 1),
+            vec2f(-1, -1), vec2f(1, -1));
 
-        struct VertexOutput {
-          @builtin(position) position : vec4f,
-          @location(0) texCoord : vec2f,
-        };
+          struct VertexOutput {
+            @builtin(position) position : vec4f,
+            @location(0) texCoord : vec2f,
+          };
 
-        @vertex
-        fn vertexMain(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
-          var output : VertexOutput;
-          output.texCoord = pos[vertexIndex] * vec2f(0.5, -0.5) + vec2f(0.5);
-          output.position = vec4f(pos[vertexIndex], 0, 1);
-          return output;
-        }
+          @vertex
+          fn vertexMain(@builtin(vertex_index) vertexIndex : u32) -> VertexOutput {
+            var output : VertexOutput;
+            output.texCoord = pos[vertexIndex] * vec2f(0.5, -0.5) + vec2f(0.5);
+            output.position = vec4f(pos[vertexIndex], 0, 1);
+            return output;
+          }
 
-        @group(0) @binding(0) var imgSampler : sampler;
-        @group(0) @binding(1) var img : texture_2d<f32>;
+          @group(0) @binding(0) var imgSampler : sampler;
+          @group(0) @binding(1) var img : texture_2d<f32>;
 
-        @fragment
-        fn fragmentMain(@location(0) texCoord : vec2f) -> @location(0) vec4f {
-          return textureSample(img, imgSampler, texCoord);
-        }
-      `,
+          @fragment
+          fn fragmentMain(@location(0) texCoord : vec2f) -> @location(0) vec4f {
+            return textureSample(img, imgSampler, texCoord);
+          }
+        `,
       });
     }
 
@@ -402,17 +397,25 @@ export class WebGpuResourceRepository
       this.__renderPassEncoder.end();
       this.__renderPassEncoder = undefined;
     }
-    for (let j = 0; j < depthOrArrayLayers; ++j) {
+    const isCubemap = texture.dimension === '2d' && texture.depthOrArrayLayers === 6;
+    const layerCount = isCubemap ? 6 : 1;
+
+    for (let layer = 0; layer < layerCount; ++layer) {
       let srcView = texture.createView({
+        dimension: '2d',
         baseMipLevel: 0,
         mipLevelCount: 1,
-        baseArrayLayer: j,
+        baseArrayLayer: layer,
+        arrayLayerCount: 1,
       });
+
       for (let i = 1; i < textureDescriptor.mipLevelCount!; ++i) {
         const dstView = texture.createView({
+          dimension: '2d',
           baseMipLevel: i,
           mipLevelCount: 1,
-          baseArrayLayer: j,
+          baseArrayLayer: layer,
+          arrayLayerCount: 1,
         });
 
         const passEncoder = this.__commandEncoder!.beginRenderPass({
@@ -2468,7 +2471,7 @@ export class WebGpuResourceRepository
     ]);
 
     if (generateMipmap) {
-      this.generateMipmaps(gpuTexture, textureDescriptor, 1);
+      this.generateMipmaps(gpuTexture, textureDescriptor);
     }
 
     const textureHandle = this.__registerResource(gpuTexture);
