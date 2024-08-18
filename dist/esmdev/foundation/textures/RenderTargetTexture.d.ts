@@ -10,10 +10,10 @@ export declare class RenderTargetTexture extends AbstractTexture implements IRen
     private __fbo?;
     private __arrayLength;
     constructor();
-    create({ width, height, level, format: internalFormat, }: {
+    create({ width, height, mipLevelCount, format: internalFormat, }: {
         width: Size;
         height: Size;
-        level: number;
+        mipLevelCount?: number;
         format: TextureFormatEnum;
     }): void;
     createTextureArray({ width, height, level, internalFormat, format, type, arrayLength, }: {
@@ -43,8 +43,9 @@ export declare class RenderTargetTexture extends AbstractTexture implements IRen
      * @returns Pixel Value in Vector4
      */
     getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Promise<Vector4>;
-    generateMipmap(): void;
+    generateMipmaps(): void;
     blitToTexture2dFromTexture2dArray(targetTexture2D: RenderTargetTexture): void;
     blitToTexture2dFromTexture2dArrayFake(targetTexture2D: RenderTargetTexture): void;
     blitToTexture2dFromTexture2dArray2(targetTexture2D: RenderTargetTexture): void;
+    createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
 }

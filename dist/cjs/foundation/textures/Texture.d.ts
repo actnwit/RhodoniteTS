@@ -1,10 +1,21 @@
 import { PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { AbstractTexture } from './AbstractTexture';
-import { TypedArray, Count } from '../../types/CommonTypes';
+import { TypedArray, Count, Index, Size, Offset } from '../../types/CommonTypes';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { CompressionTextureTypeEnum } from '../definitions/CompressionTextureType';
 import { TextureData } from '../../webgl/WebGLResourceRepository';
+import { TextureFormatEnum } from '../definitions/TextureFormat';
+export interface LoadImageToMipLevelDescriptor {
+    mipLevel: Index;
+    xOffset: Offset;
+    yOffset: Offset;
+    width: Size;
+    height: Size;
+    data: TypedArray;
+    rowSizeByPixel: Size;
+    type: ComponentTypeEnum;
+}
 export declare class Texture extends AbstractTexture {
     autoResize: boolean;
     autoDetectTransparency: boolean;
@@ -27,7 +38,7 @@ export declare class Texture extends AbstractTexture {
     generateTextureFromKTX2(uint8Array: Uint8Array): Promise<void>;
     generateTextureFromImage(image: HTMLImageElement, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
+        internalFormat?: TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: {
             readonly __webgpu: string;
@@ -51,7 +62,7 @@ export declare class Texture extends AbstractTexture {
     loadFromImgLazy(): Promise<void>;
     generateTextureFromUri(imageUri: string, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
-        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
+        internalFormat?: TextureFormatEnum | undefined;
         format?: import("..").EnumIO | undefined;
         type?: {
             readonly __webgpu: string;
@@ -75,14 +86,19 @@ export declare class Texture extends AbstractTexture {
     loadFromUrlLazy(): Promise<void>;
     generate1x1TextureFrom(rgbaStr?: string): void;
     generateSheenLutTextureFromDataUri(): Promise<void>;
-    generateTextureFromTypedArray(typedArray: TypedArray, { level, internalFormat, format, generateMipmap, }?: {
-        level?: number | undefined;
-        internalFormat?: import("../definitions/TextureFormat").TextureFormatEnum | undefined;
-        format?: import("..").EnumIO | undefined;
-        generateMipmap?: boolean | undefined;
+    allocate(desc: {
+        mipLevelCount?: Count;
+        width: number;
+        height: number;
+        format: TextureFormatEnum;
     }): void;
+    loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor): Promise<void>;
     generateCompressedTextureFromTypedArray(typedArray: TypedArray, width: number, height: number, compressionTextureType: CompressionTextureTypeEnum): void;
     generateCompressedTextureWithMipmapFromTypedArray(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): void;
+    /**
+     * Generate mipmaps for the texture.
+     */
+    generateMipmaps(): void;
     importWebGLTextureDirectly(webGLTexture: WebGLTexture, width?: number, height?: number): void;
     destroy3DAPIResources(): boolean;
 }

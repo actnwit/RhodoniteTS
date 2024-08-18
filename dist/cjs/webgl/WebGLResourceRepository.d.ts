@@ -215,6 +215,44 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         generateMipmap: boolean;
     }): Promise<WebGLResourceHandle>;
     /**
+     * allocate a Texture
+     * @param format - the internal format of the texture
+     * @param width - the width of the texture
+     * @param height - the height of the texture
+     * @param mipmapCount - the number of mipmap levels
+     * @returns the handle of the texture
+     */
+    allocateTexture({ format, width, height, mipLevelCount, }: {
+        format: TextureFormatEnum;
+        width: Size;
+        height: Size;
+        mipLevelCount: Count;
+    }): WebGLResourceHandle;
+    /**
+     * Load an image to a specific mip level of a texture
+     * @param mipLevel - the mip level to load the image to
+     * @param textureUid - the handle of the texture
+     * @param format - the format of the image
+     * @param type - the type of the data
+     * @param xOffset - the x offset of copy region
+     * @param yOffset - the y offset of copy region
+     * @param width - the width of the image
+     * @param height - the height of the image
+     * @param data - the typedarray data of the image
+     */
+    loadImageToMipLevelOfTexture2D({ mipLevel, textureUid, format, type, xOffset, yOffset, width, height, rowSizeByPixel, data, }: {
+        mipLevel: Index;
+        textureUid: WebGLResourceHandle;
+        format: TextureFormatEnum;
+        type: ComponentTypeEnum;
+        xOffset: number;
+        yOffset: number;
+        width: number;
+        height: number;
+        rowSizeByPixel: number;
+        data: TypedArray;
+    }): void;
+    /**
      * create a Texture from TypedArray
      * @param imageData
      * @param param1
@@ -268,6 +306,15 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      */
     attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable): void;
     /**
+     * attach the ColorBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param attachmentIndex a attachment index
+     * @param faceIndex a face index
+     * @param mipLevel a mip level
+     * @param renderable a ColorBuffer
+     */
+    attachColorBufferCubeToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, faceIndex: Index, mipLevel: Index, renderable: IRenderable): void;
+    /**
      * attach the DepthBuffer to the FrameBufferObject
      * @param framebuffer a Framebuffer
      * @param renderable a DepthBuffer
@@ -309,13 +356,11 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * @param param0
      * @returns
      */
-    createRenderTargetTexture({ width, height, level, internalFormat, format, type, }: {
+    createRenderTargetTexture({ width, height, mipLevelCount, format, }: {
         width: Size;
         height: Size;
-        level: Index;
-        internalFormat: TextureParameterEnum;
-        format: PixelFormatEnum;
-        type: ComponentTypeEnum;
+        mipLevelCount: Count;
+        format: TextureParameterEnum;
     }): number;
     /**
      * create a RenderTargetTextureArray
@@ -331,6 +376,17 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
         type: ComponentTypeEnum;
         arrayLength: Count;
     }): WebGLResourceHandle;
+    /**
+     * create a RenderTargetTextureCube
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTextureCube({ width, height, mipLevelCount, format, }: {
+        width: Size;
+        height: Size;
+        mipLevelCount: Size;
+        format: TextureParameterEnum;
+    }): number;
     /**
      * create a CubeTexture
      *
@@ -397,6 +453,7 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     createDummyNormalTexture(): number;
     __createDummyTextureInner(base64: string): number;
     generateMipmaps2d(textureHandle: WebGLResourceHandle, width: number, height: number): void;
+    generateMipmapsCube(textureHandle: WebGLResourceHandle, width: number, height: number): void;
     getTexturePixelData(textureHandle: WebGLResourceHandle, width: number, height: number, frameBufferUid: WebGLResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     createUniformBuffer(bufferView: TypedArray | DataView): number;
     updateUniformBuffer(uboUid: WebGLResourceHandle, typedArray: TypedArray, offsetByte: Byte, arrayLength: Byte): void;

@@ -7,6 +7,7 @@ import { RenderPass } from '../../renderer/RenderPass';
 import { ComponentSID, CGAPIResourceHandle, Count, Index, ObjectUID, ComponentTID, EntityUID, PrimitiveUID } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
+import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 export declare class MeshRendererComponent extends Component {
     private __diffuseCubeMap?;
     private __specularCubeMap?;
@@ -21,8 +22,8 @@ export declare class MeshRendererComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
-    get diffuseCubeMap(): CubeTexture | undefined;
-    get specularCubeMap(): CubeTexture | undefined;
+    get diffuseCubeMap(): CubeTexture | RenderTargetTextureCube | undefined;
+    get specularCubeMap(): CubeTexture | RenderTargetTextureCube | undefined;
     get updateCount(): number;
     static get updateCount(): number;
     get diffuseCubeMapContribution(): number;
@@ -31,7 +32,7 @@ export declare class MeshRendererComponent extends Component {
     set specularCubeMapContribution(contribution: number);
     get rotationOfCubeMap(): number;
     set rotationOfCubeMap(rotation: number);
-    setIBLCubeMap(diffuseCubeTexture: CubeTexture, specularCubeTexture: CubeTexture): Promise<void> | undefined;
+    setIBLCubeMap(diffuseCubeTexture: CubeTexture | RenderTargetTextureCube, specularCubeTexture: CubeTexture | RenderTargetTextureCube): Promise<void> | undefined;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
     }): void;

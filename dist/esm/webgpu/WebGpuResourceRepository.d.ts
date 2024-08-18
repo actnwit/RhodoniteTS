@@ -18,6 +18,9 @@ import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
 import { BasisFile } from '../types/BasisTexture';
 import { CompressionTextureTypeEnum } from '../foundation/definitions/CompressionTextureType';
+import { TextureFormatEnum } from '../foundation/definitions/TextureFormat';
+import { Vector4 } from '../foundation/math/Vector4';
+import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
 export declare class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private static __instance;
@@ -85,17 +88,17 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         generateMipmap: boolean;
     }): Promise<WebGPUResourceHandle>;
     generateMipmaps2d(textureHandle: WebGPUResourceHandle, width: number, height: number): void;
+    generateMipmapsCube(textureHandle: WebGPUResourceHandle, width: number, height: number): void;
     getTexturePixelData(textureHandle: WebGPUResourceHandle, width: number, height: number, frameBufferUid: WebGPUResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     /**
-     * create a WebGPU Texture Mipmaps
+     * create a WebGPU Texture Mipmaps (including CubeMap support)
      *
      * @remarks
-     * Thanks to: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
+     * Adapted from: https://toji.dev/webgpu-best-practices/img-textures#generating-mipmaps
      * @param texture - a texture
      * @param textureDescriptor - a texture descriptor
-     * @param depthOrArrayLayers - depth or array layers
      */
-    generateMipmaps(texture: GPUTexture, textureDescriptor: GPUTextureDescriptor, depthOrArrayLayers: number): void;
+    generateMipmaps(texture: GPUTexture, textureDescriptor: GPUTextureDescriptor): void;
     createTextureSampler({ magFilter, minFilter, wrapS, wrapT, wrapR, anisotropy, isPremultipliedAlpha, shadowCompareMode, }: {
         magFilter: TextureParameterEnum;
         minFilter: TextureParameterEnum;
@@ -169,7 +172,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __toClearRenderBundles;
     executeRenderBundle(renderPass: RenderPass): boolean;
     finishRenderBundleEncoder(renderPass: RenderPass): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, isOpaque: boolean, diffuseCubeMap?: CubeTexture, specularCubeMap?: CubeTexture): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, isOpaque: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
     flush(): void;
     /**
      * Create Cube Texture from image files.
@@ -246,19 +249,55 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param compressionTextureType
      */
     createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): WebGLResourceHandle;
+    /**
+     * allocate a Texture
+     * @param format - the format of the texture
+     * @param width - the width of the texture
+     * @param height - the height of the texture
+     * @param mipmapCount - the number of mipmap levels
+     * @returns the handle of the texture
+     */
+    allocateTexture({ format, width, height, mipLevelCount, }: {
+        format: TextureFormatEnum;
+        width: Size;
+        height: Size;
+        mipLevelCount: Count;
+    }): WebGPUResourceHandle;
+    /**
+     * Load an image to a specific mip level of a texture
+     * @param mipLevel - the mip level to load the image to
+     * @param textureUid - the handle of the texture
+     * @param format - the format of the image
+     * @param type - the type of the data
+     * @param xOffset - the x offset of copy region
+     * @param yOffset - the y offset of copy region
+     * @param width - the width of the image
+     * @param height - the height of the image
+     * @param data - the typedarray data of the image
+     */
+    loadImageToMipLevelOfTexture2D({ mipLevel, textureUid, format, type, xOffset, yOffset, width, height, rowSizeByPixel, data, }: {
+        mipLevel: Index;
+        textureUid: WebGLResourceHandle;
+        format: TextureFormatEnum;
+        type: ComponentTypeEnum;
+        xOffset: number;
+        yOffset: number;
+        width: number;
+        height: number;
+        rowSizeByPixel: number;
+        data: TypedArray;
+    }): Promise<void>;
     private __createTextureInner;
     /**
      * create a RenderTargetTexture
      * @param param0
      * @returns
      */
-    createRenderTargetTexture({ width, height, level, internalFormat, format, type, }: {
+    createRenderTargetTexture({ width, height, mipLevelCount, format, }: {
         width: Size;
         height: Size;
-        level: Index;
-        internalFormat: TextureParameterEnum;
-        format: PixelFormatEnum;
-        type: ComponentTypeEnum;
+        mipLevelCount: Count;
+        format: TextureParameterEnum;
     }): WebGPUResourceHandle;
     /**
      * create a RenderTargetTextureArray
@@ -273,6 +312,17 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         arrayLength: Count;
+    }): WebGPUResourceHandle;
+    /**
+     * create a RenderTargetTextureCube
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTextureCube({ width, height, mipLevelCount, format, }: {
+        width: Size;
+        height: Size;
+        mipLevelCount: Count;
+        format: TextureParameterEnum;
     }): WebGPUResourceHandle;
     /**
      * create Renderbuffer
@@ -325,10 +375,22 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param renderable a ColorBuffer
      */
     attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable): void;
+    /**
+     * attach the ColorBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param attachmentIndex a attachment index
+     * @param faceIndex a face index
+     * @param mipLevel a mip level
+     * @param renderable a ColorBuffer
+     */
+    attachColorBufferCubeToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, faceIndex: Index, mipLevel: Index, renderable: IRenderable): void;
     createTextureView2d(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle;
+    createTextureViewAsRenderTarget(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle;
     createTextureViewCube(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle;
+    createCubeTextureViewAsRenderTarget(textureHandle: WebGPUResourceHandle, faceIdx: Index, mipLevel: Index): WebGPUResourceHandle;
     deleteTexture(textureHandle: WebGLResourceHandle): void;
     recreateSystemDepthTexture(): void;
     resizeCanvas(width: Size, height: Size): void;
+    setViewport(viewport?: Vector4): void;
     isSupportMultiViewVRRendering(): boolean;
 }

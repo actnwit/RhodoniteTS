@@ -5,15 +5,16 @@ import type { ComponentTypeEnum } from '../definitions/ComponentType';
 import type { TextureParameterEnum } from '../definitions/TextureParameter';
 import type { Accessor } from '../memory/Accessor';
 import type { Primitive } from '../geometry/Primitive';
-import { CompressionTextureTypeEnum, HdriFormatEnum, VertexAttributeEnum } from '../definitions';
+import { CompressionTextureTypeEnum, HdriFormatEnum, TextureFormatEnum, VertexAttributeEnum } from '../definitions';
 import { Material } from '../materials/core/Material';
 import { AttributeNames } from '../../webgl/types/CommonTypes';
 import { Sampler } from '../textures/Sampler';
 import { RenderPass } from './RenderPass';
 import { IRenderable } from '../textures/IRenderable';
 import { FrameBuffer } from '../renderer/FrameBuffer';
-import { WebGpuResourceRepository } from '../../webgpu';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { BasisFile } from '../../types/BasisTexture';
+import { Vector4 } from '../math/Vector4';
 export type DirectTextureData = TypedArray | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export type ImageBitmapData = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap;
 export declare abstract class CGAPIResourceRepository {
@@ -131,6 +132,44 @@ export interface ICGAPIResourceRepository {
     }): CGAPIResourceHandle;
     createCubeTextureFromFiles(baseUri: string, mipLevelCount: Count, isNamePosNeg: boolean, hdriFormat: HdriFormatEnum): Promise<[number, Sampler]>;
     /**
+     * allocate a Texture
+     * @param format - the format of the texture
+     * @param width - the width of the texture
+     * @param height - the height of the texture
+     * @param mipmapCount - the number of mipmap levels
+     * @returns the handle of the texture
+     */
+    allocateTexture({ format, width, height, mipLevelCount, }: {
+        format: TextureFormatEnum;
+        width: Size;
+        height: Size;
+        mipLevelCount: Count;
+    }): CGAPIResourceHandle;
+    /**
+     * Load an image to a specific mip level of a texture
+     * @param mipLevel - the mip level to load the image to
+     * @param textureUid - the handle of the texture
+     * @param format - the format of the image
+     * @param type - the type of the data
+     * @param xOffset - the x offset of copy region
+     * @param yOffset - the y offset of copy region
+     * @param width - the width of the image
+     * @param height - the height of the image
+     * @param data - the typedarray data of the image
+     */
+    loadImageToMipLevelOfTexture2D({ mipLevel, textureUid, format, type, xOffset, yOffset, width, height, rowSizeByPixel, data, }: {
+        mipLevel: Index;
+        textureUid: CGAPIResourceHandle;
+        format: TextureFormatEnum;
+        type: ComponentTypeEnum;
+        xOffset: number;
+        yOffset: number;
+        width: number;
+        height: number;
+        rowSizeByPixel: number;
+        data: TypedArray;
+    }): void;
+    /**
      * create a Cube Texture
      */
     createCubeTexture(mipLevelCount: Count, images: Array<{
@@ -180,13 +219,11 @@ export interface ICGAPIResourceRepository {
      * @param param0
      * @returns
      */
-    createRenderTargetTexture({ width, height, level, internalFormat, format, type, }: {
+    createRenderTargetTexture({ width, height, mipLevelCount, format, }: {
         width: Size;
         height: Size;
-        level: Index;
-        internalFormat: TextureParameterEnum;
-        format: PixelFormatEnum;
-        type: ComponentTypeEnum;
+        mipLevelCount: Count;
+        format: TextureParameterEnum;
     }): CGAPIResourceHandle;
     /**
      * create a RenderTargetTextureArray
@@ -203,6 +240,17 @@ export interface ICGAPIResourceRepository {
         arrayLength: Count;
     }): CGAPIResourceHandle;
     /**
+     * create a RenderTargetTextureCube
+     * @param param0
+     * @returns
+     */
+    createRenderTargetTextureCube({ width, height, mipLevelCount, format, }: {
+        width: Size;
+        height: Size;
+        mipLevelCount: Size;
+        format: TextureParameterEnum;
+    }): CGAPIResourceHandle;
+    /**
      * delete a Texture
      * @param textureHandle
      */
@@ -211,6 +259,10 @@ export interface ICGAPIResourceRepository {
      * generate Mipmaps
      */
     generateMipmaps2d(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
+    /**
+     * generate Mipmaps
+     */
+    generateMipmapsCube(textureHandle: CGAPIResourceHandle, width: number, height: number): void;
     getTexturePixelData(textureHandle: CGAPIResourceHandle, width: number, height: number, frameBufferUid: CGAPIResourceHandle, colorAttachmentIndex: number): Promise<Uint8Array>;
     /**
      * create a FrameBufferObject
@@ -223,6 +275,15 @@ export interface ICGAPIResourceRepository {
      * @param renderable a ColorBuffer
      */
     attachColorBufferToFrameBufferObject(framebuffer: FrameBuffer, index: Index, renderable: IRenderable): void;
+    /**
+     * attach the ColorBuffer to the FrameBufferObject
+     * @param framebuffer a Framebuffer
+     * @param attachmentIndex a attachment index
+     * @param faceIndex a face index
+     * @param mipLevel a mip level
+     * @param renderable a ColorBuffer
+     */
+    attachColorBufferCubeToFrameBufferObject(framebuffer: FrameBuffer, attachmentIndex: Index, faceIndex: Index, mipLevel: Index, renderable: IRenderable): void;
     /**
      * create a Renderbuffer
      */
@@ -256,4 +317,5 @@ export interface ICGAPIResourceRepository {
      */
     deleteFrameBufferObject(frameBufferObjectHandle: CGAPIResourceHandle): void;
     isSupportMultiViewVRRendering(): boolean;
+    setViewport(viewport?: Vector4): void;
 }

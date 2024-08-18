@@ -18,6 +18,7 @@ export type SquareMatrixComponentN = 4 | 9 | 16;
 export type Index = number;
 export type IndexOf16Bytes = number;
 export type IndexOf4Bytes = number;
+export type Offset = number;
 export type Size = number;
 export type Count = number;
 export type Byte = number;

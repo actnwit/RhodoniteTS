@@ -122,6 +122,14 @@ declare function createSummedAreaTableMaterial({ additionalName, maxInstancesNum
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
+declare function createPanoramaToCubeMaterial({ additionalName, maxInstancesNumber }?: {
+    additionalName?: string | undefined;
+    maxInstancesNumber?: number | undefined;
+}): Material;
+declare function createPrefilterIBLMaterial({ additionalName, maxInstancesNumber }?: {
+    additionalName?: string | undefined;
+    maxInstancesNumber?: number | undefined;
+}): Material;
 declare function createMatCapMaterial({ additionalName, isSkinning, uri, texture, sampler, maxInstancesNumber, }: {
     additionalName?: string;
     isSkinning?: boolean;
@@ -170,6 +178,8 @@ export declare const MaterialHelper: Readonly<{
     createShadowMapDecodeClassicSingleMaterial: typeof createShadowMapDecodeClassicSingleMaterial;
     createGammaCorrectionMaterial: typeof createGammaCorrectionMaterial;
     createToneMappingMaterial: typeof createToneMappingMaterial;
+    createPanoramaToCubeMaterial: typeof createPanoramaToCubeMaterial;
+    createPrefilterIBLMaterial: typeof createPrefilterIBLMaterial;
     createSummedAreaTableMaterial: typeof createSummedAreaTableMaterial;
     createVarianceShadowMapDecodeClassicSingleMaterial: typeof createVarianceShadowMapDecodeClassicSingleMaterial;
     createEntityUIDOutputMaterial: typeof createEntityUIDOutputMaterial;

@@ -23,6 +23,7 @@ export declare class FrameBuffer extends RnObject {
     create(width: Size, height: Size): number;
     get framebufferUID(): number;
     setColorAttachmentAt(index: Index, renderable: IRenderable): boolean;
+    setColorAttachmentCubeAt(attachmentIndex: Index, faceIndex: Index, mipLevel: Index, renderable: IRenderable): boolean;
     setDepthAttachment(renderable: IRenderable): boolean;
     setStencilAttachment(renderable: IRenderable): boolean;
     setDepthStencilAttachment(renderable: IRenderable): boolean;

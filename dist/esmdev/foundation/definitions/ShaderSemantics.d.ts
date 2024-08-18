@@ -162,5 +162,8 @@ export declare const ShaderSemantics: Readonly<{
     AnisotropyTexture: ShaderSemanticsClass;
     EmissiveStrength: ShaderSemanticsClass;
     Time: ShaderSemanticsClass;
+    CubeMapFaceId: ShaderSemanticsClass;
+    Roughness: ShaderSemanticsClass;
+    DistributionType: ShaderSemanticsClass;
 }>;
 export {};

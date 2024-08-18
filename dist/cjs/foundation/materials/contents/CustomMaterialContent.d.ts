@@ -5,6 +5,8 @@ import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/Comm
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export declare class CustomMaterialContent extends AbstractMaterialContent {
     private static __globalDataRepository;
+    private static __diffuseIblCubeMapSampler;
+    private static __specularIblCubeMapSampler;
     constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader, additionalShaderSemanticInfo, vertexShaderWebGpu, pixelShaderWebGpu, }: {
         name: string;
         isMorphing: boolean;

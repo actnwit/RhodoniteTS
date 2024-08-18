@@ -1,7 +1,7 @@
 import { RnObject } from '../core/RnObject';
 import { IRenderable } from './IRenderable';
 import { TextureParameterEnum } from '../definitions/TextureParameter';
-import { Size, CGAPIResourceHandle } from '../../types/CommonTypes';
+import { Size, CGAPIResourceHandle, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 export declare class RenderBuffer extends RnObject implements IRenderable {
     width: number;
@@ -9,6 +9,7 @@ export declare class RenderBuffer extends RnObject implements IRenderable {
     private __internalFormat;
     _textureResourceUid: CGAPIResourceHandle;
     _textureViewResourceUid: CGAPIResourceHandle;
+    _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle;
     private __fbo?;
     private __isMSAA;
     private __sampleCountMSAA;
@@ -20,6 +21,7 @@ export declare class RenderBuffer extends RnObject implements IRenderable {
         isMSAA?: boolean | undefined;
         sampleCountMSAA?: number | undefined;
     }): void;
+    createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
     resize(width: Size, height: Size): void;
     destroy3DAPIResources(): boolean;
 }

@@ -15,6 +15,7 @@ export declare abstract class AbstractTexture extends RnObject {
     protected __width: Size;
     protected __height: Size;
     protected __level: Index;
+    protected __mipLevelCount: Index;
     protected __internalFormat: TextureFormatEnum;
     protected __format: PixelFormatEnum;
     protected __type: ComponentTypeEnum;
@@ -34,10 +35,13 @@ export declare abstract class AbstractTexture extends RnObject {
     _textureResourceUid: CGAPIResourceHandle;
     _samplerResourceUid: CGAPIResourceHandle;
     _textureViewResourceUid: CGAPIResourceHandle;
+    _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle;
     _recommendedTextureSampler?: Sampler;
     constructor();
     get textureUID(): number;
     get width(): Size;
+    getWidthAtMipLevel(mipLevel: Index): number;
+    getHeightAtMipLevel(mipLevel: Index): number;
     set width(val: Size);
     get height(): Size;
     set height(val: Size);

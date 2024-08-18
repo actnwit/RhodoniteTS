@@ -3,6 +3,7 @@ import { TextureParameterEnum } from '../definitions/TextureParameter';
 import { ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormatEnum } from '../definitions/PixelFormat';
 import { TextureFormatEnum } from '../definitions/TextureFormat';
+import { RenderTargetTextureCube } from '../textures';
 export interface TextureParameters {
     level: number;
     format: TextureParameterEnum;
@@ -12,6 +13,7 @@ export interface FrameBufferDescriptor {
     height: number;
     textureNum: number;
     textureFormats: TextureFormatEnum[];
+    mipLevelCount?: number;
     createDepthBuffer: boolean;
     depthTextureFormat?: TextureFormatEnum;
 }
@@ -35,6 +37,13 @@ export interface FrameBufferTextureArrayDescriptor {
     type: ComponentTypeEnum;
 }
 declare function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor): FrameBuffer;
+export interface FrameBufferCubeMapDescriptor {
+    width: number;
+    height: number;
+    textureFormat: TextureFormatEnum;
+    mipLevelCount?: number;
+}
+declare function createFrameBufferCubeMap(desc: FrameBufferCubeMapDescriptor): [FrameBuffer, RenderTargetTextureCube];
 declare function createDepthBuffer(width: number, height: number, { level, internalFormat }: {
     level?: number | undefined;
     internalFormat?: TextureFormatEnum | undefined;
@@ -43,6 +52,7 @@ export declare const RenderableHelper: Readonly<{
     createFrameBuffer: typeof createFrameBuffer;
     createFrameBufferMSAA: typeof createFrameBufferMSAA;
     createFrameBufferTextureArray: typeof createFrameBufferTextureArray;
+    createFrameBufferCubeMap: typeof createFrameBufferCubeMap;
     createDepthBuffer: typeof createDepthBuffer;
 }>;
 export {};

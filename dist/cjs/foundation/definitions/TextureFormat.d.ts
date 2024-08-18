@@ -1,7 +1,14 @@
 import { EnumIO } from '../misc/EnumIO';
+import { ComponentTypeEnum } from './ComponentType';
+import { PixelFormatEnum } from './PixelFormat';
 export interface TextureFormatEnum extends EnumIO {
     webgpu: string;
 }
+declare function getPixelFormatFromTextureFormat(textureFormat: TextureFormatEnum): PixelFormatEnum;
+declare function getPixelFormatAndComponentTypeFromTextureFormat(internalFormat: TextureFormatEnum): {
+    format: EnumIO;
+    type: ComponentTypeEnum;
+};
 declare function from(index: number): TextureFormatEnum;
 export declare const TextureFormat: Readonly<{
     RGB8: TextureFormatEnum;
@@ -19,6 +26,8 @@ export declare const TextureFormat: Readonly<{
     Depth32F: TextureFormatEnum;
     Depth24Stencil8: TextureFormatEnum;
     Depth32FStencil8: TextureFormatEnum;
+    getPixelFormatFromTextureFormat: typeof getPixelFormatFromTextureFormat;
+    getPixelFormatAndComponentTypeFromTextureFormat: typeof getPixelFormatAndComponentTypeFromTextureFormat;
     from: typeof from;
 }>;
 export {};
