@@ -36,7 +36,7 @@ fn main(
     envNormal.x *= -1.0;
   }
 
-  let diffuseTexel = textureSample(colorEnvTexture, colorEnvSampler, envNormal);
+  let diffuseTexel = textureSampleLevel(colorEnvTexture, colorEnvSampler, envNormal, 0.0);
   var textureColor: vec3f;
   let EnvHdriFormat: i32 = get_envHdriFormat(materialSID, 0);
   if (EnvHdriFormat == 0) { // LDR_SRGB

@@ -10,7 +10,7 @@ fn main (
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  var baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
+  var baseColor = textureSampleLevel(baseColorTexture, baseColorSampler, input.texcoord_0, 0.0);
 
   let luminance = dot(baseColor.rgb, vec3f(0.2126, 0.7152, 0.0722));
 

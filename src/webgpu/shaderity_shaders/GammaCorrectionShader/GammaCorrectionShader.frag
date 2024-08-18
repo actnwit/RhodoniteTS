@@ -17,7 +17,7 @@ fn main (
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-  var baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
+  var baseColor = textureSampleLevel(baseColorTexture, baseColorSampler, input.texcoord_0, 0.0);
 
   if (get_enableLinearToSrgb(materialSID, 0)) {
     baseColor = vec4f(linearToSrgb(baseColor.rgb), baseColor.a);

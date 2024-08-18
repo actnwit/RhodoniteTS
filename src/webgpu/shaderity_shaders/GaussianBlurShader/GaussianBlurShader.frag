@@ -34,7 +34,7 @@ fn main(
     let gaussianRatio = get_gaussianRatio(materialSID, i);
     var uv = (offset + stride) * tFrag;
     // uv.y = 1.0 - uv.y;
-    color += vec4f(textureSample(baseColorTexture, baseColorSampler, uv).rgb, 1.0) * gaussianRatio;
+    color += vec4f(textureSampleLevel(baseColorTexture, baseColorSampler, uv, 0.0).rgb, 1.0) * gaussianRatio;
   }
 
   return color;
