@@ -58,7 +58,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
 
   private static readonly componentMatrices: ShaderSemanticsInfo[] = [
     {
-      semantic: ShaderSemantics.VertexAttributesExistenceArray,
+      semantic: 'vertexAttributesExistenceArray',
       compositionType: CompositionType.ScalarArray,
       componentType: ComponentType.Int,
       stage: ShaderType.VertexShader,
@@ -67,7 +67,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       isInternalSetting: true,
     },
     {
-      semantic: ShaderSemantics.WorldMatrix,
+      semantic: 'worldMatrix',
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexShader,
@@ -76,7 +76,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       isInternalSetting: true,
     },
     {
-      semantic: ShaderSemantics.NormalMatrix,
+      semantic: 'normalMatrix',
       compositionType: CompositionType.Mat3,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexShader,
@@ -85,7 +85,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
       isInternalSetting: true,
     },
     {
-      semantic: ShaderSemantics.IsBillboard,
+      semantic: 'isBillboard',
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Bool,
       stage: ShaderType.VertexShader,
@@ -441,10 +441,7 @@ bool get_isBillboard(float instanceId) {
 
     const isVrMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     if ((shaderProgram as any).vrState != null && isVrMainPass) {
-      const vrState = GlobalDataRepository.getInstance().getValue(
-        ShaderSemantics.VrState,
-        0
-      ) as Vector2;
+      const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
       vrState._v[0] = isVrMainPass ? 1 : 0;
       vrState._v[1] = 0;
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
@@ -517,10 +514,7 @@ bool get_isBillboard(float instanceId) {
         this.bindDataTexture(gl, shaderProgram);
 
         if (AnimationComponent.isAnimating) {
-          const time = GlobalDataRepository.getInstance().getValue(
-            ShaderSemantics.Time,
-            0
-          ) as Scalar;
+          const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
           (shaderProgram as any)._gl.uniform1f((shaderProgram as any).time, time._v[0]);
         }
 
@@ -561,10 +555,7 @@ bool get_isBillboard(float instanceId) {
           });
         }
         if ((shaderProgram as any).vrState != null && isVrMainPass) {
-          const vrState = GlobalDataRepository.getInstance().getValue(
-            ShaderSemantics.VrState,
-            0
-          ) as Vector2;
+          const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
           vrState._v[0] = isVrMainPass ? 1 : 0;
           vrState._v[1] = displayIdx;
           (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);

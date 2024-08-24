@@ -355,7 +355,7 @@ export class ForwardRenderPipeline extends RnObject {
               for (const primitive of primitives) {
                 const material = primitive.material;
                 material.setTextureParameter(
-                  ShaderSemantics.DepthTexture,
+                  'depthTexture',
                   this.__oFrameDepthMoment.unwrapForce().getColorAttachedRenderTargetTexture(0)!,
                   sampler
                 );
@@ -546,10 +546,7 @@ export class ForwardRenderPipeline extends RnObject {
                   const primitives = mesh.primitives;
                   for (const primitive of primitives) {
                     const material = primitive.material;
-                    material.setParameter(
-                      ShaderSemantics.DepthBiasPV,
-                      cameraComponent.biasViewProjectionMatrix
-                    );
+                    material.setParameter('depthBiasPV', cameraComponent.biasViewProjectionMatrix);
                   }
                 }
               }
@@ -621,7 +618,7 @@ export class ForwardRenderPipeline extends RnObject {
                 for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
                   const primitive = mesh.getPrimitiveAt(i);
                   primitive.material.setTextureParameter(
-                    ShaderSemantics.BackBufferTexture,
+                    'backBufferTexture',
                     this.__getMainFrameBufferBackBuffer()
                       .unwrapForce()
                       .getColorAttachedRenderTargetTexture(0)!,

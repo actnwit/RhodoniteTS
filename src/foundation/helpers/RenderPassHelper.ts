@@ -45,7 +45,7 @@ function createScreenDrawRenderPassWithBaseColorTexture(
     });
     _sampler.create();
   }
-  material.setTextureParameter(ShaderSemantics.BaseColorTexture, texture, sampler ?? _sampler);
+  material.setTextureParameter('baseColorTexture', texture, sampler ?? _sampler);
 
   const renderPass = new RenderPass();
   renderPass.toClearColorBuffer = false;

@@ -212,7 +212,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     // non-Texture
     shaderSemanticsInfoArray.push(
       {
-        semantic: MToonMaterialContent._Cutoff,
+        semantic: 'cutoff',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -221,7 +221,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._Color,
+        semantic: 'color',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
@@ -230,7 +230,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._ShadeColor,
+        semantic: 'shadeColor',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -239,7 +239,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._BumpScale,
+        semantic: 'bumpScale',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -248,7 +248,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._ReceiveShadowRate,
+        semantic: 'receiveShadowRate',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -257,7 +257,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._ShadingGradeRate,
+        semantic: 'shadingGradeRate',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -266,7 +266,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._ShadeShift,
+        semantic: 'shadeShift',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -275,7 +275,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._ShadeToony,
+        semantic: 'shadeToony',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -284,7 +284,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._LightColorAttenuation,
+        semantic: 'lightColorAttenuation',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -293,7 +293,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._AmbientColor,
+        semantic: 'ambientColor',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -307,7 +307,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._IndirectLightIntensity), min: 0, max: 1
       // },
       {
-        semantic: MToonMaterialContent._RimColor,
+        semantic: 'rimColor',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -316,7 +316,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._RimLightingMix,
+        semantic: 'rimLightingMix',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -325,7 +325,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._RimFresnelPower,
+        semantic: 'rimFresnelPower',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -334,7 +334,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._RimLift,
+        semantic: 'rimLift',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -343,7 +343,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent.CameraUp,
+        semantic: 'cameraUp',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -353,7 +353,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: MToonMaterialContent._EmissionColor,
+        semantic: 'emissionColor',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -380,7 +380,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       // },
 
       {
-        semantic: ShaderSemantics.Wireframe,
+        semantic: 'wireframe',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -389,7 +389,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 10,
       },
       {
-        semantic: ShaderSemantics.MakeOutputSrgb,
+        semantic: 'makeOutputSrgb',
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Bool,
         stage: ShaderType.PixelShader,
@@ -438,7 +438,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
 
       shaderSemanticsInfoArray.push(
         {
-          semantic: MToonMaterialContent._OutlineWidth,
+          semantic: 'outlineWidth',
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -447,7 +447,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonMaterialContent._OutlineScaledMaxDistance,
+          semantic: 'outlineScaledMaxDistance',
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -456,7 +456,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonMaterialContent._OutlineColor,
+          semantic: 'outlineColor',
           componentType: ComponentType.Float,
           compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader,
@@ -467,7 +467,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonMaterialContent._OutlineLightingMix,
+          semantic: 'outlineLightingMix',
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.PixelShader,
@@ -476,7 +476,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           max: 1,
         },
         {
-          semantic: MToonMaterialContent.Aspect,
+          semantic: 'aspect',
           componentType: ComponentType.Float,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -502,7 +502,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
 
       shaderSemanticsInfoArray.push(
         {
-          semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+          semantic: 'dataTextureMorphOffsetPosition',
           componentType: ComponentType.Int,
           compositionType: CompositionType.ScalarArray,
           arrayLength: Config.maxVertexMorphNumberInShader,
@@ -514,7 +514,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
           needUniformInDataTextureMode: true,
         },
         {
-          semantic: ShaderSemantics.MorphWeights,
+          semantic: 'morphWeights',
           componentType: ComponentType.Float,
           compositionType: CompositionType.ScalarArray,
           arrayLength: Config.maxVertexMorphNumberInShader,
@@ -546,7 +546,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   ) {
     shaderSemanticsInfoArray.push(
       {
-        semantic: MToonMaterialContent._litColorTexture,
+        semantic: 'litColorTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -559,7 +559,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._shadeColorTexture,
+        semantic: 'shadeColorTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -572,7 +572,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._receiveShadowTexture,
+        semantic: 'receiveShadowTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -585,7 +585,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._shadingGradeTexture,
+        semantic: 'shadingGradeTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -598,7 +598,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._rimTexture,
+        semantic: 'rimTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -611,7 +611,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._matCapTexture,
+        semantic: 'matCapTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -624,7 +624,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: MToonMaterialContent._emissionTexture,
+        semantic: 'emissionTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -641,7 +641,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     shaderSemanticsInfoArray.push(
       {
         // number 7 of texture is the data Texture
-        semantic: MToonMaterialContent._normalTexture,
+        semantic: 'normalTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -667,7 +667,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
 
     if (isOutline) {
       shaderSemanticsInfoArray.push({
-        semantic: MToonMaterialContent._OutlineWidthTexture,
+        semantic: 'outlineWidthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.VertexShader,
@@ -782,10 +782,10 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       WellKnownComponentTIDs.CameraComponentTID,
       args.cameraComponentSid
     ) as CameraComponent;
-    material.setParameter(MToonMaterialContent.CameraUp, cameraComponent.upInner);
+    material.setParameter('cameraUp', cameraComponent.upInner);
 
     if (this.__OutlineWidthModeIsScreen) {
-      material.setParameter(MToonMaterialContent.Aspect, cameraComponent.aspect);
+      material.setParameter('aspect', cameraComponent.aspect);
     }
   }
 
@@ -831,10 +831,10 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         (shaderProgram as any)._gl.uniform1f((shaderProgram as any).aspect, cameraComponent.aspect);
       }
     } else {
-      material.setParameter(MToonMaterialContent.CameraUp, cameraComponent.upInner);
+      material.setParameter('cameraUp', cameraComponent.upInner);
 
       if (this.__OutlineWidthModeIsScreen) {
-        material.setParameter(MToonMaterialContent.Aspect, cameraComponent.aspect);
+        material.setParameter('aspect', cameraComponent.aspect);
       }
     }
 

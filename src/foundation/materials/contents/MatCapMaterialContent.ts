@@ -48,7 +48,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
     shaderSemanticsInfoArray.push({
-      semantic: ShaderSemantics.Wireframe,
+      semantic: 'wireframe',
       componentType: ComponentType.Float,
       compositionType: CompositionType.Vec3,
       stage: ShaderType.PixelShader,
@@ -60,7 +60,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     // point cloud
     shaderSemanticsInfoArray.push(
       {
-        semantic: ShaderSemantics.PointSize,
+        semantic: 'pointSize',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
@@ -70,7 +70,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
         max: 100,
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation,
+        semantic: 'pointDistanceAttenuation',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
@@ -82,7 +82,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     );
 
     shaderSemanticsInfoArray.push({
-      semantic: MatCapMaterialContent.MatCapTexture,
+      semantic: 'matCapTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,

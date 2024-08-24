@@ -79,7 +79,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeCoefficient,
+        semantic: 'synthesizeCoefficient',
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         arrayLength: 6,
@@ -90,7 +90,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         needUniformInDataTextureMode: true,
       },
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture0,
+        semantic: 'synthesizeTexture0',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -99,7 +99,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture1,
+        semantic: 'synthesizeTexture1',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -108,7 +108,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture2,
+        semantic: 'synthesizeTexture2',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -117,7 +117,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture3,
+        semantic: 'synthesizeTexture3',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -126,7 +126,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture4,
+        semantic: 'synthesizeTexture4',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -135,7 +135,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: SynthesizeHdrMaterialContent.SynthesizeTexture5,
+        semantic: 'synthesizeTexture5',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -185,7 +185,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     }
     (shaderProgram as any)._gl.uniform1fv(
       (shaderProgram as any).synthesizeCoefficient,
-      material.getParameter(SynthesizeHdrMaterialContent.SynthesizeCoefficient)._v
+      material.getParameter('synthesizeCoefficient')._v
     );
   }
 

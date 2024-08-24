@@ -1,11 +1,11 @@
 import { Count } from '../../types/CommonTypes';
 import { ComponentTypeEnum } from './ComponentType';
 import { CompositionType, CompositionTypeEnum } from './CompositionType';
-import { ShaderSemanticsEnum } from './ShaderSemantics';
+import { ShaderSemanticsEnum, ShaderSemanticsName } from './ShaderSemantics';
 import { ShaderTypeEnum } from './ShaderType';
 
 export type ShaderSemanticsInfo = {
-  semantic: ShaderSemanticsEnum;
+  semantic: ShaderSemanticsName;
   compositionType: CompositionTypeEnum;
   componentType: ComponentTypeEnum;
   stage: ShaderTypeEnum;
@@ -41,12 +41,4 @@ export function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
     }
   }
   return alignedByteLength;
-}
-
-/**
- * @internal
- */
-export function _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
-  const propertyIndex = semanticInfo.semantic.index;
-  return propertyIndex;
 }

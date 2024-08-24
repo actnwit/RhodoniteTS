@@ -226,7 +226,7 @@ export class System {
       System.createCamera();
     }
 
-    const time = GlobalDataRepository.getInstance().getValue(ShaderSemantics.Time, 0) as Scalar;
+    const time = GlobalDataRepository.getInstance().getValue('time', 0) as Scalar;
     time._v[0] = Time.timeFromSystemStart;
 
     if (this.processApproach === ProcessApproach.WebGPU) {

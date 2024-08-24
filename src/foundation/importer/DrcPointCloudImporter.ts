@@ -685,25 +685,6 @@ export class DrcPointCloudImporter {
       promisesToLoadResources.push(promise);
     }
 
-    if (options.defaultTextures) {
-      const basePath = options.defaultTextures.basePath;
-      const textureInfos = options.defaultTextures.textureInfos;
-
-      for (const textureInfo of textureInfos) {
-        const fileName = textureInfo.fileName;
-        const uri = basePath + fileName;
-
-        const fileExtension = DataUtil.getExtension(fileName);
-        const mimeType = DataUtil.getMimeTypeFromExtension(fileExtension);
-        const promise = DataUtil.createImageFromUri(uri, mimeType).then((image) => {
-          image.crossOrigin = 'Anonymous';
-          textureInfo.image = { image: image };
-        });
-
-        promisesToLoadResources.push(promise);
-      }
-    }
-
     return Promise.all(promisesToLoadResources).catch((err) => {
       console.log('Promise.all error', err);
     });

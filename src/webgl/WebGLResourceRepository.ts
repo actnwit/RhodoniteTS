@@ -521,7 +521,7 @@ export class WebGLResourceRepository
     const infoArrayLen = infoArray.length;
     for (let i = 0; i < infoArrayLen; i++) {
       const info = infoArray[i];
-      shaderProgram._shaderSemanticsInfoMap.set(info.semantic.str, info);
+      shaderProgram._shaderSemanticsInfoMap.set(info.semantic, info);
     }
 
     for (let i = 0; i < infoArrayLen; i++) {
@@ -532,11 +532,11 @@ export class WebGLResourceRepository
         CompositionType.isTexture(info.compositionType);
 
       if (isUniformExist) {
-        const semanticSingular = info.semantic.str;
+        const semanticSingular = info.semantic;
 
         const identifier = semanticSingular;
 
-        const shaderVarName = 'u_' + info.semantic.str;
+        const shaderVarName = 'u_' + info.semantic;
 
         const location = gl.getUniformLocation(shaderProgram, shaderVarName);
         const _shaderProgram = shaderProgram as any;

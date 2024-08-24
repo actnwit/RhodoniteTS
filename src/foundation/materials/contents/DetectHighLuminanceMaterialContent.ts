@@ -44,7 +44,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: DetectHighLuminanceMaterialContent.LuminanceCriterion,
+        semantic: 'luminanceCriterion',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -62,7 +62,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
       //   max: 1,
       // },
       {
-        semantic: ShaderSemantics.BaseColorTexture,
+        semantic: 'baseColorTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,

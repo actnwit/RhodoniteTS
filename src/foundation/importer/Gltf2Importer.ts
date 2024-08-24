@@ -746,26 +746,6 @@ export class Gltf2Importer {
       }
     }
 
-    if (options.defaultTextures) {
-      const basePath = options.defaultTextures.basePath;
-      const textureInfos = options.defaultTextures.textureInfos;
-
-      for (const textureInfo of textureInfos) {
-        const fileName = textureInfo.fileName;
-        const uri = basePath + fileName;
-
-        const fileExtension = DataUtil.getExtension(fileName);
-        const mimeType = DataUtil.getMimeTypeFromExtension(fileExtension);
-        const promise = DataUtil.createImageFromUri(uri, mimeType).then((image) => {
-          image.crossOrigin = 'Anonymous';
-          textureInfo.image = { image: image };
-          return textureInfo.image as RnM2Image;
-        });
-
-        promisesToLoadResources.push(promise);
-      }
-    }
-
     return RnPromise.all(promisesToLoadResources, callback).catch((err: any) => {
       console.log('Promise.all error', err);
     });

@@ -219,7 +219,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xCubeMesh = new Mesh();
       TranslationGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__xCubeMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
+        'diffuseColorFactor',
         Vector4.fromCopyArray4([1, 0, 0, 1])
       );
       TranslationGizmo.__xCubePrimitive = new Cube();
@@ -239,7 +239,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__yCubeMesh = new Mesh();
       TranslationGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__yCubeMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
+        'diffuseColorFactor',
         Vector4.fromCopyArray4([0, 1, 0, 1])
       );
       TranslationGizmo.__yCubePrimitive = new Cube();
@@ -259,7 +259,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__zCubeMesh = new Mesh();
       TranslationGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__zCubeMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
+        'diffuseColorFactor',
         Vector4.fromCopyArray4([0, 0, 1, 1])
       );
       TranslationGizmo.__zCubePrimitive = new Cube();
@@ -285,7 +285,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__xyPlaneMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
+        'diffuseColorFactor',
         Vector4.fromCopyArray4([0, 0, 0.5, 0])
       );
       TranslationGizmo.__xyPlaneMesh = new Mesh();
@@ -317,7 +317,7 @@ export class TranslationGizmo extends Gizmo {
       TranslationGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
       TranslationGizmo.__yzPlaneMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
+        'diffuseColorFactor',
         Vector4.fromCopyArray4([0.5, 0, 0, 0])
       );
       TranslationGizmo.__yzPlaneMesh = new Mesh();
@@ -343,7 +343,7 @@ export class TranslationGizmo extends Gizmo {
       // Vector3.fromCopy3(90, 0, 0);
       TranslationGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
       TranslationGizmo.__zxPlaneMaterial.setParameter(
-        ShaderSemantics.DiffuseColorFactor,
+        'diffuseColorFactor',
         Vector4.fromCopyArray4([0, 0.5, 0, 0])
       );
       TranslationGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;

@@ -25,7 +25,10 @@ import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { ComponentType } from '../foundation/definitions/ComponentType';
-import { getShaderPropertyFunc } from '../foundation/definitions/ShaderSemantics';
+import {
+  getShaderPropertyFunc,
+  ShaderSemanticsName,
+} from '../foundation/definitions/ShaderSemantics';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
@@ -131,11 +134,10 @@ fn get_isVisible(instanceId: u32) -> bool {
   private static __getShaderProperty(
     materialTypeName: string,
     info: ShaderSemanticsInfo,
-    propertyIndex: Index,
     isGlobalData: boolean
   ) {
     const returnType = info.compositionType.toWGSLType(info.componentType);
-    const methodName = info.semantic.str.replace('.', '_');
+    const methodName = info.semantic.replace('.', '_');
     const isTexture = CompositionType.isTexture(info.compositionType);
 
     if (isTexture) {
@@ -154,7 +156,7 @@ fn get_isVisible(instanceId: u32) -> bool {
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes = WebGpuStrategyBasic.getOffsetOfPropertyInShader(
       isGlobalData,
-      propertyIndex,
+      info.semantic,
       materialTypeName
     );
 
@@ -259,17 +261,17 @@ ${indexStr}
   }
   private static getOffsetOfPropertyInShader(
     isGlobalData: boolean,
-    propertyIndex: number,
+    propertyName: ShaderSemanticsName,
     materialTypeName: string
   ) {
     if (isGlobalData) {
       const globalDataRepository = GlobalDataRepository.getInstance();
-      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
+      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
       return dataBeginPos;
     } else {
       const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
         materialTypeName,
-        propertyIndex
+        propertyName
       );
       return dataBeginPos;
     }

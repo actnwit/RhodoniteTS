@@ -11,7 +11,7 @@ import { MemoryManager } from '../../core/MemoryManager';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { ShaderSemanticsIndex } from '../../definitions/ShaderSemantics';
+import { ShaderSemanticsIndex, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { calcAlignedByteLength, ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
@@ -33,8 +33,7 @@ export class MaterialRepository {
     new Map();
   private static __maxInstances: Map<MaterialTypeName, Count> = new Map();
   private static __bufferViews: Map<MaterialTypeName, BufferView> = new Map();
-  private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsIndex, Accessor>> =
-    new Map();
+  private static __accessors: Map<MaterialTypeName, Map<ShaderSemanticsName, Accessor>> = new Map();
   private static __materialTidCount = -1;
   private static __materialUidCount = -1;
 
@@ -170,10 +169,9 @@ export class MaterialRepository {
       const semanticsInfoArray = material._materialContent._semanticsInfoArray;
       const accessorMap = MaterialRepository.__accessors.get(material.materialTypeName);
       semanticsInfoArray.forEach((semanticsInfo) => {
-        const propertyIndex = MaterialRepository._getPropertyIndex(semanticsInfo);
-        material._allFieldsInfo.set(propertyIndex, semanticsInfo);
+        material._allFieldsInfo.set(semanticsInfo.semantic, semanticsInfo);
         if (!semanticsInfo.soloDatum) {
-          const accessor = accessorMap!.get(propertyIndex) as Accessor;
+          const accessor = accessorMap!.get(semanticsInfo.semantic) as Accessor;
           const typedArray = accessor.takeOne() as Float32Array;
           const shaderVariable = {
             info: semanticsInfo,
@@ -184,9 +182,9 @@ export class MaterialRepository {
               semanticsInfo.compositionType
             ),
           };
-          material._allFieldVariables.set(propertyIndex, shaderVariable);
+          material._allFieldVariables.set(semanticsInfo.semantic, shaderVariable);
           if (!semanticsInfo.isInternalSetting) {
-            material._autoFieldVariablesOnly.set(propertyIndex, shaderVariable);
+            material._autoFieldVariablesOnly.set(semanticsInfo.semantic, shaderVariable);
           }
         }
       });
@@ -195,27 +193,19 @@ export class MaterialRepository {
 
   static getLocationOffsetOfMemberOfMaterial(
     materialTypeName: string,
-    propertyIndex: Index
+    propertyName: ShaderSemanticsName
   ): IndexOf16Bytes {
     const map = MaterialRepository.__instances.get(materialTypeName)!;
     const material = map.get(0)!; // 0 is the first instance of the material type
-    const info = material._allFieldsInfo.get(propertyIndex)!;
+    const info = material._allFieldsInfo.get(propertyName)!;
     if (info.soloDatum) {
-      const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyIndex);
+      const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
       return (value!.value._v as Float32Array).byteOffset / 4 / 4;
     } else {
       const properties = this.__accessors.get(materialTypeName);
-      const accessor = properties!.get(propertyIndex);
+      const accessor = properties!.get(propertyName);
       return accessor!.byteOffsetInBuffer / 4 / 4;
     }
-  }
-
-  /**
-   * @internal
-   */
-  static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo) {
-    const propertyIndex = semanticInfo.semantic.index;
-    return propertyIndex;
   }
 
   private static __registerInner(
@@ -298,7 +288,6 @@ export class MaterialRepository {
         })
         .unwrapForce();
 
-      const propertyIndex = MaterialRepository._getPropertyIndex(semanticInfo);
       if (semanticInfo.soloDatum) {
         const typedArray = accessor.takeOne() as Float32Array;
         let map = Material._soloDatumFields.get(materialTypeName);
@@ -307,7 +296,7 @@ export class MaterialRepository {
           Material._soloDatumFields.set(materialTypeName, map);
         }
 
-        map.set(MaterialRepository._getPropertyIndex(semanticInfo), {
+        map.set(semanticInfo.semantic, {
           info: semanticInfo,
           value: MathClassUtil.initWithFloat32Array(
             semanticInfo.initialValue,
@@ -319,7 +308,7 @@ export class MaterialRepository {
       } else {
         // Set an accessor to this.__accessors
         const properties = this.__accessors.get(materialTypeName)!;
-        properties.set(propertyIndex, accessor);
+        properties.set(semanticInfo.semantic, accessor);
       }
     }
 

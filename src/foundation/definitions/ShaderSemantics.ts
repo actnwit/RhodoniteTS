@@ -601,7 +601,6 @@ type UpdateFunc = ({
 export type getShaderPropertyFunc = (
   materialTypeName: string,
   info: ShaderSemanticsInfo,
-  propertyIndex: Index,
   isGlobalData: boolean,
   isWebGL2: boolean
 ) => string;
@@ -609,13 +608,12 @@ export type getShaderPropertyFunc = (
 const getShaderProperty: getShaderPropertyFunc = (
   materialTypeName: string,
   info: ShaderSemanticsInfo,
-  propertyIndex: Index,
   isGlobalData: boolean,
   isWebGL2: boolean
 ) => {
   const returnType = info.compositionType.getGlslStr(info.componentType);
 
-  let variableName = info.semantic.str;
+  let variableName = info.semantic;
 
   // definition of uniform variable
   const varType = info.compositionType.getGlslStr(info.componentType);
@@ -627,36 +625,17 @@ const getShaderProperty: getShaderPropertyFunc = (
 
   // inner contents of 'get_' shader function
   let str = '';
-  if (propertyIndex < 0 || CompositionType.isArray(info.compositionType)) {
-    if (
-      Math.abs(propertyIndex) % ShaderSemanticsClass._scale !== 0 &&
-      !CompositionType.isArray(info.compositionType)
-    ) {
-      return '';
-    }
+  if (CompositionType.isArray(info.compositionType)) {
     if (variableName.match(/\[.+?\]/)) {
       variableName = variableName.replace(/\[.+?\]/g, '[i]');
     } else {
       variableName += '[i]';
     }
-    if (isWebGL2) {
-      str += `
+    str += `
         ${returnType} val;
           int i = index;
           return u_${variableName};
         `;
-    } else {
-      str += `
-        ${returnType} val;
-        for (int i=0; i<${info.arrayLength}; i++) {
-          if (i == index) {
-            val = u_${variableName};
-            break;
-          }
-        }
-        return val;
-        `;
-    }
   } else {
     // is Not Array
     str += `return u_${variableName};`;
@@ -668,7 +647,7 @@ const getShaderProperty: getShaderPropertyFunc = (
 
   if (!isTexture) {
     funcDef = `
-  ${returnType} get_${info.semantic.str}(float instanceId, int index) {
+  ${returnType} get_${info.semantic}(float instanceId, int index) {
     ${str}
   }
 `;

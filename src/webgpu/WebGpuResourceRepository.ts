@@ -1908,10 +1908,7 @@ export class WebGpuResourceRepository
       const bindGroupLayoutEntriesForSampler: GPUBindGroupLayoutEntry[] = [];
       material._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
-        if (
-          info.semantic.str === 'diffuseEnvTexture' ||
-          info.semantic.str === 'specularEnvTexture'
-        ) {
+        if (info.semantic === 'diffuseEnvTexture' || info.semantic === 'specularEnvTexture') {
           return;
         }
 

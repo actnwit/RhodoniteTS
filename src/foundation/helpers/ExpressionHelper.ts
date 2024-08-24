@@ -80,10 +80,7 @@ function createRenderPassDetectHighLuminance(texture: AbstractTexture, luminance
     { maxInstancesNumber: 1 },
     texture
   );
-  materialDetectHighLuminance.setParameter(
-    DetectHighLuminanceMaterialContent.LuminanceCriterion,
-    luminanceCriterion
-  );
+  materialDetectHighLuminance.setParameter('luminanceCriterion', luminanceCriterion);
   // materialDetectHighLuminance.setParameter(
   //   DetectHighLuminanceMaterialContent.LuminanceReduce,
   //   luminanceReduce
@@ -172,18 +169,15 @@ function createRenderPassGaussianBlur(
     kernelSize: gaussianKernelSize,
     variance: gaussianVariance,
   });
-  material.setParameter(ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
+  material.setParameter('gaussianKernelSize', gaussianKernelSize);
+  material.setParameter('gaussianRatio', new VectorN(new Float32Array(gaussianDistributionRatio)));
   material.setParameter(
-    ShaderSemantics.GaussianRatio,
-    new VectorN(new Float32Array(gaussianDistributionRatio))
-  );
-  material.setParameter(
-    ShaderSemantics.FramebufferSize,
+    'framebufferSize',
     Vector2.fromCopy2(resolutionWidthBlur, resolutionHeightBlur)
   );
 
   if (isHorizontal === false) {
-    material.setParameter(ShaderSemantics.IsHorizontal, false);
+    material.setParameter('isHorizontal', false);
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer()!;
@@ -224,10 +218,7 @@ function createRenderPassSynthesizeImage(
     },
     texturesSynthesize
   );
-  materialSynthesizeTextures.setParameter(
-    SynthesizeHdrMaterialContent.SynthesizeCoefficient,
-    synthesizeCoefficient
-  );
+  materialSynthesizeTextures.setParameter('synthesizeCoefficient', synthesizeCoefficient);
   const renderPassSynthesizeGlare = RenderPassHelper.createScreenDrawRenderPass(
     materialSynthesizeTextures
   );
