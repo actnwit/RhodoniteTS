@@ -104,7 +104,12 @@ vec3 ACES_Hill_ToneMapping(vec3 color)
 
 #ifdef RN_USE_GT_TONEMAP
 float W_f(float x, float e0, float e1) {
-  return smoothstep(e0, e1, x);
+  if (x <= e0)
+    return 0.;
+  if (x >= e1)
+    return 1.;
+  float a = (x - e0) / (e1 - e0);
+  return a * a * (3. - 2. * a);
 }
 float H_f(float x, float e0, float e1) {
   if (x <= e0)
