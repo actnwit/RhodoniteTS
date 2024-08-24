@@ -7,6 +7,7 @@ import {
   ShaderSemanticsIndex,
   getShaderPropertyFunc,
   _getPropertyIndex2,
+  ShaderSemanticsName,
 } from '../../definitions/ShaderSemantics';
 import { CompositionType } from '../../definitions/CompositionType';
 import { MathClassUtil } from '../../math/MathClassUtil';
@@ -50,9 +51,9 @@ export class Material extends RnObject {
   // Internal Resources
   __materialTypeName: MaterialTypeName;
   _materialContent: AbstractMaterialContent;
-  _allFieldVariables: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
-  _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable> = new Map();
-  _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo> = new Map();
+  _allFieldVariables: Map<ShaderSemanticsName, ShaderVariable> = new Map();
+  _autoFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable> = new Map();
+  _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo> = new Map();
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
 
   // Ids
@@ -84,7 +85,7 @@ export class Material extends RnObject {
   private static __webglResourceRepository?: WebGLResourceRepository;
 
   // static fields
-  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>> =
+  static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> =
     new Map();
 
   constructor(
@@ -152,15 +153,14 @@ export class Material extends RnObject {
   /// Parameter Setters
   ///
 
-  public setParameter(shaderSemantic: ShaderSemanticsEnum, value: any) {
-    const propertyIndex = _getPropertyIndex2(shaderSemantic);
-    const info = this._allFieldsInfo.get(propertyIndex);
+  public setParameter(shaderSemanticName: ShaderSemanticsName, value: any) {
+    const info = this._allFieldsInfo.get(shaderSemanticName);
     if (info != null) {
       let valueObj: ShaderVariable | undefined;
       if (info.soloDatum) {
-        valueObj = Material._soloDatumFields.get(this.__materialTypeName)!.get(propertyIndex);
+        valueObj = Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemanticName);
       } else {
-        valueObj = this._allFieldVariables.get(propertyIndex);
+        valueObj = this._allFieldVariables.get(shaderSemanticName);
       }
       const updated = MathClassUtil._setForce(valueObj!.value, value);
 
@@ -173,7 +173,7 @@ export class Material extends RnObject {
   }
 
   public setTextureParameter(
-    shaderSemantic: ShaderSemanticsEnum,
+    shaderSemantic: ShaderSemanticsName,
     texture: AbstractTexture,
     sampler: Sampler
   ): void {
@@ -181,25 +181,22 @@ export class Material extends RnObject {
       sampler.create();
     }
 
-    if (this._allFieldsInfo.has(shaderSemantic.index)) {
+    if (this._allFieldsInfo.has(shaderSemantic)) {
       const setter = async () => {
         if (typeof (texture as Texture).loadFromUrlLazy !== 'undefined') {
           await (texture as Texture).loadFromUrlLazy();
           await (texture as Texture).loadFromImgLazy();
         }
-        const array = this._allFieldVariables.get(shaderSemantic.index)!;
+        const array = this._allFieldVariables.get(shaderSemantic)!;
         const shaderVariable = {
           value: [array.value[0], texture, sampler],
           info: array.info,
         };
-        this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
+        this._allFieldVariables.set(shaderSemantic, shaderVariable);
         if (!array.info.isInternalSetting) {
-          this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
+          this._autoFieldVariablesOnly.set(shaderSemantic, shaderVariable);
         }
-        if (
-          shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
-          shaderSemantic === ShaderSemantics.BaseColorTexture
-        ) {
+        if (shaderSemantic === 'diffuseColorTexture' || shaderSemantic === 'baseColorTexture') {
           if (texture.isTransparent) {
             this.alphaMode = AlphaMode.Blend;
           }
@@ -221,33 +218,30 @@ export class Material extends RnObject {
     }
   }
 
-  public getTextureParameter(shaderSemantic: ShaderSemanticsEnum) {
-    if (this._allFieldsInfo.has(shaderSemantic.index)) {
-      const array = this._allFieldVariables.get(shaderSemantic.index)!;
+  public getTextureParameter(shaderSemantic: ShaderSemanticsName) {
+    if (this._allFieldsInfo.has(shaderSemantic)) {
+      const array = this._allFieldVariables.get(shaderSemantic)!;
       return array.value[1];
     }
     return undefined;
   }
 
   public setTextureParameterAsPromise(
-    shaderSemantic: ShaderSemanticsEnum,
+    shaderSemantic: ShaderSemanticsName,
     promise: Promise<AbstractTexture>
   ): void {
     promise.then((texture) => {
-      if (this._allFieldsInfo.has(shaderSemantic.index)) {
-        const array = this._allFieldVariables.get(shaderSemantic.index)!;
+      if (this._allFieldsInfo.has(shaderSemantic)) {
+        const array = this._allFieldVariables.get(shaderSemantic)!;
         const shaderVariable = {
           value: [array.value[0], texture],
           info: array.info,
         };
-        this._allFieldVariables.set(shaderSemantic.index, shaderVariable);
+        this._allFieldVariables.set(shaderSemantic, shaderVariable);
         if (!array.info.isInternalSetting) {
-          this._autoFieldVariablesOnly.set(shaderSemantic.index, shaderVariable);
+          this._autoFieldVariablesOnly.set(shaderSemantic, shaderVariable);
         }
-        if (
-          shaderSemantic === ShaderSemantics.DiffuseColorTexture ||
-          shaderSemantic === ShaderSemantics.BaseColorTexture
-        ) {
+        if (shaderSemantic === 'diffuseColorTexture' || shaderSemantic === 'baseColorTexture') {
           if (texture.isTransparent) {
             this.alphaMode = AlphaMode.Blend;
           }
@@ -259,14 +253,13 @@ export class Material extends RnObject {
     });
   }
 
-  public getParameter(shaderSemantic: ShaderSemanticsEnum): any {
-    const info = this._allFieldsInfo.get(shaderSemantic.index);
+  public getParameter(shaderSemantic: ShaderSemanticsName): any {
+    const info = this._allFieldsInfo.get(shaderSemantic);
     if (info != null) {
       if (info.soloDatum) {
-        return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic.index)
-          ?.value;
+        return Material._soloDatumFields.get(this.__materialTypeName)!.get(shaderSemantic)?.value;
       } else {
-        return this._allFieldVariables.get(shaderSemantic.index)?.value;
+        return this._allFieldVariables.get(shaderSemantic)?.value;
       }
     }
 
@@ -505,31 +498,18 @@ export class Material extends RnObject {
   _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean) {
     let vertexPropertiesStr = '';
     let pixelPropertiesStr = '';
-    this._allFieldsInfo.forEach((value, propertyIndex: Index) => {
-      const info = this._allFieldsInfo.get(propertyIndex);
+    this._allFieldsInfo.forEach((info) => {
       if (
         info!.stage === ShaderType.VertexShader ||
         info!.stage === ShaderType.VertexAndPixelShader
       ) {
-        vertexPropertiesStr += propertySetter(
-          this.__materialTypeName,
-          info!,
-          propertyIndex,
-          false,
-          isWebGL2
-        );
+        vertexPropertiesStr += propertySetter(this.__materialTypeName, info!, false, isWebGL2);
       }
       if (
         info!.stage === ShaderType.PixelShader ||
         info!.stage === ShaderType.VertexAndPixelShader
       ) {
-        pixelPropertiesStr += propertySetter(
-          this.__materialTypeName,
-          info!,
-          propertyIndex,
-          false,
-          isWebGL2
-        );
+        pixelPropertiesStr += propertySetter(this.__materialTypeName, info!, false, isWebGL2);
       }
     });
     const globalDataRepository = GlobalDataRepository.getInstance();
@@ -556,7 +536,7 @@ export class Material extends RnObject {
         const info = value.info;
         webglResourceRepository.setUniformValue(
           shaderProgram,
-          info.semantic.str,
+          info.semantic,
           firstTime,
           value.value
         );
@@ -568,7 +548,7 @@ export class Material extends RnObject {
           if (firstTime) {
             webglResourceRepository.setUniform1iForTexture(
               shaderProgram,
-              info.semantic.str,
+              info.semantic,
               value.value
             );
           } else {
@@ -577,7 +557,7 @@ export class Material extends RnObject {
         } else if (info.needUniformInDataTextureMode) {
           webglResourceRepository.setUniformValue(
             shaderProgram,
-            info.semantic.str,
+            info.semantic,
             firstTime,
             value.value
           );
@@ -607,7 +587,7 @@ export class Material extends RnObject {
           if (firstTime) {
             webglResourceRepository.setUniformValue(
               shaderProgram,
-              info.semantic.str,
+              info.semantic,
               firstTime,
               value.value
             );

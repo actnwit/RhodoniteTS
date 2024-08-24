@@ -114,25 +114,22 @@ export class LightComponent extends Component {
 
   $load() {
     LightComponent.__lightPositions = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightPosition,
+      'lightPosition',
       0
     );
     LightComponent.__lightDirections = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightDirection,
+      'lightDirection',
       0
     );
     LightComponent.__lightIntensities = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightIntensity,
+      'lightIntensity',
       0
     );
     LightComponent.__lightProperties = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightProperty,
+      'lightProperty',
       0
     );
-    LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue(
-      ShaderSemantics.LightNumber,
-      0
-    );
+    LightComponent.__lightNumber = LightComponent.__globalDataRepository.getValue('lightNumber', 0);
 
     this.moveStageTo(ProcessStage.Logic);
   }

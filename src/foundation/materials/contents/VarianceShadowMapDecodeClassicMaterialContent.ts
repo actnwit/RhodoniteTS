@@ -138,7 +138,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.LightViewProjectionMatrix,
+        semantic: 'lightViewProjectionMatrix',
         compositionType: CompositionType.Mat4,
         componentType: ComponentType.Float,
         stage: ShaderType.VertexShader,
@@ -148,7 +148,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_VALUE,
       },
       {
-        semantic: ShaderSemantics.ShadingModel,
+        semantic: 'shadingModel',
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
@@ -157,7 +157,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 3,
       },
       {
-        semantic: ShaderSemantics.Shininess,
+        semantic: 'shininess',
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -166,7 +166,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_VALUE,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.AllowableDepthError,
+        semantic: 'allowableDepthError',
         compositionType: CompositionType.Scalar,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -175,7 +175,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 1,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.ShadowColor,
+        semantic: 'shadowColor',
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -184,7 +184,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 1,
       },
       {
-        semantic: ShaderSemantics.DiffuseColorFactor,
+        semantic: 'diffuseColorFactor',
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -193,7 +193,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 2,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.zNearInner,
+        semantic: 'zNearInner',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -203,7 +203,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.zFarInner,
+        semantic: 'zFarInner',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -213,7 +213,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.IsPointLight,
+        semantic: 'isPointLight',
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -222,7 +222,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 1,
       },
       {
-        semantic: ShaderSemantics.Wireframe,
+        semantic: 'wireframe',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.PixelShader,
@@ -231,7 +231,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 10,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.DepthAdjustment,
+        semantic: 'depthAdjustment',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -240,7 +240,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 1,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.LightBleedingParameter,
+        semantic: 'lightBleedingParameter',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -249,7 +249,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 1,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.MinimumVariance,
+        semantic: 'minimumVariance',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -258,7 +258,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.TextureDepthAdjustment,
+        semantic: 'textureDepthAdjustment',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -267,7 +267,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 1,
       },
       {
-        semantic: ShaderSemantics.NormalTexture,
+        semantic: 'normalTexture',
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
@@ -276,7 +276,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ShaderSemantics.DiffuseColorTexture,
+        semantic: 'diffuseColorTexture',
         compositionType: CompositionType.Texture2D,
         componentType: ComponentType.Int,
         stage: ShaderType.PixelShader,
@@ -285,7 +285,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.DepthTexture,
+        semantic: 'depthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -294,7 +294,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.SquareDepthTexture,
+        semantic: 'squareDepthTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -307,7 +307,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     // point cloud
     shaderSemanticsInfoArray.push(
       {
-        semantic: ShaderSemantics.PointSize,
+        semantic: 'pointSize',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
@@ -317,7 +317,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         max: 100,
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation,
+        semantic: 'pointDistanceAttenuation',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
@@ -331,7 +331,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     if (isMorphing) {
       shaderSemanticsInfoArray.push(
         {
-          semantic: ShaderSemantics.MorphTargetNumber,
+          semantic: 'morphTargetNumber',
           componentType: ComponentType.Int,
           compositionType: CompositionType.Scalar,
           stage: ShaderType.VertexShader,
@@ -343,7 +343,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
           needUniformInDataTextureMode: true,
         },
         {
-          semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+          semantic: 'dataTextureMorphOffsetPosition',
           componentType: ComponentType.Int,
           compositionType: CompositionType.ScalarArray,
           arrayLength: Config.maxVertexMorphNumberInShader,
@@ -356,7 +356,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
           needUniformInDataTextureMode: true,
         },
         {
-          semantic: ShaderSemantics.MorphWeights,
+          semantic: 'morphWeights',
           componentType: ComponentType.Float,
           compositionType: CompositionType.ScalarArray,
           arrayLength: Config.maxVertexMorphNumberInShader,
@@ -373,7 +373,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
 
     if (isDebugging) {
       shaderSemanticsInfoArray.push({
-        semantic: VarianceShadowMapDecodeClassicMaterialContent.DebugColorFactor,
+        semantic: 'debugColorFactor',
         compositionType: CompositionType.Vec4,
         componentType: ComponentType.Float,
         stage: ShaderType.PixelShader,
@@ -445,16 +445,10 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
         encodedDepthCameraComponent.viewProjectionMatrix
       );
     } else {
+      material.setParameter('zNearInner', encodedDepthCameraComponent.zNearInner);
+      material.setParameter('zFarInner', encodedDepthCameraComponent.zFarInner);
       material.setParameter(
-        VarianceShadowMapDecodeClassicMaterialContent.zNearInner,
-        encodedDepthCameraComponent.zNearInner
-      );
-      material.setParameter(
-        VarianceShadowMapDecodeClassicMaterialContent.zFarInner,
-        encodedDepthCameraComponent.zFarInner
-      );
-      material.setParameter(
-        ShaderSemantics.LightViewProjectionMatrix,
+        'lightViewProjectionMatrix',
         encodedDepthCameraComponent.viewProjectionMatrix
       );
     }

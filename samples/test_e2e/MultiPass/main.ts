@@ -57,10 +57,7 @@ primitive.material = Rn.MaterialHelper.createClassicUberMaterial({});
 // const texture = new Rn.Texture();
 //texture.generateTextureFromUri('../../../assets/textures/specular_back_1.jpg');
 //primitive.material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture);
-primitive.material.setParameter(
-  Rn.ShaderSemantics.DiffuseColorFactor,
-  Rn.Vector4.fromCopyArray([1, 0, 1, 1])
-);
+primitive.material.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 1, 1]));
 
 const entities = [];
 const entity = Rn.EntityHelper.createMeshEntity();
@@ -100,7 +97,7 @@ const sampler = new Rn.Sampler({
   wrapT: Rn.TextureParameter.Repeat,
 });
 primitive2.material.setTextureParameter(
-  Rn.ShaderSemantics.DiffuseColorTexture,
+  'diffuseColorTexture',
   framebuffer.getColorAttachedRenderTargetTexture(0),
   sampler
 );

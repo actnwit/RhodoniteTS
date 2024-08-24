@@ -280,7 +280,7 @@ export class ScaleGizmo extends Gizmo {
     // Vector3.fromCopy3(90, 0, 0);
     ScaleGizmo.__zxPlaneMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zxPlaneMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
+      'diffuseColorFactor',
       Vector4.fromCopyArray4([0, 0.5, 0, 0])
     );
     ScaleGizmo.__zxPlaneMaterial.alphaMode = AlphaMode.Blend;
@@ -312,7 +312,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yzPlaneMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yzPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__yzPlaneMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
+      'diffuseColorFactor',
       Vector4.fromCopyArray4([0.5, 0, 0, 0])
     );
     ScaleGizmo.__yzPlaneMesh = new Mesh();
@@ -343,7 +343,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xyPlaneMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xyPlaneMaterial.alphaMode = AlphaMode.Blend;
     ScaleGizmo.__xyPlaneMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
+      'diffuseColorFactor',
       Vector4.fromCopyArray4([0, 0, 0.5, 0])
     );
     ScaleGizmo.__xyPlaneMesh = new Mesh();
@@ -368,7 +368,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__zCubeMesh = new Mesh();
     ScaleGizmo.__zCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__zCubeMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
+      'diffuseColorFactor',
       Vector4.fromCopyArray4([0, 0, 1, 1])
     );
     ScaleGizmo.__zCubePrimitive = new Cube();
@@ -387,7 +387,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__yCubeMesh = new Mesh();
     ScaleGizmo.__yCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__yCubeMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
+      'diffuseColorFactor',
       Vector4.fromCopyArray4([0, 1, 0, 1])
     );
     ScaleGizmo.__yCubePrimitive = new Cube();
@@ -406,7 +406,7 @@ export class ScaleGizmo extends Gizmo {
     ScaleGizmo.__xCubeMesh = new Mesh();
     ScaleGizmo.__xCubeMaterial = MaterialHelper.createClassicUberMaterial();
     ScaleGizmo.__xCubeMaterial.setParameter(
-      ShaderSemantics.DiffuseColorFactor,
+      'diffuseColorFactor',
       Vector4.fromCopyArray4([1, 0, 0, 1])
     );
     ScaleGizmo.__xCubePrimitive = new Cube();

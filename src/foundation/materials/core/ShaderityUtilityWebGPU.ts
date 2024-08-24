@@ -157,18 +157,8 @@ export class ShaderityUtilityWebGPU {
 
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
-    let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
-    if (semantic == null) {
-      const semanticInfo = existingShaderInfoMap?.get(variableName);
-      if (semanticInfo != null) {
-        semantic = semanticInfo.semantic;
-      } else {
-        semantic = new ShaderSemanticsClass({ str: variableName });
-      }
-    }
-
     const shaderSemanticsInfo: ShaderSemanticsInfo = {
-      semantic,
+      semantic: variableName,
       compositionType,
       componentType,
       min: -Number.MAX_VALUE,
@@ -203,18 +193,8 @@ export class ShaderityUtilityWebGPU {
     const compositionType = CompositionType.fromWgslString(type);
     const stage = isFragmentShader ? ShaderType.PixelShader : ShaderType.VertexShader;
 
-    let semantic = ShaderSemantics.fromStringCaseSensitively(variableName);
-    if (semantic == null) {
-      const semanticInfo = existingShaderInfoMap?.get(variableName);
-      if (semanticInfo != null) {
-        semantic = semanticInfo.semantic;
-      } else {
-        semantic = new ShaderSemanticsClass({ str: variableName });
-      }
-    }
-
     const shaderSemanticsInfo: ShaderSemanticsInfo = {
-      semantic,
+      semantic: variableName,
       compositionType,
       componentType,
       min: -Number.MAX_VALUE,
@@ -304,7 +284,7 @@ export class ShaderityUtilityWebGPU {
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
         console.error(
-          'component number of initialValue is invalid:' + shaderSemanticsInfo.semantic.str
+          'component number of initialValue is invalid:' + shaderSemanticsInfo.semantic
         );
       }
     };

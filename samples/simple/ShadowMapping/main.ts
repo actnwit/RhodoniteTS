@@ -134,10 +134,7 @@ function createRenderPassMain(
     {},
     renderPassDepth
   );
-  materialSmallBoard.setParameter(
-    Rn.ShaderSemantics.DiffuseColorFactor,
-    diffuseColorFactorSmallBoard
-  );
+  materialSmallBoard.setParameter('diffuseColorFactor', diffuseColorFactorSmallBoard);
 
   const meshComponentSmallBoard = entitySmallBoard.getMesh();
   const meshSmallBoard = meshComponentSmallBoard.mesh;
@@ -148,14 +145,8 @@ function createRenderPassMain(
     {},
     renderPassDepth
   );
-  materialLargeBoard.setParameter(
-    Rn.ShaderSemantics.DiffuseColorFactor,
-    diffuseColorFactorLargeBoard
-  );
-  materialLargeBoard.setParameter(
-    Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
-    shadowColorFactorLargeBoard
-  );
+  materialLargeBoard.setParameter('diffuseColorFactor', diffuseColorFactorLargeBoard);
+  materialLargeBoard.setParameter('shadowColorFactor', shadowColorFactorLargeBoard);
 
   const meshComponentLargeBoard = entityLargeBoard.getMesh();
   const meshLargeBoard = meshComponentLargeBoard.mesh;

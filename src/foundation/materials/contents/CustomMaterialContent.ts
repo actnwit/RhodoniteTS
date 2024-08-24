@@ -88,11 +88,11 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
     tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
     tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-    material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
+    material.setParameter('iblParameter', tmp_vector4);
     const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
     tmp_vector2.x = diffuseHdriType;
     tmp_vector2.y = specularHdriType;
-    material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
+    material.setParameter('hdriFormat', tmp_vector2);
 
     const meshRendererComponent = args.entity.tryToGetMeshRenderer();
     if (
@@ -107,11 +107,11 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       iblParameterVec4.y = meshRendererComponent.diffuseCubeMapContribution;
       iblParameterVec4.z = meshRendererComponent.specularCubeMapContribution;
       iblParameterVec4.w = meshRendererComponent.rotationOfCubeMap;
-      material.setParameter(ShaderSemantics.IBLParameter, iblParameterVec4);
+      material.setParameter('iblParameter', iblParameterVec4);
 
       hdriFormatVec2.x = meshRendererComponent.diffuseCubeMap.hdriFormat.index;
       hdriFormatVec2.y = meshRendererComponent.specularCubeMap.hdriFormat.index;
-      material.setParameter(ShaderSemantics.HDRIFormat, hdriFormatVec2);
+      material.setParameter('hdriFormat', hdriFormatVec2);
     }
   }
 
@@ -212,11 +212,11 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
       tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
       tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-      material.setParameter(ShaderSemantics.IBLParameter, tmp_vector4);
+      material.setParameter('iblParameter', tmp_vector4);
       const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
       tmp_vector2.x = diffuseHdriType;
       tmp_vector2.y = specularHdriType;
-      material.setParameter(ShaderSemantics.HDRIFormat, tmp_vector2);
+      material.setParameter('hdriFormat', tmp_vector2);
     }
 
     // Morph

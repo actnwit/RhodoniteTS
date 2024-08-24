@@ -61,7 +61,7 @@ const sampler = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Nearest,
   minFilter: Rn.TextureParameter.Nearest,
 });
-material.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture, sampler);
+material.setTextureParameter('diffuseColorTexture', texture, sampler);
 
 // Plane
 const planeEntity = Rn.MeshHelper.createPlane({

@@ -79,7 +79,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: ShaderSemantics.BaseColorTexture,
+        semantic: 'baseColorTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
@@ -88,7 +88,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ColorGradingUsingLUTsMaterialContent.lookupTableTexture,
+        semantic: 'lookupTableTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,

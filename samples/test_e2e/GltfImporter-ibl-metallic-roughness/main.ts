@@ -103,11 +103,7 @@ function createEnvCubeExpression(baseuri) {
     minFilter: Rn.TextureParameter.LinearMipmapLinear,
     magFilter: Rn.TextureParameter.Linear,
   });
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture,
-    sampler
-  );
+  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, sampler);
 
   const spherePrimitive = new Rn.Sphere();
   spherePrimitive.generate({

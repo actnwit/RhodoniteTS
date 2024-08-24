@@ -4,6 +4,7 @@ import {
   ShaderSemantics,
   getShaderPropertyFunc,
   _getPropertyIndex2,
+  ShaderSemanticsName,
 } from '../definitions/ShaderSemantics';
 import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from '../../types/CommonTypes';
 import { BufferUse } from '../definitions/BufferUse';
@@ -23,11 +24,7 @@ import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { BoneDataType } from '../definitions/BoneDataType';
 import { ProcessApproach, ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
-import {
-  calcAlignedByteLength,
-  ShaderSemanticsInfo,
-  _getPropertyIndex,
-} from '../definitions/ShaderSemanticsInfo';
+import { calcAlignedByteLength, ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
 import { Vector2 } from '../math';
 
 type GlobalPropertyStruct = {
@@ -42,7 +39,7 @@ type GlobalPropertyStruct = {
  */
 export class GlobalDataRepository {
   private static __instance: GlobalDataRepository;
-  private __fields: Map<ShaderSemanticsIndex, GlobalPropertyStruct> = new Map();
+  private __fields: Map<ShaderSemanticsName, GlobalPropertyStruct> = new Map();
 
   private constructor() {}
 
@@ -53,7 +50,7 @@ export class GlobalDataRepository {
   initialize(approach: ProcessApproachEnum) {
     // CurrentComponentSIDs
     const currentComponentSIDsInfo = {
-      semantic: ShaderSemantics.CurrentComponentSIDs,
+      semantic: 'currentComponentSIDs',
       compositionType: CompositionType.ScalarArray,
       componentType: ComponentType.Float,
       arrayLength: WellKnownComponentTIDs.maxWellKnownTidNumber,
@@ -65,11 +62,11 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(WellKnownComponentTIDs.maxWellKnownTidNumber)),
     };
     this.__registerProperty(currentComponentSIDsInfo, 1);
-    this.takeOne(ShaderSemantics.CurrentComponentSIDs);
+    this.takeOne('currentComponentSIDs');
 
     // Camera
     const viewMatrixInfo = {
-      semantic: ShaderSemantics.ViewMatrix,
+      semantic: 'viewMatrix',
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexAndPixelShader,
@@ -79,7 +76,7 @@ export class GlobalDataRepository {
       initialValue: MutableMatrix44.identity(),
     };
     const projectionMatrixInfo = {
-      semantic: ShaderSemantics.ProjectionMatrix,
+      semantic: 'projectionMatrix',
       compositionType: CompositionType.Mat4,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexAndPixelShader,
@@ -89,7 +86,7 @@ export class GlobalDataRepository {
       initialValue: MutableMatrix44.identity(),
     };
     const viewPositionInfo = {
-      semantic: ShaderSemantics.ViewPosition,
+      semantic: 'viewPosition',
       compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexAndPixelShader,
@@ -108,7 +105,7 @@ export class GlobalDataRepository {
 
     // Skinning
     const boneMatrixInfo = {
-      semantic: ShaderSemantics.BoneMatrix,
+      semantic: 'boneMatrix',
       compositionType: CompositionType.Mat4x3Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
@@ -120,7 +117,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneQuaternionInfo = {
-      semantic: ShaderSemantics.BoneQuaternion,
+      semantic: 'boneQuaternion',
       compositionType: CompositionType.Vec4Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
@@ -132,7 +129,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneTranslateScaleInfo = {
-      semantic: ShaderSemantics.BoneTranslateScale,
+      semantic: 'boneTranslateScale',
       compositionType: CompositionType.Vec4Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
@@ -144,7 +141,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneTranslatePackedQuatInfo = {
-      semantic: ShaderSemantics.BoneTranslatePackedQuat,
+      semantic: 'boneTranslatePackedQuat',
       compositionType: CompositionType.Vec4Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
@@ -156,7 +153,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneScalePackedQuatInfo = {
-      semantic: ShaderSemantics.BoneScalePackedQuat,
+      semantic: 'boneScalePackedQuat',
       compositionType: CompositionType.Vec4Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
@@ -168,7 +165,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneCompressedChunkInfo = {
-      semantic: ShaderSemantics.BoneCompressedChunk,
+      semantic: 'boneCompressedChunk',
       compositionType: CompositionType.Vec4Array,
       arrayLength: maxSkeletalBoneNumber,
       componentType: ComponentType.Float,
@@ -180,7 +177,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(0)),
     };
     const boneCompressedInfoInfo = {
-      semantic: ShaderSemantics.BoneCompressedInfo,
+      semantic: 'boneCompressedInfo',
       compositionType: CompositionType.Vec4,
       componentType: ComponentType.Float,
       soloDatum: true,
@@ -191,7 +188,7 @@ export class GlobalDataRepository {
       initialValue: Vector4.zero(),
     };
     const skeletalComponentSIDInfo = {
-      semantic: ShaderSemantics.SkinningMode,
+      semantic: 'skinningMode',
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Int,
       stage: ShaderType.VertexAndPixelShader,
@@ -212,14 +209,14 @@ export class GlobalDataRepository {
       this.__registerProperty(boneTranslateScaleInfo, Config.maxSkeletonNumber);
       this.__registerProperty(boneCompressedChunkInfo, Config.maxSkeletonNumber);
       this.__registerProperty(boneCompressedInfoInfo, 1);
-      this.takeOne(ShaderSemantics.BoneCompressedInfo);
+      this.takeOne('boneCompressedInfo');
     }
     this.__registerProperty(skeletalComponentSIDInfo, 1);
-    this.takeOne(ShaderSemantics.SkinningMode);
+    this.takeOne('skinningMode');
 
     // Lighting
     const lightPositionInfo = {
-      semantic: ShaderSemantics.LightPosition,
+      semantic: 'lightPosition',
       compositionType: CompositionType.Vec3Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -230,7 +227,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
     };
     const lightDirectionInfo = {
-      semantic: ShaderSemantics.LightDirection,
+      semantic: 'lightDirection',
       compositionType: CompositionType.Vec3Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -241,7 +238,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
     };
     const lightIntensityInfo = {
-      semantic: ShaderSemantics.LightIntensity,
+      semantic: 'lightIntensity',
       compositionType: CompositionType.Vec3Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -252,7 +249,7 @@ export class GlobalDataRepository {
       initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader)),
     };
     const lightPropertyInfo = {
-      semantic: ShaderSemantics.LightProperty,
+      semantic: 'lightProperty',
       compositionType: CompositionType.Vec4Array,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -266,13 +263,13 @@ export class GlobalDataRepository {
     this.__registerProperty(lightDirectionInfo, 1);
     this.__registerProperty(lightIntensityInfo, 1);
     this.__registerProperty(lightPropertyInfo, 1);
-    this.takeOne(ShaderSemantics.LightDirection);
-    this.takeOne(ShaderSemantics.LightIntensity);
-    this.takeOne(ShaderSemantics.LightPosition);
-    this.takeOne(ShaderSemantics.LightProperty);
+    this.takeOne('lightDirection');
+    this.takeOne('lightIntensity');
+    this.takeOne('lightPosition');
+    this.takeOne('lightProperty');
 
     const lightNumberInfo = {
-      semantic: ShaderSemantics.LightNumber,
+      semantic: 'lightNumber',
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Int,
       stage: ShaderType.VertexAndPixelShader,
@@ -282,11 +279,11 @@ export class GlobalDataRepository {
       initialValue: Scalar.fromCopyNumber(0),
     };
     this.__registerProperty(lightNumberInfo, 1);
-    this.takeOne(ShaderSemantics.LightNumber);
+    this.takeOne('lightNumber');
 
     // BackBufferTextureSize
     const backBufferTextureSize = {
-      semantic: ShaderSemantics.BackBufferTextureSize,
+      semantic: 'backBufferTextureSize',
       compositionType: CompositionType.Vec2,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -297,11 +294,11 @@ export class GlobalDataRepository {
       initialValue: Vector2.fromCopy2(0, 0),
     };
     this.__registerProperty(backBufferTextureSize, 1);
-    this.takeOne(ShaderSemantics.BackBufferTextureSize);
+    this.takeOne('backBufferTextureSize');
 
     // VrState
     const vrState = {
-      semantic: ShaderSemantics.VrState,
+      semantic: 'vrState',
       compositionType: CompositionType.Vec2,
       componentType: ComponentType.Int,
       stage: ShaderType.PixelShader,
@@ -314,11 +311,11 @@ export class GlobalDataRepository {
       // y: 0: left eye, 1: right eye
     };
     this.__registerProperty(vrState, 1);
-    this.takeOne(ShaderSemantics.VrState);
+    this.takeOne('vrState');
 
     // Time
     const timeInfo = {
-      semantic: ShaderSemantics.Time,
+      semantic: 'time',
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Float,
       stage: ShaderType.VertexAndPixelShader,
@@ -328,7 +325,7 @@ export class GlobalDataRepository {
       initialValue: Scalar.fromCopyNumber(0),
     };
     this.__registerProperty(timeInfo, 1);
-    this.takeOne(ShaderSemantics.Time);
+    this.takeOne('time');
   }
 
   static getInstance() {
@@ -339,8 +336,6 @@ export class GlobalDataRepository {
   }
 
   private __registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count): void {
-    const propertyIndex = _getPropertyIndex(semanticInfo);
-
     const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
 
     const alignedByteLength = calcAlignedByteLength(semanticInfo);
@@ -374,12 +369,11 @@ export class GlobalDataRepository {
       accessor: accessor,
     };
 
-    this.__fields.set(propertyIndex, globalPropertyStruct);
+    this.__fields.set(semanticInfo.semantic, globalPropertyStruct);
   }
 
-  public takeOne(shaderSemantic: ShaderSemanticsEnum): any {
-    const propertyIndex = _getPropertyIndex2(shaderSemantic);
-    const globalPropertyStruct = this.__fields.get(propertyIndex);
+  public takeOne(shaderSemantic: ShaderSemanticsName): any {
+    const globalPropertyStruct = this.__fields.get(shaderSemantic);
     if (globalPropertyStruct) {
       const semanticInfo = globalPropertyStruct.shaderSemanticsInfo;
       const typedArray = globalPropertyStruct.accessor.takeOne() as Float32Array;
@@ -396,18 +390,16 @@ export class GlobalDataRepository {
     return void 0;
   }
 
-  public setValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, value: any): void {
-    const propertyIndex = _getPropertyIndex2(shaderSemantic);
-    const globalPropertyStruct = this.__fields.get(propertyIndex);
+  public setValue(shaderSemantic: ShaderSemanticsName, countIndex: Index, value: any): void {
+    const globalPropertyStruct = this.__fields.get(shaderSemantic);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
       MathClassUtil._setForce(valueObj, value);
     }
   }
 
-  public getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index): any {
-    const propertyIndex = _getPropertyIndex2(shaderSemantic);
-    const globalPropertyStruct = this.__fields.get(propertyIndex);
+  public getValue(shaderSemantic: ShaderSemanticsName, countIndex: Index): any {
+    const globalPropertyStruct = this.__fields.get(shaderSemantic);
     if (globalPropertyStruct) {
       const valueObj = globalPropertyStruct.values[countIndex];
       return valueObj;
@@ -415,8 +407,8 @@ export class GlobalDataRepository {
     return void 0;
   }
 
-  getGlobalPropertyStruct(propertyIndex: Index) {
-    return this.__fields.get(propertyIndex);
+  getGlobalPropertyStruct(propertyName: ShaderSemanticsName) {
+    return this.__fields.get(propertyName);
   }
 
   public getGlobalProperties(): GlobalPropertyStruct[] {
@@ -453,7 +445,7 @@ export class GlobalDataRepository {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       const values = globalPropertyStruct.values;
       for (let i = 0; i < values.length; i++) {
-        webglResourceRepository.setUniformValue(shaderProgram, info.semantic.str, true, values[i]);
+        webglResourceRepository.setUniformValue(shaderProgram, info.semantic, true, values[i]);
       }
     });
   }
@@ -467,16 +459,16 @@ export class GlobalDataRepository {
   //   return void 0;
   // }
 
-  getLocationOffsetOfProperty(propertyIndex: Index): IndexOf16Bytes {
-    const globalPropertyStruct = this.__fields.get(propertyIndex);
+  getLocationOffsetOfProperty(propertyName: ShaderSemanticsName): IndexOf16Bytes {
+    const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
       return globalPropertyStruct.accessor.byteOffsetInBuffer / 4 / 4;
     }
     return -1;
   }
 
-  getCurrentDataNumberOfTheProperty(propertyIndex: Index) {
-    const globalPropertyStruct = this.__fields.get(propertyIndex);
+  getCurrentDataNumberOfTheProperty(propertyName: ShaderSemanticsName) {
+    const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
       return globalPropertyStruct.values.length;
     }
@@ -489,19 +481,19 @@ export class GlobalDataRepository {
     propertySetter: getShaderPropertyFunc,
     isWebGL2: boolean
   ) {
-    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, propertyIndex: Index) => {
+    this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct) => {
       const info = globalPropertyStruct.shaderSemanticsInfo;
       if (
         info!.stage === ShaderType.VertexShader ||
         info!.stage === ShaderType.VertexAndPixelShader
       ) {
-        vertexPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
+        vertexPropertiesStr += propertySetter('', info!, true, isWebGL2);
       }
       if (
         info!.stage === ShaderType.PixelShader ||
         info!.stage === ShaderType.VertexAndPixelShader
       ) {
-        pixelPropertiesStr += propertySetter('', info!, propertyIndex, true, isWebGL2);
+        pixelPropertiesStr += propertySetter('', info!, true, isWebGL2);
       }
     });
 

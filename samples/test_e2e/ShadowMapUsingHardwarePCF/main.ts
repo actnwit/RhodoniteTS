@@ -64,22 +64,22 @@ const meshComponentSmallBoard = entitySmallBoard.getMesh();
 const meshComponentLargeBoard = entityLargeBoard.getMesh();
 setParameterForMeshComponent(
   meshComponentSmallBoard,
-  Rn.ShaderSemantics.DiffuseColorFactor,
+  'diffuseColorFactor',
   Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
 );
 setParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShaderSemantics.DiffuseColorFactor,
+  'diffuseColorFactor',
   Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
 );
 setTextureParameterForMeshComponent(
   meshComponentSmallBoard,
-  Rn.ShaderSemantics.DepthTexture,
+  'depthTexture',
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
 );
 setTextureParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShaderSemantics.DepthTexture,
+  'depthTexture',
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
 );
 
@@ -101,12 +101,12 @@ Rn.System.startRenderLoop(() => {
 
   setParameterForMeshComponent(
     meshComponentSmallBoard,
-    Rn.ShaderSemantics.DepthBiasPV,
+    'depthBiasPV',
     spotLight.getCamera().biasViewProjectionMatrix
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShaderSemantics.DepthBiasPV,
+    'depthBiasPV',
     spotLight.getCamera().biasViewProjectionMatrix
   );
   count++;
@@ -149,7 +149,11 @@ function createRenderPassSpecifyingCameraComponent(
   return renderPass;
 }
 
-function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
+function setParameterForMeshComponent(
+  meshComponent: Rn.MeshComponent,
+  shaderSemantic: string,
+  value: any
+) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 
@@ -160,7 +164,7 @@ function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
 }
 function setTextureParameterForMeshComponent(
   meshComponent: Rn.MeshComponent,
-  shaderSemantic: ShaderSemanticsEnum,
+  shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
   const sampler = new Rn.Sampler({

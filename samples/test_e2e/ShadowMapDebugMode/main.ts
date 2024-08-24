@@ -47,22 +47,22 @@ const meshComponentSmallBoard = entitySmallBoard.getMesh();
 const meshComponentLargeBoard = entityLargeBoard.getMesh();
 setParameterForMeshComponent(
   meshComponentSmallBoard,
-  Rn.ShaderSemantics.DiffuseColorFactor,
+  'diffuseColorFactor',
   Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
 );
 setParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShaderSemantics.DiffuseColorFactor,
+  'diffuseColorFactor',
   Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
 );
 setParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShadowMapDecodeClassicMaterialContent.DebugColorFactor,
+  'debugColorFactor',
   Rn.Vector4.fromCopyArray([0.85, 0.0, 0.0, 1.0])
 );
 setParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
+  'shadowColorFactor',
   Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
 );
 
@@ -152,7 +152,11 @@ function createRenderPassSpecifyingCameraComponent(cameraComponent) {
   return renderPass;
 }
 
-function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
+function setParameterForMeshComponent(
+  meshComponent: Rn.MeshComponent,
+  shaderSemantic: string,
+  value: any
+) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 

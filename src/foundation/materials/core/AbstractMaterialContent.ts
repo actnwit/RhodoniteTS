@@ -130,7 +130,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
     const map = AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)!;
     for (const semantic of this.__semantics) {
-      map.set(semantic.semantic.str, semantic);
+      map.set(semantic.semantic, semantic);
     }
   }
 
@@ -517,7 +517,7 @@ export abstract class AbstractMaterialContent extends RnObject {
     for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
       const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
         (vertexInfo: ShaderSemanticsInfo) => {
-          if (vertexInfo.semantic.str === pixelShaderSemanticsInfo.semantic.str) {
+          if (vertexInfo.semantic === pixelShaderSemanticsInfo.semantic) {
             return true;
           } else {
             return false;

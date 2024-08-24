@@ -201,9 +201,9 @@ export class CameraComponent extends Component {
     }
 
     const globalDataRepository = GlobalDataRepository.getInstance();
-    globalDataRepository.takeOne(ShaderSemantics.ViewMatrix);
-    globalDataRepository.takeOne(ShaderSemantics.ProjectionMatrix);
-    globalDataRepository.takeOne(ShaderSemantics.ViewPosition);
+    globalDataRepository.takeOne('viewMatrix');
+    globalDataRepository.takeOne('projectionMatrix');
+    globalDataRepository.takeOne('viewPosition');
   }
 
   static set current(componentSID: ComponentSID) {
@@ -790,12 +790,12 @@ export class CameraComponent extends Component {
 
   setValuesToGlobalDataRepositoryOnlyMatrices() {
     CameraComponent.__globalDataRepository.setValue(
-      ShaderSemantics.ViewMatrix,
+      'viewMatrix',
       this.componentSID,
       this.viewMatrix
     );
     CameraComponent.__globalDataRepository.setValue(
-      ShaderSemantics.ProjectionMatrix,
+      'projectionMatrix',
       this.componentSID,
       this.projectionMatrix
     );
@@ -803,17 +803,17 @@ export class CameraComponent extends Component {
 
   setValuesToGlobalDataRepository() {
     CameraComponent.__globalDataRepository.setValue(
-      ShaderSemantics.ViewMatrix,
+      'viewMatrix',
       this.componentSID,
       this.viewMatrix
     );
     CameraComponent.__globalDataRepository.setValue(
-      ShaderSemantics.ProjectionMatrix,
+      'projectionMatrix',
       this.componentSID,
       this.projectionMatrix
     );
     CameraComponent.__globalDataRepository.setValue(
-      ShaderSemantics.ViewPosition,
+      'viewPosition',
       this.componentSID,
       this.worldPosition
     );

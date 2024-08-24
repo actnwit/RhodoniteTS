@@ -26,7 +26,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: FurnaceTestMaterialContent.debugView,
+        semantic: 'debugView',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -35,7 +35,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: FurnaceTestMaterialContent.disable_fresnel,
+        semantic: 'disable_fresnel',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -44,7 +44,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: FurnaceTestMaterialContent.f0,
+        semantic: 'f0',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -53,7 +53,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: FurnaceTestMaterialContent.g_type,
+        semantic: 'g_type',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -62,7 +62,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: 3,
       },
       {
-        semantic: FurnaceTestMaterialContent.mode,
+        semantic: 'mode',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -71,7 +71,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: ShaderSemantics.ScreenInfo,
+        semantic: 'screenInfo',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec2,
         stage: ShaderType.PixelShader,
@@ -80,7 +80,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: ShaderSemantics.MetallicRoughnessFactor,
+        semantic: 'metallicRoughnessFactor',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec2,
         stage: ShaderType.PixelShader,
@@ -89,7 +89,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
         max: 2,
       },
       {
-        semantic: ShaderSemantics.MetallicRoughnessTexture,
+        semantic: 'metallicRoughnessTexture',
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,

@@ -495,19 +495,17 @@ export class Gltf2Exporter {
                 json.extensionsUsed.push('KHR_materials_unlit');
               }
             }
-            colorParam = rnMaterial.getParameter(ShaderSemantics.BaseColorFactor);
+            colorParam = rnMaterial.getParameter('baseColorFactor');
             if (Is.not.exist(colorParam)) {
-              colorParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorFactor);
+              colorParam = rnMaterial.getParameter('diffuseColorFactor');
               if (Is.not.exist(colorParam)) {
                 colorParam = Vector4.fromCopy4(1, 1, 1, 1);
               }
             } else {
-              material.pbrMetallicRoughness.metallicFactor = rnMaterial.getParameter(
-                ShaderSemantics.MetallicRoughnessFactor
-              ).x;
-              material.pbrMetallicRoughness.roughnessFactor = rnMaterial.getParameter(
-                ShaderSemantics.MetallicRoughnessFactor
-              ).y;
+              material.pbrMetallicRoughness.metallicFactor =
+                rnMaterial.getParameter('metallicRoughnessFactor').x;
+              material.pbrMetallicRoughness.roughnessFactor =
+                rnMaterial.getParameter('metallicRoughnessFactor').y;
             }
             material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
               colorParam._v
@@ -615,7 +613,7 @@ export class Gltf2Exporter {
               return void 0;
             };
 
-            let textureParam = rnMaterial.getParameter(ShaderSemantics.BaseColorTexture);
+            let textureParam = rnMaterial.getParameter('baseColorTexture');
             let textureIndex;
             if (textureParam != null) {
               const rnTexture = textureParam[1] as Texture;
@@ -627,7 +625,7 @@ export class Gltf2Exporter {
                 };
               }
             } else {
-              textureParam = rnMaterial.getParameter(ShaderSemantics.DiffuseColorTexture);
+              textureParam = rnMaterial.getParameter('diffuseColorTexture');
               if (textureParam != null) {
                 const rnTexture = textureParam[1] as Texture;
                 const rnSampler = textureParam[2] as Sampler | undefined;
@@ -640,9 +638,7 @@ export class Gltf2Exporter {
               }
             }
 
-            textureParam = rnMaterial.getParameter(
-              ShaderSemantics.MetallicRoughnessTexture
-            ) as AbstractTexture;
+            textureParam = rnMaterial.getParameter('metallicRoughnessTexture') as AbstractTexture;
             if (textureParam) {
               const rnTexture = textureParam[1] as Texture;
               const rnSampler = textureParam[2] as Sampler | undefined;
@@ -654,9 +650,7 @@ export class Gltf2Exporter {
               }
             }
 
-            textureParam = rnMaterial.getParameter(
-              ShaderSemantics.NormalTexture
-            ) as AbstractTexture;
+            textureParam = rnMaterial.getParameter('normalTexture') as AbstractTexture;
             if (textureParam) {
               const rnTexture = textureParam[1] as Texture;
               const rnSampler = textureParam[2] as Sampler | undefined;
@@ -666,9 +660,7 @@ export class Gltf2Exporter {
               }
             }
 
-            textureParam = rnMaterial.getParameter(
-              ShaderSemantics.OcclusionTexture
-            ) as AbstractTexture;
+            textureParam = rnMaterial.getParameter('occlusionTexture') as AbstractTexture;
             if (textureParam) {
               const rnTexture = textureParam[1] as Texture;
               const rnSampler = textureParam[2] as Sampler | undefined;
@@ -678,9 +670,7 @@ export class Gltf2Exporter {
               }
             }
 
-            textureParam = rnMaterial.getParameter(
-              ShaderSemantics.EmissiveTexture
-            ) as AbstractTexture;
+            textureParam = rnMaterial.getParameter('emissiveTexture') as AbstractTexture;
             if (textureParam) {
               const rnTexture = textureParam[1] as Texture;
               const rnSampler = textureParam[2] as Sampler | undefined;

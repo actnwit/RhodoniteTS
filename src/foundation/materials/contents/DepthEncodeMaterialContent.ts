@@ -33,7 +33,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {
-        semantic: DepthEncodeMaterialContent.zNearInner,
+        semantic: 'zNearInner',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -43,7 +43,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: DepthEncodeMaterialContent.zFarInner,
+        semantic: 'zFarInner',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -53,7 +53,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         max: Number.MAX_SAFE_INTEGER,
       },
       {
-        semantic: DepthEncodeMaterialContent.isPointLight,
+        semantic: 'isPointLight',
         componentType: ComponentType.Bool,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -62,7 +62,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: DepthEncodeMaterialContent.depthPow,
+        semantic: 'depthPow',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.PixelShader,
@@ -71,7 +71,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         max: 2,
       },
       {
-        semantic: ShaderSemantics.PointSize,
+        semantic: 'pointSize',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
@@ -81,7 +81,7 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         max: 100,
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation,
+        semantic: 'pointDistanceAttenuation',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
@@ -136,8 +136,8 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
         this.__lastZFar = cameraComponent.zFarInner;
       }
     } else {
-      material.setParameter(DepthEncodeMaterialContent.zNearInner, cameraComponent.zNearInner);
-      material.setParameter(DepthEncodeMaterialContent.zFarInner, cameraComponent.zFarInner);
+      material.setParameter('zNearInner', cameraComponent.zNearInner);
+      material.setParameter('zFarInner', cameraComponent.zFarInner);
     }
 
     /// Skinning

@@ -94,18 +94,14 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   cubeTextureEnvironment.loadTextureImagesAsync();
 
   const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial();
-  materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
+  materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
   const samplerSphere = new Rn.Sampler({
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.LinearMipmapLinear,
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
-  materialSphere.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    cubeTextureEnvironment,
-    samplerSphere
-  );
+  materialSphere.setTextureParameter('colorEnvTexture', cubeTextureEnvironment, samplerSphere);
 
   const primitiveSphere = new Rn.Sphere();
   primitiveSphere.generate({
@@ -132,14 +128,8 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
     {},
     renderPassDepth
   );
-  material.setParameter(
-    Rn.ShaderSemantics.DiffuseColorFactor,
-    Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0])
-  );
-  material.setParameter(
-    Rn.ShadowMapDecodeClassicMaterialContent.ShadowColorFactor,
-    Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5])
-  );
+  material.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.0]));
+  material.setParameter('shadowColorFactor', Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 0.5]));
   material.alphaMode = Rn.AlphaMode.Blend;
 
   const primitive = new Rn.Plane();

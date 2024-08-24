@@ -108,18 +108,14 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
     makeOutputSrgb: false,
   });
-  materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
+  materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
   const samplerSphere = new Rn.Sampler({
     magFilter: Rn.TextureParameter.Linear,
     minFilter: Rn.TextureParameter.Linear,
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
-  materialSphere.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    cubeTextureEnvironment,
-    samplerSphere
-  );
+  materialSphere.setTextureParameter('colorEnvTexture', cubeTextureEnvironment, samplerSphere);
 
   const primitiveSphere = new Rn.Sphere();
   primitiveSphere.generate({

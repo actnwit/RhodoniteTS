@@ -51,7 +51,7 @@ hdrTexture.loadImageToMipLevel({
 
 // Create material
 const panoramaToCubeMaterial = Rn.MaterialHelper.createPanoramaToCubeMaterial();
-panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
+panoramaToCubeMaterial.setParameter('cubeMapFaceId', 0);
 
 // Create expression
 const panoramaToCubeExpression = new Rn.Expression();
@@ -77,7 +77,7 @@ panoramaToCubeRenderPass.setFramebuffer(panoramaToCubeFramebuffer);
 panoramaToCubeExpression.addRenderPasses([panoramaToCubeRenderPass]);
 
 const prefilterIblMaterial = Rn.MaterialHelper.createPrefilterIBLMaterial();
-prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, 0);
+prefilterIblMaterial.setParameter('cubeMapFaceId', 0);
 
 const prefilterIblExpression = new Rn.Expression();
 
@@ -122,7 +122,7 @@ const renderIBL = () => {
   panoramaToCubeRenderPass.setFramebuffer(panoramaToCubeFramebuffer);
 
   for (let i = 0; i < 6; i++) {
-    panoramaToCubeMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
+    panoramaToCubeMaterial.setParameter('cubeMapFaceId', i);
     panoramaToCubeFramebuffer.setColorAttachmentCubeAt(0, i, 0, panoramaToCubeRenderTargetCube);
     Rn.System.process([panoramaToCubeExpression]);
   }
@@ -130,23 +130,23 @@ const renderIBL = () => {
   panoramaToCubeRenderTargetCube.generateMipmaps();
 
   prefilterIblRenderPass.setFramebuffer(diffuseIblFramebuffer);
-  prefilterIblMaterial.setParameter(Rn.ShaderSemantics.DistributionType, 0);
+  prefilterIblMaterial.setParameter('distributionType', 0);
 
   for (let i = 0; i < 6; i++) {
-    prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, i);
+    prefilterIblMaterial.setParameter('cubeMapFaceId', i);
     diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, diffuseIblRenderTargetCube);
     Rn.System.process([prefilterIblExpression]);
   }
 
   prefilterIblRenderPass.setFramebuffer(specularIblFramebuffer);
-  prefilterIblMaterial.setParameter(Rn.ShaderSemantics.DistributionType, 1);
+  prefilterIblMaterial.setParameter('distributionType', 1);
 
   const mipLevelCount = Math.floor(Math.log2(cubeMapSize)) + 1;
   for (let i = 0; i < mipLevelCount; i++) {
     const roughness = i / (mipLevelCount - 1);
-    prefilterIblMaterial.setParameter(Rn.ShaderSemantics.Roughness, roughness);
+    prefilterIblMaterial.setParameter('roughness', roughness);
     for (let face = 0; face < 6; face++) {
-      prefilterIblMaterial.setParameter(Rn.ShaderSemantics.CubeMapFaceId, face);
+      prefilterIblMaterial.setParameter('cubeMapFaceId', face);
       specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
       prefilterIblRenderPass.setViewport(
         Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
@@ -204,7 +204,7 @@ const createEntityEnvironmentCube = () => {
   const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
     makeOutputSrgb: false,
   });
-  materialSphere.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.HDR_LINEAR.index);
+  materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
   const sampler = new Rn.Sampler({
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
@@ -212,7 +212,7 @@ const createEntityEnvironmentCube = () => {
     magFilter: Rn.TextureParameter.Linear,
   });
   materialSphere.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
+    'colorEnvTexture',
     panoramaToCubeRenderTargetCube,
     // diffuseIblRenderTargetCube,
     // specularIblRenderTargetCube,

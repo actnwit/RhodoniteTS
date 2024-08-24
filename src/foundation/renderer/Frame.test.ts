@@ -39,7 +39,7 @@ describe('Frame Test', () => {
       flipTextureCoordinateY: false,
     });
     planePrimitive.material.setTextureParameterAsPromise(
-      Rn.ShaderSemantics.DiffuseColorTexture,
+      'diffuseColorTexture',
       frame.getColorAttachmentFromInputOf(expression1)
     );
     frame.addExpression(expression0);
@@ -48,9 +48,7 @@ describe('Frame Test', () => {
       outputs: [],
     });
     frame.resolve();
-    const renderTargetTexture = planePrimitive.material.getTextureParameter(
-      Rn.ShaderSemantics.DiffuseColorTexture
-    );
+    const renderTargetTexture = planePrimitive.material.getTextureParameter('diffuseColorTexture');
     expect(framebuffer_0.getColorAttachedRenderTargetTexture(0)).toBe(renderTargetTexture);
   });
 });

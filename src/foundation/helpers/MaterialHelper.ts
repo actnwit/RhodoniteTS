@@ -182,7 +182,7 @@ function createPbrUberMaterial({
   if (true) {
     additionalShaderSemanticInfo = [
       {
-        semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+        semantic: 'dataTextureMorphOffsetPosition',
         componentType: ComponentType.Int,
         compositionType: CompositionType.ScalarArray,
         arrayLength: Config.maxVertexMorphNumberInShader,
@@ -195,7 +195,7 @@ function createPbrUberMaterial({
         needUniformInDataTextureMode: true,
       },
       {
-        semantic: ShaderSemantics.MorphWeights,
+        semantic: 'morphWeights',
         componentType: ComponentType.Float,
         compositionType: CompositionType.ScalarArray,
         arrayLength: Config.maxVertexMorphNumberInShader,
@@ -220,7 +220,7 @@ function createPbrUberMaterial({
   let textureSlotIdx = 8;
   if (isClearCoat) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.ClearCoatTexture,
+      semantic: 'clearCoatTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -229,7 +229,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.ClearCoatRoughnessTexture,
+      semantic: 'clearCoatRoughnessTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -238,7 +238,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.ClearCoatNormalTexture,
+      semantic: 'clearCoatNormalTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -250,7 +250,7 @@ function createPbrUberMaterial({
 
   if (isTransmission) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.TransmissionTexture,
+      semantic: 'transmissionTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -259,7 +259,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.BackBufferTexture,
+      semantic: 'backBufferTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -271,7 +271,7 @@ function createPbrUberMaterial({
 
   if (isVolume) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.ThicknessTexture,
+      semantic: 'thicknessTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -283,7 +283,7 @@ function createPbrUberMaterial({
 
   if (isSheen) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.SheenColorTexture,
+      semantic: 'sheenColorTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -292,7 +292,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.SheenRoughnessTexture,
+      semantic: 'sheenRoughnessTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -301,7 +301,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.SheenLutTexture,
+      semantic: 'sheenLutTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -313,7 +313,7 @@ function createPbrUberMaterial({
 
   if (isSpecular) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.SpecularTexture,
+      semantic: 'specularTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -322,7 +322,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.SpecularColorTexture,
+      semantic: 'specularColorTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -334,7 +334,7 @@ function createPbrUberMaterial({
 
   if (isIridescence) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.IridescenceTexture,
+      semantic: 'iridescenceTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -343,7 +343,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.IridescenceThicknessTexture,
+      semantic: 'iridescenceThicknessTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -354,7 +354,7 @@ function createPbrUberMaterial({
   }
   if (isAnisotropy) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.AnisotropyTexture,
+      semantic: 'anisotropyTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -366,7 +366,7 @@ function createPbrUberMaterial({
 
   if (isShadow) {
     additionalShaderSemanticInfo.push({
-      semantic: ShaderSemantics.DepthTexture,
+      semantic: 'depthTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -443,7 +443,7 @@ function createClassicUberMaterial({
 
   const additionalShaderSemanticInfo = [
     {
-      semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+      semantic: 'dataTextureMorphOffsetPosition',
       componentType: ComponentType.Int,
       compositionType: CompositionType.ScalarArray,
       arrayLength: Config.maxVertexMorphNumberInShader,
@@ -456,7 +456,7 @@ function createClassicUberMaterial({
       needUniformInDataTextureMode: true,
     },
     {
-      semantic: ShaderSemantics.MorphWeights,
+      semantic: 'morphWeights',
       componentType: ComponentType.Float,
       compositionType: CompositionType.ScalarArray,
       arrayLength: Config.maxVertexMorphNumberInShader,
@@ -505,7 +505,7 @@ function createDepthMomentEncodeMaterial({
 
   const additionalShaderSemanticInfo = [
     {
-      semantic: ShaderSemantics.DataTextureMorphOffsetPosition,
+      semantic: 'dataTextureMorphOffsetPosition',
       componentType: ComponentType.Int,
       compositionType: CompositionType.ScalarArray,
       arrayLength: Config.maxVertexMorphNumberInShader,
@@ -518,7 +518,7 @@ function createDepthMomentEncodeMaterial({
       needUniformInDataTextureMode: true,
     },
     {
-      semantic: ShaderSemantics.MorphWeights,
+      semantic: 'morphWeights',
       componentType: ComponentType.Float,
       compositionType: CompositionType.ScalarArray,
       arrayLength: Config.maxVertexMorphNumberInShader,
@@ -593,7 +593,7 @@ function createEnvConstantMaterial({
   });
   materialNode.isSingleOperation = true;
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
-  material.setParameter(ShaderSemantics.MakeOutputSrgb, makeOutputSrgb ? 1 : 0);
+  material.setParameter('makeOutputSrgb', makeOutputSrgb ? 1 : 0);
   return material;
 }
 
@@ -701,7 +701,7 @@ function createGaussianBlurForEncodedDepthMaterial({
   const gaussianRatio = new Float32Array(30);
   additionalShaderSemanticInfo.push(
     {
-      semantic: ShaderSemantics.IsHorizontal,
+      semantic: 'isHorizontal',
       componentType: ComponentType.Bool,
       compositionType: CompositionType.Scalar,
       stage: ShaderType.PixelShader,
@@ -710,7 +710,7 @@ function createGaussianBlurForEncodedDepthMaterial({
       max: 1,
     },
     {
-      semantic: ShaderSemantics.GaussianRatio,
+      semantic: 'gaussianRatio',
       componentType: ComponentType.Float,
       compositionType: CompositionType.ScalarArray,
       arrayLength: 30,
@@ -721,7 +721,7 @@ function createGaussianBlurForEncodedDepthMaterial({
       needUniformInDataTextureMode: true,
     },
     {
-      semantic: ShaderSemantics.GaussianKernelSize,
+      semantic: 'gaussianKernelSize',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Scalar,
       stage: ShaderType.PixelShader,
@@ -730,7 +730,7 @@ function createGaussianBlurForEncodedDepthMaterial({
       max: 30,
     },
     {
-      semantic: ShaderSemantics.FramebufferSize,
+      semantic: 'framebufferSize',
       componentType: ComponentType.Float,
       compositionType: CompositionType.Vec2,
       stage: ShaderType.PixelShader,
@@ -739,7 +739,7 @@ function createGaussianBlurForEncodedDepthMaterial({
       max: Number.MAX_SAFE_INTEGER,
     },
     {
-      semantic: ShaderSemantics.BaseColorTexture,
+      semantic: 'baseColorTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -845,7 +845,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
   const gaussianRatio = new Float32Array(30);
   additionalShaderSemanticInfo.push(
     {
-      semantic: ShaderSemantics.IsHorizontal,
+      semantic: 'isHorizontal',
       componentType: ComponentType.Bool,
       compositionType: CompositionType.Scalar,
       stage: ShaderType.PixelShader,
@@ -854,7 +854,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
       max: 1,
     },
     {
-      semantic: ShaderSemantics.GaussianRatio,
+      semantic: 'gaussianRatio',
       componentType: ComponentType.Float,
       compositionType: CompositionType.ScalarArray,
       arrayLength: 30,
@@ -865,7 +865,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
       // needUniformInDataTextureMode: true,
     },
     {
-      semantic: ShaderSemantics.GaussianKernelSize,
+      semantic: 'gaussianKernelSize',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Scalar,
       stage: ShaderType.PixelShader,
@@ -874,7 +874,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
       max: 30,
     },
     {
-      semantic: ShaderSemantics.FramebufferSize,
+      semantic: 'framebufferSize',
       componentType: ComponentType.Float,
       compositionType: CompositionType.Vec2,
       stage: ShaderType.PixelShader,
@@ -883,7 +883,7 @@ function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 
       max: Number.MAX_SAFE_INTEGER,
     },
     {
-      semantic: ShaderSemantics.BaseColorTexture,
+      semantic: 'baseColorTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,

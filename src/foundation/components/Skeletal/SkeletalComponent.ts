@@ -62,16 +62,16 @@ export class SkeletalComponent extends Component {
 
     if (SkeletalComponent.__tookGlobalDataNum < Config.maxSkeletonNumber) {
       if (Config.boneDataType === BoneDataType.Mat43x1) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneMatrix);
+        SkeletalComponent.__globalDataRepository.takeOne('boneMatrix');
       } else if (Config.boneDataType === BoneDataType.Vec4x2) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslatePackedQuat);
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneScalePackedQuat);
+        SkeletalComponent.__globalDataRepository.takeOne('boneTranslatePackedQuat');
+        SkeletalComponent.__globalDataRepository.takeOne('boneScalePackedQuat');
       } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneQuaternion);
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
+        SkeletalComponent.__globalDataRepository.takeOne('boneQuaternion');
+        SkeletalComponent.__globalDataRepository.takeOne('boneTranslateScale');
       } else if (Config.boneDataType === BoneDataType.Vec4x1) {
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneTranslateScale);
-        SkeletalComponent.__globalDataRepository.takeOne(ShaderSemantics.BoneCompressedChunk);
+        SkeletalComponent.__globalDataRepository.takeOne('boneTranslateScale');
+        SkeletalComponent.__globalDataRepository.takeOne('boneCompressedChunk');
       }
       SkeletalComponent.__tookGlobalDataNum++;
     } else {
@@ -100,41 +100,32 @@ export class SkeletalComponent extends Component {
       index = this.componentSID;
     }
     if (Config.boneDataType === BoneDataType.Mat43x1) {
-      this.__matArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneMatrix,
-        index
-      )._v;
+      this.__matArray = SkeletalComponent.__globalDataRepository.getValue('boneMatrix', index)._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2) {
       this.__tqArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneTranslatePackedQuat,
+        'boneTranslatePackedQuat',
         index
       )._v;
       this.__sqArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneScalePackedQuat,
+        'boneScalePackedQuat',
         index
       )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x2Old) {
-      this.__qArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneQuaternion,
-        index
-      )._v;
+      this.__qArray = SkeletalComponent.__globalDataRepository.getValue('boneQuaternion', index)._v;
       this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneTranslateScale,
+        'boneTranslateScale',
         index
       )._v;
     } else if (Config.boneDataType === BoneDataType.Vec4x1) {
       this.__tsArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneTranslateScale,
+        'boneTranslateScale',
         index
       )._v;
       this.__qtsArray = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneCompressedChunk,
+        'boneCompressedChunk',
         index
       )._v;
-      this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue(
-        ShaderSemantics.BoneCompressedInfo,
-        0
-      );
+      this.__qtsInfo = SkeletalComponent.__globalDataRepository.getValue('boneCompressedInfo', 0);
     }
   }
 

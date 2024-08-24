@@ -200,7 +200,7 @@ function isVrMainPass(renderPass: RenderPass) {
 function getPointSpriteShaderSemanticsInfoArray() {
   return [
     {
-      semantic: ShaderSemantics.PointSize,
+      semantic: 'pointSize',
       compositionType: CompositionType.Scalar,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,
@@ -210,7 +210,7 @@ function getPointSpriteShaderSemanticsInfoArray() {
       isInternalSetting: false,
     },
     {
-      semantic: ShaderSemantics.PointDistanceAttenuation,
+      semantic: 'pointDistanceAttenuation',
       compositionType: CompositionType.Vec3,
       componentType: ComponentType.Float,
       stage: ShaderType.PixelShader,

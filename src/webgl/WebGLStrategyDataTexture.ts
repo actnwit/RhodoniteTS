@@ -10,7 +10,7 @@ import { MeshComponent } from '../foundation/components/Mesh/MeshComponent';
 import { Primitive } from '../foundation/geometry/Primitive';
 import { WebGLContextWrapper } from './WebGLContextWrapper';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { ShaderSemantics, ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import { Material } from '../foundation/materials/core/Material';
 import { CompositionType } from '../foundation/definitions/CompositionType';
 import { Component } from '../foundation/core/Component';
@@ -220,7 +220,6 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private static __getShaderProperty(
     materialTypeName: string,
     info: ShaderSemanticsInfo,
-    propertyIndex: Index,
     isGlobalData: boolean,
     isWebGL2: boolean
   ) {
@@ -230,7 +229,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
 
     const isTexture = CompositionType.isTexture(info.compositionType);
 
-    const methodName = info.semantic.str.replace('.', '_');
+    const methodName = info.semantic.replace('.', '_');
 
     // definition of uniform variable for texture sampler or what must be explicitly uniform variabl)
     let varDef = '';
@@ -249,7 +248,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     const scalarSizeOfProperty: IndexOf4Bytes = info.compositionType.getNumberOfComponents();
     const offsetOfProperty: IndexOf16Bytes = WebGLStrategyDataTexture.getOffsetOfPropertyInShader(
       isGlobalData,
-      propertyIndex,
+      info.semantic,
       materialTypeName
     );
 
@@ -379,17 +378,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
   private static getOffsetOfPropertyInShader(
     isGlobalData: boolean,
-    propertyIndex: number,
+    propertyName: ShaderSemanticsName,
     materialTypeName: string
   ) {
     if (isGlobalData) {
       const globalDataRepository = GlobalDataRepository.getInstance();
-      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyIndex);
+      const dataBeginPos = globalDataRepository.getLocationOffsetOfProperty(propertyName);
       return dataBeginPos;
     } else {
       const dataBeginPos = MaterialRepository.getLocationOffsetOfMemberOfMaterial(
         materialTypeName,
-        propertyIndex
+        propertyName
       );
       return dataBeginPos;
     }
@@ -403,10 +402,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     WebGLStrategyDataTexture.__currentComponentSIDs =
-      WebGLStrategyDataTexture.__globalDataRepository.getValue(
-        ShaderSemantics.CurrentComponentSIDs,
-        0
-      );
+      WebGLStrategyDataTexture.__globalDataRepository.getValue('currentComponentSIDs', 0);
 
     // update VBO and VAO
     if (!mesh.isSetUpDone()) {
@@ -706,10 +702,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   ) {
     if (WebGLStrategyDataTexture.__currentComponentSIDs == null) {
       WebGLStrategyDataTexture.__currentComponentSIDs =
-        WebGLStrategyDataTexture.__globalDataRepository.getValue(
-          ShaderSemantics.CurrentComponentSIDs,
-          0
-        );
+        WebGLStrategyDataTexture.__globalDataRepository.getValue('currentComponentSIDs', 0);
     }
 
     WebGLStrategyDataTexture.__currentComponentSIDs!._v[0] = material.materialSID;
@@ -798,10 +791,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
-      const vrState = GlobalDataRepository.getInstance().getValue(
-        ShaderSemantics.VrState,
-        0
-      ) as Vector2;
+      const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
       vrState._v[0] = isVRMainPass ? 1 : 0;
       vrState._v[1] = 0;
       (shaderProgram as any)._gl.uniform2iv((shaderProgram as any).vrState, vrState._v);
@@ -932,10 +922,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         isVRMainPass &&
         displayCount > 1
       ) {
-        const vrState = GlobalDataRepository.getInstance().getValue(
-          ShaderSemantics.VrState,
-          0
-        ) as Vector2;
+        const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
         vrState._v[0] = isVRMainPass ? 1 : 0;
         vrState._v[1] = displayIdx;
         (WebGLStrategyDataTexture.__shaderProgram as any)._gl.uniform2iv(

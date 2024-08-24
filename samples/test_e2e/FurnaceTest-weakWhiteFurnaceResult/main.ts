@@ -51,8 +51,8 @@ function createEntityMainCamera() {
 
 function createRenderPassMain(cameraComponent: Rn.CameraComponent) {
   const material = Rn.MaterialHelper.createFurnaceTestMaterial();
-  material.setParameter(Rn.FurnaceTestMaterialContent.debugView, 1); // weakWhiteFurnaceResult
-  material.setParameter(Rn.ShaderSemantics.ScreenInfo, Rn.Vector2.fromCopyArray2([512, 512]));
+  material.setParameter('debugView', 1); // weakWhiteFurnaceResult
+  material.setParameter('screenInfo', Rn.Vector2.fromCopyArray2([512, 512]));
   window.material = material;
 
   const entityBoard = createEntityBoard(material);
@@ -139,32 +139,32 @@ function attachGlobalFunctions(expressions: Rn.Expression[]) {
   const roughnessValue = Rn.MutableVector2.one();
   function setRoughness(floatValue: number) {
     roughnessValue.y = floatValue;
-    material.setParameter(Rn.ShaderSemantics.MetallicRoughnessFactor, roughnessValue);
+    material.setParameter('metallicRoughnessFactor', roughnessValue);
     draw(expressions);
   }
 
   function setDebugView(intValue: number) {
-    material.setParameter(Rn.FurnaceTestMaterialContent.debugView, intValue);
+    material.setParameter('debugView', intValue);
     draw(expressions);
   }
 
   function setGType(intValue: number) {
-    material.setParameter(Rn.FurnaceTestMaterialContent.g_type, intValue);
+    material.setParameter('g_type', intValue);
     draw(expressions);
   }
 
   function setF0(floatValue: number) {
-    material.setParameter(Rn.FurnaceTestMaterialContent.f0, floatValue);
+    material.setParameter('f0', floatValue);
     draw(expressions);
   }
 
   function setDisableFresnel(intValue: number) {
-    material.setParameter(Rn.FurnaceTestMaterialContent.disable_fresnel, intValue);
+    material.setParameter('disable_fresnel', intValue);
     draw(expressions);
   }
 
   function setMode(intValue: number) {
-    material.setParameter(Rn.FurnaceTestMaterialContent.mode, intValue);
+    material.setParameter('mode', intValue);
     if (intValue === 0) {
       window.entityBoard.getSceneGraph().isVisible = true;
       window.entitySphere.getSceneGraph().isVisible = false;

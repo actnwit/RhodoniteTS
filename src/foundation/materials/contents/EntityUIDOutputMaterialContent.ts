@@ -41,7 +41,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
       //   soloDatum: true
       // },
       {
-        semantic: ShaderSemantics.PointSize,
+        semantic: 'pointSize',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
         stage: ShaderType.VertexShader,
@@ -51,7 +51,7 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
         max: 100,
       },
       {
-        semantic: ShaderSemantics.PointDistanceAttenuation,
+        semantic: 'pointDistanceAttenuation',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec3,
         stage: ShaderType.VertexShader,
