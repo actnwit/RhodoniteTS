@@ -221,7 +221,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: 'color',
+        semantic: 'litColor',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Vec4,
         stage: ShaderType.PixelShader,
