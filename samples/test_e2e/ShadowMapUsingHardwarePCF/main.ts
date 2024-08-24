@@ -64,12 +64,12 @@ const meshComponentSmallBoard = entitySmallBoard.getMesh();
 const meshComponentLargeBoard = entityLargeBoard.getMesh();
 setParameterForMeshComponent(
   meshComponentSmallBoard,
-  Rn.ShaderSemantics.DiffuseColorFactor,
+  'diffuseColorFactor',
   Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
 );
 setParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShaderSemantics.DiffuseColorFactor,
+  'diffuseColorFactor',
   Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
 );
 setTextureParameterForMeshComponent(
@@ -149,7 +149,11 @@ function createRenderPassSpecifyingCameraComponent(
   return renderPass;
 }
 
-function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
+function setParameterForMeshComponent(
+  meshComponent: Rn.MeshComponent,
+  shaderSemantic: string,
+  value: any
+) {
   const mesh = meshComponent.mesh;
   const primitiveNumber = mesh.getPrimitiveNumber();
 
