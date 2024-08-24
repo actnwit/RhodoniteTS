@@ -97,7 +97,10 @@ fn ACES_Hill_ToneMapping(inColor: vec3<f32>) -> vec3<f32>
 
 #ifdef RN_USE_GT_TONEMAP
   fn W_f(x: f32, e0: f32, e1: f32) -> f32 {
-    return smoothstep(e0, e1, x);
+    if (x <= e0) { return 0.; }
+    if (x >= e1) { return 1.; }
+    let a = (x - e0) / (e1 - e0);
+    return a * a * (3. - 2. * a);
   }
   fn H_f(x: f32, e0: f32, e1: f32) -> f32 {
     if (x <= e0) { return 0.; }
