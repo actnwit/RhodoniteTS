@@ -21,7 +21,7 @@ declare const window: any;
       wrapT: Rn.TextureParameter.Repeat,
     });
     sampler.create();
-    flatMaterial.setTextureParameter(Rn.ShaderSemantics.BaseColorTexture, texture, sampler);
+    flatMaterial.setTextureParameter('baseColorTexture', texture, sampler);
     // }, 3000);
     const primitive = Rn.Primitive.createPrimitive({
       material: flatMaterial,

@@ -86,7 +86,7 @@ import Rn from '../../../dist/esmdev/index.js';
       const primitives = mesh.primitives;
       for (const primitive of primitives) {
         const material = primitive.material;
-        material.setParameter(Rn.ShaderSemantics.PointSize, pointSize);
+        material.setParameter('pointSize', pointSize);
       }
     }
 

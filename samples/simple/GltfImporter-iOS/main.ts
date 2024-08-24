@@ -87,7 +87,7 @@ const gammaCorrectionRenderPass = createPostEffectRenderPass(
 
 setTextureParameterForMeshComponents(
   gammaCorrectionRenderPass.meshComponents,
-  Rn.ShaderSemantics.BaseColorTexture,
+  'baseColorTexture',
   gammaTargetFramebuffer.getColorAttachedRenderTargetTexture(0)
 );
 
@@ -104,7 +104,7 @@ gammaCorrectionRenderPass.setFramebuffer(fxaaTargetFramebuffer);
 const fxaaRenderPass = createRenderPassSharingEntitiesAndCamera(gammaCorrectionRenderPass);
 const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
 fxaaMaterial.setParameter(
-  Rn.ShaderSemantics.ScreenInfo,
+  'screenInfo',
   Rn.Vector2.fromCopyArray2([displayResolution, displayResolution])
 );
 const sampler = new Rn.Sampler({
@@ -115,7 +115,7 @@ const sampler = new Rn.Sampler({
   anisotropy: false,
 });
 fxaaMaterial.setTextureParameter(
-  Rn.ShaderSemantics.BaseColorTexture,
+  'baseColorTexture',
   fxaaTargetFramebuffer.getColorAttachedRenderTargetTexture(0),
   sampler
 );
@@ -220,7 +220,7 @@ function createRenderPassSharingEntitiesAndCamera(originalRenderPass) {
 
 function setTextureParameterForMeshComponents(
   meshComponents: Rn.MeshComponent[],
-  shaderSemantic: ShaderSemanticsEnum,
+  shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
   const sampler = new Rn.Sampler({

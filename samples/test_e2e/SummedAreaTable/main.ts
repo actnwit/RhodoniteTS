@@ -90,12 +90,8 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture,
-    sampler
-  );
-  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
+  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, sampler);
+  sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
   const sphereEntity = Rn.MeshHelper.createSphere({
     radius: 50,

@@ -74,12 +74,12 @@ setParameterForMeshComponent(
 );
 setTextureParameterForMeshComponent(
   meshComponentSmallBoard,
-  Rn.ShaderSemantics.DepthTexture,
+  'depthTexture',
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
 );
 setTextureParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShaderSemantics.DepthTexture,
+  'depthTexture',
   renderPassDepth.getFramebuffer().getDepthAttachedRenderTargetTexture()
 );
 
@@ -101,12 +101,12 @@ Rn.System.startRenderLoop(() => {
 
   setParameterForMeshComponent(
     meshComponentSmallBoard,
-    Rn.ShaderSemantics.DepthBiasPV,
+    'depthBiasPV',
     spotLight.getCamera().biasViewProjectionMatrix
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
-    Rn.ShaderSemantics.DepthBiasPV,
+    'depthBiasPV',
     spotLight.getCamera().biasViewProjectionMatrix
   );
   count++;
@@ -160,7 +160,7 @@ function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
 }
 function setTextureParameterForMeshComponent(
   meshComponent: Rn.MeshComponent,
-  shaderSemantic: ShaderSemanticsEnum,
+  shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
   const sampler = new Rn.Sampler({

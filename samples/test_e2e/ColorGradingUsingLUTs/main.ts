@@ -73,7 +73,7 @@ function createEntityColoredBoard(diffuseColor: Rn.Vector4) {
     vSpan: 1,
     isUVRepeat: false,
   });
-  primitive.material.setParameter(Rn.ShaderSemantics.DiffuseColorFactor, diffuseColor);
+  primitive.material.setParameter('diffuseColorFactor', diffuseColor);
 
   const entity = Rn.EntityHelper.createMeshEntity();
   const meshComponent = entity.getMesh();

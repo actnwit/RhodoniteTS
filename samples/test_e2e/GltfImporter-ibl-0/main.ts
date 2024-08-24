@@ -78,12 +78,8 @@ function createEnvCubeExpression(baseuri) {
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
   });
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture,
-    sampler
-  );
-  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
+  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, sampler);
+  sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
   const spherePrimitive = new Rn.Sphere();
   spherePrimitive.generate({

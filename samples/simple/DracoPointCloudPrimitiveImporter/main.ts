@@ -101,7 +101,7 @@ function setPointSizeRecursively(entity: Rn.IMeshEntity, pointSize: number) {
     const primitives = mesh.primitives;
     for (const primitive of primitives) {
       const material = primitive.material;
-      material.setParameter(Rn.ShaderSemantics.PointSize, pointSize);
+      material.setParameter('pointSize', pointSize);
     }
   }
 

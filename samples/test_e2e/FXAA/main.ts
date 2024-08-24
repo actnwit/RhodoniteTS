@@ -121,12 +121,8 @@ async function setupRenderPassMain() {
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
-  sphereMaterial.setTextureParameter(
-    Rn.ShaderSemantics.ColorEnvTexture,
-    environmentCubeTexture,
-    samplerSphere
-  );
-  sphereMaterial.setParameter(Rn.ShaderSemantics.EnvHdriFormat, Rn.HdriFormat.LDR_SRGB.index);
+  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, samplerSphere);
+  sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
   const sphereMeshComponent = sphereEntity.getMesh();
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
@@ -153,7 +149,7 @@ async function setupRenderPassMain() {
 function setupRenderPassFxaa(renderable: Promise<Rn.AbstractTexture>) {
   const fxaaMaterial = Rn.MaterialHelper.createFXAA3QualityMaterial();
   const renderPassFxaa = Rn.RenderPassHelper.createScreenDrawRenderPass(fxaaMaterial);
-  fxaaMaterial.setTextureParameterAsPromise(Rn.ShaderSemantics.BaseColorTexture, renderable);
+  fxaaMaterial.setTextureParameterAsPromise('baseColorTexture', renderable);
 
   return renderPassFxaa;
 }

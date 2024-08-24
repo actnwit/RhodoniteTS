@@ -108,7 +108,7 @@ async function setIBL(baseUri) {
 
 function setTextureParameterForMeshComponents(
   meshComponents: Rn.MeshComponent[],
-  shaderSemantic: ShaderSemanticsEnum,
+  shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
   const sampler = new Rn.Sampler({

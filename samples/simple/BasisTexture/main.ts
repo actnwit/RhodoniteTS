@@ -26,7 +26,7 @@ const sampler = new Rn.Sampler({
 });
 sampler.create();
 const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
-modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture, sampler);
+modelMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
 
 const planeEntity = Rn.EntityHelper.createMeshEntity();
 const planePrimitive = new Rn.Plane();
@@ -67,11 +67,7 @@ const samplerSphere = new Rn.Sampler({
   wrapS: Rn.TextureParameter.ClampToEdge,
   wrapT: Rn.TextureParameter.ClampToEdge,
 });
-sphereMaterial.setTextureParameter(
-  Rn.ShaderSemantics.ColorEnvTexture,
-  environmentCubeTexture,
-  samplerSphere
-);
+sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, samplerSphere);
 const sphereMeshComponent = sphereEntity.getMesh();
 const sphereMesh = new Rn.Mesh();
 sphereMesh.addPrimitive(spherePrimitive);

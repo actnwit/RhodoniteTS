@@ -135,18 +135,9 @@ function createRenderPassMain(
     { depthCameraComponent: cameraComponentDepth },
     [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
   );
-  materialSphere.setParameter(
-    Rn.ShaderSemantics.DiffuseColorFactor,
-    Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1])
-  );
-  materialSphere.setParameter(
-    Rn.VarianceShadowMapDecodeClassicMaterialContent.ShadowColor,
-    Rn.Vector4.fromCopyArray([0.25, 0.05, 0.2, 1])
-  );
-  materialSphere.setParameter(
-    Rn.VarianceShadowMapDecodeClassicMaterialContent.MinimumVariance,
-    Rn.Scalar.fromCopyNumber(0.01)
-  );
+  materialSphere.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([0.5, 0.1, 0.4, 1]));
+  materialSphere.setParameter('shadowColor', Rn.Vector4.fromCopyArray([0.25, 0.05, 0.2, 1]));
+  materialSphere.setParameter('minimumVariance', Rn.Scalar.fromCopyNumber(0.01));
   const primitiveSphere = entitySphere.getMesh().mesh.primitives[0];
   renderPass.setMaterialForPrimitive(materialSphere, primitiveSphere);
 
@@ -155,18 +146,9 @@ function createRenderPassMain(
     { depthCameraComponent: cameraComponentDepth },
     [renderPassDepthBlurHV, renderPassSquareDepthBlurHV]
   );
-  materialBoard.setParameter(
-    Rn.ShaderSemantics.DiffuseColorFactor,
-    Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
-  );
-  materialBoard.setParameter(
-    Rn.VarianceShadowMapDecodeClassicMaterialContent.ShadowColor,
-    Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1])
-  );
-  materialBoard.setParameter(
-    Rn.VarianceShadowMapDecodeClassicMaterialContent.MinimumVariance,
-    Rn.Scalar.fromCopyNumber(0.01)
-  );
+  materialBoard.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1]));
+  materialBoard.setParameter('shadowColor', Rn.Vector4.fromCopyArray([0.05, 0.35, 0.25, 1]));
+  materialBoard.setParameter('minimumVariance', Rn.Scalar.fromCopyNumber(0.01));
   const primitiveBoard = entityBoard.getMesh().mesh.primitives[0];
   renderPass.setMaterialForPrimitive(materialBoard, primitiveBoard);
 
@@ -248,15 +230,15 @@ function createRenderPassGaussianBlurForDepth(
     kernelSize: gaussianKernelSize,
     variance: gaussianVariance,
   });
-  material.setParameter(Rn.ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
-  material.setParameter(Rn.ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
+  material.setParameter('gaussianKernelSize', gaussianKernelSize);
+  material.setParameter('gaussianRatio', gaussianDistributionRatio);
   if (isHorizontal === false) {
-    material.setParameter(Rn.ShaderSemantics.IsHorizontal, false);
+    material.setParameter('isHorizontal', false);
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   material.setParameter(
-    Rn.ShaderSemantics.FramebufferSize,
+    'framebufferSize',
     Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
   );
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;

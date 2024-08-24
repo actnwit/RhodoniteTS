@@ -20,7 +20,7 @@ const sampler = new Rn.Sampler({
   wrapS: Rn.TextureParameter.Repeat,
   wrapT: Rn.TextureParameter.Repeat,
 });
-modelMaterial.setTextureParameter(Rn.ShaderSemantics.DiffuseColorTexture, texture, sampler);
+modelMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
 window.texture = texture;
 
 const planeEntity = Rn.EntityHelper.createMeshEntity();

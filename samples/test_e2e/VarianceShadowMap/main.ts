@@ -73,12 +73,12 @@ setParameterForMeshComponent(
 );
 setTextureParameterForMeshComponent(
   meshComponentSmallBoard,
-  Rn.ShaderSemantics.DepthTexture,
+  'depthTexture',
   renderPassDepth.getFramebuffer().getColorAttachedRenderTargetTexture(0)
 );
 setTextureParameterForMeshComponent(
   meshComponentLargeBoard,
-  Rn.ShaderSemantics.DepthTexture,
+  'depthTexture',
   renderPassDepth.getFramebuffer().getColorAttachedRenderTargetTexture(0)
 );
 
@@ -168,7 +168,7 @@ function setParameterForMeshComponent(meshComponent, shaderSemantic, value) {
 }
 function setTextureParameterForMeshComponent(
   meshComponent: Rn.MeshComponent,
-  shaderSemantic: Rn.ShaderSemanticsEnum,
+  shaderSemantic: string,
   value: Rn.RenderTargetTexture
 ) {
   const mesh = meshComponent.mesh;

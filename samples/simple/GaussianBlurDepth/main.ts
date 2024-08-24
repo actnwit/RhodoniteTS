@@ -151,16 +151,16 @@ function createRenderPassGaussianBlurForDepth(
     kernelSize: gaussianKernelSize,
     variance: gaussianVariance,
   });
-  material.setParameter(Rn.ShaderSemantics.GaussianKernelSize, gaussianKernelSize);
-  material.setParameter(Rn.ShaderSemantics.GaussianRatio, gaussianDistributionRatio);
+  material.setParameter('gaussianKernelSize', gaussianKernelSize);
+  material.setParameter('gaussianRatio', gaussianDistributionRatio);
 
   if (isHorizontal === false) {
-    material.setParameter(Rn.ShaderSemantics.IsHorizontal, false);
+    material.setParameter('isHorizontal', false);
   }
 
   const framebufferTarget = renderPassBlurTarget.getFramebuffer();
   material.setParameter(
-    Rn.ShaderSemantics.FramebufferSize,
+    'framebufferSize',
     Rn.Vector2.fromCopy2(framebufferTarget.width, framebufferTarget.height)
   );
   const TextureTarget = framebufferTarget.colorAttachments[0] as Rn.RenderTargetTexture;
