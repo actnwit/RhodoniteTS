@@ -1,5 +1,5 @@
-import { Index, IndexOf16Bytes, MaterialSID } from '../../../types/CommonTypes';
-import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
+import { IndexOf16Bytes, MaterialSID } from '../../../types/CommonTypes';
+import { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 export declare class MaterialRepository {
@@ -36,11 +36,7 @@ export declare class MaterialRepository {
      * Initialize Material Method
      */
     private static __initializeMaterial;
-    static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyIndex: Index): IndexOf16Bytes;
-    /**
-     * @internal
-     */
-    static _getPropertyIndex(semanticInfo: ShaderSemanticsInfo): number;
+    static getLocationOffsetOfMemberOfMaterial(materialTypeName: string, propertyName: ShaderSemanticsName): IndexOf16Bytes;
     private static __registerInner;
     private static __allocateBufferView;
     static _makeShaderInvalidateToAllMaterials(): void;

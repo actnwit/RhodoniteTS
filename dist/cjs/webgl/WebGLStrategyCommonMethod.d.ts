@@ -11,7 +11,7 @@ declare function setVRViewport(renderPass: RenderPass, displayIdx: Index): void;
 declare function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2;
 declare function isVrMainPass(renderPass: RenderPass): boolean;
 declare function getPointSpriteShaderSemanticsInfoArray(): ({
-    semantic: import("../foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
+    semantic: string;
     compositionType: {
         readonly __numberOfComponents: number;
         readonly __glslStr: string;
@@ -58,7 +58,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
     max: number;
     isInternalSetting: boolean;
 } | {
-    semantic: import("../foundation/definitions/ShaderSemantics").ShaderSemanticsEnum;
+    semantic: string;
     compositionType: {
         readonly __numberOfComponents: number;
         readonly __glslStr: string;

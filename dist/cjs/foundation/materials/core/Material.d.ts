@@ -1,7 +1,7 @@
 import { RnObject } from '../../core/RnObject';
 import { AlphaModeEnum } from '../../definitions/AlphaMode';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
-import { ShaderSemanticsEnum, ShaderSemanticsIndex, getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
+import { getShaderPropertyFunc, ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import type { AbstractTexture } from '../../textures/AbstractTexture';
 import { Index, CGAPIResourceHandle, MaterialSID, MaterialTID, MaterialUID } from '../../../types/CommonTypes';
 import type { ShaderSources } from '../../../webgl/WebGLStrategy';
@@ -18,9 +18,9 @@ import { BlendEnum } from '../../definitions/Blend';
 export declare class Material extends RnObject {
     __materialTypeName: MaterialTypeName;
     _materialContent: AbstractMaterialContent;
-    _allFieldVariables: Map<ShaderSemanticsIndex, ShaderVariable>;
-    _autoFieldVariablesOnly: Map<ShaderSemanticsIndex, ShaderVariable>;
-    _allFieldsInfo: Map<ShaderSemanticsIndex, ShaderSemanticsInfo>;
+    _allFieldVariables: Map<ShaderSemanticsName, ShaderVariable>;
+    _autoFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
+    _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
     private __belongPrimitives;
     private _shaderProgramUidMap;
     private _primitiveFingerPrintBackUp;
@@ -43,7 +43,7 @@ export declare class Material extends RnObject {
     private __fingerPrint;
     private __shaderDefines;
     private static __webglResourceRepository?;
-    static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsIndex, ShaderVariable>>;
+    static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>>;
     constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
     addShaderDefine(define: string): void;
     removeShaderDefine(define: string): void;
@@ -51,11 +51,11 @@ export declare class Material extends RnObject {
     calcFingerPrint(): void;
     _getFingerPrint(): string;
     static get stateVersion(): number;
-    setParameter(shaderSemantic: ShaderSemanticsEnum, value: any): void;
-    setTextureParameter(shaderSemantic: ShaderSemanticsEnum, texture: AbstractTexture, sampler: Sampler): void;
-    getTextureParameter(shaderSemantic: ShaderSemanticsEnum): any;
-    setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsEnum, promise: Promise<AbstractTexture>): void;
-    getParameter(shaderSemantic: ShaderSemanticsEnum): any;
+    setParameter(shaderSemanticName: ShaderSemanticsName, value: any): void;
+    setTextureParameter(shaderSemantic: ShaderSemanticsName, texture: AbstractTexture, sampler: Sampler): void;
+    getTextureParameter(shaderSemantic: ShaderSemanticsName): any;
+    setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsName, promise: Promise<AbstractTexture>): void;
+    getParameter(shaderSemantic: ShaderSemanticsName): any;
     /**
      * return whether the shader program ready or not
      * @returns is shader program ready or not

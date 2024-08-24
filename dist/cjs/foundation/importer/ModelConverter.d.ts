@@ -1,6 +1,6 @@
 import { Buffer } from '../memory/Buffer';
 import { Texture } from '../textures/Texture';
-import { ShaderSemanticsEnum } from '../definitions/ShaderSemantics';
+import { ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { Material } from '../materials/core/Material';
 import { Accessor } from '../memory/Accessor';
 import { RnM2, RnM2Accessor, RnM2Texture, RnM2TextureInfo, RnM2SparseIndices } from '../../types/RnM2';
@@ -32,7 +32,6 @@ export declare class ModelConverter {
     private static __setupCamera;
     private static __setupMesh;
     static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void;
-    static setDefaultTextures(material: Material, gltfModel: RnM2): void;
     private static __setVRM1Material;
     private static setMToonTextures;
     private static __setVRM0xMaterial;
@@ -87,7 +86,7 @@ export declare class ModelConverter {
     private static __getGeometryFromDracoBuffer;
     static __getIndicesFromDraco(draco: any, decoder: any, dracoGeometry: any, triangleStripDrawMode: boolean): Uint32Array | undefined;
     private static __decodeDraco;
-    static _setupTextureTransform(textureJson: RnM2TextureInfo, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsEnum, textureRotationShaderSemantic: ShaderSemanticsEnum): void;
+    static _setupTextureTransform(textureJson: RnM2TextureInfo, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsName, textureRotationShaderSemantic: ShaderSemanticsName): void;
     private static __createBufferForDecompressedData;
     private static __generateVrmNormalizedSkeleton;
 }

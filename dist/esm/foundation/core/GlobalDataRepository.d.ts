@@ -1,4 +1,4 @@
-import { ShaderSemanticsEnum, getShaderPropertyFunc } from '../definitions/ShaderSemantics';
+import { getShaderPropertyFunc, ShaderSemanticsName } from '../definitions/ShaderSemantics';
 import { Count, Index, CGAPIResourceHandle, IndexOf16Bytes } from '../../types/CommonTypes';
 import { Accessor } from '../memory/Accessor';
 import { ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
@@ -23,16 +23,16 @@ export declare class GlobalDataRepository {
     initialize(approach: ProcessApproachEnum): void;
     static getInstance(): GlobalDataRepository;
     private __registerProperty;
-    takeOne(shaderSemantic: ShaderSemanticsEnum): any;
-    setValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index, value: any): void;
-    getValue(shaderSemantic: ShaderSemanticsEnum, countIndex: Index): any;
-    getGlobalPropertyStruct(propertyIndex: Index): GlobalPropertyStruct | undefined;
+    takeOne(shaderSemantic: ShaderSemanticsName): any;
+    setValue(shaderSemantic: ShaderSemanticsName, countIndex: Index, value: any): void;
+    getValue(shaderSemantic: ShaderSemanticsName, countIndex: Index): any;
+    getGlobalPropertyStruct(propertyName: ShaderSemanticsName): GlobalPropertyStruct | undefined;
     getGlobalProperties(): GlobalPropertyStruct[];
     _setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle): void;
     _setUniformLocationsForDataTextureModeOnly(shaderProgramUid: CGAPIResourceHandle): void;
     setUniformValues(shaderProgram: WebGLProgram): void;
-    getLocationOffsetOfProperty(propertyIndex: Index): IndexOf16Bytes;
-    getCurrentDataNumberOfTheProperty(propertyIndex: Index): number;
+    getLocationOffsetOfProperty(propertyName: ShaderSemanticsName): IndexOf16Bytes;
+    getCurrentDataNumberOfTheProperty(propertyName: ShaderSemanticsName): number;
     _addPropertiesStr(vertexPropertiesStr: string, pixelPropertiesStr: string, propertySetter: getShaderPropertyFunc, isWebGL2: boolean): string[];
 }
 export {};
