@@ -85,11 +85,10 @@ import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
-import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
-import { createGroupEntity } from '../components/SceneGraph/SceneGraphComponent';
 import { createCameraEntity } from '../components/Camera/CameraComponent';
 import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 
 declare let DracoDecoderModule: any;
 

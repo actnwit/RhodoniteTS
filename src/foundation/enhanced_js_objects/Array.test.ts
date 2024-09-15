@@ -1,6 +1,7 @@
 import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
+import { IEntity } from '../core/Entity';
 import { MemoryManager } from '../core/MemoryManager';
-import { EntityHelper } from '../helpers/EntityHelper';
 import { ArrayAsRn, enhanceArray } from './Array';
 
 declare global {
@@ -9,7 +10,7 @@ declare global {
 }
 
 function generateEntity() {
-  const entity = EntityHelper.createMeshEntity();
+  const entity = createMeshEntity();
   return entity;
 }
 
@@ -21,7 +22,7 @@ test('array[GetComponentFromEntities]', () => {
     gpuVertexData: 1,
   });
 
-  const entities = [];
+  const entities: IEntity[] = [];
   entities.push(generateEntity());
   entities.push(generateEntity());
 

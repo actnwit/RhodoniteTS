@@ -28,10 +28,11 @@ import { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
-import { createGroupEntity, SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 import { IMeshEntity } from '../../helpers/EntityHelper';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;

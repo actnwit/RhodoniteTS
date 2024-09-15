@@ -17,7 +17,7 @@ import { LightGizmo } from '../../gizmos/LightGizmo';
 import { Is } from '../../misc/Is';
 import { Scalar } from '../../math/Scalar';
 import { TransformComponent } from '../Transform';
-import { createGroupEntity } from '../SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 /**
  * The Component that represents a light.

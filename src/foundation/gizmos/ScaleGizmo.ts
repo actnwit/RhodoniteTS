@@ -1,6 +1,6 @@
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
-import { createGroupEntity } from '../components/SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { ComponentRepository } from '../core/ComponentRepository';
 import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';

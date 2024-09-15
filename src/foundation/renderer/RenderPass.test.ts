@@ -1,9 +1,9 @@
+import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
 import { MemoryManager } from '../core/MemoryManager';
-import { EntityHelper } from '../helpers/EntityHelper';
 import { RenderPass } from './RenderPass';
 
 function generateEntity() {
-  return EntityHelper.createMeshEntity();
+  return createMeshEntity();
 }
 
 test('addEntities and get entities', () => {

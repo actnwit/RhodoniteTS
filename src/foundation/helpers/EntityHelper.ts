@@ -15,7 +15,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import { LightComponent } from '../components/Light/LightComponent';
 import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
 import { IAnimationStateEntityMethods } from '../components/AnimationState';
-import { createGroupEntity } from '../components/SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;
 export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;

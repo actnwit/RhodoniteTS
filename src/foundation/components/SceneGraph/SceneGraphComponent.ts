@@ -1090,9 +1090,3 @@ export class SceneGraphComponent extends Component {
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);
-
-export function createGroupEntity(): ISceneGraphEntity {
-  const entity = createTransformEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(SceneGraphComponent, entity);
-  return entityAddedComponent;
-}

@@ -6,7 +6,6 @@ import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 import { CameraTypeEnum, CameraType } from '../../definitions/CameraType';
 import { Matrix44 } from '../../math/Matrix44';
-import { createGroupEntity, SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { BufferUse } from '../../definitions/BufferUse';
 import { ComponentType } from '../../definitions/ComponentType';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
@@ -30,7 +29,8 @@ import { LightType } from '../../definitions/LightType';
 import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformComponent } from '../Transform/TransformComponent';
-import { CameraControllerComponent } from '../CameraController';
+import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 /**
  * The Component that represents a camera.

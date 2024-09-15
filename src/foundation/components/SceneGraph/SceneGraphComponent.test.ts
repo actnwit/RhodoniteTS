@@ -1,12 +1,12 @@
 import { MemoryManager } from '../../core/MemoryManager';
-import { EntityHelper } from '../../helpers/EntityHelper';
 import { Matrix44 } from '../../math/Matrix44';
 import { Vector3 } from '../../math/Vector3';
+import { createGroupEntity } from './createGroupEntity';
 import { SceneGraphComponent } from './SceneGraphComponent';
 
 describe('SceneGraphComponent', () => {
   function generateEntity() {
-    return EntityHelper.createGroupEntity();
+    return createGroupEntity();
   }
 
   beforeAll(() => {

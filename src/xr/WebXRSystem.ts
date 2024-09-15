@@ -22,7 +22,7 @@ import { ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHe
 import { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { createCameraEntity } from '../foundation/components/Camera/CameraComponent';
-import { createGroupEntity } from '../foundation/components/SceneGraph/SceneGraphComponent';
+import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
 declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
