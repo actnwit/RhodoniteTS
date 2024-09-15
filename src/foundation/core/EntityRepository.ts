@@ -278,6 +278,13 @@ export class EntityRepository {
   }
 
   /**
+   * Gets the entity corresponding to the entityUID.
+   * @param entityUid The entityUID of the entity.
+   */
+  public getEntity(entityUid: EntityUID): IEntity {
+    return EntityRepository.__entities[entityUid];
+  }
+  /**
    * Gets the specified component from the entity.
    * @param entityUid The entity to get the component from.
    * @param componentType The class object of the component to get.

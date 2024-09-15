@@ -1,4 +1,4 @@
-import { Component } from './Component';
+import type { Component } from './Component';
 import { Is } from '../misc/Is';
 import { EntityRepository } from './EntityRepository';
 import { Config } from './Config';
@@ -14,6 +14,7 @@ export class ComponentRepository {
   static __componentClasses: Map<ComponentTID, typeof Component> = new Map();
   private static __componentTIDs: Array<ComponentTID> = [];
   private static __renderingComponentTIDs: Array<ComponentTID> = [];
+  static readonly invalidComponentSID = -1;
   constructor() {}
 
   /**
@@ -60,7 +61,7 @@ export class ComponentRepository {
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
       if (Is.not.exist(component_sid_count)) {
         this.__component_sid_count_map.set(componentTid, 0);
-        component_sid_count = Component.invalidComponentSID;
+        component_sid_count = ComponentRepository.invalidComponentSID;
       }
 
       // check __components array whether it has undefined element
