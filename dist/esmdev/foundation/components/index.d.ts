@@ -12,3 +12,4 @@ export * from './Transform/index';
 export * from './Vrm/index';
 export * from './ComponentTypes';
 export * from './WellKnownComponentTIDs';
+export * from './registerComponents';

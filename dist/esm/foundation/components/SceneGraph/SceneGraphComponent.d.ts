@@ -104,12 +104,6 @@ export declare class SceneGraphComponent extends Component {
     private __calcWorldMatrixRecursively;
     private __calcWorldMatrixRestRecursively;
     getQuaternionRecursively(): IQuaternion;
-    /**
-     * Collects children and itself from specified sceneGraphComponent.
-     * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
-     * @param isJointMode collects joints only
-     */
-    static flattenHierarchy(sceneGraphComponent: SceneGraphComponent, isJointMode: boolean): SceneGraphComponent[];
     get worldPosition(): Vector3;
     getWorldPositionOf(localPosition: Vector3): IVector3;
     getWorldPositionOfTo(localPosition: Vector3, out: MutableVector3): MutableVector3;

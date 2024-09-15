@@ -16,7 +16,6 @@ import { Result } from '../misc/Result';
  */
 export declare class Component extends RnObject {
     private _component_sid;
-    static readonly invalidComponentSID = -1;
     _isAlive: boolean;
     protected __currentProcessStage: ProcessStageEnum;
     private static __bufferViews;
@@ -191,16 +190,6 @@ export declare class Component extends RnObject {
      * @param memberName the member of component in string
      * @returns bytes information
      */
-    static getDataByteInfoByEntityUID(componentType: typeof Component, entityUID: EntityUID, memberName: string): {
-        byteLength: number;
-        byteOffsetInBuffer: number;
-        byteOffsetInThisComponent: any;
-        locationOffsetInBuffer: number;
-        locationOffsetInThisComponent: any;
-        thisComponentByteOffsetInBuffer: number;
-        thisComponentLocationOffsetInBuffer: number;
-        componentNumber: number;
-    } | undefined;
     /**
      * get the Pixel Location Offset in the Buffer of the Member
      * @param componentType the component type (e.g. TransformComponent )

@@ -1,4 +1,4 @@
-import { Component } from './Component';
+import type { Component } from './Component';
 import { EntityRepository } from './EntityRepository';
 import { ComponentTID, ComponentSID, EntityUID } from '../../types/CommonTypes';
 /**
@@ -10,6 +10,7 @@ export declare class ComponentRepository {
     static __componentClasses: Map<ComponentTID, typeof Component>;
     private static __componentTIDs;
     private static __renderingComponentTIDs;
+    static readonly invalidComponentSID = -1;
     constructor();
     /**
      * Registers the class object of the component.

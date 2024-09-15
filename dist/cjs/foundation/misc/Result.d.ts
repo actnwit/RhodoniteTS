@@ -1,3 +1,4 @@
+import { RnException } from './RnException';
 export interface RnError<ErrObj> {
     message: string;
     error: ErrObj;
@@ -82,7 +83,7 @@ export declare class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult
  * a class indicating that the result is Error (Failed).
  */
 export declare class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
-    private __rnException;
+    _rnException: RnException<ErrObj>;
     constructor(val: RnError<ErrObj>);
     unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T;
     unwrapForce(): never;

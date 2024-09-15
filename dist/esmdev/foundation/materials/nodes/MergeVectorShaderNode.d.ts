@@ -1,4 +1,4 @@
-import { AbstractShaderNode } from '../core';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 export declare class MergeVectorShaderNode extends AbstractShaderNode {
     constructor();
     getShaderFunctionNameDerivative(): string;

@@ -26,26 +26,4 @@ export interface IAnimationEntity extends ISceneGraphEntity, IAnimationEntityMet
 }
 export interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStateEntityMethods {
 }
-declare function createEntity(): IEntity;
-declare function createTransformEntity(): ITransformEntity;
-declare function createGroupEntity(): ISceneGraphEntity;
-declare function createMeshEntity(): IMeshEntity;
-declare function createCameraEntity(): ICameraEntity;
-declare function createCameraControllerEntity(): ICameraControllerEntity;
-declare function createSkeletalEntity(): ISkeletalEntity;
-declare function createPhysicsEntity(): IPhysicsEntity;
-declare function createLightEntity(): ILightEntity;
-declare function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods;
-export declare const EntityHelper: Readonly<{
-    createEntity: typeof createEntity;
-    createTransformEntity: typeof createTransformEntity;
-    createGroupEntity: typeof createGroupEntity;
-    createMeshEntity: typeof createMeshEntity;
-    createCameraEntity: typeof createCameraEntity;
-    createCameraControllerEntity: typeof createCameraControllerEntity;
-    createSkeletalEntity: typeof createSkeletalEntity;
-    createLightEntity: typeof createLightEntity;
-    createLightWithCameraEntity: typeof createLightWithCameraEntity;
-    createPhysicsEntity: typeof createPhysicsEntity;
-}>;
-export {};
+export declare function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods;

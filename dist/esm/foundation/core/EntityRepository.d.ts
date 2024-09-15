@@ -43,6 +43,11 @@ export declare class EntityRepository {
      */
     static getEntity(entityUid: EntityUID): IEntity;
     /**
+     * Gets the entity corresponding to the entityUID.
+     * @param entityUid The entityUID of the entity.
+     */
+    getEntity(entityUid: EntityUID): IEntity;
+    /**
      * Gets the specified component from the entity.
      * @param entityUid The entity to get the component from.
      * @param componentType The class object of the component to get.
@@ -70,3 +75,4 @@ export declare class EntityRepository {
     static get updateCount(): number;
 }
 export declare function applyMixins(derivedCtor: IEntity, baseCtor: any): void;
+export declare function createEntity(): IEntity;
