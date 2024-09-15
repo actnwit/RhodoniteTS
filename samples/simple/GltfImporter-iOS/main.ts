@@ -26,7 +26,7 @@ const displayResolution = 800;
 const vrmModelRotation = Rn.Vector3.fromCopyArray([0, (3 / 4) * Math.PI, 0.0]);
 
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -135,7 +135,7 @@ controller.dolly = 0.8;
 controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 // Lights
-const lightEntity = Rn.EntityHelper.createLightEntity();
+const lightEntity = Rn.createLightEntity();
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
@@ -188,7 +188,7 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
   const boardMesh = new Rn.Mesh();
   boardMesh.addPrimitive(boardPrimitive);
 
-  const boardEntity = Rn.EntityHelper.createMeshEntity();
+  const boardEntity = Rn.createMeshEntity();
   boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
   boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();
@@ -203,7 +203,7 @@ function createPostEffectRenderPass(material: Rn.Material, cameraComponent: Rn.C
 }
 
 function createPostEffectCameraEntity() {
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNearInner = 0.5;
   cameraComponent.zFarInner = 2.0;

@@ -90,7 +90,7 @@ const draw = function (frame) {
 forwardRenderPipeline.startRenderLoop(draw);
 
 function createCamera() {
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;
@@ -128,7 +128,7 @@ function createEnvCubeExpression(baseuri, cameraEntity) {
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
 
-  const sphereEntity = Rn.EntityHelper.createMeshEntity();
+  const sphereEntity = Rn.createMeshEntity();
   sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
   sphereEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 0, 0]);
 

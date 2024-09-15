@@ -21,7 +21,7 @@ const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForc
 rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
 // CameraComponent
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 // cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;
@@ -34,7 +34,7 @@ cameraControllerComponent.controller.setTarget(rootGroup);
 (cameraControllerComponent.controller as Rn.OrbitCameraController).autoUpdate = false;
 
 // Light
-const light = Rn.EntityHelper.createLightEntity();
+const light = Rn.createLightEntity();
 light.getLight().type = Rn.LightType.Directional;
 
 // renderPass
@@ -132,7 +132,7 @@ function createEnvCubeExpression(baseuri) {
   const sphereMesh = new Rn.Mesh();
   sphereMesh.addPrimitive(spherePrimitive);
 
-  const sphereEntity = Rn.EntityHelper.createMeshEntity();
+  const sphereEntity = Rn.createMeshEntity();
   sphereEntity.getTransform().localScale = Rn.Vector3.fromCopyArray([-1, 1, 1]);
   sphereEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0, 20, -20]);
 

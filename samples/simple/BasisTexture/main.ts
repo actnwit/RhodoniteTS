@@ -28,7 +28,7 @@ sampler.create();
 const modelMaterial = Rn.MaterialHelper.createClassicUberMaterial();
 modelMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
 
-const planeEntity = Rn.EntityHelper.createMeshEntity();
+const planeEntity = Rn.createMeshEntity();
 const planePrimitive = new Rn.Plane();
 planePrimitive.generate({
   width: 2,
@@ -45,7 +45,7 @@ planeMesh.addPrimitive(planePrimitive);
 planeMeshComponent.setMesh(planeMesh);
 planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
-const sphereEntity = Rn.EntityHelper.createMeshEntity();
+const sphereEntity = Rn.createMeshEntity();
 const spherePrimitive = new Rn.Sphere();
 const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
 spherePrimitive.generate({
@@ -74,7 +74,7 @@ sphereMesh.addPrimitive(spherePrimitive);
 sphereMeshComponent.setMesh(sphereMesh);
 
 // Camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;

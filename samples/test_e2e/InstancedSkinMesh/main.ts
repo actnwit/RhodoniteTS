@@ -15,10 +15,10 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const light = Rn.EntityHelper.createLightEntity();
+const light = Rn.createLightEntity();
 
 // Camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;

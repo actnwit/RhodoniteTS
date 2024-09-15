@@ -44,7 +44,7 @@ draw(expressions);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -56,7 +56,7 @@ function createEntityDepthCamera() {
 }
 
 function createEntityPostEffectCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
 
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.zNearInner = 0.5;
@@ -87,7 +87,7 @@ function createEntitySphere() {
     heightSegments: 20,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
@@ -111,7 +111,7 @@ function createEntityBoard() {
     isUVRepeat: false,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

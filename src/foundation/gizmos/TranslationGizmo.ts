@@ -3,13 +3,12 @@ import { ComponentRepository } from '../core/ComponentRepository';
 import { Config } from '../core/Config';
 import { AlphaMode } from '../definitions/AlphaMode';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';
 import { Primitive } from '../geometry/Primitive';
 import { Cube } from '../geometry/shapes/Cube';
 import { Plane } from '../geometry/shapes/Plane';
-import { EntityHelper, IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { IMeshEntity, ISceneGraphEntity } from '../helpers/EntityHelper';
 import { MaterialHelper } from '../helpers/MaterialHelper';
 import { Material } from '../materials/core/Material';
 import { Matrix44 } from '../math/Matrix44';
@@ -28,6 +27,8 @@ import {
 } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 import { IQuaternion } from '../math';
+import { createGroupEntity } from '../components/SceneGraph/SceneGraphComponent';
+import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
 
 declare let window: any;
 
@@ -203,7 +204,7 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
-    this.__topEntity = EntityHelper.createGroupEntity();
+    this.__topEntity = createGroupEntity();
     this.__topEntity!.tryToSetUniqueName(`TranslationGizmo_of_${this.__target.uniqueName}`, true);
     this.__topEntity!.getSceneGraph()!.toMakeWorldMatrixTheSameAsLocalMatrix = true;
 
@@ -213,7 +214,7 @@ export class TranslationGizmo extends Gizmo {
     // setup the mesh
     // x
     if (Is.not.exist(TranslationGizmo.__xCubeEntity)) {
-      TranslationGizmo.__xCubeEntity = EntityHelper.createMeshEntity();
+      TranslationGizmo.__xCubeEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xCube', true);
       TranslationGizmo.__xCubeEntity.getTransform().localPosition = Vector3.fromCopy3(1, 0, 0);
       TranslationGizmo.__xCubeMesh = new Mesh();
@@ -233,7 +234,7 @@ export class TranslationGizmo extends Gizmo {
 
     // y
     if (Is.not.exist(TranslationGizmo.__yCubeEntity)) {
-      TranslationGizmo.__yCubeEntity = EntityHelper.createMeshEntity();
+      TranslationGizmo.__yCubeEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yCube', true);
       TranslationGizmo.__yCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 1, 0);
       TranslationGizmo.__yCubeMesh = new Mesh();
@@ -253,7 +254,7 @@ export class TranslationGizmo extends Gizmo {
 
     // z
     if (Is.not.exist(TranslationGizmo.__zCubeEntity)) {
-      TranslationGizmo.__zCubeEntity = EntityHelper.createMeshEntity();
+      TranslationGizmo.__zCubeEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zCube', true);
       TranslationGizmo.__zCubeEntity.getTransform().localPosition = Vector3.fromCopy3(0, 0, 1);
       TranslationGizmo.__zCubeMesh = new Mesh();
@@ -273,7 +274,7 @@ export class TranslationGizmo extends Gizmo {
 
     // xy Plane
     if (Is.not.exist(TranslationGizmo.__xyPlaneEntity)) {
-      TranslationGizmo.__xyPlaneEntity = EntityHelper.createMeshEntity();
+      TranslationGizmo.__xyPlaneEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_xyPlane', true);
       TranslationGizmo.__xyPlaneEntity.getSceneGraph().isVisible = false;
       // TranslationGizmo.__xyPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
@@ -305,7 +306,7 @@ export class TranslationGizmo extends Gizmo {
 
     // yz Plane
     if (Is.not.exist(TranslationGizmo.__yzPlaneEntity)) {
-      TranslationGizmo.__yzPlaneEntity = EntityHelper.createMeshEntity();
+      TranslationGizmo.__yzPlaneEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_yzPlane', true);
       TranslationGizmo.__yzPlaneEntity.getSceneGraph().isVisible = false;
       // TranslationGizmo.__yzPlaneEntity.getSceneGraph().toMakeWorldMatrixTheSameAsLocalMatrix = true;
@@ -337,7 +338,7 @@ export class TranslationGizmo extends Gizmo {
 
     // zx Plane
     if (Is.not.exist(TranslationGizmo.__zxPlaneEntity)) {
-      TranslationGizmo.__zxPlaneEntity = EntityHelper.createMeshEntity();
+      TranslationGizmo.__zxPlaneEntity = createMeshEntity();
       TranslationGizmo.__xCubeEntity.tryToSetUniqueName('TranslationGizmo_zxPlane', true);
       TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
       // Vector3.fromCopy3(90, 0, 0);
@@ -363,7 +364,7 @@ export class TranslationGizmo extends Gizmo {
     }
 
     if (Is.not.exist(TranslationGizmo.__groupEntity)) {
-      TranslationGizmo.__groupEntity = EntityHelper.createGroupEntity();
+      TranslationGizmo.__groupEntity = createGroupEntity();
     }
 
     this.__topEntity!.getSceneGraph().addChild(TranslationGizmo.__groupEntity.getSceneGraph());

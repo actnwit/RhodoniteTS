@@ -37,7 +37,7 @@ draw(expressions, true);
 
 // ---functions-----------------------------------------------------------------------------------------
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
 
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
@@ -79,7 +79,7 @@ function createEntityColoredBoard(boardColor: Rn.Vector4) {
   });
   primitive.material.setParameter('diffuseColorFactor', boardColor);
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

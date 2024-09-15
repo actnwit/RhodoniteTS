@@ -28,9 +28,10 @@ import { RnXR } from '../../../xr/main';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { CameraControllerComponent } from '../CameraController/CameraControllerComponent';
 import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
+import { createGroupEntity, SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
+import { IMeshEntity } from '../../helpers/EntityHelper';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
@@ -467,3 +468,13 @@ export class MeshRendererComponent extends Component {
   }
 }
 ComponentRepository.registerComponentClass(MeshRendererComponent);
+
+export function createMeshEntity(): IMeshEntity {
+  const entity = createGroupEntity();
+  const entityAddedComponent = EntityRepository.addComponentToEntity(MeshComponent, entity);
+  const entityAddedComponent2 = EntityRepository.addComponentToEntity(
+    MeshRendererComponent,
+    entityAddedComponent
+  );
+  return entityAddedComponent2;
+}

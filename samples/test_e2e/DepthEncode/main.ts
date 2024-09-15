@@ -57,7 +57,7 @@ Rn.System.startRenderLoop(() => {
 });
 
 function createBoardEntityWithDepthEncodeMaterial() {
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
 
   const primitive = new Rn.Plane();
   primitive.generate({
@@ -77,7 +77,7 @@ function createBoardEntityWithDepthEncodeMaterial() {
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity();
   // For debug
   // const cameraEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.CameraComponent, Rn.CameraControllerComponent]);
   const cameraComponent = cameraEntity.getCamera();

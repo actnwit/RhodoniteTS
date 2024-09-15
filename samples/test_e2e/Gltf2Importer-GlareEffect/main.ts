@@ -127,7 +127,7 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   const meshSphere = new Rn.Mesh();
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.EntityHelper.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity();
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 
@@ -138,7 +138,7 @@ function createEntityEnvironmentCube(basePathIBL: string) {
 }
 
 function createEntityMainCamera(entityCameraTarget: Rn.ISceneGraphEntity) {
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity();
   const cameraControllerComponent = entityCamera.getCameraController();
   const controller = cameraControllerComponent.controller;
   controller.setTarget(entityCameraTarget);

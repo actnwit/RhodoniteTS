@@ -27,7 +27,7 @@ import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
-import { TransformComponent } from '../Transform';
+import { createTransformEntity, TransformComponent } from '../Transform/TransformComponent';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -1090,3 +1090,9 @@ export class SceneGraphComponent extends Component {
   }
 }
 ComponentRepository.registerComponentClass(SceneGraphComponent);
+
+export function createGroupEntity(): ISceneGraphEntity {
+  const entity = createTransformEntity();
+  const entityAddedComponent = EntityRepository.addComponentToEntity(SceneGraphComponent, entity);
+  return entityAddedComponent;
+}

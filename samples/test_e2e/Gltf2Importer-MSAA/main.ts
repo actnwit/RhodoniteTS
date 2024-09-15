@@ -46,7 +46,7 @@ draw([expression], 0);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity();
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.setFovyAndChangeFocalLength(30);
 
@@ -54,7 +54,7 @@ function createEntityMainCamera() {
 }
 
 function createEntityPostEffectCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.zNearInner = 0.5;
   cameraComponent.zFarInner = 2.0;
@@ -111,7 +111,7 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   const meshSphere = new Rn.Mesh();
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.EntityHelper.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity();
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 

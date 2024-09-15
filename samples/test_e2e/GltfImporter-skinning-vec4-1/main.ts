@@ -14,7 +14,7 @@ await Rn.System.init({
 });
 
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;

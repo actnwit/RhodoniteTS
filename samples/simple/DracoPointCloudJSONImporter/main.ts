@@ -23,7 +23,7 @@ import Rn from '../../../dist/esmdev/index.js';
   setPointSizeRecursively(rootGroup, pointSize);
 
   // set camera
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity();
   const cameraControllerComponent = entityCamera.getCameraController();
   cameraControllerComponent.controller.setTarget(rootGroup);
 

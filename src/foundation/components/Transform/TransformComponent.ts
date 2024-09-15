@@ -505,3 +505,9 @@ export class TransformComponent extends Component {
 }
 
 ComponentRepository.registerComponentClass(TransformComponent);
+
+export function createTransformEntity(): ITransformEntity {
+  const entity = EntityRepository.createEntity();
+  const entity1 = EntityRepository.addComponentToEntity(TransformComponent, entity);
+  return entity1;
+}

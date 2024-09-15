@@ -37,7 +37,7 @@ effekseerComponent.uri = '../../../assets/effekseer/Laser01.efk';
 // effekseerEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.54, 0]);
 
 // Camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000;

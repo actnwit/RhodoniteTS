@@ -13,6 +13,8 @@ import {
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ProcessStage } from '../../definitions';
+import { createCameraEntity } from '../Camera/CameraComponent';
+import { ICameraControllerEntity } from '../../helpers/EntityHelper';
 
 /**
  * The Component that controls camera posture.
@@ -104,3 +106,12 @@ export class CameraControllerComponent extends Component {
   }
 }
 ComponentRepository.registerComponentClass(CameraControllerComponent);
+
+export function createCameraControllerEntity(): ICameraControllerEntity {
+  const entity = createCameraEntity();
+  const entityAddedComponent = EntityRepository.addComponentToEntity(
+    CameraControllerComponent,
+    entity
+  );
+  return entityAddedComponent;
+}

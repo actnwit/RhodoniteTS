@@ -22,7 +22,7 @@ Rn.System.startRenderLoop(() => {
 });
 
 function createGroupOfShapes(): Rn.IMeshEntity {
-  const group = Rn.EntityHelper.createGroupEntity();
+  const group = Rn.createGroupEntity();
 
   const creators = [
     createPlane,
@@ -105,7 +105,7 @@ async function setupRhodonite() {
 }
 
 function createCamera(group: Rn.IMeshEntity) {
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 10;

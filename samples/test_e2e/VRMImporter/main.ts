@@ -11,7 +11,7 @@ await Rn.System.init({
 });
 
 // Camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000;
@@ -24,7 +24,7 @@ cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.
 // const lightEntity = entityRepository.createEntity([Rn.TransformComponent, Rn.SceneGraphComponent, Rn.LightComponent])
 // lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 100000.0, 1.0]);
 // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-const lightEntity2 = Rn.EntityHelper.createLightEntity();
+const lightEntity2 = Rn.createLightEntity();
 const lightComponent2 = lightEntity2.getLight();
 lightComponent2.type = Rn.LightType.Directional;
 lightComponent2.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);

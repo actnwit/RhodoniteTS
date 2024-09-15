@@ -357,3 +357,7 @@ export function applyMixins(derivedCtor: IEntity, baseCtor: any) {
     );
   });
 }
+
+export function createEntity(): IEntity {
+  return EntityRepository.createEntity();
+}

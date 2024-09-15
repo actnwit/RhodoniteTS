@@ -60,7 +60,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -72,7 +72,7 @@ function createEntityDepthCamera() {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity();
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
@@ -163,7 +163,7 @@ function createEntitySphere() {
     heightSegments: 20,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
@@ -187,7 +187,7 @@ function createEntityBoard() {
     isUVRepeat: false,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

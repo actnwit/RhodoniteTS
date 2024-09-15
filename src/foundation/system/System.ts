@@ -18,7 +18,7 @@ import { SystemState } from './SystemState';
 import { MiscUtil } from '../misc/MiscUtil';
 import type { RnXR } from '../../xr/main';
 import { Is } from '../misc/Is';
-import { EntityHelper, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Config } from '../core/Config';
 import { Frame } from '../renderer/Frame';
 import { Vector4 } from '../math/Vector4';
@@ -29,7 +29,7 @@ import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
-import { CameraComponent } from '../components/Camera/CameraComponent';
+import { CameraComponent, createCameraEntity } from '../components/Camera/CameraComponent';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
@@ -407,7 +407,7 @@ export class System {
   }
 
   private static createCamera() {
-    const cameraEntity = EntityHelper.createCameraEntity();
+    const cameraEntity = createCameraEntity();
     cameraEntity.getTransform()!.localPosition = Vector3.fromCopyArray([0, 0, 1]);
     cameraEntity.getCamera().type = CameraType.Orthographic;
     cameraEntity.getCamera().zNear = 0.1;

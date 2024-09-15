@@ -27,7 +27,7 @@ await Rn.System.init({
 // params
 
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -109,7 +109,7 @@ controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 // controller.autoUpdate = false;
 
 // Lights
-const lightEntity = Rn.EntityHelper.createLightEntity();
+const lightEntity = Rn.createLightEntity();
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);

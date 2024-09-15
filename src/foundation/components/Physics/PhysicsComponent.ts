@@ -8,6 +8,8 @@ import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import { createGroupEntity } from '../SceneGraph/SceneGraphComponent';
+import { IPhysicsEntity } from '../../helpers/EntityHelper';
 
 export class PhysicsComponent extends Component {
   private __strategy?: PhysicsStrategy;
@@ -78,3 +80,9 @@ export class PhysicsComponent extends Component {
 }
 
 ComponentRepository.registerComponentClass(PhysicsComponent);
+
+export function createPhysicsEntity(): IPhysicsEntity {
+  const entity = createGroupEntity();
+  const entityAddedComponent = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
+  return entityAddedComponent;
+}

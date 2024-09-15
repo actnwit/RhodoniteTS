@@ -8,7 +8,7 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 
 const expression = new Rn.Expression();
@@ -60,13 +60,13 @@ primitive.material = Rn.MaterialHelper.createClassicUberMaterial({});
 primitive.material.setParameter('diffuseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 1, 1]));
 
 const entities = [];
-const entity = Rn.EntityHelper.createMeshEntity();
+const entity = Rn.createMeshEntity();
 entities.push(entity);
 
-const entity2 = Rn.EntityHelper.createMeshEntity();
+const entity2 = Rn.createMeshEntity();
 entities.push(entity2);
 
-const entity_fxaa = Rn.EntityHelper.createMeshEntity();
+const entity_fxaa = Rn.createMeshEntity();
 entities.push(entity_fxaa);
 
 const cameraControllerComponent = cameraEntity.getCameraController();
