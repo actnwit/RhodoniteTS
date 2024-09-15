@@ -947,7 +947,6 @@ export class CameraComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
   }
 }
-ComponentRepository.registerComponentClass(CameraComponent);
 
 export function createCameraEntity(): ICameraEntity {
   const entity = createGroupEntity();

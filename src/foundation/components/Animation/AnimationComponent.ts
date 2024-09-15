@@ -841,4 +841,3 @@ export class AnimationComponent extends Component {
     this.__isAnimating = false;
   }
 }
-ComponentRepository.registerComponentClass(AnimationComponent);

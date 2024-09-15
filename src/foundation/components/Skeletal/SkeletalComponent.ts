@@ -1,4 +1,3 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -465,7 +464,6 @@ export class SkeletalComponent extends Component {
     return m;
   }
 }
-ComponentRepository.registerComponentClass(SkeletalComponent);
 
 export function createSkeletalEntity(): ISkeletalEntity {
   const entity = createGroupEntity();

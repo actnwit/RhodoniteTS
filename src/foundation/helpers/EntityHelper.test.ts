@@ -3,6 +3,7 @@ import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponen
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import { MemoryManager } from '../core/MemoryManager';
+import '../components/registerComponents';
 
 describe('EntityHelper', () => {
   beforeAll(() => {

@@ -228,7 +228,6 @@ export class LightComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(LightComponent);
 
 export function createLightEntity(): ILightEntity {
   const entity = createGroupEntity();

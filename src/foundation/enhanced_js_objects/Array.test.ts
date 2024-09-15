@@ -3,6 +3,7 @@ import { createMeshEntity } from '../components/MeshRenderer/MeshRendererCompone
 import { IEntity } from '../core/Entity';
 import { MemoryManager } from '../core/MemoryManager';
 import { ArrayAsRn, enhanceArray } from './Array';
+import '../components/registerComponents';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

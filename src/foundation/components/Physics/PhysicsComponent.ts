@@ -1,5 +1,4 @@
 import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
@@ -78,8 +77,6 @@ export class PhysicsComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-ComponentRepository.registerComponentClass(PhysicsComponent);
 
 export function createPhysicsEntity(): IPhysicsEntity {
   const entity = createGroupEntity();

@@ -1,7 +1,6 @@
 import { AnimationTrackName } from '../../../types/AnimationTypes';
 import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
@@ -191,5 +190,3 @@ export class AnimationStateComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-ComponentRepository.registerComponentClass(AnimationStateComponent);

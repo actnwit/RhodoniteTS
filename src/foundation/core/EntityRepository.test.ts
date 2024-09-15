@@ -6,6 +6,7 @@ import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { Vector3 } from '../math';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import '../components/registerComponents';
 
 test('getEntitiesNumber', () => {
   const entity1 = EntityRepository.createEntity();

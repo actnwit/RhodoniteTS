@@ -1067,4 +1067,3 @@ export class SceneGraphComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(SceneGraphComponent);

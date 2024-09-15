@@ -1,6 +1,7 @@
 import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
 import { MemoryManager } from '../core/MemoryManager';
 import { RenderPass } from './RenderPass';
+import '../components/registerComponents';
 
 function generateEntity() {
   return createMeshEntity();

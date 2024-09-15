@@ -1,6 +1,7 @@
 import { MemoryManager } from '../../core/MemoryManager';
 import { Vector3 } from '../../math/Vector3';
 import { createTransformEntity } from './TransformComponent';
+import '../registerComponents';
 
 function generateEntity() {
   return createTransformEntity();

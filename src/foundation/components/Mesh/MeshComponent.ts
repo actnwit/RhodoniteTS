@@ -1,4 +1,3 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -311,5 +310,3 @@ export class MeshComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-ComponentRepository.registerComponentClass(MeshComponent);

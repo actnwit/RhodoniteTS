@@ -1,7 +1,6 @@
 import { Component } from '../../core/Component';
 import { EntityUID, ComponentSID, ComponentTID } from '../../../types/CommonTypes';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { ICameraController } from '../../cameras/ICameraController';
@@ -105,7 +104,6 @@ export class CameraControllerComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(CameraControllerComponent);
 
 export function createCameraControllerEntity(): ICameraControllerEntity {
   const entity = createCameraEntity();
