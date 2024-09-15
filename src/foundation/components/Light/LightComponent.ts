@@ -228,9 +228,3 @@ export class LightComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-export function createLightEntity(): ILightEntity {
-  const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(LightComponent, entity);
-  return entityAddedComponent;
-}

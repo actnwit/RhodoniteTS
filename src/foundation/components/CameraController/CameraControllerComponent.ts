@@ -12,7 +12,6 @@ import {
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ProcessStage } from '../../definitions';
-import { createCameraEntity } from '../Camera/CameraComponent';
 import { ICameraControllerEntity } from '../../helpers/EntityHelper';
 
 /**
@@ -103,13 +102,4 @@ export class CameraControllerComponent extends Component {
     applyMixins(base, CameraControllerEntity);
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
-}
-
-export function createCameraControllerEntity(): ICameraControllerEntity {
-  const entity = createCameraEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(
-    CameraControllerComponent,
-    entity
-  );
-  return entityAddedComponent;
 }

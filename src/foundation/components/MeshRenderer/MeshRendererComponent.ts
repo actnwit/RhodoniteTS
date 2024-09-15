@@ -468,13 +468,3 @@ export class MeshRendererComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-export function createMeshEntity(): IMeshEntity {
-  const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(MeshComponent, entity);
-  const entityAddedComponent2 = EntityRepository.addComponentToEntity(
-    MeshRendererComponent,
-    entityAddedComponent
-  );
-  return entityAddedComponent2;
-}

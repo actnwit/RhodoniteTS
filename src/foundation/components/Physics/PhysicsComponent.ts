@@ -77,9 +77,3 @@ export class PhysicsComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-export function createPhysicsEntity(): IPhysicsEntity {
-  const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(PhysicsComponent, entity);
-  return entityAddedComponent;
-}

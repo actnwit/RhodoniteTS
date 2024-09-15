@@ -14,7 +14,7 @@ import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
 import { PhysicsShape } from '../definitions/PhysicsShapeType';
-import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 
 const createPlane = (
   desc: PlaneDescriptor & {

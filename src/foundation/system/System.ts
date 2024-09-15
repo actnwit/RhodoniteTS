@@ -29,7 +29,7 @@ import { initDefaultTextures } from '../materials/core/DummyTextures';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { WebGpuDeviceWrapper } from '../../webgpu/WebGpuDeviceWrapper';
 import { WebGpuStrategyBasic } from '../../webgpu/WebGpuStrategyBasic';
-import { CameraComponent, createCameraEntity } from '../components/Camera/CameraComponent';
+import { CameraComponent } from '../components/Camera/CameraComponent';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { CameraControllerComponent } from '../components/CameraController/CameraControllerComponent';
 import { MeshRendererComponent } from '../components/MeshRenderer/MeshRendererComponent';
@@ -38,6 +38,7 @@ import { Primitive } from '../geometry/Primitive';
 import { VERSION } from '../../version';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Scalar } from '../math/Scalar';
+import { createCameraEntity } from '../components/Camera/createCameraEntity';
 declare const spector: any;
 
 /**

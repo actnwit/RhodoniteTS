@@ -464,9 +464,3 @@ export class SkeletalComponent extends Component {
     return m;
   }
 }
-
-export function createSkeletalEntity(): ISkeletalEntity {
-  const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(SkeletalComponent, entity);
-  return entityAddedComponent;
-}

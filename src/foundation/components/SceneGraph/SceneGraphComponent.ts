@@ -1,4 +1,3 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { Matrix44 } from '../../math/Matrix44';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
@@ -27,7 +26,7 @@ import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
-import { createTransformEntity, TransformComponent } from '../Transform/TransformComponent';
+import { TransformComponent } from '../Transform/TransformComponent';
 import { flattenHierarchy } from './SceneGraphOps';
 
 export class SceneGraphComponent extends Component {

@@ -502,9 +502,3 @@ export class TransformComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-export function createTransformEntity(): ITransformEntity {
-  const entity = EntityRepository.createEntity();
-  const entity1 = EntityRepository.addComponentToEntity(TransformComponent, entity);
-  return entity1;
-}

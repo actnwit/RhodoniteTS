@@ -1,8 +1,7 @@
 import { EntityRepository } from '../../core/EntityRepository';
 import { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { createTransformEntity } from '../Transform/TransformComponent';
+import { createTransformEntity } from '../Transform/createTransformEntity';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
-import { SceneGraphComponent } from './SceneGraphComponent';
 
 export function createGroupEntity(): ISceneGraphEntity {
   const entity = createTransformEntity();
@@ -10,9 +9,5 @@ export function createGroupEntity(): ISceneGraphEntity {
     WellKnownComponentTIDs.SceneGraphComponentTID,
     entity
   ) as ISceneGraphEntity;
-  // const entityAddedComponent = EntityRepository.addComponentToEntity(
-  //   SceneGraphComponent,
-  //   entity
-  // ) as ISceneGraphEntity;
   return entityAddedComponent;
 }

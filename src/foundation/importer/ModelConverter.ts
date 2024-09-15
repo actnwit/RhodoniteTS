@@ -78,7 +78,7 @@ import {
   IMeshEntity,
 } from '../helpers/EntityHelper';
 import { BlendShapeComponent } from '../components/BlendShape/BlendShapeComponent';
-import { createLightEntity, LightComponent } from '../components/Light/LightComponent';
+import { LightComponent } from '../components/Light/LightComponent';
 import { IBlendShapeEntityMethods } from '../components/BlendShape/IBlendShapeEntity';
 import { BufferView } from '../memory/BufferView';
 import { RhodoniteImportExtension } from './RhodoniteImportExtension';
@@ -86,9 +86,10 @@ import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
-import { createCameraEntity } from '../components/Camera/CameraComponent';
-import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { createLightEntity } from '../components/Light/createLightEntity';
+import { createCameraEntity } from '../components/Camera/createCameraEntity';
 
 declare let DracoDecoderModule: any;
 

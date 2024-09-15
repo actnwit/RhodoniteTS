@@ -6,7 +6,7 @@ import { Vector3 } from '../math/Vector3';
 import { Mesh } from '../geometry/Mesh';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
-import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 
 /**
  * AABB Gizmo class

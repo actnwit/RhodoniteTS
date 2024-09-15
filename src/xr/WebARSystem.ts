@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { createCameraEntity } from '../foundation/components/Camera/CameraComponent';
+import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
 import { ICameraEntity } from '../foundation/helpers/EntityHelper';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';

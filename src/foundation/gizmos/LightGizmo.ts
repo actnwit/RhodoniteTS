@@ -1,4 +1,4 @@
-import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { PrimitiveMode } from '../definitions/PrimitiveMode';
 import { VertexAttribute } from '../definitions/VertexAttribute';
 import { Mesh } from '../geometry/Mesh';

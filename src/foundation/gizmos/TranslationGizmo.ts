@@ -27,8 +27,8 @@ import {
 } from '../system/InputManager';
 import { Gizmo } from './Gizmo';
 import { IQuaternion } from '../math';
-import { createMeshEntity } from '../components/MeshRenderer/MeshRendererComponent';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 
 declare let window: any;
 

@@ -16,6 +16,7 @@ import { LightComponent } from '../components/Light/LightComponent';
 import { IConstraintEntityMethods } from '../components/Constraint/IConstraintEntity';
 import { IAnimationStateEntityMethods } from '../components/AnimationState';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import { WellKnownComponentTIDs } from '../components';
 
 export type ITransformEntity = IEntity & ITransformEntityMethods;
 export type ISceneGraphEntity = ITransformEntity & ISceneGraphEntityMethods;
@@ -32,11 +33,14 @@ export interface IAnimationStateEntity extends ISceneGraphEntity, IAnimationStat
 
 export function createLightWithCameraEntity(): ILightEntity & ICameraEntityMethods {
   const entity = createGroupEntity();
-  const entityAddedComponent = EntityRepository.addComponentToEntity(LightComponent, entity);
-  const entityAddedComponent2 = EntityRepository.addComponentToEntity(
-    CameraComponent,
+  const entityAddedComponent = EntityRepository.tryToAddComponentToEntityByTID(
+    WellKnownComponentTIDs.LightComponentTID,
+    entity
+  ) as ILightEntity;
+  const entityAddedComponent2 = EntityRepository.tryToAddComponentToEntityByTID(
+    WellKnownComponentTIDs.CameraComponentTID,
     entityAddedComponent
-  );
+  ) as ILightEntity & ICameraEntityMethods;
 
   entityAddedComponent2.getCamera().isSyncToLight = true;
 
