@@ -1,6 +1,6 @@
 import { ComponentType } from '../../definitions/ComponentType';
 import { CompositionType } from '../../definitions/CompositionType';
-import { AbstractShaderNode } from '../core';
+import { AbstractShaderNode } from '../core/AbstractShaderNode';
 import MergeVectorShaderityObjectGLSL from '../../../webgl/shaderity_shaders/nodes/MergeVector.glsl';
 import MergeVectorShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/MergeVector.wgsl';
 import { SystemState } from '../../system/SystemState';
