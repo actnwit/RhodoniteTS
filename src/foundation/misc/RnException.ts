@@ -1,4 +1,4 @@
-import { Err, RnError } from './Result';
+import type { Err, RnError } from './Result';
 
 export class RnException<ErrObj> extends Error {
   static readonly _prefix = '\nRhodonite Exception';
@@ -6,8 +6,8 @@ export class RnException<ErrObj> extends Error {
     super(`
   message: ${err.message}
   error: ${
-    err.error instanceof Err
-      ? 'see below Exception ↓' + err.error.toString()
+    typeof (err.error as Err<unknown, ErrObj>)._rnException !== 'undefined'
+      ? 'see below Exception ↓' + (err.error as Err<unknown, ErrObj>).toString()
       : err.error
   }
 `);
