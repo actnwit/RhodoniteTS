@@ -86,10 +86,10 @@ const renderPass = new Rn.RenderPass();
 expression.addRenderPasses([renderPass]);
 renderPass.addEntities(entities);
 
-const lightEntity = Rn.EntityHelper.createLightEntity();
+const lightEntity = Rn.createLightEntity();
 
 // Camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;

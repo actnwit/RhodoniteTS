@@ -157,7 +157,7 @@ const renderIBL = () => {
 };
 
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.001;
 cameraComponent.zFar = 100.0;
@@ -229,7 +229,7 @@ const createEntityEnvironmentCube = () => {
   const meshSphere = new Rn.Mesh();
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.EntityHelper.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity();
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 

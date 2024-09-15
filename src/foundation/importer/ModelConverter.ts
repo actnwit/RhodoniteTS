@@ -71,7 +71,6 @@ import { DataUtil } from '../misc/DataUtil';
 import { AnimationPathName } from '../../types/AnimationTypes';
 import { GltfLoadOption, KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
 import {
-  EntityHelper,
   IAnimationEntity,
   ICameraEntity,
   ISceneGraphEntity,
@@ -86,8 +85,11 @@ import { RhodoniteImportExtension } from './RhodoniteImportExtension';
 import { Vrm0xMaterialProperty } from '../../types/VRM0x';
 import { MutableMatrix44 } from '../math/MutableMatrix44';
 import { Sampler } from '../textures/Sampler';
-import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { createLightEntity } from '../components/Light/createLightEntity';
+import { createCameraEntity } from '../components/Camera/createCameraEntity';
 
 declare let DracoDecoderModule: any;
 
@@ -99,7 +101,7 @@ export class ModelConverter {
   private constructor() {}
 
   private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
-    const entity = EntityHelper.createGroupEntity();
+    const entity = createGroupEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
@@ -116,19 +118,19 @@ export class ModelConverter {
   }
 
   private static __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
-    const entity = EntityHelper.createMeshEntity();
+    const entity = createMeshEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
   private static __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
-    const entity = EntityHelper.createCameraEntity();
+    const entity = createCameraEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
   private static __generateLightEntity(gltfModel: RnM2): ILightEntity {
-    const entity = EntityHelper.createLightEntity();
+    const entity = createLightEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
@@ -2147,7 +2149,7 @@ export class ModelConverter {
         const joints = node.skinObject.joints;
         for (const jointIdx of joints) {
           const rnJointEntity = rnEntities[jointIdx];
-          const newRnJointEntity = EntityHelper.createGroupEntity();
+          const newRnJointEntity = createGroupEntity();
           newRnJointEntity.getTransform().localMatrix = rnJointEntity.getTransform().localMatrix;
           backupRnJoints[jointIdx] = newRnJointEntity;
         }

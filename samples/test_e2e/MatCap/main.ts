@@ -25,7 +25,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([-0.1, -0.1, 10.0]);
 
@@ -78,7 +78,7 @@ function createEntityMatCapSphere(texture: Rn.Texture, sampler: Rn.Sampler) {
     material: Rn.MaterialHelper.createMatCapMaterial({ texture, sampler }),
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
@@ -97,7 +97,7 @@ function createEntityMatCapBoard(texture: Rn.Texture) {
     material: Rn.MaterialHelper.createMatCapMaterial({ texture }),
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

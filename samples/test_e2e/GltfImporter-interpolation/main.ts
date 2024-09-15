@@ -11,7 +11,7 @@ await Rn.System.init({
 });
 
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -32,7 +32,7 @@ const expression = (
 ).unwrapForce();
 
 // Lights
-const lightEntity = Rn.EntityHelper.createLightEntity();
+const lightEntity = Rn.createLightEntity();
 lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([0.9, 0.9, 0.9]);
 lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 10.0, 10.0]);
 

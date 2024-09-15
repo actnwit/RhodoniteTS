@@ -50,7 +50,7 @@ function createSat(expressions: Rn.Expression[]) {
 
 async function createMainExpression(expressions: Rn.Expression[]) {
   // Main Camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000.0;

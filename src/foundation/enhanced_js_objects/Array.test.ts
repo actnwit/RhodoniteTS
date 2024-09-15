@@ -1,7 +1,9 @@
 import { MeshComponent } from '../components/Mesh/MeshComponent';
+import { IEntity } from '../core/Entity';
 import { MemoryManager } from '../core/MemoryManager';
-import { EntityHelper } from '../helpers/EntityHelper';
 import { ArrayAsRn, enhanceArray } from './Array';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import '../components/registerComponents';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -9,7 +11,7 @@ declare global {
 }
 
 function generateEntity() {
-  const entity = EntityHelper.createMeshEntity();
+  const entity = createMeshEntity();
   return entity;
 }
 
@@ -21,7 +23,7 @@ test('array[GetComponentFromEntities]', () => {
     gpuVertexData: 1,
   });
 
-  const entities = [];
+  const entities: IEntity[] = [];
   entities.push(generateEntity());
   entities.push(generateEntity());
 

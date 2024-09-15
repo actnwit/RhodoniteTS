@@ -131,11 +131,11 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
  * a class indicating that the result is Error (Failed).
  */
 export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
-  private __rnException: RnException<ErrObj>;
+  public _rnException: RnException<ErrObj>;
 
   constructor(val: RnError<ErrObj>) {
     super(val);
-    this.__rnException = new RnException(this.val as RnError<ErrObj>);
+    this._rnException = new RnException(this.val as RnError<ErrObj>);
   }
 
   unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
@@ -143,7 +143,7 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
   }
 
   unwrapForce(): never {
-    throw this.__rnException;
+    throw this._rnException;
   }
 
   false(): false {
@@ -167,7 +167,7 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
   }
 
   toString(): string {
-    return this.__rnException.stack!;
+    return this._rnException.stack!;
   }
 }
 

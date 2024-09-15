@@ -3,7 +3,6 @@ import { Mesh } from '../geometry/Mesh';
 import { AxisDescriptor } from '../geometry/shapes/Axis';
 import { Axis } from '../geometry/shapes/Axis';
 import { IShape } from '../geometry/shapes/IShape';
-import { EntityHelper } from './EntityHelper';
 import { Line, LineDescriptor } from '../geometry/shapes/Line';
 import { Vector3 } from '../math/Vector3';
 import { Grid, GridDescriptor } from '../geometry/shapes/Grid';
@@ -15,6 +14,7 @@ import { PhysicsComponent } from '../components/Physics/PhysicsComponent';
 import { EntityRepository } from '../core/EntityRepository';
 import { OimoPhysicsStrategy } from '../physics/Oimo/OimoPhysicsStrategy';
 import { PhysicsShape } from '../definitions/PhysicsShapeType';
+import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 
 const createPlane = (
   desc: PlaneDescriptor & {
@@ -86,7 +86,7 @@ const createCubes = (numberToCreate: number, desc: CubeDescriptor = {}) => {
   const entities = [];
 
   for (let i = 0; i < numberToCreate; i++) {
-    const entity = EntityHelper.createMeshEntity();
+    const entity = createMeshEntity();
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
 
@@ -150,7 +150,7 @@ const createSpheres = (numberToCreate: number, desc: SphereDescriptor = {}) => {
   const entities = [];
 
   for (let i = 0; i < numberToCreate; i++) {
-    const entity = EntityHelper.createMeshEntity();
+    const entity = createMeshEntity();
     const meshComponent = entity.getMesh();
     meshComponent.setMesh(mesh);
 
@@ -194,7 +194,7 @@ const createAxis = (desc: AxisDescriptor = {}) => {
 };
 
 function createShape(primitive: IShape) {
-  const entity = EntityHelper.createMeshEntity();
+  const entity = createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Mesh();
   mesh.addPrimitive(primitive);

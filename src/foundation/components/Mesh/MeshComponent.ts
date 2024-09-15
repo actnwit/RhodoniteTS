@@ -1,4 +1,3 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -9,7 +8,6 @@ import { Vector4 } from '../../math/Vector4';
 import { Mesh } from '../../geometry/Mesh';
 import { IEntity, Entity } from '../../core/Entity';
 import { ComponentTID, EntityUID, ComponentSID } from '../../../types/CommonTypes';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { Matrix44 } from '../../math/Matrix44';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 import { MathClassUtil } from '../../math/MathClassUtil';
@@ -312,5 +310,3 @@ export class MeshComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-ComponentRepository.registerComponentClass(MeshComponent);

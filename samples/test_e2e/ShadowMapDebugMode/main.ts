@@ -102,7 +102,7 @@ function createBoardEntityWithMaterial(
   materialHelperFunctionStr,
   arrayOfHelperFunctionArgument = []
 ) {
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
 
   const primitive = new Rn.Plane();
   primitive.generate({
@@ -122,13 +122,13 @@ function createBoardEntityWithMaterial(
 }
 
 function createCameraComponent() {
-  const cameraEntity = Rn.EntityHelper.createCameraEntity();
+  const cameraEntity = Rn.createCameraEntity();
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }
 
 function createCameraControllerComponent() {
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getCamera();
   return cameraComponent;
 }

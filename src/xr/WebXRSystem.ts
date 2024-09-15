@@ -18,10 +18,11 @@ import { Is } from '../foundation/misc/Is';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
-import { EntityHelper, ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import { ICameraEntity, ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
-import { MaterialRepository } from '../foundation';
-
+import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
+import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
+import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
 declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
@@ -58,14 +59,14 @@ export class WebXRSystem {
   private __webglStereoUtil?: WebGLStereoUtil;
 
   private constructor() {
-    this.__viewerEntity = EntityHelper.createGroupEntity();
+    this.__viewerEntity = createGroupEntity();
     this.__viewerEntity.tryToSetUniqueName('WebXR Viewer', true);
     this.__viewerEntity.tryToSetTag({
       tag: 'type',
       value: 'background-assets',
     });
 
-    this.__leftCameraEntity = EntityHelper.createCameraEntity();
+    this.__leftCameraEntity = createCameraEntity();
     this.__leftCameraEntity.tryToSetUniqueName('WebXR Left Camera', true);
     this.__leftCameraEntity.tryToSetTag({
       tag: 'type',
@@ -73,7 +74,7 @@ export class WebXRSystem {
     });
     this.__leftCameraEntity.getCamera()._xrLeft = true;
 
-    this.__rightCameraEntity = EntityHelper.createCameraEntity();
+    this.__rightCameraEntity = createCameraEntity();
     this.__rightCameraEntity.tryToSetUniqueName('WebXR Right Camera', true);
     this.__rightCameraEntity.tryToSetTag({
       tag: 'type',

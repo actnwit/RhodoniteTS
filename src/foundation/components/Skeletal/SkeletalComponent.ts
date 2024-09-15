@@ -1,4 +1,3 @@
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { Component } from '../../core/Component';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
@@ -21,6 +20,7 @@ import { ISkeletalEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -464,4 +464,3 @@ export class SkeletalComponent extends Component {
     return m;
   }
 }
-ComponentRepository.registerComponentClass(SkeletalComponent);

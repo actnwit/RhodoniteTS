@@ -73,7 +73,7 @@ const originalMesh = new Rn.Mesh();
 originalMesh.addPrimitive(primitive);
 for (let i = 0; i < entityNumber; i++) {
   const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
 
   entities.push(entity);
   const meshComponent = entity.getMesh();

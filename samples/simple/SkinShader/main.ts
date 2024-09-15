@@ -56,7 +56,7 @@ const load = async function () {
   const expression = new Rn.Expression();
 
   // Camera
-  const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+  const cameraEntity = Rn.createCameraControllerEntity();
   const cameraComponent = cameraEntity.getComponent(Rn.CameraComponent) as Rn.CameraComponent;
   cameraComponent.zNear = 0.1;
   cameraComponent.zFar = 1000;
@@ -65,7 +65,7 @@ const load = async function () {
   cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.5]);
 
   // Lights
-  const lightEntity2 = Rn.EntityHelper.createLightEntity();
+  const lightEntity2 = Rn.createLightEntity();
   lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
   (lightEntity2.getComponent(Rn.LightComponent) as Rn.LightComponent).intensity =
     Rn.Vector3.fromCopyArray([1, 1, 1]);

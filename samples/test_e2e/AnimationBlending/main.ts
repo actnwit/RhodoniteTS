@@ -16,13 +16,13 @@ const expression = (
   )
 ).unwrapForce();
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraController = cameraEntity.getCameraController();
 cameraController.controller.setTarget(
   expression.renderPasses[0].entities[0] as Rn.ISceneGraphEntity
 );
 
-const light = Rn.EntityHelper.createLightEntity();
+const light = Rn.createLightEntity();
 light.getLight().type = Rn.LightType.Directional;
 
 let count = 0;

@@ -1,5 +1,4 @@
 import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
@@ -8,6 +7,8 @@ import { PhysicsStrategy } from '../../physics/PhysicsStrategy';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
+import { IPhysicsEntity } from '../../helpers/EntityHelper';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 export class PhysicsComponent extends Component {
   private __strategy?: PhysicsStrategy;
@@ -76,5 +77,3 @@ export class PhysicsComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-
-ComponentRepository.registerComponentClass(PhysicsComponent);

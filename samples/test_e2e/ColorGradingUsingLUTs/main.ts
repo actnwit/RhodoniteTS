@@ -34,7 +34,7 @@ draw(expressions, true);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = Rn.Vector3.fromCopyArray([10.0, 15.0, 20.0]);
 
@@ -75,7 +75,7 @@ function createEntityColoredBoard(diffuseColor: Rn.Vector4) {
   });
   primitive.material.setParameter('diffuseColorFactor', diffuseColor);
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
@@ -100,7 +100,7 @@ function createAndSetFramebuffer(
 }
 
 function createEntityPostEffectCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
 
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.zNearInner = 0.5;
@@ -129,7 +129,7 @@ function createRenderPassColorGrading(
   const boardMesh = new Rn.Mesh();
   boardMesh.addPrimitive(boardPrimitive);
 
-  const boardEntity = Rn.EntityHelper.createMeshEntity();
+  const boardEntity = Rn.createMeshEntity();
   boardEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0.0, 0.0]);
   boardEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, -0.5]);
   const boardMeshComponent = boardEntity.getMesh();

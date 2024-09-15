@@ -1,8 +1,6 @@
 import { ComponentSID, ComponentTID, EntityUID } from '../../../types/CommonTypes';
 import { IVrmConstraint } from '../../constraints/IVrmConstraint';
-import { VrmRollConstraint } from '../../constraints/VrmRollConstraint';
 import { Component } from '../../core/Component';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { IEntity } from '../../core/Entity';
 import { EntityRepository, applyMixins } from '../../core/EntityRepository';
 import { ProcessStage } from '../../definitions/ProcessStage';
@@ -71,4 +69,3 @@ export class ConstraintComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(ConstraintComponent);

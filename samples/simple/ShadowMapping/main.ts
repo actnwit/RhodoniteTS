@@ -87,7 +87,7 @@ draw([expression], cameraComponentDepth.entity, directionLight);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = lightPosition;
 
@@ -101,7 +101,7 @@ function createEntityDepthCamera(directionLight: Rn.MutableVector3) {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity();
   return entityCamera;
 }
 
@@ -166,7 +166,7 @@ function createEntityBoard() {
     isUVRepeat: false,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

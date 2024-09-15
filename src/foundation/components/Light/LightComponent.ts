@@ -4,12 +4,10 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { LightType } from '../../definitions/LightType';
 import { Vector3 } from '../../math/Vector3';
-import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { Config } from '../../core/Config';
 import { ComponentTID, EntityUID, ComponentSID } from '../../../types/CommonTypes';
 import { GlobalDataRepository } from '../../core/GlobalDataRepository';
-import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { MutableVector4 } from '../../math/MutableVector4';
 import { VectorN } from '../../math/VectorN';
 import { ILightEntity } from '../../helpers/EntityHelper';
@@ -19,6 +17,7 @@ import { LightGizmo } from '../../gizmos/LightGizmo';
 import { Is } from '../../misc/Is';
 import { Scalar } from '../../math/Scalar';
 import { TransformComponent } from '../Transform';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 /**
  * The Component that represents a light.
@@ -229,4 +228,3 @@ export class LightComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(LightComponent);

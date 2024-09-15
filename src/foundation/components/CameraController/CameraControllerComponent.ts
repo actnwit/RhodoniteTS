@@ -1,7 +1,6 @@
 import { Component } from '../../core/Component';
 import { EntityUID, ComponentSID, ComponentTID } from '../../../types/CommonTypes';
 import { applyMixins, EntityRepository } from '../../core/EntityRepository';
-import { ComponentRepository } from '../../core/ComponentRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { OrbitCameraController } from '../../cameras/OrbitCameraController';
 import { ICameraController } from '../../cameras/ICameraController';
@@ -13,6 +12,7 @@ import {
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ProcessStage } from '../../definitions';
+import { ICameraControllerEntity } from '../../helpers/EntityHelper';
 
 /**
  * The Component that controls camera posture.
@@ -103,4 +103,3 @@ export class CameraControllerComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(CameraControllerComponent);

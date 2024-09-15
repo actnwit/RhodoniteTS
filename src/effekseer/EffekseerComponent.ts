@@ -1,15 +1,12 @@
 /// <reference path="../../vendor/effekseer.d.ts" />
 import { Component } from '../foundation/core/Component';
 import { applyMixins, EntityRepository } from '../foundation/core/EntityRepository';
-import { SceneGraphComponent } from '../foundation/components/SceneGraph/SceneGraphComponent';
 import { ProcessStage } from '../foundation/definitions/ProcessStage';
-import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { ComponentRepository } from '../foundation/core/ComponentRepository';
 import { WellKnownComponentTIDs } from '../foundation/components/WellKnownComponentTIDs';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { ComponentTID, EntityUID, ComponentSID, Second } from '../types/CommonTypes';
-import { Config } from '../foundation/core/Config';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { Is } from '../foundation/misc/Is';
 import { IVector3 } from '../foundation/math/IVector';
@@ -377,7 +374,6 @@ export class EffekseerComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(EffekseerComponent);
 
 export interface IEffekseerEntityMethods {
   getEffekseer(): EffekseerComponent;

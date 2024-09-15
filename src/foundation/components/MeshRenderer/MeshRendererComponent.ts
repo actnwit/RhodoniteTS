@@ -31,6 +31,8 @@ import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
+import { IMeshEntity } from '../../helpers/EntityHelper';
+import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
@@ -466,4 +468,3 @@ export class MeshRendererComponent extends Component {
     return base as unknown as ComponentToComponentMethods<SomeComponentClass> & EntityBase;
   }
 }
-ComponentRepository.registerComponentClass(MeshRendererComponent);

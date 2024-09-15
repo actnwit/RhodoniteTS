@@ -25,7 +25,7 @@ describe('Frame Test', () => {
     renderPass0_0.setFramebuffer(framebuffer_0);
 
     const expression1 = new Rn.Expression();
-    const planeEntity = Rn.EntityHelper.createMeshEntity();
+    const planeEntity = Rn.createMeshEntity();
     const planeMesh = new Rn.Mesh();
     const planePrimitive = new Rn.Plane();
     planeMesh.addPrimitive(planePrimitive);

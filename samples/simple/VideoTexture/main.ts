@@ -23,7 +23,7 @@ const sampler = new Rn.Sampler({
 modelMaterial.setTextureParameter('diffuseColorTexture', texture, sampler);
 window.texture = texture;
 
-const planeEntity = Rn.EntityHelper.createMeshEntity();
+const planeEntity = Rn.createMeshEntity();
 const planePrimitive = new Rn.Plane();
 planePrimitive.generate({
   width: 2,
@@ -41,7 +41,7 @@ planeMeshComponent.setMesh(planeMesh);
 planeEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI / 2, 0, 0]);
 
 // Camera
-const cameraEntity = Rn.EntityHelper.createCameraControllerEntity();
+const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
 //cameraComponent.type = Rn.CameraTyp]e.Orthographic;
 cameraComponent.zNear = 0.1;

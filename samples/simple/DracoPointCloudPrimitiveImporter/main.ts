@@ -28,7 +28,7 @@ rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI /
 setPointSizeRecursively(rootGroup, pointSize);
 
 // set camera
-const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+const entityCamera = Rn.createCameraControllerEntity();
 const cameraControllerComponent = entityCamera.getCameraController();
 cameraControllerComponent.controller.setTarget(rootGroup);
 
@@ -52,7 +52,7 @@ async function createEntityPointCloud(pointCloudDrcUri: string): Promise<Rn.IMes
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   meshComponent.setMesh(mesh);
 

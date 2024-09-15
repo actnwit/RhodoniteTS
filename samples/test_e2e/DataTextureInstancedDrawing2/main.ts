@@ -68,7 +68,7 @@ const entities = [];
 const entityNumber = 100;
 const originalMesh = new Rn.Mesh();
 originalMesh.addPrimitive(primitive);
-const entityOrig = Rn.EntityHelper.createMeshEntity();
+const entityOrig = Rn.createMeshEntity();
 entityOrig.getMesh().setMesh(originalMesh);
 for (let i = 0; i < entityNumber; i++) {
   const sqrtEntityNumber = Math.floor(Math.sqrt(entityNumber));

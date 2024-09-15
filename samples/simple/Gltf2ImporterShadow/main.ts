@@ -56,7 +56,7 @@ draw([expression]);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityDepthCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
 
   const transformCamera = entityCamera.getTransform();
   transformCamera.localPosition = lightPosition;
@@ -72,7 +72,7 @@ function createEntityDepthCamera() {
 }
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraControllerEntity();
+  const entityCamera = Rn.createCameraControllerEntity();
   return entityCamera;
 }
 
@@ -113,7 +113,7 @@ function createEntityEnvironmentCube(basePathIBL: string) {
   const meshSphere = new Rn.Mesh();
   meshSphere.addPrimitive(primitiveSphere);
 
-  const entitySphere = Rn.EntityHelper.createMeshEntity();
+  const entitySphere = Rn.createMeshEntity();
   const meshComponentSphere = entitySphere.getMesh();
   meshComponentSphere.setMesh(meshSphere);
 
@@ -142,7 +142,7 @@ function createEntityBoard(renderPassDepth: Rn.RenderPass) {
     material,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

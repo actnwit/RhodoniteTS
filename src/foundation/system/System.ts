@@ -18,7 +18,7 @@ import { SystemState } from './SystemState';
 import { MiscUtil } from '../misc/MiscUtil';
 import type { RnXR } from '../../xr/main';
 import { Is } from '../misc/Is';
-import { EntityHelper, ISceneGraphEntity } from '../helpers/EntityHelper';
+import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Config } from '../core/Config';
 import { Frame } from '../renderer/Frame';
 import { Vector4 } from '../math/Vector4';
@@ -38,6 +38,7 @@ import { Primitive } from '../geometry/Primitive';
 import { VERSION } from '../../version';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Scalar } from '../math/Scalar';
+import { createCameraEntity } from '../components/Camera/createCameraEntity';
 declare const spector: any;
 
 /**
@@ -407,7 +408,7 @@ export class System {
   }
 
   private static createCamera() {
-    const cameraEntity = EntityHelper.createCameraEntity();
+    const cameraEntity = createCameraEntity();
     cameraEntity.getTransform()!.localPosition = Vector3.fromCopyArray([0, 0, 1]);
     cameraEntity.getCamera().type = CameraType.Orthographic;
     cameraEntity.getCamera().zNear = 0.1;

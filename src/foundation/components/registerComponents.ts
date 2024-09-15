@@ -1,0 +1,34 @@
+import { EffekseerComponent } from '../../effekseer/EffekseerComponent';
+import { ComponentRepository } from '../core/ComponentRepository';
+import { AnimationComponent } from './Animation/AnimationComponent';
+import { AnimationStateComponent } from './AnimationState/AnimationStateComponent';
+import { BlendShapeComponent } from './BlendShape/BlendShapeComponent';
+import { CameraComponent } from './Camera/CameraComponent';
+import { CameraControllerComponent } from './CameraController/CameraControllerComponent';
+import { ConstraintComponent } from './Constraint/ConstraintComponent';
+import { LightComponent } from './Light/LightComponent';
+import { MeshComponent } from './Mesh/MeshComponent';
+import { MeshRendererComponent } from './MeshRenderer/MeshRendererComponent';
+import { PhysicsComponent } from './Physics/PhysicsComponent';
+import { SceneGraphComponent } from './SceneGraph/SceneGraphComponent';
+import { SkeletalComponent } from './Skeletal/SkeletalComponent';
+import { TransformComponent } from './Transform/TransformComponent';
+import { VrmComponent } from './Vrm/VrmComponent';
+
+ComponentRepository.registerComponentClass(AnimationStateComponent);
+ComponentRepository.registerComponentClass(AnimationComponent);
+ComponentRepository.registerComponentClass(TransformComponent);
+ComponentRepository.registerComponentClass(SceneGraphComponent);
+ComponentRepository.registerComponentClass(MeshComponent);
+ComponentRepository.registerComponentClass(MeshRendererComponent);
+ComponentRepository.registerComponentClass(LightComponent);
+ComponentRepository.registerComponentClass(CameraControllerComponent);
+ComponentRepository.registerComponentClass(CameraComponent);
+ComponentRepository.registerComponentClass(SkeletalComponent);
+ComponentRepository.registerComponentClass(BlendShapeComponent);
+ComponentRepository.registerComponentClass(PhysicsComponent);
+ComponentRepository.registerComponentClass(EffekseerComponent);
+ComponentRepository.registerComponentClass(VrmComponent);
+ComponentRepository.registerComponentClass(ConstraintComponent);
+
+export {};

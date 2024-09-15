@@ -1,11 +1,12 @@
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
-import { EntityHelper } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
-import { EntityRepository } from './EntityRepository';
+import { createEntity, EntityRepository } from './EntityRepository';
 import { MemoryManager } from './MemoryManager';
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { TransformComponent } from '../components/Transform/TransformComponent';
 import { Vector3 } from '../math';
+import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
+import '../components/registerComponents';
 
 test('getEntitiesNumber', () => {
   const entity1 = EntityRepository.createEntity();
@@ -21,7 +22,7 @@ test('The entity repository can provide the component corresponding to the speci
     gpuVertexData: 1,
   });
 
-  const firstEntity = EntityHelper.createGroupEntity();
+  const firstEntity = createGroupEntity();
   const sceneGraphComponent = EntityRepository.getComponentOfEntity(
     firstEntity.entityUID,
     SceneGraphComponent
@@ -37,7 +38,7 @@ test('shallow copy of entity', () => {
     gpuVertexData: 1,
   });
 
-  const firstEntity = EntityHelper.createEntity();
+  const firstEntity = createEntity();
   EntityRepository.addComponentToEntity(TransformComponent, firstEntity);
   EntityRepository.addComponentToEntity(SceneGraphComponent, firstEntity);
   EntityRepository.addComponentToEntity(AnimationComponent, firstEntity);

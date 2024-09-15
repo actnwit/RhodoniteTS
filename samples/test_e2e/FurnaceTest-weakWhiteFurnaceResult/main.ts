@@ -39,7 +39,7 @@ attachGlobalFunctions(expressions);
 // ---functions-----------------------------------------------------------------------------------------
 
 function createEntityMainCamera() {
-  const entityCamera = Rn.EntityHelper.createCameraEntity();
+  const entityCamera = Rn.createCameraEntity();
   const cameraComponent = entityCamera.getCamera();
   cameraComponent.type = Rn.CameraType.Orthographic;
 
@@ -83,7 +83,7 @@ function createEntityBoard(material: Rn.Material) {
     material,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);
@@ -100,7 +100,7 @@ function createEntitySphere(material: Rn.Material) {
     material,
   });
 
-  const entity = Rn.EntityHelper.createMeshEntity();
+  const entity = Rn.createMeshEntity();
   const meshComponent = entity.getMesh();
   const mesh = new Rn.Mesh();
   mesh.addPrimitive(primitive);

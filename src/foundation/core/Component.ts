@@ -6,10 +6,8 @@ import { BufferUseEnum } from '../definitions/BufferUse';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ProcessStage, ProcessStageEnum } from '../definitions/ProcessStage';
-import { ProcessApproachEnum } from '../definitions/ProcessApproach';
 import { ComponentRepository } from './ComponentRepository';
 import { Config } from './Config';
-import { WebGLStrategy } from '../../webgl/WebGLStrategy';
 import { RenderPass } from '../renderer/RenderPass';
 import { RnObject } from './RnObject';
 import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
@@ -32,7 +30,6 @@ type MemberInfo = {
  */
 export class Component extends RnObject {
   private _component_sid: number;
-  static readonly invalidComponentSID = -1;
   _isAlive = true;
   protected __currentProcessStage: ProcessStageEnum = ProcessStage.Load;
   private static __bufferViews: Map<Function, Map<BufferUseEnum, BufferView>> = new Map();
@@ -497,7 +494,7 @@ export class Component extends RnObject {
    * @returns the entity which has this component
    */
   get entity(): IEntity {
-    return EntityRepository.getEntity(this.__entityUid);
+    return this.__entityRepository.getEntity(this.__entityUid);
   }
 
   /**
@@ -570,18 +567,18 @@ export class Component extends RnObject {
    * @param memberName the member of component in string
    * @returns bytes information
    */
-  static getDataByteInfoByEntityUID(
-    componentType: typeof Component,
-    entityUID: EntityUID,
-    memberName: string
-  ) {
-    const component = EntityRepository.getComponentOfEntity(entityUID, componentType);
-    if (component) {
-      return Component.getDataByteInfoInner(component, memberName);
-    }
+  // static getDataByteInfoByEntityUID(
+  //   componentType: typeof Component,
+  //   entityUID: EntityUID,
+  //   memberName: string
+  // ) {
+  //   const component = EntityRepository.getComponentOfEntity(entityUID, componentType);
+  //   if (component) {
+  //     return Component.getDataByteInfoInner(component, memberName);
+  //   }
 
-    return void 0;
-  }
+  //   return void 0;
+  // }
 
   /**
    * get the Pixel Location Offset in the Buffer of the Member

@@ -1,9 +1,10 @@
 import { MemoryManager } from '../../core/MemoryManager';
-import { EntityHelper } from '../../helpers/EntityHelper';
 import { Vector3 } from '../../math/Vector3';
+import { createTransformEntity } from './createTransformEntity';
+import '../registerComponents';
 
 function generateEntity() {
-  return EntityHelper.createTransformEntity();
+  return createTransformEntity();
 }
 
 test('Use translate simply', () => {

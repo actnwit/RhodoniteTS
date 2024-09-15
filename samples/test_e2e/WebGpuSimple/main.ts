@@ -1,4 +1,4 @@
-import Rn, { EntityHelper } from '../../../dist/esmdev/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 (function () {
@@ -50,7 +50,7 @@ declare const window: any;
     const entities = [];
     const originalMesh = new Rn.Mesh();
     originalMesh.addPrimitive(primitive);
-    const entityOrig = Rn.EntityHelper.createMeshEntity();
+    const entityOrig = Rn.createMeshEntity();
     entityOrig.getMesh().setMesh(originalMesh);
     // entityOrig.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(0, 1, 0);
     entities.push(entityOrig);
@@ -65,9 +65,9 @@ declare const window: any;
 
     let count = 0;
 
-    const camera = Rn.EntityHelper.createCameraEntity();
+    const camera = Rn.createCameraEntity();
     camera.position = Rn.Vector3.fromCopy3(0.0, 0.0, 2.0);
-    const camera2 = Rn.EntityHelper.createCameraEntity();
+    const camera2 = Rn.createCameraEntity();
     camera2.position = Rn.Vector3.fromCopy3(1.0, 0.0, 2.0);
 
     // renderPass

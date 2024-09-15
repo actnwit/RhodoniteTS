@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { EntityHelper, ICameraEntity } from '../foundation/helpers/EntityHelper';
+import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
+import { ICameraEntity } from '../foundation/helpers/EntityHelper';
 import { MutableMatrix44 } from '../foundation/math/MutableMatrix44';
 import { MutableQuaternion } from '../foundation/math/MutableQuaternion';
 import { MutableScalar } from '../foundation/math/MutableScalar';
@@ -29,7 +30,7 @@ export class WebARSystem {
   private __defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
   private __canvasWidthForAR = 0;
   private __canvasHeightForAR = 0;
-  private _cameraEntity: ICameraEntity = EntityHelper.createCameraEntity();
+  private _cameraEntity: ICameraEntity = createCameraEntity();
   private __viewerTranslate = MutableVector3.zero();
   private __viewerAzimuthAngle = MutableScalar.zero();
   private __viewerOrientation = MutableQuaternion.identity();

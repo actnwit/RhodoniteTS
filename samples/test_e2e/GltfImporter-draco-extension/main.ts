@@ -14,7 +14,7 @@ await Rn.System.init({
 const expressions = [];
 
 // camera
-const cameraEntity = Rn.EntityHelper.createCameraEntity();
+const cameraEntity = Rn.createCameraEntity();
 const cameraComponent = cameraEntity.getCamera();
 cameraComponent.zNear = 0.1;
 cameraComponent.zFar = 1000.0;
@@ -68,7 +68,7 @@ const gammaCorrectionRenderPass =
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // lighting
-const lightEntity = Rn.EntityHelper.createLightEntity();
+const lightEntity = Rn.createLightEntity();
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
 lightComponent.intensity = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
