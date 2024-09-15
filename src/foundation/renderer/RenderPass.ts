@@ -16,6 +16,7 @@ import { CameraComponent } from '../components/Camera/CameraComponent';
 import { RenderBufferTargetEnum } from '../definitions/RenderBufferTarget';
 import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
+import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 
 /**
  * A render pass is a collection of the resources which is used in rendering process.
@@ -187,10 +188,7 @@ export class RenderPass extends RnObject {
     for (const entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph();
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
-      const collectedSgComponents = SceneGraphComponent.flattenHierarchy(
-        sceneGraphComponent,
-        false
-      );
+      const collectedSgComponents = flattenHierarchy(sceneGraphComponent, false);
       const collectedEntities = collectedSgComponents.map((sg: SceneGraphComponent) => {
         return sg.entity;
       });

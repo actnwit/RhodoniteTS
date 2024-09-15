@@ -3,6 +3,7 @@ import { Matrix44 } from '../../math/Matrix44';
 import { Vector3 } from '../../math/Vector3';
 import { createGroupEntity } from './createGroupEntity';
 import { SceneGraphComponent } from './SceneGraphComponent';
+import { flattenHierarchy } from './SceneGraphOps';
 
 describe('SceneGraphComponent', () => {
   function generateEntity() {
@@ -69,7 +70,7 @@ describe('SceneGraphComponent', () => {
     parentEntity.addChild(child2Entity.getSceneGraph());
     sceneEntity.addChild(parentEntity.getSceneGraph());
 
-    const result = SceneGraphComponent.flattenHierarchy(sceneEntity.getSceneGraph(), false);
+    const result = flattenHierarchy(sceneEntity.getSceneGraph(), false);
 
     expect(result.length).toBe(4);
   });

@@ -28,6 +28,7 @@ import { IMatrix44 } from '../../math/IMatrix';
 import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import { createTransformEntity, TransformComponent } from '../Transform/TransformComponent';
+import { flattenHierarchy } from './SceneGraphOps';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -453,29 +454,6 @@ export class SceneGraphComponent extends Component {
     );
   }
 
-  /**
-   * Collects children and itself from specified sceneGraphComponent.
-   * @param sceneGraphComponent collects children and itself from the sceneGraphComponent
-   * @param isJointMode collects joints only
-   */
-  static flattenHierarchy(
-    sceneGraphComponent: SceneGraphComponent,
-    isJointMode: boolean
-  ): SceneGraphComponent[] {
-    const results: SceneGraphComponent[] = [];
-    if (!isJointMode || sceneGraphComponent.isJoint()) {
-      results.push(sceneGraphComponent);
-    }
-
-    const children = sceneGraphComponent.children!;
-    for (let i = 0; i < children.length; i++) {
-      const hitChildren = this.flattenHierarchy(children[i], isJointMode);
-      Array.prototype.push.apply(results, hitChildren);
-    }
-
-    return results;
-  }
-
   get worldPosition(): Vector3 {
     const zeroVector = SceneGraphComponent.__originVector3;
     this.matrixInner.multiplyVector3To(zeroVector, SceneGraphComponent.returnVector3);
@@ -590,7 +568,7 @@ export class SceneGraphComponent extends Component {
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
   ): RaycastResultEx2 {
-    const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
+    const collectedSgComponents = flattenHierarchy(this, false);
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
       const mesh = sg.entity.tryToGetMesh();
@@ -661,7 +639,7 @@ export class SceneGraphComponent extends Component {
     dotThreshold = 0,
     ignoreMeshComponents: MeshComponent[] = []
   ): RaycastResultEx2 {
-    const collectedSgComponents = SceneGraphComponent.flattenHierarchy(this, false);
+    const collectedSgComponents = flattenHierarchy(this, false);
     const meshComponents: MeshComponent[] = [];
     for (const sg of collectedSgComponents) {
       const mesh = sg.entity.tryToGetMesh();
