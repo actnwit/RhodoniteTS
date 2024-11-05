@@ -303,8 +303,7 @@ float D_GGX_anisotropic(float NdotH, float TdotH, float BdotH, float at, float a
     return a2 * w2 * w2 / M_PI;
 }
 
-float V_GGX_anisotropic(float NdotL, float NdotV, float BdotV, float TdotV, float TdotL, float BdotL,
-    float at, float ab)
+float V_GGX_anisotropic(float NdotL, float NdotV, float BdotV, float TdotV, float TdotL, float BdotL, float at, float ab)
 {
     float GGXV = NdotL * length(vec3(at * TdotV, ab * BdotV, NdotV));
     float GGXL = NdotV * length(vec3(at * TdotL, ab * BdotL, NdotL));
@@ -312,15 +311,17 @@ float V_GGX_anisotropic(float NdotL, float NdotV, float BdotV, float TdotV, floa
     return clamp(v, 0.0, 1.0);
 }
 
-vec3 BRDF_specularAnisotropicGGX(vec3 F, float alphaRoughness,
-    float VdotH, float NdotL, float NdotV, float NdotH, float BdotV, float TdotV,
-    float TdotL, float BdotL, float TdotH, float BdotH, float anisotropy)
+vec3 BRDF_specularAnisotropicGGX(vec3 F, float alphaRoughness, float anisotropy, vec3 N, vec3 V, vec3 L, vec3 H, vec3 T, vec3 B)
 {
     float at = mix(alphaRoughness, 1.0, anisotropy * anisotropy);
-    float ab = alphaRoughness;
+    float ab = clamp(alphaRoughness, 0.001, 1.0);
 
-    float V = V_GGX_anisotropic(NdotL, NdotV, BdotV, TdotV, TdotL, BdotL, at, ab);
-    float D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
+    float NdotL = clamp(dot(N, L), 0.0, 1.0);
+    float NdotH = clamp(dot(N, H), 0.001, 1.0);
+    float NdotV = dot(N, V);
+
+    float V = V_GGX_anisotropic(NdotL, NdotV, dot(B, V), dot(T, V), dot(T, L), dot(B, L), at, ab);
+    float D = D_GGX_anisotropic(NdotH, dot(T, H), dot(B, H), at, ab);
 
     return F * V * D;
 }
@@ -628,11 +629,7 @@ vec3 lightingWithPunctualLight(
 #ifdef RN_USE_IRIDESCENCE
   vec3 specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH) * vec3(NdotL) * light.attenuatedIntensity;
 #elif defined(RN_USE_ANISOTROPY)
-  float TdotL = dot(anisotropicT, light.direction);
-  float BdotL = dot(anisotropicB, light.direction);
-  float TdotH = dot(anisotropicT, halfVector);
-  float BdotH = dot(anisotropicB, halfVector);
-  vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, anisotropy, normal_inWorld, viewDirection, light.direction, halfVector, anisotropicT, anisotropicB) * vec3(NdotL) * light.attenuatedIntensity;
 #else
   vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
 #endif // RN_USE_ANISOTROPY
