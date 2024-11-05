@@ -544,6 +544,12 @@ vec3 BRDF_specularGGXIridescence(vec3 f0, vec3 f90, vec3 iridescenceFresnel, flo
     return specularWeight * F * Vis * D;
 }
 
+vec3 rgbMix(vec3 base, vec3 layer, vec3 rgb_alpha)
+{
+    float rgb_alpha_max = max(rgb_alpha.r, max(rgb_alpha.g, rgb_alpha.b));
+    return (1.0 - rgb_alpha_max) * base + rgb_alpha * layer;
+}
+
 #endif // RN_USE_IRIDESCENCE
 
 
@@ -584,7 +590,8 @@ vec3 lightingWithPunctualLight(
   float sheenRoughness,
   float albedoSheenScalingNdotV,
   float iridescenceFactor,
-  vec3 iridescenceFresnel,
+  vec3 iridescenceFresnelDielectric,
+  vec3 iridescenceFresnelMetallic,
   float specularWeight
   )
 {
@@ -643,8 +650,8 @@ vec3 lightingWithPunctualLight(
   dielectric = mix(diffuse, specularDielectric, dielectricFresnel);
 
 #ifdef RN_USE_IRIDESCENCE
-  // metal = mix(metal, specularMetal * iridescenceFresnel, iridescenceFactor);
-  // dielectric = mix(dielectric, rgb_mix(diffuse, specularDielectric, iridescenceFresnel), iridescenceFactor);
+  metal = mix(metal, specularMetal * iridescenceFresnelMetallic, iridescenceFactor);
+  dielectric = mix(dielectric, rgbMix(diffuse, specularDielectric, iridescenceFresnelDielectric), iridescenceFactor);
 #endif
 
   vec3 baseLayer = mix(dielectric, metal, metallic);
