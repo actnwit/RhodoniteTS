@@ -219,7 +219,7 @@ void main ()
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
-    // filter NDF for specular AA --- https://jcgt.org/published/0010/02/02/
+    // filter NDF for specularWeight AA --- https://jcgt.org/published/0010/02/02/
   float alphaRoughness2 = alphaRoughness * alphaRoughness;
   float filteredRoughness2 = IsotropicNDFFiltering(normal_inWorld, alphaRoughness2);
   perceptualRoughness = sqrt(sqrt(filteredRoughness2));
@@ -277,11 +277,11 @@ void main ()
 
   #ifdef RN_USE_SPECULAR
     float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
-    float specular = get_specularFactor(materialSID, 0) * specularTexture;
+    float specularWeight = get_specularFactor(materialSID, 0) * specularTexture;
     vec3 specularColorTexture = srgbToLinear(texture(u_specularColorTexture, baseColorTexUv).rgb);
     vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
   #else
-    float specular = 1.0;
+    float specularWeight = 1.0;
     vec3 specularColor = vec3(1.0, 1.0, 1.0);
   #endif // RN_USE_SPECULAR
 
@@ -291,8 +291,11 @@ void main ()
   vec3 dielectricSpecularF0 = min(
     ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
     vec3(1.0)
-    ) * specular;
-  vec3 dielectricSpecularF90 = vec3(specular);
+    ) * specularWeight;
+  vec3 dielectricSpecularF90 = vec3(specularWeight);
+  vec3 F0_dielectric = vec3(0.04);
+  vec3 newF90 = vec3(1.0);
+  vec3 F90_dielectric = vec3(1.0);
   vec3 F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
   vec3 F90 = mix(dielectricSpecularF90, vec3(1.0), metallic);
 
@@ -372,13 +375,13 @@ void main ()
   // Lighting
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
-    rt0.xyz += lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
-                        perceptualRoughness, metallic, F0, F90, ior, transmission,
+    rt0.xyz += lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor, albedo,
+                        perceptualRoughness, metallic, F0_dielectric, newF90, F90_dielectric, F0, F90, ior, transmission,
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                        iridescence, iridescenceFresnel, specular);
+                        iridescence, iridescenceFresnel, specularWeight);
   }
 
   #ifdef RN_USE_SHADOW_MAPPING
@@ -397,7 +400,7 @@ void main ()
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     ior, iridescenceFresnel, iridescenceF0, iridescence,
-    anisotropy, anisotropicB, specular);
+    anisotropy, anisotropicB, specularWeight);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
