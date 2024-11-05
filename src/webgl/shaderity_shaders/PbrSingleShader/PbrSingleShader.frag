@@ -310,10 +310,14 @@ void main ()
     float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
     vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+    vec3 iridescenceFresnelDielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0_dielectric);
+    vec3 iridescenceFresnelMetallic = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor);
     vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
   #else
     float iridescence = 0.0;
     vec3 iridescenceFresnel = vec3(0.0);
+    vec3 iridescenceFresnelDielectric = vec3(0.0);
+    vec3 iridescenceFresnelMetallic = vec3(0.0);
     vec3 iridescenceF0 = F0;
   #endif // RN_USE_IRIDESCENCE
 
@@ -381,7 +385,7 @@ void main ()
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                        iridescence, iridescenceFresnel, specularWeight);
+                        iridescence, iridescenceFresnelDielectric, iridescenceFresnelMetallic, specularWeight);
   }
 
   #ifdef RN_USE_SHADOW_MAPPING
