@@ -115,11 +115,10 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 #pragma shaderity: require(../common/rt0.glsl)
 
 /* shaderity: @{getters} */
+/* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
 #pragma shaderity: require(../common/pbrDefinition.glsl)
-
-/* shaderity: @{matricesGetters} */
 
 #pragma shaderity: require(../common/shadow.glsl)
 
@@ -380,7 +379,7 @@ void main ()
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
     rt0.xyz += lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor, albedo,
-                        perceptualRoughness, metallic, F0_dielectric, newF90, F90_dielectric, F0, F90, ior, transmission,
+                        perceptualRoughness, metallic, F0_dielectric, newF90, F90_dielectric, F0, F90, ior, transmission, thickness,
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,

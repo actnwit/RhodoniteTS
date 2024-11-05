@@ -280,14 +280,11 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
   if (attenuationDistance == 0.0) { // means Infinite distance
     return intensity; // No attenuation
   } else {
-    vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
-    vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
-    return intensity * attenuatedTransmittance;
+    vec3 transmittance = pow(attenuationColor, vec3(transmissionDistance / attenuationDistance));
+    return intensity * transmittance;
   }
 }
 #endif
-
-
 
 
 
@@ -553,9 +550,41 @@ vec3 rgbMix(vec3 base, vec3 layer, vec3 rgb_alpha)
 
 #endif // RN_USE_IRIDESCENCE
 
+float calcTransmissionRoughness(float alphaRoughness, float ior)
+{
+    return alphaRoughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+}
 
+vec3 getPunctualRadianceTransmission(vec3 normal, vec3 view, vec3 pointToLight, float alphaRoughness, vec3 F0, vec3 F90, vec3 baseColor, float ior)
+{
+    float transmissionRougness = calcTransmissionRoughness(alphaRoughness, ior);
 
+    vec3 n = normalize(normal);
+    vec3 v = normalize(view);
+    vec3 l = normalize(pointToLight);
+    vec3 l_mirror = normalize(l + 2.0 * n * dot(-l, n));
+    vec3 h = normalize(l_mirror + v);
 
+    float D = d_GGX(clamp(dot(n, h), 0.0, 1.0), transmissionRougness);
+    vec3 F = fresnel(F0, F90, clamp(dot(v, h), 0.0, 1.0));
+    float Vis = v_GGXCorrelated(clamp(dot(n, l_mirror), 0.0, 1.0), clamp(dot(n, v), 0.0, 1.0), transmissionRougness);
+
+    return (1.0 - F) * baseColor * D * Vis;
+}
+
+// from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
+vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
+{
+  vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+  mat4 worldMatrix = get_worldMatrix(v_instanceInfo);
+
+  vec3 modelScale;
+  modelScale.x = length(vec3(worldMatrix[0].xyz));
+  modelScale.y = length(vec3(worldMatrix[1].xyz));
+  modelScale.z = length(vec3(worldMatrix[2].xyz));
+
+  return normalize(refractionVector) * thickness * modelScale;
+}
 
 ////////////////////////////////////////
 // lighting with a punctual light
@@ -576,6 +605,7 @@ vec3 lightingWithPunctualLight(
   vec3 F90,
   float ior,
   float transmission,
+  float thickness,
   float clearcoat,
   float clearcoatRoughness,
   vec3 clearcoatNormal_inWorld,
@@ -617,22 +647,15 @@ vec3 lightingWithPunctualLight(
   // vec3 sheen = vec3(0.0);
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-  Light transmittedLightFromUnderSurface = light;
-  transmittedLightFromUnderSurface.pointToLight -= refractionVector;
-  vec3 transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
-  transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
+  vec3 transmissionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior);
+  light.pointToLight -= transmissionRay;
+  light.direction = normalize(light.pointToLight);
 
-  vec3 Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
-  float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
-  float NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
-
-  vec3 transmittedContrib = (vec3(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+  vec3 transmittedContrib = getPunctualRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, F0_dielectric, F90, baseColor, ior);
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmissionRay));
 #endif // RN_USE_VOLUME
-
   diffuse = mix(diffuse, vec3(transmittedContrib), transmission);
 #endif // RN_USE_TRANSMISSION
 
