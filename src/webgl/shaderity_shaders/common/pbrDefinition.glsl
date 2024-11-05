@@ -120,10 +120,11 @@ vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alp
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-vec3 BRDF_lambertian(vec3 albedo, vec3 F, float specularWeight)
+vec3 BRDF_lambertian(vec3 albedo)
 {
   // (1/pi) * diffuseAlbedo
-  return (vec3(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
+  // return (vec3(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
+  return albedo * RECIPROCAL_PI;
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
@@ -557,9 +558,13 @@ vec3 lightingWithPunctualLight(
   vec3 normal_inWorld,
   vec3 viewDirection,
   float NdotV,
+  vec3 baseColor,
   vec3 albedo,
   float perceptualRoughness,
   float metallic,
+  vec3 F0_dielectric,
+  vec3 newF90,
+  vec3 F90_dielectric,
   vec3 F0,
   vec3 F90,
   float ior,
@@ -589,17 +594,19 @@ vec3 lightingWithPunctualLight(
   vec3 halfVector = normalize(light.direction + viewDirection);
   float VdotH = dot(viewDirection, halfVector);
   vec3 F = fresnel(F0, F90, VdotH);
+  vec3 dielectricFresnel = fresnel(F0_dielectric * specularWeight, F90_dielectric, abs(VdotH));
+  vec3 metalFresnel = fresnel(baseColor, vec3(1.0), abs(VdotH));
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
-#ifdef RN_USE_IRIDESCENCE
-  vec3 diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
-#else
-  vec3 diffuseBrdf = BRDF_lambertian(albedo, F, specularWeight);
-#endif
-
-  vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 diffuse = BRDF_lambertian(baseColor)* vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularDielectric = vec3(0.0);
+  vec3 specularMetal = vec3(0.0);
+  vec3 dielectric= vec3(0.0);
+  vec3 metal = vec3(0.0);
+  // vec3 clearcoat = vec3(0.0);
+  // vec3 sheen = vec3(0.0);
 
 #ifdef RN_USE_TRANSMISSION
   vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
@@ -618,24 +625,29 @@ vec3 lightingWithPunctualLight(
   transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
 #endif // RN_USE_VOLUME
 
-  vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
-#else
-  vec3 diffuseContrib = pureDiffuse;
+  diffuse = mix(diffuse, vec3(transmittedContrib), transmission);
 #endif // RN_USE_TRANSMISSION
 
   // Specular
   float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
 
-#ifdef RN_USE_IRIDESCENCE
-  vec3 specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH) * vec3(NdotL) * light.attenuatedIntensity;
-#elif defined(RN_USE_ANISOTROPY)
-  vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, anisotropy, normal_inWorld, viewDirection, light.direction, halfVector, anisotropicT, anisotropicB) * vec3(NdotL) * light.attenuatedIntensity;
+#ifdef RN_USE_ANISOTROPY
+  specularMetal = BRDF_specularAnisotropicGGX(F, alphaRoughness, anisotropy, normal_inWorld, viewDirection, light.direction, halfVector, anisotropicT, anisotropicB) * vec3(NdotL) * light.attenuatedIntensity;
+  specularDielectric = specularMetal;
 #else
-  vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
+  specularMetal = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
+  specularDielectric = specularMetal;
 #endif // RN_USE_ANISOTROPY
 
-  // Base Layer
-  vec3 baseLayer = diffuseContrib + specularContrib;
+  metal = metalFresnel * specularMetal;
+  dielectric = mix(diffuse, specularDielectric, dielectricFresnel);
+
+#ifdef RN_USE_IRIDESCENCE
+  // metal = mix(metal, specularMetal * iridescenceFresnel, iridescenceFactor);
+  // dielectric = mix(dielectric, rgb_mix(diffuse, specularDielectric, iridescenceFresnel), iridescenceFactor);
+#endif
+
+  vec3 baseLayer = mix(dielectric, metal, metallic);
 
 #ifdef RN_USE_SHEEN
   // Sheen
