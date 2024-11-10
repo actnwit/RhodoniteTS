@@ -34,8 +34,8 @@ export class RnObject implements IRnObject {
   static readonly InvalidObjectUID = -1;
   static currentMaxObjectCount = 0;
   private static __uniqueNames: string[] = [];
-  private static __objectsByNameMap: Map<string, RnObject> = new Map();
-  private static __objects: RnObject[] = [];
+  private static __objectsByNameMap: Map<string, WeakRef<RnObject>> = new Map();
+  private static __objects: WeakRef<RnObject>[] = [];
   private static readonly ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE =
     'Cannot get RnObject reference because it is not managed. Set Config.isRnObjectReferenceManaged to true to manage RnObject references.';
 
@@ -53,8 +53,8 @@ export class RnObject implements IRnObject {
   private __updateInfo(uniqueName: string) {
     RnObject.__uniqueNames[this.__objectUid] = uniqueName;
     if (Config.isRnObjectReferenceManaged) {
-      RnObject.__objects[this.__objectUid] = this;
-      RnObject.__objectsByNameMap.set(this.__uniqueName, this);
+      RnObject.__objects[this.__objectUid] = new WeakRef(this);
+      RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
     }
   }
 
@@ -70,7 +70,7 @@ export class RnObject implements IRnObject {
       return undefined;
     }
     for (const obj of RnObject.__objects) {
-      if (obj.getTagValue(tag) === value) {
+      if (obj.deref()?.getTagValue(tag) === value) {
         return obj;
       }
     }
@@ -93,7 +93,7 @@ export class RnObject implements IRnObject {
       console.warn(RnObject.ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE);
       return undefined;
     }
-    return RnObject.__objects[objectUid];
+    return RnObject.__objects[objectUid].deref();
   }
 
   /**
@@ -105,7 +105,7 @@ export class RnObject implements IRnObject {
       console.warn(RnObject.ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE);
       return undefined;
     }
-    return RnObject.__objectsByNameMap.get(uniqueName);
+    return RnObject.__objectsByNameMap.get(uniqueName)?.deref();
   }
 
   /**
@@ -119,9 +119,10 @@ export class RnObject implements IRnObject {
       if (toAddNameIfConflict) {
         const newName = name + '_(' + this.__objectUid + ')';
         if (RnObject.__uniqueNames.indexOf(newName) === -1) {
+          RnObject.__objectsByNameMap.delete(this.__uniqueName);
           this.__uniqueName = newName;
           RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
-          RnObject.__objectsByNameMap.set(this.__uniqueName, this);
+          RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
           return true;
         }
       }
@@ -129,7 +130,7 @@ export class RnObject implements IRnObject {
     } else {
       this.__uniqueName = name;
       RnObject.__uniqueNames[this.__objectUid] = this.__uniqueName;
-      RnObject.__objectsByNameMap.set(this.__uniqueName, this);
+      RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
       return true;
     }
   }
