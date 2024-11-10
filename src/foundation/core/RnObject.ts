@@ -36,8 +36,6 @@ export class RnObject implements IRnObject {
   private static __uniqueNames: string[] = [];
   private static __objectsByNameMap: Map<string, WeakRef<RnObject>> = new Map();
   private static __objects: WeakRef<RnObject>[] = [];
-  private static readonly ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE =
-    'Cannot get RnObject reference because it is not managed. Set Config.isRnObjectReferenceManaged to true to manage RnObject references.';
 
   /// members
   private readonly __objectUid: ObjectUID = RnObject.currentMaxObjectCount++;
@@ -52,10 +50,8 @@ export class RnObject implements IRnObject {
 
   private __updateInfo(uniqueName: string) {
     RnObject.__uniqueNames[this.__objectUid] = uniqueName;
-    if (Config.isRnObjectReferenceManaged) {
-      RnObject.__objects[this.__objectUid] = new WeakRef(this);
-      RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
-    }
+    RnObject.__objects[this.__objectUid] = new WeakRef(this);
+    RnObject.__objectsByNameMap.set(this.__uniqueName, new WeakRef(this));
   }
 
   public unregister() {
@@ -65,10 +61,6 @@ export class RnObject implements IRnObject {
   }
 
   static searchByTag(tag: string, value: string) {
-    if (!Config.isRnObjectReferenceManaged) {
-      console.warn(RnObject.ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE);
-      return undefined;
-    }
     for (const obj of RnObject.__objects) {
       if (obj.deref()?.getTagValue(tag) === value) {
         return obj;
@@ -89,10 +81,6 @@ export class RnObject implements IRnObject {
    * @param objectUid The objectUID of the object.
    */
   static getRnObject(objectUid: ObjectUID) {
-    if (!Config.isRnObjectReferenceManaged) {
-      console.warn(RnObject.ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE);
-      return undefined;
-    }
     return RnObject.__objects[objectUid]?.deref();
   }
 
@@ -101,10 +89,6 @@ export class RnObject implements IRnObject {
    * @param uniqueName The unique name of the object.
    */
   static getRnObjectByName(uniqueName: string) {
-    if (!Config.isRnObjectReferenceManaged) {
-      console.warn(RnObject.ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE);
-      return undefined;
-    }
     return RnObject.__objectsByNameMap.get(uniqueName)?.deref();
   }
 
