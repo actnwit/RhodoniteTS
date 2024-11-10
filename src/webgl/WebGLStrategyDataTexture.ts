@@ -827,6 +827,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   ) {
     const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
+    if (primitive == null) {
+      return false;
+    }
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     // setup shader program

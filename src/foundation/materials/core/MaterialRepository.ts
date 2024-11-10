@@ -25,8 +25,9 @@ export class MaterialRepository {
   ///
   /// static members
   ///
-  private static __materialMap: Map<MaterialUID, Material> = new Map();
-  private static __instances: Map<MaterialTypeName, Map<MaterialSID, Material>> = new Map();
+  private static __materialMap: Map<MaterialUID, WeakRef<Material>> = new Map();
+  private static __instances: Map<MaterialTypeName, Map<MaterialSID, WeakRef<Material>>> =
+    new Map();
   private static __materialTids: Map<MaterialTypeName, MaterialTID> = new Map();
   private static __materialInstanceCountOfType: Map<MaterialTypeName, Count> = new Map();
   private static __materialNodes: Map<MaterialTypeName, AbstractMaterialContent | undefined> =
@@ -71,8 +72,8 @@ export class MaterialRepository {
     return MaterialRepository.__materialNodes.has(materialTypeName);
   }
 
-  public static getMaterialByMaterialUid(materialUid: MaterialSID) {
-    return this.__materialMap.get(materialUid);
+  public static getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined {
+    return this.__materialMap.get(materialUid)?.deref();
   }
 
   public static getAllMaterials() {
@@ -122,7 +123,9 @@ export class MaterialRepository {
     currentMaterial: Material,
     newMaterialNode: AbstractMaterialContent
   ): boolean {
-    const existingMaterial = MaterialRepository.__materialMap.get(currentMaterial.materialUID);
+    const existingMaterial = MaterialRepository.__materialMap
+      .get(currentMaterial.materialUID)
+      ?.deref();
     if (Is.not.exist(existingMaterial)) {
       return false;
     }
@@ -147,7 +150,7 @@ export class MaterialRepository {
 
     // Set meta data to MaterialRepository
     {
-      MaterialRepository.__materialMap.set(material.materialUID, material);
+      MaterialRepository.__materialMap.set(material.materialUID, new WeakRef(material));
 
       // set this material instance for the material type
       let map = MaterialRepository.__instances.get(material.__materialTypeName);
@@ -155,7 +158,7 @@ export class MaterialRepository {
         map = new Map();
         MaterialRepository.__instances.set(material.materialTypeName, map);
       }
-      map.set(material.materialSID, material);
+      map.set(material.materialSID, new WeakRef(material));
 
       // set the count of instance for the material type
       MaterialRepository.__materialInstanceCountOfType.set(
@@ -196,7 +199,13 @@ export class MaterialRepository {
     propertyName: ShaderSemanticsName
   ): IndexOf16Bytes {
     const map = MaterialRepository.__instances.get(materialTypeName)!;
-    const material = map.get(0)!; // 0 is the first instance of the material type
+    const material = map.get(0)?.deref(); // 0 is the first instance of the material type
+    if (Is.not.exist(material)) {
+      console.warn(
+        `Material is not found. getLocationOffsetOfMemberOfMaterial returns invalid 0 value. materialTypeName: ${materialTypeName}`
+      );
+      return 0;
+    }
     const info = material._allFieldsInfo.get(propertyName)!;
     if (info.soloDatum) {
       const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
@@ -317,7 +326,7 @@ export class MaterialRepository {
 
   static _makeShaderInvalidateToAllMaterials() {
     for (const material of MaterialRepository.__materialMap.values()) {
-      material.makeShadersInvalidate();
+      material.deref()?.makeShadersInvalidate();
     }
   }
 }

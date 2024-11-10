@@ -450,6 +450,9 @@ ${indexStr}
       return false;
     }
     const primitive = Primitive.getPrimitive(primitiveUid);
+    if (primitive == null) {
+      return false;
+    }
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
     if (isSkipDrawing(material, primitive)) {

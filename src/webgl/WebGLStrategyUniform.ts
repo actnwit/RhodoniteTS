@@ -470,6 +470,9 @@ bool get_isBillboard(float instanceId) {
   ) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
+    if (primitive == null) {
+      return false;
+    }
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     setupShaderProgram(material, primitive, this);
 
