@@ -110,8 +110,6 @@ export class VideoTexture extends AbstractTexture {
     this._textureResourceUid = textureHandle;
     this.__isTextureReady = true;
     this.__uri = video.src;
-
-    AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
   generateTextureFromUri(

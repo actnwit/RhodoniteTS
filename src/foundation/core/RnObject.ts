@@ -53,6 +53,12 @@ export class RnObject implements IRnObject {
     RnObject.__objectsByNameMap.set(this.__uniqueName, this);
   }
 
+  public unregister() {
+    delete RnObject.__objects[this.__objectUid];
+    delete RnObject.__uniqueNames[this.__objectUid];
+    RnObject.__objectsByNameMap.delete(this.__uniqueName);
+  }
+
   static searchByTag(tag: string, value: string) {
     for (const obj of RnObject.__objects) {
       if (obj.getTagValue(tag) === value) {

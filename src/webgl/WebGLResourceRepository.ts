@@ -2426,6 +2426,7 @@ export class WebGLResourceRepository
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
+      console.log('gl.deleteTexture called:', textureHandle);
     }
   }
 

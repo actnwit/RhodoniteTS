@@ -193,7 +193,6 @@ export class CubeTexture extends AbstractTexture {
 
     this.__isTextureReady = true;
     this.__startedToLoad = true;
-    AbstractTexture.__textureMap.set(this._textureResourceUid, this);
   }
 
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
@@ -204,6 +203,5 @@ export class CubeTexture extends AbstractTexture {
     this._textureResourceUid = texture;
     this.__startedToLoad = true;
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(texture, this);
   }
 }

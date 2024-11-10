@@ -101,8 +101,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewAsRenderTarget(this._textureResourceUid);
     }
-
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   private __createRenderTargetTextureArray() {
@@ -117,8 +115,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       arrayLength: this.__arrayLength,
     });
     this._textureResourceUid = texture;
-
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   resize(width: Size, height: Size) {
@@ -133,7 +129,6 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   }
 
   destroy3DAPIResources() {
-    AbstractTexture.__textureMap.delete(this._textureResourceUid);
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;

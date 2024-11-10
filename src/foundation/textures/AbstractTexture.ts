@@ -36,7 +36,6 @@ export abstract class AbstractTexture extends RnObject {
   protected __canvasContext?: CanvasRenderingContext2D;
   protected __uri?: string;
   protected __name = 'untitled';
-  protected static __textureMap: Map<CGAPIResourceHandle, AbstractTexture> = new Map();
   public _textureResourceUid: CGAPIResourceHandle = -1;
   public _samplerResourceUid: CGAPIResourceHandle = -1;
   public _textureViewResourceUid: CGAPIResourceHandle = -1;
@@ -108,10 +107,6 @@ export abstract class AbstractTexture extends RnObject {
 
   get uri() {
     return this.__uri;
-  }
-
-  static getRhodoniteTexture(textureUid: CGAPIResourceHandle) {
-    return this.__textureMap.get(textureUid);
   }
 
   set name(name: string) {

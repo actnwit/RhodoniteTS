@@ -53,8 +53,27 @@ export class Texture extends AbstractTexture implements Disposable {
     generateMipmap: boolean;
   };
 
+  private static managedRegistry?: FinalizationRegistry<{
+    textureResourceUid: CGAPIResourceHandle;
+  }> =
+    'FinalizationRegistry' in window
+      ? new FinalizationRegistry<{ textureResourceUid: CGAPIResourceHandle }>((texObj) => {
+          console.warn(
+            'WebGL/WebGPU Texture was automatically released by GC. Explicit release is recommended'
+          );
+          Texture.__deleteInternalTexture(texObj.textureResourceUid);
+        })
+      : undefined;
+
   constructor() {
     super();
+  }
+
+  private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle) {
+    this._textureResourceUid = textureResourceUid;
+    if (Texture.managedRegistry) {
+      Texture.managedRegistry.register(this, { textureResourceUid }, this);
+    }
   }
 
   get hasDataToLoadLazy() {
@@ -130,10 +149,9 @@ export class Texture extends AbstractTexture implements Disposable {
       type,
     });
 
-    this._textureResourceUid = texture;
-    this.__isTextureReady = true;
+    this.__setTextureResourceUid(texture);
 
-    AbstractTexture.__textureMap.set(texture, this);
+    this.__isTextureReady = true;
 
     basisFile.close();
     basisFile.delete();
@@ -233,7 +251,7 @@ export class Texture extends AbstractTexture implements Disposable {
       throw new Error('Unsupported image type.');
     }
 
-    this._textureResourceUid = texture;
+    this.__setTextureResourceUid(texture);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
@@ -241,8 +259,6 @@ export class Texture extends AbstractTexture implements Disposable {
     }
     this.__isTextureReady = true;
     this.__uri = image.src;
-
-    AbstractTexture.__textureMap.set(texture, this);
 
     this.__imgToLoadLazy = undefined;
   }
@@ -338,14 +354,13 @@ export class Texture extends AbstractTexture implements Disposable {
           } else {
             throw new Error('Unsupported image type');
           }
-          this._textureResourceUid = texture;
+          this.__setTextureResourceUid(texture);
           if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
             this._textureViewResourceUid = (
               cgApiResourceRepository as WebGpuResourceRepository
             ).createTextureView2d(this._textureResourceUid);
           }
           this.__isTextureReady = true;
-          AbstractTexture.__textureMap.set(texture, this);
           this.__uriToLoadLazy = undefined;
           resolve();
         })();
@@ -377,14 +392,13 @@ export class Texture extends AbstractTexture implements Disposable {
       generateMipmap: false,
     });
 
-    this._textureResourceUid = textureHandle;
+    this.__setTextureResourceUid(textureHandle);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
     }
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
   async generateSheenLutTextureFromDataUri() {
@@ -403,14 +417,13 @@ export class Texture extends AbstractTexture implements Disposable {
         generateMipmap: false,
       }
     );
-    this._textureResourceUid = textureHandle;
+    this.__setTextureResourceUid(textureHandle);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
     }
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(textureHandle, this);
   }
 
   allocate(desc: {
@@ -431,7 +444,7 @@ export class Texture extends AbstractTexture implements Disposable {
       format: desc.format,
     });
 
-    this._textureResourceUid = texture;
+    this.__setTextureResourceUid(texture);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
@@ -441,7 +454,6 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__height = desc.height;
     this.__mipLevelCount = desc.mipLevelCount;
     this.__internalFormat = desc.format;
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   async loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor) {
@@ -487,14 +499,13 @@ export class Texture extends AbstractTexture implements Disposable {
       compressionTextureType
     );
 
-    this._textureResourceUid = texture;
+    this.__setTextureResourceUid(texture);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
     }
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   generateCompressedTextureWithMipmapFromTypedArray(
@@ -515,14 +526,13 @@ export class Texture extends AbstractTexture implements Disposable {
       compressionTextureType
     );
 
-    this._textureResourceUid = texture;
+    this.__setTextureResourceUid(texture);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
     }
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   /**
@@ -542,16 +552,13 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__height = height;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
-    this._textureResourceUid = texture;
+    this.__setTextureResourceUid(texture);
     this.__startedToLoad = true;
     this.__isTextureReady = true;
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   destroy3DAPIResources() {
-    AbstractTexture.__textureMap.delete(this._textureResourceUid);
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(this._textureResourceUid);
+    Texture.__deleteInternalTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
     this.__isTextureReady = false;
     this.__startedToLoad = false;
@@ -559,8 +566,21 @@ export class Texture extends AbstractTexture implements Disposable {
     return true;
   }
 
+  private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
+    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webGLResourceRepository.deleteTexture(textureResourceUid);
+  }
+
   [Symbol.dispose]() {
-    console.log('dispose Texture');
+    console.log('[Symbol.dispose] is called');
+    this.destroy();
+  }
+
+  destroy() {
     this.destroy3DAPIResources();
+    this.unregister();
+    if (Texture.managedRegistry) {
+      Texture.managedRegistry.unregister(this);
+    }
   }
 }
