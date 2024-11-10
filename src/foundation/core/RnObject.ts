@@ -93,7 +93,7 @@ export class RnObject implements IRnObject {
       console.warn(RnObject.ERROR_MESSAGE_FOR_UNMANAGED_OBJECT_REFERENCE);
       return undefined;
     }
-    return RnObject.__objects[objectUid].deref();
+    return RnObject.__objects[objectUid]?.deref();
   }
 
   /**
