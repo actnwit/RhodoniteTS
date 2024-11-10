@@ -24,6 +24,7 @@ let eventTargetDom: HTMLElement | undefined;
 let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable cache
 let cgApiDebugConsoleOutput = false;
 let multiViewForWebVR = false;
+let isRnObjectReferenceManaged = true; // Whether to manage RnObject references or not
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -55,4 +56,5 @@ export const Config = {
   cacheWebGpuRenderBundles,
   cgApiDebugConsoleOutput,
   multiViewForWebVR,
+  isRnObjectReferenceManaged,
 };
