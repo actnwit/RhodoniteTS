@@ -37,7 +37,7 @@ export interface LoadImageToMipLevelDescriptor {
   type: ComponentTypeEnum; // component type of the image data
 }
 
-export class Texture extends AbstractTexture {
+export class Texture extends AbstractTexture implements Disposable {
   public autoResize = true;
   public autoDetectTransparency = false;
   private static __loadedBasisFunc = false;
@@ -557,5 +557,10 @@ export class Texture extends AbstractTexture {
     this.__startedToLoad = false;
 
     return true;
+  }
+
+  [Symbol.dispose]() {
+    console.log('dispose Texture');
+    this.destroy3DAPIResources();
   }
 }
