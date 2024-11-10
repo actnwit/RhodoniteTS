@@ -267,7 +267,7 @@ export class Primitive extends RnObject {
     this.__attributes = attributes;
 
     const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
-    positionAccessor._primitive = this;
+    positionAccessor._primitive = new WeakRef(this);
 
     if (material != null) {
       this.material = material;
