@@ -53,17 +53,14 @@ export class Texture extends AbstractTexture implements Disposable {
     generateMipmap: boolean;
   };
 
-  private static managedRegistry?: FinalizationRegistry<{
+  private static managedRegistry: FinalizationRegistry<{
     textureResourceUid: CGAPIResourceHandle;
-  }> =
-    'FinalizationRegistry' in window
-      ? new FinalizationRegistry<{ textureResourceUid: CGAPIResourceHandle }>((texObj) => {
-          console.warn(
-            'WebGL/WebGPU Texture was automatically released by GC. Explicit release is recommended'
-          );
-          Texture.__deleteInternalTexture(texObj.textureResourceUid);
-        })
-      : undefined;
+  }> = new FinalizationRegistry<{ textureResourceUid: CGAPIResourceHandle }>((texObj) => {
+    console.warn(
+      'WebGL/WebGPU Texture was automatically released by GC. But explicit release is recommended.'
+    );
+    Texture.__deleteInternalTexture(texObj.textureResourceUid);
+  });
 
   constructor() {
     super();
@@ -71,9 +68,7 @@ export class Texture extends AbstractTexture implements Disposable {
 
   private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle) {
     this._textureResourceUid = textureResourceUid;
-    if (Texture.managedRegistry) {
-      Texture.managedRegistry.register(this, { textureResourceUid }, this);
-    }
+    Texture.managedRegistry.register(this, { textureResourceUid }, this);
   }
 
   get hasDataToLoadLazy() {
@@ -579,8 +574,6 @@ export class Texture extends AbstractTexture implements Disposable {
   destroy() {
     this.destroy3DAPIResources();
     this.unregister();
-    if (Texture.managedRegistry) {
-      Texture.managedRegistry.unregister(this);
-    }
+    Texture.managedRegistry.unregister(this);
   }
 }
