@@ -68,7 +68,7 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __mesh?: Mesh;
-  private static __primitives: Primitive[] = [];
+  private static __primitives: WeakRef<Primitive>[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
 
@@ -243,7 +243,7 @@ export class Primitive extends RnObject {
   }
 
   static getPrimitive(primitiveUid: PrimitiveUID) {
-    return this.__primitives[primitiveUid];
+    return this.__primitives[primitiveUid]?.deref();
   }
 
   static getPrimitiveCount() {
@@ -285,7 +285,7 @@ export class Primitive extends RnObject {
     );
 
     this.__primitiveUid = Primitive.__primitiveCount++;
-    Primitive.__primitives[this.__primitiveUid] = this;
+    Primitive.__primitives[this.__primitiveUid] = new WeakRef(this);
     this.calcFingerPrint();
   }
 
