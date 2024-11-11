@@ -9,7 +9,7 @@ export interface RnWebGLProgram extends WebGLProgram {
   _fragmentShaderStr: string;
   _shaderSemanticsInfoMap: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
   __SPECTOR_rebuildProgram: unknown;
-  _material: Material;
+  _material: WeakRef<Material>;
 }
 
 export interface RnWebGLTexture extends WebGLTexture {

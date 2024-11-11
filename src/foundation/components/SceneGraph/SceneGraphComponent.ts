@@ -58,7 +58,7 @@ export class SceneGraphComponent extends Component {
   _isCulled = false;
   private static readonly __originVector3 = Vector3.zero();
   private static returnVector3 = MutableVector3.zero();
-  private static __sceneGraphs: SceneGraphComponent[] = [];
+  private static __sceneGraphs: WeakRef<SceneGraphComponent>[] = [];
   private static isJointAABBShouldBeCalculated = false;
   private static invertedMatrix44 = MutableMatrix44.fromCopyArray16ColumnMajor([
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -80,7 +80,7 @@ export class SceneGraphComponent extends Component {
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
 
-    SceneGraphComponent.__sceneGraphs.push(this);
+    SceneGraphComponent.__sceneGraphs.push(new WeakRef(this));
 
     this.registerMember(
       BufferUse.GPUInstanceData,
@@ -238,9 +238,16 @@ export class SceneGraphComponent extends Component {
   }
 
   static getTopLevelComponents(): SceneGraphComponent[] {
-    return SceneGraphComponent.__sceneGraphs.filter((sg: SceneGraphComponent) => {
-      return sg.isTopLevel;
-    });
+    return SceneGraphComponent.__sceneGraphs
+      .map((sgRef) => sgRef.deref())
+      .filter((sg: SceneGraphComponent | undefined) => {
+        if (sg !== undefined) {
+          return sg.isTopLevel;
+        } else {
+          return false;
+        }
+      })
+      .filter((sg) => sg !== undefined);
   }
 
   isJoint() {
@@ -948,6 +955,7 @@ export class SceneGraphComponent extends Component {
   }
 
   _destroy() {
+    super._destroy();
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();
     this.__translationGizmo?._destroy();

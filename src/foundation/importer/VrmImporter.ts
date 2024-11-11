@@ -71,6 +71,11 @@ export class VrmImporter {
     this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
     this._readExpressions(gltfModel as Vrm1, rootGroup);
     this._readConstraints(gltfModel as Vrm1);
+
+    if (gltfModel.asset.extras?.rnLoaderOptions != null) {
+      // remove reference to defaultMaterialHelperArgumentArray
+      gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray = [];
+    }
   }
 
   static _readConstraints(gltfModel: Vrm1) {
@@ -333,8 +338,8 @@ export class VrmImporter {
       if (mtoonMaterial == null) {
         continue;
       }
-      const dummyWhiteTextureNumber = texturesLength - 2;
-      const dummyBlackTextureNumber = texturesLength - 1;
+      const dummyWhiteTextureNumber = -1;
+      const dummyBlackTextureNumber = -1;
 
       const vrm0xMaterialProperty: Vrm0xMaterialProperty = {
         name: 'vrm0xMaterialProperty',

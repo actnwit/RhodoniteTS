@@ -6,7 +6,7 @@
     "module": "ESNext",
     "declaration": false,
     "declarationDir": null,
-    "lib": ["es2019", "DOM"],
+    "lib": ["ES2022", "DOM", "ESNext"],
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,

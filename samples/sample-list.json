@@ -62,6 +62,7 @@
   "simple": [
     "4DViews",
     "BasisTexture",
+    "Destruction",
     "DracoPointCloudJSONImporter",
     "DracoPointCloudPrimitiveImporter",
     "Effekseer",

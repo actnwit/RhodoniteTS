@@ -50,7 +50,7 @@ export class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrategy {
     WebGLResourceRepository.getInstance();
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = -1;
-  private __lastMaterial?: Material;
+  private __lastMaterial?: WeakRef<Material>;
   private __lastRenderPassTickCount = -1;
   private __lightComponents?: LightComponent[];
   private static __globalDataRepository = GlobalDataRepository.getInstance();
@@ -470,6 +470,9 @@ bool get_isBillboard(float instanceId) {
   ) {
     const gl = glw.getRawContext();
     const primitive = Primitive.getPrimitive(primitiveUid);
+    if (primitive == null) {
+      return false;
+    }
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     setupShaderProgram(material, primitive, this);
 
@@ -521,9 +524,9 @@ bool get_isBillboard(float instanceId) {
         this.__lastShader = shaderProgramUid;
       }
 
-      if (this.__lastMaterial !== material) {
+      if (this.__lastMaterial?.deref() !== material) {
         firstTime = true;
-        this.__lastMaterial = material;
+        this.__lastMaterial = new WeakRef(material);
       }
 
       for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {

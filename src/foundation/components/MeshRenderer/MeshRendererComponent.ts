@@ -223,6 +223,13 @@ export class MeshRendererComponent extends Component {
         CameraComponent.current
       ) as CameraComponent;
     }
+    if (cameraComponent == null) {
+      const cameraComponents = ComponentRepository.getComponentsWithType(
+        CameraComponent
+      ) as CameraComponent[];
+      cameraComponent = cameraComponents.find((c) => c != null && c._isAlive)!;
+      CameraComponent.current = cameraComponent.componentSID;
+    }
     if (renderPass.isVrRendering) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       if (rnXRModule != null) {
@@ -360,13 +367,13 @@ export class MeshRendererComponent extends Component {
         }
       };
       for (const meshComponent of meshComponents) {
-        if (meshComponent.entity.getSceneGraph().isVisible) {
+        if (meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible) {
           frustumCulling(meshComponent, filteredMeshComponents);
         }
       }
     } else {
       filteredMeshComponents = meshComponents.filter(
-        (meshComponent) => meshComponent.entity.getSceneGraph().isVisible
+        (meshComponent) => meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible
       );
     }
 
@@ -437,6 +444,12 @@ export class MeshRendererComponent extends Component {
     this.diffuseCubeMapContribution = component.diffuseCubeMapContribution;
     this.specularCubeMapContribution = component.specularCubeMapContribution;
     this.rotationOfCubeMap = component.rotationOfCubeMap;
+  }
+
+  _destroy(): void {
+    super._destroy();
+    this.__diffuseCubeMap = undefined;
+    this.__specularCubeMap = undefined;
   }
 
   /**

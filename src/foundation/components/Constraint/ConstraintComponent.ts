@@ -46,6 +46,11 @@ export class ConstraintComponent extends Component {
     this.__vrmConstraint = constraint;
   }
 
+  _destroy(): void {
+    super._destroy();
+    this.__vrmConstraint = undefined;
+  }
+
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,
     _componentClass: SomeComponentClass

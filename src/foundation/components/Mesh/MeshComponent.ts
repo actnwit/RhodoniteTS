@@ -268,6 +268,7 @@ export class MeshComponent extends Component {
   }
 
   _destroy(): void {
+    super._destroy();
     if (this.__mesh) {
       this.__mesh = undefined;
     }

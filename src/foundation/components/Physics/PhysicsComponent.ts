@@ -48,6 +48,11 @@ export class PhysicsComponent extends Component {
     this.__strategy?.update();
   }
 
+  _destroy(): void {
+    super._destroy();
+    this.__strategy = undefined;
+  }
+
   /**
    * @override
    * Add this component to the entity

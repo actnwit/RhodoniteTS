@@ -59,7 +59,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __dataTextureUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __dataUBOUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
   private __lastShader: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
-  private __lastMaterial?: Material;
+  private __lastMaterial?: WeakRef<Material>;
   private __lastMaterialStateVersion = -1;
   private static __shaderProgram: WebGLProgram;
   private __lastRenderPassTickCount = -1;
@@ -827,6 +827,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   ) {
     const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
+    if (primitive == null) {
+      return false;
+    }
     const mesh = primitive.mesh as Mesh;
     const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
     // setup shader program
@@ -857,9 +860,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
       firstTime = true;
     }
-    if (this.__lastMaterial !== material) {
+    if (this.__lastMaterial?.deref() !== material) {
       firstTime = true;
-      this.__lastMaterial = material;
+      this.__lastMaterial = new WeakRef(material);
     }
     if (this.__lastMaterialStateVersion !== material.stateVersion) {
       firstTime = true;

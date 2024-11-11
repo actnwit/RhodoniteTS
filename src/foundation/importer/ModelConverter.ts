@@ -577,7 +577,9 @@ export class ModelConverter {
     rnMaterials: Material[]
   ) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
-    const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
+    const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[
+      meshIndex
+    ]?.deref() as Mesh | undefined;
     let rnPrimitiveMode = PrimitiveMode.Triangles;
     const meshComponent = meshEntity.getMesh();
 
@@ -624,9 +626,10 @@ export class ModelConverter {
           const rnExtension = VRMProperties.rnExtension;
           if (rnExtension != null) {
             const renderPassOutline = rnExtension.renderPassOutline;
-            const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial;
+            const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial?.deref();
             if (outlineMaterial != null) {
               renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+              rnPrimitive.setMaterialVariant('outline', outlineMaterial); // To attach an outlineMaterial reference to the primitive
             }
           }
         }
@@ -718,7 +721,7 @@ export class ModelConverter {
       }
 
       meshComponent.setMesh(rnMesh);
-      (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = rnMesh;
+      (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = new WeakRef(rnMesh);
     }
 
     return meshEntity;
@@ -829,7 +832,9 @@ export class ModelConverter {
           });
         }
 
-        materialJson.extras!.outlineMaterial = outlineMaterial;
+        if (Is.exist(outlineMaterial)) {
+          materialJson.extras!.outlineMaterial = new WeakRef(outlineMaterial);
+        }
       }
 
       const material = MaterialHelper.createMToonMaterial({
@@ -991,7 +996,9 @@ export class ModelConverter {
           });
         }
 
-        materialJson.extras!.outlineMaterial = outlineMaterial;
+        if (Is.exist(outlineMaterial)) {
+          materialJson.extras!.outlineMaterial = new WeakRef(outlineMaterial);
+        }
       }
 
       const material = MaterialHelper.createMToonMaterial({
@@ -1390,8 +1397,9 @@ export class ModelConverter {
       rnTexture.name = image.uri;
     } else {
       const ext = image.mimeType?.split('/')[1];
-      rnTexture.name = image.name + `.${ext}`;
+      rnTexture.name = image.name ?? texture.name + `.${ext}`;
     }
+    rnTexture.tryToSetUniqueName(rnTexture.name, true);
 
     return rnTexture;
   }

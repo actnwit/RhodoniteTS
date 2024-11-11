@@ -62,8 +62,6 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
         cgApiResourceRepository as WebGpuResourceRepository
       ).createCubeTextureViewAsRenderTarget(this._textureResourceUid, 0, 0);
     }
-
-    AbstractTexture.__textureMap.set(texture, this);
   }
 
   generateMipmaps() {
@@ -79,7 +77,6 @@ export class RenderTargetTextureCube extends AbstractTexture implements IRendera
   }
 
   destroy3DAPIResources() {
-    AbstractTexture.__textureMap.delete(this._textureResourceUid);
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.deleteTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;

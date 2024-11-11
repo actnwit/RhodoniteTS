@@ -68,7 +68,7 @@ export class Accessor {
   private static __tmpVector2_0 = MutableVector2.zero();
   private __version = 0;
 
-  public _primitive?: Primitive;
+  public _primitive?: WeakRef<Primitive>;
 
   constructor({
     bufferView,
@@ -189,8 +189,8 @@ export class Accessor {
 
   private __onUpdated() {
     this.__version++;
-    if (this._primitive) {
-      this._primitive.onAccessorUpdated(this.__version);
+    if (this._primitive != null) {
+      this._primitive.deref()?.onAccessorUpdated(this.__version);
     }
   }
 

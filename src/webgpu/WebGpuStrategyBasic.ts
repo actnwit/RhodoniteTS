@@ -351,7 +351,7 @@ ${indexStr}
       console.log(e);
       primitive._restoreMaterial();
       this.setupShaderForMaterial(
-        primitive._prevMaterial,
+        primitive.material,
         primitive,
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
         WebGpuStrategyBasic.__getShaderProperty
@@ -450,6 +450,9 @@ ${indexStr}
       return false;
     }
     const primitive = Primitive.getPrimitive(primitiveUid);
+    if (primitive == null) {
+      return false;
+    }
     const material: Material = renderPass.getAppropriateMaterial(primitive);
     this._setupShaderProgram(material, primitive);
     if (isSkipDrawing(material, primitive)) {

@@ -82,6 +82,10 @@ export class VrmComponent extends Component {
     this._version = vrmComponent._version;
   }
 
+  _destroy(): void {
+    super._destroy();
+  }
+
   /**
    * @override
    * Add this component to the entity

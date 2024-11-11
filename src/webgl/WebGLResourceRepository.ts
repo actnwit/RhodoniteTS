@@ -414,7 +414,7 @@ export class WebGLResourceRepository
     shaderProgram._vertexShaderStr = vertexShaderStr;
     shaderProgram._fragmentShaderStr = fragmentShaderStr;
     shaderProgram._shaderSemanticsInfoMap = new Map();
-    shaderProgram._material = material;
+    shaderProgram._material = new WeakRef(material);
 
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
@@ -2426,6 +2426,7 @@ export class WebGLResourceRepository
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
+      console.debug('gl.deleteTexture called:', textureHandle);
     }
   }
 
@@ -2864,7 +2865,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
   ): boolean {
     // Callback triggered by your engine in case of error. It needs to send the WebGL error to allow the editor to display the error in the gutter.
 
-    const material = this._material;
+    const material = this._material.deref();
     if (Is.not.exist(material)) {
       const warn = 'Material Not found';
       console.warn(warn);

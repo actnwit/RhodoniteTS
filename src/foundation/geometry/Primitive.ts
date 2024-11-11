@@ -59,7 +59,7 @@ export class Primitive extends RnObject {
   private __material: Material;
   private __materialVariants: Map<string, Material> = new Map();
   private __currentVariantName = '';
-  public _prevMaterial: Material;
+  public _prevMaterial: WeakRef<Material>;
   private __attributes: Attributes = new Map();
   private __oIndices: IOption<Accessor> = new None();
   private static __primitiveCount: Count = 0;
@@ -68,12 +68,12 @@ export class Primitive extends RnObject {
   private __targets: Array<Attributes> = [];
   private __vertexHandles?: VertexHandles;
   private __mesh?: Mesh;
-  private static __primitives: Primitive[] = [];
+  private static __primitives: WeakRef<Primitive>[] = [];
   public _sortkey: PrimitiveSortKey = 0;
   public _viewDepth = 0;
 
   private static __primitiveUidIdxHasMorph: Map<PrimitiveUID, Index> = new Map();
-  private static __idxPrimitiveUidHasMorph: Map<Index, Primitive> = new Map();
+  private static __idxPrimitiveUidHasMorph: Map<Index, WeakRef<Primitive>> = new Map();
   private static __primitiveCountHasMorph = 0;
 
   private static __tmpVec3_0: MutableVector3 = MutableVector3.zero();
@@ -95,7 +95,7 @@ export class Primitive extends RnObject {
     }
 
     this.__material = Primitive.__defaultMaterial;
-    this._prevMaterial = Primitive.__defaultMaterial;
+    this._prevMaterial = new WeakRef(Primitive.__defaultMaterial);
   }
 
   calcFingerPrint() {
@@ -124,7 +124,7 @@ export class Primitive extends RnObject {
   }
 
   static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined {
-    return this.__idxPrimitiveUidHasMorph.get(primitiveIdx);
+    return this.__idxPrimitiveUidHasMorph.get(primitiveIdx)?.deref();
   }
 
   getIndexBitSize(): 'uint16' | 'uint32' {
@@ -235,15 +235,18 @@ export class Primitive extends RnObject {
   }
 
   _backupMaterial() {
-    this._prevMaterial = this.__material;
+    this._prevMaterial = new WeakRef(this.__material);
   }
 
   _restoreMaterial() {
-    this.__material = this._prevMaterial;
+    const material = this._prevMaterial.deref();
+    if (material != null) {
+      this.__material = material;
+    }
   }
 
   static getPrimitive(primitiveUid: PrimitiveUID) {
-    return this.__primitives[primitiveUid];
+    return this.__primitives[primitiveUid]?.deref();
   }
 
   static getPrimitiveCount() {
@@ -267,7 +270,7 @@ export class Primitive extends RnObject {
     this.__attributes = attributes;
 
     const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
-    positionAccessor._primitive = this;
+    positionAccessor._primitive = new WeakRef(this);
 
     if (material != null) {
       this.material = material;
@@ -285,7 +288,7 @@ export class Primitive extends RnObject {
     );
 
     this.__primitiveUid = Primitive.__primitiveCount++;
-    Primitive.__primitives[this.__primitiveUid] = this;
+    Primitive.__primitives[this.__primitiveUid] = new WeakRef(this);
     this.calcFingerPrint();
   }
 
@@ -528,7 +531,10 @@ export class Primitive extends RnObject {
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumber'
       );
     } else {
-      Primitive.__idxPrimitiveUidHasMorph.set(Primitive.__primitiveCountHasMorph, this);
+      Primitive.__idxPrimitiveUidHasMorph.set(
+        Primitive.__primitiveCountHasMorph,
+        new WeakRef(this)
+      );
       Primitive.__primitiveUidIdxHasMorph.set(
         this.__primitiveUid,
         Primitive.__primitiveCountHasMorph++

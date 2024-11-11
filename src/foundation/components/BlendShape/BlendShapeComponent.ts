@@ -63,6 +63,10 @@ export class BlendShapeComponent extends Component {
 
   $logic() {}
 
+  _destroy(): void {
+    super._destroy();
+  }
+
   /**
    * @override
    * Add this component to the entity
