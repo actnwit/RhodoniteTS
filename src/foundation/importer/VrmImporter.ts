@@ -71,6 +71,11 @@ export class VrmImporter {
     this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
     this._readExpressions(gltfModel as Vrm1, rootGroup);
     this._readConstraints(gltfModel as Vrm1);
+
+    if (gltfModel.asset.extras?.rnLoaderOptions != null) {
+      // remove reference to defaultMaterialHelperArgumentArray
+      gltfModel.asset.extras.rnLoaderOptions.defaultMaterialHelperArgumentArray = [];
+    }
   }
 
   static _readConstraints(gltfModel: Vrm1) {
