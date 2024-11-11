@@ -223,6 +223,13 @@ export class MeshRendererComponent extends Component {
         CameraComponent.current
       ) as CameraComponent;
     }
+    if (cameraComponent == null) {
+      const cameraComponents = ComponentRepository.getComponentsWithType(
+        CameraComponent
+      ) as CameraComponent[];
+      cameraComponent = cameraComponents.find((c) => c != null && c._isAlive)!;
+      CameraComponent.current = cameraComponent.componentSID;
+    }
     if (renderPass.isVrRendering) {
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
       if (rnXRModule != null) {
