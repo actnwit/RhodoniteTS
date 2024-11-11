@@ -59,7 +59,7 @@ export class Primitive extends RnObject {
   private __material: Material;
   private __materialVariants: Map<string, Material> = new Map();
   private __currentVariantName = '';
-  public _prevMaterial: Material;
+  public _prevMaterial: WeakRef<Material>;
   private __attributes: Attributes = new Map();
   private __oIndices: IOption<Accessor> = new None();
   private static __primitiveCount: Count = 0;
@@ -95,7 +95,7 @@ export class Primitive extends RnObject {
     }
 
     this.__material = Primitive.__defaultMaterial;
-    this._prevMaterial = Primitive.__defaultMaterial;
+    this._prevMaterial = new WeakRef(Primitive.__defaultMaterial);
   }
 
   calcFingerPrint() {
@@ -235,11 +235,14 @@ export class Primitive extends RnObject {
   }
 
   _backupMaterial() {
-    this._prevMaterial = this.__material;
+    this._prevMaterial = new WeakRef(this.__material);
   }
 
   _restoreMaterial() {
-    this.__material = this._prevMaterial;
+    const material = this._prevMaterial.deref();
+    if (material != null) {
+      this.__material = material;
+    }
   }
 
   static getPrimitive(primitiveUid: PrimitiveUID) {

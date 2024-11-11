@@ -351,7 +351,7 @@ ${indexStr}
       console.log(e);
       primitive._restoreMaterial();
       this.setupShaderForMaterial(
-        primitive._prevMaterial,
+        primitive.material,
         primitive,
         WebGpuStrategyBasic.getVertexShaderMethodDefinitions_storageBuffer(),
         WebGpuStrategyBasic.__getShaderProperty
