@@ -1392,7 +1392,7 @@ export class ModelConverter {
       rnTexture.name = image.uri;
     } else {
       const ext = image.mimeType?.split('/')[1];
-      rnTexture.name = image.name + `.${ext}`;
+      rnTexture.name = image.name ?? texture.name + `.${ext}`;
     }
 
     return rnTexture;
