@@ -18,6 +18,8 @@ import { PrimitiveMode, PrimitiveModeEnum } from '../definitions/PrimitiveMode';
 import { CGAPIResourceRepository } from './CGAPIResourceRepository';
 import { flattenHierarchy } from '../components/SceneGraph/SceneGraphOps';
 
+type PrimitiveRnObjectUID = number;
+
 /**
  * A render pass is a collection of the resources which is used in rendering process.
  */
@@ -33,7 +35,7 @@ export class RenderPass extends RnObject {
   private __resolveFrameBuffer2?: FrameBuffer;
   private __viewport?: MutableVector4;
   private __material?: Material;
-  private __primitiveMaterial: Map<Primitive, Material> = new Map();
+  private __primitiveMaterial: Map<PrimitiveRnObjectUID, WeakRef<Material>> = new Map();
 
   // Public RenderPass Settings
   public toClearColorBuffer = false;
@@ -463,7 +465,7 @@ export class RenderPass extends RnObject {
    * @param primitive A target primitive
    */
   setMaterialForPrimitive(material: Material, primitive: Primitive) {
-    this.__primitiveMaterial.set(primitive, material);
+    this.__primitiveMaterial.set(primitive.objectUID, new WeakRef(material));
 
     // this.__setupMaterial(material, primitive);s
   }
@@ -485,11 +487,11 @@ export class RenderPass extends RnObject {
   }
 
   _getMaterialOf(primitive: Primitive) {
-    return this.__primitiveMaterial.get(primitive);
+    return this.__primitiveMaterial.get(primitive.objectUID)?.deref();
   }
 
   private __hasMaterialOf(primitive: Primitive) {
-    return this.__primitiveMaterial.has(primitive);
+    return this.__primitiveMaterial.has(primitive.objectUID);
   }
 
   getAppropriateMaterial(primitive: Primitive): Material {
