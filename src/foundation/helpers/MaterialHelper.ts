@@ -1149,6 +1149,61 @@ function createMToonMaterial({
   const material = createMaterial(materialName, materialNode, maxInstancesNumber);
   materialNode.setMaterialParameters(material, isOutline);
 
+  material.setTextureParameter(
+    'litColorTexture',
+    textures![materialProperties!.textureProperties._MainTex],
+    samplers![materialProperties!.textureProperties._MainTex]
+  );
+
+  material.setTextureParameter(
+    'shadeColorTexture',
+    textures![materialProperties!.textureProperties._ShadeTexture],
+    samplers![materialProperties!.textureProperties._ShadeTexture]
+  );
+
+  material.setTextureParameter(
+    'receiveShadowTexture',
+    textures![materialProperties!.textureProperties._ReceiveShadowTexture],
+    samplers![materialProperties!.textureProperties._ReceiveShadowTexture]
+  );
+
+  material.setTextureParameter(
+    'shadingGradeTexture',
+    textures![materialProperties!.textureProperties._ShadingGradeTexture],
+    samplers![materialProperties!.textureProperties._ShadingGradeTexture]
+  );
+
+  material.setTextureParameter(
+    'rimTexture',
+    textures![materialProperties!.textureProperties._RimTexture],
+    samplers![materialProperties!.textureProperties._RimTexture]
+  );
+
+  material.setTextureParameter(
+    'matCapTexture',
+    textures![materialProperties!.textureProperties._SphereAdd],
+    samplers![materialProperties!.textureProperties._SphereAdd]
+  );
+
+  material.setTextureParameter(
+    'emissionTexture',
+    textures![materialProperties!.textureProperties._EmissionMap],
+    samplers![materialProperties!.textureProperties._EmissionMap]
+  );
+
+  material.setTextureParameter(
+    'normalTexture',
+    textures![materialProperties!.textureProperties._BumpMap],
+    samplers![materialProperties!.textureProperties._BumpMap]
+  );
+
+  if (isOutline) {
+    material.setTextureParameter(
+      'outlineWidthTexture',
+      textures![materialProperties!.textureProperties._OutlineWidthTexture],
+      samplers![materialProperties!.textureProperties._OutlineWidthTexture]
+    );
+  }
   return material;
 }
 

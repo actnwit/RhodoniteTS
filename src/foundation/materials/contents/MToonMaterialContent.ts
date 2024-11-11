@@ -148,7 +148,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     if (materialProperties != null) {
       this.__floatProperties = materialProperties.floatProperties;
       this.__vectorProperties = materialProperties.vectorProperties;
-      this.__textureProperties = materialProperties.textureProperties;
+      this.__textureProperties = JSON.parse(JSON.stringify(materialProperties.textureProperties));
     } else {
       this.__floatProperties._BlendMode = 0.0;
       this.__floatProperties._BumpScale = 1.0;
@@ -190,20 +190,19 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       // this.__vectorProperties._ShadeTexture = [0, 0, 1, 1];
       // this.__vectorProperties._ShadingGradeTexture = [0, 0, 1, 1];
       // this.__vectorProperties._SphereAdd = [0, 0, 1, 1];
-
-      this.__textureProperties._BumpMap = 0;
-      this.__textureProperties._EmissionMap = 1;
-      this.__textureProperties._MainTex = 0;
-      this.__textureProperties._OutlineWidthTexture = 0;
-      this.__textureProperties._ReceiveShadowTexture = 0;
-      this.__textureProperties._RimTexture = 1;
-      this.__textureProperties._ShadeTexture = 0;
-      this.__textureProperties._ShadingGradeTexture = 0;
-      this.__textureProperties._SphereAdd = 1;
-      // this.__textureProperties._UvAnimMaskTexture = 0;
-
-      textures = [dummyWhiteTexture, dummyBlackTexture];
     }
+    this.__textureProperties._BumpMap = 0;
+    this.__textureProperties._EmissionMap = 1;
+    this.__textureProperties._MainTex = 0;
+    this.__textureProperties._OutlineWidthTexture = 0;
+    this.__textureProperties._ReceiveShadowTexture = 0;
+    this.__textureProperties._RimTexture = 1;
+    this.__textureProperties._ShadeTexture = 0;
+    this.__textureProperties._ShadingGradeTexture = 0;
+    this.__textureProperties._SphereAdd = 1;
+    // this.__textureProperties._UvAnimMaskTexture = 0;
+
+    textures = [dummyWhiteTexture, dummyBlackTexture];
 
     if (debugMode) {
       this.__floatProperties._DebugMode = debugMode;
