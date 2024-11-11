@@ -439,6 +439,12 @@ export class MeshRendererComponent extends Component {
     this.rotationOfCubeMap = component.rotationOfCubeMap;
   }
 
+  _destroy(): void {
+    super._destroy();
+    this.__diffuseCubeMap = undefined;
+    this.__specularCubeMap = undefined;
+  }
+
   /**
    * @override
    * Add this component to the entity

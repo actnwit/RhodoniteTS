@@ -357,6 +357,10 @@ export class TransformComponent extends Component {
     return EntityRepository.getEntity(this.__entityUid) as unknown as ITransformEntity;
   }
 
+  _destroy(): void {
+    super._destroy();
+  }
+
   /**
    * @override
    * Add this component to the entity

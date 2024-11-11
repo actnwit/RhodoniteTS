@@ -837,6 +837,7 @@ export class AnimationComponent extends Component {
   }
 
   _destroy(): void {
+    super._destroy();
     this.__animationTracks.clear();
     this.__isAnimating = false;
   }

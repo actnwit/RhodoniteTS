@@ -428,6 +428,10 @@ export class SkeletalComponent extends Component {
     return EntityRepository.getEntity(this.__entityUid) as unknown as ISkeletalEntity;
   }
 
+  _destroy(): void {
+    super._destroy();
+  }
+
   /**
    * @override
    * Add this component to the entity

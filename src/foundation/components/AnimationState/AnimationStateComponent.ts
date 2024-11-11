@@ -153,6 +153,10 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  _destroy(): void {
+    super._destroy();
+  }
+
   /**
    * get the entity which has this component.
    * @returns the entity which has this component

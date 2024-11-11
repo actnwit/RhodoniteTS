@@ -295,6 +295,7 @@ export class EffekseerComponent extends Component {
   }
 
   _destroy(): void {
+    super._destroy();
     if (Is.exist(this.__context)) {
       this.__context.releaseEffect(!this.__effect);
       effekseer.releaseContext(this.__context);

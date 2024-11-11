@@ -948,6 +948,7 @@ export class SceneGraphComponent extends Component {
   }
 
   _destroy() {
+    super._destroy();
     this.__aabbGizmo?._destroy();
     this.__locatorGizmo?._destroy();
     this.__translationGizmo?._destroy();
