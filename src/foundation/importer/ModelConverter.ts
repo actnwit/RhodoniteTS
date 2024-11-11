@@ -629,6 +629,7 @@ export class ModelConverter {
             const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial?.deref();
             if (outlineMaterial != null) {
               renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
+              rnPrimitive.setMaterialVariant('outline', outlineMaterial); // To attach an outlineMaterial reference to the primitive
             }
           }
         }
