@@ -199,13 +199,14 @@ export class MaterialRepository {
     propertyName: ShaderSemanticsName
   ): IndexOf16Bytes {
     const map = MaterialRepository.__instances.get(materialTypeName)!;
-    const material = map.get(0)?.deref(); // 0 is the first instance of the material type
-    if (Is.not.exist(material)) {
+    const materialRef = Array.from(map.values()).find((m) => m.deref() !== undefined); // find an actual exist material
+    if (Is.not.exist(materialRef?.deref())) {
       console.warn(
         `Material is not found. getLocationOffsetOfMemberOfMaterial returns invalid 0 value. materialTypeName: ${materialTypeName}`
       );
       return 0;
     }
+    const material = materialRef.deref()!;
     const info = material._allFieldsInfo.get(propertyName)!;
     if (info.soloDatum) {
       const value = Material._soloDatumFields.get(material.materialTypeName)!.get(propertyName);
