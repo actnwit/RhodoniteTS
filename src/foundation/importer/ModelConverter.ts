@@ -577,7 +577,9 @@ export class ModelConverter {
     rnMaterials: Material[]
   ) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
-    const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex];
+    const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[
+      meshIndex
+    ]?.deref() as Mesh | undefined;
     let rnPrimitiveMode = PrimitiveMode.Triangles;
     const meshComponent = meshEntity.getMesh();
 
@@ -718,7 +720,7 @@ export class ModelConverter {
       }
 
       meshComponent.setMesh(rnMesh);
-      (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = rnMesh;
+      (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[meshIndex] = new WeakRef(rnMesh);
     }
 
     return meshEntity;
