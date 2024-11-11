@@ -360,13 +360,13 @@ export class MeshRendererComponent extends Component {
         }
       };
       for (const meshComponent of meshComponents) {
-        if (meshComponent.entity.getSceneGraph().isVisible) {
+        if (meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible) {
           frustumCulling(meshComponent, filteredMeshComponents);
         }
       }
     } else {
       filteredMeshComponents = meshComponents.filter(
-        (meshComponent) => meshComponent.entity.getSceneGraph().isVisible
+        (meshComponent) => meshComponent._isAlive && meshComponent.entity.getSceneGraph().isVisible
       );
     }
 

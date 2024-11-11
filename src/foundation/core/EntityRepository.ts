@@ -15,7 +15,7 @@ import { ISceneGraphEntity } from '../helpers';
  */
 export class EntityRepository {
   private static __entity_uid_count: number = Entity.invalidEntityUID;
-  private static __entities: Array<IEntity> = [];
+  private static __entities: Array<IEntity | undefined> = [];
   static _components: Array<Map<ComponentTID, Component>> = []; // index is EntityUID
   private static __updateCount = 0;
 
@@ -28,7 +28,7 @@ export class EntityRepository {
     // check dead entity
     let deadUid = -1;
     for (let i = 0; i < this.__entities.length; i++) {
-      if (this.__entities[i]._isAlive === false) {
+      if (this.__entities[i] != null && this.__entities[i]!._isAlive === false) {
         deadUid = i;
       }
     }
@@ -64,7 +64,8 @@ export class EntityRepository {
       }
       ComponentRepository.deleteComponent(component);
     }
-    this.__entities[entityUid]._destroy();
+    this.__entities[entityUid]?._destroy();
+    delete this.__entities[entityUid];
     delete this._components[entityUid];
 
     this.__updateCount++;
@@ -274,7 +275,7 @@ export class EntityRepository {
    * @param entityUid The entityUID of the entity.
    */
   public static getEntity(entityUid: EntityUID): IEntity {
-    return this.__entities[entityUid];
+    return this.__entities[entityUid]!;
   }
 
   /**
@@ -282,7 +283,7 @@ export class EntityRepository {
    * @param entityUid The entityUID of the entity.
    */
   public getEntity(entityUid: EntityUID): IEntity {
-    return EntityRepository.__entities[entityUid];
+    return EntityRepository.__entities[entityUid]!;
   }
   /**
    * Gets the specified component from the entity.
@@ -313,7 +314,7 @@ export class EntityRepository {
   public static searchByTags(tags: RnTags) {
     const matchEntities = [];
     for (const entity of this.__entities) {
-      if (entity.matchTags(tags)) {
+      if (entity?.matchTags(tags)) {
         matchEntities.push(entity);
       }
     }
@@ -326,7 +327,7 @@ export class EntityRepository {
    */
   public static getEntityByUniqueName(uniqueName: string): IEntity | undefined {
     for (const entity of this.__entities) {
-      if (entity.uniqueName === uniqueName) {
+      if (entity != null && entity.uniqueName === uniqueName) {
         return entity;
       }
     }
@@ -338,14 +339,14 @@ export class EntityRepository {
    * Gets all entities.
    */
   public static _getEntities(): IEntity[] {
-    return this.__entities.filter((entity) => entity._isAlive);
+    return this.__entities.filter((entity) => entity != null && entity!._isAlive) as IEntity[];
   }
 
   /**
    * Gets the number of all entities.
    */
   public static getEntitiesNumber(): number {
-    const entities = this.__entities.filter((entity) => entity._isAlive);
+    const entities = this.__entities.filter((entity) => entity != null && entity!._isAlive);
     return entities.length;
   }
 
