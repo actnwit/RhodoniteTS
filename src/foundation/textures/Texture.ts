@@ -60,7 +60,7 @@ export class Texture extends AbstractTexture implements Disposable {
 
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
-      console.warn(
+      console.info(
         `WebGL/WebGPU Texture ${texObj.uniqueName} was automatically released by GC. But explicit release is recommended.`
       );
       Texture.__deleteInternalTexture(texObj.textureResourceUid);
@@ -571,7 +571,7 @@ export class Texture extends AbstractTexture implements Disposable {
   }
 
   [Symbol.dispose]() {
-    console.log('[Symbol.dispose] is called');
+    console.debug('[Symbol.dispose] is called');
     this.destroy();
   }
 
