@@ -566,8 +566,8 @@ export class Texture extends AbstractTexture implements Disposable {
   }
 
   private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
-    const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    webGLResourceRepository.deleteTexture(textureResourceUid);
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
 
   [Symbol.dispose]() {
