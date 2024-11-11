@@ -1399,6 +1399,7 @@ export class ModelConverter {
       const ext = image.mimeType?.split('/')[1];
       rnTexture.name = image.name ?? texture.name + `.${ext}`;
     }
+    rnTexture.tryToSetUniqueName(rnTexture.name, true);
 
     return rnTexture;
   }
