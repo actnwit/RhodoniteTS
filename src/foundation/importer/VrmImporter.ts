@@ -338,8 +338,8 @@ export class VrmImporter {
       if (mtoonMaterial == null) {
         continue;
       }
-      const dummyWhiteTextureNumber = texturesLength - 2;
-      const dummyBlackTextureNumber = texturesLength - 1;
+      const dummyWhiteTextureNumber = -1;
+      const dummyBlackTextureNumber = -1;
 
       const vrm0xMaterialProperty: Vrm0xMaterialProperty = {
         name: 'vrm0xMaterialProperty',
