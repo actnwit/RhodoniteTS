@@ -626,7 +626,7 @@ export class ModelConverter {
           const rnExtension = VRMProperties.rnExtension;
           if (rnExtension != null) {
             const renderPassOutline = rnExtension.renderPassOutline;
-            const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial;
+            const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial?.deref();
             if (outlineMaterial != null) {
               renderPassOutline.setMaterialForPrimitive(outlineMaterial, rnPrimitive);
             }
@@ -831,7 +831,9 @@ export class ModelConverter {
           });
         }
 
-        materialJson.extras!.outlineMaterial = outlineMaterial;
+        if (Is.exist(outlineMaterial)) {
+          materialJson.extras!.outlineMaterial = new WeakRef(outlineMaterial);
+        }
       }
 
       const material = MaterialHelper.createMToonMaterial({
@@ -993,7 +995,9 @@ export class ModelConverter {
           });
         }
 
-        materialJson.extras!.outlineMaterial = outlineMaterial;
+        if (Is.exist(outlineMaterial)) {
+          materialJson.extras!.outlineMaterial = new WeakRef(outlineMaterial);
+        }
       }
 
       const material = MaterialHelper.createMToonMaterial({
