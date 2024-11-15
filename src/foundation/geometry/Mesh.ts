@@ -19,6 +19,7 @@ import { IMesh, RaycastResultEx1 } from './types/GeometryTypes';
 import { IMeshEntity } from '../helpers/EntityHelper';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
+import { Logger } from '../misc/Logger';
 
 /**
  * The Mesh class.
@@ -232,7 +233,7 @@ export class Mesh implements IMesh {
       const primitive = this.__primitives[i];
       const vertexHandles = primitive.vertexHandles as VertexHandles;
       if (Is.undefined(vertexHandles)) {
-        console.warn('Need to create 3DAPIVertexData before update VAO');
+        Logger.warn('Need to create 3DAPIVertexData before update VAO');
         continue;
       }
 
@@ -570,7 +571,7 @@ export class Mesh implements IMesh {
 
       const validate = Math.abs(abc.x) < Number.EPSILON;
       if (validate) {
-        console.assert(validate, 'Polygons or polygons on UV are degenerate!');
+        Logger.assert(validate, 'Polygons or polygons on UV are degenerate!');
         return Vector3.fromCopyArray([0, 0, 0]);
       }
 

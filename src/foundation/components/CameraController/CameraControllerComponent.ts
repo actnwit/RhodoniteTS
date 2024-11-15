@@ -13,6 +13,7 @@ import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ProcessStage } from '../../definitions';
 import { ICameraControllerEntity } from '../../helpers/EntityHelper';
+import { Logger } from '../../misc/Logger';
 
 /**
  * The Component that controls camera posture.
@@ -38,7 +39,7 @@ export class CameraControllerComponent extends Component {
     } else if (type === CameraControllerType.WalkThrough) {
       this.__cameraController = new WalkThroughCameraController(this);
     } else {
-      console.warn('Not support type!');
+      Logger.warn('Not support type!');
     }
   }
 

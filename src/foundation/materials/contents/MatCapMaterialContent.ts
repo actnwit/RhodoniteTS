@@ -16,6 +16,7 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Sampler } from '../../textures/Sampler';
 import { dummyBlackTexture } from '../core/DummyTextures';
+import { Logger } from '../../misc/Logger';
 
 export class MatCapMaterialContent extends AbstractMaterialContent {
   static MatCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
@@ -41,7 +42,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     } else if (texture instanceof AbstractTexture) {
       matCapTexture = texture;
     } else {
-      console.warn('no matcap texture');
+      Logger.warn('no matcap texture');
       matCapTexture = dummyBlackTexture;
     }
 

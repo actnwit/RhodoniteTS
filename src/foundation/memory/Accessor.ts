@@ -24,6 +24,7 @@ import {
 import { Matrix44 } from '../math/Matrix44';
 import { Is } from '../misc/Is';
 import { Primitive } from '../geometry/Primitive';
+import { Logger } from '../misc/Logger';
 
 type DataViewGetter = (byteOffset: Byte, littleEndian?: boolean) => number;
 type DataViewSetter = (byteOffset: Byte, value: number, littleEndian?: boolean) => void;
@@ -148,7 +149,7 @@ export class Accessor {
       this.__raw.byteLength - this.__byteOffsetInRawArrayBufferOfBuffer;
     const maxLimitSizeToAccess = this.byteStride * this.__count - maxExceededSizeOnAoS;
     if (sizeFromAccessorBeginToArrayBufferEnd < maxLimitSizeToAccess) {
-      console.error(
+      Logger.error(
         `Requesting a data size that exceeds the remaining capacity of the buffer: ${
           this.bufferView.buffer.name
         }.
@@ -213,7 +214,7 @@ export class Accessor {
       case ComponentType.Double:
         return Float64Array;
       default:
-        console.error('Unexpected ComponentType!');
+        Logger.error('Unexpected ComponentType!');
         return void 0;
     }
   }
@@ -237,7 +238,7 @@ export class Accessor {
       case ComponentType.Double:
         return 'getFloat64';
       default:
-        console.error('Unexpected ComponentType!');
+        Logger.error('Unexpected ComponentType!');
         return 'unknown';
     }
   }
@@ -261,7 +262,7 @@ export class Accessor {
       case ComponentType.Double:
         return 'setFloat64';
       default:
-        console.error('Unexpected ComponentType!');
+        Logger.error('Unexpected ComponentType!');
     }
     return undefined;
   }
@@ -274,7 +275,7 @@ export class Accessor {
     // }
 
     if (this.__takenCount >= this.__count) {
-      console.error('You are trying to allocate more than you have secured.');
+      Logger.error('You are trying to allocate more than you have secured.');
     }
     const subTypedArray = new this.__typedArrayClass!(
       arrayBufferOfBufferView,
@@ -296,7 +297,7 @@ export class Accessor {
     const arrayBufferOfBufferView = this.__raw;
 
     if (idx >= this.__count) {
-      console.error('You are trying to allocate more than you have secured.');
+      Logger.error('You are trying to allocate more than you have secured.');
     }
     const subTypedArray = new this.__typedArrayClass!(
       arrayBufferOfBufferView,

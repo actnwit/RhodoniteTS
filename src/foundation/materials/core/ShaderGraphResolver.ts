@@ -37,6 +37,7 @@ import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
+import { Logger } from '../../misc/Logger';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -87,7 +88,7 @@ export class ShaderGraphResolver {
     try {
       shaderBody += ShaderGraphResolver.__constructShaderWithNodes(nodes, true, isFullVersion);
     } catch (e) {
-      console.error(e);
+      Logger.error(e as string);
       return undefined;
     }
 
@@ -135,7 +136,7 @@ export class ShaderGraphResolver {
         isFullVersion
       );
     } catch (e) {
-      console.error(e);
+      Logger.error(e as string);
       return undefined;
     }
 
@@ -224,7 +225,7 @@ export class ShaderGraphResolver {
     }
 
     if (sortedNodeArray.length != shaderNodes.length) {
-      console.error('graph is cyclic');
+      Logger.error('graph is cyclic');
     }
 
     return sortedNodeArray;
@@ -695,7 +696,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Vector4') {
           nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          console.log('Add node: Unknown socket name: ' + socketName);
+          Logger.error('Add node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -714,7 +715,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Vector4') {
           nodeInstance = new SinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          console.log('Sin node: Unknown socket name: ' + socketName);
+          Logger.error('Sin node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -733,7 +734,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Vector4') {
           nodeInstance = new StepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          console.log('Add node: Unknown socket name: ' + socketName);
+          Logger.error('Add node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -752,7 +753,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Vector4') {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          console.log('Add node: Unknown socket name: ' + socketName);
+          Logger.error('Add node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -769,7 +770,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Vector4') {
           nodeInstance = new NormalizeShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          console.log('Normalize node: Unknown socket name: ' + socketName);
+          Logger.error('Normalize node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -786,7 +787,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Vector4') {
           nodeInstance = new DotProductShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
-          console.log('Dot node: Unknown socket name: ' + socketName);
+          Logger.error('Dot node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -811,7 +812,7 @@ function constructNodes(json: ShaderNodeJson) {
         } else if (socketName === 'Matrix4') {
           nodeInstance = new MultiplyShaderNode(CompositionType.Mat4, ComponentType.Float);
         } else {
-          console.log('Multiply node: Unknown socket name: ' + socketName);
+          Logger.error('Multiply node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -843,7 +844,7 @@ function constructNodes(json: ShaderNodeJson) {
             ComponentType.Float
           );
         } else {
-          console.log('Transform node: Unknown socket name: ' + socketName);
+          Logger.error('Transform node: Unknown socket name: ' + socketName);
           break;
         }
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
@@ -949,7 +950,7 @@ function constructNodes(json: ShaderNodeJson) {
     const inputNodeInstance = nodeInstances[connection.from.id] as AbstractShaderNode | undefined;
     const outputNodeInstance = nodeInstances[connection.to.id] as AbstractShaderNode | undefined;
     if (inputNodeInstance == null || outputNodeInstance == null) {
-      console.error('inputNodeInstance or outputNodeInstance is null');
+      Logger.error('inputNodeInstance or outputNodeInstance is null');
       continue;
     }
     let idx = 0;

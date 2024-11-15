@@ -13,6 +13,7 @@ import { IVector3 } from '../foundation/math/IVector';
 import { IEntity } from '../foundation/core/Entity';
 import { ComponentToComponentMethods } from '../foundation/components/ComponentTypes';
 import { RenderPass } from '../foundation/renderer/RenderPass';
+import { Logger } from '../foundation/misc/Logger';
 
 export class EffekseerComponent extends Component {
   public static readonly ANIMATION_EVENT_PLAY = 0;
@@ -70,11 +71,11 @@ export class EffekseerComponent extends Component {
 
   play() {
     if (Is.not.exist(this.__context)) {
-      console.warn('No Effekseer context yet');
+      Logger.warn('No Effekseer context yet');
       return false;
     }
     if (Is.not.exist(this.__effect)) {
-      console.warn('No Effekseer effect yet');
+      Logger.warn('No Effekseer effect yet');
       return false;
     }
 
@@ -192,7 +193,7 @@ export class EffekseerComponent extends Component {
     effekseer.setImageCrossOrigin(this.isImageLoadWithCredential ? 'use-credentials' : '');
     this.__context = effekseer.createContext();
     if (Is.not.exist(this.__context)) {
-      console.error('Effekseer context creation fails');
+      Logger.error('Effekseer context creation fails');
       return false;
     }
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -209,11 +210,11 @@ export class EffekseerComponent extends Component {
       }
     };
     const onError = (message: string, path: string) => {
-      console.error(message, path);
+      Logger.error(message + ', ' + path);
     };
     if (this.type === 'efkpkg') {
       if (Is.not.exist(EffekseerComponent.Unzip)) {
-        console.error('Please Set an Unzip object to EffekseerComponent.Unzip');
+        Logger.error('Please Set an Unzip object to EffekseerComponent.Unzip');
         return false;
       }
       this.__effect = this.__context.loadEffectPackage(
@@ -251,7 +252,7 @@ export class EffekseerComponent extends Component {
             }
           },
           () => {
-            console.error('Failed to initialize Effekseer');
+            Logger.error('Failed to initialize Effekseer');
           }
         );
       } else {

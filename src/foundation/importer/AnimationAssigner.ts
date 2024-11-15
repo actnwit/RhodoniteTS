@@ -13,6 +13,7 @@ import { RnM2Vrma } from '../../types';
 import { Vector3 } from '../math';
 import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
+import { Logger } from '../misc/Logger';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -186,7 +187,7 @@ export class AnimationAssigner {
           const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
-          console.log(
+          Logger.info(
             `humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`
           );
           return void 0;
@@ -212,7 +213,7 @@ export class AnimationAssigner {
           const rnEntities = rootEntity.getTagValue('rnEntities')! as ISceneGraphEntity[];
           return rnEntities[dstBoneNodeId];
         } else {
-          console.log(
+          Logger.info(
             `humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}, nodeName: ${nodeName}`
           );
           return void 0;
@@ -244,7 +245,7 @@ export class AnimationAssigner {
 
       return rnEntity;
     } else {
-      console.log(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
+      Logger.info(`humanoidBoneName: ${humanoidBoneName}, nodeIndex: ${nodeIndex}`);
       return void 0;
     }
   }

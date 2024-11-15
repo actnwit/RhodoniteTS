@@ -40,6 +40,7 @@ import {
 } from './ShaderHandler';
 import { Texture } from '../../textures';
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
+import { Logger } from '../../misc/Logger';
 
 type PrimitiveFingerPrint = string;
 
@@ -722,7 +723,7 @@ export class Material extends RnObject {
    */
   set alphaToCoverage(alphaToCoverage: boolean) {
     if (alphaToCoverage && this.alphaMode === AlphaMode.Blend) {
-      console.warn(
+      Logger.warn(
         'If you set alphaToCoverage = true on a material whose AlphaMode is Translucent, you may get drawing problems.'
       );
     }

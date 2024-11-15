@@ -14,7 +14,7 @@ class Log {
 
 export class Logger {
   private static __messages: Log[] = [];
-  static logLevel = LogLevel.Info;
+  static logLevel = LogLevel.Warn;
   static isRichLog = false;
   static isAccumulateLog = false;
 

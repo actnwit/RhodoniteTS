@@ -16,6 +16,7 @@ import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableScalar } from '../foundation/math/MutableScalar';
 import { isOk } from '../foundation/misc/Result';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import { Logger } from '../foundation/misc/Logger';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
 const motionControllers: Map<XRInputSource, MotionController> = new Map();
@@ -181,7 +182,7 @@ function processTriggerInput(
 
   const componentName = wellKnownMapping.get(triggerComponent.rootNodeName);
   if (triggerComponent.values.state === Constants.ComponentState.PRESSED) {
-    console.log(componentName, triggerComponent.values.button, handed);
+    Logger.info(componentName + ', ' + triggerComponent.values.button + ', ' + handed);
     value =
       valueWithDefault({
         value: triggerComponent.values.button,
@@ -189,7 +190,7 @@ function processTriggerInput(
       }) * deltaSec;
     // Fire ray gun
   } else if (triggerComponent.values.state === Constants.ComponentState.TOUCHED) {
-    console.log(componentName, triggerComponent.values.button, handed);
+    Logger.info(componentName + ', ' + triggerComponent.values.button + ', ' + handed);
     value =
       valueWithDefault({
         value: triggerComponent.values.button,
@@ -220,10 +221,10 @@ function processSqueezeInput(
 ) {
   const componentName = wellKnownMapping.get(squeezeComponent.rootNodeName);
   if (squeezeComponent.values.state === Constants.ComponentState.PRESSED) {
-    console.log(componentName, squeezeComponent.values.button, handed);
+    Logger.info(componentName + ', ' + squeezeComponent.values.button + ', ' + handed);
     // Fire ray gun
   } else if (squeezeComponent.values.state === Constants.ComponentState.TOUCHED) {
-    console.log(componentName, squeezeComponent.values.button, handed);
+    Logger.info(componentName + ', ' + squeezeComponent.values.button + ', ' + handed);
     // Show ray gun charging up
   }
 }
@@ -241,11 +242,14 @@ function processThumbstickInput(
   const deltaScaleVertical = 0.1;
   const deltaScaleAzimuthAngle = 0.15;
   if (thumbstickComponent.values.state === Constants.ComponentState.PRESSED) {
-    console.log(
-      componentName,
-      thumbstickComponent.values.button,
-      thumbstickComponent.values.state,
-      handed
+    Logger.info(
+      componentName +
+        ', ' +
+        thumbstickComponent.values.button +
+        ', ' +
+        thumbstickComponent.values.state +
+        ', ' +
+        handed
     );
     xAxis =
       valueWithDefault({
@@ -297,9 +301,25 @@ function processButtonInput(
 ) {
   const componentName = wellKnownMapping.get(buttonComponent.rootNodeName);
   if (buttonComponent.values.state === Constants.ComponentState.PRESSED) {
-    console.log(componentName, buttonComponent.values.button, buttonComponent.values.state, handed);
+    Logger.info(
+      componentName +
+        ', ' +
+        buttonComponent.values.button +
+        ', ' +
+        buttonComponent.values.state +
+        ', ' +
+        handed
+    );
   } else if (buttonComponent.values.state === Constants.ComponentState.TOUCHED) {
-    console.log(componentName, buttonComponent.values.button, buttonComponent.values.state, handed);
+    Logger.info(
+      componentName +
+        ', ' +
+        buttonComponent.values.button +
+        ', ' +
+        buttonComponent.values.state +
+        ', ' +
+        handed
+    );
   }
 }
 
@@ -345,7 +365,7 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
       // Find the topmost node in the visualization
       const entity = map.get(visualResponse.valueNodeName);
       if (Is.not.exist(entity)) {
-        console.warn("The entity of the controller doesn't exist");
+        Logger.warn("The entity of the controller doesn't exist");
         continue;
       }
       // Calculate the new properties based on the weight supplied
@@ -355,7 +375,7 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
         const minNode = map.get(visualResponse.minNodeName!) as ISceneGraphEntity;
         const maxNode = map.get(visualResponse.maxNodeName!) as ISceneGraphEntity;
         if (Is.not.exist(minNode) || Is.not.exist(maxNode)) {
-          console.warn("The min/max Node of the component of the controller doesn't exist");
+          Logger.warn("The min/max Node of the component of the controller doesn't exist");
           continue;
         }
 

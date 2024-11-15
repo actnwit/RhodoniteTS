@@ -5,6 +5,7 @@ import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { Err, Result, Ok, isErr } from '../misc/Result';
+import { Logger } from '../misc/Logger';
 
 declare let Rn: any;
 
@@ -126,7 +127,7 @@ export class Gltf2Importer {
       if (Rn[options.loaderExtensionName] != null) {
         defaultOptions.loaderExtension = Rn[options.loaderExtensionName].getInstance();
       } else {
-        console.error(`${options.loaderExtensionName} not found!`);
+        Logger.error(`${options.loaderExtensionName} not found!`);
         defaultOptions.loaderExtension = void 0;
       }
     }
@@ -166,7 +167,7 @@ export class Gltf2Importer {
     try {
       await this._loadInner(gltfJson, files, options, uint8array);
     } catch (err) {
-      console.log('this._loadInner error in _loadAsBinaryJson', err);
+      Logger.info('this._loadInner error in _loadAsBinaryJson: ' + err);
     }
     return gltfJson;
   }
@@ -192,7 +193,7 @@ export class Gltf2Importer {
     try {
       await this._loadInner(gltfJson, fileArrayBuffers, options, undefined, basePath, callback);
     } catch (err) {
-      console.error('this._loadInner error in _loadAsTextJson', err);
+      Logger.error('this._loadInner error in _loadAsTextJson: ' + err);
     }
     return gltfJson;
   }
@@ -695,7 +696,7 @@ export class Gltf2Importer {
           const rnm2BufferView = gltfJson.bufferViews[rnm2Image.bufferView!];
           const bufferInfo = rnm2BufferView.bufferObject;
           if (Is.not.exist(bufferInfo)) {
-            console.error('gltf2BufferView.bufferObject not found');
+            Logger.error('gltf2BufferView.bufferObject not found');
             continue;
           }
 
@@ -747,7 +748,7 @@ export class Gltf2Importer {
     }
 
     return RnPromise.all(promisesToLoadResources, callback).catch((err: any) => {
-      console.log('Promise.all error', err);
+      Logger.error('Promise.all error: ' + err);
     });
   }
 

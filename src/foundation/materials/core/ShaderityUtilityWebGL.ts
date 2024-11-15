@@ -20,6 +20,7 @@ import { MutableMatrix22 } from '../../math/MutableMatrix22';
 import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
+import { Logger } from '../../misc/Logger';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -235,9 +236,7 @@ export class ShaderityUtilityWebGL {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        console.error(
-          'component number of initialValue is invalid:' + shaderSemanticsInfo.semantic
-        );
+        Logger.error('component number of initialValue is invalid:' + shaderSemanticsInfo.semantic);
       }
     };
 
@@ -330,7 +329,7 @@ export class ShaderityUtilityWebGL {
           );
           break;
         default:
-          console.error('Invalid format');
+          Logger.error('Invalid format');
       }
     } else {
       checkCompositionNumber(CompositionType.Scalar);
@@ -369,7 +368,7 @@ export class ShaderityUtilityWebGL {
       return [0, dummyBlackTexture];
     }
 
-    console.warn('initial value is not found');
+    Logger.warn('initial value is not found');
     return;
   }
 }

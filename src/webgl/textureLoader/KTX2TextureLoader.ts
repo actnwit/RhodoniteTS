@@ -26,6 +26,7 @@ import {
 } from '../../types/KTX2Texture';
 import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { SystemState } from '../../foundation/system/SystemState';
+import { Logger } from '../../foundation/misc/Logger';
 
 const CompressedTextureFormat = {
   ETC1S: 0,
@@ -79,7 +80,7 @@ export class KTX2TextureLoader {
 
   constructor() {
     if (typeof MSC_TRANSCODER === 'undefined') {
-      console.error(
+      Logger.error(
         'Failed to call MSC_TRANSCODER() function. Please check to import msc_basis_transcoder.js.'
       );
     }

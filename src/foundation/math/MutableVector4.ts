@@ -1,6 +1,7 @@
 import { IVector4, IMutableVector, IMutableVector4 } from './IVector';
 import { Array4, FloatTypedArray, FloatTypedArrayConstructor } from '../../types/CommonTypes';
 import { Vector4_ } from './Vector4';
+import { Logger } from '../misc/Logger';
 
 /**
  * @internal
@@ -153,7 +154,7 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
       this._v[2] /= value;
       this._v[3] /= value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       this._v[0] = Infinity;
       this._v[1] = Infinity;
       this._v[2] = Infinity;
@@ -172,7 +173,7 @@ export class MutableVector4_<T extends FloatTypedArrayConstructor>
       this._v[2] /= vec._v[2];
       this._v[3] /= vec._v[3];
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
       this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
       this._v[2] = vec._v[2] === 0 ? Infinity : this._v[2] / vec._v[2];

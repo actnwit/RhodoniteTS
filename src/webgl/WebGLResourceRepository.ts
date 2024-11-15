@@ -56,6 +56,7 @@ import { SystemState } from '../foundation/system/SystemState';
 import { WebGLStereoUtil } from './WebGLStereoUtil';
 import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
+import { Logger } from '../foundation/misc/Logger';
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
 export type VertexHandles = {
@@ -460,12 +461,12 @@ export class WebGLResourceRepository
       Is.false(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) &&
       Is.false(gl.isContextLost())
     ) {
-      console.log('MaterialTypeName: ' + materialTypeName);
+      Logger.info('MaterialTypeName: ' + materialTypeName);
       const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-      console.log(lineNumberedShaderText);
+      Logger.info(lineNumberedShaderText);
       const log = gl.getShaderInfoLog(shader);
       if (onError === undefined) {
-        console.error('An error occurred compiling the shaders:' + log);
+        Logger.error('An error occurred compiling the shaders:' + log);
         return false;
       } else {
         onError(log!);
@@ -489,13 +490,13 @@ export class WebGLResourceRepository
       Is.false(gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) &&
       Is.false(gl.isContextLost())
     ) {
-      console.log('MaterialTypeName: ' + materialTypeName);
-      console.log(MiscUtil.addLineNumberToCode('Vertex Shader:'));
-      console.log(MiscUtil.addLineNumberToCode(vertexShaderText));
-      console.log(MiscUtil.addLineNumberToCode('Fragment Shader:'));
-      console.log(MiscUtil.addLineNumberToCode(fragmentShaderText));
+      Logger.info('MaterialTypeName: ' + materialTypeName);
+      Logger.info(MiscUtil.addLineNumberToCode('Vertex Shader:'));
+      Logger.info(MiscUtil.addLineNumberToCode(vertexShaderText));
+      Logger.info(MiscUtil.addLineNumberToCode('Fragment Shader:'));
+      Logger.info(MiscUtil.addLineNumberToCode(fragmentShaderText));
       const log = gl.getProgramInfoLog(shaderProgram);
-      console.error('Unable to initialize the shader program: ' + log);
+      Logger.error('Unable to initialize the shader program: ' + log);
       return false;
     }
 
@@ -542,7 +543,7 @@ export class WebGLResourceRepository
         const _shaderProgram = shaderProgram as any;
         _shaderProgram[identifier] = location;
         if (location == null && Config.cgApiDebugConsoleOutput) {
-          console.info(
+          Logger.info(
             `Can not get the uniform location: ${shaderVarName}. The uniform may be unused by other code so implicitly removed.`
           );
         }
@@ -1520,7 +1521,7 @@ export class WebGLResourceRepository
         0
       )
     ) {
-      console.error('failed to transcode the image.');
+      Logger.error('failed to transcode the image.');
     }
     return textureSource;
   }
@@ -2087,7 +2088,7 @@ export class WebGLResourceRepository
           images = await loadOneLevel();
         } catch (uri) {
           // Give up
-          console.error(`failed to load ${uri}`);
+          Logger.error(`failed to load ${uri}`);
         }
       }
       const imageObj: {
@@ -2426,7 +2427,7 @@ export class WebGLResourceRepository
     if (texture != null) {
       gl.deleteTexture(texture!);
       this.__webglResources.delete(textureHandle);
-      console.debug('gl.deleteTexture called:', textureHandle);
+      Logger.debug('gl.deleteTexture called: ' + textureHandle);
     }
   }
 
@@ -2868,7 +2869,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     const material = this._material.deref();
     if (Is.not.exist(material)) {
       const warn = 'Material Not found';
-      console.warn(warn);
+      Logger.warn(warn);
       onError(warn);
       return false;
     }

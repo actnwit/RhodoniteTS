@@ -2,6 +2,7 @@ import { IVector2, IVector3, IVector4, IMutableVector, IMutableVector3 } from '.
 import { TypedArray, FloatTypedArrayConstructor, Array3 } from '../../types/CommonTypes';
 import { Vector3d, Vector3_ } from './Vector3';
 import { IQuaternion } from './IQuaternion';
+import { Logger } from '../misc/Logger';
 
 /**
  * @internal
@@ -128,7 +129,7 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
       this._v[1] /= value;
       this._v[2] /= value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       this._v[0] = Infinity;
       this._v[1] = Infinity;
       this._v[2] = Infinity;
@@ -146,7 +147,7 @@ export class MutableVector3_<T extends FloatTypedArrayConstructor>
       this._v[1] /= vec._v[1];
       this._v[2] /= vec._v[2];
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       this._v[0] = vec._v[0] === 0 ? Infinity : this._v[0] / vec._v[0];
       this._v[1] = vec._v[1] === 0 ? Infinity : this._v[1] / vec._v[1];
       this._v[2] = vec._v[2] === 0 ? Infinity : this._v[2] / vec._v[2];

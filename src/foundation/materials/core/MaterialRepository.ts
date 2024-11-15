@@ -17,6 +17,7 @@ import { MathClassUtil } from '../../math/MathClassUtil';
 import type { Accessor } from '../../memory/Accessor';
 import type { BufferView } from '../../memory/BufferView';
 import { Is } from '../../misc/Is';
+import { Logger } from '../../misc/Logger';
 import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import type { MaterialTypeName } from './MaterialTypes';
@@ -201,7 +202,7 @@ export class MaterialRepository {
     const map = MaterialRepository.__instances.get(materialTypeName)!;
     const materialRef = Array.from(map.values()).find((m) => m.deref() !== undefined); // find an actual exist material
     if (Is.not.exist(materialRef?.deref())) {
-      console.warn(
+      Logger.warn(
         `Material is not found. getLocationOffsetOfMemberOfMaterial returns invalid 0 value. materialTypeName: ${materialTypeName}`
       );
       return 0;

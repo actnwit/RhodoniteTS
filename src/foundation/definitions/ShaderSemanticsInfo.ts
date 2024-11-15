@@ -1,4 +1,5 @@
 import { Count } from '../../types/CommonTypes';
+import { Logger } from '../misc/Logger';
 import { ComponentTypeEnum } from './ComponentType';
 import { CompositionType, CompositionTypeEnum } from './CompositionType';
 import { ShaderSemanticsEnum, ShaderSemanticsName } from './ShaderSemantics';
@@ -36,7 +37,7 @@ export function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo) {
     if (maxArrayLength != null) {
       alignedByteLength *= maxArrayLength;
     } else {
-      console.error('semanticInfo has invalid maxIndex!');
+      Logger.error('semanticInfo has invalid maxIndex!');
       alignedByteLength *= 100;
     }
   }

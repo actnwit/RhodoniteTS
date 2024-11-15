@@ -10,6 +10,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { IEntity } from '../core';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Is } from '../misc/Is';
+import { Logger } from '../misc/Logger';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
 
 export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
@@ -39,7 +40,7 @@ export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
       } else if (Is.exist(effekseerComponent.uri)) {
         effekseer.uri = effekseerComponent.uri;
       } else {
-        console.error('no real effect data.');
+        Logger.error('no real effect data.');
       }
 
       __createEffekseerTimeline(effekseerComponent.entity, effekseer);

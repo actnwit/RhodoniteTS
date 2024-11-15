@@ -22,6 +22,7 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 import { TextureParameter } from '../../definitions';
 import { Sampler } from '../../textures/Sampler';
+import { Logger } from '../../misc/Logger';
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -283,9 +284,7 @@ export class ShaderityUtilityWebGPU {
     const tuple = initialValueText.match(/\(([\d\w., ]+)\)/);
     const checkCompositionNumber = (expected: CompositionTypeEnum) => {
       if (shaderSemanticsInfo.compositionType !== expected) {
-        console.error(
-          'component number of initialValue is invalid:' + shaderSemanticsInfo.semantic
-        );
+        Logger.error('component number of initialValue is invalid:' + shaderSemanticsInfo.semantic);
       }
     };
 
@@ -361,7 +360,7 @@ export class ShaderityUtilityWebGPU {
           );
           break;
         default:
-          console.error('Invalid format');
+          Logger.error('Invalid format');
       }
     } else {
       checkCompositionNumber(CompositionType.Scalar);
@@ -400,7 +399,7 @@ export class ShaderityUtilityWebGPU {
       return [0, dummyBlackTexture];
     }
 
-    console.warn('initial value is not found');
+    Logger.warn('initial value is not found');
     return;
   }
 
