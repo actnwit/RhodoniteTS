@@ -3,7 +3,7 @@ import { HdriFormat } from '../definitions/HdriFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { TextureParameter } from '../definitions/TextureParameter';
-import { Size, TypedArray } from '../../types/CommonTypes';
+import { CGAPIResourceHandle, Size, TypedArray } from '../../types/CommonTypes';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
@@ -11,15 +11,33 @@ import { Logger } from '../misc/Logger';
 
 declare const BASIS: BASIS;
 
-export class CubeTexture extends AbstractTexture {
+type FinalizationRegistryObject = {
+  textureResourceUid: CGAPIResourceHandle;
+  uniqueName: string;
+};
+
+export class CubeTexture extends AbstractTexture implements Disposable {
   public baseUriToLoad?: string;
   public mipmapLevelNumber = 1;
   public hdriFormat = HdriFormat.LDR_SRGB;
   public isNamePosNeg = false;
   private __onTextureLoadedArray: Array<() => void> = [];
 
+  private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
+    new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
+      Logger.info(
+        `WebGL/WebGPU cube texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
+      );
+      CubeTexture.__deleteInternalTexture(texObj.textureResourceUid);
+    });
+
   constructor() {
     super();
+  }
+
+  private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle, uniqueName: string) {
+    this._textureResourceUid = textureResourceUid;
+    CubeTexture.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
   }
 
   registerOnTextureLoaded(func: () => void) {
@@ -36,7 +54,8 @@ export class CubeTexture extends AbstractTexture {
       this.hdriFormat
     );
     this._recommendedTextureSampler = sampler;
-    this._textureResourceUid = resourceUid;
+    this.__setTextureResourceUid(resourceUid, this.uniqueName);
+
     this._samplerResourceUid = sampler._samplerResourceUid;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -60,7 +79,7 @@ export class CubeTexture extends AbstractTexture {
           this.hdriFormat
         )
         .then(([cubeTextureUid, sampler]) => {
-          this._textureResourceUid = cubeTextureUid;
+          this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
           this._recommendedTextureSampler = sampler;
           this._samplerResourceUid = sampler._samplerResourceUid;
 
@@ -118,7 +137,7 @@ export class CubeTexture extends AbstractTexture {
         wrapT: wrapT,
       });
 
-      this._textureResourceUid = texture;
+      this.__setTextureResourceUid(texture, this.uniqueName);
       this.__isTextureReady = true;
 
       basisFile.close();
@@ -150,7 +169,7 @@ export class CubeTexture extends AbstractTexture {
       1,
       1
     );
-    this._textureResourceUid = resourceUid;
+    this.__setTextureResourceUid(resourceUid, this.uniqueName);
     this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
@@ -190,7 +209,7 @@ export class CubeTexture extends AbstractTexture {
       baseLevelHeight
     );
     this._recommendedTextureSampler = sampler;
-    this._textureResourceUid = resourceId;
+    this.__setTextureResourceUid(resourceId, this.uniqueName);
 
     this.__isTextureReady = true;
     this.__startedToLoad = true;
@@ -201,8 +220,31 @@ export class CubeTexture extends AbstractTexture {
     this.__height = height;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const texture = webGLResourceRepository.setWebGLTextureDirectly(webGLTexture);
-    this._textureResourceUid = texture;
+    this.__setTextureResourceUid(texture, this.uniqueName);
     this.__startedToLoad = true;
     this.__isTextureReady = true;
+  }
+
+  private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    cgApiResourceRepository.deleteTexture(textureResourceUid);
+  }
+
+  destroy3DAPIResources() {
+    CubeTexture.__deleteInternalTexture(this._textureResourceUid);
+    this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
+    this.__isTextureReady = false;
+    this.__startedToLoad = false;
+  }
+
+  [Symbol.dispose]() {
+    Logger.debug('[Symbol.dispose] is called');
+    this.destroy();
+  }
+
+  destroy() {
+    this.destroy3DAPIResources();
+    this.unregister();
+    CubeTexture.managedRegistry.unregister(this);
   }
 }
