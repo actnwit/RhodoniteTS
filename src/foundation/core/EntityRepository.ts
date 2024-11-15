@@ -9,6 +9,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { ISceneGraphEntity } from '../helpers';
+import { Logger } from '../misc';
 
 /**
  * The class that generates and manages entities.
@@ -28,7 +29,7 @@ export class EntityRepository {
     // check dead entity
     let deadUid = -1;
     for (let i = 0; i < this.__entities.length; i++) {
-      if (this.__entities[i] != null && this.__entities[i]!._isAlive === false) {
+      if (this.__entities[i] == null) {
         deadUid = i;
       }
     }
@@ -187,6 +188,12 @@ export class EntityRepository {
     }
   }
 
+  /**
+   * Try to add a component to the entity by componentTID.
+   * @param componentTID - the componentTID
+   * @param entity - the entity
+   * @returns the entity added a component
+   */
   public static tryToAddComponentToEntityByTID(
     componentTID: ComponentTID,
     entity: IEntity
@@ -212,7 +219,7 @@ export class EntityRepository {
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
     if (entity.hasComponent(componentClass)) {
-      // console.log('This entity already has the Component.');
+      Logger.info('This entity already has the Component.');
       return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
 
@@ -223,6 +230,7 @@ export class EntityRepository {
       this
     );
 
+    // set this component to this._components' map
     const map = valueWithCompensation({
       value: this._components[entity.entityUID],
       compensation: () => {
