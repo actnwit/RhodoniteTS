@@ -221,7 +221,7 @@ export class EntityRepository {
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
     if (entity.hasComponent(componentClass)) {
-      // console.log('This entity already has the Component.');
+      console.info('This entity already has the Component.');
       return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
 
@@ -232,6 +232,7 @@ export class EntityRepository {
       this
     );
 
+    // set this component to this._components' map
     const map = valueWithCompensation({
       value: this._components[entity.entityUID],
       compensation: () => {
