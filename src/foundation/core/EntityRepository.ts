@@ -28,10 +28,7 @@ export class EntityRepository {
     // check dead entity
     let deadUid = -1;
     for (let i = 0; i < this.__entities.length; i++) {
-      if (
-        this.__entities[i] == null ||
-        (this.__entities[i] != null && this.__entities[i]!._isAlive === false)
-      ) {
+      if (this.__entities[i] == null) {
         deadUid = i;
       }
     }
