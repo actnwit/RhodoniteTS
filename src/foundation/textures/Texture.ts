@@ -62,7 +62,7 @@ export class Texture extends AbstractTexture implements Disposable {
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
       Logger.info(
-        `WebGL/WebGPU texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
+        `WebGL/WebGPU 2D texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
       Texture.__deleteInternalTexture(texObj.textureResourceUid);
     });
