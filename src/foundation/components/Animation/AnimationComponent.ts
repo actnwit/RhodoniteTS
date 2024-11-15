@@ -780,7 +780,7 @@ export class AnimationComponent extends Component {
       const outputsTranslation = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.$logic();
+        srcAnim.__applyAnimation();
         const outputTranslation = retarget.retargetTranslate(dstEntity);
         outputsTranslation[i * 3 + 0] = outputTranslation.x;
         outputsTranslation[i * 3 + 1] = outputTranslation.y;
@@ -793,7 +793,7 @@ export class AnimationComponent extends Component {
       const outputsQuaternion = new Float32Array(input.length * 4);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.$logic();
+        srcAnim.__applyAnimation();
         const outputQuaternion = retarget.retargetQuaternion(dstEntity);
         outputsQuaternion[i * 4 + 0] = outputQuaternion.x;
         outputsQuaternion[i * 4 + 1] = outputQuaternion.y;
@@ -807,7 +807,7 @@ export class AnimationComponent extends Component {
       const outputsScale = new Float32Array(input.length * 3);
       for (let i = 0; i < input.length; i++) {
         srcAnim.time = input[i];
-        srcAnim.$logic();
+        srcAnim.__applyAnimation();
         const outputScale = retarget.retargetScale(dstEntity);
         outputsScale[i * 3 + 0] = outputScale.x;
         outputsScale[i * 3 + 1] = outputScale.y;
