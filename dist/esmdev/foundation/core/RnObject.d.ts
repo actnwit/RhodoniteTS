@@ -36,7 +36,8 @@ export declare class RnObject implements IRnObject {
     private __combinedTagString;
     constructor();
     private __updateInfo;
-    static searchByTag(tag: string, value: string): RnObject | undefined;
+    unregister(): void;
+    static searchByTag(tag: string, value: string): WeakRef<RnObject> | undefined;
     /**
      * Gets the objectUID of the object.
      */
@@ -45,7 +46,7 @@ export declare class RnObject implements IRnObject {
      * Gets the object by corresponding to the objectUID.
      * @param objectUid The objectUID of the object.
      */
-    static getRnObject(objectUid: ObjectUID): RnObject;
+    static getRnObject(objectUid: ObjectUID): RnObject | undefined;
     /**
      * Gets the object by the unique name.
      * @param uniqueName The unique name of the object.

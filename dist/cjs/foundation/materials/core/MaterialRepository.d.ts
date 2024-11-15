@@ -23,7 +23,7 @@ export declare class MaterialRepository {
     static forceRegisterMaterial(materialTypeName: string, materialNode: AbstractMaterialContent, maxInstanceNumber?: number): boolean;
     static isRegisteredMaterialType(materialTypeName: string): boolean;
     static getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined;
-    static getAllMaterials(): Material[];
+    static getAllMaterials(): WeakRef<Material>[];
     /**
      * Creates an instance of this Material class.
      * @param materialTypeName The material type to create.

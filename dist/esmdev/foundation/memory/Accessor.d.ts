@@ -40,7 +40,7 @@ export declare class Accessor {
     private static __tmpVector3_0;
     private static __tmpVector2_0;
     private __version;
-    _primitive?: Primitive;
+    _primitive?: WeakRef<Primitive>;
     constructor({ bufferView, byteOffsetInBufferView, compositionType, componentType, byteStride, count, raw, max, min, arrayLength, normalized, }: {
         bufferView: BufferView;
         byteOffsetInBufferView: Byte;

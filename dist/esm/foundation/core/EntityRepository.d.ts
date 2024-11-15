@@ -21,6 +21,12 @@ export declare class EntityRepository {
     private static __setJoints;
     static _shallowCopyEntityInner(entity: IEntity): IEntity;
     private static __handleTagData;
+    /**
+     * Try to add a component to the entity by componentTID.
+     * @param componentTID - the componentTID
+     * @param entity - the entity
+     * @returns the entity added a component
+     */
     static tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity;
     /**
      * Add a Component to the entity

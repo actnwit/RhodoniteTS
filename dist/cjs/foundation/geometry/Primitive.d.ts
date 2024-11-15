@@ -28,7 +28,7 @@ export declare class Primitive extends RnObject {
     private __material;
     private __materialVariants;
     private __currentVariantName;
-    _prevMaterial: Material;
+    _prevMaterial: WeakRef<Material>;
     private __attributes;
     private __oIndices;
     private static __primitiveCount;
@@ -72,7 +72,7 @@ export declare class Primitive extends RnObject {
     get mesh(): IMesh | undefined;
     _backupMaterial(): void;
     _restoreMaterial(): void;
-    static getPrimitive(primitiveUid: PrimitiveUID): Primitive;
+    static getPrimitive(primitiveUid: PrimitiveUID): Primitive | undefined;
     static getPrimitiveCount(): number;
     onAccessorUpdated(accessorVersion: number): void;
     setData(attributes: Attributes, mode: PrimitiveModeEnum, material?: Material, indicesAccessor?: Accessor): void;

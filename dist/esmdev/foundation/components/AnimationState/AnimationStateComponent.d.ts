@@ -25,6 +25,7 @@ export declare class AnimationStateComponent extends Component {
     setIsLoop(flg: boolean): void;
     setTime(time: number): void;
     setAnimationBlendingRatio(ratio: number): void;
+    _destroy(): void;
     /**
      * get the entity which has this component.
      * @returns the entity which has this component

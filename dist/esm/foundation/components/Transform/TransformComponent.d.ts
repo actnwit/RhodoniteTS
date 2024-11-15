@@ -140,6 +140,7 @@ export declare class TransformComponent extends Component {
      * @returns the entity which has this component
      */
     get entity(): ITransformEntity;
+    _destroy(): void;
     /**
      * @override
      * Add this component to the entity

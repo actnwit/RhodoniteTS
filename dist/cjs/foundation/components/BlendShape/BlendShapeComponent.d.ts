@@ -20,6 +20,7 @@ export declare class BlendShapeComponent extends Component {
     get targetNames(): string[];
     setWeightByIndex(index: Index, weight: number): void;
     $logic(): void;
+    _destroy(): void;
     /**
      * @override
      * Add this component to the entity

@@ -13,6 +13,7 @@ export declare class PhysicsComponent extends Component {
     get strategy(): PhysicsStrategy | undefined;
     static common_$logic(): void;
     $logic(): void;
+    _destroy(): void;
     /**
      * @override
      * Add this component to the entity

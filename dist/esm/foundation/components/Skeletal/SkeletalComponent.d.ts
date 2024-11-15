@@ -61,6 +61,7 @@ export declare class SkeletalComponent extends Component {
      * @returns the entity which has this component
      */
     get entity(): ISkeletalEntity;
+    _destroy(): void;
     /**
      * @override
      * Add this component to the entity

@@ -42,7 +42,7 @@ export declare class MToonMaterialContent extends AbstractMaterialContent {
     private __vectorProperties;
     private __textureProperties;
     constructor(isOutline: boolean, materialProperties: Vrm0xMaterialProperty | undefined, textures: any, samplers: Sampler[], isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, debugMode: Count | undefined, makeOutputSrgb: boolean, materialName: string);
-    private __setTextures;
+    private __setDummyTextures;
     setMaterialParameters(material: Material, isOutline: boolean): void;
     private static __initializeUsableBlendEquationModeAlpha;
     _setInternalSettingParametersToGpuWebGpu({ material, args, }: {

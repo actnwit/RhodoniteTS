@@ -27,6 +27,7 @@ export declare class VrmComponent extends Component {
     getExpressionWeight(expressionName: VrmExpressionName): number | undefined;
     getExpressionNames(): string[];
     _shallowCopyFrom(component: Component): void;
+    _destroy(): void;
     /**
      * @override
      * Add this component to the entity

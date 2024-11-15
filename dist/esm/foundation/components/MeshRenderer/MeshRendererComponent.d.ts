@@ -52,6 +52,7 @@ export declare class MeshRendererComponent extends Component {
         renderPassTickCount: Count;
     }): void;
     _shallowCopyFrom(component_: Component): void;
+    _destroy(): void;
     /**
      * @override
      * Add this component to the entity

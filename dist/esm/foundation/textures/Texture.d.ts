@@ -16,7 +16,7 @@ export interface LoadImageToMipLevelDescriptor {
     rowSizeByPixel: Size;
     type: ComponentTypeEnum;
 }
-export declare class Texture extends AbstractTexture {
+export declare class Texture extends AbstractTexture implements Disposable {
     autoResize: boolean;
     autoDetectTransparency: boolean;
     private static __loadedBasisFunc;
@@ -25,7 +25,9 @@ export declare class Texture extends AbstractTexture {
     private __uriToLoadLazy?;
     private __imgToLoadLazy?;
     private __optionsToLoadLazy?;
+    private static managedRegistry;
     constructor();
+    private __setTextureResourceUid;
     get hasDataToLoadLazy(): boolean;
     generateTextureFromBasis(uint8Array: Uint8Array, options: {
         level?: Count;
@@ -101,4 +103,7 @@ export declare class Texture extends AbstractTexture {
     generateMipmaps(): void;
     importWebGLTextureDirectly(webGLTexture: WebGLTexture, width?: number, height?: number): void;
     destroy3DAPIResources(): boolean;
+    private static __deleteInternalTexture;
+    [Symbol.dispose](): void;
+    destroy(): void;
 }

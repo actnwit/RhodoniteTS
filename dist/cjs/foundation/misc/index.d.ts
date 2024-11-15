@@ -10,3 +10,4 @@ export * from './RnPromise';
 export * from './RnException';
 export * from './Time';
 export * from './WeakOption';
+export * from './Logger';

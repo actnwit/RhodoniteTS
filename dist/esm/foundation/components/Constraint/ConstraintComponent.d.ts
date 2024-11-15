@@ -17,5 +17,6 @@ export declare class ConstraintComponent extends Component {
     get componentTID(): ComponentTID;
     $logic(): void;
     setConstraint(constraint: IVrmConstraint): void;
+    _destroy(): void;
     addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
 }
