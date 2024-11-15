@@ -5,6 +5,7 @@ import { Vector3 } from '../../math/Vector3';
 import { Count } from '../../../types/CommonTypes';
 import { IShape } from './IShape';
 import { PhysicsProperty } from '../../physics/PhysicsProperty';
+import { Logger } from '../../misc/Logger';
 
 /**
  * The argument descriptor for Plane primitives
@@ -40,7 +41,7 @@ export class Sphere extends IShape {
     const normals = [];
 
     if (Math.abs(desc.radius) < Number.EPSILON) {
-      console.warn(
+      Logger.warn(
         'The argument radius is zero / nearly zero. Rn will take the radius as 0.001 for safety. Check your code.'
       );
       desc.radius = 0.001;

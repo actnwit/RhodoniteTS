@@ -11,6 +11,7 @@ import { Vector3 } from './Vector3';
 import { MutableVector3 } from './MutableVector3';
 import { MutableMatrix44 } from './MutableMatrix44';
 import { Matrix44 } from './Matrix44';
+import { Logger } from '../misc/Logger';
 
 export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_upVec: any = undefined;
@@ -180,7 +181,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
     const length = vec.length();
     if (length === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
 
     return Quaternion.fromCopy4(
@@ -329,7 +330,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion {
     const forwardLength = forward.length();
     if (forwardLength === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
 
     const forwardX = forward._v[0] / forwardLength;
@@ -338,7 +339,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
     const upLength = up.length();
     if (upLength === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
 
     const upX = up._v[0] / upLength;
@@ -352,7 +353,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
     const rightLength = Math.hypot(rightX, rightY, rightZ);
     if (rightLength === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
     rightX /= rightLength;
     rightY /= rightLength;
@@ -510,7 +511,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
   static divideNumber(quat: IQuaternion, value: number) {
     if (value === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
     const x = quat._v[0] / value;
     const y = quat._v[1] / value;
@@ -521,7 +522,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
 
   static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion) {
     if (value === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
     out._v[0] = quat._v[0] / value;
     out._v[1] = quat._v[1] / value;
@@ -634,7 +635,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       z = vec._v[2] / value;
       w = vec._v[3] / value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       x = Infinity;
       y = Infinity;
       z = Infinity;
@@ -657,7 +658,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
       z = vec._v[2] / value;
       w = vec._v[3] / value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       x = Infinity;
       y = Infinity;
       z = Infinity;

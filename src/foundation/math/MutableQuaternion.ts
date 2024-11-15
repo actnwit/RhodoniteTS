@@ -4,6 +4,7 @@ import { Array4, TypedArray } from '../../types/CommonTypes';
 import { IMutableQuaternion, ILogQuaternion, IQuaternion } from './IQuaternion';
 import { IMatrix44 } from './IMatrix';
 import { MutableMatrix44 } from './MutableMatrix44';
+import { Logger } from '../misc/Logger';
 
 export class MutableQuaternion extends Quaternion implements IMutableQuaternion {
   constructor(x: Float32Array) {
@@ -197,7 +198,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
 
     const length = vec.length();
     if (length === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
 
     this._v[3] = Math.cos(halfAngle);
@@ -325,7 +326,7 @@ export class MutableQuaternion extends Quaternion implements IMutableQuaternion 
       this._v[2] /= value;
       this._v[3] /= value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       this._v[0] = Infinity;
       this._v[1] = Infinity;
       this._v[2] = Infinity;

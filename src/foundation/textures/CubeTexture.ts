@@ -7,6 +7,7 @@ import { Size, TypedArray } from '../../types/CommonTypes';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
+import { Logger } from '../misc/Logger';
 
 declare const BASIS: BASIS;
 
@@ -92,7 +93,7 @@ export class CubeTexture extends AbstractTexture {
     this.__startedToLoad = true;
 
     if (typeof BASIS === 'undefined') {
-      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+      Logger.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
 
     BASIS().then((basisTransCoder: BasisTranscoder) => {
@@ -103,7 +104,7 @@ export class CubeTexture extends AbstractTexture {
       const basisFile = new BasisFile(uint8Array);
 
       if (!basisFile.startTranscoding()) {
-        console.error('failed to start transcoding.');
+        Logger.error('failed to start transcoding.');
         basisFile.close();
         basisFile.delete();
         return;

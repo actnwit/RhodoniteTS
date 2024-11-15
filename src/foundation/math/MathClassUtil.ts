@@ -16,6 +16,7 @@ import { MutableQuaternion } from './MutableQuaternion';
 import { MutableScalar } from './MutableScalar';
 import { VectorN } from './VectorN';
 import { TypedArray } from '../../types/CommonTypes';
+import { Logger } from '../misc/Logger';
 
 export class MathClassUtil {
   private static __tmpVector4_0: MutableVector4 = MutableVector4.zero();
@@ -200,7 +201,7 @@ export class MathClassUtil {
 
     const outNonNormalized = inversePVMat44.multiplyVectorTo(input, this.__tmpVector4_1);
     if (outNonNormalized.w === 0) {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
     }
 
     return MutableVector3.multiplyTo(outNonNormalized, 1.0 / outNonNormalized.w, out);
@@ -225,7 +226,7 @@ export class MathClassUtil {
       }
       return arr;
     } else {
-      console.error('Non supported type!');
+      Logger.error('Non supported type!');
       return;
     }
   }
@@ -249,7 +250,7 @@ export class MathClassUtil {
       }
       return arr;
     } else {
-      console.error('Non supported type!');
+      Logger.error('Non supported type!');
       return;
     }
   }
@@ -273,7 +274,7 @@ export class MathClassUtil {
       }
       return arr;
     } else {
-      console.error('Non supported type!');
+      Logger.error('Non supported type!');
       return;
     }
   }
@@ -296,7 +297,7 @@ export class MathClassUtil {
       }
       return arr;
     } else {
-      console.error('Non supported type!');
+      Logger.error('Non supported type!');
       return;
     }
   }
@@ -320,7 +321,7 @@ export class MathClassUtil {
       }
       return arr;
     } else {
-      console.error('Non supported type!');
+      Logger.error('Non supported type!');
       return void 0;
     }
   }
@@ -430,7 +431,7 @@ export class MathClassUtil {
     ) {
       return objForDetectType;
     } else {
-      console.error('Non supported type!');
+      Logger.error('Non supported type!');
       return void 0;
     }
     (floatArray as any)._v = void 0;
@@ -582,7 +583,7 @@ export class MathClassUtil {
         }
       }
     } else {
-      console.warn('Unknown type _setForce');
+      Logger.warn('Unknown type _setForce');
     }
 
     return true;

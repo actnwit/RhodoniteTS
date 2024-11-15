@@ -9,6 +9,7 @@ import { MathUtil } from './MathUtil';
 import { MutableVector2 } from './MutableVector2';
 import { AbstractMatrix } from './AbstractMatrix';
 import { Array4 } from '../../types';
+import { Logger } from '../misc/Logger';
 
 export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   constructor(m: Float32Array) {
@@ -71,7 +72,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static invert(mat: Matrix22) {
     const det = mat.determinant();
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = mat._v[3] / det;
@@ -85,7 +86,7 @@ export class Matrix22 extends AbstractMatrix implements IMatrix22 {
   static invertTo(mat: Matrix22, outMat: MutableMatrix22) {
     const det = mat.determinant();
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = mat._v[3] / det;

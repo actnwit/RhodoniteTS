@@ -90,6 +90,7 @@ import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
+import { Logger } from '../misc/Logger';
 
 declare let DracoDecoderModule: any;
 
@@ -1708,16 +1709,16 @@ export class ModelConverter {
       return DataUtil.normalizedUint16ArrayToFloat32Array(numberArray as unknown as Uint16Array);
     } else if (dataViewMethod === 'getInt32') {
       // typedDataArray = new Int32Array(numberArray);
-      console.error('Not considered');
+      Logger.error('Not considered');
       return new Float32Array();
     } else if (dataViewMethod === 'getUint32') {
       // typedDataArray = new Uint32Array(numberArray);
-      console.error('Not considered');
+      Logger.error('Not considered');
       return new Float32Array();
     } else if (dataViewMethod === 'getFloat32') {
       return new Float32Array(numberArray);
     } else {
-      console.error('Not considered');
+      Logger.error('Not considered');
       return new Float32Array();
     }
   }
@@ -1883,7 +1884,7 @@ export class ModelConverter {
       decodingStatus = decoder.DecodeBufferToPointCloud(buffer, dracoGeometry);
     } else {
       const errorMsg = 'Unknown geometry type.';
-      console.error(errorMsg);
+      Logger.error(errorMsg);
     }
 
     dracoGeometry.geometryType = geometryType; // store
@@ -1891,7 +1892,7 @@ export class ModelConverter {
     if (!decodingStatus.ok() || dracoGeometry.ptr === 0) {
       let errorMsg = 'Decoding failed: ';
       errorMsg += decodingStatus.error_msg();
-      console.error(errorMsg);
+      Logger.error(errorMsg);
       draco.destroy(decoder);
       draco.destroy(dracoGeometry);
       return void 0;

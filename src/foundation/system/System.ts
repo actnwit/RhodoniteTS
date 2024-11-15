@@ -39,6 +39,7 @@ import { VERSION } from '../../version';
 import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { Scalar } from '../math/Scalar';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
+import { Logger } from '../misc/Logger';
 declare const spector: any;
 
 /**
@@ -556,7 +557,7 @@ export class System {
     globalDataRepository.initialize(desc.approach);
 
     if (MiscUtil.isMobile() && ProcessApproach.isUniformApproach(desc.approach)) {
-      console.warn(
+      Logger.warn(
         'The number of Uniform variables available on mobile devices is limited and may interfere with rendering. Use the DataTexture ProcessApproach for this device.'
       );
     }
@@ -568,14 +569,14 @@ export class System {
         // Calling preventDefault signals to the page that you intent to handle context restoration.
         event.preventDefault();
         this.stopRenderLoop();
-        console.error('WebGL context lost occurred.');
+        Logger.error('WebGL context lost occurred.');
       }).bind(this)
     );
 
     desc.canvas.addEventListener('webglcontextrestored', () => {
       // Once this function is called the gl context will be restored but any graphics resources
       // that were previously loaded will be lost, so the scene should be reloaded.
-      console.error('WebGL context restored.');
+      Logger.error('WebGL context restored.');
       // TODO: Implement restoring the previous graphics resources
       // loadSceneGraphics(gl);
       this.restartRenderLoop();

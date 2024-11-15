@@ -19,6 +19,7 @@ import { BlendShapeComponent } from '../BlendShape/BlendShapeComponent';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { RaycastResultEx1 } from '../../geometry/types/GeometryTypes';
 import { assertExist } from '../../misc/MiscUtil';
+import { Logger } from '../../misc/Logger';
 
 export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
@@ -103,7 +104,7 @@ export class MeshComponent extends Component {
   }
 
   static alertNoMeshSet(meshComponent: MeshComponent) {
-    console.debug('No mesh is set on this MeshComponent:' + meshComponent.componentSID);
+    Logger.debug('No mesh is set on this MeshComponent:' + meshComponent.componentSID);
   }
 
   castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold = 0): RaycastResultEx1 {

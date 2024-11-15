@@ -4,6 +4,7 @@ import { CompositionType } from '../definitions/CompositionType';
 import { IQuaternion } from './IQuaternion';
 import { AbstractVector } from './AbstractVector';
 import { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
+import { Logger } from '../misc/Logger';
 
 /**
  * @internal
@@ -63,7 +64,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
   static angleOfVectors(l_vec: IVector3, r_vec: IVector3) {
     const multipliedLength = l_vec.length() * r_vec.length();
     if (multipliedLength === 0) {
-      console.error('length of a vector is 0!');
+      Logger.error('length of a vector is 0!');
     }
     const cos_sita = l_vec.dot(r_vec) / multipliedLength;
     const sita = Math.acos(cos_sita);
@@ -191,7 +192,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       y = vec._v[1] / value;
       z = vec._v[2] / value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       x = Infinity;
       y = Infinity;
       z = Infinity;
@@ -208,7 +209,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       out._v[1] = vec._v[1] / value;
       out._v[2] = vec._v[2] / value;
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       out._v[0] = Infinity;
       out._v[1] = Infinity;
       out._v[2] = Infinity;
@@ -228,7 +229,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       y = l_vec._v[1] / r_vec._v[1];
       z = l_vec._v[2] / r_vec._v[2];
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       x = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
       y = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
       z = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];
@@ -245,7 +246,7 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
       out._v[1] = l_vec._v[1] / r_vec._v[1];
       out._v[2] = l_vec._v[2] / r_vec._v[2];
     } else {
-      console.error('0 division occurred!');
+      Logger.error('0 division occurred!');
       out._v[0] = r_vec._v[0] === 0 ? Infinity : l_vec._v[0] / r_vec._v[0];
       out._v[1] = r_vec._v[1] === 0 ? Infinity : l_vec._v[1] / r_vec._v[1];
       out._v[2] = r_vec._v[2] === 0 ? Infinity : l_vec._v[2] / r_vec._v[2];

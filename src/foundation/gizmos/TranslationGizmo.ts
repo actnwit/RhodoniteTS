@@ -29,6 +29,7 @@ import { Gizmo } from './Gizmo';
 import { IQuaternion } from '../math';
 import { createGroupEntity } from '../components/SceneGraph/createGroupEntity';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
+import { Logger } from '../misc/Logger';
 
 declare let window: any;
 
@@ -509,19 +510,19 @@ export class TranslationGizmo extends Gizmo {
     if (xResult.result) {
       assertExist(xResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(xResult.data.position.clone());
-      console.log('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'x';
     }
     if (yResult.result) {
       assertExist(yResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(yResult.data.position.clone());
-      console.log('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'y';
     }
     if (zResult.result) {
       assertExist(zResult.data);
       this.__pickStatedPoint = rotMat.multiplyVector(zResult.data.position.clone());
-      console.log('Down:' + this.__pickStatedPoint.toStringApproximately());
+      Logger.debug('Down:' + this.__pickStatedPoint.toStringApproximately());
       TranslationGizmo.__activeAxis = 'z';
     }
 
@@ -613,7 +614,7 @@ export class TranslationGizmo extends Gizmo {
       return;
     }
 
-    console.log(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
+    Logger.debug(`${this.__target.uniqueName}: ` + deltaVector3.toStringApproximately());
 
     if (TranslationGizmo.__space === 'local') {
       this.__deltaPoint = Vector3.add(deltaVector3, this.__targetPointBackup);

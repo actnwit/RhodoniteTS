@@ -49,6 +49,7 @@ import { WebXRSystem } from '../xr';
 import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
+import { Logger } from '../foundation/misc/Logger';
 
 declare const spector: any;
 
@@ -253,7 +254,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     );
 
     if (offsetOfProperty === -1) {
-      console.error('Could not get the location offset of the property.');
+      Logger.error('Could not get the location offset of the property.');
     }
 
     let instanceSize = vec4SizeOfProperty;
@@ -348,7 +349,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           str += '        mat4x3 val = fetchMat4x3(vec4_idx);\n';
           break;
         default:
-          // console.error('unknown composition type', info.compositionType.str, memberName);
+          // Logger.error('unknown composition type', info.compositionType.str, memberName);
           str += '';
       }
       str += `
@@ -449,7 +450,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       );
       const updateByteSize = MemoryManager.bufferWidthLength * height * 4 * 4;
       if (bufferSizeForDataTextureInByte > dataTextureByteSize) {
-        console.warn('The buffer size exceeds the size of the data texture.');
+        Logger.warn('The buffer size exceeds the size of the data texture.');
       }
       const floatDataTextureBuffer = new Float32Array(
         gpuInstanceDataBuffer.getArrayBuffer(),
@@ -521,7 +522,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
           actualSpaceForDataTextureInByte + paddingSpaceBytes + morphBufferTakenSizeInByte >
           dataTextureByteSize
         ) {
-          console.warn('The buffer size exceeds the size of the data texture.');
+          Logger.warn('The buffer size exceeds the size of the data texture.');
         }
 
         floatDataTextureBuffer = new Float32Array(finalArrayBuffer);

@@ -6,6 +6,7 @@ import { Vector3 } from './Vector3';
 import { IVector3 } from './IVector';
 import { Array9, Index } from '../../types/CommonTypes';
 import { IQuaternion } from './IQuaternion';
+import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */
 export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutableMatrix33 {
@@ -245,7 +246,7 @@ export class MutableMatrix33 extends Matrix33 implements IMutableMatrix, IMutabl
   invert() {
     const det = this.determinant();
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = (this._v[4] * this._v[8] - this._v[7] * this._v[5]) / det;

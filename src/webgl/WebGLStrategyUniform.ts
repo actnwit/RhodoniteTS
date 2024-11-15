@@ -41,6 +41,7 @@ import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { Scalar } from '../foundation/math/Scalar';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
+import { Logger } from '../foundation/misc/Logger';
 
 declare const spector: any;
 
@@ -274,7 +275,7 @@ bool get_isBillboard(float instanceId) {
         buffer.takenSizeInByte / MemoryManager.bufferWidthLength / 4 >
         MemoryManager.bufferHeightLength
       ) {
-        console.warn('The buffer size exceeds the size of the data texture.');
+        Logger.warn('The buffer size exceeds the size of the data texture.');
       }
       const dataTextureByteSize =
         MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;

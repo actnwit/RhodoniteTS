@@ -62,6 +62,7 @@ import { CompressionTextureTypeEnum } from '../foundation/definitions/Compressio
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Vector4 } from '../foundation/math/Vector4';
 import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
+import { Logger } from '../foundation/misc/Logger';
 
 const HDRImage = require('../../vendor/hdrpng.min.js');
 
@@ -754,11 +755,11 @@ export class WebGpuResourceRepository
     shaderText: string,
     info: GPUCompilationInfo
   ): boolean {
-    console.log('MaterialTypeName: ' + materialTypeName);
+    Logger.info('MaterialTypeName: ' + materialTypeName);
     const lineNumberedShaderText = MiscUtil.addLineNumberToCode(shaderText);
-    console.log(lineNumberedShaderText);
+    Logger.info(lineNumberedShaderText);
     for (let i = 0; i < info.messages.length; i++) {
-      console.log(info.messages[i]);
+      Logger.info(info.messages[i].message);
       return false;
     }
 
@@ -1505,7 +1506,7 @@ export class WebGpuResourceRepository
           images = await loadOneLevel();
         } catch (uri) {
           // Give up
-          console.error(`failed to load ${uri}`);
+          Logger.error(`failed to load ${uri}`);
         }
       }
       const imageBitmaps: ImageBitmap[] | HTMLCanvasElement[] = [];
@@ -2240,7 +2241,7 @@ export class WebGpuResourceRepository
         0
       )
     ) {
-      console.error('failed to transcode the image.');
+      Logger.error('failed to transcode the image.');
     }
     return textureSource;
   }
@@ -2425,7 +2426,7 @@ export class WebGpuResourceRepository
     try {
       await gpuDevice.queue.onSubmittedWorkDone();
     } catch (e) {
-      console.error(e);
+      Logger.error(e as string);
     }
   }
 

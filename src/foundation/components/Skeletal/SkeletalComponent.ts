@@ -21,6 +21,7 @@ import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { Is } from '../../misc';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
+import { Logger } from '../../misc/Logger';
 
 export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
@@ -75,7 +76,7 @@ export class SkeletalComponent extends Component {
       }
       SkeletalComponent.__tookGlobalDataNum++;
     } else {
-      console.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
+      Logger.warn('The actual number of Skeleton generated exceeds Config.maxSkeletonNumber.');
     }
   }
 

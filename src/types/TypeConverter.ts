@@ -1,4 +1,5 @@
 import { CompositionType } from '../foundation/definitions/CompositionType';
+import { Logger } from '../foundation/misc/Logger';
 
 export function fromTensorToCompositionType(vec: any) {
   switch (vec.className) {
@@ -17,7 +18,7 @@ export function fromTensorToCompositionType(vec: any) {
     case 'Matrix44' || 'MutableMatrix44':
       return CompositionType.Mat4;
     default:
-      console.error('CompositionType.Unknown');
+      Logger.error('CompositionType.Unknown');
       return CompositionType.Unknown;
   }
 }

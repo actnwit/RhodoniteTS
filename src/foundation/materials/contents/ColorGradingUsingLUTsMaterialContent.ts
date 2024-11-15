@@ -17,6 +17,7 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { Sampler } from '../../textures/Sampler';
 import { dummyBlackTexture } from '../core/DummyTextures';
+import { Logger } from '../../misc/Logger';
 
 export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
   static lookupTableTexture = new ShaderSemanticsClass({
@@ -44,11 +45,11 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     } else {
       targetTexture = dummyBlackTexture;
       if (framebuffer != null) {
-        console.warn(
+        Logger.warn(
           'renderPass does not have framebuffer.colorAttachments[' + colorAttachmentsNumber + ']'
         );
       } else {
-        console.warn('renderPass does not have framebuffer');
+        Logger.warn('renderPass does not have framebuffer');
       }
     }
 
@@ -64,7 +65,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     } else if (texture instanceof AbstractTexture) {
       lookupTableTexture = texture;
     } else {
-      console.warn('no LUT texture is specified');
+      Logger.warn('no LUT texture is specified');
       lookupTableTexture = dummyBlackTexture;
     }
 

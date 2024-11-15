@@ -1,8 +1,7 @@
 export enum LogLevel {
-  Debug,
+  Debug = 0,
   Info,
-  Log,
-  Warning,
+  Warn,
   Error,
   Assert,
 }
@@ -10,19 +9,41 @@ export enum LogLevel {
 class Log {
   message: string = '';
   timestamp: number = 0;
-  logLevel: LogLevel = LogLevel.Log;
+  logLevel: LogLevel = LogLevel.Info;
 }
 
 export class Logger {
   private static __messages: Log[] = [];
+  static logLevel = LogLevel.Warn;
+  static isRichLog = false;
+  static isAccumulateLog = false;
 
   private static __common(message: string, logLevel: LogLevel): string {
+    if (!this.isAccumulateLog && !this.isRichLog) {
+      return message;
+    }
+
     // store log
     const log = new Log();
     log.message = message;
     log.timestamp = Date.now();
     log.logLevel = logLevel;
-    this.__messages.push(log);
+
+    if (this.isAccumulateLog) {
+      this.__messages.push(log);
+    }
+
+    return this.__formatLogs(log);
+  }
+
+  private static __clearAccumulatedLog(): void {
+    this.__messages = [];
+  }
+
+  private static __formatLogs(log: Log): string {
+    if (!this.isRichLog) {
+      return log.message;
+    }
 
     // format log text
     const yyyymmdd = new Intl.DateTimeFormat(undefined, {
@@ -33,41 +54,62 @@ export class Logger {
       minute: '2-digit',
       second: '2-digit',
     });
-    const dateTime = yyyymmdd.format(new Date());
-    const finalMessage = `Rn(${dateTime}) ${log.message}`;
+    const dateTime = yyyymmdd.format(log.timestamp);
+    const finalMessage = `Rn[${this.__getLogLevelText(log.logLevel)}][${dateTime}]: ${log.message}`;
 
     return finalMessage;
   }
 
-  public static log(message: string): void {
-    const formattedMessage = this.__common(message, LogLevel.Log);
-    console.log(formattedMessage);
+  private static __getLogLevelText(logLevel: LogLevel): string {
+    return LogLevel[logLevel];
   }
 
-  public static warn(message: string): void {
-    const formattedMessage = this.__common(message, LogLevel.Warning);
-    console.warn(formattedMessage);
+  public static error(message: string): string | undefined {
+    if (this.logLevel <= LogLevel.Error) {
+      const formattedMessage = this.__common(message, LogLevel.Error);
+      console.error(formattedMessage);
+      return formattedMessage;
+    }
+    return undefined;
   }
 
-  public static error(message: string): void {
-    const formattedMessage = this.__common(message, LogLevel.Error);
-    console.error(formattedMessage);
+  public static warn(message: string): string | undefined {
+    if (this.logLevel <= LogLevel.Warn) {
+      const formattedMessage = this.__common(message, LogLevel.Warn);
+      console.warn(formattedMessage);
+      return formattedMessage;
+    }
+    return undefined;
   }
 
-  public static info(message: string): void {
-    const formattedMessage = this.__common(message, LogLevel.Info);
-    console.info(formattedMessage);
+  public static info(message: string): string | undefined {
+    if (this.logLevel <= LogLevel.Info) {
+      const formattedMessage = this.__common(message, LogLevel.Info);
+      console.info(formattedMessage);
+      return formattedMessage;
+    }
+    return undefined;
   }
 
-  public static debug(message: string): void {
-    const formattedMessage = this.__common(message, LogLevel.Debug);
-    console.debug(formattedMessage);
+  public static debug(message: string): string | undefined {
+    if (this.logLevel <= LogLevel.Debug) {
+      const formattedMessage = this.__common(message, LogLevel.Debug);
+      console.debug(formattedMessage);
+      return formattedMessage;
+    }
+    return undefined;
   }
 
-  public static assert(condition: boolean, message: string): void {
-    if (!condition) {
+  public static assert(condition: boolean, message: string): string | undefined {
+    if (this.logLevel <= LogLevel.Assert) {
       const formattedMessage = this.__common(message, LogLevel.Assert);
       console.assert(condition, formattedMessage);
+      return formattedMessage;
     }
+    return undefined;
+  }
+
+  public static getAccumulatedLog(): string[] {
+    return this.__messages.map((log) => this.__formatLogs(log));
   }
 }

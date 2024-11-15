@@ -41,6 +41,7 @@ import { CameraControllerComponent } from '../foundation/components/CameraContro
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
 import { Mesh } from '../foundation/geometry/Mesh';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
+import { Logger } from '../foundation/misc/Logger';
 
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
@@ -161,7 +162,7 @@ fn get_isVisible(instanceId: u32) -> bool {
     );
 
     if (offsetOfProperty === -1) {
-      console.error('Could not get the location offset of the property.');
+      Logger.error('Could not get the location offset of the property.');
     }
 
     let indexStr;
@@ -250,7 +251,7 @@ ${indexStr}
         str += '  let val = fetchMat4x3(vec4_idx);\n';
         break;
       default:
-        // console.error('unknown composition type', info.compositionType.str, memberName);
+        // Logger.error('unknown composition type', info.compositionType.str, memberName);
         str += '';
     }
     str += `
@@ -348,7 +349,7 @@ ${indexStr}
       );
       primitive._backupMaterial();
     } catch (e) {
-      console.log(e);
+      Logger.error(e as string);
       primitive._restoreMaterial();
       this.setupShaderForMaterial(
         primitive.material,

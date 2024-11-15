@@ -26,6 +26,7 @@ import VarianceShadowMapDecodeClassicShaderFragment from '../../../webgl/shaderi
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlackTexture, dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import { Logger } from '../../misc/Logger';
 
 export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static IsPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });
@@ -102,11 +103,11 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     );
 
     if (encodedDepthRenderPasses.length !== 2) {
-      console.error('invalid length of renderPasses');
+      Logger.error('invalid length of renderPasses');
     }
 
     if (depthCameraComponent == null) {
-      console.warn('need to set depth camera component');
+      Logger.warn('need to set depth camera component');
     } else {
       this.__depthCameraComponent = depthCameraComponent;
     }
@@ -122,7 +123,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     if (depthFramebuffer) {
       depthTexture = depthFramebuffer.colorAttachments[colorAttachmentsNumberDepth];
     } else {
-      console.warn('renderPass of depth does not have framebuffer');
+      Logger.warn('renderPass of depth does not have framebuffer');
       depthTexture = dummyBlackTexture;
     }
 
@@ -132,7 +133,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
       squareDepthTexture =
         squareDepthFramebuffer.colorAttachments[colorAttachmentsNumberSquareDepth];
     } else {
-      console.warn('renderPass of square depth does not have framebuffer');
+      Logger.warn('renderPass of square depth does not have framebuffer');
       squareDepthTexture = dummyBlackTexture;
     }
 

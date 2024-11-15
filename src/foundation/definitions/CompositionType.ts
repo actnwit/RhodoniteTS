@@ -8,6 +8,7 @@ import {
 } from '../../types/CommonTypes';
 import type { ComponentTypeEnum } from './ComponentType';
 import { Gltf2AccessorCompositionTypeString } from '../../types/glTF2';
+import { Logger } from '../misc/Logger';
 
 export interface CompositionTypeEnum extends EnumIO {
   webgpu: string;
@@ -494,7 +495,7 @@ function vectorFrom(componentN: number): CompositionTypeEnum {
       str = 'vec4';
       break;
     default:
-      console.error('not found appropriate Vectors');
+      Logger.error('not found appropriate Vectors');
   }
   return _fromString({ typeList, str }) as CompositionTypeEnum;
 }

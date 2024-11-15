@@ -38,6 +38,7 @@ import { Config } from '../core/Config';
 import { isErr } from '../misc/Result';
 import { RnException } from '../misc/RnException';
 import { Mesh } from './Mesh';
+import { Logger } from '../misc/Logger';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -527,7 +528,7 @@ export class Primitive extends RnObject {
 
   setBlendShapeTargets(targets: Array<Attributes>) {
     if (Primitive.__primitiveUidIdxHasMorph.size >= Config.maxVertexPrimitiveNumberInShader) {
-      console.error(
+      Logger.error(
         'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumber'
       );
     } else {

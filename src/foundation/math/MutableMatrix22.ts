@@ -4,6 +4,7 @@ import { Matrix22 } from './Matrix22';
 import { Array4, Index } from '../../types/CommonTypes';
 import { Matrix33 } from './Matrix33';
 import { Vector2 } from './Vector2';
+import { Logger } from '../misc/Logger';
 
 export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutableMatrix22 {
   constructor(m: Float32Array) {
@@ -158,7 +159,7 @@ export class MutableMatrix22 extends Matrix22 implements IMutableMatrix, IMutabl
   invert() {
     const det = this.determinant();
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = this._v[3] / det;

@@ -26,7 +26,7 @@ export class ModuleManager {
       module = await (await import(/* webpackChunkName: "xr" */ '../../xr/main')).default;
     }
     this.__modules.set(moduleName, module);
-    // console.log('Module Loaded:', module);
+    // Logger.log('Module Loaded:', module);
 
     return module;
   }

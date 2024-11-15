@@ -3,6 +3,7 @@ import { RenderBufferTargetEnum } from '../foundation/definitions/RenderBufferTa
 import { Index, Size } from '../types/CommonTypes';
 import { Vector4 } from '../foundation/math/Vector4';
 import { Config } from '../foundation/core/Config';
+import { Logger } from '../foundation/misc/Logger';
 
 const INVALID_SIZE = -1;
 
@@ -151,7 +152,7 @@ export class WebGLContextWrapper {
           this.webgl2ExtMLTVIEW.is_multisample = false;
         } else {
           if (Config.cgApiDebugConsoleOutput) {
-            console.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
+            Logger.info('OCULUS_multiview and OVR_multiview2 extensions are not supported');
           }
           this.__is_multiview = false;
         }
@@ -394,7 +395,7 @@ export class WebGLContextWrapper {
       const extObj = gl.getExtension(extension.toString());
       if (extObj == null && Config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
-        console.info(text);
+        Logger.info(text);
       }
       this.__extensions.set(extension, extObj);
       return extObj;
@@ -414,7 +415,7 @@ export class WebGLContextWrapper {
 
       if (extObj == null && Config.cgApiDebugConsoleOutput) {
         const text = `${extension.toString()} Not Available in this environment`;
-        console.info(text);
+        Logger.info(text);
       } else {
         this.__extensions.set(extension, extObj);
       }

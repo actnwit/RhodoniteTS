@@ -18,6 +18,7 @@ import { AnimationInterpolation } from '../definitions';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
+import { Logger } from '../misc/Logger';
 
 export class RhodoniteImportExtension {
   private static __instance: RhodoniteImportExtension;
@@ -87,7 +88,7 @@ export class RhodoniteImportExtension {
         effekseerComponent.uri = effect.uri;
         effekseerComponent.type = 'efk';
       } else {
-        console.error('No real effect data.');
+        Logger.error('No real effect data.');
       }
 
       createEffekseerAnimation(effekseerEntity, effect);

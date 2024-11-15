@@ -1,5 +1,7 @@
 // This is from https://developer.oculus.com/documentation/web/web-multiview/
 
+import { Logger } from '../foundation/misc/Logger';
+
 const VSMultiview = [
   '#version 300 es',
   'uniform vec2 u_offset;',
@@ -98,7 +100,7 @@ export class WebGLStereoUtil {
         shader = this.__fragmentShader;
         break;
       default:
-        console.error('Invalid Shader Type:', type);
+        Logger.error('Invalid Shader Type: ' + type);
         return;
     }
 

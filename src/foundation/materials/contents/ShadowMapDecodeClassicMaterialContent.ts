@@ -26,6 +26,7 @@ import ShadowMapDecodeSingleShaderFragment from '../../../webgl/shaderity_shader
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
+import { Logger } from '../../misc/Logger';
 
 export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
   static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
@@ -94,7 +95,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
 
     const encodedDepthFramebuffer = encodedDepthRenderPass.getFramebuffer();
     if (encodedDepthFramebuffer == null) {
-      console.error('encodedDepthRenderPass does not have framebuffer');
+      Logger.error('encodedDepthRenderPass does not have framebuffer');
       return;
     }
     const encodedDepthTexture = encodedDepthFramebuffer.colorAttachments[colorAttachmentsNumber];

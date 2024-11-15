@@ -23,6 +23,7 @@ import { WebGLStereoUtil } from '../webgl/WebGLStereoUtil';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
 import { createGroupEntity } from '../foundation/components/SceneGraph/createGroupEntity';
 import { createCameraEntity } from '../foundation/components/Camera/createCameraEntity';
+import { Logger } from '../foundation/misc/Logger';
 declare const navigator: Navigator;
 declare const window: any;
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
@@ -100,7 +101,7 @@ export class WebXRSystem {
 
     const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
     if (glw == null) {
-      console.error('WebGL Context is not ready yet.');
+      Logger.error('WebGL Context is not ready yet.');
       return [];
     }
     this.__glw = glw;
@@ -167,7 +168,7 @@ export class WebXRSystem {
         this.__setWebXRMode(false);
         MaterialRepository._makeShaderInvalidateToAllMaterials();
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
-        console.log('XRSession ends.');
+        Logger.info('XRSession ends.');
         System.stopRenderLoop();
         System.restartRenderLoop();
         callbackOnXrSessionEnd();
@@ -186,7 +187,7 @@ export class WebXRSystem {
       //   this.__defaultPositionInLocalSpaceMode =
       //     initialUserPosition ?? Vector3.zero();
       // } catch (err) {
-      // console.error(`Failed to start XRSession: ${err}`);
+      // Logger.error(`Failed to start XRSession: ${err}`);
       // eslint-disable-next-line prefer-const
       referenceSpace = await session.requestReferenceSpace('local');
       this.__spaceType = 'local';
@@ -196,10 +197,10 @@ export class WebXRSystem {
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebXR = true;
       System.restartRenderLoop();
-      console.warn('End of enterWebXR.');
+      Logger.warn('End of enterWebXR.');
       return promise;
     } else {
-      console.error('WebGL context or WebXRSession is not ready yet.');
+      Logger.error('WebGL context or WebXRSession is not ready yet.');
       return undefined;
     }
   }
@@ -513,7 +514,7 @@ export class WebXRSystem {
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
-      console.warn('xrViewerPose not exist');
+      Logger.warn('xrViewerPose not exist');
       return;
     }
     const xrViewLeft = xrViewerPose.views[0];
@@ -607,8 +608,8 @@ export class WebXRSystem {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       this.__canvasWidthForVR = webglLayer.framebufferWidth;
       this.__canvasHeightForVR = webglLayer.framebufferHeight;
-      console.log(this.__canvasWidthForVR);
-      console.log(this.__canvasHeightForVR);
+      Logger.info(this.__canvasWidthForVR.toString());
+      Logger.info(this.__canvasHeightForVR.toString());
 
       // if (this.__multiviewFramebufferHandle === -1) {
       // const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -627,7 +628,7 @@ export class WebXRSystem {
       this.__setWebXRMode(true);
       callbackOnXrSessionStart();
     } else {
-      console.error('WebGL context is not ready for WebXR.');
+      Logger.error('WebGL context is not ready for WebXR.');
     }
   }
 
@@ -657,7 +658,7 @@ export class WebXRSystem {
             if (Is.exist(motionController)) {
               updateMotionControllerModel(hand, motionController);
             } else {
-              console.warn('motionController not found');
+              Logger.warn('motionController not found');
             }
           }
         }

@@ -13,6 +13,7 @@ import { AbstractMatrix } from './AbstractMatrix';
 import { Array16, ArrayType } from '../../types/CommonTypes';
 import { mulThatAndThisToOutAsMat44_offsetAsComposition } from './raw/raw_extension';
 import { IQuaternion } from './IQuaternion';
+import { Logger } from '../misc/Logger';
 
 /* eslint-disable prettier/prettier */
 const FloatArray = Float32Array;
@@ -155,7 +156,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) / det;
@@ -214,7 +215,7 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
 
     const det = n00 * n11 - n01 * n10 + n02 * n09 + n03 * n08 - n04 * n07 + n05 * n06;
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) / det;

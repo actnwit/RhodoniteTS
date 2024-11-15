@@ -23,6 +23,7 @@ import { ProcessApproach } from '../definitions/ProcessApproach';
 import { SystemState } from '../system/SystemState';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
+import { Logger } from '../misc/Logger';
 
 declare const BASIS: BASIS;
 
@@ -60,7 +61,7 @@ export class Texture extends AbstractTexture implements Disposable {
 
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
-      console.info(
+      Logger.info(
         `WebGL/WebGPU texture "${texObj.uniqueName}" was automatically released along with GC. But explicit release is recommended.`
       );
       Texture.__deleteInternalTexture(texObj.textureResourceUid);
@@ -91,7 +92,7 @@ export class Texture extends AbstractTexture implements Disposable {
   ) {
     this.__startedToLoad = true;
     if (typeof BASIS === 'undefined') {
-      console.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
+      Logger.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
     }
 
     // download basis_transcoder.wasm once
@@ -135,7 +136,7 @@ export class Texture extends AbstractTexture implements Disposable {
     const basisFile = new Texture.__BasisFile!(uint8Array);
 
     if (!basisFile.startTranscoding()) {
-      console.error('failed to start transcoding.');
+      Logger.error('failed to start transcoding.');
       basisFile.close();
       basisFile.delete();
       return;
@@ -571,7 +572,7 @@ export class Texture extends AbstractTexture implements Disposable {
   }
 
   [Symbol.dispose]() {
-    console.debug('[Symbol.dispose] is called');
+    Logger.debug('[Symbol.dispose] is called');
     this.destroy();
   }
 

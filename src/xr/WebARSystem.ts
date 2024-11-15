@@ -7,6 +7,7 @@ import { MutableScalar } from '../foundation/math/MutableScalar';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { Vector3 } from '../foundation/math/Vector3';
 import { Is } from '../foundation/misc/Is';
+import { Logger } from '../foundation/misc/Logger';
 import { IOption, None, Some } from '../foundation/misc/Option';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { ModuleManager } from '../foundation/system/ModuleManager';
@@ -68,7 +69,7 @@ export class WebARSystem {
     this.__oGlw = new Some(glw);
     const supported = await navigator.xr!.isSessionSupported('immersive-ar');
     if (supported) {
-      console.log('WebAR is supported.');
+      Logger.info('WebAR is supported.');
       if (requestButtonDom) {
         requestButtonDom.style.display = 'block';
       } else {
@@ -125,7 +126,7 @@ export class WebARSystem {
         this.__requestedToEnterWebAR = false;
         this.__isWebARMode = false;
         this.__defaultPositionInLocalSpaceMode = defaultUserPositionInVR;
-        console.log('XRSession ends.');
+        Logger.info('XRSession ends.');
         System.stopRenderLoop();
         System.restartRenderLoop();
         callbackOnXrSessionEnd();
@@ -139,10 +140,10 @@ export class WebARSystem {
       await this.__setupWebGLLayer(session, callbackOnXrSessionStart);
       this.__requestedToEnterWebAR = true;
       System.restartRenderLoop();
-      console.warn('End of enterWebXR.');
+      Logger.warn('End of enterWebXR.');
       return;
     } else {
-      console.error('WebGL context or WebXRSession is not ready yet.');
+      Logger.error('WebGL context or WebXRSession is not ready yet.');
       return;
     }
   }
@@ -166,13 +167,13 @@ export class WebARSystem {
       const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       this.__canvasWidthForAR = webglLayer.framebufferWidth;
       this.__canvasHeightForAR = webglLayer.framebufferHeight;
-      console.log(this.__canvasWidthForAR);
-      console.log(this.__canvasHeightForAR);
+      Logger.info(this.__canvasWidthForAR.toString());
+      Logger.info(this.__canvasHeightForAR.toString());
       webglResourceRepository.resizeCanvas(this.__canvasWidthForAR, this.__canvasHeightForAR);
       this.__isWebARMode = true;
       callbackOnXrSessionStart();
     } else {
-      console.error('WebGL context is not ready for WebXR.');
+      Logger.error('WebGL context is not ready for WebXR.');
     }
   }
 
@@ -207,7 +208,7 @@ export class WebARSystem {
 
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
-      console.warn('xrViewerPose not exist');
+      Logger.warn('xrViewerPose not exist');
       return;
     }
     const xrView = xrViewerPose.views[0];

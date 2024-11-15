@@ -10,6 +10,7 @@ import { AbstractMatrix } from './AbstractMatrix';
 import { IdentityMatrix33 } from './IdentityMatrix33';
 import { IMutableVector3, IVector3 } from './IVector';
 import { Array9 } from '../../types';
+import { Logger } from '../misc/Logger';
 /* eslint-disable prettier/prettier */
 
 export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
@@ -116,7 +117,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     }
     const det = mat.determinant();
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = (mat._v[4] * mat._v[8] - mat._v[7] * mat._v[5]) / det;
@@ -138,7 +139,7 @@ export class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     }
     const det = mat.determinant();
     if (det === 0) {
-      console.error('the determinant is 0!');
+      Logger.error('the determinant is 0!');
     }
 
     const m00 = (mat._v[4] * mat._v[8] - mat._v[7] * mat._v[5]) / det;
