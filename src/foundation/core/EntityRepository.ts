@@ -28,7 +28,10 @@ export class EntityRepository {
     // check dead entity
     let deadUid = -1;
     for (let i = 0; i < this.__entities.length; i++) {
-      if (this.__entities[i] != null && this.__entities[i]!._isAlive === false) {
+      if (
+        this.__entities[i] == null ||
+        (this.__entities[i] != null && this.__entities[i]!._isAlive === false)
+      ) {
         deadUid = i;
       }
     }
@@ -187,6 +190,12 @@ export class EntityRepository {
     }
   }
 
+  /**
+   * Try to add a component to the entity by componentTID.
+   * @param componentTID - the componentTID
+   * @param entity - the entity
+   * @returns the entity added a component
+   */
   public static tryToAddComponentToEntityByTID(
     componentTID: ComponentTID,
     entity: IEntity
