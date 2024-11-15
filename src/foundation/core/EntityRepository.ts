@@ -9,6 +9,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { SceneGraphComponent } from '../components/SceneGraph/SceneGraphComponent';
 import { SkeletalComponent } from '../components/Skeletal/SkeletalComponent';
 import { ISceneGraphEntity } from '../helpers';
+import { Logger } from '../misc';
 
 /**
  * The class that generates and manages entities.
@@ -218,7 +219,7 @@ export class EntityRepository {
     entity: EntityType
   ): EntityType & ComponentToComponentMethods<ComponentType> {
     if (entity.hasComponent(componentClass)) {
-      console.info('This entity already has the Component.');
+      Logger.info('This entity already has the Component.');
       return entity as EntityType & ComponentToComponentMethods<ComponentType>;
     }
 
