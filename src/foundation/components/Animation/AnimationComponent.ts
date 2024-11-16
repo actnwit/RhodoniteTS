@@ -113,10 +113,10 @@ export class AnimationComponent extends Component {
     // process the first active animation track
     if (Is.exist(this.__firstActiveAnimationTrackName) && this.animationBlendingRatio < 1) {
       if (this.isLoop) {
-        const duration = this.getEndInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
-        time =
-          (time % duration) +
-          this.getStartInputValueOfAnimation(this.__firstActiveAnimationTrackName!);
+        const duration = AnimationComponent.__animationGlobalInfo.get(
+          this.__firstActiveAnimationTrackName!
+        )!.maxEndInputTime;
+        time = time % duration;
       }
 
       const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
@@ -152,10 +152,10 @@ export class AnimationComponent extends Component {
     // process the second active animation track, and blending with the first's one
     if (Is.exist(this.__secondActiveAnimationTrackName) && this.animationBlendingRatio > 0) {
       if (this.isLoop) {
-        const duration = this.getEndInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
-        time =
-          (time % duration) +
-          this.getStartInputValueOfAnimation(this.__secondActiveAnimationTrackName!);
+        const duration = AnimationComponent.__animationGlobalInfo.get(
+          this.__secondActiveAnimationTrackName!
+        )!.maxEndInputTime;
+        time = time % duration;
       }
 
       const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
