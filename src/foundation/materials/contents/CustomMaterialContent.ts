@@ -218,7 +218,19 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       tmp_vector2.y = specularHdriType;
       material.setParameter('hdriFormat', tmp_vector2);
     }
+  }
 
+  _setInternalSettingParametersToGpuWebGLPerPrimitive({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArgWebGL;
+  }) {
     // Morph
     const blendShapeComponent = args.entity.tryToGetBlendShape();
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);

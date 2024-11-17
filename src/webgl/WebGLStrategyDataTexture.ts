@@ -50,6 +50,7 @@ import { Vector2 } from '../foundation/math/Vector2';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
+import { RenderingArgWebGL } from './types/CommonTypes';
 
 declare const spector: any;
 
@@ -871,6 +872,23 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     }
 
     const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+
+    const renderingArg: RenderingArgWebGL = {
+      glw: glw,
+      entity: entity,
+      worldMatrix: entity.getSceneGraph()!.matrixInner,
+      normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
+      isBillboard: entity.getSceneGraph().isBillboard,
+      lightComponents: this.__lightComponents!,
+      renderPass: renderPass,
+      primitive: primitive,
+      diffuseCube: meshRendererComponent.diffuseCubeMap,
+      specularCube: meshRendererComponent.specularCubeMap!,
+      setUniform: false,
+      isVr: isVRMainPass,
+      displayIdx: -1,
+    };
+
     if (firstTime) {
       this.__setCurrentComponentSIDsForEachPrimitive(
         gl,
@@ -884,23 +902,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         material: material,
         shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
         firstTime: firstTime,
-        args: {
-          glw: glw,
-          entity: entity,
-          worldMatrix: entity.getSceneGraph()!.matrixInner,
-          normalMatrix: entity.getSceneGraph()!.normalMatrixInner,
-          isBillboard: entity.getSceneGraph().isBillboard,
-          lightComponents: this.__lightComponents!,
-          renderPass: renderPass,
-          primitive: primitive,
-          diffuseCube: meshRendererComponent.diffuseCubeMap,
-          specularCube: meshRendererComponent.specularCubeMap!,
-          setUniform: false,
-          isVr: isVRMainPass,
-          displayIdx: -1,
-        },
+        args: renderingArg,
       });
     }
+    material._setParametersToGpuWebGLPerPrimitive({
+      material: material,
+      shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+      firstTime: firstTime,
+      args: renderingArg,
+    });
 
     const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
       isVRMainPass,
