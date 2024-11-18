@@ -175,6 +175,7 @@ function createPbrUberMaterial({
     (isSpecular ? '+specular' : '') +
     (isIridescence ? '+iridescence' : '') +
     (isAnisotropy ? '+anisotropy' : '') +
+    (isShadow ? '+shadow' : '') +
     (useTangentAttribute ? '+tangentAttribute' : '') +
     (useNormalTexture ? '' : '-normalTexture');
 
