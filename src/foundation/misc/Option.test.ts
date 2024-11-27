@@ -100,7 +100,12 @@ test('An IOption variable can be replaced by Some', () => {
 
   expect(valRaw).toEqual(10);
 });
-
+test('then', () => {
+  const val0: IOption<number> = new Some(0);
+  val0.then((val) => {
+    expect(val).toEqual(0);
+  });
+});
 test('then', () => {
   const val0: IOption<number> = new Some(0);
   const val1: IOption<number> = val0.then((val) => {

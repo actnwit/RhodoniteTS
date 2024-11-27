@@ -8,8 +8,9 @@ import { Is } from './Is';
 const errorStr = 'The value does not exist!';
 export interface IOption<T> {
   // do the "f" function for
+  then(f: (value: T) => IOption<T>): IOption<T>;
+  then(f: (value: T) => void): IOption<T>;
   then<U>(f: (value: T) => IOption<U>): IOption<U>;
-  then(f: (value: T) => None): None;
 
   unwrapOrDefault(altValue: T): T;
   unwrapOrElse(f: (...vals: any) => T): T;
@@ -29,10 +30,11 @@ export class Some<T> implements IOption<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then(f: (value: T) => None): None;
-  then<U>(f: (value: T) => Some<U>): Some<U>;
-  then<U>(f: (value: T) => IOption<U>): IOption<U> {
-    return f(this.value);
+  then(f: (value: T) => IOption<T>): IOption<T>;
+  then(f: (value: T) => void): IOption<T>;
+  then<U>(f: (value: T) => IOption<U>): IOption<U>;
+  then<U>(f: (value: T) => void | IOption<T> | IOption<U>): IOption<T> | IOption<U> {
+    return f(this.value) ?? this;
   }
 
   /**
