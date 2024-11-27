@@ -16,6 +16,9 @@ export interface IOption<T> {
   else(f: () => void): IOption<T>;
   else<U>(f: () => IOption<U>): IOption<U>;
 
+  match(obj: { Some: (value: T) => void; None: () => void }): T;
+  match<U>(obj: { Some: (value: T) => U; None: () => U }): U;
+
   unwrapOrDefault(altValue: T): T;
   unwrapOrElse(f: (...vals: any) => T): T;
   unwrapOrUndefined(): T | undefined;
@@ -46,6 +49,11 @@ export class Some<T> implements IOption<T> {
   else<U>(f: () => IOption<U>): IOption<U>;
   else<U>(f: () => void | IOption<T> | IOption<U>): IOption<T> | IOption<U> {
     return this;
+  }
+
+  match(obj: { Some: (value: T) => void; None: () => void }): T;
+  match<U>(obj: { Some: (value: T) => U; None: () => U }): U {
+    return obj.Some(this.value);
   }
 
   /**
@@ -102,6 +110,11 @@ export class None implements IOption<never> {
   else<U>(f: () => IOption<U>): IOption<U>;
   else<U>(f: () => void | IOption<never> | IOption<U>): IOption<never> | IOption<U> {
     return f() ?? this;
+  }
+
+  match(obj: { Some: (value: never) => void; None: () => void }): never;
+  match<U>(obj: { Some: (value: never) => U; None: () => U }): U {
+    return obj.None();
   }
 
   unwrapOrDefault<T>(value: T): T {

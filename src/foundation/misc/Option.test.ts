@@ -278,3 +278,59 @@ test('else(func).then(func) with return value', () => {
     expect(val.unwrapForce()).toEqual(1);
   }
 });
+
+test('match', () => {
+  const some: IOption<number> = new Some(0);
+  const val = some.match({
+    Some: (val) => {
+      expect(val).toEqual(0);
+    },
+    None: () => {
+      fail('this is not executed');
+    },
+  });
+  expect(val).toBeUndefined();
+
+  const none: IOption<number> = new None();
+  const val2 = none.match({
+    Some: (_val) => {
+      fail('this is not executed');
+    },
+    None: () => {
+      expect(none.doesNotHave()).toBe(true);
+    },
+  });
+  expect(val2).toBeUndefined();
+});
+
+test('match with return value', () => {
+  const some: IOption<number> = new Some(0);
+  const val = some.match({
+    Some: (val) => val,
+    None: () => 1,
+  });
+  expect(val).toEqual(0);
+
+  const none: IOption<number> = new None();
+  const val2 = none.match({
+    Some: (val) => val,
+    None: () => 1,
+  });
+  expect(val2).toEqual(1);
+});
+
+test('match<T> with return value', () => {
+  const some: IOption<number> = new Some(0);
+  const val = some.match<string>({
+    Some: (_val) => 'exist!',
+    None: () => 'none',
+  });
+  expect(val).toEqual('exist!');
+
+  const none: IOption<number> = new None();
+  const val2 = none.match<string>({
+    Some: (_val) => 'exist!',
+    None: () => 'none',
+  });
+  expect(val2).toEqual('none');
+});
