@@ -20,7 +20,7 @@ export interface IOption<T> {
   match<U>(obj: { Some: (value: T) => U; None: () => U }): U;
 
   unwrapOrDefault(altValue: T): T;
-  unwrapOrElse(f: (...vals: any) => T): T;
+  unwrapOrElse(f: () => T): T;
   unwrapOrUndefined(): T | undefined;
   unwrapForce(): T;
   has(): this is Some<T>;
@@ -68,7 +68,7 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  unwrapOrElse(f: (value: T) => T): T {
+  unwrapOrElse(f: () => T): T {
     return this.value;
   }
 
@@ -121,8 +121,8 @@ export class None implements IOption<never> {
     return value;
   }
 
-  unwrapOrElse(f: (...vals: any) => never): never {
-    return f(undefined as never);
+  unwrapOrElse(f: () => never): never {
+    return f();
   }
 
   unwrapForce(): never {
