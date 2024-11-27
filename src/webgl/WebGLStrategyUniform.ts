@@ -535,29 +535,37 @@ bool get_isBillboard(float instanceId) {
           WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);
         }
 
+        const renderingArg = {
+          setUniform: true,
+          glw: glw,
+          entity,
+          primitive: primitive,
+          worldMatrix: entity.getSceneGraph().matrix,
+          normalMatrix: entity.getSceneGraph().normalMatrix,
+          isBillboard: entity.getSceneGraph().isBillboard,
+          lightComponents: this.__lightComponents!,
+          renderPass: renderPass,
+          diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
+          specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
+          isVr: isVrMainPass,
+          displayIdx,
+        };
         if (firstTime) {
           WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
           material._setParametersToGpuWebGL({
             material,
             shaderProgram,
             firstTime,
-            args: {
-              setUniform: true,
-              glw: glw,
-              entity,
-              primitive: primitive,
-              worldMatrix: entity.getSceneGraph().matrix,
-              normalMatrix: entity.getSceneGraph().normalMatrix,
-              isBillboard: entity.getSceneGraph().isBillboard,
-              lightComponents: this.__lightComponents!,
-              renderPass: renderPass,
-              diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
-              specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
-              isVr: isVrMainPass,
-              displayIdx,
-            },
+            args: renderingArg,
           });
         }
+        material._setParametersToGpuWebGLPerPrimitive({
+          material: material,
+          shaderProgram: shaderProgram,
+          firstTime: firstTime,
+          args: renderingArg,
+        });
+
         if ((shaderProgram as any).vrState != null && isVrMainPass) {
           const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
           vrState._v[0] = isVrMainPass ? 1 : 0;
