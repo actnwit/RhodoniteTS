@@ -177,7 +177,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oFrame = sFrame;
 
     if (!this.__isSimple) {
-      this.__oSamplerForBackBuffer = new Some(
+      const oSamplerForBackBuffer = new Some(
         new Sampler({
           wrapS: TextureParameter.Repeat,
           wrapT: TextureParameter.Repeat,
@@ -185,8 +185,8 @@ export class ForwardRenderPipeline extends RnObject {
           magFilter: TextureParameter.Linear,
         })
       );
-      this.__oSamplerForBackBuffer.unwrapForce().create();
-
+      oSamplerForBackBuffer.get().create();
+      this.__oSamplerForBackBuffer = oSamplerForBackBuffer;
       // create Frame Buffers
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
@@ -198,17 +198,17 @@ export class ForwardRenderPipeline extends RnObject {
       if (this.__oFrameBufferResolveForReference.has()) {
         // generate mipmaps for process KHR_materials_transmittance
         this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
-          this.__oFrameBufferResolveForReference.unwrapForce()
+          this.__oFrameBufferResolveForReference.get()
         );
       }
 
       if (this.__oFrameBufferMultiView.has()) {
         // Make Blit Expression if VR MultiView is enabled
         this.__oMultiViewBlitBackBufferExpression = this.__setupMultiViewBlitBackBufferExpression(
-          this.__oFrameBufferMultiView.unwrapForce()
+          this.__oFrameBufferMultiView.get()
         );
         this.__oMultiViewBlitExpression = this.__setupMultiViewBlitExpression(
-          this.__oFrameBufferMultiView.unwrapForce()
+          this.__oFrameBufferMultiView.get()
         );
       }
 
@@ -950,7 +950,11 @@ export class ForwardRenderPipeline extends RnObject {
    * This method adds expressions to the frame.
    */
   private __setExpressions() {
-    const frame = this.__oFrame.unwrapForce();
+    if (!this.__oFrame.has()) {
+      console.error('Frame is not set.');
+      return;
+    }
+    const frame = this.__oFrame.get();
     frame.clearExpressions();
     frame.addExpression(this.getInitialExpression()!);
 
@@ -964,10 +968,10 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
-      frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+      frame.addExpression(this.__oGenerateMipmapsExpression.get());
     }
     if (!this.__isSimple && this.__oMultiViewBlitBackBufferExpression.has()) {
-      frame.addExpression(this.__oMultiViewBlitBackBufferExpression.unwrapForce());
+      frame.addExpression(this.__oMultiViewBlitBackBufferExpression.get());
     }
 
     for (const exp of this.__transparentOnlyExpressions) {
@@ -975,11 +979,11 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
-      frame.addExpression(this.__oMultiViewBlitExpression.unwrapForce());
+      frame.addExpression(this.__oMultiViewBlitExpression.get());
     }
 
-    if (!this.__isSimple && this.__isBloom) {
-      frame.addExpression(this.__oBloomExpression.unwrapForce());
+    if (!this.__isSimple && this.__isBloom && this.__oBloomExpression.has()) {
+      frame.addExpression(this.__oBloomExpression.get());
     }
 
     if (!this.__isSimple && this.__oToneMappingExpression.has()) {
