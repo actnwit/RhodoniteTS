@@ -234,9 +234,7 @@ export class EntityRepository {
     const map = valueWithCompensation({
       value: this._components[entity.entityUID],
       compensation: () => {
-        const map = new Map();
-        this._components[entity.entityUID] = map;
-        return map;
+        return (this._components[entity.entityUID] = new Map());
       },
     });
     map.set(componentClass.componentTID, component);
