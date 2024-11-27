@@ -100,3 +100,25 @@ test('An IOption variable can be replaced by Some', () => {
 
   expect(valRaw).toEqual(10);
 });
+
+test('then', () => {
+  const val0: IOption<number> = new Some(0);
+  const val1: IOption<number> = val0.then((val) => {
+    return new Some(val);
+  });
+  expect(val1.has()).toBe(true);
+
+  const none: IOption<number> = new None();
+  const none2: IOption<number> = none.then((val) => {
+    return new Some(val);
+  });
+  expect(none2.doesNotHave()).toBe(true);
+});
+
+test('then<T>', () => {
+  const val0: IOption<number> = new Some(0);
+  const val1: IOption<string> = val0.then<string>((_val) => {
+    return new Some('exist!');
+  });
+  expect(val1.unwrapForce()).toEqual('exist!');
+});
