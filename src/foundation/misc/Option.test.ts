@@ -158,6 +158,72 @@ test('then(func).else(func)', () => {
       .then((val) => {
         // this is executed because a some.then() does the received function
         expect(val).toEqual(0);
+      })
+      .else(() => {
+        console.error(
+          'this is not executed. because the Some(0).else() just returns the Some(0) itself but execute received function.'
+        );
+      });
+    expect(val.unwrapForce()).toEqual(0);
+  }
+  {
+    const none: IOption<number> = new None();
+    const val = none
+      .then(() => {
+        console.error('this is not executed. because a none.then() just returns the none itself');
+      })
+      .else(() => {
+        return new Some(1); // this is executed because a none.else() execute the received function
+      });
+    expect(val.unwrapForce()).toEqual(1);
+  }
+  {
+    const none: IOption<number> = new None();
+    const val = none
+      .then(() => {
+        console.error('this is not executed. because a none.then() just returns the none itself');
+      })
+      .else(() => {
+        // nothing to do
+        // none.else() returns the none itself
+      });
+    expect(val.doesNotHave()).toBe(true);
+  }
+});
+
+test('else(func).then(func)', () => {
+  {
+    const some: IOption<number> = new Some(0);
+    const val = some
+      .else(() => {
+        console.error('this is not executed');
+      })
+      .then((val) => {
+        expect(val).toEqual(0); // do something with the original value
+        return new Some(val);
+      });
+    expect(val.unwrapForce()).toEqual(0);
+  }
+  {
+    const none: IOption<number> = new None();
+    const val = none
+      .else(() => {
+        return new Some(1); // recover
+      })
+      .then((val) => {
+        expect(val).toEqual(1); // do something with the recovered value
+      });
+    expect(val.unwrapForce()).toEqual(1);
+  }
+});
+
+test('then(func).else(func) with return value', () => {
+  {
+    const some: IOption<number> = new Some(0);
+    const val = some
+      .then((val) => {
+        // this is executed because a some.then() does the received function
+        expect(val).toEqual(0);
         return new Some(val);
       })
       .else(() => {
@@ -185,7 +251,7 @@ test('then(func).else(func)', () => {
   }
 });
 
-test('else(func).then(func)', () => {
+test('else(func).then(func) with return value', () => {
   {
     const some: IOption<number> = new Some(0);
     const val = some
