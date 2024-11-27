@@ -1,29 +1,75 @@
-import { IOption, None, Option, Some } from './Option';
+import { IOption, None, Some } from './Option';
+test('unwrapOrDefault', () => {
+  const val0: IOption<number> = new Some(0);
+  expect(val0.unwrapOrDefault(1)).toEqual(0);
 
-test('Basic usage of Option', () => {
-  const val: Option<number> = new Option();
-  expect(val.unwrapOrDefault(0)).toEqual(0);
+  const val1: IOption<number> = new None();
+  expect(val1.unwrapOrDefault(1)).toEqual(1);
+});
+
+test('unwrapOrUndefined', () => {
+  const val0: IOption<number> = new Some(0);
+  expect(val0.unwrapOrUndefined()).toEqual(0);
+
+  const val1: IOption<number> = new None();
+  expect(val1.unwrapOrUndefined()).toEqual(undefined);
+});
+
+test('unwrapOrElse', () => {
+  const val0: IOption<number> = new Some(0);
   expect(
-    val.unwrapOrElse(() => {
+    val0.unwrapOrElse(() => {
       return 100;
     })
-  ).toEqual(100);
+  ).toEqual(0);
 
-  // throw error
+  const val1: IOption<number> = new None();
+  expect(
+    val1.unwrapOrElse(() => {
+      return 1;
+    })
+  ).toEqual(1);
+});
+
+test('unwrapForce', () => {
+  const val0: IOption<number> = new Some(0);
+  expect(val0.unwrapForce()).toEqual(0);
+
+  const val1: IOption<number> = new None();
   expect(() => {
-    val.unwrapForce();
+    // throw error
+    val1.unwrapForce();
   }).toThrowError(ReferenceError);
+});
 
-  // now set a real value
-  val.set(10);
+test('has and get', () => {
+  const val0: IOption<number> = new Some(0);
+  expect(val0.has()).toBe(true);
 
-  expect(val.unwrapOrDefault(0)).toEqual(10);
-  expect(
-    val.unwrapOrElse(() => {
-      return 100;
-    })
-  ).toEqual(10);
-  expect(val.unwrapForce()).toEqual(10);
+  const val1: IOption<number> = new None();
+  expect(val1.has()).toBe(false);
+
+  const val2: IOption<number> = new Some(1);
+  if (val2.has()) {
+    expect(val2.get()).toEqual(1);
+  } else {
+    fail('val2 should have a value');
+  }
+});
+
+test('doesNotHave', () => {
+  const val0: IOption<number> = new Some(0);
+  expect(val0.doesNotHave()).toBe(false);
+
+  const val1: IOption<number> = new None();
+  expect(val1.doesNotHave()).toBe(true);
+
+  const val2: IOption<number> = new None();
+  if (val2.doesNotHave()) {
+    expect(val2.has()).toBe(false);
+  } else {
+    fail('val2 should not have a value');
+  }
 });
 
 test('Basic usage of Some and None', () => {

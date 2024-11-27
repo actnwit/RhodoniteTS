@@ -19,67 +19,6 @@ export interface IOption<T> {
   doesNotHave(): this is None;
 }
 
-export class Option<T> implements IOption<T> {
-  constructor(private value?: T) {}
-
-  set(val: T) {
-    this.value = val;
-  }
-
-  /**
-   * if inner
-   * @param f
-   */
-  then(f: (value: T) => None): None;
-  then<U>(f: (value: T) => Some<U>): Some<U>;
-  then<U>(f: (value: T) => IOption<U>): IOption<U> {
-    return Is.exist(this.value) ? f(this.value) : new None();
-  }
-
-  /**
-   * @param altValue
-   * @returns
-   */
-  unwrapOrDefault(altValue: T): T {
-    return Is.exist(this.value) ? this.value : altValue;
-  }
-
-  /**
-   * @param altValue
-   * @returns
-   */
-  unwrapOrElse(f: (...vals: any) => T): T {
-    return Is.exist(this.value) ? this.value : f();
-  }
-
-  /**
-   * @returns
-   */
-  unwrapForce(): T {
-    if (Is.exist(this.value)) {
-      return this.value;
-    } else {
-      throw new ReferenceError(errorStr);
-    }
-  }
-
-  unwrapOrUndefined(): T | undefined {
-    if (Is.exist(this.value)) {
-      return this.value;
-    } else {
-      return undefined;
-    }
-  }
-
-  has(): this is Some<T> {
-    return Is.exist(this.value);
-  }
-
-  doesNotHave(): this is None {
-    return !Is.exist(this.value);
-  }
-}
-
 /**
  * a class indicating that the included value exists.
  */

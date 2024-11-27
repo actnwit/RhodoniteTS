@@ -32,7 +32,7 @@ import {
   RaycastResult,
   RaycastResultEx1,
 } from './types/GeometryTypes';
-import { IOption, None, Some, Option } from '../misc/Option';
+import { IOption, None, Some } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
 import { isErr } from '../misc/Result';
@@ -267,7 +267,7 @@ export class Primitive extends RnObject {
     material?: Material,
     indicesAccessor?: Accessor
   ) {
-    this.__oIndices = new Option(indicesAccessor);
+    this.__oIndices = new Some(indicesAccessor!);
     this.__attributes = attributes;
 
     const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
