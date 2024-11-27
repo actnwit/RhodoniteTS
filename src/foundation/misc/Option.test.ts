@@ -100,13 +100,15 @@ test('An IOption variable can be replaced by Some', () => {
 
   expect(valRaw).toEqual(10);
 });
-test('then', () => {
+
+test('then(func)', () => {
   const val0: IOption<number> = new Some(0);
   val0.then((val) => {
     expect(val).toEqual(0);
   });
 });
-test('then', () => {
+
+test('const var = then(func)', () => {
   const val0: IOption<number> = new Some(0);
   const val1: IOption<number> = val0.then((val) => {
     return new Some(val);
@@ -115,7 +117,7 @@ test('then', () => {
 
   const none: IOption<number> = new None();
   const none2: IOption<number> = none.then((val) => {
-    return new Some(val);
+    return new Some(val); // this is not executed
   });
   expect(none2.doesNotHave()).toBe(true);
 });
@@ -126,4 +128,79 @@ test('then<T>', () => {
     return new Some('exist!');
   });
   expect(val1.unwrapForce()).toEqual('exist!');
+});
+
+test('else(func)', () => {
+  const val0: IOption<number> = new None();
+  val0.else(() => {
+    expect(val0.doesNotHave()).toBe(true);
+  });
+});
+
+test('const var = else(func)', () => {
+  const val0: IOption<number> = new None();
+  const val1: IOption<number> = val0.else(() => {
+    return new Some(1);
+  });
+  expect(val1.has()).toBe(true);
+
+  const none: IOption<number> = new Some(0);
+  const none2: IOption<number> = none.else(() => {
+    return new Some(1); // this is not executed
+  });
+  expect(none2.unwrapForce()).toEqual(0);
+});
+
+test('then(func).else(func)', () => {
+  {
+    const some: IOption<number> = new Some(0);
+    const val = some
+      .then((val) => {
+        expect(val).toEqual(0);
+        return new Some(val);
+      })
+      .else(() => {
+        return new Some(1);
+      });
+    expect(val.unwrapForce()).toEqual(0);
+  }
+  {
+    const none: IOption<number> = new None();
+    const val = none
+      .then((val) => {
+        expect(val).toEqual(0);
+        return new Some(val);
+      })
+      .else(() => {
+        return new Some(1);
+      });
+    expect(val.unwrapForce()).toEqual(1);
+  }
+});
+
+test('else(func).then(func)', () => {
+  {
+    const some: IOption<number> = new Some(0);
+    const val = some
+      .else(() => {
+        return new Some(1);
+      })
+      .then((val) => {
+        expect(val).toEqual(0);
+        return new Some(val);
+      });
+    expect(val.unwrapForce()).toEqual(0);
+  }
+  {
+    const none: IOption<number> = new None();
+    const val = none
+      .else(() => {
+        return new Some(1);
+      })
+      .then((val) => {
+        expect(val).toEqual(1);
+        return new Some(val);
+      });
+    expect(val.unwrapForce()).toEqual(1);
+  }
 });

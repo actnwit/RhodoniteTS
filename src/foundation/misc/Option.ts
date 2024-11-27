@@ -12,6 +12,10 @@ export interface IOption<T> {
   then(f: (value: T) => void): IOption<T>;
   then<U>(f: (value: T) => IOption<U>): IOption<U>;
 
+  else(f: () => IOption<T>): IOption<T>;
+  else(f: () => void): IOption<T>;
+  else<U>(f: () => IOption<U>): IOption<U>;
+
   unwrapOrDefault(altValue: T): T;
   unwrapOrElse(f: (...vals: any) => T): T;
   unwrapOrUndefined(): T | undefined;
@@ -35,6 +39,13 @@ export class Some<T> implements IOption<T> {
   then<U>(f: (value: T) => IOption<U>): IOption<U>;
   then<U>(f: (value: T) => void | IOption<T> | IOption<U>): IOption<T> | IOption<U> {
     return f(this.value) ?? this;
+  }
+
+  else(f: () => IOption<T>): IOption<T>;
+  else(f: () => void): IOption<T>;
+  else<U>(f: () => IOption<U>): IOption<U>;
+  else<U>(f: () => void | IOption<T> | IOption<U>): IOption<T> | IOption<U> {
+    return this;
   }
 
   /**
@@ -84,6 +95,13 @@ export class Some<T> implements IOption<T> {
 export class None implements IOption<never> {
   then(): None {
     return this;
+  }
+
+  else(f: () => IOption<never>): IOption<never>;
+  else(f: () => void): IOption<never>;
+  else<U>(f: () => IOption<U>): IOption<U>;
+  else<U>(f: () => void | IOption<never> | IOption<U>): IOption<never> | IOption<U> {
+    return f() ?? this;
   }
 
   unwrapOrDefault<T>(value: T): T {
