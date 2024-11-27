@@ -156,10 +156,14 @@ test('then(func).else(func)', () => {
     const some: IOption<number> = new Some(0);
     const val = some
       .then((val) => {
+        // this is executed because a some.then() does the received function
         expect(val).toEqual(0);
         return new Some(val);
       })
       .else(() => {
+        console.error(
+          'this is not executed. because the Some(val).else() just returns the Some(val) itself but execute received function.'
+        );
         return new Some(1);
       });
     expect(val.unwrapForce()).toEqual(0);
@@ -168,11 +172,14 @@ test('then(func).else(func)', () => {
     const none: IOption<number> = new None();
     const val = none
       .then((val) => {
+        console.error(
+          'this is not executed. because a none.then() just returns the none itself but execute received function.'
+        );
         expect(val).toEqual(0);
         return new Some(val);
       })
       .else(() => {
-        return new Some(1);
+        return new Some(1); // this is executed because a none.else() execute the received function
       });
     expect(val.unwrapForce()).toEqual(1);
   }
@@ -183,10 +190,11 @@ test('else(func).then(func)', () => {
     const some: IOption<number> = new Some(0);
     const val = some
       .else(() => {
-        return new Some(1);
+        console.error('this is not executed');
+        return new Some(1); // recover
       })
       .then((val) => {
-        expect(val).toEqual(0);
+        expect(val).toEqual(0); // do something with the original value
         return new Some(val);
       });
     expect(val.unwrapForce()).toEqual(0);
@@ -195,10 +203,10 @@ test('else(func).then(func)', () => {
     const none: IOption<number> = new None();
     const val = none
       .else(() => {
-        return new Some(1);
+        return new Some(1); // recover
       })
       .then((val) => {
-        expect(val).toEqual(1);
+        expect(val).toEqual(1); // do something with the recovered value
         return new Some(val);
       });
     expect(val.unwrapForce()).toEqual(1);
