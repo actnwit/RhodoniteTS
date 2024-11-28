@@ -1,4 +1,3 @@
-import { Is } from './Is';
 // Inspired from https://scleapt.com/typescript_option/
 
 /**
@@ -8,22 +7,20 @@ import { Is } from './Is';
 const errorStr = 'The value does not exist!';
 interface IOption<T> {
   // do the "f" function for
-  then(f: (value: T) => IOption<T>): IOption<T>;
-  then(f: (value: T) => void): IOption<T>;
-  then<U>(f: (value: T) => IOption<U>): IOption<U>;
+  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>>;
 
-  else(f: () => IOption<T>): IOption<T>;
-  else(f: () => void): IOption<T>;
-  else<U>(f: () => IOption<U>): IOption<U>;
+  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>>;
 
-  match(obj: { Some: (value: T) => void; None: () => void }): T;
-  match<U>(obj: { Some: (value: T) => U; None: () => U }): U;
+  match<U>(obj: {
+    Some: (value: NonNullable<T>) => NonNullable<U> | U;
+    None: () => NonNullable<U> | U;
+  }): NonNullable<U> | U;
 
-  unwrapOrDefault(altValue: T): T;
-  unwrapOrElse(f: () => T): T;
-  unwrapOrUndefined(): T | undefined;
-  unwrapForce(): T;
-  has(): this is Some<T>;
+  unwrapOrDefault(altValue: NonNullable<T>): NonNullable<T>;
+  unwrapOrElse(f: () => NonNullable<T>): NonNullable<T>;
+  unwrapOrUndefined(): NonNullable<T> | undefined;
+  unwrapForce(): NonNullable<T>;
+  has(): this is Some<NonNullable<T>>;
   doesNotHave(): this is None;
 }
 
@@ -31,32 +28,24 @@ interface IOption<T> {
  * a class indicating that the included value exists.
  */
 export class Some<T> implements IOption<T> {
-  constructor(private value: T) {}
+  constructor(private value: NonNullable<T>) {}
 
   /**
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then(f: (value: T) => Option<T>): Option<T>;
-  then(f: (value: T) => void): Option<T>;
-  then<U>(f: (value: T) => Option<U>): Option<U>;
-  then<U>(f: (value: T) => void | Option<T> | Option<U>): Option<T> | Option<U> {
-    return f(this.value) ?? this;
+  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>> {
+    return f(this.value);
   }
 
-  else(f: () => Option<T>): Option<T>;
-  else(f: () => void): Option<T>;
-  else<U>(f: () => Option<U>): Option<U>;
-  else<U>(f: () => void | Option<T> | Option<U>): Option<T> | Option<U> {
-    return this;
+  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+    return this as Option<NonNullable<U>>;
   }
 
-  match<U>(obj: { Some: (value: T) => U; None: () => U }): U;
-  match(obj: { Some: (value: T) => void; None: () => void }): T;
   match<U>(obj: {
-    Some: ((value: T) => U) | ((value: T) => void);
-    None: (() => U) | (() => void);
-  }): U | T | void {
+    Some: (value: NonNullable<T>) => NonNullable<U> | U;
+    None: () => NonNullable<U> | U;
+  }): NonNullable<U> | U {
     return obj.Some(this.value);
   }
 
@@ -64,7 +53,7 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  unwrapOrDefault(altValue: T): T {
+  unwrapOrDefault(altValue: NonNullable<T>): NonNullable<T> {
     return this.value;
   }
 
@@ -72,7 +61,7 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  unwrapOrElse(f: () => T): T {
+  unwrapOrElse(f: () => NonNullable<T>): NonNullable<T> {
     return this.value;
   }
 
@@ -80,19 +69,19 @@ export class Some<T> implements IOption<T> {
    * @param altValue
    * @returns
    */
-  unwrapForce(): T {
+  unwrapForce(): NonNullable<T> {
     return this.value;
   }
 
-  unwrapOrUndefined(): T {
+  unwrapOrUndefined(): NonNullable<T> | undefined {
     return this.value;
   }
 
-  get(): T {
+  get(): NonNullable<T> {
     return this.value;
   }
 
-  has(): this is Some<T> {
+  has(): this is Some<NonNullable<T>> {
     return true;
   }
 
@@ -105,34 +94,26 @@ export class Some<T> implements IOption<T> {
  * a class indicating no existence.
  */
 export class None implements IOption<never> {
-  then(f: (value: never) => Option<never>): Option<never>;
-  then(f: (value: never) => void): Option<never>;
-  then<U>(f: (value: never) => Option<U>): Option<U>;
-  then<U>(f: (value: never) => void | Option<never> | Option<U>): Option<never> | Option<U> {
+  then<U>(f: (value: never) => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return this;
   }
 
-  else(f: () => Option<never>): Option<never>;
-  else(f: () => void): Option<never>;
-  else<U>(f: () => Option<U>): Option<U>;
-  else<U>(f: () => void | Option<never> | Option<U>): Option<never> | Option<U> {
-    return f() ?? this;
+  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+    return f();
   }
 
-  match<U>(obj: { Some: (value: never) => U; None: () => U }): U;
-  match(obj: { Some: (value: never) => void; None: () => void }): never;
   match<U>(obj: {
-    Some: ((value: never) => U) | ((value: never) => void);
-    None: (() => U) | (() => void);
-  }): U | void {
+    Some: (value: NonNullable<never>) => NonNullable<U> | U;
+    None: () => NonNullable<U> | U;
+  }): NonNullable<U> | U {
     return obj.None();
   }
 
-  unwrapOrDefault<T>(value: T): T {
+  unwrapOrDefault<T>(value: NonNullable<T>): NonNullable<T> {
     return value;
   }
 
-  unwrapOrElse<T>(f: () => T): T {
+  unwrapOrElse<T>(f: () => NonNullable<T>): NonNullable<T> {
     return f();
   }
 
