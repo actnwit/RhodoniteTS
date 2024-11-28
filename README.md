@@ -6,6 +6,7 @@ Rhodonite is a Web3D(WebGL2/WebGPU) library written in TypeScript.
 
 ![npm](https://img.shields.io/npm/v/rhodonite)
 ![license](https://img.shields.io/npm/l/rhodonite)
+![test workflow](https://github.com/actnwit/RhodoniteTS/actions/workflows/test.yml/badge.svg)
 
 ## Feature
 
