@@ -102,50 +102,50 @@ test('An IOption variable can be replaced by Some', () => {
 });
 
 test('then(func)', () => {
-  const val0: Option<number> = new Some(0);
+  const val0 = new Some(0);
   val0.then((val) => {
     expect(val).toEqual(0);
   });
 });
 
 test('const var = then(func)', () => {
-  const val0: Option<number> = new Some(0);
-  const val1: Option<number> = val0.then((val) => {
+  const val0 = new Some(0);
+  const val1 = val0.then((val) => {
     return new Some(val);
   });
   expect(val1.has()).toBe(true);
 
-  const none: Option<number> = new None();
-  const none2: Option<number> = none.then((val) => {
+  const none = new None();
+  const none2 = none.then((val) => {
     return new Some(val); // this is not executed
   });
   expect(none2.doesNotHave()).toBe(true);
 });
 
 test('then<T>', () => {
-  const val0: Option<number> = new Some(0);
-  const val1: Option<string> = val0.then<string>((_val) => {
+  const val0 = new Some(0);
+  const val1 = val0.then<string>((_val) => {
     return new Some('exist!');
   });
   expect(val1.unwrapForce()).toEqual('exist!');
 });
 
 test('else(func)', () => {
-  const val0: Option<number> = new None();
+  const val0 = new None();
   val0.else(() => {
     expect(val0.doesNotHave()).toBe(true);
   });
 });
 
 test('const var = else(func)', () => {
-  const val0: Option<number> = new None();
-  const val1: Option<number> = val0.else(() => {
+  const val0 = new None();
+  const val1 = val0.else(() => {
     return new Some(1);
   });
   expect(val1.has()).toBe(true);
 
-  const none: Option<number> = new Some(0);
-  const none2: Option<number> = none.else(() => {
+  const none = new Some(0);
+  const none2 = none.else(() => {
     return new Some(1); // this is not executed
   });
   expect(none2.unwrapForce()).toEqual(0);
@@ -153,7 +153,7 @@ test('const var = else(func)', () => {
 
 test('then(func).else(func)', () => {
   {
-    const some: Option<number> = new Some(0);
+    const some = new Some(0);
     const val = some
       .then((val) => {
         // this is executed because a some.then() does the received function
@@ -167,7 +167,7 @@ test('then(func).else(func)', () => {
     expect(val.unwrapForce()).toEqual(0);
   }
   {
-    const none: Option<number> = new None();
+    const none = new None();
     const val = none
       .then(() => {
         console.error('this is not executed. because a none.then() just returns the none itself');
@@ -178,7 +178,7 @@ test('then(func).else(func)', () => {
     expect(val.unwrapForce()).toEqual(1);
   }
   {
-    const none: Option<number> = new None();
+    const none = new None();
     const val = none
       .then(() => {
         console.error('this is not executed. because a none.then() just returns the none itself');
@@ -193,7 +193,7 @@ test('then(func).else(func)', () => {
 
 test('else(func).then(func)', () => {
   {
-    const some: Option<number> = new Some(0);
+    const some = new Some(0);
     const val = some
       .else(() => {
         console.error('this is not executed');
@@ -205,7 +205,7 @@ test('else(func).then(func)', () => {
     expect(val.unwrapForce()).toEqual(0);
   }
   {
-    const none: Option<number> = new None();
+    const none = new None();
     const val = none
       .else(() => {
         return new Some(1); // recover
@@ -219,7 +219,7 @@ test('else(func).then(func)', () => {
 
 test('then(func).else(func) with return value', () => {
   {
-    const some: Option<number> = new Some(0);
+    const some = new Some(0);
     const val = some
       .then((val) => {
         // this is executed because a some.then() does the received function
@@ -235,7 +235,7 @@ test('then(func).else(func) with return value', () => {
     expect(val.unwrapForce()).toEqual(0);
   }
   {
-    const none: Option<number> = new None();
+    const none = new None();
     const val = none
       .then((val) => {
         console.error(
@@ -253,7 +253,7 @@ test('then(func).else(func) with return value', () => {
 
 test('else(func).then(func) with return value', () => {
   {
-    const some: Option<number> = new Some(0);
+    const some = new Some(0);
     const val = some
       .else(() => {
         console.error('this is not executed');
@@ -266,7 +266,7 @@ test('else(func).then(func) with return value', () => {
     expect(val.unwrapForce()).toEqual(0);
   }
   {
-    const none: Option<number> = new None();
+    const none = new None();
     const val = none
       .else(() => {
         return new Some(1); // recover
@@ -280,7 +280,7 @@ test('else(func).then(func) with return value', () => {
 });
 
 test('match', () => {
-  const some: Option<number> = new Some(0);
+  const some = new Some(0);
   const val = some.match({
     Some: (val) => {
       expect(val).toEqual(0);
@@ -291,7 +291,7 @@ test('match', () => {
   });
   expect(val).toBeUndefined();
 
-  const none: Option<number> = new None();
+  const none = new None();
   const val2 = none.match({
     Some: (_val) => {
       fail('this is not executed');
@@ -304,14 +304,14 @@ test('match', () => {
 });
 
 test('match with return value', () => {
-  const some: Option<number> = new Some(0);
+  const some = new Some(0);
   const val = some.match({
     Some: (val) => val,
     None: () => 1,
   });
   expect(val).toEqual(0);
 
-  const none: Option<number> = new None();
+  const none = new None();
   const val2 = none.match({
     Some: (val) => val,
     None: () => 1,
@@ -320,14 +320,14 @@ test('match with return value', () => {
 });
 
 test('match<T> with return value', () => {
-  const some: Option<number> = new Some(0);
+  const some = new Some(0);
   const val = some.match({
     Some: (_val) => 'exist!',
     None: () => 'none',
   });
   expect(val).toEqual('exist!');
 
-  const none: Option<number> = new None();
+  const none = new None();
   const val2 = none.match({
     Some: (_val) => 'exist!',
     None: () => 'none',
