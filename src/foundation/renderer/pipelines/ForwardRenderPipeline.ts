@@ -2,7 +2,7 @@ import { ShaderSemantics } from '../../definitions/ShaderSemantics';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { RenderableHelper } from '../../helpers/RenderableHelper';
 import { Vector4 } from '../../math/Vector4';
-import { assertHas, IOption, None, Some } from '../../misc/Option';
+import { assertHas, Option, None, Some } from '../../misc/Option';
 import { Is } from '../../misc/Is';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { Expression } from '../Expression';
@@ -86,32 +86,32 @@ export class ForwardRenderPipeline extends RnObject {
   private __isBloom = false;
   private __isSimple = false;
   private __shadowMapSize = 1024;
-  private __oFrame: IOption<Frame> = new None();
-  private __oFrameDepthMoment: IOption<FrameBuffer> = new None();
-  private __oFrameBufferMultiView: IOption<FrameBuffer> = new None();
-  private __oFrameBufferMultiViewBlit: IOption<FrameBuffer> = new None();
-  private __oFrameBufferMultiViewBlitBackBuffer: IOption<FrameBuffer> = new None();
-  private __oFrameBufferMsaa: IOption<FrameBuffer> = new None();
-  private __oFrameBufferResolve: IOption<FrameBuffer> = new None();
-  private __oFrameBufferResolveForReference: IOption<FrameBuffer> = new None();
-  private __oInitialExpression: IOption<Expression> = new None();
+  private __oFrame: Option<Frame> = new None();
+  private __oFrameDepthMoment: Option<FrameBuffer> = new None();
+  private __oFrameBufferMultiView: Option<FrameBuffer> = new None();
+  private __oFrameBufferMultiViewBlit: Option<FrameBuffer> = new None();
+  private __oFrameBufferMultiViewBlitBackBuffer: Option<FrameBuffer> = new None();
+  private __oFrameBufferMsaa: Option<FrameBuffer> = new None();
+  private __oFrameBufferResolve: Option<FrameBuffer> = new None();
+  private __oFrameBufferResolveForReference: Option<FrameBuffer> = new None();
+  private __oInitialExpression: Option<Expression> = new None();
 
   /** main expressions */
   private __expressions: Expression[] = [];
 
-  private __oGenerateMipmapsExpression: IOption<Expression> = new None();
-  private __oMultiViewBlitBackBufferExpression: IOption<Expression> = new None();
-  private __oMultiViewBlitExpression: IOption<Expression> = new None();
+  private __oGenerateMipmapsExpression: Option<Expression> = new None();
+  private __oMultiViewBlitBackBufferExpression: Option<Expression> = new None();
+  private __oMultiViewBlitExpression: Option<Expression> = new None();
   private __depthMomentExpressions: Expression[] = [];
-  private __oBloomExpression: IOption<Expression> = new None();
-  private __oToneMappingExpression: IOption<Expression> = new None();
-  private __oToneMappingMaterial: IOption<Material> = new None();
+  private __oBloomExpression: Option<Expression> = new None();
+  private __oToneMappingExpression: Option<Expression> = new None();
+  private __oToneMappingMaterial: Option<Material> = new None();
   private __transparentOnlyExpressions: Expression[] = [];
-  private __oWebXRSystem: IOption<any> = new None();
-  private __oDrawFunc: IOption<DrawFunc> = new None();
-  private __oDiffuseCubeTexture: IOption<CubeTexture> = new None();
-  private __oSpecularCubeTexture: IOption<CubeTexture> = new None();
-  private __oSamplerForBackBuffer: IOption<Sampler> = new None();
+  private __oWebXRSystem: Option<any> = new None();
+  private __oDrawFunc: Option<DrawFunc> = new None();
+  private __oDiffuseCubeTexture: Option<CubeTexture> = new None();
+  private __oSpecularCubeTexture: Option<CubeTexture> = new None();
+  private __oSamplerForBackBuffer: Option<Sampler> = new None();
   private __toneMappingType = ToneMappingType.GT_ToneMap;
 
   constructor() {
@@ -177,7 +177,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__oFrame = sFrame;
 
     if (!this.__isSimple) {
-      this.__oSamplerForBackBuffer = new Some(
+      const oSamplerForBackBuffer = new Some(
         new Sampler({
           wrapS: TextureParameter.Repeat,
           wrapT: TextureParameter.Repeat,
@@ -185,8 +185,8 @@ export class ForwardRenderPipeline extends RnObject {
           magFilter: TextureParameter.Linear,
         })
       );
-      this.__oSamplerForBackBuffer.unwrapForce().create();
-
+      oSamplerForBackBuffer.get().create();
+      this.__oSamplerForBackBuffer = oSamplerForBackBuffer;
       // create Frame Buffers
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
@@ -198,17 +198,17 @@ export class ForwardRenderPipeline extends RnObject {
       if (this.__oFrameBufferResolveForReference.has()) {
         // generate mipmaps for process KHR_materials_transmittance
         this.__oGenerateMipmapsExpression = this.__setupGenerateMipmapsExpression(
-          this.__oFrameBufferResolveForReference.unwrapForce()
+          this.__oFrameBufferResolveForReference.get()
         );
       }
 
       if (this.__oFrameBufferMultiView.has()) {
         // Make Blit Expression if VR MultiView is enabled
         this.__oMultiViewBlitBackBufferExpression = this.__setupMultiViewBlitBackBufferExpression(
-          this.__oFrameBufferMultiView.unwrapForce()
+          this.__oFrameBufferMultiView.get()
         );
         this.__oMultiViewBlitExpression = this.__setupMultiViewBlitExpression(
-          this.__oFrameBufferMultiView.unwrapForce()
+          this.__oFrameBufferMultiView.get()
         );
       }
 
@@ -252,7 +252,7 @@ export class ForwardRenderPipeline extends RnObject {
     return new Ok();
   }
 
-  private __getMainFrameBufferBackBuffer(): IOption<FrameBuffer> {
+  private __getMainFrameBufferBackBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlitBackBuffer;
     } else {
@@ -260,7 +260,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private __getMainFrameBufferResolve(): IOption<FrameBuffer> {
+  private __getMainFrameBufferResolve(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiViewBlit;
     } else {
@@ -268,7 +268,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private __getMainFrameBuffer(): IOption<FrameBuffer> {
+  private __getMainFrameBuffer(): Option<FrameBuffer> {
     if (this.__oFrameBufferMultiView.has()) {
       return this.__oFrameBufferMultiView;
     } else {
@@ -635,7 +635,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInnerForTransparentOnly();
   }
 
-  private __setupInitialExpression(oFrameDepthMoment: IOption<FrameBuffer>) {
+  private __setupInitialExpression(oFrameDepthMoment: Option<FrameBuffer>) {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
 
@@ -950,7 +950,11 @@ export class ForwardRenderPipeline extends RnObject {
    * This method adds expressions to the frame.
    */
   private __setExpressions() {
-    const frame = this.__oFrame.unwrapForce();
+    if (this.__oFrame.doesNotHave()) {
+      console.error('Frame is not set.');
+      return;
+    }
+    const frame = this.__oFrame.get();
     frame.clearExpressions();
     frame.addExpression(this.getInitialExpression()!);
 
@@ -964,10 +968,10 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (!this.__isSimple && this.__oGenerateMipmapsExpression.has()) {
-      frame.addExpression(this.__oGenerateMipmapsExpression.unwrapForce());
+      frame.addExpression(this.__oGenerateMipmapsExpression.get());
     }
     if (!this.__isSimple && this.__oMultiViewBlitBackBufferExpression.has()) {
-      frame.addExpression(this.__oMultiViewBlitBackBufferExpression.unwrapForce());
+      frame.addExpression(this.__oMultiViewBlitBackBufferExpression.get());
     }
 
     for (const exp of this.__transparentOnlyExpressions) {
@@ -975,11 +979,11 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (!this.__isSimple && this.__oMultiViewBlitExpression.has()) {
-      frame.addExpression(this.__oMultiViewBlitExpression.unwrapForce());
+      frame.addExpression(this.__oMultiViewBlitExpression.get());
     }
 
-    if (!this.__isSimple && this.__isBloom) {
-      frame.addExpression(this.__oBloomExpression.unwrapForce());
+    if (!this.__isSimple && this.__isBloom && this.__oBloomExpression.has()) {
+      frame.addExpression(this.__oBloomExpression.get());
     }
 
     if (!this.__isSimple && this.__oToneMappingExpression.has()) {
