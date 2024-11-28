@@ -4,7 +4,7 @@ import { RnPromise, RnPromiseCallback } from '../misc/RnPromise';
 import { Is } from '../misc/Is';
 import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
-import { Err, Result, Ok, isErr } from '../misc/Result';
+import { Err, Result, Ok } from '../misc/Result';
 import { Logger } from '../misc/Logger';
 
 declare let Rn: any;
@@ -27,7 +27,7 @@ export class Gltf2Importer {
   ): Promise<Result<RnM2, undefined>> {
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
 
-    if (isErr(r_arrayBuffer)) {
+    if (r_arrayBuffer.isErr()) {
       return new Err({
         message: 'fetchArrayBuffer error',
         error: undefined,

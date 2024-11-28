@@ -35,7 +35,6 @@ import {
 import { Option, None, Some } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
-import { isErr } from '../misc/Result';
 import { RnException } from '../misc/RnException';
 import { Mesh } from './Mesh';
 import { Logger } from '../misc/Logger';
@@ -329,7 +328,7 @@ export class Primitive extends RnObject {
         byteLengthToNeed: indices.byteLength,
         byteStride: 0,
       });
-      if (isErr(indicesBufferViewResult)) {
+      if (indicesBufferViewResult.isErr()) {
         throw new RnException(indicesBufferViewResult.getRnError());
       }
       const indicesAccessorResult = indicesBufferViewResult.get().takeAccessor({
@@ -337,7 +336,7 @@ export class Primitive extends RnObject {
         componentType: indicesComponentType,
         count: indices.byteLength / indicesComponentType.getSizeInBytes(),
       });
-      if (isErr(indicesAccessorResult)) {
+      if (indicesAccessorResult.isErr()) {
         throw new RnException(indicesAccessorResult.getRnError());
       }
       indicesAccessor = indicesAccessorResult.get();

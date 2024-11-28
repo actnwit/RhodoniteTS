@@ -11,7 +11,7 @@ import { glTF1 } from '../../types/glTF1';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { RnPromiseCallback } from '../misc/RnPromise';
 import { Vrm0xImporter } from './Vrm0xImporter';
-import { assertIsErr, assertIsOk, Err, Result, Ok, isOk, isErr } from '../misc/Result';
+import { Err, Result, Ok, assertIsErr } from '../misc/Result';
 import { VrmImporter } from './VrmImporter';
 
 /**
@@ -41,7 +41,7 @@ export class GltfImporter {
     }
 
     const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (isErr(r_arrayBuffer)) {
+    if (r_arrayBuffer.isErr()) {
       return new Err({
         message: 'Failed to fetch array buffer',
         error: r_arrayBuffer,
@@ -262,7 +262,7 @@ export class GltfImporter {
           options
         );
 
-        if (isOk(result)) {
+        if (result.isOk()) {
           const gltfModel = result.get();
           if (gltfModel.extensionsUsed.indexOf('VRMC_vrm') >= 0) {
             options.__isImportVRM0x = false;

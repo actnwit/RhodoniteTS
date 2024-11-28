@@ -14,7 +14,6 @@ import { IMutableQuaternion } from '../foundation/math/IQuaternion';
 import { MutableVector3 } from '../foundation/math/MutableVector3';
 import { MutableMatrix33 } from '../foundation/math/MutableMatrix33';
 import { MutableScalar } from '../foundation/math/MutableScalar';
-import { isOk } from '../foundation/misc/Result';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import { Logger } from '../foundation/misc/Logger';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
@@ -90,7 +89,7 @@ export async function createMotionController(
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const result = await addMotionControllerToScene(motionController);
-  if (isOk(result)) {
+  if (result.isOk()) {
     const rootGroup = ModelConverter.convertToRhodoniteObject(result.get());
     return rootGroup;
   } else {

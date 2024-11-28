@@ -13,7 +13,7 @@ import { RnObject } from './RnObject';
 import { EntityUID, ComponentSID, TypedArray, Count, Byte } from '../../types/CommonTypes';
 import { IEntity } from './Entity';
 import { ComponentToComponentMethods } from '../components/ComponentTypes';
-import { Err, Result, isErr } from '../misc/Result';
+import { Err, Result } from '../misc/Result';
 import { RnException } from '../misc';
 
 type MemberInfo = {
@@ -306,7 +306,7 @@ export class Component extends RnObject {
         byteLengthToNeed: bytes * count,
         byteStride: 0,
       });
-      if (isErr(bufferViewResult)) {
+      if (bufferViewResult.isErr()) {
         return new Err({
           message: 'Failed to take buffer view: ' + bufferViewResult.getRnError().message,
           error: undefined,
@@ -318,7 +318,7 @@ export class Component extends RnObject {
         count: count,
         byteStride: bytes,
       });
-      if (isErr(accessorResult)) {
+      if (accessorResult.isErr()) {
         return new Err({
           message: 'Failed to take accessor: ' + accessorResult.getRnError().message,
           error: undefined,
@@ -477,7 +477,7 @@ export class Component extends RnObject {
             info.componentType,
             count
           );
-          if (isErr(accessorResult)) {
+          if (accessorResult.isErr()) {
             throw new RnException(accessorResult.getRnError());
           }
           (that as any)['_byteOffsetOfAccessorInBuffer_' + info.memberName] =
