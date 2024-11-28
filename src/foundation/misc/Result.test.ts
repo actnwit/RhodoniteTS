@@ -16,11 +16,11 @@ test(`Result.match`, () => {
   const result0 = succeedIfValueEven(0);
   const result1 = succeedIfValueEven(1);
   const ret0 = result0.match({
-    Ok: (val: number) => {
+    Ok: (val) => {
       expect(val).toBe(0);
       return result0.name();
     },
-    Err: (err: RnError<number>) => {
+    Err: (err) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       return err;
     },
@@ -28,11 +28,11 @@ test(`Result.match`, () => {
   expect(ret0.unwrapForce()).toBe('Ok');
 
   const ret1 = result1.match({
-    Ok: (val: number) => {
+    Ok: (val) => {
       expect(true).toBe(false); // If here come, this is wrong behavior.
       return val;
     },
-    Err: (err: RnError<number>) => {
+    Err: (err) => {
       expect(err.message).toBe('Error');
       return {
         message: err.message + '!!!',
@@ -118,4 +118,84 @@ test(`wrapped Err`, () => {
   expect(() => {
     result.unwrapForce();
   }).toThrowError();
+});
+
+test('then', () => {
+  const ok = new Ok(0);
+  const result = ok.andThen((val) => {
+    return new Ok(val + 1);
+  });
+  expect(result.unwrapForce()).toBe(1);
+
+  const err = new Err({
+    message: 'Error',
+    error: 0,
+  });
+  const result2 = err.andThen((val) => {
+    console.error('this is not executed');
+    return new Ok(val);
+  });
+  expect(result2.isErr()).toBe(true);
+});
+
+test('else', () => {
+  const ok = new Ok(0);
+  const result = ok.orElse(() => {
+    return new Ok(1);
+  });
+  expect(result.unwrapForce()).toBe(0);
+
+  const err = new Err({
+    message: 'Error',
+    error: 0,
+  });
+  const result2 = err.orElse(() => {
+    return new Ok(1);
+  });
+
+  expect(result2.unwrapForce()).toBe(1);
+});
+
+test('then().else()', () => {
+  const ok = new Ok(0);
+  const result = ok
+    .andThen((val) => {
+      return new Ok(val + 1);
+    })
+    .orElse(() => {
+      console.error('this is not executed');
+      return new Ok(10);
+    });
+  expect(result.unwrapForce()).toBe(1);
+});
+
+test('then().else() 2', () => {
+  const ok = new Ok(0);
+  const result = ok
+    .andThen((val) => {
+      return new Err({
+        message: 'Error',
+        error: val,
+      });
+    })
+    .orElse(() => {
+      return new Ok(1);
+    });
+  expect(result.unwrapForce()).toBe(1);
+});
+
+test('else().then()', () => {
+  const err = new Err({
+    message: 'Error',
+    error: 0,
+  });
+  const result = err
+    .orElse(() => {
+      return new Ok(1);
+    })
+    .andThen((val) => {
+      expect(val).toBe(1);
+      return new Ok(val + 1);
+    });
+  expect(result.unwrapForce()).toBe(2);
 });
