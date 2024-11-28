@@ -7,13 +7,9 @@
 const errorStr = 'The value does not exist!';
 interface IOption<T> {
   // do the "f" function for
-  then(f: (value: NonNullable<T>) => IOption<NonNullable<T>>): IOption<NonNullable<T>>;
-  then(f: (value: NonNullable<T>) => void): IOption<NonNullable<T>>;
-  then<U>(f: (value: NonNullable<T>) => IOption<U>): IOption<U>;
+  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>>;
 
-  else(f: () => IOption<NonNullable<T>>): IOption<NonNullable<T>>;
-  else(f: () => void): IOption<NonNullable<T>>;
-  else<U>(f: () => IOption<NonNullable<U>>): IOption<NonNullable<U>>;
+  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>>;
 
   match<U>(obj: {
     Some: (value: NonNullable<T>) => NonNullable<U> | U;
@@ -38,22 +34,12 @@ export class Some<T> implements IOption<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then(f: (value: NonNullable<T>) => Option<NonNullable<T>>): Option<NonNullable<T>>;
-  then(f: (value: NonNullable<T>) => void): Option<NonNullable<T>>;
-  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>>;
-  then<U>(
-    f: (value: NonNullable<T>) => void | Option<NonNullable<T>> | Option<NonNullable<U>>
-  ): Option<NonNullable<T>> | Option<NonNullable<U>> {
-    return f(this.value) ?? this;
+  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>> {
+    return f(this.value);
   }
 
-  else(f: () => Option<NonNullable<T>>): Option<NonNullable<T>>;
-  else(f: () => void): Option<NonNullable<T>>;
-  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>>;
-  else<U>(
-    f: () => void | Option<NonNullable<T>> | Option<NonNullable<U>>
-  ): Option<NonNullable<T>> | Option<NonNullable<U>> {
-    return this;
+  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+    return this as Option<NonNullable<U>>;
   }
 
   match<U>(obj: {
@@ -108,18 +94,12 @@ export class Some<T> implements IOption<T> {
  * a class indicating no existence.
  */
 export class None implements IOption<never> {
-  then(f: (value: never) => Option<never>): Option<never>;
-  then(f: (value: never) => void): Option<never>;
-  then<U>(f: (value: never) => Option<U>): Option<U>;
-  then<U>(f: (value: never) => void | Option<never> | Option<U>): Option<never> | Option<U> {
+  then<U>(f: (value: never) => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return this;
   }
 
-  else(f: () => Option<never>): Option<never>;
-  else(f: () => void): Option<never>;
-  else<U>(f: () => Option<U>): Option<U>;
-  else<U>(f: () => void | Option<never> | Option<U>): Option<never> | Option<U> {
-    return f() ?? this;
+  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+    return f();
   }
 
   match<U>(obj: {

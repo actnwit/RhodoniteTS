@@ -105,6 +105,7 @@ test('then(func)', () => {
   const val0 = new Some(0);
   val0.then((val) => {
     expect(val).toEqual(0);
+    return new Some(1);
   });
 });
 
@@ -133,7 +134,7 @@ test('then<T>', () => {
 test('else(func)', () => {
   const val0 = new None();
   val0.else(() => {
-    expect(val0.doesNotHave()).toBe(true);
+    return new None();
   });
 });
 
@@ -144,11 +145,11 @@ test('const var = else(func)', () => {
   });
   expect(val1.has()).toBe(true);
 
-  const none = new Some(0);
+  const none = new None();
   const none2 = none.else(() => {
     return new Some(1); // this is not executed
   });
-  expect(none2.unwrapForce()).toEqual(0);
+  expect(none2.unwrapForce()).toEqual(1);
 });
 
 test('then(func).else(func)', () => {
@@ -156,24 +157,23 @@ test('then(func).else(func)', () => {
     const some = new Some(0);
     const val = some
       .then((val) => {
-        // this is executed because a some.then() does the received function
         expect(val).toEqual(0);
+        return new None();
       })
       .else(() => {
-        console.error(
-          'this is not executed. because the Some(0).else() just returns the Some(0) itself but execute received function.'
-        );
+        return new Some(1);
       });
-    expect(val.unwrapForce()).toEqual(0);
+    expect(val.unwrapForce()).toEqual(1);
   }
   {
     const none = new None();
     const val = none
       .then(() => {
-        console.error('this is not executed. because a none.then() just returns the none itself');
+        console.error('this is not executed');
+        return new None();
       })
       .else(() => {
-        return new Some(1); // this is executed because a none.else() execute the received function
+        return new Some(1);
       });
     expect(val.unwrapForce()).toEqual(1);
   }
@@ -182,10 +182,12 @@ test('then(func).else(func)', () => {
     const val = none
       .then(() => {
         console.error('this is not executed. because a none.then() just returns the none itself');
+        return new None();
       })
       .else(() => {
         // nothing to do
         // none.else() returns the none itself
+        return new None();
       });
     expect(val.doesNotHave()).toBe(true);
   }
@@ -197,6 +199,7 @@ test('else(func).then(func)', () => {
     const val = some
       .else(() => {
         console.error('this is not executed');
+        return new Some(1);
       })
       .then((val) => {
         expect(val).toEqual(0); // do something with the original value
@@ -212,6 +215,7 @@ test('else(func).then(func)', () => {
       })
       .then((val) => {
         expect(val).toEqual(1); // do something with the recovered value
+        return new Some(val);
       });
     expect(val.unwrapForce()).toEqual(1);
   }
