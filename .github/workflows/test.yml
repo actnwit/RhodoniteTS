@@ -1,4 +1,4 @@
-name: Rhodonite Test
+name: test
 
 on: [push]
 
