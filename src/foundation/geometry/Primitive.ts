@@ -267,7 +267,11 @@ export class Primitive extends RnObject {
     material?: Material,
     indicesAccessor?: Accessor
   ) {
-    this.__oIndices = new Some(indicesAccessor!);
+    if (indicesAccessor != null) {
+      this.__oIndices = new Some(indicesAccessor);
+    } else {
+      this.__oIndices = new None();
+    }
     this.__attributes = attributes;
 
     const positionAccessor = this.__attributes.get(VertexAttribute.Position.XYZ)!;
