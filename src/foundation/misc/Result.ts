@@ -10,6 +10,9 @@ export interface RnError<ErrObj> {
  * regardless of whether they are successful or not.
  */
 interface IResult<T, ErrObj> {
+  andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj>;
+  orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj>;
+
   /**
    * pattern matching
    * @param obj an object containing two pattern matching functions, Ok and Err.
@@ -87,6 +90,15 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
   constructor(val?: T) {
     super(val);
   }
+
+  andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj> {
+    return f(this.val as T);
+  }
+
+  orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj> {
+    return this as unknown as Result<U, ErrObj>;
+  }
+
   /**
    * This method is essentially same to the Ok::and_then() in Rust language
    * @param f
@@ -136,6 +148,14 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
   constructor(val: RnError<ErrObj>) {
     super(val);
     this._rnException = new RnException(this.val as RnError<ErrObj>);
+  }
+
+  andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj> {
+    return this as unknown as Result<U, ErrObj>;
+  }
+
+  orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj> {
+    return f();
   }
 
   unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T {
