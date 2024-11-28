@@ -32,7 +32,7 @@ import {
   RaycastResult,
   RaycastResultEx1,
 } from './types/GeometryTypes';
-import { IOption, None, Some } from '../misc/Option';
+import { Option, None, Some } from '../misc/Option';
 import { DataUtil } from '../misc/DataUtil';
 import { Config } from '../core/Config';
 import { isErr } from '../misc/Result';
@@ -62,7 +62,7 @@ export class Primitive extends RnObject {
   private __currentVariantName = '';
   public _prevMaterial: WeakRef<Material>;
   private __attributes: Attributes = new Map();
-  private __oIndices: IOption<Accessor> = new None();
+  private __oIndices: Option<Accessor> = new None();
   private static __primitiveCount: Count = 0;
   private __primitiveUid: PrimitiveUID = -1; // start ID from zero
   private __aabb = new AABB();

@@ -6,7 +6,7 @@ import { Is } from './Is';
  */
 
 const errorStr = 'The value does not exist!';
-export interface IOption<T> {
+interface IOption<T> {
   // do the "f" function for
   then(f: (value: T) => IOption<T>): IOption<T>;
   then(f: (value: T) => void): IOption<T>;
@@ -37,22 +37,26 @@ export class Some<T> implements IOption<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then(f: (value: T) => IOption<T>): IOption<T>;
-  then(f: (value: T) => void): IOption<T>;
-  then<U>(f: (value: T) => IOption<U>): IOption<U>;
-  then<U>(f: (value: T) => void | IOption<T> | IOption<U>): IOption<T> | IOption<U> {
+  then(f: (value: T) => Option<T>): Option<T>;
+  then(f: (value: T) => void): Option<T>;
+  then<U>(f: (value: T) => Option<U>): Option<U>;
+  then<U>(f: (value: T) => void | Option<T> | Option<U>): Option<T> | Option<U> {
     return f(this.value) ?? this;
   }
 
-  else(f: () => IOption<T>): IOption<T>;
-  else(f: () => void): IOption<T>;
-  else<U>(f: () => IOption<U>): IOption<U>;
-  else<U>(f: () => void | IOption<T> | IOption<U>): IOption<T> | IOption<U> {
+  else(f: () => Option<T>): Option<T>;
+  else(f: () => void): Option<T>;
+  else<U>(f: () => Option<U>): Option<U>;
+  else<U>(f: () => void | Option<T> | Option<U>): Option<T> | Option<U> {
     return this;
   }
 
+  match<U>(obj: { Some: (value: T) => U; None: () => U }): U;
   match(obj: { Some: (value: T) => void; None: () => void }): T;
-  match<U>(obj: { Some: (value: T) => U; None: () => U }): U {
+  match<U>(obj: {
+    Some: ((value: T) => U) | ((value: T) => void);
+    None: (() => U) | (() => void);
+  }): U | T | void {
     return obj.Some(this.value);
   }
 
@@ -101,19 +105,26 @@ export class Some<T> implements IOption<T> {
  * a class indicating no existence.
  */
 export class None implements IOption<never> {
-  then(): None {
+  then(f: (value: never) => Option<never>): Option<never>;
+  then(f: (value: never) => void): Option<never>;
+  then<U>(f: (value: never) => Option<U>): Option<U>;
+  then<U>(f: (value: never) => void | Option<never> | Option<U>): Option<never> | Option<U> {
     return this;
   }
 
-  else(f: () => IOption<never>): IOption<never>;
-  else(f: () => void): IOption<never>;
-  else<U>(f: () => IOption<U>): IOption<U>;
-  else<U>(f: () => void | IOption<never> | IOption<U>): IOption<never> | IOption<U> {
+  else(f: () => Option<never>): Option<never>;
+  else(f: () => void): Option<never>;
+  else<U>(f: () => Option<U>): Option<U>;
+  else<U>(f: () => void | Option<never> | Option<U>): Option<never> | Option<U> {
     return f() ?? this;
   }
 
+  match<U>(obj: { Some: (value: never) => U; None: () => U }): U;
   match(obj: { Some: (value: never) => void; None: () => void }): never;
-  match<U>(obj: { Some: (value: never) => U; None: () => U }): U {
+  match<U>(obj: {
+    Some: ((value: never) => U) | ((value: never) => void);
+    None: (() => U) | (() => void);
+  }): U | void {
     return obj.None();
   }
 
@@ -121,7 +132,7 @@ export class None implements IOption<never> {
     return value;
   }
 
-  unwrapOrElse(f: () => never): never {
+  unwrapOrElse<T>(f: () => T): T {
     return f();
   }
 
@@ -142,13 +153,15 @@ export class None implements IOption<never> {
   }
 }
 
-export function assertHas(value: IOption<any>): asserts value is Some<any> {
+export type Option<T> = Some<T> | None;
+
+export function assertHas(value: Option<any>): asserts value is Some<any> {
   if (!value.has()) {
     throw new ReferenceError(errorStr);
   }
 }
 
-export function assertDoesNotHave(value: IOption<any>): asserts value is None {
+export function assertDoesNotHave(value: Option<any>): asserts value is None {
   if (value.has()) {
     throw new ReferenceError(errorStr);
   }
