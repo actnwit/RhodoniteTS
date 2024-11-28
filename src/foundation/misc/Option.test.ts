@@ -103,7 +103,7 @@ test('An IOption variable can be replaced by Some', () => {
 
 test('then(func)', () => {
   const val0 = new Some(0);
-  val0.then((val) => {
+  val0.andThen((val) => {
     expect(val).toEqual(0);
     return new Some(1);
   });
@@ -111,13 +111,13 @@ test('then(func)', () => {
 
 test('const var = then(func)', () => {
   const val0 = new Some(0);
-  const val1 = val0.then((val) => {
+  const val1 = val0.andThen((val) => {
     return new Some(val);
   });
   expect(val1.has()).toBe(true);
 
   const none = new None();
-  const none2 = none.then((val) => {
+  const none2 = none.andThen((val) => {
     return new Some(val); // this is not executed
   });
   expect(none2.doesNotHave()).toBe(true);
@@ -125,7 +125,7 @@ test('const var = then(func)', () => {
 
 test('then<T>', () => {
   const val0 = new Some(0);
-  const val1 = val0.then<string>((_val) => {
+  const val1 = val0.andThen<string>((_val) => {
     return new Some('exist!');
   });
   expect(val1.unwrapForce()).toEqual('exist!');
@@ -133,20 +133,20 @@ test('then<T>', () => {
 
 test('else(func)', () => {
   const val0 = new None();
-  val0.else(() => {
+  val0.orElse(() => {
     return new None();
   });
 });
 
 test('const var = else(func)', () => {
   const val0 = new None();
-  const val1 = val0.else(() => {
+  const val1 = val0.orElse(() => {
     return new Some(1);
   });
   expect(val1.has()).toBe(true);
 
   const none = new None();
-  const none2 = none.else(() => {
+  const none2 = none.orElse(() => {
     return new Some(1); // this is not executed
   });
   expect(none2.unwrapForce()).toEqual(1);
@@ -156,11 +156,11 @@ test('then(func).else(func)', () => {
   {
     const some = new Some(0);
     const val = some
-      .then((val) => {
+      .andThen((val) => {
         expect(val).toEqual(0);
         return new None();
       })
-      .else(() => {
+      .orElse(() => {
         return new Some(1);
       });
     expect(val.unwrapForce()).toEqual(1);
@@ -168,11 +168,11 @@ test('then(func).else(func)', () => {
   {
     const none = new None();
     const val = none
-      .then(() => {
+      .andThen(() => {
         console.error('this is not executed');
         return new None();
       })
-      .else(() => {
+      .orElse(() => {
         return new Some(1);
       });
     expect(val.unwrapForce()).toEqual(1);
@@ -180,11 +180,11 @@ test('then(func).else(func)', () => {
   {
     const none = new None();
     const val = none
-      .then(() => {
+      .andThen(() => {
         console.error('this is not executed. because a none.then() just returns the none itself');
         return new None();
       })
-      .else(() => {
+      .orElse(() => {
         // nothing to do
         // none.else() returns the none itself
         return new None();
@@ -197,11 +197,11 @@ test('else(func).then(func)', () => {
   {
     const some = new Some(0);
     const val = some
-      .else(() => {
+      .orElse(() => {
         console.error('this is not executed');
         return new Some(1);
       })
-      .then((val) => {
+      .andThen((val) => {
         expect(val).toEqual(0); // do something with the original value
         return new Some(val);
       });
@@ -210,10 +210,10 @@ test('else(func).then(func)', () => {
   {
     const none = new None();
     const val = none
-      .else(() => {
+      .orElse(() => {
         return new Some(1); // recover
       })
-      .then((val) => {
+      .andThen((val) => {
         expect(val).toEqual(1); // do something with the recovered value
         return new Some(val);
       });
@@ -225,12 +225,12 @@ test('then(func).else(func) with return value', () => {
   {
     const some = new Some(0);
     const val = some
-      .then((val) => {
+      .andThen((val) => {
         // this is executed because a some.then() does the received function
         expect(val).toEqual(0);
         return new Some(val);
       })
-      .else(() => {
+      .orElse(() => {
         console.error(
           'this is not executed. because the Some(val).else() just returns the Some(val) itself but execute received function.'
         );
@@ -241,14 +241,14 @@ test('then(func).else(func) with return value', () => {
   {
     const none = new None();
     const val = none
-      .then((val) => {
+      .andThen((val) => {
         console.error(
           'this is not executed. because a none.then() just returns the none itself but execute received function.'
         );
         expect(val).toEqual(0);
         return new Some(val);
       })
-      .else(() => {
+      .orElse(() => {
         return new Some(1); // this is executed because a none.else() execute the received function
       });
     expect(val.unwrapForce()).toEqual(1);
@@ -259,11 +259,11 @@ test('else(func).then(func) with return value', () => {
   {
     const some = new Some(0);
     const val = some
-      .else(() => {
+      .orElse(() => {
         console.error('this is not executed');
         return new Some(1); // recover
       })
-      .then((val) => {
+      .andThen((val) => {
         expect(val).toEqual(0); // do something with the original value
         return new Some(val);
       });
@@ -272,10 +272,10 @@ test('else(func).then(func) with return value', () => {
   {
     const none = new None();
     const val = none
-      .else(() => {
+      .orElse(() => {
         return new Some(1); // recover
       })
-      .then((val) => {
+      .andThen((val) => {
         expect(val).toEqual(1); // do something with the recovered value
         return new Some(val);
       });

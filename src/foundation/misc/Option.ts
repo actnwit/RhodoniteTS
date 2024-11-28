@@ -7,9 +7,9 @@
 const errorStr = 'The value does not exist!';
 interface IOption<T> {
   // do the "f" function for
-  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>>;
+  andThen<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>>;
 
-  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>>;
+  orElse<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>>;
 
   match<U>(obj: {
     Some: (value: NonNullable<T>) => NonNullable<U> | U;
@@ -34,11 +34,11 @@ export class Some<T> implements IOption<T> {
    * This method is essentially same to the Some::and_then() in Rust language
    * @param f
    */
-  then<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>> {
+  andThen<U>(f: (value: NonNullable<T>) => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return f(this.value);
   }
 
-  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+  orElse<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return this as Option<NonNullable<U>>;
   }
 
@@ -94,11 +94,11 @@ export class Some<T> implements IOption<T> {
  * a class indicating no existence.
  */
 export class None implements IOption<never> {
-  then<U>(f: (value: never) => Option<NonNullable<U>>): Option<NonNullable<U>> {
+  andThen<U>(f: (value: never) => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return this;
   }
 
-  else<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
+  orElse<U>(f: () => Option<NonNullable<U>>): Option<NonNullable<U>> {
     return f();
   }
 
