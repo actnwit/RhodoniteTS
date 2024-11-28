@@ -45,7 +45,7 @@ interface IResult<T, ErrObj> {
    * @private
    * @returns whether the result is Ok or not
    */
-  _isOk(): this is Ok<T, ErrObj>;
+  isOk(): this is Ok<T, ErrObj>;
 
   /**
    * get the boolean value whether the result is Err or not.
@@ -53,7 +53,7 @@ interface IResult<T, ErrObj> {
    * @private
    * @returns whether the result is Err or not
    */
-  _isErr(): this is Err<T, ErrObj>;
+  isErr(): this is Err<T, ErrObj>;
 
   /**
    * get the name of class. i.e. 'Ok' or 'Err'
@@ -110,11 +110,11 @@ export class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrO
     return true;
   }
 
-  _isOk(): this is Ok<T, ErrObj> {
+  isOk(): this is Ok<T, ErrObj> {
     return true;
   }
 
-  _isErr(): this is Err<T, ErrObj> {
+  isErr(): this is Err<T, ErrObj> {
     return false;
   }
 
@@ -150,11 +150,11 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
     return false;
   }
 
-  _isOk(): this is Ok<T, ErrObj> {
+  isOk(): this is Ok<T, ErrObj> {
     return false;
   }
 
-  _isErr(): this is Err<T, ErrObj> {
+  isErr(): this is Err<T, ErrObj> {
     return true;
   }
 
@@ -173,22 +173,14 @@ export class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, Err
 
 export type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
 
-export function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj> {
-  return result._isOk();
-}
-
-export function isErr<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Err<T, ErrObj> {
-  return result._isErr();
-}
-
 export function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any> {
-  if (result._isErr()) {
+  if (result.isErr()) {
     throw new Error('This is Err. No Ok.');
   }
 }
 
 export function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any> {
-  if (result._isOk()) {
+  if (result.isOk()) {
     throw new Error('This is Ok. No Err.');
   }
 }

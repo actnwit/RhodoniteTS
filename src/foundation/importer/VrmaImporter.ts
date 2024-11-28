@@ -9,7 +9,7 @@ export class VrmaImporter {
     const options: GltfLoadOption = {};
 
     const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result._isErr()) {
+    if (result.isErr()) {
       return new Err({
         message: 'Failed to import VRM file.',
         error: result,
@@ -29,7 +29,7 @@ export class VrmaImporter {
     const options: GltfLoadOption = {};
 
     const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
-    if (result._isErr()) {
+    if (result.isErr()) {
       return new Err({
         message: 'Failed to import VRM file.',
         error: result,

@@ -1,4 +1,4 @@
-import { Result, Ok, Err, RnError, isOk, isErr } from './Result';
+import { Result, Ok, Err, RnError } from './Result';
 import { RnException } from './RnException';
 
 function succeedIfValueEven(val: number): Result<number, number> {
@@ -40,8 +40,8 @@ test(`Result.match`, () => {
       };
     },
   });
-  expect(isErr(ret1)).toBe(true);
-  if (isErr(ret1)) {
+  expect(ret1.isErr()).toBe(true);
+  if (ret1.isErr()) {
     expect(ret1.getRnError().error).toBe('Err');
   }
 });
@@ -89,8 +89,8 @@ test(`Result.unwrapForce`, () => {
 
 test(`Result.isOk`, () => {
   const result0 = succeedIfValueEven(0);
-  expect(isOk(result0)).toBe(true);
-  if (isOk(result0)) {
+  expect(result0.isOk()).toBe(true);
+  if (result0.isOk()) {
     expect(result0.get()).toBe(0);
   }
 });
@@ -98,7 +98,7 @@ test(`Result.isOk`, () => {
 test(`wrapped Err`, () => {
   function wrapper(): Result<number, Err<number, number>> {
     const result0 = succeedIfValueEven(1);
-    if (isErr(result0)) {
+    if (result0.isErr()) {
       return new Err({
         message: 'Error 2',
         error: result0,

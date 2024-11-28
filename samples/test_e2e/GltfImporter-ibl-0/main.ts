@@ -35,7 +35,7 @@ const mainExpressionResult = await Rn.GltfImporter.importFromUri(
     console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
   }
 );
-if (Rn.isOk(mainExpressionResult)) {
+if (mainExpressionResult.isOk()) {
   expressions.push(mainExpressionResult.get());
 
   // cameraController
