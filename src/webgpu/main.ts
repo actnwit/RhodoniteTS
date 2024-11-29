@@ -10,4 +10,6 @@ const WebGpu = Object.freeze({
 export default WebGpu;
 
 export type RnWebGpu = typeof WebGpu;
-(0, eval)('this').RnWebGpu = WebGpu;
+const globalObj =
+  typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
+(globalObj as unknown as { RnWebGpu: RnWebGpu }).RnWebGpu = WebGpu;

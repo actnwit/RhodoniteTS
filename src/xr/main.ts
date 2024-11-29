@@ -8,4 +8,6 @@ const XR = Object.freeze({
 export default XR;
 
 export type RnXR = typeof XR;
-(0, eval)('this').RnXR = XR;
+const globalObj =
+  typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this;
+(globalObj as unknown as { RnXR: RnXR }).RnXR = XR;
