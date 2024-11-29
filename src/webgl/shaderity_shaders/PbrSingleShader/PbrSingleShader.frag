@@ -53,7 +53,7 @@ uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform vec4 u_emissiveTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_emissiveTextureRotation; // initialValue=0
 uniform float u_occlusionStrength; // initialValue=1
-uniform bool u_inverseEnvironment; // initialValue=true
+uniform bool u_inverseEnvironment; // initialValue=false
 uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_NORMAL_TEXTURE

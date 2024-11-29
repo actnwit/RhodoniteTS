@@ -109,7 +109,7 @@
 
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
-// #param inverseEnvironment: bool; // initialValue=true
+// #param inverseEnvironment: bool; // initialValue=false
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
