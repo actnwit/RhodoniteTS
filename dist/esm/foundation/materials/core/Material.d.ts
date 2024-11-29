@@ -118,6 +118,12 @@ export declare class Material extends RnObject {
         firstTime: boolean;
         args: RenderingArgWebGL;
     }): void;
+    _setParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
     _setParametersToGpuWebGLWithOutInternalSetting({ shaderProgram, firstTime, isUniformMode, }: {
         shaderProgram: WebGLProgram;
         firstTime: boolean;

@@ -28,5 +28,11 @@ export declare class CustomMaterialContent extends AbstractMaterialContent {
         firstTime: boolean;
         args: RenderingArgWebGL;
     }): void;
+    _setInternalSettingParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
     private static __setupHdriParameters;
 }

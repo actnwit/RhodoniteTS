@@ -69,6 +69,12 @@ export declare abstract class AbstractMaterialContent extends RnObject {
         firstTime: boolean;
         args: RenderingArgWebGL;
     }): void;
+    _setInternalSettingParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
     _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;

@@ -8,6 +8,8 @@ export interface RnError<ErrObj> {
  * regardless of whether they are successful or not.
  */
 interface IResult<T, ErrObj> {
+    andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj>;
+    orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj>;
     /**
      * pattern matching
      * @param obj an object containing two pattern matching functions, Ok and Err.
@@ -37,14 +39,14 @@ interface IResult<T, ErrObj> {
      * @private
      * @returns whether the result is Ok or not
      */
-    _isOk(): this is Ok<T, ErrObj>;
+    isOk(): this is Ok<T, ErrObj>;
     /**
      * get the boolean value whether the result is Err or not.
      * Do not use this method directly. Use isErr() function bellow instead.
      * @private
      * @returns whether the result is Err or not
      */
-    _isErr(): this is Err<T, ErrObj>;
+    isErr(): this is Err<T, ErrObj>;
     /**
      * get the name of class. i.e. 'Ok' or 'Err'
      */
@@ -64,6 +66,8 @@ declare abstract class CResult<T, ErrObj> {
  */
 export declare class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
     constructor(val?: T);
+    andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj>;
+    orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj>;
     /**
      * This method is essentially same to the Ok::and_then() in Rust language
      * @param f
@@ -71,8 +75,8 @@ export declare class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult
     unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T;
     unwrapForce(): T;
     true(): this is Ok<T, ErrObj>;
-    _isOk(): this is Ok<T, ErrObj>;
-    _isErr(): this is Err<T, ErrObj>;
+    isOk(): this is Ok<T, ErrObj>;
+    isErr(): this is Err<T, ErrObj>;
     /**
      * get the inner value safely.
      * @returns the inner value
@@ -85,11 +89,13 @@ export declare class Ok<T, ErrObj> extends CResult<T, ErrObj> implements IResult
 export declare class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResult<T, ErrObj> {
     _rnException: RnException<ErrObj>;
     constructor(val: RnError<ErrObj>);
+    andThen<U>(f: (value: T) => Result<U, ErrObj>): Result<U, ErrObj>;
+    orElse<U>(f: () => Result<U, ErrObj>): Result<U, ErrObj>;
     unwrapWithCompensation(catchFn: (err: RnError<ErrObj>) => T): T;
     unwrapForce(): never;
     false(): false;
-    _isOk(): this is Ok<T, ErrObj>;
-    _isErr(): this is Err<T, ErrObj>;
+    isOk(): this is Ok<T, ErrObj>;
+    isErr(): this is Err<T, ErrObj>;
     /**
      * get the RnError object.
      * @returns the RnError object
@@ -98,8 +104,6 @@ export declare class Err<T, ErrObj> extends CResult<T, ErrObj> implements IResul
     toString(): string;
 }
 export type Result<T, ErrObj> = Ok<T, ErrObj> | Err<T, ErrObj>;
-export declare function isOk<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Ok<T, ErrObj>;
-export declare function isErr<T, ErrObj>(result: Ok<T, ErrObj> | Err<T, ErrObj>): result is Err<T, ErrObj>;
 export declare function assertIsOk(result: IResult<any, any>): asserts result is Ok<any, any>;
 export declare function assertIsErr(result: IResult<any, any>): asserts result is Err<any, any>;
 export {};

@@ -1,12 +1,14 @@
 import { AbstractTexture } from './AbstractTexture';
 import { Size, TypedArray } from '../../types/CommonTypes';
-export declare class CubeTexture extends AbstractTexture {
+export declare class CubeTexture extends AbstractTexture implements Disposable {
     baseUriToLoad?: string;
     mipmapLevelNumber: number;
     hdriFormat: import("..").EnumIO;
     isNamePosNeg: boolean;
     private __onTextureLoadedArray;
+    private static managedRegistry;
     constructor();
+    private __setTextureResourceUid;
     registerOnTextureLoaded(func: () => void): void;
     loadTextureImages(): Promise<void>;
     loadTextureImagesAsync(): Promise<void>;
@@ -32,4 +34,8 @@ export declare class CubeTexture extends AbstractTexture {
         negZ: TypedArray;
     }>, baseLevelWidth: Size, baseLevelHeight: Size): void;
     importWebGLTextureDirectly(webGLTexture: WebGLTexture, width?: number, height?: number): void;
+    private static __deleteInternalTexture;
+    destroy3DAPIResources(): void;
+    [Symbol.dispose](): void;
+    destroy(): void;
 }
