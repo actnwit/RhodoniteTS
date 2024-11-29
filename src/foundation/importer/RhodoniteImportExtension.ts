@@ -92,9 +92,6 @@ export class RhodoniteImportExtension {
       }
 
       createEffekseerAnimation(effekseerEntity, effect);
-
-      const Unzip = require('zlibjs/bin/unzip.min').Zlib.Unzip;
-      EffekseerComponent.Unzip = Unzip;
     }
   }
 }
