@@ -276,7 +276,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
-  let rot = iblParameter.w + 3.1415;
+  let rot = iblParameter.w;
   let rotEnvMatrix = mat3x3<f32>(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   let hdriFormat: vec2<i32> = get_hdriFormat(materialSID, 0);
 

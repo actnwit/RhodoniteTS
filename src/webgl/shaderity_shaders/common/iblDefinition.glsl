@@ -294,7 +294,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   float specularWeight)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
-  float rot = iblParameter.w + 3.1415;
+  float rot = iblParameter.w;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
 

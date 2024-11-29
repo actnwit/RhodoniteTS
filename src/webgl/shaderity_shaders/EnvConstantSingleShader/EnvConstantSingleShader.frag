@@ -16,7 +16,7 @@ uniform float u_envRotation; // initialValue=0
 uniform vec4 u_diffuseColorFactor; // initialValue=(1,1,1,1)
 uniform samplerCube u_colorEnvTexture; // initialValue=(0,black)
 uniform bool u_makeOutputSrgb; // initialValue=true
-uniform bool u_inverseEnvironment; // initialValue=true
+uniform bool u_inverseEnvironment; // initialValue=false
 
 #pragma shaderity: require(../common/rt0.glsl)
 
@@ -53,7 +53,7 @@ void main() {
 
   // adapt OpenGL (RenderMan) CubeMap convention
   float envRotation = get_envRotation(materialSID, 0);
-  float rot = envRotation + 3.1415;
+  float rot = envRotation;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
 

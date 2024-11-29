@@ -10,7 +10,7 @@
 @group(1) @binding(0) var colorEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(0) var colorEnvSampler: sampler;
 // #param makeOutputSrgb: bool; // initialValue=1
-// #param inverseEnvironment: bool; // initialValue=true
+// #param inverseEnvironment: bool; // initialValue=false
 
 #pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
 
@@ -28,7 +28,7 @@ fn main(
   diffuseColor *= diffuseColorFactor;
 
   let envRotation: f32 = get_envRotation(materialSID, 0u);
-  let rot = envRotation + 3.1415;
+  let rot = envRotation;
   let rotEnvMatrix = mat3x3<f32>(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   var envNormal: vec3f = normalize(rotEnvMatrix * input.position_inWorld);
 
