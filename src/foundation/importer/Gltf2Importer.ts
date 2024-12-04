@@ -269,12 +269,16 @@ export class Gltf2Importer {
   }
 
   static _loadDependenciesOfNodes(gltfJson: RnM2) {
-    for (const node of gltfJson.nodes) {
+    for (const node_i in gltfJson.nodes) {
+      const node = gltfJson.nodes[node_i];
+
       // Hierarchy
       node.childrenObjects = node.childrenObjects ?? [];
       if (node.children) {
-        for (const i of node.children) {
-          node.childrenObjects![i] = gltfJson.nodes[i];
+        for (const child_i of node.children) {
+          node.childrenObjects![child_i] = gltfJson.nodes[child_i];
+          gltfJson.nodes[child_i].parent = parseInt(node_i);
+          gltfJson.nodes[child_i].parentObject = node;
         }
       }
 
