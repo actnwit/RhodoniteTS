@@ -189,23 +189,18 @@ export class SkeletalComponent extends Component {
 
     for (let i = 0; i < this.__joints.length; i++) {
       const joint = this.__joints[i];
-      let m;
-      if (joint.isVisible) {
-        const globalJointTransform = joint.matrixInner;
+      const globalJointTransform = joint.isVisible ? joint.matrixInner : joint.matrixRestInner;
 
-        MutableMatrix44.multiplyTypedArrayTo(
-          globalJointTransform,
-          this.__inverseBindMatricesAccessor!.getTypedArray(),
-          SkeletalComponent.__tmp_mat4,
-          i
-        );
-        if (this._bindShapeMatrix) {
-          SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
-        }
-        m = SkeletalComponent.__tmp_mat4;
-      } else {
-        m = SkeletalComponent.__identityMat;
+      MutableMatrix44.multiplyTypedArrayTo(
+        globalJointTransform,
+        this.__inverseBindMatricesAccessor!.getTypedArray(),
+        SkeletalComponent.__tmp_mat4,
+        i
+      );
+      if (this._bindShapeMatrix) {
+        SkeletalComponent.__tmp_mat4.multiply(this._bindShapeMatrix); // only for glTF1
       }
+      const m = SkeletalComponent.__tmp_mat4;
 
       if (i === 0 && joint.entity.tryToGetAnimation() != null) {
         this.__worldMatrix.copyComponents(m);
