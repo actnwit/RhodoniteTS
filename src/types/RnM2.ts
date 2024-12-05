@@ -91,6 +91,8 @@ export type RnM2Node = {
   camera?: number;
   childrenObjects?: RnM2Node[];
   children?: number[];
+  parent?: number;
+  parentObject?: RnM2Node;
   skinObject?: RnM2Skin;
   skin?: number;
   skinName?: string;
