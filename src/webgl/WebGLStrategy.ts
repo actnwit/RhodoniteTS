@@ -19,6 +19,7 @@ export interface WebGLStrategy {
   setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
   _reSetupShaderForMaterialBySpector(
     material: Material,
+    primitive: Primitive,
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle;

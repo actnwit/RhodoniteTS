@@ -190,11 +190,13 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
    */
   public _reSetupShaderForMaterialBySpector(
     material: Material,
+    primitive: Primitive,
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle {
     const [programUid, newOne] = material._createProgramByUpdatedSources(
       updatedShaderSources,
+      primitive,
       onError
     );
     if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -202,18 +204,19 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
     }
 
     if (newOne) {
-      material._setupBasicUniformsLocations();
+      material._setupBasicUniformsLocations(primitive);
 
-      material._setUniformLocationsOfMaterialNodes(false);
+      material._setUniformLocationsOfMaterialNodes(false, primitive);
 
       material._setupAdditionalUniformLocations(
         WebGLStrategyCommonMethod.getPointSpriteShaderSemanticsInfoArray(),
-        false
+        false,
+        primitive
       );
     }
 
     WebGLStrategyDataTexture.__globalDataRepository._setUniformLocationsForDataTextureModeOnly(
-      material.getShaderProgramUid()
+      material.getShaderProgramUid(primitive)
     );
 
     return programUid;
