@@ -328,7 +328,7 @@ export class WebGpuResourceRepository
 
     if (this.__generateMipmapsShaderModule == null) {
       this.__generateMipmapsShaderModule = gpuDevice.createShaderModule({
-        code: `
+        code: /* wgsl */ `
           var<private> pos : array<vec2f, 4> = array<vec2f, 4>(
             vec2f(-1, 1), vec2f(1, 1),
             vec2f(-1, -1), vec2f(1, -1));
