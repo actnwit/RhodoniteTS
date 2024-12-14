@@ -2902,29 +2902,6 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
     return true;
   }
 
-  rebuildProgram(
-    material: Material,
-    updatedVertexSourceCode: string, // The new vertex shader source
-    updatedFragmentSourceCode: string // The new fragment shader source
-  ) {
-    const processApproach = SystemState.currentProcessApproach;
-    const renderingStrategy = getRenderingStrategy(processApproach);
-
-    const modifiedVertexSourceCode = updatedVertexSourceCode.replace(/! =/g, '!=');
-    const modifiedPixelSourceCode = updatedFragmentSourceCode.replace(/! =/g, '!=');
-
-    const programUid = renderingStrategy._reSetupShaderForMaterialBySpector(
-      material,
-      {
-        vertex: modifiedVertexSourceCode,
-        pixel: modifiedPixelSourceCode,
-      },
-      (message: string) => {
-        return;
-      }
-    );
-  }
-
   getPixelDataFromTexture(
     texUid: WebGLResourceHandle,
     x: number,
