@@ -1,5 +1,6 @@
 import { ShaderSemanticsName } from '../foundation/definitions/ShaderSemantics';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
+import { Primitive } from '../foundation/geometry/Primitive';
 import { Material } from '../foundation/materials/core/Material';
 
 export interface RnWebGLProgram extends WebGLProgram {
@@ -10,6 +11,7 @@ export interface RnWebGLProgram extends WebGLProgram {
   _shaderSemanticsInfoMap: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
   __SPECTOR_rebuildProgram: unknown;
   _material: WeakRef<Material>;
+  _primitive: WeakRef<Primitive>;
 }
 
 export interface RnWebGLTexture extends WebGLTexture {

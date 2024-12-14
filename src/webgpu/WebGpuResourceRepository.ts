@@ -773,6 +773,7 @@ export class WebGpuResourceRepository
    */
   createShaderProgram({
     material,
+    primitive,
     vertexShaderStr,
     fragmentShaderStr,
     attributeNames,
@@ -780,6 +781,7 @@ export class WebGpuResourceRepository
     onError,
   }: {
     material: Material;
+    primitive: Primitive;
     vertexShaderStr: string;
     fragmentShaderStr: string;
     attributeNames: AttributeNames;

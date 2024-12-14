@@ -361,6 +361,7 @@ export class WebGLResourceRepository
    */
   createShaderProgram({
     material,
+    primitive,
     vertexShaderStr,
     fragmentShaderStr,
     attributeNames,
@@ -368,6 +369,7 @@ export class WebGLResourceRepository
     onError,
   }: {
     material: Material;
+    primitive: Primitive;
     vertexShaderStr: string;
     fragmentShaderStr: string;
     attributeNames: AttributeNames;
@@ -416,6 +418,7 @@ export class WebGLResourceRepository
     shaderProgram._fragmentShaderStr = fragmentShaderStr;
     shaderProgram._shaderSemanticsInfoMap = new Map();
     shaderProgram._material = new WeakRef(material);
+    shaderProgram._primitive = new WeakRef(primitive);
 
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
@@ -2882,6 +2885,7 @@ vec4 fetchVec4FromVec4Block(int vec4Idx) {
 
     const programUid = renderingStrategy._reSetupShaderForMaterialBySpector(
       material,
+      this._primitive.deref()!,
       {
         vertex: modifiedVertexSourceCode,
         pixel: modifiedPixelSourceCode,

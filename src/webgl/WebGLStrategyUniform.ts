@@ -211,11 +211,13 @@ bool get_isBillboard(float instanceId) {
    */
   public _reSetupShaderForMaterialBySpector(
     material: Material,
+    primitive: Primitive,
     updatedShaderSources: ShaderSources,
     onError: (message: string) => void
   ): CGAPIResourceHandle {
     const [programUid, newOne] = material._createProgramByUpdatedSources(
       updatedShaderSources,
+      primitive,
       onError
     );
     if (programUid === CGAPIResourceRepository.InvalidCGAPIResourceUid) {
@@ -223,9 +225,9 @@ bool get_isBillboard(float instanceId) {
     }
 
     if (newOne) {
-      material._setupBasicUniformsLocations();
+      material._setupBasicUniformsLocations(primitive);
 
-      material._setUniformLocationsOfMaterialNodes(true);
+      material._setUniformLocationsOfMaterialNodes(true, primitive);
 
       const shaderSemanticsInfos = WebGLStrategyUniform.componentMatrices;
       const shaderSemanticsInfosPointSprite =
@@ -233,12 +235,13 @@ bool get_isBillboard(float instanceId) {
 
       material._setupAdditionalUniformLocations(
         shaderSemanticsInfos.concat(shaderSemanticsInfosPointSprite),
-        true
+        true,
+        primitive
       );
     }
 
     WebGLStrategyUniform.__globalDataRepository._setUniformLocationsForUniformModeOnly(
-      material.getShaderProgramUid()
+      material.getShaderProgramUid(primitive)
     );
 
     return programUid;

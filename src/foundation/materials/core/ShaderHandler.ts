@@ -24,6 +24,7 @@ export class ShaderHandler {
   /**
    * Create a shader program Or Get a shader program from cache
    * @param material
+   * @param primitive
    * @param vertexShader
    * @param pixelShader
    * @param attributeNames
@@ -33,6 +34,7 @@ export class ShaderHandler {
    */
   static _createShaderProgramWithCache(
     material: Material,
+    primitive: Primitive,
     vertexShader: string,
     pixelShader: string,
     attributeNames: AttributeNames,
@@ -49,6 +51,7 @@ export class ShaderHandler {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     shaderProgramUid = cgApiResourceRepository.createShaderProgram({
       material,
+      primitive,
       vertexShaderStr: vertexShader,
       fragmentShaderStr: pixelShader,
       attributeNames: attributeNames,
@@ -62,6 +65,7 @@ export class ShaderHandler {
 
 export function _createProgramAsSingleOperationByUpdatedSources(
   material: Material,
+  primitive: Primitive,
   materialNode: AbstractMaterialContent,
   updatedShaderSources: ShaderSources,
   onError?: (message: string) => void
@@ -70,6 +74,7 @@ export function _createProgramAsSingleOperationByUpdatedSources(
 
   const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
+    primitive,
     updatedShaderSources.vertex,
     updatedShaderSources.pixel,
     attributeNames,
@@ -182,6 +187,7 @@ export function _createProgramAsSingleOperationWebGL(
 
   const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
+    primitive,
     vertexShader,
     pixelShader,
     attributeNames,
@@ -307,6 +313,7 @@ export function _createProgramAsSingleOperationWebGpu(
 
   const [programUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
+    primitive,
     preprocessedVertex.code,
     preprocessedPixel.code,
     [],
