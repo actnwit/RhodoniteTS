@@ -59,6 +59,8 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
 
+  private static __drawCount = 0;
+
   private constructor() {}
 
   static getInstance() {
@@ -403,6 +405,8 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
+    WebGpuStrategyBasic.__drawCount = 0;
+
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;
@@ -443,7 +447,22 @@ ${indexStr}
     this._setupShaderProgram(material, primitive);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
+    webGpuResourceRepository.updateUniformDrawParametersBuffer(
+      WebGpuStrategyBasic.__drawCount,
+      material.materialSID,
+      0,
+      0,
+      0
+    );
+    webGpuResourceRepository.draw(
+      primitive,
+      material,
+      renderPass,
+      0,
+      true,
+      WebGpuStrategyBasic.__drawCount
+    );
+    WebGpuStrategyBasic.__drawCount++;
   }
 
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, isOpaque: boolean) {
@@ -462,8 +481,24 @@ ${indexStr}
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, isOpaque);
 
+    const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
+    webGpuResourceRepository.updateUniformDrawParametersBuffer(
+      WebGpuStrategyBasic.__drawCount,
+      material.materialSID,
+      cameraSID,
+      primitiveIdxHasMorph,
+      primitive.targets.length
+    );
+    webGpuResourceRepository.draw(
+      primitive,
+      material,
+      renderPass,
+      cameraSID,
+      isOpaque,
+      WebGpuStrategyBasic.__drawCount
+    );
+    WebGpuStrategyBasic.__drawCount++;
     return true;
   }
 

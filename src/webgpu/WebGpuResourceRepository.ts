@@ -907,7 +907,8 @@ export class WebGpuResourceRepository
     material: Material,
     renderPass: RenderPass,
     cameraId: number,
-    isOpaque: boolean
+    isOpaque: boolean,
+    drawCount: number
   ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
