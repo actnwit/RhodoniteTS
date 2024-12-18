@@ -546,7 +546,7 @@ export class System {
       webGpuResourceRepository.recreateSystemDepthTexture();
       webGpuResourceRepository.createUniformMorphOffsetsBuffer();
       webGpuResourceRepository.createUniformMorphWeightsBuffer();
-      webGpuResourceRepository.createUniformDrawParametersBuffers();
+      webGpuResourceRepository.createUniformDrawParametersBuffersAndCreateBindGroups();
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();

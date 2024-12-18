@@ -15,6 +15,15 @@ struct UniformMorphWeights {
 }
 @group(0) @binding(3) var<uniform> uniformMorphWeights: UniformMorphWeights;
 
+struct UniformDrawParameters {
+  materialSid: u32,
+  cameraSID: u32,
+  currentPrimitiveIdx: u32,
+  morphTargetNumber: u32,
+}
+
+@group(3) @binding(0) var<uniform> uniformDrawParameters: UniformDrawParameters;
+
 override _materialSID: u32;
 override _currentPrimitiveIdx = 0u;
 override _morphTargetNumber: u32 = 0u;
