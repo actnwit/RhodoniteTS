@@ -24,10 +24,6 @@ struct UniformDrawParameters {
 
 @group(3) @binding(0) var<uniform> uniformDrawParameters: UniformDrawParameters;
 
-override _materialSID: u32;
-override _currentPrimitiveIdx = 0u;
-override _morphTargetNumber: u32 = 0u;
-override _cameraSID: u32 = 0u;
 const M_PI: f32 = 3.141592653589793;
 const RECIPROCAL_PI: f32 = 0.3183098861837907;
 const Epsilon: f32 = 0.0000001;

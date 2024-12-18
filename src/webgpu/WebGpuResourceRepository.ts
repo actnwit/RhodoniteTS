@@ -1359,21 +1359,11 @@ export class WebGpuResourceRepository
       vertex: {
         module: modules.vsModule,
         entryPoint: 'main',
-        constants: {
-          _materialSID: material.materialSID,
-          _currentPrimitiveIdx: primitiveIdxHasMorph ?? 0,
-          _morphTargetNumber: primitive.targets.length,
-          _cameraSID: cameraId,
-        },
         buffers: gpuVertexBufferLayouts,
       },
       fragment: {
         module: modules.fsModule,
         entryPoint: 'main',
-        constants: {
-          _materialSID: material.materialSID,
-          _cameraSID: cameraId,
-        },
         targets: targets,
       },
       primitive: {
