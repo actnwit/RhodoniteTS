@@ -132,6 +132,8 @@ export class WebGpuResourceRepository
   private __lastPrimitivesMaterialVariantUpdateCount = -1;
   private __lastMeshRendererComponentsUpdateCount = -1;
 
+  private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
+
   private constructor() {
     super();
   }
@@ -1786,10 +1788,14 @@ export class WebGpuResourceRepository
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const uniformBuffer = this.__uniformDrawParametersBuffers[index];
+    WebGpuResourceRepository.__drawParametersUint32Array[0] = materialSid;
+    WebGpuResourceRepository.__drawParametersUint32Array[1] = cameraSID;
+    WebGpuResourceRepository.__drawParametersUint32Array[2] = currentPrimitiveIdx;
+    WebGpuResourceRepository.__drawParametersUint32Array[3] = morphTargetNumber;
     gpuDevice.queue.writeBuffer(
       uniformBuffer,
       0,
-      new Uint32Array([materialSid, cameraSID, currentPrimitiveIdx, morphTargetNumber])
+      WebGpuResourceRepository.__drawParametersUint32Array
     );
   }
 
