@@ -943,16 +943,14 @@ export class WebGpuResourceRepository
 
     const renderPipelineId = `${primitive._getFingerPrint()} ${material.materialUID} ${
       renderPass.renderPassUID
-    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}, ${isOpaque} `;
+    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${isOpaque} `;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       primitive,
       material,
       renderPass,
-      cameraId,
       isOpaque,
-      drawCount,
       diffuseCubeMap,
       specularCubeMap
     );
@@ -1214,9 +1212,7 @@ export class WebGpuResourceRepository
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    cameraId: number,
     isOpaque: boolean,
-    drawCount: Count,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
     specularCubeMap?: CubeTexture | RenderTargetTextureCube
   ): [GPURenderPipeline, boolean] {
