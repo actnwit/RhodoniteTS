@@ -111,7 +111,7 @@ fn get_isVisible(instanceId: u32) -> bool {
   fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
     var position = basePosition;
     let scalar_idx = 3u * vertexId;
-    for (var i=0u; i<_morphTargetNumber; i++) {
+    for (var i=0u; i<uniformDrawParameters.morphTargetNumber; i++) {
 
       let idx = ${Config.maxVertexMorphNumberInShader}u * _currentPrimitiveIdx + i;
       let offsets = uniformMorphOffsets.data[ idx / 4u];
