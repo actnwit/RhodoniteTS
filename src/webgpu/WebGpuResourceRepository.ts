@@ -116,6 +116,7 @@ export class WebGpuResourceRepository
   private __systemDepthTextureView?: GPUTextureView;
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
   private __uniformMorphWeightsBuffer?: GPUBuffer;
+  private __uniformDrawParametersBuffers: GPUBuffer[] = [];
   private __renderPassEncoder?: GPURenderPassEncoder;
   private __generateMipmapsShaderModule?: GPUShaderModule;
   private __generateMipmapsPipeline?: GPURenderPipeline;
@@ -1739,6 +1740,33 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
+  }
+
+  createUniformDrawParametersBuffers() {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    for (let i = 0; i < Config.maxDrawParametersNumberForWebGpu; i++) {
+      const uniformBuffer = gpuDevice.createBuffer({
+        size: 4 /* uint32 */ * 4 /* 4 elements */,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+      });
+      this.__uniformDrawParametersBuffers.push(uniformBuffer);
+    }
+  }
+
+  updateUniformDrawParametersBuffer(
+    index: Index,
+    materialSid: Index,
+    cameraSID: Index,
+    currentPrimitiveIdx: Index,
+    morphTargetNumber: Count
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const uniformBuffer = this.__uniformDrawParametersBuffers[index];
+    gpuDevice.queue.writeBuffer(
+      uniformBuffer,
+      0,
+      new Uint32Array([materialSid, cameraSID, currentPrimitiveIdx, morphTargetNumber])
+    );
   }
 
   createUniformMorphOffsetsBuffer() {
