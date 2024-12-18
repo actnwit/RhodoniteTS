@@ -112,8 +112,8 @@ fn get_isVisible(instanceId: u32) -> bool {
     var position = basePosition;
     let scalar_idx = 3u * vertexId;
     for (var i=0u; i<uniformDrawParameters.morphTargetNumber; i++) {
-
-      let idx = ${Config.maxVertexMorphNumberInShader}u * _currentPrimitiveIdx + i;
+      let currentPrimitiveIdx = uniformDrawParameters.currentPrimitiveIdx;
+      let idx = ${Config.maxVertexMorphNumberInShader}u * currentPrimitiveIdx + i;
       let offsets = uniformMorphOffsets.data[ idx / 4u];
       let offsetPosition = offsets[idx % 4u];
 
