@@ -271,6 +271,7 @@ export class System {
             }
           }
           webGpuResourceRepository.flush();
+          WebGpuStrategyBasic.__drawCount = 0;
         } else {
           if (
             !SystemState.webgpuRenderBundleMode ||

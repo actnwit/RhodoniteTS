@@ -59,7 +59,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
 
-  private static __drawCount = 0;
+  public static __drawCount = 0;
 
   private constructor() {}
 
@@ -405,8 +405,6 @@ ${indexStr}
     renderPass: RenderPass,
     renderPassTickCount: number
   ): boolean {
-    WebGpuStrategyBasic.__drawCount = 0;
-
     if (renderPass.isBufferLessRenderingMode()) {
       this.__renderWithoutBuffers(renderPass);
       return true;
