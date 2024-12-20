@@ -88,5 +88,4 @@ export declare class ModelConverter {
     private static __decodeDraco;
     static _setupTextureTransform(textureJson: RnM2TextureInfo, rnMaterial: Material, textureTransformShaderSemantic: ShaderSemanticsName, textureRotationShaderSemantic: ShaderSemanticsName): void;
     private static __createBufferForDecompressedData;
-    private static __generateVrmNormalizedSkeleton;
 }

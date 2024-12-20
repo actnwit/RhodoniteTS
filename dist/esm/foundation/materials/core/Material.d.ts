@@ -23,7 +23,6 @@ export declare class Material extends RnObject {
     _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
     private __belongPrimitives;
     private _shaderProgramUidMap;
-    private _primitiveFingerPrintBackUp;
     __materialUid: MaterialUID;
     private __materialTid;
     __materialSid: MaterialSID;
@@ -66,8 +65,8 @@ export declare class Material extends RnObject {
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
      * @param isUniformOnlyMode
      */
-    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive?: Primitive): void;
-    getShaderProgramUid(primitive?: Primitive): CGAPIResourceHandle;
+    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive: Primitive): void;
+    getShaderProgramUid(primitive: Primitive): CGAPIResourceHandle;
     /**
      * @internal
      * called from Primitive class only
@@ -93,17 +92,17 @@ export declare class Material extends RnObject {
      * @param onError
      * @returns
      */
-    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
+    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, primitive: Primitive, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
     /**
      * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
-    _setupBasicUniformsLocations(primitive?: Primitive): void;
+    _setupBasicUniformsLocations(primitive: Primitive): void;
     /**
      * @internal
      * called WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
-    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive?: Primitive): void;
+    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive: Primitive): void;
     _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;

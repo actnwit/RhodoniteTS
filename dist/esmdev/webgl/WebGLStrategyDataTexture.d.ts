@@ -42,7 +42,7 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
      * @param onError - callback function to handle error
      * @returns
      */
-    _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
+    _reSetupShaderForMaterialBySpector(material: Material, primitive: Primitive, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
     private static __getShaderProperty;
     private static getOffsetOfPropertyInShader;
     $load(meshComponent: MeshComponent): boolean;

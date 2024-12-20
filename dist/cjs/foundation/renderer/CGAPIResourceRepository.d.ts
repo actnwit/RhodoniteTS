@@ -122,8 +122,9 @@ export interface ICGAPIResourceRepository {
      * Create a shader program
      * @return a shader program handle
      */
-    createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
+    createShaderProgram({ material, primitive, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
         material: Material;
+        primitive: Primitive;
         vertexShaderStr: string;
         fragmentShaderStr: string;
         attributeNames: AttributeNames;

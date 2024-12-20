@@ -32,7 +32,7 @@ export declare class WebGLStrategyUniform implements CGAPIStrategy, WebGLStrateg
      * @param onError - callback function to handle error
      * @returns
      */
-    _reSetupShaderForMaterialBySpector(material: Material, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
+    _reSetupShaderForMaterialBySpector(material: Material, primitive: Primitive, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
     $load(meshComponent: MeshComponent): boolean;
     prerender(): void;
     attachGPUData(primitive: Primitive): void;

@@ -10,6 +10,7 @@ export declare class ShaderHandler {
     /**
      * Create a shader program Or Get a shader program from cache
      * @param material
+     * @param primitive
      * @param vertexShader
      * @param pixelShader
      * @param attributeNames
@@ -17,9 +18,9 @@ export declare class ShaderHandler {
      * @param onError
      * @returns
      */
-    static _createShaderProgramWithCache(material: Material, vertexShader: string, pixelShader: string, attributeNames: AttributeNames, attributeSemantics: VertexAttributeEnum[], onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
+    static _createShaderProgramWithCache(material: Material, primitive: Primitive, vertexShader: string, pixelShader: string, attributeNames: AttributeNames, attributeSemantics: VertexAttributeEnum[], onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
 }
-export declare function _createProgramAsSingleOperationByUpdatedSources(material: Material, materialNode: AbstractMaterialContent, updatedShaderSources: ShaderSources, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
+export declare function _createProgramAsSingleOperationByUpdatedSources(material: Material, primitive: Primitive, materialNode: AbstractMaterialContent, updatedShaderSources: ShaderSources, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
 export declare function _getAttributeInfo(materialNode: AbstractMaterialContent): {
     attributeNames: string[];
     attributeSemantics: VertexAttributeEnum[];

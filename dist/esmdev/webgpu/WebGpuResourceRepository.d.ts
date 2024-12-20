@@ -22,6 +22,7 @@ import { TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Vector4 } from '../foundation/math/Vector4';
 import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 export type WebGpuResource = GPUTexture | GPUBuffer | GPUSampler | GPUTextureView | GPUBufferBinding | GPURenderPipeline | GPUComputePipeline | GPUBindGroupLayout | GPUBindGroup | GPUShaderModule | GPUCommandEncoder | GPUComputePassEncoder | GPURenderPassEncoder | GPUComputePipeline | GPURenderPipeline | GPUQuerySet | object;
+type DRAW_PARAMETERS_IDENTIFIER = string;
 export declare class WebGpuResourceRepository extends CGAPIResourceRepository implements ICGAPIResourceRepository {
     private static __instance;
     private __webGpuResources;
@@ -37,6 +38,9 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __bindGroupLayoutTextureMap;
     private __bindGroupSamplerMap;
     private __bindGroupLayoutSamplerMap;
+    private __bindGroupsUniformDrawParameters;
+    private __bindGroupLayoutUniformDrawParameters?;
+    private __uniformDrawParametersBuffers;
     private __commandEncoder?;
     private __renderBundles;
     private __renderBundleEncoder?;
@@ -55,6 +59,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __lastEntityRepositoryUpdateCount;
     private __lastPrimitivesMaterialVariantUpdateCount;
     private __lastMeshRendererComponentsUpdateCount;
+    private static __drawParametersUint32Array;
     private constructor();
     clearCache(): void;
     addWebGpuDeviceWrapper(webGpuDeviceWrapper: WebGpuDeviceWrapper): void;
@@ -157,8 +162,9 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
      * @param param0
      * @returns
      */
-    createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
+    createShaderProgram({ material, primitive, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
         material: Material;
+        primitive: Primitive;
         vertexShaderStr: string;
         fragmentShaderStr: string;
         attributeNames: AttributeNames;
@@ -172,7 +178,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __toClearRenderBundles;
     executeRenderBundle(renderPass: RenderPass): boolean;
     finishRenderBundleEncoder(renderPass: RenderPass): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, cameraId: number, isOpaque: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, isOpaque: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
     flush(): void;
     /**
      * Create Cube Texture from image files.
@@ -202,6 +208,8 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count): void;
     createStorageBlendShapeBuffer(inputArray: Float32Array): number;
     updateStorageBlendShapeBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count): void;
+    createBindGroupLayoutForDrawParameters(): void;
+    updateUniformBufferForDrawParameters(identifier: DRAW_PARAMETERS_IDENTIFIER, materialSid: Index, cameraSID: Index, currentPrimitiveIdx: Index, morphTargetNumber: Count): void;
     createUniformMorphOffsetsBuffer(): number;
     updateUniformMorphOffsetsBuffer(inputArray: Uint32Array, elementNum: Count): void;
     createUniformMorphWeightsBuffer(): number;
@@ -394,3 +402,4 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     setViewport(viewport?: Vector4): void;
     isSupportMultiViewVRRendering(): boolean;
 }
+export {};

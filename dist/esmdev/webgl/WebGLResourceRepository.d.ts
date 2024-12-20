@@ -96,8 +96,9 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
      * create a shader program
      * @returns a object which has shader modules
      */
-    createShaderProgram({ material, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
+    createShaderProgram({ material, primitive, vertexShaderStr, fragmentShaderStr, attributeNames, attributeSemantics, onError, }: {
         material: Material;
+        primitive: Primitive;
         vertexShaderStr: string;
         fragmentShaderStr: string;
         attributeNames: AttributeNames;
@@ -480,8 +481,6 @@ export declare class WebGLResourceRepository extends CGAPIResourceRepository imp
     updatedFragmentSourceCode: string, // The new fragment shader source
     onCompiled: (program: WebGLProgram) => void, // Callback triggered by your engine when the compilation is successful. It needs to send back the new linked program.
     onError: (message: string) => void): boolean;
-    rebuildProgram(material: Material, updatedVertexSourceCode: string, // The new vertex shader source
-    updatedFragmentSourceCode: string): void;
     getPixelDataFromTexture(texUid: WebGLResourceHandle, x: number, y: number, width: number, height: number): Uint8Array;
     setWebGLStateToDefault(): void;
     unbindTextureSamplers(): void;
