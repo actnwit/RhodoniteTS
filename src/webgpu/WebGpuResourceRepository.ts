@@ -91,6 +91,8 @@ type RenderPassUid = number;
 const IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 
+type DRAW_PARAMETERS_IDENTIFIER = string;
+
 export class WebGpuResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
@@ -109,6 +111,10 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
+  private __bindGroupsUniformDrawParameters: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBindGroup> =
+    new Map();
+  private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
+  private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
   private __renderBundles: Map<RenderPassUid, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
@@ -128,6 +134,8 @@ export class WebGpuResourceRepository
   private __lastEntityRepositoryUpdateCount = -1;
   private __lastPrimitivesMaterialVariantUpdateCount = -1;
   private __lastMeshRendererComponentsUpdateCount = -1;
+
+  private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
 
   private constructor() {
     super();
@@ -939,14 +947,13 @@ export class WebGpuResourceRepository
 
     const renderPipelineId = `${primitive._getFingerPrint()} ${material.materialUID} ${
       renderPass.renderPassUID
-    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${cameraId}, ${isOpaque} `;
+    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${isOpaque} `;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       primitive,
       material,
       renderPass,
-      cameraId,
       isOpaque,
       diffuseCubeMap,
       specularCubeMap
@@ -959,7 +966,12 @@ export class WebGpuResourceRepository
     renderBundleEncoder.setPipeline(pipeline);
     renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
     renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
-
+    renderBundleEncoder.setBindGroup(
+      3,
+      this.__bindGroupsUniformDrawParameters.get(
+        `${renderPass.renderPassUID}-${primitive.primitiveUid}`
+      )!
+    );
     if (isBufferLessRendering) {
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
     } else {
@@ -1209,7 +1221,6 @@ export class WebGpuResourceRepository
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    cameraId: number,
     isOpaque: boolean,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
     specularCubeMap?: CubeTexture | RenderTargetTextureCube
@@ -1287,6 +1298,7 @@ export class WebGpuResourceRepository
         this.__bindGroupLayoutStorageBuffer!,
         this.__bindGroupLayoutTextureMap.get(renderPipelineId)!,
         this.__bindGroupLayoutSamplerMap.get(renderPipelineId)!,
+        this.__bindGroupLayoutUniformDrawParameters!,
       ],
     });
 
@@ -1352,21 +1364,11 @@ export class WebGpuResourceRepository
       vertex: {
         module: modules.vsModule,
         entryPoint: 'main',
-        constants: {
-          _materialSID: material.materialSID,
-          _currentPrimitiveIdx: primitiveIdxHasMorph ?? 0,
-          _morphTargetNumber: primitive.targets.length,
-          _cameraSID: cameraId,
-        },
         buffers: gpuVertexBufferLayouts,
       },
       fragment: {
         module: modules.fsModule,
         entryPoint: 'main',
-        constants: {
-          _materialSID: material.materialSID,
-          _cameraSID: cameraId,
-        },
         targets: targets,
       },
       primitive: {
@@ -1739,6 +1741,66 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
+  }
+
+  createBindGroupLayoutForDrawParameters() {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    {
+      const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
+        entries: [
+          {
+            binding: 0,
+            buffer: {
+              type: 'uniform',
+            },
+            visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+          },
+        ],
+      };
+      const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
+      this.__bindGroupLayoutUniformDrawParameters = bindGroupLayout;
+    }
+  }
+
+  updateUniformBufferForDrawParameters(
+    identifier: DRAW_PARAMETERS_IDENTIFIER,
+    materialSid: Index,
+    cameraSID: Index,
+    currentPrimitiveIdx: Index,
+    morphTargetNumber: Count
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    let uniformBuffer = this.__uniformDrawParametersBuffers.get(identifier);
+    if (uniformBuffer == null) {
+      uniformBuffer = gpuDevice.createBuffer({
+        size: 4 /* uint32 */ * 4 /* 4 elements */,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+      });
+      this.__uniformDrawParametersBuffers.set(identifier, uniformBuffer);
+
+      const bindGroup = gpuDevice.createBindGroup({
+        layout: this.__bindGroupLayoutUniformDrawParameters!,
+        entries: [
+          {
+            binding: 0,
+            resource: {
+              buffer: uniformBuffer,
+            },
+          },
+        ],
+      });
+      this.__bindGroupsUniformDrawParameters.set(identifier, bindGroup);
+    }
+
+    WebGpuResourceRepository.__drawParametersUint32Array[0] = materialSid;
+    WebGpuResourceRepository.__drawParametersUint32Array[1] = cameraSID;
+    WebGpuResourceRepository.__drawParametersUint32Array[2] = currentPrimitiveIdx;
+    WebGpuResourceRepository.__drawParametersUint32Array[3] = morphTargetNumber;
+    gpuDevice.queue.writeBuffer(
+      uniformBuffer,
+      0,
+      WebGpuResourceRepository.__drawParametersUint32Array
+    );
   }
 
   createUniformMorphOffsetsBuffer() {

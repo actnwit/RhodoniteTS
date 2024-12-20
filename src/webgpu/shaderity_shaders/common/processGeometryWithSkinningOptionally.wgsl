@@ -90,7 +90,7 @@ fn processGeometryWithMorphingAndSkinning(
 
   var position_inLocal: vec3<f32>;
 #ifdef RN_IS_MORPHING
-  if (_morphTargetNumber == 0u) {
+  if (uniformDrawParameters.morphTargetNumber == 0u) {
 #endif
     position_inLocal = inPosition_inLocal;
 #ifdef RN_IS_MORPHING

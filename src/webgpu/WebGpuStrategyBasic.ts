@@ -109,9 +109,9 @@ fn get_isVisible(instanceId: u32) -> bool {
   fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
     var position = basePosition;
     let scalar_idx = 3u * vertexId;
-    for (var i=0u; i<_morphTargetNumber; i++) {
-
-      let idx = ${Config.maxVertexMorphNumberInShader}u * _currentPrimitiveIdx + i;
+    for (var i=0u; i<uniformDrawParameters.morphTargetNumber; i++) {
+      let currentPrimitiveIdx = uniformDrawParameters.currentPrimitiveIdx;
+      let idx = ${Config.maxVertexMorphNumberInShader}u * currentPrimitiveIdx + i;
       let offsets = uniformMorphOffsets.data[ idx / 4u];
       let offsetPosition = offsets[idx % 4u];
 
@@ -443,6 +443,13 @@ ${indexStr}
     this._setupShaderProgram(material, primitive);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    webGpuResourceRepository.updateUniformBufferForDrawParameters(
+      `${renderPass.renderPassUID}-${primitive.primitiveUid}`,
+      material.materialSID,
+      0,
+      0,
+      0
+    );
     webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
   }
 
@@ -462,8 +469,16 @@ ${indexStr}
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, isOpaque);
 
+    const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
+    webGpuResourceRepository.updateUniformBufferForDrawParameters(
+      `${renderPass.renderPassUID}-${primitive.primitiveUid}`,
+      material.materialSID,
+      cameraSID,
+      primitiveIdxHasMorph,
+      primitive.targets.length
+    );
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, isOpaque);
     return true;
   }
 
