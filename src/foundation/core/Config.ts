@@ -24,7 +24,6 @@ let eventTargetDom: HTMLElement | undefined;
 let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable cache
 let cgApiDebugConsoleOutput = false;
 let multiViewForWebVR = false;
-let maxDrawParametersNumberForWebGpu = 20000;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -56,5 +55,4 @@ export const Config = {
   cacheWebGpuRenderBundles,
   cgApiDebugConsoleOutput,
   multiViewForWebVR,
-  maxDrawParametersNumberForWebGpu,
 };
