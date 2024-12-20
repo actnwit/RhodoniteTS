@@ -91,6 +91,8 @@ type RenderPassUid = number;
 const IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT = 16;
 const IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT = 17;
 
+type DRAW_PARAMETERS_IDENTIFIER = string;
+
 export class WebGpuResourceRepository
   extends CGAPIResourceRepository
   implements ICGAPIResourceRepository
@@ -109,8 +111,10 @@ export class WebGpuResourceRepository
   private __bindGroupLayoutTextureMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
   private __bindGroupSamplerMap: Map<RenderPipelineId, GPUBindGroup> = new Map();
   private __bindGroupLayoutSamplerMap: Map<RenderPipelineId, GPUBindGroupLayout> = new Map();
-  private __bindGroupsUniformDrawParameters: GPUBindGroup[] = [];
+  private __bindGroupsUniformDrawParameters: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBindGroup> =
+    new Map();
   private __bindGroupLayoutUniformDrawParameters?: GPUBindGroupLayout;
+  private __uniformDrawParametersBuffers: Map<DRAW_PARAMETERS_IDENTIFIER, GPUBuffer> = new Map();
   private __commandEncoder?: GPUCommandEncoder;
   private __renderBundles: Map<RenderPassUid, GPURenderBundle> = new Map();
   private __renderBundleEncoder?: GPURenderBundleEncoder;
@@ -118,7 +122,6 @@ export class WebGpuResourceRepository
   private __systemDepthTextureView?: GPUTextureView;
   private __uniformMorphOffsetsBuffer?: GPUBuffer;
   private __uniformMorphWeightsBuffer?: GPUBuffer;
-  private __uniformDrawParametersBuffers: GPUBuffer[] = [];
   private __renderPassEncoder?: GPURenderPassEncoder;
   private __generateMipmapsShaderModule?: GPUShaderModule;
   private __generateMipmapsPipeline?: GPURenderPipeline;
@@ -911,8 +914,7 @@ export class WebGpuResourceRepository
     material: Material,
     renderPass: RenderPass,
     cameraId: number,
-    isOpaque: boolean,
-    drawCount: number
+    isOpaque: boolean
   ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
@@ -964,7 +966,12 @@ export class WebGpuResourceRepository
     renderBundleEncoder.setPipeline(pipeline);
     renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
     renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
-    renderBundleEncoder.setBindGroup(3, this.__bindGroupsUniformDrawParameters[drawCount]);
+    renderBundleEncoder.setBindGroup(
+      3,
+      this.__bindGroupsUniformDrawParameters.get(
+        `${renderPass.renderPassUID}-${primitive.primitiveUid}`
+      )!
+    );
     if (isBufferLessRendering) {
       renderBundleEncoder.draw(renderPass._drawVertexNumberForBufferLessRendering);
     } else {
@@ -1736,17 +1743,8 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
   }
 
-  createUniformDrawParametersBuffersAndCreateBindGroups() {
+  createBindGroupLayoutForDrawParameters() {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    for (let i = 0; i < Config.maxDrawParametersNumberForWebGpu; i++) {
-      const uniformBuffer = gpuDevice.createBuffer({
-        size: 4 /* uint32 */ * 4 /* 4 elements */,
-        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
-      });
-      this.__uniformDrawParametersBuffers.push(uniformBuffer);
-    }
-
-    // Group 3 (UniformDrawParameters)
     {
       const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = {
         entries: [
@@ -1761,33 +1759,39 @@ export class WebGpuResourceRepository
       };
       const bindGroupLayout = gpuDevice.createBindGroupLayout(bindGroupLayoutDesc);
       this.__bindGroupLayoutUniformDrawParameters = bindGroupLayout;
-
-      for (let i = 0; i < Config.maxDrawParametersNumberForWebGpu; i++) {
-        const bindGroup = gpuDevice.createBindGroup({
-          layout: bindGroupLayout,
-          entries: [
-            {
-              binding: 0,
-              resource: {
-                buffer: this.__uniformDrawParametersBuffers[i],
-              },
-            },
-          ],
-        });
-        this.__bindGroupsUniformDrawParameters[i] = bindGroup;
-      }
     }
   }
 
-  updateUniformDrawParametersBuffer(
-    index: Index,
+  updateUniformBufferForDrawParameters(
+    identifier: DRAW_PARAMETERS_IDENTIFIER,
     materialSid: Index,
     cameraSID: Index,
     currentPrimitiveIdx: Index,
     morphTargetNumber: Count
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
-    const uniformBuffer = this.__uniformDrawParametersBuffers[index];
+    let uniformBuffer = this.__uniformDrawParametersBuffers.get(identifier);
+    if (uniformBuffer == null) {
+      uniformBuffer = gpuDevice.createBuffer({
+        size: 4 /* uint32 */ * 4 /* 4 elements */,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
+      });
+      this.__uniformDrawParametersBuffers.set(identifier, uniformBuffer);
+
+      const bindGroup = gpuDevice.createBindGroup({
+        layout: this.__bindGroupLayoutUniformDrawParameters!,
+        entries: [
+          {
+            binding: 0,
+            resource: {
+              buffer: uniformBuffer,
+            },
+          },
+        ],
+      });
+      this.__bindGroupsUniformDrawParameters.set(identifier, bindGroup);
+    }
+
     WebGpuResourceRepository.__drawParametersUint32Array[0] = materialSid;
     WebGpuResourceRepository.__drawParametersUint32Array[1] = cameraSID;
     WebGpuResourceRepository.__drawParametersUint32Array[2] = currentPrimitiveIdx;

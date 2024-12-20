@@ -59,8 +59,6 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
   private __lastBlendShapeComponentsUpdateCountForBlendData = -1;
 
-  public static __drawCount = 0;
-
   private constructor() {}
 
   static getInstance() {
@@ -445,22 +443,14 @@ ${indexStr}
     this._setupShaderProgram(material, primitive);
 
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
-    webGpuResourceRepository.updateUniformDrawParametersBuffer(
-      WebGpuStrategyBasic.__drawCount,
+    webGpuResourceRepository.updateUniformBufferForDrawParameters(
+      `${renderPass.renderPassUID}-${primitive.primitiveUid}`,
       material.materialSID,
       0,
       0,
       0
     );
-    webGpuResourceRepository.draw(
-      primitive,
-      material,
-      renderPass,
-      0,
-      true,
-      WebGpuStrategyBasic.__drawCount
-    );
-    WebGpuStrategyBasic.__drawCount++;
+    webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
   }
 
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, isOpaque: boolean) {
@@ -481,22 +471,14 @@ ${indexStr}
     const cameraSID = this.__getAppropriateCameraComponentSID(renderPass, 0, false);
 
     const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid) ?? 0;
-    webGpuResourceRepository.updateUniformDrawParametersBuffer(
-      WebGpuStrategyBasic.__drawCount,
+    webGpuResourceRepository.updateUniformBufferForDrawParameters(
+      `${renderPass.renderPassUID}-${primitive.primitiveUid}`,
       material.materialSID,
       cameraSID,
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(
-      primitive,
-      material,
-      renderPass,
-      cameraSID,
-      isOpaque,
-      WebGpuStrategyBasic.__drawCount
-    );
-    WebGpuStrategyBasic.__drawCount++;
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, isOpaque);
     return true;
   }
 

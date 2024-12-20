@@ -271,7 +271,6 @@ export class System {
             }
           }
           webGpuResourceRepository.flush();
-          WebGpuStrategyBasic.__drawCount = 0;
         } else {
           if (
             !SystemState.webgpuRenderBundleMode ||
@@ -547,7 +546,7 @@ export class System {
       webGpuResourceRepository.recreateSystemDepthTexture();
       webGpuResourceRepository.createUniformMorphOffsetsBuffer();
       webGpuResourceRepository.createUniformMorphWeightsBuffer();
-      webGpuResourceRepository.createUniformDrawParametersBuffersAndCreateBindGroups();
+      webGpuResourceRepository.createBindGroupLayoutForDrawParameters();
     } else {
       // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
