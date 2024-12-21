@@ -454,7 +454,7 @@ function createClassicUberMaterial({
   ];
 
   const materialContent = new CustomMaterialContent({
-    name: 'ClassicUber',
+    name: materialName,
     isSkinning,
     isLighting,
     isMorphing,
