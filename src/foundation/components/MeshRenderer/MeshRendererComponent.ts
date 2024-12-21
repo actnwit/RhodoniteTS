@@ -319,7 +319,9 @@ export class MeshRendererComponent extends Component {
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-    renderPass._renderedSomethingBefore = true;
+    if (resultChanged) {
+      renderPass._renderedSomethingBefore = true;
+    }
 
     return primitiveUids;
   }
