@@ -291,17 +291,13 @@ export class MeshRendererComponent extends Component {
     if (_lastOpaqueIndex != renderPass._lastOpaqueIndex) {
       renderPass._lastOpaqueIndex = _lastOpaqueIndex;
       resultChanged ||= true;
-    }
-    if (_lastTranslucentIndex != renderPass._lastTranslucentIndex) {
+    } else if (_lastTranslucentIndex != renderPass._lastTranslucentIndex) {
       renderPass._lastTranslucentIndex = _lastTranslucentIndex;
       resultChanged ||= true;
-    }
-    if (_lastBlendIndex != renderPass._lastBlendIndex) {
+    } else if (_lastBlendIndex != renderPass._lastBlendIndex) {
       renderPass._lastBlendIndex = _lastBlendIndex;
       resultChanged ||= true;
-    }
-
-    if (primitiveUids.length !== renderPass._lastPrimitiveUids.length) {
+    } else if (primitiveUids.length !== renderPass._lastPrimitiveUids.length) {
       resultChanged ||= true;
     } else {
       // Check if the order of the blend primitives has changed
