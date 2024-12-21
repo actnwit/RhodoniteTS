@@ -81,7 +81,7 @@ export abstract class AbstractMaterialContent extends RnObject {
   getMaterialSemanticsVariantName() {
     let semantics = '';
     for (const semantic of this.__semantics) {
-      semantics += `${semantic.semantic}\n`;
+      semantics += `${semantic.semantic} ${semantic.stage.index} ${semantic.componentType.index} ${semantic.compositionType.index} ${semantic.soloDatum} ${semantic.isInternalSetting} ${semantic.arrayLength} ${semantic.needUniformInDataTextureMode}\n`;
     }
 
     const hash = DataUtil.toCRC32(semantics);
