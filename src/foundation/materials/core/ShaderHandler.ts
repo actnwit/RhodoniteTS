@@ -209,7 +209,6 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
       definitions += '#define RN_IS_UBO_ENABLED\n';
     }
   }
-  definitions += `#define RN_MATERIAL_TYPE_NAME ${materialTypeName}\n`;
   if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {
