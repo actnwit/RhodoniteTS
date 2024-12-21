@@ -31,8 +31,6 @@ import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
-import { IMeshEntity } from '../../helpers/EntityHelper';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
@@ -47,6 +45,7 @@ export class MeshRendererComponent extends Component {
     new Map();
   private __updateCount = 0;
   private static __updateCount = 0;
+  public static _isFrustumCullingEnabled = true;
 
   constructor(
     entityUid: EntityUID,
@@ -319,7 +318,9 @@ export class MeshRendererComponent extends Component {
     renderPass._lastTransformComponentsUpdateCount = TransformComponent.updateCount;
     renderPass._lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     renderPass._lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-    renderPass._renderedSomethingBefore = true;
+    if (resultChanged) {
+      renderPass._renderedSomethingBefore = true;
+    }
 
     return primitiveUids;
   }
@@ -329,7 +330,7 @@ export class MeshRendererComponent extends Component {
     meshComponents: MeshComponent[]
   ) {
     let filteredMeshComponents: MeshComponent[] = [];
-    if (cameraComponent) {
+    if (cameraComponent && MeshRendererComponent._isFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
 
       // const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
@@ -380,17 +381,23 @@ export class MeshRendererComponent extends Component {
     const primitives: Primitive[] = [];
     for (let i = 0; i < filteredMeshComponents.length; i++) {
       const meshComponent = filteredMeshComponents[i];
-      const viewDepth = meshComponent.calcViewDepth(cameraComponent);
       const mesh = meshComponent.mesh;
       if (mesh !== undefined) {
         const meshPrimitives = mesh.primitives;
+        let isBlendExist = false;
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
-          // if (isSkipDrawing(primitive.material)) {
-          // continue;
-          // }
-          primitive._viewDepth = viewDepth;
           primitives.push(primitive);
+          if (isBlend(primitive)) {
+            isBlendExist = true;
+          }
+        }
+        if (isBlendExist) {
+          const viewDepth = meshComponent.calcViewDepth(cameraComponent);
+          for (let j = 0; j < meshPrimitives.length; j++) {
+            const primitive = meshPrimitives[j];
+            primitive._viewDepth = viewDepth;
+          }
         }
       }
     }

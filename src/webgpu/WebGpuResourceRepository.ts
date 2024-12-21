@@ -1718,6 +1718,24 @@ export class WebGpuResourceRepository
     gpuDevice.queue.writeBuffer(storageBuffer, 0, inputArray, 0, updateComponentSize);
   }
 
+  updateStorageBufferPartially(
+    storageBufferHandle: WebGPUResourceHandle,
+    inputArray: Float32Array,
+    offsetOfStorageBufferInByte: Count,
+    offsetOfInputArrayInElement: Count,
+    updateComponentSize: Count
+  ) {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const storageBuffer = this.__webGpuResources.get(storageBufferHandle) as GPUBuffer;
+    gpuDevice.queue.writeBuffer(
+      storageBuffer,
+      offsetOfStorageBufferInByte,
+      inputArray,
+      offsetOfInputArrayInElement,
+      updateComponentSize
+    );
+  }
+
   createStorageBlendShapeBuffer(inputArray: Float32Array) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
