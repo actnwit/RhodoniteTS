@@ -131,9 +131,7 @@ export function _createProgramAsSingleOperationWebGL(
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const materialNode = material._materialContent;
 
-  const materialTypeName = material.materialTypeName;
-  let definitions = `#define RN_MATERIAL_TYPE_NAME ${materialTypeName}\n`;
-  definitions += materialNode.getDefinitions();
+  let definitions = materialNode.getDefinitions();
   const shaderDefines = material.getShaderDefines();
   for (const shaderDefine of shaderDefines) {
     definitions += `#define ${shaderDefine}\n`;
@@ -209,6 +207,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
       definitions += '#define RN_IS_UBO_ENABLED\n';
     }
   }
+  definitions += `#define RN_MATERIAL_TYPE_NAME ${materialTypeName}\n`;
   if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {
