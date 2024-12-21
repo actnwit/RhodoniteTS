@@ -31,8 +31,6 @@ import { WebGpuStrategyBasic } from '../../../webgpu/WebGpuStrategyBasic';
 import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
-import { IMeshEntity } from '../../helpers/EntityHelper';
-import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
@@ -47,6 +45,7 @@ export class MeshRendererComponent extends Component {
     new Map();
   private __updateCount = 0;
   private static __updateCount = 0;
+  public static _isFrustumCullingEnabled = true;
 
   constructor(
     entityUid: EntityUID,
@@ -327,7 +326,7 @@ export class MeshRendererComponent extends Component {
     meshComponents: MeshComponent[]
   ) {
     let filteredMeshComponents: MeshComponent[] = [];
-    if (cameraComponent) {
+    if (cameraComponent && MeshRendererComponent._isFrustumCullingEnabled) {
       cameraComponent.updateFrustum();
 
       // const whetherContainsSkeletal = (sg: SceneGraphComponent): boolean => {
