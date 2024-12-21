@@ -86,7 +86,7 @@ export abstract class AbstractMaterialContent extends RnObject {
 
     const hash = DataUtil.toCRC32(semantics);
 
-    return this.__materialName + '_' + hash;
+    return this.__materialName + '_semanticsVariation' + hash;
   }
 
   get vertexShaderityObject() {
