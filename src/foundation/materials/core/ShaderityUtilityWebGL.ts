@@ -92,10 +92,7 @@ export class ShaderityUtilityWebGL {
     reflection.addAttributeSemanticsMap(attributeSemanticsMap);
   }
 
-  public static getShaderDataReflection(
-    shaderityObject: ShaderityObject,
-    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
-  ): {
+  public static getShaderDataReflection(shaderityObject: ShaderityObject): {
     shaderSemanticsInfoArray: ShaderSemanticsInfo[];
     shaderityObject: ShaderityObject;
   } {
@@ -123,8 +120,7 @@ export class ShaderityUtilityWebGL {
           type,
           variableName,
           info,
-          shaderityObject.isFragmentShader,
-          existingShaderInfoMap
+          shaderityObject.isFragmentShader
         );
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
@@ -163,8 +159,7 @@ export class ShaderityUtilityWebGL {
     type: string,
     variableName: string,
     info: string,
-    isFragmentShader: boolean,
-    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
+    isFragmentShader: boolean
   ): ShaderSemanticsInfo {
     const componentType = ComponentType.fromGlslString(type);
     const compositionType = CompositionType.fromGlslString(type);

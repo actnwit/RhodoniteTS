@@ -25,6 +25,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
   });
 
   constructor(
+    materialName: string,
     targetRenderPass: RenderPass,
     colorAttachmentsNumber: Count,
     uri?: string,
@@ -32,7 +33,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
   ) {
     super(
       null,
-      'colorGradingUsingLUTsShading',
+      materialName,
       {},
       ColorGradingUsingLUTsShaderVertex,
       ColorGradingUsingLUTsShaderFragment

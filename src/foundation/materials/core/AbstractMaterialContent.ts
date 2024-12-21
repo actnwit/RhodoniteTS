@@ -34,18 +34,14 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
+import { DataUtil } from '../../misc';
 
-type MaterialNodeTypeName = string;
 type MaterialNodeUID = number;
 
 export abstract class AbstractMaterialContent extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
-  protected static __semanticsMap: Map<
-    MaterialNodeTypeName,
-    Map<ShaderSemanticsName, ShaderSemanticsInfo>
-  > = new Map();
   static materialNodes: AbstractMaterialContent[] = [];
-  protected __shaderFunctionName: string;
+  protected __materialName: string;
   public isSingleOperation = false;
 
   protected static __gl?: WebGLRenderingContext;
@@ -66,13 +62,13 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   constructor(
     shader: CommonShaderPart | null,
-    shaderFunctionName: string,
+    materialName: string,
     { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject,
     pixelShaderityObject?: ShaderityObject
   ) {
     super();
-    this.__shaderFunctionName = shaderFunctionName;
+    this.__materialName = materialName;
 
     this.__isMorphing = isMorphing;
     this.__isSkinning = isSkinning;
@@ -80,12 +76,17 @@ export abstract class AbstractMaterialContent extends RnObject {
 
     this.__vertexShaderityObject = vertexShaderityObject;
     this.__pixelShaderityObject = pixelShaderityObject;
-
-    this.__definitions += `#define RN_MATERIAL_NODE_NAME ${shaderFunctionName}\n`;
   }
 
-  get shaderFunctionName() {
-    return this.__shaderFunctionName;
+  getMaterialSemanticsVariantName() {
+    let semantics = '';
+    for (const semantic of this.__semantics) {
+      semantics += `${semantic.semantic}\n`;
+    }
+
+    const hash = DataUtil.toCRC32(semantics);
+
+    return this.__materialName + '_' + hash;
   }
 
   get vertexShaderityObject() {
@@ -124,19 +125,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       infoArray.push(info);
     }
     this.__semantics = infoArray;
-
-    if (!AbstractMaterialContent.__semanticsMap.has(this.shaderFunctionName)) {
-      AbstractMaterialContent.__semanticsMap.set(this.shaderFunctionName, new Map());
-    }
-    const map = AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)!;
-    for (const semantic of this.__semantics) {
-      map.set(semantic.semantic, semantic);
-    }
-  }
-
-  getShaderSemanticInfoFromName(name: string) {
-    const map = AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)!;
-    return map.get(name);
   }
 
   protected setupBasicInfo(
@@ -495,26 +483,14 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderityObject: ShaderityObject;
     };
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
-        vertexShaderWebGpu!,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(
-        pixelShaderWebGpu!,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
+      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(vertexShaderWebGpu!);
+      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(pixelShaderWebGpu!);
 
       this.__vertexShaderityObject = vertexShaderData.shaderityObject;
       this.__pixelShaderityObject = pixelShaderData.shaderityObject;
     } else {
-      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        vertexShader,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
-      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(
-        pixelShader,
-        AbstractMaterialContent.__semanticsMap.get(this.shaderFunctionName)
-      );
+      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(vertexShader);
+      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(pixelShader);
 
       this.__vertexShaderityObject = vertexShaderData.shaderityObject;
       this.__pixelShaderityObject = pixelShaderData.shaderityObject;

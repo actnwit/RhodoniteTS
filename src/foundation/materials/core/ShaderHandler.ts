@@ -131,7 +131,9 @@ export function _createProgramAsSingleOperationWebGL(
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const materialNode = material._materialContent;
 
-  let definitions = materialNode.getDefinitions();
+  const materialTypeName = material.materialTypeName;
+  let definitions = `#define RN_MATERIAL_TYPE_NAME ${materialTypeName}\n`;
+  definitions += materialNode.getDefinitions();
   const shaderDefines = material.getShaderDefines();
   for (const shaderDefine of shaderDefines) {
     definitions += `#define ${shaderDefine}\n`;

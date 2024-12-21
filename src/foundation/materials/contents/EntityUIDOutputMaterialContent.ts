@@ -14,10 +14,10 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
 export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
-  constructor() {
+  constructor(materialName: string) {
     super(
       null,
-      'entityUidOutputShading' + (true ? '+skinning' : '') + (false ? '' : '-lighting'),
+      materialName,
       { isMorphing: false, isSkinning: true, isLighting: false },
       entityUIDOutputSingleShaderVertex,
       entityUIDOutputSingleShaderFragment

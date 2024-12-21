@@ -66,6 +66,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
    * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeMaterialContent is drawn to the frame buffer
    */
   constructor(
+    materialName: string,
     {
       isMorphing,
       isSkinning,
@@ -83,9 +84,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
   ) {
     super(
       null,
-      'ShadowMapDecodeClassicShading' +
-        (isSkinning ? '+skinning' : '') +
-        (isLighting ? '' : '-lighting'),
+      materialName,
       { isMorphing, isSkinning, isLighting },
       ShadowMapDecodeSingleShaderVertex,
       ShadowMapDecodeSingleShaderFragment
