@@ -383,14 +383,17 @@ ${indexStr}
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       this.__createAndUpdateStorageBuffer();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
+    } else if (
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
+    ) {
+      this.__createAndUpdateStorageBufferForCameraOnly();
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     }
 
     if (BlendShapeComponent.updateCount !== this.__lastBlendShapeComponentsUpdateCountForWeights) {
@@ -501,6 +504,37 @@ ${indexStr}
         this.__storageBufferUid,
         float32Array,
         dataSizeForDataTexture
+      );
+    } else {
+      // Create
+      this.__storageBufferUid = webGpuResourceRepository.createStorageBuffer(float32Array);
+    }
+  }
+
+  private __createAndUpdateStorageBufferForCameraOnly() {
+    const memoryManager: MemoryManager = MemoryManager.getInstance();
+
+    // the GPU global Storage
+    const gpuInstanceDataBuffer: Buffer | undefined = memoryManager.getBuffer(
+      BufferUse.GPUInstanceData
+    );
+
+    const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const float32Array = new Float32Array(gpuInstanceDataBuffer!.getArrayBuffer());
+    if (this.__storageBufferUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      // Update
+      const offsetOfStorageBuffer =
+        globalDataRepository.getLocationOffsetOfProperty('viewMatrix') * 16;
+      const offsetOfFloat32Array = offsetOfStorageBuffer / 4;
+      const positionOfBoneMatrix =
+        (globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16) / 4; // camera infos are before boneMatrix
+      webGpuResourceRepository.updateStorageBufferPartially(
+        this.__storageBufferUid,
+        float32Array,
+        offsetOfStorageBuffer,
+        offsetOfFloat32Array,
+        positionOfBoneMatrix - offsetOfFloat32Array
       );
     } else {
       // Create
