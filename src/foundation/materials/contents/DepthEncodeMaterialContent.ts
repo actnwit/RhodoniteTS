@@ -22,10 +22,10 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
   private __lastZNear = 0.0;
   private __lastZFar = 0.0;
 
-  constructor(depthPow: number, { isSkinning }: { isSkinning: boolean }) {
+  constructor(materialName: string, depthPow: number, { isSkinning }: { isSkinning: boolean }) {
     super(
       null,
-      'depthEncodeShading' + (isSkinning ? '+skinning' : ''),
+      materialName,
       { isMorphing: false, isSkinning, isLighting: false },
       DepthEncodeSingleShaderVertex,
       DepthEncodeSingleShaderFragment

@@ -21,8 +21,8 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static disable_fresnel = new ShaderSemanticsClass({ str: 'disable_fresnel' });
   static f0 = new ShaderSemanticsClass({ str: 'f0' });
 
-  constructor() {
-    super(null, 'FurnaceTestShading', {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
+  constructor(materialName: string) {
+    super(null, materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

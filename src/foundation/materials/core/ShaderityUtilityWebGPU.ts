@@ -50,10 +50,7 @@ export class ShaderityUtilityWebGPU {
     return Shaderity.fillTemplate(shaderityObject, templateObject);
   }
 
-  public static getShaderDataReflection(
-    shaderityObject: ShaderityObject,
-    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
-  ): {
+  public static getShaderDataReflection(shaderityObject: ShaderityObject): {
     shaderSemanticsInfoArray: ShaderSemanticsInfo[];
     shaderityObject: ShaderityObject;
   } {
@@ -85,8 +82,7 @@ export class ShaderityUtilityWebGPU {
           type,
           variableName,
           info,
-          shaderityObject.isFragmentShader,
-          existingShaderInfoMap
+          shaderityObject.isFragmentShader
         );
 
         shaderSemanticsInfoArray.push(shaderSemanticsInfo);
@@ -101,8 +97,7 @@ export class ShaderityUtilityWebGPU {
           variableName,
           binding,
           info,
-          shaderityObject.isFragmentShader,
-          existingShaderInfoMap
+          shaderityObject.isFragmentShader
         );
 
         textureMap.set(binding, shaderSemanticsInfo);
@@ -145,8 +140,7 @@ export class ShaderityUtilityWebGPU {
     variableName: string,
     binding: number,
     info: string,
-    isFragmentShader: boolean,
-    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
+    isFragmentShader: boolean
   ): ShaderSemanticsInfo {
     const componentType = ComponentType.Int;
     let compositionType: CompositionTypeEnum = CompositionType.Texture2D;
@@ -187,8 +181,7 @@ export class ShaderityUtilityWebGPU {
     type: string,
     variableName: string,
     info: string,
-    isFragmentShader: boolean,
-    existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>
+    isFragmentShader: boolean
   ): ShaderSemanticsInfo {
     const componentType = ComponentType.fromWgslString(type);
     const compositionType = CompositionType.fromWgslString(type);

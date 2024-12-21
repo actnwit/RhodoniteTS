@@ -64,8 +64,8 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
    * @synthesizeTextures Textures to be synthesized. The shader supports up to six texture syntheses.
    * @targetRegionTexture Texture to specify the area where the texture will be synthesized
    */
-  constructor(synthesizeTextures: AbstractTexture[]) {
-    super(null, 'synthesizeHDRTextureShading', {});
+  constructor(materialName: string, synthesizeTextures: AbstractTexture[]) {
+    super(null, materialName, {});
 
     this.textureNumber = synthesizeTextures.length;
 

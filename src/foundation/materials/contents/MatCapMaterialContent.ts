@@ -21,14 +21,14 @@ import { Logger } from '../../misc/Logger';
 export class MatCapMaterialContent extends AbstractMaterialContent {
   static MatCapTexture = new ShaderSemanticsClass({ str: 'matCapTexture' });
 
-  constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler) {
-    super(
-      null,
-      'MatCapShading' + (isSkinning ? '+skinning' : ''),
-      { isSkinning: isSkinning },
-      MatCapShaderVertex,
-      MatCapShaderFragment
-    );
+  constructor(
+    materialName: string,
+    isSkinning: boolean,
+    uri?: string,
+    texture?: AbstractTexture,
+    sampler?: Sampler
+  ) {
+    super(null, materialName, { isSkinning: isSkinning }, MatCapShaderVertex, MatCapShaderFragment);
 
     let matCapTexture;
     if (typeof uri === 'string') {
