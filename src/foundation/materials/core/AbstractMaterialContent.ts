@@ -42,7 +42,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   protected __semantics: ShaderSemanticsInfo[] = [];
   static materialNodes: AbstractMaterialContent[] = [];
   protected __materialName: string;
-  public isSingleOperation = false;
 
   protected static __gl?: WebGLRenderingContext;
   protected __definitions = '';
