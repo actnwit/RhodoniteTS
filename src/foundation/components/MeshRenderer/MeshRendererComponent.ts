@@ -377,17 +377,23 @@ export class MeshRendererComponent extends Component {
     const primitives: Primitive[] = [];
     for (let i = 0; i < filteredMeshComponents.length; i++) {
       const meshComponent = filteredMeshComponents[i];
-      const viewDepth = meshComponent.calcViewDepth(cameraComponent);
       const mesh = meshComponent.mesh;
       if (mesh !== undefined) {
         const meshPrimitives = mesh.primitives;
+        let isBlendExist = false;
         for (let j = 0; j < meshPrimitives.length; j++) {
           const primitive = meshPrimitives[j];
-          // if (isSkipDrawing(primitive.material)) {
-          // continue;
-          // }
-          primitive._viewDepth = viewDepth;
           primitives.push(primitive);
+          if (isBlend(primitive)) {
+            isBlendExist = true;
+          }
+        }
+        if (isBlendExist) {
+          const viewDepth = meshComponent.calcViewDepth(cameraComponent);
+          for (let j = 0; j < meshPrimitives.length; j++) {
+            const primitive = meshPrimitives[j];
+            primitive._viewDepth = viewDepth;
+          }
         }
       }
     }
