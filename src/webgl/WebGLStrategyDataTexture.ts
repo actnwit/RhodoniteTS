@@ -29,6 +29,7 @@ import {
   IndexOf16Bytes,
   IndexOf4Bytes,
   PrimitiveUID,
+  Byte,
 } from '../types/CommonTypes';
 import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { VectorN } from '../foundation/math/VectorN';
@@ -75,7 +76,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
-  private __lastCameraComponentsUpdateCount = -1;
+  private __lastCameraControllerComponentsUpdateCount = -1;
   private constructor() {}
 
   public static dumpDataTextureBuffer() {
@@ -419,6 +420,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   }
 
   private __createAndUpdateDataTexture() {
+    this.__createAndUpdateDataTextureInner();
+  }
+
+  private __createAndUpdateDataTextureForCameraOnly() {
+    const globalDataRepository = GlobalDataRepository.getInstance();
+    const positionOfBoneMatrixInByte =
+      globalDataRepository.getLocationOffsetOfProperty('boneMatrix') * 16; // camera infos are before boneMatrix
+    this.__createAndUpdateDataTextureInner(positionOfBoneMatrixInByte);
+  }
+
+  private __createAndUpdateDataTextureInner(_copySizeInByte?: Byte) {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
     // the GPU global Storage
@@ -446,8 +458,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const dataTextureByteSize =
       MemoryManager.bufferWidthLength * MemoryManager.bufferHeightLength * 4 * 4;
     if (this.__dataTextureUid !== CGAPIResourceRepository.InvalidCGAPIResourceUid) {
+      const copySizeInByte = _copySizeInByte ?? gpuInstanceDataBuffer.takenSizeInByte;
       const bufferSizeForDataTextureInByte =
-        gpuInstanceDataBuffer.takenSizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
+        copySizeInByte - startOffsetOfDataTextureOnGPUInstanceData;
       const height = Math.min(
         Math.ceil(bufferSizeForDataTextureInByte / MemoryManager.bufferWidthLength / 4 / 4),
         MemoryManager.bufferHeightLength
@@ -563,7 +576,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       AnimationComponent.isAnimating ||
       TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
       SceneGraphComponent.updateCount !== this.__lastSceneGraphComponentsUpdateCount ||
-      CameraControllerComponent.updateCount !== this.__lastCameraComponentsUpdateCount ||
       Material.stateVersion !== this.__lastMaterialsUpdateCount
     ) {
       // Setup GPU Storage (Data Texture & UBO)
@@ -571,8 +583,12 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       this.__createAndUpdateUBO();
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
-      this.__lastCameraComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
+    } else if (
+      CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
+    ) {
+      this.__createAndUpdateDataTextureForCameraOnly();
+      this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     }
 
     this.__lightComponents = ComponentRepository.getComponentsWithType(LightComponent) as
