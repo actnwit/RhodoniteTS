@@ -4,7 +4,7 @@ import { applyMixins, EntityRepository } from '../../core/EntityRepository';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 import { ProcessStage } from '../../definitions/ProcessStage';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID, Array4, Array3 } from '../../../types/CommonTypes';
 import { IQuaternion } from '../../math/IQuaternion';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IVector3 } from '../../math/IVector';
@@ -107,6 +107,11 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  setLocalPositionAsArray3(array: Array3<number>) {
+    this.__pose.setPositionAsArray3(array);
+    TransformComponent.__updateCount++;
+  }
+
   /**
    * return a copy of a local translate vector
    */
@@ -195,6 +200,11 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  setLocalScaleAsArray3(array: Array3<number>) {
+    this.__pose.setScaleAsArray3(array);
+    TransformComponent.__updateCount++;
+  }
+
   /**
    * return a copy of a local scale vector
    */
@@ -236,6 +246,11 @@ export class TransformComponent extends Component {
 
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
+    TransformComponent.__updateCount++;
+  }
+
+  setLocalRotationAsArray4(array: Array4<number>) {
+    this.__pose.setRotationAsArray4(array);
     TransformComponent.__updateCount++;
   }
 

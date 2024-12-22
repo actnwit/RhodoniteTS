@@ -31,8 +31,11 @@ import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { IAnimationRetarget } from '../Skeletal';
 import { __interpolate } from './AnimationOps';
-import { MathUtil } from '../../math';
 import { ProcessStage } from '../../definitions';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableVector3 } from '../../math/MutableVector3';
+import { MathUtil } from '../../math/MathUtil';
+import { MutableVector4 } from '../../math/MutableVector4';
 
 const defaultAnimationInfo = {
   name: '',
@@ -76,6 +79,11 @@ export class AnimationComponent extends Component {
     ChangeAnimationInfo,
     PlayEnd,
   };
+
+  private static __tmpQuat = MutableQuaternion.identity();
+  private static __tmpPos = MutableVector3.zero();
+  private static __tmpScale = MutableVector3.one();
+
   private static __pubsub = new EventPubSub();
 
   constructor(
@@ -126,11 +134,11 @@ export class AnimationComponent extends Component {
           const value = __interpolate(channel, time, i);
 
           if (i === AnimationAttribute.Quaternion.index) {
-            transformComponent!.localRotation = Quaternion.fromCopyArray4(value as Array4<number>);
+            transformComponent!.setLocalRotationAsArray4(value as Array4<number>);
           } else if (i === AnimationAttribute.Translate.index) {
-            transformComponent!.localPosition = Vector3.fromCopyArray3(value as Array3<number>);
+            transformComponent!.setLocalPositionAsArray3(value as Array3<number>);
           } else if (i === AnimationAttribute.Scale.index) {
-            transformComponent!.localScale = Vector3.fromCopyArray3(value as Array3<number>);
+            transformComponent!.setLocalScaleAsArray3(value as Array3<number>);
           } else if (i === AnimationAttribute.Weights.index) {
             blendShapeComponent!.weights = value;
           } else if (i === AnimationAttribute.Effekseer.index) {
@@ -165,24 +173,31 @@ export class AnimationComponent extends Component {
           const value = __interpolate(channel, time, i);
 
           if (i === AnimationAttribute.Quaternion.index) {
-            const quatOf2nd = Quaternion.fromCopyArray4(value as Array4<number>);
+            AnimationComponent.__tmpQuat._v[0] = value[0];
+            AnimationComponent.__tmpQuat._v[1] = value[1];
+            AnimationComponent.__tmpQuat._v[2] = value[2];
+            AnimationComponent.__tmpQuat._v[3] = value[3];
             transformComponent!.localRotation = Quaternion.qlerp(
               transformComponent!.localRotationInner,
-              quatOf2nd,
+              AnimationComponent.__tmpQuat,
               this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Translate.index) {
-            const vec3Of2nd = Vector3.fromCopyArray3(value as Array3<number>);
+            AnimationComponent.__tmpPos._v[0] = value[0];
+            AnimationComponent.__tmpPos._v[1] = value[1];
+            AnimationComponent.__tmpPos._v[2] = value[2];
             transformComponent!.localPosition = Vector3.lerp(
               transformComponent!.localPositionInner,
-              vec3Of2nd,
+              AnimationComponent.__tmpPos,
               this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Scale.index) {
-            const vec3of2nd = Vector3.fromCopyArray3(value as Array3<number>);
+            AnimationComponent.__tmpScale._v[0] = value[0];
+            AnimationComponent.__tmpScale._v[1] = value[1];
+            AnimationComponent.__tmpScale._v[2] = value[2];
             transformComponent!.localScale = Vector3.lerp(
               transformComponent!.localScaleInner,
-              vec3of2nd,
+              AnimationComponent.__tmpScale,
               this.animationBlendingRatio
             );
           } else if (i === AnimationAttribute.Weights.index) {
