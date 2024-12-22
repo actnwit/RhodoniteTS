@@ -24,7 +24,6 @@ export class DepthEncodeMaterialContent extends AbstractMaterialContent {
 
   constructor(materialName: string, depthPow: number, { isSkinning }: { isSkinning: boolean }) {
     super(
-      null,
       materialName,
       { isMorphing: false, isSkinning, isLighting: false },
       DepthEncodeSingleShaderVertex,

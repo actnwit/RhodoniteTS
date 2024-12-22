@@ -32,7 +32,7 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
   // });
 
   constructor(materialName: string, textureToDetectHighLuminance: AbstractTexture) {
-    super(null, materialName, {});
+    super(materialName, {});
 
     const sampler = new Sampler({
       wrapS: TextureParameter.ClampToEdge,

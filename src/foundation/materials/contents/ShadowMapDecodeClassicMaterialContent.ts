@@ -83,7 +83,6 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     encodedDepthRenderPass: RenderPass
   ) {
     super(
-      null,
       materialName,
       { isMorphing, isSkinning, isLighting },
       ShadowMapDecodeSingleShaderVertex,

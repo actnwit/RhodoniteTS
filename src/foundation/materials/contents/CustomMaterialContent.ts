@@ -53,7 +53,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     vertexShaderWebGpu?: ShaderityObject;
     pixelShaderWebGpu?: ShaderityObject;
   }) {
-    super(null, name, { isMorphing, isSkinning, isLighting });
+    super(name, { isMorphing, isSkinning, isLighting });
 
     // Shader Reflection
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = this.doShaderReflection(

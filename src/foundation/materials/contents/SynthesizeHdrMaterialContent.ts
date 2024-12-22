@@ -65,7 +65,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
    * @targetRegionTexture Texture to specify the area where the texture will be synthesized
    */
   constructor(materialName: string, synthesizeTextures: AbstractTexture[]) {
-    super(null, materialName, {});
+    super(materialName, {});
 
     this.textureNumber = synthesizeTextures.length;
 

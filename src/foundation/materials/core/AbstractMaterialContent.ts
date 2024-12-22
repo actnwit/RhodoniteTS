@@ -60,7 +60,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   constructor(
-    shader: CommonShaderPart | null,
     materialName: string,
     { isMorphing = false, isSkinning = false, isLighting = false } = {},
     vertexShaderityObject?: ShaderityObject,
