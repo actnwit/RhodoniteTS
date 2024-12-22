@@ -183,7 +183,7 @@ export class SkeletalComponent extends Component {
   }
 
   $logic() {
-    if (!this.isSkinning) {
+    if (!this.isSkinning || this._isCulled) {
       return;
     }
 
@@ -211,10 +211,6 @@ export class SkeletalComponent extends Component {
       }
 
       this.__isWorldMatrixVanilla = false;
-
-      if (this._isCulled) {
-        continue;
-      }
 
       if (
         Config.boneDataType === BoneDataType.Mat43x1 ||
