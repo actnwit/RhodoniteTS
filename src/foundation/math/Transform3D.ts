@@ -60,6 +60,13 @@ export class Transform3D {
     this.__updateTransform();
   }
 
+  setPositionAsArray3(array: Array3<number>) {
+    this.__position._v[0] = array[0];
+    this.__position._v[1] = array[1];
+    this.__position._v[2] = array[2];
+    this.__updateTransform();
+  }
+
   /**
    * return a copy of a local position vector
    */
@@ -110,6 +117,13 @@ export class Transform3D {
     this.__updateTransform();
   }
 
+  setScaleAsArray3(array: Array3<number>) {
+    this.__scale._v[0] = array[0];
+    this.__scale._v[1] = array[1];
+    this.__scale._v[2] = array[2];
+    this.__updateTransform();
+  }
+
   /**
    * return a copy of a local scale vector
    */
@@ -126,6 +140,14 @@ export class Transform3D {
 
   set rotation(quat: IQuaternion) {
     this.__rotation.copyComponents(quat);
+    this.__updateTransform();
+  }
+
+  setRotationAsArray4(array: Array4<number>) {
+    this.__rotation._v[0] = array[0];
+    this.__rotation._v[1] = array[1];
+    this.__rotation._v[2] = array[2];
+    this.__rotation._v[3] = array[3];
     this.__updateTransform();
   }
 
