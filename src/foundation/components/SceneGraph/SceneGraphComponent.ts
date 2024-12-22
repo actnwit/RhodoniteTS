@@ -39,7 +39,6 @@ export class SceneGraphComponent extends Component {
   private __isWorldMatrixUpToDate = false;
   private __isWorldMatrixRestUpToDate = false;
   private __isNormalMatrixUpToDate = false;
-  private __tmpMatrix = MutableMatrix44.identity();
   private __worldMergedAABBWithSkeletal = new AABB();
   private __worldMergedAABB = new AABB();
   private __isWorldAABBDirty = true;
@@ -65,6 +64,8 @@ export class SceneGraphComponent extends Component {
   ]);
 
   private static __tmp_mat4 = MutableMatrix44.identity();
+  private static __tmp_mat4_2 = MutableMatrix44.identity();
+  private static __tmp_mat4_3 = MutableMatrix44.identity();
 
   private static __updateCount = -1;
 
@@ -416,14 +417,16 @@ export class SceneGraphComponent extends Component {
     const transform = this.entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
-      return transform.localMatrixInner;
+      transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_2);
+      return SceneGraphComponent.__tmp_mat4_2;
     }
 
     const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRecursively();
+    transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_3);
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
-      transform.localMatrixInner,
-      this.__tmpMatrix
+      SceneGraphComponent.__tmp_mat4_3,
+      SceneGraphComponent.__tmp_mat4
     );
   }
 
@@ -435,14 +438,16 @@ export class SceneGraphComponent extends Component {
     const transform = this.entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
-      return transform.localMatrixRestInner;
+      transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_2);
+      return SceneGraphComponent.__tmp_mat4_2;
     }
 
     const matrixFromAncestorToParent = this.__parent.__calcWorldMatrixRestRecursively();
+    transform.getLocalMatrixInnerTo(SceneGraphComponent.__tmp_mat4_3);
     return MutableMatrix44.multiplyTo(
       matrixFromAncestorToParent,
-      transform.localMatrixRestInner,
-      this.__tmpMatrix
+      SceneGraphComponent.__tmp_mat4_3,
+      SceneGraphComponent.__tmp_mat4
     );
   }
 
@@ -755,8 +760,12 @@ export class SceneGraphComponent extends Component {
     if (Is.not.exist(this.__parent)) {
       this.entity.getTransform().localPosition = vec;
     } else {
-      MutableMatrix44.invertTo(this.__parent.entity.getSceneGraph().matrixInner, this.__tmpMatrix);
-      this.entity.getTransform().localPosition = this.__tmpMatrix.multiplyVector3(vec);
+      MutableMatrix44.invertTo(
+        this.__parent.entity.getSceneGraph().matrixInner,
+        SceneGraphComponent.__tmp_mat4
+      );
+      this.entity.getTransform().localPosition =
+        SceneGraphComponent.__tmp_mat4.multiplyVector3(vec);
     }
   }
 
@@ -921,7 +930,6 @@ export class SceneGraphComponent extends Component {
     this.__isWorldMatrixUpToDate = false;
     this.__isWorldMatrixRestUpToDate = false;
     this.__isNormalMatrixUpToDate = false;
-    this.__tmpMatrix.copyComponents(component.__tmpMatrix);
     this.__worldMergedAABBWithSkeletal = component.__worldMergedAABBWithSkeletal.clone();
     this.__isWorldAABBDirty = true;
     this._isVisible.copyComponents(component._isVisible);
