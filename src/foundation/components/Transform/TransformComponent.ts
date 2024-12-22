@@ -68,10 +68,8 @@ export class TransformComponent extends Component {
     }
     this.__pose.setTransform(
       this.__rest.positionInner,
-      MutableVector3.fromCopyVector3(this.__rest.eulerAnglesInner),
       this.__rest.scaleInner,
-      MutableQuaternion.fromCopyQuaternion(this.__rest.rotationInner),
-      this.__rest.matrixInner
+      MutableQuaternion.fromCopyQuaternion(this.__rest.rotationInner)
     );
   }
 
@@ -82,10 +80,8 @@ export class TransformComponent extends Component {
   set localTransform(transform: Transform3D) {
     this.__pose.setTransform(
       transform.positionInner,
-      MutableVector3.fromCopyVector3(transform.eulerAnglesInner),
       transform.scaleInner,
-      MutableQuaternion.fromCopyQuaternion(transform.rotationInner),
-      transform.matrixInner
+      MutableQuaternion.fromCopyQuaternion(transform.rotationInner)
     );
     TransformComponent.__updateCount++;
   }
@@ -100,10 +96,8 @@ export class TransformComponent extends Component {
     }
     this.__rest.setTransform(
       transform.positionInner,
-      MutableVector3.fromCopyVector3(transform.eulerAnglesInner),
       transform.scaleInner,
-      MutableQuaternion.fromCopyQuaternion(transform.rotationInner),
-      transform.matrixInner
+      MutableQuaternion.fromCopyQuaternion(transform.rotationInner)
     );
     TransformComponent.__updateCount++;
   }
