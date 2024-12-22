@@ -22,7 +22,7 @@ export class FurnaceTestMaterialContent extends AbstractMaterialContent {
   static f0 = new ShaderSemanticsClass({ str: 'f0' });
 
   constructor(materialName: string) {
-    super(null, materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
+    super(materialName, {}, FurnaceTestShaderVertex, FurnaceTestShaderFragment);
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [
       {

@@ -132,7 +132,7 @@ export class MToonMaterialContent extends AbstractMaterialContent {
     makeOutputSrgb: boolean,
     materialName: string
   ) {
-    super(null, materialName, {
+    super(materialName, {
       isMorphing: isMorphing,
       isSkinning: isSkinning,
       isLighting: isLighting,

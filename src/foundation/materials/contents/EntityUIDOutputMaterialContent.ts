@@ -16,7 +16,6 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
   constructor(materialName: string) {
     super(
-      null,
       materialName,
       { isMorphing: false, isSkinning: true, isLighting: false },
       entityUIDOutputSingleShaderVertex,

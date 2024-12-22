@@ -92,7 +92,6 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     encodedDepthRenderPasses: RenderPass[]
   ) {
     super(
-      null,
       materialName,
       { isMorphing, isSkinning, isLighting },
       VarianceShadowMapDecodeClassicShaderVertex,
