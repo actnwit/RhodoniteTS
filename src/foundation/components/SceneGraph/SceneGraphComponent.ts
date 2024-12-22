@@ -413,8 +413,7 @@ export class SceneGraphComponent extends Component {
       return this._worldMatrix;
     }
 
-    const entity = EntityRepository.getEntity(this.__entityUid) as ITransformEntity;
-    const transform = entity.getTransform()!;
+    const transform = this.entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.localMatrixInner;
@@ -433,8 +432,7 @@ export class SceneGraphComponent extends Component {
       return this._worldMatrixRest;
     }
 
-    const entity = EntityRepository.getEntity(this.__entityUid) as ITransformEntity;
-    const transform = entity.getTransform()!;
+    const transform = this.entity.getTransform()!;
 
     if (this.__parent == null || this.toMakeWorldMatrixTheSameAsLocalMatrix) {
       return transform.localMatrixRestInner;
