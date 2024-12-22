@@ -11,8 +11,10 @@ import { IVector3 } from '../../math/IVector';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ITransformEntity } from '../../helpers';
-import { MutableQuaternion, Transform3D } from '../../math';
 import { Is } from '../../misc';
+import { Transform3D } from '../../math/Transform3D';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
@@ -310,6 +312,10 @@ export class TransformComponent extends Component {
    */
   get localMatrixInner() {
     return this.__pose.matrixInner;
+  }
+
+  getLocalMatrixInnerTo(mat: MutableMatrix44) {
+    this.__pose.getMatrixInnerTo(mat);
   }
 
   /**

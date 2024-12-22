@@ -260,6 +260,77 @@ export class Transform3D {
     return mat;
   }
 
+  getMatrixInnerTo(mat: MutableMatrix44) {
+    // Clear and set Scale
+    const scale = this.scaleInner;
+    const n00 = scale._v[0];
+    // const n01 = 0;
+    // const n02 = 0;
+    // const n03 = 0;
+    // const n10 = 0;
+    const n11 = scale._v[1];
+    // const n12 = 0;
+    // const n13 = 0;
+    // const n20 = 0;
+    // const n21 = 0;
+    const n22 = scale._v[2];
+    // const n23 = 0;
+    // const n30 = 0;
+    // const n31 = 0;
+    // const n32 = 0;
+    // const n33 = 1;
+
+    const q = this.rotationInner;
+    const sx = q._v[0] * q._v[0];
+    const sy = q._v[1] * q._v[1];
+    const sz = q._v[2] * q._v[2];
+    const cx = q._v[1] * q._v[2];
+    const cy = q._v[0] * q._v[2];
+    const cz = q._v[0] * q._v[1];
+    const wx = q._v[3] * q._v[0];
+    const wy = q._v[3] * q._v[1];
+    const wz = q._v[3] * q._v[2];
+
+    const m00 = 1.0 - 2.0 * (sy + sz);
+    const m01 = 2.0 * (cz - wz);
+    const m02 = 2.0 * (cy + wy);
+    // const m03 = 0.0;
+    const m10 = 2.0 * (cz + wz);
+    const m11 = 1.0 - 2.0 * (sx + sz);
+    const m12 = 2.0 * (cx - wx);
+    // const m13 = 0.0;
+    const m20 = 2.0 * (cy - wy);
+    const m21 = 2.0 * (cx + wx);
+    const m22 = 1.0 - 2.0 * (sx + sy);
+
+    // const m23 = 0.0;
+    // const m30 = 0.0;
+    // const m31 = 0.0;
+    // const m32 = 0.0;
+    // const m33 = 1.0;
+
+    const translate = this.positionInner;
+
+    mat.setComponents(
+      m00 * n00,
+      m01 * n11,
+      m02 * n22,
+      translate.x,
+      m10 * n00,
+      m11 * n11,
+      m12 * n22,
+      translate.y,
+      m20 * n00,
+      m21 * n11,
+      m22 * n22,
+      translate.z,
+      0,
+      0,
+      0,
+      1
+    );
+  }
+
   get updateCount() {
     return this.__updateCount;
   }
