@@ -1,3 +1,4 @@
+import { Array3, Array4 } from '../../types';
 import { IMatrix44 } from './IMatrix';
 import { IQuaternion } from './IQuaternion';
 import { IVector3 } from './IVector';
@@ -10,11 +11,6 @@ export declare class Transform3D {
     private __position;
     private __scale;
     private __rotation;
-    private __matrix;
-    private __is_position_updated;
-    private __is_scale_updated;
-    private __is_rotation_updated;
-    private __is_trs_matrix_updated;
     private __updateCount;
     private static __tmpMatrix44_0;
     private static __tmpVector3_0;
@@ -26,6 +22,7 @@ export declare class Transform3D {
     isEqual(rhs: Transform3D, delta?: number): boolean;
     clone(): Transform3D;
     set position(vec: IVector3);
+    setPositionAsArray3(array: Array3<number>): void;
     /**
      * return a copy of a local position vector
      */
@@ -44,6 +41,7 @@ export declare class Transform3D {
      */
     get eulerAnglesInner(): Vector3;
     set scale(vec: IVector3);
+    setScaleAsArray3(array: Array3<number>): void;
     /**
      * return a copy of a local scale vector
      */
@@ -53,6 +51,7 @@ export declare class Transform3D {
      */
     get scaleInner(): MutableVector3;
     set rotation(quat: IQuaternion);
+    setRotationAsArray4(array: Array4<number>): void;
     /**
      * return a copy of a local quaternion vector
      */
@@ -62,10 +61,6 @@ export declare class Transform3D {
      */
     get rotationInner(): Quaternion;
     __updateTransform(): void;
-    __updateEulerAngles(): void;
-    __updatePosition(): void;
-    __updateScale(): void;
-    __updateMatrix(): void;
     set matrix(mat: IMatrix44);
     /**
      * return a copy of local transform matrix
@@ -75,7 +70,7 @@ export declare class Transform3D {
      * return a local transform matrix
      */
     get matrixInner(): MutableMatrix44;
-    __needUpdate(): void;
+    getMatrixInnerTo(mat: MutableMatrix44): void;
     get updateCount(): number;
     set rotateMatrix44(rotateMatrix: IMatrix44);
     get rotateMatrix44(): IMatrix44;
@@ -94,10 +89,8 @@ export declare class Transform3D {
      * If there is an argument passed with null or undefined, it is interpreted as unchanged.
      *
      * @param {*} translate
-     * @param {*} rotate
      * @param {*} scale
-     * @param {*} quaternion
-     * @param {*} matrix
+     * @param {*} rotation
      */
-    setTransform(translate: MutableVector3, rotate: MutableVector3, scale: MutableVector3, quaternion: MutableQuaternion, matrix: MutableMatrix44): void;
+    setTransform(translate: MutableVector3, scale: MutableVector3, rotation: MutableQuaternion): void;
 }

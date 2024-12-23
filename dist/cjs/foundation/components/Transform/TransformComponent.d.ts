@@ -2,14 +2,15 @@ import { Quaternion } from '../../math/Quaternion';
 import { Component } from '../../core/Component';
 import { EntityRepository } from '../../core/EntityRepository';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { ComponentTID, ComponentSID, EntityUID } from '../../../types/CommonTypes';
+import { ComponentTID, ComponentSID, EntityUID, Array4, Array3 } from '../../../types/CommonTypes';
 import { IQuaternion } from '../../math/IQuaternion';
 import { IMatrix44 } from '../../math/IMatrix';
 import { IVector3 } from '../../math/IVector';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { ITransformEntity } from '../../helpers';
-import { Transform3D } from '../../math';
+import { Transform3D } from '../../math/Transform3D';
+import { MutableMatrix44 } from '../../math/MutableMatrix44';
 export declare class TransformComponent extends Component {
     private __rest;
     private __pose;
@@ -28,6 +29,7 @@ export declare class TransformComponent extends Component {
     get localTransformRest(): Transform3D;
     set localTransformRest(transform: Transform3D);
     set localPosition(vec: IVector3);
+    setLocalPositionAsArray3(array: Array3<number>): void;
     /**
      * return a copy of a local translate vector
      */
@@ -56,7 +58,7 @@ export declare class TransformComponent extends Component {
     /**
      * return a local rotation (XYZ euler) vector
      */
-    get localEulerAnglesInner(): import("../../math").Vector3;
+    get localEulerAnglesInner(): import("../..").Vector3;
     /**
      * set a local rotation (XYZ euler) vector as Rest
      */
@@ -68,8 +70,9 @@ export declare class TransformComponent extends Component {
     /**
      * return a local rotation (XYZ euler) vector
      */
-    get localEulerAnglesRestInner(): import("../../math").Vector3;
+    get localEulerAnglesRestInner(): import("../..").Vector3;
     set localScale(vec: IVector3);
+    setLocalScaleAsArray3(array: Array3<number>): void;
     /**
      * return a copy of a local scale vector
      */
@@ -91,6 +94,7 @@ export declare class TransformComponent extends Component {
      */
     get localScaleRestInner(): MutableVector3;
     set localRotation(quat: IQuaternion);
+    setLocalRotationAsArray4(array: Array4<number>): void;
     /**
      * return a copy of a local quaternion vector
      */
@@ -119,7 +123,8 @@ export declare class TransformComponent extends Component {
     /**
      * return a local transform matrix
      */
-    get localMatrixInner(): import("../../math").MutableMatrix44;
+    get localMatrixInner(): MutableMatrix44;
+    getLocalMatrixInnerTo(mat: MutableMatrix44): void;
     /**
      * set a local transform matrix as Rest
      */
@@ -131,7 +136,7 @@ export declare class TransformComponent extends Component {
     /**
      * return a local transform matrix
      */
-    get localMatrixRestInner(): import("../../math").MutableMatrix44;
+    get localMatrixRestInner(): MutableMatrix44;
     $load(): void;
     $logic(): void;
     _shallowCopyFrom(component_: Component): void;

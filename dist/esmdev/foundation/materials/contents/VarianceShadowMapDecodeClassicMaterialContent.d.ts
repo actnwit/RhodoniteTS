@@ -34,7 +34,7 @@ export declare class VarianceShadowMapDecodeClassicMaterialContent extends Abstr
      * @param colorAttachmentsNumber The index of colorAttachment in a framebuffer. The colorAttachment must have depth information drawn by the DepthEncodeMaterialContent.
      * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeMaterialContent is drawn to the frame buffer
      */
-    constructor({ isMorphing, isSkinning, isLighting, isDebugging, colorAttachmentsNumberDepth, colorAttachmentsNumberSquareDepth, depthCameraComponent, }: {
+    constructor(materialName: string, { isMorphing, isSkinning, isLighting, isDebugging, colorAttachmentsNumberDepth, colorAttachmentsNumberSquareDepth, depthCameraComponent, }: {
         isMorphing: boolean;
         isSkinning: boolean;
         isLighting: boolean;

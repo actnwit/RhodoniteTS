@@ -2,7 +2,6 @@ import { ShaderityObject } from 'shaderity';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export type FillArgsObject = {
     [key: string]: string;
@@ -18,7 +17,7 @@ export declare class ShaderityUtilityWebGL {
     static transformWebGLVersion(shaderityObject: ShaderityObject, isWebGL2: boolean): ShaderityObject;
     static getAttributeReflection(shaderityObject: ShaderityObject): VertexAttributesLayout;
     private static __setDefaultAttributeSemanticMap;
-    static getShaderDataReflection(shaderityObject: ShaderityObject, existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>): {
+    static getShaderDataReflection(shaderityObject: ShaderityObject): {
         shaderSemanticsInfoArray: ShaderSemanticsInfo[];
         shaderityObject: ShaderityObject;
     };

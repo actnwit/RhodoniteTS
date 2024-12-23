@@ -8,7 +8,7 @@ export declare class FurnaceTestMaterialContent extends AbstractMaterialContent 
     static g_type: ShaderSemanticsClass;
     static disable_fresnel: ShaderSemanticsClass;
     static f0: ShaderSemanticsClass;
-    constructor();
+    constructor(materialName: string);
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

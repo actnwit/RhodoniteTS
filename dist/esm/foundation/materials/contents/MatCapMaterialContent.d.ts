@@ -6,7 +6,7 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { Sampler } from '../../textures/Sampler';
 export declare class MatCapMaterialContent extends AbstractMaterialContent {
     static MatCapTexture: ShaderSemanticsClass;
-    constructor(isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler);
+    constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler);
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

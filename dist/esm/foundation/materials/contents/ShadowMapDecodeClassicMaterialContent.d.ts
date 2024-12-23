@@ -26,7 +26,7 @@ export declare class ShadowMapDecodeClassicMaterialContent extends AbstractMater
      * @param colorAttachmentsNumber The index of colorAttachment in a framebuffer. The colorAttachment must have depth information drawn by the DepthEncodeMaterialContent.
      * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeMaterialContent is drawn to the frame buffer
      */
-    constructor({ isMorphing, isSkinning, isLighting, isDebugging, colorAttachmentsNumber, }: {
+    constructor(materialName: string, { isMorphing, isSkinning, isLighting, isDebugging, colorAttachmentsNumber, }: {
         isMorphing: boolean;
         isSkinning: boolean;
         isLighting: boolean;

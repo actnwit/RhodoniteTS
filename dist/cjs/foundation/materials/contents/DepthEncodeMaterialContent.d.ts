@@ -9,7 +9,7 @@ export declare class DepthEncodeMaterialContent extends AbstractMaterialContent 
     static depthPow: ShaderSemanticsClass;
     private __lastZNear;
     private __lastZFar;
-    constructor(depthPow: number, { isSkinning }: {
+    constructor(materialName: string, depthPow: number, { isSkinning }: {
         isSkinning: boolean;
     });
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {

@@ -206,6 +206,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     }>, width: Size, height: Size): [number, Sampler];
     createStorageBuffer(inputArray: Float32Array): number;
     updateStorageBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count): void;
+    updateStorageBufferPartially(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, offsetOfStorageBufferInByte: Count, offsetOfInputArrayInElement: Count, updateComponentSize: Count): void;
     createStorageBlendShapeBuffer(inputArray: Float32Array): number;
     updateStorageBlendShapeBuffer(storageBufferHandle: WebGPUResourceHandle, inputArray: Float32Array, updateComponentSize: Count): void;
     createBindGroupLayoutForDrawParameters(): void;

@@ -7,7 +7,7 @@ import { Material } from '../core/Material';
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 export declare class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
     static lookupTableTexture: ShaderSemanticsClass;
-    constructor(targetRenderPass: RenderPass, colorAttachmentsNumber: Count, uri?: string, texture?: AbstractTexture);
+    constructor(materialName: string, targetRenderPass: RenderPass, colorAttachmentsNumber: Count, uri?: string, texture?: AbstractTexture);
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

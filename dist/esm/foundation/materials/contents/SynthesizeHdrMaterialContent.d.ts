@@ -28,7 +28,7 @@ export declare class SynthesizeHdrMaterialContent extends AbstractMaterialConten
      * @synthesizeTextures Textures to be synthesized. The shader supports up to six texture syntheses.
      * @targetRegionTexture Texture to specify the area where the texture will be synthesized
      */
-    constructor(synthesizeTextures: AbstractTexture[]);
+    constructor(materialName: string, synthesizeTextures: AbstractTexture[]);
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

@@ -24,7 +24,6 @@ export declare class SceneGraphComponent extends Component {
     private __isWorldMatrixUpToDate;
     private __isWorldMatrixRestUpToDate;
     private __isNormalMatrixUpToDate;
-    private __tmpMatrix;
     private __worldMergedAABBWithSkeletal;
     private __worldMergedAABB;
     private __isWorldAABBDirty;
@@ -46,6 +45,8 @@ export declare class SceneGraphComponent extends Component {
     private static isJointAABBShouldBeCalculated;
     private static invertedMatrix44;
     private static __tmp_mat4;
+    private static __tmp_mat4_2;
+    private static __tmp_mat4_3;
     private static __updateCount;
     private static __tmpAABB;
     private __lastTransformComponentsUpdateCount;

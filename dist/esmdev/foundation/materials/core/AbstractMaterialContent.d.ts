@@ -1,6 +1,4 @@
 import { RnObject } from '../../core/RnObject';
-import { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
-import { CommonShaderPart } from '../../../webgl/shaders/CommonShaderPart';
 import { Matrix44 } from '../../math/Matrix44';
 import { SkeletalComponent } from '../../components/Skeletal/SkeletalComponent';
 import { Material } from './Material';
@@ -16,14 +14,11 @@ import { IMatrix33 } from '../../math/IMatrix';
 import { RenderingArgWebGL, RenderingArgWebGpu } from '../../../webgl/types/CommonTypes';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-type MaterialNodeTypeName = string;
 type MaterialNodeUID = number;
 export declare abstract class AbstractMaterialContent extends RnObject {
     protected __semantics: ShaderSemanticsInfo[];
-    protected static __semanticsMap: Map<MaterialNodeTypeName, Map<ShaderSemanticsName, ShaderSemanticsInfo>>;
     static materialNodes: AbstractMaterialContent[];
-    protected __shaderFunctionName: string;
-    isSingleOperation: boolean;
+    protected __materialName: string;
     protected static __gl?: WebGLRenderingContext;
     protected __definitions: string;
     protected static __tmp_vector4: MutableVector4;
@@ -38,12 +33,12 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     protected __vertexShaderityObject?: ShaderityObject;
     protected __pixelShaderityObject?: ShaderityObject;
     shaderType: ShaderTypeEnum;
-    constructor(shader: CommonShaderPart | null, shaderFunctionName: string, { isMorphing, isSkinning, isLighting }?: {
+    constructor(materialName: string, { isMorphing, isSkinning, isLighting }?: {
         isMorphing?: boolean | undefined;
         isSkinning?: boolean | undefined;
         isLighting?: boolean | undefined;
     }, vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject);
-    get shaderFunctionName(): string;
+    getMaterialSemanticsVariantName(): string;
     get vertexShaderityObject(): import("shaderity/dist/esm/types/type").ShaderityObject | undefined;
     get pixelShaderityObject(): import("shaderity/dist/esm/types/type").ShaderityObject | undefined;
     getDefinitions(): string;
@@ -53,7 +48,6 @@ export declare abstract class AbstractMaterialContent extends RnObject {
     get isMorphing(): boolean;
     get isLighting(): boolean;
     setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]): void;
-    getShaderSemanticInfoFromName(name: string): ShaderSemanticsInfo | undefined;
     protected setupBasicInfo(args: RenderingArgWebGL, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
     protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44): void;
     protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33): void;

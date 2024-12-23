@@ -5,7 +5,7 @@ import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { AbstractTexture } from '../../textures/AbstractTexture';
 export declare class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
     static LuminanceCriterion: ShaderSemanticsEnum;
-    constructor(textureToDetectHighLuminance: AbstractTexture);
+    constructor(materialName: string, textureToDetectHighLuminance: AbstractTexture);
     _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;

@@ -28,6 +28,9 @@ export declare class AnimationComponent extends Component {
         ChangeAnimationInfo: symbol;
         PlayEnd: symbol;
     };
+    private static __tmpQuat;
+    private static __tmpPos;
+    private static __tmpScale;
     private static __pubsub;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     $load(): void;

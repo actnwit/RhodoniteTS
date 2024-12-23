@@ -37,6 +37,7 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
     private __renderWithoutBuffers;
     renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, isOpaque: boolean): boolean;
     private __createAndUpdateStorageBuffer;
+    private __createAndUpdateStorageBufferForCameraOnly;
     private __createOrUpdateStorageBlendShapeBuffer;
     private __updateUniformMorph;
     private __getAppropriateCameraComponentSID;

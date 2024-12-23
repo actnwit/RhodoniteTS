@@ -9,8 +9,8 @@ import { Count } from '../../types/CommonTypes';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
-declare function createMaterial(materialName: string, materialNode: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
-declare function recreateMaterial(materialName: string, materialNode: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
+declare function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
+declare function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;

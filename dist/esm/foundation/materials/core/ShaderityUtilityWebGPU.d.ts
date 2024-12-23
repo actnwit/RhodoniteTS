@@ -2,7 +2,6 @@ import { ShaderityObject } from 'shaderity';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { ShaderSemanticsName } from '../../definitions/ShaderSemantics';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 export type FillArgsObject = {
     [key: string]: string;
@@ -15,7 +14,7 @@ export type VertexAttributesLayout = {
 };
 export declare class ShaderityUtilityWebGPU {
     static fillTemplate(shaderityObject: ShaderityObject, args: FillArgsObject): ShaderityObject;
-    static getShaderDataReflection(shaderityObject: ShaderityObject, existingShaderInfoMap?: Map<ShaderSemanticsName, ShaderSemanticsInfo>): {
+    static getShaderDataReflection(shaderityObject: ShaderityObject): {
         shaderSemanticsInfoArray: ShaderSemanticsInfo[];
         shaderityObject: ShaderityObject;
     };

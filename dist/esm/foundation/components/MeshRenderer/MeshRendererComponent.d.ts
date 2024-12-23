@@ -19,6 +19,7 @@ export declare class MeshRendererComponent extends Component {
     static __shaderProgramHandleOfPrimitiveObjectUids: Map<ObjectUID, CGAPIResourceHandle>;
     private __updateCount;
     private static __updateCount;
+    static _isFrustumCullingEnabled: boolean;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;

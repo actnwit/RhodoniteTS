@@ -26,7 +26,7 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __lastMaterialsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
-    private __lastCameraComponentsUpdateCount;
+    private __lastCameraControllerComponentsUpdateCount;
     private constructor();
     static dumpDataTextureBuffer(): void;
     static getVertexShaderMethodDefinitions_dataTexture(): string;
@@ -47,6 +47,8 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private static getOffsetOfPropertyInShader;
     $load(meshComponent: MeshComponent): boolean;
     private __createAndUpdateDataTexture;
+    private __createAndUpdateDataTextureForCameraOnly;
+    private __createAndUpdateDataTextureInner;
     deleteDataTexture(): void;
     prerender(): void;
     private __isUboUse;
