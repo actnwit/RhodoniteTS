@@ -84,6 +84,7 @@ import { Scalar } from '../math/Scalar';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
 import { SystemState } from '../system/SystemState';
+import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
 
 function createMaterial(
   materialContent: AbstractMaterialContent,
@@ -1082,7 +1083,7 @@ function createMToon0xMaterial({
   maxInstancesNumber?: Count;
   makeOutputSrgb?: boolean;
 }) {
-  const materialName = 'MToon' + `_${additionalName}_`;
+  const materialName = 'MToon0x' + `_${additionalName}_`;
 
   const materialContent = new MToon0xMaterialContent(
     isOutline,
@@ -1100,6 +1101,47 @@ function createMToon0xMaterial({
 
   const material = createMaterial(materialContent, maxInstancesNumber);
   materialContent.setMaterialParameters(material, isOutline);
+
+  return material;
+}
+
+function createMToon1Material({
+  additionalName = '',
+  isMorphing = false,
+  isSkinning = false,
+  isLighting = true,
+  useTangentAttribute = false,
+  isOutline = false,
+  materialProperties,
+  textures,
+  samplers,
+  debugMode,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  makeOutputSrgb = true,
+}: {
+  additionalName?: string;
+  isMorphing?: boolean;
+  isSkinning?: boolean;
+  isLighting?: boolean;
+  useTangentAttribute?: boolean;
+  isOutline?: boolean;
+  materialProperties?: Vrm0xMaterialProperty;
+  textures?: any[];
+  samplers?: Sampler[];
+  debugMode?: any;
+  maxInstancesNumber?: Count;
+  makeOutputSrgb?: boolean;
+}) {
+  const materialName = 'MToon1' + `_${additionalName}_`;
+
+  const materialContent = new MToon1MaterialContent(
+    materialName,
+    isMorphing,
+    isSkinning,
+    isLighting
+  );
+
+  const material = createMaterial(materialContent, maxInstancesNumber);
 
   return material;
 }
@@ -1192,6 +1234,7 @@ export const MaterialHelper = Object.freeze({
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
   createMToon0xMaterial,
+  createMToon1Material,
   createFurnaceTestMaterial,
   createGaussianBlurForEncodedDepthMaterial,
   createDetectHighLuminanceMaterial,
