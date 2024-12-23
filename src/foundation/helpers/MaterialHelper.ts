@@ -1055,7 +1055,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
-function createMToonMaterial({
+function createMToon0xMaterial({
   additionalName = '',
   isMorphing = false,
   isSkinning = false,
@@ -1191,7 +1191,7 @@ export const MaterialHelper = Object.freeze({
   createSummedAreaTableMaterial,
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
-  createMToonMaterial,
+  createMToon0xMaterial,
   createFurnaceTestMaterial,
   createGaussianBlurForEncodedDepthMaterial,
   createDetectHighLuminanceMaterial,

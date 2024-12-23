@@ -817,7 +817,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToonMaterial({
+          outlineMaterial = MaterialHelper.createMToon0xMaterial({
             additionalName,
             isMorphing,
             isSkinning,
@@ -838,7 +838,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToonMaterial({
+      const material = MaterialHelper.createMToon0xMaterial({
         additionalName,
         isMorphing,
         isSkinning,
@@ -981,7 +981,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToonMaterial({
+          outlineMaterial = MaterialHelper.createMToon0xMaterial({
             additionalName,
             isMorphing,
             isSkinning,
@@ -1002,7 +1002,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToonMaterial({
+      const material = MaterialHelper.createMToon0xMaterial({
         additionalName,
         isMorphing,
         isSkinning,
