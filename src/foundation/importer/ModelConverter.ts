@@ -817,7 +817,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToon0xMaterial({
+          outlineMaterial = MaterialHelper.createMToon1Material({
             additionalName,
             isMorphing,
             isSkinning,
@@ -838,7 +838,7 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToon0xMaterial({
+      const material = MaterialHelper.createMToon1Material({
         additionalName,
         isMorphing,
         isSkinning,
