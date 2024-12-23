@@ -5,6 +5,7 @@ export * from './DetectHighLuminanceMaterialContent';
 export * from './EntityUIDOutputMaterialContent';
 export * from './FurnaceTestMaterialContent';
 export * from './MToonMaterialContent';
+export * from './MToon1MaterialContent';
 export * from './MatCapMaterialContent';
 export * from './ShadowMapDecodeClassicMaterialContent';
 export * from './SynthesizeHdrMaterialContent';
