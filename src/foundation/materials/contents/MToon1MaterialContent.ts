@@ -12,7 +12,13 @@ import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs'
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 
 export class MToon1MaterialContent extends AbstractMaterialContent {
-  constructor(materialName: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean) {
+  constructor(
+    materialName: string,
+    isMorphing: boolean,
+    isSkinning: boolean,
+    isLighting: boolean,
+    isOutline: boolean
+  ) {
     super(materialName, {
       isMorphing: isMorphing,
       isSkinning: isSkinning,
@@ -36,6 +42,10 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
 
     if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
+    }
+
+    if (isOutline) {
+      this.__definitions += '#define RN_MTOON_IS_OUTLINE\n';
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

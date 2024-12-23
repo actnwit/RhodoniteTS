@@ -12,6 +12,18 @@ in vec4 a_baryCentricCoord;
 in vec4 a_joint;
 in vec4 a_weight;
 
+out vec2 v_texcoord_0;
+out vec3 v_baryCentricCoord;
+out vec3 v_normal_inView;
+out vec3 v_normal_inWorld;
+out vec4 v_position_inWorld;
+
+#ifdef RN_USE_TANGENT
+in vec4 a_tangent;
+out vec3 v_tangent_inWorld;
+out vec3 v_binormal_inWorld; // bitangent_inWorld
+#endif
+
 #pragma shaderity: require(../common/prerequisites.glsl)
 
 /* shaderity: @{getters} */
@@ -47,4 +59,7 @@ void main(){
 
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+
+  v_texcoord_0 = a_texcoord_0;
+  v_baryCentricCoord = a_baryCentricCoord.xyz;
 }

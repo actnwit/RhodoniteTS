@@ -1138,7 +1138,8 @@ function createMToon1Material({
     materialName,
     isMorphing,
     isSkinning,
-    isLighting
+    isLighting,
+    isOutline
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);
