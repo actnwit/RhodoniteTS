@@ -42,7 +42,7 @@ import { SystemState } from '../../system/SystemState';
 import { ProcessApproach, ProcessApproachClass } from '../../definitions';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 
-export class MToonMaterialContent extends AbstractMaterialContent {
+export class MToon0xMaterialContent extends AbstractMaterialContent {
   static readonly _Cutoff = new ShaderSemanticsClass({ str: 'cutoff' });
   static readonly _Color = new ShaderSemanticsClass({ str: 'litColor' });
   static readonly _ShadeColor = new ShaderSemanticsClass({ str: 'shadeColor' });
@@ -684,8 +684,8 @@ export class MToonMaterialContent extends AbstractMaterialContent {
   }
 
   setMaterialParameters(material: Material, isOutline: boolean) {
-    if (MToonMaterialContent.usableBlendEquationModeAlpha == null) {
-      MToonMaterialContent.__initializeUsableBlendEquationModeAlpha();
+    if (MToon0xMaterialContent.usableBlendEquationModeAlpha == null) {
+      MToon0xMaterialContent.__initializeUsableBlendEquationModeAlpha();
     }
 
     if (this.__floatProperties._BlendMode !== 0) {
@@ -705,11 +705,11 @@ export class MToonMaterialContent extends AbstractMaterialContent {
       }
 
       const blendEquationMode = 32774; // gl.FUNC_ADD
-      const blendEquationModeAlpha = MToonMaterialContent.usableBlendEquationModeAlpha;
-      const blendFuncSrcFactor = MToonMaterialContent.unityBlendEnumCorrespondence(
+      const blendEquationModeAlpha = MToon0xMaterialContent.usableBlendEquationModeAlpha;
+      const blendFuncSrcFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(
         this.__floatProperties._SrcBlend
       );
-      const blendFuncDstFactor = MToonMaterialContent.unityBlendEnumCorrespondence(
+      const blendFuncDstFactor = MToon0xMaterialContent.unityBlendEnumCorrespondence(
         this.__floatProperties._DstBlend
       );
 
@@ -753,17 +753,17 @@ export class MToonMaterialContent extends AbstractMaterialContent {
 
   private static __initializeUsableBlendEquationModeAlpha() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      MToonMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
+      MToon0xMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
     } else {
       const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
       const glw = webGLResourceRepository.currentWebGLContextWrapper;
       const gl = glw!.getRawContextAsWebGL2();
       if (glw!.isWebGL2) {
-        MToonMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
+        MToon0xMaterialContent.usableBlendEquationModeAlpha = gl.MAX;
       } else if (glw!.webgl1ExtBM) {
-        MToonMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
+        MToon0xMaterialContent.usableBlendEquationModeAlpha = glw!.webgl1ExtBM.MAX_EXT;
       } else {
-        MToonMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
+        MToon0xMaterialContent.usableBlendEquationModeAlpha = gl.FUNC_ADD;
       }
     }
   }

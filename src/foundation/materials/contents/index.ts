@@ -4,7 +4,7 @@ export * from './DepthEncodeMaterialContent';
 export * from './DetectHighLuminanceMaterialContent';
 export * from './EntityUIDOutputMaterialContent';
 export * from './FurnaceTestMaterialContent';
-export * from './MToonMaterialContent';
+export * from './MToon0xMaterialContent';
 export * from './MToon1MaterialContent';
 export * from './MatCapMaterialContent';
 export * from './ShadowMapDecodeClassicMaterialContent';

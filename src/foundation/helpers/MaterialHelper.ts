@@ -5,7 +5,7 @@ import type { AbstractMaterialContent } from '../materials/core/AbstractMaterial
 import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
-import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
+import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
 import { Primitive } from '../geometry/Primitive';
 import { ProcessStage } from '../definitions/ProcessStage';
@@ -1084,7 +1084,7 @@ function createMToonMaterial({
 }) {
   const materialName = 'MToon' + `_${additionalName}_`;
 
-  const materialContent = new MToonMaterialContent(
+  const materialContent = new MToon0xMaterialContent(
     isOutline,
     materialProperties,
     textures,
