@@ -26,6 +26,18 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       mToon1SingleShaderFragmentWebGpu
     );
 
+    if (isLighting) {
+      this.__definitions += '#define RN_IS_LIGHTING\n';
+    }
+
+    if (isSkinning) {
+      this.__definitions += '#define RN_IS_SKINNING\n';
+    }
+
+    if (isMorphing) {
+      this.__definitions += '#define RN_IS_MORPHING\n';
+    }
+
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
