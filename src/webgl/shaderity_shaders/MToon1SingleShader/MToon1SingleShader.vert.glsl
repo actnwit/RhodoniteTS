@@ -38,6 +38,8 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 
 uniform int u_mtoonOutlineWidthType; // initialValue=2
 uniform float u_outlineWidth; // initialValue=1.0
+uniform float u_outlineScaledMaxDistance; // initialValue=1.0
+uniform float u_aspect; // initialValue=1.0, soloDatum=true
 
 void main(){
 
@@ -65,12 +67,13 @@ void main(){
 #ifdef RN_MTOON_IS_OUTLINE
   float outlineTex = 1.0;
 
-  if (u_mtoonOutlineWidthType == 1) {
+  int outlineWidthType = get_mtoonOutlineWidthType(materialSID, 0);
+  if (outlineWidthType == 1) {
     float outlineWidth = get_outlineWidth(materialSID, 0);
     vec3 outlineOffset = 0.01 * outlineWidth * outlineTex * a_normal;
     vec4 worldOutlineOffset = worldMatrix * vec4(outlineOffset, 0.0);
     gl_Position = projectionMatrix * viewMatrix * (v_position_inWorld + worldOutlineOffset);
-  } else if (u_mtoonOutlineWidthType == 2) {
+  } else if (outlineWidthType == 2) {
     vec4 vertex = projectionMatrix * viewMatrix * v_position_inWorld;
 
     vec3 clipNormal = (projectionMatrix * vec4(v_normal_inView, 1.0)).xyz;

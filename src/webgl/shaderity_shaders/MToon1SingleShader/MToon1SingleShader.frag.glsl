@@ -19,6 +19,10 @@ in vec4 v_position_inWorld;
 #pragma shaderity: require(../common/rt0.glsl)
 
 void main (){
+#ifdef RN_MTOON_IS_OUTLINE
+  rt0 = vec4(0.0, 0.0, 0.0, 1.0);
+#else
   rt0 = vec4(1.0, 0.0, 0.0, 1.0);
+#endif
   #pragma shaderity: require(../common/glFragColor.glsl)
 }
