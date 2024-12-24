@@ -72,7 +72,7 @@
     "json-loader": "^0.5.7",
     "prettier": "^2.8.1",
     "puppeteer": "^22.8.0",
-    "shaderity-loader": "0.0.18",
+    "shaderity-loader": "0.0.19",
     "shx": "0.3.4",
     "swc-loader": "^0.2.3",
     "ts-jest": "^29.1.5",
