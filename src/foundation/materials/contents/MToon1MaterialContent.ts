@@ -10,6 +10,11 @@ import { Material } from '../core/Material';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { ComponentType } from '../../definitions/ComponentType';
+import { CompositionType } from '../../definitions/CompositionType';
+import { Config } from '../../core/Config';
+import { ShaderType } from '../../definitions/ShaderType';
+import { VectorN } from '../../math/VectorN';
 
 export class MToon1MaterialContent extends AbstractMaterialContent {
   constructor(
@@ -42,6 +47,33 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
 
     if (isMorphing) {
       this.__definitions += '#define RN_IS_MORPHING\n';
+
+      shaderSemanticsInfoArray.push(
+        {
+          semantic: 'dataTextureMorphOffsetPosition',
+          componentType: ComponentType.Int,
+          compositionType: CompositionType.ScalarArray,
+          arrayLength: Config.maxVertexMorphNumberInShader,
+          stage: ShaderType.VertexShader,
+          isInternalSetting: true,
+          initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
+          min: -Number.MAX_VALUE,
+          max: Number.MAX_VALUE,
+          needUniformInDataTextureMode: true,
+        },
+        {
+          semantic: 'morphWeights',
+          componentType: ComponentType.Float,
+          compositionType: CompositionType.ScalarArray,
+          arrayLength: Config.maxVertexMorphNumberInShader,
+          stage: ShaderType.VertexShader,
+          isInternalSetting: true,
+          initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
+          min: -Number.MAX_VALUE,
+          max: Number.MAX_VALUE,
+          needUniformInDataTextureMode: true,
+        }
+      );
     }
 
     if (isOutline) {
