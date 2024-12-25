@@ -63,6 +63,8 @@ void main(){
 
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
+  v_normal_inView = vec3(viewMatrix * vec4(v_normal_inWorld, 0.0));
+
 #ifdef RN_MTOON_IS_OUTLINE
   int outlineWidthType = get_mtoonOutlineWidthType(materialSID, 0);
   if (outlineWidthType == 0) { // 0 ("none")
@@ -84,6 +86,11 @@ void main(){
   }
 #else
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+#endif
+
+#ifdef RN_USE_TANGENT
+  v_tangent_inWorld = normalMatrix * a_tangent.xyz;
+  v_binormal_inWorld = cross(v_normal_inWorld, v_tangent_inWorld) * a_tangent.w;
 #endif
 
   v_texcoord_0 = a_texcoord_0;

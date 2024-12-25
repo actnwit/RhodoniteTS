@@ -1,5 +1,4 @@
 const float M_PI = 3.141592653589793;
-const float RECIPROCAL_PI = 0.3183098861837907;
 const float c_MinRoughness = 0.04;
 
 float angular_n_h(float NH) {

@@ -68,6 +68,10 @@ void main() {
     if(alpha < cutoff) discard;
   #endif
 
+  if (alpha < 0.01) {
+    discard;
+  }
+
   rt0.w = alpha;
 
   // view vector
@@ -97,8 +101,9 @@ void main() {
     float shadingToonyFactor = get_shadingToonyFactor(materialSID, 0);
     shading = linearstep(-1.0 + shadingToonyFactor, 1.0 - shadingToonyFactor, shading);
 
-    vec3 color = mix(baseColorTerm, shadeColorTerm, shading);
-    color = color * light.attenuatedIntensity;
+    vec3 color = mix(shadeColorTerm, baseColorTerm, shading);
+    color = color * light.attenuatedIntensity * RECIPROCAL_PI;
+    // vec3 color = vec3(shading);
     rt0.xyz += color;
   }
 
