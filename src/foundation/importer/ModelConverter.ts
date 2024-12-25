@@ -2115,15 +2115,47 @@ export class ModelConverter {
 function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Material) {
   const mToon = materialJson.extensions.VRMC_materials_mtoon;
 
-  const shadeColorFactor = mToon.shadeColorFactor;
-  material.setParameter('shadeColorFactor', Vector3.fromCopyArray3(shadeColorFactor));
+  {
+    const shadeColorFactor = mToon.shadeColorFactor;
+    material.setParameter('shadeColorFactor', Vector3.fromCopyArray3(shadeColorFactor));
+  }
 
-  const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
-  const rnTexture = ModelConverter._createTexture(shadeMultiplyTexture.texture!, gltfModel);
-  const rnSampler = ModelConverter._createSampler(shadeMultiplyTexture.texture!);
-  material.setTextureParameter('shadeMultiplyTexture', rnTexture, rnSampler);
-  if (shadeMultiplyTexture.texCoord != null) {
-    material.setParameter('shadeMultiplyTexcoordIndex', shadeMultiplyTexture.texCoord);
+  {
+    const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
+    if (shadeMultiplyTexture != null) {
+      const rnTexture = ModelConverter._createTexture(shadeMultiplyTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(shadeMultiplyTexture.texture!);
+      material.setTextureParameter('shadeMultiplyTexture', rnTexture, rnSampler);
+      if (shadeMultiplyTexture.texCoord != null) {
+        material.setParameter('shadeMultiplyTexcoordIndex', shadeMultiplyTexture.texCoord);
+      }
+    }
+  }
+
+  {
+    const shadingShiftFactor = mToon.shadingShiftFactor;
+    material.setParameter('shadingShiftFactor', shadingShiftFactor);
+  }
+  {
+    const shadingShiftTexture = mToon.shadingShiftTexture;
+    if (shadingShiftTexture != null) {
+      const rnTexture = ModelConverter._createTexture(shadingShiftTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(shadingShiftTexture.texture!);
+      material.setTextureParameter('shadingShiftTexture', rnTexture, rnSampler);
+      if (shadingShiftTexture.texCoord != null) {
+        material.setParameter('shadingShiftTexcoordIndex', shadingShiftTexture.texCoord);
+      }
+      const shadingShiftTextureScale = shadingShiftTexture.scale;
+      if (shadingShiftTextureScale != null) {
+        material.setParameter('shadingShiftTextureScale', shadingShiftTextureScale);
+      }
+    }
+  }
+  {
+    const shadingToonyFactor = mToon.shadingToonyFactor;
+    if (shadingToonyFactor != null) {
+      material.setParameter('shadingToonyFactor', shadingToonyFactor);
+    }
   }
 }
 
