@@ -38,6 +38,7 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 
 uniform int u_mtoonOutlineWidthType; // initialValue=2
 uniform float u_outlineWidthFactor; // initialValue=0.0008
+uniform sampler2D u_outlineWidthMultiplyTexture; // initialValue=(0,white)
 
 void main(){
 
@@ -70,6 +71,9 @@ void main(){
     float worldNormalLength = length(v_normal_inWorld);
     float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
     vec3 outlineOffset = outlineWidthFactor * worldNormalLength * a_normal;
+
+    float outlineWidthMultiply = texture(u_outlineWidthMultiplyTexture, a_texcoord_0).r;
+    outlineOffset *= outlineWidthMultiply;
 
     if (outlineWidthType == 2) { // "screenCoordinates"
       vec4 vViewPosition = viewMatrix * v_position_inWorld;
