@@ -24,6 +24,7 @@ in vec4 v_position_inWorld;
 
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
+uniform sampler2D u_normalTexture; // initialValue=(2,black)
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -54,6 +55,19 @@ void main() {
   // view vector
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
+
+    // Normal
+  vec3 normal_inWorld = normalize(v_normal_inWorld);
+#ifdef RN_MTOON_HAS_BUMPMAP
+  vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
+  mat3 TBN = getTBN(normal_inWorld, viewVector, v_texcoord_0);
+  normal_inWorld = normalize(TBN * normal);
+#endif
+
+#ifdef RN_MTOON_IS_OUTLINE
+  normal_inWorld *= -1.0;
+#endif
+
 
 #ifdef RN_MTOON_IS_OUTLINE
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
