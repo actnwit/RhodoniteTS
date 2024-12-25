@@ -164,8 +164,6 @@ export interface RnM2Material {
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
   emissiveFactor?: Array3<number>;
-  diffuseTexture?: RnM2TextureInfo;
-  diffuseColorFactor?: number[];
   alphaMode?: string;
   alphaCutoff?: number;
   doubleSided?: boolean;

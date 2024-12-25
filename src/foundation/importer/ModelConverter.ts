@@ -1269,31 +1269,6 @@ export class ModelConverter {
       material.cullFace = !doubleSided;
     }
 
-    // For glTF1.0
-    if (Is.exist((materialJson as any).diffuseColorTexture)) {
-      const diffuseColorTexture = (materialJson as any).diffuseColorTexture as RnM2Texture;
-      const rnTexture = ModelConverter._createTexture(diffuseColorTexture, gltfModel, {
-        autoDetectTransparency: options?.autoDetectTextureTransparency,
-      });
-      const rnSampler = ModelConverter._createSampler(diffuseColorTexture);
-      material.setTextureParameter('diffuseColorTexture', rnTexture, rnSampler);
-
-      if (
-        this._checkRnGltfLoaderOptionsExist(gltfModel) &&
-        gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension
-      ) {
-        const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!
-          .loaderExtension as ILoaderExtension;
-        if (loaderExtension.setUVTransformToTexture) {
-          loaderExtension.setUVTransformToTexture(material, diffuseColorTexture.samplerObject!);
-        }
-      }
-    }
-    if (Is.exist(materialJson.diffuseColorFactor)) {
-      const diffuseColorFactor = materialJson.diffuseColorFactor as Array4<number>;
-      material.setParameter('diffuseColorFactor', Vector4.fromCopyArray4(diffuseColorFactor));
-    }
-
     const normalTexture = materialJson.normalTexture;
     if (normalTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(normalTexture.texture!, gltfModel);
@@ -1315,8 +1290,6 @@ export class ModelConverter {
       'normalTextureTransform',
       'normalTextureRotation'
     );
-
-    // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
 
     // For Extension
     if (this._checkRnGltfLoaderOptionsExist(gltfModel)) {
