@@ -53,10 +53,12 @@ void main() {
 
   // main color
   vec4 baseColorTexture = texture(u_baseColorTexture, v_texcoord_0);
+  baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
   vec3 baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
   vec3 shadeColorFactor = get_shadeColorFactor(materialSID, 0);
   vec4 shadeMultiplyTexture = texture(u_shadeMultiplyTexture, v_texcoord_0);
+  shadeMultiplyTexture.rgb = srgbToLinear(shadeMultiplyTexture.rgb);
   vec3 shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
 
   // alpha
