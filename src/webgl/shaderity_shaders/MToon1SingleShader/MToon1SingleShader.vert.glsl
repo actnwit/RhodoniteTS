@@ -63,18 +63,21 @@ void main(){
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
 #ifdef RN_MTOON_IS_OUTLINE
-  float worldNormalLength = length(v_normal_inWorld);
-  float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
-  vec3 outlineOffset = outlineWidthFactor * worldNormalLength * a_normal;
-
   int outlineWidthType = get_mtoonOutlineWidthType(materialSID, 0);
-  if (outlineWidthType == 2) { // "screenCoordinates"
-    vec4 vViewPosition = viewMatrix * v_position_inWorld;
-    outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
-  } else if (outlineWidthType == 0) { // 0 ("none")
-    outlineOffset = vec3(0.0);
+  if (outlineWidthType == 0) { // 0 ("none")
+    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+  } else {
+    float worldNormalLength = length(v_normal_inWorld);
+    float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
+    vec3 outlineOffset = outlineWidthFactor * worldNormalLength * a_normal;
+
+    if (outlineWidthType == 2) { // "screenCoordinates"
+      vec4 vViewPosition = viewMatrix * v_position_inWorld;
+      outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
+    }
+    gl_Position = projectionMatrix * viewMatrix * vec4(v_position_inWorld.xyz + outlineOffset, v_position_inWorld.w);
+    gl_Position.z += 0.000001 * gl_Position.w;
   }
-  gl_Position = projectionMatrix * viewMatrix * vec4(v_position_inWorld.xyz + outlineOffset, v_position_inWorld.w);
 #else
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 #endif
