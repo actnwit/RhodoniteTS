@@ -505,6 +505,26 @@ export class Gltf2Importer {
               anisotropyTexture.texture = gltfJson.textures[anisotropyTexture.index];
             }
           }
+          if (Is.exist(extensions.VRMC_materials_mtoon)) {
+            const mToon = extensions.VRMC_materials_mtoon;
+            const shadeColorTexture = mToon.shadeColorTexture;
+            if (shadeColorTexture != null) {
+              shadeColorTexture.texture = gltfJson.textures[shadeColorTexture.index];
+            }
+            const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
+            if (shadeMultiplyTexture != null) {
+              shadeMultiplyTexture.texture = gltfJson.textures[shadeMultiplyTexture.index];
+            }
+            const rimMultiplyTexture = mToon.rimMultiplyTexture;
+            if (rimMultiplyTexture != null) {
+              rimMultiplyTexture.texture = gltfJson.textures[rimMultiplyTexture.index];
+            }
+            const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
+            if (outlineWidthMultiplyTexture != null) {
+              outlineWidthMultiplyTexture.texture =
+                gltfJson.textures[outlineWidthMultiplyTexture.index];
+            }
+          }
         }
       }
     }

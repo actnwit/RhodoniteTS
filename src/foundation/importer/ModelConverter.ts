@@ -1299,6 +1299,10 @@ export class ModelConverter {
       }
     }
 
+    if (materialJson.extensions?.VRMC_materials_mtoon != null) {
+      setupMToon1(material, gltfModel, materialJson as Vrm1_Material);
+    }
+
     return material;
   }
 
@@ -2105,6 +2109,21 @@ export class ModelConverter {
       name: 'Draco',
       byteAlign: 4,
     });
+  }
+}
+
+function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Material) {
+  const mToon = materialJson.extensions.VRMC_materials_mtoon;
+
+  const shadeColorFactor = mToon.shadeColorFactor;
+  material.setParameter('shadeColorFactor', Vector3.fromCopyArray3(shadeColorFactor));
+
+  const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
+  const rnTexture = ModelConverter._createTexture(shadeMultiplyTexture.texture!, gltfModel);
+  const rnSampler = ModelConverter._createSampler(shadeMultiplyTexture.texture!);
+  material.setTextureParameter('shadeMultiplyTexture', rnTexture, rnSampler);
+  if (shadeMultiplyTexture.texCoord != null) {
+    material.setParameter('shadeMultiplyTexcoordIndex', shadeMultiplyTexture.texCoord);
   }
 }
 
