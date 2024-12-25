@@ -1143,6 +1143,7 @@ function createMToon1Material({
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);
+  materialContent.setMaterialParameters(material, isOutline);
 
   return material;
 }

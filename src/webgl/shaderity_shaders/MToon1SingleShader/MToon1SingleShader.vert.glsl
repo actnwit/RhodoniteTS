@@ -37,9 +37,7 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
 
 uniform int u_mtoonOutlineWidthType; // initialValue=2
-uniform float u_outlineWidth; // initialValue=1.0
-uniform float u_outlineScaledMaxDistance; // initialValue=1.0
-uniform float u_aspect; // initialValue=1.0, soloDatum=true
+uniform float u_outlineWidthFactor; // initialValue=0.0008
 
 void main(){
 
@@ -65,31 +63,18 @@ void main(){
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
 #ifdef RN_MTOON_IS_OUTLINE
-  float outlineTex = 1.0;
+  float worldNormalLength = length(v_normal_inWorld);
+  float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
+  vec3 outlineOffset = outlineWidthFactor * worldNormalLength * a_normal;
 
   int outlineWidthType = get_mtoonOutlineWidthType(materialSID, 0);
-  if (outlineWidthType == 1) {
-    float outlineWidth = get_outlineWidth(materialSID, 0);
-    vec3 outlineOffset = 0.01 * outlineWidth * outlineTex * a_normal;
-    vec4 worldOutlineOffset = worldMatrix * vec4(outlineOffset, 0.0);
-    gl_Position = projectionMatrix * viewMatrix * (v_position_inWorld + worldOutlineOffset);
-  } else if (outlineWidthType == 2) {
-    vec4 vertex = projectionMatrix * viewMatrix * v_position_inWorld;
-
-    vec3 clipNormal = (projectionMatrix * vec4(v_normal_inView, 1.0)).xyz;
-    vec2 projectedNormal = normalize(clipNormal.xy);
-    float outlineScaledMaxDistance = get_outlineScaledMaxDistance(materialSID, 0);
-    projectedNormal *= min(vertex.w, outlineScaledMaxDistance);
-    float aspect = abs(get_aspect(0.0, 0)); //solo datum
-    projectedNormal.x *= aspect;
-
-    float outlineWidth = get_outlineWidth(materialSID, 0);
-    vertex.xy += 0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(v_normal_inView.z), 0.0, 1.0); // ignore offset when normal toward camera
-
-    gl_Position = vertex;
-  } else { // 0
-    gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
+  if (outlineWidthType == 2) { // "screenCoordinates"
+    vec4 vViewPosition = viewMatrix * v_position_inWorld;
+    outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
+  } else if (outlineWidthType == 0) { // 0 ("none")
+    outlineOffset = vec3(0.0);
   }
+  gl_Position = projectionMatrix * viewMatrix * vec4(v_position_inWorld.xyz + outlineOffset, v_position_inWorld.w);
 #else
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 #endif

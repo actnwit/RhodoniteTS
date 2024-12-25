@@ -83,6 +83,16 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  setMaterialParameters(material: Material, isOutline: boolean) {
+    if (isOutline) {
+      material.cullFace = true;
+      material.cullFrontFaceCCW = false;
+    } else {
+      material.cullFace = true;
+      material.cullFrontFaceCCW = true;
+    }
+  }
+
   _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
