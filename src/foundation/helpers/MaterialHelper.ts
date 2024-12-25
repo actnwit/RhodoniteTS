@@ -57,7 +57,7 @@ import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatS
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
-import { Vrm0xMaterialProperty } from '../../types';
+import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
 import {
   dummyAnisotropyTexture,
@@ -85,6 +85,7 @@ import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
 import { SystemState } from '../system/SystemState';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
+import { Vrm1_Material } from '../../types/VRM1';
 
 function createMaterial(
   materialContent: AbstractMaterialContent,
@@ -1112,7 +1113,7 @@ function createMToon1Material({
   isLighting = true,
   useTangentAttribute = false,
   isOutline = false,
-  materialProperties,
+  materialJson,
   textures,
   samplers,
   debugMode,
@@ -1125,7 +1126,7 @@ function createMToon1Material({
   isLighting?: boolean;
   useTangentAttribute?: boolean;
   isOutline?: boolean;
-  materialProperties?: Vrm0xMaterialProperty;
+  materialJson: Vrm1_Material;
   textures?: any[];
   samplers?: Sampler[];
   debugMode?: any;
@@ -1143,7 +1144,7 @@ function createMToon1Material({
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);
-  materialContent.setMaterialParameters(material, isOutline);
+  materialContent.setMaterialParameters(material, isOutline, materialJson);
 
   return material;
 }

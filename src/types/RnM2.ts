@@ -158,7 +158,7 @@ export type RnM2PbrMetallicRoughness = {
   extras?: Gltf2AnyObject;
 };
 
-export type RnM2Material = {
+export interface RnM2Material {
   pbrMetallicRoughness?: RnM2PbrMetallicRoughness;
   normalTexture?: RnM2NormalTextureInfo;
   occlusionTexture?: RnM2OcclusionTextureInfo;
@@ -172,7 +172,7 @@ export type RnM2Material = {
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
-};
+}
 
 export type RnM2CameraOrthographic = {
   xmag: number;

@@ -1,4 +1,4 @@
-import { RnM2 } from './RnM2';
+import { RnM2, RnM2Material } from './RnM2';
 
 export type Vrm1HumanBone = {
   node: number;
@@ -140,6 +140,12 @@ export type Vrm1_Materials_MToon = {
   uvAnimationScrollXSpeedFactor: number;
   uvAnimationScrollYSpeedFactor: number;
 };
+
+export interface Vrm1_Material extends RnM2Material {
+  extensions: {
+    VRMC_materials_mtoon: Vrm1_Materials_MToon;
+  };
+}
 
 export type Vrm1_NodeConstraint_Constraint = {
   specVersion: string;

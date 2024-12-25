@@ -15,6 +15,7 @@ import { CompositionType } from '../../definitions/CompositionType';
 import { Config } from '../../core/Config';
 import { ShaderType } from '../../definitions/ShaderType';
 import { VectorN } from '../../math/VectorN';
+import { Vrm1_Material } from '../../../types/VRM1';
 
 export class MToon1MaterialContent extends AbstractMaterialContent {
   constructor(
@@ -83,13 +84,17 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  setMaterialParameters(material: Material, isOutline: boolean) {
+  setMaterialParameters(material: Material, isOutline: boolean, materialJson: Vrm1_Material) {
     if (isOutline) {
       material.cullFace = true;
       material.cullFrontFaceCCW = false;
     } else {
-      material.cullFace = true;
-      material.cullFrontFaceCCW = true;
+      if (materialJson.doubleSided) {
+        material.cullFace = false;
+      } else {
+        material.cullFace = true;
+        material.cullFrontFaceCCW = true;
+      }
     }
   }
 

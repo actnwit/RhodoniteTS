@@ -91,6 +91,7 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { Logger } from '../misc/Logger';
+import { Vrm1_Material } from '../../types/VRM1';
 
 declare let DracoDecoderModule: any;
 
@@ -782,7 +783,7 @@ export class ModelConverter {
 
   private static __setVRM1Material(
     gltfModel: RnM2,
-    materialJson: RnM2Material,
+    materialJson: Vrm1_Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
@@ -824,7 +825,7 @@ export class ModelConverter {
             isLighting,
             useTangentAttribute,
             isOutline: true,
-            materialProperties,
+            materialJson,
             textures,
             samplers,
             debugMode,
@@ -845,7 +846,7 @@ export class ModelConverter {
         isLighting,
         useTangentAttribute,
         isOutline: false,
-        materialProperties,
+        materialJson,
         textures,
         samplers,
         debugMode,
@@ -1073,7 +1074,11 @@ export class ModelConverter {
     if (Is.exist(materialJson)) {
       if (materialJson.extensions?.VRMC_materials_mtoon != null) {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
-        const material = this.__setVRM1Material(gltfModel, materialJson, rnLoaderOptions);
+        const material = this.__setVRM1Material(
+          gltfModel,
+          materialJson as Vrm1_Material,
+          rnLoaderOptions
+        );
         if (Is.exist(material)) {
           material.isTranslucent = isTranslucent;
           return material;
