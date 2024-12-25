@@ -1195,15 +1195,13 @@ export class ModelConverter {
 
     const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
 
-    // avoid unexpected initialization
-    if (!this.__needParameterInitialization(materialJson!, material.materialTypeName))
-      return material;
+    if (materialJson == null) return material;
 
     const options = gltfModel.asset.extras!.rnLoaderOptions;
-    const pbrMetallicRoughness = materialJson?.pbrMetallicRoughness;
+    const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       // BaseColor Factor
-      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson!);
+      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson);
     } else {
       let param: Index = ShadingModel.Phong.index;
       if (materialJson?.extras?.technique) {
@@ -1225,12 +1223,12 @@ export class ModelConverter {
       }
     }
 
-    const emissiveFactor = isUnlit ? ([0, 0, 0] as Array3<number>) : materialJson?.emissiveFactor;
+    const emissiveFactor = isUnlit ? ([0, 0, 0] as Array3<number>) : materialJson.emissiveFactor;
     if (emissiveFactor != null) {
       material.setParameter('emissiveFactor', Vector3.fromCopyArray3(emissiveFactor));
     }
 
-    const emissiveTexture = materialJson?.emissiveTexture;
+    const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(emissiveTexture.texture!, gltfModel);
       const rnSampler = ModelConverter._createSampler(emissiveTexture.texture!);
@@ -1246,7 +1244,7 @@ export class ModelConverter {
       );
     }
 
-    let alphaMode = materialJson?.alphaMode;
+    let alphaMode = materialJson.alphaMode;
     if (options?.alphaMode) {
       alphaMode = options.alphaMode;
     }
@@ -1260,13 +1258,13 @@ export class ModelConverter {
       ) {
         material.setParameter(
           'alphaCutoff',
-          Scalar.fromCopyNumber(materialJson?.alphaCutoff ?? 0.5)
+          Scalar.fromCopyNumber(materialJson.alphaCutoff ?? 0.5)
         );
       }
     }
-    material.isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
+    material.isTranslucent = Is.exist(materialJson.extensions?.KHR_materials_transmission);
 
-    const doubleSided = materialJson?.doubleSided;
+    const doubleSided = materialJson.doubleSided;
     if (doubleSided != null) {
       material.cullFace = !doubleSided;
     }
@@ -1291,12 +1289,12 @@ export class ModelConverter {
         }
       }
     }
-    if (Is.exist(materialJson?.diffuseColorFactor)) {
-      const diffuseColorFactor = materialJson?.diffuseColorFactor as Array4<number>;
+    if (Is.exist(materialJson.diffuseColorFactor)) {
+      const diffuseColorFactor = materialJson.diffuseColorFactor as Array4<number>;
       material.setParameter('diffuseColorFactor', Vector4.fromCopyArray4(diffuseColorFactor));
     }
 
-    const normalTexture = materialJson?.normalTexture;
+    const normalTexture = materialJson.normalTexture;
     if (normalTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(normalTexture.texture!, gltfModel);
       const rnSampler = ModelConverter._createSampler(normalTexture.texture!);
@@ -1324,7 +1322,7 @@ export class ModelConverter {
     if (this._checkRnGltfLoaderOptionsExist(gltfModel)) {
       const loaderExtension = gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
       if (loaderExtension?.setupMaterial != null) {
-        loaderExtension.setupMaterial(gltfModel, materialJson!, material);
+        loaderExtension.setupMaterial(gltfModel, materialJson, material);
       }
     }
 
@@ -1440,14 +1438,7 @@ export class ModelConverter {
   ): boolean {
     if (materialJson == null) return false;
 
-    if (
-      materialTypeName.match(/PbrUber/) != null ||
-      materialTypeName.match(/ClassicUber/) != null
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
   }
 
   private static _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
