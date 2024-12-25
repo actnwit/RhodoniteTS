@@ -25,6 +25,12 @@ in vec4 v_position_inWorld;
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_normalTexture; // initialValue=(2,black)
+uniform float u_shadingShiftFactor; // initialValue=0.0
+uniform sampler2D u_shadingShiftTexture; // initialValue=(3,black)
+uniform float u_shadingShiftTextureScale; // initialValue=1.0
+uniform float u_shadingToonyFactor; // initialValue=0.9
+uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
+uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,black)
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -34,17 +40,27 @@ vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
 
+float linearstep(float a, float b, float t) {
+  return clamp((t - a) / (b - a), 0.0, 1.0);
+}
+
 #pragma shaderity: require(../common/perturbedNormal.glsl)
 
 void main() {
   #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
+  rt0 = vec4(0.0, 0.0, 0.0, 1.0);
+
   // main color
-  vec4 baseColorTextureColor = texture(u_baseColorTexture, v_texcoord_0);
+  vec4 baseColorTexture = texture(u_baseColorTexture, v_texcoord_0);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
+  vec3 baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
+  vec3 shadeColorFactor = get_shadeColorFactor(materialSID, 0);
+  vec4 shadeMultiplyTexture = texture(u_shadeMultiplyTexture, v_texcoord_0);
+  vec3 shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
 
   // alpha
-  float alpha = baseColorTextureColor.a * baseColorFactor.a;
+  float alpha = baseColorTexture.a * baseColorFactor.a;
   #ifdef RN_ALPHATEST_ON
     float cutoff = get_cutoff(materialSID, 0);
     if(alpha < cutoff) discard;
@@ -68,11 +84,24 @@ void main() {
   normal_inWorld *= -1.0;
 #endif
 
+  for (int i = 0; i < lightNumber; i++) {
+    Light light = getLight(i, v_position_inWorld.xyz);
+    float shading = dot(light.direction, normal_inWorld);
+    float shadingShiftFactor = get_shadingShiftFactor(materialSID, 0);
+    shading = shading + shadingShiftFactor;
+    float shadingShiftTexture = texture(u_shadingShiftTexture, v_texcoord_0).r;
+    float shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
+    shading = shading + shadingShiftTexture * shadingShiftTextureScale;
+    float shadingToonyFactor = get_shadingToonyFactor(materialSID, 0);
+    shading = linearstep(-1.0 + shadingToonyFactor, 1.0 - shadingToonyFactor, shading);
+
+    vec3 color = mix(baseColorTerm, shadeColorTerm, shading);
+    color = color * light.attenuatedIntensity;
+    rt0.xyz += color;
+  }
 
 #ifdef RN_MTOON_IS_OUTLINE
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
-#else
-  rt0 = vec4(1.0, 0.0, 0.0, 1.0);
 #endif
 
 
