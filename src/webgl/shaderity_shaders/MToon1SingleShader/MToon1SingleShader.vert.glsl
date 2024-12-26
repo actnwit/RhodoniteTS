@@ -41,7 +41,7 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
 
-uniform int u_mtoonOutlineWidthType; // initialValue=2
+uniform int u_outlineWidthMode; // initialValue=0
 uniform float u_outlineWidthFactor; // initialValue=0.0008
 uniform sampler2D u_outlineWidthMultiplyTexture; // initialValue=(0,white)
 
@@ -71,7 +71,7 @@ void main(){
   v_normal_inView = vec3(viewMatrix * vec4(v_normal_inWorld, 0.0));
 
 #ifdef RN_MTOON_IS_OUTLINE
-  int outlineWidthType = get_mtoonOutlineWidthType(materialSID, 0);
+  int outlineWidthType = get_outlineWidthMode(materialSID, 0);
   if (outlineWidthType == 0) { // 0 ("none")
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   } else {

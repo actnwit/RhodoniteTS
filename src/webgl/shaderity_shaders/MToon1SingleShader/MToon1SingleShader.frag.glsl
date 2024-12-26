@@ -59,6 +59,10 @@ uniform bool u_inverseEnvironment; // initialValue=false
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
 uniform float u_alphaCutoff; // initialValue=0.5
+uniform bool u_makeOutputSrgb; // initialValue=false
+uniform vec3 u_outlineColorFactor; // initialValue=(0,0,0)
+uniform float u_outlineLightingMixFactor; // initialValue=1.0
+
 // vec3 linearToSrgb(vec3 linearColor) {
 //   return pow(linearColor, vec3(1.0/2.2));
 // }
@@ -127,7 +131,6 @@ void main() {
     if(alpha < cutoff) discard;
   #endif
 
-  rt0.w = alpha;
 
   // view vector
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
@@ -203,13 +206,20 @@ void main() {
   rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
   rt0.xyz += rim;
 
+  // emissive
   rt0.xyz += emissive;
 
 #ifdef RN_MTOON_IS_OUTLINE
-  rt0 = vec4(0.0, 0.0, 0.0, 1.0);
+  vec3 outlineColorFactor = get_outlineColorFactor(materialSID, 0);
+  float outlineLightingMixFactor = get_outlineLightingMixFactor(materialSID, 0);
+  rt0.xyz = outlineColorFactor * mix(vec3(1.0), rt0.xyz, outlineLightingMixFactor);
 #endif
 
+#pragma shaderity: require(../common/outputSrgb.glsl)
 
+  // alpha
+  rt0.w = alpha;
+  rt0.xyz *= alpha; // premultiplied alpha
 
-  #pragma shaderity: require(../common/glFragColor.glsl)
+#pragma shaderity: require(../common/glFragColor.glsl)
 }

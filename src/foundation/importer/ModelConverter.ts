@@ -2219,6 +2219,47 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
       material.setParameter('rimLightingMixFactor', rimLightingMixFactor);
     }
   }
+  {
+    const outlineWidthMode = mToon.outlineWidthMode;
+    if (outlineWidthMode != null) {
+      if (outlineWidthMode === 'none') {
+        material.setParameter('outlineWidthMode', 0);
+      } else if (outlineWidthMode === 'worldCoordinates') {
+        material.setParameter('outlineWidthMode', 1);
+      } else if (outlineWidthMode === 'screenCoordinates') {
+        material.setParameter('outlineWidthMode', 2);
+      }
+    }
+  }
+  {
+    const outlineWidthFactor = mToon.outlineWidthFactor;
+    if (outlineWidthFactor != null) {
+      material.setParameter('outlineWidthFactor', outlineWidthFactor);
+    }
+  }
+  {
+    const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
+    if (outlineWidthMultiplyTexture != null) {
+      const rnTexture = ModelConverter._createTexture(
+        outlineWidthMultiplyTexture.texture!,
+        gltfModel
+      );
+      const rnSampler = ModelConverter._createSampler(outlineWidthMultiplyTexture.texture!);
+      material.setTextureParameter('outlineWidthMultiplyTexture', rnTexture, rnSampler);
+    }
+  }
+  {
+    const outlineColorFactor = mToon.outlineColorFactor;
+    if (outlineColorFactor != null) {
+      material.setParameter('outlineColorFactor', Vector3.fromCopyArray3(outlineColorFactor));
+    }
+  }
+  {
+    const outlineLightingMixFactor = mToon.outlineLightingMixFactor;
+    if (outlineLightingMixFactor != null) {
+      material.setParameter('outlineLightingMixFactor', outlineLightingMixFactor);
+    }
+  }
 }
 
 function setupPbrMetallicRoughness(

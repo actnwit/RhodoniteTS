@@ -1145,6 +1145,8 @@ function createMToon1Material({
 
   const material = createMaterial(materialContent, maxInstancesNumber);
   materialContent.setMaterialParameters(material, isOutline, materialJson);
+  material.setParameter('makeOutputSrgb', Scalar.fromCopyNumber(makeOutputSrgb ? 1.0 : 0.0));
+  material.isTranslucent = materialJson.extensions.VRMC_materials_mtoon.transparentWithZWrite;
 
   return material;
 }
