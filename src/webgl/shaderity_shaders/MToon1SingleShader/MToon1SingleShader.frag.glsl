@@ -30,6 +30,7 @@ uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_normalTexture; // initialValue=(2,black)
 uniform float u_shadingShiftFactor; // initialValue=0.0
 uniform sampler2D u_shadingShiftTexture; // initialValue=(3,black)
+uniform int u_shadingShiftTexcoordIndex; // initialValue=0
 uniform float u_shadingShiftTextureScale; // initialValue=1.0
 uniform float u_shadingToonyFactor; // initialValue=0.9
 uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
@@ -83,6 +84,12 @@ void main() {
   shadeMultiplyTexture.rgb = srgbToLinear(shadeMultiplyTexture.rgb);
   vec3 shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
 
+  // shading shift
+  int shadingShiftTexcoordIndex = get_shadingShiftTexcoordIndex(materialSID, 0);
+  vec2 shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex);
+  float shadingShiftTexture = texture(u_shadingShiftTexture, shadingShiftTexcoord).r;
+  float shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
+
   // alpha
   float alpha = baseColorTexture.a * baseColorFactor.a;
   #ifdef RN_ALPHATEST_ON
@@ -116,10 +123,7 @@ void main() {
     Light light = getLight(i, v_position_inWorld.xyz);
     float shading = dot(light.direction, normal_inWorld);
     float shadingShiftFactor = get_shadingShiftFactor(materialSID, 0);
-    shading = shading + shadingShiftFactor;
-    float shadingShiftTexture = texture(u_shadingShiftTexture, v_texcoord_0).r;
-    float shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
-    shading = shading + shadingShiftTexture * shadingShiftTextureScale;
+    shading += shadingShiftFactor + shadingShiftTexture * shadingShiftTextureScale;
     float shadingToonyFactor = get_shadingToonyFactor(materialSID, 0);
     shading = linearstep(-1.0 + shadingToonyFactor, 1.0 - shadingToonyFactor, shading);
 
