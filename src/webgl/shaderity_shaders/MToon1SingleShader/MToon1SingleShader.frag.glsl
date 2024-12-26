@@ -43,7 +43,7 @@ uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
 uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,white)
 uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
 uniform float u_giEqualizationFactor; // initialValue=0.9
-uniform sampler2D u_matcapTexture; // initialValue=(8,white)
+uniform sampler2D u_matcapTexture; // initialValue=(8,black)
 uniform vec3 u_matcapFactor; // initialValue=(1,1,1)
 uniform vec3 u_parametricRimColorFactor; // initialValue=(0,0,0)
 uniform float u_parametricRimFresnelPowerFactor; // initialValue=5.0
@@ -193,7 +193,7 @@ void main() {
   vec3 worldViewY = cross(viewDirection, worldViewX);
   vec2 matcapUv = vec2( dot(worldViewX, normal_inWorld), dot(worldViewY, normal_inWorld)) * 0.495 + 0.5;
   float epsilon = 0.00001;
-  vec3 matcapFactor = get_matcapFactor(materialSID, 0);
+  vec3 matcapFactor = srgbToLinear(get_matcapFactor(materialSID, 0));
   rim = matcapFactor * texture(u_matcapTexture, matcapUv).rgb;
   float parametricRimLiftFactor = get_parametricRimLiftFactor(materialSID, 0);
   float parametricRim = clamp( 1.0 - dot(normal_inWorld, viewVector) + parametricRimLiftFactor, 0.0, 1.0);
@@ -201,7 +201,7 @@ void main() {
   parametricRim = pow(parametricRim, max(parametricRimFresnelPowerFactor, epsilon));
   vec3 parametricRimColorFactor = get_parametricRimColorFactor(materialSID, 0);
   rim += parametricRim * parametricRimColorFactor;
-  rim *= texture(u_rimMultiplyTexture, v_texcoord_0).rgb;
+  rim *= srgbToLinear(texture(u_rimMultiplyTexture, v_texcoord_0).rgb);
   float rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
   rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
   rt0.xyz += rim;
