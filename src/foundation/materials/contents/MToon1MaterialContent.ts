@@ -242,6 +242,10 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       tmp_vector2.y = specularHdriType;
       material.setParameter('hdriFormat', tmp_vector2);
     }
+
+    // Morph
+    const blendShapeComponent = args.entity.tryToGetBlendShape();
+    this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
   }
 
   private static __setupHdriParameters(args: RenderingArgWebGL | RenderingArgWebGpu) {

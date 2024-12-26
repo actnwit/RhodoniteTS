@@ -854,7 +854,7 @@ export class ModelConverter {
         makeOutputSrgb,
       });
 
-      ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
+      // ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
 
       // disable unlit
       (materialJson.extensions as any).KHR_materials_unlit = undefined;
@@ -1302,6 +1302,13 @@ export class ModelConverter {
 
     if (materialJson.extensions?.VRMC_materials_mtoon != null) {
       setupMToon1(material, gltfModel, materialJson as Vrm1_Material);
+      if (materialJson.extras!.outlineMaterial != null) {
+        setupMToon1(
+          materialJson.extras!.outlineMaterial.deref(),
+          gltfModel,
+          materialJson as Vrm1_Material
+        );
+      }
     }
 
     return material;
