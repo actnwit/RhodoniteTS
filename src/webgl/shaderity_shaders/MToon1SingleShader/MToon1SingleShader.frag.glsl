@@ -13,6 +13,7 @@ in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
+in float v_instanceInfo;
 #ifdef RN_USE_TANGENT
   in vec3 v_tangent_inWorld;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
@@ -23,6 +24,11 @@ in vec4 v_position_inWorld;
 /* shaderity: @{getters} */
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
+#pragma shaderity: require(../common/pbrDefinition.glsl)
+
+/* shaderity: @{matricesGetters} */
+
+#pragma shaderity: require(../common/iblDefinition.glsl)
 
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform int u_baseColorTexcoordIndex; // initialValue=0
@@ -49,15 +55,17 @@ uniform sampler2D u_emissiveTexture; // initialValue=(10,white)
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
 uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
+uniform bool u_inverseEnvironment; // initialValue=false
+uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
+uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
 
+// vec3 linearToSrgb(vec3 linearColor) {
+//   return pow(linearColor, vec3(1.0/2.2));
+// }
 
-vec3 linearToSrgb(vec3 linearColor) {
-  return pow(linearColor, vec3(1.0/2.2));
-}
-
-vec3 srgbToLinear(vec3 srgbColor) {
-  return pow(srgbColor, vec3(2.2));
-}
+// vec3 srgbToLinear(vec3 srgbColor) {
+//   return pow(srgbColor, vec3(2.2));
+// }
 
 float linearstep(float a, float b, float t) {
   return clamp((t - a) / (b - a), 0.0, 1.0);
@@ -128,12 +136,13 @@ void main() {
   // view vector
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
+  vec3 viewDirection = normalize(viewVector);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 #ifdef RN_MTOON_HAS_BUMPMAP
   vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
-  mat3 TBN = getTBN(normal_inWorld, viewVector, v_texcoord_0);
+  mat3 TBN = getTBN(normal_inWorld, viewDirection, v_texcoord_0);
   normal_inWorld = normalize(TBN * normal);
 #endif
 
@@ -164,6 +173,32 @@ void main() {
   float giEqualizationFactor = get_giEqualizationFactor(materialSID, 0);
   vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
   vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
+  float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
+  vec3 F0 = vec3(0.04);
+  float perceptualRoughness = 0.5;
+  float clearcoatRoughness = 0.0;
+  vec3 clearcoatNormal_inWorld = vec3(0.0, 0.0, 0.0);
+  float clearcoat = 0.0;
+  float VdotNc = 0.0;
+  vec3 geomNormal_inWorld = normal_inWorld;
+  float transmission = 0.0;
+  float thickness = 0.0;
+  vec3 sheenColor = vec3(0.0, 0.0, 0.0);
+  float sheenRoughness = 0.0;
+  float albedoSheenScalingNdotV = 0.0;
+  float ior = 0.0;
+  vec3 iridescenceFresnel = vec3(0.0);
+  vec3 iridescenceF0 = F0;
+  float iridescence = 0.0;
+  float anisotropy = 0.0;
+  vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
+  float specular = 0.0;
+  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
+    baseColorTerm, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
+    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
+    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
+    ior, iridescenceFresnel, iridescenceF0, iridescence,
+    anisotropy, anisotropicB, specular);
   vec3 rawGiUp = vec3(0.0, 0.0, 0.0);
   vec3 rawGiDown = vec3(0.0, 0.0, 0.0);
   vec3 rawGiNormal = vec3(0.0, 0.0, 0.0);
@@ -175,8 +210,8 @@ void main() {
   // rim lighting
   // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-2
   vec3 rim = vec3(0.0);
-  vec3 worldViewX = normalize(vec3(viewVector.z, 0.0, -viewVector.x));
-  vec3 worldViewY = cross(viewVector, worldViewX);
+  vec3 worldViewX = normalize(vec3(viewDirection.z, 0.0, -viewDirection.x));
+  vec3 worldViewY = cross(viewDirection, worldViewX);
   vec2 matcapUv = vec2( dot(worldViewX, normal_inWorld), dot(worldViewY, normal_inWorld)) * 0.495 + 0.5;
   float epsilon = 0.00001;
   vec3 matcapFactor = get_matcapFactor(materialSID, 0);
