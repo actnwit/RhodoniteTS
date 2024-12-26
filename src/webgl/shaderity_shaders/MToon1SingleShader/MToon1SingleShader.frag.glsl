@@ -58,7 +58,7 @@ uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalS
 uniform bool u_inverseEnvironment; // initialValue=false
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
-
+uniform float u_alphaCutoff; // initialValue=0.5
 // vec3 linearToSrgb(vec3 linearColor) {
 //   return pow(linearColor, vec3(1.0/2.2));
 // }
@@ -123,13 +123,9 @@ void main() {
   // alpha
   float alpha = baseColorTexture.a * baseColorFactor.a;
   #ifdef RN_ALPHATEST_ON
-    float cutoff = get_cutoff(materialSID, 0);
+    float cutoff = get_alphaCutoff(materialSID, 0);
     if(alpha < cutoff) discard;
   #endif
-
-  if (alpha < 0.01) {
-    discard;
-  }
 
   rt0.w = alpha;
 

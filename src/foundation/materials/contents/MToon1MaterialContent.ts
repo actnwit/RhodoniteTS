@@ -125,6 +125,10 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
         material.cullFrontFaceCCW = true;
       }
     }
+
+    if (materialJson.alphaMode === 'MASK') {
+      this.__definitions += '#define RN_ALPHATEST_ON\n';
+    }
   }
 
   _setInternalSettingParametersToGpuWebGpu({
