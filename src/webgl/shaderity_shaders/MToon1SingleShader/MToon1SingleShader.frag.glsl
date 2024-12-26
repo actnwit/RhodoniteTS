@@ -25,6 +25,7 @@ in vec4 v_position_inWorld;
 #pragma shaderity: require(../common/opticalDefinition.glsl)
 
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
+uniform int u_baseColorTexcoordIndex; // initialValue=0
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_normalTexture; // initialValue=(2,black)
 uniform float u_shadingShiftFactor; // initialValue=0.0
@@ -66,7 +67,9 @@ void main() {
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
 
   // main color
-  vec4 baseColorTexture = texture(u_baseColorTexture, v_texcoord_0);
+  int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
+  vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
+  vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexcoord);
   baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
   vec3 baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
