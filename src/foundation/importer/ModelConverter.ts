@@ -2157,6 +2157,12 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
       material.setParameter('shadingToonyFactor', shadingToonyFactor);
     }
   }
+  {
+    const giEqualizationFactor = mToon.giEqualizationFactor;
+    if (giEqualizationFactor != null) {
+      material.setParameter('giEqualizationFactor', giEqualizationFactor);
+    }
+  }
 }
 
 function setupPbrMetallicRoughness(

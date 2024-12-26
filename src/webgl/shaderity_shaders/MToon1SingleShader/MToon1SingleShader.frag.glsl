@@ -36,6 +36,7 @@ uniform float u_shadingToonyFactor; // initialValue=0.9
 uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
 uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,black)
 uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
+uniform float u_giEqualizationFactor; // initialValue=0.9
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -107,7 +108,7 @@ void main() {
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
 
-    // Normal
+  // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 #ifdef RN_MTOON_HAS_BUMPMAP
   vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
@@ -119,6 +120,7 @@ void main() {
   normal_inWorld *= -1.0;
 #endif
 
+  // direct lighting
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
     float shading = dot(light.direction, normal_inWorld);
@@ -132,6 +134,18 @@ void main() {
     // vec3 color = vec3(shading);
     rt0.xyz += color;
   }
+
+  // indirect lighting
+  float giEqualizationFactor = get_giEqualizationFactor(materialSID, 0);
+  vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
+  vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
+  vec3 rawGiUp = vec3(0.0, 0.0, 0.0);
+  vec3 rawGiDown = vec3(0.0, 0.0, 0.0);
+  vec3 rawGiNormal = vec3(0.0, 0.0, 0.0);
+  vec3 uniformedGi = (rawGiUp + rawGiDown) / 2.0;
+  vec3 passthroughGi = rawGiNormal;
+  vec3 gi = mix(uniformedGi, passthroughGi, giEqualizationFactor);
+  rt0.xyz += gi * baseColorTerm;
 
 #ifdef RN_MTOON_IS_OUTLINE
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
