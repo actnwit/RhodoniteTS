@@ -7,6 +7,8 @@
 #pragma shaderity: require(../common/prerequisites.glsl)
 
 in vec2 v_texcoord_0;
+in vec2 v_texcoord_1;
+in vec2 v_texcoord_2;
 in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;
 in vec3 v_normal_inWorld;
@@ -42,6 +44,18 @@ vec3 srgbToLinear(vec3 srgbColor) {
 
 float linearstep(float a, float b, float t) {
   return clamp((t - a) / (b - a), 0.0, 1.0);
+}
+
+vec2 getTexcoord(int texcoordIndex) {
+  vec2 texcoord;
+  if(texcoordIndex == 2){
+    texcoord = v_texcoord_2;
+  } else if(texcoordIndex == 1){
+    texcoord = v_texcoord_1;
+  }else{
+    texcoord = v_texcoord_0;
+  }
+  return texcoord;
 }
 
 #pragma shaderity: require(../common/perturbedNormal.glsl)

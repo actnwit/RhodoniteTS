@@ -6,6 +6,8 @@
 
 in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;
+in vec2 a_texcoord_1;
+in vec2 a_texcoord_2;
 in vec3 a_position;
 in vec3 a_normal;
 in vec4 a_baryCentricCoord;
@@ -13,6 +15,8 @@ in vec4 a_joint;
 in vec4 a_weight;
 
 out vec2 v_texcoord_0;
+out vec2 v_texcoord_1;
+out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
 out vec3 v_normal_inView;
 out vec3 v_normal_inWorld;
@@ -94,5 +98,7 @@ void main(){
 #endif
 
   v_texcoord_0 = a_texcoord_0;
+  v_texcoord_1 = a_texcoord_1;
+  v_texcoord_2 = a_texcoord_2;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 }
