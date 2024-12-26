@@ -34,6 +34,7 @@ uniform float u_shadingShiftTextureScale; // initialValue=1.0
 uniform float u_shadingToonyFactor; // initialValue=0.9
 uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
 uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,black)
+uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -66,15 +67,19 @@ void main() {
 
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
 
-  // main color
+  // base color
   int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
   vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
   vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexcoord);
   baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
   vec3 baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
+
+  // shade color
   vec3 shadeColorFactor = get_shadeColorFactor(materialSID, 0);
-  vec4 shadeMultiplyTexture = texture(u_shadeMultiplyTexture, v_texcoord_0);
+  int shadeMultiplyTexcoordIndex = get_shadeMultiplyTexcoordIndex(materialSID, 0);
+  vec2 shadeMultiplyTexcoord = getTexcoord(shadeMultiplyTexcoordIndex);
+  vec4 shadeMultiplyTexture = texture(u_shadeMultiplyTexture, shadeMultiplyTexcoord);
   shadeMultiplyTexture.rgb = srgbToLinear(shadeMultiplyTexture.rgb);
   vec3 shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
 
