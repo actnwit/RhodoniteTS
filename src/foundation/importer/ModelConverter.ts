@@ -856,6 +856,9 @@ export class ModelConverter {
 
       ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
 
+      // disable unlit
+      (materialJson.extensions as any).KHR_materials_unlit = undefined;
+
       return material;
     }
 
@@ -1191,12 +1194,10 @@ export class ModelConverter {
   }
 
   private static __setupMaterial(gltfModel: RnM2, materialJson?: RnM2Material): Material {
-    const isUnlit = materialJson?.extensions?.KHR_materials_unlit != null;
-
     const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
-
     if (materialJson == null) return material;
 
+    const isUnlit = materialJson.extensions?.KHR_materials_unlit != null;
     const options = gltfModel.asset.extras!.rnLoaderOptions;
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
