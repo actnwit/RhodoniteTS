@@ -44,6 +44,9 @@ uniform float u_parametricRimFresnelPowerFactor; // initialValue=5.0
 uniform float u_parametricRimLiftFactor; // initialValue=0.0
 uniform sampler2D u_rimMultiplyTexture; // initialValue=(6,white)
 uniform float u_rimLightingMixFactor; // initialValue=1.0
+uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
+uniform sampler2D u_emissiveTexture; // initialValue=(8,white)
+uniform int u_emissiveTexcoordIndex; // initialValue=0
 
 
 vec3 linearToSrgb(vec3 linearColor) {
@@ -98,6 +101,14 @@ void main() {
   vec2 shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex);
   float shadingShiftTexture = texture(u_shadingShiftTexture, shadingShiftTexcoord).r;
   float shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
+
+  // emissive
+  vec3 emissiveFactor = get_emissiveFactor(materialSID, 0);
+  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+  vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
+  vec4 emissiveTexture = texture(u_emissiveTexture, emissiveTexcoord);
+  emissiveTexture.rgb = srgbToLinear(emissiveTexture.rgb);
+  vec3 emissive = emissiveFactor * emissiveTexture.rgb;
 
   // alpha
   float alpha = baseColorTexture.a * baseColorFactor.a;
@@ -177,8 +188,9 @@ void main() {
   rim *= texture(u_rimMultiplyTexture, v_texcoord_0).rgb;
   float rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
   rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
-
   rt0.xyz += rim;
+
+  rt0.xyz += emissive;
 
 #ifdef RN_MTOON_IS_OUTLINE
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
