@@ -34,9 +34,17 @@ uniform int u_shadingShiftTexcoordIndex; // initialValue=0
 uniform float u_shadingShiftTextureScale; // initialValue=1.0
 uniform float u_shadingToonyFactor; // initialValue=0.9
 uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
-uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,black)
+uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,white)
 uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
 uniform float u_giEqualizationFactor; // initialValue=0.9
+uniform sampler2D u_matcapTexture; // initialValue=(5,white)
+uniform vec3 u_matcapFactor; // initialValue=(1,1,1)
+uniform vec3 u_parametricRimColorFactor; // initialValue=(0,0,0)
+uniform float u_parametricRimFresnelPowerFactor; // initialValue=5.0
+uniform float u_parametricRimLiftFactor; // initialValue=0.0
+uniform sampler2D u_rimMultiplyTexture; // initialValue=(6,white)
+uniform float u_rimLightingMixFactor; // initialValue=1.0
+
 
 vec3 linearToSrgb(vec3 linearColor) {
   return pow(linearColor, vec3(1.0/2.2));
@@ -121,6 +129,8 @@ void main() {
 #endif
 
   // direct lighting
+  // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation
+  vec3 directLighting = vec3(0.0);
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
     float shading = dot(light.direction, normal_inWorld);
@@ -131,11 +141,13 @@ void main() {
 
     vec3 color = mix(shadeColorTerm, baseColorTerm, shading);
     color = color * light.attenuatedIntensity * RECIPROCAL_PI;
+    directLighting += light.attenuatedIntensity;
     // vec3 color = vec3(shading);
     rt0.xyz += color;
   }
 
   // indirect lighting
+  // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-1
   float giEqualizationFactor = get_giEqualizationFactor(materialSID, 0);
   vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
   vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
@@ -146,6 +158,27 @@ void main() {
   vec3 passthroughGi = rawGiNormal;
   vec3 gi = mix(uniformedGi, passthroughGi, giEqualizationFactor);
   rt0.xyz += gi * baseColorTerm;
+
+  // rim lighting
+  // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-2
+  vec3 rim = vec3(0.0);
+  vec3 worldViewX = normalize(vec3(viewVector.z, 0.0, -viewVector.x));
+  vec3 worldViewY = cross(viewVector, worldViewX);
+  vec2 matcapUv = vec2( dot(worldViewX, normal_inWorld), dot(worldViewY, normal_inWorld)) * 0.495 + 0.5;
+  float epsilon = 0.00001;
+  vec3 matcapFactor = get_matcapFactor(materialSID, 0);
+  rim = matcapFactor * texture(u_matcapTexture, matcapUv).rgb;
+  float parametricRimLiftFactor = get_parametricRimLiftFactor(materialSID, 0);
+  float parametricRim = clamp( 1.0 - dot(normal_inWorld, viewVector) + parametricRimLiftFactor, 0.0, 1.0);
+  float parametricRimFresnelPowerFactor = get_parametricRimFresnelPowerFactor(materialSID, 0);
+  parametricRim = pow(parametricRim, max(parametricRimFresnelPowerFactor, epsilon));
+  vec3 parametricRimColorFactor = get_parametricRimColorFactor(materialSID, 0);
+  rim += parametricRim * parametricRimColorFactor;
+  rim *= texture(u_rimMultiplyTexture, v_texcoord_0).rgb;
+  float rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
+  rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
+
+  rt0.xyz += rim;
 
 #ifdef RN_MTOON_IS_OUTLINE
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);

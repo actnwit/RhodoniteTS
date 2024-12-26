@@ -6,6 +6,7 @@ import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { Err, Result, Ok } from '../misc/Result';
 import { Logger } from '../misc/Logger';
+import { Vrm1_Materials_MToon } from '../../types/VRM1';
 
 declare let Rn: any;
 
@@ -506,14 +507,18 @@ export class Gltf2Importer {
             }
           }
           if (Is.exist(extensions.VRMC_materials_mtoon)) {
-            const mToon = extensions.VRMC_materials_mtoon;
-            const shadeColorTexture = mToon.shadeColorTexture;
-            if (shadeColorTexture != null) {
-              shadeColorTexture.texture = gltfJson.textures[shadeColorTexture.index];
-            }
+            const mToon = extensions.VRMC_materials_mtoon as Vrm1_Materials_MToon;
             const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
             if (shadeMultiplyTexture != null) {
               shadeMultiplyTexture.texture = gltfJson.textures[shadeMultiplyTexture.index];
+            }
+            const shadingShiftTexture = mToon.shadingShiftTexture;
+            if (shadingShiftTexture != null) {
+              shadingShiftTexture.texture = gltfJson.textures[shadingShiftTexture.index];
+            }
+            const matcapTexture = mToon.matcapTexture;
+            if (matcapTexture != null) {
+              matcapTexture.texture = gltfJson.textures[matcapTexture.index];
             }
             const rimMultiplyTexture = mToon.rimMultiplyTexture;
             if (rimMultiplyTexture != null) {

@@ -2163,6 +2163,61 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
       material.setParameter('giEqualizationFactor', giEqualizationFactor);
     }
   }
+  {
+    const matcapTexture = mToon.matcapTexture;
+    if (matcapTexture != null) {
+      const rnTexture = ModelConverter._createTexture(matcapTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(matcapTexture.texture!);
+      material.setTextureParameter('matcapTexture', rnTexture, rnSampler);
+      if (matcapTexture.texCoord != null) {
+        material.setParameter('matcapTexcoordIndex', matcapTexture.texCoord);
+      }
+    }
+  }
+  {
+    const matcapFactor = mToon.matcapFactor;
+    if (matcapFactor != null) {
+      material.setParameter('matcapFactor', Vector3.fromCopyArray3(matcapFactor));
+    }
+  }
+  {
+    const parametricRimColorFactor = mToon.parametricRimColorFactor;
+    if (parametricRimColorFactor != null) {
+      material.setParameter(
+        'parametricRimColorFactor',
+        Vector3.fromCopyArray3(parametricRimColorFactor)
+      );
+    }
+  }
+  {
+    const parametricRimFresnelPowerFactor = mToon.parametricRimFresnelPowerFactor;
+    if (parametricRimFresnelPowerFactor != null) {
+      material.setParameter('parametricRimFresnelPowerFactor', parametricRimFresnelPowerFactor);
+    }
+  }
+  {
+    const parametricRimLiftFactor = mToon.parametricRimLiftFactor;
+    if (parametricRimLiftFactor != null) {
+      material.setParameter('parametricRimLiftFactor', parametricRimLiftFactor);
+    }
+  }
+  {
+    const rimMultiplyTexture = mToon.rimMultiplyTexture;
+    if (rimMultiplyTexture != null) {
+      const rnTexture = ModelConverter._createTexture(rimMultiplyTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(rimMultiplyTexture.texture!);
+      material.setTextureParameter('rimMultiplyTexture', rnTexture, rnSampler);
+      if (rimMultiplyTexture.texCoord != null) {
+        material.setParameter('rimMultiplyTexcoordIndex', rimMultiplyTexture.texCoord);
+      }
+    }
+  }
+  {
+    const rimLightingMixFactor = mToon.rimLightingMixFactor;
+    if (rimLightingMixFactor != null) {
+      material.setParameter('rimLightingMixFactor', rimLightingMixFactor);
+    }
+  }
 }
 
 function setupPbrMetallicRoughness(
