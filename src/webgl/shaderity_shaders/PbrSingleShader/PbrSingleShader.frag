@@ -38,8 +38,8 @@ uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
-uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,white), isInternalSetting=true
-uniform samplerCube u_specularEnvTexture; // initialValue=(6,white), isInternalSetting=true
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
 uniform vec4 u_baseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_baseColorTextureRotation; // initialValue=0
 uniform vec4 u_metallicRoughnessTextureTransform; // initialValue=(1,1,0,0)
