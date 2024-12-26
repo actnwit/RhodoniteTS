@@ -37,16 +37,18 @@ uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
 uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,white)
 uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
 uniform float u_giEqualizationFactor; // initialValue=0.9
-uniform sampler2D u_matcapTexture; // initialValue=(5,white)
+uniform sampler2D u_matcapTexture; // initialValue=(8,white)
 uniform vec3 u_matcapFactor; // initialValue=(1,1,1)
 uniform vec3 u_parametricRimColorFactor; // initialValue=(0,0,0)
 uniform float u_parametricRimFresnelPowerFactor; // initialValue=5.0
 uniform float u_parametricRimLiftFactor; // initialValue=0.0
-uniform sampler2D u_rimMultiplyTexture; // initialValue=(6,white)
+uniform sampler2D u_rimMultiplyTexture; // initialValue=(9,white)
 uniform float u_rimLightingMixFactor; // initialValue=1.0
 uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
-uniform sampler2D u_emissiveTexture; // initialValue=(8,white)
+uniform sampler2D u_emissiveTexture; // initialValue=(10,white)
 uniform int u_emissiveTexcoordIndex; // initialValue=0
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
 
 
 vec3 linearToSrgb(vec3 linearColor) {
