@@ -173,39 +173,19 @@ void main() {
   float giEqualizationFactor = get_giEqualizationFactor(materialSID, 0);
   vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
   vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
-  float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
-  vec3 F0 = vec3(0.04);
-  float perceptualRoughness = 0.5;
-  float clearcoatRoughness = 0.0;
-  vec3 clearcoatNormal_inWorld = vec3(0.0, 0.0, 0.0);
-  float clearcoat = 0.0;
-  float VdotNc = 0.0;
-  vec3 geomNormal_inWorld = normal_inWorld;
-  float transmission = 0.0;
-  float thickness = 0.0;
-  vec3 sheenColor = vec3(0.0, 0.0, 0.0);
-  float sheenRoughness = 0.0;
-  float albedoSheenScalingNdotV = 0.0;
-  float ior = 0.0;
-  vec3 iridescenceFresnel = vec3(0.0);
-  vec3 iridescenceF0 = F0;
-  float iridescence = 0.0;
-  float anisotropy = 0.0;
-  vec3 anisotropicB = vec3(0.0, 0.0, 0.0);
-  float specular = 0.0;
-  vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    baseColorTerm, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
-    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
-    sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-    ior, iridescenceFresnel, iridescenceF0, iridescence,
-    anisotropy, anisotropicB, specular);
-  vec3 rawGiUp = vec3(0.0, 0.0, 0.0);
-  vec3 rawGiDown = vec3(0.0, 0.0, 0.0);
-  vec3 rawGiNormal = vec3(0.0, 0.0, 0.0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w;
+  float IBLDiffuseContribution = iblParameter.y;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  vec3 rawGiUp = get_irradiance(worldUpVector, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiDown = get_irradiance(worldDownVector, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiNormal = get_irradiance(normal_forEnv, materialSID, hdriFormat) * IBLDiffuseContribution;
   vec3 uniformedGi = (rawGiUp + rawGiDown) / 2.0;
   vec3 passthroughGi = rawGiNormal;
   vec3 gi = mix(uniformedGi, passthroughGi, giEqualizationFactor);
-  rt0.xyz += gi * baseColorTerm;
+  rt0.xyz += gi * baseColorTerm * RECIPROCAL_PI;
 
   // rim lighting
   // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-2

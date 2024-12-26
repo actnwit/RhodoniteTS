@@ -59,6 +59,14 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       mToon1SingleShaderFragmentWebGpu
     );
 
+    if (!MToon1MaterialContent.__diffuseIblCubeMapSampler.created) {
+      MToon1MaterialContent.__diffuseIblCubeMapSampler.create();
+    }
+
+    if (!MToon1MaterialContent.__specularIblCubeMapSampler.created) {
+      MToon1MaterialContent.__specularIblCubeMapSampler.create();
+    }
+
     if (isLighting) {
       this.__definitions += '#define RN_IS_LIGHTING\n';
     }
