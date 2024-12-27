@@ -57,10 +57,10 @@ fn main (
 
   // alpha
   let alpha = baseColorTexture.a * baseColorFactor.a;
-  #ifdef RN_ALPHATEST_ON
-    let cutoff = get_alphaCutoff(materialSID, 0);
-    if(alpha < cutoff) { discard; }
-  #endif
+#ifdef RN_ALPHATEST_ON
+  let cutoff = get_alphaCutoff(materialSID, 0);
+  if(alpha < cutoff) { discard; }
+#endif
 
   // view vector
   let viewPosition = get_viewPosition(cameraSID, 0);
@@ -80,6 +80,9 @@ fn main (
   normal_inWorld = normalize(TBN * normal);
 #endif
 
+#ifdef RN_MTOON_IS_OUTLINE
+  normal_inWorld *= -1.0;
+#endif
 
   var rt0 = vec4f(baseColorTerm, 1.0);
 

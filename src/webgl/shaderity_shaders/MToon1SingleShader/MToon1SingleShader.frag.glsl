@@ -157,10 +157,10 @@ void main() {
 
   // alpha
   float alpha = baseColorTexture.a * baseColorFactor.a;
-  #ifdef RN_ALPHATEST_ON
-    float cutoff = get_alphaCutoff(materialSID, 0);
-    if(alpha < cutoff) discard;
-  #endif
+#ifdef RN_ALPHATEST_ON
+  float cutoff = get_alphaCutoff(materialSID, 0);
+  if(alpha < cutoff) discard;
+#endif
 
 
   // view vector
