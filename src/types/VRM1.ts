@@ -141,6 +141,11 @@ export type Vrm1_Materials_MToon = {
   };
 
   // UV Animation
+  uvAnimationMaskTexture: {
+    index: number;
+    texCoord?: number;
+    texture?: RnM2Texture;
+  };
   uvAnimationRotationSpeedFactor: number;
   uvAnimationScrollXSpeedFactor: number;
   uvAnimationScrollYSpeedFactor: number;

@@ -529,6 +529,10 @@ export class Gltf2Importer {
               outlineWidthMultiplyTexture.texture =
                 gltfJson.textures[outlineWidthMultiplyTexture.index];
             }
+            const uvAnimationMaskTexture = mToon.uvAnimationMaskTexture;
+            if (uvAnimationMaskTexture != null) {
+              uvAnimationMaskTexture.texture = gltfJson.textures[uvAnimationMaskTexture.index];
+            }
           }
         }
       }

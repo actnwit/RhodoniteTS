@@ -48,6 +48,8 @@ uniform float u_shadingToonyFactor; // initialValue=0.9
 uniform vec3 u_shadeColorFactor; // initialValue=(0,0,0)
 uniform sampler2D u_shadeMultiplyTexture; // initialValue=(4,white)
 uniform int u_shadeMultiplyTexcoordIndex; // initialValue=0
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
 uniform float u_giEqualizationFactor; // initialValue=0.9
 uniform sampler2D u_matcapTexture; // initialValue=(8,black)
 uniform vec3 u_matcapFactor; // initialValue=(1,1,1)
@@ -59,8 +61,6 @@ uniform float u_rimLightingMixFactor; // initialValue=1.0
 uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
 uniform sampler2D u_emissiveTexture; // initialValue=(10,white)
 uniform int u_emissiveTexcoordIndex; // initialValue=0
-uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
-uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
 uniform bool u_inverseEnvironment; // initialValue=false
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
 uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
@@ -68,6 +68,11 @@ uniform float u_alphaCutoff; // initialValue=0.5
 uniform bool u_makeOutputSrgb; // initialValue=false
 uniform vec3 u_outlineColorFactor; // initialValue=(0,0,0)
 uniform float u_outlineLightingMixFactor; // initialValue=1.0
+uniform sampler2D u_uvAnimationMaskTexture; // initialValue=(11,white)
+uniform int u_uvAnimationMaskTexcoordIndex; // initialValue=0
+uniform float u_uvAnimationScrollXSpeedFactor; // initialValue=0.0
+uniform float u_uvAnimationScrollYSpeedFactor; // initialValue=0.0
+uniform float u_uvAnimationRotationSpeedFactor; // initialValue=0.0
 
 float linearstep(float a, float b, float t) {
   return clamp((t - a) / (b - a), 0.0, 1.0);
@@ -83,6 +88,24 @@ vec2 getTexcoord(int texcoordIndex) {
     texcoord = v_texcoord_0;
   }
   return texcoord;
+}
+
+vec2 uvAnimation(vec2 origUv, float materialSID) {
+  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
+  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
+  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
+  int uvAnimationMaskTexcoordIndex = get_uvAnimationMaskTexcoordIndex(materialSID, 0);
+  vec2 uvAnimationMaskTexcoord = getTexcoord(uvAnimationMaskTexcoordIndex);
+  float uvAnimMask = texture(u_uvAnimationMaskTexture, uvAnimationMaskTexcoord).b;
+  float time = get_time(materialSID, 0);
+  float scrollX = uvAnimationScrollXSpeedFactor * time;
+  float scrollY = uvAnimationScrollYSpeedFactor * time;
+  float rotation = uvAnimationRotationSpeedFactor * time;
+  float rotationCos = cos(rotation * uvAnimMask);
+  float rotationSin = sin(rotation * uvAnimMask);
+  vec2 uv = mat2(rotationCos, -rotationSin, rotationSin, rotationCos) * (origUv - vec2(0.5)) + vec2(0.5);
+  uv += vec2(scrollX, scrollY) * uvAnimMask;
+  return uv;
 }
 
 #pragma shaderity: require(../common/perturbedNormal.glsl)
