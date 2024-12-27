@@ -30,9 +30,11 @@ in float v_instanceInfo;
 
 #pragma shaderity: require(../common/iblDefinition.glsl)
 
+uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform int u_baseColorTexcoordIndex; // initialValue=0
-uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
+uniform vec4 u_baseColorTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_baseColorTextureRotation; // initialValue=0
 uniform sampler2D u_normalTexture; // initialValue=(2,black)
 uniform float u_shadingShiftFactor; // initialValue=0.0
 uniform sampler2D u_shadingShiftTexture; // initialValue=(3,black)
@@ -95,9 +97,12 @@ void main() {
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
 
   // base color
+  vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
+  float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
   int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
   vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
-  vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexcoord);
+  vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
+  vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexUv);
   baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
   vec3 baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
