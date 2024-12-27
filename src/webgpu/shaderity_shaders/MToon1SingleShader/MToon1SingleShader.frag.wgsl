@@ -223,6 +223,15 @@ fn main (
   // emissive
   rt0 += vec4f(emissive, rt0.a);
 
+#ifdef RN_MTOON_IS_OUTLINE
+  let outlineColorFactor = get_outlineColorFactor(materialSID, 0);
+  let outlineLightingMixFactor = get_outlineLightingMixFactor(materialSID, 0);
+  rt0 = vec4f(outlineColorFactor * mix(vec3f(1.0), rt0.xyz, outlineLightingMixFactor), rt0.a);
+#endif
+
+  let makeOutputSrgb = get_makeOutputSrgb(materialSID, 0);
+  rt0 = vec4f(select(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.a);
+
   rt0.a = alpha;
   rt0 *= vec4f(alpha, alpha, alpha, 1.0);
 
