@@ -68,7 +68,18 @@ fn main (
   let viewDirection = normalize(viewVector);
 
   // Normal
-  let normal_inWorld = normalize(input.normal_inWorld);
+  var normal_inWorld = normalize(input.normal_inWorld);
+#ifdef RN_USE_NORMAL_TEXTURE
+  let normalTextureTransform = get_normalTextureTransform(materialSID, 0);
+  let normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+  let normalTexcoordIndex = u32(get_normalTexcoordIndex(materialSID, 0));
+  let normalTexcoord = getTexcoord(normalTexcoordIndex, input);
+  let normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+  let normal: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz * 2.0 - 1.0;
+  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, input.texcoord_0, isFront);
+  normal_inWorld = normalize(TBN * normal);
+#endif
+
 
   var rt0 = vec4f(baseColorTerm, 1.0);
 
