@@ -10,6 +10,11 @@
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
+// #param outlineWidthMode: i32; // initialValue=0
+// #param outlineWidthFactor: f32; // initialValue=0.0008
+@group(1) @binding(0) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(0) var outlineWidthSampler: sampler;
+
 @vertex
 fn main(
 #pragma shaderity: require(../common/vertexInput.wgsl)
@@ -70,8 +75,18 @@ fn main(
   output.normal_inWorld = geom.normal_inWorld;
   output.normal_inView = (viewMatrix * vec4(geom.normal_inWorld, 0.0)).xyz;
 
+#ifdef RN_MTOON_IS_OUTLINE
+  let outlineWidthType = get_outlineWidthMode(materialSID, 0);
+  if (outlineWidthType == 0) { // 0 ("none")
+    output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
+  } else {
+    let worldNormalLength = length(geom.normal_inWorld);
+    let outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
+    output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
+  }
+#else
   output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
-
+#endif
   output.texcoord_0 = texcoord_0;
   output.baryCentricCoord = baryCentricCoord.xyz;
 
