@@ -62,6 +62,13 @@ fn main (
     if(alpha < cutoff) { discard; }
   #endif
 
+  // view vector
+  let viewPosition = get_viewPosition(cameraSID, 0);
+  let viewVector = viewPosition - input.position_inWorld.xyz;
+  let viewDirection = normalize(viewVector);
+
+  // Normal
+  let normal_inWorld = normalize(input.normal_inWorld);
 
   var rt0 = vec4f(baseColorTerm, 1.0);
 
