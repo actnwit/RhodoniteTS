@@ -2142,7 +2142,9 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
 
   {
     const shadingShiftFactor = mToon.shadingShiftFactor;
-    material.setParameter('shadingShiftFactor', shadingShiftFactor);
+    if (shadingShiftFactor != null) {
+      material.setParameter('shadingShiftFactor', shadingShiftFactor);
+    }
   }
   {
     const shadingShiftTexture = mToon.shadingShiftTexture;
