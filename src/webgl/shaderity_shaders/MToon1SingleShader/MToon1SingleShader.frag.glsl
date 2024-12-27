@@ -36,6 +36,10 @@ uniform int u_baseColorTexcoordIndex; // initialValue=0
 uniform vec4 u_baseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_baseColorTextureRotation; // initialValue=0
 uniform sampler2D u_normalTexture; // initialValue=(2,black)
+uniform vec4 u_normalTextureTransform; // initialValue=(1,1,0,0)
+uniform float u_normalTextureRotation; // initialValue=(0)
+uniform int u_normalTexcoordIndex; // initialValue=(0)
+uniform float u_normalScale; // initialValue=(1)
 uniform float u_shadingShiftFactor; // initialValue=0.0
 uniform sampler2D u_shadingShiftTexture; // initialValue=(3,black)
 uniform int u_shadingShiftTexcoordIndex; // initialValue=0
@@ -145,7 +149,12 @@ void main() {
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 #ifdef RN_USE_NORMAL_TEXTURE
-  vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
+  vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
+  float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+  vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+  vec3 normal = texture(u_normalTexture, normalTexUv).xyz * 2.0 - 1.0;
   mat3 TBN = getTBN(normal_inWorld, viewDirection, v_texcoord_0);
   normal_inWorld = normalize(TBN * normal);
 #endif
