@@ -89,6 +89,15 @@ fn main (
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
+  // uv animation
+  let uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
+  let uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
+  let uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
+  let uvAnimationMaskTexcoordIndex = u32(get_uvAnimationMaskTexcoordIndex(materialSID, 0));
+  let uvAnimationMaskTexcoord = getTexcoord(uvAnimationMaskTexcoordIndex, input);
+  let uvAnimMask = textureSample(uvAnimationMaskTexture, uvAnimationMaskSampler, uvAnimationMaskTexcoord).b;
+  let time = get_time(0, 0);
+
   // base color
   let baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
   let baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
@@ -114,6 +123,13 @@ fn main (
   var shadingShiftTexture = textureSample(shadingShiftTexture, shadingShiftSampler, shadingShiftTexcoord).r;
   let shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
 
+  // emissive
+  let emissiveFactor = get_emissiveFactor(materialSID, 0);
+  let emissiveTexcoordIndex = u32(get_emissiveTexcoordIndex(materialSID, 0));
+  let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+  var emissiveTexture = textureSample(emissiveTexture, emissiveSampler, emissiveTexcoord);
+  emissiveTexture = vec4(srgbToLinear(emissiveTexture.rgb), emissiveTexture.a);
+  let emissive = emissiveFactor * emissiveTexture.rgb;
 
   // alpha
   let alpha = baseColorTexture.a * baseColorFactor.a;
