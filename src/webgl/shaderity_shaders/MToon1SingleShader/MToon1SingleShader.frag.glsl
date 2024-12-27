@@ -144,7 +144,7 @@ void main() {
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
-#ifdef RN_MTOON_HAS_BUMPMAP
+#ifdef RN_USE_NORMAL_TEXTURE
   vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
   mat3 TBN = getTBN(normal_inWorld, viewDirection, v_texcoord_0);
   normal_inWorld = normalize(TBN * normal);
