@@ -82,7 +82,18 @@ fn main(
   } else {
     let worldNormalLength = length(geom.normal_inWorld);
     let outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
-    output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
+    var outlineOffset = outlineWidthFactor * worldNormalLength * normal;
+
+    let textureSize = textureDimensions(outlineWidthTexture, 0);
+    let outlineWidthMultiply = textureLoad(outlineWidthTexture, vec2u(vec2f(textureSize) * texcoord_0), 0).r;
+    outlineOffset *= outlineWidthMultiply;
+
+    if (outlineWidthType == 2) { // "screenCoordinates"
+      let vViewPosition = viewMatrix * geom.position_inWorld;
+      outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
+    }
+    output.position = projectionMatrix * viewMatrix * vec4(geom.position_inWorld.xyz + outlineOffset, geom.position_inWorld.w);
+    output.position.z += 0.000001 * output.position.w;
   }
 #else
   output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
