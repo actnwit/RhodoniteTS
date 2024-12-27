@@ -2296,6 +2296,12 @@ function setupPbrMetallicRoughness(
     if (baseColorTexture.texCoord != null) {
       material.setParameter('baseColorTexcoordIndex', baseColorTexture.texCoord);
     }
+    ModelConverter._setupTextureTransform(
+      baseColorTexture!,
+      material,
+      'baseColorTextureTransform',
+      'baseColorTextureRotation'
+    );
   }
 
   // Ambient Occlusion Texture
@@ -2337,6 +2343,12 @@ function setupPbrMetallicRoughness(
     if (metallicRoughnessTexture.texCoord != null) {
       material.setParameter('metallicRoughnessTexcoordIndex', metallicRoughnessTexture.texCoord);
     }
+    ModelConverter._setupTextureTransform(
+      metallicRoughnessTexture!,
+      material,
+      'metallicRoughnessTextureTransform',
+      'metallicRoughnessTextureRotation'
+    );
   }
 
   // if (Is.exist(metallicRoughnessTexture?.texture?.image?.image)) {
@@ -2369,9 +2381,6 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_anisotropy(materialJson, material, gltfModel);
 
   setup_KHR_materials_emissive_strength(materialJson, material, gltfModel);
-
-  // BaseColor TexCoord Transform
-  setup_KHR_texture_transform(baseColorTexture, material, metallicRoughnessTexture);
 }
 
 function setup_KHR_materials_transmission(
@@ -2522,27 +2531,6 @@ function setup_KHR_materials_volume(
       material.setParameter('attenuationColor', attenuationColor);
     }
   }
-}
-
-function setup_KHR_texture_transform(
-  baseColorTexture: RnM2TextureInfo | undefined,
-  material: Material,
-  metallicRoughnessTexture: RnM2TextureInfo | undefined
-) {
-  ModelConverter._setupTextureTransform(
-    baseColorTexture!,
-    material,
-    'baseColorTextureTransform',
-    'baseColorTextureRotation'
-  );
-
-  // Metallic Roughness Texcoord Transform
-  ModelConverter._setupTextureTransform(
-    metallicRoughnessTexture!,
-    material,
-    'metallicRoughnessTextureTransform',
-    'metallicRoughnessTextureRotation'
-  );
 }
 
 function setup_KHR_materials_sheen(
