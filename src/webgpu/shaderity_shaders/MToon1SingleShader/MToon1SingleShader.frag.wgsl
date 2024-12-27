@@ -25,6 +25,17 @@ const EPS_COL: f32 = 0.00001;
 // #param normalTextureRotation: f32; // initialValue=0
 // #param normalScale: f32; // initialValue=1
 
+// #param shadingShiftFactor: f32; // initialValue=0.0
+@group(1) @binding(3) var shadingShiftTexture: texture_2d<f32>; // initialValue=black
+@group(2) @binding(3) var shadingShiftSampler: sampler;
+// #param shadingShiftTexcoordIndex: f32; // initialValue=0
+// #param shadingShiftTextureScale: f32; // initialValue=1.0
+
+// #param shadingToonyFactor: f32; // initialValue=0.9
+// #param shadeColorFactor: vec3<f32>; // initialValue=(0,0,0)
+@group(1) @binding(4) var shadeMultiplyTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(4) var shadeMultiplySampler: sampler;
+// #param shadeMultiplyTexcoordIndex: f32; // initialValue=0
 
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
@@ -45,6 +56,7 @@ fn main (
 ) -> @location(0) vec4<f32> {
 #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
+  // base color
   let baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
   let baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
   let baseColorTexcoordIndex = u32(get_baseColorTexcoordIndex(materialSID, 0));
@@ -54,6 +66,21 @@ fn main (
   baseColorTexture = vec4(srgbToLinear(baseColorTexture.rgb), baseColorTexture.a);
   let baseColorFactor = get_baseColorFactor(materialSID, 0);
   let baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
+
+  // shade color
+  let shadeColorFactor = get_shadeColorFactor(materialSID, 0);
+  let shadeMultiplyTexcoordIndex = u32(get_shadeMultiplyTexcoordIndex(materialSID, 0));
+  let shadeMultiplyTexcoord = getTexcoord(shadeMultiplyTexcoordIndex, input);
+  var shadeMultiplyTexture = textureSample(shadeMultiplyTexture, shadeMultiplySampler, shadeMultiplyTexcoord);
+  shadeMultiplyTexture = vec4(srgbToLinear(shadeMultiplyTexture.rgb), shadeMultiplyTexture.a);
+  let shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
+
+  // shading shift
+  let shadingShiftTexcoordIndex = u32(get_shadingShiftTexcoordIndex(materialSID, 0));
+  let shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex, input);
+  var shadingShiftTexture = textureSample(shadingShiftTexture, shadingShiftSampler, shadingShiftTexcoord);
+  let shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
+
 
   // alpha
   let alpha = baseColorTexture.a * baseColorFactor.a;
