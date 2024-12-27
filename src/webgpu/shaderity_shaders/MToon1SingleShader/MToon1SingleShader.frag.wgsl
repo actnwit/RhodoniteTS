@@ -198,6 +198,31 @@ fn main (
   let gi = mix(uniformedGi, passthroughGi, giEqualizationFactor);
   rt0 += vec4f(gi * baseColorTerm * RECIPROCAL_PI, rt0.a);
 
+  // rim lighting
+  // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-2
+  var rim = vec3f(0.0);
+  let worldViewX = normalize(vec3f(viewDirection.z, 0.0, -viewDirection.x));
+  let worldViewY = cross(viewDirection, worldViewX);
+  let matcapUv = vec2f( dot(worldViewX, normal_inWorld), dot(worldViewY, normal_inWorld)) * 0.495 + 0.5;
+  let epsilon = 0.00001;
+  let matcapFactor = srgbToLinear(get_matcapFactor(materialSID, 0));
+  rim = matcapFactor * textureSample(matcapTexture, matcapSampler, matcapUv).rgb;
+  let parametricRimLiftFactor = get_parametricRimLiftFactor(materialSID, 0);
+  var parametricRim = clamp( 1.0 - dot(normal_inWorld, viewVector) + parametricRimLiftFactor, 0.0, 1.0);
+  let parametricRimFresnelPowerFactor = get_parametricRimFresnelPowerFactor(materialSID, 0);
+  parametricRim = pow(parametricRim, max(parametricRimFresnelPowerFactor, epsilon));
+  let parametricRimColorFactor = get_parametricRimColorFactor(materialSID, 0);
+  rim += parametricRim * parametricRimColorFactor;
+  let rimMultiplyTexcoordIndex = u32(get_rimMultiplyTexcoordIndex(materialSID, 0));
+  let rimMultiplyTexcoord = getTexcoord(rimMultiplyTexcoordIndex, input);
+  rim *= srgbToLinear(textureSample(rimMultiplyTexture, rimMultiplySampler, rimMultiplyTexcoord).rgb);
+  let rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
+  rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
+  rt0 += vec4f(rim, rt0.a);
+
+  // emissive
+  rt0 += vec4f(emissive, rt0.a);
+
   rt0.a = alpha;
   rt0 *= vec4f(alpha, alpha, alpha, 1.0);
 
