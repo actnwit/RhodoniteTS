@@ -187,13 +187,13 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   vec3 geomNormal_inWorld = normal_inWorld;
-  vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
-  float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
-  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
-  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-  vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
-  mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
+    vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
+    float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+    vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+    mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
     vec3 normalTexValue = texture(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
