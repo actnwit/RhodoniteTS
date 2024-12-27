@@ -98,8 +98,27 @@ fn main(
 #else
   output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
 #endif
+
+#ifdef RN_USE_TANGENT
+  output.tangent_inWorld = normalMatrix * tangent.xyz;
+  output.binormal_inWorld = cross(geom.normal_inWorld, output.tangent_inWorld) * tangent.w;
+#endif
+
+#ifdef RN_USE_TEXCOORD_0
   output.texcoord_0 = texcoord_0;
+#endif
+#ifdef RN_USE_TEXCOORD_1
+  output.texcoord_1 = texcoord_1;
+#endif
+#ifdef RN_USE_TEXCOORD_2
+  output.texcoord_2 = texcoord_2;
+#endif
+
+#ifdef RN_USE_BARY_CENTRIC_COORD
   output.baryCentricCoord = baryCentricCoord.xyz;
+#endif
+
+  output.instanceInfo = instance_ids.x;
 
   return output;
 }
