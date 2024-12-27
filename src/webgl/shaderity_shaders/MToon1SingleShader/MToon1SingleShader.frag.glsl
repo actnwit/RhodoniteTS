@@ -70,12 +70,6 @@ uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
 uniform sampler2D u_emissiveTexture; // initialValue=(10,white)
 uniform int u_emissiveTexcoordIndex; // initialValue=0
 
-uniform bool u_inverseEnvironment; // initialValue=false
-uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
-uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
-uniform float u_alphaCutoff; // initialValue=0.5
-uniform bool u_makeOutputSrgb; // initialValue=false
-
 uniform vec3 u_outlineColorFactor; // initialValue=(0,0,0)
 uniform float u_outlineLightingMixFactor; // initialValue=1.0
 
@@ -84,6 +78,12 @@ uniform int u_uvAnimationMaskTexcoordIndex; // initialValue=0
 uniform float u_uvAnimationScrollXSpeedFactor; // initialValue=0.0
 uniform float u_uvAnimationScrollYSpeedFactor; // initialValue=0.0
 uniform float u_uvAnimationRotationSpeedFactor; // initialValue=0.0
+
+uniform bool u_inverseEnvironment; // initialValue=false
+uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
+uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
+uniform float u_alphaCutoff; // initialValue=0.5
+uniform bool u_makeOutputSrgb; // initialValue=false
 
 float linearstep(float a, float b, float t) {
   return clamp((t - a) / (b - a), 0.0, 1.0);
@@ -101,7 +101,7 @@ vec2 getTexcoord(int texcoordIndex) {
   return texcoord;
 }
 
-vec2 uvAnimation(vec2 origUv, float materialSID, float time, float uvAnimMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
+vec2 uvAnimation(vec2 origUv, float time, float uvAnimMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
   float scrollX = uvAnimationScrollXSpeedFactor * time;
   float scrollY = uvAnimationScrollYSpeedFactor * time;
   float rotation = uvAnimationRotationSpeedFactor * time;
@@ -133,7 +133,7 @@ void main() {
   float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
   int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
   vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
-  baseColorTexcoord = uvAnimation(baseColorTexcoord, materialSID, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  baseColorTexcoord = uvAnimation(baseColorTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
   vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexUv);
   baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
@@ -144,7 +144,7 @@ void main() {
   vec3 shadeColorFactor = get_shadeColorFactor(materialSID, 0);
   int shadeMultiplyTexcoordIndex = get_shadeMultiplyTexcoordIndex(materialSID, 0);
   vec2 shadeMultiplyTexcoord = getTexcoord(shadeMultiplyTexcoordIndex);
-  shadeMultiplyTexcoord = uvAnimation(shadeMultiplyTexcoord, materialSID, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  shadeMultiplyTexcoord = uvAnimation(shadeMultiplyTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec4 shadeMultiplyTexture = texture(u_shadeMultiplyTexture, shadeMultiplyTexcoord);
   shadeMultiplyTexture.rgb = srgbToLinear(shadeMultiplyTexture.rgb);
   vec3 shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
@@ -152,7 +152,7 @@ void main() {
   // shading shift
   int shadingShiftTexcoordIndex = get_shadingShiftTexcoordIndex(materialSID, 0);
   vec2 shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex);
-  shadingShiftTexcoord = uvAnimation(shadingShiftTexcoord, materialSID, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  shadingShiftTexcoord = uvAnimation(shadingShiftTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   float shadingShiftTexture = texture(u_shadingShiftTexture, shadingShiftTexcoord).r;
   float shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
 
@@ -160,7 +160,7 @@ void main() {
   vec3 emissiveFactor = get_emissiveFactor(materialSID, 0);
   int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
-  emissiveTexcoord = uvAnimation(emissiveTexcoord, materialSID, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  emissiveTexcoord = uvAnimation(emissiveTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec4 emissiveTexture = texture(u_emissiveTexture, emissiveTexcoord);
   emissiveTexture.rgb = srgbToLinear(emissiveTexture.rgb);
   vec3 emissive = emissiveFactor * emissiveTexture.rgb;
@@ -185,7 +185,7 @@ void main() {
   float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
   int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
   vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-  normalTexcoord = uvAnimation(normalTexcoord, materialSID, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
   vec3 normal = texture(u_normalTexture, normalTexUv).xyz * 2.0 - 1.0;
   mat3 TBN = getTBN(normal_inWorld, viewDirection, v_texcoord_0);
@@ -249,7 +249,7 @@ void main() {
   rim += parametricRim * parametricRimColorFactor;
   int rimMultiplyTexcoordIndex = get_rimMultiplyTexcoordIndex(materialSID, 0);
   vec2 rimMultiplyTexcoord = getTexcoord(rimMultiplyTexcoordIndex);
-  rimMultiplyTexcoord = uvAnimation(rimMultiplyTexcoord, materialSID, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  rimMultiplyTexcoord = uvAnimation(rimMultiplyTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   rim *= srgbToLinear(texture(u_rimMultiplyTexture, rimMultiplyTexcoord).rgb);
   float rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
   rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);

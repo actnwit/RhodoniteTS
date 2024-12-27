@@ -82,6 +82,17 @@ fn linearstep(a: f32, b: f32, t: f32) -> f32 {
   return clamp((t - a) / (b - a), 0.0, 1.0);
 }
 
+fn uvAnimation(origUv: vec2f, time: f32, uvAnimMask: f32, uvAnimationScrollXSpeedFactor: f32, uvAnimationScrollYSpeedFactor: f32, uvAnimationRotationSpeedFactor: f32) -> vec2f {
+  let scrollX = uvAnimationScrollXSpeedFactor * time;
+  let scrollY = uvAnimationScrollYSpeedFactor * time;
+  let rotation = uvAnimationRotationSpeedFactor * time;
+  let rotationCos = cos(rotation * uvAnimMask);
+  let rotationSin = sin(rotation * uvAnimMask);
+  var uv = mat2x2f(rotationCos, -rotationSin, rotationSin, rotationCos) * (origUv - vec2f(0.5)) + vec2f(0.5);
+  uv += vec2f(scrollX, scrollY) * uvAnimMask;
+  return uv;
+}
+
 @fragment
 fn main (
   input: VertexOutput,
@@ -102,7 +113,8 @@ fn main (
   let baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
   let baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
   let baseColorTexcoordIndex = u32(get_baseColorTexcoordIndex(materialSID, 0));
-  let baseColorTexcoord = getTexcoord(baseColorTexcoordIndex, input);
+  var baseColorTexcoord = getTexcoord(baseColorTexcoordIndex, input);
+  baseColorTexcoord = uvAnimation(baseColorTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   let baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
   var baseColorTexture = textureSample(baseColorTexture, baseColorSampler, baseColorTexUv);
   baseColorTexture = vec4(srgbToLinear(baseColorTexture.rgb), baseColorTexture.a);
@@ -112,21 +124,24 @@ fn main (
   // shade color
   let shadeColorFactor = get_shadeColorFactor(materialSID, 0);
   let shadeMultiplyTexcoordIndex = u32(get_shadeMultiplyTexcoordIndex(materialSID, 0));
-  let shadeMultiplyTexcoord = getTexcoord(shadeMultiplyTexcoordIndex, input);
+  var shadeMultiplyTexcoord = getTexcoord(shadeMultiplyTexcoordIndex, input);
+  shadeMultiplyTexcoord = uvAnimation(shadeMultiplyTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   var shadeMultiplyTexture = textureSample(shadeMultiplyTexture, shadeMultiplySampler, shadeMultiplyTexcoord);
   shadeMultiplyTexture = vec4(srgbToLinear(shadeMultiplyTexture.rgb), shadeMultiplyTexture.a);
   let shadeColorTerm = shadeColorFactor * shadeMultiplyTexture.rgb;
 
   // shading shift
   let shadingShiftTexcoordIndex = u32(get_shadingShiftTexcoordIndex(materialSID, 0));
-  let shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex, input);
+  var shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex, input);
+  shadingShiftTexcoord = uvAnimation(shadingShiftTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   var shadingShiftTexture = textureSample(shadingShiftTexture, shadingShiftSampler, shadingShiftTexcoord).r;
   let shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
 
   // emissive
   let emissiveFactor = get_emissiveFactor(materialSID, 0);
   let emissiveTexcoordIndex = u32(get_emissiveTexcoordIndex(materialSID, 0));
-  let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+  var emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+  emissiveTexcoord = uvAnimation(emissiveTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   var emissiveTexture = textureSample(emissiveTexture, emissiveSampler, emissiveTexcoord);
   emissiveTexture = vec4(srgbToLinear(emissiveTexture.rgb), emissiveTexture.a);
   let emissive = emissiveFactor * emissiveTexture.rgb;
@@ -149,7 +164,8 @@ fn main (
   let normalTextureTransform = get_normalTextureTransform(materialSID, 0);
   let normalTextureRotation = get_normalTextureRotation(materialSID, 0);
   let normalTexcoordIndex = u32(get_normalTexcoordIndex(materialSID, 0));
-  let normalTexcoord = getTexcoord(normalTexcoordIndex, input);
+  var normalTexcoord = getTexcoord(normalTexcoordIndex, input);
+  normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   let normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
   let normal: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz * 2.0 - 1.0;
   let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, input.texcoord_0, isFront);
@@ -214,7 +230,8 @@ fn main (
   let parametricRimColorFactor = get_parametricRimColorFactor(materialSID, 0);
   rim += parametricRim * parametricRimColorFactor;
   let rimMultiplyTexcoordIndex = u32(get_rimMultiplyTexcoordIndex(materialSID, 0));
-  let rimMultiplyTexcoord = getTexcoord(rimMultiplyTexcoordIndex, input);
+  var rimMultiplyTexcoord = getTexcoord(rimMultiplyTexcoordIndex, input);
+  rimMultiplyTexcoord = uvAnimation(rimMultiplyTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   rim *= srgbToLinear(textureSample(rimMultiplyTexture, rimMultiplySampler, rimMultiplyTexcoord).rgb);
   let rimLightingMixFactor = get_rimLightingMixFactor(materialSID, 0);
   rim *= mix(vec3(1.0), directLighting + gi, rimLightingMixFactor);
