@@ -18,10 +18,20 @@ const EPS_COL: f32 = 0.00001;
 // #param baseColorTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
 // #param baseColorTextureRotation: f32; // initialValue=0
 
+@group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
+@group(2) @binding(2) var normalSampler: sampler;
+// #param normalTexcoordIndex: f32; // initialValue=0
+// #param normalTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
+// #param normalTextureRotation: f32; // initialValue=0
+// #param normalScale: f32; // initialValue=1
+
+
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(17) var specularEnvSampler: sampler;
+
+// #param alphaCutoff: f32; // initialValue=0.5
 
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
@@ -44,6 +54,14 @@ fn main (
   baseColorTexture = vec4(srgbToLinear(baseColorTexture.rgb), baseColorTexture.a);
   let baseColorFactor = get_baseColorFactor(materialSID, 0);
   let baseColorTerm = baseColorTexture.rgb * baseColorFactor.rgb;
+
+  // alpha
+  let alpha = baseColorTexture.a * baseColorFactor.a;
+  #ifdef RN_ALPHATEST_ON
+    let cutoff = get_alphaCutoff(materialSID, 0);
+    if(alpha < cutoff) { discard; }
+  #endif
+
 
   var rt0 = vec4f(baseColorTerm, 1.0);
 
