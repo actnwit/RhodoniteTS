@@ -49,6 +49,10 @@ const EPS_COL: f32 = 0.00001;
 // #param inverseEnvironment: bool; // initialValue=false
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
+fn linearstep(a: f32, b: f32, t: f32) -> f32 {
+  return clamp((t - a) / (b - a), 0.0, 1.0);
+}
+
 @fragment
 fn main (
   input: VertexOutput,
@@ -78,7 +82,7 @@ fn main (
   // shading shift
   let shadingShiftTexcoordIndex = u32(get_shadingShiftTexcoordIndex(materialSID, 0));
   let shadingShiftTexcoord = getTexcoord(shadingShiftTexcoordIndex, input);
-  var shadingShiftTexture = textureSample(shadingShiftTexture, shadingShiftSampler, shadingShiftTexcoord);
+  var shadingShiftTexture = textureSample(shadingShiftTexture, shadingShiftSampler, shadingShiftTexcoord).r;
   let shadingShiftTextureScale = get_shadingShiftTextureScale(materialSID, 0);
 
 
@@ -110,6 +114,18 @@ fn main (
 #ifdef RN_MTOON_IS_OUTLINE
   normal_inWorld *= -1.0;
 #endif
+
+  var directLighting = vec3f(0.0);
+  let lightNumber = u32(get_lightNumber(0u, 0u));
+  for (var i = 0u; i < lightNumber; i++) {
+    let light: Light = getLight(i, input.position_inWorld.xyz);
+    var shading = dot(light.direction, normal_inWorld);
+    let shadingShiftFactor = get_shadingShiftFactor(materialSID, 0);
+    shading += shadingShiftFactor + shadingShiftTexture * shadingShiftTextureScale;
+    let shadingToonyFactor = get_shadingToonyFactor(materialSID, 0);
+    shading = linearstep(-1.0 + shadingToonyFactor, 1.0 - shadingToonyFactor, shading);
+  }
+
 
   var rt0 = vec4f(baseColorTerm, 1.0);
 
