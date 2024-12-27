@@ -727,11 +727,11 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
           break;
         case 1:
           material.cullFace = true;
-          material.cullFrontFaceCCW = false;
+          material.cullFaceBack = false;
           break;
         case 2:
           material.cullFace = true;
-          material.cullFrontFaceCCW = true;
+          material.cullFaceBack = true;
           break;
       }
     } else {
@@ -741,11 +741,11 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
           break;
         case 1:
           material.cullFace = true;
-          material.cullFrontFaceCCW = false;
+          material.cullFaceBack = false;
           break;
         case 2:
           material.cullFace = true;
-          material.cullFrontFaceCCW = true;
+          material.cullFaceBack = true;
           break;
       }
     }

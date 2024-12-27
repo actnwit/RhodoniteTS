@@ -25,6 +25,7 @@ let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
 let lastCullFace: boolean;
 let lastFrontFaceCCW: boolean;
+let lastCullFaceBack: boolean;
 let lastAlphaToCoverage: boolean;
 
 function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
@@ -36,7 +37,7 @@ function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
 function setCull(material: Material, gl: WebGLRenderingContext) {
   const cullFace = material.cullFace;
   const cullFrontFaceCCW = material.cullFrontFaceCCW;
-
+  const cullFaceBack = material.cullFaceBack;
   if (lastCullFace !== cullFace) {
     if (cullFace) {
       gl.enable(gl.CULL_FACE);
@@ -53,6 +54,15 @@ function setCull(material: Material, gl: WebGLRenderingContext) {
       gl.frontFace(gl.CW);
     }
     lastFrontFaceCCW = cullFrontFaceCCW;
+  }
+
+  if (cullFaceBack !== lastCullFaceBack) {
+    if (cullFaceBack) {
+      gl.cullFace(gl.BACK);
+    } else {
+      gl.cullFace(gl.FRONT);
+    }
+    lastCullFaceBack = cullFaceBack;
   }
 }
 

@@ -68,6 +68,7 @@ export class Material extends RnObject {
   public isTranslucent = false;
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;
+  public cullFaceBack = true; // if true, cull back face. if false, cull front face
   private __alphaToCoverage = false;
   private __blendEquationMode = Blend.EquationFuncAdd; // gl.FUNC_ADD
   private __blendEquationModeAlpha = Blend.EquationFuncAdd; // gl.FUNC_ADD
@@ -128,6 +129,7 @@ export class Material extends RnObject {
     str += this.blendEquationModeAlpha.webgpu;
     str += this.cullFace ? '1' : '0';
     str += this.cullFrontFaceCCW ? '1' : '0';
+    str += this.cullFaceBack ? '1' : '0';
 
     // for (const [key, value] of this._autoFieldVariablesOnly) {
     //   if (CompositionType.isTexture(value.info.compositionType)) {

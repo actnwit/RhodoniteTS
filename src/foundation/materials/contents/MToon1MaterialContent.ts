@@ -116,13 +116,13 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
   setMaterialParameters(material: Material, isOutline: boolean, materialJson: Vrm1_Material) {
     if (isOutline) {
       material.cullFace = true;
-      material.cullFrontFaceCCW = false;
+      material.cullFaceBack = false;
     } else {
       if (materialJson.doubleSided) {
         material.cullFace = false;
       } else {
         material.cullFace = true;
-        material.cullFrontFaceCCW = true;
+        material.cullFaceBack = true;
       }
     }
 

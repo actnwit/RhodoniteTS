@@ -1375,7 +1375,7 @@ export class WebGpuResourceRepository
         topology: topology as GPUPrimitiveTopology,
         stripIndexFormat: stripIndexFormat,
         frontFace: material.cullFrontFaceCCW ? 'ccw' : 'cw',
-        cullMode: material.cullFace ? 'back' : 'none',
+        cullMode: material.cullFace ? (material.cullFaceBack ? 'back' : 'front') : 'none',
       },
       depthStencil:
         depthStencilFormat == null
