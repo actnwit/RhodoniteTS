@@ -79,7 +79,7 @@ void main(){
     float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
     vec3 outlineOffset = outlineWidthFactor * worldNormalLength * a_normal;
 
-    float outlineWidthMultiply = texture(u_outlineWidthMultiplyTexture, a_texcoord_0).r;
+    float outlineWidthMultiply = texture(u_outlineWidthMultiplyTexture, a_texcoord_0).g;
     outlineOffset *= outlineWidthMultiply;
 
     if (outlineWidthType == 2) { // "screenCoordinates"
