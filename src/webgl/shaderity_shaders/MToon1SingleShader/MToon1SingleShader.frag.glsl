@@ -210,7 +210,6 @@ void main() {
     vec3 color = mix(shadeColorTerm, baseColorTerm, shading);
     color = color * light.attenuatedIntensity * RECIPROCAL_PI;
     directLighting += light.attenuatedIntensity;
-    // vec3 color = vec3(shading);
     rt0.xyz += color;
   }
 

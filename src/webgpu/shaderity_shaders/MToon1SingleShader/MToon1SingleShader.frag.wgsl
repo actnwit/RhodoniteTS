@@ -115,6 +115,7 @@ fn main (
   normal_inWorld *= -1.0;
 #endif
 
+  var rt0 = vec4f(0.0, 0.0, 0.0, 1.0);
   var directLighting = vec3f(0.0);
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
@@ -124,10 +125,16 @@ fn main (
     shading += shadingShiftFactor + shadingShiftTexture * shadingShiftTextureScale;
     let shadingToonyFactor = get_shadingToonyFactor(materialSID, 0);
     shading = linearstep(-1.0 + shadingToonyFactor, 1.0 - shadingToonyFactor, shading);
+
+    var color = mix(shadeColorTerm, baseColorTerm, shading);
+    color = color * light.attenuatedIntensity * RECIPROCAL_PI;
+    directLighting += light.attenuatedIntensity;
+    rt0 += vec4f(color, rt0.a);
   }
 
 
-  var rt0 = vec4f(baseColorTerm, 1.0);
+  rt0.a = alpha;
+  rt0 *= vec4f(alpha, alpha, alpha, 1.0);
 
   return rt0;
 }
