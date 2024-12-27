@@ -65,6 +65,7 @@ export class Material extends RnObject {
 
   // Common Rendering States
   private __alphaMode = AlphaMode.Opaque;
+  public zWriteWhenBlend = false;
   public isTranslucent = false;
   public cullFace = true; // If true, enable gl.CULL_FACE
   public cullFrontFaceCCW = true;

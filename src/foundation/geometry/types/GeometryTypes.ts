@@ -39,7 +39,7 @@ export interface RaycastResultEx2 {
  * --- 0
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  * 10 bits: Material TID
- *  2 bits: Translucency type (0: Opaque, 1: Translucent(draw after opaque), 2: Blend(draw after translucent) )
+ *  2 bits: Translucency type (0: Opaque, 1: Translucent, 2: Blend with ZWrite, 3: Blend without ZWrite
  *  3 bits: Viewport layer
  *  3 bits: Viewport
  *  2 bits: Fullscreen layer
@@ -97,13 +97,32 @@ function readBits(
 // }
 
 export function isBlend(primitive: Primitive) {
-  return (
-    readBits(
-      primitive,
-      PrimitiveSortKey_BitOffset_TranslucencyType,
-      PrimitiveSortKey_BitLength_TranslucencyType
-    ) === 2 // blend
+  const bit = readBits(
+    primitive,
+    PrimitiveSortKey_BitOffset_TranslucencyType,
+    PrimitiveSortKey_BitLength_TranslucencyType
   );
+  return (
+    bit === 2 || bit === 3 // blend
+  );
+}
+
+export function isBlendWithZWrite(primitive: Primitive) {
+  const bit = readBits(
+    primitive,
+    PrimitiveSortKey_BitOffset_TranslucencyType,
+    PrimitiveSortKey_BitLength_TranslucencyType
+  );
+  return bit === 2; // blend with ZWrite
+}
+
+export function isBlendWithoutZWrite(primitive: Primitive) {
+  const bit = readBits(
+    primitive,
+    PrimitiveSortKey_BitOffset_TranslucencyType,
+    PrimitiveSortKey_BitLength_TranslucencyType
+  );
+  return bit === 3; // blend without ZWrite
 }
 
 export function isTranslucent(primitive: Primitive) {
@@ -113,5 +132,15 @@ export function isTranslucent(primitive: Primitive) {
       PrimitiveSortKey_BitOffset_TranslucencyType,
       PrimitiveSortKey_BitLength_TranslucencyType
     ) === 1 // translucent
+  );
+}
+
+export function isOpaque(primitive: Primitive) {
+  return (
+    readBits(
+      primitive,
+      PrimitiveSortKey_BitOffset_TranslucencyType,
+      PrimitiveSortKey_BitLength_TranslucencyType
+    ) === 0 // opaque
   );
 }

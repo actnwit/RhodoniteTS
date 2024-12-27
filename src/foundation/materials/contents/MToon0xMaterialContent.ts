@@ -749,6 +749,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
           break;
       }
     }
+
+    material.zWriteWhenBlend = this.__floatProperties._ZWrite === 1;
   }
 
   private static __initializeUsableBlendEquationModeAlpha() {

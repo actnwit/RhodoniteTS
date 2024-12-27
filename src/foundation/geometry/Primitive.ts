@@ -195,7 +195,11 @@ export class Primitive extends RnObject {
     if (mat.isTranslucentOpaque()) {
       translucencyType = 1; // translucent
     } else if (mat.isBlend()) {
-      translucencyType = 2; // blend
+      if (mat.zWriteWhenBlend) {
+        translucencyType = 2; // blend with ZWrite
+      } else {
+        translucencyType = 3; // blend without ZWrite
+      }
     }
     this.setSortKey(
       PrimitiveSortKey_BitOffset_TranslucencyType,

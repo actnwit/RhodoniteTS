@@ -21,7 +21,12 @@ import {
 } from '../../../types/CommonTypes';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
-import { isBlend, isTranslucent } from '../../geometry/types/GeometryTypes';
+import {
+  isBlend,
+  isBlendWithoutZWrite,
+  isBlendWithZWrite,
+  isTranslucent,
+} from '../../geometry/types/GeometryTypes';
 import { Primitive } from '../../geometry/Primitive';
 import { CGAPIStrategy } from '../../renderer/CGAPIStrategy';
 import { RnXR } from '../../../xr/main';
@@ -249,11 +254,11 @@ export class MeshRendererComponent extends Component {
 
     // Sort by sortkey
     primitives.sort((a, b) => {
-      if (isBlend(a) && isBlend(b)) {
-        return a._viewDepth - b._viewDepth;
-      } else {
-        return a._sortkey - b._sortkey;
+      const delta = a._sortkey - b._sortkey;
+      if (delta !== 0) {
+        return delta;
       }
+      return a._viewDepth - b._viewDepth;
     });
 
     const primitiveUids = primitives.map((primitive) => primitive.primitiveUid);
@@ -261,7 +266,8 @@ export class MeshRendererComponent extends Component {
 
     let _lastOpaqueIndex = primitives.length - 1;
     let _lastTranslucentIndex = primitives.length - 1;
-    let _lastBlendIndex = primitives.length - 1;
+    let _lastBlendWithZWriteIndex = primitives.length - 1;
+    let _lastBlendWithoutZWriteIndex = primitives.length - 1;
 
     for (let i = 0; i < primitives.length; i++) {
       const primitive = primitives[i];
@@ -270,8 +276,13 @@ export class MeshRendererComponent extends Component {
         _lastOpaqueIndex = i - 1;
         break;
       }
-      const blend = isBlend(primitive);
-      if (blend) {
+      const blendWithZWrite = isBlendWithZWrite(primitive);
+      if (blendWithZWrite) {
+        _lastOpaqueIndex = i - 1;
+        break;
+      }
+      const blendWithoutZWrite = isBlendWithoutZWrite(primitive);
+      if (blendWithoutZWrite) {
         _lastOpaqueIndex = i - 1;
         break;
       }
@@ -279,9 +290,23 @@ export class MeshRendererComponent extends Component {
 
     for (let i = _lastOpaqueIndex + 1; i < primitives.length; i++) {
       const primitive = primitives[i];
-      const translucency = isBlend(primitive);
-      if (translucency) {
+      const blendWithZWrite = isBlendWithZWrite(primitive);
+      if (blendWithZWrite) {
         _lastTranslucentIndex = i - 1;
+        break;
+      }
+      const blendWithoutZWrite = isBlendWithoutZWrite(primitive);
+      if (blendWithoutZWrite) {
+        _lastTranslucentIndex = i - 1;
+        break;
+      }
+    }
+
+    for (let i = _lastTranslucentIndex + 1; i < primitives.length; i++) {
+      const primitive = primitives[i];
+      const blendWithoutZWrite = isBlendWithoutZWrite(primitive);
+      if (blendWithoutZWrite) {
+        _lastBlendWithZWriteIndex = i - 1;
         break;
       }
     }
@@ -295,8 +320,12 @@ export class MeshRendererComponent extends Component {
       renderPass._lastTranslucentIndex = _lastTranslucentIndex;
       resultChanged ||= true;
     }
-    if (_lastBlendIndex != renderPass._lastBlendIndex) {
-      renderPass._lastBlendIndex = _lastBlendIndex;
+    if (_lastBlendWithZWriteIndex != renderPass._lastBlendWithZWriteIndex) {
+      renderPass._lastBlendWithZWriteIndex = _lastBlendWithZWriteIndex;
+      resultChanged ||= true;
+    }
+    if (_lastBlendWithoutZWriteIndex != renderPass._lastBlendWithoutZWriteIndex) {
+      renderPass._lastBlendWithoutZWriteIndex = _lastBlendWithoutZWriteIndex;
       resultChanged ||= true;
     }
 

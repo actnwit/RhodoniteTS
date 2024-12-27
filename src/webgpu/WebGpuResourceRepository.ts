@@ -914,7 +914,7 @@ export class WebGpuResourceRepository
     material: Material,
     renderPass: RenderPass,
     cameraId: number,
-    isOpaque: boolean
+    zWrite: boolean
   ) {
     const isBufferLessRendering = renderPass.isBufferLessRenderingMode();
     const VertexHandles = primitive._vertexHandles;
@@ -947,14 +947,14 @@ export class WebGpuResourceRepository
 
     const renderPipelineId = `${primitive._getFingerPrint()} ${material.materialUID} ${
       renderPass.renderPassUID
-    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${isOpaque} `;
+    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${zWrite} `;
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
       primitive,
       material,
       renderPass,
-      isOpaque,
+      zWrite,
       diffuseCubeMap,
       specularCubeMap
     );
@@ -1221,7 +1221,7 @@ export class WebGpuResourceRepository
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
-    isOpaque: boolean,
+    zWrite: boolean,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
     specularCubeMap?: CubeTexture | RenderTargetTextureCube
   ): [GPURenderPipeline, boolean] {
@@ -1381,14 +1381,7 @@ export class WebGpuResourceRepository
         depthStencilFormat == null
           ? undefined
           : {
-              depthWriteEnabled:
-                (renderPass.isDepthTest && renderPass.depthWriteMask && isOpaque) ||
-                (renderPass.isDepthTest &&
-                  renderPass.depthWriteMask &&
-                  !isOpaque &&
-                  MeshRendererComponent.isDepthMaskTrueForBlendPrimitives)
-                  ? true
-                  : false,
+              depthWriteEnabled: zWrite,
               depthCompare: renderPass.isDepthTest ? 'less' : 'always',
               format: depthStencilFormat,
             },
