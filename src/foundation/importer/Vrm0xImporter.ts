@@ -218,6 +218,7 @@ export class Vrm0xImporter {
 
     const boneGroups: VRMSpring[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
+      if (boneGroup.bones.length === 0) continue;
       const jointRootIndex = boneGroup.bones[0];
       const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRootIndex];
       const vrmSpringBoneGroup = new VRMSpring(jointRootEntity.getSceneGraph());
