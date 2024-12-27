@@ -69,14 +69,6 @@ uniform bool u_makeOutputSrgb; // initialValue=false
 uniform vec3 u_outlineColorFactor; // initialValue=(0,0,0)
 uniform float u_outlineLightingMixFactor; // initialValue=1.0
 
-// vec3 linearToSrgb(vec3 linearColor) {
-//   return pow(linearColor, vec3(1.0/2.2));
-// }
-
-// vec3 srgbToLinear(vec3 srgbColor) {
-//   return pow(srgbColor, vec3(2.2));
-// }
-
 float linearstep(float a, float b, float t) {
   return clamp((t - a) / (b - a), 0.0, 1.0);
 }
