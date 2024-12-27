@@ -160,6 +160,8 @@ fn main (
   normal_inWorld *= -1.0;
 #endif
 
+  // direct lighting
+  // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation
   var rt0 = vec4f(0.0, 0.0, 0.0, 1.0);
   var directLighting = vec3f(0.0);
   let lightNumber = u32(get_lightNumber(0u, 0u));
@@ -177,6 +179,24 @@ fn main (
     rt0 += vec4f(color, rt0.a);
   }
 
+  // indirect lighting
+  // https://github.com/vrm-c/vrm-specification/blob/282edef7b8de6044d782afdab12b14bd8ccf0630/specification/VRMC_materials_mtoon-1.0/README.ja.md#implementation-1
+  let giEqualizationFactor = get_giEqualizationFactor(materialSID, 0);
+  let worldUpVector = vec3f(0.0, 1.0, 0.0);
+  let worldDownVector = vec3f(0.0, -1.0, 0.0);
+  let iblParameter = get_iblParameter(materialSID, 0);
+  let rot = iblParameter.w;
+  let IBLDiffuseContribution = iblParameter.y;
+  let rotEnvMatrix = mat3x3f(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  let normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  let hdriFormat = get_hdriFormat(materialSID, 0);
+  let rawGiUp = get_irradiance(worldUpVector, hdriFormat);
+  let rawGiDown = get_irradiance(worldDownVector, hdriFormat);
+  let rawGiNormal = get_irradiance(normal_forEnv, hdriFormat);
+  let uniformedGi = (rawGiUp + rawGiDown) / 2.0;
+  let passthroughGi = rawGiNormal;
+  let gi = mix(uniformedGi, passthroughGi, giEqualizationFactor);
+  rt0 += vec4f(gi * baseColorTerm * RECIPROCAL_PI, rt0.a);
 
   rt0.a = alpha;
   rt0 *= vec4f(alpha, alpha, alpha, 1.0);
