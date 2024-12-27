@@ -85,7 +85,7 @@ fn main(
       output.position = projectionMatrix * viewMatrix * (geom.position_inWorld + worldOutlineOffset);
 
     #elif defined(RN_MTOON_OUTLINE_WIDTH_SCREEN)
-      let vertex: vec4f = projectionMatrix * viewMatrix * geom.position_inWorld;
+      var vertex: vec4f = projectionMatrix * viewMatrix * geom.position_inWorld;
 
       let clipNormal: vec3f = (projectionMatrix * vec4f(output.normal_inView, 1.0)).xyz;
       var projectedNormal: vec2f = normalize(clipNormal.xy);
@@ -95,7 +95,7 @@ fn main(
       projectedNormal.x *= aspect;
 
       let outlineWidth: f32 = get_outlineWidth(materialSID, 0);
-      vertex.xy += 0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(output.normal_inView.z), 0.0, 1.0); // ignore offset when normal toward camera
+      vertex += vec4f(0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(output.normal_inView.z), 0.0, 1.0), vertex.z, vertex.w); // ignore offset when normal toward camera
 
       output.position = vertex;
     #else
