@@ -42,11 +42,40 @@ const EPS_COL: f32 = 0.00001;
 @group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
 @group(2) @binding(17) var specularEnvSampler: sampler;
 
-// #param alphaCutoff: f32; // initialValue=0.5
+// #param giEqualizationFactor: f32; // initialValue=0.9
 
+@group(1) @binding(5) var matcapTexture: texture_2d<f32>; // initialValue=black
+@group(2) @binding(5) var matcapSampler: sampler;
+// #param matcapFactor: vec3<f32>; // initialValue=(1,1,1)
+// #param parametricRimColorFactor: vec3<f32>; // initialValue=(0,0,0)
+// #param parametricRimFresnelPowerFactor: f32; // initialValue=5.0
+// #param parametricRimLiftFactor: f32; // initialValue=0.0
+@group(1) @binding(6) var rimMultiplyTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(6) var rimMultiplySampler: sampler;
+// #param rimMultiplyTexcoordIndex: f32; // initialValue=0
+// #param rimLightingMixFactor: f32; // initialValue=1.0
+
+// #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
+@group(1) @binding(7) var emissiveTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(7) var emissiveSampler: sampler;
+// #param emissiveTexcoordIndex: f32; // initialValue=0
+
+// #param outlineColorFactor: vec3<f32>; // initialValue=(0,0,0)
+// #param outlineLightingMixFactor: f32; // initialValue=1.0
+
+@group(1) @binding(8) var uvAnimationMaskTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(8) var uvAnimationMaskSampler: sampler;
+// #param uvAnimationMaskTexcoordIndex: f32; // initialValue=0
+// #param uvAnimationScrollXSpeedFactor: f32; // initialValue=0.0
+// #param uvAnimationScrollYSpeedFactor: f32; // initialValue=0.0
+// #param uvAnimationRotationSpeedFactor: f32; // initialValue=0.0
+
+// #param inverseEnvironment: bool; // initialValue=false
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
-// #param inverseEnvironment: bool; // initialValue=false
+// #param alphaCutoff: f32; // initialValue=0.5
+// #param makeOutputSrgb: bool; // initialValue=false
+
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 fn linearstep(a: f32, b: f32, t: f32) -> f32 {
