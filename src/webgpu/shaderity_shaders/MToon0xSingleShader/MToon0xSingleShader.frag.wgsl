@@ -31,6 +31,18 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
+const float PI_2 = 6.28318530718;
+
+fn uvAnimation(origUv: vec2f, time: f32, uvAnimationMask: f32, uvAnimationScrollXSpeedFactor: f32, uvAnimationScrollYSpeedFactor: f32, uvAnimationRotationSpeedFactor: f32) -> vec2f {
+  let uvAnim = uvAnimationMask * time;
+  let uv = origUv;
+  uv += vec2f(uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor) * uvAnim;
+  let rotateRad = uvAnimationRotationSpeedFactor * PI_2 * uvAnim;
+  let rotatePivot = vec2f(0.5);
+  uv = mat2x2f(cos(rotateRad), -sin(rotateRad), sin(rotateRad), cos(rotateRad)) * (uv - rotatePivot) + rotatePivot;
+  return uv;
+}
+
 @fragment
 fn main (
   input: VertexOutput,
@@ -46,15 +58,16 @@ fn main (
 
   #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-
-  // TODO
-  // uv transform
-
-  // TODO
   // uv animation
+  let uvAnimationMaskTexture = textureSample(uvAnimationMaskTexture, uvAnimationMaskSampler, input.texcoord_0).r;
+  let uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
+  let uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
+  let uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
+  let time = get_time(0.0, 0);
+  let mainUv = uvAnimation(input.texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
 
   // main color
-  let litTextureColor: vec4f = textureSample(litColorTexture, litColorSampler, input.texcoord_0);
+  let litTextureColor: vec4f = textureSample(litColorTexture, litColorSampler, mainUv);
   let litColorFactor: vec4f = get_litColor(materialSID, 0);
 
   // alpha
@@ -88,12 +101,13 @@ fn main (
   // view vector
   let viewPosition: vec3f = get_viewPosition(cameraSID, 0);
   let viewVector: vec3f = viewPosition - input.position_inWorld.xyz;
+  let viewDirection: vec3f = normalize(viewVector);
 
   // Normal
   var normal_inWorld: vec3f = normalize(input.normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
-    let normal: vec3f = textureSample(normalTexture, normalSampler, input.texcoord_0).xyz * 2.0 - 1.0;
-    let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, input.texcoord_0, isFront);
+    let normal: vec3f = textureSample(normalTexture, normalSampler, mainUv).xyz * 2.0 - 1.0;
+    let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewDirection, mainUv, isFront);
     normal_inWorld = normalize(TBN * normal);
   #endif
 
@@ -108,14 +122,14 @@ fn main (
   // TODO: shadowmap computation
 
   let receiveShadowRate: f32 = get_receiveShadowRate(materialSID, 0);
-  var lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, input.texcoord_0).r);
+  var lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, mainUv).r);
 
   let shadingGradeRate: f32 = get_shadingGradeRate(materialSID, 0);
-  let shadingGrade: f32 = 1.0 - shadingGradeRate * (1.0 - textureSample(shadingGradeTexture, shadingGradeSampler, input.texcoord_0).r);
+  let shadingGrade: f32 = 1.0 - shadingGradeRate * (1.0 - textureSample(shadingGradeTexture, shadingGradeSampler, mainUv).r);
   let lightColorAttenuation: f32 = get_lightColorAttenuation(materialSID, 0);
 
   let shadeColorFactor: vec3f = get_shadeColor(materialSID, 0);
-  var shadeColor: vec3f = shadeColorFactor * textureSample(shadeColorTexture, shadeColorSampler, input.texcoord_0).xyz;
+  var shadeColor: vec3f = shadeColorFactor * textureSample(shadeColorTexture, shadeColorSampler, mainUv).xyz;
   shadeColor = srgbToLinear(shadeColor.xyz);
 
   var litColor: vec3f = litColorFactor.xyz * litTextureColor.xyz;
@@ -213,7 +227,7 @@ fn main (
     let rimFresnelPower: f32 = get_rimFresnelPower(materialSID, 0);
     let rimLift: f32 = get_rimLift(materialSID, 0);
     let rimColorFactor: vec3f = get_rimColor(materialSID, 0);
-    let rimTextureColor: vec3f = textureSample(rimTexture, rimSampler, input.texcoord_0).xyz;
+    let rimTextureColor: vec3f = textureSample(rimTexture, rimSampler, mainUv).xyz;
     let rimColor: vec3f = srgbToLinear(rimColorFactor * rimTextureColor);
     let rim: vec3f = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
@@ -239,7 +253,7 @@ fn main (
 
     // Emission
     let emissionColor: vec3f = get_emissionColor(materialSID, 0);
-    let emission: vec3f = srgbToLinear(textureSample(emissionTexture, emissionSampler, input.texcoord_0).xyz) * emissionColor;
+    let emission: vec3f = srgbToLinear(textureSample(emissionTexture, emissionSampler, mainUv).xyz) * emissionColor;
     rt0 += vec4f(emission, 0.0);
   #endif
 

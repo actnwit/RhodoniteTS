@@ -70,15 +70,15 @@ void main (){
 
   #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-  // main color
+  // uv animation
   float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).r;
   float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
   float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
   float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
   float time = get_time(0.0, 0);
-
   vec2 mainUv = uvAnimation(v_texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
-  // vec2 mainUv = v_texcoord_0;
+
+  // main color
   vec4 litTextureColor = texture(u_litColorTexture, mainUv);
   vec4 litColorFactor = get_litColor(materialSID, 0);
 
@@ -114,12 +114,13 @@ void main (){
   // view vector
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
+  vec3 viewDirection = normalize(viewVector);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
     vec3 normal = texture(u_normalTexture, mainUv).xyz * 2.0 - 1.0;
-    mat3 TBN = getTBN(normal_inWorld, viewVector, mainUv);
+    mat3 TBN = getTBN(normal_inWorld, viewDirection, mainUv);
     normal_inWorld = normalize(TBN * normal);
   #endif
 
