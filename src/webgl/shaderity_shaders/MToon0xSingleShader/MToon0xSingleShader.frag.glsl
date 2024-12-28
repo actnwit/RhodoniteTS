@@ -176,7 +176,7 @@ void main (){
       #endif
     }
 
-    col *= lighting;
+    col *= lighting * RECIPROCAL_PI;
     lightings[i] = lighting;
 
     rt0.xyz += col;
@@ -191,7 +191,7 @@ void main (){
   indirectLighting = mix(indirectLighting, vec3(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
   // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
 
-  rt0.xyz += indirectLighting * litColor;
+  // rt0.xyz += indirectLighting * litColor;
   rt0.xyz = min(rt0.xyz, litColor); // comment out if you want to PBR absolutely.
 
 

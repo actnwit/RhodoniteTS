@@ -72,7 +72,9 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   static readonly _AmbientColor = new ShaderSemanticsClass({
     str: 'ambientColor',
   });
-  // static readonly _IndirectLightIntensity = new ShaderSemanticsClass({ str: 'indirectLightIntensity' });
+  static readonly _IndirectLightIntensity = new ShaderSemanticsClass({
+    str: 'indirectLightIntensity',
+  });
   public static readonly _rimTexture = new ShaderSemanticsClass({ str: 'rimTexture' });
   static readonly _RimColor = new ShaderSemanticsClass({ str: 'rimColor' });
   static readonly _RimLightingMix = new ShaderSemanticsClass({
@@ -288,11 +290,15 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         min: 0,
         max: 1,
       },
-      // {
-      //   semantic: MToonMaterialContent._IndirectLightIntensity, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._IndirectLightIntensity), min: 0, max: 1
-      // },
+      {
+        semantic: 'indirectLightIntensity',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._IndirectLightIntensity),
+        min: 0,
+        max: 1,
+      },
       {
         semantic: 'rimColor',
         componentType: ComponentType.Float,
