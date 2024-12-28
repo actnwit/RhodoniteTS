@@ -19,6 +19,7 @@ out vec3 v_baryCentricCoord;
 out vec3 v_normal_inView;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
+out float v_instanceInfo;
 
 #ifdef RN_USE_TANGENT
 in vec4 a_tangent;
@@ -110,4 +111,5 @@ void main(){
 
   v_texcoord_0 = a_texcoord_0;
   v_baryCentricCoord = a_baryCentricCoord.xyz;
+  v_instanceInfo = a_instanceInfo.x;
 }

@@ -759,9 +759,20 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
     }
 
-    // For translucent primitives
     if (renderPass._toRenderTransparentPrimitives) {
+      // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
+        const primitiveUid = primitiveUids[i];
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
+        renderedSomething ||= rendered;
+      }
+
+      // Draw Blend primitives with ZWrite
+      for (
+        let i = renderPass._lastTranslucentIndex + 1;
+        i <= renderPass._lastBlendWithZWriteIndex;
+        i++
+      ) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
@@ -772,12 +783,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         gl.depthMask(false);
       }
 
-      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendIndex; i++) {
+      // Draw Blend primitives without ZWrite
+      for (
+        let i = renderPass._lastBlendWithZWriteIndex + 1;
+        i <= renderPass._lastBlendWithoutZWriteIndex;
+        i++
+      ) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
     }
+
     gl.depthMask(true);
 
     this.__lastRenderPassTickCount = renderPassTickCount;

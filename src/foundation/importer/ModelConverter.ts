@@ -91,6 +91,7 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { Logger } from '../misc/Logger';
+import { Vrm1_Material } from '../../types/VRM1';
 
 declare let DracoDecoderModule: any;
 
@@ -782,7 +783,7 @@ export class ModelConverter {
 
   private static __setVRM1Material(
     gltfModel: RnM2,
-    materialJson: RnM2Material,
+    materialJson: Vrm1_Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
@@ -817,14 +818,14 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToonMaterial({
+          outlineMaterial = MaterialHelper.createMToon1Material({
             additionalName,
             isMorphing,
             isSkinning,
             isLighting,
             useTangentAttribute,
             isOutline: true,
-            materialProperties,
+            materialJson,
             textures,
             samplers,
             debugMode,
@@ -838,14 +839,14 @@ export class ModelConverter {
         }
       }
 
-      const material = MaterialHelper.createMToonMaterial({
+      const material = MaterialHelper.createMToon1Material({
         additionalName,
         isMorphing,
         isSkinning,
         isLighting,
         useTangentAttribute,
         isOutline: false,
-        materialProperties,
+        materialJson,
         textures,
         samplers,
         debugMode,
@@ -853,7 +854,10 @@ export class ModelConverter {
         makeOutputSrgb,
       });
 
-      ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
+      // ModelConverter.setMToonTextures(textures, materialProperties, material, samplers);
+
+      // disable unlit
+      (materialJson.extensions as any).KHR_materials_unlit = undefined;
 
       return material;
     }
@@ -941,6 +945,15 @@ export class ModelConverter {
         samplers[materialProperties.textureProperties._OutlineWidthTexture]
       );
     }
+    const uvAnimationMaskTexture =
+      textures[materialProperties.textureProperties._UvAnimMaskTexture];
+    if (uvAnimationMaskTexture != null) {
+      material.setTextureParameter(
+        'uvAnimationMaskTexture',
+        uvAnimationMaskTexture,
+        samplers[materialProperties.textureProperties._UvAnimMaskTexture]
+      );
+    }
   }
 
   private static __setVRM0xMaterial(
@@ -981,7 +994,7 @@ export class ModelConverter {
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
         if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
-          outlineMaterial = MaterialHelper.createMToonMaterial({
+          outlineMaterial = MaterialHelper.createMToon0xMaterial({
             additionalName,
             isMorphing,
             isSkinning,
@@ -998,11 +1011,12 @@ export class ModelConverter {
         }
 
         if (Is.exist(outlineMaterial)) {
+          ModelConverter.setMToonTextures(textures, materialProperties, outlineMaterial, samplers);
           materialJson.extras!.outlineMaterial = new WeakRef(outlineMaterial);
         }
       }
 
-      const material = MaterialHelper.createMToonMaterial({
+      const material = MaterialHelper.createMToon0xMaterial({
         additionalName,
         isMorphing,
         isSkinning,
@@ -1073,7 +1087,11 @@ export class ModelConverter {
     if (Is.exist(materialJson)) {
       if (materialJson.extensions?.VRMC_materials_mtoon != null) {
         const rnLoaderOptions = gltfModel.asset.extras!.rnLoaderOptions!;
-        const material = this.__setVRM1Material(gltfModel, materialJson, rnLoaderOptions);
+        const material = this.__setVRM1Material(
+          gltfModel,
+          materialJson as Vrm1_Material,
+          rnLoaderOptions
+        );
         if (Is.exist(material)) {
           material.isTranslucent = isTranslucent;
           return material;
@@ -1186,19 +1204,35 @@ export class ModelConverter {
   }
 
   private static __setupMaterial(gltfModel: RnM2, materialJson?: RnM2Material): Material {
-    const isUnlit = materialJson?.extensions?.KHR_materials_unlit != null;
-
     const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
+    if (materialJson == null) return material;
 
-    // avoid unexpected initialization
-    if (!this.__needParameterInitialization(materialJson!, material.materialTypeName))
-      return material;
+    ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, false);
 
+    if (materialJson.extras?.outlineMaterial != null) {
+      ModelConverter.setParametersToMaterial(
+        materialJson,
+        gltfModel,
+        materialJson.extras.outlineMaterial.deref(),
+        true
+      );
+    }
+
+    return material;
+  }
+
+  private static setParametersToMaterial(
+    materialJson: RnM2Material,
+    gltfModel: RnM2,
+    material: Material,
+    isOutline: boolean
+  ) {
+    const isUnlit = materialJson.extensions?.KHR_materials_unlit != null;
     const options = gltfModel.asset.extras!.rnLoaderOptions;
-    const pbrMetallicRoughness = materialJson?.pbrMetallicRoughness;
+    const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       // BaseColor Factor
-      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson!);
+      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson);
     } else {
       let param: Index = ShadingModel.Phong.index;
       if (materialJson?.extras?.technique) {
@@ -1220,12 +1254,12 @@ export class ModelConverter {
       }
     }
 
-    const emissiveFactor = isUnlit ? ([0, 0, 0] as Array3<number>) : materialJson?.emissiveFactor;
+    const emissiveFactor = isUnlit ? ([0, 0, 0] as Array3<number>) : materialJson.emissiveFactor;
     if (emissiveFactor != null) {
       material.setParameter('emissiveFactor', Vector3.fromCopyArray3(emissiveFactor));
     }
 
-    const emissiveTexture = materialJson?.emissiveTexture;
+    const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(emissiveTexture.texture!, gltfModel);
       const rnSampler = ModelConverter._createSampler(emissiveTexture.texture!);
@@ -1241,7 +1275,7 @@ export class ModelConverter {
       );
     }
 
-    let alphaMode = materialJson?.alphaMode;
+    let alphaMode = materialJson.alphaMode;
     if (options?.alphaMode) {
       alphaMode = options.alphaMode;
     }
@@ -1255,43 +1289,18 @@ export class ModelConverter {
       ) {
         material.setParameter(
           'alphaCutoff',
-          Scalar.fromCopyNumber(materialJson?.alphaCutoff ?? 0.5)
+          Scalar.fromCopyNumber(materialJson.alphaCutoff ?? 0.5)
         );
       }
     }
-    material.isTranslucent = Is.exist(materialJson?.extensions?.KHR_materials_transmission);
+    material.isTranslucent = Is.exist(materialJson.extensions?.KHR_materials_transmission);
 
-    const doubleSided = materialJson?.doubleSided;
-    if (doubleSided != null) {
+    const doubleSided = materialJson.doubleSided;
+    if (doubleSided != null && !isOutline) {
       material.cullFace = !doubleSided;
     }
 
-    // For glTF1.0
-    if (Is.exist((materialJson as any).diffuseColorTexture)) {
-      const diffuseColorTexture = (materialJson as any).diffuseColorTexture as RnM2Texture;
-      const rnTexture = ModelConverter._createTexture(diffuseColorTexture, gltfModel, {
-        autoDetectTransparency: options?.autoDetectTextureTransparency,
-      });
-      const rnSampler = ModelConverter._createSampler(diffuseColorTexture);
-      material.setTextureParameter('diffuseColorTexture', rnTexture, rnSampler);
-
-      if (
-        this._checkRnGltfLoaderOptionsExist(gltfModel) &&
-        gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension
-      ) {
-        const loaderExtension = gltfModel.asset.extras!.rnLoaderOptions!
-          .loaderExtension as ILoaderExtension;
-        if (loaderExtension.setUVTransformToTexture) {
-          loaderExtension.setUVTransformToTexture(material, diffuseColorTexture.samplerObject!);
-        }
-      }
-    }
-    if (Is.exist(materialJson?.diffuseColorFactor)) {
-      const diffuseColorFactor = materialJson?.diffuseColorFactor as Array4<number>;
-      material.setParameter('diffuseColorFactor', Vector4.fromCopyArray4(diffuseColorFactor));
-    }
-
-    const normalTexture = materialJson?.normalTexture;
+    const normalTexture = materialJson.normalTexture;
     if (normalTexture != null && Is.falsy(isUnlit)) {
       const rnTexture = ModelConverter._createTexture(normalTexture.texture!, gltfModel);
       const rnSampler = ModelConverter._createSampler(normalTexture.texture!);
@@ -1313,17 +1322,17 @@ export class ModelConverter {
       'normalTextureRotation'
     );
 
-    // ModelConverter._setupTextureTransform(normalTexture, material, 'normalTextureTransform', 'normalTextureRotation')
-
     // For Extension
     if (this._checkRnGltfLoaderOptionsExist(gltfModel)) {
       const loaderExtension = gltfModel.asset.extras?.rnLoaderOptions?.loaderExtension;
       if (loaderExtension?.setupMaterial != null) {
-        loaderExtension.setupMaterial(gltfModel, materialJson!, material);
+        loaderExtension.setupMaterial(gltfModel, materialJson, material);
       }
     }
 
-    return material;
+    if (materialJson.extensions?.VRMC_materials_mtoon != null) {
+      setupMToon1(material, gltfModel, materialJson as Vrm1_Material);
+    }
   }
 
   static _createSampler(texture: RnM2Texture) {
@@ -1435,14 +1444,7 @@ export class ModelConverter {
   ): boolean {
     if (materialJson == null) return false;
 
-    if (
-      materialTypeName.match(/PbrUber/) != null ||
-      materialTypeName.match(/ClassicUber/) != null
-    ) {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
   }
 
   private static _checkRnGltfLoaderOptionsExist(gltfModel: RnM2) {
@@ -2139,6 +2141,186 @@ export class ModelConverter {
   }
 }
 
+function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Material) {
+  const mToon = materialJson.extensions.VRMC_materials_mtoon;
+
+  {
+    const shadeColorFactor = mToon.shadeColorFactor;
+    material.setParameter('shadeColorFactor', Vector3.fromCopyArray3(shadeColorFactor));
+  }
+
+  {
+    const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
+    if (shadeMultiplyTexture != null) {
+      const rnTexture = ModelConverter._createTexture(shadeMultiplyTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(shadeMultiplyTexture.texture!);
+      material.setTextureParameter('shadeMultiplyTexture', rnTexture, rnSampler);
+      if (shadeMultiplyTexture.texCoord != null) {
+        material.setParameter('shadeMultiplyTexcoordIndex', shadeMultiplyTexture.texCoord);
+      }
+    }
+  }
+
+  {
+    const shadingShiftFactor = mToon.shadingShiftFactor;
+    if (shadingShiftFactor != null) {
+      material.setParameter('shadingShiftFactor', shadingShiftFactor);
+    }
+  }
+  {
+    const shadingShiftTexture = mToon.shadingShiftTexture;
+    if (shadingShiftTexture != null) {
+      const rnTexture = ModelConverter._createTexture(shadingShiftTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(shadingShiftTexture.texture!);
+      material.setTextureParameter('shadingShiftTexture', rnTexture, rnSampler);
+      if (shadingShiftTexture.texCoord != null) {
+        material.setParameter('shadingShiftTexcoordIndex', shadingShiftTexture.texCoord);
+      }
+      const shadingShiftTextureScale = shadingShiftTexture.scale;
+      if (shadingShiftTextureScale != null) {
+        material.setParameter('shadingShiftTextureScale', shadingShiftTextureScale);
+      }
+    }
+  }
+  {
+    const shadingToonyFactor = mToon.shadingToonyFactor;
+    if (shadingToonyFactor != null) {
+      material.setParameter('shadingToonyFactor', shadingToonyFactor);
+    }
+  }
+  {
+    const giEqualizationFactor = mToon.giEqualizationFactor;
+    if (giEqualizationFactor != null) {
+      material.setParameter('giEqualizationFactor', giEqualizationFactor);
+    }
+  }
+  {
+    const matcapTexture = mToon.matcapTexture;
+    if (matcapTexture != null) {
+      const rnTexture = ModelConverter._createTexture(matcapTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(matcapTexture.texture!);
+      material.setTextureParameter('matcapTexture', rnTexture, rnSampler);
+      if (matcapTexture.texCoord != null) {
+        material.setParameter('matcapTexcoordIndex', matcapTexture.texCoord);
+      }
+    }
+  }
+  {
+    const matcapFactor = mToon.matcapFactor;
+    if (matcapFactor != null) {
+      material.setParameter('matcapFactor', Vector3.fromCopyArray3(matcapFactor));
+    }
+  }
+  {
+    const parametricRimColorFactor = mToon.parametricRimColorFactor;
+    if (parametricRimColorFactor != null) {
+      material.setParameter(
+        'parametricRimColorFactor',
+        Vector3.fromCopyArray3(parametricRimColorFactor)
+      );
+    }
+  }
+  {
+    const parametricRimFresnelPowerFactor = mToon.parametricRimFresnelPowerFactor;
+    if (parametricRimFresnelPowerFactor != null) {
+      material.setParameter('parametricRimFresnelPowerFactor', parametricRimFresnelPowerFactor);
+    }
+  }
+  {
+    const parametricRimLiftFactor = mToon.parametricRimLiftFactor;
+    if (parametricRimLiftFactor != null) {
+      material.setParameter('parametricRimLiftFactor', parametricRimLiftFactor);
+    }
+  }
+  {
+    const rimMultiplyTexture = mToon.rimMultiplyTexture;
+    if (rimMultiplyTexture != null) {
+      const rnTexture = ModelConverter._createTexture(rimMultiplyTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(rimMultiplyTexture.texture!);
+      material.setTextureParameter('rimMultiplyTexture', rnTexture, rnSampler);
+      if (rimMultiplyTexture.texCoord != null) {
+        material.setParameter('rimMultiplyTexcoordIndex', rimMultiplyTexture.texCoord);
+      }
+    }
+  }
+  {
+    const rimLightingMixFactor = mToon.rimLightingMixFactor;
+    if (rimLightingMixFactor != null) {
+      material.setParameter('rimLightingMixFactor', rimLightingMixFactor);
+    }
+  }
+  {
+    const outlineWidthMode = mToon.outlineWidthMode;
+    if (outlineWidthMode != null) {
+      if (outlineWidthMode === 'none') {
+        material.setParameter('outlineWidthMode', 0);
+      } else if (outlineWidthMode === 'worldCoordinates') {
+        material.setParameter('outlineWidthMode', 1);
+      } else if (outlineWidthMode === 'screenCoordinates') {
+        material.setParameter('outlineWidthMode', 2);
+      }
+    }
+  }
+  {
+    const outlineWidthFactor = mToon.outlineWidthFactor;
+    if (outlineWidthFactor != null) {
+      material.setParameter('outlineWidthFactor', outlineWidthFactor);
+    }
+  }
+  {
+    const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
+    if (outlineWidthMultiplyTexture != null) {
+      const rnTexture = ModelConverter._createTexture(
+        outlineWidthMultiplyTexture.texture!,
+        gltfModel
+      );
+      const rnSampler = ModelConverter._createSampler(outlineWidthMultiplyTexture.texture!);
+      material.setTextureParameter('outlineWidthMultiplyTexture', rnTexture, rnSampler);
+    }
+  }
+  {
+    const outlineColorFactor = mToon.outlineColorFactor;
+    if (outlineColorFactor != null) {
+      material.setParameter('outlineColorFactor', Vector3.fromCopyArray3(outlineColorFactor));
+    }
+  }
+  {
+    const outlineLightingMixFactor = mToon.outlineLightingMixFactor;
+    if (outlineLightingMixFactor != null) {
+      material.setParameter('outlineLightingMixFactor', outlineLightingMixFactor);
+    }
+  }
+  {
+    const uvAnimationMaskTexture = mToon.uvAnimationMaskTexture;
+    if (uvAnimationMaskTexture != null) {
+      const rnTexture = ModelConverter._createTexture(uvAnimationMaskTexture.texture!, gltfModel);
+      const rnSampler = ModelConverter._createSampler(uvAnimationMaskTexture.texture!);
+      material.setTextureParameter('uvAnimationMaskTexture', rnTexture, rnSampler);
+      if (uvAnimationMaskTexture.texCoord != null) {
+        material.setParameter('uvAnimationMaskTexcoordIndex', uvAnimationMaskTexture.texCoord);
+      }
+    }
+  }
+  {
+    const uvAnimationScrollXSpeedFactor = mToon.uvAnimationScrollXSpeedFactor;
+    if (uvAnimationScrollXSpeedFactor != null) {
+      material.setParameter('uvAnimationScrollXSpeedFactor', uvAnimationScrollXSpeedFactor);
+    }
+  }
+  {
+    const uvAnimationScrollYSpeedFactor = mToon.uvAnimationScrollYSpeedFactor;
+    if (uvAnimationScrollYSpeedFactor != null) {
+      material.setParameter('uvAnimationScrollYSpeedFactor', uvAnimationScrollYSpeedFactor);
+    }
+  }
+  {
+    const uvAnimationRotationSpeedFactor = mToon.uvAnimationRotationSpeedFactor;
+    if (uvAnimationRotationSpeedFactor != null) {
+      material.setParameter('uvAnimationRotationSpeedFactor', uvAnimationRotationSpeedFactor);
+    }
+  }
+}
+
 function setupPbrMetallicRoughness(
   pbrMetallicRoughness: RnM2PbrMetallicRoughness,
   material: Material,
@@ -2164,6 +2346,12 @@ function setupPbrMetallicRoughness(
     if (baseColorTexture.texCoord != null) {
       material.setParameter('baseColorTexcoordIndex', baseColorTexture.texCoord);
     }
+    ModelConverter._setupTextureTransform(
+      baseColorTexture!,
+      material,
+      'baseColorTextureTransform',
+      'baseColorTextureRotation'
+    );
   }
 
   // Ambient Occlusion Texture
@@ -2205,6 +2393,12 @@ function setupPbrMetallicRoughness(
     if (metallicRoughnessTexture.texCoord != null) {
       material.setParameter('metallicRoughnessTexcoordIndex', metallicRoughnessTexture.texCoord);
     }
+    ModelConverter._setupTextureTransform(
+      metallicRoughnessTexture!,
+      material,
+      'metallicRoughnessTextureTransform',
+      'metallicRoughnessTextureRotation'
+    );
   }
 
   // if (Is.exist(metallicRoughnessTexture?.texture?.image?.image)) {
@@ -2237,9 +2431,6 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_anisotropy(materialJson, material, gltfModel);
 
   setup_KHR_materials_emissive_strength(materialJson, material, gltfModel);
-
-  // BaseColor TexCoord Transform
-  setup_KHR_texture_transform(baseColorTexture, material, metallicRoughnessTexture);
 }
 
 function setup_KHR_materials_transmission(
@@ -2390,27 +2581,6 @@ function setup_KHR_materials_volume(
       material.setParameter('attenuationColor', attenuationColor);
     }
   }
-}
-
-function setup_KHR_texture_transform(
-  baseColorTexture: RnM2TextureInfo | undefined,
-  material: Material,
-  metallicRoughnessTexture: RnM2TextureInfo | undefined
-) {
-  ModelConverter._setupTextureTransform(
-    baseColorTexture!,
-    material,
-    'baseColorTextureTransform',
-    'baseColorTextureRotation'
-  );
-
-  // Metallic Roughness Texcoord Transform
-  ModelConverter._setupTextureTransform(
-    metallicRoughnessTexture!,
-    material,
-    'metallicRoughnessTextureTransform',
-    'metallicRoughnessTextureRotation'
-  );
 }
 
 function setup_KHR_materials_sheen(

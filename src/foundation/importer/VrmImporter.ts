@@ -424,6 +424,9 @@ export class VrmImporter {
             : mtoonMaterial.rimMultiplyTexture.index,
           _ShadingGradeTexture: dummyWhiteTextureNumber,
           _SphereAdd: dummyBlackTextureNumber,
+          _UvAnimMaskTexture: Is.not.exist(mtoonMaterial.uvAnimationMaskTexture)
+            ? dummyWhiteTextureNumber
+            : mtoonMaterial.uvAnimationMaskTexture.index,
         },
       };
 
@@ -511,45 +514,5 @@ export class VrmImporter {
     VrmImporter._readVRMHumanoidInfo(gltfJson as Vrm1);
 
     return new Ok(gltfJson as Vrm1);
-  }
-
-  static async __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
-    // process defaultMaterialHelperArgumentArray
-    const defaultMaterialHelperArgumentArray =
-      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
-    const textures = this._createTextures(gltfModel);
-    const samplers = this._createSamplers(gltfModel);
-    if (Is.exist(defaultMaterialHelperArgumentArray)) {
-      defaultMaterialHelperArgumentArray[0].textures =
-        defaultMaterialHelperArgumentArray[0].textures ?? textures;
-      defaultMaterialHelperArgumentArray[0].samplers =
-        defaultMaterialHelperArgumentArray[0].samplers ?? samplers;
-      defaultMaterialHelperArgumentArray[0].isLighting =
-        defaultMaterialHelperArgumentArray[0].isLighting ?? true;
-    }
-    const existOutline = this.__initializeMToonMaterialProperties(gltfModel, textures.length);
-
-    // get rootGroup
-    let rootGroup;
-    if (existOutline) {
-      renderPasses[1] = renderPasses[1] ?? new RenderPass();
-      const renderPassOutline = renderPasses[1];
-      renderPassOutline.toClearColorBuffer = false;
-      renderPassOutline.toClearDepthBuffer = false;
-      gltfModel.extensions.VRM.rnExtension = {
-        renderPassOutline: renderPassOutline,
-      };
-
-      rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
-      renderPassOutline.addEntities([rootGroup]);
-    } else {
-      rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
-    }
-
-    const renderPassMain = renderPasses[0];
-    renderPassMain.addEntities([rootGroup]);
-
-    this._readSpringBone(gltfModel as Vrm1);
-    this._readVRMHumanoidInfo(gltfModel as Vrm1, rootGroup);
   }
 }

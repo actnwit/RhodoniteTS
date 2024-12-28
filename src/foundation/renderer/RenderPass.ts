@@ -69,7 +69,8 @@ export class RenderPass extends RnObject {
   // Internal use
   public _lastOpaqueIndex = -1;
   public _lastTranslucentIndex = -1;
-  public _lastBlendIndex = -1;
+  public _lastBlendWithZWriteIndex = -1;
+  public _lastBlendWithoutZWriteIndex = -1;
   public _lastPrimitiveUids: number[] = [];
   public _lastTransformComponentsUpdateCount = -1;
   public _lastCameraControllerComponentsUpdateCount = -1;
@@ -168,6 +169,17 @@ export class RenderPass extends RnObject {
     renderPass._toRenderTransparentPrimitives = this._toRenderTransparentPrimitives;
     renderPass.__postEachRenderFunc = this.__postEachRenderFunc;
     renderPass.__renderTargetColorAttachments = this.__renderTargetColorAttachments?.concat();
+    renderPass._lastOpaqueIndex = this._lastOpaqueIndex;
+    renderPass._lastTranslucentIndex = this._lastTranslucentIndex;
+    renderPass._lastBlendWithZWriteIndex = this._lastBlendWithZWriteIndex;
+    renderPass._lastBlendWithoutZWriteIndex = this._lastBlendWithoutZWriteIndex;
+    renderPass._lastPrimitiveUids = this._lastPrimitiveUids.concat();
+    renderPass._lastTransformComponentsUpdateCount = this._lastTransformComponentsUpdateCount;
+    renderPass._lastCameraControllerComponentsUpdateCount =
+      this._lastCameraControllerComponentsUpdateCount;
+    renderPass._lastSceneGraphComponentsUpdateCount = this._lastSceneGraphComponentsUpdateCount;
+    renderPass._renderedSomethingBefore = this._renderedSomethingBefore;
+    renderPass._isChangedSortRenderResult = this._isChangedSortRenderResult;
 
     return renderPass;
   }

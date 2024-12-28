@@ -9,6 +9,7 @@ import { PhysicsStrategy } from '../PhysicsStrategy';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { Is } from '../../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
+import { Config } from '../../core/Config';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_updateInner_vec3_0 = MutableVector3.zero();
@@ -100,7 +101,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
   process(collisionGroups: VRMColliderGroup[], bone: VRMSpringBone, center?: SceneGraphComponent) {
     const dragForce = bone.dragForce;
-    const stiffnessForce = bone.stiffnessForce * Time.lastTickTimeInterval * 1;
+    const stiffnessForce =
+      bone.stiffnessForce * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale;
 
     const currentTail =
       center != null
@@ -139,7 +141,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // Calculate the nextTail
     const external = Vector3.multiplyTo(
       bone.gravityDir,
-      bone.gravityPower * Time.lastTickTimeInterval * 1,
+      bone.gravityPower * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale,
       VRMSpringBonePhysicsStrategy.__tmp_process_vec3_6
     );
     let nextTail = Vector3.addTo(

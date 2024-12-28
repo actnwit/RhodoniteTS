@@ -5,7 +5,7 @@ import type { AbstractMaterialContent } from '../materials/core/AbstractMaterial
 import { DepthEncodeMaterialContent } from '../materials/contents/DepthEncodeMaterialContent';
 import { ShadowMapDecodeClassicMaterialContent } from '../materials/contents/ShadowMapDecodeClassicMaterialContent';
 import { EntityUIDOutputMaterialContent } from '../materials/contents/EntityUIDOutputMaterialContent';
-import { MToonMaterialContent } from '../materials/contents/MToonMaterialContent';
+import { MToon0xMaterialContent } from '../materials/contents/MToon0xMaterialContent';
 import { CustomMaterialContent } from '../materials/contents/CustomMaterialContent';
 import { Primitive } from '../geometry/Primitive';
 import { ProcessStage } from '../definitions/ProcessStage';
@@ -57,7 +57,7 @@ import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatS
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
-import { Vrm0xMaterialProperty } from '../../types';
+import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
 import {
   dummyAnisotropyTexture,
@@ -84,6 +84,8 @@ import { Scalar } from '../math/Scalar';
 import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
 import { SystemState } from '../system/SystemState';
+import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
+import { Vrm1_Material } from '../../types/VRM1';
 
 function createMaterial(
   materialContent: AbstractMaterialContent,
@@ -1055,7 +1057,7 @@ function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
-function createMToonMaterial({
+function createMToon0xMaterial({
   additionalName = '',
   isMorphing = false,
   isSkinning = false,
@@ -1082,9 +1084,9 @@ function createMToonMaterial({
   maxInstancesNumber?: Count;
   makeOutputSrgb?: boolean;
 }) {
-  const materialName = 'MToon' + `_${additionalName}_`;
+  const materialName = 'MToon0x' + `_${additionalName}_`;
 
-  const materialContent = new MToonMaterialContent(
+  const materialContent = new MToon0xMaterialContent(
     isOutline,
     materialProperties,
     textures,
@@ -1101,6 +1103,53 @@ function createMToonMaterial({
   const material = createMaterial(materialContent, maxInstancesNumber);
   materialContent.setMaterialParameters(material, isOutline);
 
+  return material;
+}
+
+function createMToon1Material({
+  additionalName = '',
+  isMorphing = false,
+  isSkinning = false,
+  isLighting = true,
+  useTangentAttribute = false,
+  isOutline = false,
+  materialJson,
+  textures,
+  samplers,
+  debugMode,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+  makeOutputSrgb = true,
+}: {
+  additionalName?: string;
+  isMorphing?: boolean;
+  isSkinning?: boolean;
+  isLighting?: boolean;
+  useTangentAttribute?: boolean;
+  isOutline?: boolean;
+  materialJson: Vrm1_Material;
+  textures?: any[];
+  samplers?: Sampler[];
+  debugMode?: any;
+  maxInstancesNumber?: Count;
+  makeOutputSrgb?: boolean;
+}) {
+  const materialName = 'MToon1' + `_${additionalName}_`;
+
+  const materialContent = new MToon1MaterialContent(
+    materialName,
+    isMorphing,
+    isSkinning,
+    isLighting,
+    isOutline
+  );
+
+  const material = createMaterial(materialContent, maxInstancesNumber);
+  materialContent.setMaterialParameters(material, isOutline, materialJson);
+  material.setParameter('makeOutputSrgb', Scalar.fromCopyNumber(makeOutputSrgb ? 1.0 : 0.0));
+  material.zWriteWhenBlend = materialJson.extensions.VRMC_materials_mtoon.transparentWithZWrite;
+  if (materialJson.normalTexture != null) {
+    material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
+  }
   return material;
 }
 
@@ -1191,7 +1240,8 @@ export const MaterialHelper = Object.freeze({
   createSummedAreaTableMaterial,
   createVarianceShadowMapDecodeClassicSingleMaterial,
   createEntityUIDOutputMaterial,
-  createMToonMaterial,
+  createMToon0xMaterial,
+  createMToon1Material,
   createFurnaceTestMaterial,
   createGaussianBlurForEncodedDepthMaterial,
   createDetectHighLuminanceMaterial,

@@ -13,6 +13,7 @@ in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
+in float v_instanceInfo;
 #ifdef RN_USE_TANGENT
   in vec3 v_tangent_inWorld;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
@@ -23,6 +24,19 @@ in vec4 v_position_inWorld;
 /* shaderity: @{getters} */
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
+#pragma shaderity: require(../common/pbrDefinition.glsl)
+
+/* shaderity: @{matricesGetters} */
+
+#pragma shaderity: require(../common/iblDefinition.glsl)
+
+uniform bool u_inverseEnvironment; // initialValue=false
+uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
+uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
+
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
+
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
@@ -33,12 +47,16 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-vec3 linearToSrgb(vec3 linearColor) {
-  return pow(linearColor, vec3(1.0/2.2));
-}
+const float PI_2 = 6.28318530718;
 
-vec3 srgbToLinear(vec3 srgbColor) {
-  return pow(srgbColor, vec3(2.2));
+vec2 uvAnimation(vec2 origUv, float time, float uvAnimationMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
+  float uvAnim = uvAnimationMask * time;
+  vec2 uv = origUv;
+  uv += vec2(uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor) * uvAnim;
+  float rotateRad = uvAnimationRotationSpeedFactor * PI_2 * uvAnim;
+  const vec2 rotatePivot = vec2(0.5);
+  uv = mat2(cos(rotateRad), -sin(rotateRad), sin(rotateRad), cos(rotateRad)) * (uv - rotatePivot) + rotatePivot;
+  return uv;
 }
 
 #pragma shaderity: require(../common/perturbedNormal.glsl)
@@ -52,15 +70,16 @@ void main (){
 
   #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-
-  // TODO
-  // uv transform
-
-  // TODO
   // uv animation
+  float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).r;
+  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
+  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
+  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
+  float time = get_time(0.0, 0);
+  vec2 mainUv = uvAnimation(v_texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
 
   // main color
-  vec4 litTextureColor = texture(u_litColorTexture, v_texcoord_0);
+  vec4 litTextureColor = texture(u_litColorTexture, mainUv);
   vec4 litColorFactor = get_litColor(materialSID, 0);
 
   // alpha
@@ -95,12 +114,13 @@ void main (){
   // view vector
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
+  vec3 viewDirection = normalize(viewVector);
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
-    vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
-    mat3 TBN = getTBN(normal_inWorld, viewVector, v_texcoord_0);
+    vec3 normal = texture(u_normalTexture, mainUv).xyz * 2.0 - 1.0;
+    mat3 TBN = getTBN(normal_inWorld, viewDirection, mainUv);
     normal_inWorld = normalize(TBN * normal);
   #endif
 
@@ -115,14 +135,14 @@ void main (){
   // TODO: shadowmap computation
 
   float receiveShadowRate = get_receiveShadowRate(materialSID, 0);
-  float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * texture(u_receiveShadowTexture, v_texcoord_0).r);
+  float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * texture(u_receiveShadowTexture, mainUv).r);
 
   float shadingGradeRate = get_shadingGradeRate(materialSID, 0);
-  float shadingGrade = 1.0 - shadingGradeRate * (1.0 - texture(u_shadingGradeTexture, v_texcoord_0).r);
+  float shadingGrade = 1.0 - shadingGradeRate * (1.0 - texture(u_shadingGradeTexture, mainUv).r);
   float lightColorAttenuation = get_lightColorAttenuation(materialSID, 0);
 
   vec3 shadeColorFactor = get_shadeColor(materialSID, 0);
-  vec3 shadeColor = shadeColorFactor * texture(u_shadeColorTexture, v_texcoord_0).xyz;
+  vec3 shadeColor = shadeColorFactor * texture(u_shadeColorTexture, mainUv).xyz;
   shadeColor.xyz = srgbToLinear(shadeColor.xyz);
 
   vec3 litColor = litColorFactor.xyz * litTextureColor.xyz;
@@ -176,7 +196,7 @@ void main (){
       #endif
     }
 
-    col *= lighting;
+    col *= lighting * RECIPROCAL_PI;
     lightings[i] = lighting;
 
     rt0.xyz += col;
@@ -186,13 +206,25 @@ void main (){
 
 
   // Indirect Light
-  vec3 indirectLighting = get_ambientColor(materialSID, 0);
-  indirectLighting = srgbToLinear(indirectLighting);
+  float indirectLightIntensity = get_indirectLightIntensity(materialSID, 0);
+  vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
+  vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w;
+  float IBLDiffuseContribution = iblParameter.y;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  vec3 rawGiUp = get_irradiance(worldUpVector, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiDown = get_irradiance(worldDownVector, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiNormal = get_irradiance(normal_forEnv, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 uniformedGi = (rawGiUp + rawGiDown) / 2.0;
+  vec3 passthroughGi = rawGiNormal;
+  vec3 indirectLighting = mix(uniformedGi, passthroughGi, indirectLightIntensity);
   indirectLighting = mix(indirectLighting, vec3(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
-  // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
 
-  rt0.xyz += indirectLighting * litColor;
-  rt0.xyz = min(rt0.xyz, litColor); // comment out if you want to PBR absolutely.
+  rt0.xyz += indirectLighting * litColor * RECIPROCAL_PI;
+  // rt0.xyz = min(rt0.xyz, litColor); // comment out if you want to PBR absolutely.
 
 
   #ifdef RN_MTOON_IS_OUTLINE
@@ -203,12 +235,10 @@ void main (){
       rt0.xyz = outlineColor * mix(vec3(1.0), rt0.xyz, outlineLightingMix);
     #endif
   #else
-    vec3 viewDirection = normalize(viewVector);
-
     float rimFresnelPower = get_rimFresnelPower(materialSID, 0);
     float rimLift = get_rimLift(materialSID, 0);
     vec3 rimColorFactor = get_rimColor(materialSID, 0);
-    vec3 rimTextureColor = texture(u_rimTexture, v_texcoord_0).xyz;
+    vec3 rimTextureColor = texture(u_rimTexture, mainUv).xyz;
     vec3 rimColor = srgbToLinear(rimColorFactor * rimTextureColor);
     vec3 rim = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
@@ -234,7 +264,7 @@ void main (){
 
     // Emission
     vec3 emissionColor = get_emissionColor(materialSID, 0);
-    vec3 emission = srgbToLinear(texture(u_emissionTexture, v_texcoord_0).xyz) * emissionColor;
+    vec3 emission = srgbToLinear(texture(u_emissionTexture, mainUv).xyz) * emissionColor;
     rt0.xyz += emission;
   #endif
 

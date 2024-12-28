@@ -7,8 +7,6 @@
 
 const EPS_COL: f32 = 0.00001;
 
-#pragma shaderity: require(../common/opticalDefinition.wgsl)
-
 fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScale: f32) -> f32 {
   let d: vec3f = fwidth(bary3);
   let x: vec3f = bary3 + vec3f(1.0 - wireframeWidthInner) * d;
@@ -18,15 +16,32 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-fn linearToSrgb(linearColor: vec3f) -> vec3f {
-  return pow(linearColor, vec3f(1.0/2.2));
-}
-
-fn srgbToLinear(srgbColor: vec3f) -> vec3f {
-  return pow(srgbColor, vec3f(2.2));
-}
-
+#pragma shaderity: require(../common/opticalDefinition.wgsl)
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
+#pragma shaderity: require(../common/pbrDefinition.wgsl)
+
+@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(16) var diffuseEnvSampler: sampler;
+@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(17) var specularEnvSampler: sampler;
+
+// #param inverseEnvironment: bool; // initialValue=false
+// #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
+// #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
+
+#pragma shaderity: require(../common/iblDefinition.wgsl)
+
+const PI_2: f32 = 6.28318530718;
+
+fn uvAnimation(origUv: vec2f, time: f32, uvAnimationMask: f32, uvAnimationScrollXSpeedFactor: f32, uvAnimationScrollYSpeedFactor: f32, uvAnimationRotationSpeedFactor: f32) -> vec2f {
+  let uvAnim = uvAnimationMask * time;
+  var uv = origUv;
+  uv += vec2f(uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor) * uvAnim;
+  let rotateRad = uvAnimationRotationSpeedFactor * PI_2 * uvAnim;
+  let rotatePivot = vec2f(0.5);
+  uv = mat2x2f(cos(rotateRad), -sin(rotateRad), sin(rotateRad), cos(rotateRad)) * (uv - rotatePivot) + rotatePivot;
+  return uv;
+}
 
 @fragment
 fn main (
@@ -43,15 +58,16 @@ fn main (
 
   #pragma shaderity: require(../common/mainPrerequisites.wgsl)
 
-
-  // TODO
-  // uv transform
-
-  // TODO
   // uv animation
+  let uvAnimationMaskTexture = textureSample(uvAnimationMaskTexture, uvAnimationMaskSampler, input.texcoord_0).r;
+  let uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
+  let uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
+  let uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
+  let time = get_time(0, 0);
+  let mainUv = uvAnimation(input.texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
 
   // main color
-  let litTextureColor: vec4f = textureSample(litColorTexture, litColorSampler, input.texcoord_0);
+  let litTextureColor: vec4f = textureSample(litColorTexture, litColorSampler, mainUv);
   let litColorFactor: vec4f = get_litColor(materialSID, 0);
 
   // alpha
@@ -85,12 +101,13 @@ fn main (
   // view vector
   let viewPosition: vec3f = get_viewPosition(cameraSID, 0);
   let viewVector: vec3f = viewPosition - input.position_inWorld.xyz;
+  let viewDirection: vec3f = normalize(viewVector);
 
   // Normal
   var normal_inWorld: vec3f = normalize(input.normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
-    let normal: vec3f = textureSample(normalTexture, normalSampler, input.texcoord_0).xyz * 2.0 - 1.0;
-    let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, input.texcoord_0, isFront);
+    let normal: vec3f = textureSample(normalTexture, normalSampler, mainUv).xyz * 2.0 - 1.0;
+    let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewDirection, mainUv, isFront);
     normal_inWorld = normalize(TBN * normal);
   #endif
 
@@ -105,14 +122,14 @@ fn main (
   // TODO: shadowmap computation
 
   let receiveShadowRate: f32 = get_receiveShadowRate(materialSID, 0);
-  var lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, input.texcoord_0).r);
+  var lightAttenuation: f32 = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * textureSample(receiveShadowTexture, receiveShadowSampler, mainUv).r);
 
   let shadingGradeRate: f32 = get_shadingGradeRate(materialSID, 0);
-  let shadingGrade: f32 = 1.0 - shadingGradeRate * (1.0 - textureSample(shadingGradeTexture, shadingGradeSampler, input.texcoord_0).r);
+  let shadingGrade: f32 = 1.0 - shadingGradeRate * (1.0 - textureSample(shadingGradeTexture, shadingGradeSampler, mainUv).r);
   let lightColorAttenuation: f32 = get_lightColorAttenuation(materialSID, 0);
 
   let shadeColorFactor: vec3f = get_shadeColor(materialSID, 0);
-  var shadeColor: vec3f = shadeColorFactor * textureSample(shadeColorTexture, shadeColorSampler, input.texcoord_0).xyz;
+  var shadeColor: vec3f = shadeColorFactor * textureSample(shadeColorTexture, shadeColorSampler, mainUv).xyz;
   shadeColor = srgbToLinear(shadeColor.xyz);
 
   var litColor: vec3f = litColorFactor.xyz * litTextureColor.xyz;
@@ -167,7 +184,7 @@ fn main (
       #endif
     }
 
-    col *= lighting;
+    col *= lighting * RECIPROCAL_PI;
     lightings[i] = lighting;
 
     rt0 += vec4f(col, 0.0);
@@ -177,13 +194,24 @@ fn main (
 
 
   // Indirect Light
-  var indirectLighting: vec3f = get_ambientColor(materialSID, 0);
-  indirectLighting = srgbToLinear(indirectLighting);
+  let indirectLightIntensity = get_indirectLightIntensity(materialSID, 0);
+  let worldUpVector = vec3f(0.0, 1.0, 0.0);
+  let worldDownVector = vec3f(0.0, -1.0, 0.0);
+  let iblParameter = get_iblParameter(materialSID, 0);
+  let rot = iblParameter.w;
+  let IBLDiffuseContribution = iblParameter.y;
+  let rotEnvMatrix = mat3x3f(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  let normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  let hdriFormat = get_hdriFormat(materialSID, 0);
+  let rawGiUp = get_irradiance(worldUpVector, hdriFormat) * IBLDiffuseContribution;
+  let rawGiDown = get_irradiance(worldDownVector, hdriFormat) * IBLDiffuseContribution;
+  let rawGiNormal = get_irradiance(normal_forEnv, hdriFormat) * IBLDiffuseContribution;
+  let uniformedGi = (rawGiUp + rawGiDown) / 2.0;
+  let passthroughGi = rawGiNormal;
+  var indirectLighting = mix(uniformedGi, passthroughGi, indirectLightIntensity);
   indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
-  // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
-
-  rt0 += vec4f(indirectLighting * litColor, 0.0);
-  rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
+  rt0 += vec4f(indirectLighting * litColor * RECIPROCAL_PI, 0.0);
+  // rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
 
 
   #ifdef RN_MTOON_IS_OUTLINE
@@ -194,12 +222,10 @@ fn main (
       rt0 = vec4f(outlineColor * mix(vec3f(1.0), rt0.xyz, outlineLightingMix), rt0.w);
     #endif
   #else
-    let viewDirection: vec3f = normalize(viewVector);
-
     let rimFresnelPower: f32 = get_rimFresnelPower(materialSID, 0);
     let rimLift: f32 = get_rimLift(materialSID, 0);
     let rimColorFactor: vec3f = get_rimColor(materialSID, 0);
-    let rimTextureColor: vec3f = textureSample(rimTexture, rimSampler, input.texcoord_0).xyz;
+    let rimTextureColor: vec3f = textureSample(rimTexture, rimSampler, mainUv).xyz;
     let rimColor: vec3f = srgbToLinear(rimColorFactor * rimTextureColor);
     let rim: vec3f = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
@@ -225,7 +251,7 @@ fn main (
 
     // Emission
     let emissionColor: vec3f = get_emissionColor(materialSID, 0);
-    let emission: vec3f = srgbToLinear(textureSample(emissionTexture, emissionSampler, input.texcoord_0).xyz) * emissionColor;
+    let emission: vec3f = srgbToLinear(textureSample(emissionTexture, emissionSampler, mainUv).xyz) * emissionColor;
     rt0 += vec4f(emission, 0.0);
   #endif
 

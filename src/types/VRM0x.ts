@@ -112,6 +112,7 @@ export type Vrm0xMaterialProperty = {
     _ReceiveShadowTexture: number;
     _RimTexture: number;
     _ShadingGradeTexture: number;
+    _UvAnimMaskTexture: number;
   };
   // keywordMap: {
   //   _NORMALMAP: boolean;

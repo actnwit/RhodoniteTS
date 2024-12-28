@@ -412,29 +412,50 @@ ${indexStr}
     }
 
     let renderedSomething = false;
+    const isZWrite = renderPass.isDepthTest && renderPass.depthWriteMask;
+    const isZWrite2 =
+      renderPass.isDepthTest &&
+      renderPass.depthWriteMask &&
+      MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, true);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
       }
     }
 
     // For translucent primitives
     if (renderPass._toRenderTransparentPrimitives) {
+      // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, true);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
       }
 
-      for (let i = renderPass._lastTranslucentIndex + 1; i <= renderPass._lastBlendIndex; i++) {
+      // Draw Blend primitives with ZWrite
+      for (
+        let i = renderPass._lastTranslucentIndex + 1;
+        i <= renderPass._lastBlendWithZWriteIndex;
+        i++
+      ) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.renderInner(primitiveUid, renderPass, false);
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
       }
-      // gl.depthMask(true);
+
+      // Draw Blend primitives without ZWrite
+      for (
+        let i = renderPass._lastBlendWithZWriteIndex + 1;
+        i <= renderPass._lastBlendWithoutZWriteIndex;
+        i++
+      ) {
+        const primitiveUid = primitiveUids[i];
+        const rendered = this.renderInner(primitiveUid, renderPass, isZWrite2);
+        renderedSomething ||= rendered;
+      }
     }
 
     return renderedSomething;
@@ -456,7 +477,7 @@ ${indexStr}
     webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
   }
 
-  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, isOpaque: boolean) {
+  renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean) {
     if (primitiveUid === -1) {
       return false;
     }
@@ -481,7 +502,7 @@ ${indexStr}
       primitiveIdxHasMorph,
       primitive.targets.length
     );
-    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, isOpaque);
+    webGpuResourceRepository.draw(primitive, material, renderPass, cameraSID, zWrite);
     return true;
   }
 

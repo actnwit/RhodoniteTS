@@ -10,6 +10,11 @@
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
+// #param outlineWidthMode: i32; // initialValue=0
+// #param outlineWidthFactor: f32; // initialValue=0.0008
+@group(1) @binding(0) var outlineWidthTexture: texture_2d<f32>; // initialValue=white
+@group(2) @binding(0) var outlineWidthSampler: sampler;
+
 @vertex
 fn main(
 #pragma shaderity: require(../common/vertexInput.wgsl)
@@ -70,48 +75,50 @@ fn main(
   output.normal_inWorld = geom.normal_inWorld;
   output.normal_inView = (viewMatrix * vec4(geom.normal_inWorld, 0.0)).xyz;
 
-  #ifdef RN_MTOON_IS_OUTLINE
-    #ifdef RN_MTOON_HAS_OUTLINE_WIDTH_TEXTURE
-      let textureSize = textureDimensions(outlineWidthTexture, 0);
-      let outlineTex = textureLoad(outlineWidthTexture, vec2u(vec2f(textureSize) * texcoord_0), 0).r;
-    #else
-      let outlineTex = 1.0;
-    #endif
-
-    #ifdef RN_MTOON_OUTLINE_WIDTH_WORLD
-      let outlineWidth: f32 = get_outlineWidth(materialSID, 0);
-      let outlineOffset: vec3f = 0.01 * outlineWidth * outlineTex * normal;
-      let worldOutlineOffset: vec4f = worldMatrix * vec4f(outlineOffset, 0.0);
-      output.position = projectionMatrix * viewMatrix * (geom.position_inWorld + worldOutlineOffset);
-
-    #elif defined(RN_MTOON_OUTLINE_WIDTH_SCREEN)
-      let vertex: vec4f = projectionMatrix * viewMatrix * geom.position_inWorld;
-
-      let clipNormal: vec3f = (projectionMatrix * vec4f(output.normal_inView, 1.0)).xyz;
-      var projectedNormal: vec2f = normalize(clipNormal.xy);
-      let outlineScaledMaxDistance: f32 = get_outlineScaledMaxDistance(materialSID, 0);
-      projectedNormal *= min(vertex.w, outlineScaledMaxDistance);
-      let aspect: f32 = abs(get_aspect(0, 0)); //solo datum
-      projectedNormal.x *= aspect;
-
-      let outlineWidth: f32 = get_outlineWidth(materialSID, 0);
-      vertex.xy += 0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(output.normal_inView.z), 0.0, 1.0); // ignore offset when normal toward camera
-
-      output.position = vertex;
-    #else
-      output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
-    #endif
-  #else
+#ifdef RN_MTOON_IS_OUTLINE
+  let outlineWidthType = get_outlineWidthMode(materialSID, 0);
+  if (outlineWidthType == 0) { // 0 ("none")
     output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
-  #endif
+  } else {
+    let worldNormalLength = length(normalMatrix * normal);
+    let outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
+    var outlineOffset = outlineWidthFactor * worldNormalLength * geom.normal_inWorld;
 
-  #ifdef RN_USE_TANGENT
-    output.tangent_inWorld = normalMatrix * tangent.xyz;
-    output.binormal_inWorld = cross(geom.normal_inWorld, output.tangent_inWorld) * tangent.w;
-  #endif
+    let textureSize = textureDimensions(outlineWidthTexture, 0);
+    let outlineWidthMultiply = textureLoad(outlineWidthTexture, vec2u(vec2f(textureSize) * texcoord_0), 0).r;
+    outlineOffset *= outlineWidthMultiply;
 
+    if (outlineWidthType == 2) { // "screenCoordinates"
+      let vViewPosition = viewMatrix * geom.position_inWorld;
+      outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
+    }
+    output.position = projectionMatrix * viewMatrix * vec4(geom.position_inWorld.xyz + outlineOffset, 1.0);
+    output.position.z += 0.000001 * output.position.w;
+  }
+#else
+  output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
+#endif
+
+#ifdef RN_USE_TANGENT
+  output.tangent_inWorld = normalMatrix * tangent.xyz;
+  output.binormal_inWorld = cross(geom.normal_inWorld, output.tangent_inWorld) * tangent.w;
+#endif
+
+#ifdef RN_USE_TEXCOORD_0
   output.texcoord_0 = texcoord_0;
+#endif
+#ifdef RN_USE_TEXCOORD_1
+  output.texcoord_1 = texcoord_1;
+#endif
+#ifdef RN_USE_TEXCOORD_2
+  output.texcoord_2 = texcoord_2;
+#endif
+
+#ifdef RN_USE_BARY_CENTRIC_COORD
   output.baryCentricCoord = baryCentricCoord.xyz;
+#endif
+
+  output.instanceInfo = instance_ids.x;
 
   return output;
 }

@@ -6,6 +6,7 @@ import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { Err, Result, Ok } from '../misc/Result';
 import { Logger } from '../misc/Logger';
+import { Vrm1_Materials_MToon } from '../../types/VRM1';
 
 declare let Rn: any;
 
@@ -503,6 +504,34 @@ export class Gltf2Importer {
             const anisotropyTexture = extensions.KHR_materials_anisotropy.anisotropyTexture;
             if (anisotropyTexture !== void 0) {
               anisotropyTexture.texture = gltfJson.textures[anisotropyTexture.index];
+            }
+          }
+          if (Is.exist(extensions.VRMC_materials_mtoon)) {
+            const mToon = extensions.VRMC_materials_mtoon as Vrm1_Materials_MToon;
+            const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
+            if (shadeMultiplyTexture != null) {
+              shadeMultiplyTexture.texture = gltfJson.textures[shadeMultiplyTexture.index];
+            }
+            const shadingShiftTexture = mToon.shadingShiftTexture;
+            if (shadingShiftTexture != null) {
+              shadingShiftTexture.texture = gltfJson.textures[shadingShiftTexture.index];
+            }
+            const matcapTexture = mToon.matcapTexture;
+            if (matcapTexture != null) {
+              matcapTexture.texture = gltfJson.textures[matcapTexture.index];
+            }
+            const rimMultiplyTexture = mToon.rimMultiplyTexture;
+            if (rimMultiplyTexture != null) {
+              rimMultiplyTexture.texture = gltfJson.textures[rimMultiplyTexture.index];
+            }
+            const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
+            if (outlineWidthMultiplyTexture != null) {
+              outlineWidthMultiplyTexture.texture =
+                gltfJson.textures[outlineWidthMultiplyTexture.index];
+            }
+            const uvAnimationMaskTexture = mToon.uvAnimationMaskTexture;
+            if (uvAnimationMaskTexture != null) {
+              uvAnimationMaskTexture.texture = gltfJson.textures[uvAnimationMaskTexture.index];
             }
           }
         }
