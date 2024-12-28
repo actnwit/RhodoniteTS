@@ -167,7 +167,7 @@ fn main (
       #endif
     }
 
-    col *= lighting;
+    col *= lighting * RECIPROCAL_PI;
     lightings[i] = lighting;
 
     rt0 += vec4f(col, 0.0);
@@ -177,13 +177,13 @@ fn main (
 
 
   // Indirect Light
-  var indirectLighting: vec3f = get_ambientColor(materialSID, 0);
-  indirectLighting = srgbToLinear(indirectLighting);
-  indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
-  // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
+  // var indirectLighting: vec3f = get_ambientColor(materialSID, 0);
+  // indirectLighting = srgbToLinear(indirectLighting);
+  // indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
+  // // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
 
-  rt0 += vec4f(indirectLighting * litColor, 0.0);
-  rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
+  // rt0 += vec4f(indirectLighting * litColor, 0.0);
+  // rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
 
 
   #ifdef RN_MTOON_IS_OUTLINE
