@@ -47,6 +47,17 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
+vec2 uvAnimation(vec2 origUv, float time, float uvAnimMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
+  float scrollX = uvAnimationScrollXSpeedFactor * time;
+  float scrollY = uvAnimationScrollYSpeedFactor * time;
+  float rotation = uvAnimationRotationSpeedFactor * time;
+  float rotationCos = cos(rotation * uvAnimMask);
+  float rotationSin = sin(rotation * uvAnimMask);
+  vec2 uv = mat2(rotationCos, -rotationSin, rotationSin, rotationCos) * (origUv - vec2(0.5)) + vec2(0.5);
+  uv += vec2(scrollX, scrollY) * uvAnimMask;
+  return uv;
+}
+
 #pragma shaderity: require(../common/perturbedNormal.glsl)
 
 void main (){
@@ -58,15 +69,16 @@ void main (){
 
   #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
-
-  // TODO
-  // uv transform
-
-  // TODO
-  // uv animation
-
   // main color
-  vec4 litTextureColor = texture(u_litColorTexture, v_texcoord_0);
+  float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).b;
+  float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
+  float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
+  float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
+  float time = get_time(0.0, 0);
+
+  vec2 mainUv = uvAnimation(v_texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
+  // vec2 mainUv = v_texcoord_0;
+  vec4 litTextureColor = texture(u_litColorTexture, mainUv);
   vec4 litColorFactor = get_litColor(materialSID, 0);
 
   // alpha
@@ -105,8 +117,8 @@ void main (){
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
-    vec3 normal = texture(u_normalTexture, v_texcoord_0).xyz * 2.0 - 1.0;
-    mat3 TBN = getTBN(normal_inWorld, viewVector, v_texcoord_0);
+    vec3 normal = texture(u_normalTexture, mainUv).xyz * 2.0 - 1.0;
+    mat3 TBN = getTBN(normal_inWorld, viewVector, mainUv);
     normal_inWorld = normalize(TBN * normal);
   #endif
 
@@ -121,14 +133,14 @@ void main (){
   // TODO: shadowmap computation
 
   float receiveShadowRate = get_receiveShadowRate(materialSID, 0);
-  float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * texture(u_receiveShadowTexture, v_texcoord_0).r);
+  float lightAttenuation = shadowAttenuation * mix(1.0, shadowAttenuation, receiveShadowRate * texture(u_receiveShadowTexture, mainUv).r);
 
   float shadingGradeRate = get_shadingGradeRate(materialSID, 0);
-  float shadingGrade = 1.0 - shadingGradeRate * (1.0 - texture(u_shadingGradeTexture, v_texcoord_0).r);
+  float shadingGrade = 1.0 - shadingGradeRate * (1.0 - texture(u_shadingGradeTexture, mainUv).r);
   float lightColorAttenuation = get_lightColorAttenuation(materialSID, 0);
 
   vec3 shadeColorFactor = get_shadeColor(materialSID, 0);
-  vec3 shadeColor = shadeColorFactor * texture(u_shadeColorTexture, v_texcoord_0).xyz;
+  vec3 shadeColor = shadeColorFactor * texture(u_shadeColorTexture, mainUv).xyz;
   shadeColor.xyz = srgbToLinear(shadeColor.xyz);
 
   vec3 litColor = litColorFactor.xyz * litTextureColor.xyz;
@@ -226,7 +238,7 @@ void main (){
     float rimFresnelPower = get_rimFresnelPower(materialSID, 0);
     float rimLift = get_rimLift(materialSID, 0);
     vec3 rimColorFactor = get_rimColor(materialSID, 0);
-    vec3 rimTextureColor = texture(u_rimTexture, v_texcoord_0).xyz;
+    vec3 rimTextureColor = texture(u_rimTexture, mainUv).xyz;
     vec3 rimColor = srgbToLinear(rimColorFactor * rimTextureColor);
     vec3 rim = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
@@ -252,7 +264,7 @@ void main (){
 
     // Emission
     vec3 emissionColor = get_emissionColor(materialSID, 0);
-    vec3 emission = srgbToLinear(texture(u_emissionTexture, v_texcoord_0).xyz) * emissionColor;
+    vec3 emission = srgbToLinear(texture(u_emissionTexture, mainUv).xyz) * emissionColor;
     rt0.xyz += emission;
   #endif
 
