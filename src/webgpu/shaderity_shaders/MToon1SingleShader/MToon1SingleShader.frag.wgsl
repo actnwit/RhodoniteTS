@@ -168,7 +168,7 @@ fn main (
   normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   let normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
   let normal: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz * 2.0 - 1.0;
-  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, input.texcoord_0, isFront);
+  let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewDirection, normalTexUv, isFront);
   normal_inWorld = normalize(TBN * normal);
 #endif
 
