@@ -235,8 +235,6 @@ void main (){
       rt0.xyz = outlineColor * mix(vec3(1.0), rt0.xyz, outlineLightingMix);
     #endif
   #else
-    vec3 viewDirection = normalize(viewVector);
-
     float rimFresnelPower = get_rimFresnelPower(materialSID, 0);
     float rimLift = get_rimLift(materialSID, 0);
     vec3 rimColorFactor = get_rimColor(materialSID, 0);

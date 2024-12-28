@@ -31,11 +31,11 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
-const float PI_2 = 6.28318530718;
+const PI_2: f32 = 6.28318530718;
 
 fn uvAnimation(origUv: vec2f, time: f32, uvAnimationMask: f32, uvAnimationScrollXSpeedFactor: f32, uvAnimationScrollYSpeedFactor: f32, uvAnimationRotationSpeedFactor: f32) -> vec2f {
   let uvAnim = uvAnimationMask * time;
-  let uv = origUv;
+  var uv = origUv;
   uv += vec2f(uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor) * uvAnim;
   let rotateRad = uvAnimationRotationSpeedFactor * PI_2 * uvAnim;
   let rotatePivot = vec2f(0.5);
@@ -63,7 +63,7 @@ fn main (
   let uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
   let uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
   let uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);
-  let time = get_time(0.0, 0);
+  let time = get_time(0, 0);
   let mainUv = uvAnimation(input.texcoord_0, time, uvAnimationMaskTexture, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
 
   // main color
@@ -203,14 +203,14 @@ fn main (
   let rotEnvMatrix = mat3x3f(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   let normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   let hdriFormat = get_hdriFormat(materialSID, 0);
-  let rawGiUp = get_irradiance(worldUpVector, hdriFormat);
-  let rawGiDown = get_irradiance(worldDownVector, hdriFormat);
-  let rawGiNormal = get_irradiance(normal_forEnv, hdriFormat);
+  let rawGiUp = get_irradiance(worldUpVector, hdriFormat) * IBLDiffuseContribution;
+  let rawGiDown = get_irradiance(worldDownVector, hdriFormat) * IBLDiffuseContribution;
+  let rawGiNormal = get_irradiance(normal_forEnv, hdriFormat) * IBLDiffuseContribution;
   let uniformedGi = (rawGiUp + rawGiDown) / 2.0;
   let passthroughGi = rawGiNormal;
   var indirectLighting = mix(uniformedGi, passthroughGi, indirectLightIntensity);
   indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
-  rt0 += vec4f(indirectLighting * litColor, 0.0);
+  rt0 += vec4f(indirectLighting * litColor * RECIPROCAL_PI, 0.0);
   // rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
 
 
@@ -222,8 +222,6 @@ fn main (
       rt0 = vec4f(outlineColor * mix(vec3f(1.0), rt0.xyz, outlineLightingMix), rt0.w);
     #endif
   #else
-    let viewDirection: vec3f = normalize(viewVector);
-
     let rimFresnelPower: f32 = get_rimFresnelPower(materialSID, 0);
     let rimLift: f32 = get_rimLift(materialSID, 0);
     let rimColorFactor: vec3f = get_rimColor(materialSID, 0);

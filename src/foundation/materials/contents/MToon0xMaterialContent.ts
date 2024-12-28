@@ -46,6 +46,8 @@ import {
   TextureParameter,
 } from '../../definitions';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
+import { MutableVector4 } from '../../math/MutableVector4';
+import { MutableVector2 } from '../../math/MutableVector2';
 
 export class MToon0xMaterialContent extends AbstractMaterialContent {
   private static __diffuseIblCubeMapSampler = new Sampler({
@@ -817,6 +819,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       }
     }
   }
+
   _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
@@ -832,6 +835,39 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
 
     if (this.__OutlineWidthModeIsScreen) {
       material.setParameter('aspect', cameraComponent.aspect);
+    }
+
+    const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+      MToon0xMaterialContent.__setupHdriParameters(args);
+    const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+    tmp_vector4.x = mipmapLevelNumber;
+    tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+    tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+    tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+    material.setParameter('iblParameter', tmp_vector4);
+    const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+    tmp_vector2.x = diffuseHdriType;
+    tmp_vector2.y = specularHdriType;
+    material.setParameter('hdriFormat', tmp_vector2);
+
+    const meshRendererComponent = args.entity.tryToGetMeshRenderer();
+    if (
+      meshRendererComponent != null &&
+      meshRendererComponent.diffuseCubeMap != null &&
+      meshRendererComponent.specularCubeMap != null
+    ) {
+      const iblParameterVec4 = MutableVector4.zero();
+      const hdriFormatVec2 = MutableVector2.zero();
+
+      iblParameterVec4.x = meshRendererComponent.specularCubeMap.mipmapLevelNumber;
+      iblParameterVec4.y = meshRendererComponent.diffuseCubeMapContribution;
+      iblParameterVec4.z = meshRendererComponent.specularCubeMapContribution;
+      iblParameterVec4.w = meshRendererComponent.rotationOfCubeMap;
+      material.setParameter('iblParameter', iblParameterVec4);
+
+      hdriFormatVec2.x = meshRendererComponent.diffuseCubeMap.hdriFormat.index;
+      hdriFormatVec2.y = meshRendererComponent.specularCubeMap.hdriFormat.index;
+      material.setParameter('hdriFormat', hdriFormatVec2);
     }
   }
 
