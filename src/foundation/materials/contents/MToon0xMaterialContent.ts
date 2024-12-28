@@ -202,9 +202,9 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       this.__floatProperties._ShadingGradeRate = 1.0;
       this.__floatProperties._SrcBlend = 1.0;
       this.__floatProperties._ZWrite = 1.0;
-      // this.__floatProperties._UvAnimScrollX = 0.0;
-      // this.__floatProperties._UvAnimScrollY = 0.0;
-      // this.__floatProperties._UvAnimRotation = 0.0;
+      this.__floatProperties._UvAnimScrollX = 0.0;
+      this.__floatProperties._UvAnimScrollY = 0.0;
+      this.__floatProperties._UvAnimRotation = 0.0;
 
       this.__vectorProperties._Color = [1, 1, 1, 1];
       this.__vectorProperties._EmissionColor = [0, 0, 0];
@@ -309,15 +309,6 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         max: 1,
       },
       {
-        semantic: 'ambientColor',
-        componentType: ComponentType.Float,
-        compositionType: CompositionType.Vec3,
-        stage: ShaderType.PixelShader,
-        initialValue: Vector3.fromCopyArray([0.5785, 0.5785, 0.5785]),
-        min: 0,
-        max: 1,
-      },
-      {
         semantic: 'indirectLightIntensity',
         componentType: ComponentType.Float,
         compositionType: CompositionType.Scalar,
@@ -383,21 +374,36 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         min: 0,
         max: 1,
       },
-      // {
-      //   semantic: MToonMaterialContent._UvAnimScrollX, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimScrollX), min: 0, max: 1
-      // },
-      // {
-      //   semantic: MToonMaterialContent._UvAnimScrollY, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue:  Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimScrollY), min: 0, max: 1
-      // },
-      // {
-      //   semantic: MToonMaterialContent._UvAnimRotation, componentType: ComponentType.Float, compositionType: CompositionType.Scalar,
-      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime, soloDatum: false,
-      //   initialValue: Scalar.fromCopyNumber(this.floatPropertiesArray._UvAnimRotation), min: 0, max: 1
-      // },
+      {
+        semantic: 'uvAnimationScrollXSpeedFactor',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isInternalSetting: false,
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._UvAnimScrollX ?? 0.0),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic: 'uvAnimationScrollYSpeedFactor',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isInternalSetting: false,
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._UvAnimScrollY ?? 0.0),
+        min: 0,
+        max: 1,
+      },
+      {
+        semantic: 'uvAnimationRotationSpeedFactor',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.Scalar,
+        stage: ShaderType.PixelShader,
+        isInternalSetting: false,
+        initialValue: Scalar.fromCopyNumber(this.__floatProperties._UvAnimRotation ?? 0.0),
+        min: 0,
+        max: 1,
+      },
 
       {
         semantic: 'wireframe',
@@ -566,6 +572,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     this.__textureProperties._EmissionMap = 1;
     this.__textureProperties._MainTex = 0;
     this.__textureProperties._OutlineWidthTexture = 0;
+    this.__textureProperties._UvAnimMaskTexture = 0;
     this.__textureProperties._ReceiveShadowTexture = 0;
     this.__textureProperties._RimTexture = 1;
     this.__textureProperties._ShadeTexture = 0;
@@ -691,12 +698,20 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         ],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
+      },
+      {
+        semantic: 'uvAnimationMaskTexture',
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.Texture2D,
+        stage: ShaderType.PixelShader,
+        initialValue: [
+          11,
+          textures[this.__textureProperties._UvAnimMaskTexture],
+          samplers[this.__textureProperties._UvAnimMaskTexture],
+        ],
+        min: 0,
+        max: Number.MAX_SAFE_INTEGER,
       }
-      // {
-      //   semantic: MToonMaterialContent._UvAnimMaskTexture, componentType: ComponentType.Int, compositionType: CompositionType.Texture2D,
-      //   stage: ShaderType.PixelShader, isInternalSetting: false, updateInterval: ShaderVariableUpdateInterval.EveryTime,
-      //   initialValue: [10, texturePropertiesArray._UvAnimMaskTexture], min: 0, max: Number.MAX_SAFE_INTEGER,
-      // }
     );
 
     if (isOutline) {
@@ -706,7 +721,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.VertexShader,
         initialValue: [
-          11,
+          12,
           textures[this.__textureProperties._OutlineWidthTexture],
           samplers[this.__textureProperties._OutlineWidthTexture],
         ],

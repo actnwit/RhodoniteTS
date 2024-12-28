@@ -945,6 +945,15 @@ export class ModelConverter {
         samplers[materialProperties.textureProperties._OutlineWidthTexture]
       );
     }
+    const uvAnimationMaskTexture =
+      textures[materialProperties.textureProperties._UvAnimMaskTexture];
+    if (uvAnimationMaskTexture != null) {
+      material.setTextureParameter(
+        'uvAnimationMaskTexture',
+        uvAnimationMaskTexture,
+        samplers[materialProperties.textureProperties._UvAnimMaskTexture]
+      );
+    }
   }
 
   private static __setVRM0xMaterial(

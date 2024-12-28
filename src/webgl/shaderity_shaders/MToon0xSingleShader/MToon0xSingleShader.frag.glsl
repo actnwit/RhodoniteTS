@@ -47,14 +47,15 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-vec2 uvAnimation(vec2 origUv, float time, float uvAnimMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
-  float scrollX = uvAnimationScrollXSpeedFactor * time;
-  float scrollY = uvAnimationScrollYSpeedFactor * time;
-  float rotation = uvAnimationRotationSpeedFactor * time;
-  float rotationCos = cos(rotation * uvAnimMask);
-  float rotationSin = sin(rotation * uvAnimMask);
-  vec2 uv = mat2(rotationCos, -rotationSin, rotationSin, rotationCos) * (origUv - vec2(0.5)) + vec2(0.5);
-  uv += vec2(scrollX, scrollY) * uvAnimMask;
+const float PI_2 = 6.28318530718;
+
+vec2 uvAnimation(vec2 origUv, float time, float uvAnimationMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
+  float uvAnim = uvAnimationMask * time;
+  vec2 uv = origUv;
+  uv += vec2(uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor) * uvAnim;
+  float rotateRad = uvAnimationRotationSpeedFactor * PI_2 * uvAnim;
+  const vec2 rotatePivot = vec2(0.5);
+  uv = mat2(cos(rotateRad), -sin(rotateRad), sin(rotateRad), cos(rotateRad)) * (uv - rotatePivot) + rotatePivot;
   return uv;
 }
 
@@ -70,7 +71,7 @@ void main (){
   #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
   // main color
-  float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).b;
+  float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).r;
   float uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);
   float uvAnimationScrollYSpeedFactor = get_uvAnimationScrollYSpeedFactor(materialSID, 0);
   float uvAnimationRotationSpeedFactor = get_uvAnimationRotationSpeedFactor(materialSID, 0);

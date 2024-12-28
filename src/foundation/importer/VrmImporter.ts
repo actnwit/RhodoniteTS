@@ -424,6 +424,9 @@ export class VrmImporter {
             : mtoonMaterial.rimMultiplyTexture.index,
           _ShadingGradeTexture: dummyWhiteTextureNumber,
           _SphereAdd: dummyBlackTextureNumber,
+          _UvAnimMaskTexture: Is.not.exist(mtoonMaterial.uvAnimationMaskTexture)
+            ? dummyWhiteTextureNumber
+            : mtoonMaterial.uvAnimationMaskTexture.index,
         },
       };
 
