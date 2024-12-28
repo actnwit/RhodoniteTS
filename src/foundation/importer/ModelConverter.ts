@@ -1011,6 +1011,7 @@ export class ModelConverter {
         }
 
         if (Is.exist(outlineMaterial)) {
+          ModelConverter.setMToonTextures(textures, materialProperties, outlineMaterial, samplers);
           materialJson.extras!.outlineMaterial = new WeakRef(outlineMaterial);
         }
       }
@@ -1206,6 +1207,26 @@ export class ModelConverter {
     const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
     if (materialJson == null) return material;
 
+    ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, false);
+
+    if (materialJson.extras?.outlineMaterial != null) {
+      ModelConverter.setParametersToMaterial(
+        materialJson,
+        gltfModel,
+        materialJson.extras.outlineMaterial.deref(),
+        true
+      );
+    }
+
+    return material;
+  }
+
+  private static setParametersToMaterial(
+    materialJson: RnM2Material,
+    gltfModel: RnM2,
+    material: Material,
+    isOutline: boolean
+  ) {
     const isUnlit = materialJson.extensions?.KHR_materials_unlit != null;
     const options = gltfModel.asset.extras!.rnLoaderOptions;
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
@@ -1275,7 +1296,7 @@ export class ModelConverter {
     material.isTranslucent = Is.exist(materialJson.extensions?.KHR_materials_transmission);
 
     const doubleSided = materialJson.doubleSided;
-    if (doubleSided != null) {
+    if (doubleSided != null && !isOutline) {
       material.cullFace = !doubleSided;
     }
 
@@ -1311,16 +1332,7 @@ export class ModelConverter {
 
     if (materialJson.extensions?.VRMC_materials_mtoon != null) {
       setupMToon1(material, gltfModel, materialJson as Vrm1_Material);
-      if (materialJson.extras!.outlineMaterial != null) {
-        setupMToon1(
-          materialJson.extras!.outlineMaterial.deref(),
-          gltfModel,
-          materialJson as Vrm1_Material
-        );
-      }
     }
-
-    return material;
   }
 
   static _createSampler(texture: RnM2Texture) {

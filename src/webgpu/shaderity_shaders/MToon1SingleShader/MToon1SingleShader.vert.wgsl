@@ -80,9 +80,9 @@ fn main(
   if (outlineWidthType == 0) { // 0 ("none")
     output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
   } else {
-    let worldNormalLength = length(geom.normal_inWorld);
+    let worldNormalLength = length(normalMatrix * normal);
     let outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
-    var outlineOffset = outlineWidthFactor * worldNormalLength * normal;
+    var outlineOffset = outlineWidthFactor * worldNormalLength * geom.normal_inWorld;
 
     let textureSize = textureDimensions(outlineWidthTexture, 0);
     let outlineWidthMultiply = textureLoad(outlineWidthTexture, vec2u(vec2f(textureSize) * texcoord_0), 0).r;
@@ -92,7 +92,7 @@ fn main(
       let vViewPosition = viewMatrix * geom.position_inWorld;
       outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
     }
-    output.position = projectionMatrix * viewMatrix * vec4(geom.position_inWorld.xyz + outlineOffset, geom.position_inWorld.w);
+    output.position = projectionMatrix * viewMatrix * vec4(geom.position_inWorld.xyz + outlineOffset, 1.0);
     output.position.z += 0.000001 * output.position.w;
   }
 #else

@@ -172,7 +172,6 @@ void main() {
   if(alpha < cutoff) discard;
 #endif
 
-
   // view vector
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
   vec3 viewVector = viewPosition - v_position_inWorld.xyz;
@@ -269,6 +268,7 @@ void main() {
   // alpha
   rt0.w = alpha;
   rt0.xyz *= alpha; // premultiplied alpha
+  // rt0.xyz = vec3(alpha, 0.0, 0.0);
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }

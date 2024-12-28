@@ -75,9 +75,9 @@ void main(){
   if (outlineWidthType == 0) { // 0 ("none")
     gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
   } else {
-    float worldNormalLength = length(v_normal_inWorld);
+    float worldNormalLength = length(normalMatrix * a_normal);
     float outlineWidthFactor = get_outlineWidthFactor(materialSID, 0);
-    vec3 outlineOffset = outlineWidthFactor * worldNormalLength * a_normal;
+    vec3 outlineOffset = outlineWidthFactor * worldNormalLength * v_normal_inWorld;
 
     float outlineWidthMultiply = texture(u_outlineWidthMultiplyTexture, a_texcoord_0).g;
     outlineOffset *= outlineWidthMultiply;
@@ -86,7 +86,7 @@ void main(){
       vec4 vViewPosition = viewMatrix * v_position_inWorld;
       outlineOffset *= abs(vViewPosition.z) / projectionMatrix[1].y;
     }
-    gl_Position = projectionMatrix * viewMatrix * vec4(v_position_inWorld.xyz + outlineOffset, v_position_inWorld.w);
+    gl_Position = projectionMatrix * viewMatrix * vec4(v_position_inWorld.xyz + outlineOffset, 1.0);
     gl_Position.z += 0.000001 * gl_Position.w;
   }
 #else
