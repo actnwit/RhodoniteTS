@@ -95,7 +95,7 @@ fn main(
       projectedNormal.x *= aspect;
 
       let outlineWidth: f32 = get_outlineWidth(materialSID, 0);
-      vertex += vec4f(0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(output.normal_inView.z), 0.0, 1.0), vertex.z, vertex.w); // ignore offset when normal toward camera
+      vertex += vec4f(0.01 * outlineWidth * outlineTex * projectedNormal * clamp(1.0 - abs(output.normal_inView.z), 0.0, 1.0), 0.0, 0.0); // ignore offset when normal toward camera
 
       output.position = vertex;
     #else
