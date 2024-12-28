@@ -7,8 +7,6 @@
 
 const EPS_COL: f32 = 0.00001;
 
-#pragma shaderity: require(../common/opticalDefinition.wgsl)
-
 fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScale: f32) -> f32 {
   let d: vec3f = fwidth(bary3);
   let x: vec3f = bary3 + vec3f(1.0 - wireframeWidthInner) * d;
@@ -18,15 +16,20 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-fn linearToSrgb(linearColor: vec3f) -> vec3f {
-  return pow(linearColor, vec3f(1.0/2.2));
-}
-
-fn srgbToLinear(srgbColor: vec3f) -> vec3f {
-  return pow(srgbColor, vec3f(2.2));
-}
-
+#pragma shaderity: require(../common/opticalDefinition.wgsl)
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
+#pragma shaderity: require(../common/pbrDefinition.wgsl)
+
+@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(16) var diffuseEnvSampler: sampler;
+@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
+@group(2) @binding(17) var specularEnvSampler: sampler;
+
+// #param inverseEnvironment: bool; // initialValue=false
+// #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
+// #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
+
+#pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
 fn main (
@@ -177,12 +180,23 @@ fn main (
 
 
   // Indirect Light
-  // var indirectLighting: vec3f = get_ambientColor(materialSID, 0);
-  // indirectLighting = srgbToLinear(indirectLighting);
-  // indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
-  // // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
-
-  // rt0 += vec4f(indirectLighting * litColor, 0.0);
+  let indirectLightIntensity = get_indirectLightIntensity(materialSID, 0);
+  let worldUpVector = vec3f(0.0, 1.0, 0.0);
+  let worldDownVector = vec3f(0.0, -1.0, 0.0);
+  let iblParameter = get_iblParameter(materialSID, 0);
+  let rot = iblParameter.w;
+  let IBLDiffuseContribution = iblParameter.y;
+  let rotEnvMatrix = mat3x3f(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  let normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  let hdriFormat = get_hdriFormat(materialSID, 0);
+  let rawGiUp = get_irradiance(worldUpVector, hdriFormat);
+  let rawGiDown = get_irradiance(worldDownVector, hdriFormat);
+  let rawGiNormal = get_irradiance(normal_forEnv, hdriFormat);
+  let uniformedGi = (rawGiUp + rawGiDown) / 2.0;
+  let passthroughGi = rawGiNormal;
+  var indirectLighting = mix(uniformedGi, passthroughGi, indirectLightIntensity);
+  indirectLighting = mix(indirectLighting, vec3f(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
+  rt0 += vec4f(indirectLighting * litColor, 0.0);
   // rt0 = vec4f(min(rt0.xyz, litColor), rt0.w); // comment out if you want to PBR absolutely.
 
 
