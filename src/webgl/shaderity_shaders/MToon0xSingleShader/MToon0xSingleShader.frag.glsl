@@ -13,6 +13,7 @@ in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
+in float v_instanceInfo;
 #ifdef RN_USE_TANGENT
   in vec3 v_tangent_inWorld;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
@@ -23,6 +24,19 @@ in vec4 v_position_inWorld;
 /* shaderity: @{getters} */
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
+#pragma shaderity: require(../common/pbrDefinition.glsl)
+
+/* shaderity: @{matricesGetters} */
+
+#pragma shaderity: require(../common/iblDefinition.glsl)
+
+uniform bool u_inverseEnvironment; // initialValue=false
+uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
+uniform ivec2 u_hdriFormat; // initialValue=(0,0), isInternalSetting=true
+
+uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSetting=true
+uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
+
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
@@ -31,14 +45,6 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
   float factor = min(min(a3.x, a3.y), a3.z);
 
   return clamp((1.0 - factor), 0.0, 1.0);
-}
-
-vec3 linearToSrgb(vec3 linearColor) {
-  return pow(linearColor, vec3(1.0/2.2));
-}
-
-vec3 srgbToLinear(vec3 srgbColor) {
-  return pow(srgbColor, vec3(2.2));
 }
 
 #pragma shaderity: require(../common/perturbedNormal.glsl)
@@ -186,13 +192,25 @@ void main (){
 
 
   // Indirect Light
-  vec3 indirectLighting = get_ambientColor(materialSID, 0);
-  indirectLighting = srgbToLinear(indirectLighting);
+  float indirectLightIntensity = get_indirectLightIntensity(materialSID, 0);
+  vec3 worldUpVector = vec3(0.0, 1.0, 0.0);
+  vec3 worldDownVector = vec3(0.0, -1.0, 0.0);
+  vec4 iblParameter = get_iblParameter(materialSID, 0);
+  float rot = iblParameter.w;
+  float IBLDiffuseContribution = iblParameter.y;
+  mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
+  vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
+  ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
+  vec3 rawGiUp = get_irradiance(worldUpVector, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiDown = get_irradiance(worldDownVector, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiNormal = get_irradiance(normal_forEnv, materialSID, hdriFormat) * IBLDiffuseContribution;
+  vec3 uniformedGi = (rawGiUp + rawGiDown) / 2.0;
+  vec3 passthroughGi = rawGiNormal;
+  vec3 indirectLighting = mix(uniformedGi, passthroughGi, indirectLightIntensity);
   indirectLighting = mix(indirectLighting, vec3(max(EPS_COL, max(indirectLighting.x, max(indirectLighting.y, indirectLighting.z)))), lightColorAttenuation); // color atten
-  // TODO: use ShadeIrad in www.ppsloan.org/publications/StupidSH36.pdf
 
-  // rt0.xyz += indirectLighting * litColor;
-  rt0.xyz = min(rt0.xyz, litColor); // comment out if you want to PBR absolutely.
+  rt0.xyz += indirectLighting * litColor * RECIPROCAL_PI;
+  // rt0.xyz = min(rt0.xyz, litColor); // comment out if you want to PBR absolutely.
 
 
   #ifdef RN_MTOON_IS_OUTLINE
