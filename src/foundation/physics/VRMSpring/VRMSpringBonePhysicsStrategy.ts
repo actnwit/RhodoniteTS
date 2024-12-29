@@ -93,7 +93,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         );
         bone.setup(childPositionInLocal, void 0);
       }
+    }
 
+    for (const bone of bones) {
       // update VRMSpringBone
       this.process(collisionGroups, bone, center);
     }
