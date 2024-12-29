@@ -853,4 +853,26 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
     out._v[3] = Math.cos(rad);
     return out;
   }
+
+  // Returns the rotation angle (0~π) of quaternion q
+  static getQuaternionAngle(q: IQuaternion) {
+    // Assume q is normalized
+    const wClamped = Math.max(-1.0, Math.min(1.0, q.w));
+    return 2.0 * Math.acos(wClamped);
+  }
+
+  static clampRotation(quat: IQuaternion, thetaMax: number) {
+    const theta = Quaternion.getQuaternionAngle(quat);
+    if (theta <= thetaMax) {
+      // Do nothing if already small enough
+      return quat;
+    } else {
+      // Slerp from unit Q to q at the ratio of θmax/θ
+      const t = thetaMax / theta;
+      // Unit quaternion (no rotation)
+      const qIdentity = Quaternion.fromCopy4(0.0, 0.0, 0.0, 1.0);
+      // Interpolate from qIdentity (0 degrees) to q (θ degrees) and reduce to θmax
+      return Quaternion.qlerp(qIdentity, quat, t);
+    }
+  }
 }
