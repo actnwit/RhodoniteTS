@@ -104,6 +104,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   }
 
   process(collisionGroups: VRMColliderGroup[], bone: VRMSpringBone, center?: SceneGraphComponent) {
+    bone._calcWorldSpaceBoneLength();
+
     const dragForce = bone.dragForce;
     const stiffnessForce =
       bone.stiffnessForce * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale;
