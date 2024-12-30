@@ -10,7 +10,8 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { Is } from '../../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
 import { Config } from '../../core/Config';
-import { IVector3 } from '../../math';
+import { IVector3 } from '../../math/IVector';
+import { Matrix44 } from '../../math/Matrix44';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_updateInner_vec3_0 = MutableVector3.zero();
@@ -108,60 +109,34 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       bone.stiffnessForce * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale;
 
     // Continues the previous frame's movement (there is also attenuation)
-    let inertia = MutableVector3.multiplyTo(
-      Vector3.subtractTo(
-        bone.currentTail,
-        bone.prevTail,
-        VRMSpringBonePhysicsStrategy.__tmp_process_vec3_2
-      ),
-      1.0 - dragForce,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_3
+    let inertia = MutableVector3.multiply(
+      Vector3.subtract(bone.currentTail, bone.prevTail),
+      1.0 - dragForce
     ) as IVector3;
     inertia = center != null ? center.getWorldPositionOf(inertia) : inertia;
 
     const currentTail =
-      center != null
-        ? center.getWorldPositionOfTo(
-            bone.currentTail,
-            VRMSpringBonePhysicsStrategy.__tmp_process_vec3_0
-          )
-        : bone.currentTail;
-    const prevTail =
-      center != null
-        ? center.getWorldPositionOfTo(
-            bone.prevTail,
-            VRMSpringBonePhysicsStrategy.__tmp_process_vec3_1
-          )
-        : bone.prevTail;
+      center != null ? center.getWorldPositionOf(bone.currentTail) : bone.currentTail;
+    const prevTail = center != null ? center.getWorldPositionOf(bone.prevTail) : bone.prevTail;
 
     // Movement target of child bones due to parent's rotation
-    const rotation = Quaternion.multiplyTo(
+    const rotation = Quaternion.multiply(
       this.getParentRotation(bone.node.getSceneGraph()),
-      bone.node.localRotationRestInner,
-      VRMSpringBonePhysicsStrategy.__tmp_process_quat_0
+      bone.node.localRotationRestInner
     );
-    const stiffness = Vector3.multiplyTo(
-      rotation.transformVector3To(bone.boneAxis, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_4),
-      stiffnessForce,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_5
-    );
+    const stiffness = Vector3.multiply(rotation.transformVector3(bone.boneAxis), stiffnessForce);
 
     // Calculate the nextTail
-    const external = Vector3.multiplyTo(
+    const external = Vector3.multiply(
       bone.gravityDir,
-      bone.gravityPower * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_6
+      bone.gravityPower * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale
     );
-    let nextTail = Vector3.addTo(
-      Vector3.addTo(
-        Vector3.addTo(currentTail, inertia, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_7),
-        stiffness,
-        VRMSpringBonePhysicsStrategy.__tmp_process_vec3_8
-      ),
-      external,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_9
+    let nextTail = Vector3.add(
+      Vector3.add(Vector3.add(currentTail, inertia), stiffness),
+      external
     ) as Vector3;
 
+    // let nextTail = currentTail;
     // Normalize to bone length
     nextTail = this.normalizeBoneLength(nextTail, bone);
 
@@ -180,58 +155,31 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   }
 
   normalizeBoneLength(nextTail: Vector3, bone: VRMSpringBone) {
-    const sub = Vector3.normalizeTo(
-      Vector3.subtractTo(
-        nextTail,
-        bone.node.position,
-        VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_0
-      ),
-      VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_1
-    );
+    const sub = Vector3.normalize(Vector3.subtract(nextTail, bone.node.position));
     return Vector3.add(
       bone.node.position,
-      Vector3.multiplyTo(
-        sub,
-        bone.boneLength,
-        VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_2
-      )
+      Vector3.multiply(sub, bone.boneLength)
       // VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_3
     );
+
+    // const sub = Vector3.subtract(nextTail, bone.node.position);
+    // return Vector3.add(
+    //   bone.node.position,
+    //   sub
+    //   // VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_3
+    // );
   }
 
   applyRotation(nextTail: Vector3, bone: VRMSpringBone) {
     // calc in local space
-    const sub = Vector3.normalizeTo(
-      Vector3.subtractTo(
-        nextTail,
-        bone.node.position,
-        VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_0
-      ),
-      VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_1
-    );
-    const to = Quaternion.invertTo(
-      Quaternion.multiplyTo(
-        bone.node.parent!.rotation,
-        bone.node.localRotationRestInner,
-        VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_0
-      ),
-      VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_1
-    ).transformVector3(sub); //, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_2);
-    const result = Quaternion.multiplyTo(
-      bone.node.localRotationRestInner,
-      Quaternion.normalizeTo(
-        Quaternion.fromToRotationTo(
-          Vector3.normalizeTo(
-            bone.boneAxis,
-            VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_3
-          ),
-          Vector3.normalizeTo(to, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_4),
-          VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_2
-        ),
-        VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_3
-      ),
-      VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_4
-    );
+    // const sub = Vector3.normalize(Vector3.subtract(nextTail, bone.node.position));
+    // const to = Quaternion.invert(
+    //   Quaternion.multiply(bone.node.parent!.rotation, bone.node.localRotationRestInner)
+    // ).transformVector3(sub); //, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_2);
+    // const rot = Quaternion.normalize(
+    //   Quaternion.fromToRotation(Vector3.normalize(bone.boneAxis), Vector3.normalize(to))
+    // );
+    // const result = Quaternion.multiply(bone.node.localRotationRestInner, rot);
 
     // calc in world space
     // const rotation = Quaternion.multiply(
@@ -241,6 +189,16 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // const sub = Vector3.subtract(nextTail, bone.node.position);
     // let result = Quaternion.fromToRotation(rotation.transformVector3(bone.boneAxis), sub);
     // result = Quaternion.multiply(result, rotation);
+
+    const mat = Matrix44.invert(
+      Matrix44.multiply(bone.node.parent!.matrixInner, bone.node.localMatrixRestInner)
+    );
+    // const to = Vector3.normalize(mat.multiplyVector3(nextTail));
+    const to = Vector3.multiplyMatrix4(nextTail, mat);
+    const result = Quaternion.multiply(
+      bone.node.localRotationRestInner,
+      Quaternion.normalize(Quaternion.fromToRotation(Vector3.normalize(bone.boneAxis), to))
+    );
 
     return result;
   }
@@ -256,15 +214,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
         if (distance < 0) {
           // Hit
-          nextTail = Vector3.addTo(
-            nextTail,
-            Vector3.multiplyTo(
-              direction,
-              -distance,
-              VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_0
-            ),
-            VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_1
-          );
+          nextTail = Vector3.add(nextTail, Vector3.multiply(direction, -distance));
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone);
@@ -274,15 +224,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         const { direction, distance } = collider.collision(nextTail, boneHitRadius);
         if (distance < 0) {
           // Hit
-          nextTail = Vector3.addTo(
-            nextTail,
-            Vector3.multiplyTo(
-              direction,
-              -distance,
-              VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_2
-            ),
-            VRMSpringBonePhysicsStrategy.__tmp_collision_vec3_3
-          );
+          nextTail = Vector3.add(nextTail, Vector3.multiply(direction, -distance));
 
           // normalize bone length
           nextTail = this.normalizeBoneLength(nextTail, bone);

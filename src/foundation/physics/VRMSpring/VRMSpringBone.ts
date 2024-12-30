@@ -30,10 +30,7 @@ export class VRMSpringBone extends RnObject {
     if (!this.initialized) {
       const scenegraph = this.node.getSceneGraph();
       this.node.getTransform()._backupTransformAsRest();
-      const worldChildPosition = scenegraph.getWorldPositionOfTo(
-        localChildPosition,
-        VRMSpringBone.__tmp_vec3_0
-      );
+      const worldChildPosition = scenegraph.getWorldPositionOf(localChildPosition);
       this.currentTail =
         center != null ? center.getLocalPositionOf(worldChildPosition) : worldChildPosition;
       this.prevTail = this.currentTail.clone();

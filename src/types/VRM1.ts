@@ -32,6 +32,7 @@ export type Vrm1SpringBone_Spring = {
   colliderGroups: number[];
   joints: Vrm1SpringBone_Joint[];
   name: string;
+  center: number;
 };
 
 export type Vrm1SpringBone_Joint = {
