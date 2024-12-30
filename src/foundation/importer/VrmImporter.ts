@@ -246,6 +246,10 @@ export class VrmImporter {
           addedEntities.push(entity);
         }
 
+        if (spring.center != null) {
+          vrmSpring.center = gltfModel.asset.extras!.rnEntities![spring.center].getSceneGraph();
+        }
+
         // Find and add the missing joints from spring.joints.
         this.__addSpringBoneRecursively(vrmSpring, jointRootEntity, addedEntities);
         springs.push(vrmSpring);
