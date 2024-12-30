@@ -10,6 +10,7 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { Is } from '../../misc/Is';
 import { VRMSpringBone } from './VRMSpringBone';
 import { Config } from '../../core/Config';
+import { IVector3 } from '../../math';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_updateInner_vec3_0 = MutableVector3.zero();
@@ -61,7 +62,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   }
 
   updateInner(bones: VRMSpringBone[], spring: VRMSpring) {
-    const center: SceneGraphComponent | undefined = void 0;
+    const center = spring.center;
 
     const collisionGroups = spring.colliderGroups;
 
@@ -80,7 +81,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         if (childPositionInLocal.lengthSquared() < Number.EPSILON) {
           childPositionInLocal._v[1] = -1;
         }
-        bone.setup(childPositionInLocal, void 0);
+        bone.setup(childPositionInLocal, center);
       } else {
         const childPosition = Vector3.multiplyTo(
           Vector3.normalizeTo(sg.position, VRMSpringBonePhysicsStrategy.__tmp_updateInner_vec3_0),
@@ -91,7 +92,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
           childPosition,
           VRMSpringBonePhysicsStrategy.__tmp_updateInner_vec3_2
         );
-        bone.setup(childPositionInLocal, void 0);
+        bone.setup(childPositionInLocal, center);
       }
     }
 
@@ -105,6 +106,18 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const dragForce = bone.dragForce;
     const stiffnessForce =
       bone.stiffnessForce * Time.lastTickTimeInterval * Config.physicsTimeIntervalScale;
+
+    // Continues the previous frame's movement (there is also attenuation)
+    let inertia = MutableVector3.multiplyTo(
+      Vector3.subtractTo(
+        bone.currentTail,
+        bone.prevTail,
+        VRMSpringBonePhysicsStrategy.__tmp_process_vec3_2
+      ),
+      1.0 - dragForce,
+      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_3
+    ) as IVector3;
+    inertia = center != null ? center.getWorldPositionOf(inertia) : inertia;
 
     const currentTail =
       center != null
@@ -120,13 +133,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
             VRMSpringBonePhysicsStrategy.__tmp_process_vec3_1
           )
         : bone.prevTail;
-
-    // Continues the previous frame's movement (there is also attenuation)
-    const inertia = MutableVector3.multiplyTo(
-      Vector3.subtractTo(currentTail, prevTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_2),
-      1.0 - dragForce,
-      VRMSpringBonePhysicsStrategy.__tmp_process_vec3_3
-    );
 
     // Movement target of child bones due to parent's rotation
     const rotation = Quaternion.multiplyTo(
@@ -164,17 +170,8 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     // prevTail = currentTail;
     // currentTail = nextTail;
-    bone.prevTail =
-      center != null
-        ? center.getLocalPositionOfTo(
-            currentTail,
-            VRMSpringBonePhysicsStrategy.__tmp_process_vec3_10
-          )
-        : currentTail;
-    bone.currentTail =
-      center != null
-        ? center.getLocalPositionOfTo(nextTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_11)
-        : nextTail;
+    bone.prevTail = center != null ? center.getLocalPositionOf(currentTail) : currentTail.clone();
+    bone.currentTail = center != null ? center.getLocalPositionOf(nextTail) : nextTail;
 
     const resultRotation = this.applyRotation(nextTail, bone);
 

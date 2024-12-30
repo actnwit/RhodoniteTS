@@ -25,6 +25,7 @@ let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable c
 let cgApiDebugConsoleOutput = false;
 let multiViewForWebVR = false;
 let physicsTimeIntervalScale = 1;
+let maxClampRotation = Math.PI * 0.1;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -57,4 +58,5 @@ export const Config = {
   cgApiDebugConsoleOutput,
   multiViewForWebVR,
   physicsTimeIntervalScale,
+  maxClampRotation,
 };

@@ -5,10 +5,10 @@ import { IVector3, Matrix44, MutableVector3, Quaternion } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 
 export class VRMSpringBone extends RnObject {
-  stiffnessForce = 0.5;
+  stiffnessForce = 1.0;
   gravityPower = 0;
   gravityDir = Vector3.fromCopyArray([0, -1.0, 0]);
-  dragForce = 0.05;
+  dragForce = 0.4;
   hitRadius = 0.02;
   node: ISceneGraphEntity;
 
