@@ -27,7 +27,7 @@ export class VRMSpringBone extends RnObject {
     this.node = node;
   }
 
-  setup(localChildPosition: IVector3, center?: SceneGraphComponent) {
+  setup(center?: SceneGraphComponent) {
     if (!this.initialized) {
       this.node.getTransform()._backupTransformAsRest();
       const children = this.node.getSceneGraph().children;
