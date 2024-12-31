@@ -715,27 +715,6 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   static fromToRotation(from: IVector3, to: IVector3) {
-    // const v0 = MutableVector3.fromCopyVector3(from);
-    // const v1 = MutableVector3.fromCopyVector3(to);
-    // v0.normalize();
-    // v1.normalize();
-    // const d = v0.dot(v1);
-    // if (d > -1.0 + Number.EPSILON) {
-    //   const s = Math.sqrt((1.0 + d) * 2.0);
-    //   const invs = 1.0 / s;
-    //   const c = Vector3.multiply(v0.cross(v1), invs);
-    //   return Quaternion.fromCopy4(c.x, c.y, c.z, s * 0.5);
-    // } else {
-    //   let axis = Vector3.fromCopy3(0, 1, 0);
-    //   let axis2 = v0.cross(axis);
-    //   if (axis2.length() < Number.EPSILON) {
-    //     axis = Vector3.fromCopy3(1, 0, 0);
-    //     axis2 = v0.cross(axis);
-    //   }
-    //   axis2.normalize();
-    //   return Quaternion.fromAxisAngle(axis2, Math.PI);
-    // }
-
     let r = Vector3.dot(from, to) + 1;
 
     if (r < Number.EPSILON) {
@@ -760,29 +739,33 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion) {
-    const v0 = MutableVector3.fromCopyVector3(from);
-    const v1 = MutableVector3.fromCopyVector3(to);
-    v0.normalize();
-    v1.normalize();
-    const d = v0.dot(v1);
-    if (d > -1.0 + Number.EPSILON) {
-      const s = Math.sqrt((1.0 + d) * 2.0);
-      const invs = 1.0 / s;
-      const c = Vector3.multiplyTo(v0.cross(v1), invs, Quaternion.__tmp_vec3_0);
-      out._v[0] = c.x;
-      out._v[1] = c.y;
-      out._v[2] = c.z;
-      out._v[3] = s * 0.5;
-      return out;
-    } else {
-      let axis = Vector3.fromCopy3(0, 1, 0);
-      let axis2 = v0.cross(axis);
-      if (axis2.length() < Number.EPSILON) {
-        axis = Vector3.fromCopy3(1, 0, 0);
-        axis2 = v0.cross(axis);
+    let r = Vector3.dot(from, to) + 1;
+
+    if (r < Number.EPSILON) {
+      r = 0;
+
+      if (Math.abs(from.x) > Math.abs(from.z)) {
+        out._v[0] = -from.y;
+        out._v[1] = from.x;
+        out._v[2] = 0;
+        out._v[3] = r;
+        out.normalize();
+        return out;
+      } else {
+        out._v[0] = 0;
+        out._v[1] = -from.z;
+        out._v[2] = from.y;
+        out._v[3] = r;
+        out.normalize();
+        return out;
       }
-      axis2.normalize();
-      return Quaternion.fromAxisAngleTo(axis2, Math.PI, out);
+    } else {
+      out._v[0] = from.y * to.z - from.z * to.y;
+      out._v[1] = from.z * to.x - from.x * to.z;
+      out._v[2] = from.x * to.y - from.y * to.x;
+      out._v[3] = r;
+      out.normalize();
+      return out;
     }
   }
 
