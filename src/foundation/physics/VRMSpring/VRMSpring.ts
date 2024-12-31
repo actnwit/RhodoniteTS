@@ -9,6 +9,7 @@ export class VRMSpring extends RnObject {
   rootBone: SceneGraphComponent;
   bones: VRMSpringBone[] = [];
   colliderGroups: VRMColliderGroup[] = [];
+  center: SceneGraphComponent | undefined;
 
   constructor(rootBone: SceneGraphComponent) {
     super();

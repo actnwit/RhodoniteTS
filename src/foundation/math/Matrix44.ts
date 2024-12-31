@@ -158,23 +158,24 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     if (det === 0) {
       Logger.error('the determinant is 0!');
     }
+    const invDet = 1 / det;
 
-    const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) / det;
-    const m01 = (mat._v[8] * n10 - mat._v[4] * n11 - mat._v[12] * n09) / det;
-    const m02 = (mat._v[7] * n05 - mat._v[11] * n04 + mat._v[15] * n03) / det;
-    const m03 = (mat._v[10] * n04 - mat._v[6] * n05 - mat._v[14] * n03) / det;
-    const m10 = (mat._v[9] * n08 - mat._v[1] * n11 - mat._v[13] * n07) / det;
-    const m11 = (mat._v[0] * n11 - mat._v[8] * n08 + mat._v[12] * n07) / det;
-    const m12 = (mat._v[11] * n02 - mat._v[3] * n05 - mat._v[15] * n01) / det;
-    const m13 = (mat._v[2] * n05 - mat._v[10] * n02 + mat._v[14] * n01) / det;
-    const m20 = (mat._v[1] * n10 - mat._v[5] * n08 + mat._v[13] * n06) / det;
-    const m21 = (mat._v[4] * n08 - mat._v[0] * n10 - mat._v[12] * n06) / det;
-    const m22 = (mat._v[3] * n04 - mat._v[7] * n02 + mat._v[15] * n00) / det;
-    const m23 = (mat._v[6] * n02 - mat._v[2] * n04 - mat._v[14] * n00) / det;
-    const m30 = (mat._v[5] * n07 - mat._v[1] * n09 - mat._v[9] * n06) / det;
-    const m31 = (mat._v[0] * n09 - mat._v[4] * n07 + mat._v[8] * n06) / det;
-    const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) / det;
-    const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) / det;
+    const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) * invDet;
+    const m01 = (mat._v[8] * n10 - mat._v[4] * n11 - mat._v[12] * n09) * invDet;
+    const m02 = (mat._v[7] * n05 - mat._v[11] * n04 + mat._v[15] * n03) * invDet;
+    const m03 = (mat._v[10] * n04 - mat._v[6] * n05 - mat._v[14] * n03) * invDet;
+    const m10 = (mat._v[9] * n08 - mat._v[1] * n11 - mat._v[13] * n07) * invDet;
+    const m11 = (mat._v[0] * n11 - mat._v[8] * n08 + mat._v[12] * n07) * invDet;
+    const m12 = (mat._v[11] * n02 - mat._v[3] * n05 - mat._v[15] * n01) * invDet;
+    const m13 = (mat._v[2] * n05 - mat._v[10] * n02 + mat._v[14] * n01) * invDet;
+    const m20 = (mat._v[1] * n10 - mat._v[5] * n08 + mat._v[13] * n06) * invDet;
+    const m21 = (mat._v[4] * n08 - mat._v[0] * n10 - mat._v[12] * n06) * invDet;
+    const m22 = (mat._v[3] * n04 - mat._v[7] * n02 + mat._v[15] * n00) * invDet;
+    const m23 = (mat._v[6] * n02 - mat._v[2] * n04 - mat._v[14] * n00) * invDet;
+    const m30 = (mat._v[5] * n07 - mat._v[1] * n09 - mat._v[9] * n06) * invDet;
+    const m31 = (mat._v[0] * n09 - mat._v[4] * n07 + mat._v[8] * n06) * invDet;
+    const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) * invDet;
+    const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) * invDet;
 
     return Matrix44.fromCopy16RowMajor(
       m00,
@@ -217,23 +218,24 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     if (det === 0) {
       Logger.error('the determinant is 0!');
     }
+    const invDet = 1 / det;
 
-    const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) / det;
-    const m01 = (mat._v[8] * n10 - mat._v[4] * n11 - mat._v[12] * n09) / det;
-    const m02 = (mat._v[7] * n05 - mat._v[11] * n04 + mat._v[15] * n03) / det;
-    const m03 = (mat._v[10] * n04 - mat._v[6] * n05 - mat._v[14] * n03) / det;
-    const m10 = (mat._v[9] * n08 - mat._v[1] * n11 - mat._v[13] * n07) / det;
-    const m11 = (mat._v[0] * n11 - mat._v[8] * n08 + mat._v[12] * n07) / det;
-    const m12 = (mat._v[11] * n02 - mat._v[3] * n05 - mat._v[15] * n01) / det;
-    const m13 = (mat._v[2] * n05 - mat._v[10] * n02 + mat._v[14] * n01) / det;
-    const m20 = (mat._v[1] * n10 - mat._v[5] * n08 + mat._v[13] * n06) / det;
-    const m21 = (mat._v[4] * n08 - mat._v[0] * n10 - mat._v[12] * n06) / det;
-    const m22 = (mat._v[3] * n04 - mat._v[7] * n02 + mat._v[15] * n00) / det;
-    const m23 = (mat._v[6] * n02 - mat._v[2] * n04 - mat._v[14] * n00) / det;
-    const m30 = (mat._v[5] * n07 - mat._v[1] * n09 - mat._v[9] * n06) / det;
-    const m31 = (mat._v[0] * n09 - mat._v[4] * n07 + mat._v[8] * n06) / det;
-    const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) / det;
-    const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) / det;
+    const m00 = (mat._v[5] * n11 - mat._v[9] * n10 + mat._v[13] * n09) * invDet;
+    const m01 = (mat._v[8] * n10 - mat._v[4] * n11 - mat._v[12] * n09) * invDet;
+    const m02 = (mat._v[7] * n05 - mat._v[11] * n04 + mat._v[15] * n03) * invDet;
+    const m03 = (mat._v[10] * n04 - mat._v[6] * n05 - mat._v[14] * n03) * invDet;
+    const m10 = (mat._v[9] * n08 - mat._v[1] * n11 - mat._v[13] * n07) * invDet;
+    const m11 = (mat._v[0] * n11 - mat._v[8] * n08 + mat._v[12] * n07) * invDet;
+    const m12 = (mat._v[11] * n02 - mat._v[3] * n05 - mat._v[15] * n01) * invDet;
+    const m13 = (mat._v[2] * n05 - mat._v[10] * n02 + mat._v[14] * n01) * invDet;
+    const m20 = (mat._v[1] * n10 - mat._v[5] * n08 + mat._v[13] * n06) * invDet;
+    const m21 = (mat._v[4] * n08 - mat._v[0] * n10 - mat._v[12] * n06) * invDet;
+    const m22 = (mat._v[3] * n04 - mat._v[7] * n02 + mat._v[15] * n00) * invDet;
+    const m23 = (mat._v[6] * n02 - mat._v[2] * n04 - mat._v[14] * n00) * invDet;
+    const m30 = (mat._v[5] * n07 - mat._v[1] * n09 - mat._v[9] * n06) * invDet;
+    const m31 = (mat._v[0] * n09 - mat._v[4] * n07 + mat._v[8] * n06) * invDet;
+    const m32 = (mat._v[7] * n01 - mat._v[3] * n03 - mat._v[11] * n00) * invDet;
+    const m33 = (mat._v[2] * n03 - mat._v[6] * n01 + mat._v[10] * n00) * invDet;
 
     return outMat.setComponents(
       m00,

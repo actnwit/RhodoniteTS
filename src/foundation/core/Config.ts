@@ -25,6 +25,8 @@ let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable c
 let cgApiDebugConsoleOutput = false;
 let multiViewForWebVR = false;
 let physicsTimeIntervalScale = 1;
+let vrmSpringBoneBonAxisCoeff = 0.5;
+let vrmSpringBoneToCoeff = 0.4;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -57,4 +59,6 @@ export const Config = {
   cgApiDebugConsoleOutput,
   multiViewForWebVR,
   physicsTimeIntervalScale,
+  vrmSpringBoneBonAxisCoeff,
+  vrmSpringBoneToCoeff,
 };

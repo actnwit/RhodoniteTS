@@ -2,6 +2,7 @@ import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from './IVecto
 import { MathUtil } from './MathUtil';
 import { CompositionType } from '../definitions/CompositionType';
 import { IQuaternion } from './IQuaternion';
+import { IMatrix44 } from './IMatrix';
 import { AbstractVector } from './AbstractVector';
 import { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 import { Logger } from '../misc/Logger';
@@ -178,6 +179,26 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     out._v[1] = l_vec._v[1] * r_vec._v[1];
     out._v[2] = l_vec._v[2] * r_vec._v[2];
     return out;
+  }
+
+  /**
+   * multiply matrix4
+   */
+  static _multiplyMatrix4(vec: IVector3, mat: IMatrix44, type: FloatTypedArrayConstructor) {
+    const x = vec._v[0];
+    const y = vec._v[1];
+    const z = vec._v[2];
+    const w = 1 / (mat._v[3] * x + mat._v[7] * y + mat._v[11] * z + mat._v[15]);
+    const resultX = (mat._v[0] * x + mat._v[4] * y + mat._v[8] * z + mat._v[12]) * w;
+    const resultY = (mat._v[1] * x + mat._v[5] * y + mat._v[9] * z + mat._v[13]) * w;
+    const resultZ = (mat._v[2] * x + mat._v[6] * y + mat._v[10] * z + mat._v[14]) * w;
+
+    // const w = 1 / (mat._v[12] * x + mat._v[13] * y + mat._v[14] * z + mat._v[15]);
+    // const resultX = (mat._v[0] * x + mat._v[1] * y + mat._v[2] * z + mat._v[3]) * w;
+    // const resultY = (mat._v[4] * x + mat._v[5] * y + mat._v[6] * z + mat._v[7]) * w;
+    // const resultZ = (mat._v[8] * x + mat._v[9] * y + mat._v[10] * z + mat._v[11]) * w;
+
+    return this._fromCopyArray([resultX, resultY, resultZ], type);
   }
 
   /**
@@ -546,6 +567,10 @@ export class Vector3 extends Vector3_<Float32ArrayConstructor> {
     return super._multiplyVector(l_vec, r_vec, Float32Array);
   }
 
+  static multiplyMatrix4(vec: IVector3, mat: IMatrix44): Vector3 {
+    return super._multiplyMatrix4(vec, mat, Float32Array);
+  }
+
   static divide(vec: IVector3, value: number): Vector3 {
     return super._divide(vec, value, Float32Array);
   }
@@ -629,6 +654,10 @@ export class Vector3d extends Vector3_<Float64ArrayConstructor> {
 
   static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3d {
     return super._multiplyVector(l_vec, r_vec, Float64Array);
+  }
+
+  static multiplyMatrix4(vec: IVector3, mat: IMatrix44): Vector3d {
+    return super._multiplyMatrix4(vec, mat, Float64Array);
   }
 
   static divide(vec: IVector3, value: number): Vector3d {

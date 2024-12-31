@@ -237,6 +237,11 @@ export class Vrm0xImporter {
         this.__addSpringBoneRecursively(vrmSpringBoneGroup, entity, boneGroup, addedEntities);
       }
 
+      if (boneGroup.center != null && boneGroup.center !== -1) {
+        vrmSpringBoneGroup.center =
+          gltfModel.asset.extras!.rnEntities![boneGroup.center].getSceneGraph();
+      }
+
       boneGroups.push(vrmSpringBoneGroup);
     }
 
