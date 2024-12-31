@@ -108,4 +108,6 @@ export declare class Quaternion extends AbstractQuaternion implements IQuaternio
     static fromCopyLogQuaternion(x: ILogQuaternion): Quaternion;
     static fromAxisAngle(axis: IVector3, rad: number): Quaternion;
     static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion): IMutableQuaternion;
+    static getQuaternionAngle(q: IQuaternion): number;
+    static clampRotation(quat: IQuaternion, thetaMax: number): IQuaternion;
 }

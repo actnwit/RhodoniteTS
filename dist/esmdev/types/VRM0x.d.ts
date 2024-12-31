@@ -104,6 +104,7 @@ export type Vrm0xMaterialProperty = {
         _ReceiveShadowTexture: number;
         _RimTexture: number;
         _ShadingGradeTexture: number;
+        _UvAnimMaskTexture: number;
     };
 };
 export type Vrm0x_Extension = {

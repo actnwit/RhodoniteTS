@@ -19,4 +19,7 @@ export declare const Config: {
     cacheWebGpuRenderBundles: boolean;
     cgApiDebugConsoleOutput: boolean;
     multiViewForWebVR: boolean;
+    physicsTimeIntervalScale: number;
+    vrmSpringBoneBonAxisCoeff: number;
+    vrmSpringBoneToCoeff: number;
 };

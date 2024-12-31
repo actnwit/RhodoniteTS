@@ -1,7 +1,7 @@
 import { SceneGraphComponent } from '../../components';
 import { RnObject } from '../../core/RnObject';
 import { ISceneGraphEntity } from '../../helpers/EntityHelper';
-import { IVector3 } from '../../math';
+import { IMatrix44 } from '../../math';
 import { Vector3 } from '../../math/Vector3';
 export declare class VRMSpringBone extends RnObject {
     stiffnessForce: number;
@@ -14,8 +14,12 @@ export declare class VRMSpringBone extends RnObject {
     prevTail: Vector3;
     boneAxis: Vector3;
     boneLength: number;
+    initialLocalChildPosition: Vector3;
     initialized: boolean;
     private static __tmp_vec3_0;
     constructor(node: ISceneGraphEntity);
-    setup(localChildPosition: IVector3, center?: SceneGraphComponent): void;
+    setup(center?: SceneGraphComponent): void;
+    _getMatrixCenterToWorld(center?: SceneGraphComponent): IMatrix44;
+    _getMatrixWorldToCenter(center?: SceneGraphComponent): IMatrix44;
+    _calcWorldSpaceBoneLength(): void;
 }

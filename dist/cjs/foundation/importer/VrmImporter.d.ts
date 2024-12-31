@@ -23,5 +23,4 @@ export declare class VrmImporter {
      * Generate JSON.
      */
     static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Result<Vrm1, Err<RnM2, undefined>>>;
-    static __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
 }

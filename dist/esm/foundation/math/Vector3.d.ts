@@ -1,5 +1,6 @@
 import { IVector2, IVector3, IVector4, IVector, IMutableVector3 } from './IVector';
 import { IQuaternion } from './IQuaternion';
+import { IMatrix44 } from './IMatrix';
 import { AbstractVector } from './AbstractVector';
 import { Array3, FloatTypedArrayConstructor, TypedArray } from '../../types/CommonTypes';
 /**
@@ -88,6 +89,10 @@ export declare class Vector3_<T extends FloatTypedArrayConstructor> extends Abst
      */
     static multiplyVectorTo(l_vec: IVector3, r_vec: IVector3, out: IMutableVector3): IMutableVector3;
     /**
+     * multiply matrix4
+     */
+    static _multiplyMatrix4(vec: IVector3, mat: IMatrix44, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
+    /**
      * divide(static version)
      */
     static _divide(vec: IVector3, value: number, type: FloatTypedArrayConstructor): Vector3_<FloatTypedArrayConstructor>;
@@ -173,6 +178,7 @@ export declare class Vector3 extends Vector3_<Float32ArrayConstructor> {
     static subtract(l_vec: IVector3, r_vec: IVector3): Vector3;
     static multiply(vec: IVector3, value: number): Vector3;
     static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3;
+    static multiplyMatrix4(vec: IVector3, mat: IMatrix44): Vector3;
     static divide(vec: IVector3, value: number): Vector3;
     static divideVector(l_vec: IVector3, r_vec: IVector3): Vector3;
     static cross(l_vec: IVector3, r_vec: IVector3): Vector3;
@@ -198,6 +204,7 @@ export declare class Vector3d extends Vector3_<Float64ArrayConstructor> {
     static subtract(l_vec: IVector3, r_vec: IVector3): Vector3d;
     static multiply(vec: IVector3, value: number): Vector3d;
     static multiplyVector(l_vec: IVector3, r_vec: IVector3): Vector3d;
+    static multiplyMatrix4(vec: IVector3, mat: IMatrix44): Vector3d;
     static divide(vec: IVector3, value: number): Vector3d;
     static divideVector(l_vec: IVector3, r_vec: IVector3): Vector3d;
     static cross(l_vec: IVector3, r_vec: IVector3): Vector3d;

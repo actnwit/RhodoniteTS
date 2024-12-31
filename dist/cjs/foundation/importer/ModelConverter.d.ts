@@ -41,6 +41,7 @@ export declare class ModelConverter {
     private static __useNormalTexture;
     private static __makeOutputSrgb;
     private static __setupMaterial;
+    private static setParametersToMaterial;
     static _createSampler(texture: RnM2Texture): Sampler;
     static _createTexture(texture: RnM2Texture, gltfModel: RnM2, { autoDetectTransparency }?: {
         autoDetectTransparency?: boolean | undefined;

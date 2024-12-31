@@ -1,4 +1,4 @@
-import { RnM2 } from './RnM2';
+import { RnM2, RnM2Material, RnM2Texture } from './RnM2';
 export type Vrm1HumanBone = {
     node: number;
 };
@@ -26,6 +26,7 @@ export type Vrm1SpringBone_Spring = {
     colliderGroups: number[];
     joints: Vrm1SpringBone_Joint[];
     name: string;
+    center: number;
 };
 export type Vrm1SpringBone_Joint = {
     node: number;
@@ -78,12 +79,14 @@ export type Vrm1_Materials_MToon = {
         index: number;
         texCoord?: number;
         scale?: number;
+        texture?: RnM2Texture;
     };
     shadingShiftFactor: number;
     shadingShiftTexture: {
         index: number;
         texCoord?: number;
         scale?: number;
+        texture?: RnM2Texture;
     };
     shadingToonyFactor: number;
     giEqualizationFactor: number;
@@ -92,6 +95,7 @@ export type Vrm1_Materials_MToon = {
         index: number;
         texCoord?: number;
         scale?: number;
+        texture?: RnM2Texture;
     };
     parametricRimColorFactor: [number, number, number];
     parametricRimFresnelPowerFactor: number;
@@ -100,6 +104,7 @@ export type Vrm1_Materials_MToon = {
         index: number;
         texCoord?: number;
         scale?: number;
+        texture?: RnM2Texture;
     };
     rimLightingMixFactor: number;
     outlineColorFactor: [number, number, number];
@@ -108,11 +113,22 @@ export type Vrm1_Materials_MToon = {
     outlineWidthMode: 'none' | 'worldCoordinates' | 'screenCoordinates';
     outlineWidthMultiplyTexture: {
         index: number;
+        texture?: RnM2Texture;
+    };
+    uvAnimationMaskTexture: {
+        index: number;
+        texCoord?: number;
+        texture?: RnM2Texture;
     };
     uvAnimationRotationSpeedFactor: number;
     uvAnimationScrollXSpeedFactor: number;
     uvAnimationScrollYSpeedFactor: number;
 };
+export interface Vrm1_Material extends RnM2Material {
+    extensions: {
+        VRMC_materials_mtoon: Vrm1_Materials_MToon;
+    };
+}
 export type Vrm1_NodeConstraint_Constraint = {
     specVersion: string;
     constraint: {

@@ -9,6 +9,7 @@ import { Count } from '../../types/CommonTypes';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
 import { Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
+import { Vrm1_Material } from '../../types/VRM1';
 declare function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
@@ -142,7 +143,7 @@ declare function createEntityUIDOutputMaterial({ additionalName, maxInstancesNum
     additionalName?: string | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
-declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline, materialProperties, textures, samplers, debugMode, maxInstancesNumber, makeOutputSrgb, }: {
+declare function createMToon0xMaterial({ additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline, materialProperties, textures, samplers, debugMode, maxInstancesNumber, makeOutputSrgb, }: {
     additionalName?: string;
     isMorphing?: boolean;
     isSkinning?: boolean;
@@ -150,6 +151,20 @@ declare function createMToonMaterial({ additionalName, isMorphing, isSkinning, i
     useTangentAttribute?: boolean;
     isOutline?: boolean;
     materialProperties?: Vrm0xMaterialProperty;
+    textures?: any[];
+    samplers?: Sampler[];
+    debugMode?: any;
+    maxInstancesNumber?: Count;
+    makeOutputSrgb?: boolean;
+}): Material;
+declare function createMToon1Material({ additionalName, isMorphing, isSkinning, isLighting, useTangentAttribute, isOutline, materialJson, textures, samplers, debugMode, maxInstancesNumber, makeOutputSrgb, }: {
+    additionalName?: string;
+    isMorphing?: boolean;
+    isSkinning?: boolean;
+    isLighting?: boolean;
+    useTangentAttribute?: boolean;
+    isOutline?: boolean;
+    materialJson: Vrm1_Material;
     textures?: any[];
     samplers?: Sampler[];
     debugMode?: any;
@@ -183,7 +198,8 @@ export declare const MaterialHelper: Readonly<{
     createSummedAreaTableMaterial: typeof createSummedAreaTableMaterial;
     createVarianceShadowMapDecodeClassicSingleMaterial: typeof createVarianceShadowMapDecodeClassicSingleMaterial;
     createEntityUIDOutputMaterial: typeof createEntityUIDOutputMaterial;
-    createMToonMaterial: typeof createMToonMaterial;
+    createMToon0xMaterial: typeof createMToon0xMaterial;
+    createMToon1Material: typeof createMToon1Material;
     createFurnaceTestMaterial: typeof createFurnaceTestMaterial;
     createGaussianBlurForEncodedDepthMaterial: typeof createGaussianBlurForEncodedDepthMaterial;
     createDetectHighLuminanceMaterial: typeof createDetectHighLuminanceMaterial;

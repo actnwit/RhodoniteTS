@@ -35,7 +35,7 @@ export interface RaycastResultEx2 {
  * --- 0
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  * 10 bits: Material TID
- *  2 bits: Translucency type (0: Opaque, 1: Translucent(draw after opaque), 2: Blend(draw after translucent) )
+ *  2 bits: Translucency type (0: Opaque, 1: Translucent, 2: Blend with ZWrite, 3: Blend without ZWrite
  *  3 bits: Viewport layer
  *  3 bits: Viewport
  *  2 bits: Fullscreen layer
@@ -59,4 +59,7 @@ export interface IMesh {
     meshUID: MeshUID;
 }
 export declare function isBlend(primitive: Primitive): boolean;
+export declare function isBlendWithZWrite(primitive: Primitive): boolean;
+export declare function isBlendWithoutZWrite(primitive: Primitive): boolean;
 export declare function isTranslucent(primitive: Primitive): boolean;
+export declare function isOpaque(primitive: Primitive): boolean;
