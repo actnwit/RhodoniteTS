@@ -41,13 +41,9 @@ export class VRMSpringBone extends RnObject {
       }
 
       const matrixWorldToCenter = this._getMatrixWorldToCenter(center);
-      this.currentTail = Vector3.multiplyMatrix4(
-        this.node.matrixInner.multiplyVector3(this.initialLocalChildPosition),
-        matrixWorldToCenter
+      this.currentTail = matrixWorldToCenter.multiplyVector3(
+        this.node.matrixInner.multiplyVector3(this.initialLocalChildPosition)
       );
-      // this.currentTail = matrixWorldToCenter.multiplyVector3(
-      //   this.node.matrixInner.multiplyVector3(this.initialLocalChildPosition)
-      // );
       this.prevTail = this.currentTail.clone();
       this.boneAxis = Vector3.normalize(this.initialLocalChildPosition);
 

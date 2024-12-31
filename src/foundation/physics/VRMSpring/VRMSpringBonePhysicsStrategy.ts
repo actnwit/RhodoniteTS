@@ -14,9 +14,6 @@ import { IVector3 } from '../../math/IVector';
 import { Matrix44 } from '../../math/Matrix44';
 
 export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
-  private static __tmp_updateInner_vec3_0 = MutableVector3.zero();
-  private static __tmp_updateInner_vec3_1 = MutableVector3.zero();
-  private static __tmp_updateInner_vec3_2 = MutableVector3.zero();
   private static __tmp_process_vec3_0 = MutableVector3.zero();
   private static __tmp_process_vec3_1 = MutableVector3.zero();
   private static __tmp_process_vec3_2 = MutableVector3.zero();
@@ -37,14 +34,10 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_normalizeBoneLength_vec3_3 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_0 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_1 = MutableVector3.zero();
-  private static __tmp_applyRotation_vec3_2 = MutableVector3.zero();
-  private static __tmp_applyRotation_vec3_3 = MutableVector3.zero();
-  private static __tmp_applyRotation_vec3_4 = MutableVector3.zero();
   private static __tmp_applyRotation_quat_0 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_1 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_2 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_3 = MutableQuaternion.identity();
-  private static __tmp_applyRotation_quat_4 = MutableQuaternion.identity();
   private static __tmp_collision_vec3_0 = MutableVector3.zero();
   private static __tmp_collision_vec3_1 = MutableVector3.zero();
   private static __tmp_collision_vec3_2 = MutableVector3.zero();
@@ -152,8 +145,18 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     // Movement by Collision
     nextTail = this.collision(collisionGroups, nextTail, bone.hitRadius, bone);
 
-    bone.prevTail = center != null ? center.getLocalPositionOf(currentTail) : currentTail.clone();
-    bone.currentTail = center != null ? center.getLocalPositionOf(nextTail) : nextTail;
+    bone.prevTail =
+      center != null
+        ? center
+            .getLocalPositionOfTo(currentTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_11)
+            .clone()
+        : currentTail.clone();
+    bone.currentTail =
+      center != null
+        ? center
+            .getLocalPositionOfTo(nextTail, VRMSpringBonePhysicsStrategy.__tmp_process_vec3_12)
+            .clone()
+        : nextTail.clone();
 
     const resultRotation = this.applyRotation(nextTail, bone);
 
