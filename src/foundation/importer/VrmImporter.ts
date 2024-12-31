@@ -246,7 +246,7 @@ export class VrmImporter {
           addedEntities.push(entity);
         }
 
-        if (spring.center != null) {
+        if (spring.center != null && spring.center !== -1) {
           vrmSpring.center = gltfModel.asset.extras!.rnEntities![spring.center].getSceneGraph();
         }
 
