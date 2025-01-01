@@ -1956,7 +1956,7 @@ export class WebGLResourceRepository
         gl.texImage2D(
           cubeMapSide,
           i,
-          gl.RGB32F,
+          Config.isMobile ? gl.RGB16F : gl.RGB32F,
           (image as any).width,
           (image as any).height,
           0,
