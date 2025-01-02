@@ -14,6 +14,13 @@ import { VectorN } from '../math/VectorN';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { TextureFormat } from '../definitions/TextureFormat';
 
+/**
+ * create a bloom expression
+ *
+ * @param textureToBloom - the texture to bloom
+ * @param parameters - the parameters for the bloom
+ * @returns the bloom expression and the bloomed render target
+ */
 function createBloomExpression({
   textureToBloom,
   parameters: {
