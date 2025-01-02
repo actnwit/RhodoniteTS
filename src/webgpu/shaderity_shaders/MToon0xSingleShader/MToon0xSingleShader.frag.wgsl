@@ -129,12 +129,9 @@ fn main (
   let lightColorAttenuation: f32 = get_lightColorAttenuation(materialSID, 0);
 
   let shadeColorFactor: vec3f = get_shadeColor(materialSID, 0);
-  var shadeColor: vec3f = shadeColorFactor * textureSample(shadeColorTexture, shadeColorSampler, mainUv).xyz;
-  shadeColor = srgbToLinear(shadeColor.xyz);
+  var shadeColor: vec3f = shadeColorFactor * srgbToLinear(textureSample(shadeColorTexture, shadeColorSampler, mainUv).xyz);
 
-  var litColor: vec3f = litColorFactor.xyz * litTextureColor.xyz;
-  litColor = srgbToLinear(litColor.xyz);
-
+  var litColor: vec3f = litColorFactor.xyz * srgbToLinear(litTextureColor.xyz);
 
   let shadeShift: f32 = get_shadeShift(materialSID, 0);
   let shadeToony: f32 = get_shadeToony(materialSID, 0);
@@ -217,7 +214,7 @@ fn main (
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_COLOR_MIXED
       var outlineColor: vec3f = get_outlineColor(materialSID, 0);
-      outlineColor = srgbToLinear(outlineColor);
+      // outlineColor = srgbToLinear(outlineColor);
       let outlineLightingMix: f32 = get_outlineLightingMix(materialSID, 0);
       rt0 = vec4f(outlineColor * mix(vec3f(1.0), rt0.xyz, outlineLightingMix), rt0.w);
     #endif
@@ -226,7 +223,7 @@ fn main (
     let rimLift: f32 = get_rimLift(materialSID, 0);
     let rimColorFactor: vec3f = get_rimColor(materialSID, 0);
     let rimTextureColor: vec3f = textureSample(rimTexture, rimSampler, mainUv).xyz;
-    let rimColor: vec3f = srgbToLinear(rimColorFactor * rimTextureColor);
+    let rimColor: vec3f = rimColorFactor * srgbToLinear(rimTextureColor);
     let rim: vec3f = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
     var staticRimLighting = 1.0;
