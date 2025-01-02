@@ -135,6 +135,11 @@ export class WebGpuResourceRepository
   private __lastPrimitivesMaterialVariantUpdateCount = -1;
   private __lastMeshRendererComponentsUpdateCount = -1;
 
+  private __srcTextureViewsForGeneratingMipmaps: Map<GPUTexture, Array<GPUTextureView>> = new Map();
+  private __dstTextureViewsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUTextureView>>> =
+    new Map();
+  private __bindGroupsForGeneratingMipmaps: Map<GPUTexture, Array<Array<GPUBindGroup>>> = new Map();
+
   private static __drawParametersUint32Array: Uint32Array = new Uint32Array(4);
 
   private constructor() {
@@ -410,22 +415,46 @@ export class WebGpuResourceRepository
     const layerCount = isCubemap ? 6 : 1;
 
     for (let layer = 0; layer < layerCount; ++layer) {
-      let srcView = texture.createView({
-        dimension: '2d',
-        baseMipLevel: 0,
-        mipLevelCount: 1,
-        baseArrayLayer: layer,
-        arrayLayerCount: 1,
-      });
-
-      for (let i = 1; i < textureDescriptor.mipLevelCount!; ++i) {
-        const dstView = texture.createView({
+      const srcTextureViewsMap = this.__srcTextureViewsForGeneratingMipmaps.get(texture);
+      if (srcTextureViewsMap == null || srcTextureViewsMap[layer] == null) {
+        const srcView = texture.createView({
           dimension: '2d',
-          baseMipLevel: i,
+          baseMipLevel: 0,
           mipLevelCount: 1,
           baseArrayLayer: layer,
           arrayLayerCount: 1,
         });
+        if (srcTextureViewsMap == null) {
+          this.__srcTextureViewsForGeneratingMipmaps.set(texture, []);
+        }
+        this.__srcTextureViewsForGeneratingMipmaps.get(texture)![layer] = srcView;
+      }
+      let srcView = this.__srcTextureViewsForGeneratingMipmaps.get(texture)![layer];
+
+      for (let i = 1; i < textureDescriptor.mipLevelCount!; ++i) {
+        const dstTextureViewsMap = this.__dstTextureViewsForGeneratingMipmaps.get(texture);
+        if (
+          dstTextureViewsMap == null ||
+          dstTextureViewsMap[layer] == null ||
+          dstTextureViewsMap[layer][i] == null
+        ) {
+          const dstView = texture.createView({
+            dimension: '2d',
+            baseMipLevel: i,
+            mipLevelCount: 1,
+            baseArrayLayer: layer,
+            arrayLayerCount: 1,
+          });
+
+          if (dstTextureViewsMap == null) {
+            this.__dstTextureViewsForGeneratingMipmaps.set(texture, []);
+          }
+          if (this.__dstTextureViewsForGeneratingMipmaps.get(texture)![layer] == null) {
+            this.__dstTextureViewsForGeneratingMipmaps.get(texture)![layer] = [];
+          }
+          this.__dstTextureViewsForGeneratingMipmaps.get(texture)![layer][i] = dstView;
+        }
+        const dstView = this.__dstTextureViewsForGeneratingMipmaps.get(texture)![layer][i];
 
         const passEncoder = this.__commandEncoder!.beginRenderPass({
           colorAttachments: [
@@ -437,20 +466,35 @@ export class WebGpuResourceRepository
           ],
         });
 
-        const bindGroup = gpuDevice.createBindGroup({
-          layout: this.__generateMipmapsPipeline.getBindGroupLayout(0),
-          entries: [
-            {
-              binding: 0,
-              resource: this.__generateMipmapsSampler,
-            },
-            {
-              binding: 1,
-              resource: srcView,
-            },
-          ],
-        });
+        const bindGroupsMap = this.__bindGroupsForGeneratingMipmaps.get(texture);
+        if (
+          bindGroupsMap == null ||
+          bindGroupsMap[layer] == null ||
+          bindGroupsMap[layer][i] == null
+        ) {
+          const bindGroup = gpuDevice.createBindGroup({
+            layout: this.__generateMipmapsPipeline.getBindGroupLayout(0),
+            entries: [
+              {
+                binding: 0,
+                resource: this.__generateMipmapsSampler,
+              },
+              {
+                binding: 1,
+                resource: srcView,
+              },
+            ],
+          });
 
+          if (bindGroupsMap == null) {
+            this.__bindGroupsForGeneratingMipmaps.set(texture, []);
+          }
+          if (this.__bindGroupsForGeneratingMipmaps.get(texture)![layer] == null) {
+            this.__bindGroupsForGeneratingMipmaps.get(texture)![layer] = [];
+          }
+          this.__bindGroupsForGeneratingMipmaps.get(texture)![layer][i] = bindGroup;
+        }
+        const bindGroup = this.__bindGroupsForGeneratingMipmaps.get(texture)![layer][i];
         // Render
         passEncoder.setPipeline(this.__generateMipmapsPipeline);
         passEncoder.setBindGroup(0, bindGroup);
