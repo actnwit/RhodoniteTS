@@ -142,12 +142,9 @@ void main (){
   float lightColorAttenuation = get_lightColorAttenuation(materialSID, 0);
 
   vec3 shadeColorFactor = get_shadeColor(materialSID, 0);
-  vec3 shadeColor = shadeColorFactor * texture(u_shadeColorTexture, mainUv).xyz;
-  shadeColor.xyz = srgbToLinear(shadeColor.xyz);
+  vec3 shadeColor = shadeColorFactor * srgbToLinear(texture(u_shadeColorTexture, mainUv).xyz);
 
-  vec3 litColor = litColorFactor.xyz * litTextureColor.xyz;
-  litColor.xyz = srgbToLinear(litColor.xyz);
-
+  vec3 litColor = litColorFactor.xyz * srgbToLinear(litTextureColor.xyz);
 
   float shadeShift = get_shadeShift(materialSID, 0);
   float shadeToony = get_shadeToony(materialSID, 0);
@@ -230,7 +227,7 @@ void main (){
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_COLOR_MIXED
       vec3 outlineColor = get_outlineColor(materialSID, 0);
-      outlineColor = srgbToLinear(outlineColor);
+      // outlineColor = srgbToLinear(outlineColor);
       float outlineLightingMix = get_outlineLightingMix(materialSID, 0);
       rt0.xyz = outlineColor * mix(vec3(1.0), rt0.xyz, outlineLightingMix);
     #endif
@@ -239,7 +236,7 @@ void main (){
     float rimLift = get_rimLift(materialSID, 0);
     vec3 rimColorFactor = get_rimColor(materialSID, 0);
     vec3 rimTextureColor = texture(u_rimTexture, mainUv).xyz;
-    vec3 rimColor = srgbToLinear(rimColorFactor * rimTextureColor);
+    vec3 rimColor = rimColorFactor * srgbToLinear(rimTextureColor);
     vec3 rim = pow(clamp(1.0 - dot(normal_inWorld, viewDirection) + rimLift, 0.0, 1.0), rimFresnelPower) * rimColor;
 
     float staticRimLighting = 1.0;
