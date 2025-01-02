@@ -127,6 +127,7 @@ export class WebGpuResourceRepository
   private __generateMipmapsPipeline?: GPURenderPipeline;
   private __generateMipmapsFormat?: GPUTextureFormat;
   private __generateMipmapsSampler?: GPUSampler;
+  private __generateMipmapsBindGroupLayout?: GPUBindGroupLayout;
   private __contextCurrentTextureView?: GPUTextureView;
 
   private __lastMaterialsUpdateCount = -1;
@@ -377,8 +378,29 @@ export class WebGpuResourceRepository
       this.__generateMipmapsPipeline = undefined;
     }
     if (this.__generateMipmapsPipeline == null) {
+      this.__generateMipmapsBindGroupLayout = gpuDevice.createBindGroupLayout({
+        entries: [
+          {
+            binding: 0,
+            visibility: GPUShaderStage.FRAGMENT,
+            sampler: {
+              type: 'filtering',
+            },
+          },
+          {
+            binding: 1,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {
+              viewDimension: '2d',
+            },
+          },
+        ],
+      });
+      const pipelineLayout = gpuDevice.createPipelineLayout({
+        bindGroupLayouts: [this.__generateMipmapsBindGroupLayout],
+      });
       this.__generateMipmapsPipeline = gpuDevice.createRenderPipeline({
-        layout: 'auto',
+        layout: pipelineLayout,
         vertex: {
           module: this.__generateMipmapsShaderModule,
           entryPoint: 'vertexMain',
@@ -473,7 +495,7 @@ export class WebGpuResourceRepository
           bindGroupsMap[layer][i] == null
         ) {
           const bindGroup = gpuDevice.createBindGroup({
-            layout: this.__generateMipmapsPipeline.getBindGroupLayout(0),
+            layout: this.__generateMipmapsBindGroupLayout!,
             entries: [
               {
                 binding: 0,
