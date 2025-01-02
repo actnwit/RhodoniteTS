@@ -2914,11 +2914,19 @@ export class WebGpuResourceRepository
     this.clearCache();
 
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
-
-    if (texture != null) {
-      texture.destroy();
-      this.__webGpuResources.delete(textureHandle);
+    if (texture == null) {
+      return;
     }
+
+    {
+      // delete the texture view for generating mipmaps
+      this.__srcTextureViewsForGeneratingMipmaps.delete(texture);
+      this.__dstTextureViewsForGeneratingMipmaps.delete(texture);
+      this.__bindGroupsForGeneratingMipmaps.delete(texture);
+    }
+
+    texture.destroy();
+    this.__webGpuResources.delete(textureHandle);
   }
 
   recreateSystemDepthTexture() {
