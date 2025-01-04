@@ -15,7 +15,14 @@ import { MutableVector3 } from '../math/MutableVector3';
 import { VertexHandles } from '../../webgl/WebGLResourceRepository';
 import { Is } from '../misc/Is';
 import { IVector3 } from '../math/IVector';
-import { IMesh, RaycastResultEx1 } from './types/GeometryTypes';
+import {
+  IMesh,
+  isBlendWithoutZWrite,
+  isBlendWithZWrite,
+  isOpaque,
+  isTranslucent,
+  RaycastResultEx1,
+} from './types/GeometryTypes';
 import { IMeshEntity } from '../helpers/EntityHelper';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
@@ -33,7 +40,9 @@ export class Mesh implements IMesh {
   public static __mesh_uid_count = Mesh.invalidateMeshUID;
   private __primitives: Primitive[] = [];
   private __opaquePrimitives: Array<Primitive> = [];
-  private __transparentPrimitives: Array<Primitive> = [];
+  private __translucentPrimitives: Array<Primitive> = [];
+  private __blendWithZWritePrimitives: Array<Primitive> = [];
+  private __blendWithoutZWritePrimitives: Array<Primitive> = [];
   private __morphPrimitives: Array<Primitive> = [];
   private __localAABB = new AABB();
   private __vaoUids: CGAPIResourceHandle[] = [];
@@ -112,52 +121,41 @@ export class Mesh implements IMesh {
   public addPrimitive(primitive: Primitive): void {
     primitive._belongToMesh(this);
 
-    if (
-      primitive.material == null ||
-      (!primitive.material.isBlend() && !primitive.material.isTranslucent)
-    ) {
+    if (isOpaque(primitive)) {
       this.__opaquePrimitives.push(primitive);
-    } else {
-      this.__transparentPrimitives.push(primitive);
+    } else if (isTranslucent(primitive)) {
+      this.__translucentPrimitives.push(primitive);
+    } else if (isBlendWithZWrite(primitive)) {
+      this.__blendWithZWritePrimitives.push(primitive);
+    } else if (isBlendWithoutZWrite(primitive)) {
+      this.__blendWithoutZWritePrimitives.push(primitive);
     }
-    this.__setPrimitives(this.__opaquePrimitives.concat(this.__transparentPrimitives));
+    this.__setPrimitives(
+      this.__opaquePrimitives
+        .concat(this.__translucentPrimitives)
+        .concat(this.__blendWithZWritePrimitives)
+        .concat(this.__blendWithoutZWritePrimitives)
+    );
   }
 
   private __setPrimitives(primitives: Primitive[]) {
     this.__primitives = primitives;
   }
 
-  /**
-   * Gets true if these primitives are all 'Blend' type
-   */
-  public isAllTranslucent(): boolean {
-    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length === 0) {
-      return true;
-    } else {
-      return false;
-    }
+  public isExistOpaque(): boolean {
+    return this.__opaquePrimitives.length > 0;
   }
 
-  /**
-   * Gets true if some primitives are 'Blend' type
-   */
-  public isPartiallyTranslucent(): boolean {
-    if (this.__transparentPrimitives.length > 0 && this.__opaquePrimitives.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
+  public isExistTranslucent(): boolean {
+    return this.__translucentPrimitives.length > 0;
   }
 
-  /**
-   * Gets true if these primitives are all 'Opaque' type
-   */
-  public isAllOpaque(): boolean {
-    if (this.__transparentPrimitives.length === 0 && this.__opaquePrimitives.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
+  public isExistBlendWithZWrite(): boolean {
+    return this.__blendWithZWritePrimitives.length > 0;
+  }
+
+  public isExistBlendWithoutZWrite(): boolean {
+    return this.__blendWithoutZWritePrimitives.length > 0;
   }
 
   public getPrimitiveAt(i: number): Primitive {

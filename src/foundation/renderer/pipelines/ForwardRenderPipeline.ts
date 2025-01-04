@@ -329,10 +329,10 @@ export class ForwardRenderPipeline extends RnObject {
         renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
         renderPass.setResolveFramebuffer(undefined);
         renderPass.setResolveFramebuffer2(undefined);
-        // renderPass.toClearColorBuffer = true;
-        // renderPass.toClearDepthBuffer = true;
-        // No need to render transparent primitives to depth buffer.
-        renderPass.setToRenderTransparentPrimitives(false);
+        renderPass.setToRenderOpaquePrimitives(true);
+        renderPass.setToRenderTranslucentPrimitives(true);
+        renderPass.setToRenderBlendWithZWritePrimitives(true);
+        renderPass.setToRenderBlendWithoutZWritePrimitives(false);
 
         renderPass.setMaterial(depthMomentMaterial);
       }
@@ -573,14 +573,16 @@ export class ForwardRenderPipeline extends RnObject {
     for (const expression of expressions) {
       for (const rp of expression.renderPasses) {
         rp.setToRenderOpaquePrimitives(true);
+        rp.setToRenderBlendWithZWritePrimitives(true);
+        rp.setToRenderBlendWithoutZWritePrimitives(true);
         if (options.isTransmission) {
           // if options.isTransmission is true, set toRenderTransparentPrimitives to false,
           // because transparent primitives are rendered in later expression.
-          rp.setToRenderTransparentPrimitives(false);
+          rp.setToRenderTranslucentPrimitives(false);
         } else {
           // if options.isTransmission is false, set toRenderTransparentPrimitives to true.
           // because transparent primitives are rendered in this expression as well as opaque primitives.
-          rp.setToRenderTransparentPrimitives(true);
+          rp.setToRenderTranslucentPrimitives(true);
         }
 
         // clearing depth is done in initial expression. so no need to clear depth in this render pass.
@@ -606,7 +608,9 @@ export class ForwardRenderPipeline extends RnObject {
       expression.tryToSetUniqueName('modelTransparentForTransmission', true);
       for (const rp of expression.renderPasses) {
         rp.setToRenderOpaquePrimitives(false); // not to render opaque primitives in transmission expression.
-        rp.setToRenderTransparentPrimitives(true);
+        rp.setToRenderTranslucentPrimitives(true);
+        rp.setToRenderBlendWithZWritePrimitives(false);
+        rp.setToRenderBlendWithoutZWritePrimitives(false);
         rp.toClearDepthBuffer = false;
         // rp.isDepthTest = false;
         // rp.depthWriteMask = false;

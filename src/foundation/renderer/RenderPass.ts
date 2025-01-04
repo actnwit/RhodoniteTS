@@ -81,8 +81,14 @@ export class RenderPass extends RnObject {
   /** Whether or not to draw opaque primitives contained in this render pass. */
   public _toRenderOpaquePrimitives = true;
 
-  /** Whether or not to draw transparent primitives contained in this render pass. */
-  public _toRenderTransparentPrimitives = true;
+  /** Whether or not to draw translucent primitives contained in this render pass. */
+  public _toRenderTranslucentPrimitives = true;
+
+  /** Whether or not to draw blend with ZWrite primitives contained in this render pass. */
+  public _toRenderBlendWithZWritePrimitives = true;
+
+  /** Whether or not to draw blend without ZWrite primitives contained in this render pass. */
+  public _toRenderBlendWithoutZWritePrimitives = true;
 
   public toRenderEffekseerEffects = false;
   public __renderTargetColorAttachments?: RenderBufferTargetEnum[];
@@ -101,8 +107,18 @@ export class RenderPass extends RnObject {
     this.__calcMeshComponents();
   }
 
-  setToRenderTransparentPrimitives(toRender: boolean) {
-    this._toRenderTransparentPrimitives = toRender;
+  setToRenderBlendWithoutZWritePrimitives(toRender: boolean) {
+    this._toRenderBlendWithoutZWritePrimitives = toRender;
+    this.__calcMeshComponents();
+  }
+
+  setToRenderBlendWithZWritePrimitives(toRender: boolean) {
+    this._toRenderBlendWithZWritePrimitives = toRender;
+    this.__calcMeshComponents();
+  }
+
+  setToRenderTranslucentPrimitives(toRender: boolean) {
+    this._toRenderTranslucentPrimitives = toRender;
     this.__calcMeshComponents();
   }
 
@@ -167,7 +183,8 @@ export class RenderPass extends RnObject {
     renderPass.isVrRendering = this.isVrRendering;
     renderPass.isOutputForVr = this.isOutputForVr;
     renderPass._toRenderOpaquePrimitives = this._toRenderOpaquePrimitives;
-    renderPass._toRenderTransparentPrimitives = this._toRenderTransparentPrimitives;
+    renderPass._toRenderTranslucentPrimitives = this._toRenderTranslucentPrimitives;
+    renderPass._toRenderBlendWithoutZWritePrimitives = this._toRenderBlendWithoutZWritePrimitives;
     renderPass.__postEachRenderFunc = this.__postEachRenderFunc;
     renderPass.__renderTargetColorAttachments = this.__renderTargetColorAttachments?.concat();
     renderPass._lastOpaqueIndex = this._lastOpaqueIndex;
@@ -279,10 +296,23 @@ export class RenderPass extends RnObject {
       ) as MeshComponent | undefined;
       if (meshComponent != null && meshComponent.mesh != null) {
         this.__meshComponents!.push(meshComponent);
-        if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isAllOpaque()) {
+        if (!this._toRenderOpaquePrimitives && meshComponent.mesh.isExistOpaque()) {
           return;
         }
-        if (!this._toRenderTransparentPrimitives && meshComponent.mesh.isAllTranslucent()) {
+
+        if (!this._toRenderTranslucentPrimitives && meshComponent.mesh.isExistTranslucent()) {
+          return;
+        }
+        if (
+          !this._toRenderBlendWithZWritePrimitives &&
+          meshComponent.mesh.isExistBlendWithZWrite()
+        ) {
+          return;
+        }
+        if (
+          !this._toRenderBlendWithoutZWritePrimitives &&
+          meshComponent.mesh.isExistBlendWithoutZWrite()
+        ) {
           return;
         }
         this.__optimizedMeshComponents!.push(meshComponent);

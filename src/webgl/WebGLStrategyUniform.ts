@@ -396,15 +396,17 @@ bool get_isBillboard(float instanceId) {
     }
 
     // For translucent primitives
-    if (renderPass._toRenderTransparentPrimitives) {
+    if (renderPass._toRenderTranslucentPrimitives) {
       // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
         renderedSomething ||= rendered;
       }
+    }
 
-      // Draw Blend primitives with ZWrite
+    // Draw Blend primitives with ZWrite
+    if (renderPass._toRenderBlendWithZWritePrimitives) {
       for (
         let i = renderPass._lastTranslucentIndex + 1;
         i <= renderPass._lastBlendWithZWriteIndex;
@@ -414,7 +416,9 @@ bool get_isBillboard(float instanceId) {
         const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
         renderedSomething ||= rendered;
       }
+    }
 
+    if (renderPass._toRenderBlendWithoutZWritePrimitives) {
       if (!MeshRendererComponent.isDepthMaskTrueForBlendPrimitives) {
         // disable depth write for blend primitives
         gl.depthMask(false);

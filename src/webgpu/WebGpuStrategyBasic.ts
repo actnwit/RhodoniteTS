@@ -427,14 +427,16 @@ ${indexStr}
     }
 
     // For translucent primitives
-    if (renderPass._toRenderTransparentPrimitives) {
+    if (renderPass._toRenderTranslucentPrimitives) {
       // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
       }
+    }
 
+    if (renderPass._toRenderBlendWithZWritePrimitives) {
       // Draw Blend primitives with ZWrite
       for (
         let i = renderPass._lastTranslucentIndex + 1;
@@ -445,7 +447,9 @@ ${indexStr}
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;
       }
+    }
 
+    if (renderPass._toRenderBlendWithoutZWritePrimitives) {
       // Draw Blend primitives without ZWrite
       for (
         let i = renderPass._lastBlendWithZWriteIndex + 1;
