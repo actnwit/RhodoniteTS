@@ -62,6 +62,8 @@ export class AABBGizmo extends Gizmo {
     meshComponent.setMesh(AABBGizmo.__mesh);
 
     this.setGizmoTag();
+
+    this._update();
   }
 
   /**
