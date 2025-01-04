@@ -214,6 +214,18 @@ export class CameraComponent extends Component {
     return this.__current;
   }
 
+  get updateCount() {
+    return this.__updateCount;
+  }
+
+  static get currentCameraUpdateCount() {
+    const currentCameraComponent = ComponentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.current
+    ) as CameraComponent;
+    return currentCameraComponent?.updateCount ?? 0;
+  }
+
   set type(type: CameraTypeEnum) {
     this.__type = type;
     if (type === CameraType.Orthographic) {
