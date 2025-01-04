@@ -21,6 +21,8 @@ export class VRMSpringBone extends RnObject {
   initialized = false;
 
   private static __tmp_vec3_0 = MutableVector3.zero();
+  private static __tmp_vec3_1 = MutableVector3.zero();
+  private static __tmp_vec3_2_zero = Vector3.zero();
 
   constructor(node: ISceneGraphEntity) {
     super();
@@ -62,11 +64,11 @@ export class VRMSpringBone extends RnObject {
   }
 
   _calcWorldSpaceBoneLength(): void {
-    const v3A = this.node.getSceneGraph().matrixInner.getTranslate();
-    let v3B = Vector3.zero();
+    const v3A = this.node.getSceneGraph().matrixInner.getTranslateTo(VRMSpringBone.__tmp_vec3_0);
+    let v3B = VRMSpringBone.__tmp_vec3_2_zero;
     const children = this.node.getSceneGraph().children;
     if (children.length > 0) {
-      v3B = children[0].matrixInner.getTranslate();
+      v3B = children[0].matrixInner.getTranslateTo(VRMSpringBone.__tmp_vec3_1);
     } else {
       // v3B = this.node.getSceneGraph().matrixInner.multiplyVector3(this.initialLocalChildPosition);
       v3B = Vector3.multiplyMatrix4(

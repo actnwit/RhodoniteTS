@@ -19,6 +19,31 @@ export class Frustum {
   private __vp = MutableMatrix44.zero();
   private __invProjMat = MutableMatrix44.zero();
   private __invViewMat = MutableMatrix44.zero();
+  private __tmp_vec4_0 = MutableVector4.zero();
+  private __tmp_vec4_1 = MutableVector4.zero();
+  private __tmp_vec4_array = [
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+    MutableVector4.zero(),
+  ];
+  private __hCorners = [
+    // near
+    Vector4.fromCopy4(-1, 1, 1, 1),
+    Vector4.fromCopy4(1, 1, 1, 1),
+    Vector4.fromCopy4(1, -1, 1, 1),
+    Vector4.fromCopy4(-1, -1, 1, 1),
+    // far
+    Vector4.fromCopy4(-1, 1, -1, 1),
+    Vector4.fromCopy4(1, 1, -1, 1),
+    Vector4.fromCopy4(1, -1, -1, 1),
+    Vector4.fromCopy4(-1, -1, -1, 1),
+  ];
+
   public corners: Vector4[] = [];
 
   constructor() {}
@@ -69,31 +94,16 @@ export class Frustum {
     // this.right.normalize3();
 
     // Calculate the corners of the view frustum.
-    const hCorners = [
-      // near
-      Vector4.fromCopy4(-1, 1, 1, 1),
-      Vector4.fromCopy4(1, 1, 1, 1),
-      Vector4.fromCopy4(1, -1, 1, 1),
-      Vector4.fromCopy4(-1, -1, 1, 1),
-      // far
-      Vector4.fromCopy4(-1, 1, -1, 1),
-      Vector4.fromCopy4(1, 1, -1, 1),
-      Vector4.fromCopy4(1, -1, -1, 1),
-      Vector4.fromCopy4(-1, -1, -1, 1),
-    ];
-
     Matrix44.invertTo(projectionMatrix, this.__invProjMat);
     Matrix44.invertTo(viewMatrix, this.__invViewMat);
     for (let i = 0; i < 8; i++) {
-      hCorners[i] = this.__invProjMat.multiplyVector(hCorners[i]);
-      hCorners[i] = Vector4.fromCopy4(
-        hCorners[i].x / hCorners[i].w,
-        hCorners[i].y / hCorners[i].w,
-        hCorners[i].z / hCorners[i].w,
-        1
-      );
-
-      this.corners[i] = this.__invViewMat.multiplyVector(hCorners[i]);
+      this.__invProjMat.multiplyVectorTo(this.__hCorners[i], this.__tmp_vec4_0);
+      this.__tmp_vec4_1.x = this.__tmp_vec4_0.x / this.__tmp_vec4_0.w;
+      this.__tmp_vec4_1.y = this.__tmp_vec4_0.y / this.__tmp_vec4_0.w;
+      this.__tmp_vec4_1.z = this.__tmp_vec4_0.z / this.__tmp_vec4_0.w;
+      this.__tmp_vec4_1.w = 1;
+      this.__invViewMat.multiplyVectorTo(this.__tmp_vec4_1, this.__tmp_vec4_array[i]);
+      this.corners[i] = this.__tmp_vec4_array[i];
     }
   }
 
