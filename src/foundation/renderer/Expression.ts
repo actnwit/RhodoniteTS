@@ -14,6 +14,7 @@ export class Expression extends RnObject {
 
   clone() {
     const exp = new Expression();
+    exp.tryToSetUniqueName(this.uniqueName + '_cloned', true);
     const renderPasses = [];
     for (const renderPass of this.__renderPasses) {
       renderPasses.push(renderPass.clone());
