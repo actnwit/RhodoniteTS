@@ -54,6 +54,7 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
   private __lastMaterialsUpdateCount = -1;
   private __lastTransformComponentsUpdateCount = -1;
   private __lastSceneGraphComponentsUpdateCount = -1;
+  private __lastCameraComponentsUpdateCount = -1;
   private __lastCameraControllerComponentsUpdateCount = -1;
 
   private __lastBlendShapeComponentsUpdateCountForWeights = -1;
@@ -390,9 +391,11 @@ ${indexStr}
       this.__lastSceneGraphComponentsUpdateCount = SceneGraphComponent.updateCount;
       this.__lastMaterialsUpdateCount = Material.stateVersion;
     } else if (
+      CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
       CameraControllerComponent.updateCount !== this.__lastCameraControllerComponentsUpdateCount
     ) {
       this.__createAndUpdateStorageBufferForCameraOnly();
+      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
     }
 
