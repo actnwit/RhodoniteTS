@@ -20,6 +20,7 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   private static __tmp_vec3_2: any = MutableVector3.zero();
   private static __tmp_vec3_3: any = MutableVector3.zero();
   private static __tmp_vec3_4: any = MutableVector3.zero();
+  private static __tmp_vec3_5: any = MutableVector3.zero();
 
   constructor(x: Float32Array) {
     super();
@@ -770,7 +771,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   transformVector3(v: IVector3) {
-    const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
+    const u = Quaternion.__tmp_vec3_5;
+    u.setComponents(this._v[0], this._v[1], this._v[2]);
     const uv = Vector3.cross(u, v);
     const uuv = Vector3.cross(u, uv);
     const uvw = Vector3.multiply(uv, this._v[3]);
@@ -780,7 +782,8 @@ export class Quaternion extends AbstractQuaternion implements IQuaternion {
   }
 
   transformVector3To(v: IVector3, out: IMutableVector3) {
-    const u = Vector3.fromCopy3(this._v[0], this._v[1], this._v[2]);
+    const u = Quaternion.__tmp_vec3_5;
+    u.setComponents(this._v[0], this._v[1], this._v[2]);
     const uv = Vector3.crossTo(u, v, Quaternion.__tmp_vec3_0);
     const uuv = Vector3.crossTo(u, uv, Quaternion.__tmp_vec3_1);
     const uvw = Vector3.multiplyTo(uv, this._v[3], Quaternion.__tmp_vec3_2);
