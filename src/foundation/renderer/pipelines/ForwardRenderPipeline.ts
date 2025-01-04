@@ -102,6 +102,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oGenerateMipmapsExpression: Option<Expression> = new None();
   private __oMultiViewBlitBackBufferExpression: Option<Expression> = new None();
   private __oMultiViewBlitExpression: Option<Expression> = new None();
+  private __oCameraComponentOfLight: Option<CameraComponent> = new None();
   private __depthMomentExpressions: Expression[] = [];
   private __oBloomExpression: Option<Expression> = new None();
   private __oToneMappingExpression: Option<Expression> = new None();
@@ -300,6 +301,9 @@ export class ForwardRenderPipeline extends RnObject {
     if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
       if (this.__oFrameDepthMoment.has()) {
         this.__setDepthTextureToEntityMaterials();
+        if (this.__oCameraComponentOfLight.has()) {
+          this.setCameraComponentOfLight(this.__oCameraComponentOfLight.get());
+        }
       }
     }
   }
@@ -528,6 +532,7 @@ export class ForwardRenderPipeline extends RnObject {
 
   setCameraComponentOfLight(cameraComponent: CameraComponent) {
     if (this.__isShadow) {
+      this.__oCameraComponentOfLight = new Some(cameraComponent);
       for (const expression of this.__depthMomentExpressions) {
         for (const renderPass of expression.renderPasses) {
           renderPass.cameraComponent = cameraComponent;
