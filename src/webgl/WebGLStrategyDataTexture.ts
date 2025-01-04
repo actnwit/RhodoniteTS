@@ -759,14 +759,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
     }
 
-    if (renderPass._toRenderTransparentPrimitives) {
+    if (renderPass._toRenderTranslucentPrimitives) {
       // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
         const primitiveUid = primitiveUids[i];
         const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
+    }
 
+    if (renderPass._toRenderBlendWithZWritePrimitives) {
       // Draw Blend primitives with ZWrite
       for (
         let i = renderPass._lastTranslucentIndex + 1;
@@ -777,7 +779,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         const rendered = this.__renderInner(primitiveUid, glw, renderPass);
         renderedSomething ||= rendered;
       }
+    }
 
+    if (renderPass._toRenderBlendWithoutZWritePrimitives) {
       if (!MeshRendererComponent.isDepthMaskTrueForBlendPrimitives) {
         // disable depth write for blend primitives
         gl.depthMask(false);
