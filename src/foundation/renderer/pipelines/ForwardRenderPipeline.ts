@@ -325,8 +325,8 @@ export class ForwardRenderPipeline extends RnObject {
         renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
         renderPass.setResolveFramebuffer(undefined);
         renderPass.setResolveFramebuffer2(undefined);
-        renderPass.toClearColorBuffer = true;
-        renderPass.toClearDepthBuffer = true;
+        // renderPass.toClearColorBuffer = true;
+        // renderPass.toClearDepthBuffer = true;
         // No need to render transparent primitives to depth buffer.
         renderPass.setToRenderTransparentPrimitives(false);
 
