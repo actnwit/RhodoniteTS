@@ -88,6 +88,7 @@ export class System {
   private static __args: unknown[] = [];
   private static __rnXRModule?: RnXR;
 
+  private static __lastCameraComponentsUpdateCount = -1;
   private static __lastCameraControllerComponentsUpdateCount = -1;
   private static __lastTransformComponentsUpdateCount = -1;
   private static __lastPrimitiveCount = -1;
@@ -276,8 +277,10 @@ export class System {
             !SystemState.webgpuRenderBundleMode ||
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+            CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
             CameraControllerComponent.updateCount !==
-              this.__lastCameraControllerComponentsUpdateCount
+              this.__lastCameraControllerComponentsUpdateCount ||
+            Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
           ) {
             for (const componentTid of componentTids) {
               const componentClass: typeof Component =
@@ -298,8 +301,10 @@ export class System {
           }
         }
       }
+      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
+      this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
     } else {
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
@@ -365,6 +370,7 @@ export class System {
           if (
             AnimationComponent.isAnimating ||
             TransformComponent.updateCount !== this.__lastTransformComponentsUpdateCount ||
+            CameraComponent.currentCameraUpdateCount !== this.__lastCameraComponentsUpdateCount ||
             CameraControllerComponent.updateCount !==
               this.__lastCameraControllerComponentsUpdateCount ||
             Primitive.getPrimitiveCount() !== this.__lastPrimitiveCount
@@ -388,6 +394,7 @@ export class System {
           }
         }
       }
+      this.__lastCameraComponentsUpdateCount = CameraComponent.currentCameraUpdateCount;
       this.__lastCameraControllerComponentsUpdateCount = CameraControllerComponent.updateCount;
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastPrimitiveCount = Primitive.getPrimitiveCount();

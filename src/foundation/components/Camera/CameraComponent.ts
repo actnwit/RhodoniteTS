@@ -214,6 +214,18 @@ export class CameraComponent extends Component {
     return this.__current;
   }
 
+  get updateCount() {
+    return this.__updateCount;
+  }
+
+  static get currentCameraUpdateCount() {
+    const currentCameraComponent = ComponentRepository.getComponent(
+      CameraComponent,
+      CameraComponent.current
+    ) as CameraComponent;
+    return currentCameraComponent?.updateCount ?? 0;
+  }
+
   set type(type: CameraTypeEnum) {
     this.__type = type;
     if (type === CameraType.Orthographic) {
@@ -448,6 +460,15 @@ export class CameraComponent extends Component {
   }
   get focalLength() {
     return this._focalLength;
+  }
+
+  set focalLengthInner(val: number) {
+    this._parametersInner.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
+    this.__updateCount++;
+  }
+
+  get focalLengthInner() {
+    return this._parametersInner.z;
   }
 
   set zFar(val: number) {
