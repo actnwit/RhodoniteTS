@@ -450,6 +450,15 @@ export class CameraComponent extends Component {
     return this._focalLength;
   }
 
+  set focalLengthInner(val: number) {
+    this._parametersInner.z = 2 * MathUtil.radianToDegree(Math.atan(this._filmHeight / (val * 2)));
+    this.__updateCount++;
+  }
+
+  get focalLengthInner() {
+    return this._parametersInner.z;
+  }
+
   set zFar(val: number) {
     this._parameters.y = val;
     this.__updateCount++;
