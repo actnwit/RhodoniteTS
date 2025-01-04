@@ -53,12 +53,16 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     private __generateMipmapsPipeline?;
     private __generateMipmapsFormat?;
     private __generateMipmapsSampler?;
+    private __generateMipmapsBindGroupLayout?;
     private __contextCurrentTextureView?;
     private __lastMaterialsUpdateCount;
     private __lastCurrentCameraComponentSid;
     private __lastEntityRepositoryUpdateCount;
     private __lastPrimitivesMaterialVariantUpdateCount;
     private __lastMeshRendererComponentsUpdateCount;
+    private __srcTextureViewsForGeneratingMipmaps;
+    private __dstTextureViewsForGeneratingMipmaps;
+    private __bindGroupsForGeneratingMipmaps;
     private static __drawParametersUint32Array;
     private constructor();
     clearCache(): void;

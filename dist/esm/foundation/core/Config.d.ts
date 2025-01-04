@@ -22,4 +22,5 @@ export declare const Config: {
     physicsTimeIntervalScale: number;
     vrmSpringBoneBonAxisCoeff: number;
     vrmSpringBoneToCoeff: number;
+    isMobile: boolean;
 };

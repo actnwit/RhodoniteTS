@@ -1,6 +1,13 @@
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { Expression } from '../renderer/Expression';
 import { AbstractTexture } from '../textures/AbstractTexture';
+/**
+ * create a bloom expression
+ *
+ * @param textureToBloom - the texture to bloom
+ * @param parameters - the parameters for the bloom
+ * @returns the bloom expression and the bloomed render target
+ */
 declare function createBloomExpression({ textureToBloom, parameters: { luminanceCriterion, gaussianBlurLevelHighLuminance, gaussianKernelSize, gaussianVariance, synthesizeCoefficient, }, }: {
     textureToBloom: AbstractTexture;
     parameters: {
