@@ -144,6 +144,7 @@ export class RenderPass extends RnObject {
 
   clone() {
     const renderPass = new RenderPass();
+    renderPass.tryToSetUniqueName(this.uniqueName + '_cloned', true);
     renderPass.__entities = this.__entities.concat();
     renderPass.__sceneGraphDirectlyAdded = this.__sceneGraphDirectlyAdded.concat();
     renderPass.__topLevelSceneGraphComponents = this.__topLevelSceneGraphComponents.concat();
