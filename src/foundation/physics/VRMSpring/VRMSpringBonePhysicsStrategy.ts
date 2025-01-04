@@ -33,8 +33,11 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_normalizeBoneLength_vec3_2 = MutableVector3.zero();
   private static __tmp_normalizeBoneLength_vec3_3 = MutableVector3.zero();
   private static __tmp_normalizeBoneLength_vec3_4 = MutableVector3.zero();
+  private static __tmp_normalizeBoneLength_vec3_5 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_0 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_1 = MutableVector3.zero();
+  private static __tmp_applyRotation_vec3_2 = MutableVector3.zero();
+  private static __tmp_applyRotation_vec3_3 = MutableVector3.zero();
   private static __tmp_applyRotation_quat_0 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_1 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_2 = MutableQuaternion.identity();
@@ -182,7 +185,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_1
     );
     return Vector3.addTo(
-      bone.node.position,
+      bone.node
+        .getSceneGraph()
+        .getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_5),
       Vector3.multiplyTo(
         sub,
         bone.boneLength,
@@ -195,7 +200,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   applyRotation(nextTail: Vector3, bone: VRMSpringBone) {
     const sub = Vector3.subtractTo(
       nextTail,
-      bone.node.position,
+      bone.node
+        .getSceneGraph()
+        .getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_3),
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_0
     );
     const to = Quaternion.invertTo(
@@ -208,7 +215,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     ).transformVector3To(sub, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_1);
     const rot = Quaternion.fromToRotationTo(
       bone.boneAxis,
-      Vector3.normalizeTo(to, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_1),
+      Vector3.normalizeTo(to, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_2),
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_2
     );
     const result = Quaternion.multiplyTo(
