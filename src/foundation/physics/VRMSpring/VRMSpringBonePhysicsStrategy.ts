@@ -32,12 +32,16 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   private static __tmp_normalizeBoneLength_vec3_1 = MutableVector3.zero();
   private static __tmp_normalizeBoneLength_vec3_2 = MutableVector3.zero();
   private static __tmp_normalizeBoneLength_vec3_3 = MutableVector3.zero();
+  private static __tmp_normalizeBoneLength_vec3_4 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_0 = MutableVector3.zero();
   private static __tmp_applyRotation_vec3_1 = MutableVector3.zero();
   private static __tmp_applyRotation_quat_0 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_1 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_2 = MutableQuaternion.identity();
   private static __tmp_applyRotation_quat_3 = MutableQuaternion.identity();
+  private static __tmp_applyRotation_quat_4 = MutableQuaternion.identity();
+  private static __tmp_getParentRotation_quat_0 = MutableQuaternion.identity();
+  private static __tmp_getParentRotation_quat_1_identity = MutableQuaternion.identity();
   private static __tmp_collision_vec3_0 = MutableVector3.zero();
   private static __tmp_collision_vec3_1 = MutableVector3.zero();
   private static __tmp_collision_vec3_2 = MutableVector3.zero();
@@ -48,7 +52,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
   constructor() {}
 
   getParentRotation(head: SceneGraphComponent) {
-    return head.parent != null ? head.parent.rotation : Quaternion.identity();
+    return head.parent != null
+      ? head.parent.getRotationTo(VRMSpringBonePhysicsStrategy.__tmp_getParentRotation_quat_0)
+      : VRMSpringBonePhysicsStrategy.__tmp_getParentRotation_quat_1_identity;
   }
 
   update() {
@@ -168,7 +174,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     const sub = Vector3.normalizeTo(
       Vector3.subtractTo(
         nextTail,
-        bone.node.position,
+        bone.node
+          .getSceneGraph()
+          .getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_4),
         VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_0
       ),
       VRMSpringBonePhysicsStrategy.__tmp_normalizeBoneLength_vec3_1
@@ -192,7 +200,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
     );
     const to = Quaternion.invertTo(
       Quaternion.multiplyTo(
-        bone.node.parent!.rotation,
+        bone.node.parent!.getRotationTo(VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_4),
         bone.node.localRotationRestInner,
         VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_0
       ),

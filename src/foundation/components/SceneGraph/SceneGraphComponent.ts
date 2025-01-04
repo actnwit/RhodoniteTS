@@ -24,10 +24,14 @@ import { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
 import { TranslationGizmo } from '../../gizmos/TranslationGizmo';
 import { ScaleGizmo } from '../../gizmos/ScaleGizmo';
 import { IMatrix44 } from '../../math/IMatrix';
-import { IQuaternion, IVector3, MutableScalar, Quaternion } from '../../math';
 import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import { TransformComponent } from '../Transform/TransformComponent';
 import { flattenHierarchy } from './SceneGraphOps';
+import { MutableScalar } from '../../math/MutableScalar';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { IQuaternion } from '../../math/IQuaternion';
+import { Quaternion } from '../../math/Quaternion';
+import { IVector3 } from '../../math/IVector';
 
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
@@ -66,6 +70,8 @@ export class SceneGraphComponent extends Component {
   private static __tmp_mat4 = MutableMatrix44.identity();
   private static __tmp_mat4_2 = MutableMatrix44.identity();
   private static __tmp_mat4_3 = MutableMatrix44.identity();
+  private static __tmp_quat_0 = MutableQuaternion.identity();
+  private static __tmp_quat_1 = MutableQuaternion.identity();
 
   private static __updateCount = -1;
 
@@ -789,8 +795,16 @@ export class SceneGraphComponent extends Component {
     return this.matrixInner.getTranslate();
   }
 
+  getPositionTo(outVec: MutableVector3): MutableVector3 {
+    return this.matrixInner.getTranslateTo(outVec);
+  }
+
   get positionRest(): MutableVector3 {
     return this.matrixRestInner.getTranslate();
+  }
+
+  getPositionRestTo(outVec: MutableVector3): MutableVector3 {
+    return this.matrixRestInner.getTranslateTo(outVec);
   }
 
   set eulerAngles(vec: IVector3) {
@@ -853,6 +867,20 @@ export class SceneGraphComponent extends Component {
       return Quaternion.multiply(parent.rotation, this.entity.getTransform().localRotationInner);
     }
     return this.entity.getTransform().localRotationInner;
+  }
+
+  getRotationTo(outQuat: MutableQuaternion): MutableQuaternion {
+    const parent = this.parent;
+    if (parent != null) {
+      return Quaternion.multiplyTo(
+        parent.getRotationTo(SceneGraphComponent.__tmp_quat_0),
+        this.entity.getTransform().localRotationInner,
+        outQuat
+      ) as MutableQuaternion;
+    }
+    const quat = this.entity.getTransform().localRotationInner;
+    outQuat.setComponents(quat._v[0], quat._v[1], quat._v[2], quat._v[3]);
+    return outQuat;
   }
 
   get rotationRest(): Quaternion {

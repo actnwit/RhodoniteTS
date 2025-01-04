@@ -273,6 +273,11 @@ export class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutabl
     return rotateMat;
   }
 
+  getTranslateTo(outVec: MutableVector3) {
+    const rotateMat = super.getTranslateTo(outVec) as MutableVector3;
+    return rotateMat;
+  }
+
   getScale() {
     const rotateMat = super.getScale() as MutableVector3;
     return rotateMat;
