@@ -43,6 +43,7 @@ export declare class System {
     private static __renderLoopFunc?;
     private static __args;
     private static __rnXRModule?;
+    private static __lastCameraComponentsUpdateCount;
     private static __lastCameraControllerComponentsUpdateCount;
     private static __lastTransformComponentsUpdateCount;
     private static __lastPrimitiveCount;

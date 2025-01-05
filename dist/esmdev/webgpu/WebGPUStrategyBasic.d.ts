@@ -14,6 +14,7 @@ export declare class WebGpuStrategyBasic implements CGAPIStrategy {
     private __lastMaterialsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
+    private __lastCameraComponentsUpdateCount;
     private __lastCameraControllerComponentsUpdateCount;
     private __lastBlendShapeComponentsUpdateCountForWeights;
     private __lastBlendShapeComponentsUpdateCountForBlendData;

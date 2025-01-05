@@ -26,6 +26,7 @@ export declare class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStr
     private __lastMaterialsUpdateCount;
     private __lastTransformComponentsUpdateCount;
     private __lastSceneGraphComponentsUpdateCount;
+    private __lastCameraComponentsUpdateCount;
     private __lastCameraControllerComponentsUpdateCount;
     private constructor();
     static dumpDataTextureBuffer(): void;

@@ -12,6 +12,7 @@ export declare class Quaternion extends AbstractQuaternion implements IQuaternio
     private static __tmp_vec3_2;
     private static __tmp_vec3_3;
     private static __tmp_vec3_4;
+    private static __tmp_vec3_5;
     constructor(x: Float32Array);
     get className(): string;
     static get compositionType(): {

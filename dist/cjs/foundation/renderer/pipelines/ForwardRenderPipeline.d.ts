@@ -65,6 +65,7 @@ export declare class ForwardRenderPipeline extends RnObject {
     private __oGenerateMipmapsExpression;
     private __oMultiViewBlitBackBufferExpression;
     private __oMultiViewBlitExpression;
+    private __oCameraComponentOfLight;
     private __depthMomentExpressions;
     private __oBloomExpression;
     private __oToneMappingExpression;

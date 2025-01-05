@@ -60,6 +60,8 @@ export declare class CameraComponent extends Component {
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static set current(componentSID: ComponentSID);
     static get current(): ComponentSID;
+    get updateCount(): number;
+    static get currentCameraUpdateCount(): number;
     set type(type: CameraTypeEnum);
     get type(): CameraTypeEnum;
     get eye(): Vector3;
@@ -102,6 +104,8 @@ export declare class CameraComponent extends Component {
     get zNear(): number;
     set focalLength(val: number);
     get focalLength(): number;
+    set focalLengthInner(val: number);
+    get focalLengthInner(): number;
     set zFar(val: number);
     set zFarInner(val: number);
     get zFarInner(): number;

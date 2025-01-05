@@ -58,8 +58,12 @@ export declare class RenderPass extends RnObject {
     _isChangedSortRenderResult: boolean;
     /** Whether or not to draw opaque primitives contained in this render pass. */
     _toRenderOpaquePrimitives: boolean;
-    /** Whether or not to draw transparent primitives contained in this render pass. */
-    _toRenderTransparentPrimitives: boolean;
+    /** Whether or not to draw translucent primitives contained in this render pass. */
+    _toRenderTranslucentPrimitives: boolean;
+    /** Whether or not to draw blend with ZWrite primitives contained in this render pass. */
+    _toRenderBlendWithZWritePrimitives: boolean;
+    /** Whether or not to draw blend without ZWrite primitives contained in this render pass. */
+    _toRenderBlendWithoutZWritePrimitives: boolean;
     toRenderEffekseerEffects: boolean;
     __renderTargetColorAttachments?: RenderBufferTargetEnum[];
     private __postEachRenderFunc?;
@@ -67,7 +71,9 @@ export declare class RenderPass extends RnObject {
     static __mesh_uid_count: number;
     constructor();
     setToRenderOpaquePrimitives(toRender: boolean): void;
-    setToRenderTransparentPrimitives(toRender: boolean): void;
+    setToRenderBlendWithoutZWritePrimitives(toRender: boolean): void;
+    setToRenderBlendWithZWritePrimitives(toRender: boolean): void;
+    setToRenderTranslucentPrimitives(toRender: boolean): void;
     isBufferLessRenderingMode(): boolean;
     /**
      * @brief Set this render pass to buffer-less rendering mode.

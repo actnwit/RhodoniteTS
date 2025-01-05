@@ -13,7 +13,10 @@ import { ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { RaycastResultEx2 } from '../../geometry/types/GeometryTypes';
-import { IQuaternion, IVector3, Quaternion } from '../../math';
+import { MutableQuaternion } from '../../math/MutableQuaternion';
+import { IQuaternion } from '../../math/IQuaternion';
+import { Quaternion } from '../../math/Quaternion';
+import { IVector3 } from '../../math/IVector';
 export declare class SceneGraphComponent extends Component {
     private __parent?;
     private __children;
@@ -47,6 +50,8 @@ export declare class SceneGraphComponent extends Component {
     private static __tmp_mat4;
     private static __tmp_mat4_2;
     private static __tmp_mat4_3;
+    private static __tmp_quat_0;
+    private static __tmp_quat_1;
     private static __updateCount;
     private static __tmpAABB;
     private __lastTransformComponentsUpdateCount;
@@ -144,12 +149,15 @@ export declare class SceneGraphComponent extends Component {
     setPositionWithoutPhysics(vec: IVector3): void;
     set position(vec: IVector3);
     get position(): MutableVector3;
+    getPositionTo(outVec: MutableVector3): MutableVector3;
     get positionRest(): MutableVector3;
+    getPositionRestTo(outVec: MutableVector3): MutableVector3;
     set eulerAngles(vec: IVector3);
     get eulerAngles(): Vector3;
     setRotationWithoutPhysics(quat: IQuaternion): void;
     set rotation(quat: IQuaternion);
     get rotation(): Quaternion;
+    getRotationTo(outQuat: MutableQuaternion): MutableQuaternion;
     get rotationRest(): Quaternion;
     getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion;
     set scale(vec: IVector3);

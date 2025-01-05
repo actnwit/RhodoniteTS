@@ -17,6 +17,8 @@ export declare class VRMSpringBone extends RnObject {
     initialLocalChildPosition: Vector3;
     initialized: boolean;
     private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    private static __tmp_vec3_2_zero;
     constructor(node: ISceneGraphEntity);
     setup(center?: SceneGraphComponent): void;
     _getMatrixCenterToWorld(center?: SceneGraphComponent): IMatrix44;

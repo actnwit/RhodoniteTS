@@ -94,6 +94,7 @@ export declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix,
     clone(): MutableMatrix44;
     getRotate(): MutableMatrix44;
     getTranslate(): MutableVector3;
+    getTranslateTo(outVec: MutableVector3): MutableVector3;
     getScale(): MutableVector3;
     raw(): Float32Array;
     setAt(row_i: number, column_i: number, value: number): this;

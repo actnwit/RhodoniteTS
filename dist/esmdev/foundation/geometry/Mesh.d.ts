@@ -17,7 +17,9 @@ export declare class Mesh implements IMesh {
     static __mesh_uid_count: number;
     private __primitives;
     private __opaquePrimitives;
-    private __transparentPrimitives;
+    private __translucentPrimitives;
+    private __blendWithZWritePrimitives;
+    private __blendWithoutZWritePrimitives;
     private __morphPrimitives;
     private __localAABB;
     private __vaoUids;
@@ -65,18 +67,10 @@ export declare class Mesh implements IMesh {
      */
     addPrimitive(primitive: Primitive): void;
     private __setPrimitives;
-    /**
-     * Gets true if these primitives are all 'Blend' type
-     */
-    isAllTranslucent(): boolean;
-    /**
-     * Gets true if some primitives are 'Blend' type
-     */
-    isPartiallyTranslucent(): boolean;
-    /**
-     * Gets true if these primitives are all 'Opaque' type
-     */
-    isAllOpaque(): boolean;
+    isExistOpaque(): boolean;
+    isExistTranslucent(): boolean;
+    isExistBlendWithZWrite(): boolean;
+    isExistBlendWithoutZWrite(): boolean;
     getPrimitiveAt(i: number): Primitive;
     getPrimitiveNumber(): number;
     /**

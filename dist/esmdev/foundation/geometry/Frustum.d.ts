@@ -17,6 +17,10 @@ export declare class Frustum {
     private __vp;
     private __invProjMat;
     private __invViewMat;
+    private __tmp_vec4_0;
+    private __tmp_vec4_1;
+    private __tmp_vec4_array;
+    private __hCorners;
     corners: Vector4[];
     constructor();
     /**
