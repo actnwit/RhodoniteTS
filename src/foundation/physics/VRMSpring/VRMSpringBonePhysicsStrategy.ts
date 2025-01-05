@@ -158,7 +158,6 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
 
     bone.node.localRotation = resultRotation;
     bone.node.getSceneGraph().setWorldMatrixDirty();
-    center?.setWorldMatrixDirty();
   }
 
   normalizeBoneLength(nextTail: Vector3, bone: VRMSpringBone) {
