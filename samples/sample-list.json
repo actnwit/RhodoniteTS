@@ -45,6 +45,7 @@
     "NodeBaseShader",
     "NodeEditor",
     "PixelPickingTest",
+    "PointLightShadowMap",
     "Primitives",
     "ShadowMapUsingColorBuffer",
     "ShadowMapUsingHardwarePCF",
