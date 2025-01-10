@@ -14,6 +14,7 @@ in vec4 v_position_inWorld;
 
 /* shaderity: @{getters} */
 
+uniform bool u_frontHemisphere; // initialValue=true, soloDatum=true
 
 void main (){
 
@@ -23,10 +24,17 @@ void main (){
   float dx = dFdx(depth);
   float dy = dFdy(depth);
 
-  rt0.x = depth; // M1
-  rt0.y = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
-  rt0.z = 0.0;
-  rt0.w = 1.0;
+  if (u_frontHemisphere) {
+    rt0.r = depth; // M1
+    rt0.g = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
+    rt0.b = 1.0;
+    rt0.a = 1.0;
+  } else {
+    rt0.r = 1.0;
+    rt0.g = 1.0;
+    rt0.b = depth; // M1
+    rt0.a = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
+  }
 
 #pragma shaderity: require(../common/glFragColor.glsl)
 }

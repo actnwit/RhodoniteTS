@@ -1413,6 +1413,7 @@ export class WebGpuResourceRepository
         targets.push({
           format: texture.format,
           blend,
+          writeMask: this.setColorWriteMask(material),
         });
       }
       if (framebuffer.depthAttachment != null) {
@@ -1473,6 +1474,23 @@ export class WebGpuResourceRepository
     if (this.__contextCurrentTextureView != null) {
       this.__contextCurrentTextureView = undefined;
     }
+  }
+
+  setColorWriteMask(material: Material): GPUColorWriteFlags {
+    let flags = 0;
+    if (material.colorWriteMask[0]) {
+      flags |= 0x01;
+    }
+    if (material.colorWriteMask[1]) {
+      flags |= 0x02;
+    }
+    if (material.colorWriteMask[2]) {
+      flags |= 0x04;
+    }
+    if (material.colorWriteMask[3]) {
+      flags |= 0x08;
+    }
+    return flags;
   }
 
   /**
