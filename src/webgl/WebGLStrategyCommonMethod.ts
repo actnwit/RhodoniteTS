@@ -23,10 +23,10 @@ let lastBlendFuncSrcFactor: number;
 let lastBlendFuncDstFactor: number;
 let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
-let lastCullFace: boolean;
-let lastFrontFaceCCW: boolean;
-let lastCullFaceBack: boolean;
-let lastAlphaToCoverage: boolean;
+let lastCullFace: boolean = false;
+let lastFrontFaceCCW: boolean = true;
+let lastCullFaceBack: boolean = true;
+let lastAlphaToCoverage: boolean = false;
 let lastColorWriteMask: boolean[] = [true, true, true, true];
 
 function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
