@@ -18,7 +18,7 @@ out vec3 v_color;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 
-uniform bool u_frontHemisphere; // initialValue=true, soloDatum=true
+uniform bool u_frontHemisphere; // initialValue=true
 uniform vec3 u_lightPos; // initialValue=(0.0, 0.0, 0.0), soloDatum=false
 uniform float u_farPlane; // initialValue=1000.0, soloDatum=false
 

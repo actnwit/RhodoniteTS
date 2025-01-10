@@ -25,23 +25,8 @@ const backgroundEntity = createBackground();
 
 // Expression
 const expression = new Rn.Expression();
-const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
-  width: 1024,
-  height: 1024,
-  textureNum: 1,
-  textureFormats: [Rn.TextureFormat.RGBA16F],
-  createDepthBuffer: true,
-  depthTextureFormat: Rn.TextureFormat.Depth32F,
-});
-const shadowMomentMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
-const shadowMomentRenderPass = new Rn.RenderPass();
-shadowMomentRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
-shadowMomentRenderPass.toClearColorBuffer = true;
-shadowMomentRenderPass.toClearDepthBuffer = true;
-shadowMomentRenderPass.addEntities([cubesGroupEntity, backgroundEntity]);
-shadowMomentRenderPass.setFramebuffer(shadowMomentFramebuffer);
-shadowMomentRenderPass.setMaterial(shadowMomentMaterial);
-expression.addRenderPasses([shadowMomentRenderPass]);
+
+setupShadowMapRenderPasses([cubesGroupEntity, backgroundEntity]);
 
 const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
@@ -62,6 +47,38 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
+function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
+  const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+    width: 1024,
+    height: 1024,
+    textureNum: 1,
+    textureFormats: [Rn.TextureFormat.RGBA16F],
+    createDepthBuffer: true,
+    depthTextureFormat: Rn.TextureFormat.Depth32F,
+  });
+  const shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+  shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
+  const shadowMomentFrontRenderPass = new Rn.RenderPass();
+  shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
+  shadowMomentFrontRenderPass.toClearColorBuffer = true;
+  shadowMomentFrontRenderPass.toClearDepthBuffer = true;
+  shadowMomentFrontRenderPass.addEntities(entities);
+  shadowMomentFrontRenderPass.setFramebuffer(shadowMomentFramebuffer);
+  shadowMomentFrontRenderPass.setMaterial(shadowMomentFrontMaterial);
+  expression.addRenderPasses([shadowMomentFrontRenderPass]);
+
+  const shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+  shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
+  shadowMomentBackMaterial.setParameter('frontHemisphere', false);
+  const shadowMomentBackRenderPass = new Rn.RenderPass();
+  shadowMomentBackRenderPass.toClearColorBuffer = false;
+  shadowMomentBackRenderPass.toClearDepthBuffer = true;
+  shadowMomentBackRenderPass.addEntities(entities);
+  shadowMomentBackRenderPass.setFramebuffer(shadowMomentFramebuffer);
+  shadowMomentBackRenderPass.setMaterial(shadowMomentBackMaterial);
+  expression.addRenderPasses([shadowMomentBackRenderPass]);
+}
+
 function createPointLight() {
   const pointLight = Rn.createLightEntity();
   pointLight.getLight().type = Rn.LightType.Point;
@@ -78,9 +95,9 @@ function createCubes() {
   cube0Entity.localPosition = Rn.Vector3.fromCopyArray([1, 0, 1]);
   const cube1Entity = Rn.MeshHelper.createCube({ material });
   cube1Entity.localPosition = Rn.Vector3.fromCopyArray([-1, 0, 1]);
-  const cube2Entity = Rn.MeshHelper.createCube({ material });
+  const cube2Entity = Rn.MeshHelper.createSphere({ material });
   cube2Entity.localPosition = Rn.Vector3.fromCopyArray([1, 0, -1]);
-  const cube3Entity = Rn.MeshHelper.createCube({ material });
+  const cube3Entity = Rn.MeshHelper.createSphere({ material });
   cube3Entity.localPosition = Rn.Vector3.fromCopyArray([-1, 0, -1]);
   cubesGroupEntity.addChild(cube0Entity.getSceneGraph());
   cubesGroupEntity.addChild(cube1Entity.getSceneGraph());

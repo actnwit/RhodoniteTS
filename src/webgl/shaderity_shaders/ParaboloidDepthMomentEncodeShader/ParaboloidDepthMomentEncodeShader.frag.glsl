@@ -14,7 +14,7 @@ in vec4 v_position_inWorld;
 
 /* shaderity: @{getters} */
 
-uniform bool u_frontHemisphere; // initialValue=true, soloDatum=true
+uniform bool u_frontHemisphere; // initialValue=true
 
 void main (){
 
