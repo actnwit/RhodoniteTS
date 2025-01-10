@@ -33,13 +33,14 @@ const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   createDepthBuffer: true,
   depthTextureFormat: Rn.TextureFormat.Depth32F,
 });
-
+const shadowMomentMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
 const shadowMomentRenderPass = new Rn.RenderPass();
 shadowMomentRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 shadowMomentRenderPass.toClearColorBuffer = true;
 shadowMomentRenderPass.toClearDepthBuffer = true;
 shadowMomentRenderPass.addEntities([cubesGroupEntity, backgroundEntity]);
 shadowMomentRenderPass.setFramebuffer(shadowMomentFramebuffer);
+shadowMomentRenderPass.setMaterial(shadowMomentMaterial);
 expression.addRenderPasses([shadowMomentRenderPass]);
 
 const mainRenderPass = new Rn.RenderPass();
@@ -93,7 +94,11 @@ function createBackground() {
   const material = Rn.MaterialHelper.createPbrUberMaterial();
   material.cullFaceBack = false;
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1.0, 1.0, 1.0, 1]));
-  const backgroundEntity = Rn.MeshHelper.createCube({ material });
-  backgroundEntity.scale = Rn.Vector3.fromCopyArray([10, 10, 10]);
+  const backgroundEntity = Rn.MeshHelper.createSphere({
+    widthSegments: 20,
+    heightSegments: 20,
+    material,
+  });
+  backgroundEntity.scale = Rn.Vector3.fromCopyArray([100, 100, 100]);
   return backgroundEntity;
 }

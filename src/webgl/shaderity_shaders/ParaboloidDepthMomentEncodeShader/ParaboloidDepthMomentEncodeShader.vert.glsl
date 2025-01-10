@@ -79,8 +79,8 @@ void main()
   float denom = L.z + signHemisphere * dist;
 
   // z成分の符号が期待と逆の場合は、描画対象外とする（clip / discard など）
-  if ((uFrontHemisphere && L.z < 0.0) ||
-      (!uFrontHemisphere && L.z > 0.0))
+  if ((u_frontHemisphere && L.z < 0.0) ||
+      (!u_frontHemisphere && L.z > 0.0))
   {
       gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // ラスタライズ範囲外へ
       return;
