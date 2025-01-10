@@ -12,27 +12,42 @@ await Rn.System.init({
 });
 
 // Spot Light
-const spotLight = Rn.createLightEntity();
-spotLight.getLight().type = Rn.LightType.Point;
-spotLight.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 0.0, 0.0);
+const pointLight = createPointLight();
 
 // Main Camera
 const mainCameraEntity = Rn.createCameraControllerEntity();
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
 
+// Scene
 const cubesGroupEntity = createCubes();
 mainCameraEntity.getCameraController().controller.setTarget(cubesGroupEntity);
-
 const backgroundEntity = createBackground();
 
+// Expression
 const expression = new Rn.Expression();
-const renderPass = new Rn.RenderPass();
-renderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
-renderPass.toClearColorBuffer = true;
-renderPass.toClearDepthBuffer = true;
-renderPass.addEntities([cubesGroupEntity, backgroundEntity]);
-expression.addRenderPasses([renderPass]);
+const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+  width: 1024,
+  height: 1024,
+  textureNum: 1,
+  textureFormats: [Rn.TextureFormat.RGBA16F],
+  createDepthBuffer: true,
+  depthTextureFormat: Rn.TextureFormat.Depth32F,
+});
+
+const shadowMomentRenderPass = new Rn.RenderPass();
+shadowMomentRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
+shadowMomentRenderPass.toClearColorBuffer = true;
+shadowMomentRenderPass.toClearDepthBuffer = true;
+shadowMomentRenderPass.addEntities([cubesGroupEntity, backgroundEntity]);
+shadowMomentRenderPass.setFramebuffer(shadowMomentFramebuffer);
+expression.addRenderPasses([shadowMomentRenderPass]);
+
+const mainRenderPass = new Rn.RenderPass();
+mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
+mainRenderPass.toClearColorBuffer = true;
+mainRenderPass.toClearDepthBuffer = true;
+mainRenderPass.addEntities([cubesGroupEntity, backgroundEntity]);
+expression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
 
@@ -45,6 +60,14 @@ Rn.System.startRenderLoop(() => {
 
   count++;
 });
+
+function createPointLight() {
+  const pointLight = Rn.createLightEntity();
+  pointLight.getLight().type = Rn.LightType.Point;
+  pointLight.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
+  pointLight.localPosition = Rn.Vector3.fromCopy3(0.0, 0.0, 0.0);
+  return pointLight;
+}
 
 function createCubes() {
   const material = Rn.MaterialHelper.createPbrUberMaterial();
