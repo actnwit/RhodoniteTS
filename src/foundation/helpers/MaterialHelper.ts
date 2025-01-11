@@ -365,6 +365,15 @@ function createPbrUberMaterial({
       min: 0,
       max: Number.MAX_VALUE,
     });
+    additionalShaderSemanticInfo.push({
+      semantic: 'paraboloidDepthTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
   }
 
   const materialContent = new CustomMaterialContent({

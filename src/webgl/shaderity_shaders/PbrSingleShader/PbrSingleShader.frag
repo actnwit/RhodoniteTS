@@ -121,6 +121,10 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{matricesGetters} */
 
+#ifdef RN_USE_SHADOW_MAPPING
+  uniform float u_farPlane; // initialValue=1000.0
+#endif
+
 #pragma shaderity: require(../common/shadow.glsl)
 
 #pragma shaderity: require(../common/iblDefinition.glsl)

@@ -26,7 +26,7 @@ const backgroundEntity = createBackground();
 // Expression
 const expression = new Rn.Expression();
 
-setupShadowMapRenderPasses([cubesGroupEntity, backgroundEntity]);
+setupShadowMapRenderPasses([cubesGroupEntity, backgroundEntity], pointLight);
 
 const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
@@ -47,7 +47,7 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
+function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[], pointLight: Rn.ILightEntity) {
   const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: 1024,
     height: 1024,
@@ -58,6 +58,7 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
   });
   const shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
   shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
+  shadowMomentFrontMaterial.setParameter('lightPos', pointLight.position);
   const shadowMomentFrontRenderPass = new Rn.RenderPass();
   shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
   shadowMomentFrontRenderPass.toClearColorBuffer = true;
@@ -70,6 +71,7 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
   const shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
   shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
   shadowMomentBackMaterial.setParameter('frontHemisphere', false);
+  shadowMomentBackMaterial.setParameter('lightPos', pointLight.position);
   const shadowMomentBackRenderPass = new Rn.RenderPass();
   shadowMomentBackRenderPass.toClearColorBuffer = false;
   shadowMomentBackRenderPass.toClearDepthBuffer = true;
