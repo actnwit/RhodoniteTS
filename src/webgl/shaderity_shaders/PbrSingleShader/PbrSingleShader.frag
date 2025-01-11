@@ -388,12 +388,12 @@ void main ()
   #ifdef RN_USE_SHADOW_MAPPING
     float bias = 0.001;
     vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
-    float shadowContribusion = 1.0;
+    float shadowContribution = 1.0;
     if (shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-      shadowContribusion = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
+      shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
     }
-    // rt0.rgb = rt0.rgb * (0.5 + shadowContribusion * 0.5);
-    rt0.rgb = rt0.rgb * shadowContribusion;
+    // rt0.rgb = rt0.rgb * (0.5 + shadowContribution * 0.5);
+    rt0.rgb = rt0.rgb * shadowContribution;
   #endif
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
