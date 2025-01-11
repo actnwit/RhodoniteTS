@@ -82,6 +82,12 @@ void main()
     gl_Position = vec4(0.0, 0.0, -1000000.0, 1.0);
     return;
   }
+  // if ((u_frontHemisphere && L.z < 0.0) ||
+  //      (!u_frontHemisphere && L.z > 0.0))
+  // {
+  //   gl_Position = vec4(0.0, 0.0, -1000000.0, 1.0);
+  //   return;
+  // }
 
   gl_Position = vec4(uv, dist / u_farPlane, 1.0);
   if ((u_frontHemisphere && L.z < 0.0) ||

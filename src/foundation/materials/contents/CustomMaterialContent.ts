@@ -142,10 +142,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         this.setProjection(shaderProgram, cameraComponent, args.isVr, args.displayIdx);
       }
 
-      if (firstTime) {
-        // Lights
-        this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
-      }
+      // if (firstTime) {
+      // Lights
+      this.setLightsInfo(shaderProgram, args.lightComponents, material, args.setUniform);
+      // }
 
       /// Skinning
       const skeletalComponent = args.entity.tryToGetSkeletal();

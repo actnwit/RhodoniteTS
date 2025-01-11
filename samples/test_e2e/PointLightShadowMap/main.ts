@@ -13,7 +13,15 @@ await Rn.System.init({
 });
 
 // Spot Light
-const pointLight = createPointLight();
+let pointLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+  Rn.WellKnownComponentTIDs.LightComponentTID,
+  pointLight
+) as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
+const pointGroupEntity = Rn.createGroupEntity();
+pointGroupEntity.addChild(pointLight.getSceneGraph());
+pointLight.localPosition = Rn.Vector3.fromCopyArray([4, 0, 0]);
 
 // Main Camera
 const mainCameraEntity = Rn.createCameraControllerEntity();
@@ -27,16 +35,13 @@ const backgroundEntity = createBackground();
 // Expression
 const expression = new Rn.Expression();
 
-const shadowMomentFramebuffer = setupShadowMapRenderPasses(
-  [groupEntity, backgroundEntity],
-  pointLight
-);
+const shadowMomentFramebuffer = setupShadowMapRenderPasses([groupEntity]);
 
 const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
-mainRenderPass.addEntities([groupEntity, backgroundEntity]);
+mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight]);
 setParaboloidFrameBuffer(shadowMomentFramebuffer, [groupEntity, backgroundEntity]);
 expression.addRenderPasses([mainRenderPass]);
 
@@ -48,7 +53,7 @@ Rn.System.startRenderLoop(() => {
     p.innerText = 'Rendered.';
   }
   if (window.isAnimating) {
-    rotateObjects(groupEntity, angle);
+    rotateObject(pointGroupEntity, angle);
     angle += 0.002;
   }
   Rn.System.process([expression]);
@@ -80,12 +85,12 @@ function setParaboloidFrameBuffer(frameBuffer: Rn.FrameBuffer, entities: Rn.ISce
   }
 }
 
-function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[], pointLight: Rn.ILightEntity) {
+function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
   const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: 1024,
     height: 1024,
     textureNum: 1,
-    textureFormats: [Rn.TextureFormat.RGBA16F],
+    textureFormats: [Rn.TextureFormat.RGBA32F],
     createDepthBuffer: true,
     depthTextureFormat: Rn.TextureFormat.Depth32F,
   });
@@ -159,10 +164,10 @@ function createBackground() {
     heightSegments: 50,
     material,
   });
-  backgroundEntity.scale = Rn.Vector3.fromCopyArray([100, 100, 100]);
+  backgroundEntity.scale = Rn.Vector3.fromCopyArray([80, 80, 80]);
   return backgroundEntity;
 }
 
-function rotateObjects(object: Rn.ISceneGraphEntity, angle: number) {
+function rotateObject(object: Rn.ISceneGraphEntity, angle: number) {
   object.localEulerAngles = Rn.Vector3.fromCopyArray([0, angle, 0]);
 }
