@@ -90,9 +90,5 @@ void main()
   // }
 
   gl_Position = vec4(uv, dist / u_farPlane, 1.0);
-  if ((u_frontHemisphere && L.z < 0.0) ||
-       (!u_frontHemisphere && L.z > 0.0))
-  {
-    gl_Position.z = 1.0;
-  }
+  v_position_inWorld = vec4(L, signHemisphere * L.z);
 }

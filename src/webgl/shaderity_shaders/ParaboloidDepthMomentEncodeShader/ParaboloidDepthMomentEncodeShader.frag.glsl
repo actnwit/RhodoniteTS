@@ -20,6 +20,11 @@ void main (){
 
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
 
+  float denom = v_position_inWorld.w;
+  if (denom < 0.0) {
+    discard;
+  }
+
   float depth = gl_FragCoord.z;
   float dx = dFdx(depth);
   float dy = dFdy(depth);
