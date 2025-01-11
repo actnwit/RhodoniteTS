@@ -25,7 +25,7 @@ void main (){
     discard;
   }
 
-  float depth = gl_FragCoord.z;
+  float depth = v_position_inWorld.z;
   float dx = dFdx(depth);
   float dy = dFdy(depth);
 

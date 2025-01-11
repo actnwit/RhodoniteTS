@@ -21,7 +21,8 @@ pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());
-pointLight.localPosition = Rn.Vector3.fromCopyArray([3, 0, 0]);
+pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
+pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
 
 // Main Camera
 const mainCameraEntity = Rn.createCameraControllerEntity();
@@ -54,7 +55,7 @@ Rn.System.startRenderLoop(() => {
   }
   if (window.isAnimating) {
     rotateObject(pointGroupEntity, angle);
-    angle += 0.002;
+    angle += 0.01;
   }
   Rn.System.process([expression]);
 
@@ -90,12 +91,13 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
     width: 1024,
     height: 1024,
     textureNum: 1,
-    textureFormats: [Rn.TextureFormat.RGBA32F],
+    textureFormats: [Rn.TextureFormat.RGBA16F],
     createDepthBuffer: true,
     depthTextureFormat: Rn.TextureFormat.Depth32F,
   });
   const shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
   shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
+  shadowMomentFrontMaterial.cullFace = false;
   const shadowMomentFrontRenderPass = new Rn.RenderPass();
   shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
   shadowMomentFrontRenderPass.toClearColorBuffer = true;
@@ -132,21 +134,21 @@ function createObjects() {
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 0, 1]));
   const cubesGroupEntity = Rn.createGroupEntity();
   const cube0Entity = Rn.MeshHelper.createCube({ material });
-  cube0Entity.localPosition = Rn.Vector3.fromCopyArray([1, 0, 1]);
+  cube0Entity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
   const cube1Entity = Rn.MeshHelper.createCube({ material });
-  cube1Entity.localPosition = Rn.Vector3.fromCopyArray([-1, 0, 1]);
+  cube1Entity.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
   const cube2Entity = Rn.MeshHelper.createSphere({
     widthSegments: 40,
     heightSegments: 40,
     material,
   });
-  cube2Entity.localPosition = Rn.Vector3.fromCopyArray([1, 0, -1]);
+  cube2Entity.localPosition = Rn.Vector3.fromCopyArray([2, 0, -2]);
   const cube3Entity = Rn.MeshHelper.createSphere({
     widthSegments: 40,
     heightSegments: 40,
     material,
   });
-  cube3Entity.localPosition = Rn.Vector3.fromCopyArray([-1, 0, -1]);
+  cube3Entity.localPosition = Rn.Vector3.fromCopyArray([-2, 0, -2]);
   cubesGroupEntity.addChild(cube0Entity.getSceneGraph());
   cubesGroupEntity.addChild(cube1Entity.getSceneGraph());
   cubesGroupEntity.addChild(cube2Entity.getSceneGraph());
@@ -164,7 +166,7 @@ function createBackground() {
     heightSegments: 50,
     material,
   });
-  backgroundEntity.scale = Rn.Vector3.fromCopyArray([500, 500, 500]);
+  backgroundEntity.scale = Rn.Vector3.fromCopyArray([10, 10, 10]);
   return backgroundEntity;
 }
 
