@@ -219,7 +219,7 @@ export class GlobalDataRepository {
       semantic: 'lightPosition',
       compositionType: CompositionType.Vec3Array,
       componentType: ComponentType.Float,
-      stage: ShaderType.PixelShader,
+      stage: ShaderType.VertexAndPixelShader,
       arrayLength: Config.maxLightNumberInShader,
       min: -Number.MAX_VALUE,
       max: Number.MAX_VALUE,

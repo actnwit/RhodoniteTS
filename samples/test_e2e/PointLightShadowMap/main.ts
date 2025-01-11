@@ -58,7 +58,6 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[], pointLight
   });
   const shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
   shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
-  shadowMomentFrontMaterial.setParameter('lightPos', pointLight.position);
   const shadowMomentFrontRenderPass = new Rn.RenderPass();
   shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
   shadowMomentFrontRenderPass.toClearColorBuffer = true;
@@ -71,7 +70,6 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[], pointLight
   const shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
   shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
   shadowMomentBackMaterial.setParameter('frontHemisphere', false);
-  shadowMomentBackMaterial.setParameter('lightPos', pointLight.position);
   const shadowMomentBackRenderPass = new Rn.RenderPass();
   shadowMomentBackRenderPass.toClearColorBuffer = false;
   shadowMomentBackRenderPass.toClearDepthBuffer = true;

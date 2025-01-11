@@ -19,7 +19,7 @@ out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 
 uniform bool u_frontHemisphere; // initialValue=true
-uniform vec3 u_lightPos; // initialValue=(0.0, 0.0, 0.0)
+uniform int u_lightIndex; // initialValue=0
 uniform float u_farPlane; // initialValue=1000.0
 
 #pragma shaderity: require(../common/prerequisites.glsl)
@@ -68,8 +68,9 @@ void main()
     v_normal_inWorld
   );
 
+  vec3 lightPosition = get_lightPosition(0.0, u_lightIndex);
   // ライトから頂点へのベクトル L
-  vec3 L = v_position_inWorld.xyz - u_lightPos;
+  vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
 
   // 前方半球なら +1, 後方半球なら -1 をかける
