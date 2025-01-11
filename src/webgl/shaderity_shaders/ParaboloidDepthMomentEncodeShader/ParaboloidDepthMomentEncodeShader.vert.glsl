@@ -69,33 +69,24 @@ void main()
   );
 
   vec3 lightPosition = get_lightPosition(0.0, u_lightIndex);
-  // ライトから頂点へのベクトル L
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
   L = normalize(L);
-  // 前方半球なら +1, 後方半球なら -1 をかける
-  //   front:  L.z + dist
-  //   back :  L.z - dist
+
   float signHemisphere = u_frontHemisphere ? 1.0 : -1.0;
   float denom = 1.0 + signHemisphere * L.z;
 
-  // z成分の符号が期待と逆の場合は、描画対象外とする（clip / discard など）
-  if ((u_frontHemisphere && L.z < 0.0) ||
-      (!u_frontHemisphere && L.z > 0.0))
-  {
-      gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // ラスタライズ範囲外へ
-      return;
-  }
-
-  // denomがゼロ付近になる場合は投影の破綻を防ぐためclipする
-  if (abs(denom) < 1e-6) {
-      gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
-      return;
-  }
-
-  // Dual Paraboloid投影 (xy平面への投影)
   vec2 uv = L.xy / denom;
 
-  // gl_PositionはUVを使ってスクリーンスペースに直張り付け
+  if (abs(denom) < 1e-6) {
+    gl_Position = vec4(0.0, 0.0, -1000000.0, 1.0);
+    return;
+  }
+
   gl_Position = vec4(uv, dist / u_farPlane, 1.0);
+  if ((u_frontHemisphere && L.z < 0.0) ||
+       (!u_frontHemisphere && L.z > 0.0))
+  {
+    gl_Position.z = 1.0;
+  }
 }

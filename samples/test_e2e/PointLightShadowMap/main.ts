@@ -20,15 +20,15 @@ const mainCameraEntity = Rn.createCameraControllerEntity();
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
 
 // Scene
-const cubesGroupEntity = createObjects();
-mainCameraEntity.getCameraController().controller.setTarget(cubesGroupEntity);
+const groupEntity = createObjects();
+mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
 // Expression
 const expression = new Rn.Expression();
 
 const shadowMomentFramebuffer = setupShadowMapRenderPasses(
-  [cubesGroupEntity, backgroundEntity],
+  [groupEntity, backgroundEntity],
   pointLight
 );
 
@@ -36,16 +36,20 @@ const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
-mainRenderPass.addEntities([cubesGroupEntity, backgroundEntity]);
-setParaboloidFrameBuffer(shadowMomentFramebuffer, [cubesGroupEntity, backgroundEntity]);
+mainRenderPass.addEntities([groupEntity, backgroundEntity]);
+setParaboloidFrameBuffer(shadowMomentFramebuffer, [groupEntity, backgroundEntity]);
 expression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
-
+let angle = 0;
 Rn.System.startRenderLoop(() => {
   if (count > 0) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
+  }
+  if (window.isAnimating) {
+    rotateObjects(groupEntity, angle);
+    angle += 0.002;
   }
   Rn.System.process([expression]);
 
@@ -157,4 +161,8 @@ function createBackground() {
   });
   backgroundEntity.scale = Rn.Vector3.fromCopyArray([100, 100, 100]);
   return backgroundEntity;
+}
+
+function rotateObjects(object: Rn.ISceneGraphEntity, angle: number) {
+  object.localEulerAngles = Rn.Vector3.fromCopyArray([0, angle, 0]);
 }

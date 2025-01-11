@@ -25,29 +25,23 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
   float currentDist = length(L);
   vec3 Lnorm = normalize(L);
 
-  // 前方か後方かを単純に z成分の符号で判定
+  // Determine whether it is front or back simply by the sign of the z component
   bool isFront = (Lnorm.z >= 0.0);
 
-  // パラボロイド投影用の denominators
+  // Denominators for paraboloid projection
   float denom = 1.0 + (isFront ? Lnorm.z : -Lnorm.z);
 
-  // UV座標(正規化)へ変換
-  // Lnorm.xy / denom が [-1,1] なので、[0,1] へマッピング
+  // Convert to UV coordinates (normalized)
+  // Lnorm.xy / denom is in [-1,1], so map it to [0,1]
   vec2 uv = (Lnorm.xy / denom) * 0.5 + 0.5;
 
-  // 適切なマップをサンプリング
   vec2 storedMoments = isFront
       ? texture(u_paraboloidDepthTexture, uv).rg
       : texture(u_paraboloidDepthTexture, uv).ba;
 
-  // 現在の距離を同じ方法で正規化
   float currentDepth = currentDist / farPlane;
 
   return chebyshevUpperBound(storedMoments, currentDepth);
-//  return (currentDepth > storedMoments.r + 0.0005) ? 0.5 : 1.0;
-  // return 0.5;
-
-  // return uv;
 }
 
 
