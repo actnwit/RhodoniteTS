@@ -20,29 +20,33 @@ float varianceShadowContribution(vec2 lightTexCoord, float distanceToLight) {
   return chebyshevUpperBound(moments, distanceToLight);
 }
 
-// float varianceShadowContributionParaboloid(vec2 lightTexCoord, float distanceToLight) {
-//   vec3 L = vWorldPos - uLightPos;
-//   float currentDist = length(L);
-//   vec3 Lnorm = normalize(L);
+float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float farPlane) {
+  vec3 L = worldPos - lightPos;
+  float currentDist = length(L);
+  vec3 Lnorm = normalize(L);
 
-//   // 前方か後方かを単純に z成分の符号で判定
-//   bool isFront = (Lnorm.z >= 0.0);
+  // 前方か後方かを単純に z成分の符号で判定
+  bool isFront = (Lnorm.z >= 0.0);
 
-//   // パラボロイド投影用の denominator
-//   float denom = 1.0 + (isFront ? Lnorm.z : -Lnorm.z);
+  // パラボロイド投影用の denominators
+  float denom = 1.0 + (isFront ? Lnorm.z : -Lnorm.z);
 
-//   // UV座標(正規化)へ変換
-//   // Lnorm.xy / denom が [-1,1] なので、[0,1] へマッピング
-//   vec2 uv = (Lnorm.xy / denom) * 0.5 + 0.5;
+  // UV座標(正規化)へ変換
+  // Lnorm.xy / denom が [-1,1] なので、[0,1] へマッピング
+  vec2 uv = (Lnorm.xy / denom) * 0.5 + 0.5;
 
-//   // 適切なマップをサンプリング
-//   float storedDepth = isFront
-//       ? texture(uShadowMapFront, uv).r
-//       : texture(uShadowMapBack, uv).r;
+  // 適切なマップをサンプリング
+  vec2 storedMoments = isFront
+      ? texture(u_paraboloidDepthTexture, uv).rg
+      : texture(u_paraboloidDepthTexture, uv).ba;
 
-//   // 現在の距離を同じ方法で正規化
-//   float currentDepth = currentDist / uFarPlane;
-// }
+  // 現在の距離を同じ方法で正規化
+  float currentDepth = currentDist / farPlane;
+
+  // return chebyshevUpperBound(storedMoments, currentDepth);
+ return (currentDepth > storedMoments.r + 0.0005) ? 0.5 : 1.0;
+  // return 0.5;
+}
 
 
 #endif

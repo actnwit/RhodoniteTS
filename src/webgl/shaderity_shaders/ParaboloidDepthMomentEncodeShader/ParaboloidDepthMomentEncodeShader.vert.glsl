@@ -72,12 +72,12 @@ void main()
   // ライトから頂点へのベクトル L
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
-
+  L = normalize(L);
   // 前方半球なら +1, 後方半球なら -1 をかける
   //   front:  L.z + dist
   //   back :  L.z - dist
   float signHemisphere = u_frontHemisphere ? 1.0 : -1.0;
-  float denom = L.z + signHemisphere * dist;
+  float denom = 1.0 + signHemisphere * L.z;
 
   // z成分の符号が期待と逆の場合は、描画対象外とする（clip / discard など）
   if ((u_frontHemisphere && L.z < 0.0) ||
@@ -97,6 +97,5 @@ void main()
   vec2 uv = L.xy / denom;
 
   // gl_PositionはUVを使ってスクリーンスペースに直張り付け
-  // (0,0)~(1,1) → clip spaceの(-1,-1)~(1,1)
   gl_Position = vec4(uv, dist / u_farPlane, 1.0);
 }

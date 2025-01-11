@@ -122,7 +122,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 /* shaderity: @{matricesGetters} */
 
 #ifdef RN_USE_SHADOW_MAPPING
-  uniform float u_farPlane; // initialValue=1000.0
+  uniform float u_pointLightFarPlane; // initialValue=1000.0
 #endif
 
 #pragma shaderity: require(../common/shadow.glsl)
@@ -376,13 +376,23 @@ void main ()
   // Lighting
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
-    rt0.xyz += lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
+    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
                         perceptualRoughness, metallic, F0, F90, ior, transmission,
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                         iridescence, iridescenceFresnel, specular);
+
+  #ifdef RN_USE_SHADOW_MAPPING
+    if (light.type == 1) { // Point Light
+      float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
+      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane);
+      lighting *= shadowContribution;
+    }
+  #endif
+
+    rt0.rgb += lighting;
   }
 
   #ifdef RN_USE_SHADOW_MAPPING

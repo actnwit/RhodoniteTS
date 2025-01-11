@@ -26,13 +26,17 @@ const backgroundEntity = createBackground();
 // Expression
 const expression = new Rn.Expression();
 
-setupShadowMapRenderPasses([cubesGroupEntity, backgroundEntity], pointLight);
+const shadowMomentFramebuffer = setupShadowMapRenderPasses(
+  [cubesGroupEntity, backgroundEntity],
+  pointLight
+);
 
 const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.addEntities([cubesGroupEntity, backgroundEntity]);
+setParaboloidFrameBuffer(shadowMomentFramebuffer, [cubesGroupEntity, backgroundEntity]);
 expression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
@@ -46,6 +50,30 @@ Rn.System.startRenderLoop(() => {
 
   count++;
 });
+
+function setParaboloidFrameBuffer(frameBuffer: Rn.FrameBuffer, entities: Rn.ISceneGraphEntity[]) {
+  const sampler = new Rn.Sampler({
+    minFilter: Rn.TextureParameter.Linear,
+    magFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  sampler.create();
+
+  for (const entity of entities) {
+    const meshComponent = entity.tryToGetMesh();
+    if (meshComponent != null && meshComponent.mesh != null) {
+      for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
+        const primitive = meshComponent.mesh.getPrimitiveAt(i);
+        primitive.material.setTextureParameter(
+          'paraboloidDepthTexture',
+          frameBuffer.getColorAttachedRenderTargetTexture(0),
+          sampler
+        );
+      }
+    }
+  }
+}
 
 function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[], pointLight: Rn.ILightEntity) {
   const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
@@ -77,6 +105,8 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[], pointLight
   shadowMomentBackRenderPass.setFramebuffer(shadowMomentFramebuffer);
   shadowMomentBackRenderPass.setMaterial(shadowMomentBackMaterial);
   expression.addRenderPasses([shadowMomentBackRenderPass]);
+
+  return shadowMomentFramebuffer;
 }
 
 function createPointLight() {
@@ -88,7 +118,7 @@ function createPointLight() {
 }
 
 function createCubes() {
-  const material = Rn.MaterialHelper.createPbrUberMaterial();
+  const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 0, 1]));
   const cubesGroupEntity = Rn.createGroupEntity();
   const cube0Entity = Rn.MeshHelper.createCube({ material });
@@ -108,12 +138,12 @@ function createCubes() {
 }
 
 function createBackground() {
-  const material = Rn.MaterialHelper.createPbrUberMaterial();
+  const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
   material.cullFaceBack = false;
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1.0, 1.0, 1.0, 1]));
   const backgroundEntity = Rn.MeshHelper.createSphere({
-    widthSegments: 20,
-    heightSegments: 20,
+    widthSegments: 50,
+    heightSegments: 50,
     material,
   });
   backgroundEntity.scale = Rn.Vector3.fromCopyArray([100, 100, 100]);
