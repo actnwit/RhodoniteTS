@@ -21,7 +21,7 @@ pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());
-pointLight.localPosition = Rn.Vector3.fromCopyArray([4, 0, 0]);
+pointLight.localPosition = Rn.Vector3.fromCopyArray([3, 0, 0]);
 
 // Main Camera
 const mainCameraEntity = Rn.createCameraControllerEntity();
@@ -35,7 +35,7 @@ const backgroundEntity = createBackground();
 // Expression
 const expression = new Rn.Expression();
 
-const shadowMomentFramebuffer = setupShadowMapRenderPasses([groupEntity]);
+const shadowMomentFramebuffer = setupShadowMapRenderPasses([groupEntity, backgroundEntity]);
 
 const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
@@ -164,7 +164,7 @@ function createBackground() {
     heightSegments: 50,
     material,
   });
-  backgroundEntity.scale = Rn.Vector3.fromCopyArray([80, 80, 80]);
+  backgroundEntity.scale = Rn.Vector3.fromCopyArray([500, 500, 500]);
   return backgroundEntity;
 }
 
