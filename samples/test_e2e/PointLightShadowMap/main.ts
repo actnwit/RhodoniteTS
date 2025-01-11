@@ -6,6 +6,7 @@ document.body.appendChild(p);
 declare const window: any;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
+Rn.Logger.logLevel = Rn.LogLevel.Debug;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
@@ -19,7 +20,7 @@ const mainCameraEntity = Rn.createCameraControllerEntity();
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
 
 // Scene
-const cubesGroupEntity = createCubes();
+const cubesGroupEntity = createObjects();
 mainCameraEntity.getCameraController().controller.setTarget(cubesGroupEntity);
 const backgroundEntity = createBackground();
 
@@ -117,7 +118,7 @@ function createPointLight() {
   return pointLight;
 }
 
-function createCubes() {
+function createObjects() {
   const material = Rn.MaterialHelper.createPbrUberMaterial({ isShadow: true });
   material.setParameter('baseColorFactor', Rn.Vector4.fromCopyArray([1, 0, 0, 1]));
   const cubesGroupEntity = Rn.createGroupEntity();
@@ -125,9 +126,17 @@ function createCubes() {
   cube0Entity.localPosition = Rn.Vector3.fromCopyArray([1, 0, 1]);
   const cube1Entity = Rn.MeshHelper.createCube({ material });
   cube1Entity.localPosition = Rn.Vector3.fromCopyArray([-1, 0, 1]);
-  const cube2Entity = Rn.MeshHelper.createSphere({ material });
+  const cube2Entity = Rn.MeshHelper.createSphere({
+    widthSegments: 40,
+    heightSegments: 40,
+    material,
+  });
   cube2Entity.localPosition = Rn.Vector3.fromCopyArray([1, 0, -1]);
-  const cube3Entity = Rn.MeshHelper.createSphere({ material });
+  const cube3Entity = Rn.MeshHelper.createSphere({
+    widthSegments: 40,
+    heightSegments: 40,
+    material,
+  });
   cube3Entity.localPosition = Rn.Vector3.fromCopyArray([-1, 0, -1]);
   cubesGroupEntity.addChild(cube0Entity.getSceneGraph());
   cubesGroupEntity.addChild(cube1Entity.getSceneGraph());

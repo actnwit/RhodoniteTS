@@ -43,9 +43,11 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
   // 現在の距離を同じ方法で正規化
   float currentDepth = currentDist / farPlane;
 
-  // return chebyshevUpperBound(storedMoments, currentDepth);
- return (currentDepth > storedMoments.r + 0.0005) ? 0.5 : 1.0;
+  return chebyshevUpperBound(storedMoments, currentDepth);
+//  return (currentDepth > storedMoments.r + 0.0005) ? 0.5 : 1.0;
   // return 0.5;
+
+  // return uv;
 }
 
 

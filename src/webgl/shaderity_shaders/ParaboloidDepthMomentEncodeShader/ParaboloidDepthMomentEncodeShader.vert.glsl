@@ -20,7 +20,7 @@ out vec4 v_position_inWorld;
 
 uniform bool u_frontHemisphere; // initialValue=true
 uniform int u_lightIndex; // initialValue=0
-uniform float u_farPlane; // initialValue=1000.0
+uniform float u_farPlane; // initialValue=100.0
 
 #pragma shaderity: require(../common/prerequisites.glsl)
 
