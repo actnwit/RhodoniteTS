@@ -788,9 +788,8 @@ export class ModelConverter {
   ): Material | undefined {
     const VRMProperties = gltfModel.extensions.VRM;
 
-    const materialProperties = materialJson.extras!.vrm0xMaterialProperty as Vrm0xMaterialProperty;
-    const shaderName = materialProperties.shader;
-    if (shaderName === 'VRM/MToon') {
+    const VRMC_materials_mtoon = materialJson.extensions?.VRMC_materials_mtoon;
+    if (VRMC_materials_mtoon != null) {
       // argument
       const defaultMaterialHelperArgument = rnLoaderOptions.defaultMaterialHelperArgumentArray![0];
 
@@ -817,7 +816,7 @@ export class ModelConverter {
       //exist outline
       if (renderPassOutline != null) {
         let outlineMaterial: Material | undefined;
-        if (materialProperties.floatProperties._OutlineWidthMode !== 0) {
+        if (VRMC_materials_mtoon.outlineWidthMode !== 'none') {
           outlineMaterial = MaterialHelper.createMToon1Material({
             additionalName,
             isMorphing,
