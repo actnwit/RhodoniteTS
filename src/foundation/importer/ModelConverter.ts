@@ -625,8 +625,8 @@ export class ModelConverter {
 
         if (rnMaterial.materialTypeName.indexOf('MToon') !== -1) {
           const VRMProperties = gltfModel.extensions.VRM;
-          const rnExtension = VRMProperties.rnExtension;
-          if (rnExtension != null) {
+          if (VRMProperties?.rnExtension != null) {
+            const rnExtension = VRMProperties.rnExtension;
             const renderPassOutline = rnExtension.renderPassOutline;
             const outlineMaterial = primitive.materialObject?.extras?.outlineMaterial?.deref();
             if (outlineMaterial != null) {
@@ -807,8 +807,8 @@ export class ModelConverter {
 
       // outline
       let renderPassOutline;
-      const rnExtension = VRMProperties.rnExtension;
-      if (Is.exist(rnExtension)) {
+      if (Is.exist(VRMProperties?.rnExtension)) {
+        const rnExtension = VRMProperties.rnExtension;
         renderPassOutline = rnExtension.renderPassOutline;
         renderPassOutline.isVrRendering = true;
         renderPassOutline.tryToSetUniqueName('VRM Outline RenderPass', true);
@@ -983,8 +983,8 @@ export class ModelConverter {
 
       // outline
       let renderPassOutline;
-      const rnExtension = VRMProperties.rnExtension;
-      if (Is.exist(rnExtension)) {
+      if (Is.exist(VRMProperties?.rnExtension)) {
+        const rnExtension = VRMProperties.rnExtension;
         renderPassOutline = rnExtension.renderPassOutline;
         renderPassOutline.isVrRendering = true;
         renderPassOutline.tryToSetUniqueName('VRM Outline RenderPass', true);
