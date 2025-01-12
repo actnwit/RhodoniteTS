@@ -47,7 +47,6 @@
     "PixelPickingTest",
     "PointLightShadowMap",
     "Primitives",
-    "ShadowMapUsingColorBuffer",
     "ShadowMapUsingHardwarePCF",
     "ShadowMapDebugMode",
     "ShadowMapVariance",
