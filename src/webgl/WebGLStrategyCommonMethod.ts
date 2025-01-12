@@ -23,15 +23,17 @@ let lastBlendFuncSrcFactor: number;
 let lastBlendFuncDstFactor: number;
 let lastBlendFuncAlphaSrcFactor: number;
 let lastBlendFuncAlphaDstFactor: number;
-let lastCullFace: boolean;
-let lastFrontFaceCCW: boolean;
-let lastCullFaceBack: boolean;
-let lastAlphaToCoverage: boolean;
+let lastCullFace: boolean = false;
+let lastFrontFaceCCW: boolean = true;
+let lastCullFaceBack: boolean = true;
+let lastAlphaToCoverage: boolean = false;
+let lastColorWriteMask: boolean[] = [true, true, true, true];
 
 function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
   setCull(material, gl);
   setBlendSettings(material, gl);
   setAlphaToCoverage(material, gl);
+  setColorWriteMask(material, gl);
 }
 
 function setCull(material: Material, gl: WebGLRenderingContext) {
@@ -165,6 +167,19 @@ function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
       gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
     }
     lastAlphaToCoverage = alphaToCoverage;
+  }
+}
+
+function setColorWriteMask(material: Material, gl: WebGLRenderingContext) {
+  const colorWriteMask = material.colorWriteMask;
+  if (
+    colorWriteMask[0] !== lastColorWriteMask[0] ||
+    colorWriteMask[1] !== lastColorWriteMask[1] ||
+    colorWriteMask[2] !== lastColorWriteMask[2] ||
+    colorWriteMask[3] !== lastColorWriteMask[3]
+  ) {
+    gl.colorMask(colorWriteMask[0], colorWriteMask[1], colorWriteMask[2], colorWriteMask[3]);
+    lastColorWriteMask = colorWriteMask;
   }
 }
 

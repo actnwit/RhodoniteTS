@@ -20,7 +20,6 @@ import { Texture } from '../textures/Texture';
 import { CameraComponent } from '../components/Camera/CameraComponent';
 import { Count } from '../../types/CommonTypes';
 import { IMeshRendererEntityMethods } from '../components/MeshRenderer/IMeshRendererEntity';
-import { ShaderSemantics } from '../definitions/ShaderSemantics';
 import { ComponentType } from '../definitions/ComponentType';
 import { CompositionType } from '../definitions/CompositionType';
 import { ShaderType } from '../definitions/ShaderType';
@@ -56,6 +55,8 @@ import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSin
 import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
+import ParaboloidDepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
+import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
@@ -364,6 +365,15 @@ function createPbrUberMaterial({
       min: 0,
       max: Number.MAX_VALUE,
     });
+    additionalShaderSemanticInfo.push({
+      semantic: 'paraboloidDepthTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
   }
 
   const materialContent = new CustomMaterialContent({
@@ -473,6 +483,57 @@ function createClassicUberMaterial({
     material.addShaderDefine('RN_USE_SHADOW_MAPPING');
   }
   material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
+  material.addShaderDefine('RN_IS_SKINNING');
+
+  return material;
+}
+
+function createParaboloidDepthMomentEncodeMaterial({
+  additionalName = '',
+  isSkinning = true,
+  isMorphing = false,
+  maxInstancesNumber = Config.maxMaterialInstanceForEachType,
+} = {}) {
+  const materialName = 'ParaboloidDepthMomentEncode' + `_${additionalName}_`;
+
+  const additionalShaderSemanticInfo = [
+    {
+      semantic: 'dataTextureMorphOffsetPosition',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.maxVertexMorphNumberInShader,
+      stage: ShaderType.VertexShader,
+      isInternalSetting: true,
+      soloDatum: true,
+      initialValue: new VectorN(new Int32Array(Config.maxVertexMorphNumberInShader)),
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    },
+    {
+      semantic: 'morphWeights',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.maxVertexMorphNumberInShader,
+      stage: ShaderType.VertexShader,
+      isInternalSetting: true,
+      soloDatum: true,
+      initialValue: new VectorN(new Float32Array(Config.maxVertexMorphNumberInShader)),
+      min: -Number.MAX_VALUE,
+      max: Number.MAX_VALUE,
+      needUniformInDataTextureMode: true,
+    },
+  ];
+  const materialContent = new CustomMaterialContent({
+    name: materialName,
+    isSkinning,
+    isLighting: true,
+    isMorphing,
+    vertexShader: ParaboloidDepthMomentEncodeShaderVertex,
+    pixelShader: ParaboloidDepthMomentEncodeShaderFragment,
+    additionalShaderSemanticInfo,
+  });
+  const material = createMaterial(materialContent, maxInstancesNumber);
   material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
@@ -1227,6 +1288,7 @@ export const MaterialHelper = Object.freeze({
   reuseOrRecreateCustomMaterial,
   createClassicUberMaterial,
   createDepthMomentEncodeMaterial,
+  createParaboloidDepthMomentEncodeMaterial,
   createFlatMaterial,
   createPbrUberMaterial,
   createEnvConstantMaterial,
