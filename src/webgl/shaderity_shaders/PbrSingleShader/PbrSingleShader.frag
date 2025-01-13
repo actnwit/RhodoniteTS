@@ -394,8 +394,11 @@ void main ()
     } else {
       float bias = 0.001;
       vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+      vec3 lightDirection = normalize(get_lightDirection(0.0, i));
+      vec3 lightPosToWorldPos = normalize(v_position_inWorld.xyz - light.position);
+      float dotProduct = dot(lightPosToWorldPos, lightDirection);
       float shadowContribution = 1.0;
-      if (shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
+      if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
         shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
       }
       lighting *= shadowContribution;
