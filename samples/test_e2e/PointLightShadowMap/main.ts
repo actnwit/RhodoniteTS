@@ -12,12 +12,13 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-// Spot Light
+// Point Light
 let pointLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
   pointLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight.getLight().type = Rn.LightType.Point;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());
@@ -119,14 +120,6 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
   expression.addRenderPasses([shadowMomentBackRenderPass]);
 
   return shadowMomentFramebuffer;
-}
-
-function createPointLight() {
-  const pointLight = Rn.createLightEntity();
-  pointLight.getLight().type = Rn.LightType.Point;
-  pointLight.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
-  pointLight.localPosition = Rn.Vector3.fromCopy3(0.0, 0.0, 0.0);
-  return pointLight;
 }
 
 function createObjects() {
