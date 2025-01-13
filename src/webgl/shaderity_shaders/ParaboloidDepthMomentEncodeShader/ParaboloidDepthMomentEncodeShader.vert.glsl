@@ -68,12 +68,14 @@ void main()
     v_normal_inWorld
   );
 
-  vec3 lightPosition = get_lightPosition(0.0, u_lightIndex);
+  int lightIndex = get_lightIndex(materialSID, 0);
+  vec3 lightPosition = get_lightPosition(0.0, lightIndex);
   vec3 L = v_position_inWorld.xyz - lightPosition;
   float dist = length(L);
   L = normalize(L);
 
-  float signHemisphere = u_frontHemisphere ? 1.0 : -1.0;
+  bool frontHemisphere = get_frontHemisphere(materialSID, 0);
+  float signHemisphere = frontHemisphere ? 1.0 : -1.0;
   float denom = 1.0 + signHemisphere * L.z;
 
   vec2 uv = L.xy / denom;
@@ -89,6 +91,7 @@ void main()
   //   return;
   // }
 
-  gl_Position = vec4(uv, dist / u_farPlane, 1.0);
-  v_position_inWorld = vec4(uv, dist / u_farPlane, signHemisphere * L.z);
+  float farPlane = get_farPlane(materialSID, 0);
+  gl_Position = vec4(uv, dist / farPlane, 1.0);
+  v_position_inWorld = vec4(uv, dist / farPlane, signHemisphere * L.z);
 }
