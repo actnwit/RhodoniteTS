@@ -25,7 +25,7 @@ mainCameraEntity.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 
 // Depth RenderPass
 const renderPassDepth = createRenderPassSpecifyingCameraComponent(spotLight);
-createFramebuffer(renderPassDepth, 1024, 1024);
+const shadowDepthFramebuffer = createFramebuffer(renderPassDepth, 1024, 1024);
 
 // Main RenderPass
 const renderPassMain = createRenderPassSpecifyingCameraComponent(mainCameraEntity);
@@ -40,10 +40,8 @@ const translateBigBoard = Rn.Vector3.fromCopyArray([0, 0, -0.0]);
 
 entitySmallBoard.getTransform().localScale = Rn.Vector3.fromCopy3(0.2, 0.2, 0.2);
 entitySmallBoard.getTransform().localPosition = translateSmallBoard;
-// entitySmallBoard.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 entityLargeBoard.getTransform().localPosition = translateBigBoard;
 entityLargeBoard.getTransform().localScale = Rn.Vector3.fromCopy3(1.5, 1.5, 1.5);
-// entityLargeBoard.getTransform().localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
 
 // set entities to render passes
 renderPassDepth.addEntities([entitySmallBoard, entityLargeBoard]);
@@ -52,9 +50,21 @@ renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 // set depth shader to depth render pass
 renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial());
 
+const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
+  Rn.GaussianBlurHelper.createGaussianBlurExpression({
+    textureToBlur: shadowDepthFramebuffer.getColorAttachedRenderTargetTexture(0)!,
+    parameters: {
+      blurPassLevel: 4,
+      gaussianKernelSize: 10,
+      gaussianVariance: 10,
+      synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+      isReduceBuffer: true,
+    },
+  });
+
 // Expression
 const expression = new Rn.Expression();
-expression.addRenderPasses([renderPassDepth, renderPassMain]);
+expression.addRenderPasses([renderPassDepth, ...blurExpression.renderPasses, renderPassMain]);
 
 // set material parameters
 const meshComponentSmallBoard = entitySmallBoard.getMesh();
@@ -69,16 +79,8 @@ setParameterForMeshComponent(
   Rn.ShaderSemantics.BaseColorFactor.str,
   Rn.Vector4.fromCopyArray([0.1, 0.7, 0.5, 1])
 );
-setTextureParameterForMeshComponent(
-  meshComponentSmallBoard,
-  'depthTexture',
-  renderPassDepth.getFramebuffer().getColorAttachedRenderTargetTexture(0)
-);
-setTextureParameterForMeshComponent(
-  meshComponentLargeBoard,
-  'depthTexture',
-  renderPassDepth.getFramebuffer().getColorAttachedRenderTargetTexture(0)
-);
+setTextureParameterForMeshComponent(meshComponentSmallBoard, 'depthTexture', blurredRenderTarget);
+setTextureParameterForMeshComponent(meshComponentLargeBoard, 'depthTexture', blurredRenderTarget);
 
 window.download = function () {
   renderPassDepth
