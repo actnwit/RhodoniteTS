@@ -15,7 +15,7 @@ import SynthesizeHDRTextureShaderVertexWebGpu from '../../../webgpu/shaderity_sh
 import SynthesizeHDRTextureShaderFragmentWebGpu from '../../../webgpu/shaderity_shaders/SynthesizeHDRTextureShader/SynthesizeHDRTextureShader.frag';
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
-import { dummyBlackTexture } from '../core/DummyTextures';
+import { dummyBlackTexture, dummyZeroTexture } from '../core/DummyTextures';
 import { Sampler } from '../../textures/Sampler';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { SystemState } from '../../system/SystemState';
@@ -94,7 +94,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [0, synthesizeTextures[0] ?? dummyBlackTexture, sampler],
+        initialValue: [0, synthesizeTextures[0] ?? dummyZeroTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -103,7 +103,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [1, synthesizeTextures[1] ?? dummyBlackTexture, sampler],
+        initialValue: [1, synthesizeTextures[1] ?? dummyZeroTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -112,7 +112,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [2, synthesizeTextures[2] ?? dummyBlackTexture, sampler],
+        initialValue: [2, synthesizeTextures[2] ?? dummyZeroTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -121,7 +121,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [3, synthesizeTextures[3] ?? dummyBlackTexture, sampler],
+        initialValue: [3, synthesizeTextures[3] ?? dummyZeroTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -130,7 +130,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [4, synthesizeTextures[4] ?? dummyBlackTexture, sampler],
+        initialValue: [4, synthesizeTextures[4] ?? dummyZeroTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },
@@ -139,7 +139,7 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
         componentType: ComponentType.Int,
         compositionType: CompositionType.Texture2D,
         stage: ShaderType.PixelShader,
-        initialValue: [5, synthesizeTextures[5] ?? dummyBlackTexture, sampler],
+        initialValue: [5, synthesizeTextures[5] ?? dummyZeroTexture, sampler],
         min: 0,
         max: Number.MAX_SAFE_INTEGER,
       },

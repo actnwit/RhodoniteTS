@@ -35,17 +35,39 @@ mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
 // Expression
-const expression = new Rn.Expression();
+const shadowMapExpression = new Rn.Expression();
+const shadowMomentFramebuffer = setupShadowMapRenderPasses(shadowMapExpression, [
+  groupEntity,
+  backgroundEntity,
+]);
+const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
+  Rn.GaussianBlurHelper.createGaussianBlurExpression({
+    textureToBlur: shadowMomentFramebuffer.getColorAttachedRenderTargetTexture(0)!,
+    parameters: {
+      blurPassLevel: 4,
+      gaussianKernelSize: 10,
+      gaussianVariance: 10,
+      synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+      isReduceBuffer: false,
+    },
+  });
 
-const shadowMomentFramebuffer = setupShadowMapRenderPasses([groupEntity, backgroundEntity]);
-
+const mainExpression = new Rn.Expression();
 const mainRenderPass = new Rn.RenderPass();
 mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight]);
-setParaboloidFrameBuffer(shadowMomentFramebuffer, [groupEntity, backgroundEntity]);
-expression.addRenderPasses([mainRenderPass]);
+setParaboloidBlurredShadowMap(blurredRenderTarget, [groupEntity, backgroundEntity]);
+// setParaboloidBlurredShadowMap(
+//   renderPassesBlurred[9].getFramebuffer()!.getColorAttachedRenderTargetTexture(0)!,
+//   [groupEntity, backgroundEntity]
+// );
+// setParaboloidBlurredShadowMap(shadowMomentFramebuffer.getColorAttachedRenderTargetTexture(0), [
+//   groupEntity,
+//   backgroundEntity,
+// ]);
+mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
 let angle = 0;
@@ -58,12 +80,16 @@ Rn.System.startRenderLoop(() => {
     rotateObject(pointGroupEntity, angle);
     angle += 0.01;
   }
-  Rn.System.process([expression]);
+  Rn.System.process([shadowMapExpression, blurExpression, mainExpression]);
+  // Rn.System.process([shadowMapExpression, mainExpression]);
 
   count++;
 });
 
-function setParaboloidFrameBuffer(frameBuffer: Rn.FrameBuffer, entities: Rn.ISceneGraphEntity[]) {
+function setParaboloidBlurredShadowMap(
+  blurredRenderTarget: Rn.RenderTargetTexture,
+  entities: Rn.ISceneGraphEntity[]
+) {
   const sampler = new Rn.Sampler({
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
@@ -79,7 +105,7 @@ function setParaboloidFrameBuffer(frameBuffer: Rn.FrameBuffer, entities: Rn.ISce
         const primitive = meshComponent.mesh.getPrimitiveAt(i);
         primitive.material.setTextureParameter(
           'paraboloidDepthTexture',
-          frameBuffer.getColorAttachedRenderTargetTexture(0),
+          blurredRenderTarget,
           sampler
         );
       }
@@ -87,7 +113,10 @@ function setParaboloidFrameBuffer(frameBuffer: Rn.FrameBuffer, entities: Rn.ISce
   }
 }
 
-function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
+function setupShadowMapRenderPasses(
+  shadowMapExpression: Rn.Expression,
+  entities: Rn.ISceneGraphEntity[]
+) {
   const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: 1024,
     height: 1024,
@@ -106,7 +135,7 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
   shadowMomentFrontRenderPass.addEntities(entities);
   shadowMomentFrontRenderPass.setFramebuffer(shadowMomentFramebuffer);
   shadowMomentFrontRenderPass.setMaterial(shadowMomentFrontMaterial);
-  expression.addRenderPasses([shadowMomentFrontRenderPass]);
+  shadowMapExpression.addRenderPasses([shadowMomentFrontRenderPass]);
 
   const shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
   shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
@@ -117,7 +146,7 @@ function setupShadowMapRenderPasses(entities: Rn.ISceneGraphEntity[]) {
   shadowMomentBackRenderPass.addEntities(entities);
   shadowMomentBackRenderPass.setFramebuffer(shadowMomentFramebuffer);
   shadowMomentBackRenderPass.setMaterial(shadowMomentBackMaterial);
-  expression.addRenderPasses([shadowMomentBackRenderPass]);
+  shadowMapExpression.addRenderPasses([shadowMomentBackRenderPass]);
 
   return shadowMomentFramebuffer;
 }
