@@ -56,21 +56,47 @@ const backgroundEntity = createBackground();
 
 // Expression
 const shadowMapExpression = new Rn.Expression();
-const shadowMomentFramebuffer = setupPointLightShadowMapRenderPasses(shadowMapExpression, [
-  groupEntity,
-  backgroundEntity,
-]);
-const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
-  Rn.GaussianBlurHelper.createGaussianBlurExpression({
-    textureToBlur: shadowMomentFramebuffer.getColorAttachedRenderTargetTexture(0)!,
-    parameters: {
-      blurPassLevel: 4,
-      gaussianKernelSize: 10,
-      gaussianVariance: 10,
-      synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-      isReduceBuffer: false,
-    },
-  });
+
+// SpotLight shadow map pass
+const shadowMomentFramebufferSpotLight = setupSpotLightShadowMapRenderPasses(
+  shadowMapExpression,
+  [groupEntity, backgroundEntity],
+  spotLight
+);
+const {
+  blurExpression: blurExpressionSpotLight,
+  blurredRenderTarget: blurredRenderTargetSpotLight,
+  renderPassesBlurred: renderPassesBlurredSpotLight,
+} = Rn.GaussianBlurHelper.createGaussianBlurExpression({
+  textureToBlur: shadowMomentFramebufferSpotLight.getColorAttachedRenderTargetTexture(0)!,
+  parameters: {
+    blurPassLevel: 4,
+    gaussianKernelSize: 10,
+    gaussianVariance: 10,
+    synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+    isReduceBuffer: true,
+  },
+});
+
+// PointLight shadow map passes
+const shadowMomentFramebufferPointLight = setupPointLightShadowMapRenderPasses(
+  shadowMapExpression,
+  [groupEntity, backgroundEntity]
+);
+const {
+  blurExpression: blurExpressionPointLight,
+  blurredRenderTarget: blurredRenderTargetPointLight,
+  renderPassesBlurred: renderPassesBlurredPointLight,
+} = Rn.GaussianBlurHelper.createGaussianBlurExpression({
+  textureToBlur: shadowMomentFramebufferPointLight.getColorAttachedRenderTargetTexture(0)!,
+  parameters: {
+    blurPassLevel: 4,
+    gaussianKernelSize: 10,
+    gaussianVariance: 10,
+    synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+    isReduceBuffer: false,
+  },
+});
 
 const mainExpression = new Rn.Expression();
 const mainRenderPass = new Rn.RenderPass();
@@ -79,7 +105,8 @@ mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.cameraComponent = mainCameraEntity.getCamera();
 mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight, spotLight]);
-setParaboloidBlurredShadowMap(blurredRenderTarget, [groupEntity, backgroundEntity]);
+setBlurredShadowMap(blurredRenderTargetSpotLight, [groupEntity, backgroundEntity]);
+setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, [groupEntity, backgroundEntity]);
 mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
@@ -93,11 +120,58 @@ Rn.System.startRenderLoop(() => {
     rotateObject(pointGroupEntity, angle);
     angle += 0.01;
   }
-  Rn.System.process([shadowMapExpression, blurExpression, mainExpression]);
+  setSpotLightDepthBiasPV(spotLight, [groupEntity, backgroundEntity]);
+  Rn.System.process([
+    shadowMapExpression,
+    blurExpressionSpotLight,
+    blurExpressionPointLight,
+    mainExpression,
+  ]);
   // Rn.System.process([shadowMapExpression, mainExpression]);
 
   count++;
 });
+
+function setSpotLightDepthBiasPV(
+  spotLight: Rn.ISceneGraphEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods,
+  entities: Rn.ISceneGraphEntity[]
+) {
+  for (const entity of entities) {
+    const meshComponent = entity.tryToGetMesh();
+    if (meshComponent != null && meshComponent.mesh != null) {
+      for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
+        const primitive = meshComponent.mesh.getPrimitiveAt(i);
+        primitive.material.setParameter(
+          'depthBiasPV',
+          spotLight.getCamera().biasViewProjectionMatrix
+        );
+      }
+    }
+  }
+}
+
+function setBlurredShadowMap(
+  blurredRenderTarget: Rn.RenderTargetTexture,
+  entities: Rn.ISceneGraphEntity[]
+) {
+  const sampler = new Rn.Sampler({
+    minFilter: Rn.TextureParameter.Linear,
+    magFilter: Rn.TextureParameter.Linear,
+    wrapS: Rn.TextureParameter.ClampToEdge,
+    wrapT: Rn.TextureParameter.ClampToEdge,
+  });
+  sampler.create();
+
+  for (const entity of entities) {
+    const meshComponent = entity.tryToGetMesh();
+    if (meshComponent != null && meshComponent.mesh != null) {
+      for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
+        const primitive = meshComponent.mesh.getPrimitiveAt(i);
+        primitive.material.setTextureParameter('depthTexture', blurredRenderTarget, sampler);
+      }
+    }
+  }
+}
 
 function setParaboloidBlurredShadowMap(
   blurredRenderTarget: Rn.RenderTargetTexture,
@@ -128,7 +202,8 @@ function setParaboloidBlurredShadowMap(
 
 function setupSpotLightShadowMapRenderPasses(
   shadowMapExpression: Rn.Expression,
-  entities: Rn.ISceneGraphEntity[]
+  entities: Rn.ISceneGraphEntity[],
+  lightEntity: Rn.ISceneGraphEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods
 ) {
   const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
     width: 1024,
@@ -138,6 +213,19 @@ function setupSpotLightShadowMapRenderPasses(
     createDepthBuffer: true,
     depthTextureFormat: Rn.TextureFormat.Depth32F,
   });
+
+  const shadowMomentMaterial = Rn.MaterialHelper.createDepthMomentEncodeMaterial();
+  const shadowMomentRenderPass = new Rn.RenderPass();
+  shadowMomentRenderPass.addEntities(entities);
+  shadowMomentRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
+  shadowMomentRenderPass.toClearColorBuffer = true;
+  shadowMomentRenderPass.toClearDepthBuffer = true;
+  shadowMomentRenderPass.cameraComponent = lightEntity.getCamera();
+  shadowMomentRenderPass.setFramebuffer(shadowMomentFramebuffer);
+  shadowMomentRenderPass.setMaterial(shadowMomentMaterial);
+  shadowMapExpression.addRenderPasses([shadowMomentRenderPass]);
+
+  return shadowMomentFramebuffer;
 }
 
 function setupPointLightShadowMapRenderPasses(
