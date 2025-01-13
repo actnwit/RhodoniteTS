@@ -42,6 +42,7 @@
     "InstancedSkinMesh",
     "MatCap",
     "MultiPass",
+    "MultipleLightsShadowMap",
     "NodeBaseShader",
     "NodeEditor",
     "PixelPickingTest",
