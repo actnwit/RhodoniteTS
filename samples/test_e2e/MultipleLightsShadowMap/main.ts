@@ -195,6 +195,7 @@ function setParaboloidBlurredShadowMap(
           blurredRenderTarget,
           sampler
         );
+        primitive.material.setParameter('pointLightShadowMapUvScale', 0.93);
       }
     }
   }
