@@ -54,7 +54,7 @@ createAndSetFramebuffer(renderPassMain, rnCanvasElement.width, rnCanvasElement.h
 });
 renderPassMain.clearColor = Rn.Vector4.fromCopyArray([0.0, 0.0, 0.0, 1.0]);
 
-const { bloomExpression, bloomedRenderTarget } = Rn.ExpressionHelper.createBloomExpression({
+const { bloomExpression, bloomedRenderTarget } = Rn.BloomHelper.createBloomExpression({
   textureToBloom: renderPassMain.getFramebuffer()
     .colorAttachments[0] as unknown as Rn.AbstractTexture,
   parameters: {
