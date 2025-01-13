@@ -20,7 +20,7 @@ float varianceShadowContribution(vec2 lightTexCoord, float distanceToLight) {
   return chebyshevUpperBound(moments, distanceToLight);
 }
 
-float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float farPlane) {
+float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float farPlane, float uvScale) {
   vec3 L = worldPos - lightPos;
   float currentDist = length(L);
   vec3 Lnorm = normalize(L);
@@ -33,7 +33,7 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
 
   // Convert to UV coordinates (normalized)
   // Lnorm.xy / denom is in [-1,1], so map it to [0,1]
-  vec2 uv = (Lnorm.xy / denom) * 0.5 + 0.5;
+  vec2 uv = (Lnorm.xy / denom) * uvScale * 0.5 + 0.5;
 
   vec2 storedMoments = isFront
       ? texture(u_paraboloidDepthTexture, uv).rg

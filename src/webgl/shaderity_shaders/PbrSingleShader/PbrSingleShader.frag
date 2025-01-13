@@ -123,6 +123,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #ifdef RN_USE_SHADOW_MAPPING
   uniform float u_pointLightFarPlane; // initialValue=1000.0
+  uniform float u_pointLightShadowMapUvScale; // initialValue=0.93
 #endif
 
 #pragma shaderity: require(../common/shadow.glsl)
@@ -387,7 +388,8 @@ void main ()
   #ifdef RN_USE_SHADOW_MAPPING
     if (light.type == 1) { // Point Light
       float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
-      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane);
+      float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
+      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale);
       lighting *= shadowContribution;
     } else {
       float bias = 0.001;
