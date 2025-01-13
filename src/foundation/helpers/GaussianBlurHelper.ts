@@ -17,6 +17,7 @@ function createGaussianBlurExpression({
     gaussianKernelSize = 10,
     gaussianVariance = 10,
     synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+    isReduceBuffer = true,
   },
 }: {
   textureToBlur: AbstractTexture;
@@ -25,6 +26,7 @@ function createGaussianBlurExpression({
     gaussianKernelSize?: number;
     gaussianVariance?: number;
     synthesizeCoefficient?: [number, number, number, number, number, number];
+    isReduceBuffer?: boolean;
   };
 }) {
   const renderPassesBlurred = createBlurPasses(
@@ -33,7 +35,8 @@ function createGaussianBlurExpression({
     gaussianKernelSize,
     gaussianVariance,
     textureToBlur.width,
-    textureToBlur.height
+    textureToBlur.height,
+    isReduceBuffer
   );
 
   // Setup SynthesizeMaterial
@@ -51,6 +54,7 @@ function createGaussianBlurExpression({
     blurExpression: expression,
     blurredRenderTarget: renderPassSynthesizeImage.getFramebuffer()!
       .colorAttachments[0] as RenderTargetTexture,
+    renderPassesBlurred,
   };
 }
 
@@ -60,13 +64,18 @@ function createBlurPasses(
   gaussianKernelSize: number,
   gaussianVariance: number,
   maxResolutionWidth: number,
-  maxResolutionHeight: number
+  maxResolutionHeight: number,
+  isReduceBuffer: boolean
 ) {
   const renderPasses: RenderPass[] = [];
 
   for (let i = 0; i < blurPassLevel; i++) {
-    const resolutionWidthBlur = Math.max(maxResolutionWidth >> (i + 1), 1);
-    const resolutionHeightBlur = Math.max(maxResolutionHeight >> (i + 1), 1);
+    const resolutionWidthBlur = isReduceBuffer
+      ? Math.max(maxResolutionWidth >> (i + 1), 1)
+      : maxResolutionWidth;
+    const resolutionHeightBlur = isReduceBuffer
+      ? Math.max(maxResolutionHeight >> (i + 1), 1)
+      : maxResolutionHeight;
 
     let renderPassBlurH;
     if (i === 0) {

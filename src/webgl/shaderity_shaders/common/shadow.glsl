@@ -38,6 +38,8 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
   vec2 storedMoments = isFront
       ? texture(u_paraboloidDepthTexture, uv).rg
       : texture(u_paraboloidDepthTexture, uv).ba;
+      // : vec2(texture(u_paraboloidDepthTexture, uv).b, sq(texture(u_paraboloidDepthTexture, uv).b));
+      // : vec2(sqrt(texture(u_paraboloidDepthTexture, uv).a), texture(u_paraboloidDepthTexture, uv).a);
 
   float currentDepth = currentDist / farPlane;
 
