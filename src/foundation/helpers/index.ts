@@ -1,5 +1,6 @@
 export * from './EntityHelper';
 export * from './BloomHelper';
+export * from './GaussianBlurHelper';
 export * from './MaterialHelper';
 export * from './MeshHelper';
 export * from './RenderableHelper';
