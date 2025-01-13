@@ -41,9 +41,10 @@ spotLight.getCamera().isSyncToLight = true;
 
 spotLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 spotLight.getLight().type = Rn.LightType.Spot;
+spotLight.getLight().range = 1000.0;
 spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
 spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
-spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 6.0, 0);
+spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 6.0, 0.0);
 
 // Main Camera
 const mainCameraEntity = Rn.createCameraControllerEntity();
@@ -71,8 +72,8 @@ const {
   textureToBlur: shadowMomentFramebufferSpotLight.getColorAttachedRenderTargetTexture(0)!,
   parameters: {
     blurPassLevel: 4,
-    gaussianKernelSize: 10,
-    gaussianVariance: 10,
+    gaussianKernelSize: 5,
+    gaussianVariance: 5,
     synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
     isReduceBuffer: true,
   },
@@ -91,8 +92,8 @@ const {
   textureToBlur: shadowMomentFramebufferPointLight.getColorAttachedRenderTargetTexture(0)!,
   parameters: {
     blurPassLevel: 4,
-    gaussianKernelSize: 10,
-    gaussianVariance: 10,
+    gaussianKernelSize: 5,
+    gaussianVariance: 5,
     synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
     isReduceBuffer: false,
   },
@@ -106,6 +107,10 @@ mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.cameraComponent = mainCameraEntity.getCamera();
 mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight, spotLight]);
 setBlurredShadowMap(blurredRenderTargetSpotLight, [groupEntity, backgroundEntity]);
+// setBlurredShadowMap(shadowMomentFramebufferSpotLight.getColorAttachedRenderTargetTexture(0)!, [
+//   groupEntity,
+//   backgroundEntity,
+// ]);
 setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, [groupEntity, backgroundEntity]);
 mainExpression.addRenderPasses([mainRenderPass]);
 
