@@ -242,6 +242,6 @@ function createRenderPassSynthesizeImage(
   return renderPassSynthesizeGlare;
 }
 
-export const ExpressionHelper = Object.freeze({
+export const BloomHelper = Object.freeze({
   createBloomExpression,
 });

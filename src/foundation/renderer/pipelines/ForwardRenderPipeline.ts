@@ -23,7 +23,7 @@ import {
   ToneMappingType,
   ToneMappingTypeEnum,
 } from '../../definitions';
-import { ExpressionHelper, RenderPassHelper } from '../../helpers';
+import { BloomHelper, RenderPassHelper } from '../../helpers';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
 import { SystemState } from '../../system';
@@ -222,7 +222,7 @@ export class ForwardRenderPipeline extends RnObject {
         const textureToBloom = frameBufferToBloom
           .unwrapForce()
           .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture;
-        const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
+        const { bloomExpression, bloomedRenderTarget } = BloomHelper.createBloomExpression({
           textureToBloom,
           parameters: {},
         });

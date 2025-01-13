@@ -1,5 +1,5 @@
 export * from './EntityHelper';
-export * from './ExpressionHelper';
+export * from './BloomHelper';
 export * from './MaterialHelper';
 export * from './MeshHelper';
 export * from './RenderableHelper';
