@@ -434,8 +434,18 @@ const Texture2DRect = new CompositionTypeClass({
   numberOfComponents: 1,
   vec4SizeOfProperty: 1,
 });
-const Mat4x3Array = new CompositionTypeClass({
+const Texture2DArray = new CompositionTypeClass({
   index: 18,
+  str: 'TEXTURE_2D_ARRAY',
+  glslStr: 'sampler2DArray',
+  hlslStr: 'Texture2DArray',
+  wgsl: 'texture_2d_array',
+  webgpu: 'texture_2d_array',
+  numberOfComponents: 1,
+  vec4SizeOfProperty: 1,
+});
+const Mat4x3Array = new CompositionTypeClass({
+  index: 19,
   str: 'MAT4x3_ARRAY',
   glslStr: 'mat4x3',
   hlslStr: 'float4x3',
@@ -533,6 +543,9 @@ function fromGlslString(str_: string): CompositionTypeEnum {
     case 'samplerCube':
       str = 'TEXTURE_CUBE_MAP';
       break;
+    case 'sampler2DArray':
+      str = 'TEXTURE_2D_ARRAY';
+      break;
   }
   return _fromString({ typeList, str }) as CompositionTypeEnum;
 }
@@ -596,6 +609,9 @@ function fromWgslString(str_: string): CompositionTypeEnum {
       break;
     case 'sampler_cube':
       str = 'TEXTURE_CUBE_MAP';
+      break;
+    case 'sampler_2d_array':
+      str = 'TEXTURE_2D_ARRAY';
       break;
   }
   return _fromString({ typeList, str }) as CompositionTypeEnum;
@@ -708,7 +724,8 @@ function isTexture(compositionType: CompositionTypeEnum) {
     compositionType === Texture2D ||
     compositionType === TextureCube ||
     compositionType === Texture2DShadow ||
-    compositionType === Texture2DRect
+    compositionType === Texture2DRect ||
+    compositionType === Texture2DArray
   ) {
     return true;
   } else {
@@ -736,6 +753,7 @@ export const CompositionType = Object.freeze({
   Texture2DShadow,
   TextureCube,
   Texture2DRect,
+  Texture2DArray,
   Mat4x3Array,
   from,
   fromString,
