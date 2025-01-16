@@ -243,6 +243,8 @@ export class System {
           MeshRendererComponent.common_$prerender();
           for (const exp of expressions) {
             for (const renderPass of exp.renderPasses) {
+              renderPass.doPreRender();
+
               // clear Framebuffer
               this.__cgApiResourceRepository.clearFrameBuffer(renderPass);
 
@@ -306,6 +308,7 @@ export class System {
       this.__lastTransformComponentsUpdateCount = TransformComponent.updateCount;
       this.__lastPrimitiveCount = Primitive.getPrimitiveCount();
     } else {
+      // WebGL
       const repo = CGAPIResourceRepository.getWebGLResourceRepository();
       const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR | undefined;
 
@@ -324,6 +327,8 @@ export class System {
                 if (typeof spector !== 'undefined') {
                   spector.setMarker(`| ${exp.uniqueName}: ${renderPass.uniqueName}#`);
                 }
+                renderPass.doPreRender();
+
                 repo.switchDepthTest(renderPass.isDepthTest);
 
                 if (componentTid === WellKnownComponentTIDs.MeshRendererComponentTID) {
