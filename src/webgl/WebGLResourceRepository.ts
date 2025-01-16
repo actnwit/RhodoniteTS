@@ -1544,11 +1544,12 @@ export class WebGLResourceRepository
   /**
    * attach the ColorBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
-    index: Index,
+    attachmentIndex: Index,
     renderable: IRenderable
   ) {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1559,7 +1560,7 @@ export class WebGLResourceRepository
     const renderableWebGLResource = this.getWebGLResource(
       renderable._textureResourceUid
     )! as WebGLTexture;
-    const attachmentId = this.__glw!.colorAttachment(index);
+    const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
 
     if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
       // It's must be TextureArray for MultiView VR Rendering
@@ -1603,6 +1604,40 @@ export class WebGLResourceRepository
         renderableWebGLResource as any as WebGLRenderbuffer
       );
     }
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferLayerToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    renderable: IRenderable,
+    layerIndex: Index,
+    mipLevel: Index
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)! as WebGLFramebuffer;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(
+      renderable._textureResourceUid
+    )! as WebGLTexture;
+    const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
+
+    (renderable as RenderTargetTexture)._fbo = framebuffer;
+    gl.framebufferTextureLayer(
+      gl.FRAMEBUFFER,
+      attachmentId,
+      renderableWebGLResource,
+      mipLevel,
+      layerIndex
+    );
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
