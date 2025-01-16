@@ -1,4 +1,4 @@
-import { TextureFormat } from '../definitions';
+import { TextureFormat, TextureFormatEnum } from '../definitions';
 import { MathUtil } from '../math/MathUtil';
 import { Vector2 } from '../math/Vector2';
 import { VectorN } from '../math/VectorN';
@@ -18,6 +18,7 @@ function createGaussianBlurExpression({
     gaussianVariance = 10,
     synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
     isReduceBuffer = true,
+    textureFormat = TextureFormat.RGBA16F,
   },
 }: {
   textureToBlur: AbstractTexture;
@@ -27,6 +28,7 @@ function createGaussianBlurExpression({
     gaussianVariance?: number;
     synthesizeCoefficient?: [number, number, number, number, number, number];
     isReduceBuffer?: boolean;
+    textureFormat?: TextureFormatEnum;
   };
 }) {
   const renderPassesBlurred = createBlurPasses(
@@ -36,14 +38,16 @@ function createGaussianBlurExpression({
     gaussianVariance,
     textureToBlur.width,
     textureToBlur.height,
-    isReduceBuffer
+    isReduceBuffer,
+    textureFormat
   );
 
   // Setup SynthesizeMaterial
   const renderPassSynthesizeImage = createRenderPassSynthesizeImage(
     textureToBlur,
     renderPassesBlurred,
-    synthesizeCoefficient
+    synthesizeCoefficient,
+    textureFormat
   );
 
   // Setup Expression
@@ -65,7 +69,8 @@ function createBlurPasses(
   gaussianVariance: number,
   maxResolutionWidth: number,
   maxResolutionHeight: number,
-  isReduceBuffer: boolean
+  isReduceBuffer: boolean,
+  textureFormat: TextureFormatEnum
 ) {
   const renderPasses: RenderPass[] = [];
 
@@ -85,7 +90,8 @@ function createBlurPasses(
         gaussianVariance,
         true,
         resolutionWidthBlur,
-        resolutionHeightBlur
+        resolutionHeightBlur,
+        textureFormat
       );
     } else {
       renderPassBlurH = createRenderPassGaussianBlur(
@@ -96,7 +102,8 @@ function createBlurPasses(
         gaussianVariance,
         true,
         resolutionWidthBlur,
-        resolutionHeightBlur
+        resolutionHeightBlur,
+        textureFormat
       );
     }
     renderPassBlurH.tryToSetUniqueName('renderPassBlurH_' + i, true);
@@ -107,7 +114,8 @@ function createBlurPasses(
       gaussianVariance,
       false,
       resolutionWidthBlur,
-      resolutionHeightBlur
+      resolutionHeightBlur,
+      textureFormat
     );
     renderPassBlurHV.tryToSetUniqueName('renderPassBlurHV_' + i, true);
 
@@ -123,7 +131,8 @@ function createRenderPassGaussianBlur(
   gaussianVariance: number,
   isHorizontal: boolean,
   resolutionWidthBlur: number,
-  resolutionHeightBlur: number
+  resolutionHeightBlur: number,
+  textureFormat: TextureFormatEnum
 ) {
   const material = MaterialHelper.createGaussianBlurMaterial();
 
@@ -151,7 +160,7 @@ function createRenderPassGaussianBlur(
     width: resolutionWidthBlur,
     height: resolutionHeightBlur,
     textureNum: 1,
-    textureFormats: [TextureFormat.RGBA16F],
+    textureFormats: [textureFormat],
     createDepthBuffer: false,
   });
   renderPass.setFramebuffer(framebuffer);
@@ -162,7 +171,8 @@ function createRenderPassGaussianBlur(
 function createRenderPassSynthesizeImage(
   texture: AbstractTexture,
   renderPassesBlurredHighLuminance: RenderPass[],
-  synthesizeCoefficient: [number, number, number, number, number, number]
+  synthesizeCoefficient: [number, number, number, number, number, number],
+  textureFormat: TextureFormatEnum
 ) {
   const texturesSynthesize = [texture] as AbstractTexture[]; // original texture
   for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
@@ -187,7 +197,7 @@ function createRenderPassSynthesizeImage(
     width: texture.width,
     height: texture.height,
     textureNum: 1,
-    textureFormats: [TextureFormat.RGBA16F],
+    textureFormats: [textureFormat],
     createDepthBuffer: false,
   });
   renderPassSynthesizeBlur.setFramebuffer(framebufferSynthesizeImages);
