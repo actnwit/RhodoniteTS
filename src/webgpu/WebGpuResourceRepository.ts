@@ -2880,12 +2880,31 @@ export class WebGpuResourceRepository
   /**
    * attach the ColorBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
-    index: Index,
+    attachmentIndex: Index,
     renderable: IRenderable
+  ) {
+    return;
+  }
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param renderable a ColorBuffer
+   * @param layerIndex a layer index
+   * @param mipLevel a mip level
+   */
+  attachColorBufferLayerToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    renderable: IRenderable,
+    layerIndex: Index,
+    mipLevel: Index
   ) {
     return;
   }
