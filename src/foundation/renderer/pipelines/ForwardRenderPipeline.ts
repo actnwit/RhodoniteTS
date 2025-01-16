@@ -691,7 +691,7 @@ export class ForwardRenderPipeline extends RnObject {
       webXRSystem.isWebXRMode &&
       cgApiResourceRepository.isSupportMultiViewVRRendering()
     ) {
-      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArray({
+      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView({
         width: canvasWidth / 2,
         height: canvasHeight,
         arrayLength: 2,

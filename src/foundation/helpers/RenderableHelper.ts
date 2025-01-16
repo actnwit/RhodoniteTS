@@ -110,6 +110,37 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
     type: desc.type,
     arrayLength: desc.arrayLength,
   });
+  frameBuffer.setColorAttachmentLayerAt(0, renderTargetTexture, 0, 0);
+
+  return frameBuffer;
+}
+
+export interface FrameBufferTextureArrayForMultiViewDescriptor {
+  width: number;
+  height: number;
+  arrayLength: number;
+  level: number;
+  internalFormat: TextureFormatEnum;
+  format: PixelFormatEnum;
+  type: ComponentTypeEnum;
+}
+
+function createFrameBufferTextureArrayForMultiView(
+  desc: FrameBufferTextureArrayForMultiViewDescriptor
+) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(desc.width, desc.height);
+
+  const renderTargetTexture = new RenderTargetTexture();
+  renderTargetTexture.createTextureArray({
+    width: desc.width,
+    height: desc.height,
+    level: desc.level,
+    internalFormat: desc.internalFormat,
+    format: desc.format,
+    type: desc.type,
+    arrayLength: desc.arrayLength,
+  });
   frameBuffer.setColorAttachmentAt(0, renderTargetTexture);
 
   const renderTargetDepthStencilTexture = new RenderTargetTexture();
@@ -180,6 +211,7 @@ export const RenderableHelper = Object.freeze({
   createFrameBuffer,
   createFrameBufferMSAA,
   createFrameBufferTextureArray,
+  createFrameBufferTextureArrayForMultiView,
   createFrameBufferCubeMap,
   createDepthBuffer,
 });
