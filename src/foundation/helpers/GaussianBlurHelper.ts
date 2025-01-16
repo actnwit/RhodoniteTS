@@ -3,6 +3,7 @@ import { MathUtil } from '../math/MathUtil';
 import { Vector2 } from '../math/Vector2';
 import { VectorN } from '../math/VectorN';
 import { Expression } from '../renderer/Expression';
+import { FrameBuffer } from '../renderer/FrameBuffer';
 import { RenderPass } from '../renderer/RenderPass';
 import { AbstractTexture } from '../textures/AbstractTexture';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
@@ -19,6 +20,8 @@ function createGaussianBlurExpression({
     synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
     isReduceBuffer = true,
     textureFormat = TextureFormat.RGBA16F,
+    outputFrameBuffer = undefined,
+    outputFrameBufferLayerIndex = 0,
   },
 }: {
   textureToBlur: AbstractTexture;
@@ -29,6 +32,8 @@ function createGaussianBlurExpression({
     synthesizeCoefficient?: [number, number, number, number, number, number];
     isReduceBuffer?: boolean;
     textureFormat?: TextureFormatEnum;
+    outputFrameBuffer?: FrameBuffer;
+    outputFrameBufferLayerIndex?: number;
   };
 }) {
   const renderPassesBlurred = createBlurPasses(
@@ -47,7 +52,9 @@ function createGaussianBlurExpression({
     textureToBlur,
     renderPassesBlurred,
     synthesizeCoefficient,
-    textureFormat
+    textureFormat,
+    outputFrameBuffer,
+    outputFrameBufferLayerIndex
   );
 
   // Setup Expression
@@ -172,7 +179,9 @@ function createRenderPassSynthesizeImage(
   texture: AbstractTexture,
   renderPassesBlurredHighLuminance: RenderPass[],
   synthesizeCoefficient: [number, number, number, number, number, number],
-  textureFormat: TextureFormatEnum
+  textureFormat: TextureFormatEnum,
+  outputFrameBuffer?: FrameBuffer,
+  outputFrameBufferLayerIndex?: number
 ) {
   const texturesSynthesize = [texture] as AbstractTexture[]; // original texture
   for (let i = 1; i < renderPassesBlurredHighLuminance.length; i += 2) {
@@ -193,14 +202,26 @@ function createRenderPassSynthesizeImage(
     materialSynthesizeTextures
   );
   renderPassSynthesizeBlur.tryToSetUniqueName('renderPassSynthesizeBlur', true);
-  const framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
-    width: texture.width,
-    height: texture.height,
-    textureNum: 1,
-    textureFormats: [textureFormat],
-    createDepthBuffer: false,
-  });
+  const framebufferSynthesizeImages =
+    outputFrameBuffer ??
+    RenderableHelper.createFrameBuffer({
+      width: texture.width,
+      height: texture.height,
+      textureNum: 1,
+      textureFormats: [textureFormat],
+      createDepthBuffer: false,
+    });
   renderPassSynthesizeBlur.setFramebuffer(framebufferSynthesizeImages);
+  if (outputFrameBuffer != null) {
+    renderPassSynthesizeBlur.setPreRenderFunction(() => {
+      outputFrameBuffer.setColorAttachmentLayerAt(
+        0,
+        framebufferSynthesizeImages.getColorAttachedRenderTargetTexture(0)!,
+        outputFrameBufferLayerIndex!,
+        0
+      );
+    });
+  }
 
   return renderPassSynthesizeBlur;
 }
