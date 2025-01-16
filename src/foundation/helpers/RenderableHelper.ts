@@ -112,7 +112,7 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
   });
   frameBuffer.setColorAttachmentLayerAt(0, renderTargetTexture, 0, 0);
 
-  return frameBuffer;
+  return [frameBuffer, renderTargetTexture];
 }
 
 export interface FrameBufferTextureArrayForMultiViewDescriptor {
