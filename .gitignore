@@ -96,3 +96,5 @@ samples/**/main.js*
 samples/**/types.js*
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js
 samples/test_e2e/PointLightShadowMap/PointShadowMap.js.map
+samples/test_e2e/MultipleLightsShadowMap/PointShadowMap.js
+samples/test_e2e/MultipleLightsShadowMap/PointShadowMap.js.map
