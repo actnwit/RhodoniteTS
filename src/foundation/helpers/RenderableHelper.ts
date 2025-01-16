@@ -96,7 +96,9 @@ export interface FrameBufferTextureArrayDescriptor {
   type: ComponentTypeEnum;
 }
 
-function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) {
+function createFrameBufferTextureArray(
+  desc: FrameBufferTextureArrayDescriptor
+): [FrameBuffer, RenderTargetTexture] {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(desc.width, desc.height);
 
