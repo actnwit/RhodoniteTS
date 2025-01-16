@@ -76,8 +76,6 @@ TEST-results.xml
 .rpt2_cache
 *.tgz
 VERSION-FILE
-samples/**/main.js*
-samples/**/types.js*
 !vendor/effekseer.d.ts
 
 # VSCode
@@ -92,3 +90,9 @@ actions-runner
 
 vendor/hdrpngts.js
 vendor/hdrpngts.js.map
+
+# Samples
+samples/**/main.js*
+samples/**/types.js*
+samples/test_e2e/PointLightShadowMap/PointShadowMap.js
+samples/test_e2e/PointLightShadowMap/PointShadowMap.js.map

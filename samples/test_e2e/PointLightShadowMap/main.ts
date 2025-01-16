@@ -1,5 +1,5 @@
 import Rn from '../../../dist/esmdev/index.js';
-
+import { PointShadowMap } from './PointShadowMap.js';
 const p = document.createElement('p');
 document.body.appendChild(p);
 
@@ -36,13 +36,14 @@ const backgroundEntity = createBackground();
 
 // Expression
 const shadowMapExpression = new Rn.Expression();
-const shadowMomentFramebuffer = setupShadowMapRenderPasses(shadowMapExpression, [
-  groupEntity,
-  backgroundEntity,
-]);
+const pointShadowMap = new PointShadowMap();
+const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
+shadowMapExpression.addRenderPasses(renderPasses);
 const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
   Rn.GaussianBlurHelper.createGaussianBlurExpression({
-    textureToBlur: shadowMomentFramebuffer.getColorAttachedRenderTargetTexture(0)!,
+    textureToBlur: pointShadowMap
+      .getShadowMomentFramebuffer()
+      .getColorAttachedRenderTargetTexture(0)!,
     parameters: {
       blurPassLevel: 4,
       gaussianKernelSize: 10,
@@ -111,44 +112,6 @@ function setParaboloidBlurredShadowMap(
       }
     }
   }
-}
-
-function setupShadowMapRenderPasses(
-  shadowMapExpression: Rn.Expression,
-  entities: Rn.ISceneGraphEntity[]
-) {
-  const shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
-    width: 1024,
-    height: 1024,
-    textureNum: 1,
-    textureFormats: [Rn.TextureFormat.RGBA16F],
-    createDepthBuffer: true,
-    depthTextureFormat: Rn.TextureFormat.Depth32F,
-  });
-  const shadowMomentFrontMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
-  shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
-  shadowMomentFrontMaterial.cullFace = false;
-  const shadowMomentFrontRenderPass = new Rn.RenderPass();
-  shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
-  shadowMomentFrontRenderPass.toClearColorBuffer = true;
-  shadowMomentFrontRenderPass.toClearDepthBuffer = true;
-  shadowMomentFrontRenderPass.addEntities(entities);
-  shadowMomentFrontRenderPass.setFramebuffer(shadowMomentFramebuffer);
-  shadowMomentFrontRenderPass.setMaterial(shadowMomentFrontMaterial);
-  shadowMapExpression.addRenderPasses([shadowMomentFrontRenderPass]);
-
-  const shadowMomentBackMaterial = Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
-  shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
-  shadowMomentBackMaterial.setParameter('frontHemisphere', false);
-  const shadowMomentBackRenderPass = new Rn.RenderPass();
-  shadowMomentBackRenderPass.toClearColorBuffer = false;
-  shadowMomentBackRenderPass.toClearDepthBuffer = true;
-  shadowMomentBackRenderPass.addEntities(entities);
-  shadowMomentBackRenderPass.setFramebuffer(shadowMomentFramebuffer);
-  shadowMomentBackRenderPass.setMaterial(shadowMomentBackMaterial);
-  shadowMapExpression.addRenderPasses([shadowMomentBackRenderPass]);
-
-  return shadowMomentFramebuffer;
 }
 
 function createObjects() {
