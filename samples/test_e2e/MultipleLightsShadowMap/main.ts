@@ -76,6 +76,7 @@ const {
     gaussianVariance: 5,
     synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
     isReduceBuffer: true,
+    textureFormat: Rn.TextureFormat.RG16F,
   },
 });
 
@@ -215,7 +216,7 @@ function setupSpotLightShadowMapRenderPasses(
     width: 1024,
     height: 1024,
     textureNum: 1,
-    textureFormats: [Rn.TextureFormat.RGBA16F],
+    textureFormats: [Rn.TextureFormat.RG16F],
     createDepthBuffer: true,
     depthTextureFormat: Rn.TextureFormat.Depth32F,
   });

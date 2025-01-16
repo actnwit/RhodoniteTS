@@ -59,6 +59,7 @@ const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
       gaussianVariance: 10,
       synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
       isReduceBuffer: true,
+      textureFormat: Rn.TextureFormat.RGBA16F,
     },
   });
 
