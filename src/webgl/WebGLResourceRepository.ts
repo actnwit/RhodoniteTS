@@ -613,6 +613,12 @@ export class WebGLResourceRepository
     } else if (info.compositionType === CompositionType.Mat4) {
       setAsMatrix = true;
       componentNumber = 4;
+    } else if (info.compositionType === CompositionType.Mat3Array) {
+      setAsMatrix = true;
+      componentNumber = 3;
+    } else if (info.compositionType === CompositionType.Mat4Array) {
+      setAsMatrix = true;
+      componentNumber = 4;
     } else {
       componentNumber = info.compositionType!.getNumberOfComponents();
     }

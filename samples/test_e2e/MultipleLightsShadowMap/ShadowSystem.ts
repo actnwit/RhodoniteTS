@@ -1,6 +1,6 @@
 import { PointShadowMap } from './PointShadowMap.js';
 import { ShadowMap } from './ShadowMap.js';
-import Rn from '../../../dist/esmdev/index.js';
+import Rn, { LightComponent } from '../../../dist/esmdev/index.js';
 
 export class ShadowSystem {
   private __shadowMap: ShadowMap;
@@ -204,19 +204,33 @@ export class ShadowSystem {
     }
   }
 
-  public setDepthBiasPV(
-    lightEntity: Rn.ISceneGraphEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods,
-    entities: Rn.ISceneGraphEntity[]
-  ) {
+  public setDepthBiasPV(entities: Rn.ISceneGraphEntity[]) {
+    const float32Array = new Float32Array(Rn.Config.shadowMapTextureArrayLength * 16);
+
+    const lightComponents = Rn.ComponentRepository.getComponentsWithType(
+      Rn.LightComponent
+    ) as Rn.LightComponent[];
+
+    for (let i = 0; i < lightComponents.length; i++) {
+      const lightComponent = lightComponents[i];
+      const lightEntity = lightComponent.entity as Rn.ISceneGraphEntity &
+        Rn.ILightEntityMethods &
+        Rn.ICameraEntityMethods;
+      if (
+        lightComponent.type === Rn.LightType.Directional ||
+        lightComponent.type === Rn.LightType.Spot
+      ) {
+        const biasViewProjectionMatrix = lightEntity.getCamera().biasViewProjectionMatrix;
+        float32Array.set(biasViewProjectionMatrix._v, i * 16);
+      }
+    }
+
     for (const entity of entities) {
       const meshComponent = entity.tryToGetMesh();
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setParameter(
-            'depthBiasPV',
-            lightEntity.getCamera().biasViewProjectionMatrix
-          );
+          primitive.material.setParameter('depthBiasPV', new Rn.VectorN(float32Array));
         }
       }
     }
