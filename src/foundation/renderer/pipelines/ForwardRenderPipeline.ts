@@ -23,7 +23,7 @@ import {
   ToneMappingType,
   ToneMappingTypeEnum,
 } from '../../definitions';
-import { BloomHelper, RenderPassHelper } from '../../helpers';
+import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
 import { SystemState } from '../../system';
@@ -32,6 +32,7 @@ import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
 import { Material } from '../../materials/core/Material';
 import { TextureFormat } from '../../definitions/TextureFormat';
+import { Bloom } from '../../helpers/BloomHelper';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -114,7 +115,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oSpecularCubeTexture: Option<CubeTexture> = new None();
   private __oSamplerForBackBuffer: Option<Sampler> = new None();
   private __toneMappingType = ToneMappingType.GT_ToneMap;
-
+  private __bloomHelper: Bloom = new Bloom();
   constructor() {
     super();
   }
@@ -222,7 +223,7 @@ export class ForwardRenderPipeline extends RnObject {
         const textureToBloom = frameBufferToBloom
           .unwrapForce()
           .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture;
-        const { bloomExpression, bloomedRenderTarget } = BloomHelper.createBloomExpression({
+        const { bloomExpression, bloomedRenderTarget } = this.__bloomHelper.createBloomExpression({
           textureToBloom,
           parameters: {},
         });
