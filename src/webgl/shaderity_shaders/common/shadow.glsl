@@ -36,8 +36,8 @@ float varianceShadowContributionParaboloid(vec3 worldPos, vec3 lightPos, float f
   vec2 uv = (Lnorm.xy / denom) * uvScale * 0.5 + 0.5;
 
   vec2 storedMoments = isFront
-      ? texture(u_paraboloidDepthTexture, uv).rg
-      : texture(u_paraboloidDepthTexture, uv).ba;
+      ? texture(u_paraboloidDepthTexture, vec3(uv, 0)).rg
+      : texture(u_paraboloidDepthTexture, vec3(uv, 0)).ba;
       // : vec2(texture(u_paraboloidDepthTexture, uv).b, sq(texture(u_paraboloidDepthTexture, uv).b));
       // : vec2(sqrt(texture(u_paraboloidDepthTexture, uv).a), texture(u_paraboloidDepthTexture, uv).a);
 

@@ -1,3 +1,5 @@
+precision highp sampler2DArray;
+
 const float Epsilon = 0.0000001;
 #define saturateEpsilonToOne(x) clamp(x, Epsilon, 1.0)
 

@@ -50,7 +50,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const resourceUid = cgApiResourceRepository.createTextureArray(
       1,
       1,
-      100,
+      10,
       1,
       TextureFormat.RGBA8,
       PixelFormat.RGBA,
