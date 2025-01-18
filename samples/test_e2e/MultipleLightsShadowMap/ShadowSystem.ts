@@ -43,12 +43,20 @@ export class ShadowSystem {
     const expressions = [];
     const shadowMapExpression = new Rn.Expression();
     expressions.push(shadowMapExpression);
+    const depthTextureIndexList = [];
 
+    let depthTextureCount = 0;
+    let pointDepthTextureCount = 0;
     const lightComponents = Rn.ComponentRepository.getComponentsWithType(
       Rn.LightComponent
     ) as Rn.LightComponent[];
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
+
+      if (!(lightComponent.enable && lightComponent.castShadow)) {
+        depthTextureIndexList.push(-1);
+        continue;
+      }
 
       if (lightComponent.type === Rn.LightType.Point) {
         shadowMapExpression.addRenderPasses(this.__pointShadowMap.getRenderPasses(entities));
@@ -68,12 +76,17 @@ export class ShadowSystem {
             isReduceBuffer: false,
             textureFormat: Rn.TextureFormat.RGBA16F,
             outputFrameBuffer: this.__pointShadowMapArrayFramebuffer,
-            outputFrameBufferLayerIndex: 0,
+            outputFrameBufferLayerIndex: pointDepthTextureCount,
           },
         });
         this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities);
         expressions.push(blurExpressionPointLight);
-      } else {
+        depthTextureIndexList.push(pointDepthTextureCount);
+        pointDepthTextureCount++;
+      } else if (
+        lightComponent.type === Rn.LightType.Spot ||
+        lightComponent.type === Rn.LightType.Directional
+      ) {
         shadowMapExpression.addRenderPasses(
           this.__shadowMap.getRenderPasses(
             entities,
@@ -98,13 +111,19 @@ export class ShadowSystem {
             isReduceBuffer: true,
             textureFormat: Rn.TextureFormat.RG16F,
             outputFrameBuffer: this.__shadowMapArrayFramebuffer,
-            outputFrameBufferLayerIndex: 0,
+            outputFrameBufferLayerIndex: depthTextureCount,
           },
         });
-        expressions.push(blurExpressionSpotLight);
         this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities);
+        expressions.push(blurExpressionSpotLight);
+        depthTextureIndexList.push(depthTextureCount);
+        depthTextureCount++;
+      } else {
+        depthTextureIndexList.push(-1);
       }
     }
+
+    this.__setDepthTextureIndexList(entities, depthTextureIndexList);
 
     return expressions;
   }
@@ -155,6 +174,24 @@ export class ShadowSystem {
             sampler
           );
           primitive.material.setParameter('pointLightShadowMapUvScale', 0.93);
+        }
+      }
+    }
+  }
+
+  private __setDepthTextureIndexList(
+    entities: Rn.ISceneGraphEntity[],
+    depthTextureIndexList: number[]
+  ) {
+    for (const entity of entities) {
+      const meshComponent = entity.tryToGetMesh();
+      if (meshComponent != null && meshComponent.mesh != null) {
+        for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
+          const primitive = meshComponent.mesh.getPrimitiveAt(i);
+          primitive.material.setParameter(
+            'depthTextureIndexList',
+            new Rn.VectorN(new Int32Array(depthTextureIndexList))
+          );
         }
       }
     }

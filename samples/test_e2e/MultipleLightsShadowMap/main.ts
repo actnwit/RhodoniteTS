@@ -20,6 +20,7 @@ pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   pointLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight.getLight().type = Rn.LightType.Point;
+pointLight.getLight().castShadow = true;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());
@@ -39,7 +40,7 @@ spotLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   spotLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
 spotLight.getCamera().isSyncToLight = true;
-
+spotLight.getLight().castShadow = true;
 spotLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 spotLight.getLight().type = Rn.LightType.Spot;
 spotLight.getLight().range = 1000.0;
@@ -57,8 +58,8 @@ mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
 const shadowSystem = new ShadowSystem();
-const [shadowMapExpression, blurExpressionSpotLight, blurExpressionPointLight] =
-  shadowSystem.getExpressions([groupEntity, backgroundEntity]);
+const shadowExpressions = shadowSystem.getExpressions([groupEntity, backgroundEntity]);
+shadowSystem.getExpressions([groupEntity, backgroundEntity]);
 
 const mainExpression = new Rn.Expression();
 const mainRenderPass = new Rn.RenderPass();
@@ -81,13 +82,7 @@ Rn.System.startRenderLoop(() => {
     angle += 0.01;
   }
   shadowSystem.setDepthBiasPV(spotLight, [groupEntity, backgroundEntity]);
-  Rn.System.process([
-    shadowMapExpression,
-    blurExpressionSpotLight,
-    blurExpressionPointLight,
-    mainExpression,
-  ]);
-  // Rn.System.process([shadowMapExpression, mainExpression]);
+  Rn.System.process([...shadowExpressions, mainExpression]);
 
   count++;
 });
