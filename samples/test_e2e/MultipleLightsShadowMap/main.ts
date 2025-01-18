@@ -41,7 +41,7 @@ pointGroupEntity2.addChild(pointLight2.getSceneGraph());
 pointGroupEntity2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
 pointLight2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 0]);
 
-// Spot Light
+// Spot Light 1
 let spotLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity &
   Rn.ILightEntityMethods &
   Rn.ICameraEntityMethods;
@@ -62,6 +62,27 @@ spotLight.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
 spotLight.localEulerAngles = Rn.Vector3.fromCopy3(-Math.PI / 2, 0, 0);
 spotLight.localPosition = Rn.Vector3.fromCopy3(0.0, 6.0, 0.0);
 
+// Spot Light 2
+let spotLight2 = Rn.MeshHelper.createSphere() as Rn.IMeshEntity &
+  Rn.ILightEntityMethods &
+  Rn.ICameraEntityMethods;
+spotLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+  Rn.WellKnownComponentTIDs.LightComponentTID,
+  spotLight2
+) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
+spotLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+  Rn.WellKnownComponentTIDs.CameraComponentTID,
+  spotLight2
+) as Rn.IMeshEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods;
+spotLight2.getCamera().isSyncToLight = true;
+spotLight2.getLight().castShadow = true;
+spotLight2.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
+spotLight2.getLight().type = Rn.LightType.Spot;
+spotLight2.getLight().range = 1000.0;
+spotLight2.getLight().outerConeAngle = Rn.MathUtil.degreeToRadian(120);
+spotLight2.localEulerAngles = Rn.Vector3.fromCopy3(Math.PI / 2, 0, 0);
+spotLight2.localPosition = Rn.Vector3.fromCopy3(0.0, -6.0, 0.0);
+
 // Main Camera
 const mainCameraEntity = Rn.createCameraControllerEntity();
 mainCameraEntity.localPosition = Rn.Vector3.fromCopyArray([0, 0, 10]);
@@ -81,7 +102,14 @@ mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.cameraComponent = mainCameraEntity.getCamera();
-mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight, pointLight2, spotLight]);
+mainRenderPass.addEntities([
+  groupEntity,
+  backgroundEntity,
+  pointLight,
+  pointLight2,
+  spotLight,
+  spotLight2,
+]);
 mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
