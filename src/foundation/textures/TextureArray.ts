@@ -1,4 +1,5 @@
 import { CGAPIResourceHandle } from '../../types/CommonTypes';
+import { Config } from '../core/Config';
 import { ComponentType } from '../definitions/ComponentType';
 import { PixelFormat } from '../definitions/PixelFormat';
 import { TextureFormat } from '../definitions/TextureFormat';
@@ -50,7 +51,7 @@ export class TextureArray extends AbstractTexture implements Disposable {
     const resourceUid = cgApiResourceRepository.createTextureArray(
       1,
       1,
-      10,
+      Config.shadowMapTextureArrayLength,
       1,
       TextureFormat.RGBA8,
       PixelFormat.RGBA,
