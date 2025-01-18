@@ -191,7 +191,11 @@ export class ForwardRenderPipeline extends RnObject {
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
-      if (isShadow && !this.__isSimple) {
+      if (
+        isShadow &&
+        !this.__isSimple &&
+        SystemState.currentProcessApproach !== ProcessApproach.WebGPU
+      ) {
         this.__oShadowSystem = new Some(new ShadowSystem(shadowMapSize));
       }
 

@@ -94,9 +94,5 @@ fn main(
     output.position = vec4f(0.0, 0.0, 0.0, 1.0);
   }
 
-#ifdef RN_USE_SHADOW_MAPPING
-  output.shadowCoord = get_depthBiasPV(materialSID, 0) * geom.position_inWorld;
-#endif
-
   return output;
 }
