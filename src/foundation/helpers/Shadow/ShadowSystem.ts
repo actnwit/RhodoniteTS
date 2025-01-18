@@ -4,7 +4,7 @@ import { LightComponent } from '../../components/Light/LightComponent';
 import { ComponentRepository } from '../../core/ComponentRepository';
 import { Config } from '../../core/Config';
 import { ComponentType } from '../../definitions/ComponentType';
-import { LightType } from '../../definitions/LightType';
+import { LightType, LightTypeEnum } from '../../definitions/LightType';
 import { PixelFormat } from '../../definitions/PixelFormat';
 import { TextureFormat } from '../../definitions/TextureFormat';
 import { TextureParameter } from '../../definitions/TextureParameter';
@@ -25,16 +25,19 @@ export class ShadowSystem {
   private __gaussianBlur: GaussianBlur;
   private __shadowMapArrayFramebuffer: FrameBuffer;
   private __pointShadowMapArrayFramebuffer: FrameBuffer;
+  private __lightTypes: LightTypeEnum[] = [];
+  private __lightEnables: boolean[] = [];
+  private __lightCastShadows: boolean[] = [];
 
-  constructor() {
+  constructor(shadowMapSize: number) {
     this.__shadowMap = new ShadowMap();
     this.__pointShadowMap = new PointShadowMap();
     this.__gaussianBlur = new GaussianBlur();
 
     const [shadowMapArrayFramebuffer, shadowMapArrayRenderTargetTexture] =
       RenderableHelper.createFrameBufferTextureArray({
-        width: 1024,
-        height: 1024,
+        width: shadowMapSize,
+        height: shadowMapSize,
         arrayLength: Config.shadowMapTextureArrayLength,
         level: 0,
         internalFormat: TextureFormat.RG16F,
@@ -45,8 +48,8 @@ export class ShadowSystem {
 
     const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
       RenderableHelper.createFrameBufferTextureArray({
-        width: 1024,
-        height: 1024,
+        width: shadowMapSize,
+        height: shadowMapSize,
         arrayLength: Config.shadowMapTextureArrayLength,
         level: 0,
         internalFormat: TextureFormat.RGBA16F,
@@ -67,6 +70,9 @@ export class ShadowSystem {
     ) as LightComponent[];
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
+      this.__lightTypes[i] = lightComponent.type;
+      this.__lightEnables[i] = lightComponent.enable;
+      this.__lightCastShadows[i] = lightComponent.castShadow;
 
       if (!(lightComponent.enable && lightComponent.castShadow)) {
         depthTextureIndexList.push(-1);
@@ -232,8 +238,11 @@ export class ShadowSystem {
         ILightEntityMethods &
         ICameraEntityMethods;
       if (lightComponent.type === LightType.Directional || lightComponent.type === LightType.Spot) {
-        const biasViewProjectionMatrix = lightEntity.getCamera().biasViewProjectionMatrix;
-        float32Array.set(biasViewProjectionMatrix._v, i * 16);
+        const cameraComponent = lightEntity.tryToGetCamera();
+        if (cameraComponent != null) {
+          const biasViewProjectionMatrix = cameraComponent.biasViewProjectionMatrix;
+          float32Array.set(biasViewProjectionMatrix._v, i * 16);
+        }
       }
     }
 
@@ -246,5 +255,27 @@ export class ShadowSystem {
         }
       }
     }
+  }
+
+  public isLightChanged() {
+    const lightComponents = ComponentRepository.getComponentsWithType(
+      LightComponent
+    ) as LightComponent[];
+
+    if (this.__lightTypes.length !== lightComponents.length) {
+      return true;
+    }
+
+    for (let i = 0; i < lightComponents.length; i++) {
+      const lightComponent = lightComponents[i];
+      if (
+        this.__lightTypes[i] !== lightComponent.type ||
+        this.__lightEnables[i] !== lightComponent.enable ||
+        this.__lightCastShadows[i] !== lightComponent.castShadow
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 }

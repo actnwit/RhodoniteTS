@@ -8,7 +8,7 @@ declare const window: any;
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.Logger.logLevel = Rn.LogLevel.Debug;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.Uniform,
+  approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
@@ -91,7 +91,7 @@ const groupEntity = createObjects();
 mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
-const shadowSystem = new Rn.ShadowSystem();
+const shadowSystem = new Rn.ShadowSystem(1024);
 const shadowExpressions = shadowSystem.getExpressions([groupEntity, backgroundEntity]);
 
 const mainExpression = new Rn.Expression();
