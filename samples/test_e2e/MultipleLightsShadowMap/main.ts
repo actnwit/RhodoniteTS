@@ -61,6 +61,16 @@ const backgroundEntity = createBackground();
 const shadowMapExpression = new Rn.Expression();
 
 // SpotLight shadow map pass
+const [shadowMapArrayFramebuffer, shadowMapArrayRenderTargetTexture] =
+  Rn.RenderableHelper.createFrameBufferTextureArray({
+    width: 1024,
+    height: 1024,
+    arrayLength: 1,
+    level: 0,
+    internalFormat: Rn.TextureFormat.RG16F,
+    format: Rn.PixelFormat.RG,
+    type: Rn.ComponentType.Float,
+  });
 const shadowMap = new ShadowMap();
 shadowMapExpression.addRenderPasses(
   shadowMap.getRenderPasses([groupEntity, backgroundEntity], spotLight)
@@ -80,6 +90,8 @@ const {
     synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
     isReduceBuffer: true,
     textureFormat: Rn.TextureFormat.RG16F,
+    outputFrameBuffer: shadowMapArrayFramebuffer,
+    outputFrameBufferLayerIndex: 0,
   },
 });
 
