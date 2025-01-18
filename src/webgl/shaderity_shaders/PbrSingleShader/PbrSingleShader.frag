@@ -386,13 +386,13 @@ void main ()
                         iridescence, iridescenceFresnel, specular);
 
   #ifdef RN_USE_SHADOW_MAPPING
-    int depthTextureIndex = get_depthTextureIndexList(materialSID, 0);
-    if (light.type == 1) { // Point Light
+    int depthTextureIndex = get_depthTextureIndexList(materialSID, i);
+    if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
       float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
       float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
       float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;
-    } else {
+    } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
       float bias = 0.001;
       vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
       vec3 lightDirection = normalize(get_lightDirection(0.0, i));
