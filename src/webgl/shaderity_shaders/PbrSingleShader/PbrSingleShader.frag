@@ -386,10 +386,11 @@ void main ()
                         iridescence, iridescenceFresnel, specular);
 
   #ifdef RN_USE_SHADOW_MAPPING
+    int depthTextureIndex = get_depthTextureIndexList(materialSID, 0);
     if (light.type == 1) { // Point Light
       float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
       float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
-      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale);
+      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;
     } else {
       float bias = 0.001;
@@ -399,7 +400,7 @@ void main ()
       float dotProduct = dot(lightPosToWorldPos, lightDirection);
       float shadowContribution = 1.0;
       if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-        shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
+        shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w, depthTextureIndex);
       }
       lighting *= shadowContribution;
     }

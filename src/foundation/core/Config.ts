@@ -28,6 +28,7 @@ let physicsTimeIntervalScale = 1;
 let vrmSpringBoneBonAxisCoeff = 0.5;
 let vrmSpringBoneToCoeff = 0.4;
 let isMobile = false;
+let shadowMapTextureArrayLength = 10;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
@@ -63,4 +64,5 @@ export const Config = {
   vrmSpringBoneBonAxisCoeff,
   vrmSpringBoneToCoeff,
   isMobile,
+  shadowMapTextureArrayLength,
 };
