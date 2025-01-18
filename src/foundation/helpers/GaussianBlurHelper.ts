@@ -165,15 +165,22 @@ export class GaussianBlur {
       materialSynthesizeTextures
     );
     renderPassSynthesizeBlur.tryToSetUniqueName('renderPassSynthesizeBlur', true);
-    const framebufferSynthesizeImages =
-      outputFrameBuffer ??
-      RenderableHelper.createFrameBuffer({
-        width: texture.width,
-        height: texture.height,
-        textureNum: 1,
-        textureFormats: [textureFormat],
-        createDepthBuffer: false,
-      });
+
+    let framebufferSynthesizeImages = outputFrameBuffer;
+    if (framebufferSynthesizeImages == null) {
+      const key = `${texture.width}x${texture.height}_${textureFormat.str}`;
+      framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);
+      if (framebufferSynthesizeImages == null) {
+        framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+          width: texture.width,
+          height: texture.height,
+          textureNum: 1,
+          textureFormats: [textureFormat],
+          createDepthBuffer: false,
+        });
+        this.__mapSynthesizeFramebuffer.set(key, framebufferSynthesizeImages);
+      }
+    }
     renderPassSynthesizeBlur.setFramebuffer(framebufferSynthesizeImages);
     if (outputFrameBuffer != null) {
       renderPassSynthesizeBlur.setPreRenderFunction(() => {
@@ -223,15 +230,31 @@ export class GaussianBlur {
       textureToBlur
     );
 
-    const framebuffer = RenderableHelper.createFrameBuffer({
-      width: resolutionWidthBlur,
-      height: resolutionHeightBlur,
-      textureNum: 1,
-      textureFormats: [textureFormat],
-      createDepthBuffer: false,
-    });
+    const key = `${resolutionWidthBlur}x${resolutionHeightBlur}_${textureFormat.str}_${isHorizontal}`;
+    let framebuffer = this.__mapReducedFramebuffer.get(key);
+    if (framebuffer == null) {
+      framebuffer = RenderableHelper.createFrameBuffer({
+        width: resolutionWidthBlur,
+        height: resolutionHeightBlur,
+        textureNum: 1,
+        textureFormats: [textureFormat],
+        createDepthBuffer: false,
+      });
+      this.__mapReducedFramebuffer.set(key, framebuffer);
+    }
     renderPass.setFramebuffer(framebuffer);
 
     return renderPass;
+  }
+
+  public destroy3DAPIResources() {
+    this.__mapReducedFramebuffer.forEach((framebuffer) => {
+      framebuffer.destroy3DAPIResources();
+    });
+    this.__mapSynthesizeFramebuffer.forEach((framebuffer) => {
+      framebuffer.destroy3DAPIResources();
+    });
+    this.__mapReducedFramebuffer.clear();
+    this.__mapSynthesizeFramebuffer.clear();
   }
 }
