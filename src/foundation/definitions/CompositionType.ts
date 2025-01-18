@@ -84,7 +84,8 @@ class CompositionTypeClass<TypeName extends string>
       this === CompositionType.Texture2D ||
       this === CompositionType.Texture2DShadow ||
       this === CompositionType.Texture2DRect ||
-      this === CompositionType.TextureCube
+      this === CompositionType.TextureCube ||
+      this === CompositionType.Texture2DArray
     ) {
       return this.__glslStr;
     } else if (
