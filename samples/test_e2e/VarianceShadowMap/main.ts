@@ -51,6 +51,17 @@ renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial());
 
 const gaussianBlur = new Rn.GaussianBlur();
+const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
+  Rn.RenderableHelper.createFrameBufferTextureArray({
+    width: 1024,
+    height: 1024,
+    arrayLength: 1,
+    level: 0,
+    internalFormat: Rn.TextureFormat.RGBA16F,
+    format: Rn.PixelFormat.RGBA,
+    type: Rn.ComponentType.Float,
+  });
+
 const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
   gaussianBlur.createGaussianBlurExpression({
     textureToBlur: shadowDepthFramebuffer.getColorAttachedRenderTargetTexture(0)!,
@@ -61,6 +72,8 @@ const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
       synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
       isReduceBuffer: true,
       textureFormat: Rn.TextureFormat.RGBA16F,
+      outputFrameBuffer: pointShadowMapArrayFramebuffer,
+      outputFrameBufferLayerIndex: 0,
     },
   });
 

@@ -15,7 +15,7 @@ float chebyshevUpperBound(vec2 moments, float t) {
 }
 
 float varianceShadowContribution(vec2 lightTexCoord, float distanceToLight) {
-  vec2 moments = texture(u_depthTexture, lightTexCoord).xy;
+  vec2 moments = texture(u_depthTexture, vec3(lightTexCoord, 0)).xy;
 
   return chebyshevUpperBound(moments, distanceToLight);
 }
