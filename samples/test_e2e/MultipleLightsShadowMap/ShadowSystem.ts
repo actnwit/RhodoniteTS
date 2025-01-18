@@ -18,7 +18,7 @@ export class ShadowSystem {
       Rn.RenderableHelper.createFrameBufferTextureArray({
         width: 1024,
         height: 1024,
-        arrayLength: 1,
+        arrayLength: Rn.Config.shadowMapTextureArrayLength,
         level: 0,
         internalFormat: Rn.TextureFormat.RG16F,
         format: Rn.PixelFormat.RG,
@@ -30,7 +30,7 @@ export class ShadowSystem {
       Rn.RenderableHelper.createFrameBufferTextureArray({
         width: 1024,
         height: 1024,
-        arrayLength: 1,
+        arrayLength: Rn.Config.shadowMapTextureArrayLength,
         level: 0,
         internalFormat: Rn.TextureFormat.RGBA16F,
         format: Rn.PixelFormat.RGBA,
@@ -41,8 +41,6 @@ export class ShadowSystem {
 
   public getExpressions(entities: Rn.ISceneGraphEntity[]) {
     const expressions = [];
-    const shadowMapExpression = new Rn.Expression();
-    expressions.push(shadowMapExpression);
     const depthTextureIndexList = [];
 
     let depthTextureCount = 0;
@@ -59,7 +57,14 @@ export class ShadowSystem {
       }
 
       if (lightComponent.type === Rn.LightType.Point) {
-        shadowMapExpression.addRenderPasses(this.__pointShadowMap.getRenderPasses(entities));
+        const shadowMapExpression = new Rn.Expression();
+        shadowMapExpression.addRenderPasses(
+          this.__pointShadowMap.getRenderPasses(
+            entities,
+            lightComponent.entity as Rn.ISceneGraphEntity & Rn.ILightEntityMethods
+          )
+        );
+        expressions.push(shadowMapExpression);
         const {
           blurExpression: blurExpressionPointLight,
           blurredRenderTarget: blurredRenderTargetPointLight,
@@ -87,6 +92,7 @@ export class ShadowSystem {
         lightComponent.type === Rn.LightType.Spot ||
         lightComponent.type === Rn.LightType.Directional
       ) {
+        const shadowMapExpression = new Rn.Expression();
         shadowMapExpression.addRenderPasses(
           this.__shadowMap.getRenderPasses(
             entities,
@@ -95,6 +101,7 @@ export class ShadowSystem {
               Rn.ICameraEntityMethods
           )
         );
+        expressions.push(shadowMapExpression);
         const {
           blurExpression: blurExpressionSpotLight,
           blurredRenderTarget: blurredRenderTargetSpotLight,

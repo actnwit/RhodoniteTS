@@ -13,7 +13,7 @@ await Rn.System.init({
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
-// Point Light
+// Point Light 1
 let pointLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   Rn.WellKnownComponentTIDs.LightComponentTID,
@@ -26,6 +26,20 @@ const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());
 pointGroupEntity.localPosition = Rn.Vector3.fromCopyArray([2, 0, 2]);
 pointLight.localPosition = Rn.Vector3.fromCopyArray([2, 0, 0]);
+
+// Point Light 2
+let pointLight2 = Rn.MeshHelper.createSphere() as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
+  Rn.WellKnownComponentTIDs.LightComponentTID,
+  pointLight2
+) as Rn.IMeshEntity & Rn.ILightEntityMethods;
+pointLight2.getLight().type = Rn.LightType.Point;
+pointLight2.getLight().castShadow = true;
+pointLight2.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
+const pointGroupEntity2 = Rn.createGroupEntity();
+pointGroupEntity2.addChild(pointLight2.getSceneGraph());
+pointGroupEntity2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 2]);
+pointLight2.localPosition = Rn.Vector3.fromCopyArray([-2, 0, 0]);
 
 // Spot Light
 let spotLight = Rn.MeshHelper.createSphere() as Rn.IMeshEntity &
@@ -67,7 +81,7 @@ mainRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
 mainRenderPass.toClearColorBuffer = true;
 mainRenderPass.toClearDepthBuffer = true;
 mainRenderPass.cameraComponent = mainCameraEntity.getCamera();
-mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight, spotLight]);
+mainRenderPass.addEntities([groupEntity, backgroundEntity, pointLight, pointLight2, spotLight]);
 mainExpression.addRenderPasses([mainRenderPass]);
 
 let count = 0;
@@ -79,6 +93,7 @@ Rn.System.startRenderLoop(() => {
   }
   if (window.isAnimating) {
     rotateObject(pointGroupEntity, angle);
+    rotateObject(pointGroupEntity2, angle / 2);
     angle += 0.01;
   }
   shadowSystem.setDepthBiasPV(spotLight, [groupEntity, backgroundEntity]);
