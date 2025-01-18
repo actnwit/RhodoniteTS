@@ -447,6 +447,28 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
+   * create a TextureArray
+   * @param width
+   * @param height
+   * @param arrayLength
+   * @param mipLevelCount
+   * @param internalFormat
+   * @param format
+   * @param type
+   * @returns texture handle
+   */
+  createTextureArray(
+    width: Size,
+    height: Size,
+    arrayLength: Size,
+    mipLevelCount: Size,
+    internalFormat: TextureFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    imageData: TypedArray
+  ): CGAPIResourceHandle;
+
+  /**
    * delete a Texture
    * @param textureHandle
    */

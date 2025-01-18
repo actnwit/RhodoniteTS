@@ -1229,6 +1229,62 @@ export class WebGLResourceRepository
   }
 
   /**
+   * create a TextureArray
+   * @param width
+   * @param height
+   * @param arrayLength
+   * @param mipLevelCount
+   * @param internalFormat
+   * @param format
+   * @param type
+   * @returns texture handle
+   */
+  createTextureArray(
+    width: Size,
+    height: Size,
+    arrayLength: Size,
+    mipLevelCount: Size,
+    internalFormat: TextureFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    imageData: TypedArray
+  ): CGAPIResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2DArray(15, texture);
+    gl.texStorage3D(
+      gl.TEXTURE_2D_ARRAY,
+      mipLevelCount,
+      internalFormat.index,
+      width,
+      height,
+      arrayLength
+    );
+
+    for (let layer = 0; layer < 100; layer++) {
+      gl.texSubImage3D(
+        gl.TEXTURE_2D_ARRAY,
+        0, // Mipmap Level
+        0, // x Offset
+        0, // y Offset
+        layer, // z Offset
+        width,
+        height,
+        1, // depth
+        format.index,
+        type.index,
+        imageData
+      );
+    }
+
+    this.__glw!.unbindTexture2DArray(15);
+
+    return resourceHandle;
+  }
+
+  /**
    * allocate a Texture
    * @param format - the internal format of the texture
    * @param width - the width of the texture
@@ -1896,7 +1952,7 @@ export class WebGLResourceRepository
 
     this.__glw!.bindTexture2DArray(15, texture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, internalFormat.index, width, height, arrayLength);
-
+    this.__glw!.unbindTexture2DArray(15);
     return resourceHandle;
   }
 
