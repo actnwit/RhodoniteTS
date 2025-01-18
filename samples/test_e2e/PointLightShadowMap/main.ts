@@ -35,6 +35,16 @@ mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
 // Expression
+const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
+  Rn.RenderableHelper.createFrameBufferTextureArray({
+    width: 1024,
+    height: 1024,
+    arrayLength: 1,
+    level: 0,
+    internalFormat: Rn.TextureFormat.RGBA16F,
+    format: Rn.PixelFormat.RGBA,
+    type: Rn.ComponentType.Float,
+  });
 const shadowMapExpression = new Rn.Expression();
 const pointShadowMap = new PointShadowMap();
 const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
@@ -50,6 +60,8 @@ const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
       gaussianVariance: 10,
       synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
       isReduceBuffer: false,
+      outputFrameBuffer: pointShadowMapArrayFramebuffer,
+      outputFrameBufferLayerIndex: 0,
     },
   });
 

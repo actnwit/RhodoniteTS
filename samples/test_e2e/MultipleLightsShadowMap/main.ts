@@ -82,6 +82,17 @@ const {
 });
 
 // PointLight shadow map passes
+const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
+  Rn.RenderableHelper.createFrameBufferTextureArray({
+    width: 1024,
+    height: 1024,
+    arrayLength: 1,
+    level: 0,
+    internalFormat: Rn.TextureFormat.RGBA16F,
+    format: Rn.PixelFormat.RGBA,
+    type: Rn.ComponentType.Float,
+  });
+
 const pointShadowMap = new PointShadowMap();
 shadowMapExpression.addRenderPasses(
   pointShadowMap.getRenderPasses([groupEntity, backgroundEntity])
@@ -101,6 +112,8 @@ const {
     synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
     isReduceBuffer: false,
     textureFormat: Rn.TextureFormat.RGBA16F,
+    outputFrameBuffer: pointShadowMapArrayFramebuffer,
+    outputFrameBufferLayerIndex: 0,
   },
 });
 
