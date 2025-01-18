@@ -2,6 +2,7 @@ import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { SystemState } from '../../system/SystemState';
 import { CubeTexture } from '../../textures/CubeTexture';
 import { Texture } from '../../textures/Texture';
+import { TextureArray } from '../../textures/TextureArray';
 
 export const dummyWhiteTexture = new Texture();
 export const dummyBlueTexture = new Texture();
@@ -11,6 +12,7 @@ export const dummyZeroTexture = new Texture();
 export const sheenLutTexture = new Texture();
 export const dummySRGBGrayTexture = new Texture();
 export const dummyAnisotropyTexture = new Texture();
+export const dummyDepthMomentTextureArray = new TextureArray();
 
 export async function initDefaultTextures() {
   if (dummyWhiteTexture.isTextureReady) {
@@ -24,6 +26,7 @@ export async function initDefaultTextures() {
   sheenLutTexture.tryToSetUniqueName('sheenLutTexture', true);
   dummySRGBGrayTexture.tryToSetUniqueName('dummySRGBGrayTexture', true);
   dummyAnisotropyTexture.tryToSetUniqueName('dummyAnisotropyTexture', true);
+  dummyDepthMomentTextureArray.tryToSetUniqueName('dummyDepthMomentTextureArray', true);
 
   dummyWhiteTexture.generate1x1TextureFrom();
   dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
@@ -33,6 +36,7 @@ export async function initDefaultTextures() {
   await sheenLutTexture.generateSheenLutTextureFromDataUri();
   dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
   dummyAnisotropyTexture.generate1x1TextureFrom('rgba(255, 127.5, 255, 1)');
+  dummyDepthMomentTextureArray.load1x1Texture('rgba(1, 1, 1, 1)');
 }
 
 export const DefaultTextures = {
@@ -44,4 +48,5 @@ export const DefaultTextures = {
   sheenLutTexture,
   dummySRGBGrayTexture,
   dummyAnisotropyTexture,
+  dummyDepthMomentTextureArray,
 };

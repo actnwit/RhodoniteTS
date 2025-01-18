@@ -21,7 +21,6 @@ import {
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Sampler } from '../foundation/textures/Sampler';
 import {
-  Byte,
   Count,
   Index,
   Size,
@@ -1768,6 +1767,30 @@ export class WebGpuResourceRepository
     sampler.create();
 
     return [handle, sampler];
+  }
+
+  /**
+   * create a TextureArray
+   * @param width
+   * @param height
+   * @param arrayLength
+   * @param mipLevelCount
+   * @param internalFormat
+   * @param format
+   * @param type
+   * @returns texture handle
+   */
+  createTextureArray(
+    width: Size,
+    height: Size,
+    arrayLength: Size,
+    mipLevelCount: Size,
+    internalFormat: TextureFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    imageData: TypedArray
+  ): WebGPUResourceHandle {
+    return -1;
   }
 
   createStorageBuffer(inputArray: Float32Array) {
