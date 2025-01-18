@@ -21,4 +21,4 @@ function fromString(str: string): ShadowMapEnum {
   return _fromString({ typeList, str }) as ShadowMapEnum;
 }
 
-export const ShadowMap = Object.freeze({ Standard, Variance, from, fromString });
+export const ShadowMapType = Object.freeze({ Standard, Variance, from, fromString });

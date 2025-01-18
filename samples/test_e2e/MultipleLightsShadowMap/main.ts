@@ -1,5 +1,4 @@
 import Rn from '../../../dist/esmdev/index.js';
-import { ShadowSystem } from './ShadowSystem.js';
 
 const p = document.createElement('p');
 document.body.appendChild(p);
@@ -92,9 +91,8 @@ const groupEntity = createObjects();
 mainCameraEntity.getCameraController().controller.setTarget(groupEntity);
 const backgroundEntity = createBackground();
 
-const shadowSystem = new ShadowSystem();
+const shadowSystem = new Rn.ShadowSystem();
 const shadowExpressions = shadowSystem.getExpressions([groupEntity, backgroundEntity]);
-shadowSystem.getExpressions([groupEntity, backgroundEntity]);
 
 const mainExpression = new Rn.Expression();
 const mainRenderPass = new Rn.RenderPass();

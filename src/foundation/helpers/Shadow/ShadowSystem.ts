@@ -1,53 +1,70 @@
-import { PointShadowMap } from './PointShadowMap.js';
-import { ShadowMap } from './ShadowMap.js';
-import Rn, { LightComponent } from '../../../dist/esmdev/index.js';
+import { ICameraEntityMethods } from '../../components/Camera/ICameraEntity';
+import { ILightEntityMethods } from '../../components/Light/ILightEntity';
+import { LightComponent } from '../../components/Light/LightComponent';
+import { ComponentRepository } from '../../core/ComponentRepository';
+import { Config } from '../../core/Config';
+import { ComponentType } from '../../definitions/ComponentType';
+import { LightType } from '../../definitions/LightType';
+import { PixelFormat } from '../../definitions/PixelFormat';
+import { TextureFormat } from '../../definitions/TextureFormat';
+import { TextureParameter } from '../../definitions/TextureParameter';
+import { VectorN } from '../../math/VectorN';
+import { Expression } from '../../renderer/Expression';
+import { FrameBuffer } from '../../renderer/FrameBuffer';
+import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
+import { Sampler } from '../../textures/Sampler';
+import { ISceneGraphEntity } from '../EntityHelper';
+import { GaussianBlur } from '../GaussianBlurHelper';
+import { RenderableHelper } from '../RenderableHelper';
+import { PointShadowMap } from './PointShadowMap';
+import { ShadowMap } from './ShadowMap';
 
 export class ShadowSystem {
   private __shadowMap: ShadowMap;
   private __pointShadowMap: PointShadowMap;
-  private __gaussianBlur: Rn.GaussianBlur;
-  private __shadowMapArrayFramebuffer: Rn.FrameBuffer;
-  private __pointShadowMapArrayFramebuffer: Rn.FrameBuffer;
+  private __gaussianBlur: GaussianBlur;
+  private __shadowMapArrayFramebuffer: FrameBuffer;
+  private __pointShadowMapArrayFramebuffer: FrameBuffer;
 
   constructor() {
     this.__shadowMap = new ShadowMap();
     this.__pointShadowMap = new PointShadowMap();
-    this.__gaussianBlur = new Rn.GaussianBlur();
+    this.__gaussianBlur = new GaussianBlur();
 
     const [shadowMapArrayFramebuffer, shadowMapArrayRenderTargetTexture] =
-      Rn.RenderableHelper.createFrameBufferTextureArray({
+      RenderableHelper.createFrameBufferTextureArray({
         width: 1024,
         height: 1024,
-        arrayLength: Rn.Config.shadowMapTextureArrayLength,
+        arrayLength: Config.shadowMapTextureArrayLength,
         level: 0,
-        internalFormat: Rn.TextureFormat.RG16F,
-        format: Rn.PixelFormat.RG,
-        type: Rn.ComponentType.Float,
+        internalFormat: TextureFormat.RG16F,
+        format: PixelFormat.RG,
+        type: ComponentType.Float,
       });
     this.__shadowMapArrayFramebuffer = shadowMapArrayFramebuffer;
 
     const [pointShadowMapArrayFramebuffer, pointShadowMapArrayRenderTargetTexture] =
-      Rn.RenderableHelper.createFrameBufferTextureArray({
+      RenderableHelper.createFrameBufferTextureArray({
         width: 1024,
         height: 1024,
-        arrayLength: Rn.Config.shadowMapTextureArrayLength,
+        arrayLength: Config.shadowMapTextureArrayLength,
         level: 0,
-        internalFormat: Rn.TextureFormat.RGBA16F,
-        format: Rn.PixelFormat.RGBA,
-        type: Rn.ComponentType.Float,
+        internalFormat: TextureFormat.RGBA16F,
+        format: PixelFormat.RGBA,
+        type: ComponentType.Float,
       });
     this.__pointShadowMapArrayFramebuffer = pointShadowMapArrayFramebuffer;
   }
 
-  public getExpressions(entities: Rn.ISceneGraphEntity[]) {
+  public getExpressions(entities: ISceneGraphEntity[]) {
     const expressions = [];
     const depthTextureIndexList = [];
 
     let depthTextureCount = 0;
     let pointDepthTextureCount = 0;
-    const lightComponents = Rn.ComponentRepository.getComponentsWithType(
-      Rn.LightComponent
-    ) as Rn.LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(
+      LightComponent
+    ) as LightComponent[];
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
 
@@ -56,12 +73,12 @@ export class ShadowSystem {
         continue;
       }
 
-      if (lightComponent.type === Rn.LightType.Point) {
-        const shadowMapExpression = new Rn.Expression();
+      if (lightComponent.type === LightType.Point) {
+        const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__pointShadowMap.getRenderPasses(
             entities,
-            lightComponent.entity as Rn.ISceneGraphEntity & Rn.ILightEntityMethods
+            lightComponent.entity as ISceneGraphEntity & ILightEntityMethods
           )
         );
         expressions.push(shadowMapExpression);
@@ -79,7 +96,7 @@ export class ShadowSystem {
             gaussianVariance: 5,
             synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
             isReduceBuffer: false,
-            textureFormat: Rn.TextureFormat.RGBA16F,
+            textureFormat: TextureFormat.RGBA16F,
             outputFrameBuffer: this.__pointShadowMapArrayFramebuffer,
             outputFrameBufferLayerIndex: pointDepthTextureCount,
           },
@@ -89,16 +106,14 @@ export class ShadowSystem {
         depthTextureIndexList.push(pointDepthTextureCount);
         pointDepthTextureCount++;
       } else if (
-        lightComponent.type === Rn.LightType.Spot ||
-        lightComponent.type === Rn.LightType.Directional
+        lightComponent.type === LightType.Spot ||
+        lightComponent.type === LightType.Directional
       ) {
-        const shadowMapExpression = new Rn.Expression();
+        const shadowMapExpression = new Expression();
         shadowMapExpression.addRenderPasses(
           this.__shadowMap.getRenderPasses(
             entities,
-            lightComponent.entity as Rn.ISceneGraphEntity &
-              Rn.ILightEntityMethods &
-              Rn.ICameraEntityMethods
+            lightComponent.entity as ISceneGraphEntity & ILightEntityMethods & ICameraEntityMethods
           )
         );
         expressions.push(shadowMapExpression);
@@ -116,7 +131,7 @@ export class ShadowSystem {
             gaussianVariance: 5,
             synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
             isReduceBuffer: true,
-            textureFormat: Rn.TextureFormat.RG16F,
+            textureFormat: TextureFormat.RG16F,
             outputFrameBuffer: this.__shadowMapArrayFramebuffer,
             outputFrameBufferLayerIndex: depthTextureCount,
           },
@@ -136,14 +151,14 @@ export class ShadowSystem {
   }
 
   private __setBlurredShadowMap(
-    blurredRenderTarget: Rn.RenderTargetTexture,
-    entities: Rn.ISceneGraphEntity[]
+    blurredRenderTarget: RenderTargetTexture,
+    entities: ISceneGraphEntity[]
   ) {
-    const sampler = new Rn.Sampler({
-      minFilter: Rn.TextureParameter.Linear,
-      magFilter: Rn.TextureParameter.Linear,
-      wrapS: Rn.TextureParameter.ClampToEdge,
-      wrapT: Rn.TextureParameter.ClampToEdge,
+    const sampler = new Sampler({
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
     });
     sampler.create();
 
@@ -159,14 +174,14 @@ export class ShadowSystem {
   }
 
   private __setParaboloidBlurredShadowMap(
-    blurredRenderTarget: Rn.RenderTargetTexture,
-    entities: Rn.ISceneGraphEntity[]
+    blurredRenderTarget: RenderTargetTexture,
+    entities: ISceneGraphEntity[]
   ) {
-    const sampler = new Rn.Sampler({
-      minFilter: Rn.TextureParameter.Linear,
-      magFilter: Rn.TextureParameter.Linear,
-      wrapS: Rn.TextureParameter.ClampToEdge,
-      wrapT: Rn.TextureParameter.ClampToEdge,
+    const sampler = new Sampler({
+      minFilter: TextureParameter.Linear,
+      magFilter: TextureParameter.Linear,
+      wrapS: TextureParameter.ClampToEdge,
+      wrapT: TextureParameter.ClampToEdge,
     });
     sampler.create();
 
@@ -187,7 +202,7 @@ export class ShadowSystem {
   }
 
   private __setDepthTextureIndexList(
-    entities: Rn.ISceneGraphEntity[],
+    entities: ISceneGraphEntity[],
     depthTextureIndexList: number[]
   ) {
     for (const entity of entities) {
@@ -197,29 +212,26 @@ export class ShadowSystem {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
           primitive.material.setParameter(
             'depthTextureIndexList',
-            new Rn.VectorN(new Int32Array(depthTextureIndexList))
+            new VectorN(new Int32Array(depthTextureIndexList))
           );
         }
       }
     }
   }
 
-  public setDepthBiasPV(entities: Rn.ISceneGraphEntity[]) {
-    const float32Array = new Float32Array(Rn.Config.shadowMapTextureArrayLength * 16);
+  public setDepthBiasPV(entities: ISceneGraphEntity[]) {
+    const float32Array = new Float32Array(Config.maxLightNumberInShader * 16);
 
-    const lightComponents = Rn.ComponentRepository.getComponentsWithType(
-      Rn.LightComponent
-    ) as Rn.LightComponent[];
+    const lightComponents = ComponentRepository.getComponentsWithType(
+      LightComponent
+    ) as LightComponent[];
 
     for (let i = 0; i < lightComponents.length; i++) {
       const lightComponent = lightComponents[i];
-      const lightEntity = lightComponent.entity as Rn.ISceneGraphEntity &
-        Rn.ILightEntityMethods &
-        Rn.ICameraEntityMethods;
-      if (
-        lightComponent.type === Rn.LightType.Directional ||
-        lightComponent.type === Rn.LightType.Spot
-      ) {
+      const lightEntity = lightComponent.entity as ISceneGraphEntity &
+        ILightEntityMethods &
+        ICameraEntityMethods;
+      if (lightComponent.type === LightType.Directional || lightComponent.type === LightType.Spot) {
         const biasViewProjectionMatrix = lightEntity.getCamera().biasViewProjectionMatrix;
         float32Array.set(biasViewProjectionMatrix._v, i * 16);
       }
@@ -230,7 +242,7 @@ export class ShadowSystem {
       if (meshComponent != null && meshComponent.mesh != null) {
         for (let i = 0; i < meshComponent.mesh.getPrimitiveNumber(); i++) {
           const primitive = meshComponent.mesh.getPrimitiveAt(i);
-          primitive.material.setParameter('depthBiasPV', new Rn.VectorN(float32Array));
+          primitive.material.setParameter('depthBiasPV', new VectorN(float32Array));
         }
       }
     }
