@@ -96,7 +96,7 @@ Rn.System.startRenderLoop(() => {
     rotateObject(pointGroupEntity2, angle / 2);
     angle += 0.01;
   }
-  shadowSystem.setDepthBiasPV(spotLight, [groupEntity, backgroundEntity]);
+  shadowSystem.setDepthBiasPV([groupEntity, backgroundEntity]);
   Rn.System.process([...shadowExpressions, mainExpression]);
 
   count++;

@@ -385,6 +385,17 @@ function createPbrUberMaterial({
       min: 0,
       max: Number.MAX_VALUE,
     });
+    // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+    additionalShaderSemanticInfo.push({
+      semantic: 'depthBiasPV',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Mat4Array,
+      arrayLength: Config.shadowMapTextureArrayLength,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader * 16)),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
   }
 
   const materialContent = new CustomMaterialContent({

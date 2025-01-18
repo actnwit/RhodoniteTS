@@ -393,6 +393,7 @@ void main ()
       float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;
     } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
+      vec4 v_shadowCoord = get_depthBiasPV(materialSID, i) * v_position_inWorld;
       float bias = 0.001;
       vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
       vec3 lightDirection = normalize(get_lightDirection(0.0, i));
