@@ -35,6 +35,7 @@ export class LightComponent extends Component {
   public range = -1;
   public enable = true;
   public shadowAreaSizeForDirectionalLight = 10;
+  public castShadow = false;
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __tmp_vec4 = MutableVector4.zero();
   private static __lightPositions = new VectorN(new Float32Array(0));
