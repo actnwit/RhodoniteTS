@@ -58,6 +58,7 @@ import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
 import HDRImage from '../../vendor/hdrpng.js';
+import { TextureArray } from '../foundation/textures/TextureArray';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;
@@ -303,6 +304,16 @@ export class WebGLResourceRepository
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTextureCube(textureSlotIndex, texture);
+  }
+
+  /**
+   * bind the Texture2DArray
+   * @param textureSlotIndex
+   * @param textureUid
+   */
+  bindTexture2DArray(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    this.__glw!.bindTexture2DArray(textureSlotIndex, texture);
   }
 
   /**
@@ -737,6 +748,15 @@ export class WebGLResourceRepository
           value[0],
           textureCube._recommendedTextureSampler?._samplerResourceUid ?? -1
         );
+      }
+    } else if (info.compositionType === CompositionType.Texture2DArray) {
+      this.bindTexture2DArray(value[0], value[1]._textureResourceUid);
+      if (value[2] != null) {
+        // value[2] must be Sampler object
+        this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      } else {
+        const samplerUid = this.createOrGetTextureSamplerClampToEdgeLinear();
+        this.bindTextureSampler(value[0], samplerUid);
       }
     }
   }
@@ -1263,7 +1283,7 @@ export class WebGLResourceRepository
       arrayLength
     );
 
-    for (let layer = 0; layer < 100; layer++) {
+    for (let layer = 0; layer < arrayLength; layer++) {
       gl.texSubImage3D(
         gl.TEXTURE_2D_ARRAY,
         0, // Mipmap Level

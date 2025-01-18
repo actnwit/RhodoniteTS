@@ -64,6 +64,7 @@ import {
   dummyAnisotropyTexture,
   dummyBlackTexture,
   dummyBlueTexture,
+  dummyDepthMomentTextureArray,
   dummyWhiteTexture,
   sheenLutTexture,
 } from '../materials/core/DummyTextures';
@@ -368,9 +369,9 @@ function createPbrUberMaterial({
     additionalShaderSemanticInfo.push({
       semantic: 'paraboloidDepthTexture',
       componentType: ComponentType.Int,
-      compositionType: CompositionType.Texture2D,
+      compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });

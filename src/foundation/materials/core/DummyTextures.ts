@@ -36,7 +36,7 @@ export async function initDefaultTextures() {
   await sheenLutTexture.generateSheenLutTextureFromDataUri();
   dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
   dummyAnisotropyTexture.generate1x1TextureFrom('rgba(255, 127.5, 255, 1)');
-  dummyDepthMomentTextureArray.load1x1Texture('rgba(1, 1, 1, 1)');
+  dummyDepthMomentTextureArray.load1x1Texture('rgba(255, 255, 255, 1)');
 }
 
 export const DefaultTextures = {
