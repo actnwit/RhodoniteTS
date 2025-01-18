@@ -100,3 +100,5 @@ samples/test_e2e/MultipleLightsShadowMap/PointShadowMap.js
 samples/test_e2e/MultipleLightsShadowMap/PointShadowMap.js.map
 samples/test_e2e/MultipleLightsShadowMap/ShadowMap.js
 samples/test_e2e/MultipleLightsShadowMap/ShadowMap.js.map
+samples/test_e2e/MultipleLightsShadowMap/ShadowSystem.js
+samples/test_e2e/MultipleLightsShadowMap/ShadowSystem.js.map
