@@ -113,15 +113,18 @@ Rn.System.startRenderLoop(() => {
   }
   Rn.System.process([expression]);
 
+  const float32Array = new Float32Array(Rn.Config.maxLightNumberInShader * 16);
+  const spotLightComponentSid = spotLight.getLight().componentSID;
+  float32Array.set(spotLight.getCamera().biasViewProjectionMatrix._v, spotLightComponentSid * 16);
   setParameterForMeshComponent(
     meshComponentSmallBoard,
     Rn.ShaderSemantics.DepthBiasPV.str,
-    spotLight.getCamera().biasViewProjectionMatrix
+    new Rn.VectorN(float32Array)
   );
   setParameterForMeshComponent(
     meshComponentLargeBoard,
     Rn.ShaderSemantics.DepthBiasPV.str,
-    spotLight.getCamera().biasViewProjectionMatrix
+    new Rn.VectorN(float32Array)
   );
   count++;
 });

@@ -1,26 +1,33 @@
-import Rn from '../../../dist/esmdev/index.js';
+import { ILightEntityMethods } from '../../components/Light/ILightEntity';
+import { Config } from '../../core/Config';
+import { TextureFormat } from '../../definitions/TextureFormat';
+import { Material } from '../../materials/core/Material';
+import { Vector4 } from '../../math/Vector4';
+import { FrameBuffer } from '../../renderer/FrameBuffer';
+import { RenderPass } from '../../renderer/RenderPass';
+import { ISceneGraphEntity } from '../EntityHelper';
+import { MaterialHelper } from '../MaterialHelper';
+import { RenderableHelper } from '../RenderableHelper';
 
 export class PointShadowMap {
-  private __shadowMomentFramebuffer: Rn.FrameBuffer;
-  private __shadowMomentFrontMaterials: Rn.Material[] = [];
-  private __shadowMomentBackMaterials: Rn.Material[] = [];
+  private __shadowMomentFramebuffer: FrameBuffer;
+  private __shadowMomentFrontMaterials: Material[] = [];
+  private __shadowMomentBackMaterials: Material[] = [];
 
   constructor() {
-    this.__shadowMomentFramebuffer = Rn.RenderableHelper.createFrameBuffer({
+    this.__shadowMomentFramebuffer = RenderableHelper.createFrameBuffer({
       width: 1024,
       height: 1024,
       textureNum: 1,
-      textureFormats: [Rn.TextureFormat.RGBA16F],
+      textureFormats: [TextureFormat.RGBA16F],
       createDepthBuffer: true,
-      depthTextureFormat: Rn.TextureFormat.Depth32F,
+      depthTextureFormat: TextureFormat.Depth32F,
     });
-    for (let i = 0; i < Rn.Config.shadowMapTextureArrayLength; i++) {
-      const shadowMomentFrontMaterial =
-        Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+    for (let i = 0; i < Config.shadowMapTextureArrayLength; i++) {
+      const shadowMomentFrontMaterial = MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
       shadowMomentFrontMaterial.colorWriteMask = [true, true, false, false];
       this.__shadowMomentFrontMaterials.push(shadowMomentFrontMaterial);
-      const shadowMomentBackMaterial =
-        Rn.MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
+      const shadowMomentBackMaterial = MaterialHelper.createParaboloidDepthMomentEncodeMaterial();
       shadowMomentBackMaterial.colorWriteMask = [false, false, true, true];
       shadowMomentBackMaterial.setParameter('frontHemisphere', false);
       this.__shadowMomentBackMaterials.push(shadowMomentBackMaterial);
@@ -28,13 +35,13 @@ export class PointShadowMap {
   }
 
   public getRenderPasses(
-    entities: Rn.ISceneGraphEntity[],
-    lightEntity: Rn.ISceneGraphEntity & Rn.ILightEntityMethods
+    entities: ISceneGraphEntity[],
+    lightEntity: ISceneGraphEntity & ILightEntityMethods
   ) {
     const lightComponentSid = lightEntity.getLight().componentSID;
 
-    const shadowMomentFrontRenderPass = new Rn.RenderPass();
-    shadowMomentFrontRenderPass.clearColor = Rn.Vector4.fromCopyArray([1, 1, 1, 1]);
+    const shadowMomentFrontRenderPass = new RenderPass();
+    shadowMomentFrontRenderPass.clearColor = Vector4.fromCopyArray([1, 1, 1, 1]);
     shadowMomentFrontRenderPass.toClearColorBuffer = true;
     shadowMomentFrontRenderPass.toClearDepthBuffer = true;
     shadowMomentFrontRenderPass.addEntities(entities);
@@ -44,7 +51,7 @@ export class PointShadowMap {
       'lightIndex',
       lightComponentSid
     );
-    const shadowMomentBackRenderPass = new Rn.RenderPass();
+    const shadowMomentBackRenderPass = new RenderPass();
     shadowMomentBackRenderPass.toClearColorBuffer = false;
     shadowMomentBackRenderPass.toClearDepthBuffer = true;
     shadowMomentBackRenderPass.addEntities(entities);
