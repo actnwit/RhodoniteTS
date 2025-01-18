@@ -8,7 +8,7 @@ declare const window: any;
 Rn.Config.cgApiDebugConsoleOutput = true;
 Rn.Logger.logLevel = Rn.LogLevel.Debug;
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 
@@ -20,6 +20,7 @@ pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight.getLight().type = Rn.LightType.Point;
 pointLight.getLight().castShadow = true;
+pointLight.getLight().intensity = Rn.Vector3.fromCopyArray([20, 20, 20]);
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());
@@ -34,6 +35,7 @@ pointLight2 = Rn.EntityRepository.tryToAddComponentToEntityByTID(
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight2.getLight().type = Rn.LightType.Point;
 pointLight2.getLight().castShadow = true;
+pointLight2.getLight().intensity = Rn.Vector3.fromCopyArray([20, 20, 20]);
 pointLight2.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity2 = Rn.createGroupEntity();
 pointGroupEntity2.addChild(pointLight2.getSceneGraph());
