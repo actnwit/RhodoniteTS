@@ -145,6 +145,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
       this.__oFrameBufferResolveForReference = new None();
     }
+    this.__bloomHelper.destroy3DAPIResources();
     this.__oFrame = new None();
     this.__oGenerateMipmapsExpression = new None();
     this.__oMultiViewBlitExpression = new None();

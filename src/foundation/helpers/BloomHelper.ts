@@ -17,6 +17,7 @@ import { FrameBuffer } from '../renderer/FrameBuffer';
 
 export class Bloom {
   private __mapReducedFramebuffer: Map<string, FrameBuffer> = new Map();
+  private __mapDetectHighLuminanceFramebuffer: Map<string, FrameBuffer> = new Map();
   private __mapSynthesizeFramebuffer: Map<string, FrameBuffer> = new Map();
 
   constructor() {}
@@ -108,13 +109,18 @@ export class Bloom {
     );
     renderPassDetectHighLuminance.tryToSetUniqueName('renderPassDetectHighLuminance', true);
 
-    const framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer({
-      width: texture.width,
-      height: texture.height,
-      textureNum: 1,
-      textureFormats: [TextureFormat.RGBA8],
-      createDepthBuffer: false,
-    });
+    const key = `${texture.width}_${texture.height}`;
+    let framebufferDetectHighLuminance = this.__mapDetectHighLuminanceFramebuffer.get(key);
+    if (framebufferDetectHighLuminance == null) {
+      framebufferDetectHighLuminance = RenderableHelper.createFrameBuffer({
+        width: texture.width,
+        height: texture.height,
+        textureNum: 1,
+        textureFormats: [TextureFormat.RGBA8],
+        createDepthBuffer: false,
+      });
+      this.__mapDetectHighLuminanceFramebuffer.set(key, framebufferDetectHighLuminance);
+    }
 
     renderPassDetectHighLuminance.setFramebuffer(framebufferDetectHighLuminance);
     return renderPassDetectHighLuminance;
@@ -207,13 +213,18 @@ export class Bloom {
       TextureTarget
     );
 
-    const framebuffer = RenderableHelper.createFrameBuffer({
-      width: resolutionWidthBlur,
-      height: resolutionHeightBlur,
-      textureNum: 1,
-      textureFormats: [TextureFormat.RGBA8],
-      createDepthBuffer: false,
-    });
+    const key = `${resolutionWidthBlur}_${resolutionHeightBlur}_${isHorizontal}`;
+    let framebuffer = this.__mapReducedFramebuffer.get(key);
+    if (framebuffer == null) {
+      framebuffer = RenderableHelper.createFrameBuffer({
+        width: resolutionWidthBlur,
+        height: resolutionHeightBlur,
+        textureNum: 1,
+        textureFormats: [TextureFormat.RGBA8],
+        createDepthBuffer: false,
+      });
+      this.__mapReducedFramebuffer.set(key, framebuffer);
+    }
     renderPass.setFramebuffer(framebuffer);
 
     return renderPass;
@@ -243,15 +254,35 @@ export class Bloom {
       materialSynthesizeTextures
     );
     renderPassSynthesizeGlare.tryToSetUniqueName('renderPassSynthesizeGlare', true);
-    const framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
-      width: texture.width,
-      height: texture.height,
-      textureNum: 1,
-      textureFormats: [TextureFormat.R11F_G11F_B10F],
-      createDepthBuffer: false,
-    });
+    const key = `${texture.width}_${texture.height}`;
+    let framebufferSynthesizeImages = this.__mapSynthesizeFramebuffer.get(key);
+    if (framebufferSynthesizeImages == null) {
+      framebufferSynthesizeImages = RenderableHelper.createFrameBuffer({
+        width: texture.width,
+        height: texture.height,
+        textureNum: 1,
+        textureFormats: [TextureFormat.R11F_G11F_B10F],
+        createDepthBuffer: false,
+      });
+      this.__mapSynthesizeFramebuffer.set(key, framebufferSynthesizeImages);
+    }
     renderPassSynthesizeGlare.setFramebuffer(framebufferSynthesizeImages);
 
     return renderPassSynthesizeGlare;
+  }
+
+  public destroy3DAPIResources() {
+    this.__mapReducedFramebuffer.forEach((framebuffer) => {
+      framebuffer.destroy3DAPIResources();
+    });
+    this.__mapDetectHighLuminanceFramebuffer.forEach((framebuffer) => {
+      framebuffer.destroy3DAPIResources();
+    });
+    this.__mapSynthesizeFramebuffer.forEach((framebuffer) => {
+      framebuffer.destroy3DAPIResources();
+    });
+    this.__mapReducedFramebuffer.clear();
+    this.__mapDetectHighLuminanceFramebuffer.clear();
+    this.__mapSynthesizeFramebuffer.clear();
   }
 }
