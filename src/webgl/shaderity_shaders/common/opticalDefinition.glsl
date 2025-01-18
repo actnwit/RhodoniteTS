@@ -27,12 +27,12 @@ float getRangeAttenuation(Light light)
 float getSpotAttenuation(Light light)
 {
 
-  float cd = dot(light.directionOfLightObject, light.direction);
+  float cd = dot(-normalize(light.directionOfLightObject), light.direction);
   float angularAttenuation = clamp(cd * light.spotAngleScale + light.spotAngleOffset, 0.0, 1.0);
   return angularAttenuation;
 }
 
-void getLightAttenuated(Light light) {
+vec3 getLightAttenuated(Light light) {
   light.attenuatedIntensity = light.intensity;
   // if (light.type == 0) { // Directional Light
     // Directional Light don't attenuate geometically
@@ -48,6 +48,8 @@ void getLightAttenuated(Light light) {
   {
     light.attenuatedIntensity *= getSpotAttenuation(light);
   }
+
+  return light.attenuatedIntensity;
 }
 
 Light getLight(int lightIdx, vec3 v_position_inWorld) {
@@ -85,7 +87,7 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
 
   // Attenuation
   light.attenuatedIntensity = light.intensity;
-  getLightAttenuated(light);
+  light.attenuatedIntensity = getLightAttenuated(light);
 
   return light;
 }
