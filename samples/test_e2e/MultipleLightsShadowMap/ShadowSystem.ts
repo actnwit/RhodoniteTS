@@ -39,58 +39,74 @@ export class ShadowSystem {
     this.__pointShadowMapArrayFramebuffer = pointShadowMapArrayFramebuffer;
   }
 
-  public getExpressions(
-    entities: Rn.ISceneGraphEntity[],
-    lightEntity: Rn.ISceneGraphEntity & Rn.ILightEntityMethods & Rn.ICameraEntityMethods
-  ) {
+  public getExpressions(entities: Rn.ISceneGraphEntity[]) {
+    const expressions = [];
     const shadowMapExpression = new Rn.Expression();
-    shadowMapExpression.addRenderPasses(this.__shadowMap.getRenderPasses(entities, lightEntity));
-    shadowMapExpression.addRenderPasses(this.__pointShadowMap.getRenderPasses(entities));
+    expressions.push(shadowMapExpression);
 
-    const {
-      blurExpression: blurExpressionSpotLight,
-      blurredRenderTarget: blurredRenderTargetSpotLight,
-      renderPassesBlurred: renderPassesBlurredSpotLight,
-    } = this.__gaussianBlur.createGaussianBlurExpression({
-      textureToBlur: this.__shadowMap
-        .getShadowMomentFramebuffer()
-        .getColorAttachedRenderTargetTexture(0)!,
-      parameters: {
-        blurPassLevel: 4,
-        gaussianKernelSize: 5,
-        gaussianVariance: 5,
-        synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-        isReduceBuffer: true,
-        textureFormat: Rn.TextureFormat.RG16F,
-        outputFrameBuffer: this.__shadowMapArrayFramebuffer,
-        outputFrameBufferLayerIndex: 0,
-      },
-    });
+    const lightComponents = Rn.ComponentRepository.getComponentsWithType(
+      Rn.LightComponent
+    ) as Rn.LightComponent[];
+    for (let i = 0; i < lightComponents.length; i++) {
+      const lightComponent = lightComponents[i];
 
-    const {
-      blurExpression: blurExpressionPointLight,
-      blurredRenderTarget: blurredRenderTargetPointLight,
-      renderPassesBlurred: renderPassesBlurredPointLight,
-    } = this.__gaussianBlur.createGaussianBlurExpression({
-      textureToBlur: this.__pointShadowMap
-        .getShadowMomentFramebuffer()
-        .getColorAttachedRenderTargetTexture(0)!,
-      parameters: {
-        blurPassLevel: 4,
-        gaussianKernelSize: 5,
-        gaussianVariance: 5,
-        synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
-        isReduceBuffer: false,
-        textureFormat: Rn.TextureFormat.RGBA16F,
-        outputFrameBuffer: this.__pointShadowMapArrayFramebuffer,
-        outputFrameBufferLayerIndex: 0,
-      },
-    });
+      if (lightComponent.type === Rn.LightType.Point) {
+        shadowMapExpression.addRenderPasses(this.__pointShadowMap.getRenderPasses(entities));
+        const {
+          blurExpression: blurExpressionPointLight,
+          blurredRenderTarget: blurredRenderTargetPointLight,
+          renderPassesBlurred: renderPassesBlurredPointLight,
+        } = this.__gaussianBlur.createGaussianBlurExpression({
+          textureToBlur: this.__pointShadowMap
+            .getShadowMomentFramebuffer()
+            .getColorAttachedRenderTargetTexture(0)!,
+          parameters: {
+            blurPassLevel: 4,
+            gaussianKernelSize: 5,
+            gaussianVariance: 5,
+            synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+            isReduceBuffer: false,
+            textureFormat: Rn.TextureFormat.RGBA16F,
+            outputFrameBuffer: this.__pointShadowMapArrayFramebuffer,
+            outputFrameBufferLayerIndex: 0,
+          },
+        });
+        this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities);
+        expressions.push(blurExpressionPointLight);
+      } else {
+        shadowMapExpression.addRenderPasses(
+          this.__shadowMap.getRenderPasses(
+            entities,
+            lightComponent.entity as Rn.ISceneGraphEntity &
+              Rn.ILightEntityMethods &
+              Rn.ICameraEntityMethods
+          )
+        );
+        const {
+          blurExpression: blurExpressionSpotLight,
+          blurredRenderTarget: blurredRenderTargetSpotLight,
+          renderPassesBlurred: renderPassesBlurredSpotLight,
+        } = this.__gaussianBlur.createGaussianBlurExpression({
+          textureToBlur: this.__shadowMap
+            .getShadowMomentFramebuffer()
+            .getColorAttachedRenderTargetTexture(0)!,
+          parameters: {
+            blurPassLevel: 4,
+            gaussianKernelSize: 5,
+            gaussianVariance: 5,
+            synthesizeCoefficient: [1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5, 1.0 / 5],
+            isReduceBuffer: true,
+            textureFormat: Rn.TextureFormat.RG16F,
+            outputFrameBuffer: this.__shadowMapArrayFramebuffer,
+            outputFrameBufferLayerIndex: 0,
+          },
+        });
+        expressions.push(blurExpressionSpotLight);
+        this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities);
+      }
+    }
 
-    this.__setBlurredShadowMap(blurredRenderTargetSpotLight, entities);
-    this.__setParaboloidBlurredShadowMap(blurredRenderTargetPointLight, entities);
-
-    return [shadowMapExpression, blurExpressionSpotLight, blurExpressionPointLight];
+    return expressions;
   }
 
   private __setBlurredShadowMap(
