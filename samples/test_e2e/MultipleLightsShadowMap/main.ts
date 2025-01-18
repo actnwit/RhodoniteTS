@@ -58,7 +58,7 @@ const backgroundEntity = createBackground();
 
 const shadowSystem = new ShadowSystem();
 const [shadowMapExpression, blurExpressionSpotLight, blurExpressionPointLight] =
-  shadowSystem.getExpressions([groupEntity, backgroundEntity], spotLight);
+  shadowSystem.getExpressions([groupEntity, backgroundEntity]);
 
 const mainExpression = new Rn.Expression();
 const mainRenderPass = new Rn.RenderPass();
