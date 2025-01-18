@@ -49,8 +49,9 @@ const shadowMapExpression = new Rn.Expression();
 const pointShadowMap = new PointShadowMap();
 const renderPasses = pointShadowMap.getRenderPasses([groupEntity, backgroundEntity]);
 shadowMapExpression.addRenderPasses(renderPasses);
+const gaussianBlur = new Rn.GaussianBlur();
 const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
-  Rn.GaussianBlurHelper.createGaussianBlurExpression({
+  gaussianBlur.createGaussianBlurExpression({
     textureToBlur: pointShadowMap
       .getShadowMomentFramebuffer()
       .getColorAttachedRenderTargetTexture(0)!,

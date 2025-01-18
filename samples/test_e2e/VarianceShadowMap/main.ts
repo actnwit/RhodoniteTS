@@ -50,8 +50,9 @@ renderPassMain.addEntities([entitySmallBoard, entityLargeBoard]);
 // set depth shader to depth render pass
 renderPassDepth.setMaterial(Rn.MaterialHelper.createDepthMomentEncodeMaterial());
 
+const gaussianBlur = new Rn.GaussianBlur();
 const { blurExpression, blurredRenderTarget, renderPassesBlurred } =
-  Rn.GaussianBlurHelper.createGaussianBlurExpression({
+  gaussianBlur.createGaussianBlurExpression({
     textureToBlur: shadowDepthFramebuffer.getColorAttachedRenderTargetTexture(0)!,
     parameters: {
       blurPassLevel: 4,
