@@ -40,9 +40,9 @@ void main ()
     vec2 uv = (offset + stride) * tFrag;
     if (vrState.x == 1 && isHorizontal) { // if in VR mode and horizontal blur
       if (gl_FragCoord.x < framebufferSize.x / 2.0) { // left eye
-        uv.x = min(uv.x * 0.5, 0.5);
+        uv.x = min(uv.x, 0.5);
       } else { // right eye
-        uv.x = max(uv.x * 0.5 - 0.5, 0.5);
+        uv.x = max(uv.x, 0.5);
       }
     }
     color.rgb += texture(u_baseColorTexture, uv).rgb * gaussianRatio;
