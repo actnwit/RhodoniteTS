@@ -308,6 +308,7 @@ export class Gltf2Importer {
       // Lights
       if (
         node.extensions !== void 0 &&
+        node.extensions.KHR_lights_punctual !== void 0 &&
         gltfJson.extensions !== void 0 &&
         gltfJson.extensions.KHR_lights_punctual !== void 0
       ) {
