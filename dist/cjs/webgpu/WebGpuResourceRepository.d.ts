@@ -184,6 +184,7 @@ export declare class WebGpuResourceRepository extends CGAPIResourceRepository im
     finishRenderBundleEncoder(renderPass: RenderPass): void;
     getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
     flush(): void;
+    setColorWriteMask(material: Material): GPUColorWriteFlags;
     /**
      * Create Cube Texture from image files.
      * @param baseUri the base uri to load images;

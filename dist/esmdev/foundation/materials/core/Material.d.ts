@@ -28,6 +28,7 @@ export declare class Material extends RnObject {
     __materialSid: MaterialSID;
     private __alphaMode;
     zWriteWhenBlend: boolean;
+    colorWriteMask: boolean[];
     isTranslucent: boolean;
     cullFace: boolean;
     cullFrontFaceCCW: boolean;

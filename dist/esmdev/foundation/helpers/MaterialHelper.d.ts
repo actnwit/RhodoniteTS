@@ -37,6 +37,12 @@ declare function createClassicUberMaterial({ additionalName, isSkinning, isLight
     isShadow?: boolean | undefined;
     maxInstancesNumber?: number | undefined;
 }): Material;
+declare function createParaboloidDepthMomentEncodeMaterial({ additionalName, isSkinning, isMorphing, maxInstancesNumber, }?: {
+    additionalName?: string | undefined;
+    isSkinning?: boolean | undefined;
+    isMorphing?: boolean | undefined;
+    maxInstancesNumber?: number | undefined;
+}): Material;
 declare function createDepthMomentEncodeMaterial({ additionalName, isSkinning, isMorphing, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isSkinning?: boolean | undefined;
@@ -185,6 +191,7 @@ export declare const MaterialHelper: Readonly<{
     reuseOrRecreateCustomMaterial: typeof reuseOrRecreateCustomMaterial;
     createClassicUberMaterial: typeof createClassicUberMaterial;
     createDepthMomentEncodeMaterial: typeof createDepthMomentEncodeMaterial;
+    createParaboloidDepthMomentEncodeMaterial: typeof createParaboloidDepthMomentEncodeMaterial;
     createFlatMaterial: typeof createFlatMaterial;
     createPbrUberMaterial: typeof createPbrUberMaterial;
     createEnvConstantMaterial: typeof createEnvConstantMaterial;
