@@ -1,4 +1,6 @@
 import { AbstractTexture } from './AbstractTexture';
+import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
+import { ComponentTypeEnum, ComponentType } from '../definitions/ComponentType';
 import { IRenderable } from './IRenderable';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Size, Index } from '../../types/CommonTypes';
@@ -9,8 +11,9 @@ import { ProcessApproach } from '../definitions';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 
-export class RenderTargetTexture extends AbstractTexture implements IRenderable {
+export class RenderTargetTexture2DArray extends AbstractTexture implements IRenderable {
   private __fbo?: FrameBuffer;
+  private __arrayLength: number = 0;
   constructor() {
     super();
   }
@@ -18,26 +21,29 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   create({
     width,
     height,
-    mipLevelCount,
-    format: internalFormat,
+    level = 0,
+    internalFormat = TextureFormat.RGB8,
+    format = PixelFormat.RGBA,
+    type = ComponentType.UnsignedByte,
+    arrayLength,
   }: {
     width: Size;
     height: Size;
-    mipLevelCount?: number;
-    format: TextureFormatEnum;
+    level: number;
+    internalFormat: TextureFormatEnum;
+    format: PixelFormatEnum;
+    type: ComponentTypeEnum;
+    arrayLength: number;
   }) {
     this.__width = width;
     this.__height = height;
-    this.__mipLevelCount = mipLevelCount ?? Math.floor(Math.log2(Math.max(width, height))) + 1;
-
-    const { format, type } =
-      TextureFormat.getPixelFormatAndComponentTypeFromTextureFormat(internalFormat);
-
+    this.__level = level;
     this.__internalFormat = internalFormat;
     this.__format = format;
     this.__type = type;
+    this.__arrayLength = arrayLength;
 
-    this.__createRenderTargetTexture();
+    this.__createRenderTargetTextureArray();
   }
 
   set _fbo(fbo: FrameBuffer) {
@@ -48,20 +54,27 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     return this.__fbo;
   }
 
-  private __createRenderTargetTexture() {
+  get arrayLength() {
+    return this.__arrayLength;
+  }
+
+  private __createRenderTargetTextureArray() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const texture = cgApiResourceRepository.createRenderTargetTexture({
+    const texture = cgApiResourceRepository.createRenderTargetTextureArray({
       width: this.__width,
       height: this.__height,
-      mipLevelCount: this.__mipLevelCount,
-      format: this.__internalFormat,
+      level: this.__level,
+      internalFormat: this.__internalFormat,
+      format: this.__format,
+      type: this.__type,
+      arrayLength: this.__arrayLength,
     });
     this._textureResourceUid = texture;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+      ).createTextureView2dArray(this._textureResourceUid);
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewAsRenderTarget(this._textureResourceUid);
@@ -72,7 +85,7 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
     this.destroy3DAPIResources();
     this.__width = width;
     this.__height = height;
-    this.__createRenderTargetTexture();
+    this.__createRenderTargetTextureArray();
   }
 
   destroy3DAPIResources() {
@@ -144,6 +157,43 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
   generateMipmaps() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.generateMipmaps2d(this._textureResourceUid, this.width, this.height);
+  }
+
+  blitToTexture2dFromTexture2dArray(targetTexture2D: RenderTargetTexture2DArray) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArray(
+      this._textureResourceUid,
+      targetTexture2D.__fbo!.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  blitToTexture2dFromTexture2dArrayFake(targetTexture2D: RenderTargetTexture2DArray) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArrayFake(
+      this._textureResourceUid,
+      targetTexture2D.__fbo!.cgApiResourceUid,
+      targetTexture2D.width,
+      targetTexture2D.height
+    );
+  }
+  blitToTexture2dFromTexture2dArray2(targetTexture2D: RenderTargetTexture2DArray) {
+    if (this.__arrayLength === 0) {
+      return;
+    }
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    webglResourceRepository.blitToTexture2dFromTexture2dArray2(
+      this._textureResourceUid,
+      targetTexture2D._textureResourceUid,
+      targetTexture2D.width / 2,
+      targetTexture2D.height
+    );
   }
 
   createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void {}

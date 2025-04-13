@@ -59,6 +59,7 @@ import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/Text
 import { Logger } from '../foundation/misc/Logger';
 import HDRImage from '../../vendor/hdrpng.js';
 import { TextureArray } from '../foundation/textures/TextureArray';
+import { RenderTargetTexture2DArray } from '../foundation';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;
@@ -1644,9 +1645,9 @@ export class WebGLResourceRepository
     )! as WebGLTexture;
     const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
 
-    if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
+    if (renderable instanceof RenderTargetTexture2DArray) {
       // It's must be TextureArray for MultiView VR Rendering
-      (renderable as RenderTargetTexture)._fbo = framebuffer;
+      (renderable as RenderTargetTexture2DArray)._fbo = framebuffer;
       if (this.__glw!.webgl2ExtMLTVIEW!.is_multisample) {
         this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultisampleMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
@@ -1667,7 +1668,7 @@ export class WebGLResourceRepository
           renderable.arrayLength
         );
       }
-    } else if (renderable instanceof RenderTargetTexture && renderable.arrayLength === 0) {
+    } else if (renderable instanceof RenderTargetTexture) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
@@ -1801,9 +1802,9 @@ export class WebGLResourceRepository
       renderable._textureResourceUid
     )! as WebGLTexture;
 
-    if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
+    if (renderable instanceof RenderTargetTexture2DArray) {
       // It's must be TextureArray for MultiView VR Rendering
-      (renderable as RenderTargetTexture)._fbo = framebuffer;
+      (renderable as RenderTargetTexture2DArray)._fbo = framebuffer;
       if (this.__glw!.webgl2ExtMLTVIEW!.is_multisample) {
         this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultisampleMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
@@ -1824,7 +1825,7 @@ export class WebGLResourceRepository
           renderable.arrayLength
         );
       }
-    } else if (renderable instanceof RenderTargetTexture && renderable.arrayLength === 0) {
+    } else if (renderable instanceof RenderTargetTexture) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,

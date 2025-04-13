@@ -27,7 +27,7 @@ import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
 import { SystemState } from '../../system';
-import { RenderTargetTexture } from '../../textures';
+import { RenderTargetTexture, RenderTargetTexture2DArray } from '../../textures';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
 import { Material } from '../../materials/core/Material';
@@ -712,9 +712,9 @@ export class ForwardRenderPipeline extends RnObject {
     renderPass.setPostRenderFunction(() => {
       if (this.__oFrameBufferMultiViewBlitBackBuffer.has()) {
         const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
-          .colorAttachments[0] as RenderTargetTexture;
+          .colorAttachments[0] as RenderTargetTexture2DArray;
         (
-          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray
         ).blitToTexture2dFromTexture2dArrayFake(texture);
         texture.generateMipmaps();
       }
@@ -736,9 +736,9 @@ export class ForwardRenderPipeline extends RnObject {
     renderPass.setPostRenderFunction(() => {
       if (this.__oFrameBufferMultiViewBlit.has()) {
         const texture = this.__oFrameBufferMultiViewBlit.unwrapForce()
-          .colorAttachments[0] as RenderTargetTexture;
+          .colorAttachments[0] as RenderTargetTexture2DArray;
         (
-          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray
         ).blitToTexture2dFromTexture2dArrayFake(texture);
       }
     });

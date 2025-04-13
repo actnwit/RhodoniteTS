@@ -5,6 +5,8 @@ import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/Rende
 import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { Vector4 } from '../math';
+import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';
+import { RenderTargetTextureCube } from '../textures';
 
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
@@ -43,7 +45,11 @@ export class FrameBuffer extends RnObject {
   getColorAttachedRenderTargetTexture(index: Index): RenderTargetTexture | undefined {
     if (
       this.__colorAttachments[index] == null ||
-      !(this.__colorAttachments[index] instanceof RenderTargetTexture)
+      !(
+        this.__colorAttachments[index] instanceof RenderTargetTexture ||
+        this.__colorAttachments[index] instanceof RenderTargetTexture2DArray ||
+        this.__colorAttachments[index] instanceof RenderTargetTextureCube
+      )
     ) {
       return undefined;
     } else {
@@ -52,7 +58,11 @@ export class FrameBuffer extends RnObject {
   }
 
   getDepthAttachedRenderTargetTexture(): RenderTargetTexture | undefined {
-    if (this.__depthAttachment instanceof RenderTargetTexture) {
+    if (
+      this.__depthAttachment instanceof RenderTargetTexture ||
+      this.__depthAttachment instanceof RenderTargetTexture2DArray ||
+      this.__depthAttachment instanceof RenderTargetTextureCube
+    ) {
       return this.__depthAttachment as RenderTargetTexture;
     } else {
       return undefined;
