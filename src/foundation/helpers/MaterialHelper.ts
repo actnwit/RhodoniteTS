@@ -553,7 +553,7 @@ function createParaboloidDepthMomentEncodeMaterial({
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
-    isLighting: false,
+    isLighting: true,
     isMorphing,
     vertexShader: ParaboloidDepthMomentEncodeShaderVertex,
     pixelShader: ParaboloidDepthMomentEncodeShaderFragment,
