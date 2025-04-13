@@ -6,6 +6,8 @@ import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
 import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';
 import { RenderTargetTextureCube } from '../textures/RenderTargetTextureCube';
+import { SystemState } from '../system/SystemState';
+import { ProcessApproach } from '../definitions/ProcessApproach';
 
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
@@ -107,13 +109,19 @@ export class FrameBuffer extends RnObject {
     this.__colorAttachments[index] = renderable;
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(
-      this,
-      index,
-      renderable,
-      layerIndex,
-      mipLevel
-    );
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (renderable instanceof RenderTargetTexture2DArray) {
+        renderable.changeRenderTargetLayerWebGPU(layerIndex);
+      }
+    } else {
+      cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(
+        this,
+        index,
+        renderable,
+        layerIndex,
+        mipLevel
+      );
+    }
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
 

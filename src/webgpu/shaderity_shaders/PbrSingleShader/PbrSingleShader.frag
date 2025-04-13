@@ -110,6 +110,12 @@
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
 // #param inverseEnvironment: bool; // initialValue=false
+#ifdef RN_USE_SHADOW_MAPPING
+  // #param pointLightFarPlane: f32; // initialValue=1000.0
+  // #param pointLightShadowMapUvScale: f32; // initialValue=0.93
+#endif
+
+#pragma shaderity: require(../common/shadow.wgsl)
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
@@ -339,7 +345,7 @@ fn main(
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
-    resultColor += lightingWithPunctualLight(light, normal_inWorld, viewDirection,
+    var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, albedo, perceptualRoughness, F0, F90,
                             transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
@@ -348,6 +354,33 @@ fn main(
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                             iridescence, iridescenceFresnel, specular
                             );
+
+    #ifdef RN_USE_SHADOW_MAPPING
+      // Point Light
+      let depthTextureIndex = u32(get_depthTextureIndexList(materialSID, i));
+      let pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
+      let pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
+      let shadowContributionParaboloid = varianceShadowContributionParaboloid(input.position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
+
+      // Directional Light or Spot Light
+      let v_shadowCoord = get_depthBiasPV(materialSID, i) * vec4f(input.position_inWorld, 1.0);
+      let bias = 0.001;
+      let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+      let lightDirection = normalize(get_lightDirection(0, i));
+      let lightPosToWorldPos = normalize(input.position_inWorld.xyz - light.position);
+      let dotProduct = dot(lightPosToWorldPos, lightDirection);
+      var shadowContribution = 1.0;
+      shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w, depthTextureIndex);
+
+      if (light.lightType == 1 && depthTextureIndex >= 0) { // Point Light
+        lighting *= shadowContributionParaboloid;
+      } else if ((light.lightType == 0 || light.lightType == 2) && depthTextureIndex >= 0) { // Directional Light or Spot Light
+        if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
+          lighting *= shadowContribution;
+        }
+      }
+    #endif
+    resultColor += lighting;
   }
 
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,

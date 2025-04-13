@@ -143,8 +143,12 @@ fn get_isVisible(instanceId: u32) -> bool {
     const isTexture = CompositionType.isTexture(info.compositionType);
 
     if (isTexture) {
-      const isCubeMap = info.compositionType === CompositionType.TextureCube;
-      const textureType = isCubeMap ? 'texture_cube<f32>' : 'texture_2d<f32>';
+      let textureType = 'texture_2d<f32>';
+      if (info.compositionType === CompositionType.TextureCube) {
+        textureType = 'texture_cube<f32>';
+      } else if (info.compositionType === CompositionType.Texture2DArray) {
+        textureType = 'texture_2d_array<f32>';
+      }
       const samplerName = methodName.replace('Texture', 'Sampler');
       return `
 @group(1) @binding(${info.initialValue[0]}) var ${methodName}: ${textureType};

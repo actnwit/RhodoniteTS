@@ -77,7 +77,16 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
       ).createTextureView2dArray(this._textureResourceUid);
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureViewAsRenderTarget(this._textureResourceUid);
+      ).createTextureView2dArrayAsRenderTarget(this._textureResourceUid, 0, 0);
+    }
+  }
+
+  public changeRenderTargetLayerWebGPU(layerIndex: Index) {
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+      this._textureViewAsRenderTargetResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2dArrayAsRenderTarget(this._textureResourceUid, layerIndex, 0);
     }
   }
 
