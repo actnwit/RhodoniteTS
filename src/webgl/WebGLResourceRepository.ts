@@ -59,7 +59,7 @@ import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/Text
 import { Logger } from '../foundation/misc/Logger';
 import HDRImage from '../../vendor/hdrpng.js';
 import { TextureArray } from '../foundation/textures/TextureArray';
-import { RenderTargetTexture2DArray } from '../foundation';
+import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;
