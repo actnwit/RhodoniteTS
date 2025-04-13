@@ -67,8 +67,8 @@ fn main(
     weight
   );
 
-  let lightIndex: i32 = get_lightIndex(materialSID, 0);
-  let lightPosition: vec3<f32> = get_lightPosition(0.0, lightIndex);
+  let lightIndex = get_lightIndex(materialSID, 0);
+  let lightPosition: vec3<f32> = get_lightPosition(0, lightIndex);
   var L: vec3<f32> = geom.position_inWorld.xyz - lightPosition;
   let dist: f32 = length(L);
   L = normalize(L);
@@ -92,5 +92,7 @@ fn main(
 
   let farPlane: f32 = get_farPlane(materialSID, 0);
   output.position = vec4(uv, dist / farPlane, 1.0);
-  output.position_inWorld = vec4(uv, dist / farPlane, signHemisphere * L.z);
+  output.color_0= vec4(uv, dist / farPlane, signHemisphere * L.z);
+
+  return output;
 }
