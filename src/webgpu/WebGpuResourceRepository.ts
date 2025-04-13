@@ -3010,6 +3010,25 @@ export class WebGpuResourceRepository
     return textureViewHandle;
   }
 
+  createTextureView2dArrayAsRenderTarget(
+    textureHandle: WebGPUResourceHandle,
+    arrayIdx: Index,
+    mipLevel: Index
+  ): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({
+      dimension: '2d',
+      arrayLayerCount: 1,
+      baseArrayLayer: arrayIdx,
+      baseMipLevel: mipLevel,
+      mipLevelCount: 1,
+      aspect: 'all',
+    });
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
   createCubeTextureViewAsRenderTarget(
     textureHandle: WebGPUResourceHandle,
     faceIdx: Index,
