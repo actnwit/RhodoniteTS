@@ -115,6 +115,15 @@ export class RenderTargetTexture extends AbstractTexture implements IRenderable 
       arrayLength: this.__arrayLength,
     });
     this._textureResourceUid = texture;
+
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2dArray(this._textureResourceUid);
+      this._textureViewAsRenderTargetResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureViewAsRenderTarget(this._textureResourceUid);
+    }
   }
 
   resize(width: Size, height: Size) {

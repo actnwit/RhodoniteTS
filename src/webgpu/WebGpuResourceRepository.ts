@@ -2989,6 +2989,14 @@ export class WebGpuResourceRepository
     return textureViewHandle;
   }
 
+  createTextureView2dArray(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({ dimension: '2d-array' });
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
   createCubeTextureViewAsRenderTarget(
     textureHandle: WebGPUResourceHandle,
     faceIdx: Index,
