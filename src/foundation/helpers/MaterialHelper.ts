@@ -55,6 +55,8 @@ import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSin
 import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
+import DepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert.wgsl';
+import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
 import ParaboloidDepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
 import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
@@ -604,6 +606,8 @@ function createDepthMomentEncodeMaterial({
     isMorphing,
     vertexShader: DepthMomentEncodeShaderVertex,
     pixelShader: DepthMomentEncodeShaderFragment,
+    vertexShaderWebGpu: DepthMomentEncodeShaderVertexWebGpu,
+    pixelShaderWebGpu: DepthMomentEncodeShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
   const material = createMaterial(materialContent, maxInstancesNumber);
