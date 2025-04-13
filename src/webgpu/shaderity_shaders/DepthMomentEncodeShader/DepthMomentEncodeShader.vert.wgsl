@@ -60,4 +60,5 @@ fn main(
 
   output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
 
+  return output;
 }
