@@ -2705,7 +2705,24 @@ export class WebGpuResourceRepository
     type: ComponentTypeEnum;
     arrayLength: Count;
   }): WebGPUResourceHandle {
-    return -1;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      dimension: '2d',
+      size: [width, height, arrayLength],
+      format: internalFormat.webgpu as GPUTextureFormat,
+      mipLevelCount: 1,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_SRC |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const textureHandle = this.__registerResource(gpuTexture);
+
+    return textureHandle;
   }
 
   /**
