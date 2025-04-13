@@ -59,6 +59,8 @@ import DepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/
 import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
 import ParaboloidDepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
 import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
+import ParaboloidDepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
+import ParaboloidDepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
@@ -551,10 +553,12 @@ function createParaboloidDepthMomentEncodeMaterial({
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
-    isLighting: true,
+    isLighting: false,
     isMorphing,
     vertexShader: ParaboloidDepthMomentEncodeShaderVertex,
     pixelShader: ParaboloidDepthMomentEncodeShaderFragment,
+    vertexShaderWebGpu: ParaboloidDepthMomentEncodeShaderVertexWebGpu,
+    pixelShaderWebGpu: ParaboloidDepthMomentEncodeShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
   const material = createMaterial(materialContent, maxInstancesNumber);

@@ -14,8 +14,11 @@ fn main(
   let dx = dFdx(depth);
   let dy = dFdy(depth);
 
+  var rt0: vec4<f32>;
   rt0.x = depth; // M1
   rt0.y = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
   rt0.z = 0.0;
   rt0.w = 1.0;
+
+  return rt0;
 }
