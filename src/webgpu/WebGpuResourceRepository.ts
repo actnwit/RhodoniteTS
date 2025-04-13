@@ -2984,7 +2984,11 @@ export class WebGpuResourceRepository
 
   createTextureViewAsRenderTarget(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
-    const textureView = texture.createView({ baseMipLevel: 0, mipLevelCount: 1 });
+    const textureView = texture.createView({
+      baseMipLevel: 0,
+      mipLevelCount: 1,
+      arrayLayerCount: 1,
+    });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;
