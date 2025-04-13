@@ -865,6 +865,7 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
+      label: material.materialTypeName + ' vertex shader',
     });
     if (Config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then((info) => {
@@ -875,6 +876,7 @@ export class WebGpuResourceRepository
     }
     const fsModule = gpuDevice.createShaderModule({
       code: fragmentShaderStr,
+      label: material.materialTypeName + ' fragment shader',
     });
     if (Config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then((info) => {
