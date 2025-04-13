@@ -1793,7 +1793,32 @@ export class WebGpuResourceRepository
     type: ComponentTypeEnum,
     imageData: TypedArray
   ): WebGPUResourceHandle {
-    return -1;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, arrayLength],
+      format: internalFormat.webgpu as GPUTextureFormat,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+      dimension: '2d',
+      mipLevelCount: mipLevelCount,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const imageData2 = new ImageData(new Uint8ClampedArray(imageData.buffer), width, height);
+
+    for (let i = 0; i < arrayLength; i++) {
+      gpuDevice.queue.copyExternalImageToTexture(
+        { source: imageData2 },
+        { texture: gpuTexture, origin: [0, 0, i] },
+        [width, height]
+      );
+    }
+
+    const textureHandle = this.__registerResource(gpuTexture);
+    return textureHandle;
   }
 
   createStorageBuffer(inputArray: Float32Array) {
