@@ -62,6 +62,7 @@ import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/Text
 import { Vector4 } from '../foundation/math/Vector4';
 import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 import { Logger } from '../foundation/misc/Logger';
+import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 
 import HDRImage from '../../vendor/hdrpng.js';
 
@@ -2101,10 +2102,13 @@ export class WebGpuResourceRepository
           const sampler = value.value[2] as Sampler;
 
           // Texture
-          const type =
-            texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube
-              ? 'cube'
-              : '2d';
+          let type = '2d' as GPUTextureViewDimension;
+          if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
+            type = 'cube';
+          } else if (texture instanceof RenderTargetTexture2DArray) {
+            type = '2d-array';
+          }
+
           let gpuTextureView = this.__webGpuResources.get(
             texture._textureViewResourceUid
           ) as GPUTextureView;
@@ -2114,6 +2118,11 @@ export class WebGpuResourceRepository
                 dummyBlackCubeTexture._textureResourceUid
               ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
+            } else if (texture instanceof RenderTargetTexture2DArray) {
+              const gpuTexture = this.__webGpuResources.get(
+                dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
+              gpuTextureView = gpuTexture.createView({ dimension: '2d-array' });
             } else {
               const gpuTexture = this.__webGpuResources.get(
                 dummyWhiteTexture._textureResourceUid
