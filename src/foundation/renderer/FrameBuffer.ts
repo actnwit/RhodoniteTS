@@ -4,9 +4,8 @@ import { IRenderable } from '../textures/IRenderable';
 import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
 import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { Vector4 } from '../math';
 import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';
-import { RenderTargetTextureCube } from '../textures';
+import { RenderTargetTextureCube } from '../textures/RenderTargetTextureCube';
 
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];

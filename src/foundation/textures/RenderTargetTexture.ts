@@ -5,7 +5,7 @@ import { Size, Index } from '../../types/CommonTypes';
 import { FrameBuffer } from '../renderer/FrameBuffer';
 import { Vector4 } from '../math/Vector4';
 import { SystemState } from '../system/SystemState';
-import { ProcessApproach } from '../definitions';
+import { ProcessApproach } from '../definitions/ProcessApproach';
 import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
 

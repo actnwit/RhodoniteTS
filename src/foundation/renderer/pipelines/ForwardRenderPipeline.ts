@@ -24,10 +24,10 @@ import {
   ToneMappingTypeEnum,
 } from '../../definitions';
 import { RenderPassHelper } from '../../helpers/RenderPassHelper';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { Sampler } from '../../textures/Sampler';
-import { SystemState } from '../../system';
-import { RenderTargetTexture, RenderTargetTexture2DArray } from '../../textures';
+import { SystemState } from '../../system/SystemState';
+import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
+import { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
 import { Material } from '../../materials/core/Material';
