@@ -1,7 +1,7 @@
-const merge = require('webpack-merge').merge;
-const path = require('path');
-const baseConfig = require('./webpack.config.base.js');
-const webpack = require('webpack');
+import { merge } from 'webpack-merge';
+import path from 'path';
+import baseConfig from './webpack.config.base.js';
+import webpack from 'webpack';
 
 const config = merge(baseConfig, {
   entry: './src/cjs.ts',
@@ -10,7 +10,7 @@ const config = merge(baseConfig, {
   output: {
     filename: 'index.js',
     chunkFilename: 'rhodonite-[name].js',
-    path: path.resolve(__dirname, './../../dist/esmdev'),
+    path: path.resolve(process.cwd(), 'dist/esmdev'),
     library: {
       type: 'module',
     },
@@ -28,4 +28,4 @@ const config = merge(baseConfig, {
   },
 });
 
-module.exports = config;
+export default config;

@@ -14,7 +14,7 @@ declare function isPowerOfTwoTexture(width: Size, height: Size): boolean;
 declare function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[];
 declare function gaussianCdf(x: number, mu: number, sigma: number): number;
 declare function invGaussianCdf(U: number, mu: number, sigma: number): number;
-declare function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w: MutableVector3): -1 | 0;
+declare function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w: MutableVector3): 0 | -1;
 declare function convertToStringAsGLSLFloat(value: number): string;
 declare function nearZeroToZero(value: number): number;
 declare function financial(val: number | string): string;

@@ -3,10 +3,9 @@
  * @author Enki
  * @desc load/save Radiance .HDR, RGBE in PNG and RGB9_E5 in PNG for HTML5, webGL, webGL2.
  */
-(function (name, context, definition) {
-  if (typeof module != 'undefined' && module.exports) module.exports = definition();
-  else if (typeof define == 'function' && define.amd) define(name, definition);
-  else context[name] = definition();
+export default (function (name, context, definition) {
+  const HDRImage = definition();
+  return HDRImage;
 }('HDRImage', this, function () {
   /**
    * HDRImage - wrapper that exposes default Image like interface for HDR imgaes. (till extending HTMLCanvasElement actually works ..)
@@ -21,7 +20,7 @@
     res.__defineGetter__('dataFloat',function(){ return rgbeToFloat(HDRdata); });
     res.__defineGetter__('dataRGBE',function(){ return HDRdata; });
     res.toHDRBlob = function(cb,m,q) {
-      // Array to image.. slightly more involved.  
+      // Array to image.. slightly more involved.
         function createShader(gl, source, type) {
             var shader = gl.createShader(type);
             gl.shaderSource(shader, source);
@@ -61,11 +60,11 @@
         gl.useProgram(program);
         gl.uniform1i(uniformTexLocation, 0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
-        
+
         gl.deleteTexture(texture);
         gl.deleteProgram(program);
 
-        if (cb) return c.toBlob(cb); 
+        if (cb) return c.toBlob(cb);
     }
     res.__defineGetter__('src',function(){return HDRsrc});
     res.__defineSetter__('src',function(val){
@@ -79,7 +78,7 @@
         HDRD = context.getImageData(0,0,width,height);
         rgbeToLDR(img,HDRexposure,HDRgamma,HDRD.data);
         context.putImageData(HDRD,0,0);
-        this.onload&&this.onload(); 
+        this.onload&&this.onload();
       }.bind(res));
       else if (val.match(/\.rgb9_e5\.png$/i)) {
         var i = new Image();
@@ -90,7 +89,7 @@
           var texture = gl.createTexture();
           gl.bindTexture(gl.TEXTURE_2D, texture);
           gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, i);
-           
+
           fb = gl.createFramebuffer();
           gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
           gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
@@ -100,14 +99,14 @@
 
           gl.deleteTexture(texture);
           gl.deleteFramebuffer(fb);
-          
+
           this.dataRAW = new Uint32Array(res.buffer);
           HDRdata = floatToRgbe(rgb9_e5ToFloat(this.dataRAW));
           context = this.getContext('2d');
           HDRD = context.getImageData(0,0,x,y);
           rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
           context.putImageData(HDRD,0,0);
-          this.onload&&this.onload(); 
+          this.onload&&this.onload();
         }.bind(res);
       } else if (val.match(/\.hdr\.png$|\.rgbe\.png/i)) {
         var i = new Image();
@@ -118,7 +117,7 @@
           var texture = gl.createTexture();
           gl.bindTexture(gl.TEXTURE_2D, texture);
           gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, i);
-           
+
           fb = gl.createFramebuffer();
           gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
           gl.framebufferTexture2D( gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
@@ -128,21 +127,21 @@
 
           gl.deleteTexture(texture);
           gl.deleteFramebuffer(fb);
-          
+
           HDRdata = res;
           context = this.getContext('2d');
           HDRD = context.getImageData(0,0,x,y);
           rgbeToLDR(HDRdata,HDRexposure,HDRgamma,HDRD.data);
           context.putImageData(HDRD,0,0);
-          this.onload&&this.onload(); 
+          this.onload&&this.onload();
         }.bind(res);
       }
     });
     return res;
-  }  
-  
+  }
+
   function m(a,b) { for (var i in b) a[i]=b[i]; return a; };
-    
+
   /** Load and parse a Radiance .HDR file. It completes with a 32bit RGBE buffer.
     * @param {URL} url location of .HDR file to load.
     * @param {function} completion completion callback.
@@ -154,9 +153,9 @@
     req.onload  = function() {
       if (this.status>=400) return this.onerror();
       var header='',pos=0,d8=new Uint8Array(this.response),format;
-    // read header.  
+    // read header.
       while (!header.match(/\n\n[^\n]+\n/g)) header += String.fromCharCode(d8[pos++]);
-    // check format. 
+    // check format.
       format = header.match(/FORMAT=(.*)$/m)[1];
       if (format!='32-bit_rle_rgbe') return console.warn('unknown format : '+format),this.onerror();
     // parse resolution
@@ -168,7 +167,7 @@
         var rgbe=d8.slice(pos,pos+=4),scanline=[];
         if (rgbe[0]!=2||(rgbe[1]!=2)||(rgbe[2]&0x80)) {
           var len=width,rs=0; pos-=4; while (len>0) {
-            img.set(d8.slice(pos,pos+=4),ipos); 
+            img.set(d8.slice(pos,pos+=4),ipos);
             if (img[ipos]==1&&img[ipos+1]==1&&img[ipos+2]==1) {
               for (img[ipos+3]<<rs; i>0; i--) {
                 img.set(img.slice(ipos-4,ipos),ipos);
@@ -184,12 +183,12 @@
               var ptr=i*width,ptr_end=(i+1)*width,buf,count;
               while (ptr<ptr_end){
                   buf = d8.slice(pos,pos+=2);
-                  if (buf[0] > 128) { count = buf[0]-128; while(count-- > 0) scanline[ptr++] = buf[1]; } 
+                  if (buf[0] > 128) { count = buf[0]-128; while(count-- > 0) scanline[ptr++] = buf[1]; }
                                else { count = buf[0]-1; scanline[ptr++]=buf[1]; while(count-->0) scanline[ptr++]=d8[pos++]; }
               }
           }
           for (var i=0;i<width;i++) { img[ipos++]=scanline[i]; img[ipos++]=scanline[i+width]; img[ipos++]=scanline[i+2*width]; img[ipos++]=scanline[i+3*width]; }
-        }  
+        }
       }
       completion&&completion(img,width,height);
     }
@@ -249,7 +248,7 @@
     }
     return res;
   }
-  
+
   /** Convert an RGBE buffer to a Float buffer.
     * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
     * @param {Float32Array} [res] Optional result buffer containing 3 floats per pixel.
@@ -265,7 +264,7 @@
     }
     return res;
   }
-  
+
   /** Convert an RGBE buffer to LDR with given exposure and display gamma.
     * @param {Uint8Array} buffer The input buffer in RGBE format. (as returned from loadHDR)
     * @param {float} [exposure=1] Optional exposure value. (1=default, 2=1 step up, 3=2 steps up, -2 = 3 steps down)
@@ -287,7 +286,7 @@
   }
 
   /** Convert an float buffer to LDR with given exposure and display gamma.
-    * @param {Float32Array} buffer The input buffer in floating point format. 
+    * @param {Float32Array} buffer The input buffer in floating point format.
     * @param {float} [exposure=1] Optional exposure value. (1=default, 2=1 step up, 3=2 steps up, -2 = 3 steps down)
     * @param {float} [gamma=2.2]  Optional display gamma to respect. (1.0 = linear, 2.2 = default monitor)
     * @param {Array} [res] res Optional result buffer.
@@ -304,20 +303,20 @@
     }
     return res;
   }
-  
-  
+
+
   // Float/RGBE conversions.
   HDRImage.floatToRgbe = floatToRgbe;
   HDRImage.rgbeToFloat = rgbeToFloat;
 
   // Float/RGB9_E5 conversions.
   HDRImage.floatToRgb9_e5 = floatToRgb9_e5;
-  HDRImage.rgb9_e5ToFloat = rgb9_e5ToFloat; 
+  HDRImage.rgb9_e5ToFloat = rgb9_e5ToFloat;
 
   // x to LDR conversion.
   HDRImage.rgbeToLDR   = rgbeToLDR;
   HDRImage.floatToLDR  = floatToLDR;
-  
-  
+
+
   return HDRImage;
 }));

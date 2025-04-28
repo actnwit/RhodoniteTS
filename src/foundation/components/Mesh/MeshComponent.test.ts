@@ -1,4 +1,4 @@
-import Rn from '../../../../dist/cjs';
+import Rn from '../../../../dist/esm';
 
 function generateEntity() {
   const entity = Rn.EntityRepository.createEntity();
