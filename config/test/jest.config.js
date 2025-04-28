@@ -14,4 +14,5 @@ module.exports = {
       + "|webxr-input-profiles/packages/motion-controllers"
       + ")/)",
   ],
+  testEnvironment: 'jsdom',
 };
