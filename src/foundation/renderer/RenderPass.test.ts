@@ -1,14 +1,11 @@
-import { MemoryManager } from '../core/MemoryManager';
-import { RenderPass } from './RenderPass';
-import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
-import '../components/registerComponents';
+import Rn from '../../../dist/esm';
 
 function generateEntity() {
-  return createMeshEntity();
+  return Rn.createMeshEntity();
 }
 
 test('addEntities and get entities', () => {
-  MemoryManager.createInstanceIfNotCreated({
+  Rn.MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
@@ -21,7 +18,7 @@ test('addEntities and get entities', () => {
   const entityGrandChildOf1st = generateEntity(); // Uid is 3
   entityChildOf1st.getSceneGraph().addChild(entityGrandChildOf1st.getSceneGraph());
 
-  const renderPass = new RenderPass();
+  const renderPass = new Rn.RenderPass();
   renderPass.addEntities([entity1st, entity2nd]);
 
   const entities = renderPass.entities;
@@ -35,7 +32,7 @@ test('addEntities and get entities', () => {
 });
 
 test('clearEntities and get entities', () => {
-  MemoryManager.createInstanceIfNotCreated({
+  Rn.MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
@@ -44,7 +41,7 @@ test('clearEntities and get entities', () => {
   const entity1st = generateEntity(); // Uid is 0
   const entity2nd = generateEntity(); // Uid is 1
 
-  const renderPass = new RenderPass();
+  const renderPass = new Rn.RenderPass();
   renderPass.addEntities([entity1st, entity2nd]);
 
   expect(renderPass.entities.length).toBe(2);

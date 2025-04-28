@@ -1,11 +1,9 @@
-const consoleLog = require('../common/testFunc').consoleLog;
-const testCheckWindowRendered =
-  require('../common/testFunc').testCheckWindowRendered;
+import { consoleLog } from '../common/testFunc';
+import { testCheckWindowRendered } from '../common/testFunc';
 const SetURL = 'http://localhost:8082/samples/test_e2e/WebGpuGltf';
 
 test('regression test WebGpuGltf', async () => {
   await testCheckWindowRendered(
-    jest,
     browser,
     SetURL,
     expect,

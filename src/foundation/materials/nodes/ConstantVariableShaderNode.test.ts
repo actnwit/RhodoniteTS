@@ -1,35 +1,27 @@
-import { MemoryManager } from '../../core/MemoryManager';
-import { CompositionType } from '../../definitions/CompositionType';
-import { ComponentType } from '../../definitions/ComponentType';
-import { AddShaderNode } from './AddShaderNode';
-import { OutPositionShaderNode } from './OutPositionShaderNode';
-import { Vector4 } from '../../math/Vector4';
-import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
-import { ModuleManager } from '../../system/ModuleManager';
-import { ConstantVector4VariableShaderNode } from './ConstantVector4VariableShaderNode';
+import Rn from '../../../../dist/esm/';
 
 test('ConstantVariable works correctly 1', async () => {
-  await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated({
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
+  Rn.MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
   });
 
-  const constant1 = new ConstantVector4VariableShaderNode(ComponentType.Float);
-  constant1.setDefaultInputValue(Vector4.fromCopyArray([1, 2, 3, 4]));
-  const constant2 = new ConstantVector4VariableShaderNode(ComponentType.Float);
-  constant2.setDefaultInputValue(Vector4.fromCopyArray([4, 3, 2, 1]));
+  const constant1 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
+  constant1.setDefaultInputValue(Rn.Vector4.fromCopyArray([1, 2, 3, 4]));
+  const constant2 = new Rn.ConstantVector4VariableShaderNode(Rn.ComponentType.Float);
+  constant2.setDefaultInputValue(Rn.Vector4.fromCopyArray([4, 3, 2, 1]));
 
-  const add = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
+  const add = new Rn.AddShaderNode(Rn.CompositionType.Vec4, Rn.ComponentType.Float);
   add.addInputConnection(constant1, constant1.getSocketOutput(), add.getSocketInputLhs());
   add.addInputConnection(constant2, constant2.getSocketOutput(), add.getSocketInputRhs());
 
-  const outPosition = new OutPositionShaderNode();
+  const outPosition = new Rn.OutPositionShaderNode();
   outPosition.addInputConnection(add, add.getSocketOutput(), outPosition.getSocketInput());
 
   // nodes are intentionally made the order random
-  const ret = ShaderGraphResolver.createVertexShaderCode(
+  const ret = Rn.ShaderGraphResolver.createVertexShaderCode(
     [constant1, constant2, add, outPosition],
     [],
     false

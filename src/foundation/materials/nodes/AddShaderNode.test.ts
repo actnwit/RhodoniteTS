@@ -1,20 +1,14 @@
-import { ModuleManager } from '../../system/ModuleManager';
-import { MemoryManager } from '../../core/MemoryManager';
-import { OutPositionShaderNode } from './OutPositionShaderNode';
-import { AttributePositionShaderNode } from './AttributePositionShaderNode';
-import { ShaderGraphResolver } from '../core/ShaderGraphResolver';
-import { MaterialRepository } from '../core/MaterialRepository';
-import { CustomMaterialContent } from '../contents/CustomMaterialContent';
+import Rn from '../../../../dist/esm/';
 
 test.skip('AttributePosition works correctly 1', async () => {
-  await ModuleManager.getInstance().loadModule('webgl');
-  MemoryManager.createInstanceIfNotCreated({
+  await Rn.ModuleManager.getInstance().loadModule('webgl');
+  Rn.MemoryManager.createInstanceIfNotCreated({
     cpuGeneric: 1,
     gpuInstanceData: 1,
     gpuVertexData: 1,
   });
 
-  const materialNode = new CustomMaterialContent({
+  const materialNode = new Rn.CustomMaterialContent({
     name: 'material test',
     isSkinning: false,
     isLighting: false,
@@ -33,11 +27,11 @@ test.skip('AttributePosition works correctly 1', async () => {
   });
 
   // Material.registerMaterial('MyMaterial', undefined);
-  const material = MaterialRepository.createMaterial('MyMaterial', materialNode)!;
+  const material = Rn.MaterialRepository.createMaterial('MyMaterial', materialNode)!;
 
-  const a_position = new AttributePositionShaderNode();
+  const a_position = new Rn.AttributePositionShaderNode();
 
-  const outPositionNode = new OutPositionShaderNode();
+  const outPositionNode = new Rn.OutPositionShaderNode();
   outPositionNode.addInputConnection(
     a_position,
     a_position.getSocketOutput(),
@@ -45,7 +39,7 @@ test.skip('AttributePosition works correctly 1', async () => {
   );
 
   // nodes are intentionally made the order random
-  const retVal = ShaderGraphResolver.createVertexShaderCode(
+  const retVal = Rn.ShaderGraphResolver.createVertexShaderCode(
     [outPositionNode, a_position],
     [],
     false

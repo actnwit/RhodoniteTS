@@ -1,7 +1,7 @@
-const testCheckPtoDocument = require('../common/testFunc').testCheckPtoDocument;
+import { testCheckPtoDocument } from '../common/testFunc';
 const SetURL =
   'http://localhost:8082/samples/test_e2e/FurnaceTest-whiteFurnace';
 
 test('regression test FurnaceTest-whiteFurnace', async () => {
-  await testCheckPtoDocument(jest, browser, SetURL, expect, 2, true);
+  await testCheckPtoDocument(browser, SetURL, expect, 2, true);
 });
