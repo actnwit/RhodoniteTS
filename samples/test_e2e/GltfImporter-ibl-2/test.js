@@ -1,3 +1,5 @@
+import { toMatchImageSnapshot } from "jest-image-snapshot";
+expect.extend({ toMatchImageSnapshot });
 
 test('regression test GltfImporter-ibl-2', async () => {
   const page = await browser.newPage();

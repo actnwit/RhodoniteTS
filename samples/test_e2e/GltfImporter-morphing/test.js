@@ -1,7 +1,6 @@
-const testCheckWindowRendered =
-  require('../common/testFunc').testCheckWindowRendered;
+import { testCheckWindowRendered } from '../common/testFunc';
 const SetURL = 'http://localhost:8082/samples/test_e2e/GltfImporter-morphing';
 
 test('regression test GltfImporter-morphing', async () => {
-  await testCheckWindowRendered(jest, browser, SetURL, expect, 0.01);
+  await testCheckWindowRendered(browser, SetURL, expect, 0.01);
 });

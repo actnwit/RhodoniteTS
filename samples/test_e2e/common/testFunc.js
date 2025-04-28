@@ -1,4 +1,6 @@
-exports.testFunc = async (jest, browser, url, expect) => {
+import { toMatchImageSnapshot } from "jest-image-snapshot";
+
+exports.testFunc = async (browser, url, expect) => {
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(
@@ -25,7 +27,6 @@ exports.consoleLog = async page => {
 };
 
 exports.testCheckWindowRendered = async (
-  jest,
   browser,
   url,
   expect,
@@ -33,6 +34,7 @@ exports.testCheckWindowRendered = async (
   noParam = false,
   consoleOn = false
 ) => {
+  expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
@@ -61,7 +63,6 @@ exports.testCheckWindowRendered = async (
 };
 
 exports.testCheckPtoDocument = async (
-  jest,
   browser,
   url,
   expect,
@@ -69,6 +70,7 @@ exports.testCheckPtoDocument = async (
   noParam = false,
   consoleOn = false
 ) => {
+  expect.extend({ toMatchImageSnapshot });
   const page = await browser.newPage();
   await page.setDefaultNavigationTimeout(2000000);
   await page.goto(url);
@@ -94,7 +96,7 @@ exports.testCheckPtoDocument = async (
 exports.defineTest = (name, mode, errorThreshold) => {
   const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}`;
   test(`${name} ${mode}`, async () => {
-    await exports.testCheckWindowRendered(jest, browser, url, expect, errorThreshold, true);
+    await exports.testCheckWindowRendered(browser, url, expect, errorThreshold, true);
   });
 };
 
@@ -108,7 +110,7 @@ exports.doTests = (name, modes, errorThreshold = 0.03) => {
 exports.defineGltfTest = (name, mode, gltfName, gltfFormat,errorThreshold) => {
   const url = `http://localhost:8082/samples/test_e2e/${name}?mode=${mode}&gltf=${gltfName}&gltfformat=${gltfFormat}`;
   test(`${name} ${gltfName} ${mode}`, async () => {
-    await exports.testCheckWindowRendered(jest, browser, url, expect, errorThreshold, true);
+    await exports.testCheckWindowRendered(browser, url, expect, errorThreshold, true);
   });
 };
 

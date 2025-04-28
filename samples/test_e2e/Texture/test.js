@@ -1,5 +1,4 @@
-const doTests =
-  require('../common/testFunc').doTests;
+import { doTests } from '../common/testFunc';
 
 const modes = ['datatexture', 'webgpu'];
 
