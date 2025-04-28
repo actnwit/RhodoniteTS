@@ -1,4 +1,4 @@
-import Rn from '../../../../';
+import Rn from '../../../../dist/cjs';
 import { ShaderityObject } from 'shaderity';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
 
