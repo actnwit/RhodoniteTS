@@ -1,4 +1,4 @@
-import Rn, { ISceneGraphEntity } from '../../../dist/esmdev/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 
@@ -509,7 +509,7 @@ window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 
-function applyShader(entity: ISceneGraphEntity) {
+function applyShader(entity: Rn.ISceneGraphEntity) {
   const meshComponent = entity.tryToGetMesh();
   if (meshComponent != null) {
     const primitiveNumber = meshComponent.mesh!.getPrimitiveNumber();

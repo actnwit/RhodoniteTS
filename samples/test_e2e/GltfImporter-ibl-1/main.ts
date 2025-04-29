@@ -1,4 +1,4 @@
-import Rn, { ShaderSemanticsEnum } from '../../../dist/esmdev/index.js';
+import Rn from '../../../dist/esmdev/index.js';
 
 declare const window: any;
 const p = document.createElement('p');
