@@ -1,3 +1,8 @@
-import * as Rn from './import';
+// ① 中身を取得
+import * as RnNS from './import';
 
-export default Rn;
+// ② named export をそのまま流す
+export * from './import';
+
+// ③ **静的に** default を宣言  ←★ポイント
+export { RnNS as default };
