@@ -1,8 +1,8 @@
 import { WebGLResourceRepository } from '../webgl/WebGLResourceRepository';
 
-const puppeteer = require('puppeteer');
+// const puppeteer = require('puppeteer');
 
-const timeout = 5000;
+// const timeout = 5000;
 
 //let browser;
 let page: any;
