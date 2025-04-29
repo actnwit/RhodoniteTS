@@ -80,9 +80,9 @@
     "version-loader": "^0.1.0",
     "vitest": "^3.1.2",
     "vitest-puppeteer": "^11.0.3",
-    "webpack": "^5.73.0",
-    "webpack-cli": "^4.8.0",
-    "webpack-merge": "^5.7.3",
+    "webpack": "^5.99.7",
+    "webpack-cli": "^6.0.1",
+    "webpack-merge": "^6.0.1",
     "webxr-input-profiles": "actnwit/webxr-input-profiles#21272c8a0a5512614e60dca5be26f7b1485ad6e7"
   },
   "dependencies": {
