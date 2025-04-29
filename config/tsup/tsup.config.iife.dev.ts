@@ -3,7 +3,7 @@ import shaderity from 'esbuild-plugin-shaderity'
 import version from 'esbuild-plugin-version'
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/iife.ts'],
   outDir: 'dist/iifedev',
   splitting: false,
   sourcemap: true,
