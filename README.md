@@ -106,7 +106,7 @@ You don't need any bundler.
 
 ```typescript
 // main.ts
-import Rn from 'rhodonite';
+import Rn from 'rhodonite/dist/esm/index.js';
 // import Rn from 'rhodonite/dist/esmdev/index.js'; // use this if you want to display the source map or step through the library
 
 // Init Rhodonite
@@ -137,6 +137,12 @@ Rn.System.startRenderLoop(() => {
   }
   ...
 }
+```
+
+If you use bundler, you can simply import rhodonite, like
+
+```
+import Rn from 'rhodonite';
 ```
 
 #### Using UMD package
