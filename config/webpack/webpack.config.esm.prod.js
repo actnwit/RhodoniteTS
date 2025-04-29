@@ -4,7 +4,7 @@ import baseConfig from './webpack.config.base.js';
 import webpack from 'webpack';
 
 const config = merge(baseConfig, {
-  entry: './src/cjs.ts',
+  entry: './src/index.ts',
   target: 'node',
   mode: 'production',
   output: {

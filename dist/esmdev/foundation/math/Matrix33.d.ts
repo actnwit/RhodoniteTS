@@ -58,7 +58,7 @@ export declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix
     /**
      * Create invert matrix
      */
-    static invert(mat: IMatrix33): IMatrix33 | Matrix33;
+    static invert(mat: IMatrix33): Matrix33 | IMatrix33;
     static invertTo(mat: IMatrix33, outMat: MutableMatrix33): MutableMatrix33;
     /**
      * Create X oriented Rotation Matrix

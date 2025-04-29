@@ -94,30 +94,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 
 ### In TypeScript
 
-There are three package versions of Rhodonite: CommmonJS, ESModule, and UMD.
-
-#### Using CommonJS package
-
-You need a bundler (e.g., Webpack) to import the Rhodonite CommonJS package.
-
-```typescript
-import Rn from 'rhodonite';
-
-// Init Rhodonite
-await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
-  canvas: document.getElementById('world') as HTMLCanvasElement,
-});
-
-// create a Plane mesh
-const planeEntity = Rn.MeshHelper.createPlane();
-planeEntity.eulerAngles = Rn.Vector3.fromCopy3(Math.PI * 0.5, 0, 0);
-
-// Render Loop
-Rn.System.startRenderLoop(() => {
-  Rn.System.processAuto();
-});
-```
+There are two package versions of Rhodonite: ESModule and UMD.
 
 #### Using ESModule package
 
@@ -129,7 +106,7 @@ You don't need any bundler.
 
 ```typescript
 // main.ts
-import Rn from 'rhodonite/dist/esm/index.js';
+import Rn from 'rhodonite';
 // import Rn from 'rhodonite/dist/esmdev/index.js'; // use this if you want to display the source map or step through the library
 
 // Init Rhodonite

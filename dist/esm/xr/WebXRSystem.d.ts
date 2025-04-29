@@ -61,8 +61,8 @@ export declare class WebXRSystem {
     getCanvasWidthForVr(): number;
     getCanvasHeightForVr(): number;
     getControllerEntities(): ISceneGraphEntity[];
-    get leftViewMatrix(): import("..").Matrix44;
-    get rightViewMatrix(): import("..").Matrix44;
+    get leftViewMatrix(): import("../foundation").Matrix44;
+    get rightViewMatrix(): import("../foundation").Matrix44;
     get leftProjectionMatrix(): MutableMatrix44;
     get rightProjectionMatrix(): MutableMatrix44;
     get framebuffer(): WebGLFramebuffer | undefined;
@@ -80,7 +80,7 @@ export declare class WebXRSystem {
      * @internal
      * @returns The view matrix vector of right eye
      */
-    _getViewMatrixAt(index: Index): import("..").Matrix44;
+    _getViewMatrixAt(index: Index): import("../foundation").Matrix44;
     /**
      * Getter of the project matrix of right eye
      * @param index (0: left, 1: right)
@@ -128,7 +128,7 @@ export declare class WebXRSystem {
      * @param index (0: left, 1: right)
      * @returns the CameraComponent of left/right eye
      */
-    _getCameraComponentAt(index: Index): import("..").CameraComponent;
+    _getCameraComponentAt(index: Index): import("../foundation").CameraComponent;
     /**
      * Pre process for rendering
      * @internal

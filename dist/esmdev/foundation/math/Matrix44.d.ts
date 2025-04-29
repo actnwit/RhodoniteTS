@@ -67,7 +67,7 @@ export declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix
     /**
      * Create transpose matrix
      */
-    static transpose(mat: IMatrix44): IMatrix44 | Matrix44;
+    static transpose(mat: IMatrix44): Matrix44 | IMatrix44;
     /**
      * Create invert matrix
      */

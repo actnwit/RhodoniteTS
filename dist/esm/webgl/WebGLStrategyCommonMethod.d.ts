@@ -52,7 +52,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         toString(): string;
         toJSON(): number;
     };
-    stage: import("..").EnumIO;
+    stage: import("../foundation").EnumIO;
     initialValue: Scalar;
     min: number;
     max: number;
@@ -99,7 +99,7 @@ declare function getPointSpriteShaderSemanticsInfoArray(): ({
         toString(): string;
         toJSON(): number;
     };
-    stage: import("..").EnumIO;
+    stage: import("../foundation").EnumIO;
     initialValue: Vector3;
     min: number;
     max: number;

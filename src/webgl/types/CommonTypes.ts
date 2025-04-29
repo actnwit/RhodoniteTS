@@ -1,4 +1,4 @@
-import { Matrix44, RenderTargetTextureCube } from '../..';
+import { Matrix44, RenderTargetTextureCube } from '../../import';
 import { LightComponent } from '../../foundation/components/Light/LightComponent';
 import { Primitive } from '../../foundation/geometry/Primitive';
 import { IMeshEntity } from '../../foundation/helpers/EntityHelper';

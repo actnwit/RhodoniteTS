@@ -4,7 +4,7 @@ import { VertexAttributeEnum } from '../../../foundation/definitions/VertexAttri
 import { CompositionTypeEnum } from '../../../foundation/definitions/CompositionType';
 export declare class EndShader extends CommonShaderPart {
     static __instance: EndShader;
-    static readonly materialElement: import("../../..").EnumIO;
+    static readonly materialElement: import("../../../foundation").EnumIO;
     private constructor();
     static getInstance(): EndShader;
     get vertexShaderDefinitions(): "\n      fn outPosition(inPosition: vec4<f32>) {\n        output.position = inPosition;\n      }\n      " | "\n      void outPosition(in vec4 inPosition) {\n        gl_Position = inPosition;\n      }\n      ";

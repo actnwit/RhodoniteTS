@@ -1,5 +1,5 @@
 export default {
-  entry: './src/index.ts',
+  entry: './src/import.ts',
 
   module: {
     rules: [

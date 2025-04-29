@@ -46,7 +46,7 @@ export declare class WebARSystem {
     exitWebAR(): Promise<void>;
     getCanvasWidthForVr(): number;
     getCanvasHeightForVr(): number;
-    get viewMatrix(): import("..").Matrix44;
+    get viewMatrix(): import("../foundation").Matrix44;
     private __updateView;
     private __setCameraInfoFromXRViews;
     get projectionMatrix(): MutableMatrix44;

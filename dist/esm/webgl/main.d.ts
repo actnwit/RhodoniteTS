@@ -5,7 +5,7 @@ import { WebGLStrategy as webGLStrategy } from './WebGLStrategy';
 import { WebGLStrategyUniform } from './WebGLStrategyUniform';
 import { WebGLStrategyDataTexture } from './WebGLStrategyDataTexture';
 declare const WebGL: Readonly<{
-    getRenderingStrategy: (processApproach: import("..").ProcessApproachEnum) => webGLStrategy;
+    getRenderingStrategy: (processApproach: import("../foundation").ProcessApproachEnum) => webGLStrategy;
     CommonShaderPart: typeof CommonShaderPart;
     WebGLContextWrapper: typeof WebGLContextWrapper;
     WebGLResourceRepository: typeof WebGLResourceRepository;

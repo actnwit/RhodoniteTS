@@ -4,7 +4,7 @@ import { CompositionTypeEnum } from '../../../foundation/definitions/Composition
 import { AttributeNames } from '../../types/CommonTypes';
 export declare class ClassicShadingShader extends CommonShaderPart {
     static __instance: ClassicShadingShader;
-    static readonly materialElement: import("../../..").EnumIO;
+    static readonly materialElement: import("../../../foundation").EnumIO;
     private constructor();
     static getInstance(): ClassicShadingShader;
     get vertexShaderDefinitions(): string;

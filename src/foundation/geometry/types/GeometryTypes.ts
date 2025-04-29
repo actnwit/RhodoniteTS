@@ -1,4 +1,4 @@
-import { MeshComponent, Primitive } from '../../..';
+import { MeshComponent, Primitive } from '../../../import';
 import { MeshUID } from '../../../types/CommonTypes';
 import { IVector3 } from '../../math/IVector';
 

@@ -119,6 +119,6 @@ export declare class System {
     static get processApproach(): import("../definitions/ProcessApproach").ProcessApproachClass;
     static resizeCanvas(width: number, height: number): void;
     static getCanvasSize(): [number, number];
-    static getCurrentWebGLContextWrapper(): import("../..").WebGLContextWrapper | undefined;
+    static getCurrentWebGLContextWrapper(): import("../../webgl").WebGLContextWrapper | undefined;
 }
 export {};
