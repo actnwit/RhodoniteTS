@@ -1,4 +1,4 @@
-import Shaderity, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
+import ShaderityModule, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
 import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
 import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
@@ -23,6 +23,8 @@ import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTe
 import { TextureParameter } from '../../definitions';
 import { Sampler } from '../../textures/Sampler';
 import { Logger } from '../../misc/Logger';
+
+const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 export type FillArgsObject = {
   [key: string]: string;
