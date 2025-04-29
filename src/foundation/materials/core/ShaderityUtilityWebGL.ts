@@ -1,4 +1,4 @@
-import Shaderity, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
+import ShaderityModule, { Reflection, ShaderityObject, TemplateObject } from 'shaderity';
 import { ComponentType, ComponentTypeEnum } from '../../definitions/ComponentType';
 import { CompositionType, CompositionTypeEnum } from '../../definitions/CompositionType';
 import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
@@ -21,6 +21,8 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 import { Logger } from '../../misc/Logger';
+
+const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 export type FillArgsObject = {
   [key: string]: string;
@@ -66,13 +68,13 @@ export class ShaderityUtilityWebGL {
     reflection.reflect();
 
     const names = reflection.attributesNames;
-    const semantics = reflection.attributesSemantics.map((semantic) => {
+    const semantics = (reflection.attributesSemantics as string[]).map((semantic) => {
       return VertexAttribute.fromString(semantic);
     });
-    const compositions = reflection.attributesTypes.map((type) => {
+    const compositions = (reflection.attributesTypes as string[]).map((type) => {
       return CompositionType.fromGlslString(type);
     });
-    const components = reflection.attributesTypes.map((type) => {
+    const components = (reflection.attributesTypes as string[]).map((type) => {
       return ComponentType.fromGlslString(type);
     });
 

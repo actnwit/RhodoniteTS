@@ -1,4 +1,4 @@
-import Shaderity from 'shaderity';
+import ShaderityModule from 'shaderity';
 import { CGAPIResourceHandle } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../../webgl/types/CommonTypes';
 import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
@@ -17,6 +17,8 @@ import { Primitive } from '../../geometry/Primitive';
 import { ModuleManager } from '../../system/ModuleManager';
 import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
+
+const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 export class ShaderHandler {
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
