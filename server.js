@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 express.static.mime.define({'application/javascript': ['mjs']});
 const app = express();
 app.use(express.static('./'));

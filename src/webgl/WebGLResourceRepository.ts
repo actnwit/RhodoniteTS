@@ -57,7 +57,7 @@ import { WebGLStereoUtil } from './WebGLStereoUtil';
 import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
-const HDRImage = require('../../vendor/hdrpng.min.js');
+import HDRImage from '../../vendor/hdrpng.js';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;

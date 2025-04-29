@@ -64,7 +64,7 @@ import { Vector4 } from '../foundation/math/Vector4';
 import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 import { Logger } from '../foundation/misc/Logger';
 
-const HDRImage = require('../../vendor/hdrpng.min.js');
+import HDRImage from '../../vendor/hdrpng.js';
 
 export type WebGpuResource =
   | GPUTexture

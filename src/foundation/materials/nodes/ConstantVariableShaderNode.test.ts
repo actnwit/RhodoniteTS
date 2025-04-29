@@ -1,4 +1,4 @@
-import Rn from '../../../../dist/esm/';
+import Rn from '../../../../dist/esm';
 
 test('ConstantVariable works correctly 1', async () => {
   await Rn.ModuleManager.getInstance().loadModule('webgl');
