@@ -42692,8 +42692,8 @@ function _createProgramAsSingleOperationWebGpu(material, primitive, vertexShader
     matricesGetters: vertexShaderMethodDefinitions,
     maxMorphDataNumber: "" + Math.ceil(Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader / 4)
   });
-  const preprocessedVertex = import_shaderity3.default.processPragma(vertexShaderityObject);
-  const preprocessedPixel = import_shaderity3.default.processPragma(pixelShaderityObject);
+  const preprocessedVertex = Shaderity3.processPragma(vertexShaderityObject);
+  const preprocessedPixel = Shaderity3.processPragma(pixelShaderityObject);
   const [programUid, newOne] = ShaderHandler._createShaderProgramWithCache(material, primitive, preprocessedVertex.code, preprocessedPixel.code, [], []);
   return programUid;
 }
@@ -42775,7 +42775,7 @@ function defineAttributes(primitive) {
 `;
   return vertexAttributeDefines;
 }
-var import_shaderity3, _ShaderHandler, ShaderHandler;
+var import_shaderity3, Shaderity3, _ShaderHandler, ShaderHandler;
 var init_ShaderHandler = __esm({
   "src/foundation/materials/core/ShaderHandler.ts"() {
     "use strict";
@@ -42788,6 +42788,7 @@ var init_ShaderHandler = __esm({
     init_ShaderityUtilityWebGL();
     init_ModuleManager();
     init_Is();
+    Shaderity3 = import_shaderity3.default.default || import_shaderity3.default;
     _ShaderHandler = class _ShaderHandler {
       /**
       * Create a shader program Or Get a shader program from cache
@@ -58178,7 +58179,7 @@ ${indexStr}
 var VERSION_FILE_default;
 var init_VERSION_FILE = __esm({
   "version:/Users/emadurandal/ghq/github.com/actnwit/RhodoniteEditor2/submodules/RhodoniteTS/VERSION-FILE"() {
-    VERSION_FILE_default = { version: "v0.14.2-3-gf07e8926e-dirty", branch: "refactor/tsup" };
+    VERSION_FILE_default = { version: "v0.14.2-8-g477103316-dirty", branch: "refactor/tsup2" };
   }
 });
 
