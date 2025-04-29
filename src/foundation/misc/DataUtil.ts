@@ -83,13 +83,17 @@ export class DataUtil {
   }
 
   static base64ToArrayBuffer(base64: string) {
-    const binary_string = window.atob(base64);
-    const len = binary_string.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
+    if (typeof window !== "undefined") {
+      const binary_string = window.atob(base64);
+      const len = binary_string.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes.buffer;
+    } else {
+      throw new Error('This function works in browser environment.')
     }
-    return bytes.buffer;
   }
 
   static UInt8ArrayToDataURL(uint8array: Uint8Array, width: number, height: number) {

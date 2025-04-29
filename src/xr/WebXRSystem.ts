@@ -96,6 +96,9 @@ export class WebXRSystem {
    * @returns true: prepared properly, false: failed to prepare
    */
   async readyForWebXR(requestButtonDom: HTMLElement, basePath: string) {
+    if (typeof window === "undefined") {
+      throw new Error('This method works in Browser environment');
+    }
     this.__basePath = basePath;
     await ModuleManager.getInstance().loadModule('xr');
 
@@ -597,6 +600,10 @@ export class WebXRSystem {
       await (gl as any).makeXRCompatible();
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
+
+      if (typeof window === "undefined") {
+        throw new Error('This method works in Browser environment');
+      }
 
       this.__webglLayer = new window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer;
       const webglLayer = this.__webglLayer;

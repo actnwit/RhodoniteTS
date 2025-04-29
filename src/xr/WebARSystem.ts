@@ -60,6 +60,10 @@ export class WebARSystem {
    * @returns true: prepared properly, false: failed to prepare
    */
   async readyForWebAR(requestButtonDom: HTMLElement) {
+    if (typeof window === "undefined") {
+      throw new Error('This method works in Browser environment');
+    }
+
     await ModuleManager.getInstance().loadModule('xr');
 
     const glw = CGAPIResourceRepository.getWebGLResourceRepository().currentWebGLContextWrapper;
@@ -156,6 +160,10 @@ export class WebARSystem {
       await (gl as any).makeXRCompatible();
       // The content that will be shown on the device is defined by the session's
       // baseLayer.
+
+      if (typeof window === "undefined") {
+        throw new Error('This method works in Browser Environment')
+      }
 
       this.__oWebglLayer = new Some(window.XRWebGLLayer(xrSession, gl) as XRWebGLLayer);
       const webglLayer = this.__oWebglLayer.unwrapForce();

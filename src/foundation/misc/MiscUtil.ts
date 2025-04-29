@@ -2,9 +2,13 @@ import { Byte, Size, TypedArray } from '../../types/CommonTypes';
 import { Is } from './Is';
 
 const isMobileVr = function () {
-  return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
-    window.navigator.userAgent
-  );
+  if (typeof window !== "undefined") {
+    return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
+      window.navigator.userAgent
+    );
+  } else {
+    return false;
+  }
 };
 
 const isMobile = function () {
