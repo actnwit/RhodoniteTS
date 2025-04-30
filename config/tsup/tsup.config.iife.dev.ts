@@ -6,7 +6,7 @@ export default defineConfig({
   entry: ['src/iife.ts'],
   outDir: 'dist/iifedev',
   splitting: false,
-  sourcemap: true,
+  sourcemap: 'inline',
   clean: true,
   minify: false,
   treeshake: false,

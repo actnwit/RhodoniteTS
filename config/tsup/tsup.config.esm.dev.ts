@@ -6,7 +6,7 @@ export default defineConfig({
   entry: ['src/index.ts'],
   outDir: 'dist/esmdev',
   splitting: false,
-  sourcemap: true,
+  sourcemap: 'inline',
   clean: true,
   minify: false,
   // treeshake: true,
