@@ -94,7 +94,7 @@ If you get an error like "webxr-input-profiles not found" when building a projec
 
 ### In TypeScript
 
-There are two package versions of Rhodonite: ESModule and UMD.
+There are two package versions of Rhodonite: ESModule and IIFE.
 
 #### Using ESModule package
 
@@ -145,7 +145,7 @@ If you use bundler, you can simply import rhodonite, like
 import Rn from 'rhodonite';
 ```
 
-#### Using UMD package
+#### Using IIFE package
 
 See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .
 
@@ -153,7 +153,7 @@ See the last part of https://github.com/actnwit/RhodoniteTS/wiki/Install .
 
 ### Prerequisites
 
-* Node.js 18 or later
+* Node.js 22 or later
 
 ### Setup Project
 
