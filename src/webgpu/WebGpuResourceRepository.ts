@@ -65,6 +65,7 @@ import { Logger } from '../foundation/misc/Logger';
 import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 
 import HDRImage from '../../vendor/hdrpng.js';
+import { TextureArray } from '../foundation/textures/TextureArray';
 
 export type WebGpuResource =
   | GPUTexture
@@ -2132,7 +2133,7 @@ export class WebGpuResourceRepository
           let type = '2d' as GPUTextureViewDimension;
           if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
             type = 'cube';
-          } else if (texture instanceof RenderTargetTexture2DArray) {
+          } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
             type = '2d-array';
           }
 
@@ -2145,7 +2146,7 @@ export class WebGpuResourceRepository
                 dummyBlackCubeTexture._textureResourceUid
               ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
-            } else if (texture instanceof RenderTargetTexture2DArray) {
+            } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
               const gpuTexture = this.__webGpuResources.get(
                 dummyWhiteTexture._textureResourceUid
               ) as GPUTexture;

@@ -1,11 +1,14 @@
 import { CGAPIResourceHandle } from '../../types/CommonTypes';
+import { WebGpuResourceRepository } from '../../webgpu/WebGpuResourceRepository';
 import { Config } from '../core/Config';
 import { ComponentType } from '../definitions/ComponentType';
 import { PixelFormat } from '../definitions/PixelFormat';
+import { ProcessApproach } from '../definitions/ProcessApproach';
 import { TextureFormat } from '../definitions/TextureFormat';
 import { TextureParameter } from '../definitions/TextureParameter';
 import { Logger } from '../misc/Logger';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
+import { SystemState } from '../system/SystemState';
 import { AbstractTexture } from './AbstractTexture';
 
 type FinalizationRegistryObject = {
@@ -60,11 +63,11 @@ export class TextureArray extends AbstractTexture implements Disposable {
     );
     this.__setTextureResourceUid(resourceUid, this.uniqueName);
 
-    // if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-    //   this._textureViewResourceUid = (
-    //     cgApiResourceRepository as WebGpuResourceRepository
-    //   ).createTextureViewCube(this._textureResourceUid);
-    // }
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      this._textureViewResourceUid = (
+        cgApiResourceRepository as WebGpuResourceRepository
+      ).createTextureView2dArray(this._textureResourceUid, Config.shadowMapTextureArrayLength);
+    }
 
     this.__isTextureReady = true;
   }
