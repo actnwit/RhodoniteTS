@@ -3029,9 +3029,9 @@ export class WebGpuResourceRepository
     return textureViewHandle;
   }
 
-  createTextureView2dArray(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
+  createTextureView2dArray(textureHandle: WebGPUResourceHandle, arrayLayerCount: Count): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
-    const textureView = texture.createView({ dimension: '2d-array' });
+    const textureView = texture.createView({ dimension: '2d-array', baseArrayLayer: 0, arrayLayerCount: arrayLayerCount });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;

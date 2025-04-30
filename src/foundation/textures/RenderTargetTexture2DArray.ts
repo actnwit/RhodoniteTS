@@ -74,7 +74,7 @@ export class RenderTargetTexture2DArray extends AbstractTexture implements IRend
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2dArray(this._textureResourceUid);
+      ).createTextureView2dArray(this._textureResourceUid, this.__arrayLength);
       this._textureViewAsRenderTargetResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureView2dArrayAsRenderTarget(this._textureResourceUid, 0, 0);
