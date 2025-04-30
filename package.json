@@ -1,6 +1,6 @@
 {
   "name": "rhodonite",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "keywords": [
     "rhodonite",
     "webgl",
@@ -15,7 +15,6 @@
   "files": [
     "dist/esm",
     "dist/esmdev",
-    "src",
     "VERSION-FILE",
     "vendor/effekseer.d.ts"
   ],
@@ -33,7 +32,7 @@
     "build-iife-prod": "npm run create-VERSION-FILE && npx tsup --config ./config/tsup/tsup.config.iife.prod.ts && npm run rename-iife-prod",
     "build-esm-dev": "npm run create-VERSION-FILE && npx tsup --config ./config/tsup/tsup.config.esm.dev.ts",
     "build-esm-prod": "npm run create-VERSION-FILE && npx tsup --config ./config/tsup/tsup.config.esm.prod.ts",
-    "rename-iife-dev": "npx shx mv dist/iifedev/iife.global.js dist/iifedev/rhodonite.js && npx shx mv dist/iifedev/iife.d.ts dist/iifedev/rhodonite.d.ts && npx shx mv dist/iifedev/iife.global.js.map dist/iifedev/rhodonite.js.map",
+    "rename-iife-dev": "npx shx mv dist/iifedev/iife.global.js dist/iifedev/rhodonite.js && npx shx mv dist/iifedev/iife.d.ts dist/iifedev/rhodonite.d.ts",
     "rename-iife-prod": "npx shx mv dist/iife/iife.global.js dist/iife/rhodonite.js && npx shx mv dist/iife/iife.d.ts dist/iife/rhodonite.d.ts",
     "build-samples": "tsc -p ./samples/",
     "watch-samples": "tsc-watch -p ./samples/ --onSuccess \"npm run start\"",
