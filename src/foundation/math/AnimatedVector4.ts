@@ -57,4 +57,8 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
       throw new Error('Animation channel not found');
     }
   }
+
+  setAnimationChannel(animationTrackName: AnimationTrackName, animationChannel: AnimationChannel) {
+    this.__animationChannels.set(animationTrackName, animationChannel);
+  }
 }
