@@ -131,7 +131,7 @@ export class AnimationComponent extends Component {
       if (animationSetOf1st !== undefined) {
         for (const [attributeName, channel] of animationSetOf1st) {
           const i = AnimationAttribute.fromString(attributeName).index;
-          const value = __interpolate(channel, time, i);
+          const value = __interpolate(channel.sampler, time, i);
 
           if (i === AnimationAttribute.Quaternion.index) {
             transformComponent!.setLocalRotationAsArray4(value as Array4<number>);
@@ -170,7 +170,7 @@ export class AnimationComponent extends Component {
       if (animationSetOf2nd !== undefined) {
         for (const [attributeName, channel] of animationSetOf2nd) {
           const i = AnimationAttribute.fromString(attributeName).index;
-          const value = __interpolate(channel, time, i);
+          const value = __interpolate(channel.sampler, time, i);
 
           if (i === AnimationAttribute.Quaternion.index) {
             AnimationComponent.__tmpQuat._v[0] = value[0];
@@ -515,7 +515,7 @@ export class AnimationComponent extends Component {
     }
 
     const i = AnimationAttribute.fromString(pathName).index;
-    const output = __interpolate(channel, AnimationComponent.globalTime, i);
+    const output = __interpolate(channel.sampler, AnimationComponent.globalTime, i);
 
     if (channel.sampler.input.length === 0) {
       const inputArray = Array.from(channel.sampler.input);

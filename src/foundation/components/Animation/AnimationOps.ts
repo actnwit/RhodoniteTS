@@ -272,21 +272,21 @@ function __lerp(
   }
 }
 
-function __interpolate(
-  channel: AnimationChannel,
+export function __interpolate(
+  sampler: AnimationSampler,
   currentTime: number,
   animationAttributeIndex: Index
 ): Array<number> {
-  const inputArray = channel.sampler.input;
-  const outputArray = channel.sampler.output;
-  const method = channel.sampler.interpolationMethod ?? AnimationInterpolation.Linear;
+  const inputArray = sampler.input;
+  const outputArray = sampler.output;
+  const method = sampler.interpolationMethod ?? AnimationInterpolation.Linear;
 
   // out of range
   if (currentTime <= inputArray[0]) {
-    const outputOfZeroFrame = __getOutputValue(0, channel.sampler, outputArray);
+    const outputOfZeroFrame = __getOutputValue(0, sampler, outputArray);
     return outputOfZeroFrame;
   } else if (inputArray[inputArray.length - 1] <= currentTime) {
-    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel.sampler, outputArray);
+    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, sampler, outputArray);
     return outputOfEndFrame;
   }
 
@@ -298,7 +298,7 @@ function __interpolate(
     const { p_0, p_1, m_0, m_1 } = __prepareVariablesForCubicSpline(
       outputArray,
       i,
-      channel.sampler.outputComponentN,
+      sampler.outputComponentN,
       t_diff
     );
     const ret = cubicSpline(p_0, p_1, m_0, m_1, t) as globalThis.Array<number>;
@@ -314,17 +314,17 @@ function __interpolate(
       ratio,
       animationAttributeIndex,
       i,
-      channel.sampler.outputComponentN
+      sampler.outputComponentN
     );
     return ret as Array<number>;
   } else if (method === AnimationInterpolation.Step) {
     for (let i = 0; i < inputArray.length - 1; i++) {
       if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
-        const output_frame_i = __getOutputValue(i, channel.sampler, outputArray);
+        const output_frame_i = __getOutputValue(i, sampler, outputArray);
         return output_frame_i;
       }
     }
-    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel.sampler, outputArray);
+    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, sampler, outputArray);
     return outputOfEndFrame;
   }
 
