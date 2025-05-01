@@ -6,4 +6,5 @@ export interface IAnimatedValue {
   blendingRatio: number;
   setTime(time: number): void;
   useGlobalTime(): void;
+  setFloat32Array(array: Float32Array): void;
 }

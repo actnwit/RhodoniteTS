@@ -1,12 +1,12 @@
 import { AnimationChannel, AnimationChannels, AnimationSampler, AnimationTrackName } from "../../types/AnimationTypes";
-import { Vector4 } from "./Vector4";
-import { __getOutputValue, __interpolate } from "../components/Animation/AnimationOps";
+import { __interpolate } from "../components/Animation/AnimationOps";
 import { AnimationAttribute } from "../definitions/AnimationAttribute";
 import { AnimationComponent } from "../components/Animation/AnimationComponent";
-import { IVector4 } from "./IVector";
+import { IVector3 } from "./IVector";
 import { IAnimatedValue } from "./IAnimatedValue";
+import { Vector3 } from "./Vector3";
 
-export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue {
+export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue {
   private __animationChannels: AnimationChannels;
   private __firstActiveAnimationTrackName: AnimationTrackName;
   private __firstActiveAnimationChannel: AnimationChannel;
@@ -17,7 +17,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   private __lastTime = -1;
 
   constructor(animationChannels: AnimationChannels, activeAnimationTrackName: AnimationTrackName) {
-    super(new Float32Array(4));
+    super(new Float32Array(3));
     this.__animationChannels = animationChannels;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
     const animationChannel = this.__animationChannels.get(this.__firstActiveAnimationTrackName);
@@ -72,17 +72,6 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     }
   }
 
-  get w() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[3];
-    } else {
-      this.__update();
-      this.__lastTime = time;
-      return this._v[3];
-    }
-  }
-
   private __update() {
     const time = this.__time ?? AnimationComponent.globalTime;
     const firstValue = __interpolate(this.__firstActiveAnimationChannel.sampler, time, AnimationAttribute.Vector4.index);
@@ -90,13 +79,11 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
       this._v[0] = firstValue[0];
       this._v[1] = firstValue[1];
       this._v[2] = firstValue[2];
-      this._v[3] = firstValue[3];
     } else {
       const secondValue = __interpolate(this.__secondActiveAnimationChannel.sampler, time, AnimationAttribute.Vector4.index);
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
       this._v[2] = firstValue[2] * (1 - this.blendingRatio) + secondValue[2] * this.blendingRatio;
-      this._v[3] = firstValue[3] * (1 - this.blendingRatio) + secondValue[3] * this.blendingRatio;
     }
   }
 
@@ -122,3 +109,4 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     this.__animationChannels.set(animationTrackName, animationChannel);
   }
 }
+
