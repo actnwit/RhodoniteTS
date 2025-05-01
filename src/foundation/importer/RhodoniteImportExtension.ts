@@ -1,4 +1,5 @@
 import { EffekseerComponent, IEffekseerEntityMethods } from '../../effekseer/EffekseerComponent';
+import { AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import {
   RnM2,
   RnM2ExtensionsEffekseerEffect,
@@ -16,6 +17,7 @@ import { IEntity } from '../core';
 import { EntityRepository } from '../core/EntityRepository';
 import { AnimationInterpolation } from '../definitions';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
+import { AnimatedScalar } from '../math/AnimatedScalar';
 import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
@@ -130,24 +132,21 @@ function createEffekseerAnimation(
           animationEntity = EntityRepository.addComponentToEntity(AnimationComponent, entity);
         }
         animationComponent = animationEntity!.getAnimation();
+        const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+        const trackName = Is.exist(timelineName) ? timelineName : 'Default';
+        animationSamplers.set(
+          trackName,
+          {
+            input: new Float32Array(timelineValues.map((value) => value.input)),
+            output: new Float32Array(timelineValues.map((value) => value.event === 'play' ? 1 : 0)),
+            outputComponentN: 1,
+            interpolationMethod: AnimationInterpolation.Step,
+          }
+        );
+        const newAnimatedValue = new AnimatedScalar(animationSamplers, trackName);
         animationComponent.setAnimation(
-          Is.exist(timelineName) ? timelineName : 'Default',
           'effekseer',
-          new Float32Array(timelineValues.map((value) => value.input)),
-          new Float32Array(
-            timelineValues.map((value) => {
-              if (value.event === 'play') {
-                return 1;
-              } else if (value.event === 'pause') {
-                return 0;
-              } else {
-                return 0;
-              }
-            })
-          ),
-          1,
-          AnimationInterpolation.Step,
-          true
+          newAnimatedValue
         );
       }
     }

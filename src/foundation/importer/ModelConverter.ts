@@ -68,7 +68,7 @@ import { TextureParameter } from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Is } from '../misc/Is';
 import { DataUtil } from '../misc/DataUtil';
-import { AnimationPathName } from '../../types/AnimationTypes';
+import { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import { GltfLoadOption, KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
 import {
   IAnimationEntity,
@@ -92,6 +92,8 @@ import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { Logger } from '../misc/Logger';
 import { Vrm1_Material } from '../../types/VRM1';
+import { AnimatedVector3 } from '../math/AnimatedVector3';
+import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 
 declare let DracoDecoderModule: any;
 
@@ -345,14 +347,39 @@ export class ModelConverter {
             }
             if (Is.exist(animationComponent)) {
               const outputComponentN = channel.samplerObject.outputObject!.extras!.componentN!;
-              animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name : 'Untitled_Animation',
-                animationAttributeType,
-                animInputArray,
-                animOutputArray,
-                outputComponentN as VectorComponentN,
-                AnimationInterpolation.fromString(interpolation)
-              );
+              const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+              const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+              const animationSampler = {
+                input: animInputArray,
+                output: animOutputArray,
+                outputComponentN: outputComponentN as VectorComponentN,
+                interpolationMethod: AnimationInterpolation.fromString(interpolation),
+              };
+              animationSamplers.set(trackName, animationSampler);
+              const animatedValue = animationComponent.getAnimation(animationAttributeType);
+              if (Is.exist(animatedValue)) {
+                animatedValue.setAnimationSampler(trackName, animationSampler);
+              } else {
+                if (animationAttributeType === 'translate') {
+                  const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+                  animationComponent.setAnimation(
+                    animationAttributeType,
+                    newAnimatedValue
+                  );
+                } else if (animationAttributeType === 'quaternion') {
+                  const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
+                  animationComponent.setAnimation(
+                    animationAttributeType,
+                    newAnimatedValue
+                  );
+                } else { // scale
+                  const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+                  animationComponent.setAnimation(
+                    animationAttributeType,
+                    newAnimatedValue
+                  );
+                }
+              }
             }
           }
         }

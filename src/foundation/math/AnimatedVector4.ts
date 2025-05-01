@@ -66,13 +66,10 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   public update() {
     let time = this.__time ?? AnimationComponent.globalTime;
     if (this.isLoop) {
-      const duration = Math.max(AnimationComponent.__animationGlobalInfo.get(
-        this.__firstActiveAnimationTrackName!
-      )!.maxEndInputTime,
-        AnimationComponent.__animationGlobalInfo.get(
-          this.__secondActiveAnimationTrackName!
-        )!.maxEndInputTime,
-      );
+      let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
+      if (this.__secondActiveAnimationSampler !== undefined) {
+        duration = Math.max(duration, this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]);
+      }
       time = time % duration;
     }
     if (this.__lastTime == time) {
@@ -110,6 +107,46 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
       throw new Error('Animation channel not found');
     }
     this.__secondActiveAnimationSampler = animationSampler;
+  }
+
+  getFirstActiveAnimationTrackName() {
+    return this.__firstActiveAnimationTrackName;
+  }
+
+  getSecondActiveAnimationTrackName() {
+    return this.__secondActiveAnimationTrackName;
+  }
+
+  getMinStartInputTime(trackName: AnimationTrackName) {
+    const animationSampler = this.__animationSamplers.get(trackName);
+    if (animationSampler === undefined) {
+      throw new Error('Animation channel not found');
+    }
+    return animationSampler.input[0];
+  }
+
+  getMaxEndInputTime(trackName: AnimationTrackName) {
+    const animationSampler = this.__animationSamplers.get(trackName);
+    if (animationSampler === undefined) {
+      throw new Error('Animation channel not found');
+    }
+    return animationSampler.input[animationSampler.input.length - 1];
+  }
+
+  getAllTrackNames() {
+    return Array.from(this.__animationSamplers.keys());
+  }
+
+  getAnimationSampler(trackName: AnimationTrackName) {
+    const animationSampler = this.__animationSamplers.get(trackName);
+    if (animationSampler === undefined) {
+      throw new Error('Animation channel not found');
+    }
+    return animationSampler;
+  }
+
+  deleteAnimationSampler(trackName: AnimationTrackName) {
+    this.__animationSamplers.delete(trackName);
   }
 
   setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler) {

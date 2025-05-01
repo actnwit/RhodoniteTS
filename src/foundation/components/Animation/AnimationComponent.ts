@@ -20,13 +20,14 @@ import {
   AnimationInfo,
   AnimationTrackName,
   AnimationChannel,
+  AnimationSampler,
 } from '../../../types/AnimationTypes';
 import { valueWithDefault, valueWithCompensation } from '../../misc/MiscUtil';
 import { EventPubSub, EventHandler } from '../../system/EventPubSub';
 import { Quaternion } from '../../math/Quaternion';
 import { Vector3 } from '../../math/Vector3';
 import { Is } from '../../misc/Is';
-import { IAnimationEntity } from '../../helpers/EntityHelper';
+import { IAnimationEntity, ISceneGraphEntity } from '../../helpers/EntityHelper';
 import { IEntity } from '../../core/Entity';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { IAnimationRetarget } from '../Skeletal';
@@ -36,6 +37,10 @@ import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MathUtil } from '../../math/MathUtil';
 import { MutableVector4 } from '../../math/MutableVector4';
+import { Scalar } from '../../math';
+import { IAnimatedValue } from '../../math/IAnimatedValue';
+import { AnimatedVector3 } from '../../math/AnimatedVector3';
+import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
 
 const defaultAnimationInfo = {
   name: '',
@@ -52,12 +57,10 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 export class AnimationComponent extends Component {
   /// inner states ///
   // The name of the current Active Track
-  private __firstActiveAnimationTrackName?: AnimationTrackName;
-  private __secondActiveAnimationTrackName?: AnimationTrackName; // for animation blending
   public animationBlendingRatio = 0; // the value range is [0,1]
 
   // Animation Data of each AnimationComponent
-  private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
+  private __animationTrack: AnimationTrack = new Map();
   public static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
 
   private __isEffekseerState = -1;
@@ -114,105 +117,33 @@ export class AnimationComponent extends Component {
       time = AnimationComponent.globalTime;
     }
 
-    const transformComponent = this.entity.getTransform();
+    const transformComponent = (this.entity as unknown as ISceneGraphEntity).getTransform();
     const blendShapeComponent = this.entity.tryToGetBlendShape();
     const effekseerComponent = this.entity.tryToGetEffekseer();
 
-    // process the first active animation track
-    if (Is.exist(this.__firstActiveAnimationTrackName) && this.animationBlendingRatio < 1) {
-      if (this.isLoop) {
-        const duration = AnimationComponent.__animationGlobalInfo.get(
-          this.__firstActiveAnimationTrackName!
-        )!.maxEndInputTime;
-        time = time % duration;
-      }
-
-      const animationSetOf1st = this.__animationTracks.get(this.__firstActiveAnimationTrackName);
-      if (animationSetOf1st !== undefined) {
-        for (const [attributeName, channel] of animationSetOf1st) {
-          const i = AnimationAttribute.fromString(attributeName).index;
-          const value = __interpolate(channel.sampler, time, i);
-
-          if (i === AnimationAttribute.Quaternion.index) {
-            transformComponent!.setLocalRotationAsArray4(value as Array4<number>);
-          } else if (i === AnimationAttribute.Translate.index) {
-            transformComponent!.setLocalPositionAsArray3(value as Array3<number>);
-          } else if (i === AnimationAttribute.Scale.index) {
-            transformComponent!.setLocalScaleAsArray3(value as Array3<number>);
-          } else if (i === AnimationAttribute.Weights.index) {
-            blendShapeComponent!.weights = value;
-          } else if (i === AnimationAttribute.Effekseer.index) {
-            if (value[0] > 0.5) {
-              if (this.__isEffekseerState === 0) {
-                effekseerComponent?.play();
-              }
-            } else {
-              if (this.__isEffekseerState === 1) {
-                effekseerComponent?.pause();
-              }
-            }
-            this.__isEffekseerState = value[0];
+    for (const [pathName, channel] of this.__animationTrack) {
+      channel.animatedValue.setTime(time);
+      channel.animatedValue.blendingRatio = this.animationBlendingRatio;
+      channel.animatedValue.update();
+      if (pathName === 'translate') {
+        transformComponent.localPosition = channel.animatedValue as unknown as Vector3;
+      } else if (pathName === 'quaternion') {
+        transformComponent.localRotation = channel.animatedValue as unknown as Quaternion;
+      } else if (pathName === 'scale') {
+        transformComponent.localScale = channel.animatedValue as unknown as Vector3;
+      } else if (pathName === 'weights') {
+        blendShapeComponent!.weights = channel.animatedValue as unknown as Array<number>;
+      } else if (pathName === 'effekseer') {
+        if ((channel.animatedValue as unknown as Scalar).x > 0.5) {
+          if (this.__isEffekseerState === 0) {
+              effekseerComponent?.play();
+          }
+        } else {
+          if (this.__isEffekseerState === 1) {
+            effekseerComponent?.pause();
           }
         }
-      }
-    }
-
-    // process the second active animation track, and blending with the first's one
-    if (Is.exist(this.__secondActiveAnimationTrackName) && this.animationBlendingRatio > 0) {
-      if (this.isLoop) {
-        const duration = AnimationComponent.__animationGlobalInfo.get(
-          this.__secondActiveAnimationTrackName!
-        )!.maxEndInputTime;
-        time = time % duration;
-      }
-
-      const animationSetOf2nd = this.__animationTracks.get(this.__secondActiveAnimationTrackName);
-      if (animationSetOf2nd !== undefined) {
-        for (const [attributeName, channel] of animationSetOf2nd) {
-          const i = AnimationAttribute.fromString(attributeName).index;
-          const value = __interpolate(channel.sampler, time, i);
-
-          if (i === AnimationAttribute.Quaternion.index) {
-            AnimationComponent.__tmpQuat._v[0] = value[0];
-            AnimationComponent.__tmpQuat._v[1] = value[1];
-            AnimationComponent.__tmpQuat._v[2] = value[2];
-            AnimationComponent.__tmpQuat._v[3] = value[3];
-            transformComponent!.localRotation = Quaternion.qlerp(
-              transformComponent!.localRotationInner,
-              AnimationComponent.__tmpQuat,
-              this.animationBlendingRatio
-            );
-          } else if (i === AnimationAttribute.Translate.index) {
-            AnimationComponent.__tmpPos._v[0] = value[0];
-            AnimationComponent.__tmpPos._v[1] = value[1];
-            AnimationComponent.__tmpPos._v[2] = value[2];
-            transformComponent!.localPosition = Vector3.lerp(
-              transformComponent!.localPositionInner,
-              AnimationComponent.__tmpPos,
-              this.animationBlendingRatio
-            );
-          } else if (i === AnimationAttribute.Scale.index) {
-            AnimationComponent.__tmpScale._v[0] = value[0];
-            AnimationComponent.__tmpScale._v[1] = value[1];
-            AnimationComponent.__tmpScale._v[2] = value[2];
-            transformComponent!.localScale = Vector3.lerp(
-              transformComponent!.localScaleInner,
-              AnimationComponent.__tmpScale,
-              this.animationBlendingRatio
-            );
-          } else if (i === AnimationAttribute.Weights.index) {
-            const weightsOf2nd = value;
-            for (let i = 0; i < weightsOf2nd.length; i++) {
-              blendShapeComponent!.weights[i] = MathUtil.lerp(
-                blendShapeComponent!.weights[i],
-                weightsOf2nd[i],
-                this.animationBlendingRatio
-              );
-            }
-          } else if (i === AnimationAttribute.Effekseer.index) {
-            // do nothing
-          }
-        }
+        this.__isEffekseerState = (channel.animatedValue as unknown as Scalar).x;
       }
     }
   }
@@ -235,152 +166,78 @@ export class AnimationComponent extends Component {
   }
 
   setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
-    if (this.__animationTracks.has(animationTrackName)) {
-      this.__firstActiveAnimationTrackName = animationTrackName;
-      return true;
-    } else {
-      return false;
+    for (const [pathName, channel] of this.__animationTrack) {
+      channel.animatedValue.setFirstActiveAnimationTrackName(animationTrackName);
     }
   }
 
   setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
-    if (this.__animationTracks.has(animationTrackName)) {
-      this.__secondActiveAnimationTrackName = animationTrackName;
-      return true;
-    } else {
-      return false;
+    for (const [pathName, channel] of this.__animationTrack) {
+      channel.animatedValue.setSecondActiveAnimationTrackName(animationTrackName);
     }
   }
 
   getActiveAnimationTrack() {
-    return this.__firstActiveAnimationTrackName;
+    for (const [pathName, channel] of this.__animationTrack) {
+      return channel.animatedValue.getFirstActiveAnimationTrackName();
+    }
+    throw new Error('No active animation track found');
   }
 
   hasAnimation(trackName: AnimationTrackName, pathName: AnimationPathName): boolean {
-    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-      this.__animationTracks.get(trackName);
-
-    if (Is.not.exist(animationSet)) {
-      return false;
+    for (const [currentPathName, channel] of this.__animationTrack) {
+      return pathName == currentPathName && channel.animatedValue.getFirstActiveAnimationTrackName() === trackName;
     }
-
-    return animationSet.has(pathName);
+    return false;
   }
 
   /**
    * set an animation channel to AnimationSet
-   * @param trackName - the name of animation track
    * @param pathName - the name of animation path
-   * @param inputArray - the array of input values
-   * @param outputArray - the array of output values
-   * @param outputComponentN - the number of output value's components
-   * @param interpolation - the interpolation type
-   * @param makeThisActiveAnimation - if true, set this animation track as current active animation
+   * @param animatedValue - the animated value
    */
   setAnimation(
-    trackName: AnimationTrackName,
     pathName: AnimationPathName,
-    inputArray: Float32Array,
-    outputArray: Float32Array,
-    outputComponentN: VectorComponentN,
-    interpolation: AnimationInterpolationEnum,
-    makeThisActiveAnimation = true
+    animatedValue: IAnimatedValue
   ) {
-    // set the current Active AnimationTrackName
-    if (makeThisActiveAnimation) {
-      this.__firstActiveAnimationTrackName = trackName;
-    } else {
-      this.__firstActiveAnimationTrackName = valueWithDefault({
-        value: this.__firstActiveAnimationTrackName,
-        defaultValue: trackName,
-      });
-    }
-
-    // set an animation channel to AnimationSet
-    const animationSet: Map<AnimationPathName, AnimationChannel> = valueWithCompensation({
-      value: this.__animationTracks.get(trackName),
-      compensation: () => {
-        const animationSet = new Map();
-        this.__animationTracks.set(trackName, animationSet);
-        return animationSet;
-      },
-    });
-    const channel: AnimationChannel = {
-      sampler: {
-        input: inputArray,
-        output: outputArray,
-        outputComponentN,
-        interpolationMethod: interpolation,
-      },
+    this.__animationTrack.set(pathName, {
+      animatedValue,
       target: {
-        pathName: pathName,
+        pathName,
         entity: this.entity,
       },
-      belongTrackName: trackName,
-    };
-    animationSet.set(pathName, channel);
+    });
 
     // update AnimationInfo
-    const newMinStartInputTime = inputArray[0];
-    const newMaxEndInputTime = inputArray[inputArray.length - 1];
+    const trackNames = animatedValue.getAllTrackNames();
+    for (const trackName of trackNames) {
+      const newMinStartInputTime = animatedValue.getMinStartInputTime(trackName);
+      const newMaxEndInputTime = animatedValue.getMaxEndInputTime(trackName);
 
-    // const existingAnimationInfo = valueWithDefault<AnimationInfo>({
-    //   value: AnimationComponent.__animationGlobalInfo.get(trackName),
-    //   defaultValue: defaultAnimationInfo,
-    // });
-    // const existingMaxStartInputTime = existingAnimationInfo.minStartInputTime;
-    // const existingMaxEndInputTime = existingAnimationInfo.maxEndInputTime;
-
-    // const startResult = lessThan(existingMaxStartInputTime, newMaxStartInputTime);
-    // const endResult = greaterThan(newMaxEndInputTime, existingMaxEndInputTime);
-    // if (startResult.result || endResult.result) {
-    const info = {
-      name: trackName,
-      minStartInputTime: newMinStartInputTime,
-      maxEndInputTime: newMaxEndInputTime,
-    };
-    AnimationComponent.__animationGlobalInfo.set(trackName, info);
-    AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
-      infoMap: new Map(AnimationComponent.__animationGlobalInfo),
-    });
-    // }
-
+      const info = {
+        name: trackName,
+        minStartInputTime: newMinStartInputTime,
+        maxEndInputTime: newMaxEndInputTime,
+      };
+      AnimationComponent.__animationGlobalInfo.set(trackName, info);
+      AnimationComponent.__pubsub.publishAsync(AnimationComponent.Event.ChangeAnimationInfo, {
+        infoMap: new Map(AnimationComponent.__animationGlobalInfo),
+      });
+    }
     // backup the current transform as rest pose
     this.entity.getTransform()._backupTransformAsRest();
   }
 
+  getAnimation(pathName: AnimationPathName) {
+    return this.__animationTrack.get(pathName)?.animatedValue;
+  }
+
   public getStartInputValueOfAnimation(animationTrackName: string): number {
-    let maxStartInputTime = Number.MAX_VALUE;
-
-    const animationTrack = this.__animationTracks.get(animationTrackName);
-    if (Is.not.exist(animationTrack)) {
-      return -1;
-    }
-
-    animationTrack.forEach((channel) => {
-      const input = channel.sampler.input[0];
-      if (input < maxStartInputTime) {
-        maxStartInputTime = input;
-      }
-    });
-
-    return maxStartInputTime;
+    return AnimationComponent.__animationGlobalInfo.get(animationTrackName)!.minStartInputTime;
   }
 
   public getEndInputValueOfAnimation(animationTrackName: string): number {
-    const animationTrack = this.__animationTracks.get(animationTrackName);
-    if (Is.not.exist(animationTrack)) {
-      return -1;
-    }
-    let maxEndInputTime = 0;
-    animationTrack.forEach((channel) => {
-      const input = channel.sampler.input[channel.sampler.input.length - 1];
-      if (maxEndInputTime < input) {
-        maxEndInputTime = input;
-      }
-    });
-
-    return maxEndInputTime;
+    return AnimationComponent.__animationGlobalInfo.get(animationTrackName)!.maxEndInputTime;
   }
 
   /**
@@ -404,18 +261,19 @@ export class AnimationComponent extends Component {
    * @returns an array of animation track name
    */
   public getAnimationTrackNames(): AnimationTrackName[] {
-    return Array.from(this.__animationTracks.keys());
+    const trackNames = [];
+    for (const [pathName, channel] of this.__animationTrack) {
+      trackNames.push(...channel.animatedValue.getAllTrackNames());
+    }
+    return trackNames;
   }
 
   /**
    * get the animation channels of the animation track
-   * @param animationTrackName the name of animation track to get
    * @returns the channel maps of the animation track
    */
-  public getAnimationChannelsOfTrack(
-    animationTrackName: AnimationTrackName
-  ): AnimationTrack | undefined {
-    return this.__animationTracks.get(animationTrackName);
+  public getAnimationChannelsOfTrack(): AnimationTrack {
+    return this.__animationTrack;
   }
 
   get isAnimating() {
@@ -503,69 +361,65 @@ export class AnimationComponent extends Component {
     const input = secBegin;
     const secEnd = (frameToInsert + 1) / fps;
 
-    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-      this.__animationTracks.get(trackName);
-    if (Is.not.exist(animationSet)) {
-      return false;
-    }
-
-    const channel = animationSet.get(pathName);
+    const channel = this.__animationTrack.get(pathName);
     if (Is.not.exist(channel)) {
       return false;
     }
 
-    const i = AnimationAttribute.fromString(pathName).index;
-    const output = __interpolate(channel.sampler, AnimationComponent.globalTime, i);
+    const animatedValue = channel.animatedValue;
 
-    if (channel.sampler.input.length === 0) {
-      const inputArray = Array.from(channel.sampler.input);
+    const i = AnimationAttribute.fromString(pathName).index;
+    const output = __interpolate(animatedValue.getAnimationSampler(trackName), AnimationComponent.globalTime, i);
+
+    if (animatedValue.getAnimationSampler(trackName).input.length === 0) {
+      const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
       inputArray.push(input);
-      channel.sampler.input = new Float32Array(inputArray);
-      const outputArray = Array.from(channel.sampler.output);
+      animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+      const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
       outputArray.push(...output);
-      channel.sampler.output = new Float32Array(outputArray);
-    } else if (channel.sampler.input.length === 1) {
-      const existedInput = channel.sampler.input[0];
+      animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
+    } else if (animatedValue.getAnimationSampler(trackName).input.length === 1) {
+      const existedInput = animatedValue.getAnimationSampler(trackName).input[0];
       if (secEnd < existedInput) {
-        const inputArray = Array.from(channel.sampler.input);
+        const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
         inputArray.unshift(input);
-        channel.sampler.input = new Float32Array(inputArray);
-        const outputArray = Array.from(channel.sampler.output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+        const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
         outputArray.unshift(...output);
-        channel.sampler.output = new Float32Array(outputArray);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
       } else if (existedInput < secBegin) {
-        const inputArray = Array.from(channel.sampler.input);
+        const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
         inputArray.push(input);
-        channel.sampler.input = new Float32Array(inputArray);
-        const outputArray = Array.from(channel.sampler.output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+        const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
         outputArray.push(...output);
-        channel.sampler.output = new Float32Array(outputArray);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
       } else {
         // secBegin <= existedInput <= secEnd
-        const inputArray = Array.from(channel.sampler.input);
+        const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
         inputArray.splice(0, 0, input);
-        channel.sampler.input = new Float32Array(inputArray);
-        const outputArray = Array.from(channel.sampler.output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+        const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
         outputArray.splice(0, 0, ...output);
-        channel.sampler.output = new Float32Array(outputArray);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
       }
     } else {
       // channel.sampler.input.length >= 2
-      for (let i = 0; i < channel.sampler.input.length; i++) {
-        const existedInput = channel.sampler.input[i];
+      for (let i = 0; i < animatedValue.getAnimationSampler(trackName).input.length; i++) {
+        const existedInput = animatedValue.getAnimationSampler(trackName).input[i];
         if (secBegin <= existedInput) {
           if (secBegin <= existedInput && existedInput <= secEnd) {
-            channel.sampler.input[i] = input;
-            for (let j = 0; j < channel.sampler.outputComponentN; j++) {
-              channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
+            animatedValue.getAnimationSampler(trackName).input[i] = input;
+            for (let j = 0; j < animatedValue.getAnimationSampler(trackName).outputComponentN; j++) {
+              animatedValue.getAnimationSampler(trackName).output[i * animatedValue.getAnimationSampler(trackName).outputComponentN + j] = output[j];
             }
           } else {
-            const inputArray = Array.from(channel.sampler.input);
+            const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
             inputArray.splice(i, 0, input);
-            channel.sampler.input = new Float32Array(inputArray);
-            const outputArray = Array.from(channel.sampler.output);
-            outputArray.splice(i * channel.sampler.outputComponentN, 0, ...output);
-            channel.sampler.output = new Float32Array(outputArray);
+            animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+            const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
+            outputArray.splice(i * animatedValue.getAnimationSampler(trackName).outputComponentN, 0, ...output);
+            animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
           }
           break;
         }
@@ -586,66 +440,62 @@ export class AnimationComponent extends Component {
     const input = secBegin;
     const secEnd = (frameToInsert + 1) / fps;
 
-    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-      this.__animationTracks.get(trackName);
-    if (Is.not.exist(animationSet)) {
-      return false;
-    }
-
-    const channel = animationSet.get(pathName);
+    const channel = this.__animationTrack.get(pathName);
     if (Is.not.exist(channel)) {
       return false;
     }
 
-    if (channel.sampler.input.length === 0) {
-      const inputArray = Array.from(channel.sampler.input);
+    const animatedValue = channel.animatedValue;
+
+    if (animatedValue.getAnimationSampler(trackName).input.length === 0) {
+      const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
       inputArray.push(input);
-      channel.sampler.input = new Float32Array(inputArray);
-      const outputArray = Array.from(channel.sampler.output);
+      animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+      const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
       outputArray.push(...output);
-      channel.sampler.output = new Float32Array(outputArray);
-    } else if (channel.sampler.input.length === 1) {
-      const existedInput = channel.sampler.input[0];
+      animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
+    } else if (animatedValue.getAnimationSampler(trackName).input.length === 1) {
+      const existedInput = animatedValue.getAnimationSampler(trackName).input[0];
       if (secEnd < existedInput) {
-        const inputArray = Array.from(channel.sampler.input);
+        const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
         inputArray.unshift(input);
-        channel.sampler.input = new Float32Array(inputArray);
-        const outputArray = Array.from(channel.sampler.output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+        const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
         outputArray.unshift(...output);
-        channel.sampler.output = new Float32Array(outputArray);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
       } else if (existedInput < secBegin) {
-        const inputArray = Array.from(channel.sampler.input);
+        const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
         inputArray.push(input);
-        channel.sampler.input = new Float32Array(inputArray);
-        const outputArray = Array.from(channel.sampler.output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+        const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
         outputArray.push(...output);
-        channel.sampler.output = new Float32Array(outputArray);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
       } else {
         // secBegin <= existedInput <= secEnd
-        const inputArray = Array.from(channel.sampler.input);
+        const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
         inputArray.splice(0, 0, input);
-        channel.sampler.input = new Float32Array(inputArray);
-        const outputArray = Array.from(channel.sampler.output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+        const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
         outputArray.splice(0, 0, ...output);
-        channel.sampler.output = new Float32Array(outputArray);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
       }
     } else {
       // channel.sampler.input.length >= 2
-      for (let i = 0; i < channel.sampler.input.length; i++) {
-        const existedInput = channel.sampler.input[i];
+      for (let i = 0; i < animatedValue.getAnimationSampler(trackName).input.length; i++) {
+        const existedInput = animatedValue.getAnimationSampler(trackName).input[i];
         if (secBegin <= existedInput) {
           if (secBegin <= existedInput && existedInput <= secEnd) {
-            channel.sampler.input[i] = input;
-            for (let j = 0; j < channel.sampler.outputComponentN; j++) {
-              channel.sampler.output[i * channel.sampler.outputComponentN + j] = output[j];
+            animatedValue.getAnimationSampler(trackName).input[i] = input;
+            for (let j = 0; j < animatedValue.getAnimationSampler(trackName).outputComponentN; j++) {
+              animatedValue.getAnimationSampler(trackName).output[i * animatedValue.getAnimationSampler(trackName).outputComponentN + j] = output[j];
             }
           } else {
-            const inputArray = Array.from(channel.sampler.input);
+            const inputArray = Array.from(animatedValue.getAnimationSampler(trackName).input);
             inputArray.splice(i, 0, input);
-            channel.sampler.input = new Float32Array(inputArray);
-            const outputArray = Array.from(channel.sampler.output);
-            outputArray.splice(i * channel.sampler.outputComponentN, 0, ...output);
-            channel.sampler.output = new Float32Array(outputArray);
+            animatedValue.getAnimationSampler(trackName).input = new Float32Array(inputArray);
+            const outputArray = Array.from(animatedValue.getAnimationSampler(trackName).output);
+            outputArray.splice(i * animatedValue.getAnimationSampler(trackName).outputComponentN, 0, ...output);
+            animatedValue.getAnimationSampler(trackName).output = new Float32Array(outputArray);
           }
           break;
         }
@@ -664,26 +514,22 @@ export class AnimationComponent extends Component {
     const secBegin = frameToDelete / fps;
     const secEnd = (frameToDelete + 1) / fps;
 
-    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-      this.__animationTracks.get(trackName);
-    if (Is.not.exist(animationSet)) {
-      return false;
-    }
-
-    const channel = animationSet.get(pathName);
+    const channel = this.__animationTrack.get(pathName);
     if (Is.not.exist(channel)) {
       return false;
     }
 
-    for (let i = 0; i < channel.sampler.input.length; i++) {
-      const input = channel.sampler.input[i];
+    const animatedValue = channel.animatedValue;
+
+    for (let i = 0; i < animatedValue.getAnimationSampler(trackName).input.length; i++) {
+      const input = animatedValue.getAnimationSampler(trackName).input[i];
       if (secBegin <= input && input < secEnd) {
-        const input = Array.from(channel.sampler.input);
+        const input = Array.from(animatedValue.getAnimationSampler(trackName).input);
         input.splice(i, 1);
-        channel.sampler.input = new Float32Array(input);
-        const output = Array.from(channel.sampler.output);
-        output.splice(i * channel.sampler.outputComponentN, channel.sampler.outputComponentN);
-        channel.sampler.output = new Float32Array(output);
+        animatedValue.getAnimationSampler(trackName).input = new Float32Array(input);
+        const output = Array.from(animatedValue.getAnimationSampler(trackName).output);
+        output.splice(i * animatedValue.getAnimationSampler(trackName).outputComponentN, animatedValue.getAnimationSampler(trackName).outputComponentN);
+        animatedValue.getAnimationSampler(trackName).output = new Float32Array(output);
       }
     }
 
@@ -699,19 +545,15 @@ export class AnimationComponent extends Component {
     const secBegin = frame / fps;
     const secEnd = (frame + 1) / fps;
 
-    const animationSet: Map<AnimationPathName, AnimationChannel> | undefined =
-      this.__animationTracks.get(trackName);
-    if (Is.not.exist(animationSet)) {
-      return false;
-    }
-
-    const channel = animationSet.get(pathName);
+    const channel = this.__animationTrack.get(pathName);
     if (Is.not.exist(channel)) {
       return false;
     }
 
-    for (let i = 0; i < channel.sampler.input.length; i++) {
-      const input = channel.sampler.input[i];
+    const animatedValue = channel.animatedValue;
+
+    for (let i = 0; i < animatedValue.getAnimationSampler(trackName).input.length; i++) {
+      const input = animatedValue.getAnimationSampler(trackName).input[i];
       if (secBegin <= input && input < secEnd) {
         return true;
       }
@@ -727,8 +569,7 @@ export class AnimationComponent extends Component {
   _shallowCopyFrom(component_: Component): void {
     const component = component_ as AnimationComponent;
 
-    this.__firstActiveAnimationTrackName = component.__firstActiveAnimationTrackName;
-    this.__animationTracks = new Map(component.__animationTracks);
+    this.__animationTrack = new Map(component.__animationTrack);
     this.__isEffekseerState = component.__isEffekseerState;
     this.__isAnimating = component.__isAnimating;
   }
@@ -743,49 +584,57 @@ export class AnimationComponent extends Component {
     }
     srcAnim.useGlobalTime = false;
     const trackNames: string[] = [];
-    for (const [_trackName, track] of srcAnim.__animationTracks) {
-      const trackName = _trackName + (postfixToTrackName ?? '');
-      trackNames.push(trackName);
-      for (const [pathName, channel] of track) {
-        if (channel == null) {
-          continue;
-        }
+    for (const [pathName, channel] of srcAnim.__animationTrack) {
+      const animatedValue = channel.animatedValue;
+      for (const _trackName of animatedValue.getAllTrackNames()) {
 
-        const input = channel.sampler.input;
+        const trackName = _trackName + (postfixToTrackName ?? '');
+        trackNames.push(trackName);
+
+        const input = animatedValue.getAnimationSampler(trackName).input;
         if (channel.target.pathName === 'translate') {
           const outputs = retargetTranslate(input, srcAnim);
-          this.setAnimation(
-            trackName,
-            pathName as AnimationPathName,
+          const samplers = new Map<AnimationTrackName, AnimationSampler>();
+          samplers.set(trackName, {
             input,
-            outputs,
-            3,
-            channel.sampler.interpolationMethod,
-            false
+            output: outputs,
+            outputComponentN: 3,
+            interpolationMethod: animatedValue.getAnimationSampler(trackName).interpolationMethod,
+          });
+          const newAnimatedValue = new AnimatedVector3(samplers, trackName);
+          this.setAnimation(
+            pathName as AnimationPathName,
+            newAnimatedValue
           );
         }
         if (channel.target.pathName === 'quaternion') {
           const outputs = retargetQuaternion(input, srcAnim);
-          this.setAnimation(
-            trackName,
-            pathName as AnimationPathName,
+          const samplers = new Map<AnimationTrackName, AnimationSampler>();
+          samplers.set(trackName, {
             input,
-            outputs,
-            4,
-            channel.sampler.interpolationMethod,
-            false
+            output: outputs,
+            outputComponentN: 4,
+            interpolationMethod: animatedValue.getAnimationSampler(trackName).interpolationMethod,
+          });
+          const newAnimatedValue = new AnimatedQuaternion(samplers, trackName);
+          this.setAnimation(
+            pathName as AnimationPathName,
+            newAnimatedValue
           );
         }
         if (channel.target.pathName === 'scale') {
           const outputs = retargetScale(input, srcAnim);
-          this.setAnimation(
-            trackName,
-            pathName as AnimationPathName,
+          const samplers = new Map<AnimationTrackName, AnimationSampler>();
+          samplers.set(trackName, {
             input,
-            outputs,
-            3,
-            channel.sampler.interpolationMethod,
-            false
+            output: outputs,
+            outputComponentN: 3,
+            interpolationMethod: animatedValue.getAnimationSampler(trackName).interpolationMethod,
+          });
+          const newAnimatedValue = new AnimatedVector3(samplers, trackName);
+          this.setAnimation(
+            pathName as AnimationPathName,
+            newAnimatedValue
           );
         }
       }
@@ -835,25 +684,27 @@ export class AnimationComponent extends Component {
   }
 
   resetAnimationTracks() {
-    this.__animationTracks.clear();
+    this.__animationTrack.clear();
   }
 
   resetAnimationTrack(trackName: string) {
-    this.__animationTracks.delete(trackName);
+    for (const [pathName, channel] of this.__animationTrack) {
+      channel.animatedValue.deleteAnimationSampler(trackName);
+    }
   }
 
   resetAnimationTrackByPostfix(postfix: string) {
     const trackNames = this.getAnimationTrackNames();
     for (const trackName of trackNames) {
       if (trackName.endsWith(postfix)) {
-        this.__animationTracks.delete(trackName);
+        this.resetAnimationTrack(trackName);
       }
     }
   }
 
   _destroy(): void {
     super._destroy();
-    this.__animationTracks.clear();
+    this.__animationTrack.clear();
     this.__isAnimating = false;
   }
 }
