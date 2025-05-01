@@ -74,13 +74,13 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
 
   public update() {
     const time = this.__time ?? AnimationComponent.globalTime;
-    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector4.index);
+    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
     if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
       this._v[1] = firstValue[1];
       this._v[2] = firstValue[2];
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector4.index);
+      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
       this._v[2] = firstValue[2] * (1 - this.blendingRatio) + secondValue[2] * this.blendingRatio;
