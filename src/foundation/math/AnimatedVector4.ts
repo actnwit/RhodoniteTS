@@ -13,6 +13,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   private __secondActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationChannel?: AnimationChannel;
   public blendingRatio = 0;
+  private __time?: number;
   private __lastTime = -1;
 
   constructor(animationChannels: AnimationChannels, activeAnimationTrackName: AnimationTrackName) {
@@ -26,48 +27,60 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     this.__firstActiveAnimationChannel = animationChannel;
   }
 
+  setTime(time: number) {
+    this.__time = time;
+  }
+
+  useGlobalTime() {
+    this.__time = undefined;
+  }
+
   get x() {
-    if (this.__lastTime == AnimationComponent.globalTime) {
+    const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
       return this._v[0];
     } else {
       this.__update();
-      this.__lastTime = AnimationComponent.globalTime;
+      this.__lastTime = time;
       return this._v[0];
     }
   }
 
   get y() {
-    if (this.__lastTime == AnimationComponent.globalTime) {
+    const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
       return this._v[1];
     } else {
       this.__update();
-      this.__lastTime = AnimationComponent.globalTime;
+      this.__lastTime = time;
       return this._v[1];
     }
   }
 
   get z() {
-    if (this.__lastTime == AnimationComponent.globalTime) {
+    const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
       return this._v[2];
     } else {
       this.__update();
-      this.__lastTime = AnimationComponent.globalTime;
+      this.__lastTime = time;
       return this._v[2];
     }
   }
 
   get w() {
-    if (this.__lastTime == AnimationComponent.globalTime) {
+    const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
       return this._v[3];
     } else {
       this.__update();
-      this.__lastTime = AnimationComponent.globalTime;
+      this.__lastTime = time;
       return this._v[3];
     }
   }
 
   private __update() {
-    const time = AnimationComponent.globalTime;
+    const time = this.__time ?? AnimationComponent.globalTime;
     const firstValue = __interpolate(this.__firstActiveAnimationChannel.sampler, time, AnimationAttribute.Vector4.index);
     if (this.__secondActiveAnimationChannel === undefined) {
       this._v[0] = firstValue[0];
