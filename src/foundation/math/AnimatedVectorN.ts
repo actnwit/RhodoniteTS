@@ -29,18 +29,24 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
 
   setFloat32Array(array: Float32Array) {
     this._v = array;
+    this.update();
   }
 
   setTime(time: number) {
     this.__time = time;
+    this.update();
   }
 
   useGlobalTime() {
     this.__time = undefined;
+    this.update();
   }
 
   public update() {
     const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
+      return;
+    }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.VectorN.index);
     if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
@@ -53,6 +59,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
         this._v[i] = firstValue[i] * (1 - this.blendingRatio) + secondValue[i] * this.blendingRatio;
       }
     }
+    this.__lastTime = time;
   }
 
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {

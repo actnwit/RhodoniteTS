@@ -29,62 +29,44 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
 
   setFloat32Array(array: Float32Array) {
     this._v = array;
+    this.update();
   }
 
   setTime(time: number) {
     this.__time = time;
+    this.update();
   }
 
   useGlobalTime() {
     this.__time = undefined;
+    this.update();
   }
 
   get x() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[0];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[0];
-    }
+    this.update();
+    return this._v[0];
   }
 
   get y() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[1];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[1];
-    }
+    this.update();
+    return this._v[1];
   }
 
   get z() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[2];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[2];
-    }
+    this.update();
+    return this._v[2];
   }
 
   get w() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[3];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[3];
-    }
+    this.update();
+    return this._v[3];
   }
 
   public update() {
     const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
+      return;
+    }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Quaternion.index);
     if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
@@ -101,6 +83,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
       this._v[2] = q[2];
       this._v[3] = q[3];
     }
+    this.__lastTime = time;
   }
 
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {

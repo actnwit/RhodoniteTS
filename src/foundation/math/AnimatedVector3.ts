@@ -29,51 +29,39 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
 
   setFloat32Array(array: Float32Array) {
     this._v = array;
+    this.update();
   }
 
   setTime(time: number) {
     this.__time = time;
+    this.update();
   }
 
   useGlobalTime() {
     this.__time = undefined;
+    this.update();
   }
 
   get x() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[0];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[0];
-    }
+    this.update();
+    return this._v[0];
   }
 
   get y() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[1];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[1];
-    }
+    this.update();
+    return this._v[1];
   }
 
   get z() {
-    const time = this.__time ?? AnimationComponent.globalTime;
-    if (this.__lastTime == time) {
-      return this._v[2];
-    } else {
-      this.update();
-      this.__lastTime = time;
-      return this._v[2];
-    }
+    this.update();
+    return this._v[2];
   }
 
   public update() {
     const time = this.__time ?? AnimationComponent.globalTime;
+    if (this.__lastTime == time) {
+      return;
+    }
     const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
     if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
@@ -85,6 +73,7 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
       this._v[2] = firstValue[2] * (1 - this.blendingRatio) + secondValue[2] * this.blendingRatio;
     }
+    this.__lastTime = time;
   }
 
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
