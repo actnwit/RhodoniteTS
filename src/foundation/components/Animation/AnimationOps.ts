@@ -1,4 +1,4 @@
-import { AnimationChannel } from '../../../types/AnimationTypes';
+import { AnimationChannel, AnimationSampler } from '../../../types/AnimationTypes';
 import { Array1, Array3, Array4, Index } from '../../../types/CommonTypes';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { AnimationInterpolation } from '../../definitions/AnimationInterpolation';
@@ -118,50 +118,50 @@ function __prepareVariablesForCubicSpline(
   }
 }
 
-function __getOutputValue(
+export function __getOutputValue(
   keyFrameId: Index,
-  channel: AnimationChannel,
+  sampler: AnimationSampler,
   array_: Float32Array | number[]
 ) {
   const array = array_ as globalThis.Float32Array;
-  if (channel.sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
+  if (sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
     // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
-    if (channel.sampler.outputComponentN === 4) {
+    if (sampler.outputComponentN === 4) {
       // Quaternion/weights
       const value = array[get4_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array4<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 3) {
+    } else if (sampler.outputComponentN === 3) {
       // Translate/Scale/weights
       const value = array[get3_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array3<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 1) {
+    } else if (sampler.outputComponentN === 1) {
       const value = array[get1_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array1<number>;
       return value;
     } else {
       // weights // outputComponentN === N
       const value = array[getN_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN,
-        channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN,
+        sampler.outputComponentN
       ) as Array<number>;
       return value;
     }
   } else {
     // For Other than CUBICSPLINE interpolation
-    if (channel.sampler.outputComponentN === 4) {
+    if (sampler.outputComponentN === 4) {
       // Quaternion/weights
       const value = array[get4_offsetAsComposition](keyFrameId) as Array4<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 3) {
+    } else if (sampler.outputComponentN === 3) {
       // Translate/Scale/weights
       const value = array[get3_offsetAsComposition](keyFrameId) as Array3<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 1) {
+    } else if (sampler.outputComponentN === 1) {
       // Effekseer (Animation Event)
       const value = array[get1_offsetAsComposition](keyFrameId) as Array1<number>;
       return value;
@@ -169,7 +169,7 @@ function __getOutputValue(
       // weights
       const value = array[getN_offsetAsComposition](
         keyFrameId,
-        channel.sampler.outputComponentN
+        sampler.outputComponentN
       ) as Array<number>;
       return value;
     }
@@ -268,10 +268,10 @@ export function __interpolate(
 
   // out of range
   if (currentTime <= inputArray[0]) {
-    const outputOfZeroFrame = __getOutputValue(0, channel, outputArray);
+    const outputOfZeroFrame = __getOutputValue(0, channel.sampler, outputArray);
     return outputOfZeroFrame;
   } else if (inputArray[inputArray.length - 1] <= currentTime) {
-    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel, outputArray);
+    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel.sampler, outputArray);
     return outputOfEndFrame;
   }
 
@@ -305,11 +305,11 @@ export function __interpolate(
   } else if (method === AnimationInterpolation.Step) {
     for (let i = 0; i < inputArray.length - 1; i++) {
       if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
-        const output_frame_i = __getOutputValue(i, channel, outputArray);
+        const output_frame_i = __getOutputValue(i, channel.sampler, outputArray);
         return output_frame_i;
       }
     }
-    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel, outputArray);
+    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel.sampler, outputArray);
     return outputOfEndFrame;
   }
 
