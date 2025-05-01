@@ -13,11 +13,11 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   private __secondActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationChannel?: AnimationChannel;
   public blendingRatio = 0;
+  private __lastTime = -1;
 
   constructor(animationChannels: AnimationChannels, activeAnimationTrackName: AnimationTrackName) {
     super(new Float32Array(4));
     this.__animationChannels = animationChannels;
-    this.setTime(AnimationComponent.globalTime);
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
     const animationChannel = this.__animationChannels.get(this.__firstActiveAnimationTrackName);
     if (animationChannel === undefined) {
@@ -26,7 +26,48 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     this.__firstActiveAnimationChannel = animationChannel;
   }
 
-  setTime(time: number) {
+  get x() {
+    if (this.__lastTime == AnimationComponent.globalTime) {
+      return this._v[0];
+    } else {
+      this.__update();
+      this.__lastTime = AnimationComponent.globalTime;
+      return this._v[0];
+    }
+  }
+
+  get y() {
+    if (this.__lastTime == AnimationComponent.globalTime) {
+      return this._v[1];
+    } else {
+      this.__update();
+      this.__lastTime = AnimationComponent.globalTime;
+      return this._v[1];
+    }
+  }
+
+  get z() {
+    if (this.__lastTime == AnimationComponent.globalTime) {
+      return this._v[2];
+    } else {
+      this.__update();
+      this.__lastTime = AnimationComponent.globalTime;
+      return this._v[2];
+    }
+  }
+
+  get w() {
+    if (this.__lastTime == AnimationComponent.globalTime) {
+      return this._v[3];
+    } else {
+      this.__update();
+      this.__lastTime = AnimationComponent.globalTime;
+      return this._v[3];
+    }
+  }
+
+  private __update() {
+    const time = AnimationComponent.globalTime;
     const firstValue = __interpolate(this.__firstActiveAnimationChannel.sampler, time, AnimationAttribute.Vector4.index);
     if (this.__secondActiveAnimationChannel === undefined) {
       this._v[0] = firstValue[0];
@@ -48,6 +89,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (animationChannel === undefined) {
       throw new Error('Animation channel not found');
     }
+    this.__firstActiveAnimationChannel = animationChannel;
   }
 
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
@@ -56,6 +98,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (animationChannel === undefined) {
       throw new Error('Animation channel not found');
     }
+    this.__secondActiveAnimationChannel = animationChannel;
   }
 
   setAnimationChannel(animationTrackName: AnimationTrackName, animationChannel: AnimationChannel) {
