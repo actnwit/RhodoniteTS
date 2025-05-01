@@ -16,6 +16,7 @@
     "GltfImporter",
     "GltfImporter-alpha-blend-mode",
     "GltfImporter-animation-in-second-bin-file",
+    "GltfImporter-AnimationPointerUVs",
     "GltfImporter-draco-extension",
     "GltfImporter-forward-render-pipeline/?mode=datatexture&gltf=IridescentDishWithOlives&gltfformat=glb",
     "GltfImporter-ibl-0",
