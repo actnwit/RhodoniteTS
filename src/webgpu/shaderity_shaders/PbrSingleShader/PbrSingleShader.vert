@@ -8,9 +8,6 @@
 #pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
-// BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
-// #param depthBiasPV: mat4x4<f32>; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
-
 @vertex
 fn main(
 #pragma shaderity: require(../common/vertexInput.wgsl)
@@ -93,10 +90,6 @@ fn main(
   {
     output.position = vec4f(0.0, 0.0, 0.0, 1.0);
   }
-
-#ifdef RN_USE_SHADOW_MAPPING
-  output.shadowCoord = get_depthBiasPV(materialSID, 0) * geom.position_inWorld;
-#endif
 
   return output;
 }

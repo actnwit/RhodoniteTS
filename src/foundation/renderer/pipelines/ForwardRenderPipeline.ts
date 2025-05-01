@@ -23,15 +23,18 @@ import {
   ToneMappingType,
   ToneMappingTypeEnum,
 } from '../../definitions';
-import { ExpressionHelper, RenderPassHelper } from '../../helpers';
-import { CameraComponent } from '../../components/Camera/CameraComponent';
+import { RenderPassHelper } from '../../helpers/RenderPassHelper';
 import { Sampler } from '../../textures/Sampler';
-import { SystemState } from '../../system';
-import { RenderTargetTexture } from '../../textures';
+import { SystemState } from '../../system/SystemState';
+import { RenderTargetTexture } from '../../textures/RenderTargetTexture';
+import { RenderTargetTexture2DArray } from '../../textures/RenderTargetTexture2DArray';
 import { CGAPIResourceRepository } from '../CGAPIResourceRepository';
 import { RnXR } from '../../../xr/main';
 import { Material } from '../../materials/core/Material';
 import { TextureFormat } from '../../definitions/TextureFormat';
+import { Bloom } from '../../helpers/BloomHelper';
+import { ShadowSystem } from '../../helpers/Shadow/ShadowSystem';
+import { ISceneGraphEntity } from '../../helpers/EntityHelper';
 
 type DrawFunc = (frame: Frame) => void;
 type IBLCubeTextureParameter = {
@@ -87,7 +90,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __isSimple = false;
   private __shadowMapSize = 1024;
   private __oFrame: Option<Frame> = new None();
-  private __oFrameDepthMoment: Option<FrameBuffer> = new None();
   private __oFrameBufferMultiView: Option<FrameBuffer> = new None();
   private __oFrameBufferMultiViewBlit: Option<FrameBuffer> = new None();
   private __oFrameBufferMultiViewBlitBackBuffer: Option<FrameBuffer> = new None();
@@ -102,8 +104,6 @@ export class ForwardRenderPipeline extends RnObject {
   private __oGenerateMipmapsExpression: Option<Expression> = new None();
   private __oMultiViewBlitBackBufferExpression: Option<Expression> = new None();
   private __oMultiViewBlitExpression: Option<Expression> = new None();
-  private __oCameraComponentOfLight: Option<CameraComponent> = new None();
-  private __depthMomentExpressions: Expression[] = [];
   private __oBloomExpression: Option<Expression> = new None();
   private __oToneMappingExpression: Option<Expression> = new None();
   private __oToneMappingMaterial: Option<Material> = new None();
@@ -114,16 +114,14 @@ export class ForwardRenderPipeline extends RnObject {
   private __oSpecularCubeTexture: Option<CubeTexture> = new None();
   private __oSamplerForBackBuffer: Option<Sampler> = new None();
   private __toneMappingType = ToneMappingType.GT_ToneMap;
-
+  private __bloomHelper: Bloom = new Bloom();
+  private __oShadowSystem: Option<ShadowSystem> = new None();
+  private __shadowExpressions: Expression[] = [];
   constructor() {
     super();
   }
 
   private __destroyResources() {
-    if (this.__oFrameDepthMoment.has()) {
-      this.__oFrameDepthMoment.get().destroy3DAPIResources();
-      this.__oFrameDepthMoment = new None();
-    }
     if (this.__oFrameBufferMultiView.has()) {
       this.__oFrameBufferMultiView.get().destroy3DAPIResources();
       this.__oFrameBufferMultiView = new None();
@@ -144,6 +142,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__oFrameBufferResolveForReference.get().destroy3DAPIResources();
       this.__oFrameBufferResolveForReference = new None();
     }
+    this.__bloomHelper.destroy3DAPIResources();
     this.__oFrame = new None();
     this.__oGenerateMipmapsExpression = new None();
     this.__oMultiViewBlitExpression = new None();
@@ -192,8 +191,12 @@ export class ForwardRenderPipeline extends RnObject {
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
-      if (isShadow && !this.__isSimple) {
-        this.__oFrameDepthMoment = this.__setupDepthMomentFramebuffer(shadowMapSize);
+      if (
+        isShadow &&
+        !this.__isSimple &&
+        SystemState.currentProcessApproach !== ProcessApproach.WebGPU
+      ) {
+        this.__oShadowSystem = new Some(new ShadowSystem(shadowMapSize));
       }
 
       if (this.__oFrameBufferResolveForReference.has()) {
@@ -222,7 +225,7 @@ export class ForwardRenderPipeline extends RnObject {
         const textureToBloom = frameBufferToBloom
           .unwrapForce()
           .getColorAttachedRenderTargetTexture(0) as unknown as RenderTargetTexture;
-        const { bloomExpression, bloomedRenderTarget } = ExpressionHelper.createBloomExpression({
+        const { bloomExpression, bloomedRenderTarget } = this.__bloomHelper.createBloomExpression({
           textureToBloom,
           parameters: {},
         });
@@ -238,7 +241,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     // Initial Expression
-    const initialExpression = this.__setupInitialExpression(this.__oFrameDepthMoment);
+    const initialExpression = this.__setupInitialExpression();
     this.__oInitialExpression = new Some(initialExpression);
 
     const rnXRModule = await ModuleManager.getInstance().getModule('xr');
@@ -299,77 +302,13 @@ export class ForwardRenderPipeline extends RnObject {
     }
 
     if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
-      if (this.__oFrameDepthMoment.has()) {
-        this.__setDepthTextureToEntityMaterials();
-        if (this.__oCameraComponentOfLight.has()) {
-          this.setCameraComponentOfLight(this.__oCameraComponentOfLight.get());
-        }
+      if (this.__oShadowSystem.has()) {
+        const entities = this.__expressions.flatMap((expression) =>
+          expression.renderPasses.flatMap((renderPass) => renderPass.entities)
+        ) as ISceneGraphEntity[];
+        this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
       }
     }
-  }
-
-  private __setDepthTextureToEntityMaterials() {
-    if (Is.false(this.__isShadow)) {
-      return;
-    }
-
-    // copy expressions as depth moment expressions
-    this.__depthMomentExpressions = [];
-    for (const expression of this.__expressions) {
-      this.__depthMomentExpressions.push(expression.clone());
-    }
-
-    // create depth moment encode material
-    const depthMomentMaterial = MaterialHelper.createDepthMomentEncodeMaterial();
-
-    // setup depth moment expression
-    for (const expression of this.__depthMomentExpressions) {
-      for (const renderPass of expression.renderPasses) {
-        // Draw opaque primitives to depth moment FrameBuffer
-        renderPass.setFramebuffer(this.__oFrameDepthMoment.unwrapForce());
-        renderPass.setResolveFramebuffer(undefined);
-        renderPass.setResolveFramebuffer2(undefined);
-        renderPass.setToRenderOpaquePrimitives(true);
-        renderPass.setToRenderTranslucentPrimitives(true);
-        renderPass.setToRenderBlendWithZWritePrimitives(true);
-        renderPass.setToRenderBlendWithoutZWritePrimitives(false);
-
-        renderPass.setMaterial(depthMomentMaterial);
-      }
-    }
-
-    // set depth moment texture to entity materials in main expressions
-    const sampler = new Sampler({
-      wrapS: TextureParameter.ClampToEdge,
-      wrapT: TextureParameter.ClampToEdge,
-      minFilter: TextureParameter.Linear,
-      magFilter: TextureParameter.Linear,
-      anisotropy: false,
-    });
-    sampler.create();
-    for (const expression of this.__expressions) {
-      for (const renderPass of expression.renderPasses) {
-        const entities = renderPass.entities;
-        for (const entity of entities) {
-          const meshComponent = entity.tryToGetMesh();
-          if (Is.exist(meshComponent)) {
-            const mesh = meshComponent.mesh;
-            if (Is.exist(mesh)) {
-              const primitives = mesh.primitives;
-              for (const primitive of primitives) {
-                const material = primitive.material;
-                material.setTextureParameter(
-                  'depthTexture',
-                  this.__oFrameDepthMoment.unwrapForce().getColorAttachedRenderTargetTexture(0)!,
-                  sampler
-                );
-              }
-            }
-          }
-        }
-      }
-    }
-    // this.__setDepthMomentRenderPassesAndDepthTextureToEntityMaterials();
   }
 
   /**
@@ -389,6 +328,15 @@ export class ForwardRenderPipeline extends RnObject {
 
     System.startRenderLoop(() => {
       this.__setExpressions();
+      if (this.__oShadowSystem.has()) {
+        const entities = this.__expressions.flatMap((expression) =>
+          expression.renderPasses.flatMap((renderPass) => renderPass.entities)
+        ) as ISceneGraphEntity[];
+        if (this.__oShadowSystem.get().isLightChanged()) {
+          this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
+        }
+        this.__oShadowSystem.get().setDepthBiasPV(entities);
+      }
       func(this.__oFrame.unwrapForce());
     });
 
@@ -530,38 +478,6 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  setCameraComponentOfLight(cameraComponent: CameraComponent) {
-    if (this.__isShadow) {
-      this.__oCameraComponentOfLight = new Some(cameraComponent);
-      for (const expression of this.__depthMomentExpressions) {
-        for (const renderPass of expression.renderPasses) {
-          renderPass.cameraComponent = cameraComponent;
-        }
-      }
-      for (const expression of this.__expressions) {
-        for (const renderPass of expression.renderPasses) {
-          // eslint-disable-next-line prefer-arrow-callback
-          renderPass.setPostRenderFunction(function (this: RenderPass) {
-            const entities = renderPass.entities;
-            for (const entity of entities) {
-              const meshComponent = entity.tryToGetMesh();
-              if (Is.exist(meshComponent)) {
-                const mesh = meshComponent.mesh;
-                if (Is.exist(mesh)) {
-                  const primitives = mesh.primitives;
-                  for (const primitive of primitives) {
-                    const material = primitive.material;
-                    material.setParameter('depthBiasPV', cameraComponent.biasViewProjectionMatrix);
-                  }
-                }
-              }
-            }
-          });
-        }
-      }
-    }
-  }
-
   private async __setExpressionsInner(
     expressions: Expression[],
     options: {
@@ -644,7 +560,7 @@ export class ForwardRenderPipeline extends RnObject {
     this.__setIblInnerForTransparentOnly();
   }
 
-  private __setupInitialExpression(oFrameDepthMoment: Option<FrameBuffer>) {
+  private __setupInitialExpression() {
     const expression = new Expression();
     expression.tryToSetUniqueName('Initial', true);
 
@@ -667,18 +583,6 @@ export class ForwardRenderPipeline extends RnObject {
       expression.addRenderPasses([initialRenderPassForFrameBuffer]);
     }
 
-    if (oFrameDepthMoment.has()) {
-      const frameDepthMoment = oFrameDepthMoment.get();
-      const initialRenderPassForDepthMoment = new RenderPass();
-      initialRenderPassForDepthMoment.clearColor = Vector4.fromCopyArray4([1.0, 1.0, 1.0, 1.0]);
-      initialRenderPassForDepthMoment.toClearColorBuffer = true;
-      initialRenderPassForDepthMoment.toClearDepthBuffer = true;
-      initialRenderPassForDepthMoment.setFramebuffer(frameDepthMoment);
-      initialRenderPassForDepthMoment.tryToSetUniqueName('InitialRenderPassForDepthMoment', true);
-
-      expression.addRenderPasses([initialRenderPassForDepthMoment]);
-    }
-
     return expression;
   }
 
@@ -691,7 +595,7 @@ export class ForwardRenderPipeline extends RnObject {
       webXRSystem.isWebXRMode &&
       cgApiResourceRepository.isSupportMultiViewVRRendering()
     ) {
-      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArray({
+      const framebufferMultiView = RenderableHelper.createFrameBufferTextureArrayForMultiView({
         width: canvasWidth / 2,
         height: canvasHeight,
         arrayLength: 2,
@@ -808,9 +712,9 @@ export class ForwardRenderPipeline extends RnObject {
     renderPass.setPostRenderFunction(() => {
       if (this.__oFrameBufferMultiViewBlitBackBuffer.has()) {
         const texture = this.__oFrameBufferMultiViewBlitBackBuffer.unwrapForce()
-          .colorAttachments[0] as RenderTargetTexture;
+          .colorAttachments[0] as RenderTargetTexture2DArray;
         (
-          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray
         ).blitToTexture2dFromTexture2dArrayFake(texture);
         texture.generateMipmaps();
       }
@@ -832,9 +736,9 @@ export class ForwardRenderPipeline extends RnObject {
     renderPass.setPostRenderFunction(() => {
       if (this.__oFrameBufferMultiViewBlit.has()) {
         const texture = this.__oFrameBufferMultiViewBlit.unwrapForce()
-          .colorAttachments[0] as RenderTargetTexture;
+          .colorAttachments[0] as RenderTargetTexture2DArray;
         (
-          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture
+          multiViewFrameBuffer.colorAttachments[0] as RenderTargetTexture2DArray
         ).blitToTexture2dFromTexture2dArrayFake(texture);
       }
     });
@@ -968,7 +872,7 @@ export class ForwardRenderPipeline extends RnObject {
     frame.addExpression(this.getInitialExpression()!);
 
     if (!this.__isSimple) {
-      for (const exp of this.__depthMomentExpressions) {
+      for (const exp of this.__shadowExpressions) {
         frame.addExpression(exp);
       }
     }

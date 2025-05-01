@@ -21,7 +21,6 @@ import {
 import { RenderPass } from '../foundation/renderer/RenderPass';
 import { Sampler } from '../foundation/textures/Sampler';
 import {
-  Byte,
   Count,
   Index,
   Size,
@@ -63,8 +62,10 @@ import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/Text
 import { Vector4 } from '../foundation/math/Vector4';
 import { RenderTargetTextureCube } from '../foundation/textures/RenderTargetTextureCube';
 import { Logger } from '../foundation/misc/Logger';
+import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 
 import HDRImage from '../../vendor/hdrpng.js';
+import { TextureArray } from '../foundation/textures/TextureArray';
 
 export type WebGpuResource =
   | GPUTexture
@@ -865,6 +866,7 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const vsModule = gpuDevice.createShaderModule({
       code: vertexShaderStr,
+      label: material.materialTypeName + ' vertex shader',
     });
     if (Config.cgApiDebugConsoleOutput) {
       vsModule.getCompilationInfo().then((info) => {
@@ -875,6 +877,7 @@ export class WebGpuResourceRepository
     }
     const fsModule = gpuDevice.createShaderModule({
       code: fragmentShaderStr,
+      label: material.materialTypeName + ' fragment shader',
     });
     if (Config.cgApiDebugConsoleOutput) {
       fsModule.getCompilationInfo().then((info) => {
@@ -1770,6 +1773,55 @@ export class WebGpuResourceRepository
     return [handle, sampler];
   }
 
+  /**
+   * create a TextureArray
+   * @param width
+   * @param height
+   * @param arrayLength
+   * @param mipLevelCount
+   * @param internalFormat
+   * @param format
+   * @param type
+   * @returns texture handle
+   */
+  createTextureArray(
+    width: Size,
+    height: Size,
+    arrayLength: Size,
+    mipLevelCount: Size,
+    internalFormat: TextureFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    imageData: TypedArray
+  ): WebGPUResourceHandle {
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      size: [width, height, arrayLength],
+      format: internalFormat.webgpu as GPUTextureFormat,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+      dimension: '2d',
+      mipLevelCount: mipLevelCount,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const imageData2 = new ImageData(new Uint8ClampedArray(imageData.buffer), width, height);
+
+    for (let i = 0; i < arrayLength; i++) {
+      gpuDevice.queue.copyExternalImageToTexture(
+        { source: imageData2 },
+        { texture: gpuTexture, origin: [0, 0, i] },
+        [width, height]
+      );
+    }
+
+    const textureHandle = this.__registerResource(gpuTexture);
+    return textureHandle;
+  }
+
   createStorageBuffer(inputArray: Float32Array) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const storageBuffer = gpuDevice.createBuffer({
@@ -2078,10 +2130,13 @@ export class WebGpuResourceRepository
           const sampler = value.value[2] as Sampler;
 
           // Texture
-          const type =
-            texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube
-              ? 'cube'
-              : '2d';
+          let type = '2d' as GPUTextureViewDimension;
+          if (texture instanceof CubeTexture || texture instanceof RenderTargetTextureCube) {
+            type = 'cube';
+          } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
+            type = '2d-array';
+          }
+
           let gpuTextureView = this.__webGpuResources.get(
             texture._textureViewResourceUid
           ) as GPUTextureView;
@@ -2091,6 +2146,11 @@ export class WebGpuResourceRepository
                 dummyBlackCubeTexture._textureResourceUid
               ) as GPUTexture;
               gpuTextureView = gpuTexture.createView({ dimension: 'cube' });
+            } else if (texture instanceof TextureArray || texture instanceof RenderTargetTexture2DArray) {
+              const gpuTexture = this.__webGpuResources.get(
+                dummyWhiteTexture._textureResourceUid
+              ) as GPUTexture;
+              gpuTextureView = gpuTexture.createView({ dimension: '2d-array' });
             } else {
               const gpuTexture = this.__webGpuResources.get(
                 dummyWhiteTexture._textureResourceUid
@@ -2682,7 +2742,24 @@ export class WebGpuResourceRepository
     type: ComponentTypeEnum;
     arrayLength: Count;
   }): WebGPUResourceHandle {
-    return -1;
+    const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
+    const textureDescriptor: GPUTextureDescriptor = {
+      dimension: '2d',
+      size: [width, height, arrayLength],
+      format: internalFormat.webgpu as GPUTextureFormat,
+      mipLevelCount: 1,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_SRC |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
+    };
+
+    const gpuTexture = gpuDevice.createTexture(textureDescriptor);
+
+    const textureHandle = this.__registerResource(gpuTexture);
+
+    return textureHandle;
   }
 
   /**
@@ -2880,12 +2957,31 @@ export class WebGpuResourceRepository
   /**
    * attach the ColorBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
-    index: Index,
+    attachmentIndex: Index,
     renderable: IRenderable
+  ) {
+    return;
+  }
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param renderable a ColorBuffer
+   * @param layerIndex a layer index
+   * @param mipLevel a mip level
+   */
+  attachColorBufferLayerToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    renderable: IRenderable,
+    layerIndex: Index,
+    mipLevel: Index
   ) {
     return;
   }
@@ -2916,7 +3012,11 @@ export class WebGpuResourceRepository
 
   createTextureViewAsRenderTarget(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
-    const textureView = texture.createView({ baseMipLevel: 0, mipLevelCount: 1 });
+    const textureView = texture.createView({
+      baseMipLevel: 0,
+      mipLevelCount: 1,
+      arrayLayerCount: 1,
+    });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;
@@ -2925,6 +3025,33 @@ export class WebGpuResourceRepository
   createTextureViewCube(textureHandle: WebGPUResourceHandle): WebGPUResourceHandle {
     const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
     const textureView = texture.createView({ dimension: 'cube' });
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
+  createTextureView2dArray(textureHandle: WebGPUResourceHandle, arrayLayerCount: Count): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({ dimension: '2d-array', baseArrayLayer: 0, arrayLayerCount: arrayLayerCount });
+    const textureViewHandle = this.__registerResource(textureView);
+
+    return textureViewHandle;
+  }
+
+  createTextureView2dArrayAsRenderTarget(
+    textureHandle: WebGPUResourceHandle,
+    arrayIdx: Index,
+    mipLevel: Index
+  ): WebGPUResourceHandle {
+    const texture = this.__webGpuResources.get(textureHandle) as GPUTexture;
+    const textureView = texture.createView({
+      dimension: '2d',
+      arrayLayerCount: 1,
+      baseArrayLayer: arrayIdx,
+      baseMipLevel: mipLevel,
+      mipLevelCount: 1,
+      aspect: 'all',
+    });
     const textureViewHandle = this.__registerResource(textureView);
 
     return textureViewHandle;

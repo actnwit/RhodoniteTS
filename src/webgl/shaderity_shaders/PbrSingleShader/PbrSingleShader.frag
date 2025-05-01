@@ -123,6 +123,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #ifdef RN_USE_SHADOW_MAPPING
   uniform float u_pointLightFarPlane; // initialValue=1000.0
+  uniform float u_pointLightShadowMapUvScale; // initialValue=0.93
 #endif
 
 #pragma shaderity: require(../common/shadow.glsl)
@@ -385,26 +386,29 @@ void main ()
                         iridescence, iridescenceFresnel, specular);
 
   #ifdef RN_USE_SHADOW_MAPPING
-    if (light.type == 1) { // Point Light
+    int depthTextureIndex = get_depthTextureIndexList(materialSID, i);
+    if (light.type == 1 && depthTextureIndex >= 0) { // Point Light
       float pointLightFarPlane = get_pointLightFarPlane(materialSID, 0);
-      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane);
+      float pointLightShadowMapUvScale = get_pointLightShadowMapUvScale(materialSID, 0);
+      float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
+      lighting *= shadowContribution;
+    } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
+      vec4 v_shadowCoord = get_depthBiasPV(materialSID, i) * v_position_inWorld;
+      float bias = 0.001;
+      vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+      vec3 lightDirection = normalize(get_lightDirection(0.0, i));
+      vec3 lightPosToWorldPos = normalize(v_position_inWorld.xyz - light.position);
+      float dotProduct = dot(lightPosToWorldPos, lightDirection);
+      float shadowContribution = 1.0;
+      if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
+        shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w, depthTextureIndex);
+      }
       lighting *= shadowContribution;
     }
   #endif
 
     rt0.rgb += lighting;
   }
-
-  #ifdef RN_USE_SHADOW_MAPPING
-    // float bias = 0.001;
-    // vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
-    // float shadowContribution = 1.0;
-    // if (shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-    //   shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w);
-    // }
-    // // rt0.rgb = rt0.rgb * (0.5 + shadowContribution * 0.5);
-    // rt0.rgb = rt0.rgb * shadowContribution;
-  #endif
 
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,

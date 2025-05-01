@@ -58,6 +58,8 @@ import { ProcessApproach } from '../foundation/definitions/ProcessApproach';
 import { TextureFormat, TextureFormatEnum } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
 import HDRImage from '../../vendor/hdrpng.js';
+import { TextureArray } from '../foundation/textures/TextureArray';
+import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetTexture2DArray';
 
 export type VertexHandles = {
   vaoHandle: CGAPIResourceHandle;
@@ -303,6 +305,16 @@ export class WebGLResourceRepository
   bindTextureCube(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
     const texture = this.getWebGLResource(textureUid) as WebGLTexture;
     this.__glw!.bindTextureCube(textureSlotIndex, texture);
+  }
+
+  /**
+   * bind the Texture2DArray
+   * @param textureSlotIndex
+   * @param textureUid
+   */
+  bindTexture2DArray(textureSlotIndex: Index, textureUid: CGAPIResourceHandle) {
+    const texture = this.getWebGLResource(textureUid) as WebGLTexture;
+    this.__glw!.bindTexture2DArray(textureSlotIndex, texture);
   }
 
   /**
@@ -602,6 +614,12 @@ export class WebGLResourceRepository
     } else if (info.compositionType === CompositionType.Mat4) {
       setAsMatrix = true;
       componentNumber = 4;
+    } else if (info.compositionType === CompositionType.Mat3Array) {
+      setAsMatrix = true;
+      componentNumber = 3;
+    } else if (info.compositionType === CompositionType.Mat4Array) {
+      setAsMatrix = true;
+      componentNumber = 4;
     } else {
       componentNumber = info.compositionType!.getNumberOfComponents();
     }
@@ -737,6 +755,15 @@ export class WebGLResourceRepository
           value[0],
           textureCube._recommendedTextureSampler?._samplerResourceUid ?? -1
         );
+      }
+    } else if (info.compositionType === CompositionType.Texture2DArray) {
+      this.bindTexture2DArray(value[0], value[1]._textureResourceUid);
+      if (value[2] != null) {
+        // value[2] must be Sampler object
+        this.bindTextureSampler(value[0], value[2]._samplerResourceUid);
+      } else {
+        const samplerUid = this.createOrGetTextureSamplerClampToEdgeLinear();
+        this.bindTextureSampler(value[0], samplerUid);
       }
     }
   }
@@ -1229,6 +1256,62 @@ export class WebGLResourceRepository
   }
 
   /**
+   * create a TextureArray
+   * @param width
+   * @param height
+   * @param arrayLength
+   * @param mipLevelCount
+   * @param internalFormat
+   * @param format
+   * @param type
+   * @returns texture handle
+   */
+  createTextureArray(
+    width: Size,
+    height: Size,
+    arrayLength: Size,
+    mipLevelCount: Size,
+    internalFormat: TextureFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    imageData: TypedArray
+  ): CGAPIResourceHandle {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const texture = gl.createTexture() as RnWebGLTexture;
+    const resourceHandle = this.__registerResource(texture);
+
+    this.__glw!.bindTexture2DArray(15, texture);
+    gl.texStorage3D(
+      gl.TEXTURE_2D_ARRAY,
+      mipLevelCount,
+      internalFormat.index,
+      width,
+      height,
+      arrayLength
+    );
+
+    for (let layer = 0; layer < arrayLength; layer++) {
+      gl.texSubImage3D(
+        gl.TEXTURE_2D_ARRAY,
+        0, // Mipmap Level
+        0, // x Offset
+        0, // y Offset
+        layer, // z Offset
+        width,
+        height,
+        1, // depth
+        format.index,
+        type.index,
+        imageData
+      );
+    }
+
+    this.__glw!.unbindTexture2DArray(15);
+
+    return resourceHandle;
+  }
+
+  /**
    * allocate a Texture
    * @param format - the internal format of the texture
    * @param width - the width of the texture
@@ -1544,11 +1627,12 @@ export class WebGLResourceRepository
   /**
    * attach the ColorBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
-    index: Index,
+    attachmentIndex: Index,
     renderable: IRenderable
   ) {
     const gl = this.__glw!.getRawContextAsWebGL2();
@@ -1559,11 +1643,11 @@ export class WebGLResourceRepository
     const renderableWebGLResource = this.getWebGLResource(
       renderable._textureResourceUid
     )! as WebGLTexture;
-    const attachmentId = this.__glw!.colorAttachment(index);
+    const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
 
-    if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
+    if (renderable instanceof RenderTargetTexture2DArray) {
       // It's must be TextureArray for MultiView VR Rendering
-      (renderable as RenderTargetTexture)._fbo = framebuffer;
+      (renderable as RenderTargetTexture2DArray)._fbo = framebuffer;
       if (this.__glw!.webgl2ExtMLTVIEW!.is_multisample) {
         this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultisampleMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
@@ -1584,7 +1668,7 @@ export class WebGLResourceRepository
           renderable.arrayLength
         );
       }
-    } else if (renderable instanceof RenderTargetTexture && renderable.arrayLength === 0) {
+    } else if (renderable instanceof RenderTargetTexture) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
@@ -1603,6 +1687,40 @@ export class WebGLResourceRepository
         renderableWebGLResource as any as WebGLRenderbuffer
       );
     }
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param renderable a ColorBuffer
+   */
+  attachColorBufferLayerToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    renderable: IRenderable,
+    layerIndex: Index,
+    mipLevel: Index
+  ) {
+    const gl = this.__glw!.getRawContextAsWebGL2();
+    const fbo = this.getWebGLResource(framebuffer.framebufferUID)! as WebGLFramebuffer;
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const renderableWebGLResource = this.getWebGLResource(
+      renderable._textureResourceUid
+    )! as WebGLTexture;
+    const attachmentId = this.__glw!.colorAttachment(attachmentIndex);
+
+    (renderable as RenderTargetTexture)._fbo = framebuffer;
+    gl.framebufferTextureLayer(
+      gl.FRAMEBUFFER,
+      attachmentId,
+      renderableWebGLResource,
+      mipLevel,
+      layerIndex
+    );
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
@@ -1684,9 +1802,9 @@ export class WebGLResourceRepository
       renderable._textureResourceUid
     )! as WebGLTexture;
 
-    if (renderable instanceof RenderTargetTexture && renderable.arrayLength > 0) {
+    if (renderable instanceof RenderTargetTexture2DArray) {
       // It's must be TextureArray for MultiView VR Rendering
-      (renderable as RenderTargetTexture)._fbo = framebuffer;
+      (renderable as RenderTargetTexture2DArray)._fbo = framebuffer;
       if (this.__glw!.webgl2ExtMLTVIEW!.is_multisample) {
         this.__glw!.webgl2ExtMLTVIEW!.framebufferTextureMultisampleMultiviewOVR(
           gl.DRAW_FRAMEBUFFER,
@@ -1707,7 +1825,7 @@ export class WebGLResourceRepository
           renderable.arrayLength
         );
       }
-    } else if (renderable instanceof RenderTargetTexture && renderable.arrayLength === 0) {
+    } else if (renderable instanceof RenderTargetTexture) {
       (renderable as RenderTargetTexture)._fbo = framebuffer;
       gl.framebufferTexture2D(
         gl.FRAMEBUFFER,
@@ -1861,7 +1979,7 @@ export class WebGLResourceRepository
 
     this.__glw!.bindTexture2DArray(15, texture);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, internalFormat.index, width, height, arrayLength);
-
+    this.__glw!.unbindTexture2DArray(15);
     return resourceHandle;
   }
 

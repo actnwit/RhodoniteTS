@@ -75,7 +75,7 @@ export class CameraComponent extends Component {
   private static __tmpVector3_2: MutableVector3 = MutableVector3.zero();
   private static __tmpMatrix44_0 = MutableMatrix44.zero();
   private static __tmpMatrix44_1 = MutableMatrix44.zero();
-  private static __biasMatrix = Matrix44.fromCopy16ColumnMajor(
+  private static __biasMatrixWebGL = Matrix44.fromCopy16ColumnMajor(
     0.5,
     0.0,
     0.0,
@@ -91,6 +91,24 @@ export class CameraComponent extends Component {
     0.5,
     0.5,
     0.5,
+    1.0
+  );
+  private static __biasMatrixWebGPU = Matrix44.fromCopy16ColumnMajor(
+    0.5,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    -0.5,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    0.0,
+    0.5,
+    0.5,
+    0.0,
     1.0
   );
   _xrLeft = false;
@@ -802,11 +820,19 @@ export class CameraComponent extends Component {
       this._viewMatrix,
       CameraComponent.__tmpMatrix44_0
     );
-    return MutableMatrix44.multiplyTo(
-      CameraComponent.__biasMatrix,
-      CameraComponent.__tmpMatrix44_0,
-      CameraComponent.__tmpMatrix44_1
-    );
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      return MutableMatrix44.multiplyTo(
+        CameraComponent.__biasMatrixWebGPU,
+        CameraComponent.__tmpMatrix44_0,
+        CameraComponent.__tmpMatrix44_1
+      );
+    } else {
+      return MutableMatrix44.multiplyTo(
+        CameraComponent.__biasMatrixWebGL,
+        CameraComponent.__tmpMatrix44_0,
+        CameraComponent.__tmpMatrix44_1
+      );
+    }
   }
 
   setValuesToGlobalDataRepositoryOnlyMatrices() {

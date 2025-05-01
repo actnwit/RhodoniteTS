@@ -29,7 +29,7 @@ void main ()
   }
 	vec2 tFrag = 1.0 / framebufferSize;
 
-  vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
   int gaussianKernelSize = get_gaussianKernelSize(materialSID, 0);
   float minStrideLength = -float(gaussianKernelSize - 1) / 2.0;
 
@@ -45,7 +45,7 @@ void main ()
         uv.x = max(uv.x, 0.5);
       }
     }
-    color.rgb += texture(u_baseColorTexture, uv).rgb * gaussianRatio;
+    color += texture(u_baseColorTexture, uv) * gaussianRatio;
   }
 
   rt0 = color;

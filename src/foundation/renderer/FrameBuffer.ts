@@ -4,7 +4,10 @@ import { IRenderable } from '../textures/IRenderable';
 import { RenderBufferTargetEnum, RenderBufferTarget } from '../definitions/RenderBufferTarget';
 import { Index, Size, CGAPIResourceHandle } from '../../types/CommonTypes';
 import { RenderTargetTexture } from '../textures/RenderTargetTexture';
-import { Vector4 } from '../math';
+import { RenderTargetTexture2DArray } from '../textures/RenderTargetTexture2DArray';
+import { RenderTargetTextureCube } from '../textures/RenderTargetTextureCube';
+import { SystemState } from '../system/SystemState';
+import { ProcessApproach } from '../definitions/ProcessApproach';
 
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
@@ -43,7 +46,11 @@ export class FrameBuffer extends RnObject {
   getColorAttachedRenderTargetTexture(index: Index): RenderTargetTexture | undefined {
     if (
       this.__colorAttachments[index] == null ||
-      !(this.__colorAttachments[index] instanceof RenderTargetTexture)
+      !(
+        this.__colorAttachments[index] instanceof RenderTargetTexture ||
+        this.__colorAttachments[index] instanceof RenderTargetTexture2DArray ||
+        this.__colorAttachments[index] instanceof RenderTargetTextureCube
+      )
     ) {
       return undefined;
     } else {
@@ -52,7 +59,11 @@ export class FrameBuffer extends RnObject {
   }
 
   getDepthAttachedRenderTargetTexture(): RenderTargetTexture | undefined {
-    if (this.__depthAttachment instanceof RenderTargetTexture) {
+    if (
+      this.__depthAttachment instanceof RenderTargetTexture ||
+      this.__depthAttachment instanceof RenderTargetTexture2DArray ||
+      this.__depthAttachment instanceof RenderTargetTextureCube
+    ) {
       return this.__depthAttachment as RenderTargetTexture;
     } else {
       return undefined;
@@ -80,6 +91,37 @@ export class FrameBuffer extends RnObject {
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.attachColorBufferToFrameBufferObject(this, index, renderable);
+
+    this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
+
+    return true;
+  }
+
+  setColorAttachmentLayerAt(
+    index: Index,
+    renderable: IRenderable,
+    layerIndex: Index,
+    mipLevel: Index
+  ) {
+    if (renderable.width !== this.width || renderable.height !== this.height) {
+      return false;
+    }
+    this.__colorAttachments[index] = renderable;
+
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+      if (renderable instanceof RenderTargetTexture2DArray) {
+        renderable.changeRenderTargetLayerWebGPU(layerIndex);
+      }
+    } else {
+      cgApiResourceRepository.attachColorBufferLayerToFrameBufferObject(
+        this,
+        index,
+        renderable,
+        layerIndex,
+        mipLevel
+      );
+    }
 
     this.__colorAttachmentMap.set(RenderBufferTarget.from(index), renderable);
 

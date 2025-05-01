@@ -447,6 +447,28 @@ export interface ICGAPIResourceRepository {
   }): CGAPIResourceHandle;
 
   /**
+   * create a TextureArray
+   * @param width
+   * @param height
+   * @param arrayLength
+   * @param mipLevelCount
+   * @param internalFormat
+   * @param format
+   * @param type
+   * @returns texture handle
+   */
+  createTextureArray(
+    width: Size,
+    height: Size,
+    arrayLength: Size,
+    mipLevelCount: Size,
+    internalFormat: TextureFormatEnum,
+    format: PixelFormatEnum,
+    type: ComponentTypeEnum,
+    imageData: TypedArray
+  ): CGAPIResourceHandle;
+
+  /**
    * delete a Texture
    * @param textureHandle
    */
@@ -479,12 +501,29 @@ export interface ICGAPIResourceRepository {
   /**
    * attach the ColorBuffer to the FrameBufferObject
    * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
    * @param renderable a ColorBuffer
    */
   attachColorBufferToFrameBufferObject(
     framebuffer: FrameBuffer,
-    index: Index,
+    attachmentIndex: Index,
     renderable: IRenderable
+  ): void;
+
+  /**
+   * attach the ColorBuffer to the FrameBufferObject
+   * @param framebuffer a Framebuffer
+   * @param attachmentIndex a attachment index
+   * @param renderable a ColorBuffer
+   * @param layerIndex a layer index
+   * @param mipLevel a mip level
+   */
+  attachColorBufferLayerToFrameBufferObject(
+    framebuffer: FrameBuffer,
+    attachmentIndex: Index,
+    renderable: IRenderable,
+    layerIndex: Index,
+    mipLevel: Index
   ): void;
 
   /**

@@ -27,7 +27,7 @@ fn getRangeAttenuation(light: Light) -> f32
 fn getSpotAttenuation(light: Light) -> f32
 {
 
-  let cd = dot(light.directionOfLightObject, light.direction);
+  let cd = dot(-normalize(light.directionOfLightObject), light.direction);
   let angularAttenuation = clamp(cd * light.spotAngleScale + light.spotAngleOffset, 0.0, 1.0);
   return angularAttenuation;
 }

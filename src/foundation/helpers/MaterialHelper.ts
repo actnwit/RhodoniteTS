@@ -55,8 +55,12 @@ import FlatSingleShaderVertexWebGpu from '../../webgpu/shaderity_shaders/FlatSin
 import FlatSingleShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/FlatSingleShader/FlatSingleShader.frag';
 import DepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert';
 import DepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag';
+import DepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.vert.wgsl';
+import DepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/DepthMomentEncodeShader/DepthMomentEncodeShader.frag.wgsl';
 import ParaboloidDepthMomentEncodeShaderVertex from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.glsl';
 import ParaboloidDepthMomentEncodeShaderFragment from '../../webgl/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.glsl';
+import ParaboloidDepthMomentEncodeShaderVertexWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.vert.wgsl';
+import ParaboloidDepthMomentEncodeShaderFragmentWebGpu from '../../webgpu/shaderity_shaders/ParaboloidDepthMomentEncodeShader/ParaboloidDepthMomentEncodeShader.frag.wgsl';
 import { MaterialRepository } from '../materials/core/MaterialRepository';
 import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
@@ -64,6 +68,7 @@ import {
   dummyAnisotropyTexture,
   dummyBlackTexture,
   dummyBlueTexture,
+  dummyDepthMomentTextureArray,
   dummyWhiteTexture,
   sheenLutTexture,
 } from '../materials/core/DummyTextures';
@@ -359,18 +364,39 @@ function createPbrUberMaterial({
     additionalShaderSemanticInfo.push({
       semantic: 'depthTexture',
       componentType: ComponentType.Int,
-      compositionType: CompositionType.Texture2D,
+      compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
       semantic: 'paraboloidDepthTexture',
       componentType: ComponentType.Int,
-      compositionType: CompositionType.Texture2D,
+      compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'depthTextureIndexList',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.ScalarArray,
+      arrayLength: Config.shadowMapTextureArrayLength,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Int32Array(Config.shadowMapTextureArrayLength)),
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
+    additionalShaderSemanticInfo.push({
+      semantic: 'depthBiasPV',
+      componentType: ComponentType.Float,
+      compositionType: CompositionType.Mat4Array,
+      arrayLength: Config.shadowMapTextureArrayLength,
+      stage: ShaderType.PixelShader,
+      initialValue: new VectorN(new Float32Array(Config.maxLightNumberInShader * 16)),
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -531,6 +557,8 @@ function createParaboloidDepthMomentEncodeMaterial({
     isMorphing,
     vertexShader: ParaboloidDepthMomentEncodeShaderVertex,
     pixelShader: ParaboloidDepthMomentEncodeShaderFragment,
+    vertexShaderWebGpu: ParaboloidDepthMomentEncodeShaderVertexWebGpu,
+    pixelShaderWebGpu: ParaboloidDepthMomentEncodeShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -582,6 +610,8 @@ function createDepthMomentEncodeMaterial({
     isMorphing,
     vertexShader: DepthMomentEncodeShaderVertex,
     pixelShader: DepthMomentEncodeShaderFragment,
+    vertexShaderWebGpu: DepthMomentEncodeShaderVertexWebGpu,
+    pixelShaderWebGpu: DepthMomentEncodeShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
   });
   const material = createMaterial(materialContent, maxInstancesNumber);

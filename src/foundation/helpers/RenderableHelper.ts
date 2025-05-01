@@ -5,7 +5,7 @@ import { ComponentType, ComponentTypeEnum } from '../definitions/ComponentType';
 import { PixelFormat, PixelFormatEnum } from '../definitions/PixelFormat';
 import { RenderBuffer } from '../textures/RenderBuffer';
 import { TextureFormat, TextureFormatEnum } from '../definitions/TextureFormat';
-import { RenderTargetTextureCube } from '../textures';
+import { RenderTargetTexture2DArray, RenderTargetTextureCube } from '../textures';
 
 export interface TextureParameters {
   level: number;
@@ -96,12 +96,45 @@ export interface FrameBufferTextureArrayDescriptor {
   type: ComponentTypeEnum;
 }
 
-function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) {
+function createFrameBufferTextureArray(
+  desc: FrameBufferTextureArrayDescriptor
+): [FrameBuffer, RenderTargetTexture2DArray] {
   const frameBuffer = new FrameBuffer();
   frameBuffer.create(desc.width, desc.height);
 
-  const renderTargetTexture = new RenderTargetTexture();
-  renderTargetTexture.createTextureArray({
+  const renderTargetTexture = new RenderTargetTexture2DArray();
+  renderTargetTexture.create({
+    width: desc.width,
+    height: desc.height,
+    level: desc.level,
+    internalFormat: desc.internalFormat,
+    format: desc.format,
+    type: desc.type,
+    arrayLength: desc.arrayLength,
+  });
+  frameBuffer.setColorAttachmentLayerAt(0, renderTargetTexture, 0, 0);
+
+  return [frameBuffer, renderTargetTexture];
+}
+
+export interface FrameBufferTextureArrayForMultiViewDescriptor {
+  width: number;
+  height: number;
+  arrayLength: number;
+  level: number;
+  internalFormat: TextureFormatEnum;
+  format: PixelFormatEnum;
+  type: ComponentTypeEnum;
+}
+
+function createFrameBufferTextureArrayForMultiView(
+  desc: FrameBufferTextureArrayForMultiViewDescriptor
+) {
+  const frameBuffer = new FrameBuffer();
+  frameBuffer.create(desc.width, desc.height);
+
+  const renderTargetTexture = new RenderTargetTexture2DArray();
+  renderTargetTexture.create({
     width: desc.width,
     height: desc.height,
     level: desc.level,
@@ -112,8 +145,8 @@ function createFrameBufferTextureArray(desc: FrameBufferTextureArrayDescriptor) 
   });
   frameBuffer.setColorAttachmentAt(0, renderTargetTexture);
 
-  const renderTargetDepthStencilTexture = new RenderTargetTexture();
-  renderTargetDepthStencilTexture.createTextureArray({
+  const renderTargetDepthStencilTexture = new RenderTargetTexture2DArray();
+  renderTargetDepthStencilTexture.create({
     width: desc.width,
     height: desc.height,
     level: desc.level,
@@ -180,6 +213,7 @@ export const RenderableHelper = Object.freeze({
   createFrameBuffer,
   createFrameBufferMSAA,
   createFrameBufferTextureArray,
+  createFrameBufferTextureArrayForMultiView,
   createFrameBufferCubeMap,
   createDepthBuffer,
 });

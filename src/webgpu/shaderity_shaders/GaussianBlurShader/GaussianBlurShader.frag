@@ -22,7 +22,7 @@ fn main(
   }
 	let tFrag: vec2f = 1.0 / framebufferSize;
 
-  var color = vec4f(0.0, 0.0, 0.0, 1.0);
+  var color = vec4f(0.0, 0.0, 0.0, 0.0);
   let gaussianKernelSize: i32 = get_gaussianKernelSize(materialSID, 0);
   let minStrideLength = - f32(gaussianKernelSize - 1) / 2.0;
 
@@ -34,7 +34,7 @@ fn main(
     let gaussianRatio = get_gaussianRatio(materialSID, i);
     var uv = (offset + stride) * tFrag;
     // uv.y = 1.0 - uv.y;
-    color += vec4f(textureSampleLevel(baseColorTexture, baseColorSampler, uv, 0.0).rgb, 1.0) * gaussianRatio;
+    color += textureSampleLevel(baseColorTexture, baseColorSampler, uv, 0.0) * gaussianRatio;
   }
 
   return color;
