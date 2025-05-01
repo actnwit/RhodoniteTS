@@ -29,7 +29,9 @@ export const mulThatAndThisToOutAsMat44_offsetAsComposition = Symbol(
 export const add4_offset = Symbol('add4_offset');
 export const qlerp_offsetAsComposition = Symbol('qlerp_offsetAsComposition');
 export const scalar_lerp_offsetAsComposition = Symbol('scalar_lerp_offsetAsComposition');
+export const array2_lerp_offsetAsComposition = Symbol('array2_lerp_offsetAsComposition');
 export const array3_lerp_offsetAsComposition = Symbol('array3_lerp_offsetAsComposition');
+export const array4_lerp_offsetAsComposition = Symbol('array4_lerp_offsetAsComposition');
 export const arrayN_lerp_offsetAsComposition = Symbol('arrayN_lerp_offsetAsComposition');
 export const normalizeArray4 = Symbol('normalizeArray4');
 
@@ -103,6 +105,13 @@ declare global {
       selfOffset: number,
       argOffset: number
     ): number;
+    [array2_lerp_offsetAsComposition](
+      this: ArrayType,
+      array: ArrayType,
+      ratio: number,
+      selfOffsetAsComposition: number,
+      argOffsetAsComposition: number
+    ): Array2<number>;
     [array3_lerp_offsetAsComposition](
       this: ArrayType,
       array: ArrayType,
@@ -110,6 +119,13 @@ declare global {
       selfOffsetAsComposition: number,
       argOffsetAsComposition: number
     ): Array3<number>;
+    [array4_lerp_offsetAsComposition](
+      this: ArrayType,
+      array: ArrayType,
+      ratio: number,
+      selfOffsetAsComposition: number,
+      argOffsetAsComposition: number
+    ): Array4<number>;
     [arrayN_lerp_offsetAsComposition](
       this: ArrayType,
       array: ArrayType,
@@ -413,6 +429,22 @@ const scalar_lerp_offsetAsComposition_fn = function (
   return this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
 };
 
+const array2_lerp_offsetAsComposition_fn = function (
+  this: ArrayType,
+  array: ArrayType,
+  ratio: number,
+  selfOffsetAsComposition: number,
+  argOffsetAsComposition: number
+) {
+  const ret = new Array(2);
+  for (let i = 0; i < 2; i++) {
+    ret[i] =
+      this[selfOffsetAsComposition * 2 + i] * (1 - ratio) +
+      array[argOffsetAsComposition * 2 + i] * ratio;
+  }
+  return ret;
+};
+
 const array3_lerp_offsetAsComposition_fn = function (
   this: ArrayType,
   array: ArrayType,
@@ -425,6 +457,22 @@ const array3_lerp_offsetAsComposition_fn = function (
     ret[i] =
       this[selfOffsetAsComposition * 3 + i] * (1 - ratio) +
       array[argOffsetAsComposition * 3 + i] * ratio;
+  }
+  return ret;
+};
+
+const array4_lerp_offsetAsComposition_fn = function (
+  this: ArrayType,
+  array: ArrayType,
+  ratio: number,
+  selfOffsetAsComposition: number,
+  argOffsetAsComposition: number
+) {
+  const ret = new Array(4);
+  for (let i = 0; i < 4; i++) {
+    ret[i] =
+      this[selfOffsetAsComposition * 4 + i] * (1 - ratio) +
+      array[argOffsetAsComposition * 4 + i] * ratio;
   }
   return ret;
 };
@@ -494,7 +542,9 @@ const operators = [
   mulThatAndThisToOutAsMat44_offsetAsComposition,
   qlerp_offsetAsComposition,
   scalar_lerp_offsetAsComposition,
+  array2_lerp_offsetAsComposition,
   array3_lerp_offsetAsComposition,
+  array4_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
   normalizeArray4,
 ];
@@ -525,7 +575,9 @@ const functions = [
   mulThatAndThisToOutAsMat44_offsetAsComposition_fn,
   qlerp_offsetAsComposition_fn,
   scalar_lerp_offsetAsComposition_fn,
+  array2_lerp_offsetAsComposition_fn,
   array3_lerp_offsetAsComposition_fn,
+  array4_lerp_offsetAsComposition_fn,
   arrayN_lerp_offsetAsComposition_fn,
   normalizeArray4_fn,
 ];

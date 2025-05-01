@@ -3,7 +3,9 @@ import { Array1, Array3, Array4, Index } from '../../../types/CommonTypes';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { AnimationInterpolation } from '../../definitions/AnimationInterpolation';
 import {
+  array2_lerp_offsetAsComposition,
   array3_lerp_offsetAsComposition,
+  array4_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
   get1_offset,
   get1_offsetAsComposition,
@@ -18,6 +20,7 @@ import {
   mulArrayNWithScalar_offset,
   normalizeArray4,
   qlerp_offsetAsComposition,
+  scalar_lerp_offsetAsComposition,
 } from '../../math/raw/raw_extension';
 
 /**
@@ -247,17 +250,29 @@ function __lerp(
   if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
     const array4 = data[qlerp_offsetAsComposition](data, ratio, i, i + 1);
     return array4;
-  } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+  } else if (animationAttributeIndex === AnimationAttribute.Weights.index || animationAttributeIndex === AnimationAttribute.VectorN.index) {
     const arrayN = data[arrayN_lerp_offsetAsComposition](data, outputComponentN, ratio, i, i + 1);
     return arrayN;
-  } else {
+  } else if (animationAttributeIndex === AnimationAttribute.Translate.index || animationAttributeIndex === AnimationAttribute.Scale.index || animationAttributeIndex === AnimationAttribute.Vector3.index) {
     // Translate / Scale
     const array3 = data[array3_lerp_offsetAsComposition](data, ratio, i, i + 1);
     return array3;
+  } else if (animationAttributeIndex === AnimationAttribute.Vector2.index) {
+    const array2 = data[array2_lerp_offsetAsComposition](data, ratio, i, i + 1);
+    return array2;
+  } else if (animationAttributeIndex === AnimationAttribute.Vector4.index) {
+    const array4 = data[array4_lerp_offsetAsComposition](data, ratio, i, i + 1);
+    return array4;
+  } else if (animationAttributeIndex === AnimationAttribute.Scalar.index) {
+    const scalar = data[scalar_lerp_offsetAsComposition](data, ratio, i, i + 1);
+    return scalar;
+  } else {
+    // non supported type
+    throw new Error('non supported type');
   }
 }
 
-export function __interpolate(
+function __interpolate(
   channel: AnimationChannel,
   currentTime: number,
   animationAttributeIndex: Index
