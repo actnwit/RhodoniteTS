@@ -32,7 +32,7 @@ export type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
 export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
 
 
-export type AnimationChannels = Map<AnimationTrackName, AnimationChannel>;
+export type AnimationSamplers = Map<AnimationTrackName, AnimationSampler>;
 
 /**
  * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)

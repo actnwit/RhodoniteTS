@@ -1,4 +1,4 @@
-import { AnimationChannel, AnimationChannels, AnimationSampler, AnimationTrackName } from "../../types/AnimationTypes";
+import { AnimationChannel, AnimationSampler, AnimationSamplers, AnimationTrackName } from "../../types/AnimationTypes";
 import { Vector4 } from "./Vector4";
 import { __getOutputValue, __interpolate } from "../components/Animation/AnimationOps";
 import { AnimationAttribute } from "../definitions/AnimationAttribute";
@@ -7,24 +7,24 @@ import { IVector4 } from "./IVector";
 import { IAnimatedValue } from "./IAnimatedValue";
 
 export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue {
-  private __animationChannels: AnimationChannels;
+  private __animationSamplers: AnimationSamplers;
   private __firstActiveAnimationTrackName: AnimationTrackName;
-  private __firstActiveAnimationChannel: AnimationChannel;
+  private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
-  private __secondActiveAnimationChannel?: AnimationChannel;
+  private __secondActiveAnimationSampler?: AnimationSampler;
   public blendingRatio = 0;
   private __time?: number;
   private __lastTime = -1;
 
-  constructor(animationChannels: AnimationChannels, activeAnimationTrackName: AnimationTrackName) {
+  constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName) {
     super(new Float32Array(4));
-    this.__animationChannels = animationChannels;
+    this.__animationSamplers = animationSamplers;
     this.__firstActiveAnimationTrackName = activeAnimationTrackName;
-    const animationChannel = this.__animationChannels.get(this.__firstActiveAnimationTrackName);
-    if (animationChannel === undefined) {
+    const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
+    if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
     }
-    this.__firstActiveAnimationChannel = animationChannel;
+    this.__firstActiveAnimationSampler = animationSampler;
   }
 
   setFloat32Array(array: Float32Array) {
@@ -44,7 +44,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (this.__lastTime == time) {
       return this._v[0];
     } else {
-      this.__update();
+      this.update();
       this.__lastTime = time;
       return this._v[0];
     }
@@ -55,7 +55,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (this.__lastTime == time) {
       return this._v[1];
     } else {
-      this.__update();
+      this.update();
       this.__lastTime = time;
       return this._v[1];
     }
@@ -66,7 +66,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (this.__lastTime == time) {
       return this._v[2];
     } else {
-      this.__update();
+      this.update();
       this.__lastTime = time;
       return this._v[2];
     }
@@ -77,22 +77,22 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (this.__lastTime == time) {
       return this._v[3];
     } else {
-      this.__update();
+      this.update();
       this.__lastTime = time;
       return this._v[3];
     }
   }
 
-  private __update() {
+  public update() {
     const time = this.__time ?? AnimationComponent.globalTime;
-    const firstValue = __interpolate(this.__firstActiveAnimationChannel.sampler, time, AnimationAttribute.Vector4.index);
-    if (this.__secondActiveAnimationChannel === undefined) {
+    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector4.index);
+    if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
       this._v[1] = firstValue[1];
       this._v[2] = firstValue[2];
       this._v[3] = firstValue[3];
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationChannel.sampler, time, AnimationAttribute.Vector4.index);
+      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector4.index);
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
       this._v[2] = firstValue[2] * (1 - this.blendingRatio) + secondValue[2] * this.blendingRatio;
@@ -102,23 +102,23 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
 
   setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     this.__firstActiveAnimationTrackName = animationTrackName;
-    const animationChannel = this.__animationChannels.get(this.__firstActiveAnimationTrackName);
-    if (animationChannel === undefined) {
+    const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
+    if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
     }
-    this.__firstActiveAnimationChannel = animationChannel;
+    this.__firstActiveAnimationSampler = animationSampler;
   }
 
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     this.__secondActiveAnimationTrackName = animationTrackName;
-    const animationChannel = this.__animationChannels.get(this.__secondActiveAnimationTrackName);
-    if (animationChannel === undefined) {
+    const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
+    if (animationSampler === undefined) {
       throw new Error('Animation channel not found');
     }
-    this.__secondActiveAnimationChannel = animationChannel;
+    this.__secondActiveAnimationSampler = animationSampler;
   }
 
-  setAnimationChannel(animationTrackName: AnimationTrackName, animationChannel: AnimationChannel) {
-    this.__animationChannels.set(animationTrackName, animationChannel);
+  setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler) {
+    this.__animationSamplers.set(animationTrackName, animationSampler);
   }
 }
