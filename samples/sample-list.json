@@ -15,6 +15,7 @@
     "Gltf2Importer-MSAA",
     "GltfImporter",
     "GltfImporter-alpha-blend-mode",
+    "GltfImporter-AnimatedColorsCube",
     "GltfImporter-animation-in-second-bin-file",
     "GltfImporter-AnimationPointerUVs",
     "GltfImporter-draco-extension",
