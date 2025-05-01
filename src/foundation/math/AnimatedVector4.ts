@@ -15,6 +15,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   public blendingRatio = 0;
   private __time?: number;
   private __lastTime = -1;
+  public isLoop = true;
 
   constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName) {
     super(new Float32Array(4));
@@ -63,7 +64,17 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   }
 
   public update() {
-    const time = this.__time ?? AnimationComponent.globalTime;
+    let time = this.__time ?? AnimationComponent.globalTime;
+    if (this.isLoop) {
+      const duration = Math.max(AnimationComponent.__animationGlobalInfo.get(
+        this.__firstActiveAnimationTrackName!
+      )!.maxEndInputTime,
+        AnimationComponent.__animationGlobalInfo.get(
+          this.__secondActiveAnimationTrackName!
+        )!.maxEndInputTime,
+      );
+      time = time % duration;
+    }
     if (this.__lastTime == time) {
       return;
     }

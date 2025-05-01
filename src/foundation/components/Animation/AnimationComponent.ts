@@ -58,7 +58,7 @@ export class AnimationComponent extends Component {
 
   // Animation Data of each AnimationComponent
   private __animationTracks: Map<AnimationTrackName, AnimationTrack> = new Map();
-  private static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
+  public static __animationGlobalInfo: Map<AnimationTrackName, AnimationInfo> = new Map();
 
   private __isEffekseerState = -1;
 
