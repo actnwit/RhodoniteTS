@@ -2774,19 +2774,41 @@ function setup_KHR_materials_specular(
       const rnSpecularTexture = ModelConverter._createTexture(specularTexture.texture!, gltfModel);
       const rnSampler = ModelConverter._createSampler(specularTexture.texture!);
       material.setTextureParameter('specularTexture', rnSpecularTexture, rnSampler);
+      if (specularTexture.texCoord != null) {
+        material.setParameter('specularTexcoordIndex', specularTexture.texCoord);
+      }
+      // Specular Texture Transform
+      ModelConverter._setupTextureTransform(
+        specularTexture,
+        material,
+        'specularTextureTransformScale',
+        'specularTextureTransformOffset',
+        'specularTextureTransformRotation'
+      );
     }
-    const SpecularColorFactor = Is.exist(KHR_materials_specular.specularColorFactor)
+    const specularColorFactor = Is.exist(KHR_materials_specular.specularColorFactor)
       ? KHR_materials_specular.specularColorFactor
       : [1.0, 1.0, 1.0];
-    material.setParameter('specularColorFactor', Vector3.fromCopyArray3(SpecularColorFactor));
-    const SpecularColorTexture = KHR_materials_specular.specularColorTexture;
-    if (SpecularColorTexture != null) {
+    material.setParameter('specularColorFactor', Vector3.fromCopyArray3(specularColorFactor));
+    const specularColorTexture = KHR_materials_specular.specularColorTexture;
+    if (specularColorTexture != null) {
       const rnSpecularColorTexture = ModelConverter._createTexture(
-        SpecularColorTexture.texture!,
+        specularColorTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(SpecularColorTexture.texture!);
+      const rnSampler = ModelConverter._createSampler(specularColorTexture.texture!);
       material.setTextureParameter('specularColorTexture', rnSpecularColorTexture, rnSampler);
+      if (specularColorTexture.texCoord != null) {
+        material.setParameter('specularColorTexcoordIndex', specularColorTexture.texCoord);
+      }
+      // Specular Color Texture Transform
+      ModelConverter._setupTextureTransform(
+        specularColorTexture,
+        material,
+        'specularColorTextureTransformScale',
+        'specularColorTextureTransformOffset',
+        'specularColorTextureTransformRotation'
+      );
     }
   }
 }

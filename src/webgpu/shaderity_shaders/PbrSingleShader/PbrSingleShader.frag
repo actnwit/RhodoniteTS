@@ -93,6 +93,14 @@
 #ifdef RN_USE_SPECULAR
 // #param specularFactor: f32; // initialValue=1.0
 // #param specularColorFactor: vec3<f32>; // initialValue=(1,1,1)
+// #param specularTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param specularTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param specularTextureTransformRotation: f32; // initialValue=0
+// #param specularTexcoordIndex: u32; // initialValue=0
+// #param specularColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param specularColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param specularColorTextureTransformRotation: f32; // initialValue=0
+// #param specularColorTexcoordIndex: u32; // initialValue=0
 #endif
 
 #ifdef RN_USE_IRIDESCENCE
@@ -276,9 +284,21 @@ fn main(
 #endif // RN_USE_TRANSMISSION
 
 #ifdef RN_USE_SPECULAR
-  let specularTexture: f32 = textureSample(specularTexture, specularSampler, baseColorTexUv).a;
+  let specularTextureTransformScale: vec2f = get_specularTextureTransformScale(materialSID, 0);
+  let specularTextureTransformOffset: vec2f = get_specularTextureTransformOffset(materialSID, 0);
+  let specularTextureTransformRotation: f32 = get_specularTextureTransformRotation(materialSID, 0);
+  let specularTexcoordIndex = get_specularTexcoordIndex(materialSID, 0);
+  let specularTexcoord = getTexcoord(specularTexcoordIndex, input);
+  let specularTexUv = uvTransform(specularTextureTransformScale, specularTextureTransformOffset, specularTextureTransformRotation, specularTexcoord);
+  let specularTexture: f32 = textureSample(specularTexture, specularSampler, specularTexUv).a;
   let specular: f32 = get_specularFactor(materialSID, 0) * specularTexture;
-  let specularColorTexture: vec3f = srgbToLinear(textureSample(specularColorTexture, specularColorSampler, baseColorTexUv).rgb);
+  let specularColorTextureTransformScale: vec2f = get_specularColorTextureTransformScale(materialSID, 0);
+  let specularColorTextureTransformOffset: vec2f = get_specularColorTextureTransformOffset(materialSID, 0);
+  let specularColorTextureTransformRotation: f32 = get_specularColorTextureTransformRotation(materialSID, 0);
+  let specularColorTexcoordIndex = get_specularColorTexcoordIndex(materialSID, 0);
+  let specularColorTexcoord = getTexcoord(specularColorTexcoordIndex, input);
+  let specularColorTexUv = uvTransform(specularColorTextureTransformScale, specularColorTextureTransformOffset, specularColorTextureTransformRotation, specularColorTexcoord);
+  let specularColorTexture: vec3f = srgbToLinear(textureSample(specularColorTexture, specularColorSampler, specularColorTexUv).rgb);
   let specularColor: vec3f = get_specularColorFactor(materialSID, 0) * specularColorTexture;
 #else
   let specular = 1.0;

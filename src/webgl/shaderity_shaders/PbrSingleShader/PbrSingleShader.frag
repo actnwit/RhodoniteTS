@@ -104,6 +104,14 @@ uniform float u_ior; // initialValue=1.5
 #ifdef RN_USE_SPECULAR
   uniform float u_specularFactor; // initialValue=1.0
   uniform vec3 u_specularColorFactor; // initialValue=(1,1,1)
+  uniform vec2 u_specularTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_specularTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_specularTextureTransformRotation; // initialValue=0
+  uniform int u_specularTexcoordIndex; // initialValue=0
+  uniform vec2 u_specularColorTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_specularColorTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_specularColorTextureTransformRotation; // initialValue=0
+  uniform int u_specularColorTexcoordIndex; // initialValue=0
 #endif
 
 #ifdef RN_USE_IRIDESCENCE
@@ -311,9 +319,21 @@ void main ()
   #endif // RN_USE_TRANSMISSION
 
   #ifdef RN_USE_SPECULAR
-    float specularTexture = texture(u_specularTexture, baseColorTexUv).a;
+    vec2 specularTextureTransformScale = get_specularTextureTransformScale(materialSID, 0);
+    vec2 specularTextureTransformOffset = get_specularTextureTransformOffset(materialSID, 0);
+    float specularTextureTransformRotation = get_specularTextureTransformRotation(materialSID, 0);
+    int specularTexcoordIndex = get_specularTexcoordIndex(materialSID, 0);
+    vec2 specularTexcoord = getTexcoord(specularTexcoordIndex);
+    vec2 specularTexUv = uvTransform(specularTextureTransformScale, specularTextureTransformOffset, specularTextureTransformRotation, specularTexcoord);
+    float specularTexture = texture(u_specularTexture, specularTexUv).a;
     float specular = get_specularFactor(materialSID, 0) * specularTexture;
-    vec3 specularColorTexture = srgbToLinear(texture(u_specularColorTexture, baseColorTexUv).rgb);
+    vec2 specularColorTextureTransformScale = get_specularColorTextureTransformScale(materialSID, 0);
+    vec2 specularColorTextureTransformOffset = get_specularColorTextureTransformOffset(materialSID, 0);
+    float specularColorTextureTransformRotation = get_specularColorTextureTransformRotation(materialSID, 0);
+    int specularColorTexcoordIndex = get_specularColorTexcoordIndex(materialSID, 0);
+    vec2 specularColorTexcoord = getTexcoord(specularColorTexcoordIndex);
+    vec2 specularColorTexUv = uvTransform(specularColorTextureTransformScale, specularColorTextureTransformOffset, specularColorTextureTransformRotation, specularColorTexcoord);
+    vec3 specularColorTexture = srgbToLinear(texture(u_specularColorTexture, specularColorTexUv).rgb);
     vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
   #else
     float specular = 1.0;
