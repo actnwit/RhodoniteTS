@@ -101,6 +101,7 @@ import { AnimatedScalar } from '../math/AnimatedScalar';
 import { AnimatedVector4 } from '../math/AnimatedVector4';
 import { IAnimatedValue } from '../math/IAnimatedValue';
 import { AnimatedVector2 } from '../math/AnimatedVector2';
+import { MutableVector2 } from '../math/MutableVector2';
 
 declare let DracoDecoderModule: any;
 
@@ -1381,8 +1382,9 @@ export class ModelConverter {
       ModelConverter._setupTextureTransform(
         emissiveTexture!,
         material,
-        'emissiveTextureTransform',
-        'emissiveTextureRotation'
+        'emissiveTextureTransformScale',
+        'emissiveTextureTransformOffset',
+        'emissiveTextureTransformRotation'
       );
     }
 
@@ -1429,8 +1431,9 @@ export class ModelConverter {
     ModelConverter._setupTextureTransform(
       normalTexture!,
       material,
-      'normalTextureTransform',
-      'normalTextureRotation'
+      'normalTextureTransformScale',
+      'normalTextureTransformOffset',
+      'normalTextureTransformRotation'
     );
 
     // For Extension
@@ -2193,28 +2196,31 @@ export class ModelConverter {
   static _setupTextureTransform(
     textureJson: RnM2TextureInfo,
     rnMaterial: Material,
-    textureTransformShaderSemantic: ShaderSemanticsName,
-    textureRotationShaderSemantic: ShaderSemanticsName
+    textureTransformScaleShaderSemantic: ShaderSemanticsName,
+    textureTransformOffsetShaderSemantic: ShaderSemanticsName,
+    textureTransformRotationShaderSemantic: ShaderSemanticsName
   ) {
     if (textureJson?.extensions?.KHR_texture_transform) {
-      const transform = MutableVector4.fromCopyArray([1.0, 1.0, 0.0, 0.0]);
+      const transformScale = MutableVector2.fromCopyArray([1.0, 1.0]);
+      const transformOffset = MutableVector2.fromCopyArray([0.0, 0.0]);
       let rotation = 0;
 
       const transformJson = textureJson.extensions.KHR_texture_transform;
       if (transformJson.scale != null) {
-        transform.x = transformJson.scale[0];
-        transform.y = transformJson.scale[1];
+        transformScale.x = transformJson.scale[0];
+        transformScale.y = transformJson.scale[1];
       }
       if (transformJson.offset != null) {
-        transform.z = transformJson.offset[0];
-        transform.w = transformJson.offset[1];
+        transformOffset.x = transformJson.offset[0];
+        transformOffset.y = transformJson.offset[1];
       }
       if (transformJson.rotation != null) {
         rotation = transformJson.rotation;
       }
 
-      rnMaterial.setParameter(textureTransformShaderSemantic, transform);
-      rnMaterial.setParameter(textureRotationShaderSemantic, rotation);
+      rnMaterial.setParameter(textureTransformScaleShaderSemantic, transformScale);
+      rnMaterial.setParameter(textureTransformOffsetShaderSemantic, transformOffset);
+      rnMaterial.setParameter(textureTransformRotationShaderSemantic, rotation);
     }
   }
 
@@ -2460,8 +2466,9 @@ function setupPbrMetallicRoughness(
     ModelConverter._setupTextureTransform(
       baseColorTexture!,
       material,
-      'baseColorTextureTransform',
-      'baseColorTextureRotation'
+      'baseColorTextureTransformScale',
+      'baseColorTextureTransformOffset',
+      'baseColorTextureTransformRotation'
     );
   }
 
@@ -2480,8 +2487,9 @@ function setupPbrMetallicRoughness(
     ModelConverter._setupTextureTransform(
       occlusionTexture,
       material,
-      'occlusionTextureTransform',
-      'occlusionTextureRotation'
+      'occlusionTextureTransformScale',
+      'occlusionTextureTransformOffset',
+      'occlusionTextureTransformRotation'
     );
   }
 
@@ -2507,8 +2515,9 @@ function setupPbrMetallicRoughness(
     ModelConverter._setupTextureTransform(
       metallicRoughnessTexture!,
       material,
-      'metallicRoughnessTextureTransform',
-      'metallicRoughnessTextureRotation'
+      'metallicRoughnessTextureTransformScale',
+      'metallicRoughnessTextureTransformOffset',
+      'metallicRoughnessTextureTransformRotation'
     );
   }
 
@@ -2598,8 +2607,9 @@ function setup_KHR_materials_clearcoat(
       ModelConverter._setupTextureTransform(
         clearCoatTexture,
         material,
-        'clearCoatTextureTransform',
-        'clearCoatTextureRotation'
+        'clearCoatTextureTransformScale',
+        'clearCoatTextureTransformOffset',
+        'clearCoatTextureTransformRotation'
       );
     }
     // ClearCoat Roughness Factor
@@ -2630,8 +2640,9 @@ function setup_KHR_materials_clearcoat(
       ModelConverter._setupTextureTransform(
         clearCoatRoughnessTexture,
         material,
-        'clearCoatRoughnessTextureTransform',
-        'clearCoatRoughnessTextureRotation'
+        'clearCoatRoughnessTextureTransformScale',
+        'clearCoatRoughnessTextureTransformOffset',
+        'clearCoatRoughnessTextureTransformRotation'
       );
     }
     // ClearCoat Normal Texture
@@ -2650,8 +2661,9 @@ function setup_KHR_materials_clearcoat(
       ModelConverter._setupTextureTransform(
         clearCoatNormalTexture,
         material,
-        'clearCoatNormalTextureTransform',
-        'clearCoatNormalTextureRotation'
+        'clearCoatNormalTextureTransformScale',
+        'clearCoatNormalTextureTransformOffset',
+        'clearCoatNormalTextureTransformRotation'
       );
     }
   }

@@ -15,8 +15,9 @@
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 @group(1) @binding(0) var baseColorTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(0) var baseColorSampler: sampler;
-// #param baseColorTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param baseColorTextureRotation: f32; // initialValue=0
+// #param baseColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param baseColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param baseColorTextureTransformRotation: f32; // initialValue=0
 // #param baseColorTexcoordIndex: f32; // initialValue=0
 
 // #param ior: f32; // initialValue=1.5
@@ -24,29 +25,33 @@
 // #param metallicRoughnessFactor: vec2<f32>; // initialValue=(1,1)
 @group(1) @binding(1) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(1) var metallicRoughnessSampler: sampler;
-// #param metallicRoughnessTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param metallicRoughnessTextureRotation: f32; // initialValue=0
+// #param metallicRoughnessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param metallicRoughnessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param metallicRoughnessTextureTransformRotation: f32; // initialValue=0
 // #param metallicRoughnessTexcoordIndex: f32; // initialValue=0
 
 #ifdef RN_USE_NORMAL_TEXTURE
   @group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
   @group(2) @binding(2) var normalSampler: sampler;
-  // #param normalTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-  // #param normalTextureRotation: f32; // initialValue=(0)
+  // #param normalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+  // #param normalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+  // #param normalTextureTransformRotation: f32; // initialValue=0
   // #param normalTexcoordIndex: f32; // initialValue=(0)
   // #param normalScale: f32; // initialValue=(1)
 #endif
 
 @group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(3) var occlusionSampler: sampler;
-// #param occlusionTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param occlusionTextureRotation: f32; // initialValue=0
+// #param occlusionTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param occlusionTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param occlusionTextureTransformRotation: f32; // initialValue=0
 // #param occlusionTexcoordIndex: u32; // initialValue=0
 // #param occlusionStrength: f32; // initialValue=1
 
 // #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
-// #param emissiveTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param emissiveTextureRotation: f32; // initialValue=0
+// #param emissiveTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param emissiveTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param emissiveTextureTransformRotation: f32; // initialValue=0
 // #param emissiveTexcoordIndex: u32; // initialValue=0
 @group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(4) var emissiveSampler: sampler;
@@ -55,12 +60,15 @@
 #ifdef RN_USE_CLEARCOAT
 // #param clearCoatFactor: f32; // initialValue=0
 // #param clearCoatRoughnessFactor: f32; // initialValue=0
-// #param clearCoatTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param clearCoatTextureRotation: f32; // initialValue=0
-// #param clearCoatRoughnessTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param clearCoatRoughnessTextureRotation: f32; // initialValue=0
-// #param clearCoatNormalTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param clearCoatNormalTextureRotation: f32; // initialValue=0
+// #param clearCoatTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param clearCoatTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param clearCoatTextureTransformRotation: f32; // initialValue=0
+// #param clearCoatRoughnessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param clearCoatRoughnessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param clearCoatRoughnessTextureTransformRotation: f32; // initialValue=0
+// #param clearCoatNormalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param clearCoatNormalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param clearCoatNormalTextureTransformRotation: f32; // initialValue=0
 // #param clearCoatTexcoordIndex: u32; // initialValue=(0)
 // #param clearCoatRoughnessTexcoordIndex: u32; // initialValue=(0)
 // #param clearCoatNormalTexcoordIndex: u32; // initialValue=(0)
@@ -139,11 +147,12 @@ fn main(
   baseColor *= baseColorFactor;
 
 #ifdef RN_USE_TEXCOORD_0
-  let baseColorTextureTransform: vec4f = get_baseColorTextureTransform(materialSID, 0);
-  let baseColorTextureRotation: f32 = get_baseColorTextureRotation(materialSID, 0);
+  let baseColorTextureTransformScale: vec2f = get_baseColorTextureTransformScale(materialSID, 0);
+  let baseColorTextureTransformOffset: vec2f = get_baseColorTextureTransformOffset(materialSID, 0);
+  let baseColorTextureTransformRotation: f32 = get_baseColorTextureTransformRotation(materialSID, 0);
   let baseColorTexcoordIndex: u32 = u32(get_baseColorTexcoordIndex(materialSID, 0));
   let baseColorTexcoord = getTexcoord(baseColorTexcoordIndex, input);
-  let baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
+  let baseColorTexUv = uvTransform(baseColorTextureTransformScale, baseColorTextureTransformOffset, baseColorTextureTransformRotation, baseColorTexcoord);
   let textureColor = textureSample(baseColorTexture, baseColorSampler, baseColorTexUv);
   baseColor *= vec4(srgbToLinear(textureColor.rgb), textureColor.a);
 #else
@@ -156,11 +165,12 @@ fn main(
 // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
   let geomNormal_inWorld = normal_inWorld;
-  let normalTextureTransform: vec4f = get_normalTextureTransform(materialSID, 0);
-  let normalTextureRotation: f32 = get_normalTextureRotation(materialSID, 0);
+  let normalTextureTransformScale: vec2f = get_normalTextureTransformScale(materialSID, 0);
+  let normalTextureTransformOffset: vec2f = get_normalTextureTransformOffset(materialSID, 0);
+  let normalTextureTransformRotation: f32 = get_normalTextureTransformRotation(materialSID, 0);
   let normalTexcoordIndex: u32 = u32(get_normalTexcoordIndex(materialSID, 0));
   let normalTexcoord: vec2f = getTexcoord(normalTexcoordIndex, input);
-  let normalTexUv: vec2f = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+  let normalTexUv: vec2f = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
   let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewVector, normalTexUv, isFront);
   #ifdef RN_USE_NORMAL_TEXTURE
     let normalTexValue: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz;
@@ -177,11 +187,12 @@ fn main(
   // Metallic & Roughness
   let metallicRoughnessFactor: vec2f = get_metallicRoughnessFactor(materialSID, 0);
   var metallic = metallicRoughnessFactor.x;
-  let metallicRoughnessTextureTransform = get_metallicRoughnessTextureTransform(materialSID, 0);
-  let metallicRoughnessTextureRotation = get_metallicRoughnessTextureRotation(materialSID, 0);
+  let metallicRoughnessTextureTransformScale: vec2f = get_metallicRoughnessTextureTransformScale(materialSID, 0);
+  let metallicRoughnessTextureTransformOffset: vec2f = get_metallicRoughnessTextureTransformOffset(materialSID, 0);
+  let metallicRoughnessTextureTransformRotation: f32 = get_metallicRoughnessTextureTransformRotation(materialSID, 0);
   let metallicRoughnessTexcoordIndex = u32(get_metallicRoughnessTexcoordIndex(materialSID, 0));
   let metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex, input);
-  let metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransform.xy, metallicRoughnessTextureTransform.zw, metallicRoughnessTextureRotation, metallicRoughnessTexcoord);
+  let metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransformScale, metallicRoughnessTextureTransformOffset, metallicRoughnessTextureTransformRotation, metallicRoughnessTexcoord);
   let ormTexel = textureSample(metallicRoughnessTexture, metallicRoughnessSampler, metallicRoughnessTexUv);
   var perceptualRoughness = ormTexel.g * metallicRoughnessFactor.y;
   metallic = ormTexel.b * metallic;
@@ -224,11 +235,12 @@ fn main(
   // Clearcoat
 #ifdef RN_USE_CLEARCOAT
   let clearcoatFactor = get_clearCoatFactor(materialSID, 0);
-  let clearcoatTextureTransform = get_clearCoatTextureTransform(materialSID, 0);
-  let clearcoatTextureRotation = get_clearCoatTextureRotation(materialSID, 0);
+  let clearcoatTextureTransformScale: vec2f = get_clearCoatTextureTransformScale(materialSID, 0);
+  let clearcoatTextureTransformOffset: vec2f = get_clearCoatTextureTransformOffset(materialSID, 0);
+  let clearcoatTextureTransformRotation: f32 = get_clearCoatTextureTransformRotation(materialSID, 0);
   let clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
   let clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex, input);
-  let clearcoatTexUv = uvTransform(clearcoatTextureTransform.xy, clearcoatTextureTransform.zw, clearcoatTextureRotation, clearCoatTexcoord);
+  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearCoatTexcoord);
   let clearcoatTexture = textureSample(clearCoatTexture, clearCoatSampler, clearcoatTexUv).r;
   let clearcoat = clearcoatFactor * clearcoatTexture;
 #else
@@ -289,17 +301,19 @@ fn main(
   let clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
   let clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
   let clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex, input);
-  let clearcoatRoughnessTextureTransform = get_clearCoatRoughnessTextureTransform(materialSID, 0);
-  let clearcoatRoughnessTextureRotation = get_clearCoatRoughnessTextureRotation(materialSID, 0);
-  let clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransform.xy, clearcoatRoughnessTextureTransform.zw, clearcoatRoughnessTextureRotation, clearCoatRoughnessTexcoord);
+  let clearcoatRoughnessTextureTransformScale: vec2f = get_clearCoatRoughnessTextureTransformScale(materialSID, 0);
+  let clearcoatRoughnessTextureTransformOffset: vec2f = get_clearCoatRoughnessTextureTransformOffset(materialSID, 0);
+  let clearcoatRoughnessTextureTransformRotation: f32 = get_clearCoatRoughnessTextureTransformRotation(materialSID, 0);
+  let clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransformScale, clearcoatRoughnessTextureTransformOffset, clearcoatRoughnessTextureTransformRotation, clearCoatRoughnessTexcoord);
   let textureRoughnessTexture = textureSample(clearCoatRoughnessTexture, clearCoatRoughnessSampler, clearcoatRoughnessTexUv).g;
   let clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
 
   let clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
   let clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex, input);
-  let clearcoatNormalTextureTransform = get_clearCoatNormalTextureTransform(materialSID, 0);
-  let clearcoatNormalTextureRotation = get_clearCoatNormalTextureRotation(materialSID, 0);
-  let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransform.xy, clearcoatNormalTextureTransform.zw, clearcoatNormalTextureRotation, clearCoatNormalTexcoord);
+  let clearcoatNormalTextureTransformScale: vec2f = get_clearCoatNormalTextureTransformScale(materialSID, 0);
+  let clearcoatNormalTextureTransformOffset: vec2f = get_clearCoatNormalTextureTransformOffset(materialSID, 0);
+  let clearcoatNormalTextureTransformRotation: f32 = get_clearCoatNormalTextureTransformRotation(materialSID, 0);
+  let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearCoatNormalTexcoord);
   let textureNormal_tangent = textureSample(clearCoatNormalTexture, clearCoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
   let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
@@ -394,9 +408,10 @@ fn main(
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
-  let occlusionTextureTransform = get_occlusionTextureTransform(materialSID, 0);
-  let occlusionTextureRotation = get_occlusionTextureRotation(materialSID, 0);
-  let occlusionTexUv = uvTransform(occlusionTextureTransform.xy, occlusionTextureTransform.zw, occlusionTextureRotation, occlusionTexcoord);
+  let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
+  let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
+  let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
+  let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
   let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
   let occlusionStrength = get_occlusionStrength(materialSID, 0);
 
@@ -411,9 +426,10 @@ fn main(
   let emissiveFactor = get_emissiveFactor(materialSID, 0);
   let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
   let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
-  let emissiveTextureTransform = get_emissiveTextureTransform(materialSID, 0);
-  let emissiveTextureRotation = get_emissiveTextureRotation(materialSID, 0);
-  let emissiveTexUv = uvTransform(emissiveTextureTransform.xy, emissiveTextureTransform.zw, emissiveTextureRotation, emissiveTexcoord);
+  let emissiveTextureTransformScale: vec2f = get_emissiveTextureTransformScale(materialSID, 0);
+  let emissiveTextureTransformOffset: vec2f = get_emissiveTextureTransformOffset(materialSID, 0);
+  let emissiveTextureTransformRotation: f32 = get_emissiveTextureTransformRotation(materialSID, 0);
+  let emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
   let emissiveStrength = get_emissiveStrength(materialSID, 0);
   let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz) * emissiveStrength;
 

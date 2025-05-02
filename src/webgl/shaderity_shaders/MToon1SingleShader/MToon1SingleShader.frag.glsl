@@ -33,13 +33,15 @@ in float v_instanceInfo;
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform int u_baseColorTexcoordIndex; // initialValue=0
-uniform vec4 u_baseColorTextureTransform; // initialValue=(1,1,0,0)
-uniform float u_baseColorTextureRotation; // initialValue=0
+uniform vec2 u_baseColorTextureTransformScale; // initialValue=(1,1)
+uniform vec2 u_baseColorTextureTransformOffset; // initialValue=(0,0)
+uniform float u_baseColorTextureTransformRotation; // initialValue=0
 
 uniform sampler2D u_normalTexture; // initialValue=(2,black)
-uniform vec4 u_normalTextureTransform; // initialValue=(1,1,0,0)
-uniform float u_normalTextureRotation; // initialValue=(0)
-uniform int u_normalTexcoordIndex; // initialValue=(0)
+uniform vec2 u_normalTextureTransformScale; // initialValue=(1,1)
+uniform vec2 u_normalTextureTransformOffset; // initialValue=(0,0)
+uniform float u_normalTextureTransformRotation; // initialValue=0
+uniform int u_normalTexcoordIndex; // initialValue=0
 uniform float u_normalScale; // initialValue=(1)
 
 uniform float u_shadingShiftFactor; // initialValue=0.0
@@ -129,12 +131,13 @@ void main() {
   float time = get_time(0.0, 0);
 
   // base color
-  vec4 baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
-  float baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
+  vec2 baseColorTextureTransformScale = get_baseColorTextureTransformScale(materialSID, 0);
+  vec2 baseColorTextureTransformOffset = get_baseColorTextureTransformOffset(materialSID, 0);
+  float baseColorTextureTransformRotation = get_baseColorTextureTransformRotation(materialSID, 0);
   int baseColorTexcoordIndex = get_baseColorTexcoordIndex(materialSID, 0);
   vec2 baseColorTexcoord = getTexcoord(baseColorTexcoordIndex);
   baseColorTexcoord = uvAnimation(baseColorTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
-  vec2 baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
+  vec2 baseColorTexUv = uvTransform(baseColorTextureTransformScale, baseColorTextureTransformOffset, baseColorTextureTransformRotation, baseColorTexcoord);
   vec4 baseColorTexture = texture(u_baseColorTexture, baseColorTexUv);
   baseColorTexture.rgb = srgbToLinear(baseColorTexture.rgb);
   vec4 baseColorFactor = get_baseColorFactor(materialSID, 0);
@@ -180,12 +183,13 @@ void main() {
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
 #ifdef RN_USE_NORMAL_TEXTURE
-  vec4 normalTextureTransform = get_normalTextureTransform(materialSID, 0);
-  float normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+  vec2 normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
+  vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
+  float normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
   int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
   vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
   normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
-  vec2 normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+  vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
   vec3 normal = texture(u_normalTexture, normalTexUv).xyz * 2.0 - 1.0;
   mat3 TBN = getTBN(normal_inWorld, viewDirection, normalTexUv);
   normal_inWorld = normalize(TBN * normal);

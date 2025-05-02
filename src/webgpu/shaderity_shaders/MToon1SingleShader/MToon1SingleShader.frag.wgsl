@@ -15,14 +15,16 @@ const EPS_COL: f32 = 0.00001;
 @group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(1) var baseColorSampler: sampler;
 // #param baseColorTexcoordIndex: f32; // initialValue=0
-// #param baseColorTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param baseColorTextureRotation: f32; // initialValue=0
+// #param baseColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param baseColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param baseColorTextureTransformRotation: f32; // initialValue=0
 
 @group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
 @group(2) @binding(2) var normalSampler: sampler;
 // #param normalTexcoordIndex: f32; // initialValue=0
-// #param normalTextureTransform: vec4<f32>; // initialValue=(1,1,0,0)
-// #param normalTextureRotation: f32; // initialValue=0
+// #param normalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param normalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param normalTextureTransformRotation: f32; // initialValue=0
 // #param normalScale: f32; // initialValue=1
 
 // #param shadingShiftFactor: f32; // initialValue=0.0
@@ -110,12 +112,13 @@ fn main (
   let time = get_time(0, 0);
 
   // base color
-  let baseColorTextureTransform = get_baseColorTextureTransform(materialSID, 0);
-  let baseColorTextureRotation = get_baseColorTextureRotation(materialSID, 0);
+  let baseColorTextureTransformScale = get_baseColorTextureTransformScale(materialSID, 0);
+  let baseColorTextureTransformOffset = get_baseColorTextureTransformOffset(materialSID, 0);
+  let baseColorTextureTransformRotation = get_baseColorTextureTransformRotation(materialSID, 0);
   let baseColorTexcoordIndex = u32(get_baseColorTexcoordIndex(materialSID, 0));
   var baseColorTexcoord = getTexcoord(baseColorTexcoordIndex, input);
   baseColorTexcoord = uvAnimation(baseColorTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
-  let baseColorTexUv = uvTransform(baseColorTextureTransform.xy, baseColorTextureTransform.zw, baseColorTextureRotation, baseColorTexcoord);
+  let baseColorTexUv = uvTransform(baseColorTextureTransformScale, baseColorTextureTransformOffset, baseColorTextureTransformRotation, baseColorTexcoord);
   var baseColorTexture = textureSample(baseColorTexture, baseColorSampler, baseColorTexUv);
   baseColorTexture = vec4(srgbToLinear(baseColorTexture.rgb), baseColorTexture.a);
   let baseColorFactor = get_baseColorFactor(materialSID, 0);
@@ -161,12 +164,13 @@ fn main (
   // Normal
   var normal_inWorld = normalize(input.normal_inWorld);
 #ifdef RN_USE_NORMAL_TEXTURE
-  let normalTextureTransform = get_normalTextureTransform(materialSID, 0);
-  let normalTextureRotation = get_normalTextureRotation(materialSID, 0);
+  let normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
+  let normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
+  let normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
   let normalTexcoordIndex = u32(get_normalTexcoordIndex(materialSID, 0));
   var normalTexcoord = getTexcoord(normalTexcoordIndex, input);
   normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
-  let normalTexUv = uvTransform(normalTextureTransform.xy, normalTextureTransform.zw, normalTextureRotation, normalTexcoord);
+  let normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
   let normal: vec3f = textureSample(normalTexture, normalSampler, normalTexUv).xyz * 2.0 - 1.0;
   let TBN: mat3x3<f32> = getTBN(normal_inWorld, input, viewDirection, normalTexUv, isFront);
   normal_inWorld = normalize(TBN * normal);
