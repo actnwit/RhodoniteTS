@@ -58,6 +58,9 @@ import {
   RnM2TextureInfo,
   RnM2SparseIndices,
   RnM2PbrMetallicRoughness,
+  RnM2Animation,
+  RnM2AnimationChannel,
+  RnM2AnimationSampler,
 } from '../../types/RnM2';
 import { Config } from '../core/Config';
 import { BufferUse } from '../definitions/BufferUse';
@@ -322,65 +325,71 @@ export class ModelConverter {
     for (const animation of gltfModel.animations) {
       for (const channel of animation.channels) {
         if (Is.exist(channel.samplerObject)) {
-          const animInputArray = channel.samplerObject.inputObject!.extras!.typedDataArray!;
-          const animOutputArray = channel.samplerObject.outputObject!.extras!.typedDataArray!;
-          const interpolation = channel.samplerObject.interpolation ?? 'LINEAR';
+          const samplerObject = channel.samplerObject;
+          const animInputArray = samplerObject.inputObject!.extras!.typedDataArray!;
+          const animOutputArray = samplerObject.outputObject!.extras!.typedDataArray!;
+          const interpolation = samplerObject.interpolation ?? 'LINEAR';
 
           let animationAttributeType: AnimationPathName = 'undefined';
-          if (channel.target!.path === 'translation') {
+          if (channel.target.path === 'translation') {
             animationAttributeType = 'translate';
-          } else if (channel.target!.path === 'rotation') {
+          } else if (channel.target.path === 'rotation') {
             animationAttributeType = 'quaternion';
+          } else if (channel.target.path === 'pointer') {
           } else {
-            animationAttributeType = channel.target!.path as AnimationPathName;
+            animationAttributeType = channel.target.path as AnimationPathName;
           }
 
-          const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
-          if (Is.exist(rnEntity)) {
-            let animationComponent = rnEntity.tryToGetAnimation();
-            if (Is.not.exist(animationComponent)) {
-              const newRnEntity = EntityRepository.addComponentToEntity(
-                AnimationComponent,
-                rnEntity
-              );
-              animationComponent = newRnEntity.getAnimation();
-            }
-            if (Is.exist(animationComponent)) {
-              const outputComponentN = channel.samplerObject.outputObject!.extras!.componentN!;
-              const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
-              const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
-              const animationSampler = {
-                input: animInputArray,
-                output: animOutputArray,
-                outputComponentN: outputComponentN as VectorComponentN,
-                interpolationMethod: AnimationInterpolation.fromString(interpolation),
-              };
-              animationSamplers.set(trackName, animationSampler);
-              const animatedValue = animationComponent.getAnimation(animationAttributeType);
-              if (Is.exist(animatedValue)) {
-                animatedValue.setAnimationSampler(trackName, animationSampler);
-              } else {
-                if (animationAttributeType === 'translate') {
-                  const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
-                  animationComponent.setAnimation(
-                    animationAttributeType,
-                    newAnimatedValue
-                  );
-                } else if (animationAttributeType === 'quaternion') {
-                  const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
-                  animationComponent.setAnimation(
-                    animationAttributeType,
-                    newAnimatedValue
-                  );
-                } else { // scale
-                  const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
-                  animationComponent.setAnimation(
-                    animationAttributeType,
-                    newAnimatedValue
-                  );
-                }
-              }
-            }
+          ModelConverter.__setNormalAnimation(rnEntities, channel,samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
+        }
+      }
+    }
+  }
+
+  private static __setNormalAnimation(rnEntities: ISceneGraphEntity[], channel: RnM2AnimationChannel, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
+    const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
+    if (Is.exist(rnEntity)) {
+      let animationComponent = rnEntity.tryToGetAnimation();
+      if (Is.not.exist(animationComponent)) {
+        const newRnEntity = EntityRepository.addComponentToEntity(
+          AnimationComponent,
+          rnEntity
+        );
+        animationComponent = newRnEntity.getAnimation();
+      }
+      if (Is.exist(animationComponent)) {
+        const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+        const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+        const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+        const animationSampler = {
+          input: animInputArray,
+          output: animOutputArray,
+          outputComponentN: outputComponentN as VectorComponentN,
+          interpolationMethod: AnimationInterpolation.fromString(interpolation),
+        };
+        animationSamplers.set(trackName, animationSampler);
+        const animatedValue = animationComponent.getAnimation(animationAttributeType);
+        if (Is.exist(animatedValue)) {
+          animatedValue.setAnimationSampler(trackName, animationSampler);
+        } else {
+          if (animationAttributeType === 'translate') {
+            const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
+          } else if (animationAttributeType === 'quaternion') {
+            const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
+          } else { // scale
+            const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
           }
         }
       }
