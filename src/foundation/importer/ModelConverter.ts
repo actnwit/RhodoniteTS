@@ -2818,8 +2818,18 @@ function setup_KHR_materials_iridescence(
       );
       const rnSampler = ModelConverter._createSampler(iridescenceTexture.texture!);
       material.setTextureParameter('iridescenceTexture', rnIridescenceTexture, rnSampler);
+      if (iridescenceTexture.texCoord != null) {
+        material.setParameter('iridescenceTexcoordIndex', iridescenceTexture.texCoord);
+      }
+      // Iridescence Texture Transform
+      ModelConverter._setupTextureTransform(
+        iridescenceTexture,
+        material,
+        'iridescenceTextureTransformScale',
+        'iridescenceTextureTransformOffset',
+        'iridescenceTextureTransformRotation'
+      );
     }
-
     const iridescenceIor = Is.exist(KHR_materials_iridescence.iridescenceIor)
       ? KHR_materials_iridescence.iridescenceIor
       : 1.3;
@@ -2850,6 +2860,20 @@ function setup_KHR_materials_iridescence(
         'iridescenceThicknessTexture',
         rnIridescenceThicknessTexture,
         rnSampler
+      );
+      if (iridescenceThicknessTexture.texCoord != null) {
+        material.setParameter(
+          'iridescenceThicknessTexcoordIndex',
+          iridescenceThicknessTexture.texCoord
+        );
+      }
+      // Iridescence Thickness Texture Transform
+      ModelConverter._setupTextureTransform(
+        iridescenceThicknessTexture,
+        material,
+        'iridescenceThicknessTextureTransformScale',
+        'iridescenceThicknessTextureTransformOffset',
+        'iridescenceThicknessTextureTransformRotation'
       );
     }
   }

@@ -100,6 +100,14 @@
 // #param iridescenceIor: f32; // initialValue=1.3
 // #param iridescenceThicknessMinimum: f32; // initialValue=100
 // #param iridescenceThicknessMaximum: f32; // initialValue=400
+// #param iridescenceTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param iridescenceTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param iridescenceTextureTransformRotation: f32; // initialValue=0
+// #param iridescenceTexcoordIndex: u32; // initialValue=0
+// #param iridescenceThicknessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param iridescenceThicknessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param iridescenceThicknessTextureTransformRotation: f32; // initialValue=0
+// #param iridescenceThicknessTexcoordIndex: u32; // initialValue=0
 #endif
 
 #ifdef RN_USE_ANISOTROPY
@@ -288,13 +296,27 @@ fn main(
 // Iridescence
 #ifdef RN_USE_IRIDESCENCE
   let iridescenceFactor: f32 = get_iridescenceFactor(materialSID, 0);
-  let iridescenceTexture: f32 = textureSample(iridescenceTexture, iridescenceSampler, baseColorTexUv).r;
+  let iridescenceTextureTransformScale: vec2f = get_iridescenceTextureTransformScale(materialSID, 0);
+  let iridescenceTextureTransformOffset: vec2f = get_iridescenceTextureTransformOffset(materialSID, 0);
+  let iridescenceTextureTransformRotation: f32 = get_iridescenceTextureTransformRotation(materialSID, 0);
+  let iridescenceTexcoordIndex = get_iridescenceTexcoordIndex(materialSID, 0);
+  let iridescenceTexcoord = getTexcoord(iridescenceTexcoordIndex, input);
+  let iridescenceTexUv = uvTransform(iridescenceTextureTransformScale, iridescenceTextureTransformOffset, iridescenceTextureTransformRotation, iridescenceTexcoord);
+  let iridescenceTexture: f32 = textureSample(iridescenceTexture, iridescenceSampler, iridescenceTexUv).r;
   let iridescence: f32 = iridescenceFactor * iridescenceTexture;
-  let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
-  let thicknessRatio: f32 = textureSample(iridescenceThicknessTexture, iridescenceThicknessSampler, baseColorTexUv).r;
+
+  let iridescenceThicknessTextureTransformScale: vec2f = get_iridescenceThicknessTextureTransformScale(materialSID, 0);
+  let iridescenceThicknessTextureTransformOffset: vec2f = get_iridescenceThicknessTextureTransformOffset(materialSID, 0);
+  let iridescenceThicknessTextureTransformRotation: f32 = get_iridescenceThicknessTextureTransformRotation(materialSID, 0);
+  let iridescenceThicknessTexcoordIndex = get_iridescenceThicknessTexcoordIndex(materialSID, 0);
+  let iridescenceThicknessTexcoord = getTexcoord(iridescenceThicknessTexcoordIndex, input);
+  let iridescenceThicknessTexUv = uvTransform(iridescenceThicknessTextureTransformScale, iridescenceThicknessTextureTransformOffset, iridescenceThicknessTextureTransformRotation, iridescenceThicknessTexcoord);
+  let thicknessRatio: f32 = textureSample(iridescenceThicknessTexture, iridescenceThicknessSampler, iridescenceThicknessTexUv).g;
   let iridescenceThicknessMinimum: f32 = get_iridescenceThicknessMinimum(materialSID, 0);
   let iridescenceThicknessMaximum: f32 = get_iridescenceThicknessMaximum(materialSID, 0);
   let iridescenceThickness: f32 = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
+
+  let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
   let iridescenceFresnel: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
   let iridescenceF0: vec3f = Schlick_to_F0(iridescenceFresnel, NdotV);
 #else

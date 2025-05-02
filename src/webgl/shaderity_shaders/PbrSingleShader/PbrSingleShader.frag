@@ -111,6 +111,14 @@ uniform float u_ior; // initialValue=1.5
   uniform float u_iridescenceIor; // initialValue=1.3
   uniform float u_iridescenceThicknessMinimum; // initialValue=100
   uniform float u_iridescenceThicknessMaximum; // initialValue=400
+  uniform vec2 u_iridescenceTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_iridescenceTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_iridescenceTextureTransformRotation; // initialValue=0
+  uniform int u_iridescenceTexcoordIndex; // initialValue=0
+  uniform vec2 u_iridescenceThicknessTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_iridescenceThicknessTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_iridescenceThicknessTextureTransformRotation; // initialValue=0
+  uniform int u_iridescenceThicknessTexcoordIndex; // initialValue=0
 #endif
 
 #ifdef RN_USE_ANISOTROPY
@@ -326,13 +334,27 @@ void main ()
   // Iridescence
   #ifdef RN_USE_IRIDESCENCE
     float iridescenceFactor = get_iridescenceFactor(materialSID, 0);
-    float iridescenceTexture = texture(u_iridescenceTexture, baseColorTexUv).r;
+    vec2 iridescenceTextureTransformScale = get_iridescenceTextureTransformScale(materialSID, 0);
+    vec2 iridescenceTextureTransformOffset = get_iridescenceTextureTransformOffset(materialSID, 0);
+    float iridescenceTextureTransformRotation = get_iridescenceTextureTransformRotation(materialSID, 0);
+    int iridescenceTexcoordIndex = get_iridescenceTexcoordIndex(materialSID, 0);
+    vec2 iridescenceTexcoord = getTexcoord(iridescenceTexcoordIndex);
+    vec2 iridescenceTexUv = uvTransform(iridescenceTextureTransformScale, iridescenceTextureTransformOffset, iridescenceTextureTransformRotation, iridescenceTexcoord);
+    float iridescenceTexture = texture(u_iridescenceTexture, iridescenceTexUv).r;
     float iridescence = iridescenceFactor * iridescenceTexture;
-    float iridescenceIor = get_iridescenceIor(materialSID, 0);
-    float thicknessRatio = texture(u_iridescenceThicknessTexture, baseColorTexUv).r;
+
+    vec2 iridescenceThicknessTextureTransformScale = get_iridescenceThicknessTextureTransformScale(materialSID, 0);
+    vec2 iridescenceThicknessTextureTransformOffset = get_iridescenceThicknessTextureTransformOffset(materialSID, 0);
+    float iridescenceThicknessTextureTransformRotation = get_iridescenceThicknessTextureTransformRotation(materialSID, 0);
+    int iridescenceThicknessTexcoordIndex = get_iridescenceThicknessTexcoordIndex(materialSID, 0);
+    vec2 iridescenceThicknessTexcoord = getTexcoord(iridescenceThicknessTexcoordIndex);
+    vec2 iridescenceThicknessTexUv = uvTransform(iridescenceThicknessTextureTransformScale, iridescenceThicknessTextureTransformOffset, iridescenceThicknessTextureTransformRotation, iridescenceThicknessTexcoord);
+    float thicknessRatio = texture(u_iridescenceThicknessTexture, iridescenceThicknessTexUv).g;
     float iridescenceThicknessMinimum = get_iridescenceThicknessMinimum(materialSID, 0);
     float iridescenceThicknessMaximum = get_iridescenceThicknessMaximum(materialSID, 0);
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
+
+    float iridescenceIor = get_iridescenceIor(materialSID, 0);
     vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
     vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
   #else
