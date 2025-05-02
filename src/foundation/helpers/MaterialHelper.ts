@@ -216,7 +216,7 @@ function createPbrUberMaterial({
   let textureSlotIdx = 8;
   if (isClearCoat) {
     additionalShaderSemanticInfo.push({
-      semantic: 'clearCoatTexture',
+      semantic: 'clearcoatTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -225,7 +225,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: 'clearCoatRoughnessTexture',
+      semantic: 'clearcoatRoughnessTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
@@ -234,7 +234,7 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
     additionalShaderSemanticInfo.push({
-      semantic: 'clearCoatNormalTexture',
+      semantic: 'clearcoatNormalTexture',
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,

@@ -65,28 +65,31 @@ function __createEffekseerTimeline(entity: IEntity, effekseer: RnM2ExtensionsEff
     const timelines: RnM2ExtensionsEffekseerTimeline[] = [];
     for (const trackName of trackNames) {
       if (animationComponent.hasAnimation(trackName, 'effekseer')) {
-        const rnAnimationTrack = animationComponent.getAnimationChannelsOfTrack(trackName);
+        const rnAnimationTrack = animationComponent.getAnimationChannelsOfTrack();
         if (Is.exist(rnAnimationTrack)) {
           const rnChannels = rnAnimationTrack.values();
           for (const rnChannel of rnChannels) {
             const pathName = rnChannel.target.pathName;
             if (pathName === 'effekseer') {
-              const inputArray = rnChannel.sampler.input;
-              const values: RnM2ExtensionsEffekseerTimelineItem[] = [];
-              for (let i = 0; i < inputArray.length; i++) {
-                const input = inputArray[i];
-                const output = rnChannel.sampler.output[i];
-                const timelineItem: RnM2ExtensionsEffekseerTimelineItem = {
-                  input: input,
-                  event: output > 0.5 ? 'play' : 'pause',
+              const animatedValue = rnChannel.animatedValue;
+              for (const trackName of animatedValue.getAllTrackNames()) {
+                const inputArray = animatedValue.getAnimationSampler(trackName).input;
+                const values: RnM2ExtensionsEffekseerTimelineItem[] = [];
+                for (let i = 0; i < inputArray.length; i++) {
+                  const input = inputArray[i];
+                  const output = animatedValue.getAnimationSampler(trackName).output[i];
+                  const timelineItem: RnM2ExtensionsEffekseerTimelineItem = {
+                    input: input,
+                    event: output > 0.5 ? 'play' : 'pause',
+                  };
+                  values.push(timelineItem);
+                }
+                const timeline: RnM2ExtensionsEffekseerTimeline = {
+                  name: trackName,
+                  values: values,
                 };
-                values.push(timelineItem);
+                timelines.push(timeline);
               }
-              const timeline: RnM2ExtensionsEffekseerTimeline = {
-                name: trackName,
-                values: values,
-              };
-              timelines.push(timeline);
             }
           }
         }

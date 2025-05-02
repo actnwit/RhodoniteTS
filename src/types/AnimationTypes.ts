@@ -1,6 +1,7 @@
 import { IEntity, Entity } from '../foundation/core/Entity';
 import { AnimationInterpolationEnum } from '../foundation/definitions/AnimationInterpolation';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
+import { IAnimatedValue } from '../foundation/math/IAnimatedValue';
 import { Second, VectorComponentN } from './CommonTypes';
 
 /**
@@ -14,6 +15,7 @@ export type AnimationPathName =
   | 'quaternion'
   | 'scale'
   | 'weights'
+  | 'material'
   | 'effekseer';
 
 export type AnimationTrackName = string;
@@ -24,20 +26,20 @@ export interface AnimationInfo {
   maxEndInputTime: Second; // max end time in all animation paths of the track
 }
 
-export type AnimationTracks = Map<AnimationTrackName, AnimationTrack>;
-
 /**
  * Similar to [Animation](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation)
  */
 export type AnimationTrack = Map<AnimationPathName, AnimationChannel>;
 
+
+export type AnimationSamplers = Map<AnimationTrackName, AnimationSampler>;
+
 /**
  * Similar to [Animation.Channel](https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-animation-channel)
  */
 export interface AnimationChannel {
-  sampler: AnimationSampler;
+  animatedValue: IAnimatedValue;
   target: AnimationChannelTarget;
-  belongTrackName: AnimationTrackName;
 }
 
 /**

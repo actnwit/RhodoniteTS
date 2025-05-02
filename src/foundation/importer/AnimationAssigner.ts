@@ -9,11 +9,13 @@ import { Is } from '../misc/Is';
 import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { AbsoluteAnimation, GlobalRetarget, IAnimationRetarget } from '../components';
 import { Vrm1 } from '../../types/VRM1';
-import { RnM2Vrma } from '../../types';
+import { AnimationSampler, AnimationTrackName, RnM2Vrma } from '../../types';
 import { Vector3 } from '../math';
 import { GlobalRetargetReverse } from '../components/Skeletal/AnimationRetarget/GlobalRetargetReverse';
 import { AnimationStateComponent } from '../components/AnimationState/AnimationStateComponent';
 import { Logger } from '../misc/Logger';
+import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
+import { AnimatedVector3 } from '../math/AnimatedVector3';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -331,26 +333,39 @@ export class AnimationAssigner {
               animationAttributeType = channel.target!.path;
             }
             if (animationAttributeType === 'quaternion') {
+              const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+              const trackName = Is.exist(animation.name) ? animation.name! : 'Untitled';
+              animationSamplers.set(
+                trackName,
+                {
+                  input: animInputArray!,
+                  output: animOutputArray!,
+                  outputComponentN: 4, // Quaternion
+                  interpolationMethod: AnimationInterpolation.fromString(interpolation)
+                }
+              );
+              const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
               animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name! : 'Untitled',
                 animationAttributeType,
-                animInputArray!,
-                animOutputArray!,
-                4, // Quaternion
-                AnimationInterpolation.fromString(interpolation)
+                newAnimatedValue
               );
             } else if (
               animationAttributeType === 'translate' &&
               this.__isHips(rootEntity, vrmModel, channel.target!.node!)
             ) {
-              animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name! : 'Untitled',
-                animationAttributeType,
-                animInputArray!,
-                animOutputArray!,
-                3, // translate
-                AnimationInterpolation.fromString(interpolation)
+              const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+              const trackName = Is.exist(animation.name) ? animation.name! : 'Untitled';
+              animationSamplers.set(
+                trackName,
+                {
+                  input: animInputArray!,
+                  output: animOutputArray!,
+                  outputComponentN: 3, // translate
+                  interpolationMethod: AnimationInterpolation.fromString(interpolation)
+                }
               );
+              const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+              animationComponent.setAnimation(animationAttributeType, newAnimatedValue);
             }
           } else {
             const gltfEntity = gltfModel.extras.rnEntities[channel.target!.node!];

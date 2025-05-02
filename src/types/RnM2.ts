@@ -211,7 +211,7 @@ export type RnM2Image = {
   extras?: Gltf2AnyObject;
 };
 
-export type PathType = 'translation' | 'rotation' | 'scale' | 'weights';
+export type PathType = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer';
 
 export type RnM2AnimationChannelTarget = {
   nodeObject?: RnM2Node;

@@ -58,6 +58,9 @@ import {
   RnM2TextureInfo,
   RnM2SparseIndices,
   RnM2PbrMetallicRoughness,
+  RnM2Animation,
+  RnM2AnimationChannel,
+  RnM2AnimationSampler,
 } from '../../types/RnM2';
 import { Config } from '../core/Config';
 import { BufferUse } from '../definitions/BufferUse';
@@ -68,7 +71,7 @@ import { TextureParameter } from '../definitions/TextureParameter';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { Is } from '../misc/Is';
 import { DataUtil } from '../misc/DataUtil';
-import { AnimationPathName } from '../../types/AnimationTypes';
+import { AnimationPathName, AnimationSampler, AnimationTrackName } from '../../types/AnimationTypes';
 import { GltfLoadOption, KHR_lights_punctual_Light, TagGltf2NodeIndex } from '../../types/glTF2';
 import {
   IAnimationEntity,
@@ -92,6 +95,14 @@ import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { Logger } from '../misc/Logger';
 import { Vrm1_Material } from '../../types/VRM1';
+import { AnimatedVector3 } from '../math/AnimatedVector3';
+import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
+import { AnimatedScalar } from '../math/AnimatedScalar';
+import { AnimatedVector4 } from '../math/AnimatedVector4';
+import { IAnimatedValue } from '../math/IAnimatedValue';
+import { AnimatedVector2 } from '../math/AnimatedVector2';
+import { MutableVector2 } from '../math/MutableVector2';
+import { AnimatedVectorN } from '../math/AnimatedVectorN';
 
 declare let DracoDecoderModule: any;
 
@@ -171,7 +182,7 @@ export class ModelConverter {
     const rootGroup = this.__generateGroupEntity(gltfModel);
 
     // Animation
-    this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup);
+    this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
 
     // Skeleton
     this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
@@ -302,7 +313,8 @@ export class ModelConverter {
     gltfModel: RnM2,
     rnEntities: ISceneGraphEntity[],
     rnBuffers: Buffer[],
-    rootGroup: ISceneGraphEntity
+    rootGroup: ISceneGraphEntity,
+    rnMaterials: Material[]
   ) {
     if (gltfModel.animations == null || gltfModel.animations.length === 0) {
       return;
@@ -320,21 +332,92 @@ export class ModelConverter {
     for (const animation of gltfModel.animations) {
       for (const channel of animation.channels) {
         if (Is.exist(channel.samplerObject)) {
-          const animInputArray = channel.samplerObject.inputObject!.extras!.typedDataArray!;
-          const animOutputArray = channel.samplerObject.outputObject!.extras!.typedDataArray!;
-          const interpolation = channel.samplerObject.interpolation ?? 'LINEAR';
+          const samplerObject = channel.samplerObject;
+          const animInputArray = samplerObject.inputObject!.extras!.typedDataArray!;
+          const animOutputArray = samplerObject.outputObject!.extras!.typedDataArray!;
+          const interpolation = samplerObject.interpolation ?? 'LINEAR';
 
           let animationAttributeType: AnimationPathName = 'undefined';
-          if (channel.target!.path === 'translation') {
+          if (channel.target.path === 'translation') {
             animationAttributeType = 'translate';
-          } else if (channel.target!.path === 'rotation') {
+          } else if (channel.target.path === 'rotation') {
             animationAttributeType = 'quaternion';
+          } else if (channel.target.path === 'pointer') {
+            animationAttributeType = 'material';
           } else {
-            animationAttributeType = channel.target!.path as AnimationPathName;
+            animationAttributeType = channel.target.path as AnimationPathName;
           }
 
-          const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
-          if (Is.exist(rnEntity)) {
+          if (channel.target.path === 'pointer') {
+            ModelConverter.__setPointerAnimation(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, rnMaterials);
+          } else {
+            ModelConverter.__setNormalAnimation(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
+          }
+        }
+      }
+    }
+  }
+
+  private static __setPointerAnimation(
+    rnEntities: ISceneGraphEntity[],
+    channel: RnM2AnimationChannel,
+    samplerObject: RnM2AnimationSampler,
+    animation: RnM2Animation,
+    animInputArray: Float32Array,
+    animOutputArray: Float32Array,
+    interpolation: string,
+    animationAttributeType: AnimationPathName,
+    rnMaterials: Material[]
+  ) {
+    const pointer = channel.target.extensions!.KHR_animation_pointer.pointer as string;
+    const match = pointer.match(/^\/materials\/([0-9]+)\//);
+    if (match) {
+      const materialIndex = parseInt(match[1]);
+      const material = rnMaterials[materialIndex];
+      if (Is.not.exist(material)) {
+        throw new Error(`Material not found: ${pointer}`);
+      }
+      const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+      const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+      const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+      const animationSampler = {
+        input: animInputArray,
+        output: animOutputArray,
+        outputComponentN: outputComponentN as VectorComponentN,
+        interpolationMethod: AnimationInterpolation.fromString(interpolation),
+      };
+      animationSamplers.set(trackName, animationSampler);
+
+      let animatedValue: IAnimatedValue;
+      if (outputComponentN === 1) {
+        animatedValue = new AnimatedScalar(animationSamplers, trackName);
+      } else if (outputComponentN === 2) {
+        animatedValue = new AnimatedVector2(animationSamplers, trackName);
+      } else if (outputComponentN === 3) {
+        animatedValue = new AnimatedVector3(animationSamplers, trackName);
+      } else if (outputComponentN === 4) {
+        animatedValue = new AnimatedVector4(animationSamplers, trackName);
+      } else {
+        throw new Error(`Unsupported component number: ${outputComponentN}`);
+      }
+      if (pointer.includes('KHR_texture_transform')) {
+        const split = pointer.split('/');
+        const textureName = split[split.length - 4];
+        const transformType = split[split.length - 1];
+        const capitalizedTransformType = transformType.charAt(0).toUpperCase() + transformType.slice(1);
+        const shaderSemanticName = `${textureName}Transform${capitalizedTransformType}`;
+        material.setParameter(shaderSemanticName, animatedValue);
+      } else {
+        const shaderSemanticName = pointer.split('/').pop()!;
+        material.setParameter(shaderSemanticName, animatedValue);
+      }
+
+      const primitives = material.getBelongPrimitives();
+      for (const primitive of primitives.values()) {
+        if (Is.exist(primitive.mesh)) {
+          const mesh = primitive.mesh as Mesh;
+          const meshEntities = mesh.meshEntitiesInner;
+          for (const rnEntity of meshEntities) {
             let animationComponent = rnEntity.tryToGetAnimation();
             if (Is.not.exist(animationComponent)) {
               const newRnEntity = EntityRepository.addComponentToEntity(
@@ -343,17 +426,63 @@ export class ModelConverter {
               );
               animationComponent = newRnEntity.getAnimation();
             }
-            if (Is.exist(animationComponent)) {
-              const outputComponentN = channel.samplerObject.outputObject!.extras!.componentN!;
-              animationComponent.setAnimation(
-                Is.exist(animation.name) ? animation.name : 'Untitled_Animation',
-                animationAttributeType,
-                animInputArray,
-                animOutputArray,
-                outputComponentN as VectorComponentN,
-                AnimationInterpolation.fromString(interpolation)
-              );
-            }
+            animationComponent.setAnimation(animationAttributeType, animatedValue);
+          }
+        }
+      }
+    }
+  }
+
+  private static __setNormalAnimation(rnEntities: ISceneGraphEntity[], channel: RnM2AnimationChannel, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
+    const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
+    if (Is.exist(rnEntity)) {
+      let animationComponent = rnEntity.tryToGetAnimation();
+      if (Is.not.exist(animationComponent)) {
+        const newRnEntity = EntityRepository.addComponentToEntity(
+          AnimationComponent,
+          rnEntity
+        );
+        animationComponent = newRnEntity.getAnimation();
+      }
+      if (Is.exist(animationComponent)) {
+        const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+        const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+        const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+        const animationSampler = {
+          input: animInputArray,
+          output: animOutputArray,
+          outputComponentN: outputComponentN as VectorComponentN,
+          interpolationMethod: AnimationInterpolation.fromString(interpolation),
+        };
+        animationSamplers.set(trackName, animationSampler);
+        const animatedValue = animationComponent.getAnimation(animationAttributeType);
+        if (Is.exist(animatedValue)) {
+          animatedValue.setAnimationSampler(trackName, animationSampler);
+        } else {
+          if (animationAttributeType === 'translate') {
+            const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
+          } else if (animationAttributeType === 'quaternion') {
+            const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
+          } else if (animationAttributeType === 'scale') {
+            const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
+          } else { // weight
+            const newAnimatedValue = new AnimatedVectorN(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
           }
         }
       }
@@ -1269,8 +1398,9 @@ export class ModelConverter {
       ModelConverter._setupTextureTransform(
         emissiveTexture!,
         material,
-        'emissiveTextureTransform',
-        'emissiveTextureRotation'
+        'emissiveTextureTransformScale',
+        'emissiveTextureTransformOffset',
+        'emissiveTextureTransformRotation'
       );
     }
 
@@ -1317,8 +1447,9 @@ export class ModelConverter {
     ModelConverter._setupTextureTransform(
       normalTexture!,
       material,
-      'normalTextureTransform',
-      'normalTextureRotation'
+      'normalTextureTransformScale',
+      'normalTextureTransformOffset',
+      'normalTextureTransformRotation'
     );
 
     // For Extension
@@ -2081,28 +2212,31 @@ export class ModelConverter {
   static _setupTextureTransform(
     textureJson: RnM2TextureInfo,
     rnMaterial: Material,
-    textureTransformShaderSemantic: ShaderSemanticsName,
-    textureRotationShaderSemantic: ShaderSemanticsName
+    textureTransformScaleShaderSemantic: ShaderSemanticsName,
+    textureTransformOffsetShaderSemantic: ShaderSemanticsName,
+    textureTransformRotationShaderSemantic: ShaderSemanticsName
   ) {
     if (textureJson?.extensions?.KHR_texture_transform) {
-      const transform = MutableVector4.fromCopyArray([1.0, 1.0, 0.0, 0.0]);
+      const transformScale = MutableVector2.fromCopyArray([1.0, 1.0]);
+      const transformOffset = MutableVector2.fromCopyArray([0.0, 0.0]);
       let rotation = 0;
 
       const transformJson = textureJson.extensions.KHR_texture_transform;
       if (transformJson.scale != null) {
-        transform.x = transformJson.scale[0];
-        transform.y = transformJson.scale[1];
+        transformScale.x = transformJson.scale[0];
+        transformScale.y = transformJson.scale[1];
       }
       if (transformJson.offset != null) {
-        transform.z = transformJson.offset[0];
-        transform.w = transformJson.offset[1];
+        transformOffset.x = transformJson.offset[0];
+        transformOffset.y = transformJson.offset[1];
       }
       if (transformJson.rotation != null) {
         rotation = transformJson.rotation;
       }
 
-      rnMaterial.setParameter(textureTransformShaderSemantic, transform);
-      rnMaterial.setParameter(textureRotationShaderSemantic, rotation);
+      rnMaterial.setParameter(textureTransformScaleShaderSemantic, transformScale);
+      rnMaterial.setParameter(textureTransformOffsetShaderSemantic, transformOffset);
+      rnMaterial.setParameter(textureTransformRotationShaderSemantic, rotation);
     }
   }
 
@@ -2348,8 +2482,9 @@ function setupPbrMetallicRoughness(
     ModelConverter._setupTextureTransform(
       baseColorTexture!,
       material,
-      'baseColorTextureTransform',
-      'baseColorTextureRotation'
+      'baseColorTextureTransformScale',
+      'baseColorTextureTransformOffset',
+      'baseColorTextureTransformRotation'
     );
   }
 
@@ -2368,8 +2503,9 @@ function setupPbrMetallicRoughness(
     ModelConverter._setupTextureTransform(
       occlusionTexture,
       material,
-      'occlusionTextureTransform',
-      'occlusionTextureRotation'
+      'occlusionTextureTransformScale',
+      'occlusionTextureTransformOffset',
+      'occlusionTextureTransformRotation'
     );
   }
 
@@ -2395,8 +2531,9 @@ function setupPbrMetallicRoughness(
     ModelConverter._setupTextureTransform(
       metallicRoughnessTexture!,
       material,
-      'metallicRoughnessTextureTransform',
-      'metallicRoughnessTextureRotation'
+      'metallicRoughnessTextureTransformScale',
+      'metallicRoughnessTextureTransformOffset',
+      'metallicRoughnessTextureTransformRotation'
     );
   }
 
@@ -2452,6 +2589,16 @@ function setup_KHR_materials_transmission(
       );
       const rnSampler = ModelConverter._createSampler(transmissionTexture.texture!);
       material.setTextureParameter('transmissionTexture', rnTransmissionTexture, rnSampler);
+      if (transmissionTexture.texCoord != null) {
+        material.setParameter('transmissionTexcoordIndex', transmissionTexture.texCoord);
+      }
+      ModelConverter._setupTextureTransform(
+        transmissionTexture,
+        material,
+        'transmissionTextureTransformScale',
+        'transmissionTextureTransformOffset',
+        'transmissionTextureTransformRotation'
+      );
     }
     return true;
   }
@@ -2466,80 +2613,83 @@ function setup_KHR_materials_clearcoat(
   const KHR_materials_clearcoat = materialJson?.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
     // ClearCoat Factor
-    const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
+    const clearcoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
       : 0.0;
-    material.setParameter('clearCoatFactor', clearCoatFactor);
+    material.setParameter('clearcoatFactor', clearcoatFactor);
     // ClearCoat Texture
-    const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
-    if (clearCoatTexture != null) {
+    const clearcoatTexture = KHR_materials_clearcoat.clearcoatTexture;
+    if (clearcoatTexture != null) {
       const rnClearCoatTexture = ModelConverter._createTexture(
-        clearCoatTexture.texture!,
+        clearcoatTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(clearCoatTexture.texture!);
-      material.setTextureParameter('clearCoatTexture', rnClearCoatTexture, rnSampler);
-      if (clearCoatTexture.texCoord != null) {
-        material.setParameter('clearCoatTexcoordIndex', clearCoatTexture.texCoord);
+      const rnSampler = ModelConverter._createSampler(clearcoatTexture.texture!);
+      material.setTextureParameter('clearcoatTexture', rnClearCoatTexture, rnSampler);
+      if (clearcoatTexture.texCoord != null) {
+        material.setParameter('clearcoatTexcoordIndex', clearcoatTexture.texCoord);
       }
       // ClearCoat Texture Transform
       ModelConverter._setupTextureTransform(
-        clearCoatTexture,
+        clearcoatTexture,
         material,
-        'clearCoatTextureTransform',
-        'clearCoatTextureRotation'
+        'clearcoatTextureTransformScale',
+        'clearcoatTextureTransformOffset',
+        'clearcoatTextureTransformRotation'
       );
     }
     // ClearCoat Roughness Factor
-    const clearCoatRoughnessFactor = Is.exist(KHR_materials_clearcoat.clearcoatRoughnessFactor)
+    const clearcoatRoughnessFactor = Is.exist(KHR_materials_clearcoat.clearcoatRoughnessFactor)
       ? KHR_materials_clearcoat.clearcoatRoughnessFactor
       : 0.0;
-    material.setParameter('clearCoatRoughnessFactor', clearCoatRoughnessFactor);
+    material.setParameter('clearcoatRoughnessFactor', clearcoatRoughnessFactor);
     // ClearCoat Roughness Texture
-    const clearCoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
-    if (clearCoatRoughnessTexture != null) {
+    const clearcoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
+    if (clearcoatRoughnessTexture != null) {
       const rnClearCoatRoughnessTexture = ModelConverter._createTexture(
-        clearCoatRoughnessTexture.texture!,
+        clearcoatRoughnessTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(clearCoatRoughnessTexture.texture!);
+      const rnSampler = ModelConverter._createSampler(clearcoatRoughnessTexture.texture!);
       material.setTextureParameter(
-        'clearCoatRoughnessTexture',
+        'clearcoatRoughnessTexture',
         rnClearCoatRoughnessTexture,
         rnSampler
       );
-      if (clearCoatRoughnessTexture.texCoord != null) {
+      if (clearcoatRoughnessTexture.texCoord != null) {
         material.setParameter(
-          'clearCoatRoughnessTexcoordIndex',
-          clearCoatRoughnessTexture.texCoord
+          'clearcoatRoughnessTexcoordIndex',
+          clearcoatRoughnessTexture.texCoord
         );
       }
       // ClearCoat Roughness Texture Transform
       ModelConverter._setupTextureTransform(
-        clearCoatRoughnessTexture,
+        clearcoatRoughnessTexture,
         material,
-        'clearCoatRoughnessTextureTransform',
-        'clearCoatRoughnessTextureRotation'
+        'clearcoatRoughnessTextureTransformScale',
+        'clearcoatRoughnessTextureTransformOffset',
+        'clearcoatRoughnessTextureTransformRotation'
       );
     }
     // ClearCoat Normal Texture
-    const clearCoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
-    if (clearCoatNormalTexture != null) {
+    const clearcoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
+    if (clearcoatNormalTexture != null) {
       const rnClearCoatNormalTexture = ModelConverter._createTexture(
-        clearCoatNormalTexture.texture!,
+        clearcoatNormalTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(clearCoatNormalTexture.texture!);
-      material.setTextureParameter('clearCoatNormalTexture', rnClearCoatNormalTexture, rnSampler);
-      if (clearCoatNormalTexture.texCoord != null) {
-        material.setParameter('clearCoatNormalTexcoordIndex', clearCoatNormalTexture.texCoord);
+      const rnSampler = ModelConverter._createSampler(clearcoatNormalTexture.texture!);
+      material.setTextureParameter('clearcoatNormalTexture', rnClearCoatNormalTexture, rnSampler);
+      if (clearcoatNormalTexture.texCoord != null) {
+        material.setParameter('clearcoatNormalTexcoordIndex', clearcoatNormalTexture.texCoord);
       }
       // ClearCoat Normal Texture Transform
       ModelConverter._setupTextureTransform(
-        clearCoatNormalTexture,
+        clearcoatNormalTexture,
         material,
-        'clearCoatNormalTextureTransform',
-        'clearCoatNormalTextureRotation'
+        'clearcoatNormalTextureTransformScale',
+        'clearcoatNormalTextureTransformOffset',
+        'clearcoatNormalTextureTransformRotation'
       );
     }
   }
@@ -2566,6 +2716,17 @@ function setup_KHR_materials_volume(
       );
       const rnSampler = ModelConverter._createSampler(thicknessTexture.texture!);
       material.setTextureParameter('thicknessTexture', rnThicknessTexture, rnSampler);
+      if (thicknessTexture.texCoord != null) {
+        material.setParameter('thicknessTexcoordIndex', thicknessTexture.texCoord);
+      }
+      // Thickness Texture Transform
+      ModelConverter._setupTextureTransform(
+        thicknessTexture,
+        material,
+        'thicknessTextureTransformScale',
+        'thicknessTextureTransformOffset',
+        'thicknessTextureTransformRotation'
+      );
     }
     const attenuationDistance = KHR_materials_volume.attenuationDistance
       ? KHR_materials_volume.attenuationDistance
@@ -2601,6 +2762,17 @@ function setup_KHR_materials_sheen(
       );
       const rnSampler = ModelConverter._createSampler(sheenColorTexture.texture!);
       material.setTextureParameter('sheenColorTexture', rnSheenColorTexture, rnSampler);
+      if (sheenColorTexture.texCoord != null) {
+        material.setParameter('sheenColorTexcoordIndex', sheenColorTexture.texCoord);
+      }
+      // Sheen Color Texture Transform
+      ModelConverter._setupTextureTransform(
+        sheenColorTexture,
+        material,
+        'sheenColorTextureTransformScale',
+        'sheenColorTextureTransformOffset',
+        'sheenColorTextureTransformRotation'
+      );
     }
     const sheenRoughnessFactor = Is.exist(KHR_materials_sheen.sheenRoughnessFactor)
       ? KHR_materials_sheen.sheenRoughnessFactor
@@ -2614,6 +2786,17 @@ function setup_KHR_materials_sheen(
       );
       const rnSampler = ModelConverter._createSampler(sheenRoughnessTexture.texture!);
       material.setTextureParameter('sheenRoughnessTexture', rnSheenRoughnessTexture, rnSampler);
+      if (sheenRoughnessTexture.texCoord != null) {
+        material.setParameter('sheenRoughnessTexcoordIndex', sheenRoughnessTexture.texCoord);
+      }
+      // Sheen Roughness Texture Transform
+      ModelConverter._setupTextureTransform(
+        sheenRoughnessTexture,
+        material,
+        'sheenRoughnessTextureTransformScale',
+        'sheenRoughnessTextureTransformOffset',
+        'sheenRoughnessTextureTransformRotation'
+      );
     }
   }
 }
@@ -2634,19 +2817,41 @@ function setup_KHR_materials_specular(
       const rnSpecularTexture = ModelConverter._createTexture(specularTexture.texture!, gltfModel);
       const rnSampler = ModelConverter._createSampler(specularTexture.texture!);
       material.setTextureParameter('specularTexture', rnSpecularTexture, rnSampler);
+      if (specularTexture.texCoord != null) {
+        material.setParameter('specularTexcoordIndex', specularTexture.texCoord);
+      }
+      // Specular Texture Transform
+      ModelConverter._setupTextureTransform(
+        specularTexture,
+        material,
+        'specularTextureTransformScale',
+        'specularTextureTransformOffset',
+        'specularTextureTransformRotation'
+      );
     }
-    const SpecularColorFactor = Is.exist(KHR_materials_specular.specularColorFactor)
+    const specularColorFactor = Is.exist(KHR_materials_specular.specularColorFactor)
       ? KHR_materials_specular.specularColorFactor
       : [1.0, 1.0, 1.0];
-    material.setParameter('specularColorFactor', Vector3.fromCopyArray3(SpecularColorFactor));
-    const SpecularColorTexture = KHR_materials_specular.specularColorTexture;
-    if (SpecularColorTexture != null) {
+    material.setParameter('specularColorFactor', Vector3.fromCopyArray3(specularColorFactor));
+    const specularColorTexture = KHR_materials_specular.specularColorTexture;
+    if (specularColorTexture != null) {
       const rnSpecularColorTexture = ModelConverter._createTexture(
-        SpecularColorTexture.texture!,
+        specularColorTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(SpecularColorTexture.texture!);
+      const rnSampler = ModelConverter._createSampler(specularColorTexture.texture!);
       material.setTextureParameter('specularColorTexture', rnSpecularColorTexture, rnSampler);
+      if (specularColorTexture.texCoord != null) {
+        material.setParameter('specularColorTexcoordIndex', specularColorTexture.texCoord);
+      }
+      // Specular Color Texture Transform
+      ModelConverter._setupTextureTransform(
+        specularColorTexture,
+        material,
+        'specularColorTextureTransformScale',
+        'specularColorTextureTransformOffset',
+        'specularColorTextureTransformRotation'
+      );
     }
   }
 }
@@ -2678,8 +2883,18 @@ function setup_KHR_materials_iridescence(
       );
       const rnSampler = ModelConverter._createSampler(iridescenceTexture.texture!);
       material.setTextureParameter('iridescenceTexture', rnIridescenceTexture, rnSampler);
+      if (iridescenceTexture.texCoord != null) {
+        material.setParameter('iridescenceTexcoordIndex', iridescenceTexture.texCoord);
+      }
+      // Iridescence Texture Transform
+      ModelConverter._setupTextureTransform(
+        iridescenceTexture,
+        material,
+        'iridescenceTextureTransformScale',
+        'iridescenceTextureTransformOffset',
+        'iridescenceTextureTransformRotation'
+      );
     }
-
     const iridescenceIor = Is.exist(KHR_materials_iridescence.iridescenceIor)
       ? KHR_materials_iridescence.iridescenceIor
       : 1.3;
@@ -2710,6 +2925,20 @@ function setup_KHR_materials_iridescence(
         'iridescenceThicknessTexture',
         rnIridescenceThicknessTexture,
         rnSampler
+      );
+      if (iridescenceThicknessTexture.texCoord != null) {
+        material.setParameter(
+          'iridescenceThicknessTexcoordIndex',
+          iridescenceThicknessTexture.texCoord
+        );
+      }
+      // Iridescence Thickness Texture Transform
+      ModelConverter._setupTextureTransform(
+        iridescenceThicknessTexture,
+        material,
+        'iridescenceThicknessTextureTransformScale',
+        'iridescenceThicknessTextureTransformOffset',
+        'iridescenceThicknessTextureTransformRotation'
       );
     }
   }
@@ -2742,6 +2971,17 @@ function setup_KHR_materials_anisotropy(
       );
       const rnSampler = ModelConverter._createSampler(anisotropyTexture.texture!);
       material.setTextureParameter('anisotropyTexture', rnAnisotropyTexture, rnSampler);
+      if (anisotropyTexture.texCoord != null) {
+        material.setParameter('anisotropyTexcoordIndex', anisotropyTexture.texCoord);
+      }
+      // Anisotropy Texture Transform
+      ModelConverter._setupTextureTransform(
+        anisotropyTexture,
+        material,
+        'anisotropyTextureTransformScale',
+        'anisotropyTextureTransformOffset',
+        'anisotropyTextureTransformRotation'
+      );
     }
   }
 }

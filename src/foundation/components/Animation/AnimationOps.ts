@@ -1,12 +1,16 @@
-import { AnimationChannel } from '../../../types/AnimationTypes';
-import { Array1, Array3, Array4, Index } from '../../../types/CommonTypes';
+import { AnimationChannel, AnimationSampler } from '../../../types/AnimationTypes';
+import { Array1, Array2, Array3, Array4, Index } from '../../../types/CommonTypes';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { AnimationInterpolation } from '../../definitions/AnimationInterpolation';
 import {
+  array2_lerp_offsetAsComposition,
   array3_lerp_offsetAsComposition,
+  array4_lerp_offsetAsComposition,
   arrayN_lerp_offsetAsComposition,
   get1_offset,
   get1_offsetAsComposition,
+  get2_offset,
+  get2_offsetAsComposition,
   get3_offset,
   get3_offsetAsComposition,
   get4_offset,
@@ -18,6 +22,7 @@ import {
   mulArrayNWithScalar_offset,
   normalizeArray4,
   qlerp_offsetAsComposition,
+  scalar_lerp_offsetAsComposition,
 } from '../../math/raw/raw_extension';
 
 /**
@@ -118,50 +123,60 @@ function __prepareVariablesForCubicSpline(
   }
 }
 
-function __getOutputValue(
+export function __getOutputValue(
   keyFrameId: Index,
-  channel: AnimationChannel,
+  sampler: AnimationSampler,
   array_: Float32Array | number[]
 ) {
   const array = array_ as globalThis.Float32Array;
-  if (channel.sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
+  if (sampler.interpolationMethod === AnimationInterpolation.CubicSpline) {
     // In glTF CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes: a1,a2,…an,v1,v2,…vn,b1,b2,…bn
-    if (channel.sampler.outputComponentN === 4) {
+    if (sampler.outputComponentN === 4) {
       // Quaternion/weights
       const value = array[get4_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array4<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 3) {
+    } else if (sampler.outputComponentN === 3) {
       // Translate/Scale/weights
       const value = array[get3_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array3<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 1) {
+    } else if (sampler.outputComponentN === 2) {
+      // Vector2
+      const value = array[get2_offset](
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
+      ) as Array2<number>;
+      return value;
+    } else if (sampler.outputComponentN === 1) {
       const value = array[get1_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array1<number>;
       return value;
     } else {
       // weights // outputComponentN === N
       const value = array[getN_offset](
-        channel.sampler.outputComponentN * 3 * keyFrameId + channel.sampler.outputComponentN,
-        channel.sampler.outputComponentN
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN,
+        sampler.outputComponentN
       ) as Array<number>;
       return value;
     }
   } else {
     // For Other than CUBICSPLINE interpolation
-    if (channel.sampler.outputComponentN === 4) {
+    if (sampler.outputComponentN === 4) {
       // Quaternion/weights
       const value = array[get4_offsetAsComposition](keyFrameId) as Array4<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 3) {
+    } else if (sampler.outputComponentN === 3) {
       // Translate/Scale/weights
       const value = array[get3_offsetAsComposition](keyFrameId) as Array3<number>;
       return value;
-    } else if (channel.sampler.outputComponentN === 1) {
+    } else if (sampler.outputComponentN === 2) {
+      // Vector2
+      const value = array[get2_offsetAsComposition](keyFrameId) as Array2<number>;
+      return value;
+    } else if (sampler.outputComponentN === 1) {
       // Effekseer (Animation Event)
       const value = array[get1_offsetAsComposition](keyFrameId) as Array1<number>;
       return value;
@@ -169,7 +184,7 @@ function __getOutputValue(
       // weights
       const value = array[getN_offsetAsComposition](
         keyFrameId,
-        channel.sampler.outputComponentN
+        sampler.outputComponentN
       ) as Array<number>;
       return value;
     }
@@ -247,31 +262,43 @@ function __lerp(
   if (animationAttributeIndex === AnimationAttribute.Quaternion.index) {
     const array4 = data[qlerp_offsetAsComposition](data, ratio, i, i + 1);
     return array4;
-  } else if (animationAttributeIndex === AnimationAttribute.Weights.index) {
+  } else if (animationAttributeIndex === AnimationAttribute.Weights.index || animationAttributeIndex === AnimationAttribute.VectorN.index) {
     const arrayN = data[arrayN_lerp_offsetAsComposition](data, outputComponentN, ratio, i, i + 1);
     return arrayN;
-  } else {
+  } else if (animationAttributeIndex === AnimationAttribute.Translate.index || animationAttributeIndex === AnimationAttribute.Scale.index || animationAttributeIndex === AnimationAttribute.Vector3.index) {
     // Translate / Scale
     const array3 = data[array3_lerp_offsetAsComposition](data, ratio, i, i + 1);
     return array3;
+  } else if (animationAttributeIndex === AnimationAttribute.Vector2.index) {
+    const array2 = data[array2_lerp_offsetAsComposition](data, ratio, i, i + 1);
+    return array2;
+  } else if (animationAttributeIndex === AnimationAttribute.Vector4.index) {
+    const array4 = data[array4_lerp_offsetAsComposition](data, ratio, i, i + 1);
+    return array4;
+  } else if (animationAttributeIndex === AnimationAttribute.Scalar.index) {
+    const scalar = data[scalar_lerp_offsetAsComposition](data, ratio, i, i + 1);
+    return scalar;
+  } else {
+    // non supported type
+    throw new Error('non supported type');
   }
 }
 
 export function __interpolate(
-  channel: AnimationChannel,
+  sampler: AnimationSampler,
   currentTime: number,
   animationAttributeIndex: Index
 ): Array<number> {
-  const inputArray = channel.sampler.input;
-  const outputArray = channel.sampler.output;
-  const method = channel.sampler.interpolationMethod ?? AnimationInterpolation.Linear;
+  const inputArray = sampler.input;
+  const outputArray = sampler.output;
+  const method = sampler.interpolationMethod ?? AnimationInterpolation.Linear;
 
   // out of range
   if (currentTime <= inputArray[0]) {
-    const outputOfZeroFrame = __getOutputValue(0, channel, outputArray);
+    const outputOfZeroFrame = __getOutputValue(0, sampler, outputArray);
     return outputOfZeroFrame;
   } else if (inputArray[inputArray.length - 1] <= currentTime) {
-    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel, outputArray);
+    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, sampler, outputArray);
     return outputOfEndFrame;
   }
 
@@ -283,7 +310,7 @@ export function __interpolate(
     const { p_0, p_1, m_0, m_1 } = __prepareVariablesForCubicSpline(
       outputArray,
       i,
-      channel.sampler.outputComponentN,
+      sampler.outputComponentN,
       t_diff
     );
     const ret = cubicSpline(p_0, p_1, m_0, m_1, t) as globalThis.Array<number>;
@@ -299,17 +326,17 @@ export function __interpolate(
       ratio,
       animationAttributeIndex,
       i,
-      channel.sampler.outputComponentN
+      sampler.outputComponentN
     );
     return ret as Array<number>;
   } else if (method === AnimationInterpolation.Step) {
     for (let i = 0; i < inputArray.length - 1; i++) {
       if (inputArray[i] <= currentTime && currentTime < inputArray[i + 1]) {
-        const output_frame_i = __getOutputValue(i, channel, outputArray);
+        const output_frame_i = __getOutputValue(i, sampler, outputArray);
         return output_frame_i;
       }
     }
-    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, channel, outputArray);
+    const outputOfEndFrame = __getOutputValue(inputArray.length - 1, sampler, outputArray);
     return outputOfEndFrame;
   }
 
