@@ -2603,83 +2603,83 @@ function setup_KHR_materials_clearcoat(
   const KHR_materials_clearcoat = materialJson?.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
     // ClearCoat Factor
-    const clearCoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
+    const clearcoatFactor = Is.exist(KHR_materials_clearcoat.clearcoatFactor)
       ? KHR_materials_clearcoat.clearcoatFactor
       : 0.0;
-    material.setParameter('clearCoatFactor', clearCoatFactor);
+    material.setParameter('clearcoatFactor', clearcoatFactor);
     // ClearCoat Texture
-    const clearCoatTexture = KHR_materials_clearcoat.clearcoatTexture;
-    if (clearCoatTexture != null) {
+    const clearcoatTexture = KHR_materials_clearcoat.clearcoatTexture;
+    if (clearcoatTexture != null) {
       const rnClearCoatTexture = ModelConverter._createTexture(
-        clearCoatTexture.texture!,
+        clearcoatTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(clearCoatTexture.texture!);
-      material.setTextureParameter('clearCoatTexture', rnClearCoatTexture, rnSampler);
-      if (clearCoatTexture.texCoord != null) {
-        material.setParameter('clearCoatTexcoordIndex', clearCoatTexture.texCoord);
+      const rnSampler = ModelConverter._createSampler(clearcoatTexture.texture!);
+      material.setTextureParameter('clearcoatTexture', rnClearCoatTexture, rnSampler);
+      if (clearcoatTexture.texCoord != null) {
+        material.setParameter('clearcoatTexcoordIndex', clearcoatTexture.texCoord);
       }
       // ClearCoat Texture Transform
       ModelConverter._setupTextureTransform(
-        clearCoatTexture,
+        clearcoatTexture,
         material,
-        'clearCoatTextureTransformScale',
-        'clearCoatTextureTransformOffset',
-        'clearCoatTextureTransformRotation'
+        'clearcoatTextureTransformScale',
+        'clearcoatTextureTransformOffset',
+        'clearcoatTextureTransformRotation'
       );
     }
     // ClearCoat Roughness Factor
-    const clearCoatRoughnessFactor = Is.exist(KHR_materials_clearcoat.clearcoatRoughnessFactor)
+    const clearcoatRoughnessFactor = Is.exist(KHR_materials_clearcoat.clearcoatRoughnessFactor)
       ? KHR_materials_clearcoat.clearcoatRoughnessFactor
       : 0.0;
-    material.setParameter('clearCoatRoughnessFactor', clearCoatRoughnessFactor);
+    material.setParameter('clearcoatRoughnessFactor', clearcoatRoughnessFactor);
     // ClearCoat Roughness Texture
-    const clearCoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
-    if (clearCoatRoughnessTexture != null) {
+    const clearcoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
+    if (clearcoatRoughnessTexture != null) {
       const rnClearCoatRoughnessTexture = ModelConverter._createTexture(
-        clearCoatRoughnessTexture.texture!,
+        clearcoatRoughnessTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(clearCoatRoughnessTexture.texture!);
+      const rnSampler = ModelConverter._createSampler(clearcoatRoughnessTexture.texture!);
       material.setTextureParameter(
-        'clearCoatRoughnessTexture',
+        'clearcoatRoughnessTexture',
         rnClearCoatRoughnessTexture,
         rnSampler
       );
-      if (clearCoatRoughnessTexture.texCoord != null) {
+      if (clearcoatRoughnessTexture.texCoord != null) {
         material.setParameter(
-          'clearCoatRoughnessTexcoordIndex',
-          clearCoatRoughnessTexture.texCoord
+          'clearcoatRoughnessTexcoordIndex',
+          clearcoatRoughnessTexture.texCoord
         );
       }
       // ClearCoat Roughness Texture Transform
       ModelConverter._setupTextureTransform(
-        clearCoatRoughnessTexture,
+        clearcoatRoughnessTexture,
         material,
-        'clearCoatRoughnessTextureTransformScale',
-        'clearCoatRoughnessTextureTransformOffset',
-        'clearCoatRoughnessTextureTransformRotation'
+        'clearcoatRoughnessTextureTransformScale',
+        'clearcoatRoughnessTextureTransformOffset',
+        'clearcoatRoughnessTextureTransformRotation'
       );
     }
     // ClearCoat Normal Texture
-    const clearCoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
-    if (clearCoatNormalTexture != null) {
+    const clearcoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
+    if (clearcoatNormalTexture != null) {
       const rnClearCoatNormalTexture = ModelConverter._createTexture(
-        clearCoatNormalTexture.texture!,
+        clearcoatNormalTexture.texture!,
         gltfModel
       );
-      const rnSampler = ModelConverter._createSampler(clearCoatNormalTexture.texture!);
-      material.setTextureParameter('clearCoatNormalTexture', rnClearCoatNormalTexture, rnSampler);
-      if (clearCoatNormalTexture.texCoord != null) {
-        material.setParameter('clearCoatNormalTexcoordIndex', clearCoatNormalTexture.texCoord);
+      const rnSampler = ModelConverter._createSampler(clearcoatNormalTexture.texture!);
+      material.setTextureParameter('clearcoatNormalTexture', rnClearCoatNormalTexture, rnSampler);
+      if (clearcoatNormalTexture.texCoord != null) {
+        material.setParameter('clearcoatNormalTexcoordIndex', clearcoatNormalTexture.texCoord);
       }
       // ClearCoat Normal Texture Transform
       ModelConverter._setupTextureTransform(
-        clearCoatNormalTexture,
+        clearcoatNormalTexture,
         material,
-        'clearCoatNormalTextureTransformScale',
-        'clearCoatNormalTextureTransformOffset',
-        'clearCoatNormalTextureTransformRotation'
+        'clearcoatNormalTextureTransformScale',
+        'clearcoatNormalTextureTransformOffset',
+        'clearcoatNormalTextureTransformRotation'
       );
     }
   }

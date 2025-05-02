@@ -58,20 +58,20 @@
 // #param emissiveStrength: f32; // initialValue=1
 
 #ifdef RN_USE_CLEARCOAT
-// #param clearCoatFactor: f32; // initialValue=0
-// #param clearCoatRoughnessFactor: f32; // initialValue=0
-// #param clearCoatTextureTransformScale: vec2<f32>; // initialValue=(1,1)
-// #param clearCoatTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param clearCoatTextureTransformRotation: f32; // initialValue=0
-// #param clearCoatRoughnessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
-// #param clearCoatRoughnessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param clearCoatRoughnessTextureTransformRotation: f32; // initialValue=0
-// #param clearCoatNormalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
-// #param clearCoatNormalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param clearCoatNormalTextureTransformRotation: f32; // initialValue=0
-// #param clearCoatTexcoordIndex: u32; // initialValue=(0)
-// #param clearCoatRoughnessTexcoordIndex: u32; // initialValue=(0)
-// #param clearCoatNormalTexcoordIndex: u32; // initialValue=(0)
+// #param clearcoatFactor: f32; // initialValue=0
+// #param clearcoatRoughnessFactor: f32; // initialValue=0
+// #param clearcoatTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param clearcoatTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param clearcoatTextureTransformRotation: f32; // initialValue=0
+// #param clearcoatRoughnessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param clearcoatRoughnessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param clearcoatRoughnessTextureTransformRotation: f32; // initialValue=0
+// #param clearcoatNormalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param clearcoatNormalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param clearcoatNormalTextureTransformRotation: f32; // initialValue=0
+// #param clearcoatTexcoordIndex: u32; // initialValue=(0)
+// #param clearcoatRoughnessTexcoordIndex: u32; // initialValue=(0)
+// #param clearcoatNormalTexcoordIndex: u32; // initialValue=(0)
 #endif // RN_USE_CLEARCOAT
 
 
@@ -234,14 +234,14 @@ fn main(
 
   // Clearcoat
 #ifdef RN_USE_CLEARCOAT
-  let clearcoatFactor = get_clearCoatFactor(materialSID, 0);
-  let clearcoatTextureTransformScale: vec2f = get_clearCoatTextureTransformScale(materialSID, 0);
-  let clearcoatTextureTransformOffset: vec2f = get_clearCoatTextureTransformOffset(materialSID, 0);
-  let clearcoatTextureTransformRotation: f32 = get_clearCoatTextureTransformRotation(materialSID, 0);
-  let clearCoatTexcoordIndex = get_clearCoatTexcoordIndex(materialSID, 0);
-  let clearCoatTexcoord = getTexcoord(clearCoatTexcoordIndex, input);
-  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearCoatTexcoord);
-  let clearcoatTexture = textureSample(clearCoatTexture, clearCoatSampler, clearcoatTexUv).r;
+  let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+  let clearcoatTextureTransformScale: vec2f = get_clearcoatTextureTransformScale(materialSID, 0);
+  let clearcoatTextureTransformOffset: vec2f = get_clearcoatTextureTransformOffset(materialSID, 0);
+  let clearcoatTextureTransformRotation: f32 = get_clearcoatTextureTransformRotation(materialSID, 0);
+  let clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
+  let clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex, input);
+  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
+  let clearcoatTexture = textureSample(clearcoatTexture, clearcoatSampler, clearcoatTexUv).r;
   let clearcoat = clearcoatFactor * clearcoatTexture;
 #else
   let clearcoat = 0.0;
@@ -298,23 +298,23 @@ fn main(
 
 // Clearcoat
 #ifdef RN_USE_CLEARCOAT
-  let clearcoatRoughnessFactor = get_clearCoatRoughnessFactor(materialSID, 0);
-  let clearCoatRoughnessTexcoordIndex = get_clearCoatRoughnessTexcoordIndex(materialSID, 0);
-  let clearCoatRoughnessTexcoord = getTexcoord(clearCoatRoughnessTexcoordIndex, input);
-  let clearcoatRoughnessTextureTransformScale: vec2f = get_clearCoatRoughnessTextureTransformScale(materialSID, 0);
-  let clearcoatRoughnessTextureTransformOffset: vec2f = get_clearCoatRoughnessTextureTransformOffset(materialSID, 0);
-  let clearcoatRoughnessTextureTransformRotation: f32 = get_clearCoatRoughnessTextureTransformRotation(materialSID, 0);
+  let clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
+  let clearcoatRoughnessTexcoordIndex = get_clearcoatRoughnessTexcoordIndex(materialSID, 0);
+  let clearcoatRoughnessTexcoord = getTexcoord(clearcoatRoughnessTexcoordIndex, input);
+  let clearcoatRoughnessTextureTransformScale: vec2f = get_clearcoatRoughnessTextureTransformScale(materialSID, 0);
+  let clearcoatRoughnessTextureTransformOffset: vec2f = get_clearcoatRoughnessTextureTransformOffset(materialSID, 0);
+  let clearcoatRoughnessTextureTransformRotation: f32 = get_clearcoatRoughnessTextureTransformRotation(materialSID, 0);
   let clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransformScale, clearcoatRoughnessTextureTransformOffset, clearcoatRoughnessTextureTransformRotation, clearCoatRoughnessTexcoord);
   let textureRoughnessTexture = textureSample(clearCoatRoughnessTexture, clearCoatRoughnessSampler, clearcoatRoughnessTexUv).g;
   let clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
 
-  let clearCoatNormalTexcoordIndex = get_clearCoatNormalTexcoordIndex(materialSID, 0);
-  let clearCoatNormalTexcoord = getTexcoord(clearCoatNormalTexcoordIndex, input);
-  let clearcoatNormalTextureTransformScale: vec2f = get_clearCoatNormalTextureTransformScale(materialSID, 0);
-  let clearcoatNormalTextureTransformOffset: vec2f = get_clearCoatNormalTextureTransformOffset(materialSID, 0);
-  let clearcoatNormalTextureTransformRotation: f32 = get_clearCoatNormalTextureTransformRotation(materialSID, 0);
-  let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearCoatNormalTexcoord);
-  let textureNormal_tangent = textureSample(clearCoatNormalTexture, clearCoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
+  let clearcoatNormalTexcoordIndex = get_clearcoatNormalTexcoordIndex(materialSID, 0);
+  let clearcoatNormalTexcoord = getTexcoord(clearcoatNormalTexcoordIndex, input);
+  let clearcoatNormalTextureTransformScale: vec2f = get_clearcoatNormalTextureTransformScale(materialSID, 0);
+  let clearcoatNormalTextureTransformOffset: vec2f = get_clearcoatNormalTextureTransformOffset(materialSID, 0);
+  let clearcoatNormalTextureTransformRotation: f32 = get_clearcoatNormalTextureTransformRotation(materialSID, 0);
+  let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearcoatNormalTexcoord);
+  let textureNormal_tangent = textureSample(clearcoatNormalTexture, clearcoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
   let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
 #else
