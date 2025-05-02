@@ -55,8 +55,11 @@ export abstract class AbstractMaterialContent extends RnObject {
   private static __lightIntensities = new Float32Array(0);
   private static __lightProperties = new Float32Array(0);
 
-  protected __vertexShaderityObject?: ShaderityObject;
-  protected __pixelShaderityObject?: ShaderityObject;
+  private static __materialContentCount = 0;
+  private __materialContentUid: number;
+
+  private static __vertexShaderityObjectMap: Map<string, number[]> = new Map();
+  private static __pixelShaderityObjectMap: Map<string, number[]> = new Map();
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   constructor(
@@ -72,8 +75,34 @@ export abstract class AbstractMaterialContent extends RnObject {
     this.__isSkinning = isSkinning;
     this.__isLighting = isLighting;
 
-    this.__vertexShaderityObject = vertexShaderityObject;
-    this.__pixelShaderityObject = pixelShaderityObject;
+    this.__materialContentUid = AbstractMaterialContent.__materialContentCount++;
+
+    this.setVertexShaderityObject(vertexShaderityObject);
+    this.setPixelShaderityObject(pixelShaderityObject);
+  }
+
+  protected setVertexShaderityObject(vertexShaderityObject?: ShaderityObject) {
+    if (vertexShaderityObject) {
+      if (AbstractMaterialContent.__vertexShaderityObjectMap.has(vertexShaderityObject.code)) {
+        const uids = AbstractMaterialContent.__vertexShaderityObjectMap.get(vertexShaderityObject.code) ?? [];
+        uids.push(this.__materialContentUid);
+        AbstractMaterialContent.__vertexShaderityObjectMap.set(vertexShaderityObject.code, uids);
+      } else {
+        AbstractMaterialContent.__vertexShaderityObjectMap.set(vertexShaderityObject.code, [this.__materialContentUid]);
+      }
+    }
+  }
+
+  protected setPixelShaderityObject(pixelShaderityObject?: ShaderityObject) {
+    if (pixelShaderityObject) {
+      if (AbstractMaterialContent.__pixelShaderityObjectMap.has(pixelShaderityObject.code)) {
+        const uids = AbstractMaterialContent.__pixelShaderityObjectMap.get(pixelShaderityObject.code) ?? [];
+        uids.push(this.__materialContentUid);
+        AbstractMaterialContent.__pixelShaderityObjectMap.set(pixelShaderityObject.code, uids);
+      } else {
+        AbstractMaterialContent.__pixelShaderityObjectMap.set(pixelShaderityObject.code, [this.__materialContentUid]);
+      }
+    }
   }
 
   getMaterialSemanticsVariantName() {
@@ -87,12 +116,30 @@ export abstract class AbstractMaterialContent extends RnObject {
     return this.__materialName + '_semanticsVariation' + hash;
   }
 
-  get vertexShaderityObject() {
-    return this.__vertexShaderityObject;
+  get vertexShaderityObject(): ShaderityObject | undefined {
+    for (const [key, value] of AbstractMaterialContent.__vertexShaderityObjectMap.entries()) {
+      if (value.includes(this.__materialContentUid)) {
+        return {
+          code: key,
+          shaderStage: 'vertex',
+          isFragmentShader: false,
+        };
+      }
+    }
+    return undefined;
   }
 
-  get pixelShaderityObject() {
-    return this.__pixelShaderityObject;
+  get pixelShaderityObject(): ShaderityObject | undefined {
+    for (const [key, value] of AbstractMaterialContent.__pixelShaderityObjectMap.entries()) {
+      if (value.includes(this.__materialContentUid)) {
+        return {
+          code: key,
+          shaderStage: 'fragment',
+          isFragmentShader: true,
+        };
+      }
+    }
+    return undefined;
   }
 
   getDefinitions() {
@@ -484,14 +531,14 @@ export abstract class AbstractMaterialContent extends RnObject {
       vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(vertexShaderWebGpu!);
       pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(pixelShaderWebGpu!);
 
-      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+      this.setVertexShaderityObject(vertexShaderData.shaderityObject);
+      this.setPixelShaderityObject(pixelShaderData.shaderityObject);
     } else {
       vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(vertexShader);
       pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(pixelShader);
 
-      this.__vertexShaderityObject = vertexShaderData.shaderityObject;
-      this.__pixelShaderityObject = pixelShaderData.shaderityObject;
+      this.setVertexShaderityObject(vertexShaderData.shaderityObject);
+      this.setPixelShaderityObject(pixelShaderData.shaderityObject);
     }
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];

@@ -146,11 +146,11 @@ export class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
     ];
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this.__vertexShaderityObject = SynthesizeHDRTextureShaderVertexWebGpu;
-      this.__pixelShaderityObject = SynthesizeHDRTextureShaderFragmentWebGpu;
+      this.setVertexShaderityObject(SynthesizeHDRTextureShaderVertexWebGpu);
+      this.setPixelShaderityObject(SynthesizeHDRTextureShaderFragmentWebGpu);
     } else {
-      this.__vertexShaderityObject = SynthesizeHDRTextureShaderVertex;
-      this.__pixelShaderityObject = SynthesizeHDRTextureShaderFragment;
+      this.setVertexShaderityObject(SynthesizeHDRTextureShaderVertex);
+      this.setPixelShaderityObject(SynthesizeHDRTextureShaderFragment);
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
