@@ -230,6 +230,9 @@ fn main(
   var direction: vec2f = anisotropyRotation;
   let anisotropyTexcoordIndex = u32(get_anisotropyTexcoordIndex(materialSID, 0));
   let anisotropyTexcoord = getTexcoord(anisotropyTexcoordIndex, input);
+  let anisotropyTextureTransformScale: vec2f = get_anisotropyTextureTransformScale(materialSID, 0);
+  let anisotropyTextureTransformOffset: vec2f = get_anisotropyTextureTransformOffset(materialSID, 0);
+  let anisotropyTextureTransformRotation: f32 = get_anisotropyTextureTransformRotation(materialSID, 0);
   let anisotropyTexUv = uvTransform(anisotropyTextureTransformScale, anisotropyTextureTransformOffset, anisotropyTextureTransformRotation, anisotropyTexcoord);
   let anisotropyTex = textureSample(anisotropyTexture, anisotropySampler, anisotropyTexUv);
   direction = anisotropyTex.rg * 2.0 - vec2f(1.0);
@@ -333,8 +336,8 @@ fn main(
   let clearcoatRoughnessTextureTransformScale: vec2f = get_clearcoatRoughnessTextureTransformScale(materialSID, 0);
   let clearcoatRoughnessTextureTransformOffset: vec2f = get_clearcoatRoughnessTextureTransformOffset(materialSID, 0);
   let clearcoatRoughnessTextureTransformRotation: f32 = get_clearcoatRoughnessTextureTransformRotation(materialSID, 0);
-  let clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransformScale, clearcoatRoughnessTextureTransformOffset, clearcoatRoughnessTextureTransformRotation, clearCoatRoughnessTexcoord);
-  let textureRoughnessTexture = textureSample(clearCoatRoughnessTexture, clearCoatRoughnessSampler, clearcoatRoughnessTexUv).g;
+  let clearcoatRoughnessTexUv = uvTransform(clearcoatRoughnessTextureTransformScale, clearcoatRoughnessTextureTransformOffset, clearcoatRoughnessTextureTransformRotation, clearcoatRoughnessTexcoord);
+  let textureRoughnessTexture = textureSample(clearcoatRoughnessTexture, clearcoatRoughnessSampler, clearcoatRoughnessTexUv).g;
   let clearcoatRoughness = clearcoatRoughnessFactor * textureRoughnessTexture;
 
   let clearcoatNormalTexcoordIndex = get_clearcoatNormalTexcoordIndex(materialSID, 0);
