@@ -61,6 +61,7 @@ import {
   RnM2Animation,
   RnM2AnimationChannel,
   RnM2AnimationSampler,
+  RnM2TextureSampler,
 } from '../../types/RnM2';
 import { Config } from '../core/Config';
 import { BufferUse } from '../definitions/BufferUse';
@@ -148,31 +149,58 @@ export class ModelConverter {
     return entity;
   }
 
-  private static __setupMaterials(gltfModel: RnM2) {
+  private static __setupMaterials(gltfModel: RnM2, rnTextures: Texture[], rnSamplers: Sampler[]) {
     const rnMaterials: Material[] = [];
     if (gltfModel.materials != null) {
       for (const material of gltfModel.materials) {
-        const rnMaterial = this.__setupMaterial(gltfModel, material);
+        const rnMaterial = this.__setupMaterial(gltfModel, rnTextures, rnSamplers, material);
         rnMaterials.push(rnMaterial);
       }
     }
     return rnMaterials;
   }
 
+  private static __setupTextures(gltfModel: RnM2) {
+    const rnTextures: Texture[] = [];
+    if (gltfModel.images != null) {
+      for (const image of gltfModel.images) {
+        const rnTexture = this._createTexture(image, gltfModel);
+        rnTextures.push(rnTexture);
+      }
+    }
+    return rnTextures;
+  }
+
+  private static __createSamplers(gltfModel: RnM2) {
+    const rnSamplers: Sampler[] = [];
+    if (gltfModel.samplers != null) {
+      for (const sampler of gltfModel.samplers) {
+        const rnSampler = this._createSampler(sampler);
+        rnSamplers.push(rnSampler);
+      }
+    }
+    return rnSamplers;
+  }
+
   static convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
-    const rnBuffers = this.createRnBuffer(gltfModel);
+    const rnBuffers = this.__createRnBuffer(gltfModel);
     gltfModel.asset.extras!.rnMaterials = {};
 
+    const rnTextures = this.__setupTextures(gltfModel);
+    const rnSamplers = this.__createSamplers(gltfModel);
+
     // Materials
-    const rnMaterials = this.__setupMaterials(gltfModel);
+    const rnMaterials = this.__setupMaterials(gltfModel, rnTextures, rnSamplers);
 
     // Mesh, Camera, Group, ...
     const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
       gltfModel,
       rnBuffers,
-      rnMaterials
+      rnMaterials,
+      rnTextures,
+      rnSamplers
     );
     gltfModel.asset.extras!.rnEntities = rnEntities;
 
@@ -241,7 +269,7 @@ export class ModelConverter {
     return rootGroup;
   }
 
-  private static createRnBuffer(gltfModel: RnM2): Buffer[] {
+  private static __createRnBuffer(gltfModel: RnM2): Buffer[] {
     const rnBuffers = [];
     for (const buffer of gltfModel.buffers) {
       const rnBuffer = new Buffer({
@@ -540,7 +568,7 @@ export class ModelConverter {
     }
   }
 
-  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[], rnMaterials: Material[]) {
+  private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[], rnMaterials: Material[], rnTextures: Texture[], rnSamplers: Sampler[]) {
     const rnEntities: ISceneGraphEntity[] = [];
     const rnEntitiesByNames: Map<string, ISceneGraphEntity> = new Map();
 
@@ -554,7 +582,9 @@ export class ModelConverter {
           meshIdx,
           rnBuffers,
           gltfModel,
-          rnMaterials
+          rnMaterials,
+          rnTextures,
+          rnSamplers
         );
         if (node.name) {
           meshEntity.tryToSetUniqueName(node.name, true);
@@ -705,7 +735,9 @@ export class ModelConverter {
     meshIndex: Index,
     rnBuffers: Buffer[],
     gltfModel: RnM2,
-    rnMaterials: Material[]
+    rnMaterials: Material[],
+    rnTextures: Texture[],
+    rnSamplers: Sampler[]
   ) {
     const meshEntity = this.__generateMeshEntity(gltfModel);
     const existingRnMesh = (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx[
@@ -749,7 +781,7 @@ export class ModelConverter {
         const rnMaterial =
           primitive.material != null
             ? rnMaterials[primitive.material]
-            : this.__setupMaterial(gltfModel);
+            : this.__setupMaterial(gltfModel, rnTextures, rnSamplers);
         setupMaterialVariants(rnPrimitive, primitive);
 
         if (rnMaterial.materialTypeName.indexOf('MToon') !== -1) {
@@ -1331,17 +1363,19 @@ export class ModelConverter {
     return argument?.makeOutputSrgb as boolean | undefined;
   }
 
-  private static __setupMaterial(gltfModel: RnM2, materialJson?: RnM2Material): Material {
+  private static __setupMaterial(gltfModel: RnM2, rnTextures: Texture[], rnSamplers: Sampler[], materialJson?: RnM2Material): Material {
     const material: Material = this.__generateAppropriateMaterial(gltfModel, materialJson);
     if (materialJson == null) return material;
 
-    ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, false);
+    ModelConverter.setParametersToMaterial(materialJson, gltfModel, material, rnTextures, rnSamplers, false);
 
     if (materialJson.extras?.outlineMaterial != null) {
       ModelConverter.setParametersToMaterial(
         materialJson,
         gltfModel,
         materialJson.extras.outlineMaterial.deref(),
+        rnTextures,
+        rnSamplers,
         true
       );
     }
@@ -1353,6 +1387,8 @@ export class ModelConverter {
     materialJson: RnM2Material,
     gltfModel: RnM2,
     material: Material,
+    rnTextures: Texture[],
+    rnSamplers: Sampler[],
     isOutline: boolean
   ) {
     const isUnlit = materialJson.extensions?.KHR_materials_unlit != null;
@@ -1360,7 +1396,7 @@ export class ModelConverter {
     const pbrMetallicRoughness = materialJson.pbrMetallicRoughness;
     if (pbrMetallicRoughness != null) {
       // BaseColor Factor
-      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson);
+      setupPbrMetallicRoughness(pbrMetallicRoughness, material, gltfModel, options, materialJson, rnTextures, rnSamplers);
     } else {
       let param: Index = ShadingModel.Phong.index;
       if (materialJson?.extras?.technique) {
@@ -1389,8 +1425,8 @@ export class ModelConverter {
 
     const emissiveTexture = materialJson.emissiveTexture;
     if (emissiveTexture != null && Is.falsy(isUnlit)) {
-      const rnTexture = ModelConverter._createTexture(emissiveTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(emissiveTexture.texture!);
+      const rnTexture = rnTextures[emissiveTexture.texture!.source!];
+      const rnSampler = rnSamplers[emissiveTexture.texture!.sampler!];
       material.setTextureParameter('emissiveTexture', rnTexture, rnSampler);
       if (parseFloat(gltfModel.asset?.version) >= 2 && emissiveTexture.texCoord != null) {
         material.setParameter('emissiveTexcoordIndex', emissiveTexture.texCoord);
@@ -1431,8 +1467,8 @@ export class ModelConverter {
 
     const normalTexture = materialJson.normalTexture;
     if (normalTexture != null && Is.falsy(isUnlit)) {
-      const rnTexture = ModelConverter._createTexture(normalTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(normalTexture.texture!);
+      const rnTexture = rnTextures[normalTexture.texture!.source!];
+      const rnSampler = rnSamplers[normalTexture.texture!.sampler!];
       material.setTextureParameter('normalTexture', rnTexture, rnSampler);
       if (parseFloat(gltfModel.asset?.version) >= 2) {
         if (normalTexture.texCoord != null) {
@@ -1461,32 +1497,32 @@ export class ModelConverter {
     }
 
     if (materialJson.extensions?.VRMC_materials_mtoon != null) {
-      setupMToon1(material, gltfModel, materialJson as Vrm1_Material);
+      setupMToon1(material, gltfModel, materialJson as Vrm1_Material, rnTextures, rnSamplers);
     }
   }
 
-  static _createSampler(texture: RnM2Texture) {
-    const sampler = new Sampler({
-      magFilter: Is.exist(texture.samplerObject?.magFilter)
-        ? TextureParameter.from(texture.samplerObject!.magFilter)
+  static _createSampler(sampler: RnM2TextureSampler) {
+    const rnSampler = new Sampler({
+      magFilter: Is.exist(sampler.magFilter)
+        ? TextureParameter.from(sampler.magFilter)
         : TextureParameter.Linear,
-      minFilter: Is.exist(texture.samplerObject?.minFilter)
-        ? TextureParameter.from(texture.samplerObject!.minFilter)
+      minFilter: Is.exist(sampler.minFilter)
+        ? TextureParameter.from(sampler.minFilter)
         : TextureParameter.Linear,
-      wrapS: Is.exist(texture.samplerObject?.wrapS)
-        ? TextureParameter.from(texture.samplerObject!.wrapS)
+      wrapS: Is.exist(sampler.wrapS)
+        ? TextureParameter.from(sampler.wrapS)
         : TextureParameter.Repeat,
-      wrapT: Is.exist(texture.samplerObject?.wrapT)
-        ? TextureParameter.from(texture.samplerObject!.wrapT)
+      wrapT: Is.exist(sampler.wrapT)
+        ? TextureParameter.from(sampler.wrapT)
         : TextureParameter.Repeat,
     });
-    sampler.create();
+    rnSampler.create();
 
-    return sampler;
+    return rnSampler;
   }
 
   static _createTexture(
-    texture: RnM2Texture,
+    image: RnM2Image,
     gltfModel: RnM2,
     { autoDetectTransparency = false } = {}
   ) {
@@ -1496,35 +1532,8 @@ export class ModelConverter {
     rnTexture.autoDetectTransparency = autoDetectTransparency;
     rnTexture.autoResize = options?.autoResizeTexture === true;
 
-    const textureOption = {
-      magFilter: Is.exist(texture.samplerObject?.magFilter)
-        ? TextureParameter.from(texture.samplerObject!.magFilter)
-        : TextureParameter.Linear,
-      minFilter: Is.exist(texture.samplerObject?.minFilter)
-        ? TextureParameter.from(texture.samplerObject!.minFilter)
-        : TextureParameter.Linear,
-      wrapS: Is.exist(texture.samplerObject?.wrapS)
-        ? TextureParameter.from(texture.samplerObject!.wrapS)
-        : TextureParameter.Repeat,
-      wrapT: Is.exist(texture.samplerObject?.wrapT)
-        ? TextureParameter.from(texture.samplerObject!.wrapT)
-        : TextureParameter.Repeat,
-    };
-
-    const image = texture.image as RnM2Image;
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;
-      const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-      const isWebGL1 = !webglResourceRepository.currentWebGLContextWrapper?.isWebGL2;
-
-      if (
-        isWebGL1 &&
-        !this.__sizeIsPowerOfTwo(imageElem) &&
-        this.__needResizeToPowerOfTwoOnWebGl1(textureOption)
-      ) {
-        rnTexture.autoResize = true;
-      }
-
       rnTexture.generateTextureFromImage(imageElem);
       rnTexture.loadFromImgLazy();
     } else if (image.basis) {
@@ -1537,7 +1546,7 @@ export class ModelConverter {
       rnTexture.name = image.uri;
     } else {
       const ext = image.mimeType?.split('/')[1];
-      rnTexture.name = image.name ?? texture.name + `.${ext}`;
+      rnTexture.name = image.name ?? 'Untitled' + `.${ext}`;
     }
     rnTexture.tryToSetUniqueName(rnTexture.name, true);
 
@@ -2274,7 +2283,7 @@ export class ModelConverter {
   }
 }
 
-function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Material) {
+function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Material, rnTextures: Texture[], rnSamplers: Sampler[]) {
   const mToon = materialJson.extensions.VRMC_materials_mtoon;
 
   {
@@ -2285,8 +2294,8 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   {
     const shadeMultiplyTexture = mToon.shadeMultiplyTexture;
     if (shadeMultiplyTexture != null) {
-      const rnTexture = ModelConverter._createTexture(shadeMultiplyTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(shadeMultiplyTexture.texture!);
+      const rnTexture = rnTextures[shadeMultiplyTexture.texture!.source!];
+      const rnSampler = rnSamplers[shadeMultiplyTexture.texture!.sampler!];
       material.setTextureParameter('shadeMultiplyTexture', rnTexture, rnSampler);
       if (shadeMultiplyTexture.texCoord != null) {
         material.setParameter('shadeMultiplyTexcoordIndex', shadeMultiplyTexture.texCoord);
@@ -2303,8 +2312,8 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   {
     const shadingShiftTexture = mToon.shadingShiftTexture;
     if (shadingShiftTexture != null) {
-      const rnTexture = ModelConverter._createTexture(shadingShiftTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(shadingShiftTexture.texture!);
+      const rnTexture = rnTextures[shadingShiftTexture.texture!.source!];
+      const rnSampler = rnSamplers[shadingShiftTexture.texture!.sampler!];
       material.setTextureParameter('shadingShiftTexture', rnTexture, rnSampler);
       if (shadingShiftTexture.texCoord != null) {
         material.setParameter('shadingShiftTexcoordIndex', shadingShiftTexture.texCoord);
@@ -2330,8 +2339,8 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   {
     const matcapTexture = mToon.matcapTexture;
     if (matcapTexture != null) {
-      const rnTexture = ModelConverter._createTexture(matcapTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(matcapTexture.texture!);
+      const rnTexture = rnTextures[matcapTexture.texture!.source!];
+      const rnSampler = rnSamplers[matcapTexture.texture!.sampler!];
       material.setTextureParameter('matcapTexture', rnTexture, rnSampler);
       if (matcapTexture.texCoord != null) {
         material.setParameter('matcapTexcoordIndex', matcapTexture.texCoord);
@@ -2368,8 +2377,8 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   {
     const rimMultiplyTexture = mToon.rimMultiplyTexture;
     if (rimMultiplyTexture != null) {
-      const rnTexture = ModelConverter._createTexture(rimMultiplyTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(rimMultiplyTexture.texture!);
+      const rnTexture = rnTextures[rimMultiplyTexture.texture!.source!];
+      const rnSampler = rnSamplers[rimMultiplyTexture.texture!.sampler!];
       material.setTextureParameter('rimMultiplyTexture', rnTexture, rnSampler);
       if (rimMultiplyTexture.texCoord != null) {
         material.setParameter('rimMultiplyTexcoordIndex', rimMultiplyTexture.texCoord);
@@ -2403,11 +2412,8 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   {
     const outlineWidthMultiplyTexture = mToon.outlineWidthMultiplyTexture;
     if (outlineWidthMultiplyTexture != null) {
-      const rnTexture = ModelConverter._createTexture(
-        outlineWidthMultiplyTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(outlineWidthMultiplyTexture.texture!);
+      const rnTexture = rnTextures[outlineWidthMultiplyTexture.texture!.source!];
+      const rnSampler = rnSamplers[outlineWidthMultiplyTexture.texture!.sampler!];
       material.setTextureParameter('outlineWidthMultiplyTexture', rnTexture, rnSampler);
     }
   }
@@ -2426,8 +2432,8 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   {
     const uvAnimationMaskTexture = mToon.uvAnimationMaskTexture;
     if (uvAnimationMaskTexture != null) {
-      const rnTexture = ModelConverter._createTexture(uvAnimationMaskTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(uvAnimationMaskTexture.texture!);
+      const rnTexture = rnTextures[uvAnimationMaskTexture.texture!.source!];
+      const rnSampler = rnSamplers[uvAnimationMaskTexture.texture!.sampler!];
       material.setTextureParameter('uvAnimationMaskTexture', rnTexture, rnSampler);
       if (uvAnimationMaskTexture.texCoord != null) {
         material.setParameter('uvAnimationMaskTexcoordIndex', uvAnimationMaskTexture.texCoord);
@@ -2459,7 +2465,9 @@ function setupPbrMetallicRoughness(
   material: Material,
   gltfModel: RnM2,
   options: GltfLoadOption | undefined,
-  materialJson: RnM2Material
+  materialJson: RnM2Material,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const isUnlit = materialJson.extensions?.KHR_materials_unlit != null;
 
@@ -2471,10 +2479,8 @@ function setupPbrMetallicRoughness(
   // BaseColor Texture
   const baseColorTexture = pbrMetallicRoughness.baseColorTexture;
   if (baseColorTexture != null) {
-    const rnTexture = ModelConverter._createTexture(baseColorTexture.texture!, gltfModel, {
-      autoDetectTransparency: options?.autoDetectTextureTransparency,
-    });
-    const rnSampler = ModelConverter._createSampler(baseColorTexture.texture!);
+    const rnTexture = rnTextures[baseColorTexture.texture!.source!];
+    const rnSampler = rnSamplers[baseColorTexture.texture!.sampler!];
     material.setTextureParameter('baseColorTexture', rnTexture, rnSampler);
     if (baseColorTexture.texCoord != null) {
       material.setParameter('baseColorTexcoordIndex', baseColorTexture.texCoord);
@@ -2491,8 +2497,8 @@ function setupPbrMetallicRoughness(
   // Ambient Occlusion Texture
   const occlusionTexture = materialJson.occlusionTexture;
   if (occlusionTexture != null && Is.falsy(isUnlit)) {
-    const rnTexture = ModelConverter._createTexture(occlusionTexture.texture!, gltfModel);
-    const rnSampler = ModelConverter._createSampler(occlusionTexture.texture!);
+    const rnTexture = rnTextures[occlusionTexture.texture!.source!];
+    const rnSampler = rnSamplers[occlusionTexture.texture!.sampler!];
     material.setTextureParameter('occlusionTexture', rnTexture, rnSampler);
     if (occlusionTexture.texCoord != null) {
       material.setParameter('occlusionTexcoordIndex', occlusionTexture.texCoord);
@@ -2522,8 +2528,8 @@ function setupPbrMetallicRoughness(
   // Metallic roughness texture
   const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;
   if (metallicRoughnessTexture != null && Is.falsy(isUnlit)) {
-    const rnTexture = ModelConverter._createTexture(metallicRoughnessTexture.texture!, gltfModel);
-    const rnSampler = ModelConverter._createSampler(metallicRoughnessTexture.texture!);
+    const rnTexture = rnTextures[metallicRoughnessTexture.texture!.source!];
+    const rnSampler = rnSamplers[metallicRoughnessTexture.texture!.sampler!];
     material.setTextureParameter('metallicRoughnessTexture', rnTexture, rnSampler);
     if (metallicRoughnessTexture.texCoord != null) {
       material.setParameter('metallicRoughnessTexcoordIndex', metallicRoughnessTexture.texCoord);
@@ -2546,25 +2552,25 @@ function setupPbrMetallicRoughness(
   // }
 
   // ClearCoat
-  setup_KHR_materials_clearcoat(materialJson, material, gltfModel);
+  setup_KHR_materials_clearcoat(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
   // Transmission
-  const transmission = setup_KHR_materials_transmission(materialJson, material, gltfModel);
+  const transmission = setup_KHR_materials_transmission(materialJson, material, gltfModel, rnTextures, rnSamplers);
   if (!options!.transmission) {
     options!.transmission = transmission;
   }
 
-  setup_KHR_materials_volume(materialJson, material, gltfModel);
+  setup_KHR_materials_volume(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
-  setup_KHR_materials_sheen(materialJson, material, gltfModel);
+  setup_KHR_materials_sheen(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
-  setup_KHR_materials_specular(materialJson, material, gltfModel);
+  setup_KHR_materials_specular(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
   setup_KHR_materials_ior(materialJson, material, gltfModel);
 
-  setup_KHR_materials_iridescence(materialJson, material, gltfModel);
+  setup_KHR_materials_iridescence(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
-  setup_KHR_materials_anisotropy(materialJson, material, gltfModel);
+  setup_KHR_materials_anisotropy(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
   setup_KHR_materials_emissive_strength(materialJson, material, gltfModel);
 }
@@ -2572,7 +2578,9 @@ function setupPbrMetallicRoughness(
 function setup_KHR_materials_transmission(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const KHR_materials_transmission = materialJson.extensions?.KHR_materials_transmission;
   if (Is.exist(KHR_materials_transmission)) {
@@ -2583,11 +2591,8 @@ function setup_KHR_materials_transmission(
 
     const transmissionTexture = KHR_materials_transmission.transmissionTexture;
     if (Is.exist(transmissionTexture)) {
-      const rnTransmissionTexture = ModelConverter._createTexture(
-        transmissionTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(transmissionTexture.texture!);
+      const rnTransmissionTexture = rnTextures[transmissionTexture.texture!.source!];
+      const rnSampler = rnSamplers[transmissionTexture.texture!.sampler!];
       material.setTextureParameter('transmissionTexture', rnTransmissionTexture, rnSampler);
       if (transmissionTexture.texCoord != null) {
         material.setParameter('transmissionTexcoordIndex', transmissionTexture.texCoord);
@@ -2608,7 +2613,9 @@ function setup_KHR_materials_transmission(
 function setup_KHR_materials_clearcoat(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const KHR_materials_clearcoat = materialJson?.extensions?.KHR_materials_clearcoat;
   if (Is.exist(KHR_materials_clearcoat)) {
@@ -2620,11 +2627,8 @@ function setup_KHR_materials_clearcoat(
     // ClearCoat Texture
     const clearcoatTexture = KHR_materials_clearcoat.clearcoatTexture;
     if (clearcoatTexture != null) {
-      const rnClearCoatTexture = ModelConverter._createTexture(
-        clearcoatTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(clearcoatTexture.texture!);
+      const rnClearCoatTexture = rnTextures[clearcoatTexture.texture!.source!];
+      const rnSampler = rnSamplers[clearcoatTexture.texture!.sampler!];
       material.setTextureParameter('clearcoatTexture', rnClearCoatTexture, rnSampler);
       if (clearcoatTexture.texCoord != null) {
         material.setParameter('clearcoatTexcoordIndex', clearcoatTexture.texCoord);
@@ -2646,11 +2650,8 @@ function setup_KHR_materials_clearcoat(
     // ClearCoat Roughness Texture
     const clearcoatRoughnessTexture = KHR_materials_clearcoat.clearcoatRoughnessTexture;
     if (clearcoatRoughnessTexture != null) {
-      const rnClearCoatRoughnessTexture = ModelConverter._createTexture(
-        clearcoatRoughnessTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(clearcoatRoughnessTexture.texture!);
+      const rnClearCoatRoughnessTexture = rnTextures[clearcoatRoughnessTexture.texture!.source!];
+      const rnSampler = rnSamplers[clearcoatRoughnessTexture.texture!.sampler!];
       material.setTextureParameter(
         'clearcoatRoughnessTexture',
         rnClearCoatRoughnessTexture,
@@ -2674,11 +2675,8 @@ function setup_KHR_materials_clearcoat(
     // ClearCoat Normal Texture
     const clearcoatNormalTexture = KHR_materials_clearcoat.clearcoatNormalTexture;
     if (clearcoatNormalTexture != null) {
-      const rnClearCoatNormalTexture = ModelConverter._createTexture(
-        clearcoatNormalTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(clearcoatNormalTexture.texture!);
+      const rnClearCoatNormalTexture = rnTextures[clearcoatNormalTexture.texture!.source!];
+      const rnSampler = rnSamplers[clearcoatNormalTexture.texture!.sampler!];
       material.setTextureParameter('clearcoatNormalTexture', rnClearCoatNormalTexture, rnSampler);
       if (clearcoatNormalTexture.texCoord != null) {
         material.setParameter('clearcoatNormalTexcoordIndex', clearcoatNormalTexture.texCoord);
@@ -2698,7 +2696,9 @@ function setup_KHR_materials_clearcoat(
 function setup_KHR_materials_volume(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ): void {
   const KHR_materials_volume = materialJson?.extensions?.KHR_materials_volume;
   if (Is.exist(KHR_materials_volume)) {
@@ -2710,11 +2710,8 @@ function setup_KHR_materials_volume(
     }
     const thicknessTexture = KHR_materials_volume.thicknessTexture;
     if (thicknessTexture != null) {
-      const rnThicknessTexture = ModelConverter._createTexture(
-        thicknessTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(thicknessTexture.texture!);
+      const rnThicknessTexture = rnTextures[thicknessTexture.texture!.source!];
+      const rnSampler = rnSamplers[thicknessTexture.texture!.sampler!];
       material.setTextureParameter('thicknessTexture', rnThicknessTexture, rnSampler);
       if (thicknessTexture.texCoord != null) {
         material.setParameter('thicknessTexcoordIndex', thicknessTexture.texCoord);
@@ -2746,7 +2743,9 @@ function setup_KHR_materials_volume(
 function setup_KHR_materials_sheen(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const KHR_materials_sheen = materialJson?.extensions?.KHR_materials_sheen;
   if (Is.exist(KHR_materials_sheen)) {
@@ -2756,11 +2755,8 @@ function setup_KHR_materials_sheen(
     material.setParameter('sheenColorFactor', Vector3.fromCopyArray3(sheenColorFactor));
     const sheenColorTexture = KHR_materials_sheen.sheenColorTexture;
     if (sheenColorTexture != null) {
-      const rnSheenColorTexture = ModelConverter._createTexture(
-        sheenColorTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(sheenColorTexture.texture!);
+      const rnSheenColorTexture = rnTextures[sheenColorTexture.texture!.source!];
+      const rnSampler = rnSamplers[sheenColorTexture.texture!.sampler!];
       material.setTextureParameter('sheenColorTexture', rnSheenColorTexture, rnSampler);
       if (sheenColorTexture.texCoord != null) {
         material.setParameter('sheenColorTexcoordIndex', sheenColorTexture.texCoord);
@@ -2780,11 +2776,8 @@ function setup_KHR_materials_sheen(
     material.setParameter('sheenRoughnessFactor', sheenRoughnessFactor);
     const sheenRoughnessTexture = KHR_materials_sheen.sheenRoughnessTexture;
     if (sheenRoughnessTexture != null) {
-      const rnSheenRoughnessTexture = ModelConverter._createTexture(
-        sheenRoughnessTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(sheenRoughnessTexture.texture!);
+      const rnSheenRoughnessTexture = rnTextures[sheenRoughnessTexture.texture!.source!];
+      const rnSampler = rnSamplers[sheenRoughnessTexture.texture!.sampler!];
       material.setTextureParameter('sheenRoughnessTexture', rnSheenRoughnessTexture, rnSampler);
       if (sheenRoughnessTexture.texCoord != null) {
         material.setParameter('sheenRoughnessTexcoordIndex', sheenRoughnessTexture.texCoord);
@@ -2804,7 +2797,9 @@ function setup_KHR_materials_sheen(
 function setup_KHR_materials_specular(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const KHR_materials_specular = materialJson?.extensions?.KHR_materials_specular;
   if (Is.exist(KHR_materials_specular)) {
@@ -2814,8 +2809,8 @@ function setup_KHR_materials_specular(
     material.setParameter('specularFactor', specularFactor);
     const specularTexture = KHR_materials_specular.specularTexture;
     if (specularTexture != null) {
-      const rnSpecularTexture = ModelConverter._createTexture(specularTexture.texture!, gltfModel);
-      const rnSampler = ModelConverter._createSampler(specularTexture.texture!);
+      const rnSpecularTexture = rnTextures[specularTexture.texture!.source!];
+      const rnSampler = rnSamplers[specularTexture.texture!.sampler!];
       material.setTextureParameter('specularTexture', rnSpecularTexture, rnSampler);
       if (specularTexture.texCoord != null) {
         material.setParameter('specularTexcoordIndex', specularTexture.texCoord);
@@ -2835,11 +2830,8 @@ function setup_KHR_materials_specular(
     material.setParameter('specularColorFactor', Vector3.fromCopyArray3(specularColorFactor));
     const specularColorTexture = KHR_materials_specular.specularColorTexture;
     if (specularColorTexture != null) {
-      const rnSpecularColorTexture = ModelConverter._createTexture(
-        specularColorTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(specularColorTexture.texture!);
+      const rnSpecularColorTexture = rnTextures[specularColorTexture.texture!.source!];
+      const rnSampler = rnSamplers[specularColorTexture.texture!.sampler!];
       material.setTextureParameter('specularColorTexture', rnSpecularColorTexture, rnSampler);
       if (specularColorTexture.texCoord != null) {
         material.setParameter('specularColorTexcoordIndex', specularColorTexture.texCoord);
@@ -2867,7 +2859,9 @@ function setup_KHR_materials_ior(materialJson: RnM2Material, material: Material,
 function setup_KHR_materials_iridescence(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const KHR_materials_iridescence = materialJson?.extensions?.KHR_materials_iridescence;
   if (Is.exist(KHR_materials_iridescence)) {
@@ -2877,11 +2871,8 @@ function setup_KHR_materials_iridescence(
     material.setParameter('iridescenceFactor', iridescenceFactor);
     const iridescenceTexture = KHR_materials_iridescence.iridescenceTexture;
     if (iridescenceTexture != null) {
-      const rnIridescenceTexture = ModelConverter._createTexture(
-        iridescenceTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(iridescenceTexture.texture!);
+      const rnIridescenceTexture = rnTextures[iridescenceTexture.texture!.source!];
+      const rnSampler = rnSamplers[iridescenceTexture.texture!.sampler!];
       material.setTextureParameter('iridescenceTexture', rnIridescenceTexture, rnSampler);
       if (iridescenceTexture.texCoord != null) {
         material.setParameter('iridescenceTexcoordIndex', iridescenceTexture.texCoord);
@@ -2916,11 +2907,8 @@ function setup_KHR_materials_iridescence(
 
     const iridescenceThicknessTexture = KHR_materials_iridescence.iridescenceThicknessTexture;
     if (iridescenceThicknessTexture != null) {
-      const rnIridescenceThicknessTexture = ModelConverter._createTexture(
-        iridescenceThicknessTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(iridescenceThicknessTexture.texture!);
+      const rnIridescenceThicknessTexture = rnTextures[iridescenceThicknessTexture.texture!.source!];
+      const rnSampler = rnSamplers[iridescenceThicknessTexture.texture!.sampler!];
       material.setTextureParameter(
         'iridescenceThicknessTexture',
         rnIridescenceThicknessTexture,
@@ -2947,7 +2935,9 @@ function setup_KHR_materials_iridescence(
 function setup_KHR_materials_anisotropy(
   materialJson: RnM2Material,
   material: Material,
-  gltfModel: RnM2
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
 ) {
   const KHR_materials_anisotropy = materialJson?.extensions?.KHR_materials_anisotropy;
   if (Is.exist(KHR_materials_anisotropy)) {
@@ -2965,11 +2955,8 @@ function setup_KHR_materials_anisotropy(
 
     const anisotropyTexture = KHR_materials_anisotropy.anisotropyTexture;
     if (anisotropyTexture != null) {
-      const rnAnisotropyTexture = ModelConverter._createTexture(
-        anisotropyTexture.texture!,
-        gltfModel
-      );
-      const rnSampler = ModelConverter._createSampler(anisotropyTexture.texture!);
+      const rnAnisotropyTexture = rnTextures[anisotropyTexture.texture!.source!];
+      const rnSampler = rnSamplers[anisotropyTexture.texture!.sampler!];
       material.setTextureParameter('anisotropyTexture', rnAnisotropyTexture, rnSampler);
       if (anisotropyTexture.texCoord != null) {
         material.setParameter('anisotropyTexcoordIndex', anisotropyTexture.texCoord);

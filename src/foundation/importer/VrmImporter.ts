@@ -295,7 +295,7 @@ export class VrmImporter {
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture(gltfTextures[i], gltfModel);
+      const rnTexture = ModelConverter._createTexture(gltfTextures[i].image!, gltfModel);
       rnTextures[i] = rnTexture;
     }
 
@@ -315,8 +315,8 @@ export class VrmImporter {
     const gltfTextures = gltfModel.textures;
     const rnSamplers: Sampler[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createSampler(gltfTextures[i]);
-      rnSamplers[i] = rnTexture;
+      const rnSampler = ModelConverter._createSampler(gltfTextures[i].samplerObject!);
+      rnSamplers[i] = rnSampler;
     }
 
     const dummySampler = new Sampler({
