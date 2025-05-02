@@ -15,6 +15,7 @@ export type AnimationPathName =
   | 'quaternion'
   | 'scale'
   | 'weights'
+  | 'material'
   | 'effekseer';
 
 export type AnimationTrackName = string;

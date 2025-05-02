@@ -41,6 +41,12 @@ import {
 import { Texture } from '../../textures';
 import type { WebGLResourceRepository } from '../../../webgl/WebGLResourceRepository';
 import { Logger } from '../../misc/Logger';
+import { AnimatedScalar } from '../../math/AnimatedScalar';
+import { AnimatedVector4 } from '../../math/AnimatedVector4';
+import { AnimatedVector3 } from '../../math/AnimatedVector3';
+import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
+import { AnimatedVectorN } from '../../math/AnimatedVectorN';
+import { IAnimatedValue } from '../../math/IAnimatedValue';
 
 type PrimitiveFingerPrint = string;
 
@@ -157,6 +163,10 @@ export class Material extends RnObject {
   /// Parameter Setters
   ///
 
+  private __isAnimatedValue(value: any): value is IAnimatedValue {
+    return value instanceof AnimatedScalar || value instanceof AnimatedVector4 || value instanceof AnimatedVector3 || value instanceof AnimatedQuaternion || value instanceof AnimatedVectorN;
+  }
+
   public setParameter(shaderSemanticName: ShaderSemanticsName, value: any) {
     const info = this._allFieldsInfo.get(shaderSemanticName);
     if (info != null) {
@@ -166,12 +176,19 @@ export class Material extends RnObject {
       } else {
         valueObj = this._allFieldVariables.get(shaderSemanticName);
       }
-      const updated = MathClassUtil._setForce(valueObj!.value, value);
-
-      if (updated) {
+      if (this.__isAnimatedValue(value)) {
+        value.setFloat32Array(valueObj!.value._v);
+        valueObj!.value = value;
         this.__stateVersion++;
         Material.__stateVersion++;
         this.calcFingerPrint();
+      } else {
+        const updated = MathClassUtil._setForce(valueObj!.value, value);
+        if (updated) {
+          this.__stateVersion++;
+          Material.__stateVersion++;
+          this.calcFingerPrint();
+        }
       }
     }
   }
@@ -308,6 +325,10 @@ export class Material extends RnObject {
    */
   _addBelongPrimitive(primitive: Primitive) {
     this.__belongPrimitives.set(primitive.primitiveUid, primitive);
+  }
+
+  getBelongPrimitives() {
+    return this.__belongPrimitives;
   }
 
   /**
@@ -829,5 +850,13 @@ export class Material extends RnObject {
     this._shaderProgramUidMap.clear();
     this.__stateVersion++;
     Material.__stateVersion++;
+  }
+
+  setTime(time: number) {
+    this._allFieldVariables.forEach((value) => {
+      if (this.__isAnimatedValue(value.value)) {
+        value.value.setTime(time);
+      }
+    });
   }
 }

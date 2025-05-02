@@ -124,7 +124,6 @@ export class AnimationComponent extends Component {
     for (const [pathName, channel] of this.__animationTrack) {
       channel.animatedValue.setTime(time);
       channel.animatedValue.blendingRatio = this.animationBlendingRatio;
-      channel.animatedValue.update();
       if (pathName === 'translate') {
         transformComponent.localPosition = channel.animatedValue as unknown as Vector3;
       } else if (pathName === 'quaternion') {
@@ -133,6 +132,18 @@ export class AnimationComponent extends Component {
         transformComponent.localScale = channel.animatedValue as unknown as Vector3;
       } else if (pathName === 'weights') {
         blendShapeComponent!.weights = channel.animatedValue as unknown as Array<number>;
+      } else if (pathName === 'material') {
+        const meshComponent = this.entity.tryToGetMesh();
+        if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
+          const mesh = meshComponent.mesh;
+          for (let i = 0; i < mesh.getPrimitiveNumber(); i++) {
+            const primitive = mesh.getPrimitiveAt(i);
+            const material = primitive.material;
+            if (Is.exist(material)) {
+              material.setTime(time);
+            }
+          }
+        }
       } else if (pathName === 'effekseer') {
         if ((channel.animatedValue as unknown as Scalar).x > 0.5) {
           if (this.__isEffekseerState === 0) {
