@@ -388,7 +388,6 @@ export class ModelConverter {
       };
       animationSamplers.set(trackName, animationSampler);
 
-      const shaderSemanticName = pointer.split('/').pop()!;
       let animatedValue: IAnimatedValue;
       if (outputComponentN === 1) {
         animatedValue = new AnimatedScalar(animationSamplers, trackName);
@@ -401,7 +400,17 @@ export class ModelConverter {
       } else {
         throw new Error(`Unsupported component number: ${outputComponentN}`);
       }
-      material.setParameter(shaderSemanticName, animatedValue);
+      if (pointer.includes('KHR_texture_transform')) {
+        const split = pointer.split('/');
+        const textureName = split[split.length - 4];
+        const transformType = split[split.length - 1];
+        const capitalizedTransformType = transformType.charAt(0).toUpperCase() + transformType.slice(1);
+        const shaderSemanticName = `${textureName}Transform${capitalizedTransformType}`;
+        material.setParameter(shaderSemanticName, animatedValue);
+      } else {
+        const shaderSemanticName = pointer.split('/').pop()!;
+        material.setParameter(shaderSemanticName, animatedValue);
+      }
 
       const primitives = material.getBelongPrimitives();
       for (const primitive of primitives.values()) {

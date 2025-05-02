@@ -70,11 +70,11 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     if (this.__lastTime == time) {
       return;
     }
-    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
+    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Scalar.index);
     if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
+      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Scalar.index);
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
     }
     this.__lastTime = time;

@@ -79,12 +79,12 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
     if (this.__lastTime == time) {
       return;
     }
-    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
+    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.Vector2.index);
     if (this.__secondActiveAnimationSampler === undefined) {
       this._v[0] = firstValue[0];
       this._v[1] = firstValue[1];
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector3.index);
+      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.Vector2.index);
       this._v[0] = firstValue[0] * (1 - this.blendingRatio) + secondValue[0] * this.blendingRatio;
       this._v[1] = firstValue[1] * (1 - this.blendingRatio) + secondValue[1] * this.blendingRatio;
     }
