@@ -426,7 +426,7 @@ const scalar_lerp_offsetAsComposition_fn = function (
   selfOffset: number,
   argOffset: number
 ) {
-  return this[selfOffset] * (1 - ratio) + array[argOffset] * ratio;
+  return [this[selfOffset] * (1 - ratio) + array[argOffset] * ratio];
 };
 
 const array2_lerp_offsetAsComposition_fn = function (

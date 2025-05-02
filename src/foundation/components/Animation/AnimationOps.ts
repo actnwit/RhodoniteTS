@@ -1,5 +1,5 @@
 import { AnimationChannel, AnimationSampler } from '../../../types/AnimationTypes';
-import { Array1, Array3, Array4, Index } from '../../../types/CommonTypes';
+import { Array1, Array2, Array3, Array4, Index } from '../../../types/CommonTypes';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';
 import { AnimationInterpolation } from '../../definitions/AnimationInterpolation';
 import {
@@ -9,6 +9,8 @@ import {
   arrayN_lerp_offsetAsComposition,
   get1_offset,
   get1_offsetAsComposition,
+  get2_offset,
+  get2_offsetAsComposition,
   get3_offset,
   get3_offsetAsComposition,
   get4_offset,
@@ -141,6 +143,12 @@ export function __getOutputValue(
         sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
       ) as Array3<number>;
       return value;
+    } else if (sampler.outputComponentN === 2) {
+      // Vector2
+      const value = array[get2_offset](
+        sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
+      ) as Array2<number>;
+      return value;
     } else if (sampler.outputComponentN === 1) {
       const value = array[get1_offset](
         sampler.outputComponentN * 3 * keyFrameId + sampler.outputComponentN
@@ -163,6 +171,10 @@ export function __getOutputValue(
     } else if (sampler.outputComponentN === 3) {
       // Translate/Scale/weights
       const value = array[get3_offsetAsComposition](keyFrameId) as Array3<number>;
+      return value;
+    } else if (sampler.outputComponentN === 2) {
+      // Vector2
+      const value = array[get2_offsetAsComposition](keyFrameId) as Array2<number>;
       return value;
     } else if (sampler.outputComponentN === 1) {
       // Effekseer (Animation Event)
