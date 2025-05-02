@@ -99,6 +99,14 @@ uniform float u_ior; // initialValue=1.5
 #ifdef RN_USE_SHEEN
   uniform vec3 u_sheenColorFactor; // initialValue=(0,0,0)
   uniform float u_sheenRoughnessFactor; // initialValue=(0)
+  uniform vec2 u_sheenColorTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_sheenColorTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_sheenColorTextureTransformRotation; // initialValue=0
+  uniform int u_sheenColorTexcoordIndex; // initialValue=0
+  uniform vec2 u_sheenRoughnessTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_sheenRoughnessTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_sheenRoughnessTextureTransformRotation; // initialValue=0
+  uniform int u_sheenRoughnessTexcoordIndex; // initialValue=0
 #endif
 
 #ifdef RN_USE_SPECULAR
@@ -426,9 +434,23 @@ void main ()
   #ifdef RN_USE_SHEEN
     // Sheen
     vec3 sheenColorFactor = get_sheenColorFactor(materialSID, 0);
-    vec3 sheenColorTexture = texture(u_sheenColorTexture, baseColorTexUv).rgb;
+    vec2 sheenColorTextureTransformScale = get_sheenColorTextureTransformScale(materialSID, 0);
+    vec2 sheenColorTextureTransformOffset = get_sheenColorTextureTransformOffset(materialSID, 0);
+    float sheenColorTextureTransformRotation = get_sheenColorTextureTransformRotation(materialSID, 0);
+    int sheenColorTexcoordIndex = get_sheenColorTexcoordIndex(materialSID, 0);
+    vec2 sheenColorTexcoord = getTexcoord(sheenColorTexcoordIndex);
+    vec2 sheenColorTexUv = uvTransform(sheenColorTextureTransformScale, sheenColorTextureTransformOffset, sheenColorTextureTransformRotation, sheenColorTexcoord);
+    vec3 sheenColorTexture = texture(u_sheenColorTexture, sheenColorTexUv).rgb;
+
     float sheenRoughnessFactor = get_sheenRoughnessFactor(materialSID, 0);
-    float sheenRoughnessTexture = texture(u_sheenRoughnessTexture, baseColorTexUv).a;
+    vec2 sheenRoughnessTextureTransformScale = get_sheenRoughnessTextureTransformScale(materialSID, 0);
+    vec2 sheenRoughnessTextureTransformOffset = get_sheenRoughnessTextureTransformOffset(materialSID, 0);
+    float sheenRoughnessTextureTransformRotation = get_sheenRoughnessTextureTransformRotation(materialSID, 0);
+    int sheenRoughnessTexcoordIndex = get_sheenRoughnessTexcoordIndex(materialSID, 0);
+    vec2 sheenRoughnessTexcoord = getTexcoord(sheenRoughnessTexcoordIndex);
+    vec2 sheenRoughnessTexUv = uvTransform(sheenRoughnessTextureTransformScale, sheenRoughnessTextureTransformOffset, sheenRoughnessTextureTransformRotation, sheenRoughnessTexcoord);
+    float sheenRoughnessTexture = texture(u_sheenRoughnessTexture, sheenRoughnessTexUv).a;
+
     vec3 sheenColor = sheenColorFactor * sheenColorTexture;
     float sheenRoughness = clamp(sheenRoughnessFactor * sheenRoughnessTexture, 0.000001, 1.0);
     float albedoSheenScalingNdotV = 1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotV, sheenRoughness)).r;

@@ -2741,6 +2741,17 @@ function setup_KHR_materials_sheen(
       );
       const rnSampler = ModelConverter._createSampler(sheenColorTexture.texture!);
       material.setTextureParameter('sheenColorTexture', rnSheenColorTexture, rnSampler);
+      if (sheenColorTexture.texCoord != null) {
+        material.setParameter('sheenColorTexcoordIndex', sheenColorTexture.texCoord);
+      }
+      // Sheen Color Texture Transform
+      ModelConverter._setupTextureTransform(
+        sheenColorTexture,
+        material,
+        'sheenColorTextureTransformScale',
+        'sheenColorTextureTransformOffset',
+        'sheenColorTextureTransformRotation'
+      );
     }
     const sheenRoughnessFactor = Is.exist(KHR_materials_sheen.sheenRoughnessFactor)
       ? KHR_materials_sheen.sheenRoughnessFactor
@@ -2754,6 +2765,17 @@ function setup_KHR_materials_sheen(
       );
       const rnSampler = ModelConverter._createSampler(sheenRoughnessTexture.texture!);
       material.setTextureParameter('sheenRoughnessTexture', rnSheenRoughnessTexture, rnSampler);
+      if (sheenRoughnessTexture.texCoord != null) {
+        material.setParameter('sheenRoughnessTexcoordIndex', sheenRoughnessTexture.texCoord);
+      }
+      // Sheen Roughness Texture Transform
+      ModelConverter._setupTextureTransform(
+        sheenRoughnessTexture,
+        material,
+        'sheenRoughnessTextureTransformScale',
+        'sheenRoughnessTextureTransformOffset',
+        'sheenRoughnessTextureTransformRotation'
+      );
     }
   }
 }
