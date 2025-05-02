@@ -105,6 +105,10 @@
 #ifdef RN_USE_ANISOTROPY
 // #param anisotropyStrength: f32; // initialValue=0
 // #param anisotropyRotation: vec2<f32>; // initialValue=(1,0)
+// #param anisotropyTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param anisotropyTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param anisotropyTextureTransformRotation: f32; // initialValue=0
+// #param anisotropyTexcoordIndex: u32; // initialValue=0
 #endif
 
 // #param alphaCutoff: f32; // initialValue=0.01
@@ -216,7 +220,10 @@ fn main(
   var anisotropy: f32 = get_anisotropyStrength(materialSID, 0);
   let anisotropyRotation: vec2f = get_anisotropyRotation(materialSID, 0);
   var direction: vec2f = anisotropyRotation;
-  let anisotropyTex: vec3f = textureSample(anisotropyTexture, anisotropySampler, baseColorTexUv).rgb;
+  let anisotropyTexcoordIndex = u32(get_anisotropyTexcoordIndex(materialSID, 0));
+  let anisotropyTexcoord = getTexcoord(anisotropyTexcoordIndex, input);
+  let anisotropyTexUv = uvTransform(anisotropyTextureTransformScale, anisotropyTextureTransformOffset, anisotropyTextureTransformRotation, anisotropyTexcoord);
+  let anisotropyTex = textureSample(anisotropyTexture, anisotropySampler, anisotropyTexUv);
   direction = anisotropyTex.rg * 2.0 - vec2f(1.0);
   direction = mat2x2<f32>(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
   anisotropy *= anisotropyTex.b;

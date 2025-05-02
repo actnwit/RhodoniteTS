@@ -116,6 +116,10 @@ uniform float u_ior; // initialValue=1.5
 #ifdef RN_USE_ANISOTROPY
   uniform float u_anisotropyStrength; // initialValue=0
   uniform vec2 u_anisotropyRotation; // initialValue=(1,0)
+  uniform vec2 u_anisotropyTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_anisotropyTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_anisotropyTextureTransformRotation; // initialValue=0
+  uniform int u_anisotropyTexcoordIndex; // initialValue=0
 #endif
 
 uniform float u_alphaCutoff; // initialValue=(0.01)
@@ -251,7 +255,13 @@ void main ()
     float anisotropy = get_anisotropyStrength(materialSID, 0);
     vec2 anisotropyRotation = get_anisotropyRotation(materialSID, 0);
     vec2 direction = anisotropyRotation;
-    vec3 anisotropyTex = texture(u_anisotropyTexture, baseColorTexUv).rgb;
+    vec2 anisotropyTextureTransformScale = get_anisotropyTextureTransformScale(materialSID, 0);
+    vec2 anisotropyTextureTransformOffset = get_anisotropyTextureTransformOffset(materialSID, 0);
+    float anisotropyTextureTransformRotation = get_anisotropyTextureTransformRotation(materialSID, 0);
+    int anisotropyTexcoordIndex = get_anisotropyTexcoordIndex(materialSID, 0);
+    vec2 anisotropyTexcoord = getTexcoord(anisotropyTexcoordIndex);
+    vec2 anisotropyTexUv = uvTransform(anisotropyTextureTransformScale, anisotropyTextureTransformOffset, anisotropyTextureTransformRotation, anisotropyTexcoord);
+    vec3 anisotropyTex = texture(u_anisotropyTexture, anisotropyTexUv).rgb;
     direction = anisotropyTex.rg * 2.0 - vec2(1.0);
     direction = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x) * normalize(direction);
     anisotropy *= anisotropyTex.b;

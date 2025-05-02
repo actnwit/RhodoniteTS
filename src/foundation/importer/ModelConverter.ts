@@ -2882,6 +2882,17 @@ function setup_KHR_materials_anisotropy(
       );
       const rnSampler = ModelConverter._createSampler(anisotropyTexture.texture!);
       material.setTextureParameter('anisotropyTexture', rnAnisotropyTexture, rnSampler);
+      if (anisotropyTexture.texCoord != null) {
+        material.setParameter('anisotropyTexcoordIndex', anisotropyTexture.texCoord);
+      }
+      // Anisotropy Texture Transform
+      ModelConverter._setupTextureTransform(
+        anisotropyTexture,
+        material,
+        'anisotropyTextureTransformScale',
+        'anisotropyTextureTransformOffset',
+        'anisotropyTextureTransformRotation'
+      );
     }
   }
 }
