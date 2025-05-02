@@ -41,6 +41,7 @@ import { Scalar } from '../../math';
 import { IAnimatedValue } from '../../math/IAnimatedValue';
 import { AnimatedVector3 } from '../../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
+import { AnimatedVectorN } from '../../math/AnimatedVectorN';
 
 const defaultAnimationInfo = {
   name: '',
@@ -131,7 +132,7 @@ export class AnimationComponent extends Component {
       } else if (pathName === 'scale') {
         transformComponent.localScale = channel.animatedValue as unknown as Vector3;
       } else if (pathName === 'weights') {
-        blendShapeComponent!.weights = channel.animatedValue as unknown as Array<number>;
+        blendShapeComponent!.weights = (channel.animatedValue as AnimatedVectorN).getNumberArray();
       } else if (pathName === 'material') {
         const meshComponent = this.entity.tryToGetMesh();
         if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {

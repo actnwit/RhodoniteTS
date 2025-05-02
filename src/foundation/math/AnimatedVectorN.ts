@@ -27,6 +27,10 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
     this.setFloat32Array(new Float32Array(animationSampler.outputComponentN));
   }
 
+  getNumberArray() {
+    return Array.from(this._v);
+  }
+
   setFloat32Array(array: Float32Array) {
     this._v = array;
     this.update();

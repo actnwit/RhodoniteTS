@@ -102,6 +102,7 @@ import { AnimatedVector4 } from '../math/AnimatedVector4';
 import { IAnimatedValue } from '../math/IAnimatedValue';
 import { AnimatedVector2 } from '../math/AnimatedVector2';
 import { MutableVector2 } from '../math/MutableVector2';
+import { AnimatedVectorN } from '../math/AnimatedVectorN';
 
 declare let DracoDecoderModule: any;
 
@@ -461,8 +462,14 @@ export class ModelConverter {
               animationAttributeType,
               newAnimatedValue
             );
-          } else { // scale
+          } else if (animationAttributeType === 'scale') {
             const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+            animationComponent.setAnimation(
+              animationAttributeType,
+              newAnimatedValue
+            );
+          } else { // weight
+            const newAnimatedValue = new AnimatedVectorN(animationSamplers, trackName);
             animationComponent.setAnimation(
               animationAttributeType,
               newAnimatedValue
