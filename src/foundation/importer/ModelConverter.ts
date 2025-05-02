@@ -2589,6 +2589,16 @@ function setup_KHR_materials_transmission(
       );
       const rnSampler = ModelConverter._createSampler(transmissionTexture.texture!);
       material.setTextureParameter('transmissionTexture', rnTransmissionTexture, rnSampler);
+      if (transmissionTexture.texCoord != null) {
+        material.setParameter('transmissionTexcoordIndex', transmissionTexture.texCoord);
+      }
+      ModelConverter._setupTextureTransform(
+        transmissionTexture,
+        material,
+        'transmissionTextureTransformScale',
+        'transmissionTextureTransformOffset',
+        'transmissionTextureTransformRotation'
+      );
     }
     return true;
   }
@@ -2706,6 +2716,17 @@ function setup_KHR_materials_volume(
       );
       const rnSampler = ModelConverter._createSampler(thicknessTexture.texture!);
       material.setTextureParameter('thicknessTexture', rnThicknessTexture, rnSampler);
+      if (thicknessTexture.texCoord != null) {
+        material.setParameter('thicknessTexcoordIndex', thicknessTexture.texCoord);
+      }
+      // Thickness Texture Transform
+      ModelConverter._setupTextureTransform(
+        thicknessTexture,
+        material,
+        'thicknessTextureTransformScale',
+        'thicknessTextureTransformOffset',
+        'thicknessTextureTransformRotation'
+      );
     }
     const attenuationDistance = KHR_materials_volume.attenuationDistance
       ? KHR_materials_volume.attenuationDistance

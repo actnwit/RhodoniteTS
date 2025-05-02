@@ -77,12 +77,20 @@
 
 #ifdef RN_USE_TRANSMISSION
 // #param transmissionFactor: f32; // initialValue=(0)
+// #param transmissionTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param transmissionTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param transmissionTextureTransformRotation: f32; // initialValue=0
+// #param transmissionTexcoordIndex: u32; // initialValue=0
 #endif // RN_USE_TRANSMISSION
 
 #ifdef RN_USE_VOLUME
 // #param thicknessFactor: f32; // initialValue=(0)
 // #param attenuationDistance: f32; // initialValue=(0.000001)
 // #param attenuationColor: vec3<f32>; // initialValue=(1,1,1)
+// #param thicknessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param thicknessTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param thicknessTextureTransformRotation: f32; // initialValue=0
+// #param thicknessTexcoordIndex: u32; // initialValue=0
 #endif
 
 #ifdef RN_USE_SHEEN
@@ -284,7 +292,13 @@ fn main(
   // Transmission
 #ifdef RN_USE_TRANSMISSION
   let transmissionFactor = get_transmissionFactor(materialSID, 0);
-  let transmissionTexture = textureSample(transmissionTexture, transmissionSampler, baseColorTexUv).r;
+  let transmissionTextureTransformScale: vec2f = get_transmissionTextureTransformScale(materialSID, 0);
+  let transmissionTextureTransformOffset: vec2f = get_transmissionTextureTransformOffset(materialSID, 0);
+  let transmissionTextureTransformRotation: f32 = get_transmissionTextureTransformRotation(materialSID, 0);
+  let transmissionTexcoordIndex = get_transmissionTexcoordIndex(materialSID, 0);
+  let transmissionTexcoord = getTexcoord(transmissionTexcoordIndex, input);
+  let transmissionTexUv = uvTransform(transmissionTextureTransformScale, transmissionTextureTransformOffset, transmissionTextureTransformRotation, transmissionTexcoord);
+  let transmissionTexture = textureSample(transmissionTexture, transmissionSampler, transmissionTexUv).r;
   let transmission = transmissionFactor * transmissionTexture;
     // alpha *= transmission;
 #else
@@ -387,7 +401,13 @@ fn main(
 #ifdef RN_USE_VOLUME
   // Volume
   let thicknessFactor: f32 = get_thicknessFactor(materialSID, 0);
-  let thicknessTexture: f32 = textureSample(thicknessTexture, thicknessSampler, baseColorTexUv).g;
+  let thicknessTexcoordIndex = get_thicknessTexcoordIndex(materialSID, 0);
+  let thicknessTexcoord = getTexcoord(thicknessTexcoordIndex, input);
+  let thicknessTextureTransformScale: vec2f = get_thicknessTextureTransformScale(materialSID, 0);
+  let thicknessTextureTransformOffset: vec2f = get_thicknessTextureTransformOffset(materialSID, 0);
+  let thicknessTextureTransformRotation: f32 = get_thicknessTextureTransformRotation(materialSID, 0);
+  let thicknessTexUv = uvTransform(thicknessTextureTransformScale, thicknessTextureTransformOffset, thicknessTextureTransformRotation, thicknessTexcoord);
+  let thicknessTexture: f32 = textureSample(thicknessTexture, thicknessSampler, thicknessTexUv).g;
   let attenuationDistance: f32 = get_attenuationDistance(materialSID, 0);
   let attenuationColor: vec3f = get_attenuationColor(materialSID, 0);
   let thickness: f32 = thicknessFactor * thicknessTexture;

@@ -88,12 +88,20 @@ uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_TRANSMISSION
   uniform float u_transmissionFactor; // initialValue=(0)
+  uniform vec2 u_transmissionTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_transmissionTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_transmissionTextureTransformRotation; // initialValue=0
+  uniform int u_transmissionTexcoordIndex; // initialValue=0
 #endif
 
 #ifdef RN_USE_VOLUME
   uniform float u_thicknessFactor; // initialValue=(0)
   uniform float u_attenuationDistance; // initialValue=(0.000001)
   uniform vec3 u_attenuationColor; // initialValue=(1,1,1)
+  uniform vec2 u_thicknessTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_thicknessTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_thicknessTextureTransformRotation; // initialValue=0
+  uniform int u_thicknessTexcoordIndex; // initialValue=0
 #endif
 
 #ifdef RN_USE_SHEEN
@@ -319,7 +327,13 @@ void main ()
     // Transmission
   #ifdef RN_USE_TRANSMISSION
     float transmissionFactor = get_transmissionFactor(materialSID, 0);
-    float transmissionTexture = texture(u_transmissionTexture, baseColorTexUv).r;
+    vec2 transmissionTextureTransformScale = get_transmissionTextureTransformScale(materialSID, 0);
+    vec2 transmissionTextureTransformOffset = get_transmissionTextureTransformOffset(materialSID, 0);
+    float transmissionTextureTransformRotation = get_transmissionTextureTransformRotation(materialSID, 0);
+    int transmissionTexcoordIndex = get_transmissionTexcoordIndex(materialSID, 0);
+    vec2 transmissionTexcoord = getTexcoord(transmissionTexcoordIndex);
+    vec2 transmissionTexUv = uvTransform(transmissionTextureTransformScale, transmissionTextureTransformOffset, transmissionTextureTransformRotation, transmissionTexcoord);
+    float transmissionTexture = texture(u_transmissionTexture, transmissionTexUv).r;
     float transmission = transmissionFactor * transmissionTexture;
     // alpha *= transmission;
   #else
@@ -421,7 +435,13 @@ void main ()
   #ifdef RN_USE_VOLUME
     // Volume
     float thicknessFactor = get_thicknessFactor(materialSID, 0);
-    float thicknessTexture = texture(u_thicknessTexture, baseColorTexUv).g;
+    vec2 thicknessTextureTransformScale = get_thicknessTextureTransformScale(materialSID, 0);
+    vec2 thicknessTextureTransformOffset = get_thicknessTextureTransformOffset(materialSID, 0);
+    float thicknessTextureTransformRotation = get_thicknessTextureTransformRotation(materialSID, 0);
+    int thicknessTexcoordIndex = get_thicknessTexcoordIndex(materialSID, 0);
+    vec2 thicknessTexcoord = getTexcoord(thicknessTexcoordIndex);
+    vec2 thicknessTexUv = uvTransform(thicknessTextureTransformScale, thicknessTextureTransformOffset, thicknessTextureTransformRotation, thicknessTexcoord);
+    float thicknessTexture = texture(u_thicknessTexture, thicknessTexUv).g;
     float attenuationDistance = get_attenuationDistance(materialSID, 0);
     vec3 attenuationColor = get_attenuationColor(materialSID, 0);
     float thickness = thicknessFactor * thicknessTexture;
