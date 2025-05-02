@@ -100,6 +100,7 @@ import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
 import { AnimatedVector4 } from '../math/AnimatedVector4';
 import { IAnimatedValue } from '../math/IAnimatedValue';
+import { AnimatedVector2 } from '../math/AnimatedVector2';
 
 declare let DracoDecoderModule: any;
 
@@ -389,16 +390,16 @@ export class ModelConverter {
       let animatedValue: IAnimatedValue;
       if (outputComponentN === 1) {
         animatedValue = new AnimatedScalar(animationSamplers, trackName);
-        material.setParameter(shaderSemanticName, animatedValue);
+      } else if (outputComponentN === 2) {
+        animatedValue = new AnimatedVector2(animationSamplers, trackName);
       } else if (outputComponentN === 3) {
         animatedValue = new AnimatedVector3(animationSamplers, trackName);
-        material.setParameter(shaderSemanticName, animatedValue);
       } else if (outputComponentN === 4) {
         animatedValue = new AnimatedVector4(animationSamplers, trackName);
-        material.setParameter(shaderSemanticName, animatedValue);
       } else {
         throw new Error(`Unsupported component number: ${outputComponentN}`);
       }
+      material.setParameter(shaderSemanticName, animatedValue);
 
       const primitives = material.getBelongPrimitives();
       for (const primitive of primitives.values()) {

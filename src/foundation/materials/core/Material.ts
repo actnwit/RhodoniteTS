@@ -47,6 +47,7 @@ import { AnimatedVector3 } from '../../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
 import { AnimatedVectorN } from '../../math/AnimatedVectorN';
 import { IAnimatedValue } from '../../math/IAnimatedValue';
+import { AnimatedVector2 } from '../../math/AnimatedVector2';
 
 type PrimitiveFingerPrint = string;
 
@@ -163,8 +164,8 @@ export class Material extends RnObject {
   /// Parameter Setters
   ///
 
-  private __isAnimatedValue(value: any): value is IAnimatedValue {
-    return value instanceof AnimatedScalar || value instanceof AnimatedVector4 || value instanceof AnimatedVector3 || value instanceof AnimatedQuaternion || value instanceof AnimatedVectorN;
+  public _isAnimatedValue(value: any): value is IAnimatedValue {
+    return value instanceof AnimatedScalar || value instanceof AnimatedVector2 || value instanceof AnimatedVector3 || value instanceof AnimatedVector4 || value instanceof AnimatedQuaternion || value instanceof AnimatedVectorN;
   }
 
   public setParameter(shaderSemanticName: ShaderSemanticsName, value: any) {
@@ -176,7 +177,7 @@ export class Material extends RnObject {
       } else {
         valueObj = this._allFieldVariables.get(shaderSemanticName);
       }
-      if (this.__isAnimatedValue(value)) {
+      if (this._isAnimatedValue(value)) {
         value.setFloat32Array(valueObj!.value._v);
         valueObj!.value = value;
         this.__stateVersion++;
@@ -854,7 +855,7 @@ export class Material extends RnObject {
 
   setTime(time: number) {
     this._allFieldVariables.forEach((value) => {
-      if (this.__isAnimatedValue(value.value)) {
+      if (this._isAnimatedValue(value.value)) {
         value.value.setTime(time);
       }
     });
