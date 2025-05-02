@@ -1,9 +1,6 @@
 import Rn from '../../../dist/esmdev/index.js';
 declare const window: any;
 
-const p = document.createElement('p');
-document.body.appendChild(p);
-
 Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
@@ -35,10 +32,8 @@ let startTime = Date.now();
 Rn.AnimationComponent.globalTime = 0.05;
 
 Rn.System.startRenderLoop(() => {
-  if (p == null && count > 0) {
-    p.setAttribute('id', 'rendered');
-    p.innerText = 'Rendered.';
-    document.body.appendChild(p);
+  if (count > 0) {
+    window._rendered = true;
   }
 
   if (window.isAnimating) {
