@@ -12,7 +12,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
-  public blendingRatio = 0;
+  private __blendingRatio = 0;
   private __time?: number;
   private __lastTime = -1;
   public isLoop = true;
@@ -41,6 +41,16 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
   useGlobalTime() {
     this.__time = undefined;
     this.update();
+  }
+
+  set blendingRatio(value: number) {
+    this.__blendingRatio = value;
+    this.__lastTime = -1;
+    this.update();
+  }
+
+  get blendingRatio() {
+    return this.__blendingRatio;
   }
 
   get x() {

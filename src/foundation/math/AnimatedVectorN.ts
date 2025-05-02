@@ -11,7 +11,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   private __firstActiveAnimationSampler: AnimationSampler;
   private __secondActiveAnimationTrackName?: AnimationTrackName;
   private __secondActiveAnimationSampler?: AnimationSampler;
-  public blendingRatio = 0;
+  private __blendingRatio = 0;
   private __time?: number;
   private __lastTime = -1;
   public isLoop = true;
@@ -44,6 +44,16 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   useGlobalTime() {
     this.__time = undefined;
     this.update();
+  }
+
+  set blendingRatio(value: number) {
+    this.__blendingRatio = value;
+    this.__lastTime = -1;
+    this.update();
+  }
+
+  get blendingRatio() {
+    return this.__blendingRatio;
   }
 
   public update() {

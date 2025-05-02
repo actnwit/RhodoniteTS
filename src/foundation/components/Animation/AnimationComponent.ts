@@ -35,8 +35,6 @@ import { __interpolate } from './AnimationOps';
 import { ProcessStage } from '../../definitions';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { MathUtil } from '../../math/MathUtil';
-import { MutableVector4 } from '../../math/MutableVector4';
 import { Scalar } from '../../math';
 import { IAnimatedValue } from '../../math/IAnimatedValue';
 import { AnimatedVector3 } from '../../math/AnimatedVector3';
@@ -58,7 +56,7 @@ const PlayEnd = Symbol('AnimationComponentEventPlayEnd');
 export class AnimationComponent extends Component {
   /// inner states ///
   // The name of the current Active Track
-  public animationBlendingRatio = 0; // the value range is [0,1]
+  private __animationBlendingRatio = 0; // the value range is [0,1]
 
   // Animation Data of each AnimationComponent
   private __animationTrack: AnimationTrack = new Map();
@@ -112,6 +110,15 @@ export class AnimationComponent extends Component {
     this.__applyAnimation();
   }
 
+  set animationBlendingRatio(value: number) {
+    this.__animationBlendingRatio = value;
+    this.__applyAnimation();
+  }
+
+  get animationBlendingRatio() {
+    return this.__animationBlendingRatio;
+  }
+
   private __applyAnimation() {
     let time = this.time;
     if (this.useGlobalTime) {
@@ -124,7 +131,7 @@ export class AnimationComponent extends Component {
 
     for (const [pathName, channel] of this.__animationTrack) {
       channel.animatedValue.setTime(time);
-      channel.animatedValue.blendingRatio = this.animationBlendingRatio;
+      channel.animatedValue.blendingRatio = this.__animationBlendingRatio;
       if (pathName === 'translate') {
         transformComponent.localPosition = channel.animatedValue as unknown as Vector3;
       } else if (pathName === 'quaternion') {
