@@ -248,9 +248,7 @@ This library includes portions of code originally developed by the Khronos Group
 Some of these portions have been translated and modified for use in the RhodoniteTS library.
 - glTF-Sample-Renderer (https://github.com/KhronosGroup/glTF-Sample-Renderer)
 
-See LICENSES/glTF-Sample-Renderer.LICENSE for details.
-
-* [KhronosGroup/glTF-Sample-Renderer](https://github.com/KhronosGroup/glTF-Sample-Renderer)
+See [LICENSES/glTF-Sample-Renderer.LICENSE](LICENSES/glTF-Sample-Renderer.LICENSE) for details.
 
 ### Libraries & Tools
 
