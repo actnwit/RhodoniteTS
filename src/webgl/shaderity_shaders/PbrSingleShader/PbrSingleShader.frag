@@ -425,6 +425,7 @@ void main ()
 
     vec3 clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
     vec3 clearcoatF90 = vec3(1.0);
+    vec3 clearcoatFresnel = fresnelSchlick(clearcoatF0, clearcoatF90, VdotNc);
   #else
     float clearcoat = 0.0;
     float clearcoatRoughness = 0.0;
@@ -432,6 +433,7 @@ void main ()
     float VdotNc = 0.0;
     vec3 clearcoatF0 = vec3(0.0);
     vec3 clearcoatF90 = vec3(0.0);
+    vec3 clearcoatFresnel = vec3(0.0);
   #endif // RN_USE_CLEARCOAT
 
   #ifdef RN_USE_VOLUME
@@ -489,7 +491,7 @@ void main ()
     Light light = getLight(i, v_position_inWorld.xyz);
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb, albedo,
                         perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90, ior, transmission,
-                        clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatNormal_inWorld, VdotNc,
+                        clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,

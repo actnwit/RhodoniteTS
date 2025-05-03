@@ -168,18 +168,6 @@ vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float Nd
 //   return fresnel_mix(ior, base, layer, VdotH);
 // }
 
-// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
-vec3 coated_material_s(vec3 base, float perceptualRoughness, float clearcoatRoughness, float clearcoat, float VdotNc, float LdotNc, float NdotHc) {
-  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
-  float clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
-  float alphaRoughness = perceptualRoughness * perceptualRoughness;
-  float D = d_GGX(NdotHc, clearcoatAlpha);
-  float V = v_GGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
-  float f_clearcoat = clearcoatFresnel * D * V;
-
-  // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
-  return base * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(f_clearcoat * clearcoat);
-}
 vec3 srgbToLinear(vec3 srgbColor) {
   return pow(srgbColor, vec3(2.2));
 }
@@ -567,6 +555,7 @@ vec3 lightingWithPunctualLight(
   float clearcoatRoughness,
   vec3 clearcoatF0,
   vec3 clearcoatF90,
+  vec3 clearcoatFresnel,
   vec3 clearcoatNormal_inWorld,
   float VdotNc,
   vec3 attenuationColor,
@@ -644,7 +633,16 @@ vec3 lightingWithPunctualLight(
   // Base Layer
   vec3 dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
   vec3 metal = specularContrib * metalFresnel;
-  vec3 baseLayer = mix(dielectric, metal, metallic);
+  vec3 color = mix(dielectric, metal, metallic);
+
+#ifdef RN_USE_CLEARCOAT
+  // Clear Coat Layer
+  float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
+  float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
+  vec3 clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3(LdotNc) * light.attenuatedIntensity;
+#else
+  vec3 clearcoatContrib = vec3(0.0);
+#endif // RN_USE_CLEARCOAT
 
 #ifdef RN_USE_SHEEN
   // Sheen
@@ -652,22 +650,13 @@ vec3 lightingWithPunctualLight(
   float albedoSheenScaling = min(
     albedoSheenScalingNdotV,
     1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);
-  vec3 color = sheenContrib + baseLayer * albedoSheenScaling;
 #else
-  vec3 color = baseLayer;
+  vec3 sheenContrib = vec3(0.0);
   float albedoSheenScaling = 1.0;
 #endif // RN_USE_SHEEN
 
-#ifdef RN_USE_CLEARCOAT
-  // Clear Coat Layer
-  float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-  float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
-  vec3 coated = coated_material_s(color, perceptualRoughness,
-    clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
-  vec3 finalColor = coated;
-#else
-  vec3 finalColor = color;
-#endif // RN_USE_CLEARCOAT
+  color = sheenContrib + color * albedoSheenScaling;
+  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
 
-  return finalColor;
+  return color;
 }

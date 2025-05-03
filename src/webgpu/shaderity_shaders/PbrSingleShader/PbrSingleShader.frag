@@ -390,6 +390,7 @@ let ior = get_ior(materialSID, 0);
 
   let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
   let clearcoatF90 = vec3f(1.0);
+  let clearcoatFresnel = fresnelSchlick(clearcoatF0, clearcoatF90, VdotNc);
 #else
   let clearcoat = 0.0;
   let clearcoatRoughness = 0.0;
@@ -397,6 +398,7 @@ let ior = get_ior(materialSID, 0);
   let VdotNc = 0.0;
   let clearcoatF0 = vec3f(0.0);
   let clearcoatF90 = vec3f(0.0);
+  let clearcoatFresnel = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
 
@@ -458,7 +460,7 @@ let ior = get_ior(materialSID, 0);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, albedo, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
                             transmission, ior,
-                            clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatNormal_inWorld, VdotNc,
+                            clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,

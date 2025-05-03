@@ -109,19 +109,6 @@ fn envBRDFApprox( Roughness: f32, NoV: f32 ) -> vec2f {
 }
 
 
-// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
-fn coated_material_s(base: vec3f, perceptualRoughness: f32, clearcoatRoughness: f32, clearcoat: f32, VdotNc: f32, LdotNc: f32, NdotHc: f32) -> vec3f {
-  let clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
-  let clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
-  let alphaRoughness = perceptualRoughness * perceptualRoughness;
-  let D = d_GGX(NdotHc, clearcoatAlpha);
-  let V = v_GGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
-  let f_clearcoat = clearcoatFresnel * D * V;
-
-  // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
-  return base * vec3f(1.0 - clearcoat * clearcoatFresnel) + vec3f(f_clearcoat * clearcoat);
-}
-
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_transmission#implementation-notes
 fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f32 {
   let V = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
@@ -418,6 +405,7 @@ fn lightingWithPunctualLight(
   clearcoatRoughness: f32,
   clearcoatF0: vec3f,
   clearcoatF90: vec3f,
+  clearcoatFresnel: vec3f,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
   attenuationColor: vec3f,
@@ -495,7 +483,16 @@ fn lightingWithPunctualLight(
   // Base Layer
   let dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
   let metal = specularContrib * metalFresnel;
-  let baseLayer = mix(dielectric, metal, metallic);
+  var color = mix(dielectric, metal, metallic);
+
+#ifdef RN_USE_CLEARCOAT
+  // Clear Coat Layer
+  let NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
+  let LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
+  let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
+#else
+  let clearcoatContrib = vec3f(0.0);
+#endif // RN_USE_CLEARCOAT
 
 #ifdef RN_USE_SHEEN
   // Sheen
@@ -503,24 +500,15 @@ fn lightingWithPunctualLight(
   let albedoSheenScaling = min(
     albedoSheenScalingNdotV,
     1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
-  let color = sheenContrib + baseLayer * albedoSheenScaling;
 #else
-  let color = baseLayer;
+  let sheenContrib = vec3f(0.0);
   let albedoSheenScaling = 1.0;
 #endif // RN_USE_SHEEN
 
-#ifdef RN_USE_CLEARCOAT
-  // Clear Coat Layer
-  let NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-  let LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
-  let coated = coated_material_s(color, perceptualRoughness,
-    clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
-  let finalColor = coated;
-#else
-  let finalColor = color;
-#endif // RN_USE_CLEARCOAT
+  color = sheenContrib + color * albedoSheenScaling;
+  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
 
-  return finalColor;
+  return color;
 }
 
 fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
