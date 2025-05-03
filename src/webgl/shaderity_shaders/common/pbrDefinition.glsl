@@ -320,7 +320,8 @@ vec3 BRDF_specularAnisotropicGGX(vec3 F, float alphaRoughness,
 #ifdef RN_USE_SHEEN
 float d_Charlie(float sheenPerceptualRoughness, float NoH) {
   // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
-  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  float sheenRoughness = max(sheenPerceptualRoughness, 0.000001);
+  float alphaG = sheenRoughness * sheenRoughness;
   float invAlpha  = 1.0 / alphaG;
   float cos2h = NoH * NoH;
   float sin2h = 1.0 - cos2h;
@@ -349,12 +350,13 @@ float lambdaSheen(float cosTheta, float alphaG)
 }
 
 float sheenCharlieVisibility(float NdotL, float NdotV, float sheenPerceptualRoughness) {
-  float alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
-  float sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
+  float sheenRoughness = max(sheenPerceptualRoughness, 0.000001);
+  float alphaG = sheenRoughness * sheenRoughness;
+  float sheenVisibility = clamp(1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL)), 0.0, 1.0);
   return sheenVisibility;
 }
 
-vec3 sheen_brdf(vec3 sheenColor, float sheenPerceptualRoughness, float NdotL, float NdotV, float NdotH) {
+vec3 BRDF_specularSheen(vec3 sheenColor, float sheenPerceptualRoughness, float NdotL, float NdotV, float NdotH) {
   float sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
   float sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
   return sheenColor * sheenDistribution * sheenVisibility;
@@ -646,7 +648,7 @@ vec3 lightingWithPunctualLight(
 
 #ifdef RN_USE_SHEEN
   // Sheen
-  vec3 sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  vec3 sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
   float albedoSheenScaling = min(
     albedoSheenScalingNdotV,
     1.0 - max3(sheenColor) * texture(u_sheenLutTexture, vec2(NdotL, sheenRoughness)).r);

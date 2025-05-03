@@ -189,7 +189,8 @@ fn BRDF_specularAnisotropicGGX(F: vec3f, alphaRoughness: f32,
 #ifdef RN_USE_SHEEN
 fn d_Charlie(sheenPerceptualRoughness: f32, NoH: f32) -> f32 {
   // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
-  let alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  let sheenRoughness = max(sheenPerceptualRoughness, 0.000001);
+  let alphaG = sheenRoughness * sheenRoughness;
   let invAlpha  = 1.0 / alphaG;
   let cos2h = NoH * NoH;
   let sin2h = 1.0 - cos2h;
@@ -218,12 +219,13 @@ fn lambdaSheen(cosTheta: f32, alphaG: f32) -> f32
 }
 
 fn sheenCharlieVisibility(NdotL: f32, NdotV: f32, sheenPerceptualRoughness: f32) -> f32 {
-  let alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
-  let sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
+  let sheenRoughness = max(sheenPerceptualRoughness, 0.000001);
+  let alphaG = sheenRoughness * sheenRoughness;
+  let sheenVisibility = clamp(1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL)), 0.0, 1.0);
   return sheenVisibility;
 }
 
-fn sheen_brdf(sheenColor: vec3f, sheenPerceptualRoughness: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f {
+fn BRDF_specularSheen(sheenColor: vec3f, sheenPerceptualRoughness: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f {
   let sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
   let sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
   return sheenColor * sheenDistribution * sheenVisibility;
@@ -506,7 +508,7 @@ fn lightingWithPunctualLight(
 
 #ifdef RN_USE_SHEEN
   // Sheen
-  let sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  let sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
   let albedoSheenScaling = min(
     albedoSheenScalingNdotV,
     1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
