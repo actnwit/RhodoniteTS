@@ -73,11 +73,11 @@ export class DetectHighLuminanceMaterialContent extends AbstractMaterialContent 
     ];
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      this.__vertexShaderityObject = DetectHighLuminanceAndCorrectShaderVertexWebGpu;
-      this.__pixelShaderityObject = DetectHighLuminanceAndCorrectShaderFragmentWebGpu;
+      this.setVertexShaderityObject(DetectHighLuminanceAndCorrectShaderVertexWebGpu);
+      this.setPixelShaderityObject(DetectHighLuminanceAndCorrectShaderFragmentWebGpu);
     } else {
-      this.__vertexShaderityObject = DetectHighLuminanceAndCorrectShaderVertex;
-      this.__pixelShaderityObject = DetectHighLuminanceAndCorrectShaderFragment;
+      this.setVertexShaderityObject(DetectHighLuminanceAndCorrectShaderVertex);
+      this.setPixelShaderityObject(DetectHighLuminanceAndCorrectShaderFragment);
     }
 
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);

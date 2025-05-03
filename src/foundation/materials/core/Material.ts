@@ -48,9 +48,9 @@ import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
 import { AnimatedVectorN } from '../../math/AnimatedVectorN';
 import { IAnimatedValue } from '../../math/IAnimatedValue';
 import { AnimatedVector2 } from '../../math/AnimatedVector2';
+import { Is } from '../../misc/Is';
 
 type PrimitiveFingerPrint = string;
-
 /**
  * The material class.
  * This class has one or more material nodes.
@@ -93,6 +93,13 @@ export class Material extends RnObject {
   private __shaderDefines: Set<string> = new Set();
 
   private static __webglResourceRepository?: WebGLResourceRepository;
+
+  private static __defaultSampler = new Sampler({
+    magFilter: TextureParameter.Linear,
+    minFilter: TextureParameter.Linear,
+    wrapS: TextureParameter.Repeat,
+    wrapT: TextureParameter.Repeat,
+  });
 
   // static fields
   static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>> =
@@ -197,8 +204,11 @@ export class Material extends RnObject {
   public setTextureParameter(
     shaderSemantic: ShaderSemanticsName,
     texture: AbstractTexture,
-    sampler: Sampler
+    sampler?: Sampler
   ): void {
+    if (Is.not.exist(sampler)) {
+      sampler = Material.__defaultSampler;
+    }
     if (!sampler.created) {
       sampler.create();
     }

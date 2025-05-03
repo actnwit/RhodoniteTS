@@ -44,7 +44,7 @@ export class ShaderHandler {
     onError?: (message: string) => void
   ): [CGAPIResourceHandle, boolean] {
     // Cache
-    const wholeShaderText = vertexShader + pixelShader;
+    const wholeShaderText = __removeCommentsFromShader(vertexShader + pixelShader);
     let shaderProgramUid = this.__shaderStringMap.get(wholeShaderText);
     if (shaderProgramUid) {
       return [shaderProgramUid, false];
@@ -63,6 +63,10 @@ export class ShaderHandler {
     this.__shaderStringMap.set(wholeShaderText, shaderProgramUid);
     return [shaderProgramUid, true];
   }
+}
+
+function __removeCommentsFromShader(shader: string) {
+  return shader.replace(/\/\/.*|\/\*[\s\S]*?\*\//g, '');
 }
 
 export function _createProgramAsSingleOperationByUpdatedSources(
@@ -209,7 +213,7 @@ export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, prim
       definitions += '#define RN_IS_UBO_ENABLED\n';
     }
   }
-  definitions += `#define RN_MATERIAL_TYPE_NAME ${materialTypeName}\n`;
+  definitions += `// RN_MATERIAL_TYPE_NAME: ${materialTypeName}\n`;
   if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
     definitions += '#define RN_IS_DATATEXTURE_MODE\n';
   } else {

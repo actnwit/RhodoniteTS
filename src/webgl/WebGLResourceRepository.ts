@@ -426,8 +426,10 @@ export class WebGLResourceRepository
     const shaderProgram = gl.createProgram()! as RnWebGLProgram;
     shaderProgram._gl = gl;
     shaderProgram._materialTypeName = material.materialTypeName;
-    shaderProgram._vertexShaderStr = vertexShaderStr;
-    shaderProgram._fragmentShaderStr = fragmentShaderStr;
+    if (isDebugMode) {
+      shaderProgram._vertexShaderStr = vertexShaderStr;
+      shaderProgram._fragmentShaderStr = fragmentShaderStr;
+    }
     shaderProgram._shaderSemanticsInfoMap = new Map();
     shaderProgram._material = new WeakRef(material);
     shaderProgram._primitive = new WeakRef(primitive);
