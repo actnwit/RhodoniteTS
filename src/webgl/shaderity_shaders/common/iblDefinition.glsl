@@ -1,3 +1,8 @@
+// This file includes portions of code from the glTF-Sample-Renderer project by Khronos Group (Apache License 2.0).
+// https://github.com/KhronosGroup/glTF-Sample-Renderer
+// Modified by Yuki Shimada
+
+
 vec3 get_irradiance(vec3 normal_forEnv, float materialSID, ivec2 hdriFormat) {
   vec4 diffuseTexel = texture(u_diffuseEnvTexture, normal_forEnv);
 

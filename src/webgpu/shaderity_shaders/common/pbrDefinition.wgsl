@@ -1,3 +1,7 @@
+// This file includes portions of code from the glTF-Sample-Renderer project by Khronos Group (Apache License 2.0).
+// https://github.com/KhronosGroup/glTF-Sample-Renderer
+// Modified by Yuki Shimada
+
 fn srgbToLinear(srgbColor: vec3f) -> vec3f {
   return pow(srgbColor, vec3f(2.2));
 }

@@ -1,3 +1,7 @@
+// This file includes portions of code from the glTF-Sample-Renderer project by Khronos Group (Apache License 2.0).
+// https://github.com/KhronosGroup/glTF-Sample-Renderer
+// Modified by Yuki Shimada
+
 fn get_irradiance(normal_forEnv: vec3f, hdriFormat: vec2<i32>) -> vec3f {
   let diffuseTexel: vec4f = textureSample(diffuseEnvTexture, diffuseEnvSampler, normal_forEnv);
 

@@ -242,12 +242,18 @@ MIT License
 
 ## Acknowledgements
 
+### Source Code
+
+This library includes portions of code from the glTF-Sample-Renderer project by Khronos Group (Apache License 2.0).
+
+* [KhronosGroup/glTF-Sample-Renderer](https://github.com/KhronosGroup/glTF-Sample-Renderer)
+
 ### Libraries & Tools
 
 Our library uses the following libraries and tools and more. Thank you.
 
-- [immersive-web/webxr-input-profiles](https://github.com/immersive-web/webxr-input-profiles) (forked version)
-- [glTF samples](KhronosGroup/glTF-Sample-Models)
+* [immersive-web/webxr-input-profiles](https://github.com/immersive-web/webxr-input-profiles) (forked version)
+* [KhronosGroup/glTF-Sample-Assets](https://github.com/KhronosGroup/glTF-Sample-Assets)
 
 Check the complete list on package.json.
 
