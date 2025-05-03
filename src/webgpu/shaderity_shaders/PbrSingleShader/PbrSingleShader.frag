@@ -276,25 +276,6 @@ fn main(
 
 let ior = get_ior(materialSID, 0);
 
-  // Clearcoat
-#ifdef RN_USE_CLEARCOAT
-  let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
-  let clearcoatTextureTransformScale: vec2f = get_clearcoatTextureTransformScale(materialSID, 0);
-  let clearcoatTextureTransformOffset: vec2f = get_clearcoatTextureTransformOffset(materialSID, 0);
-  let clearcoatTextureTransformRotation: f32 = get_clearcoatTextureTransformRotation(materialSID, 0);
-  let clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
-  let clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex, input);
-  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
-  let clearcoatTexture = textureSample(clearcoatTexture, clearcoatSampler, clearcoatTexUv).r;
-  let clearcoat = clearcoatFactor * clearcoatTexture;
-  let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
-  let clearcoatF90 = vec3f(1.0);
-#else
-  let clearcoat = 0.0;
-  let clearcoatF0 = vec3f(0.0);
-  let clearcoatF90 = vec3f(0.0);
-#endif // RN_USE_CLEARCOAT
-
   // Transmission
 #ifdef RN_USE_TRANSMISSION
   let transmissionFactor = get_transmissionFactor(materialSID, 0);
@@ -377,6 +358,16 @@ let ior = get_ior(materialSID, 0);
 
 // Clearcoat
 #ifdef RN_USE_CLEARCOAT
+  let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+  let clearcoatTextureTransformScale: vec2f = get_clearcoatTextureTransformScale(materialSID, 0);
+  let clearcoatTextureTransformOffset: vec2f = get_clearcoatTextureTransformOffset(materialSID, 0);
+  let clearcoatTextureTransformRotation: f32 = get_clearcoatTextureTransformRotation(materialSID, 0);
+  let clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
+  let clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex, input);
+  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
+  let clearcoatTexture = textureSample(clearcoatTexture, clearcoatSampler, clearcoatTexUv).r;
+  let clearcoat = clearcoatFactor * clearcoatTexture;
+
   let clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
   let clearcoatRoughnessTexcoordIndex = get_clearcoatRoughnessTexcoordIndex(materialSID, 0);
   let clearcoatRoughnessTexcoord = getTexcoord(clearcoatRoughnessTexcoordIndex, input);
@@ -396,10 +387,16 @@ let ior = get_ior(materialSID, 0);
   let textureNormal_tangent = textureSample(clearcoatNormalTexture, clearcoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
   let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+
+  let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
+  let clearcoatF90 = vec3f(1.0);
 #else
+  let clearcoat = 0.0;
   let clearcoatRoughness = 0.0;
   let clearcoatNormal_inWorld = vec3f(0.0);
   let VdotNc = 0.0;
+  let clearcoatF0 = vec3f(0.0);
+  let clearcoatF90 = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
 
