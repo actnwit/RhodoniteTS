@@ -1,3 +1,7 @@
+// This file includes portions of code from the glTF-Sample-Renderer project by Khronos Group (Apache License 2.0).
+// https://github.com/KhronosGroup/glTF-Sample-Renderer
+// Modified by Yuki Shimada
+
 fn srgbToLinear(srgbColor: vec3f) -> vec3f {
   return pow(srgbColor, vec3f(2.2));
 }
@@ -33,30 +37,30 @@ fn Schlick_to_F0_F32(f: f32, VdotH: f32) -> f32 {
 
 
 // The Schlick Approximation to Fresnel
-fn fresnel(f0 : vec3f, f90 : vec3f, VdotH : f32) -> vec3f {
+fn fresnelSchlick(f0 : vec3f, f90 : vec3f, VdotH : f32) -> vec3f {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
     let x5 = x * x2 * x2;
     return f0 + (f90 - f0) * x5;
 }
 
-fn fresnelF32(f0 : f32, f90 : f32, VdotH : f32) -> f32 {
+fn fresnelSchlickF32(f0 : f32, f90 : f32, VdotH : f32) -> f32 {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
     let x5 = x * x2 * x2;
     return f0 + (f90 - f0) * x5;
 }
 
-fn fresnel2(f0: vec3f, VdotH: f32) -> vec3f
+fn fresnelSchlick2(f0: vec3f, VdotH: f32) -> vec3f
 {
   let f90 = vec3f(1.0); //clamp(50.0 * f0, 0.0, 1.0);
-  return fresnel(f0, f90, VdotH);
+  return fresnelSchlick(f0, f90, VdotH);
 }
 
 fn fresnel2F32(f0: f32, VdotH: f32) -> f32
 {
   let f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
-  return fresnelF32(f0, f90, VdotH);
+  return fresnelSchlickF32(f0, f90, VdotH);
 }
 
 // Roughness Dependent Fresnel
@@ -69,9 +73,9 @@ fn fresnelSchlickRoughness(F0: vec3f, cosTheta: f32, roughness: f32) -> vec3f
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-fn BRDF_lambertian(albedo: vec3f, F: vec3f, specularWeight: f32) -> vec3f
+fn BRDF_lambertian(diffuseAlbedo: vec3f) -> vec3f
 {
-  return (vec3f(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
+  return diffuseAlbedo * RECIPROCAL_PI;
 }
 
 
@@ -91,10 +95,10 @@ fn v_GGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
   return 0.5 / (GGXV + GGXL);
 }
 
-fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, F: vec3f, alphaRoughness: f32, specularWeight: f32) -> vec3f {
+fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, alphaRoughness: f32) -> vec3f {
   let D = d_GGX(NH, alphaRoughness);
   let V = v_GGXCorrelated(NL, NV, alphaRoughness);
-  return vec3f(D) * vec3f(V) * F * specularWeight;
+  return vec3f(D) * vec3f(V);
 }
 
 // this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
@@ -109,19 +113,6 @@ fn envBRDFApprox( Roughness: f32, NoV: f32 ) -> vec2f {
 }
 
 
-// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
-fn coated_material_s(base: vec3f, perceptualRoughness: f32, clearcoatRoughness: f32, clearcoat: f32, VdotNc: f32, LdotNc: f32, NdotHc: f32) -> vec3f {
-  let clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
-  let clearcoatAlpha = clearcoatRoughness * clearcoatRoughness;
-  let alphaRoughness = perceptualRoughness * perceptualRoughness;
-  let D = d_GGX(NdotHc, clearcoatAlpha);
-  let V = v_GGXCorrelated(LdotNc, VdotNc, clearcoatAlpha);
-  let f_clearcoat = clearcoatFresnel * D * V;
-
-  // base = (f_diffuse + f_specular) in https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_clearcoat#layering
-  return base * vec3f(1.0 - clearcoat * clearcoatFresnel) + vec3f(f_clearcoat * clearcoat);
-}
-
 // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_transmission#implementation-notes
 fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f32 {
   let V = v_GGXCorrelated(NdotL, NdotV, alphaRoughness);
@@ -129,6 +120,16 @@ fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f3
   return V * D;
 }
 
+fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
+  let SIGMA2 = 0.15915494;
+  let KAPPA = 0.18;
+  let dndu  = dpdx(normal);
+  let dndv = dpdy(normal);
+  let kernelRoughness2 = SIGMA2 * (dot(dndu, dndu) + dot(dndv, dndv));
+  let clampedKernelRoughness2 = min(kernelRoughness2, KAPPA);
+  let filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
+  return filteredRoughness2;
+}
 
 ////////////////////////////////////////
 // glTF KHR_materials_volume
@@ -141,12 +142,56 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
   if (attenuationDistance == 0.0) { // means Infinite distance
     return intensity; // No attenuation
   } else {
-    let attenuationCo: vec3f = -log(attenuationColor) / attenuationDistance;
-    let attenuatedTransmittance: vec3f = exp(-attenuationCo * transmissionDistance);
+    // let attenuationCo: vec3f = -log(attenuationColor) / attenuationDistance;
+    // let attenuatedTransmittance: vec3f = exp(-attenuationCo * transmissionDistance);
+    let attenuatedTransmittance: vec3f = pow(attenuationColor, vec3f(transmissionDistance / attenuationDistance));
     return intensity * attenuatedTransmittance;
   }
 }
 #endif
+
+////////////////////////////////////////
+// glTF KHR_materials_transmission
+////////////////////////////////////////
+
+#ifdef RN_USE_TRANSMISSION
+// from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
+fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceInfo: u32) -> vec3f
+{
+  let refractionVector = refract(-v, normalize(n), 1.0 / ior);
+  let worldMatrix = get_worldMatrix(instanceInfo);
+
+  var modelScale: vec3f;
+  modelScale.x = length(vec3f(worldMatrix[0].xyz));
+  modelScale.y = length(vec3f(worldMatrix[1].xyz));
+  modelScale.z = length(vec3f(worldMatrix[2].xyz));
+
+  return normalize(refractionVector) * thickness * modelScale;
+}
+#endif
+
+fn applyIorToRoughness(roughness: f32, ior: f32) -> f32
+{
+    return roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+}
+
+fn calculateRadianceTransmission(normal: vec3f, view: vec3f, pointToLight: vec3f, alphaRoughness: f32, baseColor: vec3f, ior: f32) -> vec3f
+{
+    let transmissionRoughness = applyIorToRoughness(alphaRoughness, ior);
+
+    let n = normalize(normal);
+    let v = normalize(view);
+    let l = normalize(pointToLight);
+    let mirrorL = normalize(l + 2.0 * n * dot(-l, n));
+    let h = normalize(mirrorL + v);
+
+    let D = d_GGX(clamp(dot(n, h), 0.0, 1.0), transmissionRoughness);
+    let V = v_GGXCorrelated(clamp(dot(n, mirrorL), 0.0, 1.0), clamp(dot(n, v), 0.0, 1.0), transmissionRoughness);
+
+    return baseColor * D * V;
+}
+
+
 
 
 ////////////////////////////////////////
@@ -171,17 +216,17 @@ fn V_GGX_anisotropic(NdotL: f32, NdotV: f32, BdotV: f32, TdotV: f32, TdotL: f32,
     return clamp(v, 0.0, 1.0);
 }
 
-fn BRDF_specularAnisotropicGGX(F: vec3f, alphaRoughness: f32,
+fn BRDF_specularAnisotropicGGX(alphaRoughness: f32,
     VdotH: f32, NdotL: f32, NdotV: f32, NdotH: f32, BdotV: f32, TdotV: f32,
     TdotL: f32, BdotL: f32, TdotH: f32, BdotH: f32, anisotropy: f32) -> vec3f
 {
     let at = mix(alphaRoughness, 1.0, anisotropy * anisotropy);
-    let ab = alphaRoughness;
+    let ab = clamp(alphaRoughness, 0.001, 1.0);
 
     let V = V_GGX_anisotropic(NdotL, NdotV, BdotV, TdotV, TdotL, BdotL, at, ab);
     let D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
 
-    return F * V * D;
+    return vec3f(V * D);
 }
 #endif
 
@@ -192,7 +237,8 @@ fn BRDF_specularAnisotropicGGX(F: vec3f, alphaRoughness: f32,
 #ifdef RN_USE_SHEEN
 fn d_Charlie(sheenPerceptualRoughness: f32, NoH: f32) -> f32 {
   // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
-  let alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
+  let sheenRoughness = max(sheenPerceptualRoughness, 0.000001);
+  let alphaG = sheenRoughness * sheenRoughness;
   let invAlpha  = 1.0 / alphaG;
   let cos2h = NoH * NoH;
   let sin2h = 1.0 - cos2h;
@@ -221,12 +267,13 @@ fn lambdaSheen(cosTheta: f32, alphaG: f32) -> f32
 }
 
 fn sheenCharlieVisibility(NdotL: f32, NdotV: f32, sheenPerceptualRoughness: f32) -> f32 {
-  let alphaG = sheenPerceptualRoughness * sheenPerceptualRoughness;
-  let sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
+  let sheenRoughness = max(sheenPerceptualRoughness, 0.000001);
+  let alphaG = sheenRoughness * sheenRoughness;
+  let sheenVisibility = clamp(1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL)), 0.0, 1.0);
   return sheenVisibility;
 }
 
-fn sheen_brdf(sheenColor: vec3f, sheenPerceptualRoughness: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f {
+fn BRDF_specularSheen(sheenColor: vec3f, sheenPerceptualRoughness: f32, NdotL: f32, NdotV: f32, NdotH: f32) -> vec3f {
   let sheenDistribution = d_Charlie(sheenPerceptualRoughness, NdotH);
   let sheenVisibility = sheenCharlieVisibility(NdotL, NdotV, sheenPerceptualRoughness);
   return sheenColor * sheenDistribution * sheenVisibility;
@@ -325,7 +372,7 @@ fn calcIridescence(outsideIor: f32, eta2: f32, cosTheta1: f32, thinFilmThickness
   // Second interface (from the thin-film to the base material)
   let baseIor = Fresnel0ToIor(baseF0 + 0.0001); // guard against 1.0
   let R1 = IorToFresnel0Vec3f(baseIor, iridescenceIor);
-  let R23 = fresnel2(R1, cosTheta2);
+  let R23 = fresnelSchlick2(R1, cosTheta2);
 
   // phi12 and phi23 define the base phases per interface and are approximated with 0.0
   // if the IOR of the hit material (iridescenceIor or baseIor) is higher
@@ -393,6 +440,12 @@ fn BRDF_specularGGXIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f,
     return specularWeight * F * Vis * D;
 }
 
+fn rgb_mix(base: vec3f, specular_brdf: vec3f, rgb_alpha: vec3f) -> vec3f
+{
+    let rgb_alpha_max = max(rgb_alpha.r, max(rgb_alpha.g, rgb_alpha.b));
+    return (1.0 - rgb_alpha_max) * base + rgb_alpha * specular_brdf;
+}
+
 #endif // RN_USE_IRIDESCENCE
 
 
@@ -400,18 +453,26 @@ fn BRDF_specularGGXIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f,
 // lighting with a punctual light
 ////////////////////////////////////////
 fn lightingWithPunctualLight(
-  light: Light,
+  light_: Light,
   normal_inWorld: vec3f,
   viewDirection: vec3f,
   NdotV: f32,
+  baseColor: vec3f,
   albedo: vec3f,
   perceptualRoughness: f32,
+  metallic: f32,
+  dielectricSpecularF0: vec3f,
+  dielectricSpecularF90: vec3f,
   F0: vec3f,
   F90: vec3f,
   transmission: f32,
+  thickness: f32,
   ior: f32,
   clearcoat: f32,
   clearcoatRoughness: f32,
+  clearcoatF0: vec3f,
+  clearcoatF90: vec3f,
+  clearcoatFresnel: vec3f,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
   attenuationColor: vec3f,
@@ -424,43 +485,37 @@ fn lightingWithPunctualLight(
   sheenColor: vec3f,
   sheenRoughness: f32,
   albedoSheenScalingNdotV: f32,
-  iridescenceFactor: f32,
-  iridescenceFresnel: vec3f,
+  iridescence: f32,
+  iridescenceFresnel_dielectric: vec3f,
+  iridescenceFresnel_metal: vec3f,
   specularWeight: f32,
+  instanceInfo: u32
   ) -> vec3f
 {
+  var light = light_;
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // Fresnel
   let halfVector = normalize(light.direction + viewDirection);
   let VdotH = dot(viewDirection, halfVector);
-  let F = fresnel(F0, F90, VdotH);
+  let dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
+  let metalFresnel = fresnelSchlick(baseColor, vec3f(1.0), VdotH);
+  let fresnel = fresnelSchlick(F0, F90, VdotH);
 
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 
   // Diffuse
-#ifdef RN_USE_IRIDESCENCE
-  let diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
-#else
-  let diffuseBrdf = BRDF_lambertian(albedo, F, specularWeight);
-#endif
+  let diffuseBrdf = BRDF_lambertian(albedo);
   let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
-  let refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-  var transmittedLightFromUnderSurface: Light = light;
-  transmittedLightFromUnderSurface.pointToLight -= refractionVector;
-  let transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
-  transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
-
-  let Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
-  let NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
-  let NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
-
-  var transmittedContrib = (vec3f(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+  let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior, instanceInfo);
+  light.pointToLight -= transmittionRay;
+  light.direction = normalize(light.pointToLight);
+  var transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   let diffuseContrib = mix(pureDiffuse, vec3f(transmittedContrib), transmission);
@@ -471,55 +526,48 @@ fn lightingWithPunctualLight(
   // Specular
   let NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
 
-
-#ifdef RN_USE_IRIDESCENCE
-  let specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH) * vec3f(NdotL) * light.attenuatedIntensity;
-#elif defined(RN_USE_ANISOTROPY)
+#ifdef RN_USE_ANISOTROPY
   let TdotL = dot(anisotropicT, light.direction);
   let BdotL = dot(anisotropicB, light.direction);
   let TdotH = dot(anisotropicT, halfVector);
   let BdotH = dot(anisotropicB, halfVector);
-  let specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
 #else
-  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
 #endif
 
   // Base Layer
-  let baseLayer = diffuseContrib + specularContrib;
+  var dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
+  var metal = specularContrib * metalFresnel;
 
-#ifdef RN_USE_SHEEN
-  // Sheen
-  let sheenContrib = sheen_brdf(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
-  let albedoSheenScaling = min(
-    albedoSheenScalingNdotV,
-    1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
-  let color = sheenContrib + baseLayer * albedoSheenScaling;
-#else
-  let color = baseLayer;
-  let albedoSheenScaling = 1.0;
-#endif // RN_USE_SHEEN
+#ifdef RN_USE_IRIDESCENCE
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularContrib, iridescenceFresnel_dielectric), iridescence);
+  metal = mix(metal, specularContrib * iridescenceFresnel_metal, iridescence);
+#endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
   let NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
   let LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
-  let coated = coated_material_s(color, perceptualRoughness,
-    clearcoatRoughness, clearcoat, VdotNc, LdotNc, NdotHc);
-  let finalColor = coated;
+  let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
 #else
-  let finalColor = color;
+  let clearcoatContrib = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
-  return finalColor;
-}
+#ifdef RN_USE_SHEEN
+  // Sheen
+  let sheenContrib = BRDF_specularSheen(sheenColor, sheenRoughness, NdotL, NdotV, NdotH) * NdotL * light.attenuatedIntensity;
+  let albedoSheenScaling = min(
+    albedoSheenScalingNdotV,
+    1.0 - max3(sheenColor) * textureSample(sheenLutTexture, sheenLutSampler, vec2(NdotL, sheenRoughness)).r);
+#else
+  let sheenContrib = vec3f(0.0);
+  let albedoSheenScaling = 1.0;
+#endif // RN_USE_SHEEN
 
-fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
-  let SIGMA2 = 0.15915494;
-  let KAPPA = 0.18;
-  let dndu  = dpdx(normal);
-  let dndv = dpdy(normal);
-  let kernelRoughness2 = SIGMA2 * (dot(dndu, dndu) + dot(dndv, dndv));
-  let clampedKernelRoughness2 = min(kernelRoughness2, KAPPA);
-  let filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
-  return filteredRoughness2;
+  var color = mix(dielectric, metal, metallic);
+  color = sheenContrib + color * albedoSheenScaling;
+  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
+
+  return color;
 }

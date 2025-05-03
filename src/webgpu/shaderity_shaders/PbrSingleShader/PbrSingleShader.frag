@@ -7,7 +7,6 @@
 
 #pragma shaderity: require(../common/opticalDefinition.wgsl)
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
 
 // #param makeOutputSrgb: bool; // initialValue=1
 
@@ -160,6 +159,7 @@
 #endif
 
 #pragma shaderity: require(../common/shadow.wgsl)
+#pragma shaderity: require(../common/pbrDefinition.wgsl)
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
@@ -274,20 +274,7 @@ fn main(
   let TdotV = 0.0;
 #endif
 
-  // Clearcoat
-#ifdef RN_USE_CLEARCOAT
-  let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
-  let clearcoatTextureTransformScale: vec2f = get_clearcoatTextureTransformScale(materialSID, 0);
-  let clearcoatTextureTransformOffset: vec2f = get_clearcoatTextureTransformOffset(materialSID, 0);
-  let clearcoatTextureTransformRotation: f32 = get_clearcoatTextureTransformRotation(materialSID, 0);
-  let clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
-  let clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex, input);
-  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
-  let clearcoatTexture = textureSample(clearcoatTexture, clearcoatSampler, clearcoatTexUv).r;
-  let clearcoat = clearcoatFactor * clearcoatTexture;
-#else
-  let clearcoat = 0.0;
-#endif // RN_USE_CLEARCOAT
+let ior = get_ior(materialSID, 0);
 
   // Transmission
 #ifdef RN_USE_TRANSMISSION
@@ -328,7 +315,6 @@ fn main(
 #endif // RN_USE_SPECULAR
 
   // F0, F90
-  let ior = get_ior(materialSID, 0);
   let outsideIor = 1.0;
   let dielectricSpecularF0 = min(
     ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
@@ -363,15 +349,29 @@ fn main(
 
   let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
   let iridescenceFresnel: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+  let iridescenceFresnel_dielectric: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
+  let iridescenceFresnel_metal: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
   let iridescenceF0: vec3f = Schlick_to_F0(iridescenceFresnel, NdotV);
 #else
   let iridescence = 0.0;
   let iridescenceFresnel = vec3f(0.0);
+  let iridescenceFresnel_dielectric = vec3f(0.0);
+  let iridescenceFresnel_metal = vec3f(0.0);
   let iridescenceF0: vec3f = F0;
 #endif // RN_USE_IRIDESCENCE
 
 // Clearcoat
 #ifdef RN_USE_CLEARCOAT
+  let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+  let clearcoatTextureTransformScale: vec2f = get_clearcoatTextureTransformScale(materialSID, 0);
+  let clearcoatTextureTransformOffset: vec2f = get_clearcoatTextureTransformOffset(materialSID, 0);
+  let clearcoatTextureTransformRotation: f32 = get_clearcoatTextureTransformRotation(materialSID, 0);
+  let clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
+  let clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex, input);
+  let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
+  let clearcoatTexture = textureSample(clearcoatTexture, clearcoatSampler, clearcoatTexUv).r;
+  let clearcoat = clearcoatFactor * clearcoatTexture;
+
   let clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
   let clearcoatRoughnessTexcoordIndex = get_clearcoatRoughnessTexcoordIndex(materialSID, 0);
   let clearcoatRoughnessTexcoord = getTexcoord(clearcoatRoughnessTexcoordIndex, input);
@@ -391,10 +391,18 @@ fn main(
   let textureNormal_tangent = textureSample(clearcoatNormalTexture, clearcoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
   let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+
+  let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
+  let clearcoatF90 = vec3f(1.0);
+  let clearcoatFresnel = fresnelSchlick(clearcoatF0, clearcoatF90, VdotNc);
 #else
+  let clearcoat = 0.0;
   let clearcoatRoughness = 0.0;
   let clearcoatNormal_inWorld = vec3f(0.0);
   let VdotNc = 0.0;
+  let clearcoatF0 = vec3f(0.0);
+  let clearcoatF90 = vec3f(0.0);
+  let clearcoatFresnel = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
 
@@ -449,18 +457,18 @@ fn main(
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = baseColor.a;
 
-  // Lighting
+  // Punctual Lights
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
-                            NdotV, albedo, perceptualRoughness, F0, F90,
-                            transmission, ior,
-                            clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
+                            NdotV, baseColor.rgb, albedo, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
+                            transmission, thickness, ior,
+                            clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                            iridescence, iridescenceFresnel, specular
+                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular, u32(input.instanceInfo)
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING
@@ -491,6 +499,7 @@ fn main(
     resultColor += lighting;
   }
 
+  // Image-based Lighting
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,

@@ -19,3 +19,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+This software includes portions of code originally developed by the Khronos Group Inc.
+Some of these portions have been translated and modified for use in the RhodoniteTS library.
+- glTF-Sample-Renderer (https://github.com/KhronosGroup/glTF-Sample-Renderer)
+
+See LICENSES/glTF-Sample-Renderer.LICENSE for details.

@@ -161,7 +161,6 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 /* shaderity: @{getters} */
 
 #pragma shaderity: require(../common/opticalDefinition.glsl)
-#pragma shaderity: require(../common/pbrDefinition.glsl)
 
 /* shaderity: @{matricesGetters} */
 
@@ -172,6 +171,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/shadow.glsl)
 
+#pragma shaderity: require(../common/pbrDefinition.glsl)
 #pragma shaderity: require(../common/iblDefinition.glsl)
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
@@ -309,20 +309,7 @@ void main ()
     float TdotV = 0.0;
   #endif
 
-    // Clearcoat
-  #ifdef RN_USE_CLEARCOAT
-    float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
-    vec2 clearcoatTextureTransformScale = get_clearcoatTextureTransformScale(materialSID, 0);
-    vec2 clearcoatTextureTransformOffset = get_clearcoatTextureTransformOffset(materialSID, 0);
-    float clearcoatTextureTransformRotation = get_clearcoatTextureTransformRotation(materialSID, 0);
-    int clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
-    vec2 clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex);
-    vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
-    float clearcoatTexture = texture(u_clearcoatTexture, clearcoatTexUv).r;
-    float clearcoat = clearcoatFactor * clearcoatTexture;
-  #else
-    float clearcoat = 0.0;
-  #endif // RN_USE_CLEARCOAT
+  float ior = get_ior(materialSID, 0);
 
     // Transmission
   #ifdef RN_USE_TRANSMISSION
@@ -363,7 +350,6 @@ void main ()
   #endif // RN_USE_SPECULAR
 
   // F0, F90
-  float ior = get_ior(materialSID, 0);
   float outsideIor = 1.0;
   vec3 dielectricSpecularF0 = min(
     ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
@@ -398,15 +384,33 @@ void main ()
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0);
     vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+    vec3 iridescenceFresnel_dielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
+    vec3 iridescenceFresnel_metal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
     vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
+
+    if (iridescenceThickness == 0.0) {
+      iridescence = 0.0;
+    }
   #else
     float iridescence = 0.0;
     vec3 iridescenceFresnel = vec3(0.0);
+    vec3 iridescenceFresnel_dielectric = vec3(0.0);
+    vec3 iridescenceFresnel_metal = vec3(0.0);
     vec3 iridescenceF0 = F0;
   #endif // RN_USE_IRIDESCENCE
 
   #ifdef RN_USE_CLEARCOAT
     // Clearcoat
+    float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
+    vec2 clearcoatTextureTransformScale = get_clearcoatTextureTransformScale(materialSID, 0);
+    vec2 clearcoatTextureTransformOffset = get_clearcoatTextureTransformOffset(materialSID, 0);
+    float clearcoatTextureTransformRotation = get_clearcoatTextureTransformRotation(materialSID, 0);
+    int clearcoatTexcoordIndex = get_clearcoatTexcoordIndex(materialSID, 0);
+    vec2 clearcoatTexcoord = getTexcoord(clearcoatTexcoordIndex);
+    vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
+    float clearcoatTexture = texture(u_clearcoatTexture, clearcoatTexUv).r;
+    float clearcoat = clearcoatFactor * clearcoatTexture;
+
     float clearcoatRoughnessFactor = get_clearcoatRoughnessFactor(materialSID, 0);
     int clearcoatRoughnessTexcoordIndex = get_clearcoatRoughnessTexcoordIndex(materialSID, 0);
     vec2 clearcoatRoughnessTexcoord = getTexcoord(clearcoatRoughnessTexcoordIndex);
@@ -426,10 +430,18 @@ void main ()
     vec3 textureNormal_tangent = texture(u_clearcoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
     vec3 clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
     float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+
+    vec3 clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
+    vec3 clearcoatF90 = vec3(1.0);
+    vec3 clearcoatFresnel = fresnelSchlick(clearcoatF0, clearcoatF90, VdotNc);
   #else
+    float clearcoat = 0.0;
     float clearcoatRoughness = 0.0;
     vec3 clearcoatNormal_inWorld = vec3(0.0);
     float VdotNc = 0.0;
+    vec3 clearcoatF0 = vec3(0.0);
+    vec3 clearcoatF90 = vec3(0.0);
+    vec3 clearcoatFresnel = vec3(0.0);
   #endif // RN_USE_CLEARCOAT
 
   #ifdef RN_USE_VOLUME
@@ -482,16 +494,16 @@ void main ()
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
-  // Lighting
+  // Punctual Lights
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
-    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
-                        perceptualRoughness, metallic, F0, F90, ior, transmission,
-                        clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
+    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb, albedo,
+                        perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90, ior, transmission, thickness,
+                        clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                        iridescence, iridescenceFresnel, specular);
+                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular);
 
   #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, i);
@@ -518,6 +530,7 @@ void main ()
     rt0.rgb += lighting;
   }
 
+  // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
