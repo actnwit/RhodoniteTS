@@ -110,13 +110,10 @@ vec3 fresnelSchlick(vec3 f0, float VdotH)
   return fresnelSchlick(f0, f90, VdotH);
 }
 
-vec3 BRDF_specularGGX(float NH, float NL, float NV, vec3 F, float alphaRoughness, float specularWeight) {
+vec3 BRDF_specularGGX(float NH, float NL, float NV, float alphaRoughness) {
   float D = d_GGX(NH, alphaRoughness);
   float V = v_GGXCorrelated(NL, NV, alphaRoughness);
-  return vec3(D) * vec3(V) * F * specularWeight;
-//      float G = g_shielding(NL, NV, alphaRoughness);
-//      return vec3(D)*vec3(G)*F/vec3(4.0*NL*NV);
-
+  return vec3(D) * vec3(V);
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
@@ -641,7 +638,7 @@ vec3 lightingWithPunctualLight(
   float BdotH = dot(anisotropicB, halfVector);
   vec3 specularContrib = BRDF_specularAnisotropicGGX(fresnel, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
 #else
-  vec3 specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, fresnel, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
 #endif // RN_USE_ANISOTROPY
 
   // Base Layer

@@ -91,10 +91,10 @@ fn v_GGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
   return 0.5 / (GGXV + GGXL);
 }
 
-fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, F: vec3f, alphaRoughness: f32, specularWeight: f32) -> vec3f {
+fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, alphaRoughness: f32) -> vec3f {
   let D = d_GGX(NH, alphaRoughness);
   let V = v_GGXCorrelated(NL, NV, alphaRoughness);
-  return vec3f(D) * vec3f(V) * F * specularWeight;
+  return vec3f(D) * vec3f(V);
 }
 
 // this is from https://www.unrealengine.com/blog/physically-based-shading-on-mobile
@@ -489,7 +489,7 @@ fn lightingWithPunctualLight(
   let BdotH = dot(anisotropicB, halfVector);
   let specularContrib = BRDF_specularAnisotropicGGX(fresnel, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
 #else
-  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, fresnel, alphaRoughness, specularWeight) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
 #endif
 
   // Base Layer
