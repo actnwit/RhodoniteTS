@@ -116,6 +116,16 @@ fn specular_btdf(alphaRoughness: f32, NdotL: f32, NdotV: f32, NdotHt: f32) -> f3
   return V * D;
 }
 
+fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
+  let SIGMA2 = 0.15915494;
+  let KAPPA = 0.18;
+  let dndu  = dpdx(normal);
+  let dndv = dpdy(normal);
+  let kernelRoughness2 = SIGMA2 * (dot(dndu, dndu) + dot(dndv, dndv));
+  let clampedKernelRoughness2 = min(kernelRoughness2, KAPPA);
+  let filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
+  return filteredRoughness2;
+}
 
 ////////////////////////////////////////
 // glTF KHR_materials_volume
@@ -509,15 +519,4 @@ fn lightingWithPunctualLight(
   color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
 
   return color;
-}
-
-fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
-  let SIGMA2 = 0.15915494;
-  let KAPPA = 0.18;
-  let dndu  = dpdx(normal);
-  let dndv = dpdy(normal);
-  let kernelRoughness2 = SIGMA2 * (dot(dndu, dndu) + dot(dndv, dndv));
-  let clampedKernelRoughness2 = min(kernelRoughness2, KAPPA);
-  let filteredRoughness2 = saturate(roughness2 + clampedKernelRoughness2);
-  return filteredRoughness2;
 }
