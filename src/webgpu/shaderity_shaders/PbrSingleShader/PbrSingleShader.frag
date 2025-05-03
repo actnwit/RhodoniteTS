@@ -274,6 +274,8 @@ fn main(
   let TdotV = 0.0;
 #endif
 
+let ior = get_ior(materialSID, 0);
+
   // Clearcoat
 #ifdef RN_USE_CLEARCOAT
   let clearcoatFactor = get_clearcoatFactor(materialSID, 0);
@@ -285,8 +287,12 @@ fn main(
   let clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
   let clearcoatTexture = textureSample(clearcoatTexture, clearcoatSampler, clearcoatTexUv).r;
   let clearcoat = clearcoatFactor * clearcoatTexture;
+  let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
+  let clearcoatF90 = vec3f(1.0);
 #else
   let clearcoat = 0.0;
+  let clearcoatF0 = vec3f(0.0);
+  let clearcoatF90 = vec3f(0.0);
 #endif // RN_USE_CLEARCOAT
 
   // Transmission
@@ -328,7 +334,6 @@ fn main(
 #endif // RN_USE_SPECULAR
 
   // F0, F90
-  let ior = get_ior(materialSID, 0);
   let outsideIor = 1.0;
   let dielectricSpecularF0 = min(
     ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
@@ -456,7 +461,7 @@ fn main(
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, albedo, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
                             transmission, ior,
-                            clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
+                            clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,

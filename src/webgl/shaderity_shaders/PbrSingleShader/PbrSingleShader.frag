@@ -309,6 +309,8 @@ void main ()
     float TdotV = 0.0;
   #endif
 
+  float ior = get_ior(materialSID, 0);
+
     // Clearcoat
   #ifdef RN_USE_CLEARCOAT
     float clearcoatFactor = get_clearcoatFactor(materialSID, 0);
@@ -320,8 +322,12 @@ void main ()
     vec2 clearcoatTexUv = uvTransform(clearcoatTextureTransformScale, clearcoatTextureTransformOffset, clearcoatTextureTransformRotation, clearcoatTexcoord);
     float clearcoatTexture = texture(u_clearcoatTexture, clearcoatTexUv).r;
     float clearcoat = clearcoatFactor * clearcoatTexture;
+    vec3 clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
+    vec3 clearcoatF90 = vec3(1.0);
   #else
     float clearcoat = 0.0;
+    vec3 clearcoatF0 = vec3(0.0);
+    vec3 clearcoatF90 = vec3(0.0);
   #endif // RN_USE_CLEARCOAT
 
     // Transmission
@@ -363,7 +369,6 @@ void main ()
   #endif // RN_USE_SPECULAR
 
   // F0, F90
-  float ior = get_ior(materialSID, 0);
   float outsideIor = 1.0;
   vec3 dielectricSpecularF0 = min(
     ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
@@ -487,7 +492,7 @@ void main ()
     Light light = getLight(i, v_position_inWorld.xyz);
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb, albedo,
                         perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90, ior, transmission,
-                        clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
+                        clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,

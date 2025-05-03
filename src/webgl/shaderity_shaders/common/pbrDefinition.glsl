@@ -568,6 +568,8 @@ vec3 lightingWithPunctualLight(
   float transmission,
   float clearcoat,
   float clearcoatRoughness,
+  vec3 clearcoatF0,
+  vec3 clearcoatF90,
   vec3 clearcoatNormal_inWorld,
   float VdotNc,
   vec3 attenuationColor,

@@ -416,6 +416,8 @@ fn lightingWithPunctualLight(
   ior: f32,
   clearcoat: f32,
   clearcoatRoughness: f32,
+  clearcoatF0: vec3f,
+  clearcoatF90: vec3f,
   clearcoatNormal_inWorld: vec3f,
   VdotNc: f32,
   attenuationColor: vec3f,
