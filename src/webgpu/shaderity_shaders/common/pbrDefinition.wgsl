@@ -434,7 +434,7 @@ fn lightingWithPunctualLight(
   // Fresnel
   let halfVector = normalize(light.direction + viewDirection);
   let VdotH = dot(viewDirection, halfVector);
-  let F = fresnelSchlick(F0, F90, VdotH);
+  let fresnel = fresnelSchlick(F0, F90, VdotH);
 
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 
@@ -457,7 +457,7 @@ fn lightingWithPunctualLight(
   let NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
   let NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
 
-  var transmittedContrib = (vec3f(1.0) - F) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+  var transmittedContrib = (vec3f(1.0) - fresnel) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
   transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
@@ -479,9 +479,9 @@ fn lightingWithPunctualLight(
   let BdotL = dot(anisotropicB, light.direction);
   let TdotH = dot(anisotropicT, halfVector);
   let BdotH = dot(anisotropicB, halfVector);
-  let specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularAnisotropicGGX(fresnel, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
 #else
-  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, fresnel, alphaRoughness, specularWeight) * vec3f(NdotL) * light.attenuatedIntensity;
 #endif
 
   // Base Layer
