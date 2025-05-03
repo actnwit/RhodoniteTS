@@ -485,8 +485,8 @@ void main ()
   // Punctual Lights
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
-    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
-                        perceptualRoughness, metallic, F0, F90, ior, transmission,
+    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb, albedo,
+                        perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90, ior, transmission,
                         clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,

@@ -556,9 +556,12 @@ vec3 lightingWithPunctualLight(
   vec3 normal_inWorld,
   vec3 viewDirection,
   float NdotV,
+  vec3 baseColor,
   vec3 albedo,
   float perceptualRoughness,
   float metallic,
+  vec3 dielectricSpecularF0,
+  vec3 dielectricSpecularF90,
   vec3 F0,
   vec3 F90,
   float ior,
@@ -587,6 +590,7 @@ vec3 lightingWithPunctualLight(
   // Fresnel
   vec3 halfVector = normalize(light.direction + viewDirection);
   float VdotH = dot(viewDirection, halfVector);
+  vec3 dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
   vec3 fresnel = fresnelSchlick(F0, F90, VdotH);
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
