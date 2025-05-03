@@ -449,7 +449,7 @@ fn main(
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = baseColor.a;
 
-  // Lighting
+  // Punctual Lights
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
@@ -491,6 +491,7 @@ fn main(
     resultColor += lighting;
   }
 
+  // Image-based Lighting
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,

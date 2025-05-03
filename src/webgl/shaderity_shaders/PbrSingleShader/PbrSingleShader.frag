@@ -482,7 +482,7 @@ void main ()
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
-  // Lighting
+  // Punctual Lights
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, albedo,
@@ -518,6 +518,7 @@ void main ()
     rt0.rgb += lighting;
   }
 
+  // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
     albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
