@@ -454,7 +454,7 @@ fn main(
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
-                            NdotV, baseColor.rgb, albedo, perceptualRoughness, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
+                            NdotV, baseColor.rgb, albedo, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
                             transmission, ior,
                             clearcoat, clearcoatRoughness, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,

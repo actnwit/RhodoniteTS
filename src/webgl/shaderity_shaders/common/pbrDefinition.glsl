@@ -591,6 +591,7 @@ vec3 lightingWithPunctualLight(
   vec3 halfVector = normalize(light.direction + viewDirection);
   float VdotH = dot(viewDirection, halfVector);
   vec3 dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
+  vec3 metalFresnel = fresnelSchlick(baseColor, vec3(1.0), VdotH);
   vec3 fresnel = fresnelSchlick(F0, F90, VdotH);
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
@@ -642,7 +643,9 @@ vec3 lightingWithPunctualLight(
 #endif // RN_USE_ANISOTROPY
 
   // Base Layer
-  vec3 baseLayer = diffuseContrib + specularContrib;
+  vec3 dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
+  vec3 metal = specularContrib * metalFresnel;
+  vec3 baseLayer = mix(dielectric, metal, metallic);
 
 #ifdef RN_USE_SHEEN
   // Sheen

@@ -407,6 +407,7 @@ fn lightingWithPunctualLight(
   baseColor: vec3f,
   albedo: vec3f,
   perceptualRoughness: f32,
+  metallic: f32,
   dielectricSpecularF0: vec3f,
   dielectricSpecularF90: vec3f,
   F0: vec3f,
@@ -438,6 +439,7 @@ fn lightingWithPunctualLight(
   let halfVector = normalize(light.direction + viewDirection);
   let VdotH = dot(viewDirection, halfVector);
   let dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
+  let metalFresnel = fresnelSchlick(baseColor, vec3f(1.0), VdotH);
   let fresnel = fresnelSchlick(F0, F90, VdotH);
 
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
@@ -489,7 +491,9 @@ fn lightingWithPunctualLight(
 #endif
 
   // Base Layer
-  let baseLayer = diffuseContrib + specularContrib;
+  let dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
+  let metal = specularContrib * metalFresnel;
+  let baseLayer = mix(dielectric, metal, metallic);
 
 #ifdef RN_USE_SHEEN
   // Sheen
