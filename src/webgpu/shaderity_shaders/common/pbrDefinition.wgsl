@@ -69,9 +69,9 @@ fn fresnelSchlickRoughness(F0: vec3f, cosTheta: f32, roughness: f32) -> vec3f
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-fn BRDF_lambertian(albedo: vec3f, F: vec3f, specularWeight: f32) -> vec3f
+fn BRDF_lambertian(diffuseAlbedo: vec3f) -> vec3f
 {
-  return (vec3f(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
+  return diffuseAlbedo * RECIPROCAL_PI;
 }
 
 
@@ -442,7 +442,7 @@ fn lightingWithPunctualLight(
 #ifdef RN_USE_IRIDESCENCE
   let diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
 #else
-  let diffuseBrdf = BRDF_lambertian(albedo, F, specularWeight);
+  let diffuseBrdf = BRDF_lambertian(albedo);
 #endif
   let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 

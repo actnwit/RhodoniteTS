@@ -120,10 +120,10 @@ vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alp
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#diffuse-brdf
-vec3 BRDF_lambertian(vec3 albedo, vec3 F, float specularWeight)
+vec3 BRDF_lambertian(vec3 diffuseAlbedo)
 {
   // (1/pi) * diffuseAlbedo
-  return (vec3(1.0) - specularWeight * F) * albedo * RECIPROCAL_PI;
+  return diffuseAlbedo * RECIPROCAL_PI;
 }
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#specular-brdf
@@ -595,7 +595,7 @@ vec3 lightingWithPunctualLight(
 #ifdef RN_USE_IRIDESCENCE
   vec3 diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
 #else
-  vec3 diffuseBrdf = BRDF_lambertian(albedo, F, specularWeight);
+  vec3 diffuseBrdf = BRDF_lambertian(albedo);
 #endif
 
   vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
