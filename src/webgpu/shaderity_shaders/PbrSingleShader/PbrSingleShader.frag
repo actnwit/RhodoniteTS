@@ -7,7 +7,6 @@
 
 #pragma shaderity: require(../common/opticalDefinition.wgsl)
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
 
 // #param makeOutputSrgb: bool; // initialValue=1
 
@@ -160,6 +159,7 @@
 #endif
 
 #pragma shaderity: require(../common/shadow.wgsl)
+#pragma shaderity: require(../common/pbrDefinition.wgsl)
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment

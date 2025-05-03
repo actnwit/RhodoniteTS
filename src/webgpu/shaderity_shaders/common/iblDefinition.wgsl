@@ -113,20 +113,6 @@ fn get_sample_from_backbuffer(materialSID: u32, sampleCoord: vec2f, perceptualRo
 
   return transmittedLight;
 }
-
-// from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceInfo: u32) -> vec3f
-{
-  let refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  let worldMatrix = get_worldMatrix(instanceInfo);
-
-  var modelScale: vec3f;
-  modelScale.x = length(vec3f(worldMatrix[0].xyz));
-  modelScale.y = length(vec3f(worldMatrix[1].xyz));
-  modelScale.z = length(vec3f(worldMatrix[2].xyz));
-
-  return normalize(refractionVector) * thickness * modelScale;
-}
 #endif // RN_USE_TRANSMISSION
 
 struct IblResult

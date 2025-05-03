@@ -93,20 +93,6 @@ vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   return radiance;
 }
 
-// from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
-vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
-{
-  vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
-  mat4 worldMatrix = get_worldMatrix(v_instanceInfo);
-
-  vec3 modelScale;
-  modelScale.x = length(vec3(worldMatrix[0].xyz));
-  modelScale.y = length(vec3(worldMatrix[1].xyz));
-  modelScale.z = length(vec3(worldMatrix[2].xyz));
-
-  return normalize(refractionVector) * thickness * modelScale;
-}
-
 struct IblResult
 {
   vec3 specular;
