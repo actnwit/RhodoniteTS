@@ -392,6 +392,12 @@ fn BRDF_specularGGXIridescence(f0: vec3f, f90: vec3f, iridescenceFresnel: vec3f,
     return specularWeight * F * Vis * D;
 }
 
+fn rgb_mix(base: vec3f, specular_brdf: vec3f, rgb_alpha: vec3f) -> vec3f
+{
+    let rgb_alpha_max = max(rgb_alpha.r, max(rgb_alpha.g, rgb_alpha.b));
+    return (1.0 - rgb_alpha_max) * base + rgb_alpha * specular_brdf;
+}
+
 #endif // RN_USE_IRIDESCENCE
 
 
@@ -430,8 +436,9 @@ fn lightingWithPunctualLight(
   sheenColor: vec3f,
   sheenRoughness: f32,
   albedoSheenScalingNdotV: f32,
-  iridescenceFactor: f32,
-  iridescenceFresnel: vec3f,
+  iridescence: f32,
+  iridescenceFresnel_dielectric: vec3f,
+  iridescenceFresnel_metal: vec3f,
   specularWeight: f32,
   ) -> vec3f
 {
@@ -447,11 +454,7 @@ fn lightingWithPunctualLight(
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 
   // Diffuse
-#ifdef RN_USE_IRIDESCENCE
-  let diffuseBrdf = BRDF_lambertianIridescence(F0, F90, iridescenceFresnel, iridescenceFactor, albedo, specularWeight, VdotH);
-#else
   let diffuseBrdf = BRDF_lambertian(albedo);
-#endif
   let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
@@ -479,10 +482,7 @@ fn lightingWithPunctualLight(
   // Specular
   let NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
 
-
-#ifdef RN_USE_IRIDESCENCE
-  let specularContrib = BRDF_specularGGXIridescence(F0, F90, iridescenceFresnel, alphaRoughness, iridescenceFactor, specularWeight, VdotH, NdotL, NdotV, NdotH) * vec3f(NdotL) * light.attenuatedIntensity;
-#elif defined(RN_USE_ANISOTROPY)
+#ifdef RN_USE_ANISOTROPY
   let TdotL = dot(anisotropicT, light.direction);
   let BdotL = dot(anisotropicB, light.direction);
   let TdotH = dot(anisotropicT, halfVector);
@@ -493,9 +493,13 @@ fn lightingWithPunctualLight(
 #endif
 
   // Base Layer
-  let dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
-  let metal = specularContrib * metalFresnel;
-  var color = mix(dielectric, metal, metallic);
+  var dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
+  var metal = specularContrib * metalFresnel;
+
+#ifdef RN_USE_IRIDESCENCE
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularContrib, iridescenceFresnel_dielectric), iridescence);
+  metal = mix(metal, specularContrib * iridescenceFresnel_metal, iridescence);
+#endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
@@ -517,6 +521,7 @@ fn lightingWithPunctualLight(
   let albedoSheenScaling = 1.0;
 #endif // RN_USE_SHEEN
 
+  var color = mix(dielectric, metal, metallic);
   color = sheenContrib + color * albedoSheenScaling;
   color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
 

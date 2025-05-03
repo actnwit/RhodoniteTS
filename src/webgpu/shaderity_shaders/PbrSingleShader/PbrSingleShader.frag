@@ -349,10 +349,14 @@ let ior = get_ior(materialSID, 0);
 
   let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
   let iridescenceFresnel: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+  let iridescenceFresnel_dielectric: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
+  let iridescenceFresnel_metal: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
   let iridescenceF0: vec3f = Schlick_to_F0(iridescenceFresnel, NdotV);
 #else
   let iridescence = 0.0;
   let iridescenceFresnel = vec3f(0.0);
+  let iridescenceFresnel_dielectric = vec3f(0.0);
+  let iridescenceFresnel_metal = vec3f(0.0);
   let iridescenceF0: vec3f = F0;
 #endif // RN_USE_IRIDESCENCE
 
@@ -464,7 +468,7 @@ let ior = get_ior(materialSID, 0);
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                            iridescence, iridescenceFresnel, specular
+                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING

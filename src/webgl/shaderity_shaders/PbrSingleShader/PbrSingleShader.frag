@@ -384,10 +384,18 @@ void main ()
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0);
     vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
+    vec3 iridescenceFresnel_dielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
+    vec3 iridescenceFresnel_metal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
     vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
+
+    if (iridescenceThickness == 0.0) {
+      iridescence = 0.0;
+    }
   #else
     float iridescence = 0.0;
     vec3 iridescenceFresnel = vec3(0.0);
+    vec3 iridescenceFresnel_dielectric = vec3(0.0);
+    vec3 iridescenceFresnel_metal = vec3(0.0);
     vec3 iridescenceF0 = F0;
   #endif // RN_USE_IRIDESCENCE
 
@@ -495,7 +503,7 @@ void main ()
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                        iridescence, iridescenceFresnel, specular);
+                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular);
 
   #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, i);
