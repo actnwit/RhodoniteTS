@@ -290,6 +290,28 @@ vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 
   return normalize(refractionVector) * thickness * modelScale;
 }
+
+float applyIorToRoughness(float roughness, float ior)
+{
+  return roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+}
+
+vec3 calculateRadianceTransmission(vec3 normal, vec3 view, vec3 pointToLight, float alphaRoughness, vec3 baseColor, float ior)
+{
+  float transmissionRoughness = applyIorToRoughness(alphaRoughness, ior);
+
+  vec3 n = normalize(normal);
+  vec3 v = normalize(view);
+  vec3 l = normalize(pointToLight);
+  vec3 mirrorL = normalize(l + 2.0 * n * dot(-l, n));
+  vec3 h = normalize(mirrorL + v);
+
+  float D = d_GGX(clamp(dot(n, h), 0.0, 1.0), transmissionRoughness);
+  float V = v_GGXCorrelated(clamp(dot(n, mirrorL), 0.0, 1.0), clamp(dot(n, v), 0.0, 1.0), transmissionRoughness);
+
+  return baseColor * D * V;
+}
+
 #endif
 
 
@@ -577,6 +599,7 @@ vec3 lightingWithPunctualLight(
   vec3 F90,
   float ior,
   float transmission,
+  float thickness,
   float clearcoat,
   float clearcoatRoughness,
   vec3 clearcoatF0,
@@ -616,20 +639,13 @@ vec3 lightingWithPunctualLight(
   vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
-  vec3 refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-  Light transmittedLightFromUnderSurface = light;
-  transmittedLightFromUnderSurface.pointToLight -= refractionVector;
-  vec3 transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
-  transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
-
-  vec3 Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
-  float NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
-  float NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
-
-  vec3 transmittedContrib = (vec3(1.0) - fresnel) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+  vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior);
+  light.pointToLight -= transmittionRay;
+  light.direction = normalize(light.pointToLight);
+  vec3 transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
@@ -637,6 +653,7 @@ vec3 lightingWithPunctualLight(
   vec3 diffuseContrib = pureDiffuse;
 #endif // RN_USE_TRANSMISSION
 
+  light.attenuatedIntensity = getLightAttenuated(light);
   // Specular
   float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
 

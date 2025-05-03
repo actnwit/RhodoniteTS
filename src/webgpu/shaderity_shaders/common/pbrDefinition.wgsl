@@ -165,6 +165,31 @@ fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instan
   return normalize(refractionVector) * thickness * modelScale;
 }
 #endif
+
+fn applyIorToRoughness(roughness: f32, ior: f32) -> f32
+{
+    return roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+}
+
+fn calculateRadianceTransmission(normal: vec3f, view: vec3f, pointToLight: vec3f, alphaRoughness: f32, baseColor: vec3f, ior: f32) -> vec3f
+{
+    let transmissionRoughness = applyIorToRoughness(alphaRoughness, ior);
+
+    let n = normalize(normal);
+    let v = normalize(view);
+    let l = normalize(pointToLight);
+    let mirrorL = normalize(l + 2.0 * n * dot(-l, n));
+    let h = normalize(mirrorL + v);
+
+    let D = d_GGX(clamp(dot(n, h), 0.0, 1.0), transmissionRoughness);
+    let V = v_GGXCorrelated(clamp(dot(n, mirrorL), 0.0, 1.0), clamp(dot(n, v), 0.0, 1.0), transmissionRoughness);
+
+    return baseColor * D * V;
+}
+
+
+
+
 ////////////////////////////////////////
 // glTF KHR_materials_anisotropy
 ////////////////////////////////////////
@@ -424,7 +449,7 @@ fn rgb_mix(base: vec3f, specular_brdf: vec3f, rgb_alpha: vec3f) -> vec3f
 // lighting with a punctual light
 ////////////////////////////////////////
 fn lightingWithPunctualLight(
-  light: Light,
+  light_: Light,
   normal_inWorld: vec3f,
   viewDirection: vec3f,
   NdotV: f32,
@@ -437,6 +462,7 @@ fn lightingWithPunctualLight(
   F0: vec3f,
   F90: vec3f,
   transmission: f32,
+  thickness: f32,
   ior: f32,
   clearcoat: f32,
   clearcoatRoughness: f32,
@@ -459,8 +485,10 @@ fn lightingWithPunctualLight(
   iridescenceFresnel_dielectric: vec3f,
   iridescenceFresnel_metal: vec3f,
   specularWeight: f32,
+  instanceInfo: u32
   ) -> vec3f
 {
+  var light = light_;
   let alphaRoughness = perceptualRoughness * perceptualRoughness;
 
   // Fresnel
@@ -477,20 +505,13 @@ fn lightingWithPunctualLight(
   let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
-  let refractionVector = refract(-viewDirection, normal_inWorld, 1.0 / ior);
-  var transmittedLightFromUnderSurface: Light = light;
-  transmittedLightFromUnderSurface.pointToLight -= refractionVector;
-  let transmittedLightDirectionFromUnderSurface = normalize(transmittedLightFromUnderSurface.pointToLight);
-  transmittedLightFromUnderSurface.direction = transmittedLightDirectionFromUnderSurface;
-
-  let Ht = normalize(viewDirection + transmittedLightFromUnderSurface.direction);
-  let NdotHt = saturateEpsilonToOne(dot(normal_inWorld, Ht));
-  let NdotLt = saturateEpsilonToOne(dot(normal_inWorld, transmittedLightFromUnderSurface.direction));
-
-  var transmittedContrib = (vec3f(1.0) - fresnel) * specular_btdf(alphaRoughness, NdotLt, NdotV, NdotHt) * albedo * transmittedLightFromUnderSurface.attenuatedIntensity;
+  let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior, instanceInfo);
+  light.pointToLight -= transmittionRay;
+  light.direction = normalize(light.pointToLight);
+  var transmittedContrib = calculateRadianceTransmission(normal_inWorld, viewDirection, light.direction, alphaRoughness, baseColor, ior) * light.attenuatedIntensity;
 
 #ifdef RN_USE_VOLUME
-  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittedLightFromUnderSurface.pointToLight));
+  transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
   let diffuseContrib = mix(pureDiffuse, vec3f(transmittedContrib), transmission);

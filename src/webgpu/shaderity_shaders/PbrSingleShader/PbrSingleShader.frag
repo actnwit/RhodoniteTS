@@ -463,12 +463,12 @@ let ior = get_ior(materialSID, 0);
     let light: Light = getLight(i, input.position_inWorld);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, albedo, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
-                            transmission, ior,
+                            transmission, thickness, ior,
                             clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular
+                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular, u32(input.instanceInfo)
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING
