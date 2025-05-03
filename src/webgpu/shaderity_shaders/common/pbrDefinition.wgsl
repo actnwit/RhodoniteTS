@@ -138,8 +138,9 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
   if (attenuationDistance == 0.0) { // means Infinite distance
     return intensity; // No attenuation
   } else {
-    let attenuationCo: vec3f = -log(attenuationColor) / attenuationDistance;
-    let attenuatedTransmittance: vec3f = exp(-attenuationCo * transmissionDistance);
+    // let attenuationCo: vec3f = -log(attenuationColor) / attenuationDistance;
+    // let attenuatedTransmittance: vec3f = exp(-attenuationCo * transmissionDistance);
+    let attenuatedTransmittance: vec3f = pow(attenuationColor, vec3f(transmissionDistance / attenuationDistance));
     return intensity * attenuatedTransmittance;
   }
 }

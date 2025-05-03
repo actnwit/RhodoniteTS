@@ -263,8 +263,9 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
   if (attenuationDistance == 0.0) { // means Infinite distance
     return intensity; // No attenuation
   } else {
-    vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
-    vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
+    // vec3 attenuationCo = -log(attenuationColor) / attenuationDistance;
+    // vec3 attenuatedTransmittance = exp(-attenuationCo * transmissionDistance);
+    vec3 attenuatedTransmittance = pow(attenuationColor, vec3(transmissionDistance / attenuationDistance));
     return intensity * attenuatedTransmittance;
   }
 }
