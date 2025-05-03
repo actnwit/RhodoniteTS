@@ -77,21 +77,21 @@ float v_GGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
 }
 
 // The Schlick Approximation to Fresnel
-float fresnel(float f0, float f90, float VdotH) {
+float fresnelSchlick(float f0, float f90, float VdotH) {
   float x = clamp(1.0 - VdotH, 0.0, 1.0);
   float x2 = x * x;
   float x5 = x * x2 * x2;
   return f0 + (f90 - f0) * x5;
 }
 
-vec3 fresnel(vec3 f0, vec3 f90, float VdotH) {
+vec3 fresnelSchlick(vec3 f0, vec3 f90, float VdotH) {
   float x = clamp(1.0 - VdotH, 0.0, 1.0);
   float x2 = x * x;
   float x5 = x * x2 * x2;
   return f0 + (f90 - f0) * x5;
 }
 
-vec3 fresnel(vec3 f0, float f90, float VdotH)
+vec3 fresnelSchlick(vec3 f0, float f90, float VdotH)
 {
   float x = clamp(1.0 - VdotH, 0.0, 1.0);
   float x2 = x * x;
@@ -99,18 +99,18 @@ vec3 fresnel(vec3 f0, float f90, float VdotH)
   return f0 + (f90 - f0) * x5;
 }
 
-float fresnel(float f0, float VdotH)
-{
-  float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
-  return fresnel(f0, f90, VdotH);
-}
-vec3 fresnel(vec3 f0, float VdotH)
+float fresnelSchlick(float f0, float VdotH)
 {
   float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
-  return fresnel(f0, f90, VdotH);
+  return fresnelSchlick(f0, f90, VdotH);
+}
+vec3 fresnelSchlick(vec3 f0, float VdotH)
+{
+  float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
+  return fresnelSchlick(f0, f90, VdotH);
 }
 
-vec3 cook_torrance_specular_brdf(float NH, float NL, float NV, vec3 F, float alphaRoughness, float specularWeight) {
+vec3 BRDF_specularGGX(float NH, float NL, float NV, vec3 F, float alphaRoughness, float specularWeight) {
   float D = d_GGX(NH, alphaRoughness);
   float V = v_GGXCorrelated(NL, NV, alphaRoughness);
   return vec3(D) * vec3(V) * F * specularWeight;
@@ -469,14 +469,14 @@ vec3 calcIridescence(float outsideIor, float eta2, float cosTheta1, float thinFi
 
   // First interface (from the outside to the thin-film layer)
   float R0 = IorToFresnel0(iridescenceIor, outsideIor);
-  float R12 = fresnel(R0, cosTheta1);
+  float R12 = fresnelSchlick(R0, cosTheta1);
   float R21 = R12;
   float T121 = 1.0 - R12;
 
   // Second interface (from the thin-film to the base material)
   vec3 baseIor = Fresnel0ToIor(baseF0 + 0.0001); // guard against 1.0
   vec3 R1 = IorToFresnel0(baseIor, iridescenceIor);
-  vec3 R23 = fresnel(R1, cosTheta2);
+  vec3 R23 = fresnelSchlick(R1, cosTheta2);
 
   // phi12 and phi23 define the base phases per interface and are approximated with 0.0
   // if the IOR of the hit material (iridescenceIor or baseIor) is higher
@@ -587,7 +587,7 @@ vec3 lightingWithPunctualLight(
   // Fresnel
   vec3 halfVector = normalize(light.direction + viewDirection);
   float VdotH = dot(viewDirection, halfVector);
-  vec3 F = fresnel(F0, F90, VdotH);
+  vec3 F = fresnelSchlick(F0, F90, VdotH);
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
@@ -634,7 +634,7 @@ vec3 lightingWithPunctualLight(
   float BdotH = dot(anisotropicB, halfVector);
   vec3 specularContrib = BRDF_specularAnisotropicGGX(F, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
 #else
-  vec3 specularContrib = cook_torrance_specular_brdf(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, F, alphaRoughness, specularWeight) * vec3(NdotL) * light.attenuatedIntensity;
 #endif // RN_USE_ANISOTROPY
 
   // Base Layer

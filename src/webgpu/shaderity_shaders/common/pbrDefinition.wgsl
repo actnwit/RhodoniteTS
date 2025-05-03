@@ -33,30 +33,30 @@ fn Schlick_to_F0_F32(f: f32, VdotH: f32) -> f32 {
 
 
 // The Schlick Approximation to Fresnel
-fn fresnel(f0 : vec3f, f90 : vec3f, VdotH : f32) -> vec3f {
+fn fresnelSchlick(f0 : vec3f, f90 : vec3f, VdotH : f32) -> vec3f {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
     let x5 = x * x2 * x2;
     return f0 + (f90 - f0) * x5;
 }
 
-fn fresnelF32(f0 : f32, f90 : f32, VdotH : f32) -> f32 {
+fn fresnelSchlickF32(f0 : f32, f90 : f32, VdotH : f32) -> f32 {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);
     let x2 = x * x;
     let x5 = x * x2 * x2;
     return f0 + (f90 - f0) * x5;
 }
 
-fn fresnel2(f0: vec3f, VdotH: f32) -> vec3f
+fn fresnelSchlick2(f0: vec3f, VdotH: f32) -> vec3f
 {
   let f90 = vec3f(1.0); //clamp(50.0 * f0, 0.0, 1.0);
-  return fresnel(f0, f90, VdotH);
+  return fresnelSchlick(f0, f90, VdotH);
 }
 
 fn fresnel2F32(f0: f32, VdotH: f32) -> f32
 {
   let f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
-  return fresnelF32(f0, f90, VdotH);
+  return fresnelSchlickF32(f0, f90, VdotH);
 }
 
 // Roughness Dependent Fresnel
@@ -325,7 +325,7 @@ fn calcIridescence(outsideIor: f32, eta2: f32, cosTheta1: f32, thinFilmThickness
   // Second interface (from the thin-film to the base material)
   let baseIor = Fresnel0ToIor(baseF0 + 0.0001); // guard against 1.0
   let R1 = IorToFresnel0Vec3f(baseIor, iridescenceIor);
-  let R23 = fresnel2(R1, cosTheta2);
+  let R23 = fresnelSchlick2(R1, cosTheta2);
 
   // phi12 and phi23 define the base phases per interface and are approximated with 0.0
   // if the IOR of the hit material (iridescenceIor or baseIor) is higher
@@ -434,7 +434,7 @@ fn lightingWithPunctualLight(
   // Fresnel
   let halfVector = normalize(light.direction + viewDirection);
   let VdotH = dot(viewDirection, halfVector);
-  let F = fresnel(F0, F90, VdotH);
+  let F = fresnelSchlick(F0, F90, VdotH);
 
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 
