@@ -297,17 +297,17 @@ float V_GGX_anisotropic(float NdotL, float NdotV, float BdotV, float TdotV, floa
     return clamp(v, 0.0, 1.0);
 }
 
-vec3 BRDF_specularAnisotropicGGX(vec3 F, float alphaRoughness,
+vec3 BRDF_specularAnisotropicGGX(float alphaRoughness,
     float VdotH, float NdotL, float NdotV, float NdotH, float BdotV, float TdotV,
     float TdotL, float BdotL, float TdotH, float BdotH, float anisotropy)
 {
     float at = mix(alphaRoughness, 1.0, anisotropy * anisotropy);
-    float ab = alphaRoughness;
+    float ab = clamp(alphaRoughness, 0.001, 1.0);
 
     float V = V_GGX_anisotropic(NdotL, NdotV, BdotV, TdotV, TdotL, BdotL, at, ab);
     float D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
 
-    return F * V * D;
+    return vec3(V * D);
 }
 #endif
 
@@ -627,7 +627,7 @@ vec3 lightingWithPunctualLight(
   float BdotL = dot(anisotropicB, light.direction);
   float TdotH = dot(anisotropicT, halfVector);
   float BdotH = dot(anisotropicB, halfVector);
-  vec3 specularContrib = BRDF_specularAnisotropicGGX(fresnel, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
 #else
   vec3 specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
 #endif // RN_USE_ANISOTROPY

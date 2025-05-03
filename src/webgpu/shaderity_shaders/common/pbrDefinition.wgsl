@@ -168,17 +168,17 @@ fn V_GGX_anisotropic(NdotL: f32, NdotV: f32, BdotV: f32, TdotV: f32, TdotL: f32,
     return clamp(v, 0.0, 1.0);
 }
 
-fn BRDF_specularAnisotropicGGX(F: vec3f, alphaRoughness: f32,
+fn BRDF_specularAnisotropicGGX(alphaRoughness: f32,
     VdotH: f32, NdotL: f32, NdotV: f32, NdotH: f32, BdotV: f32, TdotV: f32,
     TdotL: f32, BdotL: f32, TdotH: f32, BdotH: f32, anisotropy: f32) -> vec3f
 {
     let at = mix(alphaRoughness, 1.0, anisotropy * anisotropy);
-    let ab = alphaRoughness;
+    let ab = clamp(alphaRoughness, 0.001, 1.0);
 
     let V = V_GGX_anisotropic(NdotL, NdotV, BdotV, TdotV, TdotL, BdotL, at, ab);
     let D = D_GGX_anisotropic(NdotH, TdotH, BdotH, at, ab);
 
-    return F * V * D;
+    return vec3f(V * D);
 }
 #endif
 
@@ -487,7 +487,7 @@ fn lightingWithPunctualLight(
   let BdotL = dot(anisotropicB, light.direction);
   let TdotH = dot(anisotropicT, halfVector);
   let BdotH = dot(anisotropicB, halfVector);
-  let specularContrib = BRDF_specularAnisotropicGGX(fresnel, alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
+  let specularContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3f(NdotL) * light.attenuatedIntensity;
 #else
   let specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3f(NdotL) * light.attenuatedIntensity;
 #endif
