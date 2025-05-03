@@ -244,7 +244,11 @@ MIT License
 
 ### Source Code
 
-This library includes portions of code from the glTF-Sample-Renderer project by Khronos Group (Apache License 2.0).
+This library includes portions of code originally developed by the Khronos Group.
+Some of these portions have been translated and modified for use in the RhodoniteTS library.
+- glTF-Sample-Renderer (https://github.com/KhronosGroup/glTF-Sample-Renderer)
+
+See LICENSES/glTF-Sample-Renderer.LICENSE for details.
 
 * [KhronosGroup/glTF-Sample-Renderer](https://github.com/KhronosGroup/glTF-Sample-Renderer)
 
