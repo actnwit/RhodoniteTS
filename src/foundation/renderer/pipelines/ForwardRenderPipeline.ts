@@ -191,11 +191,7 @@ export class ForwardRenderPipeline extends RnObject {
       this.__createRenderTargets(canvasWidth, canvasHeight);
 
       // depth moment FrameBuffer
-      if (
-        isShadow &&
-        !this.__isSimple &&
-        SystemState.currentProcessApproach !== ProcessApproach.WebGPU
-      ) {
+      if (isShadow && !this.__isSimple) {
         this.__oShadowSystem = new Some(new ShadowSystem(shadowMapSize));
       }
 
@@ -301,13 +297,11 @@ export class ForwardRenderPipeline extends RnObject {
       this.__setTransparentExpressionsForTransmission(expressionsTranslucent);
     }
 
-    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
-      if (this.__oShadowSystem.has()) {
-        const entities = this.__expressions.flatMap((expression) =>
-          expression.renderPasses.flatMap((renderPass) => renderPass.entities)
-        ) as ISceneGraphEntity[];
-        this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
-      }
+    if (this.__oShadowSystem.has()) {
+      const entities = this.__expressions.flatMap((expression) =>
+        expression.renderPasses.flatMap((renderPass) => renderPass.entities)
+      ) as ISceneGraphEntity[];
+      this.__shadowExpressions = this.__oShadowSystem.get().getExpressions(entities);
     }
   }
 
