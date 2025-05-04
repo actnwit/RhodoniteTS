@@ -33,7 +33,8 @@ fn varianceShadowContributionParaboloid(worldPos: vec3<f32>, lightPos: vec3<f32>
 
   // Convert to UV coordinates (normalized)
   // Lnorm.xy / denom is in [-1,1], so map it to [0,1]
-  let uv = (Lnorm.xy / denom) * uvScale * 0.5 + 0.5;
+  var uv = (Lnorm.xy / denom) * uvScale * 0.5 + 0.5;
+  uv.y = 1.0 - uv.y;
 
   let storedMoments = select(
       textureSample(paraboloidDepthTexture, paraboloidDepthSampler, uv, depthTextureIndex).ba,
