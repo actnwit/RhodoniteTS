@@ -524,11 +524,10 @@ void main ()
     vec3 diffuseTransmissionColorTexture = texture(u_diffuseTransmissionColorTexture, diffuseTransmissionColorTexUv).rgb;
     vec3 diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
 
+    float diffuseTransmissionThickness = 1.0;
   #ifdef RN_USE_VOLUME
     mat4 worldMatrix = get_worldMatrix(v_instanceInfo);
-    float diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
-  #else
-    float diffuseTransmissionThickness = 1.0;
+    diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
   #endif // RN_USE_VOLUME
 
   #else
@@ -582,7 +581,8 @@ void main ()
     clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
-    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic);
+    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,
+    diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);

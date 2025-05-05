@@ -486,11 +486,11 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
   let diffuseTransmissionColorTexture = textureSample(diffuseTransmissionColorTexture, diffuseTransmissionColorSampler, diffuseTransmissionColorTexUv).rgb;
   let diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+  var diffuseTransmissionThickness = 1.0;
 
 #ifdef RN_USE_VOLUME
-  let diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
-#else
-  let diffuseTransmissionThickness = 1.0;
+  let worldMatrix = get_worldMatrix(u32(input.instanceInfo));
+  diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
 #endif // RN_USE_VOLUME
 
 #else
@@ -553,7 +553,8 @@ let ior = get_ior(materialSID, 0);
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
-    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic
+    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,
+    diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
