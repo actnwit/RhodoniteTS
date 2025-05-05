@@ -210,9 +210,9 @@ fn main (
   let rotEnvMatrix = mat3x3f(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   let normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   let hdriFormat = get_hdriFormat(materialSID, 0);
-  let rawGiUp = get_irradiance(worldUpVector, hdriFormat) * IBLDiffuseContribution;
-  let rawGiDown = get_irradiance(worldDownVector, hdriFormat) * IBLDiffuseContribution;
-  let rawGiNormal = get_irradiance(normal_forEnv, hdriFormat) * IBLDiffuseContribution;
+  let rawGiUp = getIBLIrradiance(worldUpVector, hdriFormat) * IBLDiffuseContribution;
+  let rawGiDown = getIBLIrradiance(worldDownVector, hdriFormat) * IBLDiffuseContribution;
+  let rawGiNormal = getIBLIrradiance(normal_forEnv, hdriFormat) * IBLDiffuseContribution;
   let uniformedGi = (rawGiUp + rawGiDown) / 2.0;
   let passthroughGi = rawGiNormal;
   let gi = mix(uniformedGi, passthroughGi, giEqualizationFactor);

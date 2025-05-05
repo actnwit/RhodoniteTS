@@ -335,7 +335,7 @@ void main ()
     vec2 specularTexcoord = getTexcoord(specularTexcoordIndex);
     vec2 specularTexUv = uvTransform(specularTextureTransformScale, specularTextureTransformOffset, specularTextureTransformRotation, specularTexcoord);
     float specularTexture = texture(u_specularTexture, specularTexUv).a;
-    float specular = get_specularFactor(materialSID, 0) * specularTexture;
+    float specularWeight = get_specularFactor(materialSID, 0) * specularTexture;
     vec2 specularColorTextureTransformScale = get_specularColorTextureTransformScale(materialSID, 0);
     vec2 specularColorTextureTransformOffset = get_specularColorTextureTransformOffset(materialSID, 0);
     float specularColorTextureTransformRotation = get_specularColorTextureTransformRotation(materialSID, 0);
@@ -345,19 +345,15 @@ void main ()
     vec3 specularColorTexture = srgbToLinear(texture(u_specularColorTexture, specularColorTexUv).rgb);
     vec3 specularColor = get_specularColorFactor(materialSID, 0) * specularColorTexture;
   #else
-    float specular = 1.0;
+    float specularWeight = 1.0;
     vec3 specularColor = vec3(1.0, 1.0, 1.0);
   #endif // RN_USE_SPECULAR
 
   // F0, F90
   float outsideIor = 1.0;
-  vec3 dielectricSpecularF0 = min(
-    ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
-    vec3(1.0)
-    ) * specular;
-  vec3 dielectricSpecularF90 = vec3(specular);
-  vec3 F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
-  vec3 F90 = mix(dielectricSpecularF90, vec3(1.0), metallic);
+  vec3 dielectricF0 = vec3(sq((ior - outsideIor) / (ior + outsideIor)));
+  dielectricF0 = min(dielectricF0 * specularColor, vec3(1.0));
+  vec3 dielectricF90 = vec3(specularWeight);
 
   // Iridescence
   #ifdef RN_USE_IRIDESCENCE
@@ -383,20 +379,16 @@ void main ()
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0);
-    vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
-    vec3 iridescenceFresnel_dielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
+    vec3 iridescenceFresnel_dielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
     vec3 iridescenceFresnel_metal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
-    vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
 
     if (iridescenceThickness == 0.0) {
       iridescence = 0.0;
     }
   #else
     float iridescence = 0.0;
-    vec3 iridescenceFresnel = vec3(0.0);
     vec3 iridescenceFresnel_dielectric = vec3(0.0);
     vec3 iridescenceFresnel_metal = vec3(0.0);
-    vec3 iridescenceF0 = F0;
   #endif // RN_USE_IRIDESCENCE
 
   #ifdef RN_USE_CLEARCOAT
@@ -497,13 +489,13 @@ void main ()
   // Punctual Lights
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
-    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb, albedo,
-                        perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90, ior, transmission, thickness,
+    vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
+                        perceptualRoughness, metallic, dielectricF0, dielectricF90, ior, transmission, thickness,
                         clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular);
+                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight);
 
   #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, i);
@@ -532,11 +524,11 @@ void main ()
 
   // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    albedo, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
-    clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
+    baseColor.rgb, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
+    clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-    ior, iridescenceFresnel, iridescenceF0, iridescence,
-    anisotropy, anisotropicB, specular);
+    ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
+    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
@@ -547,7 +539,7 @@ void main ()
   float occlusion = texture(u_occlusionTexture, occlusionTexUv).r;
   float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
-  // Occlution to Indirect Lights
+  // Occlusion to Indirect Lights
   rt0.xyz += mix(ibl, ibl * occlusion, occlusionStrength);
 #else
   rt0 = vec4(baseColor, alpha);

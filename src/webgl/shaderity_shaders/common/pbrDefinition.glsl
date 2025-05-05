@@ -255,12 +255,11 @@ float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   return filteredRoughness2;
 }
 
-
 ////////////////////////////////////////
-// glTF KHR_materials_volume
+// glTF KHR_materials_transmission
 ////////////////////////////////////////
 
-#ifdef RN_USE_VOLUME
+#ifdef RN_USE_TRANSMISSION
 // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
 vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 intensity, float transmissionDistance)
 {
@@ -273,14 +272,7 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
     return intensity * attenuatedTransmittance;
   }
 }
-#endif
 
-
-////////////////////////////////////////
-// glTF KHR_materials_transmission
-////////////////////////////////////////
-
-#ifdef RN_USE_TRANSMISSION
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {
@@ -594,13 +586,10 @@ vec3 lightingWithPunctualLight(
   vec3 viewDirection,
   float NdotV,
   vec3 baseColor,
-  vec3 albedo,
   float perceptualRoughness,
   float metallic,
   vec3 dielectricSpecularF0,
   vec3 dielectricSpecularF90,
-  vec3 F0,
-  vec3 F90,
   float ior,
   float transmission,
   float thickness,
@@ -634,12 +623,11 @@ vec3 lightingWithPunctualLight(
   float VdotH = dot(viewDirection, halfVector);
   vec3 dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
   vec3 metalFresnel = fresnelSchlick(baseColor, vec3(1.0), VdotH);
-  vec3 fresnel = fresnelSchlick(F0, F90, VdotH);
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
-  vec3 diffuseBrdf = BRDF_lambertian(albedo);
+  vec3 diffuseBrdf = BRDF_lambertian(baseColor);
   vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
