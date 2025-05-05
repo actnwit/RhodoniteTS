@@ -2573,6 +2573,8 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_anisotropy(materialJson, material, gltfModel, rnTextures, rnSamplers);
 
   setup_KHR_materials_emissive_strength(materialJson, material, gltfModel);
+
+  setup_KHR_materials_dispersion(materialJson, material, gltfModel);
 }
 
 function setup_KHR_materials_transmission(
@@ -2984,5 +2986,19 @@ function setup_KHR_materials_emissive_strength(
       ? KHR_materials_emissive_strength.emissiveStrength
       : 1.0;
     material.setParameter('emissiveStrength', emissiveStrength);
+  }
+}
+
+function setup_KHR_materials_dispersion(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2
+) {
+  const KHR_materials_dispersion = materialJson?.extensions?.KHR_materials_dispersion;
+  if (Is.exist(KHR_materials_dispersion)) {
+    const dispersion = Is.exist(KHR_materials_dispersion.dispersion)
+      ? KHR_materials_dispersion.dispersion
+      : 0.0;
+    material.setParameter('dispersion', dispersion);
   }
 }
