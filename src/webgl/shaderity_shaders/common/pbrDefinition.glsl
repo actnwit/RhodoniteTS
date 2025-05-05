@@ -613,7 +613,9 @@ vec3 lightingWithPunctualLight(
   float iridescence,
   vec3 iridescenceFresnel_dielectric,
   vec3 iridescenceFresnel_metal,
-  float specularWeight
+  float specularWeight,
+  float diffuseTransmission,
+  vec3 diffuseTransmissionColor
   )
 {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;

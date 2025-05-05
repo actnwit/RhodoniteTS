@@ -507,6 +507,16 @@ export class Gltf2Importer {
               anisotropyTexture.texture = gltfJson.textures[anisotropyTexture.index];
             }
           }
+          if (Is.exist(extensions.KHR_materials_diffuse_transmission)) {
+            const diffuseTransmissionTexture = extensions.KHR_materials_diffuse_transmission.diffuseTransmissionTexture;
+            if (diffuseTransmissionTexture !== void 0) {
+              diffuseTransmissionTexture.texture = gltfJson.textures[diffuseTransmissionTexture.index];
+            }
+            const diffuseTransmissionColorTexture = extensions.KHR_materials_diffuse_transmission.diffuseTransmissionColorTexture;
+            if (diffuseTransmissionColorTexture !== void 0) {
+              diffuseTransmissionColorTexture.texture = gltfJson.textures[diffuseTransmissionColorTexture.index];
+            }
+          }
           if (Is.exist(extensions.VRMC_materials_mtoon)) {
             const mToon = extensions.VRMC_materials_mtoon as Vrm1_Materials_MToon;
             const shadeMultiplyTexture = mToon.shadeMultiplyTexture;

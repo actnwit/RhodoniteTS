@@ -481,7 +481,9 @@ fn lightingWithPunctualLight(
   iridescenceFresnel_dielectric: vec3f,
   iridescenceFresnel_metal: vec3f,
   specularWeight: f32,
-  instanceInfo: u32
+  instanceInfo: u32,
+  diffuseTransmission: f32,
+  diffuseTransmissionColor: vec3f
   ) -> vec3f
 {
   var light = light_;

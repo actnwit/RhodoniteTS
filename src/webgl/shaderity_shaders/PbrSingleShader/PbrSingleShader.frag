@@ -156,6 +156,19 @@ uniform float u_ior; // initialValue=1.5
   uniform int u_anisotropyTexcoordIndex; // initialValue=0
 #endif
 
+#ifdef RN_USE_DIFFUSE_TRANSMISSION
+  uniform float u_diffuseTransmissionFactor; // initialValue=0
+  uniform vec3 u_diffuseTransmissionColorFactor; // initialValue=(1,1,1)
+  uniform vec2 u_diffuseTransmissionTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_diffuseTransmissionTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_diffuseTransmissionTextureTransformRotation; // initialValue=0
+  uniform int u_diffuseTransmissionTexcoordIndex; // initialValue=0
+  uniform vec2 u_diffuseTransmissionColorTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_diffuseTransmissionColorTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_diffuseTransmissionColorTextureTransformRotation; // initialValue=0
+  uniform int u_diffuseTransmissionColorTexcoordIndex; // initialValue=0
+#endif
+
 #ifdef RN_USE_DISPERSION
   uniform float u_dispersion; // initialValue=0
 #endif
@@ -490,6 +503,31 @@ void main ()
     float albedoSheenScalingNdotV = 1.0;
   #endif // RN_USE_SHEEN
 
+  #ifdef RN_USE_DIFFUSE_TRANSMISSION
+    float diffuseTransmissionFactor = get_diffuseTransmissionFactor(materialSID, 0);
+    vec2 diffuseTransmissionTextureTransformScale = get_diffuseTransmissionTextureTransformScale(materialSID, 0);
+    vec2 diffuseTransmissionTextureTransformOffset = get_diffuseTransmissionTextureTransformOffset(materialSID, 0);
+    float diffuseTransmissionTextureTransformRotation = get_diffuseTransmissionTextureTransformRotation(materialSID, 0);
+    int diffuseTransmissionTexcoordIndex = get_diffuseTransmissionTexcoordIndex(materialSID, 0);
+    vec2 diffuseTransmissionTexcoord = getTexcoord(diffuseTransmissionTexcoordIndex);
+    vec2 diffuseTransmissionTexUv = uvTransform(diffuseTransmissionTextureTransformScale, diffuseTransmissionTextureTransformOffset, diffuseTransmissionTextureTransformRotation, diffuseTransmissionTexcoord);
+    float diffuseTransmissionTexture = texture(u_diffuseTransmissionTexture, diffuseTransmissionTexUv).r;
+    float diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
+
+    vec3 diffuseTransmissionColorFactor = get_diffuseTransmissionColorFactor(materialSID, 0);
+    vec2 diffuseTransmissionColorTextureTransformScale = get_diffuseTransmissionColorTextureTransformScale(materialSID, 0);
+    vec2 diffuseTransmissionColorTextureTransformOffset = get_diffuseTransmissionColorTextureTransformOffset(materialSID, 0);
+    float diffuseTransmissionColorTextureTransformRotation = get_diffuseTransmissionColorTextureTransformRotation(materialSID, 0);
+    int diffuseTransmissionColorTexcoordIndex = get_diffuseTransmissionColorTexcoordIndex(materialSID, 0);
+    vec2 diffuseTransmissionColorTexcoord = getTexcoord(diffuseTransmissionColorTexcoordIndex);
+    vec2 diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
+    vec3 diffuseTransmissionColorTexture = texture(u_diffuseTransmissionColorTexture, diffuseTransmissionColorTexUv).rgb;
+    vec3 diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+  #else
+    float diffuseTransmission = 0.0;
+    vec3 diffuseTransmissionColor = vec3(0.0);
+  #endif // RN_USE_DIFFUSE_TRANSMISSION
+
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
 
   // Punctual Lights
@@ -501,7 +539,8 @@ void main ()
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight);
+                        iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
+                        diffuseTransmission, diffuseTransmissionColor);
 
   #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, i);

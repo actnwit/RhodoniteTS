@@ -169,6 +169,7 @@ function createPbrUberMaterial({
   isAnisotropy = false,
   isDispersion = false,
   isEmissiveStrength = false,
+  isDiffuseTransmission = false,
   isShadow = false,
   useTangentAttribute = false,
   useNormalTexture = true,
@@ -361,6 +362,26 @@ function createPbrUberMaterial({
       max: Number.MAX_VALUE,
     });
   }
+  if (isDiffuseTransmission) {
+    additionalShaderSemanticInfo.push({
+      semantic: 'diffuseTransmissionTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'diffuseTransmissionColorTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.Texture2D,
+      stage: ShaderType.PixelShader,
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+  }
 
   if (isShadow) {
     additionalShaderSemanticInfo.push({
@@ -453,6 +474,9 @@ function createPbrUberMaterial({
   }
   if (isEmissiveStrength) {
     material.addShaderDefine('RN_USE_EMISSIVE_STRENGTH');
+  }
+  if (isDiffuseTransmission) {
+    material.addShaderDefine('RN_USE_DIFFUSE_TRANSMISSION');
   }
 
   material.addShaderDefine('RN_IS_SKINNING');
