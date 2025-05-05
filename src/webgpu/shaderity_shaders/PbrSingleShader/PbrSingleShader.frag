@@ -477,7 +477,7 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionTexcoordIndex = get_diffuseTransmissionTexcoordIndex(materialSID, 0);
   let diffuseTransmissionTexcoord = getTexcoord(diffuseTransmissionTexcoordIndex, input);
   let diffuseTransmissionTexUv = uvTransform(diffuseTransmissionTextureTransformScale, diffuseTransmissionTextureTransformOffset, diffuseTransmissionTextureTransformRotation, diffuseTransmissionTexcoord);
-  let diffuseTransmissionTexture = textureSample(diffuseTransmissionTexture, diffuseTransmissionSampler, diffuseTransmissionTexUv).r;
+  let diffuseTransmissionTexture = textureSample(diffuseTransmissionTexture, diffuseTransmissionSampler, diffuseTransmissionTexUv).a;
   diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
 
   let diffuseTransmissionColorFactor = get_diffuseTransmissionColorFactor(materialSID, 0);

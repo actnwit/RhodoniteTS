@@ -511,7 +511,7 @@ void main ()
     int diffuseTransmissionTexcoordIndex = get_diffuseTransmissionTexcoordIndex(materialSID, 0);
     vec2 diffuseTransmissionTexcoord = getTexcoord(diffuseTransmissionTexcoordIndex);
     vec2 diffuseTransmissionTexUv = uvTransform(diffuseTransmissionTextureTransformScale, diffuseTransmissionTextureTransformOffset, diffuseTransmissionTextureTransformRotation, diffuseTransmissionTexcoord);
-    float diffuseTransmissionTexture = texture(u_diffuseTransmissionTexture, diffuseTransmissionTexUv).r;
+    float diffuseTransmissionTexture = texture(u_diffuseTransmissionTexture, diffuseTransmissionTexUv).a;
     float diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
 
     vec3 diffuseTransmissionColorFactor = get_diffuseTransmissionColorFactor(materialSID, 0);
