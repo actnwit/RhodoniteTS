@@ -523,9 +523,18 @@ void main ()
     vec2 diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
     vec3 diffuseTransmissionColorTexture = texture(u_diffuseTransmissionColorTexture, diffuseTransmissionColorTexUv).rgb;
     vec3 diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+
+  #ifdef RN_USE_VOLUME
+    mat4 worldMatrix = get_worldMatrix(v_instanceInfo);
+    float diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
+  #else
+    float diffuseTransmissionThickness = 1.0;
+  #endif // RN_USE_VOLUME
+
   #else
     float diffuseTransmission = 0.0;
     vec3 diffuseTransmissionColor = vec3(0.0);
+    float diffuseTransmissionThickness = 0.0;
   #endif // RN_USE_DIFFUSE_TRANSMISSION
 
   rt0 = vec4(0.0, 0.0, 0.0, alpha);
@@ -540,7 +549,7 @@ void main ()
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                         sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                         iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight,
-                        diffuseTransmission, diffuseTransmissionColor);
+                        diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 
   #ifdef RN_USE_SHADOW_MAPPING
     int depthTextureIndex = get_depthTextureIndexList(materialSID, i);

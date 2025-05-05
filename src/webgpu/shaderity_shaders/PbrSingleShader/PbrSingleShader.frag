@@ -486,9 +486,17 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
   let diffuseTransmissionColorTexture = textureSample(diffuseTransmissionColorTexture, diffuseTransmissionColorSampler, diffuseTransmissionColorTexUv).rgb;
   let diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+
+#ifdef RN_USE_VOLUME
+  let diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
+#else
+  let diffuseTransmissionThickness = 1.0;
+#endif // RN_USE_VOLUME
+
 #else
   let diffuseTransmission = 0.0;
   let diffuseTransmissionColor = vec3f(0.0);
+  let diffuseTransmissionThickness = 0.0;
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
 
@@ -507,7 +515,7 @@ let ior = get_ior(materialSID, 0);
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
                             iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight, u32(input.instanceInfo),
-                            diffuseTransmission, diffuseTransmissionColor
+                            diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING

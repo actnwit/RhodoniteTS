@@ -588,8 +588,8 @@ vec3 lightingWithPunctualLight(
   vec3 baseColor,
   float perceptualRoughness,
   float metallic,
-  vec3 dielectricSpecularF0,
-  vec3 dielectricSpecularF90,
+  vec3 dielectricF0,
+  vec3 dielectricF90,
   float ior,
   float transmission,
   float thickness,
@@ -615,7 +615,8 @@ vec3 lightingWithPunctualLight(
   vec3 iridescenceFresnel_metal,
   float specularWeight,
   float diffuseTransmission,
-  vec3 diffuseTransmissionColor
+  vec3 diffuseTransmissionColor,
+  float diffuseTransmissionThickness
   )
 {
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
@@ -623,7 +624,7 @@ vec3 lightingWithPunctualLight(
   // Fresnel
   vec3 halfVector = normalize(light.direction + viewDirection);
   float VdotH = dot(viewDirection, halfVector);
-  vec3 dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
+  vec3 dielectricFresnel = fresnelSchlick(dielectricF0, dielectricF90, VdotH);
   vec3 metalFresnel = fresnelSchlick(baseColor, vec3(1.0), VdotH);
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
@@ -631,6 +632,22 @@ vec3 lightingWithPunctualLight(
   // Diffuse
   vec3 diffuseBrdf = BRDF_lambertian(baseColor);
   vec3 diffuseContrib = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
+
+#ifdef RN_USE_DIFFUSE_TRANSMISSION
+  diffuseContrib = diffuseContrib * (vec3(1.0) - diffuseTransmission);
+  if (dot(normal_inWorld, light.direction) < 0.0) {
+    float diffuseNdotL = saturateEpsilonToOne(dot(normal_inWorld, -light.direction));
+    vec3 diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3(diffuseNdotL) * light.attenuatedIntensity;
+    vec3 mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
+    float diffuseVdotH = saturateEpsilonToOne(dot(viewDirection, normalize(mirrorL + viewDirection)));
+    dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
+#ifdef RN_USE_VOLUME
+    diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
+#endif // RN_USE_VOLUME
+    diffuseContrib += diffuseBtdf * diffuseTransmission;
+  }
+#endif // RN_USE_DIFFUSE_TRANSMISSION
+
 
 #ifdef RN_USE_TRANSMISSION
   vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior);
