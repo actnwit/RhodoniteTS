@@ -255,12 +255,11 @@ float IsotropicNDFFiltering(vec3 normal, float roughness2) {
   return filteredRoughness2;
 }
 
-
 ////////////////////////////////////////
-// glTF KHR_materials_volume
+// glTF KHR_materials_transmission
 ////////////////////////////////////////
 
-#ifdef RN_USE_VOLUME
+#ifdef RN_USE_TRANSMISSION
 // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
 vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 intensity, float transmissionDistance)
 {
@@ -273,14 +272,7 @@ vec3 volumeAttenuation(vec3 attenuationColor, float attenuationDistance, vec3 in
     return intensity * attenuatedTransmittance;
   }
 }
-#endif
 
-
-////////////////////////////////////////
-// glTF KHR_materials_transmission
-////////////////////////////////////////
-
-#ifdef RN_USE_TRANSMISSION
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
 vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 {

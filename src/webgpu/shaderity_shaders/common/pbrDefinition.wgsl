@@ -132,10 +132,11 @@ fn IsotropicNDFFiltering(normal: vec3f, roughness2: f32) -> f32 {
 }
 
 ////////////////////////////////////////
-// glTF KHR_materials_volume
+// glTF KHR_materials_transmission
 ////////////////////////////////////////
 
-#ifdef RN_USE_VOLUME
+#ifdef RN_USE_TRANSMISSION
+
 // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md#attenuation
 fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensity: vec3f, transmissionDistance: f32) -> vec3f
 {
@@ -148,13 +149,7 @@ fn volumeAttenuation(attenuationColor: vec3f, attenuationDistance: f32, intensit
     return intensity * attenuatedTransmittance;
   }
 }
-#endif
 
-////////////////////////////////////////
-// glTF KHR_materials_transmission
-////////////////////////////////////////
-
-#ifdef RN_USE_TRANSMISSION
 // from glTF Sample Viewer: https://github.com/KhronosGroup/glTF-Sample-Viewer
 fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instanceInfo: u32) -> vec3f
 {
