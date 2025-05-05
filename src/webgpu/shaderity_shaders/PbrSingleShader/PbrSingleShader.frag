@@ -462,7 +462,7 @@ let ior = get_ior(materialSID, 0);
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
-                            NdotV, baseColor.rgb, albedo, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
+                            NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
                             transmission, thickness, ior,
                             clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,

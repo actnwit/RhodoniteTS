@@ -594,7 +594,6 @@ vec3 lightingWithPunctualLight(
   vec3 viewDirection,
   float NdotV,
   vec3 baseColor,
-  vec3 albedo,
   float perceptualRoughness,
   float metallic,
   vec3 dielectricSpecularF0,
@@ -639,7 +638,7 @@ vec3 lightingWithPunctualLight(
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
-  vec3 diffuseBrdf = BRDF_lambertian(albedo);
+  vec3 diffuseBrdf = BRDF_lambertian(baseColor);
   vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION

@@ -458,7 +458,6 @@ fn lightingWithPunctualLight(
   viewDirection: vec3f,
   NdotV: f32,
   baseColor: vec3f,
-  albedo: vec3f,
   perceptualRoughness: f32,
   metallic: f32,
   dielectricSpecularF0: vec3f,
@@ -505,7 +504,7 @@ fn lightingWithPunctualLight(
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 
   // Diffuse
-  let diffuseBrdf = BRDF_lambertian(albedo);
+  let diffuseBrdf = BRDF_lambertian(baseColor);
   let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
