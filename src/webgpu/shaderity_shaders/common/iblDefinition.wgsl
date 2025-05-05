@@ -98,7 +98,7 @@ fn scaleForLod(perceptualRoughness: f32, ior: f32) -> f32
 }
 
 #ifdef RN_USE_TRANSMISSION
-fn get_sample_from_backbuffer(materialSID: u32, sampleCoord: vec2f, perceptualRoughness: f32, ior: f32) -> vec3f {
+fn get_sample_from_backbuffer(sampleCoord: vec2f, perceptualRoughness: f32, ior: f32) -> vec3f {
   let vrState: vec2<i32> = get_vrState(0, 0);
   let backBufferTextureSize = vec2f(textureDimensions(backBufferTexture, 0));
   var backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
@@ -117,6 +117,23 @@ fn get_sample_from_backbuffer(materialSID: u32, sampleCoord: vec2f, perceptualRo
 
   return transmittedLight;
 }
+
+fn getIBLVolumeRefraction(baseColor: vec3f, normal: vec3f, view: vec3f, cameraSID: u32, thickness: f32, perceptualRoughness: f32, ior: f32, attenuationColor: vec3f, attenuationDistance: f32, position_inWorld: vec3f, instanceInfo: u32) -> vec3f {
+  let transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior, instanceInfo);
+  let transmissionRayLength = length(transmissionRay);
+  let refractedRayExit = position_inWorld + transmissionRay;
+
+  let ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4f(refractedRayExit, 1.0);
+  var refractionCoords = ndcPos.xy / ndcPos.w;
+  refractionCoords += 1.0;
+  refractionCoords /= 2.0;
+
+  let transmittedLight = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, ior);
+  let attenuatedColor = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, transmissionRayLength);
+
+  return attenuatedColor * baseColor;
+}
+
 #endif // RN_USE_TRANSMISSION
 
 struct IblResult
@@ -125,76 +142,6 @@ struct IblResult
   diffuse: vec3f,
   FssEss: vec3f,
 };
-
-
-#ifdef RN_USE_IRIDESCENCE
-fn getIBLRadianceGGXWithIridescence(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
-  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2i, rotEnvMatrix: mat3x3<f32>,
-  normal_forEnv: vec3f, reflection: vec3f, iridescenceFresnel: vec3f, iridescence: f32, specularWeight: f32) -> IblResult
-{
-  // get radiance
-  let mipCount = iblParameter.x;
-  let lod = (perceptualRoughness * (mipCount - 1.0));
-  let radiance = get_radiance(reflection, lod, hdriFormat);
-
-  // Roughness dependent fresnel
-  let kS = fresnelSchlickRoughnessWithIridescence(F0, NdotV, perceptualRoughness, iridescenceFresnel, iridescence);
-  let f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  let FssEss = kS * f_ab.x + f_ab.y;
-  var result: IblResult;
-  result.FssEss = FssEss;
-
-  // Specular IBL
-  var specular = FssEss * radiance * specularWeight;
-
-  // scale with user parameters
-  let IBLSpecularContribution = iblParameter.z;
-  specular *= IBLSpecularContribution;
-
-  result.specular = specular;
-
-  return result;
-}
-
-fn getIBLRadianceLambertianWithIridescence(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
-  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2i, rotEnvMatrix: mat3x3<f32>,
-  normal_forEnv: vec3f, reflection: vec3f, iridescenceF0: vec3f, iridescence: f32, specularWeight: f32) -> IblResult
-{
-  // get irradiance
-  let irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
-
-  // Use the maximum component of the iridescence Fresnel color
-  // Maximum is used instead of the RGB value to not get inverse colors for the diffuse BRDF
-  let iridescenceF0Max = vec3f(max(max(iridescenceF0.r, iridescenceF0.g), iridescenceF0.b));
-
-  // Blend between base F0 and iridescence F0
-  let mixedF0 = mix(F0, iridescenceF0Max, iridescence);
-
-  // Roughness dependent fresnel
-  let kS = fresnelSchlickRoughness(mixedF0, NdotV, perceptualRoughness);
-  let f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  let FssEss = specularWeight * kS * f_ab.x + f_ab.y;
-  var result: IblResult;
-  result.FssEss = FssEss;
-
-  // Multiple scattering, Fdez-Aguera's approach
-  let Ems = (1.0 - (f_ab.x + f_ab.y));
-  let F_avg = specularWeight * (mixedF0 + (1.0 - mixedF0) / 21.0);
-  let FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
-  let k_D = albedo * (1.0 - FssEss - FmsEms);
-
-  // Diffuse IBL
-  var diffuse = (FmsEms + k_D) * irradiance;
-
-  // scale with user parameters
-  let IBLDiffuseContribution = iblParameter.y;
-  diffuse *= IBLDiffuseContribution;
-
-  result.diffuse = diffuse;
-
-  return result;
-}
-#endif // RN_USE_IRIDESCENCE
 
 fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
   perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3<f32>,
@@ -288,7 +235,7 @@ fn getIBLRadianceGGXBackup(materialSID: u32, NdotV: f32, viewDirection: vec3f, a
 fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
   baseColor: vec3f, F0: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, clearcoatFresnel: vec3f, VdotNc: f32, geomNormal_inWorld: vec3f,
-  transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
+  transmission: f32, position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
   iridescenceFresnel_dielectric: vec3f, iridescenceFresnel_metal: vec3f, iridescence: f32,
   anisotropy: f32, anisotropyDirection: vec3f, specularWeight: f32, dielectricF0: vec3f, metallic: f32
@@ -304,7 +251,14 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
 
   // get irradiance
   let irradiance: vec3f = getIBLIrradiance(normal_forEnv, hdriFormat);
-  let diffuse: vec3f = irradiance * baseColor;
+  var diffuse: vec3f = irradiance * baseColor;
+
+#ifdef RN_USE_TRANSMISSION
+  let attenuationColor: vec3f = get_attenuationColor(materialSID, 0);
+  let attenuationDistance: f32 = get_attenuationDistance(materialSID, 0);
+  let specularTransmission: vec3f = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance, position_inWorld, instanceInfo);
+  diffuse = mix(diffuse, specularTransmission, transmission);
+#endif
 
   // take account of anisotropy with reflection
   let specularMetal: vec3f = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);

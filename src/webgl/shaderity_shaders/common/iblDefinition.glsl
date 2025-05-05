@@ -35,7 +35,7 @@ float scaleForLod(float perceptualRoughness, float ior)
 }
 
 #ifdef RN_USE_TRANSMISSION
-vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perceptualRoughness, float ior) {
+vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, float ior) {
   ivec2 vrState = get_vrState(0.0, 0);
   vec2 backBufferTextureSize = vec2(textureSize(u_backBufferTexture, 0));
   float backBufferTextureLength = max(backBufferTextureSize.x, backBufferTextureSize.y);
@@ -58,18 +58,28 @@ vec3 get_sample_from_backbuffer(float materialSID, vec2 sampleCoord, float perce
 #endif
 
   float framebufferLod = log2(backBufferTextureLength) * scaleForLod(perceptualRoughness, ior);
-
-  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
-    vec3 transmittedLight = texture2DLodEXT(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
-  #elif defined(GLSL_ES3)
-    vec3 transmittedLight = textureLod(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
-  #else
-    vec3 transmittedLight = texture(u_backBufferTexture, sampleCoord).rgb;
-  #endif
+  vec3 transmittedLight = textureLod(u_backBufferTexture, sampleCoord, framebufferLod).rgb;
 
   return transmittedLight;
 }
-#endif
+
+vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float cameraSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
+  vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior);
+  float transmissionRayLength = length(transmissionRay);
+  vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
+
+  vec4 ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayExit, 1.0);
+  vec2 refractionCoords = ndcPos.xy / ndcPos.w;
+  refractionCoords += 1.0;
+  refractionCoords /= 2.0;
+
+  vec3 transmittedLight = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, ior);
+  vec3 attenuatedColor = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, transmissionRayLength);
+
+  return attenuatedColor * baseColor;
+}
+
+#endif // RN_USE_TRANSMISSION
 
 vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
   #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
@@ -104,75 +114,6 @@ struct IblResult
   vec3 diffuse;
   vec3 FssEss;
 };
-
-#ifdef RN_USE_IRIDESCENCE
-IblResult getIBLRadianceGGXWithIridescence(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection, vec3 iridescenceFresnel, float iridescence, float specularWeight)
-{
-  // get radiance
-  float mipCount = iblParameter.x;
-  float lod = (perceptualRoughness * (mipCount - 1.0));
-  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
-
-  // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughnessWithIridescence(F0, NdotV, perceptualRoughness, iridescenceFresnel, iridescence);
-  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = kS * f_ab.x + f_ab.y;
-  IblResult result;
-  result.FssEss = FssEss;
-
-  // Specular IBL
-  vec3 specular = FssEss * radiance * specularWeight;
-
-  // scale with user parameters
-  float IBLSpecularContribution = iblParameter.z;
-  specular *= IBLSpecularContribution;
-
-  result.specular = specular;
-
-  return result;
-}
-
-IblResult getIBLRadianceLambertianWithIridescence(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection, vec3 iridescenceF0, float iridescence, float specularWeight)
-{
-  // get irradiance
-  vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
-
-  // Use the maximum component of the iridescence Fresnel color
-  // Maximum is used instead of the RGB value to not get inverse colors for the diffuse BRDF
-  vec3 iridescenceF0Max = vec3(max(max(iridescenceF0.r, iridescenceF0.g), iridescenceF0.b));
-
-  // Blend between base F0 and iridescence F0
-  vec3 mixedF0 = mix(F0, iridescenceF0Max, iridescence);
-
-  // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(mixedF0, NdotV, perceptualRoughness);
-  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = specularWeight * kS * f_ab.x + f_ab.y;
-  IblResult result;
-  result.FssEss = FssEss;
-
-  // Multiple scattering, Fdez-Aguera's approach
-  float Ems = (1.0 - (f_ab.x + f_ab.y));
-  vec3 F_avg = specularWeight * (mixedF0 + (1.0 - mixedF0) / 21.0);
-  vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
-  vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
-
-  // Diffuse IBL
-  vec3 diffuse = (FmsEms + k_D) * irradiance;
-
-  // scale with user parameters
-  float IBLDiffuseContribution = iblParameter.y;
-  diffuse *= IBLDiffuseContribution;
-
-  result.diffuse = diffuse;
-
-  return result;
-}
-#endif // RN_USE_IRIDESCENCE
 
 IblResult getIBLRadianceLambertian(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
   float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
@@ -325,6 +266,13 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   // get irradiance
   vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
   vec3 diffuse = irradiance * baseColor;
+
+#ifdef RN_USE_TRANSMISSION
+  vec3 attenuationColor = get_attenuationColor(materialSID, 0);
+  float attenuationDistance = get_attenuationDistance(materialSID, 0);
+  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance);
+  diffuse = mix(diffuse, specularTransmission, transmission);
+#endif
 
   // take account of anisotropy with reflection
   vec3 specularMetal = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);
