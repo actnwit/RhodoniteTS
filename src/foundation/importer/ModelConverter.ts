@@ -1278,6 +1278,7 @@ export class ModelConverter {
         isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
         isDispersion: Is.exist(materialJson?.extensions?.KHR_materials_dispersion),
         isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
+        isDiffuseTransmission: Is.exist(materialJson?.extensions?.KHR_materials_diffuse_transmission),
         isShadow: rnLoaderOptions.shadow ? true : false,
         useTangentAttribute,
         useNormalTexture,
@@ -2577,6 +2578,8 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_emissive_strength(materialJson, material, gltfModel);
 
   setup_KHR_materials_dispersion(materialJson, material, gltfModel);
+
+  setup_KHR_materials_diffuse_transmission(materialJson, material, gltfModel, rnTextures, rnSamplers);
 }
 
 function setup_KHR_materials_transmission(
@@ -3002,5 +3005,59 @@ function setup_KHR_materials_dispersion(
       ? KHR_materials_dispersion.dispersion
       : 0.0;
     material.setParameter('dispersion', dispersion);
+  }
+}
+
+function setup_KHR_materials_diffuse_transmission(
+  materialJson: RnM2Material,
+  material: Material,
+  gltfModel: RnM2,
+  rnTextures: Texture[],
+  rnSamplers: Sampler[]
+) {
+  const KHR_materials_diffuse_transmission = materialJson?.extensions?.KHR_materials_diffuse_transmission;
+  if (Is.exist(KHR_materials_diffuse_transmission)) {
+    const diffuseTransmissionFactor = Is.exist(KHR_materials_diffuse_transmission.diffuseTransmissionFactor)
+      ? KHR_materials_diffuse_transmission.diffuseTransmissionFactor
+      : 0.0;
+    material.setParameter('diffuseTransmissionFactor', diffuseTransmissionFactor);
+    const diffuseTransmissionTexture = KHR_materials_diffuse_transmission.diffuseTransmissionTexture;
+    if (diffuseTransmissionTexture != null) {
+      const rnDiffuseTransmissionTexture = rnTextures[diffuseTransmissionTexture.texture!.source!];
+      const rnSampler = rnSamplers[diffuseTransmissionTexture.texture!.sampler!];
+      material.setTextureParameter('diffuseTransmissionTexture', rnDiffuseTransmissionTexture, rnSampler);
+      if (diffuseTransmissionTexture.texCoord != null) {
+        material.setParameter('diffuseTransmissionTexcoordIndex', diffuseTransmissionTexture.texCoord);
+      }
+      // Diffuse Transmission Texture Transform
+      ModelConverter._setupTextureTransform(
+        diffuseTransmissionTexture,
+        material,
+        'diffuseTransmissionTextureTransformScale',
+        'diffuseTransmissionTextureTransformOffset',
+        'diffuseTransmissionTextureTransformRotation'
+      );
+    }
+    const diffuseTransmissionColorFactor = Is.exist(KHR_materials_diffuse_transmission.diffuseTransmissionColorFactor)
+      ? KHR_materials_diffuse_transmission.diffuseTransmissionColorFactor
+      : [1.0, 1.0, 1.0];
+    material.setParameter('diffuseTransmissionColorFactor', Vector3.fromCopyArray3(diffuseTransmissionColorFactor));
+    const diffuseTransmissionColorTexture = KHR_materials_diffuse_transmission.diffuseTransmissionColorTexture;
+    if (diffuseTransmissionColorTexture != null) {
+      const rnDiffuseTransmissionColorTexture = rnTextures[diffuseTransmissionColorTexture.texture!.source!];
+      const rnSampler = rnSamplers[diffuseTransmissionColorTexture.texture!.sampler!];
+      material.setTextureParameter('diffuseTransmissionColorTexture', rnDiffuseTransmissionColorTexture, rnSampler);
+      if (diffuseTransmissionColorTexture.texCoord != null) {
+        material.setParameter('diffuseTransmissionColorTexcoordIndex', diffuseTransmissionColorTexture.texCoord);
+      }
+      // Diffuse Transmission Color Texture Transform
+      ModelConverter._setupTextureTransform(
+        diffuseTransmissionColorTexture,
+        material,
+        'diffuseTransmissionColorTextureTransformScale',
+        'diffuseTransmissionColorTextureTransformOffset',
+        'diffuseTransmissionColorTextureTransformRotation'
+      );
+    }
   }
 }

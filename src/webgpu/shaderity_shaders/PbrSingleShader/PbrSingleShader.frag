@@ -145,6 +145,19 @@
 // #param anisotropyTexcoordIndex: u32; // initialValue=0
 #endif
 
+#ifdef RN_USE_DIFFUSE_TRANSMISSION
+// #param diffuseTransmissionFactor: f32; // initialValue=0
+// #param diffuseTransmissionColorFactor: vec3<f32>; // initialValue=(1,1,1)
+// #param diffuseTransmissionTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param diffuseTransmissionTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param diffuseTransmissionTextureTransformRotation: f32; // initialValue=0
+// #param diffuseTransmissionTexcoordIndex: u32; // initialValue=0
+// #param diffuseTransmissionColorTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+// #param diffuseTransmissionColorTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+// #param diffuseTransmissionColorTextureTransformRotation: f32; // initialValue=0
+// #param diffuseTransmissionColorTexcoordIndex: u32; // initialValue=0
+#endif
+
 #ifdef RN_USE_DISPERSION
 // #param dispersion: f32; // initialValue=0
 #endif
@@ -453,6 +466,38 @@ let ior = get_ior(materialSID, 0);
   let albedoSheenScalingNdotV = 1.0;
 #endif // RN_USE_SHEEN
 
+  var diffuseTransmission = 0.0;
+  var diffuseTransmissionColor = vec3f(0.0);
+  var diffuseTransmissionThickness = 0.0;
+#ifdef RN_USE_DIFFUSE_TRANSMISSION
+  let diffuseTransmissionFactor = get_diffuseTransmissionFactor(materialSID, 0);
+  let diffuseTransmissionTextureTransformScale = get_diffuseTransmissionTextureTransformScale(materialSID, 0);
+  let diffuseTransmissionTextureTransformOffset = get_diffuseTransmissionTextureTransformOffset(materialSID, 0);
+  let diffuseTransmissionTextureTransformRotation = get_diffuseTransmissionTextureTransformRotation(materialSID, 0);
+  let diffuseTransmissionTexcoordIndex = get_diffuseTransmissionTexcoordIndex(materialSID, 0);
+  let diffuseTransmissionTexcoord = getTexcoord(diffuseTransmissionTexcoordIndex, input);
+  let diffuseTransmissionTexUv = uvTransform(diffuseTransmissionTextureTransformScale, diffuseTransmissionTextureTransformOffset, diffuseTransmissionTextureTransformRotation, diffuseTransmissionTexcoord);
+  let diffuseTransmissionTexture = textureSample(diffuseTransmissionTexture, diffuseTransmissionSampler, diffuseTransmissionTexUv).a;
+  diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
+
+  let diffuseTransmissionColorFactor = get_diffuseTransmissionColorFactor(materialSID, 0);
+  let diffuseTransmissionColorTextureTransformScale = get_diffuseTransmissionColorTextureTransformScale(materialSID, 0);
+  let diffuseTransmissionColorTextureTransformOffset = get_diffuseTransmissionColorTextureTransformOffset(materialSID, 0);
+  let diffuseTransmissionColorTextureTransformRotation = get_diffuseTransmissionColorTextureTransformRotation(materialSID, 0);
+  let diffuseTransmissionColorTexcoordIndex = get_diffuseTransmissionColorTexcoordIndex(materialSID, 0);
+  let diffuseTransmissionColorTexcoord = getTexcoord(diffuseTransmissionColorTexcoordIndex, input);
+  let diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
+  let diffuseTransmissionColorTexture = textureSample(diffuseTransmissionColorTexture, diffuseTransmissionColorSampler, diffuseTransmissionColorTexUv).rgb;
+  diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+  diffuseTransmissionThickness = 1.0;
+#endif // RN_USE_DIFFUSE_TRANSMISSION
+
+#ifdef RN_USE_VOLUME
+  let worldMatrix = get_worldMatrix(u32(input.instanceInfo));
+  diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
+#endif // RN_USE_VOLUME
+
+
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = baseColor.a;
 
@@ -467,7 +512,8 @@ let ior = get_ior(materialSID, 0);
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight, u32(input.instanceInfo)
+                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight, u32(input.instanceInfo),
+                            diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING
@@ -505,7 +551,8 @@ let ior = get_ior(materialSID, 0);
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
-    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic
+    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,
+    diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);

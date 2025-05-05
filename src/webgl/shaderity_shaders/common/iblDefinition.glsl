@@ -3,7 +3,7 @@
 // Modified by Yuki Shimada
 
 
-vec3 getIBLIrradiance(vec3 normal_forEnv, ivec2 hdriFormat) {
+vec3 getIBLIrradiance(vec3 normal_forEnv, vec4 iblParameter, ivec2 hdriFormat) {
   vec4 diffuseTexel = texture(u_diffuseEnvTexture, normal_forEnv);
 
   vec3 irradiance;
@@ -18,6 +18,10 @@ vec3 getIBLIrradiance(vec3 normal_forEnv, ivec2 hdriFormat) {
   else {
     irradiance = diffuseTexel.rgb;
   }
+
+  // scale with user parameters
+  float IBLDiffuseContribution = iblParameter.y;
+  irradiance *= IBLDiffuseContribution;
 
   return irradiance;
 }
@@ -135,38 +139,6 @@ struct IblResult
   vec3 FssEss;
 };
 
-IblResult getIBLRadianceLambertian(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection, float specularWeight)
-{
-  // get irradiance
-  vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
-
-  // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
-  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = specularWeight * kS * f_ab.x + f_ab.y;
-  IblResult result;
-  result.FssEss = FssEss;
-
-  // Multiple scattering, Fdez-Aguera's approach
-  float Ems = (1.0 - (f_ab.x + f_ab.y));
-  vec3 F_avg = specularWeight * (F0 + (1.0 - F0) / 21.0);
-  vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
-  vec3 k_D = albedo * (1.0 - FssEss - FmsEms);
-
-  // Diffuse IBL
-  vec3 diffuse = (FmsEms + k_D) * irradiance;
-
-  // scale with user parameters
-  float IBLDiffuseContribution = iblParameter.y;
-  diffuse *= IBLDiffuseContribution;
-
-  result.diffuse = diffuse;
-
-  return result;
-}
-
 vec3 getIBLRadianceGGX(float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, vec3 reflection)
 {
   // get radiance
@@ -195,34 +167,6 @@ vec3 getIBLFresnelGGX(float perceptualRoughness, float NdotV, vec3 F0, float spe
   vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
 
   return FssEss + FmsEms;
-}
-
-IblResult getIBLRadianceGGXBackup(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
-  float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
-  vec3 normal_forEnv, vec3 reflection, float specularWeight)
-{
-  // get radiance
-  float mipCount = iblParameter.x;
-  float lod = (perceptualRoughness * (mipCount - 1.0));
-  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
-
-  // Roughness dependent fresnel
-  vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
-  vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = kS * f_ab.x + f_ab.y;
-  IblResult result;
-  result.FssEss = FssEss;
-
-  // Specular IBL
-  vec3 specular = FssEss * radiance * specularWeight;
-
-  // scale with user parameters
-  float IBLSpecularContribution = iblParameter.z;
-  specular *= IBLSpecularContribution;
-
-  result.specular = specular;
-
-  return result;
 }
 
 #ifdef RN_USE_SHEEN
@@ -273,7 +217,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   float clearcoat, vec3 clearcoatFresnel, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
   vec3 iridescenceFresnel_dielectric, vec3 iridescenceFresnel_metal, float iridescence, float anisotropy, vec3 anisotropyDirection,
-  float specularWeight, vec3 dielectricF0, float metallic)
+  float specularWeight, vec3 dielectricF0, float metallic, float diffuseTransmission, vec3 diffuseTransmissionColor, float diffuseTransmissionThickness)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w;
@@ -284,8 +228,16 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
   // get irradiance
-  vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
+  vec3 irradiance = getIBLIrradiance(normal_forEnv, iblParameter, hdriFormat);
   vec3 diffuse = irradiance * baseColor;
+
+#ifdef RN_USE_DIFFUSE_TRANSMISSION
+  vec3 diffuseTransmissionIBL = getIBLIrradiance(-normal_forEnv, iblParameter, hdriFormat) * diffuseTransmissionColor;
+#ifdef RN_USE_VOLUME
+  diffuseTransmissionIBL = volumeAttenuation(attenuationColor, attenuationDistance, diffuseTransmissionIBL, diffuseTransmissionThickness);
+#endif
+  diffuse = mix(diffuse, diffuseTransmissionIBL, diffuseTransmission);
+#endif
 
 #ifdef RN_USE_TRANSMISSION
   vec3 attenuationColor = get_attenuationColor(materialSID, 0);
