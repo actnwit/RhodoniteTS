@@ -462,8 +462,6 @@ fn lightingWithPunctualLight(
   metallic: f32,
   dielectricSpecularF0: vec3f,
   dielectricSpecularF90: vec3f,
-  F0: vec3f,
-  F90: vec3f,
   transmission: f32,
   thickness: f32,
   ior: f32,
@@ -499,7 +497,6 @@ fn lightingWithPunctualLight(
   let VdotH = dot(viewDirection, halfVector);
   let dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
   let metalFresnel = fresnelSchlick(baseColor, vec3f(1.0), VdotH);
-  let fresnel = fresnelSchlick(F0, F90, VdotH);
 
   let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
 

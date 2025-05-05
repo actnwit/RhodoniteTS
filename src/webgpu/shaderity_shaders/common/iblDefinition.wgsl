@@ -233,7 +233,7 @@ fn getIBLRadianceGGXBackup(materialSID: u32, NdotV: f32, viewDirection: vec3f, a
 }
 
 fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
-  baseColor: vec3f, F0: vec3f, perceptualRoughness: f32,
+  baseColor: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, clearcoatFresnel: vec3f, VdotNc: f32, geomNormal_inWorld: vec3f,
   transmission: f32, position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,

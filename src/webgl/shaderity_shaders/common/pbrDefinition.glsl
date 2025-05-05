@@ -598,8 +598,6 @@ vec3 lightingWithPunctualLight(
   float metallic,
   vec3 dielectricSpecularF0,
   vec3 dielectricSpecularF90,
-  vec3 F0,
-  vec3 F90,
   float ior,
   float transmission,
   float thickness,
@@ -633,7 +631,6 @@ vec3 lightingWithPunctualLight(
   float VdotH = dot(viewDirection, halfVector);
   vec3 dielectricFresnel = fresnelSchlick(dielectricSpecularF0, dielectricSpecularF90, VdotH);
   vec3 metalFresnel = fresnelSchlick(baseColor, vec3(1.0), VdotH);
-  vec3 fresnel = fresnelSchlick(F0, F90, VdotH);
 
   float NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 

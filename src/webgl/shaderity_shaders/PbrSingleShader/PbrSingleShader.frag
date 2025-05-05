@@ -356,8 +356,6 @@ void main ()
     vec3(1.0)
     ) * specular;
   vec3 dielectricSpecularF90 = vec3(specular);
-  vec3 F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
-  vec3 F90 = mix(dielectricSpecularF90, vec3(1.0), metallic);
 
   // Iridescence
   #ifdef RN_USE_IRIDESCENCE
@@ -383,20 +381,16 @@ void main ()
     float iridescenceThickness = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
     float iridescenceIor = get_iridescenceIor(materialSID, 0);
-    vec3 iridescenceFresnel = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
     vec3 iridescenceFresnel_dielectric = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
     vec3 iridescenceFresnel_metal = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
-    vec3 iridescenceF0 = Schlick_to_F0(iridescenceFresnel, NdotV);
 
     if (iridescenceThickness == 0.0) {
       iridescence = 0.0;
     }
   #else
     float iridescence = 0.0;
-    vec3 iridescenceFresnel = vec3(0.0);
     vec3 iridescenceFresnel_dielectric = vec3(0.0);
     vec3 iridescenceFresnel_metal = vec3(0.0);
-    vec3 iridescenceF0 = F0;
   #endif // RN_USE_IRIDESCENCE
 
   #ifdef RN_USE_CLEARCOAT
@@ -498,7 +492,7 @@ void main ()
   for (int i = 0; i < lightNumber; i++) {
     Light light = getLight(i, v_position_inWorld.xyz);
     vec3 lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection, NdotV, baseColor.rgb,
-                        perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90, ior, transmission, thickness,
+                        perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, ior, transmission, thickness,
                         clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                         attenuationColor, attenuationDistance,
                         anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
@@ -532,7 +526,7 @@ void main ()
 
   // Image-based Lighting
   vec3 ibl = IBLContribution(materialSID, normal_inWorld, NdotV, viewDirection,
-    baseColor.rgb, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
+    baseColor.rgb, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,

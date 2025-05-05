@@ -321,8 +321,6 @@ let ior = get_ior(materialSID, 0);
     vec3f(1.0)
     ) * specular;
   let dielectricSpecularF90 = vec3f(specular);
-  let F0 = mix(dielectricSpecularF0, baseColor.rgb, metallic);
-  let F90 = mix(dielectricSpecularF90, vec3f(1.0), metallic);
 
 // Iridescence
 #ifdef RN_USE_IRIDESCENCE
@@ -348,16 +346,12 @@ let ior = get_ior(materialSID, 0);
   let iridescenceThickness: f32 = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
   let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
-  let iridescenceFresnel: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, F0);
   let iridescenceFresnel_dielectric: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
   let iridescenceFresnel_metal: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
-  let iridescenceF0: vec3f = Schlick_to_F0(iridescenceFresnel, NdotV);
 #else
   let iridescence = 0.0;
-  let iridescenceFresnel = vec3f(0.0);
   let iridescenceFresnel_dielectric = vec3f(0.0);
   let iridescenceFresnel_metal = vec3f(0.0);
-  let iridescenceF0: vec3f = F0;
 #endif // RN_USE_IRIDESCENCE
 
 // Clearcoat
@@ -462,7 +456,7 @@ let ior = get_ior(materialSID, 0);
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
-                            NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90, F0, F90,
+                            NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90,
                             transmission, thickness, ior,
                             clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
@@ -501,7 +495,7 @@ let ior = get_ior(materialSID, 0);
 
   // Image-based Lighting
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
-    baseColor.rgb, F0, perceptualRoughness,
+    baseColor.rgb, perceptualRoughness,
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
