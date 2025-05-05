@@ -63,7 +63,27 @@ vec3 get_sample_from_backbuffer(vec2 sampleCoord, float perceptualRoughness, flo
   return transmittedLight;
 }
 
-vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float cameraSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
+vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float cameraSID, float materialSID, float thickness, float perceptualRoughness, float ior, vec3 attenuationColor, float attenuationDistance) {
+#ifdef RN_USE_DISPERSION
+  float dispersion = get_dispersion(materialSID, 0);
+  float halfSpread = (ior - 1.0) * 0.025 * dispersion;
+  vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
+
+  vec3 transmittedLight;
+  float transmissionRayLength;
+  for(int i=0;i<3;i++) {
+    vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, iors[i]);
+    transmissionRayLength = length(transmissionRay);
+    vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
+
+    vec4 ndcPos = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayExit, 1.0);
+    vec2 refractionCoords = ndcPos.xy / ndcPos.w;
+    refractionCoords += 1.0;
+    refractionCoords /= 2.0;
+
+    transmittedLight[i] = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, iors[i])[i];
+  }
+#else
   vec3 transmissionRay = getVolumeTransmissionRay(normal, view, thickness, ior);
   float transmissionRayLength = length(transmissionRay);
   vec3 refractedRayExit = v_position_inWorld.xyz + transmissionRay;
@@ -74,8 +94,8 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float camera
   refractionCoords /= 2.0;
 
   vec3 transmittedLight = get_sample_from_backbuffer(refractionCoords, perceptualRoughness, ior);
+#endif
   vec3 attenuatedColor = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, transmissionRayLength);
-
   return attenuatedColor * baseColor;
 }
 
@@ -270,7 +290,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
 #ifdef RN_USE_TRANSMISSION
   vec3 attenuationColor = get_attenuationColor(materialSID, 0);
   float attenuationDistance = get_attenuationDistance(materialSID, 0);
-  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance);
+  vec3 specularTransmission = getIBLVolumeRefraction(baseColor, normal_inWorld, viewDirection, cameraSID, materialSID, thickness, perceptualRoughness, ior, attenuationColor, attenuationDistance);
   diffuse = mix(diffuse, specularTransmission, transmission);
 #endif
 
