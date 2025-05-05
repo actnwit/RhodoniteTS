@@ -300,7 +300,7 @@ let ior = get_ior(materialSID, 0);
   let specularTexcoord = getTexcoord(specularTexcoordIndex, input);
   let specularTexUv = uvTransform(specularTextureTransformScale, specularTextureTransformOffset, specularTextureTransformRotation, specularTexcoord);
   let specularTexture: f32 = textureSample(specularTexture, specularSampler, specularTexUv).a;
-  let specular: f32 = get_specularFactor(materialSID, 0) * specularTexture;
+  let specularWeight: f32 = get_specularFactor(materialSID, 0) * specularTexture;
   let specularColorTextureTransformScale: vec2f = get_specularColorTextureTransformScale(materialSID, 0);
   let specularColorTextureTransformOffset: vec2f = get_specularColorTextureTransformOffset(materialSID, 0);
   let specularColorTextureTransformRotation: f32 = get_specularColorTextureTransformRotation(materialSID, 0);
@@ -310,17 +310,15 @@ let ior = get_ior(materialSID, 0);
   let specularColorTexture: vec3f = srgbToLinear(textureSample(specularColorTexture, specularColorSampler, specularColorTexUv).rgb);
   let specularColor: vec3f = get_specularColorFactor(materialSID, 0) * specularColorTexture;
 #else
-  let specular = 1.0;
+  let specularWeight = 1.0;
   let specularColor = vec3f(1.0, 1.0, 1.0);
 #endif // RN_USE_SPECULAR
 
   // F0, F90
   let outsideIor = 1.0;
-  let dielectricSpecularF0 = min(
-    ((ior - outsideIor) / (ior + outsideIor)) * ((ior - outsideIor) / (ior + outsideIor)) * specularColor,
-    vec3f(1.0)
-    ) * specular;
-  let dielectricSpecularF90 = vec3f(specular);
+  var dielectricF0 = vec3f(sqF32((ior - outsideIor) / (ior + outsideIor)));
+  dielectricF0 = min(dielectricF0 * specularColor, vec3f(1.0));
+  let dielectricF90 = vec3f(specularWeight);
 
 // Iridescence
 #ifdef RN_USE_IRIDESCENCE
@@ -346,7 +344,7 @@ let ior = get_ior(materialSID, 0);
   let iridescenceThickness: f32 = mix(iridescenceThicknessMinimum, iridescenceThicknessMaximum, thicknessRatio);
 
   let iridescenceIor: f32 = get_iridescenceIor(materialSID, 0);
-  let iridescenceFresnel_dielectric: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricSpecularF0);
+  let iridescenceFresnel_dielectric: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, dielectricF0);
   let iridescenceFresnel_metal: vec3f = calcIridescence(1.0, iridescenceIor, NdotV, iridescenceThickness, baseColor.rgb);
 #else
   let iridescence = 0.0;
@@ -456,13 +454,13 @@ let ior = get_ior(materialSID, 0);
   for (var i = 0u; i < lightNumber; i++) {
     let light: Light = getLight(i, input.position_inWorld);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
-                            NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricSpecularF0, dielectricSpecularF90,
+                            NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricF0, dielectricF90,
                             transmission, thickness, ior,
                             clearcoat, clearcoatRoughness, clearcoatF0, clearcoatF90, clearcoatFresnel, clearcoatNormal_inWorld, VdotNc,
                             attenuationColor, attenuationDistance,
                             anisotropy, anisotropicT, anisotropicB, BdotV, TdotV,
                             sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specular, u32(input.instanceInfo)
+                            iridescence, iridescenceFresnel_dielectric, iridescenceFresnel_metal, specularWeight, u32(input.instanceInfo)
                             );
 
     #ifdef RN_USE_SHADOW_MAPPING
@@ -500,7 +498,7 @@ let ior = get_ior(materialSID, 0);
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
-    anisotropy, anisotropicB, specular, dielectricSpecularF0, metallic
+    anisotropy, anisotropicB, specularWeight, dielectricF0, metallic
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
