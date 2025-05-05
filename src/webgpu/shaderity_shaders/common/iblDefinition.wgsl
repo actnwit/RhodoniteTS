@@ -287,7 +287,7 @@ fn getIBLRadianceGGXBackup(materialSID: u32, NdotV: f32, viewDirection: vec3f, a
 
 fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
   baseColor: vec3f, F0: vec3f, perceptualRoughness: f32,
-  clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, VdotNc: f32, geomNormal_inWorld: vec3f,
+  clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, clearcoatFresnel: vec3f, VdotNc: f32, geomNormal_inWorld: vec3f,
   transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
   iridescenceFresnel: vec3f, iridescenceF0: vec3f, iridescence: f32,
@@ -315,8 +315,15 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let fresnelDielectric: vec3f = getIBLFresnelGGX(perceptualRoughness, NdotV, dielectricF0, specularWeight);
   let dielectricContrib: vec3f = mix(diffuse, specularDielectric, fresnelDielectric);
 
-  let color: vec3f = mix(dielectricContrib, metalContrib, metallic);
+#ifdef RN_USE_CLEARCOAT
+  let clearcoatReflection: vec3f = getReflection(rotEnvMatrix, viewDirection, clearcoatNormal_inWorld, materialSID, clearcoatRoughness, 0.0, vec3(0.0));
+  let clearcoatContrib: vec3f = getIBLRadianceGGX(clearcoatRoughness, iblParameter, hdriFormat, clearcoatReflection);
+#else
+  let clearcoatContrib: vec3f = vec3(0.0);
+#endif
 
+  var color: vec3f = mix(dielectricContrib, metalContrib, metallic);
+  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
   return color;
 }
 

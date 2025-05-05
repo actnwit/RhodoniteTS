@@ -309,7 +309,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, f
 
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
   vec3 baseColor, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
-  float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
+  float clearcoat, vec3 clearcoatFresnel, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
   vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence, float anisotropy, vec3 anisotropyDirection,
   float specularWeight, vec3 dielectricF0, float metallic)
@@ -335,7 +335,15 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 fresnelDielectric = getIBLFresnelGGX(perceptualRoughness, NdotV, dielectricF0, specularWeight);
   vec3 dielectricContrib = mix(diffuse, specularDielectric, fresnelDielectric);
 
+#ifdef RN_USE_CLEARCOAT
+  vec3 clearcoatReflection = getReflection(rotEnvMatrix, viewDirection, clearcoatNormal_inWorld, materialSID, clearcoatRoughness, 0.0, vec3(0.0));
+  vec3 clearcoatContrib = getIBLRadianceGGX(clearcoatRoughness, iblParameter, hdriFormat, clearcoatReflection);
+#else
+  vec3 clearcoatContrib = vec3(0.0);
+#endif
+
   vec3 color = mix(dielectricContrib, metalContrib, metallic);
+  color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
 
   return color;
 }

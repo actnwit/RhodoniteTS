@@ -502,7 +502,7 @@ let ior = get_ior(materialSID, 0);
   // Image-based Lighting
   let ibl: vec3f = IBLContribution(materialSID, cameraSID, normal_inWorld, NdotV, viewDirection,
     baseColor.rgb, F0, perceptualRoughness,
-    clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, VdotNc, geomNormal_inWorld,
+    clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel, iridescenceF0, iridescence,
