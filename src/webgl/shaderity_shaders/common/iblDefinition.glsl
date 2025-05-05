@@ -310,5 +310,8 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
   vec3 diffuse = irradiance * baseColor;
 
+  vec3 specularMetal = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);
+  vec3 specularDielectric = specularMetal;
+
   return diffuse;
 }

@@ -228,9 +228,7 @@ fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, 
   return result;
 }
 
-fn getIBLRadianceGGX(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
-  perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3<f32>,
-  normal_forEnv: vec3f, reflection: vec3f, specularWeight: f32) -> vec3f
+fn getIBLRadianceGGX(perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, reflection: vec3f) -> vec3f
 {
   // get radiance
   let mipCount = iblParameter.x;
@@ -291,6 +289,9 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   // get irradiance
   let irradiance: vec3f = getIBLIrradiance(normal_forEnv, hdriFormat);
   let diffuse: vec3f = irradiance * baseColor;
+
+  let specularMetal: vec3f = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);
+  let specularDielectric: vec3f = specularMetal;
 
   return diffuse;
 }
