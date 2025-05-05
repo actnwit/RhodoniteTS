@@ -273,6 +273,10 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let normal_forEnv: vec3f = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
-  return baseColor;
+  // get irradiance
+  let irradiance: vec3f = get_irradiance(normal_forEnv, hdriFormat);
+  let diffuse: vec3f = irradiance * baseColor;
+
+  return diffuse;
 }
 
