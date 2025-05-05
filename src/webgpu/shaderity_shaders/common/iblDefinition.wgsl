@@ -241,6 +241,22 @@ fn getIBLRadianceGGX(perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: 
   return radiance;
 }
 
+fn getIBLFresnelGGX(perceptualRoughness: f32, NdotV: f32, F0: vec3f, specularWeight: vec3f) -> vec3f {
+  // https://bruop.github.io/ibl/#single_scattering_results
+
+  // Roughness dependent fresnel
+  let kS: vec3f = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
+  let f_ab: vec2f = envBRDFApprox(perceptualRoughness, NdotV);
+  let FssEss: vec3f = specularWeight * (kS * f_ab.x + f_ab.y);
+
+  // Multiple scattering
+  let Ems: f32 = (1.0 - (f_ab.x + f_ab.y));
+  let F_avg: vec3f = specularWeight * (F0 + (1.0 - F0) / 21.0);
+  let FmsEms: vec3f = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
+
+  return FssEss + FmsEms;
+}
+
 fn getIBLRadianceGGXBackup(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo: vec3f, F0: vec3f,
   perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: vec2<i32>, rotEnvMatrix: mat3x3<f32>,
   normal_forEnv: vec3f, reflection: vec3f, specularWeight: f32) -> IblResult
