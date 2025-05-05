@@ -656,18 +656,20 @@ vec3 lightingWithPunctualLight(
   float BdotL = dot(anisotropicB, light.direction);
   float TdotH = dot(anisotropicT, halfVector);
   float BdotH = dot(anisotropicB, halfVector);
-  vec3 specularContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularMetalContrib = BRDF_specularAnisotropicGGX(alphaRoughness, VdotH, NdotL, NdotV, NdotH, BdotV, TdotV, TdotL, BdotL, TdotH, BdotH, anisotropy) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularDielectricContrib = specularMetalContrib;
 #else
-  vec3 specularContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularMetalContrib = BRDF_specularGGX(NdotH, NdotL, NdotV, alphaRoughness) * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 specularDielectricContrib = specularMetalContrib;
 #endif // RN_USE_ANISOTROPY
 
   // Base Layer
-  vec3 dielectric = mix(diffuseContrib, specularContrib, dielectricFresnel);
-  vec3 metal = specularContrib * metalFresnel;
+  vec3 metal = specularMetalContrib * metalFresnel;
+  vec3 dielectric = mix(diffuseContrib, specularDielectricContrib, dielectricFresnel);
 
 #ifdef RN_USE_IRIDESCENCE
-  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularContrib, iridescenceFresnel_dielectric), iridescence);
-  metal = mix(metal, specularContrib * iridescenceFresnel_metal, iridescence);
+  metal = mix(metal, specularMetalContrib * iridescenceFresnel_metal, iridescence);
+  dielectric = mix(dielectric, rgb_mix(diffuseContrib, specularDielectricContrib, iridescenceFresnel_dielectric), iridescence);
 #endif // RN_USE_IRIDESCENCE
 
 #ifdef RN_USE_CLEARCOAT
