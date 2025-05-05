@@ -630,7 +630,7 @@ vec3 lightingWithPunctualLight(
 
   // Diffuse
   vec3 diffuseBrdf = BRDF_lambertian(baseColor);
-  vec3 pureDiffuse = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
+  vec3 diffuseContrib = diffuseBrdf * vec3(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
   vec3 transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior);
@@ -642,9 +642,7 @@ vec3 lightingWithPunctualLight(
   transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
-  vec3 diffuseContrib = mix(pureDiffuse, vec3(transmittedContrib), transmission);
-#else
-  vec3 diffuseContrib = pureDiffuse;
+  diffuseContrib = mix(diffuseContrib, vec3(transmittedContrib), transmission);
 #endif // RN_USE_TRANSMISSION
 
   light.attenuatedIntensity = getLightAttenuated(light);

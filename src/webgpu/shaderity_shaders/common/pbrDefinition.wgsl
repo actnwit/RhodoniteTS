@@ -499,7 +499,7 @@ fn lightingWithPunctualLight(
 
   // Diffuse
   let diffuseBrdf = BRDF_lambertian(baseColor);
-  let pureDiffuse = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
+  var diffuseContrib = diffuseBrdf * vec3f(NdotL) * light.attenuatedIntensity;
 
 #ifdef RN_USE_TRANSMISSION
   let transmittionRay = getVolumeTransmissionRay(normal_inWorld, viewDirection, thickness, ior, instanceInfo);
@@ -511,9 +511,7 @@ fn lightingWithPunctualLight(
   transmittedContrib = volumeAttenuation(attenuationColor, attenuationDistance, transmittedContrib, length(transmittionRay));
 #endif // RN_USE_VOLUME
 
-  let diffuseContrib = mix(pureDiffuse, vec3f(transmittedContrib), transmission);
-#else
-  let diffuseContrib = pureDiffuse;
+  diffuseContrib = mix(diffuseContrib, vec3f(transmittedContrib), transmission);
 #endif // RN_USE_TRANSMISSION
 
   // Specular
