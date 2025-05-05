@@ -306,6 +306,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let irradiance: vec3f = getIBLIrradiance(normal_forEnv, hdriFormat);
   let diffuse: vec3f = irradiance * baseColor;
 
+  // take account of anisotropy with reflection
   let specularMetal: vec3f = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);
   let specularDielectric: vec3f = specularMetal;
 
