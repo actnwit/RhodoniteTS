@@ -342,7 +342,16 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 clearcoatContrib = vec3(0.0);
 #endif
 
+#ifdef RN_USE_SHEEN
+  vec3 sheenContrib = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
+  float albedoSheenScaling = albedoSheenScalingNdotV;
+#else
+  vec3 sheenContrib = vec3(0.0);
+  float albedoSheenScaling = 1.0;
+#endif
+
   vec3 color = mix(dielectricContrib, metalContrib, metallic);
+  color = sheenContrib + color * albedoSheenScaling;
   color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
 
   return color;

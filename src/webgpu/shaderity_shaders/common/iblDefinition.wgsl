@@ -322,7 +322,16 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let clearcoatContrib: vec3f = vec3(0.0);
 #endif
 
+#ifdef RN_USE_SHEEN
+  let sheenContrib: vec3f = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
+  let albedoSheenScaling: f32 = albedoSheenScalingNdotV;
+#else
+  let sheenContrib: vec3f = vec3(0.0);
+  let albedoSheenScaling: f32 = 1.0;
+#endif
+
   var color: vec3f = mix(dielectricContrib, metalContrib, metallic);
+  color = sheenContrib + color * albedoSheenScaling;
   color = mix(color, clearcoatContrib, clearcoat * clearcoatFresnel);
   return color;
 }
