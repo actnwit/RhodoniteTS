@@ -54,7 +54,10 @@
 // #param emissiveTexcoordIndex: u32; // initialValue=0
 @group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(4) var emissiveSampler: sampler;
-// #param emissiveStrength: f32; // initialValue=1
+
+#ifdef RN_USE_EMISSIVE_STRENGTH
+  // #param emissiveStrength: f32; // initialValue=1
+#endif
 
 #ifdef RN_USE_CLEARCOAT
 // #param clearcoatFactor: f32; // initialValue=0
@@ -525,8 +528,11 @@ let ior = get_ior(materialSID, 0);
   let emissiveTextureTransformOffset: vec2f = get_emissiveTextureTransformOffset(materialSID, 0);
   let emissiveTextureTransformRotation: f32 = get_emissiveTextureTransformRotation(materialSID, 0);
   let emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+  var emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+#ifdef RN_USE_EMISSIVE_STRENGTH
   let emissiveStrength = get_emissiveStrength(materialSID, 0);
-  let emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz) * emissiveStrength;
+  emissive *= emissiveStrength;
+#endif // RN_USE_EMISSIVE_STRENGTH
 
 #ifdef RN_USE_CLEARCOAT
   let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);

@@ -1276,6 +1276,7 @@ export class ModelConverter {
         isSpecular: Is.exist(materialJson?.extensions?.KHR_materials_specular),
         isIridescence: Is.exist(materialJson?.extensions?.KHR_materials_iridescence),
         isAnisotropy: Is.exist(materialJson?.extensions?.KHR_materials_anisotropy),
+        isEmissiveStrength: Is.exist(materialJson?.extensions?.KHR_materials_emissive_strength),
         isShadow: rnLoaderOptions.shadow ? true : false,
         useTangentAttribute,
         useNormalTexture,

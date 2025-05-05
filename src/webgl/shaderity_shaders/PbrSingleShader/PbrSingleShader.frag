@@ -32,7 +32,9 @@ uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
 uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
 uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
 uniform sampler2D u_emissiveTexture; // initialValue=(4,white)
-uniform float u_emissiveStrength; // initialValue=1
+#ifdef RN_USE_EMISSIVE_STRENGTH
+  uniform float u_emissiveStrength; // initialValue=1
+#endif
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
 uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
@@ -553,8 +555,11 @@ void main ()
   vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0);
   float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0);
   vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+  vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
+#ifdef RN_USE_EMISSIVE_STRENGTH
   float emissiveStrength = get_emissiveStrength(materialSID, 0);
-  vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz) * emissiveStrength;
+  emissive *= emissiveStrength;
+#endif // RN_USE_EMISSIVE_STRENGTH
 
 #ifdef RN_USE_CLEARCOAT
   vec3 coated_emissive = emissive * mix(vec3(1.0), vec3(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
