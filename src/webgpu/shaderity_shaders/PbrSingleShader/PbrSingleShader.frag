@@ -505,7 +505,7 @@ let ior = get_ior(materialSID, 0);
     clearcoatRoughness, clearcoatNormal_inWorld, clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld,
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-    iridescenceFresnel, iridescenceF0, iridescence,
+    iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
     anisotropy, anisotropicB, specular, dielectricSpecularF0, metallic
   );
 

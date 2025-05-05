@@ -290,7 +290,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, clearcoatFresnel: vec3f, VdotNc: f32, geomNormal_inWorld: vec3f,
   transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
-  iridescenceFresnel: vec3f, iridescenceF0: vec3f, iridescence: f32,
+  iridescenceFresnel_dielectric: vec3f, iridescenceFresnel_metal: vec3f, iridescence: f32,
   anisotropy: f32, anisotropyDirection: vec3f, specularWeight: f32, dielectricF0: vec3f, metallic: f32
   ) -> vec3f
 {
@@ -311,9 +311,14 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
 
   // Calculate fresnel mix
   let fresnelMetal: vec3f = getIBLFresnelGGX(perceptualRoughness, NdotV, baseColor, 1.0);
-  let metalContrib: vec3f = fresnelMetal * specularMetal;
+  var metalContrib: vec3f = fresnelMetal * specularMetal;
   let fresnelDielectric: vec3f = getIBLFresnelGGX(perceptualRoughness, NdotV, dielectricF0, specularWeight);
-  let dielectricContrib: vec3f = mix(diffuse, specularDielectric, fresnelDielectric);
+  var dielectricContrib: vec3f = mix(diffuse, specularDielectric, fresnelDielectric);
+
+#ifdef RN_USE_IRIDESCENCE
+  metalContrib = mix(metalContrib, specularMetal * iridescenceFresnel_metal, iridescence);
+  dielectricContrib = mix(dielectricContrib, rgb_mix(diffuse, specularDielectric, iridescenceFresnel_dielectric), iridescence);
+#endif
 
 #ifdef RN_USE_CLEARCOAT
   let clearcoatReflection: vec3f = getReflection(rotEnvMatrix, viewDirection, clearcoatNormal_inWorld, materialSID, clearcoatRoughness, 0.0, vec3(0.0));

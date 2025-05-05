@@ -535,7 +535,7 @@ void main ()
     baseColor.rgb, F0, perceptualRoughness, clearcoatRoughness, clearcoatNormal_inWorld,
     clearcoat, clearcoatFresnel, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
-    ior, iridescenceFresnel, iridescenceF0, iridescence,
+    ior, iridescenceFresnel_dielectric, iridescenceFresnel_metal, iridescence,
     anisotropy, anisotropicB, specular, dielectricSpecularF0, metallic);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
