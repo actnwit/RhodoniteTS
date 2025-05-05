@@ -518,7 +518,7 @@ let ior = get_ior(materialSID, 0);
   let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
   let occlusionStrength = get_occlusionStrength(materialSID, 0);
 
-  // Occlution to Indirect Lights
+  // Occlusion to Indirect Lights
   resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
 #else
   var resultColor = baseColor.rgb;

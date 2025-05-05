@@ -547,7 +547,7 @@ void main ()
   float occlusion = texture(u_occlusionTexture, occlusionTexUv).r;
   float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
-  // Occlution to Indirect Lights
+  // Occlusion to Indirect Lights
   rt0.xyz += mix(ibl, ibl * occlusion, occlusionStrength);
 #else
   rt0 = vec4(baseColor, alpha);
