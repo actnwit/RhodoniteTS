@@ -206,7 +206,21 @@ IblResult getIBLRadianceLambertian(float materialSID, float NdotV, vec3 viewDire
   return result;
 }
 
-IblResult getIBLRadianceGGX(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
+vec3 getIBLRadianceGGX(float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, vec3 reflection)
+{
+  // get radiance
+  float mipCount = iblParameter.x;
+  float lod = (perceptualRoughness * (mipCount - 1.0));
+  vec3 radiance = get_radiance(reflection, lod, hdriFormat);
+
+  // scale with user parameters
+  float IBLSpecularContribution = iblParameter.z;
+  radiance *= IBLSpecularContribution;
+
+  return radiance;
+}
+
+IblResult getIBLRadianceGGXBackup(float materialSID, float NdotV, vec3 viewDirection, vec3 albedo, vec3 F0,
   float perceptualRoughness, vec4 iblParameter, ivec2 hdriFormat, mat3 rotEnvMatrix,
   vec3 normal_forEnv, vec3 reflection, float specularWeight)
 {
