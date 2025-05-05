@@ -167,6 +167,7 @@ function createPbrUberMaterial({
   isSpecular = false,
   isIridescence = false,
   isAnisotropy = false,
+  isDispersion = false,
   isEmissiveStrength = false,
   isShadow = false,
   useTangentAttribute = false,
@@ -446,6 +447,9 @@ function createPbrUberMaterial({
   }
   if (isAnisotropy) {
     material.addShaderDefine('RN_USE_ANISOTROPY');
+  }
+  if (isDispersion) {
+    material.addShaderDefine('RN_USE_DISPERSION');
   }
   if (isEmissiveStrength) {
     material.addShaderDefine('RN_USE_EMISSIVE_STRENGTH');

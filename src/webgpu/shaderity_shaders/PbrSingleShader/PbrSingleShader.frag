@@ -145,6 +145,10 @@
 // #param anisotropyTexcoordIndex: u32; // initialValue=0
 #endif
 
+#ifdef RN_USE_DISPERSION
+// #param dispersion: f32; // initialValue=0
+#endif
+
 // #param alphaCutoff: f32; // initialValue=0.01
 
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black

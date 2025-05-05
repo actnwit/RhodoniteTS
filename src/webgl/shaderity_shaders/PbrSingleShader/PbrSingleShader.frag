@@ -156,6 +156,10 @@ uniform float u_ior; // initialValue=1.5
   uniform int u_anisotropyTexcoordIndex; // initialValue=0
 #endif
 
+#ifdef RN_USE_DISPERSION
+  uniform float u_dispersion; // initialValue=0
+#endif
+
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/rt0.glsl)
