@@ -212,9 +212,9 @@ void main (){
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   ivec2 hdriFormat = get_hdriFormat(materialSID, 0);
-  vec3 rawGiUp = getIBLIrradiance(worldUpVector, hdriFormat) * IBLDiffuseContribution;
-  vec3 rawGiDown = getIBLIrradiance(worldDownVector, hdriFormat) * IBLDiffuseContribution;
-  vec3 rawGiNormal = getIBLIrradiance(normal_forEnv, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiUp = getIBLIrradiance(worldUpVector, iblParameter, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiDown = getIBLIrradiance(worldDownVector, iblParameter, hdriFormat) * IBLDiffuseContribution;
+  vec3 rawGiNormal = getIBLIrradiance(normal_forEnv, iblParameter, hdriFormat) * IBLDiffuseContribution;
   vec3 uniformedGi = (rawGiUp + rawGiDown) / 2.0;
   vec3 passthroughGi = rawGiNormal;
   vec3 indirectLighting = mix(uniformedGi, passthroughGi, indirectLightIntensity);
