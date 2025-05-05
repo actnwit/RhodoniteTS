@@ -3,7 +3,7 @@
 // Modified by Yuki Shimada
 
 
-vec3 get_irradiance(vec3 normal_forEnv, ivec2 hdriFormat) {
+vec3 getIBLIrradiance(vec3 normal_forEnv, ivec2 hdriFormat) {
   vec4 diffuseTexel = texture(u_diffuseEnvTexture, normal_forEnv);
 
   vec3 irradiance;
@@ -139,7 +139,7 @@ IblResult getIBLRadianceLambertianWithIridescence(float materialSID, float NdotV
   vec3 normal_forEnv, vec3 reflection, vec3 iridescenceF0, float iridescence, float specularWeight)
 {
   // get irradiance
-  vec3 irradiance = get_irradiance(normal_forEnv, hdriFormat);
+  vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
 
   // Use the maximum component of the iridescence Fresnel color
   // Maximum is used instead of the RGB value to not get inverse colors for the diffuse BRDF
@@ -179,7 +179,7 @@ IblResult getIBLRadianceLambertian(float materialSID, float NdotV, vec3 viewDire
   vec3 normal_forEnv, vec3 reflection, float specularWeight)
 {
   // get irradiance
-  vec3 irradiance = get_irradiance(normal_forEnv, hdriFormat);
+  vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
 
   // Roughness dependent fresnel
   vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
@@ -293,7 +293,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
   // get irradiance
-  vec3 irradiance = get_irradiance(normal_forEnv, hdriFormat);
+  vec3 irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
   vec3 diffuse = irradiance * baseColor;
 
   return diffuse;

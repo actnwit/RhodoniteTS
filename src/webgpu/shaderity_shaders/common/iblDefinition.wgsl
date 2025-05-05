@@ -2,7 +2,7 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
-fn get_irradiance(normal_forEnv: vec3f, hdriFormat: vec2<i32>) -> vec3f {
+fn getIBLIrradiance(normal_forEnv: vec3f, hdriFormat: vec2<i32>) -> vec3f {
   let diffuseTexel: vec4f = textureSample(diffuseEnvTexture, diffuseEnvSampler, normal_forEnv);
 
   var irradiance: vec3f;
@@ -161,7 +161,7 @@ fn getIBLRadianceLambertianWithIridescence(materialSID: u32, NdotV: f32, viewDir
   normal_forEnv: vec3f, reflection: vec3f, iridescenceF0: vec3f, iridescence: f32, specularWeight: f32) -> IblResult
 {
   // get irradiance
-  let irradiance = get_irradiance(normal_forEnv, hdriFormat);
+  let irradiance = getIBLIrradiance(normal_forEnv, hdriFormat);
 
   // Use the maximum component of the iridescence Fresnel color
   // Maximum is used instead of the RGB value to not get inverse colors for the diffuse BRDF
@@ -201,7 +201,7 @@ fn getIBLRadianceLambertian(materialSID: u32, NdotV: f32, viewDirection: vec3f, 
   normal_forEnv: vec3f, reflection: vec3f, specularWeight: f32) -> IblResult
 {
   // get irradiance
-  let irradiance: vec3f = get_irradiance(normal_forEnv, hdriFormat);
+  let irradiance: vec3f = getIBLIrradiance(normal_forEnv, hdriFormat);
 
   // Roughness dependent fresnel
   let kS: vec3f = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
@@ -274,7 +274,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
   // get irradiance
-  let irradiance: vec3f = get_irradiance(normal_forEnv, hdriFormat);
+  let irradiance: vec3f = getIBLIrradiance(normal_forEnv, hdriFormat);
   let diffuse: vec3f = irradiance * baseColor;
 
   return diffuse;
