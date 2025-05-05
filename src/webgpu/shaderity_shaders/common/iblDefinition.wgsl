@@ -257,7 +257,7 @@ fn getIBLRadianceGGX(materialSID: u32, NdotV: f32, viewDirection: vec3f, albedo:
 }
 
 fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, NdotV: f32, viewDirection: vec3f,
-  albedo: vec3f, F0: vec3f, perceptualRoughness: f32,
+  baseColor: vec3f, F0: vec3f, perceptualRoughness: f32,
   clearcoatRoughness: f32, clearcoatNormal_inWorld: vec3f, clearcoat: f32, VdotNc: f32, geomNormal_inWorld: vec3f,
   transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
@@ -273,60 +273,6 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let normal_forEnv: vec3f = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   let reflection: vec3f = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
-  // IBL
-#ifdef RN_USE_IRIDESCENCE
-  let baseRadianceResult: IblResult = getIBLRadianceGGXWithIridescence(materialSID, NdotV, viewDirection, albedo, F0,
-    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceFresnel, iridescence, specularWeight);
-  let baseLambertianResult: IblResult = getIBLRadianceLambertianWithIridescence(materialSID, NdotV, viewDirection, albedo, F0,
-    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceF0, iridescence, specularWeight);
-#else
-  let baseRadianceResult: IblResult = getIBLRadianceGGX(materialSID, NdotV, viewDirection, albedo, F0,
-    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, specularWeight);
-  let baseLambertianResult: IblResult = getIBLRadianceLambertian(materialSID, NdotV, viewDirection, albedo, F0,
-    perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, specularWeight);
-#endif
-
-#ifdef RN_USE_TRANSMISSION
-  let refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior, instanceInfo);
-  let refractedRayFromVPosition = v_position_inWorld + refractedRay;
-  let ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4f(refractedRayFromVPosition, 1.0);
-  var refractionCoords = ndcPoint.xy / ndcPoint.w;
-  refractionCoords += 1.0;
-  refractionCoords /= 2.0;
-  var transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
-
-#ifdef RN_USE_VOLUME
-  let attenuationColor = get_attenuationColor(materialSID, 0);
-  let attenuationDistance = get_attenuationDistance(materialSID, 0);
-  transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
-#endif
-
-  let transmissionComp = (vec3f(1.0) - baseRadianceResult.FssEss) * transmittedLight * albedo;
-  let diffuse = mix(baseLambertianResult.diffuse, transmissionComp, transmission);
-  let base = diffuse + baseRadianceResult.specular;
-#else
-  let base: vec3f = baseLambertianResult.diffuse + baseRadianceResult.specular;
-#endif
-
-#ifdef RN_USE_SHEEN
-  let sheen = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
-  let color = sheen + base * albedoSheenScalingNdotV;
-#else
-  let color = base;
-#endif
-
-#ifdef RN_USE_CLEARCOAT
-  let VdotNg = dot(geomNormal_inWorld, viewDirection);
-  let clearcoatNormal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  let coatResult: IblResult = getIBLRadianceGGX(materialSID, VdotNc, viewDirection, vec3f(0.0), F0,
-    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, reflection, specularWeight);
-  let coatLayer = coatResult.specular;
-
-  let clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
-  let coated = color * vec3f(1.0 - clearcoat * clearcoatFresnel) + vec3f(coatLayer * clearcoat);
-  return coated;
-#else
-  return color;
-#endif
+  return baseColor;
 }
 

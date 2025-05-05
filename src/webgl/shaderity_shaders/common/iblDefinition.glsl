@@ -278,7 +278,7 @@ vec3 getReflection(mat3 rotEnvMatrix, vec3 viewDirection, vec3 normal_inWorld, f
 }
 
 vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 viewDirection,
-  vec3 albedo, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
+  vec3 baseColor, vec3 F0, float perceptualRoughness, float clearcoatRoughness, vec3 clearcoatNormal_inWorld,
   float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
   vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence, float anisotropy, vec3 anisotropyDirection,
@@ -292,60 +292,5 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 normal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
   vec3 reflection = getReflection(rotEnvMatrix, viewDirection, normal_inWorld, materialSID, perceptualRoughness, anisotropy, anisotropyDirection);
 
-  // IBL
-  #ifdef RN_USE_IRIDESCENCE
-    IblResult baseRadianceResult = getIBLRadianceGGXWithIridescence(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceFresnel, iridescence, specularWeight);
-    IblResult baseLambertianResult = getIBLRadianceLambertianWithIridescence(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, iridescenceF0, iridescence, specularWeight);
-  #else
-    IblResult baseRadianceResult = getIBLRadianceGGX(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, specularWeight);
-    IblResult baseLambertianResult = getIBLRadianceLambertian(materialSID, NdotV, viewDirection, albedo, F0,
-      perceptualRoughness, iblParameter, hdriFormat, rotEnvMatrix, normal_forEnv, reflection, specularWeight);
-  #endif
-
-#ifdef RN_USE_TRANSMISSION
-  vec3 refractedRay = getVolumeTransmissionRay(geomNormal_inWorld, viewDirection, thickness, ior);
-  vec3 refractedRayFromVPosition = v_position_inWorld + refractedRay;
-  vec4 ndcPoint = get_projectionMatrix(cameraSID, 0) * get_viewMatrix(cameraSID, 0) * vec4(refractedRayFromVPosition, 1.0);
-  vec2 refractionCoords = ndcPoint.xy / ndcPoint.w;
-  refractionCoords += 1.0;
-  refractionCoords /= 2.0;
-  vec3 transmittedLight = get_sample_from_backbuffer(materialSID, refractionCoords, perceptualRoughness, ior);
-
-#ifdef RN_USE_VOLUME
-  vec3 attenuationColor = get_attenuationColor(materialSID, 0);
-  float attenuationDistance = get_attenuationDistance(materialSID, 0);
-  transmittedLight = volumeAttenuation(attenuationColor, attenuationDistance, transmittedLight, length(refractedRay));
-#endif
-
-  vec3 transmissionComp = (vec3(1.0) - baseRadianceResult.FssEss) * transmittedLight * albedo;
-  vec3 diffuse = mix(baseLambertianResult.diffuse, transmissionComp, transmission);
-  vec3 base = diffuse + baseRadianceResult.specular;
-#else
-  vec3 base = baseLambertianResult.diffuse + baseRadianceResult.specular;
-#endif
-
-#ifdef RN_USE_SHEEN
-  vec3 sheen = sheenIBL(NdotV, sheenRoughness, sheenColor, iblParameter, reflection, hdriFormat);
-  vec3 color = sheen + base * albedoSheenScalingNdotV;
-#else
-  vec3 color = base;
-#endif
-
-#ifdef RN_USE_CLEARCOAT
-  float VdotNg = dot(geomNormal_inWorld, viewDirection);
-  vec3 clearcoatNormal_forEnv = getNormalForEnv(rotEnvMatrix, normal_inWorld, materialSID);
-  IblResult coatResult = getIBLRadianceGGX(materialSID, VdotNc, viewDirection, vec3(0.0), F0,
-    clearcoatRoughness, iblParameter, hdriFormat, rotEnvMatrix, clearcoatNormal_forEnv, reflection, specularWeight);
-  vec3 coatLayer = coatResult.specular;
-
-  float clearcoatFresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - abs(VdotNc), 5.0);
-  vec3 coated = color * vec3(1.0 - clearcoat * clearcoatFresnel) + vec3(coatLayer * clearcoat);
-  return coated;
-#else
-  return color;
-#endif
-
+  return baseColor;
 }
