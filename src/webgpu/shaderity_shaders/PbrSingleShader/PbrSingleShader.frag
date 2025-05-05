@@ -506,7 +506,7 @@ let ior = get_ior(materialSID, 0);
     transmission, input.position_inWorld.xyz, u32(input.instanceInfo), thickness, ior,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     iridescenceFresnel, iridescenceF0, iridescence,
-    anisotropy, anisotropicB, specular
+    anisotropy, anisotropicB, specular, dielectricSpecularF0, metallic
   );
 
   let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);

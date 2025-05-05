@@ -241,17 +241,17 @@ fn getIBLRadianceGGX(perceptualRoughness: f32, iblParameter: vec4f, hdriFormat: 
   return radiance;
 }
 
-fn getIBLFresnelGGX(perceptualRoughness: f32, NdotV: f32, F0: vec3f, specularWeight: vec3f) -> vec3f {
+fn getIBLFresnelGGX(perceptualRoughness: f32, NdotV: f32, F0: vec3f, specularWeight: f32) -> vec3f {
   // https://bruop.github.io/ibl/#single_scattering_results
 
   // Roughness dependent fresnel
   let kS: vec3f = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
   let f_ab: vec2f = envBRDFApprox(perceptualRoughness, NdotV);
-  let FssEss: vec3f = specularWeight * (kS * f_ab.x + f_ab.y);
+  let FssEss: vec3f = vec3f(specularWeight) * (kS * f_ab.x + f_ab.y);
 
   // Multiple scattering
   let Ems: f32 = (1.0 - (f_ab.x + f_ab.y));
-  let F_avg: vec3f = specularWeight * (F0 + (1.0 - F0) / 21.0);
+  let F_avg: vec3f = vec3f(specularWeight) * (F0 + (1.0 - F0) / 21.0);
   let FmsEms: vec3f = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
 
   return FssEss + FmsEms;
@@ -291,7 +291,7 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   transmission: f32, v_position_inWorld: vec3f, instanceInfo: u32, thickness: f32, ior: f32,
   sheenColor: vec3f, sheenRoughness: f32, albedoSheenScalingNdotV: f32,
   iridescenceFresnel: vec3f, iridescenceF0: vec3f, iridescence: f32,
-  anisotropy: f32, anisotropyDirection: vec3f, specularWeight: f32
+  anisotropy: f32, anisotropyDirection: vec3f, specularWeight: f32, dielectricF0: vec3f, metallic: f32
   ) -> vec3f
 {
   let iblParameter: vec4f = get_iblParameter(materialSID, 0);
@@ -309,6 +309,14 @@ fn IBLContribution(materialSID: u32, cameraSID: u32, normal_inWorld: vec3f, Ndot
   let specularMetal: vec3f = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);
   let specularDielectric: vec3f = specularMetal;
 
-  return diffuse;
+  // Calculate fresnel mix
+  let fresnelMetal: vec3f = getIBLFresnelGGX(perceptualRoughness, NdotV, baseColor, 1.0);
+  let metalContrib: vec3f = fresnelMetal * specularMetal;
+  let fresnelDielectric: vec3f = getIBLFresnelGGX(perceptualRoughness, NdotV, dielectricF0, specularWeight);
+  let dielectricContrib: vec3f = mix(diffuse, specularDielectric, fresnelDielectric);
+
+  let color: vec3f = mix(dielectricContrib, metalContrib, metallic);
+
+  return color;
 }
 

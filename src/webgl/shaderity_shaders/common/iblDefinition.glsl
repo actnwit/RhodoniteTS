@@ -220,17 +220,17 @@ vec3 getIBLRadianceGGX(float perceptualRoughness, vec4 iblParameter, ivec2 hdriF
   return radiance;
 }
 
-vec3 getIBLFresnelGGX(float perceptualRoughness, float NdotV, vec3 F0, vec3 specularWeight) {
+vec3 getIBLFresnelGGX(float perceptualRoughness, float NdotV, vec3 F0, float specularWeight) {
   // https://bruop.github.io/ibl/#single_scattering_results
 
   // Roughness dependent fresnel
   vec3 kS = fresnelSchlickRoughness(F0, NdotV, perceptualRoughness);
   vec2 f_ab = envBRDFApprox(perceptualRoughness, NdotV);
-  vec3 FssEss = specularWeight * (kS * f_ab.x + f_ab.y);
+  vec3 FssEss = vec3(specularWeight) * (kS * f_ab.x + f_ab.y);
 
   // Multiple scattering
   float Ems = (1.0 - (f_ab.x + f_ab.y));
-  vec3 F_avg = specularWeight * (F0 + (1.0 - F0) / 21.0);
+  vec3 F_avg = vec3(specularWeight) * (F0 + (1.0 - F0) / 21.0);
   vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
 
   return FssEss + FmsEms;
@@ -312,7 +312,7 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   float clearcoat, float VdotNc, vec3 geomNormal_inWorld, float cameraSID, float transmission, vec3 v_position_inWorld,
   float thickness, vec3 sheenColor, float sheenRoughness, float albedoSheenScalingNdotV, float ior,
   vec3 iridescenceFresnel, vec3 iridescenceF0, float iridescence, float anisotropy, vec3 anisotropyDirection,
-  float specularWeight)
+  float specularWeight, vec3 dielectricF0, float metallic)
 {
   vec4 iblParameter = get_iblParameter(materialSID, 0);
   float rot = iblParameter.w;
@@ -329,5 +329,13 @@ vec3 IBLContribution(float materialSID, vec3 normal_inWorld, float NdotV, vec3 v
   vec3 specularMetal = getIBLRadianceGGX(perceptualRoughness, iblParameter, hdriFormat, reflection);
   vec3 specularDielectric = specularMetal;
 
-  return diffuse;
+  // Calculate fresnel mix
+  vec3 fresnelMetal = getIBLFresnelGGX(perceptualRoughness, NdotV, baseColor, 1.0);
+  vec3 metalContrib = fresnelMetal * specularMetal;
+  vec3 fresnelDielectric = getIBLFresnelGGX(perceptualRoughness, NdotV, dielectricF0, specularWeight);
+  vec3 dielectricContrib = mix(diffuse, specularDielectric, fresnelDielectric);
+
+  vec3 color = mix(dielectricContrib, metalContrib, metallic);
+
+  return color;
 }

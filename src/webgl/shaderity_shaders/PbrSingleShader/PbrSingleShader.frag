@@ -536,7 +536,7 @@ void main ()
     clearcoat, VdotNc, geomNormal_inWorld, cameraSID, transmission, v_position_inWorld.xyz, thickness,
     sheenColor, sheenRoughness, albedoSheenScalingNdotV,
     ior, iridescenceFresnel, iridescenceF0, iridescence,
-    anisotropy, anisotropicB, specular);
+    anisotropy, anisotropicB, specular, dielectricSpecularF0, metallic);
 
   int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
   vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
