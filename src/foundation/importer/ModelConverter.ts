@@ -2523,10 +2523,8 @@ function setupPbrMetallicRoughness(
   metallicFactor = isUnlit ? 0 : metallicFactor ?? 1;
   let roughnessFactor = pbrMetallicRoughness.roughnessFactor;
   roughnessFactor = isUnlit ? 1 : roughnessFactor ?? 1;
-  material.setParameter(
-    'metallicRoughnessFactor',
-    Vector2.fromCopyArray2([metallicFactor, roughnessFactor])
-  );
+  material.setParameter('metallicFactor', metallicFactor);
+  material.setParameter('roughnessFactor', roughnessFactor);
 
   // Metallic roughness texture
   const metallicRoughnessTexture = pbrMetallicRoughness.metallicRoughnessTexture;

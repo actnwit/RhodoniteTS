@@ -21,7 +21,8 @@
 
 // #param ior: f32; // initialValue=1.5
 
-// #param metallicRoughnessFactor: vec2<f32>; // initialValue=(1,1)
+// #param metallicFactor: f32; // initialValue=1
+// #param roughnessFactor: f32; // initialValue=1
 @group(1) @binding(1) var metallicRoughnessTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(1) var metallicRoughnessSampler: sampler;
 // #param metallicRoughnessTextureTransformScale: vec2<f32>; // initialValue=(1,1)
@@ -241,8 +242,6 @@ fn main(
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
-  let metallicRoughnessFactor: vec2f = get_metallicRoughnessFactor(materialSID, 0);
-  var metallic = metallicRoughnessFactor.x;
   let metallicRoughnessTextureTransformScale: vec2f = get_metallicRoughnessTextureTransformScale(materialSID, 0);
   let metallicRoughnessTextureTransformOffset: vec2f = get_metallicRoughnessTextureTransformOffset(materialSID, 0);
   let metallicRoughnessTextureTransformRotation: f32 = get_metallicRoughnessTextureTransformRotation(materialSID, 0);
@@ -250,8 +249,8 @@ fn main(
   let metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex, input);
   let metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransformScale, metallicRoughnessTextureTransformOffset, metallicRoughnessTextureTransformRotation, metallicRoughnessTexcoord);
   let ormTexel = textureSample(metallicRoughnessTexture, metallicRoughnessSampler, metallicRoughnessTexUv);
-  var perceptualRoughness = ormTexel.g * metallicRoughnessFactor.y;
-  metallic = ormTexel.b * metallic;
+  var perceptualRoughness = ormTexel.g * get_roughnessFactor(materialSID, 0);
+  var metallic = ormTexel.b * get_metallicFactor(materialSID, 0);
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   let alphaRoughness = perceptualRoughness * perceptualRoughness;

@@ -27,7 +27,8 @@ in vec4 v_shadowCoord;
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
-uniform vec2 u_metallicRoughnessFactor; // initialValue=(1,1)
+uniform float u_metallicFactor; // initialValue=1
+uniform float u_roughnessFactor; // initialValue=1
 uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
 uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
 uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
@@ -276,8 +277,6 @@ void main ()
 
 #ifdef RN_IS_LIGHTING
   // Metallic & Roughness
-  vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
-  float metallic = metallicRoughnessFactor.x;
   vec2 metallicRoughnessTextureTransformScale = get_metallicRoughnessTextureTransformScale(materialSID, 0);
   vec2 metallicRoughnessTextureTransformOffset = get_metallicRoughnessTextureTransformOffset(materialSID, 0);
   float metallicRoughnessTextureTransformRotation = get_metallicRoughnessTextureTransformRotation(materialSID, 0);
@@ -285,8 +284,8 @@ void main ()
   vec2 metallicRoughnessTexcoord = getTexcoord(metallicRoughnessTexcoordIndex);
   vec2 metallicRoughnessTexUv = uvTransform(metallicRoughnessTextureTransformScale, metallicRoughnessTextureTransformOffset, metallicRoughnessTextureTransformRotation, metallicRoughnessTexcoord);
   vec4 ormTexel = texture(u_metallicRoughnessTexture, metallicRoughnessTexUv);
-  float perceptualRoughness = ormTexel.g * metallicRoughnessFactor.y;
-  metallic = ormTexel.b * metallic;
+  float perceptualRoughness = ormTexel.g * get_roughnessFactor(materialSID, 0);
+  float metallic = ormTexel.b * get_metallicFactor(materialSID, 0);
   metallic = clamp(metallic, 0.0, 1.0);
   perceptualRoughness = clamp(perceptualRoughness, c_MinRoughness, 1.0);
   float alphaRoughness = perceptualRoughness * perceptualRoughness;
