@@ -567,7 +567,8 @@ let ior = get_ior(materialSID, 0);
   let occlusionStrength = get_occlusionStrength(materialSID, 0);
 
   // Occlusion to Indirect Lights
-  resultColor += mix(ibl, ibl * occlusion, occlusionStrength);
+  let indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
+  resultColor += indirectLight;
 #else
   var resultColor = baseColor.rgb;
   var resultAlpha = baseColor.a;

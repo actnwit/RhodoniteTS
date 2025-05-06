@@ -596,7 +596,8 @@ void main ()
   float occlusionStrength = get_occlusionStrength(materialSID, 0);
 
   // Occlusion to Indirect Lights
-  rt0.xyz += mix(ibl, ibl * occlusion, occlusionStrength);
+  vec3 indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
+  rt0.xyz += indirectLight;
 #else
   rt0 = vec4(baseColor, alpha);
 #endif // RN_IS_LIGHTING
