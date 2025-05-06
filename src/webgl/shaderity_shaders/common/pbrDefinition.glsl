@@ -636,10 +636,10 @@ vec3 lightingWithPunctualLight(
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
   diffuseContrib = diffuseContrib * (vec3(1.0) - diffuseTransmission);
   if (dot(normal_inWorld, light.direction) < 0.0) {
-    float diffuseNdotL = saturateEpsilonToOne(dot(normal_inWorld, -light.direction));
+    float diffuseNdotL = saturate(dot(normal_inWorld, -light.direction));
     vec3 diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3(diffuseNdotL) * light.attenuatedIntensity;
     vec3 mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
-    float diffuseVdotH = saturateEpsilonToOne(dot(viewDirection, normalize(mirrorL + viewDirection)));
+    float diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
     diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
@@ -664,7 +664,7 @@ vec3 lightingWithPunctualLight(
 
   light.attenuatedIntensity = getLightAttenuated(light);
   // Specular
-  float NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+  float NdotH = saturate(dot(normal_inWorld, halfVector));
 
 #ifdef RN_USE_ANISOTROPY
   float TdotL = dot(anisotropicT, light.direction);
@@ -689,8 +689,8 @@ vec3 lightingWithPunctualLight(
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
-  float NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-  float LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
+  float NdotHc = saturate(dot(clearcoatNormal_inWorld, halfVector));
+  float LdotNc = saturate(dot(light.direction, clearcoatNormal_inWorld));
   vec3 clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3(LdotNc) * light.attenuatedIntensity;
 #else
   vec3 clearcoatContrib = vec3(0.0);

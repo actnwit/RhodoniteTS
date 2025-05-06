@@ -264,7 +264,7 @@ fn main(
   let albedo = mix(baseColor.rgb, black, metallic);
 
   // NdotV
-  let NdotV = clamp(dot(normal_inWorld, viewDirection), Epsilon, 1.0);
+  let NdotV = saturate(dot(normal_inWorld, viewDirection));
 
 #ifdef RN_USE_ANISOTROPY
   // Anisotropy
@@ -401,7 +401,7 @@ let ior = get_ior(materialSID, 0);
   let clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearcoatNormalTexcoord);
   let textureNormal_tangent = textureSample(clearcoatNormalTexture, clearcoatNormalSampler, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
   let clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
-  let VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+  let VdotNc = saturate(dot(viewDirection, clearcoatNormal_inWorld));
 
   let clearcoatF0 = vec3f(pow((ior - 1.0) / (ior + 1.0), 2.0));
   let clearcoatF90 = vec3f(1.0);

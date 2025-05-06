@@ -299,7 +299,7 @@ void main ()
   vec3 albedo = mix(baseColor.rgb, black, metallic);
 
   // NdotV
-  float NdotV = saturateEpsilonToOne(dot(normal_inWorld, viewDirection));
+  float NdotV = saturate(dot(normal_inWorld, viewDirection));
 
   #ifdef RN_USE_ANISOTROPY
     float anisotropy = get_anisotropyStrength(materialSID, 0);
@@ -439,7 +439,7 @@ void main ()
     vec2 clearcoatNormalTexUv = uvTransform(clearcoatNormalTextureTransformScale, clearcoatNormalTextureTransformOffset, clearcoatNormalTextureTransformRotation, clearcoatNormalTexcoord);
     vec3 textureNormal_tangent = texture(u_clearcoatNormalTexture, clearcoatNormalTexUv).xyz * vec3(2.0) - vec3(1.0);
     vec3 clearcoatNormal_inWorld = normalize(TBN * textureNormal_tangent);
-    float VdotNc = saturateEpsilonToOne(dot(viewDirection, clearcoatNormal_inWorld));
+    float VdotNc = saturate(dot(viewDirection, clearcoatNormal_inWorld));
 
     vec3 clearcoatF0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
     vec3 clearcoatF90 = vec3(1.0);

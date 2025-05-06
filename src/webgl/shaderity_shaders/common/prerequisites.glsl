@@ -1,6 +1,7 @@
 precision highp sampler2DArray;
 
 const float Epsilon = 0.0000001;
+#define saturate(x) clamp(x, 0.0, 1.0)
 #define saturateEpsilonToOne(x) clamp(x, Epsilon, 1.0)
 
 #ifdef RN_IS_MORPHING
@@ -335,9 +336,4 @@ vec3 sq(vec3 t)
 vec4 sq(vec4 t)
 {
   return t * t;
-}
-
-float saturate(float t)
-{
-  return clamp(t, 0.0, 1.0);
 }

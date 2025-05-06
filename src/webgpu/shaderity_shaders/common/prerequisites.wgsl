@@ -212,9 +212,20 @@ fn getTexcoord(texcoordIndex: u32, input: VertexOutput) -> vec2<f32> {
 }
 #endif
 
+fn saturate(x: f32) -> f32 {
+  return clamp(x, 0.0, 1.0);
+}
+
+fn saturateVec3f(v: vec3f) -> vec3f {
+  return vec3f(saturate(v.x), saturate(v.y), saturate(v.z));
+}
+
 fn saturateEpsilonToOne(x: f32) -> f32 {
-  let Epsilon = 0.0000001;
   return clamp(x, Epsilon, 1.0);
+}
+
+fn saturateEpsilonToOneVec3f(v: vec3f) -> vec3f {
+  return vec3f(saturateEpsilonToOne(v.x), saturateEpsilonToOne(v.y), saturateEpsilonToOne(v.z));
 }
 
 fn max3(v: vec3f) -> f32

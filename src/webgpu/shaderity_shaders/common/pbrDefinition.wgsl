@@ -496,7 +496,7 @@ fn lightingWithPunctualLight(
   var dielectricFresnel = fresnelSchlick(dielectricF0, dielectricF90, VdotH);
   let metalFresnel = fresnelSchlick(baseColor, vec3f(1.0), VdotH);
 
-  let NdotL = clamp(dot(normal_inWorld, light.direction), Epsilon, 1.0);
+  let NdotL = saturateEpsilonToOne(dot(normal_inWorld, light.direction));
 
   // Diffuse
   let diffuseBrdf = BRDF_lambertian(baseColor);
@@ -505,10 +505,10 @@ fn lightingWithPunctualLight(
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
   diffuseContrib = diffuseContrib * (vec3f(1.0) - diffuseTransmission);
   if (dot(normal_inWorld, light.direction) < 0.0) {
-    let diffuseNdotL = saturateEpsilonToOne(dot(normal_inWorld, -light.direction));
+    let diffuseNdotL = saturate(dot(normal_inWorld, -light.direction));
     var diffuseBtdf = BRDF_lambertian(diffuseTransmissionColor) * vec3f(diffuseNdotL) * light.attenuatedIntensity;
     let mirrorL = normalize(light.direction + 2.0 * normal_inWorld * dot(normal_inWorld, -light.direction));
-    let diffuseVdotH = saturateEpsilonToOne(dot(viewDirection, normalize(mirrorL + viewDirection)));
+    let diffuseVdotH = saturate(dot(viewDirection, normalize(mirrorL + viewDirection)));
     dielectricFresnel = fresnelSchlick(dielectricF0 * specularWeight, dielectricF90, abs(diffuseVdotH));
 #ifdef RN_USE_VOLUME
     diffuseBtdf = volumeAttenuation(attenuationColor, attenuationDistance, diffuseBtdf, diffuseTransmissionThickness);
@@ -531,7 +531,7 @@ fn lightingWithPunctualLight(
 #endif // RN_USE_TRANSMISSION
 
   // Specular
-  let NdotH = saturateEpsilonToOne(dot(normal_inWorld, halfVector));
+  let NdotH = saturate(dot(normal_inWorld, halfVector));
 
 #ifdef RN_USE_ANISOTROPY
   let TdotL = dot(anisotropicT, light.direction);
@@ -556,8 +556,8 @@ fn lightingWithPunctualLight(
 
 #ifdef RN_USE_CLEARCOAT
   // Clear Coat Layer
-  let NdotHc = saturateEpsilonToOne(dot(clearcoatNormal_inWorld, halfVector));
-  let LdotNc = saturateEpsilonToOne(dot(light.direction, clearcoatNormal_inWorld));
+  let NdotHc = saturate(dot(clearcoatNormal_inWorld, halfVector));
+  let LdotNc = saturate(dot(light.direction, clearcoatNormal_inWorld));
   let clearcoatContrib = BRDF_specularGGX(NdotHc, LdotNc, VdotNc, clearcoatRoughness * clearcoatRoughness) * vec3f(LdotNc) * light.attenuatedIntensity;
 #else
   let clearcoatContrib = vec3f(0.0);

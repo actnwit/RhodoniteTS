@@ -90,7 +90,7 @@ fn ACES_Hill_ToneMapping(inColor: vec3<f32>) -> vec3<f32>
   color = ACESOutputMat * color;
 
   // Clamp to [0, 1]
-  color = saturate(color);
+  color = saturateVec3f(color);
 
   return color;
 }
