@@ -10576,7 +10576,7 @@ type Vrm1 = Vrm1_Extension & RnM2;
 
 declare function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isDispersion, isEmissiveStrength, isDiffuseTransmission, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
@@ -10588,6 +10588,9 @@ declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning,
     isSpecular?: boolean | undefined;
     isIridescence?: boolean | undefined;
     isAnisotropy?: boolean | undefined;
+    isDispersion?: boolean | undefined;
+    isEmissiveStrength?: boolean | undefined;
+    isDiffuseTransmission?: boolean | undefined;
     isShadow?: boolean | undefined;
     useTangentAttribute?: boolean | undefined;
     useNormalTexture?: boolean | undefined;
