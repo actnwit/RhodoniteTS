@@ -541,6 +541,9 @@ let ior = get_ior(materialSID, 0);
         }
       }
     #endif
+
+    lighting = select(lighting, vec3f(0.0), light.lightType < 0);
+
     resultColor += lighting;
   }
 
