@@ -1,9 +1,13 @@
-import { VectorN } from "./VectorN";
-import { IAnimatedValue } from "./IAnimatedValue";
-import { AnimationSampler, AnimationSamplers, AnimationTrackName } from "../../types/AnimationTypes";
-import { AnimationComponent } from "../components/Animation/AnimationComponent";
-import { AnimationAttribute } from "../definitions/AnimationAttribute";
-import { __interpolate } from "../components/Animation/AnimationOps";
+import { VectorN } from './VectorN';
+import { IAnimatedValue } from './IAnimatedValue';
+import {
+  AnimationSampler,
+  AnimationSamplers,
+  AnimationTrackName,
+} from '../../types/AnimationTypes';
+import { AnimationComponent } from '../components/Animation/AnimationComponent';
+import { AnimationAttribute } from '../definitions/AnimationAttribute';
+import { __interpolate } from '../components/Animation/AnimationOps';
 
 export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
@@ -59,23 +63,38 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   public update() {
     let time = this.__time ?? AnimationComponent.globalTime;
     if (this.isLoop) {
-      let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
+      let duration =
+        this.__firstActiveAnimationSampler.input[
+          this.__firstActiveAnimationSampler.input.length - 1
+        ];
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.max(duration, this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]);
+        duration = Math.max(
+          duration,
+          this.__secondActiveAnimationSampler.input[
+            this.__secondActiveAnimationSampler.input.length - 1
+          ]
+        );
       }
       time = time % duration;
     }
     if (this.__lastTime == time) {
       return;
     }
-    const firstValue = __interpolate(this.__firstActiveAnimationSampler, time, AnimationAttribute.VectorN.index);
+    const firstValue = __interpolate(
+      this.__firstActiveAnimationSampler,
+      time,
+      AnimationAttribute.VectorN.index
+    );
     if (this.__secondActiveAnimationSampler === undefined) {
-      this._v[0] = firstValue[0];
-      this._v[1] = firstValue[1];
-      this._v[2] = firstValue[2];
-      this._v[3] = firstValue[3];
+      for (let i = 0; i < this._v.length; i++) {
+        this._v[i] = firstValue[i];
+      }
     } else {
-      const secondValue = __interpolate(this.__secondActiveAnimationSampler, time, AnimationAttribute.VectorN.index);
+      const secondValue = __interpolate(
+        this.__secondActiveAnimationSampler,
+        time,
+        AnimationAttribute.VectorN.index
+      );
       for (let i = 0; i < this._v.length; i++) {
         this._v[i] = firstValue[i] * (1 - this.blendingRatio) + secondValue[i] * this.blendingRatio;
       }
