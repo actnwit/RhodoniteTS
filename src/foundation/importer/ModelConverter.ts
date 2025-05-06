@@ -377,7 +377,7 @@ export class ModelConverter {
           }
 
           if (channel.target.path === 'pointer') {
-            ModelConverter.__setPointerAnimation(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, rnMaterials);
+            ModelConverter.__setPointerAnimation(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, rnMaterials, gltfModel);
           } else {
             ModelConverter.__setNormalAnimation(rnEntities, channel, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
           }
@@ -395,15 +395,81 @@ export class ModelConverter {
     animOutputArray: Float32Array,
     interpolation: string,
     animationAttributeType: AnimationPathName,
-    rnMaterials: Material[]
+    rnMaterials: Material[],
+    gltfModel: RnM2
   ) {
     const pointer = channel.target.extensions!.KHR_animation_pointer.pointer as string;
     const matchNodes= pointer.match(/^\/nodes\/([0-9]+)\//);
     const matchMaterials = pointer.match(/^\/materials\/([0-9]+)\//);
+    const matchLights = pointer.match(/^\/extensions\/KHR_lights_punctual\/lights\/([0-9]+)\//);
     if (matchMaterials) {
       ModelConverter.__setPointerAnimationMaterials(matchMaterials, rnMaterials, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
     } else if (matchNodes) {
       ModelConverter.__setPointerAnimationNodes(matchNodes, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
+    } else if (matchLights) {
+      ModelConverter.__setPointerAnimationLights(matchLights, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, gltfModel);
+    }
+  }
+
+  private static __setPointerAnimationLights(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName, gltfModel: RnM2) {
+    const lightIndex = parseInt(match[1]);
+    const nodes = gltfModel.nodes;
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (node.extensions?.KHR_lights_punctual) {
+        const lightIdx = node.extensions.KHR_lights_punctual.lightIndex;
+        if (lightIdx === lightIndex) {
+          const rnEntity = rnEntities[i];
+          const lightComponent = rnEntity.tryToGetLight();
+          if (Is.not.exist(lightComponent)) {
+            throw new Error(`LightComponent not found: ${pointer}`);
+          }
+          const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+          const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+          const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+          const animationSampler = {
+            input: animInputArray,
+            output: animOutputArray,
+            outputComponentN: outputComponentN as VectorComponentN,
+            interpolationMethod: AnimationInterpolation.fromString(interpolation),
+          };
+          animationSamplers.set(trackName, animationSampler);
+
+          let animatedValue: IAnimatedValue;
+          if (outputComponentN === 1) {
+            animatedValue = new AnimatedScalar(animationSamplers, trackName);
+          } else if (outputComponentN === 2) {
+            animatedValue = new AnimatedVector2(animationSamplers, trackName);
+          } else if (outputComponentN === 3) {
+            animatedValue = new AnimatedVector3(animationSamplers, trackName);
+          } else if (outputComponentN === 4) {
+            animatedValue = new AnimatedVector4(animationSamplers, trackName);
+          } else {
+            throw new Error(`Unsupported component number: ${outputComponentN}`);
+          }
+
+          let animationComponent = rnEntity.tryToGetAnimation();
+          if (Is.not.exist(animationComponent)) {
+            const newRnEntity = EntityRepository.addComponentToEntity(
+              AnimationComponent,
+              rnEntity
+            );
+            animationComponent = newRnEntity.getAnimation();
+          }
+
+          if (pointer.includes('color')) {
+            animationComponent.setAnimation('light_color', animatedValue);
+          } else if (pointer.includes('intensity')) {
+            animationComponent.setAnimation('light_intensity', animatedValue);
+          } else if (pointer.includes('range')) {
+            animationComponent.setAnimation('light_range', animatedValue);
+          } else if (pointer.includes('spot/innerConeAngle')) {
+            animationComponent.setAnimation('light_spot_innerConeAngle', animatedValue);
+          } else if (pointer.includes('spot/outerConeAngle')) {
+            animationComponent.setAnimation('light_spot_outerConeAngle', animatedValue);
+          }
+        }
+      }
     }
   }
 
@@ -740,7 +806,8 @@ export class ModelConverter {
       if (light.intensity != null) {
         intensity = light.intensity;
       }
-      lightComponent.intensity = Vector3.multiply(color, intensity);
+      lightComponent.color = color;
+      lightComponent.intensity = intensity;
       if (light.range != null) {
         lightComponent.range = light.range;
       }

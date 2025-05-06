@@ -152,6 +152,36 @@ export class AnimationComponent extends Component {
             }
           }
         }
+      } else if (pathName === 'light_color') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const color = channel.animatedValue as unknown as Vector3;
+          lightComponent.color = color;
+        }
+      } else if (pathName === 'light_intensity') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const intensity = channel.animatedValue as unknown as Scalar;
+          lightComponent.intensity = intensity._v[0];
+        }
+      } else if (pathName === 'light_range') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const range = channel.animatedValue as unknown as Scalar;
+          lightComponent.range = range._v[0];
+        }
+      } else if (pathName === 'light_spot_innerConeAngle') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const innerConeAngle = channel.animatedValue as unknown as Scalar;
+          lightComponent.innerConeAngle = innerConeAngle._v[0];
+        }
+      } else if (pathName === 'light_spot_outerConeAngle') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const outerConeAngle = channel.animatedValue as unknown as Scalar;
+          lightComponent.outerConeAngle = outerConeAngle._v[0];
+        }
       } else if (pathName === 'effekseer') {
         if ((channel.animatedValue as unknown as Scalar).x > 0.5) {
           if (this.__isEffekseerState === 0) {

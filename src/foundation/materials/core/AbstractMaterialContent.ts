@@ -387,6 +387,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         const worldLightPosition = sceneGraphComponent.worldPosition;
         const worldLightDirection = lightComponent.direction;
         const worldLightIntensity = lightComponent.intensity;
+        const worldLightColor = lightComponent.color;
 
         AbstractMaterialContent.__lightPositions[i * 3 + 0] = worldLightPosition.x;
         AbstractMaterialContent.__lightPositions[i * 3 + 1] = worldLightPosition.y;
@@ -404,9 +405,9 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightDirections[i * 3 + 1] = worldLightDirection.y;
         AbstractMaterialContent.__lightDirections[i * 3 + 2] = worldLightDirection.z;
 
-        AbstractMaterialContent.__lightIntensities[i * 3 + 0] = worldLightIntensity.x;
-        AbstractMaterialContent.__lightIntensities[i * 3 + 1] = worldLightIntensity.y;
-        AbstractMaterialContent.__lightIntensities[i * 3 + 2] = worldLightIntensity.z;
+        AbstractMaterialContent.__lightIntensities[i * 3 + 0] = worldLightColor.x * worldLightIntensity;
+        AbstractMaterialContent.__lightIntensities[i * 3 + 1] = worldLightColor.y * worldLightIntensity;
+        AbstractMaterialContent.__lightIntensities[i * 3 + 2] = worldLightColor.z * worldLightIntensity;
 
         AbstractMaterialContent.__lightProperties[i * 4 + 0] = // LightType
           lightComponent.enable ? lightComponent.type.index : -1;

@@ -112,7 +112,7 @@ controller.setTarget(vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity);
 const lightEntity = Rn.createLightEntity();
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
-lightComponent.intensity = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
+lightComponent.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
 lightEntity.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
 
 const stats = new Stats();

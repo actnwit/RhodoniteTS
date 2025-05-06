@@ -27,7 +27,8 @@ import { createGroupEntity } from '../SceneGraph/createGroupEntity';
  */
 export class LightComponent extends Component {
   public type = LightType.Point;
-  private __intensity = Vector3.fromCopyArray([1, 1, 1]);
+  private __color = Vector3.fromCopyArray([1, 1, 1]);
+  private __intensity = 1;
   private readonly __initialDirection = Vector3.fromCopyArray([0, 0, -1]);
   private __direction = Vector3.fromCopyArray([0, 0, -1]);
   public innerConeAngle = 0.0;
@@ -76,13 +77,22 @@ export class LightComponent extends Component {
     return this.__direction;
   }
 
-  set intensity(value: Vector3) {
+  set intensity(value: number) {
     this.__intensity = value;
     this.__updateCount++;
   }
 
-  get intensity(): Vector3 {
+  get intensity(): number {
     return this.__intensity;
+  }
+
+  set color(value: Vector3) {
+    this.__color = value;
+    this.__updateCount++;
+  }
+
+  get color(): Vector3 {
+    return this.__color;
   }
 
   get _up() {
@@ -174,9 +184,9 @@ export class LightComponent extends Component {
     LightComponent.__lightPositions._v[3 * this.componentSID + 1] = lightPosition.y;
     LightComponent.__lightPositions._v[3 * this.componentSID + 2] = lightPosition.z;
 
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 0] = this.__intensity.x;
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 1] = this.__intensity.y;
-    LightComponent.__lightIntensities._v[3 * this.componentSID + 2] = this.__intensity.z;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 0] = this.__color.x * this.__intensity;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 1] = this.__color.y * this.__intensity;
+    LightComponent.__lightIntensities._v[3 * this.componentSID + 2] = this.__color.z * this.__intensity;
 
     LightComponent.__lightProperties._v[4 * this.componentSID + 0] = this.enable
       ? this.type.index
