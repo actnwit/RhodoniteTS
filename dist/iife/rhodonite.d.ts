@@ -3406,6 +3406,7 @@ declare class AABB {
  */
 declare class LightComponent extends Component {
     type: EnumIO;
+    private __color;
     private __intensity;
     private readonly __initialDirection;
     private __direction;
@@ -3431,8 +3432,10 @@ declare class LightComponent extends Component {
     get componentTID(): ComponentTID;
     get updateCount(): number;
     get direction(): Vector3;
-    set intensity(value: Vector3);
-    get intensity(): Vector3;
+    set intensity(value: number);
+    get intensity(): number;
+    set color(value: Vector3);
+    get color(): Vector3;
     get _up(): Vector3;
     set isLightGizmoVisible(flg: boolean);
     get isLightGizmoVisible(): boolean;
@@ -5551,6 +5554,7 @@ interface IAnimatedValue {
     getAnimationSampler(trackName: AnimationTrackName): AnimationSampler;
     deleteAnimationSampler(trackName: AnimationTrackName): void;
     setFloat32Array(array: Float32Array): void;
+    getNumberArray(): number[];
 }
 
 /**
@@ -11610,6 +11614,7 @@ declare class AnimatedScalar extends Scalar$1 implements IScalar, IAnimatedValue
     private __lastTime;
     isLoop: boolean;
     constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName);
+    getNumberArray(): number[];
     setFloat32Array(array: Float32Array): void;
     setTime(time: number): void;
     useGlobalTime(): void;
@@ -11640,6 +11645,7 @@ declare class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValu
     private __lastTime;
     isLoop: boolean;
     constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName);
+    getNumberArray(): number[];
     setFloat32Array(array: Float32Array): void;
     setTime(time: number): void;
     useGlobalTime(): void;
@@ -11672,6 +11678,7 @@ declare class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValu
     private __lastTime;
     isLoop: boolean;
     constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName);
+    getNumberArray(): number[];
     setFloat32Array(array: Float32Array): void;
     setTime(time: number): void;
     useGlobalTime(): void;
@@ -11704,6 +11711,7 @@ declare class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValu
     private __lastTime;
     isLoop: boolean;
     constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName);
+    getNumberArray(): number[];
     setFloat32Array(array: Float32Array): void;
     setTime(time: number): void;
     useGlobalTime(): void;
@@ -11767,6 +11775,7 @@ declare class AnimatedQuaternion extends Quaternion implements IQuaternion, IAni
     private __lastTime;
     isLoop: boolean;
     constructor(animationSamplers: AnimationSamplers, activeAnimationTrackName: AnimationTrackName);
+    getNumberArray(): number[];
     setFloat32Array(array: Float32Array): void;
     setTime(time: number): void;
     useGlobalTime(): void;
@@ -12486,7 +12495,7 @@ declare function createLightWithCameraEntity(): ILightEntity & ICameraEntityMeth
  * type of animation.channel.target.path in glTF2
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
-type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | 'material' | 'effekseer';
+type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | 'material' | 'light_color' | 'light_intensity' | 'light_range' | 'light_spot_innerConeAngle' | 'light_spot_outerConeAngle' | 'camera_znear' | 'camera_zfar' | 'camera_fovy' | 'camera_xmag' | 'camera_ymag' | 'effekseer';
 type AnimationTrackName = string;
 interface AnimationInfo {
     name: AnimationTrackName;
@@ -15646,6 +15655,10 @@ declare class ModelConverter {
      */
     static _setupAnimation(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[], rootGroup: ISceneGraphEntity, rnMaterials: Material[]): void;
     private static __setPointerAnimation;
+    private static __setPointerAnimationCameras;
+    private static __setPointerAnimationLights;
+    private static __setPointerAnimationNodes;
+    private static __setPointerAnimationMaterials;
     private static __setNormalAnimation;
     static _setupSkeleton(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]): void;
     private static __setupObjects;
