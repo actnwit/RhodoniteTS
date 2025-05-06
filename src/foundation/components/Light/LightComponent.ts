@@ -171,9 +171,8 @@ export class LightComponent extends Component {
       this.__initialDirection
     );
 
-    const lightAngleScale =
-      1.0 / Math.max(0.001, Math.cos(this.innerConeAngle) - Math.cos(this.outerConeAngle));
-    const lightAngleOffset = -Math.cos(this.outerConeAngle) * lightAngleScale;
+    const innerConeCos = Math.cos(this.innerConeAngle);
+    const outerConeCos = Math.cos(this.outerConeAngle);
 
     LightComponent.__lightDirections._v[3 * this.componentSID + 0] = this.__direction.x;
     LightComponent.__lightDirections._v[3 * this.componentSID + 1] = this.__direction.y;
@@ -192,8 +191,8 @@ export class LightComponent extends Component {
       ? this.type.index
       : -1;
     LightComponent.__lightProperties._v[4 * this.componentSID + 1] = this.range;
-    LightComponent.__lightProperties._v[4 * this.componentSID + 2] = lightAngleScale;
-    LightComponent.__lightProperties._v[4 * this.componentSID + 3] = lightAngleOffset;
+    LightComponent.__lightProperties._v[4 * this.componentSID + 2] = innerConeCos;
+    LightComponent.__lightProperties._v[4 * this.componentSID + 3] = outerConeCos;
 
     this.__updateGizmo();
 
