@@ -36,7 +36,14 @@ export class Bloom {
       gaussianBlurLevelHighLuminance = 4,
       gaussianKernelSize = 10,
       gaussianVariance = 10,
-      synthesizeCoefficient = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+      synthesizeCoefficient = [
+        1.0,
+        1.0 / gaussianBlurLevelHighLuminance,
+        1.0 / gaussianBlurLevelHighLuminance,
+        1.0 / gaussianBlurLevelHighLuminance,
+        1.0 / gaussianBlurLevelHighLuminance,
+        1.0 / gaussianBlurLevelHighLuminance,
+      ],
       // synthesizeCoefficient = [1.0 / 2, 1.0 / 4, 1.0 / 8, 1.0 / 16, 1.0 / 32, 1.0 / 64],
     },
   }: {
