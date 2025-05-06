@@ -28,6 +28,10 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     this.__firstActiveAnimationSampler = animationSampler;
   }
 
+  getNumberArray() {
+    return Array.from(this._v);
+  }
+
   setFloat32Array(array: Float32Array) {
     this._v = array;
     this.update();

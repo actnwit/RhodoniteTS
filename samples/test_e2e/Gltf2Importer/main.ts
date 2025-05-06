@@ -23,7 +23,7 @@ cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.
 // Lights
 const lightEntity = Rn.createLightEntity();
 lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 1.0, 100000.0]);
-lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
+lightEntity.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 lightEntity.getLight().type = Rn.LightType.Directional;
 //lightEntity2.getLight().type = Rn.LightType.Directional;
 

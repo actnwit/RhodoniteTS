@@ -19,7 +19,8 @@ pointLight = Rn.EntityRepository.tryToAddComponentToEntityByTID(
   pointLight
 ) as Rn.IMeshEntity & Rn.ILightEntityMethods;
 pointLight.getLight().type = Rn.LightType.Point;
-pointLight.getLight().intensity = Rn.Vector3.fromCopyArray([20, 20, 20]);
+pointLight.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
+pointLight.getLight().intensity = 20;
 pointLight.scale = Rn.Vector3.fromCopyArray([0.1, 0.1, 0.1]);
 const pointGroupEntity = Rn.createGroupEntity();
 pointGroupEntity.addChild(pointLight.getSceneGraph());

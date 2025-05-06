@@ -35,7 +35,7 @@ import { __interpolate } from './AnimationOps';
 import { ProcessStage } from '../../definitions';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableVector3 } from '../../math/MutableVector3';
-import { Scalar } from '../../math';
+import { MathUtil, Scalar } from '../../math';
 import { IAnimatedValue } from '../../math/IAnimatedValue';
 import { AnimatedVector3 } from '../../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../../math/AnimatedQuaternion';
@@ -151,6 +151,66 @@ export class AnimationComponent extends Component {
               material.setTime(time);
             }
           }
+        }
+      } else if (pathName === 'light_color') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const color = channel.animatedValue as unknown as Vector3;
+          lightComponent.color = color;
+        }
+      } else if (pathName === 'light_intensity') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const intensity = channel.animatedValue as unknown as Scalar;
+          lightComponent.intensity = intensity._v[0];
+        }
+      } else if (pathName === 'light_range') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const range = channel.animatedValue as unknown as Scalar;
+          lightComponent.range = range._v[0];
+        }
+      } else if (pathName === 'light_spot_innerConeAngle') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const innerConeAngle = channel.animatedValue as unknown as Scalar;
+          lightComponent.innerConeAngle = innerConeAngle._v[0];
+        }
+      } else if (pathName === 'light_spot_outerConeAngle') {
+        const lightComponent = this.entity.tryToGetLight();
+        if (Is.exist(lightComponent)) {
+          const outerConeAngle = channel.animatedValue as unknown as Scalar;
+          lightComponent.outerConeAngle = outerConeAngle._v[0];
+        }
+      } else if (pathName === 'camera_znear') {
+        const cameraComponent = this.entity.tryToGetCamera();
+        if (Is.exist(cameraComponent)) {
+          const znear = channel.animatedValue as unknown as Scalar;
+          cameraComponent.zNear = znear._v[0];
+        }
+      } else if (pathName === 'camera_zfar') {
+        const cameraComponent = this.entity.tryToGetCamera();
+        if (Is.exist(cameraComponent)) {
+          const zfar = channel.animatedValue as unknown as Scalar;
+          cameraComponent.zFar = zfar._v[0];
+        }
+      } else if (pathName === 'camera_fovy') {
+        const cameraComponent = this.entity.tryToGetCamera();
+        if (Is.exist(cameraComponent)) {
+          const fovy = channel.animatedValue as unknown as Scalar;
+          cameraComponent.setFovyAndChangeFocalLength(MathUtil.radianToDegree(fovy._v[0]));
+        }
+      } else if (pathName === 'camera_xmag') {
+        const cameraComponent = this.entity.tryToGetCamera();
+        if (Is.exist(cameraComponent)) {
+          const xmag = channel.animatedValue as unknown as Scalar;
+          cameraComponent.xMag = xmag._v[0];
+        }
+      } else if (pathName === 'camera_ymag') {
+        const cameraComponent = this.entity.tryToGetCamera();
+        if (Is.exist(cameraComponent)) {
+          const ymag = channel.animatedValue as unknown as Scalar;
+          cameraComponent.yMag = ymag._v[0];
         }
       } else if (pathName === 'effekseer') {
         if ((channel.animatedValue as unknown as Scalar).x > 0.5) {

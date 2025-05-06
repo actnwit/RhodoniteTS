@@ -27,6 +27,10 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
     this.__firstActiveAnimationSampler = animationSampler;
   }
 
+  getNumberArray() {
+    return Array.from(this._v);
+  }
+
   setFloat32Array(array: Float32Array) {
     this._v = array;
     this.update();

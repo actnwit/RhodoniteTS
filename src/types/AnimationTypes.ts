@@ -16,6 +16,16 @@ export type AnimationPathName =
   | 'scale'
   | 'weights'
   | 'material'
+  | 'light_color'
+  | 'light_intensity'
+  | 'light_range'
+  | 'light_spot_innerConeAngle'
+  | 'light_spot_outerConeAngle'
+  | 'camera_znear'
+  | 'camera_zfar'
+  | 'camera_fovy'
+  | 'camera_xmag'
+  | 'camera_ymag'
   | 'effekseer';
 
 export type AnimationTrackName = string;

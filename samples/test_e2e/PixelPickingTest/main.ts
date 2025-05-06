@@ -86,7 +86,8 @@ cameraEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0, 0.
 // lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([1, 1, 1]);
 const lightEntity2 = Rn.createLightEntity();
 lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 10.0]);
-(lightEntity2.getLight() as Rn.LightComponent).intensity = Rn.Vector3.fromCopyArray([40, 40, 40]);
+(lightEntity2.getLight() as Rn.LightComponent).color = Rn.Vector3.fromCopyArray([1, 1, 1]);
+(lightEntity2.getLight() as Rn.LightComponent).intensity = 40;
 //lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
 //lightEntity2.getLight().type = Rn.LightType.Directional;
 

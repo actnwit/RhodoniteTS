@@ -33,7 +33,8 @@ const expression = (
 
 // Lights
 const lightEntity = Rn.createLightEntity();
-lightEntity.getLight().intensity = Rn.Vector3.fromCopyArray([20, 20, 20]);
+lightEntity.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
+lightEntity.getLight().intensity = 20;
 lightEntity.getTransform().localPosition = Rn.Vector3.fromCopyArray([4.0, 0.0, 5.0]);
 
 let count = 0;

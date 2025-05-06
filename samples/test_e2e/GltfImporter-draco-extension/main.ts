@@ -71,7 +71,7 @@ expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 const lightEntity = Rn.createLightEntity();
 const lightComponent = lightEntity.getLight();
 lightComponent.type = Rn.LightType.Directional;
-lightComponent.intensity = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
+lightComponent.color = Rn.Vector3.fromCopyArray([0.5, 0.5, 0.5]);
 
 let count = 0;
 

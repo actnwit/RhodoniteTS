@@ -16,7 +16,8 @@ await Rn.System.init({
 });
 
 const light = Rn.createLightEntity();
-light.getLight().intensity = Rn.Vector3.fromCopyArray([10, 10, 10]);
+light.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
+light.getLight().intensity = 10;
 
 // Camera
 const cameraEntity = Rn.createCameraControllerEntity();
