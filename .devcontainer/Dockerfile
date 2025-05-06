@@ -1,8 +1,8 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.191.1/containers/typescript-node/.devcontainer/base.Dockerfile
+# See here for image contents: https://github.com/devcontainers/images/blob/v0.4.15/src/typescript-node/.devcontainer/Dockerfile
 
-# [Choice] Node.js version: 16, 14, 12
-ARG VARIANT="16-bullseye"
-FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:${VARIANT}
+# [Choice] Node.js version: 22, 20, 18
+ARG VARIANT="22-bookworm"
+FROM mcr.microsoft.com/devcontainers/typescript-node:${VARIANT}
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -20,11 +20,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   unzip \
   wget \
   chromium \
-&& rm -rf /var/lib/apt/lists/* \
-&& ln -s /usr/bin/chromium /usr/bin/chromium-browser \
-&& echo "progress = dot:giga" | tee /etc/wgetrc \
-&& mkdir -p /mnt /opt /data \
-&& wget https://github.com/andmarios/duphard/releases/download/v1.0/duphard -O /bin/duphard \
-&& chmod +x /bin/duphard
+  && rm -rf /var/lib/apt/lists/* \
+  && ln -s /usr/bin/chromium /usr/bin/chromium-browser \
+  && echo "progress = dot:giga" | tee /etc/wgetrc \
+  && mkdir -p /mnt /opt /data \
+  && wget https://github.com/andmarios/duphard/releases/download/v1.0/duphard -O /bin/duphard \
+  && chmod +x /bin/duphard
 RUN su node -c "npm install -g yarn"
 RUN yarn install
