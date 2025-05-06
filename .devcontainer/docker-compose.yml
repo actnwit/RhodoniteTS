@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - VARIANT=16-bullseye
+        - VARIANT=22-bookworm
     working_dir: /node
     volumes:
       - type: bind
