@@ -435,6 +435,8 @@ export class ModelConverter {
         const capitalizedTransformType = transformType.charAt(0).toUpperCase() + transformType.slice(1);
         const shaderSemanticName = `${textureName}Transform${capitalizedTransformType}`;
         material.setParameter(shaderSemanticName, animatedValue);
+      } else if (pointer.includes('occlusionTexture/strength')) {
+        material.setParameter('occlusionStrength', animatedValue);
       } else {
         const shaderSemanticName = pointer.split('/').pop()!;
         material.setParameter(shaderSemanticName, animatedValue);
