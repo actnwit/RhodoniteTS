@@ -398,68 +398,122 @@ export class ModelConverter {
     rnMaterials: Material[]
   ) {
     const pointer = channel.target.extensions!.KHR_animation_pointer.pointer as string;
-    const match = pointer.match(/^\/materials\/([0-9]+)\//);
-    if (match) {
-      const materialIndex = parseInt(match[1]);
-      const material = rnMaterials[materialIndex];
-      if (Is.not.exist(material)) {
-        throw new Error(`Material not found: ${pointer}`);
-      }
-      const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
-      const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
-      const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
-      const animationSampler = {
-        input: animInputArray,
-        output: animOutputArray,
-        outputComponentN: outputComponentN as VectorComponentN,
-        interpolationMethod: AnimationInterpolation.fromString(interpolation),
-      };
-      animationSamplers.set(trackName, animationSampler);
+    const matchNodes= pointer.match(/^\/nodes\/([0-9]+)\//);
+    const matchMaterials = pointer.match(/^\/materials\/([0-9]+)\//);
+    if (matchMaterials) {
+      ModelConverter.__setPointerAnimationMaterials(matchMaterials, rnMaterials, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
+    } else if (matchNodes) {
+      ModelConverter.__setPointerAnimationNodes(matchNodes, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
+    }
+  }
 
-      let animatedValue: IAnimatedValue;
-      if (outputComponentN === 1) {
-        animatedValue = new AnimatedScalar(animationSamplers, trackName);
-      } else if (outputComponentN === 2) {
-        animatedValue = new AnimatedVector2(animationSamplers, trackName);
-      } else if (outputComponentN === 3) {
-        animatedValue = new AnimatedVector3(animationSamplers, trackName);
-      } else if (outputComponentN === 4) {
-        animatedValue = new AnimatedVector4(animationSamplers, trackName);
-      } else {
-        throw new Error(`Unsupported component number: ${outputComponentN}`);
-      }
-      if (pointer.includes('KHR_texture_transform')) {
-        const split = pointer.split('/');
-        const textureName = split[split.length - 4];
-        const transformType = split[split.length - 1];
-        const capitalizedTransformType = transformType.charAt(0).toUpperCase() + transformType.slice(1);
-        const shaderSemanticName = `${textureName}Transform${capitalizedTransformType}`;
-        material.setParameter(shaderSemanticName, animatedValue);
-      } else if (pointer.includes('normalTexture/scale')) {
-        material.setParameter('normalScale', animatedValue);
-      } else if (pointer.includes('occlusionTexture/strength')) {
-        material.setParameter('occlusionStrength', animatedValue);
-      } else {
-        const shaderSemanticName = pointer.split('/').pop()!;
-        material.setParameter(shaderSemanticName, animatedValue);
-      }
+  private static __setPointerAnimationNodes(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
+    const nodeIndex = parseInt(match[1]);
+    const rnEntity = rnEntities[nodeIndex];
+    if (Is.not.exist(rnEntity)) {
+      throw new Error(`Node not found: ${pointer}`);
+    }
+    const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+    const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+    const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+    const animationSampler = {
+      input: animInputArray,
+      output: animOutputArray,
+      outputComponentN: outputComponentN as VectorComponentN,
+      interpolationMethod: AnimationInterpolation.fromString(interpolation),
+    };
+    animationSamplers.set(trackName, animationSampler);
 
-      const primitives = material.getBelongPrimitives();
-      for (const primitive of primitives.values()) {
-        if (Is.exist(primitive.mesh)) {
-          const mesh = primitive.mesh as Mesh;
-          const meshEntities = mesh.meshEntitiesInner;
-          for (const rnEntity of meshEntities) {
-            let animationComponent = rnEntity.tryToGetAnimation();
-            if (Is.not.exist(animationComponent)) {
-              const newRnEntity = EntityRepository.addComponentToEntity(
-                AnimationComponent,
-                rnEntity
-              );
-              animationComponent = newRnEntity.getAnimation();
-            }
-            animationComponent.setAnimation(animationAttributeType, animatedValue);
+    let animatedValue: IAnimatedValue;
+    if (outputComponentN === 1) {
+      animatedValue = new AnimatedScalar(animationSamplers, trackName);
+    } else if (outputComponentN === 2) {
+      animatedValue = new AnimatedVector2(animationSamplers, trackName);
+    } else if (outputComponentN === 3) {
+      animatedValue = new AnimatedVector3(animationSamplers, trackName);
+    } else if (outputComponentN === 4) {
+      animatedValue = new AnimatedVector4(animationSamplers, trackName);
+    } else {
+      throw new Error(`Unsupported component number: ${outputComponentN}`);
+    }
+    let animationComponent = rnEntity.tryToGetAnimation();
+    if (Is.not.exist(animationComponent)) {
+      const newRnEntity = EntityRepository.addComponentToEntity(
+        AnimationComponent,
+        rnEntity
+      );
+      animationComponent = newRnEntity.getAnimation();
+    }
+    animationComponent.setAnimation(animationAttributeType, animatedValue);
+    if (pointer.includes('rotation')) {
+      animationComponent.setAnimation('quaternion', animatedValue);
+    } else if (pointer.includes('translation')) {
+      animationComponent.setAnimation('translate', animatedValue);
+    } else if (pointer.includes('scale')) {
+      animationComponent.setAnimation('scale', animatedValue);
+    }
+  }
+
+  private static __setPointerAnimationMaterials(match: RegExpMatchArray, rnMaterials: Material[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
+    const materialIndex = parseInt(match[1]);
+    const material = rnMaterials[materialIndex];
+    if (Is.not.exist(material)) {
+      throw new Error(`Material not found: ${pointer}`);
+    }
+    const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+    const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+    const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+    const animationSampler = {
+      input: animInputArray,
+      output: animOutputArray,
+      outputComponentN: outputComponentN as VectorComponentN,
+      interpolationMethod: AnimationInterpolation.fromString(interpolation),
+    };
+    animationSamplers.set(trackName, animationSampler);
+
+    let animatedValue: IAnimatedValue;
+    if (outputComponentN === 1) {
+      animatedValue = new AnimatedScalar(animationSamplers, trackName);
+    } else if (outputComponentN === 2) {
+      animatedValue = new AnimatedVector2(animationSamplers, trackName);
+    } else if (outputComponentN === 3) {
+      animatedValue = new AnimatedVector3(animationSamplers, trackName);
+    } else if (outputComponentN === 4) {
+      animatedValue = new AnimatedVector4(animationSamplers, trackName);
+    } else {
+      throw new Error(`Unsupported component number: ${outputComponentN}`);
+    }
+    if (pointer.includes('KHR_texture_transform')) {
+      const split = pointer.split('/');
+      const textureName = split[split.length - 4];
+      const transformType = split[split.length - 1];
+      const capitalizedTransformType = transformType.charAt(0).toUpperCase() + transformType.slice(1);
+      const shaderSemanticName = `${textureName}Transform${capitalizedTransformType}`;
+      material.setParameter(shaderSemanticName, animatedValue);
+    } else if (pointer.includes('normalTexture/scale')) {
+      material.setParameter('normalScale', animatedValue);
+    } else if (pointer.includes('occlusionTexture/strength')) {
+      material.setParameter('occlusionStrength', animatedValue);
+    } else {
+      const shaderSemanticName = pointer.split('/').pop()!;
+      material.setParameter(shaderSemanticName, animatedValue);
+    }
+
+    const primitives = material.getBelongPrimitives();
+    for (const primitive of primitives.values()) {
+      if (Is.exist(primitive.mesh)) {
+        const mesh = primitive.mesh as Mesh;
+        const meshEntities = mesh.meshEntitiesInner;
+        for (const rnEntity of meshEntities) {
+          let animationComponent = rnEntity.tryToGetAnimation();
+          if (Is.not.exist(animationComponent)) {
+            const newRnEntity = EntityRepository.addComponentToEntity(
+              AnimationComponent,
+              rnEntity
+            );
+            animationComponent = newRnEntity.getAnimation();
           }
+          animationComponent.setAnimation(animationAttributeType, animatedValue);
         }
       }
     }
