@@ -3,7 +3,7 @@
 // Modified by Yuki Shimada
 
 const float M_PI = 3.141592653589793;
-const float c_MinRoughness = 0.04;
+const float c_MinRoughness = 0.00001;
 
 float angular_n_h(float NH) {
   return acos(NH);
@@ -289,7 +289,7 @@ vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
 
 float applyIorToRoughness(float roughness, float ior)
 {
-  return roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+  return clamp(roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0), c_MinRoughness, 1.0);
 }
 
 vec3 calculateRadianceTransmission(vec3 normal, vec3 view, vec3 pointToLight, float alphaRoughness, vec3 baseColor, float ior)

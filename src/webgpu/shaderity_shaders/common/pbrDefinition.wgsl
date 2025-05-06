@@ -167,7 +167,7 @@ fn getVolumeTransmissionRay(n: vec3f, v: vec3f, thickness: f32, ior: f32, instan
 
 fn applyIorToRoughness(roughness: f32, ior: f32) -> f32
 {
-    return roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+    return clamp(roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0), c_MinRoughness, 1.0);
 }
 
 fn calculateRadianceTransmission(normal: vec3f, view: vec3f, pointToLight: vec3f, alphaRoughness: f32, baseColor: vec3f, ior: f32) -> vec3f
