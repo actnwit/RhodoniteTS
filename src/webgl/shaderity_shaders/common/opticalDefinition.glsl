@@ -6,8 +6,8 @@ struct Light {
   vec3 directionOfLightObject;
   vec3 direction; // direction of light vector, equal to normalize(light.pointToLight)
   vec3 pointToLight; // not normalized
-  float spotAngleScale;
-  float spotAngleOffset;
+  float innerConeCos;
+  float outerConeCos;
   float effectiveRange;
 };
 
@@ -26,10 +26,15 @@ float getRangeAttenuation(Light light)
 // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md#inner-and-outer-cone-angles
 float getSpotAttenuation(Light light)
 {
-
-  float cd = dot(-normalize(light.directionOfLightObject), light.direction);
-  float angularAttenuation = clamp(cd * light.spotAngleScale + light.spotAngleOffset, 0.0, 1.0);
-  return angularAttenuation;
+  float actualCos = dot(light.direction, -light.directionOfLightObject);
+  if (actualCos > light.outerConeCos) {
+    if (actualCos < light.innerConeCos) {
+      float attenuation = (actualCos - light.outerConeCos) / (light.innerConeCos - light.outerConeCos);
+      return attenuation * attenuation;
+    }
+    return 1.0;
+  }
+  return 0.0;
 }
 
 vec3 getLightAttenuated(Light light) {
@@ -61,8 +66,8 @@ Light getLight(int lightIdx, vec3 v_position_inWorld) {
   light.directionOfLightObject = direction_and_w_of_LightObject;
   float lightType = lightProperty.x;
   light.effectiveRange = lightProperty.y;
-  light.spotAngleScale = lightProperty.z;
-  light.spotAngleOffset = lightProperty.w;
+  light.innerConeCos = lightProperty.z;
+  light.outerConeCos = lightProperty.w;
 
   light.intensity = lightIntensity;
   light.position = lightPosition;
