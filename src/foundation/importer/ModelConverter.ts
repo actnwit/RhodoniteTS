@@ -402,15 +402,77 @@ export class ModelConverter {
     const matchNodes= pointer.match(/^\/nodes\/([0-9]+)\//);
     const matchMaterials = pointer.match(/^\/materials\/([0-9]+)\//);
     const matchLights = pointer.match(/^\/extensions\/KHR_lights_punctual\/lights\/([0-9]+)\//);
+    const matchCameras = pointer.match(/^\/cameras\/([0-9]+)\//);
     if (matchMaterials) {
       ModelConverter.__setPointerAnimationMaterials(matchMaterials, rnMaterials, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
     } else if (matchNodes) {
       ModelConverter.__setPointerAnimationNodes(matchNodes, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType);
     } else if (matchLights) {
       ModelConverter.__setPointerAnimationLights(matchLights, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, gltfModel);
+    } else if (matchCameras) {
+      ModelConverter.__setPointerAnimationCameras(matchCameras, rnEntities, pointer, samplerObject, animation, animInputArray, animOutputArray, interpolation, animationAttributeType, gltfModel);
+    } else {
+      Logger.info('Not Supported Animation Pointer Type');
     }
   }
+  private static __setPointerAnimationCameras(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName, gltfModel: RnM2) {
+    const cameraIndex = parseInt(match[1]);
+    const nodes = gltfModel.nodes;
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (node.camera === cameraIndex) {
+        const rnEntity = rnEntities[i];
+        const cameraComponent = rnEntity.tryToGetCamera();
+        if (Is.not.exist(cameraComponent)) {
+          throw new Error(`CameraComponent not found: ${pointer}`);
+        }
+        const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+        const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
+        const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
+        const animationSampler = {
+          input: animInputArray,
+          output: animOutputArray,
+          outputComponentN: outputComponentN as VectorComponentN,
+          interpolationMethod: AnimationInterpolation.fromString(interpolation),
+        };
+        animationSamplers.set(trackName, animationSampler);
 
+        let animatedValue: IAnimatedValue;
+        if (outputComponentN === 1) {
+          animatedValue = new AnimatedScalar(animationSamplers, trackName);
+        } else if (outputComponentN === 2) {
+          animatedValue = new AnimatedVector2(animationSamplers, trackName);
+        } else if (outputComponentN === 3) {
+          animatedValue = new AnimatedVector3(animationSamplers, trackName);
+        } else if (outputComponentN === 4) {
+          animatedValue = new AnimatedVector4(animationSamplers, trackName);
+        } else {
+          throw new Error(`Unsupported component number: ${outputComponentN}`);
+        }
+
+        let animationComponent = rnEntity.tryToGetAnimation();
+        if (Is.not.exist(animationComponent)) {
+          const newRnEntity = EntityRepository.addComponentToEntity(
+            AnimationComponent,
+            rnEntity
+          );
+          animationComponent = newRnEntity.getAnimation();
+        }
+
+        if (pointer.includes('znear')) {
+          animationComponent.setAnimation('camera_znear', animatedValue);
+        } else if (pointer.includes('zfar')) {
+          animationComponent.setAnimation('camera_zfar', animatedValue);
+        } else if (pointer.includes('yfov')) {
+          animationComponent.setAnimation('camera_fovy', animatedValue);
+        } else if (pointer.includes('xmag')) {
+          animationComponent.setAnimation('camera_xmag', animatedValue);
+        } else if (pointer.includes('ymag')) {
+          animationComponent.setAnimation('camera_ymag', animatedValue);
+        }
+      }
+    }
+  }
   private static __setPointerAnimationLights(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName, gltfModel: RnM2) {
     const lightIndex = parseInt(match[1]);
     const nodes = gltfModel.nodes;
