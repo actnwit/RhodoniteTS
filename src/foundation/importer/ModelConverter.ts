@@ -413,7 +413,15 @@ export class ModelConverter {
     if (Is.not.exist(rnEntity)) {
       throw new Error(`Node not found: ${pointer}`);
     }
-    const outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+    let outputComponentN = samplerObject.outputObject!.extras!.componentN!;
+    if (pointer.includes('weights')) {
+      const blendShapeComponent = rnEntity.tryToGetBlendShape();
+      if (Is.exist(blendShapeComponent)) {
+        outputComponentN = blendShapeComponent.weights.length;
+      } else {
+        throw new Error(`BlendShapeComponent not found: ${pointer}`);
+      }
+    }
     const animationSamplers = new Map<AnimationTrackName, AnimationSampler>();
     const trackName = Is.exist(animation.name) ? animation.name : 'Untitled_Animation';
     const animationSampler = {
@@ -425,7 +433,10 @@ export class ModelConverter {
     animationSamplers.set(trackName, animationSampler);
 
     let animatedValue: IAnimatedValue;
-    if (outputComponentN === 1) {
+
+    if (pointer.includes('weights')) {
+      animatedValue = new AnimatedVectorN(animationSamplers, trackName);
+    } else if (outputComponentN === 1) {
       animatedValue = new AnimatedScalar(animationSamplers, trackName);
     } else if (outputComponentN === 2) {
       animatedValue = new AnimatedVector2(animationSamplers, trackName);
@@ -451,6 +462,8 @@ export class ModelConverter {
       animationComponent.setAnimation('translate', animatedValue);
     } else if (pointer.includes('scale')) {
       animationComponent.setAnimation('scale', animatedValue);
+    } else if (pointer.includes('weights')) {
+      animationComponent.setAnimation('weights', animatedValue);
     }
   }
 

@@ -16,4 +16,5 @@ export interface IAnimatedValue {
   getAnimationSampler(trackName: AnimationTrackName): AnimationSampler;
   deleteAnimationSampler(trackName: AnimationTrackName): void;
   setFloat32Array(array: Float32Array): void;
+  getNumberArray(): number[];
 }

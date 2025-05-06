@@ -28,6 +28,10 @@ export class AnimatedScalar extends Scalar implements IScalar, IAnimatedValue {
     this.__firstActiveAnimationSampler = animationSampler;
   }
 
+  getNumberArray() {
+    return Array.from(this._v);
+  }
+
   setFloat32Array(array: Float32Array) {
     this._v = array;
     this.update();

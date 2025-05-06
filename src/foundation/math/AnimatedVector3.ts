@@ -27,6 +27,10 @@ export class AnimatedVector3 extends Vector3 implements IVector3, IAnimatedValue
     this.__firstActiveAnimationSampler = animationSampler;
   }
 
+  getNumberArray() {
+    return Array.from(this._v);
+  }
+
   setFloat32Array(array: Float32Array) {
     this._v = array;
     this.update();
