@@ -38,12 +38,12 @@ vec3 getLightAttenuated(Light light) {
     // Directional Light don't attenuate geometically
   // }
 
-  // Point Light
-  if (light.type == 1)
+  // Point Light && Spot Light
+  if (light.type != 0)
   {
     light.attenuatedIntensity *= getRangeAttenuation(light);
   }
-  // Spot light
+  // Spot Light
   if (light.type == 2)
   {
     light.attenuatedIntensity *= getSpotAttenuation(light);

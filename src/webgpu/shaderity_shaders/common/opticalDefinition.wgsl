@@ -39,12 +39,12 @@ fn getLightAttenuated(light: Light) -> Light {
     // Directional Light don't attenuate geometically
   // }
 
-  // Point Light
-  if (light.lightType == 1)
+  // Point Light && Spot Light
+  if (light.lightType != 0)
   {
     newLight.attenuatedIntensity *= getRangeAttenuation(light);
   }
-  // Spot light
+  // Spot Light
   if (light.lightType == 2)
   {
     newLight.attenuatedIntensity *= getSpotAttenuation(light);
