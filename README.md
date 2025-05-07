@@ -265,8 +265,6 @@ This library also uses the following assets.
 
 * [KhronosGroup/glTF-Sample-Assets](https://github.com/KhronosGroup/glTF-Sample-Assets)
 
-Check the complete list on package.json.
-
 ### Contributors
 
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=actnwit/RhodoniteTS)
