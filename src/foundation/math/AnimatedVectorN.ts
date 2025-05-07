@@ -69,7 +69,7 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
           this.__firstActiveAnimationSampler.input.length - 1
         ];
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.max(
+        duration = Math.min(
           duration,
           this.__secondActiveAnimationSampler.input[
             this.__secondActiveAnimationSampler.input.length - 1
