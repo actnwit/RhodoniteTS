@@ -27,7 +27,8 @@ struct UniformDrawParameters {
 const M_PI: f32 = 3.141592653589793;
 const RECIPROCAL_PI: f32 = 0.3183098861837907;
 const Epsilon: f32 = 0.0000001;
-const c_MinRoughness: f32 = 0.00001;
+const c_MinRoughness: f32 = 0.04;
+const kEps: f32 = 1e-4;
 
 fn fetchElement(vec4_idx: u32) -> vec4<f32>
 {

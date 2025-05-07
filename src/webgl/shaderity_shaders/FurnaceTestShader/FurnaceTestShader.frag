@@ -284,7 +284,7 @@ void main ()
   } else {
     // object mode
     // Roughness
-    const float c_MinRoughness = 0.00001;
+    const float c_MinRoughness = 0.04;
     vec2 metallicRoughnessFactor = get_metallicRoughnessFactor(materialSID, 0);
     float userRoughness = metallicRoughnessFactor.y;
     float metallic = metallicRoughnessFactor.x;

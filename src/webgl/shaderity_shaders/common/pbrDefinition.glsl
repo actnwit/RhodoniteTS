@@ -3,7 +3,7 @@
 // Modified by Yuki Shimada
 
 const float M_PI = 3.141592653589793;
-const float c_MinRoughness = 0.00001;
+const float c_MinRoughness = 0.04;
 
 float angular_n_h(float NH) {
   return acos(NH);
