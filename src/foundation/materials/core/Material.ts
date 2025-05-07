@@ -862,12 +862,4 @@ export class Material extends RnObject {
     this.__stateVersion++;
     Material.__stateVersion++;
   }
-
-  setTime(time: number) {
-    this._allFieldVariables.forEach((value) => {
-      if (this._isAnimatedValue(value.value)) {
-        value.value.setTime(time);
-      }
-    });
-  }
 }
