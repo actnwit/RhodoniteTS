@@ -250,7 +250,7 @@ Some of these portions have been translated and modified for use in the Rhodonit
 
 See [LICENSES/glTF-Sample-Renderer.LICENSE](LICENSES/glTF-Sample-Renderer.LICENSE) for details.
 
-### Libraries & Tools
+### Libraries
 
 This library uses the following libraries.
 
@@ -258,6 +258,8 @@ This library uses the following libraries.
 * [enkimute/hdrpng.js](https://github.com/enkimute/hdrpng.js)
 * [donmccurdy/KTX-Parse](https://github.com/donmccurdy/KTX-Parse)
 * [donmccurdy/zstddec-wasm](https://github.com/donmccurdy/zstddec-wasm)
+
+### Assets
 
 This library also uses the following assets.
 
