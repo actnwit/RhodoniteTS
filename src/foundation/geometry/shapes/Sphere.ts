@@ -18,6 +18,8 @@ export interface SphereDescriptor extends IAnyPrimitiveDescriptor {
   /** the number of segments for height direction */
   heightSegments?: Count;
 
+  inverseNormal?: boolean;
+
   physics?: PhysicsProperty;
 }
 
@@ -35,6 +37,7 @@ export class Sphere extends IShape {
       widthSegments: _desc.widthSegments ?? 10,
       heightSegments: _desc.heightSegments ?? 10,
       material: _desc.material,
+      inverseNormal: _desc.inverseNormal ?? false,
     };
     const positions = [];
     const texcoords = [];
@@ -70,9 +73,9 @@ export class Sphere extends IShape {
         texcoords.push(u);
         texcoords.push(v);
         const normal = Vector3.normalize(position);
-        normals.push(normal.x);
-        normals.push(normal.y);
-        normals.push(normal.z);
+        normals.push(desc.inverseNormal ? -normal.x : normal.x);
+        normals.push(desc.inverseNormal ? -normal.y : normal.y);
+        normals.push(desc.inverseNormal ? -normal.z : normal.z);
       }
     }
 

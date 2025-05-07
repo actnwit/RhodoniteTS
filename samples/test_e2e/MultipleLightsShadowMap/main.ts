@@ -167,6 +167,7 @@ function createBackground() {
   const backgroundEntity = Rn.MeshHelper.createSphere({
     widthSegments: 50,
     heightSegments: 50,
+    inverseNormal: true,
     material,
   });
   backgroundEntity.scale = Rn.Vector3.fromCopyArray([10, 10, 10]);
