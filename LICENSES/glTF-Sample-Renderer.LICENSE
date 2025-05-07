@@ -1,9 +1,9 @@
-This project includes code originally developed by the Khronos Group.
+The RhodoniteTS project includes code originally developed by the Khronos Group.
 Project: glTF-Sample-Renderer
 https://github.com/KhronosGroup/glTF-Sample-Renderer
 Licensed under the Apache License, Version 2.0.
 
-Portions of this project have been modified for integration with the RhodoniteTS library.
+Portions of this glTF-Sample-Render code have been modified for integration with the RhodoniteTS library.
 
 ---
 

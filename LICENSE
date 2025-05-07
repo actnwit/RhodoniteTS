@@ -27,3 +27,31 @@ Some of these portions have been translated and modified for use in the Rhodonit
 - glTF-Sample-Renderer (https://github.com/KhronosGroup/glTF-Sample-Renderer)
 
 See LICENSES/glTF-Sample-Renderer.LICENSE for details.
+
+---
+
+This software includes code originally developed by enkimute.
+- hdrpng.js (https://github.com/enkimute/hdrpng.js)
+
+See LICENSES/hdrpng.js.LICENSE for details.
+
+---
+
+This software includes code originally developed by Don McCurdy.
+- KTX-Parse (https://github.com/donmccurdy/KTX-Parse)
+
+See LICENSES/KTX-Parse.LICENSE for details.
+
+---
+
+This software includes code originally developed by Don McCurdy.
+- zstddec-wasm (https://github.com/donmccurdy/zstddec-wasm)
+
+See LICENSES/zstddec-wasm.LICENSE for details.
+
+---
+
+This software includes code originally developed by W3C/immersive-web.
+- webxr-input-profiles (https://github.com/immersive-web/webxr-input-profiles)
+
+See LICENSES/webxr-input-profiles.LICENSE for details.

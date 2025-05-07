@@ -252,9 +252,15 @@ See [LICENSES/glTF-Sample-Renderer.LICENSE](LICENSES/glTF-Sample-Renderer.LICENS
 
 ### Libraries & Tools
 
-Our library uses the following libraries and tools and more. Thank you.
+This library uses the following libraries.
 
 * [immersive-web/webxr-input-profiles](https://github.com/immersive-web/webxr-input-profiles) (forked version)
+* [enkimute/hdrpng.js](https://github.com/enkimute/hdrpng.js)
+* [donmccurdy/KTX-Parse](https://github.com/donmccurdy/KTX-Parse)
+* [donmccurdy/zstddec-wasm](https://github.com/donmccurdy/zstddec-wasm)
+
+This library also uses the following assets.
+
 * [KhronosGroup/glTF-Sample-Assets](https://github.com/KhronosGroup/glTF-Sample-Assets)
 
 Check the complete list on package.json.
