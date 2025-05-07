@@ -194,9 +194,14 @@ $ yarn doc
 
 ## Testing Rhodonite
 
+The following command runs unit tests and E2E tests.
+
 ```bash
 $ yarn test
 ```
+
+The E2E test uses a headless browser for rendering. Because the results are GPU hardware-dependent rather than software-dependent, results will vary depending on your environment.
+Since the correct images were run in the library author's environment, it is likely that many tests will fail in your environment.
 
 You can execute a part of tests like this.
 
@@ -213,7 +218,7 @@ $ yarn test-unit-part -- ./src/foundation/core/Entity.test.ts
 ### For E2E (visual) test
 
 ```bash
-$ yarn test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawingWebGL1
+$ yarn test-e2e-part -- ./samples/test_e2e/DataTextureInstancedDrawing
 ```
 
 ## Development using VSCode devcontainer
