@@ -460,15 +460,15 @@ export class ModelConverter {
         }
 
         if (pointer.includes('znear')) {
-          animationComponent.setAnimation('camera_znear', animatedValue, true);
+          animationComponent.setAnimation('camera_znear', animatedValue);
         } else if (pointer.includes('zfar')) {
-          animationComponent.setAnimation('camera_zfar', animatedValue, true);
+          animationComponent.setAnimation('camera_zfar', animatedValue);
         } else if (pointer.includes('yfov')) {
-          animationComponent.setAnimation('camera_fovy', animatedValue, true);
+          animationComponent.setAnimation('camera_fovy', animatedValue);
         } else if (pointer.includes('xmag')) {
-          animationComponent.setAnimation('camera_xmag', animatedValue, true);
+          animationComponent.setAnimation('camera_xmag', animatedValue);
         } else if (pointer.includes('ymag')) {
-          animationComponent.setAnimation('camera_ymag', animatedValue, true);
+          animationComponent.setAnimation('camera_ymag', animatedValue);
         }
       }
     }
@@ -520,15 +520,15 @@ export class ModelConverter {
           }
 
           if (pointer.includes('color')) {
-            animationComponent.setAnimation('light_color', animatedValue, true);
+            animationComponent.setAnimation('light_color', animatedValue);
           } else if (pointer.includes('intensity')) {
-            animationComponent.setAnimation('light_intensity', animatedValue, true);
+            animationComponent.setAnimation('light_intensity', animatedValue);
           } else if (pointer.includes('range')) {
-            animationComponent.setAnimation('light_range', animatedValue, true);
+            animationComponent.setAnimation('light_range', animatedValue);
           } else if (pointer.includes('spot/innerConeAngle')) {
-            animationComponent.setAnimation('light_spot_innerConeAngle', animatedValue, true);
+            animationComponent.setAnimation('light_spot_innerConeAngle', animatedValue);
           } else if (pointer.includes('spot/outerConeAngle')) {
-            animationComponent.setAnimation('light_spot_outerConeAngle', animatedValue, true);
+            animationComponent.setAnimation('light_spot_outerConeAngle', animatedValue);
           }
         }
       }
@@ -584,13 +584,13 @@ export class ModelConverter {
       animationComponent = newRnEntity.getAnimation();
     }
     if (pointer.includes('rotation')) {
-      animationComponent.setAnimation('quaternion', animatedValue, true);
+      animationComponent.setAnimation('quaternion', animatedValue);
     } else if (pointer.includes('translation')) {
-      animationComponent.setAnimation('translate', animatedValue, true);
+      animationComponent.setAnimation('translate', animatedValue);
     } else if (pointer.includes('scale')) {
-      animationComponent.setAnimation('scale', animatedValue, true);
+      animationComponent.setAnimation('scale', animatedValue);
     } else if (pointer.includes('weights')) {
-      animationComponent.setAnimation('weights', animatedValue, true);
+      animationComponent.setAnimation('weights', animatedValue);
     }
   }
 
