@@ -460,15 +460,15 @@ export class ModelConverter {
         }
 
         if (pointer.includes('znear')) {
-          animationComponent.setAnimation('camera_znear', animatedValue);
+          animationComponent.setAnimation('camera_znear', animatedValue, true);
         } else if (pointer.includes('zfar')) {
-          animationComponent.setAnimation('camera_zfar', animatedValue);
+          animationComponent.setAnimation('camera_zfar', animatedValue, true);
         } else if (pointer.includes('yfov')) {
-          animationComponent.setAnimation('camera_fovy', animatedValue);
+          animationComponent.setAnimation('camera_fovy', animatedValue, true);
         } else if (pointer.includes('xmag')) {
-          animationComponent.setAnimation('camera_xmag', animatedValue);
+          animationComponent.setAnimation('camera_xmag', animatedValue, true);
         } else if (pointer.includes('ymag')) {
-          animationComponent.setAnimation('camera_ymag', animatedValue);
+          animationComponent.setAnimation('camera_ymag', animatedValue, true);
         }
       }
     }
@@ -520,15 +520,15 @@ export class ModelConverter {
           }
 
           if (pointer.includes('color')) {
-            animationComponent.setAnimation('light_color', animatedValue);
+            animationComponent.setAnimation('light_color', animatedValue, true);
           } else if (pointer.includes('intensity')) {
-            animationComponent.setAnimation('light_intensity', animatedValue);
+            animationComponent.setAnimation('light_intensity', animatedValue, true);
           } else if (pointer.includes('range')) {
-            animationComponent.setAnimation('light_range', animatedValue);
+            animationComponent.setAnimation('light_range', animatedValue, true);
           } else if (pointer.includes('spot/innerConeAngle')) {
-            animationComponent.setAnimation('light_spot_innerConeAngle', animatedValue);
+            animationComponent.setAnimation('light_spot_innerConeAngle', animatedValue, true);
           } else if (pointer.includes('spot/outerConeAngle')) {
-            animationComponent.setAnimation('light_spot_outerConeAngle', animatedValue);
+            animationComponent.setAnimation('light_spot_outerConeAngle', animatedValue, true);
           }
         }
       }
@@ -583,15 +583,14 @@ export class ModelConverter {
       );
       animationComponent = newRnEntity.getAnimation();
     }
-    animationComponent.setAnimation(animationAttributeType, animatedValue);
     if (pointer.includes('rotation')) {
-      animationComponent.setAnimation('quaternion', animatedValue);
+      animationComponent.setAnimation('quaternion', animatedValue, true);
     } else if (pointer.includes('translation')) {
-      animationComponent.setAnimation('translate', animatedValue);
+      animationComponent.setAnimation('translate', animatedValue, true);
     } else if (pointer.includes('scale')) {
-      animationComponent.setAnimation('scale', animatedValue);
+      animationComponent.setAnimation('scale', animatedValue, true);
     } else if (pointer.includes('weights')) {
-      animationComponent.setAnimation('weights', animatedValue);
+      animationComponent.setAnimation('weights', animatedValue, true);
     }
   }
 
@@ -654,7 +653,7 @@ export class ModelConverter {
             );
             animationComponent = newRnEntity.getAnimation();
           }
-          animationComponent.setAnimation(animationAttributeType, animatedValue);
+          animationComponent.setAnimation(animationAttributeType, animatedValue, true);
         }
       }
     }
@@ -682,35 +681,30 @@ export class ModelConverter {
           interpolationMethod: AnimationInterpolation.fromString(interpolation),
         };
         animationSamplers.set(trackName, animationSampler);
-        const animatedValue = animationComponent.getAnimation(animationAttributeType);
-        if (Is.exist(animatedValue)) {
-          animatedValue.setAnimationSampler(trackName, animationSampler);
-        } else {
-          if (animationAttributeType === 'translate') {
-            const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
-            animationComponent.setAnimation(
-              animationAttributeType,
-              newAnimatedValue
-            );
-          } else if (animationAttributeType === 'quaternion') {
-            const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
-            animationComponent.setAnimation(
-              animationAttributeType,
-              newAnimatedValue
-            );
-          } else if (animationAttributeType === 'scale') {
-            const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
-            animationComponent.setAnimation(
-              animationAttributeType,
-              newAnimatedValue
-            );
-          } else { // weight
-            const newAnimatedValue = new AnimatedVectorN(animationSamplers, trackName);
-            animationComponent.setAnimation(
-              animationAttributeType,
-              newAnimatedValue
-            );
-          }
+        if (animationAttributeType === 'translate') {
+          const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+          animationComponent.setAnimation(
+            animationAttributeType,
+            newAnimatedValue
+          );
+        } else if (animationAttributeType === 'quaternion') {
+          const newAnimatedValue = new AnimatedQuaternion(animationSamplers, trackName);
+          animationComponent.setAnimation(
+            animationAttributeType,
+            newAnimatedValue
+          );
+        } else if (animationAttributeType === 'scale') {
+          const newAnimatedValue = new AnimatedVector3(animationSamplers, trackName);
+          animationComponent.setAnimation(
+            animationAttributeType,
+            newAnimatedValue
+          );
+        } else { // weight
+          const newAnimatedValue = new AnimatedVectorN(animationSamplers, trackName);
+          animationComponent.setAnimation(
+            animationAttributeType,
+            newAnimatedValue
+          );
         }
       }
     }

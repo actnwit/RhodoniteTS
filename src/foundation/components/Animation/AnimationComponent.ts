@@ -277,11 +277,11 @@ export class AnimationComponent extends Component {
    */
   setAnimation(
     pathName: AnimationPathName,
-    animatedValueArg: IAnimatedValue
+    animatedValueArg: IAnimatedValue,
+    isOverride: boolean = false
   ) {
-
     let animatedValue: IAnimatedValue;
-    if (this.__animationTrack.has(pathName)) {
+    if (this.__animationTrack.has(pathName) && !isOverride) {
       const existedAnimatedValue = this.__animationTrack.get(pathName)!.animatedValue
       for (const trackName of animatedValueArg.getAllTrackNames()) {
         existedAnimatedValue.setAnimationSampler(trackName, animatedValueArg.getAnimationSampler(trackName));
