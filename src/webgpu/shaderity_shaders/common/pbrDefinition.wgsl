@@ -92,7 +92,11 @@ fn v_GGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
   let a2 = alphaRoughness * alphaRoughness;
   let GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
   let GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
-  return 0.5 / (GGXV + GGXL);
+  let GGX = GGXV + GGXL;
+  if (GGX > 0.0) {
+    return 0.5 / GGX;
+  }
+  return 0.0;
 }
 
 fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, alphaRoughness: f32) -> vec3f {
@@ -492,7 +496,7 @@ fn lightingWithPunctualLight(
 
   // Fresnel
   let halfVector = normalize(light.direction + viewDirection);
-  let VdotH = dot(viewDirection, halfVector);
+  let VdotH = saturate(dot(viewDirection, halfVector));
   var dielectricFresnel = fresnelSchlick(dielectricF0, dielectricF90, VdotH);
   let metalFresnel = fresnelSchlick(baseColor, vec3f(1.0), VdotH);
 

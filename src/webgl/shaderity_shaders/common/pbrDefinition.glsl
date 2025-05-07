@@ -70,14 +70,22 @@ float v_GGXCorrelated(float NL, float NV, float alphaRoughness) {
   float a2 = alphaRoughness * alphaRoughness;
   float GGXV = NL * sqrt(NV * NV * (1.0 - a2) + a2);
   float GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
-  return 0.5 / (GGXV + GGXL);
+  float GGX = GGXV + GGXL;
+  if (GGX > 0.0) {
+    return 0.5 / GGX;
+  }
+  return 0.0;
 }
 
 float v_GGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
   float a = alphaRoughness;
   float GGXV = NL * (NV * (1.0 - a) + a);
   float GGXL = NV * (NL * (1.0 - a) + a);
-  return 0.5 / (GGXV + GGXL);
+  float GGX = GGXV + GGXL;
+  if (GGX > 0.0) {
+    return 0.5 / GGX;
+  }
+  return 0.0;
 }
 
 // The Schlick Approximation to Fresnel
@@ -623,7 +631,7 @@ vec3 lightingWithPunctualLight(
 
   // Fresnel
   vec3 halfVector = normalize(light.direction + viewDirection);
-  float VdotH = dot(viewDirection, halfVector);
+  float VdotH = saturate(dot(viewDirection, halfVector));
   vec3 dielectricFresnel = fresnelSchlick(dielectricF0, dielectricF90, VdotH);
   vec3 metalFresnel = fresnelSchlick(baseColor, vec3(1.0), VdotH);
 
