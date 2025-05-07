@@ -11844,6 +11844,7 @@ interface SphereDescriptor extends IAnyPrimitiveDescriptor {
     widthSegments?: Count;
     /** the number of segments for height direction */
     heightSegments?: Count;
+    inverseNormal?: boolean;
     physics?: PhysicsProperty;
 }
 /**
