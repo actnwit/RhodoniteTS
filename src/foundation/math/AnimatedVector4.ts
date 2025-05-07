@@ -5,6 +5,7 @@ import { AnimationAttribute } from "../definitions/AnimationAttribute";
 import { AnimationComponent } from "../components/Animation/AnimationComponent";
 import { IVector4 } from "./IVector";
 import { IAnimatedValue } from "./IAnimatedValue";
+import { Logger } from "../misc/Logger";
 
 export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
@@ -82,7 +83,7 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     if (this.isLoop) {
       let duration = this.__firstActiveAnimationSampler.input[this.__firstActiveAnimationSampler.input.length - 1];
       if (this.__secondActiveAnimationSampler !== undefined) {
-        duration = Math.max(duration, this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]);
+        duration = Math.min(duration, this.__secondActiveAnimationSampler.input[this.__secondActiveAnimationSampler.input.length - 1]);
       }
       time = time % duration;
     }
@@ -109,18 +110,22 @@ export class AnimatedVector4 extends Vector4 implements IVector4, IAnimatedValue
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
-      throw new Error('Animation channel not found');
+      // throw new Error('Animation channel not found');
+      Logger.info('Animation channel not found');
+    } else {
+      this.__firstActiveAnimationSampler = animationSampler;
     }
-    this.__firstActiveAnimationSampler = animationSampler;
   }
 
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     this.__secondActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
-      throw new Error('Animation channel not found');
+      // throw new Error('Animation channel not found');
+      Logger.info('Animation channel not found');
+    } else {
+      this.__secondActiveAnimationSampler = animationSampler;
     }
-    this.__secondActiveAnimationSampler = animationSampler;
   }
 
   getFirstActiveAnimationTrackName() {
