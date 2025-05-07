@@ -72,9 +72,9 @@ float v_GGXCorrelated(float NL, float NV, float alphaRoughness) {
   float GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
   float GGX = GGXV + GGXL;
   if (GGX > 0.0) {
-    return 0.5 / GGX;
+    return clamp(0.5 / GGX, 0.0, 1.0);
   }
-  return 0.0;
+  return 1.0;
 }
 
 float v_GGXCorrelatedFast(float NL, float NV, float alphaRoughness) {
@@ -337,8 +337,11 @@ float V_GGX_anisotropic(float NdotL, float NdotV, float BdotV, float TdotV, floa
 {
     float GGXV = NdotL * length(vec3(at * TdotV, ab * BdotV, NdotV));
     float GGXL = NdotV * length(vec3(at * TdotL, ab * BdotL, NdotL));
-    float v = 0.5 / (GGXV + GGXL);
-    return clamp(v, 0.0, 1.0);
+    float GGX = GGXV + GGXL;
+    if (GGX > 0.0) {
+      return clamp(0.5 / GGX, 0.0, 1.0);
+    }
+    return 1.0;
 }
 
 vec3 BRDF_specularAnisotropicGGX(float alphaRoughness,

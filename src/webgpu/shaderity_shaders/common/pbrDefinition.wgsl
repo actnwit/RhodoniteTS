@@ -94,9 +94,9 @@ fn v_GGXCorrelated(NL: f32, NV: f32, alphaRoughness: f32) -> f32 {
   let GGXL = NV * sqrt(NL * NL * (1.0 - a2) + a2);
   let GGX = GGXV + GGXL;
   if (GGX > 0.0) {
-    return 0.5 / GGX;
+    return clamp(0.5 / GGX, 0.0, 1.0);
   }
-  return 0.0;
+  return 1.0;
 }
 
 fn BRDF_specularGGX(NH: f32, NL: f32, NV: f32, alphaRoughness: f32) -> vec3f {
@@ -211,8 +211,11 @@ fn V_GGX_anisotropic(NdotL: f32, NdotV: f32, BdotV: f32, TdotV: f32, TdotL: f32,
 {
     let GGXV = NdotL * length(vec3(at * TdotV, ab * BdotV, NdotV));
     let GGXL = NdotV * length(vec3(at * TdotL, ab * BdotL, NdotL));
-    let v = 0.5 / (GGXV + GGXL);
-    return clamp(v, 0.0, 1.0);
+    let GGX = GGXV + GGXL;
+    if (GGX > 0.0) {
+      return clamp(0.5 / GGX, 0.0, 1.0);
+    }
+    return 1.0;
 }
 
 fn BRDF_specularAnisotropicGGX(alphaRoughness: f32,
