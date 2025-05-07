@@ -277,15 +277,27 @@ export class AnimationComponent extends Component {
    */
   setAnimation(
     pathName: AnimationPathName,
-    animatedValue: IAnimatedValue
+    animatedValueArg: IAnimatedValue
   ) {
-    this.__animationTrack.set(pathName, {
-      animatedValue,
-      target: {
-        pathName,
-        entity: this.entity,
-      },
-    });
+
+    let animatedValue: IAnimatedValue;
+    if (this.__animationTrack.has(pathName)) {
+      const existedAnimatedValue = this.__animationTrack.get(pathName)!.animatedValue
+      for (const trackName of animatedValueArg.getAllTrackNames()) {
+        existedAnimatedValue.setAnimationSampler(trackName, animatedValueArg.getAnimationSampler(trackName));
+      }
+      animatedValue = existedAnimatedValue;
+    } else {
+      this.__animationTrack.set(pathName, {
+        animatedValue: animatedValueArg,
+        target: {
+          pathName,
+          entity: this.entity,
+        },
+      });
+      animatedValue = animatedValueArg;
+    }
+
 
     // update AnimationInfo
     const trackNames = animatedValue.getAllTrackNames();
