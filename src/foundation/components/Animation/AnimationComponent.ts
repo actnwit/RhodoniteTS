@@ -670,7 +670,7 @@ export class AnimationComponent extends Component {
         const trackName = _trackName + (postfixToTrackName ?? '');
         trackNames.push(trackName);
 
-        const input = animatedValue.getAnimationSampler(trackName).input;
+        const input = animatedValue.getAnimationSampler(_trackName).input;
         if (channel.target.pathName === 'translate') {
           const outputs = retargetTranslate(input, srcAnim);
           const samplers = new Map<AnimationTrackName, AnimationSampler>();
@@ -678,7 +678,7 @@ export class AnimationComponent extends Component {
             input,
             output: outputs,
             outputComponentN: 3,
-            interpolationMethod: animatedValue.getAnimationSampler(trackName).interpolationMethod,
+            interpolationMethod: animatedValue.getAnimationSampler(_trackName).interpolationMethod,
           });
           const newAnimatedValue = new AnimatedVector3(samplers, trackName);
           this.setAnimation(
@@ -693,7 +693,7 @@ export class AnimationComponent extends Component {
             input,
             output: outputs,
             outputComponentN: 4,
-            interpolationMethod: animatedValue.getAnimationSampler(trackName).interpolationMethod,
+            interpolationMethod: animatedValue.getAnimationSampler(_trackName).interpolationMethod,
           });
           const newAnimatedValue = new AnimatedQuaternion(samplers, trackName);
           this.setAnimation(
@@ -708,7 +708,7 @@ export class AnimationComponent extends Component {
             input,
             output: outputs,
             outputComponentN: 3,
-            interpolationMethod: animatedValue.getAnimationSampler(trackName).interpolationMethod,
+            interpolationMethod: animatedValue.getAnimationSampler(_trackName).interpolationMethod,
           });
           const newAnimatedValue = new AnimatedVector3(samplers, trackName);
           this.setAnimation(

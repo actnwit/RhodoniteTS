@@ -8,6 +8,7 @@ import {
 import { AnimationComponent } from '../components/Animation/AnimationComponent';
 import { AnimationAttribute } from '../definitions/AnimationAttribute';
 import { __interpolate } from '../components/Animation/AnimationOps';
+import { Logger } from '../misc/Logger';
 
 export class AnimatedVectorN extends VectorN implements IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
@@ -106,18 +107,22 @@ export class AnimatedVectorN extends VectorN implements IAnimatedValue {
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
-      throw new Error('Animation channel not found');
+      // throw new Error('Animation channel not found');
+      Logger.info('Animation channel not found');
+    } else {
+      this.__firstActiveAnimationSampler = animationSampler;
     }
-    this.__firstActiveAnimationSampler = animationSampler;
   }
 
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     this.__secondActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
-      throw new Error('Animation channel not found');
+      // throw new Error('Animation channel not found');
+      Logger.info('Animation channel not found');
+    } else {
+      this.__secondActiveAnimationSampler = animationSampler;
     }
-    this.__secondActiveAnimationSampler = animationSampler;
   }
 
   getFirstActiveAnimationTrackName() {

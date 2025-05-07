@@ -5,6 +5,7 @@ import { AnimationComponent } from "../components/Animation/AnimationComponent";
 import { IVector2 } from "./IVector";
 import { IAnimatedValue } from "./IAnimatedValue";
 import { Vector2 } from "./Vector2";
+import { Logger } from "../misc/Logger";
 
 export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue {
   private __animationSamplers: AnimationSamplers;
@@ -99,18 +100,22 @@ export class AnimatedVector2 extends Vector2 implements IVector2, IAnimatedValue
     this.__firstActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__firstActiveAnimationTrackName);
     if (animationSampler === undefined) {
-      throw new Error('Animation channel not found');
+      // throw new Error('Animation channel not found');
+      Logger.info('Animation channel not found');
+    } else {
+      this.__firstActiveAnimationSampler = animationSampler;
     }
-    this.__firstActiveAnimationSampler = animationSampler;
   }
 
   setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName) {
     this.__secondActiveAnimationTrackName = animationTrackName;
     const animationSampler = this.__animationSamplers.get(this.__secondActiveAnimationTrackName);
     if (animationSampler === undefined) {
-      throw new Error('Animation channel not found');
+      // throw new Error('Animation channel not found');
+      Logger.info('Animation channel not found');
+    } else {
+      this.__secondActiveAnimationSampler = animationSampler;
     }
-    this.__secondActiveAnimationSampler = animationSampler;
   }
 
   getFirstActiveAnimationTrackName() {
