@@ -140,7 +140,7 @@ export class AnimationComponent extends Component {
         transformComponent.localScale = channel.animatedValue as unknown as Vector3;
       } else if (pathName === 'weights') {
         blendShapeComponent!.weights = (channel.animatedValue as AnimatedVectorN).getNumberArray();
-      } else if (pathName === 'material') {
+      } else if (pathName.startsWith('material/')) {
         const meshComponent = this.entity.tryToGetMesh();
         if (Is.exist(meshComponent) && Is.exist(meshComponent.mesh)) {
           const mesh = meshComponent.mesh;
@@ -148,7 +148,7 @@ export class AnimationComponent extends Component {
             const primitive = mesh.getPrimitiveAt(i);
             const material = primitive.material;
             if (Is.exist(material)) {
-              material.setTime(time);
+              material.setParameter(pathName.split('/').pop()!, channel.animatedValue);
             }
           }
         }
@@ -277,11 +277,10 @@ export class AnimationComponent extends Component {
    */
   setAnimation(
     pathName: AnimationPathName,
-    animatedValueArg: IAnimatedValue,
-    isOverride: boolean = false
+    animatedValueArg: IAnimatedValue
   ) {
     let animatedValue: IAnimatedValue;
-    if (this.__animationTrack.has(pathName) && !isOverride) {
+    if (this.__animationTrack.has(pathName)) {
       const existedAnimatedValue = this.__animationTrack.get(pathName)!.animatedValue
       for (const trackName of animatedValueArg.getAllTrackNames()) {
         existedAnimatedValue.setAnimationSampler(trackName, animatedValueArg.getAnimationSampler(trackName));
