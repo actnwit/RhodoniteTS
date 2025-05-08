@@ -465,9 +465,6 @@ let ior = get_ior(materialSID, 0);
   let albedoSheenScalingNdotV = 1.0;
 #endif // RN_USE_SHEEN
 
-  var diffuseTransmission = 0.0;
-  var diffuseTransmissionColor = vec3f(0.0);
-  var diffuseTransmissionThickness = 0.0;
 #ifdef RN_USE_DIFFUSE_TRANSMISSION
   let diffuseTransmissionFactor = get_diffuseTransmissionFactor(materialSID, 0);
   let diffuseTransmissionTextureTransformScale = get_diffuseTransmissionTextureTransformScale(materialSID, 0);
@@ -477,7 +474,7 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionTexcoord = getTexcoord(diffuseTransmissionTexcoordIndex, input);
   let diffuseTransmissionTexUv = uvTransform(diffuseTransmissionTextureTransformScale, diffuseTransmissionTextureTransformOffset, diffuseTransmissionTextureTransformRotation, diffuseTransmissionTexcoord);
   let diffuseTransmissionTexture = textureSample(diffuseTransmissionTexture, diffuseTransmissionSampler, diffuseTransmissionTexUv).a;
-  diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
+  let diffuseTransmission = diffuseTransmissionFactor * diffuseTransmissionTexture;
 
   let diffuseTransmissionColorFactor = get_diffuseTransmissionColorFactor(materialSID, 0);
   let diffuseTransmissionColorTextureTransformScale = get_diffuseTransmissionColorTextureTransformScale(materialSID, 0);
@@ -487,15 +484,19 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionColorTexcoord = getTexcoord(diffuseTransmissionColorTexcoordIndex, input);
   let diffuseTransmissionColorTexUv = uvTransform(diffuseTransmissionColorTextureTransformScale, diffuseTransmissionColorTextureTransformOffset, diffuseTransmissionColorTextureTransformRotation, diffuseTransmissionColorTexcoord);
   let diffuseTransmissionColorTexture = textureSample(diffuseTransmissionColorTexture, diffuseTransmissionColorSampler, diffuseTransmissionColorTexUv).rgb;
-  diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
-  diffuseTransmissionThickness = 1.0;
-#endif // RN_USE_DIFFUSE_TRANSMISSION
+  let diffuseTransmissionColor = diffuseTransmissionColorFactor * diffuseTransmissionColorTexture;
+  var diffuseTransmissionThickness = 1.0;
 
 #ifdef RN_USE_VOLUME
   let worldMatrix = get_worldMatrix(u32(input.instanceInfo));
   diffuseTransmissionThickness = thickness * (length(worldMatrix[0].xyz) * length(worldMatrix[1].xyz) * length(worldMatrix[2].xyz)) / 3.0;
 #endif // RN_USE_VOLUME
 
+#else
+  let diffuseTransmission = 0.0;
+  let diffuseTransmissionColor = vec3f(0.0);
+  let diffuseTransmissionThickness = 0.0;
+#endif // RN_USE_DIFFUSE_TRANSMISSION
 
   var resultColor = vec3<f32>(0, 0, 0);
   var resultAlpha = baseColor.a;

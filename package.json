@@ -63,7 +63,7 @@
     "@webgpu/types": "^0.1.43",
     "cliui": "^9.0.1",
     "cross-env": "^7.0.3",
-    "esbuild-plugin-shaderity": "^0.0.2",
+    "esbuild-plugin-shaderity": "^0.0.4",
     "esbuild-plugin-version": "^0.0.1",
     "eslint-config-prettier": "^8.5.0",
     "express": "^4.18.1",
@@ -73,7 +73,6 @@
     "json-loader": "^0.5.7",
     "prettier": "^2.8.1",
     "puppeteer": "^22.8.0",
-    "shaderity-loader": "0.0.19",
     "shx": "0.3.4",
     "swc-loader": "^0.2.3",
     "ts-loader": "^9.5.1",
@@ -88,7 +87,7 @@
   },
   "dependencies": {
     "ktx-parse": "0.2.2",
-    "shaderity": "^0.2.9",
+    "shaderity": "^0.2.13",
     "zstddec": "^0.0.2"
   },
   "description": "Rhodonite is a WebGL library written in TypeScript.",
