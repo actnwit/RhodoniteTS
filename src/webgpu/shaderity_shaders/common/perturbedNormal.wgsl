@@ -18,9 +18,9 @@
 
       // get edge vectors of the pixel triangle
       let dp1 = dpdx(position);
-      let dp2 = dpdy(position);
+      let dp2 = -dpdy(position); // Because the Y direction of the window coordinate system is different from that of WebGL, this one is set to minus to make the result match the WebGL version.
       let duv1 = dpdx(uv);
-      let duv2 = dpdy(uv);
+      let duv2 = -dpdy(uv); // Because the Y direction of the window coordinate system is different from that of WebGL, this one is set to minus to make the result match the WebGL version.
 
       // solve the linear system
       let dp2perp = cross(dp2, normal_inWorld);
