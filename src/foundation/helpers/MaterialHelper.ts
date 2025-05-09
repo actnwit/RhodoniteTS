@@ -66,6 +66,7 @@ import { RnM2Material, Vrm0xMaterialProperty } from '../../types';
 import { Sampler } from '../textures/Sampler';
 import {
   dummyAnisotropyTexture,
+  dummyBlackCubeTexture,
   dummyBlackTexture,
   dummyBlueTexture,
   dummyDepthMomentTextureArray,
@@ -215,6 +216,7 @@ function createPbrUberMaterial({
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
   });
+  sampler.create();
 
   let textureSlotIdx = 8;
   if (isClearCoat) {
@@ -305,6 +307,16 @@ function createPbrUberMaterial({
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
       initialValue: [textureSlotIdx++, sheenLutTexture, sampler],
+      min: 0,
+      max: Number.MAX_VALUE,
+    });
+    additionalShaderSemanticInfo.push({
+      semantic: 'sheenEnvTexture',
+      componentType: ComponentType.Int,
+      compositionType: CompositionType.TextureCube,
+      stage: ShaderType.PixelShader,
+      isInternalSetting: true,
+      initialValue: [textureSlotIdx++, dummyBlackCubeTexture, sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });

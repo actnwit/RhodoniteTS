@@ -40,6 +40,7 @@ import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube'
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
   private __specularCubeMap?: CubeTexture | RenderTargetTextureCube;
+  private __sheenCubeMap?: CubeTexture | RenderTargetTextureCube;
   private __diffuseCubeMapContribution = 1.0;
   private __specularCubeMapContribution = 1.0;
   private __rotationOfCubeMap = 0;
@@ -75,6 +76,10 @@ export class MeshRendererComponent extends Component {
 
   get specularCubeMap() {
     return this.__specularCubeMap;
+  }
+
+  get sheenCubeMap() {
+    return this.__sheenCubeMap;
   }
 
   get updateCount() {
@@ -114,7 +119,8 @@ export class MeshRendererComponent extends Component {
 
   setIBLCubeMap(
     diffuseCubeTexture: CubeTexture | RenderTargetTextureCube,
-    specularCubeTexture: CubeTexture | RenderTargetTextureCube
+    specularCubeTexture: CubeTexture | RenderTargetTextureCube,
+    sheenCubeTexture?: CubeTexture | RenderTargetTextureCube
   ) {
     if (diffuseCubeTexture == null || specularCubeTexture == null) {
       return;
@@ -122,6 +128,7 @@ export class MeshRendererComponent extends Component {
 
     this.__diffuseCubeMap = diffuseCubeTexture;
     this.__specularCubeMap = specularCubeTexture;
+    this.__sheenCubeMap = sheenCubeTexture;
 
     const promises = [];
 
@@ -173,6 +180,33 @@ export class MeshRendererComponent extends Component {
           }
         })
       );
+    }
+
+    if (sheenCubeTexture != null) {
+      if (sheenCubeTexture instanceof RenderTargetTextureCube) {
+        promises.push(
+          new Promise<void>((resolve) => {
+            sheenCubeTexture.setIsTextureReady();
+            resolve();
+          })
+        );
+      } else {
+        promises.push(
+          new Promise<void>((resolve) => {
+            if (!sheenCubeTexture.startedToLoad) {
+              sheenCubeTexture.loadTextureImagesAsync().then(() => {
+                resolve();
+              });
+            } else if (sheenCubeTexture.isTextureReady) {
+              resolve();
+            } else {
+              sheenCubeTexture.registerOnTextureLoaded(() => {
+                resolve();
+              });
+            }
+          })
+        );
+      }
     }
 
     return Promise.all(promises).then(() => {

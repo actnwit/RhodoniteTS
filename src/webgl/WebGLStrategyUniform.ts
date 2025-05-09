@@ -571,6 +571,7 @@ bool get_isBillboard(float instanceId) {
           renderPass: renderPass,
           diffuseCube: entity.tryToGetMeshRenderer()?.diffuseCubeMap,
           specularCube: entity.tryToGetMeshRenderer()?.specularCubeMap,
+          sheenCube: entity.tryToGetMeshRenderer()?.sheenCubeMap,
           isVr: isVrMainPass,
           displayIdx,
         };

@@ -531,7 +531,7 @@ export class MathClassUtil {
         valArray = val;
       }
       let isSame = true;
-      for (let i = 0; i < valArray.length; i++) {
+      for (let i = 0; i < objForDetectType._v.length; i++) {
         if (objForDetectType._v[i] !== valArray[i]) {
           isSame = false;
           break;
@@ -540,7 +540,7 @@ export class MathClassUtil {
       if (isSame) {
         return false;
       }
-      for (let i = 0; i < valArray.length; i++) {
+      for (let i = 0; i < objForDetectType._v.length; i++) {
         objForDetectType._v[i] = valArray[i];
       }
     } else if (Array.isArray(objForDetectType)) {

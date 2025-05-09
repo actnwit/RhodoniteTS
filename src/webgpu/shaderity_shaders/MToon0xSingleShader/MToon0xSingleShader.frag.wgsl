@@ -20,9 +20,9 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
 #pragma shaderity: require(../common/pbrDefinition.wgsl)
 
-@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
+@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
-@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
+@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
 @group(2) @binding(17) var specularEnvSampler: sampler;
 
 // #param inverseEnvironment: bool; // initialValue=false

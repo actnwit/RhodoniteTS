@@ -45,6 +45,26 @@ fn get_radiance(reflection: vec3f, lod: f32, hdriFormat: vec2<i32>) -> vec3f {
 }
 
 #ifdef RN_USE_SHEEN
+
+fn get_radiance_sheen(reflection: vec3f, lod: f32, hdriFormat: vec2<i32>) -> vec3f {
+  let specularTexel = textureSampleLevel(sheenEnvTexture, sheenEnvSampler, reflection, lod);
+
+  var radiance: vec3f;
+  if (hdriFormat.y == 0) {
+    // LDR_SRGB
+    radiance = srgbToLinear(specularTexel.rgb);
+  }
+  else if (hdriFormat.y == 3) {
+    // RGBE
+    radiance = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+  }
+  else {
+    radiance = specularTexel.rgb;
+  }
+
+  return radiance;
+}
+
 fn sheenIBL(NdotV: f32, sheenPerceptualRoughness: f32, sheenColor: vec3f, iblParameter: vec4f, reflection: vec3f, hdriFormat: vec2i) -> vec3f
 {
   let mipCount = iblParameter.x;
@@ -52,7 +72,7 @@ fn sheenIBL(NdotV: f32, sheenPerceptualRoughness: f32, sheenColor: vec3f, iblPar
 
   let sheenLutUV = vec2f(NdotV, sheenPerceptualRoughness);
   let brdf = textureSample(sheenLutTexture, sheenLutSampler, sheenLutUV).b;
-  var sheenLight = get_radiance(reflection, lod, hdriFormat);
+  var sheenLight = get_radiance_sheen(reflection, lod, hdriFormat);
   let IBLSpecularContribution = iblParameter.z;
   sheenLight *= IBLSpecularContribution;
 

@@ -187,16 +187,16 @@ export class Material extends RnObject {
       if (this._isAnimatedValue(value)) {
         value.setFloat32Array(valueObj!.value._v);
         valueObj!.value = value;
-        // this.__stateVersion++;
-        // Material.__stateVersion++;
-        // this.calcFingerPrint();
+        this.__stateVersion++;
+        Material.__stateVersion++;
+        this.calcFingerPrint();
       } else {
         const updated = MathClassUtil._setForce(valueObj!.value, value);
-        // if (updated) {
-        //   this.__stateVersion++;
-        //   Material.__stateVersion++;
-        //   this.calcFingerPrint();
-        // }
+        if (updated) {
+          this.__stateVersion++;
+          Material.__stateVersion++;
+          this.calcFingerPrint();
+        }
       }
     }
   }
@@ -253,7 +253,7 @@ export class Material extends RnObject {
   public getTextureParameter(shaderSemantic: ShaderSemanticsName) {
     if (this._allFieldsInfo.has(shaderSemantic)) {
       const array = this._allFieldVariables.get(shaderSemantic)!;
-      return array.value[1];
+      return array.value;
     }
     return undefined;
   }

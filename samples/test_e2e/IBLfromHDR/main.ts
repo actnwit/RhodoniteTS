@@ -94,6 +94,12 @@ const [specularIblFramebuffer, specularIblRenderTargetCube] =
     height: cubeMapSize,
     textureFormat: Rn.TextureFormat.RGBA32F,
   });
+const [sheenIblFramebuffer, sheenIblRenderTargetCube] =
+  Rn.RenderableHelper.createFrameBufferCubeMap({
+    width: cubeMapSize,
+    height: cubeMapSize,
+    textureFormat: Rn.TextureFormat.RGBA32F,
+  });
 
 const sampler = new Rn.Sampler({
   magFilter: Rn.TextureParameter.Linear,
@@ -129,6 +135,7 @@ const renderIBL = () => {
 
   panoramaToCubeRenderTargetCube.generateMipmaps();
 
+  // Diffuse IBL
   prefilterIblRenderPass.setFramebuffer(diffuseIblFramebuffer);
   prefilterIblMaterial.setParameter('distributionType', 0);
 
@@ -138,20 +145,43 @@ const renderIBL = () => {
     Rn.System.process([prefilterIblExpression]);
   }
 
-  prefilterIblRenderPass.setFramebuffer(specularIblFramebuffer);
-  prefilterIblMaterial.setParameter('distributionType', 1);
+  // Specular IBL
+  {
+    prefilterIblRenderPass.setFramebuffer(specularIblFramebuffer);
+    prefilterIblMaterial.setParameter('distributionType', 1);
 
-  const mipLevelCount = Math.floor(Math.log2(cubeMapSize)) + 1;
-  for (let i = 0; i < mipLevelCount; i++) {
-    const roughness = i / (mipLevelCount - 1);
-    prefilterIblMaterial.setParameter('roughness', roughness);
-    for (let face = 0; face < 6; face++) {
-      prefilterIblMaterial.setParameter('cubeMapFaceId', face);
-      specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
-      prefilterIblRenderPass.setViewport(
-        Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
-      );
-      Rn.System.process([prefilterIblExpression]);
+    const mipLevelCount = Math.floor(Math.log2(cubeMapSize)) + 1;
+    for (let i = 0; i < mipLevelCount; i++) {
+      const roughness = i / (mipLevelCount - 1);
+      prefilterIblMaterial.setParameter('roughness', roughness);
+      for (let face = 0; face < 6; face++) {
+        prefilterIblMaterial.setParameter('cubeMapFaceId', face);
+        specularIblFramebuffer.setColorAttachmentCubeAt(0, face, i, specularIblRenderTargetCube);
+        prefilterIblRenderPass.setViewport(
+          Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
+        );
+        Rn.System.process([prefilterIblExpression]);
+      }
+    }
+  }
+
+  // Sheen IBL
+  {
+    prefilterIblRenderPass.setFramebuffer(sheenIblFramebuffer);
+    prefilterIblMaterial.setParameter('distributionType', 2);
+
+    const mipLevelCount = Math.floor(Math.log2(cubeMapSize)) + 1;
+    for (let i = 0; i < mipLevelCount; i++) {
+      const roughness = i / (mipLevelCount - 1);
+      prefilterIblMaterial.setParameter('roughness', roughness);
+      for (let face = 0; face < 6; face++) {
+        prefilterIblMaterial.setParameter('cubeMapFaceId', face);
+        sheenIblFramebuffer.setColorAttachmentCubeAt(0, face, i, sheenIblRenderTargetCube);
+        prefilterIblRenderPass.setViewport(
+          Rn.Vector4.fromCopy4(0, 0, cubeMapSize >> i, cubeMapSize >> i)
+        );
+        Rn.System.process([prefilterIblExpression]);
+      }
     }
   }
 };
@@ -167,7 +197,7 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 const mainExpressionResult = await Rn.GltfImporter.importFromUri(
-  '../../../assets/gltf/glTF-Sample-Assets/Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb',
+  '../../../assets/gltf/glTF-Sample-Assets/Models/ToyCar/glTF-Binary/ToyCar.glb',
   {
     cameraComponent: cameraComponent,
   },
@@ -194,7 +224,8 @@ const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
 for (const meshRendererComponent of meshRendererComponents) {
   await meshRendererComponent.setIBLCubeMap(
     diffuseIblRenderTargetCube as any,
-    specularIblRenderTargetCube as any
+    specularIblRenderTargetCube as any,
+    sheenIblRenderTargetCube as any
   );
 }
 
