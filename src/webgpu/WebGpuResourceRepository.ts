@@ -66,7 +66,6 @@ import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetT
 
 import HDRImage from '../../vendor/hdrpng.js';
 import { TextureArray } from '../foundation/textures/TextureArray';
-import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 
 export type WebGpuResource =
   | GPUTexture
