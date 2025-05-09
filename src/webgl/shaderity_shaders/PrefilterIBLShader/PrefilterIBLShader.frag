@@ -20,6 +20,7 @@ uniform int u_sampleCount; // initialValue=1024
 
 const int cLambertian = 0;
 const int cGGX = 1;
+const int cCharlie = 2;
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
 float radicalInverse_VdC(uint bits)
@@ -99,6 +100,36 @@ vec4 getImportanceSampleGGX(int sampleIndex, vec3 N, float roughness, float mate
     return vec4(direction, pdf);
 }
 
+float D_Charlie(float sheenRoughness, float NdotH)
+{
+    sheenRoughness = max(sheenRoughness, 0.000001); //clamp (0,1]
+    float invR = 1.0 / sheenRoughness;
+    float cos2h = NdotH * NdotH;
+    float sin2h = 1.0 - cos2h;
+    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * MATH_PI);
+}
+
+vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, float materialSID)
+{
+    vec2 xi = hammersley2d(sampleIndex, get_sampleCount(materialSID, 0));
+
+    float alpha = roughness * roughness;
+    float sinTheta = pow(xi.y, alpha / (2.0*alpha + 1.0));
+    float cosTheta = sqrt(1.0 - sinTheta * sinTheta);
+    float phi = 2.0 * PI * xi.x;
+    float pdf = D_Charlie(alpha, cosTheta);
+    pdf /= 4.0;
+
+    vec3 localDirection = normalize(vec3(
+        sinTheta * cos(phi),
+        sinTheta * sin(phi),
+        cosTheta
+    ));
+    vec3 direction = createTBN(N) * localDirection;
+
+    return vec4(direction, pdf);
+}
+
 // We learnd a lot from the following resources
 // https://developer.nvidia.com/gpugems/gpugems3/part-iii-rendering/chapter-20-gpu-based-importance-sampling
 // https://cgg.mff.cuni.cz/~jaroslav/papers/2007-sketch-fis/Final_sap_0073.pdf
@@ -126,8 +157,10 @@ vec3 prefilter(vec3 N, float materialSID)
         int distributionType = get_distributionType(materialSID, 0);
         if(distributionType == cLambertian) {
             importanceSample = getImportanceSampleLambertian(i, N, get_roughness(materialSID, 0), materialSID);
-        } else {
+        } else if(distributionType == cGGX) {
             importanceSample = getImportanceSampleGGX(i, N, get_roughness(materialSID, 0), materialSID);
+        } else {
+            importanceSample = getImportanceSampleCharlie(i, N, get_roughness(materialSID, 0), materialSID);
         }
 
         vec3 H = vec3(importanceSample.xyz);
@@ -139,7 +172,7 @@ vec3 prefilter(vec3 N, float materialSID)
             vec3 lambertian = textureLod(u_baseColorTexture, H, lod).rgb;
             color += lambertian;
         }
-        else if(distributionType == cGGX)
+        else if(distributionType == cGGX || distributionType == cCharlie)
         {
             vec3 V = N;
             vec3 L = normalize(reflect(-V, H));
