@@ -927,6 +927,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       primitive: primitive,
       diffuseCube: meshRendererComponent.diffuseCubeMap,
       specularCube: meshRendererComponent.specularCubeMap!,
+      sheenCube: meshRendererComponent.sheenCubeMap,
       setUniform: false,
       isVr: isVRMainPass,
       displayIdx: -1,

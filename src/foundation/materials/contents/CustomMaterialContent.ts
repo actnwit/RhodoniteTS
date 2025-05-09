@@ -191,7 +191,13 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     const sheenEnv = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
     if (sheenEnv != null) {
       const sheenEnvSlot = sheenEnv[0];
-      if (args.specularCube && args.specularCube.isTextureReady) {
+      if (args.sheenCube && args.sheenCube.isTextureReady) {
+        webglResourceRepository.setUniform1iForTexture(
+          shaderProgram,
+          ShaderSemantics.SheenEnvTexture.str,
+          [sheenEnvSlot, args.sheenCube, CustomMaterialContent.__specularIblCubeMapSampler]
+        );
+      } else if (args.specularCube && args.specularCube.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(
           shaderProgram,
           ShaderSemantics.SheenEnvTexture.str,

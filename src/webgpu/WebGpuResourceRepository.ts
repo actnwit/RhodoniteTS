@@ -991,6 +991,7 @@ export class WebGpuResourceRepository
     let meshRendererComponentUpdateCount = -1;
     let diffuseCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
     let specularCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
+    let sheenCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
     if (!isBufferLessRendering) {
       const mesh = primitive.mesh as Mesh;
       const entity = mesh.meshEntitiesInner[0]; // get base mesh for instancing draw
@@ -1008,6 +1009,7 @@ export class WebGpuResourceRepository
       meshRendererComponentUpdateCount = meshRendererComponent.updateCount;
       diffuseCubeMap = meshRendererComponent.diffuseCubeMap;
       specularCubeMap = meshRendererComponent.specularCubeMap;
+      sheenCubeMap = meshRendererComponent.sheenCubeMap;
     }
 
     const renderPipelineId = `${primitive._getFingerPrint()} ${material.materialUID} ${
@@ -1021,7 +1023,8 @@ export class WebGpuResourceRepository
       renderPass,
       zWrite,
       diffuseCubeMap,
-      specularCubeMap
+      specularCubeMap,
+      sheenCubeMap
     );
 
     this.createRenderBundleEncoder(renderPass);
@@ -1288,7 +1291,8 @@ export class WebGpuResourceRepository
     renderPass: RenderPass,
     zWrite: boolean,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
-    specularCubeMap?: CubeTexture | RenderTargetTextureCube
+    specularCubeMap?: CubeTexture | RenderTargetTextureCube,
+    sheenCubeMap?: CubeTexture | RenderTargetTextureCube
   ): [GPURenderPipeline, boolean] {
     if (this.__webGpuRenderPipelineMap.has(renderPipelineId)) {
       const materialStateVersion = this.__materialStateVersionMap.get(renderPipelineId);
@@ -1313,7 +1317,7 @@ export class WebGpuResourceRepository
     this.__bindGroupSamplerMap.delete(renderPipelineId);
     this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
 
-    this.__createBindGroup(renderPipelineId, material, diffuseCubeMap, specularCubeMap);
+    this.__createBindGroup(renderPipelineId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -2006,7 +2010,8 @@ export class WebGpuResourceRepository
     renderPipelineId: string,
     material: Material,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
-    specularCubeMap?: CubeTexture | RenderTargetTextureCube
+    specularCubeMap?: CubeTexture | RenderTargetTextureCube,
+    sheenCubeMap?: CubeTexture | RenderTargetTextureCube
   ) {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
@@ -2297,13 +2302,20 @@ export class WebGpuResourceRepository
       const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
       if (Is.exist(sheenEnvValue)) {
         const sheenEnvSlot = sheenEnvValue[0];
-        const specularCubeTextureView = this.__webGpuResources.get(
-          Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1
-        ) as GPUTextureView | undefined;
-        if (Is.exist(specularCubeTextureView)) {
+        let sheenCubeTextureView: GPUTextureView | undefined;
+        if (Is.exist(sheenCubeMap)) {
+          sheenCubeTextureView = this.__webGpuResources.get(
+            sheenCubeMap._textureViewResourceUid
+          ) as GPUTextureView | undefined;
+        } else if (Is.exist(specularCubeMap)) { // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
+          sheenCubeTextureView = this.__webGpuResources.get(
+            specularCubeMap._textureViewResourceUid
+          ) as GPUTextureView | undefined;
+        }
+        if (Is.exist(sheenCubeTextureView)) {
           entriesForTexture.push({
             binding: sheenEnvSlot,
-            resource: specularCubeTextureView,
+            resource: sheenCubeTextureView,
           });
         } else {
           const dummyCubeTextureView = this.__webGpuResources.get(
@@ -2321,13 +2333,20 @@ export class WebGpuResourceRepository
           },
           visibility: GPUShaderStage.FRAGMENT,
         });
-        const specularCubeSampler = this.__webGpuResources.get(
-          Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
-        ) as GPUSampler | undefined;
-        if (Is.exist(specularCubeSampler)) {
+        let sheenCubeSampler: GPUSampler | undefined;
+        if (Is.exist(sheenCubeMap)) {
+          sheenCubeSampler = this.__webGpuResources.get(
+            sheenCubeMap._samplerResourceUid
+          ) as GPUSampler | undefined;
+        } else if (Is.exist(specularCubeMap)) { // if sheenCubeMap is not exist, use specularCubeMap instead as sheenCubeMap
+          sheenCubeSampler = this.__webGpuResources.get(
+            specularCubeMap._samplerResourceUid
+          ) as GPUSampler | undefined;
+        }
+        if (Is.exist(sheenCubeSampler)) {
           entriesForSampler.push({
             binding: sheenEnvSlot,
-            resource: specularCubeSampler,
+            resource: sheenCubeSampler,
           });
         } else {
           const dummyCubeSampler = this.__webGpuResources.get(

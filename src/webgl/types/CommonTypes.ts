@@ -19,6 +19,7 @@ export type RenderingArgWebGL = {
   renderPass: RenderPass;
   diffuseCube?: CubeTexture | RenderTargetTextureCube;
   specularCube?: CubeTexture | RenderTargetTextureCube;
+  sheenCube?: CubeTexture | RenderTargetTextureCube;
   isVr: boolean;
   displayIdx: Index;
   setUniform: boolean;
