@@ -61,6 +61,7 @@ import { RenderTargetTexture2DArray } from '../foundation/textures/RenderTargetT
 
 import HDRImage from '../../vendor/hdrpng.js';
 import { TextureArray } from '../foundation/textures/TextureArray';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
 
 export type WebGpuResource =
   | GPUTexture
@@ -2185,105 +2186,112 @@ export class WebGpuResourceRepository
       });
 
       // Diffuse IBL
-      const diffuseCubeTextureView = this.__webGpuResources.get(
-        Is.exist(diffuseCubeMap) ? diffuseCubeMap._textureViewResourceUid : -1
-      ) as GPUTextureView | undefined;
-      if (Is.exist(diffuseCubeTextureView)) {
-        entriesForTexture.push({
-          binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          resource: diffuseCubeTextureView,
+      const diffuseEnvValue = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
+      if (Is.exist(diffuseEnvValue)) {
+        const diffuseEnvSlot = diffuseEnvValue[0];
+        const diffuseCubeTextureView = this.__webGpuResources.get(
+          Is.exist(diffuseCubeMap) ? diffuseCubeMap._textureViewResourceUid : -1
+        ) as GPUTextureView | undefined;
+        if (Is.exist(diffuseCubeTextureView)) {
+          entriesForTexture.push({
+            binding: diffuseEnvSlot,
+            resource: diffuseCubeTextureView,
+          });
+        } else {
+          const dummyCubeTextureView = this.__webGpuResources.get(
+            dummyBlackCubeTexture._textureViewResourceUid
+          ) as GPUTextureView;
+          entriesForTexture.push({
+            binding: diffuseEnvSlot,
+            resource: dummyCubeTextureView,
+          });
+        }
+        bindGroupLayoutEntriesForTexture.push({
+          binding: diffuseEnvSlot,
+          texture: {
+            viewDimension: 'cube',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
         });
-      } else {
-        const dummyCubeTextureView = this.__webGpuResources.get(
-          dummyBlackCubeTexture._textureViewResourceUid
-        ) as GPUTextureView;
-        entriesForTexture.push({
-          binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          resource: dummyCubeTextureView,
+        const diffuseCubeSampler = this.__webGpuResources.get(
+          Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1
+        ) as GPUSampler | undefined;
+        if (Is.exist(diffuseCubeSampler)) {
+          entriesForSampler.push({
+            binding: diffuseEnvSlot,
+            resource: diffuseCubeSampler,
+          });
+        } else {
+          const dummyCubeSampler = this.__webGpuResources.get(
+            dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
+          entriesForSampler.push({
+            binding: diffuseEnvSlot,
+            resource: dummyCubeSampler,
+          });
+        }
+        bindGroupLayoutEntriesForSampler.push({
+          binding: diffuseEnvSlot,
+          sampler: {
+            type: 'filtering',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
         });
       }
-      bindGroupLayoutEntriesForTexture.push({
-        binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-        texture: {
-          viewDimension: 'cube',
-        },
-        visibility: GPUShaderStage.FRAGMENT,
-      });
-      const diffuseCubeSampler = this.__webGpuResources.get(
-        Is.exist(diffuseCubeMap) ? diffuseCubeMap._samplerResourceUid : -1
-      ) as GPUSampler | undefined;
-      if (Is.exist(diffuseCubeSampler)) {
-        entriesForSampler.push({
-          binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          resource: diffuseCubeSampler,
-        });
-      } else {
-        const dummyCubeSampler = this.__webGpuResources.get(
-          dummyBlackCubeTexture._samplerResourceUid
-        ) as GPUSampler;
-        entriesForSampler.push({
-          binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-          resource: dummyCubeSampler,
-        });
-      }
-      bindGroupLayoutEntriesForSampler.push({
-        binding: IBL_DIFFUSE_CUBE_TEXTURE_BINDING_SLOT,
-        sampler: {
-          type: 'filtering',
-        },
-        visibility: GPUShaderStage.FRAGMENT,
-      });
 
       // Specular IBL
-      const specularCubeTextureView = this.__webGpuResources.get(
-        Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1
-      ) as GPUTextureView | undefined;
-
-      if (Is.exist(specularCubeTextureView)) {
-        entriesForTexture.push({
-          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          resource: specularCubeTextureView,
+      const specularEnvValue = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
+      if (Is.exist(specularEnvValue)) {
+        const specularEnvSlot = specularEnvValue[0];
+        const specularCubeTextureView = this.__webGpuResources.get(
+          Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1
+        ) as GPUTextureView | undefined;
+        if (Is.exist(specularCubeTextureView)) {
+          entriesForTexture.push({
+            binding: specularEnvSlot,
+            resource: specularCubeTextureView,
+          });
+        } else {
+          const dummyCubeTextureView = this.__webGpuResources.get(
+            dummyBlackCubeTexture._textureViewResourceUid
+          ) as GPUTextureView;
+          entriesForTexture.push({
+            binding: specularEnvSlot,
+            resource: dummyCubeTextureView,
+          });
+        }
+        bindGroupLayoutEntriesForTexture.push({
+          binding: specularEnvSlot,
+          texture: {
+            viewDimension: 'cube',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
         });
-      } else {
-        const dummyCubeTextureView = this.__webGpuResources.get(
-          dummyBlackCubeTexture._textureViewResourceUid
-        ) as GPUTextureView;
-        entriesForTexture.push({
-          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          resource: dummyCubeTextureView,
+        const specularCubeSampler = this.__webGpuResources.get(
+          Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
+        ) as GPUSampler | undefined;
+        if (Is.exist(specularCubeSampler)) {
+          entriesForSampler.push({
+            binding: specularEnvSlot,
+            resource: specularCubeSampler,
+          });
+        } else {
+          const dummyCubeSampler = this.__webGpuResources.get(
+            dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
+          entriesForSampler.push({
+            binding: specularEnvSlot,
+            resource: dummyCubeSampler,
+          });
+        }
+        bindGroupLayoutEntriesForSampler.push({
+          binding: specularEnvSlot,
+          sampler: {
+            type: 'filtering',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
         });
       }
-      bindGroupLayoutEntriesForTexture.push({
-        binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-        texture: {
-          viewDimension: 'cube',
-        },
-        visibility: GPUShaderStage.FRAGMENT,
-      });
-      const specularCubeSampler = this.__webGpuResources.get(
-        Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
-      ) as GPUSampler | undefined;
-      if (Is.exist(specularCubeSampler)) {
-        entriesForSampler.push({
-          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          resource: specularCubeSampler,
-        });
-      } else {
-        const dummyCubeSampler = this.__webGpuResources.get(
-          dummyBlackCubeTexture._samplerResourceUid
-        ) as GPUSampler;
-        entriesForSampler.push({
-          binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-          resource: dummyCubeSampler,
-        });
-      }
-      bindGroupLayoutEntriesForSampler.push({
-        binding: IBL_SPECULAR_CUBE_TEXTURE_BINDING_SLOT,
-        sampler: {
-          type: 'filtering',
-        },
-        visibility: GPUShaderStage.FRAGMENT,
-      });
 
       // Texture
       const bindGroupLayoutDescForTexture: GPUBindGroupLayoutDescriptor = {
