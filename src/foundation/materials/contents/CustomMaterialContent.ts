@@ -188,7 +188,23 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         );
       }
     }
-
+    const sheenEnv = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
+    if (sheenEnv != null) {
+      const sheenEnvSlot = sheenEnv[0];
+      if (args.specularCube && args.specularCube.isTextureReady) {
+        webglResourceRepository.setUniform1iForTexture(
+          shaderProgram,
+          ShaderSemantics.SheenEnvTexture.str,
+          [sheenEnvSlot, args.specularCube, CustomMaterialContent.__specularIblCubeMapSampler]
+        );
+      } else {
+        webglResourceRepository.setUniform1iForTexture(
+          shaderProgram,
+          ShaderSemantics.SheenEnvTexture.str,
+          [sheenEnvSlot, dummyBlackCubeTexture]
+        );
+      }
+    }
     // IBL Parameters
     if (args.setUniform) {
       if (firstTime) {

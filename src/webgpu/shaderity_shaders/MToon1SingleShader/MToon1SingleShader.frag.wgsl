@@ -39,9 +39,9 @@ const EPS_COL: f32 = 0.00001;
 @group(2) @binding(4) var shadeMultiplySampler: sampler;
 // #param shadeMultiplyTexcoordIndex: f32; // initialValue=0
 
-@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black
+@group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
-@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black
+@group(1) @binding(17) var specularEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
 @group(2) @binding(17) var specularEnvSampler: sampler;
 
 // #param giEqualizationFactor: f32; // initialValue=0.9

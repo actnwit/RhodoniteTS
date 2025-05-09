@@ -2116,7 +2116,7 @@ export class WebGpuResourceRepository
       const bindGroupLayoutEntriesForSampler: GPUBindGroupLayoutEntry[] = [];
       material._autoFieldVariablesOnly.forEach((value) => {
         const info = value.info;
-        if (info.semantic === 'diffuseEnvTexture' || info.semantic === 'specularEnvTexture') {
+        if (info.semantic === 'diffuseEnvTexture' || info.semantic === 'specularEnvTexture' || info.semantic === 'sheenEnvTexture') {
           return;
         }
 
@@ -2286,6 +2286,60 @@ export class WebGpuResourceRepository
         }
         bindGroupLayoutEntriesForSampler.push({
           binding: specularEnvSlot,
+          sampler: {
+            type: 'filtering',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
+        });
+      }
+
+      // Sheen IBL
+      const sheenEnvValue = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
+      if (Is.exist(sheenEnvValue)) {
+        const sheenEnvSlot = sheenEnvValue[0];
+        const specularCubeTextureView = this.__webGpuResources.get(
+          Is.exist(specularCubeMap) ? specularCubeMap._textureViewResourceUid : -1
+        ) as GPUTextureView | undefined;
+        if (Is.exist(specularCubeTextureView)) {
+          entriesForTexture.push({
+            binding: sheenEnvSlot,
+            resource: specularCubeTextureView,
+          });
+        } else {
+          const dummyCubeTextureView = this.__webGpuResources.get(
+            dummyBlackCubeTexture._textureViewResourceUid
+          ) as GPUTextureView;
+          entriesForTexture.push({
+            binding: sheenEnvSlot,
+            resource: dummyCubeTextureView,
+          });
+        }
+        bindGroupLayoutEntriesForTexture.push({
+          binding: sheenEnvSlot,
+          texture: {
+            viewDimension: 'cube',
+          },
+          visibility: GPUShaderStage.FRAGMENT,
+        });
+        const specularCubeSampler = this.__webGpuResources.get(
+          Is.exist(specularCubeMap) ? specularCubeMap._samplerResourceUid : -1
+        ) as GPUSampler | undefined;
+        if (Is.exist(specularCubeSampler)) {
+          entriesForSampler.push({
+            binding: sheenEnvSlot,
+            resource: specularCubeSampler,
+          });
+        } else {
+          const dummyCubeSampler = this.__webGpuResources.get(
+            dummyBlackCubeTexture._samplerResourceUid
+          ) as GPUSampler;
+          entriesForSampler.push({
+            binding: sheenEnvSlot,
+            resource: dummyCubeSampler,
+          });
+        }
+        bindGroupLayoutEntriesForSampler.push({
+          binding: sheenEnvSlot,
           sampler: {
             type: 'filtering',
           },

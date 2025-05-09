@@ -106,15 +106,7 @@ vec3 getIBLVolumeRefraction(vec3 baseColor, vec3 normal, vec3 view, float camera
 #endif // RN_USE_TRANSMISSION
 
 vec3 get_radiance(vec3 reflection, float lod, ivec2 hdriFormat) {
-  #ifdef WEBGL1_EXT_SHADER_TEXTURE_LOD
-    vec4 specularTexel = textureCubeLodEXT(u_specularEnvTexture, reflection, lod);
-  #elif defined(GLSL_ES3)
-    vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
-  #else
-    vec4 specularTexel = texture(u_specularEnvTexture, reflection);
-  #endif
-
-// #pragma shaderity: require(./../common/fetchCubeTexture.glsl)
+  vec4 specularTexel = textureLod(u_specularEnvTexture, reflection, lod);
 
   vec3 radiance;
   if (hdriFormat.y == 0) {
@@ -170,6 +162,26 @@ vec3 getIBLFresnelGGX(float perceptualRoughness, float NdotV, vec3 F0, float spe
 }
 
 #ifdef RN_USE_SHEEN
+
+vec3 get_radiance_sheen(vec3 reflection, float lod, ivec2 hdriFormat) {
+  vec4 specularTexel = textureLod(u_sheenEnvTexture, reflection, lod);
+
+  vec3 radiance;
+  if (hdriFormat.y == 0) {
+    // LDR_SRGB
+    radiance = srgbToLinear(specularTexel.rgb);
+  }
+  else if (hdriFormat.y == 3) {
+    // RGBE
+    radiance = specularTexel.rgb * pow(2.0, specularTexel.a*255.0-128.0);
+  }
+  else {
+    radiance = specularTexel.rgb;
+  }
+
+  return radiance;
+}
+
 vec3 sheenIBL(float NdotV, float sheenPerceptualRoughness, vec3 sheenColor, vec4 iblParameter, vec3 reflection, ivec2 hdriFormat)
 {
   float mipCount = iblParameter.x;
@@ -177,7 +189,7 @@ vec3 sheenIBL(float NdotV, float sheenPerceptualRoughness, vec3 sheenColor, vec4
 
   vec2 sheenLutUV = vec2(NdotV, sheenPerceptualRoughness);
   float brdf = texture(u_sheenLutTexture, sheenLutUV).b;
-  vec3 sheenLight = get_radiance(reflection, lod, hdriFormat);
+  vec3 sheenLight = get_radiance_sheen(reflection, lod, hdriFormat);
   float IBLSpecularContribution = iblParameter.z;
   sheenLight *= IBLSpecularContribution;
 
