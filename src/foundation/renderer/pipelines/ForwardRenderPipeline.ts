@@ -112,6 +112,7 @@ export class ForwardRenderPipeline extends RnObject {
   private __oDrawFunc: Option<DrawFunc> = new None();
   private __oDiffuseCubeTexture: Option<CubeTexture> = new None();
   private __oSpecularCubeTexture: Option<CubeTexture> = new None();
+  private __oSheenCubeTexture: Option<CubeTexture> = new None();
   private __oSamplerForBackBuffer: Option<Sampler> = new None();
   private __toneMappingType = ToneMappingType.GT_ToneMap;
   private __bloomHelper: Bloom = new Bloom();
@@ -380,9 +381,12 @@ export class ForwardRenderPipeline extends RnObject {
    * @param diffuse - diffuse IBL Cube Texture
    * @param specular - specular IBL Cube Texture
    */
-  async setIBLTextures(diffuse: CubeTexture, specular: CubeTexture) {
+  async setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
     this.__oSpecularCubeTexture = new Some(specular);
+    if (Is.exist(sheen)) {
+      this.__oSheenCubeTexture = new Some(sheen);
+    }
     await this.__setIblInner();
     await this.__setIblInnerForTransparentOnly();
   }
@@ -798,7 +802,8 @@ export class ForwardRenderPipeline extends RnObject {
           if (Is.exist(meshRendererComponent)) {
             await meshRendererComponent.setIBLCubeMap(
               this.__oDiffuseCubeTexture.unwrapOrUndefined()!,
-              this.__oSpecularCubeTexture.unwrapOrUndefined()!
+              this.__oSpecularCubeTexture.unwrapOrUndefined()!,
+              this.__oSheenCubeTexture.unwrapOrUndefined()
             );
           }
         }
@@ -814,7 +819,8 @@ export class ForwardRenderPipeline extends RnObject {
           if (Is.exist(meshRendererComponent)) {
             await meshRendererComponent.setIBLCubeMap(
               this.__oDiffuseCubeTexture.unwrapOrUndefined()!,
-              this.__oSpecularCubeTexture.unwrapOrUndefined()!
+              this.__oSpecularCubeTexture.unwrapOrUndefined()!,
+              this.__oSheenCubeTexture.unwrapOrUndefined()
             );
           }
         }
