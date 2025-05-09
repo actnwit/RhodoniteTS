@@ -253,7 +253,7 @@ export class Material extends RnObject {
   public getTextureParameter(shaderSemantic: ShaderSemanticsName) {
     if (this._allFieldsInfo.has(shaderSemantic)) {
       const array = this._allFieldVariables.get(shaderSemantic)!;
-      return array.value[1];
+      return array.value;
     }
     return undefined;
   }

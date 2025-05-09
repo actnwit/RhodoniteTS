@@ -154,30 +154,32 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
+    const diffuseEnvSlot = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str)[0];
     if (args.diffuseCube && args.diffuseCube.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
-        [5, args.diffuseCube, CustomMaterialContent.__diffuseIblCubeMapSampler]
+        [diffuseEnvSlot, args.diffuseCube, CustomMaterialContent.__diffuseIblCubeMapSampler]
       );
     } else {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.DiffuseEnvTexture.str,
-        [5, dummyBlackCubeTexture]
+        [diffuseEnvSlot, dummyBlackCubeTexture]
       );
     }
+    const specularEnvSlot = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str)[0];
     if (args.specularCube && args.specularCube.isTextureReady) {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
-        [6, args.specularCube, CustomMaterialContent.__specularIblCubeMapSampler]
+        [specularEnvSlot, args.specularCube, CustomMaterialContent.__specularIblCubeMapSampler]
       );
     } else {
       webglResourceRepository.setUniform1iForTexture(
         shaderProgram,
         ShaderSemantics.SpecularEnvTexture.str,
-        [6, dummyBlackCubeTexture]
+        [specularEnvSlot, dummyBlackCubeTexture]
       );
     }
 
