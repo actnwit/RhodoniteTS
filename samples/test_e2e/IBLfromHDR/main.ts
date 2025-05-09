@@ -197,7 +197,7 @@ cameraComponent.aspect = 1.0;
 const expressions = [];
 
 const mainExpressionResult = await Rn.GltfImporter.importFromUri(
-  '../../../assets/gltf/glTF-Sample-Assets/Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb',
+  '../../../assets/gltf/glTF-Sample-Assets/Models/ToyCar/glTF-Binary/ToyCar.glb',
   {
     cameraComponent: cameraComponent,
   },
