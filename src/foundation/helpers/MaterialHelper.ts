@@ -216,6 +216,7 @@ function createPbrUberMaterial({
     wrapS: TextureParameter.ClampToEdge,
     wrapT: TextureParameter.ClampToEdge,
   });
+  sampler.create();
 
   let textureSlotIdx = 8;
   if (isClearCoat) {
