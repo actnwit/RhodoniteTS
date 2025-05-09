@@ -37,13 +37,18 @@ import {
   dummyBlackCubeTexture,
   dummyWhiteTexture,
 } from '../foundation/materials/core/DummyTextures';
+import { ShaderSemantics } from '../foundation/definitions/ShaderSemantics';
+import { MutableVector2 } from '../foundation/math/MutableVector2';
+import { MutableVector4 } from '../foundation/math/MutableVector4';
 import { MeshRendererComponent } from '../foundation/components/MeshRenderer/MeshRendererComponent';
 import { AlphaMode } from '../foundation/definitions/AlphaMode';
 import { MiscUtil } from '../foundation/misc/MiscUtil';
 import { CubeTexture } from '../foundation/textures/CubeTexture';
 import { IRenderable } from '../foundation/textures/IRenderable';
 import { FrameBuffer } from '../foundation/renderer/FrameBuffer';
+import { GlobalDataRepository } from '../foundation/core/GlobalDataRepository';
 import { RenderBuffer } from '../foundation/textures/RenderBuffer';
+import { Vector2 } from '../foundation/math/Vector2';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { EntityRepository } from '../foundation/core/EntityRepository';
 import { SystemState } from '../foundation/system/SystemState';
