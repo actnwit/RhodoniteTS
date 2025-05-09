@@ -106,7 +106,7 @@ float D_Charlie(float sheenRoughness, float NdotH)
     float invR = 1.0 / sheenRoughness;
     float cos2h = NdotH * NdotH;
     float sin2h = 1.0 - cos2h;
-    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * MATH_PI);
+    return (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * PI);
 }
 
 vec4 getImportanceSampleCharlie(int sampleIndex, vec3 N, float roughness, float materialSID)

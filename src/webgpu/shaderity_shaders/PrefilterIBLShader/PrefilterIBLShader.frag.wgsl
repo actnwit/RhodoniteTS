@@ -93,9 +93,9 @@ fn getImportanceSampleGGX(sampleIndex: i32, N: vec3f, roughness: f32, materialSI
     return vec4f(direction, pdf);
 }
 
-fn D_Charlie(sheenRoughness: f32, NdotH: f32) -> f32
+fn D_Charlie(sheenRoughness_: f32, NdotH: f32) -> f32
 {
-    sheenRoughness = max(sheenRoughness, 0.000001); //clamp (0,1]
+    let sheenRoughness = max(sheenRoughness_, 0.000001); //clamp (0,1]
     let invR = 1.0 / sheenRoughness;
     let cos2h = NdotH * NdotH;
     let sin2h = 1.0 - cos2h;
