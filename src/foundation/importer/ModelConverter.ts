@@ -1032,7 +1032,7 @@ export class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(rnm2attribute, rnBufferView);
 
             const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
-              VertexAttribute.fromString(rnm2attribute.extras!.attributeName)
+              VertexAttribute.fromString(attributeName)
             );
             map.set(joinedString, attributeRnAccessor);
           }
@@ -1901,8 +1901,6 @@ export class ModelConverter {
     const dataViewMethod = this._checkDataViewMethod(accessor);
     if (Is.not.exist(accessor.extras)) {
       accessor.extras = {
-        attributeName: '',
-        toGetAsTypedArray: true,
         typedDataArray: new Float32Array(),
         componentN: 0,
         componentBytes: 4,
@@ -2404,7 +2402,7 @@ export class ModelConverter {
       }
 
       const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
-        VertexAttribute.fromString(attributeGltf2Accessor!.extras!.attributeName)
+        VertexAttribute.fromString(attributeName)
       );
       map.set(joinedString, attributeRnAccessor!);
     }

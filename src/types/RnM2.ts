@@ -317,8 +317,6 @@ export type RnM2Accessor = {
   accessor?: Accessor;
   extensions?: Gltf2AnyObject;
   extras?: {
-    attributeName: string;
-    toGetAsTypedArray: boolean;
     typedDataArray?: Float32Array;
     componentN?: number;
     componentBytes?: number;
