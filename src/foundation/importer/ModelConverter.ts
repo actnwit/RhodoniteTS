@@ -1032,7 +1032,7 @@ export class ModelConverter {
             const attributeRnAccessor = this.__getRnAccessor(rnm2attribute, rnBufferView);
 
             const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
-              VertexAttribute.fromString(rnm2attribute.extras!.attributeName)
+              VertexAttribute.fromString(attributeName)
             );
             map.set(joinedString, attributeRnAccessor);
           }
@@ -2404,7 +2404,7 @@ export class ModelConverter {
       }
 
       const joinedString = VertexAttribute.toVertexAttributeSemanticJoinedStringAsGltfStyle(
-        VertexAttribute.fromString(attributeGltf2Accessor!.extras!.attributeName)
+        VertexAttribute.fromString(attributeName)
       );
       map.set(joinedString, attributeRnAccessor!);
     }
