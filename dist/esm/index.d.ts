@@ -2030,6 +2030,7 @@ declare const ShaderSemantics: Readonly<{
     BrdfLutTexture: ShaderSemanticsEnum;
     DiffuseEnvTexture: ShaderSemanticsEnum;
     SpecularEnvTexture: ShaderSemanticsEnum;
+    SheenEnvTexture: ShaderSemanticsEnum;
     InverseEnvironment: ShaderSemanticsEnum;
     IBLParameter: ShaderSemanticsEnum;
     ViewPosition: ShaderSemanticsEnum;
@@ -3646,6 +3647,7 @@ type RenderingArgWebGL = {
     renderPass: RenderPass;
     diffuseCube?: CubeTexture | RenderTargetTextureCube;
     specularCube?: CubeTexture | RenderTargetTextureCube;
+    sheenCube?: CubeTexture | RenderTargetTextureCube;
     isVr: boolean;
     displayIdx: Index;
     setUniform: boolean;
@@ -3852,7 +3854,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
     private __toClearRenderBundles;
     executeRenderBundle(renderPass: RenderPass): boolean;
     finishRenderBundleEncoder(renderPass: RenderPass): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube, sheenCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
     flush(): void;
     setColorWriteMask(material: Material): GPUColorWriteFlags;
     /**
@@ -5746,7 +5748,6 @@ declare class Material extends RnObject {
     get materialTypeName(): string;
     get stateVersion(): number;
     makeShadersInvalidate(): void;
-    setTime(time: number): void;
 }
 
 type RnM2 = {
@@ -6032,8 +6033,6 @@ type RnM2Accessor = {
     accessor?: Accessor;
     extensions?: Gltf2AnyObject;
     extras?: {
-        attributeName: string;
-        toGetAsTypedArray: boolean;
         typedDataArray?: Float32Array;
         componentN?: number;
         componentBytes?: number;
@@ -10331,6 +10330,7 @@ declare class Texture extends AbstractTexture implements Disposable {
 declare class MeshRendererComponent extends Component {
     private __diffuseCubeMap?;
     private __specularCubeMap?;
+    private __sheenCubeMap?;
     private __diffuseCubeMapContribution;
     private __specularCubeMapContribution;
     private __rotationOfCubeMap;
@@ -10345,6 +10345,7 @@ declare class MeshRendererComponent extends Component {
     get componentTID(): ComponentTID;
     get diffuseCubeMap(): RenderTargetTextureCube | CubeTexture | undefined;
     get specularCubeMap(): RenderTargetTextureCube | CubeTexture | undefined;
+    get sheenCubeMap(): RenderTargetTextureCube | CubeTexture | undefined;
     get updateCount(): number;
     static get updateCount(): number;
     get diffuseCubeMapContribution(): number;
@@ -10353,7 +10354,7 @@ declare class MeshRendererComponent extends Component {
     set specularCubeMapContribution(contribution: number);
     get rotationOfCubeMap(): number;
     set rotationOfCubeMap(rotation: number);
-    setIBLCubeMap(diffuseCubeTexture: CubeTexture | RenderTargetTextureCube, specularCubeTexture: CubeTexture | RenderTargetTextureCube): Promise<void> | undefined;
+    setIBLCubeMap(diffuseCubeTexture: CubeTexture | RenderTargetTextureCube, specularCubeTexture: CubeTexture | RenderTargetTextureCube, sheenCubeTexture?: CubeTexture | RenderTargetTextureCube): Promise<void> | undefined;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
     }): void;
@@ -12496,7 +12497,7 @@ declare function createLightWithCameraEntity(): ILightEntity & ICameraEntityMeth
  * type of animation.channel.target.path in glTF2
  * See: https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#_animation_channels
  */
-type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | 'material' | 'light_color' | 'light_intensity' | 'light_range' | 'light_spot_innerConeAngle' | 'light_spot_outerConeAngle' | 'camera_znear' | 'camera_zfar' | 'camera_fovy' | 'camera_xmag' | 'camera_ymag' | 'effekseer';
+type AnimationPathName = 'undefined' | 'translate' | 'quaternion' | 'scale' | 'weights' | `material/${string}` | 'light_color' | 'light_intensity' | 'light_range' | 'light_spot_innerConeAngle' | 'light_spot_outerConeAngle' | 'camera_znear' | 'camera_zfar' | 'camera_fovy' | 'camera_xmag' | 'camera_ymag' | 'effekseer';
 type AnimationTrackName = string;
 interface AnimationInfo {
     name: AnimationTrackName;
@@ -12637,7 +12638,7 @@ declare class AnimationComponent extends Component {
      * @param pathName - the name of animation path
      * @param animatedValue - the animated value
      */
-    setAnimation(pathName: AnimationPathName, animatedValue: IAnimatedValue): void;
+    setAnimation(pathName: AnimationPathName, animatedValueArg: IAnimatedValue): void;
     getAnimation(pathName: AnimationPathName): IAnimatedValue | undefined;
     getStartInputValueOfAnimation(animationTrackName: string): number;
     getEndInputValueOfAnimation(animationTrackName: string): number;
@@ -16716,6 +16717,7 @@ declare class ForwardRenderPipeline extends RnObject {
     private __oDrawFunc;
     private __oDiffuseCubeTexture;
     private __oSpecularCubeTexture;
+    private __oSheenCubeTexture;
     private __oSamplerForBackBuffer;
     private __toneMappingType;
     private __bloomHelper;
@@ -16767,7 +16769,7 @@ declare class ForwardRenderPipeline extends RnObject {
      * @param diffuse - diffuse IBL Cube Texture
      * @param specular - specular IBL Cube Texture
      */
-    setIBLTextures(diffuse: CubeTexture, specular: CubeTexture): Promise<void>;
+    setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture): Promise<void>;
     /**
      * getter of initial expression
      */
