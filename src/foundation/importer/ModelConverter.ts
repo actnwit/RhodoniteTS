@@ -1901,8 +1901,6 @@ export class ModelConverter {
     const dataViewMethod = this._checkDataViewMethod(accessor);
     if (Is.not.exist(accessor.extras)) {
       accessor.extras = {
-        attributeName: '',
-        toGetAsTypedArray: true,
         typedDataArray: new Float32Array(),
         componentN: 0,
         componentBytes: 4,

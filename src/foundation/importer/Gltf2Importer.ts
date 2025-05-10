@@ -357,10 +357,7 @@ export class Gltf2Importer {
         for (const attributeName in primitive.attributes) {
           const accessorId = primitive.attributes[attributeName];
           const accessor = gltfJson.accessors[accessorId!];
-          accessor.extras = {
-            toGetAsTypedArray: true,
-            attributeName: attributeName,
-          };
+          accessor.extras = {};
           primitive.attributesObjects[attributeName] = accessor;
         }
 
@@ -376,10 +373,7 @@ export class Gltf2Importer {
               const targetShapeTargetAccessorId = target[attributeName];
               if (targetShapeTargetAccessorId >= 0) {
                 const accessor = gltfJson.accessors[targetShapeTargetAccessorId];
-                accessor.extras = {
-                  toGetAsTypedArray: true,
-                  attributeName: attributeName,
-                };
+                accessor.extras = {};
                 attributes[attributeName] = accessor;
               }
             }
