@@ -175,11 +175,19 @@ export class Accessor {
       )
     );
 
-    this.__typedArray = new typedArrayClass!(
-      this.__raw,
-      this.__byteOffsetInRawArrayBufferOfBuffer,
-      this.__compositionType.getNumberOfComponents() * this.__count
-    );
+    if (this.__byteOffsetInRawArrayBufferOfBuffer % typedArrayClass!.BYTES_PER_ELEMENT === 0) {
+      this.__typedArray = new typedArrayClass!(
+        this.__raw,
+        this.__byteOffsetInRawArrayBufferOfBuffer,
+        this.__compositionType.getNumberOfComponents() * this.__count
+      );
+    } else {
+      Logger.warn(`This Accessor's byteOffsetInRawArrayBufferOfBuffer is not aligned with the typedArrayClass's BYTES_PER_ELEMENT. So we need to copy the buffer.
+So the typedArray data got by getTypedArray() is copied data, not reference to the original buffer.
+`);
+      const copyBuffer = this.__raw.slice(this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteOffsetInRawArrayBufferOfBuffer + this.__compositionType.getNumberOfComponents() * this.__count * typedArrayClass!.BYTES_PER_ELEMENT);
+      this.__typedArray = new typedArrayClass!(copyBuffer);
+    }
     this.__dataViewGetter = (this.__dataView as any)[
       this.getDataViewGetter(this.__componentType)!
     ].bind(this.__dataView);
