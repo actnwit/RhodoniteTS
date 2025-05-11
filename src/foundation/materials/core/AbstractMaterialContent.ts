@@ -97,12 +97,12 @@ export abstract class AbstractMaterialContent extends RnObject {
   getMaterialSemanticsVariantName() {
     let semantics = '';
     for (const semantic of this.__semantics) {
-      semantics += `${semantic.semantic} ${semantic.stage.index} ${semantic.componentType.index} ${semantic.compositionType.index} ${semantic.soloDatum} ${semantic.isInternalSetting} ${semantic.arrayLength} ${semantic.needUniformInDataTextureMode}\n`;
+      semantics += `${semantic.semantic}_`; //${semantic.stage.index} ${semantic.componentType.index} ${semantic.compositionType.index} ${semantic.soloDatum} ${semantic.isInternalSetting} ${semantic.arrayLength} ${semantic.needUniformInDataTextureMode}\n`;
     }
 
-    const hash = DataUtil.toCRC32(semantics);
+    // const hash = DataUtil.toCRC32(semantics);
 
-    return this.__materialName + '_semanticsVariation' + hash;
+    return this.__materialName + '_semanticsVariation_' + semantics;
   }
 
   get vertexShaderityObject(): ShaderityObject | undefined {
