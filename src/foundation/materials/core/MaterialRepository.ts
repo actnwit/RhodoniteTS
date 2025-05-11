@@ -147,7 +147,7 @@ export class MaterialRepository {
    */
   private static __initializeMaterial(material: Material, countOfThisType: Count) {
     // Set name
-    material.tryToSetUniqueName(material.__materialTypeName, true);
+    // material.tryToSetUniqueName(material.__materialTypeName, true);
 
     // Set meta data to MaterialRepository
     {
