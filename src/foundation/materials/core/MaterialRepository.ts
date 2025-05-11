@@ -175,9 +175,7 @@ export class MaterialRepository {
             info: semanticsInfo,
             value: MathClassUtil.initWithFloat32Array(
               semanticsInfo.initialValue,
-              semanticsInfo.initialValue,
               typedArray,
-              semanticsInfo.compositionType
             ),
           };
           material._allFieldVariables.set(semanticsInfo.semantic, shaderVariable);
@@ -305,9 +303,7 @@ export class MaterialRepository {
           info: semanticInfo,
           value: MathClassUtil.initWithFloat32Array(
             semanticInfo.initialValue,
-            semanticInfo.initialValue,
             typedArray,
-            semanticInfo.compositionType
           ),
         });
       } else {

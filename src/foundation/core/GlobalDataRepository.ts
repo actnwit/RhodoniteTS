@@ -380,9 +380,7 @@ export class GlobalDataRepository {
       const countIndex = globalPropertyStruct.values.length;
       const valueObj = MathClassUtil.initWithFloat32Array(
         semanticInfo.initialValue,
-        semanticInfo.initialValue,
         typedArray,
-        semanticInfo.compositionType
       );
       globalPropertyStruct.values[countIndex] = valueObj;
       return valueObj;
