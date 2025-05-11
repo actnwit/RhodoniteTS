@@ -107,9 +107,10 @@ function createMaterial(
 ): Material {
   let group = 0;
   let isFull = false;
+  const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
   do {
     const actualMaterialTypeName =
-      materialContent.getMaterialSemanticsVariantName() + `__group${group}`;
+      materialSemanticsVariantName + `__group${group}`;
     isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialTypeName);
     if (!isFull) {
       MaterialRepository.registerMaterial(
