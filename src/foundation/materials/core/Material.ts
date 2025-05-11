@@ -238,15 +238,7 @@ export class Material extends RnObject {
         this.calcFingerPrint();
       };
 
-      if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
-        if ((texture as Texture).hasDataToLoadLazy) {
-          setTimeout(setter, 0);
-        } else {
-          setter();
-        }
-      } else {
-        setter();
-      }
+      setter();
     }
   }
 
