@@ -108,14 +108,8 @@ export class MaterialRepository {
   }
 
   public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
-    const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName);
-    if (Is.not.exist(countOfThisType)) {
-      return false;
-    }
-    const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName);
-    if (Is.not.exist(maxCountOfThisType)) {
-      return false;
-    }
+    const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName)!;
+    const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName)!;
 
     return countOfThisType >= maxCountOfThisType;
   }
