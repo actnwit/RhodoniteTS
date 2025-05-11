@@ -5,4 +5,8 @@ export class VectorN {
   constructor(typedArray: TypedArray) {
     this._v = typedArray;
   }
+
+  clone() {
+    return new VectorN(this._v.slice());
+  }
 }

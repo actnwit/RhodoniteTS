@@ -58,8 +58,9 @@ export abstract class AbstractMaterialContent extends RnObject {
   private static __materialContentCount = 0;
   private __materialContentUid: number;
 
-  private static __vertexShaderityObjectMap: Map<string, number[]> = new Map();
-  private static __pixelShaderityObjectMap: Map<string, number[]> = new Map();
+  private static __vertexShaderityObjectMap: Map<string, ShaderityObject> = new Map();
+  private static __pixelShaderityObjectMap: Map<string, ShaderityObject> = new Map();
+  private static __reflectedShaderSemanticsInfoArrayMap: Map<string, ShaderSemanticsInfo[]> = new Map();
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
   constructor(
@@ -83,25 +84,13 @@ export abstract class AbstractMaterialContent extends RnObject {
 
   protected setVertexShaderityObject(vertexShaderityObject?: ShaderityObject) {
     if (vertexShaderityObject) {
-      if (AbstractMaterialContent.__vertexShaderityObjectMap.has(vertexShaderityObject.code)) {
-        const uids = AbstractMaterialContent.__vertexShaderityObjectMap.get(vertexShaderityObject.code) ?? [];
-        uids.push(this.__materialContentUid);
-        AbstractMaterialContent.__vertexShaderityObjectMap.set(vertexShaderityObject.code, uids);
-      } else {
-        AbstractMaterialContent.__vertexShaderityObjectMap.set(vertexShaderityObject.code, [this.__materialContentUid]);
-      }
+      AbstractMaterialContent.__vertexShaderityObjectMap.set(this.__materialName, vertexShaderityObject);
     }
   }
 
   protected setPixelShaderityObject(pixelShaderityObject?: ShaderityObject) {
     if (pixelShaderityObject) {
-      if (AbstractMaterialContent.__pixelShaderityObjectMap.has(pixelShaderityObject.code)) {
-        const uids = AbstractMaterialContent.__pixelShaderityObjectMap.get(pixelShaderityObject.code) ?? [];
-        uids.push(this.__materialContentUid);
-        AbstractMaterialContent.__pixelShaderityObjectMap.set(pixelShaderityObject.code, uids);
-      } else {
-        AbstractMaterialContent.__pixelShaderityObjectMap.set(pixelShaderityObject.code, [this.__materialContentUid]);
-      }
+      AbstractMaterialContent.__pixelShaderityObjectMap.set(this.__materialName, pixelShaderityObject);
     }
   }
 
@@ -117,29 +106,11 @@ export abstract class AbstractMaterialContent extends RnObject {
   }
 
   get vertexShaderityObject(): ShaderityObject | undefined {
-    for (const [key, value] of AbstractMaterialContent.__vertexShaderityObjectMap.entries()) {
-      if (value.includes(this.__materialContentUid)) {
-        return {
-          code: key,
-          shaderStage: 'vertex',
-          isFragmentShader: false,
-        };
-      }
-    }
-    return undefined;
+    return AbstractMaterialContent.__vertexShaderityObjectMap.get(this.__materialName);
   }
 
   get pixelShaderityObject(): ShaderityObject | undefined {
-    for (const [key, value] of AbstractMaterialContent.__pixelShaderityObjectMap.entries()) {
-      if (value.includes(this.__materialContentUid)) {
-        return {
-          code: key,
-          shaderStage: 'fragment',
-          isFragmentShader: true,
-        };
-      }
-    }
-    return undefined;
+    return AbstractMaterialContent.__pixelShaderityObjectMap.get(this.__materialName);
   }
 
   getDefinitions() {
@@ -520,6 +491,16 @@ export abstract class AbstractMaterialContent extends RnObject {
     vertexShaderWebGpu: ShaderityObject,
     pixelShaderWebGpu: ShaderityObject
   ) {
+    const reflectedShaderSemanticsInfoArray = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.get(this.__materialName);
+    if (reflectedShaderSemanticsInfoArray != null) {
+      reflectedShaderSemanticsInfoArray.map((info) => {
+        // deep copy
+        const copy = { ...info };
+        copy.initialValue = (info.initialValue?.clone != null) ? info.initialValue.clone() : info.initialValue.concat();
+        return copy;
+      });
+    }
+
     let vertexShaderData: {
       shaderSemanticsInfoArray: ShaderSemanticsInfo[];
       shaderityObject: ShaderityObject;
@@ -565,6 +546,11 @@ export abstract class AbstractMaterialContent extends RnObject {
         shaderSemanticsInfoArray.push(pixelShaderSemanticsInfo);
       }
     }
+    AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.set(
+      this.__materialName,
+      shaderSemanticsInfoArray
+    );
+
     return shaderSemanticsInfoArray;
   }
 }
