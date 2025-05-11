@@ -493,12 +493,6 @@ export abstract class AbstractMaterialContent extends RnObject {
   ) {
     const reflectedShaderSemanticsInfoArray = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.get(this.__materialName);
     if (reflectedShaderSemanticsInfoArray != null) {
-      // return reflectedShaderSemanticsInfoArray.map((info) => {
-      //   // deep copy
-      //   const copy = { ...info };
-      //   copy.initialValue = (info.initialValue?.clone != null) ? info.initialValue.clone() : info.initialValue.concat();
-      //   return copy;
-      // });
       return reflectedShaderSemanticsInfoArray.concat();
     }
 
@@ -552,6 +546,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       shaderSemanticsInfoArray
     );
 
-    return shaderSemanticsInfoArray;
+    return shaderSemanticsInfoArray.concat();
   }
 }
