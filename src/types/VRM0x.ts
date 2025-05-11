@@ -77,6 +77,9 @@ export type Vrm0xMaterialProperty = {
     _OutlineWidth: number;
     _OutlineScaledMaxDistance: number;
     _OutlineLightingMix: number;
+    _UvAnimScrollX: number;
+    _UvAnimScrollY: number;
+    _UvAnimRotation: number;
     _DebugMode: number;
     _BlendMode: number;
     _OutlineWidthMode: number;
@@ -99,7 +102,7 @@ export type Vrm0xMaterialProperty = {
     _EmissionColor: Array3<number>;
     _EmissionMap: Array4<number>;
     _OutlineWidthTexture: Array4<number>;
-    _OutlineColor: Array3<number>;
+    _OutlineColor: Array4<number>;
     _RimColor: Array3<number>;
   };
   textureProperties: {
