@@ -441,6 +441,54 @@ function createPbrUberMaterial({
     });
   }
 
+  const definitions = [];
+  if (isLighting) {
+    definitions.push('RN_IS_LIGHTING');
+  }
+  if (isShadow) {
+    definitions.push('RN_USE_SHADOW_MAPPING');
+  }
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+  if (useNormalTexture) {
+    definitions.push('RN_USE_NORMAL_TEXTURE');
+  }
+  if (isClearCoat) {
+    definitions.push('RN_USE_CLEARCOAT');
+  }
+  if (isTransmission) {
+    definitions.push('RN_USE_TRANSMISSION');
+  }
+  if (isVolume) {
+    definitions.push('RN_USE_VOLUME');
+  }
+  if (isSheen) {
+    definitions.push('RN_USE_SHEEN');
+  }
+  if (isSpecular) {
+    definitions.push('RN_USE_SPECULAR');
+  }
+  if (isIridescence) {
+    definitions.push('RN_USE_IRIDESCENCE');
+  }
+  if (isAnisotropy) {
+    definitions.push('RN_USE_ANISOTROPY');
+  }
+  if (isDispersion) {
+    definitions.push('RN_USE_DISPERSION');
+  }
+  if (isEmissiveStrength) {
+    definitions.push('RN_USE_EMISSIVE_STRENGTH');
+  }
+  if (isDiffuseTransmission) {
+    definitions.push('RN_USE_DIFFUSE_TRANSMISSION');
+  }
+
+
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
@@ -451,51 +499,14 @@ function createPbrUberMaterial({
     vertexShaderWebGpu: pbrSingleShaderVertexWebGpu,
     pixelShaderWebGpu: pbrSingleShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
+    definitions,
   });
 
   const material = createMaterial(materialContent, maxInstancesNumber);
 
-  if (isLighting) {
-    material.addShaderDefine('RN_IS_LIGHTING');
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
   }
-  if (isShadow) {
-    material.addShaderDefine('RN_USE_SHADOW_MAPPING');
-  }
-  if (useNormalTexture) {
-    material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
-  }
-  if (isClearCoat) {
-    material.addShaderDefine('RN_USE_CLEARCOAT');
-  }
-  if (isTransmission) {
-    material.addShaderDefine('RN_USE_TRANSMISSION');
-  }
-  if (isVolume) {
-    material.addShaderDefine('RN_USE_VOLUME');
-  }
-  if (isSheen) {
-    material.addShaderDefine('RN_USE_SHEEN');
-  }
-  if (isSpecular) {
-    material.addShaderDefine('RN_USE_SPECULAR');
-  }
-  if (isIridescence) {
-    material.addShaderDefine('RN_USE_IRIDESCENCE');
-  }
-  if (isAnisotropy) {
-    material.addShaderDefine('RN_USE_ANISOTROPY');
-  }
-  if (isDispersion) {
-    material.addShaderDefine('RN_USE_DISPERSION');
-  }
-  if (isEmissiveStrength) {
-    material.addShaderDefine('RN_USE_EMISSIVE_STRENGTH');
-  }
-  if (isDiffuseTransmission) {
-    material.addShaderDefine('RN_USE_DIFFUSE_TRANSMISSION');
-  }
-
-  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -1225,6 +1236,20 @@ function createMToon0xMaterial({
 }) {
   const materialName = 'MToon0x' + `_${additionalName}_`;
 
+  const definitions = [];
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+  if (isLighting) {
+    definitions.push('RN_USE_LIGHTING');
+  }
+  if (isOutline) {
+    definitions.push('RN_USE_OUTLINE');
+  }
+
   const materialContent = new MToon0xMaterialContent(
     isOutline,
     materialProperties,
@@ -1236,7 +1261,8 @@ function createMToon0xMaterial({
     useTangentAttribute,
     debugMode,
     makeOutputSrgb,
-    materialName
+    materialName,
+    definitions
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -1274,12 +1300,27 @@ function createMToon1Material({
 }) {
   const materialName = 'MToon1' + `_${additionalName}_`;
 
+  const definitions = [];
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+  if (isLighting) {
+    definitions.push('RN_USE_LIGHTING');
+  }
+  if (isOutline) {
+    definitions.push('RN_USE_OUTLINE');
+  }
+
   const materialContent = new MToon1MaterialContent(
     materialName,
     isMorphing,
     isSkinning,
     isLighting,
-    isOutline
+    isOutline,
+    definitions
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);

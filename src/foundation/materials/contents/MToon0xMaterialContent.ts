@@ -153,7 +153,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     useTangentAttribute: boolean,
     debugMode: Count | undefined,
     makeOutputSrgb: boolean,
-    materialName: string
+    materialName: string,
+    definitions: string[]
   ) {
     super(materialName, {
       isMorphing: isMorphing,
@@ -165,7 +166,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       mToonSingleShaderVertex,
       mToonSingleShaderFragment,
       mToonSingleShaderVertexWebGpu,
-      mToonSingleShaderFragmentWebGpu
+      mToonSingleShaderFragmentWebGpu,
+      definitions
     );
 
     if (!MToon0xMaterialContent.__diffuseIblCubeMapSampler.created) {

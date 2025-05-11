@@ -46,7 +46,8 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     isMorphing: boolean,
     isSkinning: boolean,
     isLighting: boolean,
-    isOutline: boolean
+    isOutline: boolean,
+    definitions: string[]
   ) {
     super(materialName, {
       isMorphing: isMorphing,
@@ -58,7 +59,8 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
       mToon1SingleShaderVertex,
       mToon1SingleShaderFragment,
       mToon1SingleShaderVertexWebGpu,
-      mToon1SingleShaderFragmentWebGpu
+      mToon1SingleShaderFragmentWebGpu,
+      definitions
     );
 
     if (!MToon1MaterialContent.__diffuseIblCubeMapSampler.created) {

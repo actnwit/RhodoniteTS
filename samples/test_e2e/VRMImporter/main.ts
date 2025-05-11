@@ -9,6 +9,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Camera
 const cameraEntity = Rn.createCameraControllerEntity();

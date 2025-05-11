@@ -9,6 +9,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.WebGPU,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 let count = 0;
 

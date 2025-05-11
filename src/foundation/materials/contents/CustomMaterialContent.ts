@@ -42,6 +42,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     additionalShaderSemanticInfo,
     vertexShaderWebGpu,
     pixelShaderWebGpu,
+    definitions = [],
   }: {
     name: string;
     isMorphing: boolean;
@@ -52,6 +53,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     additionalShaderSemanticInfo: ShaderSemanticsInfo[];
     vertexShaderWebGpu?: ShaderityObject;
     pixelShaderWebGpu?: ShaderityObject;
+    definitions?: string[];
   }) {
     super(name, { isMorphing, isSkinning, isLighting });
 
@@ -60,7 +62,8 @@ export class CustomMaterialContent extends AbstractMaterialContent {
       vertexShader!,
       pixelShader!,
       vertexShaderWebGpu!,
-      pixelShaderWebGpu!
+      pixelShaderWebGpu!,
+      definitions
     );
 
     if (!CustomMaterialContent.__diffuseIblCubeMapSampler.created) {

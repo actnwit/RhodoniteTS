@@ -19,7 +19,7 @@ import { Accessor } from '../../memory/Accessor';
 import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { BlendShapeComponent } from '../../components/BlendShape/BlendShapeComponent';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
-import { ShaderityObject } from 'shaderity';
+import  ShaderityModule, { ShaderityObject } from 'shaderity';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { SystemState } from '../../system/SystemState';
 import { ShaderTypeEnum, ShaderType } from '../../definitions/ShaderType';
@@ -34,7 +34,8 @@ import { CameraComponent } from '../../components/Camera/CameraComponent';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 import { ShaderityUtilityWebGL } from './ShaderityUtilityWebGL';
-import { DataUtil } from '../../misc';
+
+const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 type MaterialNodeUID = number;
 
@@ -489,30 +490,44 @@ export abstract class AbstractMaterialContent extends RnObject {
     vertexShader: ShaderityObject,
     pixelShader: ShaderityObject,
     vertexShaderWebGpu: ShaderityObject,
-    pixelShaderWebGpu: ShaderityObject
+    pixelShaderWebGpu: ShaderityObject,
+    definitions: string[]
   ) {
-    const reflectedShaderSemanticsInfoArray = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.get(this.__materialName);
+    const definitionsStr = definitions.join('');
+    const reflectedShaderSemanticsInfoArray = AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.get(this.__materialName + definitionsStr);
     if (reflectedShaderSemanticsInfoArray != null) {
       return reflectedShaderSemanticsInfoArray.concat();
     }
 
-    let vertexShaderData: {
+    let preprocessedVertexShaderData: {
       shaderSemanticsInfoArray: ShaderSemanticsInfo[];
       shaderityObject: ShaderityObject;
     };
-    let pixelShaderData: {
+    let preprocessedPixelShaderData: {
       shaderSemanticsInfoArray: ShaderSemanticsInfo[];
       shaderityObject: ShaderityObject;
     };
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(vertexShaderWebGpu!);
-      pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(pixelShaderWebGpu!);
+
+      const preprocessedVertexShader = Shaderity.processPragma(vertexShaderWebGpu!, definitions);
+      const preprocessedPixelShader = Shaderity.processPragma(pixelShaderWebGpu!, definitions);
+
+      preprocessedVertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(preprocessedVertexShader);
+      preprocessedPixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(preprocessedPixelShader);
+      const vertexShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(vertexShaderWebGpu!);
+      const pixelShaderData = ShaderityUtilityWebGPU.getShaderDataReflection(pixelShaderWebGpu!);
 
       this.setVertexShaderityObject(vertexShaderData.shaderityObject);
       this.setPixelShaderityObject(pixelShaderData.shaderityObject);
     } else {
-      vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(vertexShader);
-      pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(pixelShader);
+      const preprocessedVertexShader = Shaderity.processPragma(vertexShader, definitions);
+      const preprocessedPixelShader = Shaderity.processPragma(pixelShader, definitions);
+
+      preprocessedVertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(preprocessedVertexShader);
+      preprocessedPixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(preprocessedPixelShader);
+
+      const vertexShaderData = ShaderityUtilityWebGL.getShaderDataReflection(vertexShader);
+      const pixelShaderData = ShaderityUtilityWebGL.getShaderDataReflection(pixelShader);
 
       this.setVertexShaderityObject(vertexShaderData.shaderityObject);
       this.setPixelShaderityObject(pixelShaderData.shaderityObject);
@@ -520,11 +535,11 @@ export abstract class AbstractMaterialContent extends RnObject {
 
     const shaderSemanticsInfoArray: ShaderSemanticsInfo[] = [];
 
-    for (const vertexShaderSemanticsInfo of vertexShaderData.shaderSemanticsInfoArray) {
+    for (const vertexShaderSemanticsInfo of preprocessedVertexShaderData.shaderSemanticsInfoArray) {
       vertexShaderSemanticsInfo.stage = ShaderType.VertexShader;
       shaderSemanticsInfoArray.push(vertexShaderSemanticsInfo);
     }
-    for (const pixelShaderSemanticsInfo of pixelShaderData.shaderSemanticsInfoArray) {
+    for (const pixelShaderSemanticsInfo of preprocessedPixelShaderData.shaderSemanticsInfoArray) {
       const foundShaderSemanticsInfo = shaderSemanticsInfoArray.find(
         (vertexInfo: ShaderSemanticsInfo) => {
           if (vertexInfo.semantic === pixelShaderSemanticsInfo.semantic) {
@@ -542,7 +557,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       }
     }
     AbstractMaterialContent.__reflectedShaderSemanticsInfoArrayMap.set(
-      this.__materialName,
+      this.__materialName + definitionsStr,
       shaderSemanticsInfoArray
     );
 
