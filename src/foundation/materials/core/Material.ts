@@ -348,16 +348,10 @@ export class Material extends RnObject {
     primitive: Primitive,
     isWebGL2: boolean
   ): [CGAPIResourceHandle, boolean] {
-    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
-      propertySetter,
-      isWebGL2
-    );
-
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
+      propertySetter,
       primitive,
-      vertexPropertiesStr,
-      pixelPropertiesStr,
       vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );

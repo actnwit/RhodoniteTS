@@ -17,9 +17,10 @@ import { Primitive } from '../../geometry/Primitive';
 import { ModuleManager } from '../../system/ModuleManager';
 import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
+import { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
-
+const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 export class ShaderHandler {
   private static __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
 
@@ -128,12 +129,23 @@ export function _outputVertexAttributeBindingInfo(
  */
 export function _createProgramAsSingleOperationWebGL(
   material: Material,
+  propertySetter: getShaderPropertyFunc,
   primitive: Primitive,
-  vertexPropertiesStr: string,
-  pixelPropertiesStr: string,
   vertexShaderMethodDefinitions_uniform: string,
   isWebGL2: boolean
 ): [CGAPIResourceHandle, boolean] {
+  const vertexAttributeDefines = defineAttributes(primitive);
+  const cacheQuery = material.__materialTypeName + vertexAttributeDefines + material._getFingerPrint();
+
+  let shaderProgramUid = __shaderStringMap.get(cacheQuery);
+  if (shaderProgramUid) {
+    return [shaderProgramUid, false];
+  }
+
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(
+    propertySetter,
+    isWebGL2
+  );
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
   const materialNode = material._materialContent;
 
@@ -142,7 +154,6 @@ export function _createProgramAsSingleOperationWebGL(
   for (const shaderDefine of shaderDefines) {
     definitions += `#define ${shaderDefine}\n`;
   }
-  const vertexAttributeDefines = defineAttributes(primitive);
   definitions += vertexAttributeDefines;
 
   // Shader Code Construction
@@ -191,16 +202,17 @@ export function _createProgramAsSingleOperationWebGL(
   );
   vertexShader += vertexAttributesBinding;
 
-  const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
+  const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     material,
     primitive,
-    vertexShader,
-    pixelShader,
-    attributeNames,
-    attributeSemantics
-  );
-
-  return [shaderProgramUid, newOne];
+    vertexShaderStr: vertexShader,
+    fragmentShaderStr: pixelShader,
+    attributeNames: attributeNames,
+    attributeSemantics: attributeSemantics,
+  });
+  __shaderStringMap.set(cacheQuery, shaderProgramUid);
+  return [shaderProgramUid, true];
 }
 
 export function _setupGlobalShaderDefinitionWebGL(materialTypeName: string, primitive: Primitive) {
