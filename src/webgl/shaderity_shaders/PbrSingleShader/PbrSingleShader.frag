@@ -65,12 +65,12 @@ uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_NORMAL_TEXTURE
   uniform sampler2D u_normalTexture; // initialValue=(2,black)
+  uniform float u_normalScale; // initialValue=(1)
+#endif
   uniform vec2 u_normalTextureTransformScale; // initialValue=(1,1)
   uniform vec2 u_normalTextureTransformOffset; // initialValue=(0,0)
   uniform float u_normalTextureTransformRotation; // initialValue=0
   uniform int u_normalTexcoordIndex; // initialValue=0
-  uniform float u_normalScale; // initialValue=(1)
-#endif
 
 #ifdef RN_USE_CLEARCOAT
   uniform float u_clearcoatFactor; // initialValue=0
@@ -257,14 +257,14 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   vec3 geomNormal_inWorld = normal_inWorld;
+  vec2 normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
+  vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
+  float normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
+  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+  vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
+  mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
-    vec2 normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
-    vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
-    float normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
-    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
-    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-    vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
-    mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
     vec3 normalTexValue = texture(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence

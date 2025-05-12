@@ -1458,7 +1458,7 @@ export class ModelConverter {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
       const useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
-      const useNormalTexture = this.__useNormalTexture(gltfModel);
+      const useNormalTexture = materialJson?.normalTexture != null;
       const material = MaterialHelper.createPbrUberMaterial({
         isMorphing,
         isSkinning,

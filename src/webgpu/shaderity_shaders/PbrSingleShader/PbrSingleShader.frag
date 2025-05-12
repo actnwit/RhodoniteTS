@@ -33,12 +33,12 @@
 #ifdef RN_USE_NORMAL_TEXTURE
   @group(1) @binding(2) var normalTexture: texture_2d<f32>; // initialValue=black
   @group(2) @binding(2) var normalSampler: sampler;
+  // #param normalScale: f32; // initialValue=(1)
+#endif
   // #param normalTextureTransformScale: vec2<f32>; // initialValue=(1,1)
   // #param normalTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
   // #param normalTextureTransformRotation: f32; // initialValue=0
   // #param normalTexcoordIndex: f32; // initialValue=(0)
-  // #param normalScale: f32; // initialValue=(1)
-#endif
 
 @group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(3) var occlusionSampler: sampler;
