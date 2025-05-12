@@ -14,7 +14,10 @@ import { MutableVector2 } from '../../math/MutableVector2';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { Sampler } from '../../textures/Sampler';
 import { TextureParameter } from '../../definitions/TextureParameter';
+import { ComponentSID, MaterialSID } from '../../../types/CommonTypes';
 
+const __latestMaterialStateVersionMap = new Map<MaterialSID, number>();
+const __latestMaterialMeshRenderComponentVersionMap = new Map<ComponentSID, number>();
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __diffuseIblCubeMapSampler = new Sampler({
@@ -157,9 +160,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     // IBL Env map
-    const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
-    if (diffuseEnv != null) {
-      const diffuseEnvSlot = diffuseEnv[0];
+    // const diffuseEnv = material.getTextureParameter(ShaderSemantics.DiffuseEnvTexture.str);
+    // if (diffuseEnv != null) {
+      const diffuseEnvSlot = 5; //diffuseEnv[0];
       if (args.diffuseCube && args.diffuseCube.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(
           shaderProgram,
@@ -173,10 +176,10 @@ export class CustomMaterialContent extends AbstractMaterialContent {
           [diffuseEnvSlot, dummyBlackCubeTexture]
         );
       }
-    }
-    const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
-    if (specularEnv != null) {
-      const specularEnvSlot = specularEnv[0];
+    // }
+    // const specularEnv = material.getTextureParameter(ShaderSemantics.SpecularEnvTexture.str);
+    // if (specularEnv != null) {
+      const specularEnvSlot = 6; //specularEnv[0];
       if (args.specularCube && args.specularCube.isTextureReady) {
         webglResourceRepository.setUniform1iForTexture(
             shaderProgram,
@@ -190,7 +193,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
           [specularEnvSlot, dummyBlackCubeTexture]
         );
       }
-    }
+    // }
     const sheenEnv = material.getTextureParameter(ShaderSemantics.SheenEnvTexture.str);
     if (sheenEnv != null) {
       const sheenEnvSlot = sheenEnv[0];
@@ -238,18 +241,22 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         );
       }
     } else {
-      const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
-        CustomMaterialContent.__setupHdriParameters(args);
-      const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
-      tmp_vector4.x = mipmapLevelNumber;
-      tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
-      tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
-      tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
-      material.setParameter('iblParameter', tmp_vector4);
-      const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
-      tmp_vector2.x = diffuseHdriType;
-      tmp_vector2.y = specularHdriType;
-      material.setParameter('hdriFormat', tmp_vector2);
+      const meshRenderComponentVersion = __latestMaterialMeshRenderComponentVersionMap.get(args.entity.getMeshRenderer().componentSID);
+      if (meshRenderComponentVersion !== args.entity.getMeshRenderer().updateCount) {
+        __latestMaterialMeshRenderComponentVersionMap.set(args.entity.getMeshRenderer().componentSID, args.entity.getMeshRenderer().updateCount);
+        const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
+          CustomMaterialContent.__setupHdriParameters(args);
+        const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
+        tmp_vector4.x = mipmapLevelNumber;
+        tmp_vector4.y = meshRenderComponent!.diffuseCubeMapContribution;
+        tmp_vector4.z = meshRenderComponent!.specularCubeMapContribution;
+        tmp_vector4.w = meshRenderComponent!.rotationOfCubeMap;
+        material.setParameter('iblParameter', tmp_vector4);
+        const tmp_vector2 = AbstractMaterialContent.__tmp_vector2;
+        tmp_vector2.x = diffuseHdriType;
+        tmp_vector2.y = specularHdriType;
+        material.setParameter('hdriFormat', tmp_vector2);
+      }
     }
   }
 

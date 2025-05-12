@@ -99,6 +99,7 @@ export class MeshRendererComponent extends Component {
 
   set diffuseCubeMapContribution(contribution: number) {
     this.__diffuseCubeMapContribution = contribution;
+    this.__updateCount++;
     MeshRendererComponent.__updateCount++;
   }
 
@@ -108,6 +109,7 @@ export class MeshRendererComponent extends Component {
 
   set specularCubeMapContribution(contribution: number) {
     this.__specularCubeMapContribution = contribution;
+    this.__updateCount++;
     MeshRendererComponent.__updateCount++;
   }
 
@@ -117,6 +119,7 @@ export class MeshRendererComponent extends Component {
 
   set rotationOfCubeMap(rotation: number) {
     this.__rotationOfCubeMap = rotation;
+    this.__updateCount++;
     MeshRendererComponent.__updateCount++;
   }
 
