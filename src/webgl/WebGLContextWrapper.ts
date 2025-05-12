@@ -221,43 +221,19 @@ export class WebGLContextWrapper {
   }
 
   createVertexArray() {
-    if (this.getIsWebGL2(this.__gl)) {
-      return this.__gl.createVertexArray();
-    } else {
-      if (this.webgl1ExtVAO != null) {
-        return this.webgl1ExtVAO.createVertexArrayOES();
-      } else {
-        return undefined;
-      }
-    }
+    return this.__gl.createVertexArray();
   }
 
   deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES) {
-    if (this.getIsWebGL2(this.__gl)) {
-      this.__gl.deleteVertexArray(vertexArray);
-    } else {
-      if (this.webgl1ExtVAO != null) {
-        this.webgl1ExtVAO.deleteVertexArrayOES(vertexArray as WebGLVertexArrayObjectOES);
-      }
-    }
+    this.__gl.deleteVertexArray(vertexArray);
   }
 
   bindVertexArray(vao: WebGLVertexArrayObjectOES | null) {
-    if (this.getIsWebGL2(this.__gl)) {
-      this.__gl.bindVertexArray(vao);
-    } else {
-      if (this.webgl1ExtVAO != null) {
-        this.webgl1ExtVAO.bindVertexArrayOES(vao);
-      }
-    }
+    this.__gl.bindVertexArray(vao);
   }
 
   vertexAttribDivisor(index: number, divisor: number) {
-    if (this.getIsWebGL2(this.__gl)) {
-      this.__gl.vertexAttribDivisor(index, divisor);
-    } else {
-      this.webgl1ExtIA!.vertexAttribDivisorANGLE(index, divisor);
-    }
+    this.__gl.vertexAttribDivisor(index, divisor);
   }
 
   drawElementsInstanced(
