@@ -329,11 +329,11 @@ export class WebGLContextWrapper {
   }
 
   bindTextureSampler(activeTextureIndex: Index, sampler: WebGLSampler) {
-    // const samp = this.__boundSamplers.get(activeTextureIndex);
-    // if (samp !== sampler) {
-    this.__gl.bindSampler(activeTextureIndex, sampler);
-    this.__boundSamplers.set(activeTextureIndex, sampler);
-    // }
+    const samp = this.__boundSamplers.get(activeTextureIndex);
+    if (samp !== sampler) {
+      this.__gl.bindSampler(activeTextureIndex, sampler);
+      this.__boundSamplers.set(activeTextureIndex, sampler);
+    }
   }
 
   bindTextureCube(activeTextureIndex: Index, texture: WebGLTexture) {
