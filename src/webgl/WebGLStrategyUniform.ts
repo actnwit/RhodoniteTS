@@ -322,15 +322,14 @@ bool get_isBillboard(float instanceId) {
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
   ) {
-    const vaoHandles = primitive.vertexHandles!;
     const vao = this.__webglResourceRepository.getWebGLResource(
       mesh.getVaoUidsByPrimitiveUid(primitiveUid)
     ) as WebGLVertexArrayObjectOES;
-    const gl = glw.getRawContext();
 
     if (vao != null) {
       glw.bindVertexArray(vao);
     } else {
+      const vaoHandles = primitive.vertexHandles!;
       this.__webglResourceRepository.setVertexDataToPipeline(
         vaoHandles,
         primitive,
@@ -339,6 +338,7 @@ bool get_isBillboard(float instanceId) {
       const ibo = this.__webglResourceRepository.getWebGLResource(
         vaoHandles.iboHandle!
       ) as WebGLBuffer;
+      const gl = glw.getRawContext();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
   }

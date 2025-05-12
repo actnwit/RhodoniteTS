@@ -646,9 +646,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
   ): void {
-    const vertexHandles = primitive.vertexHandles!;
-    const gl = glw.getRawContext();
-
     // bind
     const vao = this.__webglResourceRepository.getWebGLResource(
       mesh.getVaoUids(primitiveIndex)
@@ -656,14 +653,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (vao != null) {
       glw.bindVertexArray(vao);
     } else {
+      const vertexHandles = primitive.vertexHandles!;
       this.__webglResourceRepository.setVertexDataToPipeline(
         vertexHandles,
         primitive,
-        mesh._variationVBOUid
+        mesh._variationVBOUid,
       );
       const ibo = this.__webglResourceRepository.getWebGLResource(
         vertexHandles.iboHandle!
       ) as WebGLBuffer;
+      const gl = glw.getRawContext();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
   }
