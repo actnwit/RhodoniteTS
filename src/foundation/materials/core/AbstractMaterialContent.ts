@@ -418,7 +418,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
     if (primitive.targets.length === 0) {
-      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
     }
 
