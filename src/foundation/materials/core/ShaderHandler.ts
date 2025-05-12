@@ -266,9 +266,17 @@ export function _createProgramAsSingleOperationWebGpu(
   material: Material,
   primitive: Primitive,
   vertexShaderMethodDefinitions: string,
-  vertexPropertiesStr: string,
-  pixelPropertiesStr: string
+  propertySetter: getShaderPropertyFunc
 ) {
+  const vertexAttributeDefines = defineAttributes(primitive);
+  const cacheQuery = material.__materialTypeName + vertexAttributeDefines + material._getFingerPrint();
+
+  let shaderProgramUid = __shaderStringMap.get(cacheQuery);
+  if (shaderProgramUid) {
+    return shaderProgramUid;
+  }
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetter, true);
+
   const materialNode = material._materialContent;
 
   let definitions = `// Material Type: ${material.materialTypeName}\n`;
@@ -277,7 +285,6 @@ export function _createProgramAsSingleOperationWebGpu(
   for (const shaderDefine of shaderDefines) {
     definitions += `#define ${shaderDefine}\n`;
   }
-  const vertexAttributeDefines = defineAttributes(primitive);
   definitions += vertexAttributeDefines;
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
@@ -329,15 +336,17 @@ export function _createProgramAsSingleOperationWebGpu(
   const preprocessedVertex = Shaderity.processPragma(vertexShaderityObject);
   const preprocessedPixel = Shaderity.processPragma(pixelShaderityObject);
 
-  const [programUid, newOne] = ShaderHandler._createShaderProgramWithCache(
+  const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+  shaderProgramUid = cgApiResourceRepository.createShaderProgram({
     material,
     primitive,
-    preprocessedVertex.code,
-    preprocessedPixel.code,
-    [],
-    []
-  );
-  return programUid;
+    vertexShaderStr: preprocessedVertex.code,
+    fragmentShaderStr: preprocessedPixel.code,
+    attributeNames: [],
+    attributeSemantics: [],
+  });
+  __shaderStringMap.set(cacheQuery, shaderProgramUid);
+  return shaderProgramUid;
 }
 
 function defineAttributes(primitive: Primitive) {

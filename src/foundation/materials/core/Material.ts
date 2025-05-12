@@ -367,13 +367,11 @@ export class Material extends RnObject {
     vertexShaderMethodDefinitions: string,
     propertySetter: getShaderPropertyFunc
   ) {
-    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter, true);
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
       vertexShaderMethodDefinitions,
-      vertexPropertiesStr,
-      pixelPropertiesStr
+      propertySetter
     );
 
     this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);
