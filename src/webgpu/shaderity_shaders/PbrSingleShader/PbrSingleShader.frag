@@ -40,13 +40,15 @@
   // #param normalTextureTransformRotation: f32; // initialValue=0
   // #param normalTexcoordIndex: f32; // initialValue=(0)
 
-@group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(3) var occlusionSampler: sampler;
-// #param occlusionTextureTransformScale: vec2<f32>; // initialValue=(1,1)
-// #param occlusionTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param occlusionTextureTransformRotation: f32; // initialValue=0
-// #param occlusionTexcoordIndex: u32; // initialValue=0
-// #param occlusionStrength: f32; // initialValue=1
+#ifdef RN_USE_OCCLUSION_TEXTURE
+  @group(1) @binding(3) var occlusionTexture: texture_2d<f32>; // initialValue=white
+  @group(2) @binding(3) var occlusionSampler: sampler;
+  // #param occlusionTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+  // #param occlusionTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+  // #param occlusionTextureTransformRotation: f32; // initialValue=0
+  // #param occlusionTexcoordIndex: u32; // initialValue=0
+  // #param occlusionStrength: f32; // initialValue=1
+#endif
 
 // #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
 // #param emissiveTextureTransformScale: vec2<f32>; // initialValue=(1,1)
@@ -558,17 +560,21 @@ let ior = get_ior(materialSID, 0);
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness
   );
 
-  let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
-  let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
-  let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
-  let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
-  let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
-  let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
-  let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
-  let occlusionStrength = get_occlusionStrength(materialSID, 0);
+  #ifdef RN_USE_OCCLUSION_TEXTURE
+    let occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+    let occlusionTexcoord = getTexcoord(occlusionTexcoordIndex, input);
+    let occlusionTextureTransformScale: vec2f = get_occlusionTextureTransformScale(materialSID, 0);
+    let occlusionTextureTransformOffset: vec2f = get_occlusionTextureTransformOffset(materialSID, 0);
+    let occlusionTextureTransformRotation: f32 = get_occlusionTextureTransformRotation(materialSID, 0);
+    let occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
+    let occlusion = textureSample(occlusionTexture, occlusionSampler, occlusionTexUv).r;
+    let occlusionStrength = get_occlusionStrength(materialSID, 0);
+    // Occlusion to Indirect Lights
+    let indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
+  #else
+    let indirectLight = ibl;
+  #endif
 
-  // Occlusion to Indirect Lights
-  let indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
   resultColor += indirectLight;
 #else
   var resultColor = baseColor.rgb;

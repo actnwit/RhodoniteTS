@@ -1463,6 +1463,7 @@ export class ModelConverter {
         isMorphing,
         isSkinning,
         isLighting,
+        isOcclusion: Is.exist(materialJson?.occlusionTexture),
         isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
         isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),
