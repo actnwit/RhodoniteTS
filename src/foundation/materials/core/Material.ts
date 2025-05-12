@@ -61,6 +61,8 @@ export class Material extends RnObject {
   _materialContent: AbstractMaterialContent;
   _allFieldVariables: Map<ShaderSemanticsName, ShaderVariable> = new Map();
   _autoFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable> = new Map();
+  _autoTextureFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable> = new Map();
+  _autoUniformFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable> = new Map();
   _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo> = new Map();
   private __belongPrimitives: Map<PrimitiveUID, Primitive> = new Map();
 
@@ -227,6 +229,9 @@ export class Material extends RnObject {
         this._allFieldVariables.set(shaderSemantic, shaderVariable);
         if (!array.info.isInternalSetting) {
           this._autoFieldVariablesOnly.set(shaderSemantic, shaderVariable);
+          if (CompositionType.isTexture(array.info.compositionType)) {
+            this._autoTextureFieldVariablesOnly.set(shaderSemantic, shaderVariable);
+          }
         }
         if (shaderSemantic === 'diffuseColorTexture' || shaderSemantic === 'baseColorTexture') {
           if (texture.isTransparent) {
@@ -264,6 +269,9 @@ export class Material extends RnObject {
         this._allFieldVariables.set(shaderSemantic, shaderVariable);
         if (!array.info.isInternalSetting) {
           this._autoFieldVariablesOnly.set(shaderSemantic, shaderVariable);
+          if (CompositionType.isTexture(array.info.compositionType)) {
+            this._autoTextureFieldVariablesOnly.set(shaderSemantic, shaderVariable);
+          }
         }
         if (shaderSemantic === 'diffuseColorTexture' || shaderSemantic === 'baseColorTexture') {
           if (texture.isTransparent) {
@@ -577,19 +585,21 @@ export class Material extends RnObject {
         );
       });
     } else {
-      for (const [key, value] of this._autoFieldVariablesOnly) {
+      for (const [key, value] of this._autoTextureFieldVariablesOnly) {
+      const info = value.info;
+        if (firstTime) {
+          webglResourceRepository.setUniform1iForTexture(
+            shaderProgram,
+            info.semantic,
+            value.value
+          );
+        } else {
+          webglResourceRepository.bindTexture(info, value.value);
+        }
+      }
+      for (const [key, value] of this._autoUniformFieldVariablesOnly) {
         const info = value.info;
-        if (CompositionType.isTexture(info.compositionType)) {
-          if (firstTime) {
-            webglResourceRepository.setUniform1iForTexture(
-              shaderProgram,
-              info.semantic,
-              value.value
-            );
-          } else {
-            webglResourceRepository.bindTexture(info, value.value);
-          }
-        } else if (info.needUniformInDataTextureMode) {
+        if (info.needUniformInDataTextureMode) {
           webglResourceRepository.setUniformValue(
             shaderProgram,
             info.semantic,
