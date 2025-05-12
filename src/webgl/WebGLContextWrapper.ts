@@ -158,7 +158,9 @@ export class WebGLContextWrapper {
         }
       }
       this.webgl2ExtClipCtrl = this.__getExtension(WebGLExtension.ClipControl);
-      this.webgl2ExtGmanWM = this.__getExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
+      if (Config.cgApiDebugConsoleOutput) {
+        this.webgl2ExtGmanWM = this.__getExtension(WebGLExtension.GMAN_WEBGL_MEMORY);
+      }
     }
     this.__getUniformBufferInfo();
     this.__getMaxUniformVectors();
