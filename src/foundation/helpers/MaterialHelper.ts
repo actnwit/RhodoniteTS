@@ -94,15 +94,23 @@ import { SystemState } from '../system/SystemState';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
 import { Vrm1_Material } from '../../types/VRM1';
 
+const g_sampler = new Sampler({
+  minFilter: TextureParameter.Linear,
+  magFilter: TextureParameter.Linear,
+  wrapS: TextureParameter.ClampToEdge,
+  wrapT: TextureParameter.ClampToEdge,
+});
+
 function createMaterial(
   materialContent: AbstractMaterialContent,
   maxInstancesNumber?: Count
 ): Material {
   let group = 0;
   let isFull = false;
+  const materialSemanticsVariantName = materialContent.getMaterialSemanticsVariantName();
   do {
     const actualMaterialTypeName =
-      materialContent.getMaterialSemanticsVariantName() + `__group${group}`;
+      materialSemanticsVariantName + `__group${group}`;
     isFull = MaterialRepository.isFullOrOverOfThisMaterialType(actualMaterialTypeName);
     if (!isFull) {
       MaterialRepository.registerMaterial(
@@ -210,13 +218,9 @@ function createPbrUberMaterial({
     ];
   }
 
-  const sampler = new Sampler({
-    minFilter: TextureParameter.Linear,
-    magFilter: TextureParameter.Linear,
-    wrapS: TextureParameter.ClampToEdge,
-    wrapT: TextureParameter.ClampToEdge,
-  });
-  sampler.create();
+  if (!g_sampler.created) {
+    g_sampler.create();
+  }
 
   let textureSlotIdx = 8;
   if (isClearCoat) {
@@ -225,7 +229,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -234,7 +238,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -243,7 +247,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyBlueTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyBlueTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -255,7 +259,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -264,7 +268,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyBlackTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyBlackTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -276,7 +280,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -288,7 +292,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -297,7 +301,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -306,7 +310,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, sheenLutTexture, sampler],
+      initialValue: [textureSlotIdx++, sheenLutTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -316,7 +320,7 @@ function createPbrUberMaterial({
       compositionType: CompositionType.TextureCube,
       stage: ShaderType.PixelShader,
       isInternalSetting: true,
-      initialValue: [textureSlotIdx++, dummyBlackCubeTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyBlackCubeTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -328,7 +332,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -337,7 +341,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -349,7 +353,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -358,7 +362,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -369,7 +373,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyAnisotropyTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyAnisotropyTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -380,7 +384,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -389,7 +393,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2D,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyWhiteTexture, sampler],
+      initialValue: [textureSlotIdx++, dummyWhiteTexture, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -401,7 +405,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, sampler],
+      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -410,7 +414,7 @@ function createPbrUberMaterial({
       componentType: ComponentType.Int,
       compositionType: CompositionType.Texture2DArray,
       stage: ShaderType.PixelShader,
-      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, sampler],
+      initialValue: [textureSlotIdx++, dummyDepthMomentTextureArray, g_sampler],
       min: 0,
       max: Number.MAX_VALUE,
     });
@@ -437,6 +441,54 @@ function createPbrUberMaterial({
     });
   }
 
+  const definitions = [];
+  if (isLighting) {
+    definitions.push('RN_IS_LIGHTING');
+  }
+  if (isShadow) {
+    definitions.push('RN_USE_SHADOW_MAPPING');
+  }
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+  if (useNormalTexture) {
+    definitions.push('RN_USE_NORMAL_TEXTURE');
+  }
+  if (isClearCoat) {
+    definitions.push('RN_USE_CLEARCOAT');
+  }
+  if (isTransmission) {
+    definitions.push('RN_USE_TRANSMISSION');
+  }
+  if (isVolume) {
+    definitions.push('RN_USE_VOLUME');
+  }
+  if (isSheen) {
+    definitions.push('RN_USE_SHEEN');
+  }
+  if (isSpecular) {
+    definitions.push('RN_USE_SPECULAR');
+  }
+  if (isIridescence) {
+    definitions.push('RN_USE_IRIDESCENCE');
+  }
+  if (isAnisotropy) {
+    definitions.push('RN_USE_ANISOTROPY');
+  }
+  if (isDispersion) {
+    definitions.push('RN_USE_DISPERSION');
+  }
+  if (isEmissiveStrength) {
+    definitions.push('RN_USE_EMISSIVE_STRENGTH');
+  }
+  if (isDiffuseTransmission) {
+    definitions.push('RN_USE_DIFFUSE_TRANSMISSION');
+  }
+
+
   const materialContent = new CustomMaterialContent({
     name: materialName,
     isSkinning,
@@ -447,51 +499,14 @@ function createPbrUberMaterial({
     vertexShaderWebGpu: pbrSingleShaderVertexWebGpu,
     pixelShaderWebGpu: pbrSingleShaderFragmentWebGpu,
     additionalShaderSemanticInfo,
+    definitions,
   });
 
   const material = createMaterial(materialContent, maxInstancesNumber);
 
-  if (isLighting) {
-    material.addShaderDefine('RN_IS_LIGHTING');
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
   }
-  if (isShadow) {
-    material.addShaderDefine('RN_USE_SHADOW_MAPPING');
-  }
-  if (useNormalTexture) {
-    material.addShaderDefine('RN_USE_NORMAL_TEXTURE');
-  }
-  if (isClearCoat) {
-    material.addShaderDefine('RN_USE_CLEARCOAT');
-  }
-  if (isTransmission) {
-    material.addShaderDefine('RN_USE_TRANSMISSION');
-  }
-  if (isVolume) {
-    material.addShaderDefine('RN_USE_VOLUME');
-  }
-  if (isSheen) {
-    material.addShaderDefine('RN_USE_SHEEN');
-  }
-  if (isSpecular) {
-    material.addShaderDefine('RN_USE_SPECULAR');
-  }
-  if (isIridescence) {
-    material.addShaderDefine('RN_USE_IRIDESCENCE');
-  }
-  if (isAnisotropy) {
-    material.addShaderDefine('RN_USE_ANISOTROPY');
-  }
-  if (isDispersion) {
-    material.addShaderDefine('RN_USE_DISPERSION');
-  }
-  if (isEmissiveStrength) {
-    material.addShaderDefine('RN_USE_EMISSIVE_STRENGTH');
-  }
-  if (isDiffuseTransmission) {
-    material.addShaderDefine('RN_USE_DIFFUSE_TRANSMISSION');
-  }
-
-  material.addShaderDefine('RN_IS_SKINNING');
 
   return material;
 }
@@ -1221,6 +1236,20 @@ function createMToon0xMaterial({
 }) {
   const materialName = 'MToon0x' + `_${additionalName}_`;
 
+  const definitions = [];
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+  if (isLighting) {
+    definitions.push('RN_USE_LIGHTING');
+  }
+  if (isOutline) {
+    definitions.push('RN_USE_OUTLINE');
+  }
+
   const materialContent = new MToon0xMaterialContent(
     isOutline,
     materialProperties,
@@ -1232,7 +1261,8 @@ function createMToon0xMaterial({
     useTangentAttribute,
     debugMode,
     makeOutputSrgb,
-    materialName
+    materialName,
+    definitions
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -1270,12 +1300,27 @@ function createMToon1Material({
 }) {
   const materialName = 'MToon1' + `_${additionalName}_`;
 
+  const definitions = [];
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+  if (isLighting) {
+    definitions.push('RN_USE_LIGHTING');
+  }
+  if (isOutline) {
+    definitions.push('RN_USE_OUTLINE');
+  }
+
   const materialContent = new MToon1MaterialContent(
     materialName,
     isMorphing,
     isSkinning,
     isLighting,
-    isOutline
+    isOutline,
+    definitions
   );
 
   const material = createMaterial(materialContent, maxInstancesNumber);

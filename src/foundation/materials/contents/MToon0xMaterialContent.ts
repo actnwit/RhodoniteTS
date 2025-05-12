@@ -153,7 +153,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     useTangentAttribute: boolean,
     debugMode: Count | undefined,
     makeOutputSrgb: boolean,
-    materialName: string
+    materialName: string,
+    definitions: string[]
   ) {
     super(materialName, {
       isMorphing: isMorphing,
@@ -165,7 +166,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
       mToonSingleShaderVertex,
       mToonSingleShaderFragment,
       mToonSingleShaderVertexWebGpu,
-      mToonSingleShaderFragmentWebGpu
+      mToonSingleShaderFragmentWebGpu,
+      definitions
     );
 
     if (!MToon0xMaterialContent.__diffuseIblCubeMapSampler.created) {
@@ -488,8 +490,8 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
           componentType: ComponentType.Float,
           compositionType: CompositionType.Vec3,
           stage: ShaderType.PixelShader,
-          initialValue: Vector3.fromCopyArray(
-            this.__vectorProperties._OutlineColor as Array3<number>
+          initialValue: Vector4.fromCopyArray(
+            this.__vectorProperties._OutlineColor as Array4<number>
           ),
           min: 0,
           max: 1,

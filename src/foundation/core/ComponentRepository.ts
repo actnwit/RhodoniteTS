@@ -56,10 +56,10 @@ export class ComponentRepository {
   ) {
     const thisClass = ComponentRepository;
     const componentClass = thisClass.__componentClasses.get(componentTid);
-    if (Is.exist(componentClass)) {
+    if (componentClass != undefined) {
       // Update __component_sid_count_map
       let component_sid_count = this.__component_sid_count_map.get(componentTid);
-      if (Is.not.exist(component_sid_count)) {
+      if (component_sid_count == undefined) {
         this.__component_sid_count_map.set(componentTid, 0);
         component_sid_count = ComponentRepository.invalidComponentSID;
       }
@@ -67,9 +67,9 @@ export class ComponentRepository {
       // check __components array whether it has undefined element
       const componentArray = this.__components.get(componentTid);
       let undefinedSid = -1;
-      if (Is.exist(componentArray)) {
+      if (componentArray != undefined) {
         for (let i = 0; i < componentArray.length; i++) {
-          if (Is.not.exist(componentArray[i])) {
+          if (componentArray[i] == undefined) {
             undefinedSid = i;
             break;
           }

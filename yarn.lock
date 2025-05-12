@@ -3704,10 +3704,10 @@ shaderity-node@0.0.10:
   resolved "https://registry.yarnpkg.com/shaderity-node/-/shaderity-node-0.0.10.tgz#dc76b1d8733dbcda65a781d9faf1e7601e9281f4"
   integrity sha512-/ooQYfmM4TUFqIL+IeECqKVFhCjxZ1/CXzJhogHZsGn5OtOOfJ+9C3ACWiKZ0RAT6R855HAuHTxozE2Qtc+wnQ==
 
-shaderity@^0.2.13:
-  version "0.2.13"
-  resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.2.13.tgz#a1747096d3c890b7020ad0c5669292f2095459fc"
-  integrity sha512-Hlh5sBZMz6H2UnTNNNbVTc3QQX/+NLkNvp5H3h2VCe+f7ooHya136yCxxxIj51eHsqRaZ0bNMqVu/uAzerXUsQ==
+shaderity@^0.2.18:
+  version "0.2.18"
+  resolved "https://registry.yarnpkg.com/shaderity/-/shaderity-0.2.18.tgz#ef25fded62268e8485efb839cadccdb43b2469b6"
+  integrity sha512-G1rLCnsTBj0EUsvq9CtAvg5KIN0XjaZZ8/VpclDEFOCnzpaoxxxY6i6x/5WOTjHL5qzQId5B3xO2+427dm821A==
 
 shebang-command@^2.0.0:
   version "2.0.0"

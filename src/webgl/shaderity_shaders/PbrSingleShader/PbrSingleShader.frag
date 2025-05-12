@@ -97,7 +97,7 @@ uniform float u_ior; // initialValue=1.5
   uniform int u_transmissionTexcoordIndex; // initialValue=0
 #endif
 
-#ifdef RN_USE_VOLUME
+#if defined(RN_USE_VOLUME) || defined(RN_USE_TRANSMISSION)
   uniform float u_thicknessFactor; // initialValue=(0)
   uniform float u_attenuationDistance; // initialValue=(0.000001)
   uniform vec3 u_attenuationColor; // initialValue=(1,1,1)

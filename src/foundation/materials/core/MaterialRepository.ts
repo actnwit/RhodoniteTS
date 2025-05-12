@@ -108,14 +108,8 @@ export class MaterialRepository {
   }
 
   public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
-    const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName);
-    if (Is.not.exist(countOfThisType)) {
-      return false;
-    }
-    const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName);
-    if (Is.not.exist(maxCountOfThisType)) {
-      return false;
-    }
+    const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName)!;
+    const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName)!;
 
     return countOfThisType >= maxCountOfThisType;
   }
@@ -147,7 +141,7 @@ export class MaterialRepository {
    */
   private static __initializeMaterial(material: Material, countOfThisType: Count) {
     // Set name
-    material.tryToSetUniqueName(material.__materialTypeName, true);
+    // material.tryToSetUniqueName(material.__materialTypeName, true);
 
     // Set meta data to MaterialRepository
     {
@@ -181,9 +175,7 @@ export class MaterialRepository {
             info: semanticsInfo,
             value: MathClassUtil.initWithFloat32Array(
               semanticsInfo.initialValue,
-              semanticsInfo.initialValue,
               typedArray,
-              semanticsInfo.compositionType
             ),
           };
           material._allFieldVariables.set(semanticsInfo.semantic, shaderVariable);
@@ -311,9 +303,7 @@ export class MaterialRepository {
           info: semanticInfo,
           value: MathClassUtil.initWithFloat32Array(
             semanticInfo.initialValue,
-            semanticInfo.initialValue,
             typedArray,
-            semanticInfo.compositionType
           ),
         });
       } else {

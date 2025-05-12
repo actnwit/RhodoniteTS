@@ -238,15 +238,7 @@ export class Material extends RnObject {
         this.calcFingerPrint();
       };
 
-      if (typeof (texture as Texture).hasDataToLoadLazy !== 'undefined') {
-        if ((texture as Texture).hasDataToLoadLazy) {
-          setTimeout(setter, 0);
-        } else {
-          setter();
-        }
-      } else {
-        setter();
-      }
+      setter();
     }
   }
 
@@ -356,16 +348,10 @@ export class Material extends RnObject {
     primitive: Primitive,
     isWebGL2: boolean
   ): [CGAPIResourceHandle, boolean] {
-    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(
-      propertySetter,
-      isWebGL2
-    );
-
     const [programUid, newOne] = _createProgramAsSingleOperationWebGL(
       this,
+      propertySetter,
       primitive,
-      vertexPropertiesStr,
-      pixelPropertiesStr,
       vertexShaderMethodDefinitions_uniform,
       isWebGL2
     );
@@ -381,13 +367,11 @@ export class Material extends RnObject {
     vertexShaderMethodDefinitions: string,
     propertySetter: getShaderPropertyFunc
   ) {
-    const { vertexPropertiesStr, pixelPropertiesStr } = this._getProperties(propertySetter, true);
     const programUid = _createProgramAsSingleOperationWebGpu(
       this,
       primitive,
       vertexShaderMethodDefinitions,
-      vertexPropertiesStr,
-      pixelPropertiesStr
+      propertySetter
     );
 
     this._shaderProgramUidMap.set(primitive._getFingerPrint(), programUid);

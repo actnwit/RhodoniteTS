@@ -33,7 +33,6 @@ declare const window: any;
 
     return primitive;
   }
-
   const promises: Promise<void>[] = [];
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgl'));
   promises.push(Rn.ModuleManager.getInstance().loadModule('webgpu'));
@@ -44,6 +43,7 @@ declare const window: any;
       approach: Rn.ProcessApproach.WebGPU,
       canvas: document.getElementById('world') as HTMLCanvasElement,
     });
+    Rn.Logger.logLevel = Rn.LogLevel.Info;
 
     const primitive = await readyBasicVerticesData();
 

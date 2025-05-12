@@ -86,7 +86,7 @@
 // #param transmissionTexcoordIndex: u32; // initialValue=0
 #endif // RN_USE_TRANSMISSION
 
-#ifdef RN_USE_VOLUME
+#if defined(RN_USE_VOLUME) || defined(RN_USE_TRANSMISSION)
 // #param thicknessFactor: f32; // initialValue=(0)
 // #param attenuationDistance: f32; // initialValue=(0.000001)
 // #param attenuationColor: vec3<f32>; // initialValue=(1,1,1)
