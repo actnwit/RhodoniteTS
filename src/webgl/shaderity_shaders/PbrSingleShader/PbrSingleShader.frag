@@ -30,11 +30,6 @@ uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform float u_metallicFactor; // initialValue=1
 uniform float u_roughnessFactor; // initialValue=1
 uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
-uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
-uniform sampler2D u_emissiveTexture; // initialValue=(4,white)
-#ifdef RN_USE_EMISSIVE_STRENGTH
-  uniform float u_emissiveStrength; // initialValue=1
-#endif
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
 uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
@@ -58,10 +53,18 @@ uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
   uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
   uniform float u_occlusionStrength; // initialValue=1
 #endif
-uniform int u_emissiveTexcoordIndex; // initialValue=0
-uniform vec2 u_emissiveTextureTransformScale; // initialValue=(1,1)
-uniform vec2 u_emissiveTextureTransformOffset; // initialValue=(0,0)
-uniform float u_emissiveTextureTransformRotation; // initialValue=0
+#ifdef RN_USE_EMISSIVE_TEXTURE
+  uniform sampler2D u_emissiveTexture; // initialValue=(4,white)
+  uniform int u_emissiveTexcoordIndex; // initialValue=0
+  uniform vec2 u_emissiveTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_emissiveTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_emissiveTextureTransformRotation; // initialValue=0
+#endif
+uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
+#ifdef RN_USE_EMISSIVE_STRENGTH
+  uniform float u_emissiveStrength; // initialValue=1
+#endif
+
 uniform bool u_inverseEnvironment; // initialValue=false
 uniform float u_ior; // initialValue=1.5
 
@@ -610,13 +613,17 @@ void main ()
 
   // Emissive
   vec3 emissiveFactor = get_emissiveFactor(materialSID, 0);
-  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
-  vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
-  vec2 emissiveTextureTransformScale = get_emissiveTextureTransformScale(materialSID, 0);
-  vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0);
-  float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0);
-  vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
-  vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
+  #ifdef RN_USE_EMISSIVE_TEXTURE
+    int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+    vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
+    vec2 emissiveTextureTransformScale = get_emissiveTextureTransformScale(materialSID, 0);
+    vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0);
+    float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0);
+    vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+    vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
+  #else
+    vec3 emissive = emissiveFactor;
+  #endif
 #ifdef RN_USE_EMISSIVE_STRENGTH
   float emissiveStrength = get_emissiveStrength(materialSID, 0);
   emissive *= emissiveStrength;

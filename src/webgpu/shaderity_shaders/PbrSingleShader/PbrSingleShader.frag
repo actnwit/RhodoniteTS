@@ -50,14 +50,15 @@
   // #param occlusionStrength: f32; // initialValue=1
 #endif
 
-// #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
-// #param emissiveTextureTransformScale: vec2<f32>; // initialValue=(1,1)
-// #param emissiveTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
-// #param emissiveTextureTransformRotation: f32; // initialValue=0
-// #param emissiveTexcoordIndex: u32; // initialValue=0
-@group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
-@group(2) @binding(4) var emissiveSampler: sampler;
-
+#ifdef RN_USE_EMISSIVE_TEXTURE
+  // #param emissiveTextureTransformScale: vec2<f32>; // initialValue=(1,1)
+  // #param emissiveTextureTransformOffset: vec2<f32>; // initialValue=(0,0)
+  // #param emissiveTextureTransformRotation: f32; // initialValue=0
+  // #param emissiveTexcoordIndex: u32; // initialValue=0
+  @group(1) @binding(4) var emissiveTexture: texture_2d<f32>; // initialValue=white
+  @group(2) @binding(4) var emissiveSampler: sampler;
+#endif
+  // #param emissiveFactor: vec3<f32>; // initialValue=(0,0,0)
 #ifdef RN_USE_EMISSIVE_STRENGTH
   // #param emissiveStrength: f32; // initialValue=1
 #endif
@@ -583,13 +584,18 @@ let ior = get_ior(materialSID, 0);
 
   // Emissive
   let emissiveFactor = get_emissiveFactor(materialSID, 0);
-  let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
-  let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
-  let emissiveTextureTransformScale: vec2f = get_emissiveTextureTransformScale(materialSID, 0);
-  let emissiveTextureTransformOffset: vec2f = get_emissiveTextureTransformOffset(materialSID, 0);
-  let emissiveTextureTransformRotation: f32 = get_emissiveTextureTransformRotation(materialSID, 0);
-  let emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
-  var emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+  #ifdef RN_USE_EMISSIVE_TEXTURE
+    let emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+    let emissiveTexcoord = getTexcoord(emissiveTexcoordIndex, input);
+    let emissiveTextureTransformScale: vec2f = get_emissiveTextureTransformScale(materialSID, 0);
+    let emissiveTextureTransformOffset: vec2f = get_emissiveTextureTransformOffset(materialSID, 0);
+    let emissiveTextureTransformRotation: f32 = get_emissiveTextureTransformRotation(materialSID, 0);
+    let emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+    var emissive = emissiveFactor * srgbToLinear(textureSample(emissiveTexture, emissiveSampler, emissiveTexUv).xyz);
+  #else
+    var emissive = emissiveFactor;
+  #endif
+
 #ifdef RN_USE_EMISSIVE_STRENGTH
   let emissiveStrength = get_emissiveStrength(materialSID, 0);
   emissive *= emissiveStrength;
