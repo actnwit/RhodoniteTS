@@ -993,6 +993,7 @@ export class WebGpuResourceRepository
 
     let meshRendererComponentSid = -1;
     let meshRendererComponentUpdateCount = -1;
+    let meshRendererComponentFingerPrint = '';
     let diffuseCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
     let specularCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
     let sheenCubeMap: CubeTexture | RenderTargetTextureCube | undefined;
@@ -1014,14 +1015,21 @@ export class WebGpuResourceRepository
       diffuseCubeMap = meshRendererComponent.diffuseCubeMap;
       specularCubeMap = meshRendererComponent.specularCubeMap;
       sheenCubeMap = meshRendererComponent.sheenCubeMap;
+      meshRendererComponentFingerPrint = meshRendererComponent.getFingerPrint();
     }
 
-    const renderPipelineId = `${primitive._getFingerPrint()} ${material.materialUID} ${
+    const renderPipelineId = `${primitive._getFingerPrint()} ${material._getFingerPrint()} ${material.__materialTypeName} ${
       renderPass.renderPassUID
-    } ${meshRendererComponentSid} ${meshRendererComponentUpdateCount} ${zWrite} `;
+    } ${meshRendererComponentFingerPrint} ${zWrite} `;
+    const bindGroupId = `${renderPipelineId} ${material.stateVersion} ${material.__materialSid}`;
+
+    if (!this.__bindGroupTextureMap.has(bindGroupId)) {
+      this.__createBindGroup(bindGroupId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+    }
 
     const [pipeline, recreated] = this.getOrCreateRenderPipeline(
       renderPipelineId,
+      bindGroupId,
       primitive,
       material,
       renderPass,
@@ -1031,13 +1039,14 @@ export class WebGpuResourceRepository
       sheenCubeMap
     );
 
+
     this.createRenderBundleEncoder(renderPass);
 
     const renderBundleEncoder = this.__renderBundleEncoder!;
     renderBundleEncoder.setBindGroup(0, this.__bindGroupStorageBuffer!);
     renderBundleEncoder.setPipeline(pipeline);
-    renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(renderPipelineId)!);
-    renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(renderPipelineId)!);
+    renderBundleEncoder.setBindGroup(1, this.__bindGroupTextureMap.get(bindGroupId)!);
+    renderBundleEncoder.setBindGroup(2, this.__bindGroupSamplerMap.get(bindGroupId)!);
     renderBundleEncoder.setBindGroup(
       3,
       this.__bindGroupsUniformDrawParameters.get(
@@ -1290,6 +1299,7 @@ export class WebGpuResourceRepository
 
   getOrCreateRenderPipeline(
     renderPipelineId: string,
+    bindGroupId: string,
     primitive: Primitive,
     material: Material,
     renderPass: RenderPass,
@@ -1316,12 +1326,8 @@ export class WebGpuResourceRepository
 
     this.__webGpuRenderPipelineMap.delete(renderPipelineId);
     this.__materialStateVersionMap.delete(renderPipelineId);
-    this.__bindGroupTextureMap.delete(renderPipelineId);
-    this.__bindGroupLayoutTextureMap.delete(renderPipelineId);
-    this.__bindGroupSamplerMap.delete(renderPipelineId);
-    this.__bindGroupLayoutSamplerMap.delete(renderPipelineId);
 
-    this.__createBindGroup(renderPipelineId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
+    // this.__createBindGroup(renderPipelineId, material, diffuseCubeMap, specularCubeMap, sheenCubeMap);
 
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
@@ -1369,8 +1375,8 @@ export class WebGpuResourceRepository
     const pipelineLayout = gpuDevice.createPipelineLayout({
       bindGroupLayouts: [
         this.__bindGroupLayoutStorageBuffer!,
-        this.__bindGroupLayoutTextureMap.get(renderPipelineId)!,
-        this.__bindGroupLayoutSamplerMap.get(renderPipelineId)!,
+        this.__bindGroupLayoutTextureMap.get(bindGroupId)!,
+        this.__bindGroupLayoutSamplerMap.get(bindGroupId)!,
         this.__bindGroupLayoutUniformDrawParameters!,
       ],
     });
@@ -2011,12 +2017,17 @@ export class WebGpuResourceRepository
   }
 
   private __createBindGroup(
-    renderPipelineId: string,
+    bindGroupId: string,
     material: Material,
     diffuseCubeMap?: CubeTexture | RenderTargetTextureCube,
     specularCubeMap?: CubeTexture | RenderTargetTextureCube,
     sheenCubeMap?: CubeTexture | RenderTargetTextureCube
   ) {
+    this.__bindGroupTextureMap.delete(bindGroupId);
+    this.__bindGroupLayoutTextureMap.delete(bindGroupId);
+    this.__bindGroupSamplerMap.delete(bindGroupId);
+    this.__bindGroupLayoutSamplerMap.delete(bindGroupId);
+
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
 
     // Group 0 (Storage Buffer, UniformMorph Buffer)
@@ -2381,8 +2392,8 @@ export class WebGpuResourceRepository
         layout: bindGroupLayoutForTexture,
         entries: entriesForTexture,
       });
-      this.__bindGroupTextureMap.set(renderPipelineId, bindGroupForTexture);
-      this.__bindGroupLayoutTextureMap.set(renderPipelineId, bindGroupLayoutForTexture);
+      this.__bindGroupTextureMap.set(bindGroupId, bindGroupForTexture);
+      this.__bindGroupLayoutTextureMap.set(bindGroupId, bindGroupLayoutForTexture);
 
       // Sampler
       const bindGroupLayoutDescForSampler: GPUBindGroupLayoutDescriptor = {
@@ -2395,8 +2406,8 @@ export class WebGpuResourceRepository
         layout: bindGroupLayoutForSampler,
         entries: entriesForSampler,
       });
-      this.__bindGroupSamplerMap.set(renderPipelineId, bindGroupForSampler);
-      this.__bindGroupLayoutSamplerMap.set(renderPipelineId, bindGroupLayoutForSampler);
+      this.__bindGroupSamplerMap.set(bindGroupId, bindGroupForSampler);
+      this.__bindGroupLayoutSamplerMap.set(bindGroupId, bindGroupLayoutForSampler);
     }
   }
 

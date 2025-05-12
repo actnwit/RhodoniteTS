@@ -53,6 +53,8 @@ export class MeshRendererComponent extends Component {
   private static __updateCount = 0;
   public static _isFrustumCullingEnabled = true;
 
+  private __fingerPrint = '';
+
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -60,6 +62,7 @@ export class MeshRendererComponent extends Component {
     isReUse: boolean
   ) {
     super(entityUid, componentSid, entityRepository, isReUse);
+    this.calcFingerPrint();
   }
 
   static get componentTID(): ComponentTID {
@@ -117,6 +120,14 @@ export class MeshRendererComponent extends Component {
     MeshRendererComponent.__updateCount++;
   }
 
+  calcFingerPrint() {
+    this.__fingerPrint = `${this.__diffuseCubeMap != null ? this.__diffuseCubeMap.textureUID : -1} ${this.__specularCubeMap != null ? this.__specularCubeMap.textureUID : -1} ${this.__sheenCubeMap != null ? this.__sheenCubeMap.textureUID : -1}`;
+  }
+
+  getFingerPrint() {
+    return this.__fingerPrint;
+  }
+
   setIBLCubeMap(
     diffuseCubeTexture: CubeTexture | RenderTargetTextureCube,
     specularCubeTexture: CubeTexture | RenderTargetTextureCube,
@@ -129,6 +140,8 @@ export class MeshRendererComponent extends Component {
     this.__diffuseCubeMap = diffuseCubeTexture;
     this.__specularCubeMap = specularCubeTexture;
     this.__sheenCubeMap = sheenCubeTexture;
+
+    this.calcFingerPrint();
 
     const promises = [];
 
