@@ -449,6 +449,18 @@ export abstract class AbstractMaterialContent extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
   }
 
+  _setInternalSettingParametersToGpuWebGLPerShaderProgram({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArgWebGL;
+  }) {}
+
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,

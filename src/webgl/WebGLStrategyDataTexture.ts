@@ -891,7 +891,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
 
-    let firstTime = false;
+    let firstTimeForShaderProgram = false;
+    let firstTimeForMaterial = false;
     const shaderProgramUid = material.getShaderProgramUid(primitive);
     if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
       if (isSkipDrawing(material, primitive)) {
@@ -909,14 +910,15 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       // gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0); // VR MultiView is not supported yet
 
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
-      firstTime = true;
+      firstTimeForShaderProgram = true;
+      firstTimeForMaterial = true;
     }
     if (this.__lastMaterial?.deref() !== material) {
-      firstTime = true;
+      firstTimeForMaterial = true;
       this.__lastMaterial = new WeakRef(material);
     }
     if (this.__lastMaterialStateVersion !== material.stateVersion) {
-      firstTime = true;
+      firstTimeForMaterial = true;
       this.__lastMaterialStateVersion = material.stateVersion;
     }
 
@@ -938,7 +940,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       displayIdx: -1,
     };
 
-    if (firstTime) {
+    if (firstTimeForShaderProgram) {
+      material._setParametersToGpuWebGLPerShaderProgram({
+        material,
+        shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+        firstTime: firstTimeForShaderProgram,
+        args: renderingArg,
+      });
+    }
+
+    if (firstTimeForMaterial) {
       this.__setCurrentComponentSIDsForEachPrimitive(
         gl,
         material,
@@ -950,14 +961,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       material._setParametersToGpuWebGL({
         material: material,
         shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
-        firstTime: firstTime,
+        firstTime: firstTimeForMaterial,
         args: renderingArg,
       });
     }
     material._setParametersToGpuWebGLPerPrimitive({
       material: material,
       shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
-      firstTime: firstTime,
+      firstTime: firstTimeForMaterial,
       args: renderingArg,
     });
 

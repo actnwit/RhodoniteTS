@@ -495,6 +495,27 @@ export class Material extends RnObject {
     });
   }
 
+  _setParametersToGpuWebGLPerShaderProgram({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArgWebGL;
+  }) {
+    // For Custom Setting Parameters
+    this._materialContent._setInternalSettingParametersToGpuWebGLPerShaderProgram({
+      material,
+      shaderProgram,
+      firstTime,
+      args,
+    });
+  }
+
+
   _setParametersToGpuWebGLPerPrimitive({
     material,
     shaderProgram,

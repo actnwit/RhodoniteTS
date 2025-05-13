@@ -529,13 +529,14 @@ bool get_isBillboard(float instanceId) {
         shaderProgramUid
       )! as WebGLProgram;
 
-      let firstTime = true;
-
+      let firstTimeForShaderProgram = true;
+      let firstTimeForMaterial = true;
       if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
         if (isSkipDrawing(material, primitive)) {
           return false;
         }
-        firstTime = true;
+        firstTimeForShaderProgram = true;
+        firstTimeForMaterial = true;
         (gl as any).__changedProgram = false;
 
         gl.useProgram(shaderProgram);
@@ -550,7 +551,7 @@ bool get_isBillboard(float instanceId) {
       }
 
       if (this.__lastMaterial?.deref() !== material) {
-        firstTime = true;
+        firstTimeForMaterial = true;
         this.__lastMaterial = new WeakRef(material);
       }
 
@@ -575,19 +576,29 @@ bool get_isBillboard(float instanceId) {
           isVr: isVrMainPass,
           displayIdx,
         };
-        if (firstTime) {
+
+        if (firstTimeForShaderProgram) {
+          material._setParametersToGpuWebGLPerShaderProgram({
+            material,
+            shaderProgram,
+            firstTime: firstTimeForShaderProgram,
+            args: renderingArg,
+          });
+        }
+
+        if (firstTimeForMaterial) {
           WebGLStrategyCommonMethod.setWebGLParameters(material, gl);
           material._setParametersToGpuWebGL({
             material,
             shaderProgram,
-            firstTime,
+            firstTime: firstTimeForMaterial,
             args: renderingArg,
           });
         }
         material._setParametersToGpuWebGLPerPrimitive({
           material: material,
           shaderProgram: shaderProgram,
-          firstTime: firstTime,
+          firstTime: firstTimeForMaterial,
           args: renderingArg,
         });
 
