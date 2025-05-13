@@ -1458,11 +1458,13 @@ export class ModelConverter {
       const rnLoaderOptions = gltfModel.asset.extras?.rnLoaderOptions ?? {};
       // For glTF 2
       const useTangentAttribute = true; //this.__useTangentAttribute(gltfModel, primitive);
-      const useNormalTexture = this.__useNormalTexture(gltfModel);
+      const useNormalTexture = materialJson?.normalTexture != null;
       const material = MaterialHelper.createPbrUberMaterial({
         isMorphing,
         isSkinning,
         isLighting,
+        isOcclusion: Is.exist(materialJson?.occlusionTexture),
+        isEmissive: Is.exist(materialJson?.emissiveTexture),
         isClearCoat: Is.exist(materialJson?.extensions?.KHR_materials_clearcoat),
         isTransmission: Is.exist(materialJson?.extensions?.KHR_materials_transmission),
         isVolume: Is.exist(materialJson?.extensions?.KHR_materials_volume),

@@ -30,12 +30,6 @@ uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform float u_metallicFactor; // initialValue=1
 uniform float u_roughnessFactor; // initialValue=1
 uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
-uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
-uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
-uniform sampler2D u_emissiveTexture; // initialValue=(4,white)
-#ifdef RN_USE_EMISSIVE_STRENGTH
-  uniform float u_emissiveStrength; // initialValue=1
-#endif
 uniform vec3 u_wireframe; // initialValue=(0,0,1)
 uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
@@ -51,26 +45,37 @@ uniform vec2 u_metallicRoughnessTextureTransformOffset; // initialValue=(0,0)
 uniform float u_metallicRoughnessTextureTransformRotation; // initialValue=0
 uniform int u_baseColorTexcoordIndex; // initialValue=0
 uniform int u_metallicRoughnessTexcoordIndex; // initialValue=0
-uniform int u_occlusionTexcoordIndex; // initialValue=0
-uniform vec2 u_occlusionTextureTransformScale; // initialValue=(1,1)
-uniform vec2 u_occlusionTextureTransformOffset; // initialValue=(0,0)
-uniform float u_occlusionTextureTransformRotation; // initialValue=0
-uniform int u_emissiveTexcoordIndex; // initialValue=0
-uniform vec2 u_emissiveTextureTransformScale; // initialValue=(1,1)
-uniform vec2 u_emissiveTextureTransformOffset; // initialValue=(0,0)
-uniform float u_emissiveTextureTransformRotation; // initialValue=0
-uniform float u_occlusionStrength; // initialValue=1
+#ifdef RN_USE_OCCLUSION_TEXTURE
+  uniform int u_occlusionTexcoordIndex; // initialValue=0
+  uniform vec2 u_occlusionTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_occlusionTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_occlusionTextureTransformRotation; // initialValue=0
+  uniform sampler2D u_occlusionTexture; // initialValue=(3,white)
+  uniform float u_occlusionStrength; // initialValue=1
+#endif
+#ifdef RN_USE_EMISSIVE_TEXTURE
+  uniform sampler2D u_emissiveTexture; // initialValue=(4,white)
+  uniform int u_emissiveTexcoordIndex; // initialValue=0
+  uniform vec2 u_emissiveTextureTransformScale; // initialValue=(1,1)
+  uniform vec2 u_emissiveTextureTransformOffset; // initialValue=(0,0)
+  uniform float u_emissiveTextureTransformRotation; // initialValue=0
+#endif
+uniform vec3 u_emissiveFactor; // initialValue=(0,0,0)
+#ifdef RN_USE_EMISSIVE_STRENGTH
+  uniform float u_emissiveStrength; // initialValue=1
+#endif
+
 uniform bool u_inverseEnvironment; // initialValue=false
 uniform float u_ior; // initialValue=1.5
 
 #ifdef RN_USE_NORMAL_TEXTURE
   uniform sampler2D u_normalTexture; // initialValue=(2,black)
+  uniform float u_normalScale; // initialValue=(1)
+#endif
   uniform vec2 u_normalTextureTransformScale; // initialValue=(1,1)
   uniform vec2 u_normalTextureTransformOffset; // initialValue=(0,0)
   uniform float u_normalTextureTransformRotation; // initialValue=0
   uniform int u_normalTexcoordIndex; // initialValue=0
-  uniform float u_normalScale; // initialValue=(1)
-#endif
 
 #ifdef RN_USE_CLEARCOAT
   uniform float u_clearcoatFactor; // initialValue=0
@@ -257,14 +262,14 @@ void main ()
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   vec3 geomNormal_inWorld = normal_inWorld;
+  vec2 normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
+  vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
+  float normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
+  int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
+  vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
+  vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
+  mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
-    vec2 normalTextureTransformScale = get_normalTextureTransformScale(materialSID, 0);
-    vec2 normalTextureTransformOffset = get_normalTextureTransformOffset(materialSID, 0);
-    float normalTextureTransformRotation = get_normalTextureTransformRotation(materialSID, 0);
-    int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
-    vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
-    vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
-    mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
     vec3 normalTexValue = texture(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
       // normal texture is existence
@@ -586,17 +591,21 @@ void main ()
     anisotropy, anisotropicB, specularWeight, dielectricF0, metallic,
     diffuseTransmission, diffuseTransmissionColor, diffuseTransmissionThickness);
 
-  int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
-  vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
-  vec2 occlusionTextureTransformScale = get_occlusionTextureTransformScale(materialSID, 0);
-  vec2 occlusionTextureTransformOffset = get_occlusionTextureTransformOffset(materialSID, 0);
-  float occlusionTextureTransformRotation = get_occlusionTextureTransformRotation(materialSID, 0);
-  vec2 occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
-  float occlusion = texture(u_occlusionTexture, occlusionTexUv).r;
-  float occlusionStrength = get_occlusionStrength(materialSID, 0);
+  #ifdef RN_USE_OCCLUSION_TEXTURE
+    int occlusionTexcoordIndex = get_occlusionTexcoordIndex(materialSID, 0);
+    vec2 occlusionTexcoord = getTexcoord(occlusionTexcoordIndex);
+    vec2 occlusionTextureTransformScale = get_occlusionTextureTransformScale(materialSID, 0);
+    vec2 occlusionTextureTransformOffset = get_occlusionTextureTransformOffset(materialSID, 0);
+    float occlusionTextureTransformRotation = get_occlusionTextureTransformRotation(materialSID, 0);
+    vec2 occlusionTexUv = uvTransform(occlusionTextureTransformScale, occlusionTextureTransformOffset, occlusionTextureTransformRotation, occlusionTexcoord);
+    float occlusion = texture(u_occlusionTexture, occlusionTexUv).r;
+    float occlusionStrength = get_occlusionStrength(materialSID, 0);
+    // Occlusion to Indirect Lights
+    vec3 indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
+  #else
+    vec3 indirectLight = ibl;
+  #endif
 
-  // Occlusion to Indirect Lights
-  vec3 indirectLight = ibl * (1.0 + occlusionStrength * (occlusion - 1.0));
   rt0.xyz += indirectLight;
 #else
   rt0 = vec4(baseColor, alpha);
@@ -604,13 +613,17 @@ void main ()
 
   // Emissive
   vec3 emissiveFactor = get_emissiveFactor(materialSID, 0);
-  int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
-  vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
-  vec2 emissiveTextureTransformScale = get_emissiveTextureTransformScale(materialSID, 0);
-  vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0);
-  float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0);
-  vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
-  vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
+  #ifdef RN_USE_EMISSIVE_TEXTURE
+    int emissiveTexcoordIndex = get_emissiveTexcoordIndex(materialSID, 0);
+    vec2 emissiveTexcoord = getTexcoord(emissiveTexcoordIndex);
+    vec2 emissiveTextureTransformScale = get_emissiveTextureTransformScale(materialSID, 0);
+    vec2 emissiveTextureTransformOffset = get_emissiveTextureTransformOffset(materialSID, 0);
+    float emissiveTextureTransformRotation = get_emissiveTextureTransformRotation(materialSID, 0);
+    vec2 emissiveTexUv = uvTransform(emissiveTextureTransformScale, emissiveTextureTransformOffset, emissiveTextureTransformRotation, emissiveTexcoord);
+    vec3 emissive = emissiveFactor * srgbToLinear(texture(u_emissiveTexture, emissiveTexUv).xyz);
+  #else
+    vec3 emissive = emissiveFactor;
+  #endif
 #ifdef RN_USE_EMISSIVE_STRENGTH
   float emissiveStrength = get_emissiveStrength(materialSID, 0);
   emissive *= emissiveStrength;

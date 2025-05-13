@@ -95,7 +95,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,

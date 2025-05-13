@@ -646,9 +646,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     glw: WebGLContextWrapper,
     instanceIDBufferUid: WebGLResourceHandle
   ): void {
-    const vertexHandles = primitive.vertexHandles!;
-    const gl = glw.getRawContext();
-
     // bind
     const vao = this.__webglResourceRepository.getWebGLResource(
       mesh.getVaoUids(primitiveIndex)
@@ -656,14 +653,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     if (vao != null) {
       glw.bindVertexArray(vao);
     } else {
+      const vertexHandles = primitive.vertexHandles!;
       this.__webglResourceRepository.setVertexDataToPipeline(
         vertexHandles,
         primitive,
-        mesh._variationVBOUid
+        mesh._variationVBOUid,
       );
       const ibo = this.__webglResourceRepository.getWebGLResource(
         vertexHandles.iboHandle!
       ) as WebGLBuffer;
+      const gl = glw.getRawContext();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
     }
   }
@@ -743,8 +742,14 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const glw = this.__webglResourceRepository.currentWebGLContextWrapper!;
     const gl = glw.getRawContextAsWebGL2();
 
+    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
+    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
+      isVRMainPass,
+      WebGLStrategyDataTexture.__webxrSystem
+    );
+
     if (renderPass.isBufferLessRenderingMode()) {
-      this.__renderWithoutBuffers(gl, renderPass);
+      this.__renderWithoutBuffers(gl, renderPass, isVRMainPass);
       return true;
     }
 
@@ -757,7 +762,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       }
       for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
         renderedSomething ||= rendered;
       }
     }
@@ -766,7 +771,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       // Draw Translucent primitives
       for (let i = renderPass._lastOpaqueIndex + 1; i <= renderPass._lastTranslucentIndex; i++) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
         renderedSomething ||= rendered;
       }
     }
@@ -779,7 +784,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         i++
       ) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
         renderedSomething ||= rendered;
       }
     }
@@ -797,7 +802,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         i++
       ) {
         const primitiveUid = primitiveUids[i];
-        const rendered = this.__renderInner(primitiveUid, glw, renderPass);
+        const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
         renderedSomething ||= rendered;
       }
     }
@@ -811,7 +816,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     return renderedSomething;
   }
 
-  private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass) {
+  private __renderWithoutBuffers(gl: WebGL2RenderingContext, renderPass: RenderPass, isVRMainPass: boolean) {
     // setup shader program
     const material: Material = renderPass.material!;
     const primitive: Primitive = renderPass._dummyPrimitiveForBufferLessRendering;
@@ -834,7 +839,6 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       WebGLStrategyDataTexture.__currentComponentSIDs!._v as Float32Array
     );
 
-    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
     if ((shaderProgram as any).vrState != null && isVRMainPass) {
       const vrState = GlobalDataRepository.getInstance().getValue('vrState', 0) as Vector2;
       vrState._v[0] = isVRMainPass ? 1 : 0;
@@ -868,7 +872,9 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
   private __renderInner(
     primitiveUid: PrimitiveUID,
     glw: WebGLContextWrapper,
-    renderPass: RenderPass
+    renderPass: RenderPass,
+    isVRMainPass: boolean,
+    displayCount: number
   ) {
     const gl = glw.getRawContextAsWebGL2();
     const primitive = Primitive.getPrimitive(primitiveUid);
@@ -885,7 +891,8 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     const primitiveIndex = mesh.getPrimitiveIndexInMesh(primitive);
     this.attachVertexDataInner(mesh, primitive, primitiveIndex, glw, mesh._variationVBOUid);
 
-    let firstTime = false;
+    let firstTimeForShaderProgram = false;
+    let firstTimeForMaterial = false;
     const shaderProgramUid = material.getShaderProgramUid(primitive);
     if (shaderProgramUid !== this.__lastShader || (gl as any).__changedProgram) {
       if (isSkipDrawing(material, primitive)) {
@@ -903,18 +910,18 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       // gl.uniform1i((shaderProgram as any).isMainVr, isVRMainPass ? 1 : 0); // VR MultiView is not supported yet
 
       WebGLStrategyDataTexture.__shaderProgram = shaderProgram;
-      firstTime = true;
+      firstTimeForShaderProgram = true;
+      firstTimeForMaterial = true;
     }
     if (this.__lastMaterial?.deref() !== material) {
-      firstTime = true;
+      firstTimeForMaterial = true;
       this.__lastMaterial = new WeakRef(material);
     }
     if (this.__lastMaterialStateVersion !== material.stateVersion) {
-      firstTime = true;
+      firstTimeForMaterial = true;
       this.__lastMaterialStateVersion = material.stateVersion;
     }
 
-    const isVRMainPass = WebGLStrategyCommonMethod.isVrMainPass(renderPass);
 
     const renderingArg: RenderingArgWebGL = {
       glw: glw,
@@ -933,7 +940,16 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       displayIdx: -1,
     };
 
-    if (firstTime) {
+    if (firstTimeForShaderProgram) {
+      material._setParametersToGpuWebGLPerShaderProgram({
+        material,
+        shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
+        firstTime: firstTimeForShaderProgram,
+        args: renderingArg,
+      });
+    }
+
+    if (firstTimeForMaterial) {
       this.__setCurrentComponentSIDsForEachPrimitive(
         gl,
         material,
@@ -945,21 +961,17 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       material._setParametersToGpuWebGL({
         material: material,
         shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
-        firstTime: firstTime,
+        firstTime: firstTimeForMaterial,
         args: renderingArg,
       });
     }
     material._setParametersToGpuWebGLPerPrimitive({
       material: material,
       shaderProgram: WebGLStrategyDataTexture.__shaderProgram,
-      firstTime: firstTime,
+      firstTime: firstTimeForMaterial,
       args: renderingArg,
     });
 
-    const displayCount = WebGLStrategyCommonMethod.getDisplayCount(
-      isVRMainPass,
-      WebGLStrategyDataTexture.__webxrSystem
-    );
     for (let displayIdx = 0; displayIdx < displayCount; displayIdx++) {
       if (isVRMainPass) {
         WebGLStrategyCommonMethod.setVRViewport(renderPass, displayIdx);

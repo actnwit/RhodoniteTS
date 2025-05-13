@@ -176,7 +176,48 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     }
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerShaderProgram({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArgWebGL;
+  }) {
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    // IBL Env map
+    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
+      webglResourceRepository.setUniform1iForTexture(
+        shaderProgram,
+        ShaderSemantics.DiffuseEnvTexture.str,
+        [5, args.diffuseCube, MToon1MaterialContent.__diffuseIblCubeMapSampler]
+      );
+    } else {
+      webglResourceRepository.setUniform1iForTexture(
+        shaderProgram,
+        ShaderSemantics.DiffuseEnvTexture.str,
+        [5, dummyBlackCubeTexture]
+      );
+    }
+    // if (args.specularCube && args.specularCube.isTextureReady) {
+    //   webglResourceRepository.setUniform1iForTexture(
+    //     shaderProgram,
+    //     ShaderSemantics.SpecularEnvTexture.str,
+    //     [6, args.specularCube, MToon1MaterialContent.__specularIblCubeMapSampler]
+    //   );
+    // } else {
+    //   webglResourceRepository.setUniform1iForTexture(
+    //     shaderProgram,
+    //     ShaderSemantics.SpecularEnvTexture.str,
+    //     [6, dummyBlackCubeTexture]
+    //   );
+    // }
+  }
+
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,
@@ -214,33 +255,6 @@ export class MToon1MaterialContent extends AbstractMaterialContent {
     }
 
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-    // IBL Env map
-    if (args.diffuseCube && args.diffuseCube.isTextureReady) {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        [5, args.diffuseCube, MToon1MaterialContent.__diffuseIblCubeMapSampler]
-      );
-    } else {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.DiffuseEnvTexture.str,
-        [5, dummyBlackCubeTexture]
-      );
-    }
-    if (args.specularCube && args.specularCube.isTextureReady) {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.SpecularEnvTexture.str,
-        [6, args.specularCube, MToon1MaterialContent.__specularIblCubeMapSampler]
-      );
-    } else {
-      webglResourceRepository.setUniform1iForTexture(
-        shaderProgram,
-        ShaderSemantics.SpecularEnvTexture.str,
-        [6, dummyBlackCubeTexture]
-      );
-    }
 
     // IBL Parameters
     if (args.setUniform) {

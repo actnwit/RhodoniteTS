@@ -169,6 +169,8 @@ function createPbrUberMaterial({
   isMorphing = true,
   isSkinning = true,
   isLighting = true,
+  isOcclusion = false,
+  isEmissive = false,
   isClearCoat = false,
   isTransmission = false,
   isVolume = false,
@@ -456,6 +458,12 @@ function createPbrUberMaterial({
   }
   if (useNormalTexture) {
     definitions.push('RN_USE_NORMAL_TEXTURE');
+  }
+  if (isOcclusion) {
+    definitions.push('RN_USE_OCCLUSION_TEXTURE');
+  }
+  if (isEmissive) {
+    definitions.push('RN_USE_EMISSIVE_TEXTURE');
   }
   if (isClearCoat) {
     definitions.push('RN_USE_CLEARCOAT');

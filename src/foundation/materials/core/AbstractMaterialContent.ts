@@ -418,7 +418,6 @@ export abstract class AbstractMaterialContent extends RnObject {
       return;
     }
     if (primitive.targets.length === 0) {
-      (shaderProgram as any)._gl.uniform1i((shaderProgram as any).morphTargetNumber, 0);
       return;
     }
 
@@ -450,7 +449,19 @@ export abstract class AbstractMaterialContent extends RnObject {
     (shaderProgram as any)._gl.uniform1fv((shaderProgram as any).morphWeights, weights);
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerShaderProgram({
+    material,
+    shaderProgram,
+    firstTime,
+    args,
+  }: {
+    material: Material;
+    shaderProgram: WebGLProgram;
+    firstTime: boolean;
+    args: RenderingArgWebGL;
+  }) {}
+
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,

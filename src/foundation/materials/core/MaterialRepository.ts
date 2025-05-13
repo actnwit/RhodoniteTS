@@ -181,6 +181,12 @@ export class MaterialRepository {
           material._allFieldVariables.set(semanticsInfo.semantic, shaderVariable);
           if (!semanticsInfo.isInternalSetting) {
             material._autoFieldVariablesOnly.set(semanticsInfo.semantic, shaderVariable);
+            if (CompositionType.isTexture(semanticsInfo.compositionType)) {
+              material._autoTextureFieldVariablesOnly.set(semanticsInfo.semantic, shaderVariable);
+            }
+            if (semanticsInfo.needUniformInDataTextureMode) {
+              material._autoUniformFieldVariablesOnly.set(semanticsInfo.semantic, shaderVariable);
+            }
           }
         }
       });
