@@ -97,7 +97,7 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,

@@ -305,7 +305,7 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,

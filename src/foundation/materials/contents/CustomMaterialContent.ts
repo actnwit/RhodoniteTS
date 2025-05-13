@@ -121,7 +121,7 @@ export class CustomMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,

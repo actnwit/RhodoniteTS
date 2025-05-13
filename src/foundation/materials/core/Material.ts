@@ -480,7 +480,7 @@ export class Material extends RnObject {
     this.__setAutoParametersToGpuWebGL(args.setUniform, firstTime, shaderProgram);
 
     // For Custom Setting Parameters
-    this._materialContent._setInternalSettingParametersToGpuWebGL({
+    this._materialContent._setInternalSettingParametersToGpuWebGLPerMaterial({
       material,
       shaderProgram,
       firstTime,

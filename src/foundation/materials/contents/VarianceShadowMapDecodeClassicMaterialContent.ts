@@ -383,7 +383,7 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,

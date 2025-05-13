@@ -873,7 +873,7 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     }
   }
 
-  _setInternalSettingParametersToGpuWebGL({
+  _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
     firstTime,
