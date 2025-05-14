@@ -3605,7 +3605,7 @@ declare class WebGLContextWrapper {
     isNotSupportWebGL1Extension(webGLExtension: WebGLExtensionEnum): boolean;
     getIsWebGL2(gl: WebGLRenderingContext | WebGL2RenderingContext): gl is WebGL2RenderingContext;
     get isWebGL2(): boolean;
-    createVertexArray(): WebGLVertexArrayObject | null | undefined;
+    createVertexArray(): WebGLVertexArrayObject | null;
     deleteVertexArray(vertexArray: WebGLVertexArrayObject | WebGLVertexArrayObjectOES): void;
     bindVertexArray(vao: WebGLVertexArrayObjectOES | null): void;
     vertexAttribDivisor(index: number, divisor: number): void;
@@ -3854,7 +3854,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
     private __toClearRenderBundles;
     executeRenderBundle(renderPass: RenderPass): boolean;
     finishRenderBundleEncoder(renderPass: RenderPass): void;
-    getOrCreateRenderPipeline(renderPipelineId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube, sheenCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
+    getOrCreateRenderPipeline(renderPipelineId: string, bindGroupId: string, primitive: Primitive, material: Material, renderPass: RenderPass, zWrite: boolean, diffuseCubeMap?: CubeTexture | RenderTargetTextureCube, specularCubeMap?: CubeTexture | RenderTargetTextureCube, sheenCubeMap?: CubeTexture | RenderTargetTextureCube): [GPURenderPipeline, boolean];
     flush(): void;
     setColorWriteMask(material: Material): GPUColorWriteFlags;
     /**
@@ -5471,6 +5471,7 @@ declare abstract class AbstractMaterialContent extends RnObject {
     private __materialContentUid;
     private static __vertexShaderityObjectMap;
     private static __pixelShaderityObjectMap;
+    private static __reflectedShaderSemanticsInfoArrayMap;
     shaderType: ShaderTypeEnum;
     constructor(materialName: string, { isMorphing, isSkinning, isLighting }?: {
         isMorphing?: boolean | undefined;
@@ -5498,7 +5499,13 @@ declare abstract class AbstractMaterialContent extends RnObject {
     protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent): void;
     protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean): void;
     setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive, blendShapeComponent?: BlendShapeComponent): void;
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -5515,7 +5522,7 @@ declare abstract class AbstractMaterialContent extends RnObject {
         args: RenderingArgWebGpu;
     }): void;
     getDefinition(): string;
-    protected doShaderReflection(vertexShader: ShaderityObject, pixelShader: ShaderityObject, vertexShaderWebGpu: ShaderityObject, pixelShaderWebGpu: ShaderityObject): ShaderSemanticsInfo[];
+    protected doShaderReflection(vertexShader: ShaderityObject, pixelShader: ShaderityObject, vertexShaderWebGpu: ShaderityObject, pixelShaderWebGpu: ShaderityObject, definitions: string[]): ShaderSemanticsInfo[];
 }
 
 type ShaderSources = {
@@ -5568,6 +5575,8 @@ declare class Material extends RnObject {
     _materialContent: AbstractMaterialContent;
     _allFieldVariables: Map<ShaderSemanticsName, ShaderVariable>;
     _autoFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
+    _autoTextureFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
+    _autoUniformFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
     _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
     private __belongPrimitives;
     private _shaderProgramUidMap;
@@ -5666,6 +5675,12 @@ declare class Material extends RnObject {
      * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
      */
     _setParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -6177,6 +6192,9 @@ type Vrm0xMaterialProperty = {
         _OutlineWidth: number;
         _OutlineScaledMaxDistance: number;
         _OutlineLightingMix: number;
+        _UvAnimScrollX: number;
+        _UvAnimScrollY: number;
+        _UvAnimRotation: number;
         _DebugMode: number;
         _BlendMode: number;
         _OutlineWidthMode: number;
@@ -6199,7 +6217,7 @@ type Vrm0xMaterialProperty = {
         _EmissionColor: Array3<number>;
         _EmissionMap: Array4<number>;
         _OutlineWidthTexture: Array4<number>;
-        _OutlineColor: Array3<number>;
+        _OutlineColor: Array4<number>;
         _RimColor: Array3<number>;
     };
     textureProperties: {
@@ -10340,6 +10358,7 @@ declare class MeshRendererComponent extends Component {
     private __updateCount;
     private static __updateCount;
     static _isFrustumCullingEnabled: boolean;
+    private __fingerPrint;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
     static get componentTID(): ComponentTID;
     get componentTID(): ComponentTID;
@@ -10354,6 +10373,8 @@ declare class MeshRendererComponent extends Component {
     set specularCubeMapContribution(contribution: number);
     get rotationOfCubeMap(): number;
     set rotationOfCubeMap(rotation: number);
+    calcFingerPrint(): void;
+    getFingerPrint(): string;
     setIBLCubeMap(diffuseCubeTexture: CubeTexture | RenderTargetTextureCube, specularCubeTexture: CubeTexture | RenderTargetTextureCube, sheenCubeTexture?: CubeTexture | RenderTargetTextureCube): Promise<void> | undefined;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
@@ -10581,11 +10602,13 @@ type Vrm1 = Vrm1_Extension & RnM2;
 
 declare function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
-declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isDispersion, isEmissiveStrength, isDiffuseTransmission, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
+declare function createPbrUberMaterial({ additionalName, isMorphing, isSkinning, isLighting, isOcclusion, isEmissive, isClearCoat, isTransmission, isVolume, isSheen, isSpecular, isIridescence, isAnisotropy, isDispersion, isEmissiveStrength, isDiffuseTransmission, isShadow, useTangentAttribute, useNormalTexture, maxInstancesNumber, }?: {
     additionalName?: string | undefined;
     isMorphing?: boolean | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
+    isOcclusion?: boolean | undefined;
+    isEmissive?: boolean | undefined;
     isClearCoat?: boolean | undefined;
     isTransmission?: boolean | undefined;
     isVolume?: boolean | undefined;
@@ -11063,7 +11086,7 @@ declare class MathClassUtil {
     static multiplyNumber(lhs: any, rhs: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
     static divideNumber(lhs: any, rhs: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
     static initWithScalar(objForDetectType: any, val: number): number | number[] | Vector3 | Vector4 | Quaternion | Vector2 | undefined;
-    static initWithFloat32Array(objForDetectType: any, val: any, floatArray: Float32Array, compositionType: CompositionTypeEnum): any;
+    static initWithFloat32Array(val: any, floatArray: Float32Array): any;
     static _setForce(objForDetectType: any, val: any): boolean;
 }
 
@@ -11602,6 +11625,7 @@ declare class Transform3D {
 declare class VectorN {
     _v: TypedArray;
     constructor(typedArray: TypedArray);
+    clone(): VectorN;
 }
 
 declare class AnimatedScalar extends Scalar$1 implements IScalar, IAnimatedValue {
@@ -16166,7 +16190,7 @@ declare class MergeVectorShaderNode extends AbstractShaderNode {
 declare class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialContent {
     static lookupTableTexture: ShaderSemanticsClass;
     constructor(materialName: string, targetRenderPass: RenderPass, colorAttachmentsNumber: Count, uri?: string, texture?: AbstractTexture);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16178,7 +16202,7 @@ declare class CustomMaterialContent extends AbstractMaterialContent {
     private static __globalDataRepository;
     private static __diffuseIblCubeMapSampler;
     private static __specularIblCubeMapSampler;
-    constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader, additionalShaderSemanticInfo, vertexShaderWebGpu, pixelShaderWebGpu, }: {
+    constructor({ name, isMorphing, isSkinning, isLighting, vertexShader, pixelShader, additionalShaderSemanticInfo, vertexShaderWebGpu, pixelShaderWebGpu, definitions, }: {
         name: string;
         isMorphing: boolean;
         isSkinning: boolean;
@@ -16188,12 +16212,19 @@ declare class CustomMaterialContent extends AbstractMaterialContent {
         additionalShaderSemanticInfo: ShaderSemanticsInfo[];
         vertexShaderWebGpu?: ShaderityObject;
         pixelShaderWebGpu?: ShaderityObject;
+        definitions?: string[];
     });
     _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;
     }): void;
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16218,7 +16249,7 @@ declare class DepthEncodeMaterialContent extends AbstractMaterialContent {
     constructor(materialName: string, depthPow: number, { isSkinning }: {
         isSkinning: boolean;
     });
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16229,7 +16260,7 @@ declare class DepthEncodeMaterialContent extends AbstractMaterialContent {
 declare class DetectHighLuminanceMaterialContent extends AbstractMaterialContent {
     static LuminanceCriterion: ShaderSemanticsEnum;
     constructor(materialName: string, textureToDetectHighLuminance: AbstractTexture);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16239,7 +16270,7 @@ declare class DetectHighLuminanceMaterialContent extends AbstractMaterialContent
 
 declare class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
     constructor(materialName: string);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16254,7 +16285,7 @@ declare class FurnaceTestMaterialContent extends AbstractMaterialContent {
     static disable_fresnel: ShaderSemanticsClass;
     static f0: ShaderSemanticsClass;
     constructor(materialName: string);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16301,7 +16332,7 @@ declare class MToon0xMaterialContent extends AbstractMaterialContent {
     private __floatProperties;
     private __vectorProperties;
     private __textureProperties;
-    constructor(isOutline: boolean, materialProperties: Vrm0xMaterialProperty | undefined, textures: any, samplers: Sampler[], isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, debugMode: Count | undefined, makeOutputSrgb: boolean, materialName: string);
+    constructor(isOutline: boolean, materialProperties: Vrm0xMaterialProperty | undefined, textures: any, samplers: Sampler[], isMorphing: boolean, isSkinning: boolean, isLighting: boolean, useTangentAttribute: boolean, debugMode: Count | undefined, makeOutputSrgb: boolean, materialName: string, definitions: string[]);
     private __setDummyTextures;
     setMaterialParameters(material: Material, isOutline: boolean): void;
     private static __initializeUsableBlendEquationModeAlpha;
@@ -16309,7 +16340,13 @@ declare class MToon0xMaterialContent extends AbstractMaterialContent {
         material: Material;
         args: RenderingArgWebGpu;
     }): void;
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16322,13 +16359,19 @@ declare class MToon0xMaterialContent extends AbstractMaterialContent {
 declare class MToon1MaterialContent extends AbstractMaterialContent {
     private static __diffuseIblCubeMapSampler;
     private static __specularIblCubeMapSampler;
-    constructor(materialName: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isOutline: boolean);
+    constructor(materialName: string, isMorphing: boolean, isSkinning: boolean, isLighting: boolean, isOutline: boolean, definitions: string[]);
     setMaterialParameters(material: Material, isOutline: boolean, materialJson: Vrm1_Material): void;
     _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
         material: Material;
         args: RenderingArgWebGpu;
     }): void;
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16340,7 +16383,7 @@ declare class MToon1MaterialContent extends AbstractMaterialContent {
 declare class MatCapMaterialContent extends AbstractMaterialContent {
     static MatCapTexture: ShaderSemanticsClass;
     constructor(materialName: string, isSkinning: boolean, uri?: string, texture?: AbstractTexture, sampler?: Sampler);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16377,7 +16420,7 @@ declare class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialCont
         isDebugging: boolean;
         colorAttachmentsNumber: Count;
     }, encodedDepthRenderPass: RenderPass);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16411,7 +16454,7 @@ declare class SynthesizeHdrMaterialContent extends AbstractMaterialContent {
      * @targetRegionTexture Texture to specify the area where the texture will be synthesized
      */
     constructor(materialName: string, synthesizeTextures: AbstractTexture[]);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
@@ -16458,7 +16501,7 @@ declare class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMate
         colorAttachmentsNumberSquareDepth: Count;
         depthCameraComponent?: CameraComponent;
     }, encodedDepthRenderPasses: RenderPass[]);
-    _setInternalSettingParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
         material: Material;
         shaderProgram: WebGLProgram;
         firstTime: boolean;
