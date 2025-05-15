@@ -31,7 +31,7 @@
 
       // construct a scale-invariant frame
       let invMat = 1.0 / sqrt(max(dot(tangent, tangent), dot(bitangent, bitangent)));
-      return mat3x3<f32>(tangent * invMat, bitangent * invMat, normal_inWorld);
+      return mat3x3<f32>(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
     }
 
     fn getTBN(normal_inWorld: vec3f, input: VertexOutput, viewVector: vec3f, texcoord: vec2f, isFront: bool) -> mat3x3<f32> {
