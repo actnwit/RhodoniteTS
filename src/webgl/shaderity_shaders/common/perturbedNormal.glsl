@@ -26,7 +26,7 @@
 
       // construct a scale-invariant frame
       float invMat = inversesqrt(max(dot(tangent, tangent), dot(bitangent, bitangent)));
-      return mat3(tangent * invMat, bitangent * invMat, normal_inWorld);
+      return mat3(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
     }
 
     mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
