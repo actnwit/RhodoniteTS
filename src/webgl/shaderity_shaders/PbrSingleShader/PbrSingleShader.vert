@@ -86,8 +86,8 @@ void main()
   v_texcoord_2 = a_texcoord_2;
 
   #ifdef RN_USE_TANGENT
-    v_tangent_inWorld = normalMatrix * a_tangent.xyz;
-    v_binormal_inWorld = cross(v_tangent_inWorld, v_normal_inWorld) * a_tangent.w;
+    v_tangent_inWorld = vec3(worldMatrix * vec4(a_tangent.xyz, 0.0));
+    v_binormal_inWorld = cross(v_normal_inWorld, v_tangent_inWorld) * a_tangent.w;
   #endif
   v_baryCentricCoord = a_baryCentricCoord.xyz;
 
