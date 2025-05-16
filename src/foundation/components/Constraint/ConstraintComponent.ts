@@ -8,6 +8,10 @@ import { IConstraintEntity } from '../../helpers/EntityHelper';
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
+/**
+ * ConstraintComponent is a component that manages constraints.
+ *
+ */
 export class ConstraintComponent extends Component {
   private __vrmConstraint?: IVrmConstraint;
 

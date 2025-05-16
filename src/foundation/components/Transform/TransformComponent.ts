@@ -16,6 +16,10 @@ import { Transform3D } from '../../math/Transform3D';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
 
+/**
+ * TransformComponent is a component that manages the transform of an entity.
+ *
+ */
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
   private __pose = new Transform3D();

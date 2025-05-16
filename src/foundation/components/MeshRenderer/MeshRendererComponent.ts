@@ -37,6 +37,10 @@ import { SceneGraphComponent } from '../SceneGraph/SceneGraphComponent';
 import { SystemState } from '../../system/SystemState';
 import { RenderTargetTextureCube } from '../../textures/RenderTargetTextureCube';
 
+/**
+ * MeshRendererComponent is a component that manages the rendering of a mesh.
+ *
+ */
 export class MeshRendererComponent extends Component {
   private __diffuseCubeMap?: CubeTexture | RenderTargetTextureCube;
   private __specularCubeMap?: CubeTexture | RenderTargetTextureCube;

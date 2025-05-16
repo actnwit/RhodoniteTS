@@ -1,3 +1,8 @@
+/**
+ * AnimationOps.ts is a module that provides utility functions for animation operations.
+ *
+ * @internal
+ */
 import { AnimationChannel, AnimationSampler } from '../../../types/AnimationTypes';
 import { Array1, Array2, Array3, Array4, Index } from '../../../types/CommonTypes';
 import { AnimationAttribute } from '../../definitions/AnimationAttribute';

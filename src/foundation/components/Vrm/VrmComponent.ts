@@ -20,6 +20,10 @@ export type VrmExpression = {
   binds: VrmExpressionMorphBind[];
 };
 
+/**
+ * VrmComponent is a component that manages the VRM model.
+ *
+ */
 export class VrmComponent extends Component {
   private __expressions: Map<VrmExpressionName, VrmExpression> = new Map();
   private __weights: Map<VrmExpressionName, number> = new Map();

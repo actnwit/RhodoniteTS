@@ -21,6 +21,10 @@ import { RaycastResultEx1 } from '../../geometry/types/GeometryTypes';
 import { assertExist } from '../../misc/MiscUtil';
 import { Logger } from '../../misc/Logger';
 
+/**
+ * MeshComponent is a component that manages a mesh.
+ *
+ */
 export class MeshComponent extends Component {
   private __viewDepth = -Number.MAX_VALUE;
   private __mesh?: Mesh;

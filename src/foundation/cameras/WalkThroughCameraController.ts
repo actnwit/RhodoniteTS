@@ -21,6 +21,10 @@ import { CameraControllerComponent } from '../components/CameraController/Camera
 
 type KeyboardEventListener = (evt: KeyboardEvent) => any;
 
+/**
+ * WalkThroughCameraController is a camera controller that allows the user to walk through a scene.
+ *
+ */
 export class WalkThroughCameraController
   extends AbstractCameraController
   implements ICameraController

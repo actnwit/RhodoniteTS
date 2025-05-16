@@ -17,6 +17,10 @@ import { CameraControllerComponent } from '../components/CameraController/Camera
 
 declare let window: any;
 
+/**
+ * OrbitCameraController is a camera controller that allows the user to orbit around a target.
+ *
+ */
 export class OrbitCameraController extends AbstractCameraController implements ICameraController {
   public dollyScale = 2.0;
   public scaleOfLengthCenterToCamera = 1.0;

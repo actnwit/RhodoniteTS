@@ -33,6 +33,10 @@ import { IQuaternion } from '../../math/IQuaternion';
 import { Quaternion } from '../../math/Quaternion';
 import { IVector3 } from '../../math/IVector';
 
+/**
+ * SceneGraphComponent is a component that represents a node in the scene graph.
+ *
+ */
 export class SceneGraphComponent extends Component {
   private __parent?: SceneGraphComponent;
   private __children: SceneGraphComponent[] = [];

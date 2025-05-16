@@ -4,6 +4,11 @@ import { AABB } from '../math/AABB';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 
+/**
+ * AbstractCameraController is an abstract class that defines the interface for camera controllers.
+ *
+ * @internal
+ */
 export abstract class AbstractCameraController {
   public zNearMax = 0.1;
   public zFarScalingFactor = 100000;

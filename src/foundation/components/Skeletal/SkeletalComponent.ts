@@ -23,6 +23,10 @@ import { Is } from '../../misc';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 import { Logger } from '../../misc/Logger';
 
+/**
+ * SkeletalComponent is a component that manages the skeletal animation of an entity.
+ *
+ */
 export class SkeletalComponent extends Component {
   public _jointIndices: Index[] = [];
   private __joints: SceneGraphComponent[] = [];

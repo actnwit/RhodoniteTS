@@ -10,6 +10,10 @@ import { OimoPhysicsStrategy } from '../../physics/Oimo/OimoPhysicsStrategy';
 import { IPhysicsEntity } from '../../helpers/EntityHelper';
 import { createGroupEntity } from '../SceneGraph/createGroupEntity';
 
+/**
+ * PhysicsComponent is a component that manages the physics of an entity.
+ *
+ */
 export class PhysicsComponent extends Component {
   private __strategy?: PhysicsStrategy;
 

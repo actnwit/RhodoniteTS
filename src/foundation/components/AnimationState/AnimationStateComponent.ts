@@ -8,6 +8,10 @@ import { IAnimationStateEntity, ISceneGraphEntity } from '../../helpers/EntityHe
 import { ComponentToComponentMethods } from '../ComponentTypes';
 import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
+/**
+ * AnimationStateComponent is a component that manages the state of an animation.
+ *
+ */
 export class AnimationStateComponent extends Component {
   private __activeAnimationTrack: AnimationTrackName = '';
   private __interpolationStartTime = performance.now();
