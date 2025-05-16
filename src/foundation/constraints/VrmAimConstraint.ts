@@ -3,6 +3,9 @@ import { Quaternion } from '../math';
 import { Vector3 } from '../math/Vector3';
 import { Is } from '../misc/Is';
 
+/**
+ * VrmAimConstraint is a constraint that aims a node at a target.
+ */
 export class VrmAimConstraint {
   private __srcEntity: ISceneGraphEntity;
   private __dstEntity: ISceneGraphEntity;

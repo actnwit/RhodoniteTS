@@ -2,6 +2,9 @@ import { ISceneGraphEntity } from '../helpers/EntityHelper';
 import { Quaternion } from '../math';
 import { IVrmConstraint } from './IVrmConstraint';
 
+/**
+ * VrmRotationConstraint is a constraint that rotates a node to match the rotation of another node.
+ */
 export class VrmRotationConstraint implements IVrmConstraint {
   private __srcEntity: ISceneGraphEntity;
   private __dstEntity: ISceneGraphEntity;

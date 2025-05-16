@@ -2,6 +2,9 @@ import { ISceneGraphEntity } from '../helpers';
 import { Quaternion } from '../math/Quaternion';
 import { Vector3 } from '../math/Vector3';
 
+/**
+ * VrmRollConstraint is a constraint that rolls a node around an axis.
+ */
 export class VrmRollConstraint {
   private __srcEntity: ISceneGraphEntity;
   private __dstEntity: ISceneGraphEntity;

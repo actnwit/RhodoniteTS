@@ -51,6 +51,10 @@ export class EntityRepository {
     return entity;
   }
 
+  /**
+   * Deletes an entity.
+   * @param entityUid - the entityUID of the entity to delete.
+   */
   public static deleteEntity(entityUid: EntityUID): void {
     if (Is.not.exist(this._components[entityUid])) {
       return;
@@ -72,6 +76,10 @@ export class EntityRepository {
     this.__updateCount++;
   }
 
+  /**
+   * Deletes an entity and all its child entities.
+   * @param entityUid - the entityUID of the entity to delete.
+   */
   public static deleteEntityRecursively(entityUid: EntityUID): void {
     const entity = this.getEntity(entityUid);
     const entities: IEntity[] = [];
@@ -95,6 +103,11 @@ export class EntityRepository {
     }
   }
 
+  /**
+   * Shallow copies an entity.
+   * @param entity - the entity to shallow copy.
+   * @returns the shallow copied entity.
+   */
   public static shallowCopyEntity(entity: IEntity): IEntity {
     const newEntity = EntityRepository._shallowCopyEntityInner(entity);
 
@@ -104,6 +117,10 @@ export class EntityRepository {
     return newEntity;
   }
 
+  /**
+   * Sets the joints to SkeletalComponent of entities.
+   * @param entity - the entity to set the joints of.
+   */
   private static __setJoints(entity: IEntity) {
     const newEntity = EntityRepository.getEntity(entity._myLatestCopyEntityUID);
     const skeletalComponentOfNew = newEntity.getComponentByComponentTID(
@@ -130,7 +147,12 @@ export class EntityRepository {
     }
   }
 
-  static _shallowCopyEntityInner(entity: IEntity) {
+  /**
+   * This is an internal function that shallow copies an entity.
+   * @param entity - the entity to shallow copy.
+   * @returns the shallow copied entity.
+   */
+  static _shallowCopyEntityInner(entity: IEntity): IEntity {
     const newEntity = this.createEntity();
     (newEntity as Entity)._tags = Object.assign({}, (entity as Entity)._tags);
 
@@ -148,6 +170,10 @@ export class EntityRepository {
     return newEntity;
   }
 
+  /**
+   * This is an internal function that handles the tag data of an entity.
+   * @param newEntity - the entity to handle the tag data of.
+   */
   private static __handleTagData(newEntity: Entity) {
     const tags = newEntity._tags;
     if (Is.exist(tags)) {
@@ -341,8 +367,8 @@ export class EntityRepository {
   }
 
   /**
-   * @internal
    * Gets all entities.
+   * @internal
    */
   public static _getEntities(): IEntity[] {
     return this.__entities.filter((entity) => entity != null && entity!._isAlive) as IEntity[];

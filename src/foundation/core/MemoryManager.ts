@@ -6,11 +6,7 @@ import { RnObject } from './RnObject';
 import { MiscUtil } from '../misc/MiscUtil';
 
 /**
- * Usage
- * const mm = MemoryManager.getInstance();
- * this.translate = new Vector3(
- *   mm.assignMem(componentUID, propertyId, entityUID, isRendered)
- * );
+ * MemoryManager is a class that manages the memory of the library.
  */
 export class MemoryManager {
   private static __instance: MemoryManager;

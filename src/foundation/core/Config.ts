@@ -1,3 +1,7 @@
+/**
+ * Config.ts is a configuration file that contains the configuration for the library.
+ */
+
 /* eslint-disable prefer-const */
 import { BoneDataType } from '../definitions/BoneDataType';
 import { MiscUtil } from '../misc';
@@ -39,6 +43,9 @@ if (typeof navigator !== 'undefined') {
   }
 }
 
+/**
+ * Config is a configuration object that contains the configuration for the library.
+ */
 export const Config = {
   maxEntityNumber,
   maxLightNumberInShader,
