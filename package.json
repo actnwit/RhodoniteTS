@@ -46,7 +46,7 @@
     "test-e2e-part": "npx vitest run --config ./config/test/vitest.config.e2e.ts",
     "test-e2e-update": "npm run test-e2e-part -- --update ./samples/test_e2e",
     "test-coverage": "npx vitest run --coverage",
-    "doc": "npx typedoc --exclude '**/*+(test|d).ts' --out ./docs/api/ ./src/",
+    "doc": "npx typedoc --exclude '**/*+(test|d).ts' --out ./docs/api-doc/ ./src/",
     "yarn-pack": "npx yarn pack -f rhodonite-tmp.tgz",
     "start": "node server.js",
     "create-VERSION-FILE": "npx shx touch VERSION-FILE",

@@ -21,4 +21,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Rhodonite-api-documents
-          path: docs/api
+          path: docs/api-doc
