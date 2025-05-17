@@ -15,6 +15,8 @@ import { Is } from '../../misc';
 import { Transform3D } from '../../math/Transform3D';
 import { MutableQuaternion } from '../../math/MutableQuaternion';
 import { MutableMatrix44 } from '../../math/MutableMatrix44';
+import { Vector3 } from '../../math/Vector3';
+import { Matrix44 } from '../../math';
 
 /**
  * TransformComponent is a component that manages the transform of an entity.
@@ -110,6 +112,20 @@ export class TransformComponent extends Component {
 
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
+    const sceneGraph = this.entity.tryToGetSceneGraph();
+    if (sceneGraph !== undefined) {
+      const parent = sceneGraph.parent;
+      if (parent !== undefined) {
+        sceneGraph.setPositionToPhysics(parent.matrixInner.multiplyVector3(vec));
+      } else {
+        sceneGraph.setPositionToPhysics(vec);
+      }
+    }
+    TransformComponent.__updateCount++;
+  }
+
+  set localPositionWithoutPhysics(vec: IVector3) {
+    this.__pose.position = vec;
     TransformComponent.__updateCount++;
   }
 
@@ -159,6 +175,33 @@ export class TransformComponent extends Component {
 
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
+    const sceneGraph = this.entity.tryToGetSceneGraph();
+    if (sceneGraph !== undefined) {
+      const sx = Math.sin(vec._v[0] * 0.5);
+      const cx = Math.cos(vec._v[0] * 0.5);
+      const sy = Math.sin(vec._v[1] * 0.5);
+      const cy = Math.cos(vec._v[1] * 0.5);
+      const sz = Math.sin(vec._v[2] * 0.5);
+      const cz = Math.cos(vec._v[2] * 0.5);
+
+      const rotation = MutableQuaternion.fromCopy4(
+        sx * cy * cz - cx * sy * sz,
+        cx * sy * cz + sx * cy * sz,
+        cx * cy * sz - sx * sy * cz,
+        cx * cy * cz + sx * sy * sz
+      );
+      const parent = sceneGraph.parent;
+      if (parent !== undefined) {
+        sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotation, rotation));
+      } else {
+        sceneGraph.setRotationToPhysics(rotation);
+      }
+    }
+    TransformComponent.__updateCount++;
+  }
+
+  set localEulerAnglesWithoutPhysics(vec: IVector3) {
+    this.__pose.eulerAngles = vec;
     TransformComponent.__updateCount++;
   }
 
@@ -202,6 +245,21 @@ export class TransformComponent extends Component {
   }
 
   set localScale(vec: IVector3) {
+    this.__pose.scale = vec;
+
+    const sceneGraph = this.entity.tryToGetSceneGraph();
+    if (sceneGraph !== undefined) {
+      const parent = sceneGraph.parent;
+      if (parent !== undefined) {
+        sceneGraph.setScaleToPhysics(Vector3.multiplyVector(parent.matrixInner.getScale(), vec));
+      } else {
+        sceneGraph.setScaleToPhysics(vec);
+      }
+    }
+    TransformComponent.__updateCount++;
+  }
+
+  set localScaleWithoutPhysics(vec: IVector3) {
     this.__pose.scale = vec;
     TransformComponent.__updateCount++;
   }
@@ -251,6 +309,20 @@ export class TransformComponent extends Component {
   }
 
   set localRotation(quat: IQuaternion) {
+    this.__pose.rotation = quat;
+    const sceneGraph = this.entity.tryToGetSceneGraph();
+    if (sceneGraph !== undefined) {
+      const parent = sceneGraph.parent;
+      if (parent !== undefined) {
+        sceneGraph.setRotationToPhysics(Quaternion.multiply(parent.rotation, quat));
+      } else {
+        sceneGraph.setRotationToPhysics(quat);
+      }
+    }
+    TransformComponent.__updateCount++;
+  }
+
+  set localRotationWithoutPhysics(quat: IQuaternion) {
     this.__pose.rotation = quat;
     TransformComponent.__updateCount++;
   }

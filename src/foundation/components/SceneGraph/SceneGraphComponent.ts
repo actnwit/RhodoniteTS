@@ -768,20 +768,23 @@ export class SceneGraphComponent extends Component {
 
   setPositionWithoutPhysics(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().localPosition = vec;
+      this.entity.getTransform().localPositionWithoutPhysics = vec;
     } else {
       MutableMatrix44.invertTo(
         this.__parent.entity.getSceneGraph().matrixInner,
         SceneGraphComponent.__tmp_mat4
       );
-      this.entity.getTransform().localPosition =
+      this.entity.getTransform().localPositionWithoutPhysics =
         SceneGraphComponent.__tmp_mat4.multiplyVector3(vec);
     }
   }
 
   set position(vec: IVector3) {
     this.setPositionWithoutPhysics(vec);
+    this.setPositionToPhysics(vec);
+  }
 
+  setPositionToPhysics(vec: IVector3) {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
@@ -813,15 +816,18 @@ export class SceneGraphComponent extends Component {
 
   set eulerAngles(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().localEulerAngles = vec;
+      this.entity.getTransform().localEulerAnglesWithoutPhysics = vec;
     } else {
       const quat = Quaternion.fromMatrix(this.__parent.entity.getSceneGraph().matrixInner);
       const invQuat = Quaternion.invert(quat);
       const rotation = Quaternion.fromMatrix(Matrix44.rotate(vec));
       const result = Quaternion.multiply(rotation, invQuat);
-      this.entity.getTransform().localEulerAngles = result.toEulerAngles();
+      this.entity.getTransform().localEulerAnglesWithoutPhysics = result.toEulerAngles();
     }
+    this.setEulerAnglesToPhysics(vec);
+  }
 
+  setEulerAnglesToPhysics(vec: IVector3) {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
@@ -841,17 +847,20 @@ export class SceneGraphComponent extends Component {
 
   setRotationWithoutPhysics(quat: IQuaternion) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().localRotation = quat;
+      this.entity.getTransform().localRotationWithoutPhysics = quat;
     } else {
       const quatInner = this.__parent.entity.getSceneGraph().rotation;
       const invQuat = Quaternion.invert(quatInner);
-      this.entity.getTransform().localRotation = Quaternion.multiply(quat, invQuat);
+      this.entity.getTransform().localRotationWithoutPhysics = Quaternion.multiply(quat, invQuat);
     }
   }
 
   set rotation(quat: IQuaternion) {
     this.setRotationWithoutPhysics(quat);
+    this.setRotationToPhysics(quat);
+  }
 
+  setRotationToPhysics(quat: IQuaternion) {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
@@ -912,16 +921,19 @@ export class SceneGraphComponent extends Component {
 
   set scale(vec: IVector3) {
     if (Is.not.exist(this.__parent)) {
-      this.entity.getTransform().localScale = vec;
+      this.entity.getTransform().localScaleWithoutPhysics = vec;
     } else {
       const mat = this.__parent.entity.getSceneGraph().matrix;
       mat._v[12] = 0;
       mat._v[13] = 0;
       mat._v[14] = 0;
       const invMat = MutableMatrix44.invert(mat);
-      this.entity.getTransform().localScale = invMat.multiplyVector3(vec);
+      this.entity.getTransform().localScaleWithoutPhysics = invMat.multiplyVector3(vec);
     }
+    this.setScaleToPhysics(vec);
+  }
 
+  setScaleToPhysics(vec: IVector3) {
     const physicsComponent = this.entity.tryToGetPhysics();
     if (physicsComponent !== undefined) {
       if (physicsComponent.strategy !== undefined) {
