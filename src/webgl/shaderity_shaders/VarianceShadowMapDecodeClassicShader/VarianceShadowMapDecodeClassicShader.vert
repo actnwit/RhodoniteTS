@@ -26,11 +26,7 @@ out vec3 v_baryCentricCoord;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+/* shaderity: @{processGeometry} */
 
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
@@ -40,7 +36,7 @@ void main(){
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
 
   bool isSkinning = false;
-  isSkinning = processGeometryWithMorphingAndSkinning(
+  isSkinning = processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,

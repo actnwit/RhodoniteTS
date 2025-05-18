@@ -22,11 +22,7 @@ out vec4 v_position_inWorld;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+/* shaderity: @{processGeometry} */
 
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)

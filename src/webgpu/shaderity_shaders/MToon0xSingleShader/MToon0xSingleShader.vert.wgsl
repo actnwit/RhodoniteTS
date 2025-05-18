@@ -4,11 +4,10 @@
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{processGeometry} */
 
 // This shader is based on https://github.com/Santarh/MToon
 
-#pragma shaderity: require(../common/getSkinMatrix.wgsl)
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
 @vertex
 fn main(
@@ -51,7 +50,7 @@ fn main(
   let viewMatrix = get_viewMatrix(cameraSID, 0);
   let skeletalComponentSID = i32(instance_ids.y);
   let blendShapeComponentSID = u32(instance_ids.z);
-  let geom = processGeometryWithMorphingAndSkinning(
+  let geom = processGeometry(
     skeletalComponentSID,
     blendShapeComponentSID,
     worldMatrix,

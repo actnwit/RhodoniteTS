@@ -23,12 +23,7 @@ out float v_instanceInfo;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
-
+/* shaderity: @{processGeometry} */
 
 void main()
 {
@@ -40,7 +35,7 @@ void main()
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
 
   // Skeletal
-  processGeometryWithMorphingAndSkinning(
+  processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,

@@ -7,7 +7,6 @@ import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { DataUtil } from '../../misc/DataUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { SystemState } from '../../system/SystemState';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
@@ -18,6 +17,9 @@ import { ModuleManager } from '../../system/ModuleManager';
 import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
 import { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
+import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
+import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
+import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -176,6 +178,7 @@ export function _createProgramAsSingleOperationWebGL(
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       matricesGetters: vertexShaderMethodDefinitions_uniform,
+      processGeometry: processGeometryGlsl.code,
     }
   );
 
@@ -297,7 +300,7 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
-  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
       getters: vertexPropertiesStr,
@@ -308,6 +311,7 @@ export function _createProgramAsSingleOperationWebGpu(
         Math.ceil(
           (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
         ),
+      processGeometry: processGeometryWgsl.code,
     }
   );
 
@@ -319,7 +323,7 @@ export function _createProgramAsSingleOperationWebGpu(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
 
-  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
       getters: pixelPropertiesStr,

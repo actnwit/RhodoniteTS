@@ -28,11 +28,7 @@ uniform float u_farPlane; // initialValue=1000.0
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+/* shaderity: @{processGeometry} */
 
 void main()
 {
@@ -55,7 +51,7 @@ void main()
 
   bool isSkinning = false;
 
-  isSkinning = processGeometryWithMorphingAndSkinning(
+  isSkinning = processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,

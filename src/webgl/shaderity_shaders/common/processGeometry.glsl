@@ -135,4 +135,99 @@ mat4 getSkinMatrix(float skeletalComponentSID) {
 #endif
   return skinMat;
 }
+
+mat3 toNormalMatrix(mat4 m) {
+  float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3],
+  a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3],
+  a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3],
+  a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
+
+  float b00 = a00 * a11 - a01 * a10,
+  b01 = a00 * a12 - a02 * a10,
+  b02 = a00 * a13 - a03 * a10,
+  b03 = a01 * a12 - a02 * a11,
+  b04 = a01 * a13 - a03 * a11,
+  b05 = a02 * a13 - a03 * a12,
+  b06 = a20 * a31 - a21 * a30,
+  b07 = a20 * a32 - a22 * a30,
+  b08 = a20 * a33 - a23 * a30,
+  b09 = a21 * a32 - a22 * a31,
+  b10 = a21 * a33 - a23 * a31,
+  b11 = a22 * a33 - a23 * a32;
+
+  float determinantVal = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+  return mat3(
+    a11 * b11 - a12 * b10 + a13 * b09, a12 * b08 - a10 * b11 - a13 * b07, a10 * b10 - a11 * b08 + a13 * b06,
+    a02 * b10 - a01 * b11 - a03 * b09, a00 * b11 - a02 * b08 + a03 * b07, a01 * b08 - a00 * b10 - a03 * b06,
+    a31 * b05 - a32 * b04 + a33 * b03, a32 * b02 - a30 * b05 - a33 * b01, a30 * b04 - a31 * b02 + a33 * b00) / determinantVal;
+}
+
+bool skinning(
+  float skeletalComponentSID,
+  in mat3 inNormalMatrix,
+  out mat3 outNormalMatrix,
+  in vec3 inPosition_inLocal,
+  out vec4 outPosition_inWorld,
+  in vec3 inNormal_inLocal,
+  out vec3 outNormal_inWorld
+  )
+{
+  mat4 skinMat = getSkinMatrix(skeletalComponentSID);
+  outPosition_inWorld = skinMat * vec4(inPosition_inLocal, 1.0);
+  outNormalMatrix = toNormalMatrix(skinMat);
+  outNormal_inWorld = normalize(outNormalMatrix * inNormal_inLocal);
+
+  return true;
+}
 #endif
+
+bool processGeometry(
+  float skeletalComponentSID,
+  in mat4 worldMatrix,
+  in mat4 viewMatrix,
+  in bool isBillboard,
+  in mat3 inNormalMatrix,
+  out mat3 outNormalMatrix,
+  in vec3 inPosition_inLocal,
+  out vec4 outPosition_inWorld,
+  in vec3 inNormal_inLocal,
+  out vec3 outNormal_inWorld
+) {
+  bool isSkinning = false;
+
+  vec3 position_inLocal;
+#ifdef RN_IS_MORPHING
+  if (u_morphTargetNumber == 0) {
+#endif
+    position_inLocal = inPosition_inLocal;
+#ifdef RN_IS_MORPHING
+  } else {
+    float vertexIdx = a_baryCentricCoord.w;
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal);
+  }
+#endif
+
+  mat4 worldMatrixInner = worldMatrix;
+  if (isBillboard) {
+    mat4 inverseViewMatrix = inverse(viewMatrix);
+    inverseViewMatrix[3][0] = 0.0;//worldMatrix[3][0];
+    inverseViewMatrix[3][1] = 0.0;//worldMatrix[3][1];
+    inverseViewMatrix[3][2] = 0.0;//worldMatrix[3][2];
+    worldMatrixInner = inverseViewMatrix * worldMatrix;
+  }
+
+#ifdef RN_IS_SKINNING
+  if (skeletalComponentSID >= 0.0) {
+    isSkinning = skinning(skeletalComponentSID, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
+  } else {
+#endif
+    outNormalMatrix = inNormalMatrix;
+    outPosition_inWorld = worldMatrixInner * vec4(position_inLocal, 1.0);
+    outNormal_inWorld = normalize(inNormalMatrix * inNormal_inLocal);
+#ifdef RN_IS_SKINNING
+  }
+#endif
+
+  return isSkinning;
+}

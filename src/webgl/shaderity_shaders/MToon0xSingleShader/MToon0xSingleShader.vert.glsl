@@ -34,11 +34,7 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+/* shaderity: @{processGeometry} */
 
 void main(){
   #ifdef RN_MTOON_IS_OUTLINE
@@ -53,7 +49,7 @@ void main(){
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   bool isSkinning = false;
-  isSkinning = processGeometryWithMorphingAndSkinning(
+  isSkinning = processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,
