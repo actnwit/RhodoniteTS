@@ -18,6 +18,7 @@ fn main(
   let instanceId = u32(instance_ids.x);
   let worldMatrix = get_worldMatrix(instanceId);
   let normalMatrix = get_normalMatrix(instanceId);
+  let isBillboard = get_isBillboard(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID, 0);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0);
 
@@ -49,7 +50,7 @@ fn main(
     blendShapeComponentSID,
     worldMatrix,
     viewMatrix,
-    false,
+    isBillboard,
     normalMatrix,
     position,
     normal,

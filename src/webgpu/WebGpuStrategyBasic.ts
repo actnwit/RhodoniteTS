@@ -105,6 +105,19 @@ fn get_isVisible(instanceId: u32) -> bool {
   }
 }
 
+fn get_isBillboard(instanceId: u32) -> bool {
+  let index: u32 = ${Component.getLocationOffsetOfMemberOfComponent(
+    SceneGraphComponent,
+    'isBillboard'
+  )}u * 4u + instanceId;
+  let isBillboard = fetchScalarNo16BytesAligned(index);
+  if (isBillboard > 0.5) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 #ifdef RN_IS_VERTEX_SHADER
   #ifdef RN_IS_MORPHING
   fn get_position(vertexId: u32, basePosition: vec3<f32>, blendShapeComponentSID: u32) -> vec3<f32> {
