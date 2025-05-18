@@ -16,7 +16,7 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-#pragma shaderity: require(../common/opticalDefinition.wgsl)
+/* shaderity: @{opticalDefinition} */
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
 #pragma shaderity: require(../common/pbrDefinition.wgsl)
 
