@@ -6,7 +6,7 @@
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

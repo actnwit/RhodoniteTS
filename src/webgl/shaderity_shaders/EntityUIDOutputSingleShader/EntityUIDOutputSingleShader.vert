@@ -17,7 +17,9 @@ out vec4 v_position_inWorld;
 out vec2 v_texcoord_0;
 out float v_instanceInfo;
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

@@ -4,7 +4,7 @@
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 in vec4 a_instanceInfo;
 in vec2 a_texcoord_0;

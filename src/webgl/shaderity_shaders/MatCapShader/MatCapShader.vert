@@ -16,7 +16,9 @@ out vec3 v_normal_inView;
 out vec3 v_normal_inWorld;
 out vec4 v_position_inWorld;
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

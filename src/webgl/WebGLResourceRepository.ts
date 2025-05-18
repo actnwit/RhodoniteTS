@@ -574,7 +574,6 @@ export class WebGLResourceRepository
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as RnWebGLProgram;
     const gl = this.currentWebGLContextWrapper!.getRawContext();
     (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-    (shaderProgram as any).isMainVr = gl.getUniformLocation(shaderProgram, 'u_isMainVr');
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
       shaderProgram,
       'u_currentComponentSIDs'

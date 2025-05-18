@@ -4,7 +4,7 @@
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;

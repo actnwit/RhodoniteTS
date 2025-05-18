@@ -19,8 +19,9 @@ out vec2 v_texcoord_0;
 out vec4 v_texcoord_1;
 out vec4 v_projPosition_from_light;
 
+#pragma shaderity: require(../common/morphVariables.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

@@ -22,7 +22,9 @@ uniform bool u_frontHemisphere; // initialValue=true
 uniform int u_lightIndex; // initialValue=0
 uniform float u_farPlane; // initialValue=1000.0
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

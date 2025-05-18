@@ -27,8 +27,9 @@ out vec3 v_tangent_inWorld;
 out vec3 v_binormal_inWorld; // bitangent_inWorld
 #endif
 
+#pragma shaderity: require(../common/morphVariables.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

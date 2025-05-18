@@ -50,7 +50,7 @@
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 in vec2 v_texcoord_0;
 

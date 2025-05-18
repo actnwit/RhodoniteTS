@@ -21,7 +21,9 @@ out vec3 v_baryCentricCoord;
 uniform float u_pointSize; // initialValue=30
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

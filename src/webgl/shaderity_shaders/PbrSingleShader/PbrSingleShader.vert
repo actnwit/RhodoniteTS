@@ -39,7 +39,10 @@ uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloD
 #ifdef RN_USE_SHADOW_MAPPING
   uniform int u_lightIndex; // initialValue=0
 #endif
-#pragma shaderity: require(../common/prerequisites.glsl)
+
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

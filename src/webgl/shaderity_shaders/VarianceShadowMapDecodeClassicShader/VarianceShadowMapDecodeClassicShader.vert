@@ -20,7 +20,9 @@ out vec4 v_texcoord_1;
 out vec4 v_projPosition_from_light;
 out vec3 v_baryCentricCoord;
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

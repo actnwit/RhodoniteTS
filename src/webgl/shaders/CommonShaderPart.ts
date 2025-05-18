@@ -2,7 +2,6 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
-import prerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/prerequisites.glsl';
 import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import prerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/prerequisites.wgsl';
@@ -128,7 +127,7 @@ ${prerequisitesShaderityObjectWGSL.code}
 #version 300 es
 precision highp float;
 precision highp int;
-${prerequisitesShaderityObjectGLSL.code}
+/* shaderity: @{prerequisites} */
 
 ${in_} vec4 a_instanceInfo;\n`;
       vertexShaderPrerequisites += `
@@ -206,7 +205,7 @@ ${prerequisitesShaderityObjectWGSL.code}
       #version 300 es
       precision highp float;
       precision highp int;
-      ${prerequisitesShaderityObjectGLSL.code}
+      /* shaderity: @{prerequisites} */
       `;
       pixelShaderPrerequisites += '/* shaderity: @{getters} */';
       pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';

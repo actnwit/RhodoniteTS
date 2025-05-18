@@ -4,7 +4,7 @@
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 in vec2 v_texcoord_0;
 in vec3 v_color;

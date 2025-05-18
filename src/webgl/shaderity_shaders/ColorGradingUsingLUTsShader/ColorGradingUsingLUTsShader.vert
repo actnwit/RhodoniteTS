@@ -8,7 +8,9 @@ in vec3 a_position;
 
 out vec2 v_texcoord;
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

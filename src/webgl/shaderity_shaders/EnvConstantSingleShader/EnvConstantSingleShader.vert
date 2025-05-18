@@ -21,7 +21,7 @@ out vec3 v_position_inWorld;
 
 uniform bool u_enableViewMatrix; // initialValue=true
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

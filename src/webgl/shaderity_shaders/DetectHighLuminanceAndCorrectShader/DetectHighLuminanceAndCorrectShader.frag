@@ -4,7 +4,7 @@
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 

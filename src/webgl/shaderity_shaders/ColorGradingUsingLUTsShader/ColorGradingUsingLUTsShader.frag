@@ -6,7 +6,7 @@ in vec2 v_texcoord;
 
 #pragma shaderity: require(../common/rt0.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
