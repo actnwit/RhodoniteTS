@@ -5,7 +5,6 @@
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
 // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader

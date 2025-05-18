@@ -35,10 +35,6 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
 
 uniform int u_outlineWidthMode; // initialValue=0

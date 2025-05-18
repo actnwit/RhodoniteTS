@@ -5,7 +5,6 @@
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/getSkinMatrix.wgsl)
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
 // #param frontHemisphere: bool; // initialValue=true

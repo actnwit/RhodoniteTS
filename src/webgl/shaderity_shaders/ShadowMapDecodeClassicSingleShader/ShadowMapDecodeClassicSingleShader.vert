@@ -26,10 +26,6 @@ out vec4 v_projPosition_from_light;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/toNormalMatrix.glsl)
-
-#pragma shaderity: require(../common/getSkinMatrix.glsl)
-
 #pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
 
 void main(){
