@@ -23,11 +23,12 @@ import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTe
 import { TextureParameter } from '../../definitions';
 import { Sampler } from '../../textures/Sampler';
 import { Logger } from '../../misc/Logger';
+import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 export type FillArgsObject = {
-  [key: string]: string;
+  [key: string]: string | object;
 };
 
 export type VertexAttributesLayout = {
@@ -44,12 +45,18 @@ export class ShaderityUtilityWebGPU {
     shaderityObject: ShaderityObject,
     args: FillArgsObject
   ): ShaderityObject {
-    const templateObject = Object.assign(args, {
-      WellKnownComponentTIDs,
-      Config,
-    }) as TemplateObject;
 
-    return Shaderity.fillTemplate(shaderityObject, templateObject);
+    const step1 = Shaderity.fillTemplate(shaderityObject, args);
+
+    const templateObject = {
+      maxMorphDataNumber:
+      '' +
+      Math.ceil(
+        (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+      ),
+    } as unknown as TemplateObject;
+
+    return Shaderity.fillTemplate(step1, templateObject);
   }
 
   public static getShaderDataReflection(shaderityObject: ShaderityObject): {

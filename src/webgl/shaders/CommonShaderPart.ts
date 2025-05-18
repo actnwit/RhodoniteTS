@@ -4,7 +4,6 @@ import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
 import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
-import prerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/prerequisites.wgsl';
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import mainPrerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
@@ -115,7 +114,7 @@ struct VertexOutput {
   ${varyingVariables}
 }
 
-${prerequisitesShaderityObjectWGSL.code}
+/* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 `;
@@ -194,7 +193,7 @@ struct VertexOutput {
   ${varyingVariables}
 }
 
-${prerequisitesShaderityObjectWGSL.code}
+/* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 `;

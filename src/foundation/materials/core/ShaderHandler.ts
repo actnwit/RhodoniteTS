@@ -22,6 +22,7 @@ import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/pr
 import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
 import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
+import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -307,15 +308,13 @@ export function _createProgramAsSingleOperationWebGpu(
   const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
+      WellKnownComponentTIDs,
+      prerequisites: prerequisitesWgsl.code,
       getters: vertexPropertiesStr,
       definitions: '// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n' + definitions,
       matricesGetters: vertexShaderMethodDefinitions,
-      maxMorphDataNumber:
-        '' +
-        Math.ceil(
-          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
-        ),
       processGeometry: processGeometryWgsl.code,
+      Config,
     }
   );
 
@@ -330,14 +329,12 @@ export function _createProgramAsSingleOperationWebGpu(
   const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
+      WellKnownComponentTIDs,
+      prerequisites: prerequisitesWgsl.code,
       getters: pixelPropertiesStr,
       definitions: '// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n' + definitions + alphaMode,
       matricesGetters: vertexShaderMethodDefinitions,
-      maxMorphDataNumber:
-        '' +
-        Math.ceil(
-          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
-        ),
+      Config,
     }
   );
 
