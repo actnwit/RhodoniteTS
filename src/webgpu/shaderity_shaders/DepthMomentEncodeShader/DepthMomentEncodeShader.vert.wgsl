@@ -4,8 +4,7 @@
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
+/* shaderity: @{processGeometry} */
 
 @vertex
 fn main(

@@ -4,8 +4,7 @@
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
+/* shaderity: @{processGeometry} */
 
 // BiasMatrix * LightProjectionMatrix * LightViewMatrix, See: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/#basic-shader
 // #param depthBiasPV: mat4x4<f32>; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)

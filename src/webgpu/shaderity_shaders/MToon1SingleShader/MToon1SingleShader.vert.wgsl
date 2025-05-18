@@ -4,10 +4,9 @@
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{processGeometry} */
 
 // This shader is based on https://github.com/Santarh/MToon
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
 // #param outlineWidthMode: i32; // initialValue=0
 // #param outlineWidthFactor: f32; // initialValue=0.0008

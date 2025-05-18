@@ -4,10 +4,10 @@
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
+/* shaderity: @{processGeometry} */
 
 // This shader is based on https://github.com/Santarh/MToon
 
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
 
 @vertex
 fn main(

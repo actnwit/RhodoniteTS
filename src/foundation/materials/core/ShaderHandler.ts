@@ -7,7 +7,6 @@ import { Config } from '../../core/Config';
 import { BoneDataType } from '../../definitions/BoneDataType';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
-import { DataUtil } from '../../misc/DataUtil';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
 import { SystemState } from '../../system/SystemState';
 import { AbstractMaterialContent } from './AbstractMaterialContent';
@@ -19,6 +18,7 @@ import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
 import { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
+import { processGeometry } from '../../../webgpu/shaderity_shaders/common/processGeometry';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -309,6 +309,7 @@ export function _createProgramAsSingleOperationWebGpu(
         Math.ceil(
           (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
         ),
+      processGeometry: processGeometry.code,
     }
   );
 

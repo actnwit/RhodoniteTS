@@ -4,8 +4,7 @@
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
-
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.wgsl)
+/* shaderity: @{processGeometry} */
 
 // #param frontHemisphere: bool; // initialValue=true
 // #param lightIndex: u32; // initialValue=0
