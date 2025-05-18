@@ -34,7 +34,7 @@ out vec3 v_binormal_inWorld; // bitangent_inWorld
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+#pragma shaderity: require(../common/processGeometry.glsl)
 
 void main(){
   #ifdef RN_MTOON_IS_OUTLINE

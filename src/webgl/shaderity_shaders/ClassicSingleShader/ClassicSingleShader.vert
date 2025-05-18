@@ -35,7 +35,7 @@ uniform mat4 u_depthBiasPV; // initialValue=(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+#pragma shaderity: require(../common/processGeometry.glsl)
 
 void main()
 {

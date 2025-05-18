@@ -26,7 +26,7 @@ out vec3 v_baryCentricCoord;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometryWithSkinningOptionally.glsl)
+#pragma shaderity: require(../common/processGeometry.glsl)
 
 void main(){
 #pragma shaderity: require(../common/mainPrerequisites.glsl)
