@@ -18,6 +18,7 @@ import { ModuleManager } from '../../system/ModuleManager';
 import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
 import { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
+import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -297,7 +298,7 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += '#define RN_BONE_DATA_TYPE_VEC4X1\n';
   }
 
-  const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+  const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
       getters: vertexPropertiesStr,
@@ -319,7 +320,7 @@ export function _createProgramAsSingleOperationWebGpu(
     alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
   }
 
-  const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
+  const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
       getters: pixelPropertiesStr,
