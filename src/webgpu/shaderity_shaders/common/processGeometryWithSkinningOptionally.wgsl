@@ -101,6 +101,13 @@ fn processGeometryWithMorphingAndSkinning(
 #endif
 
   var worldMatrixInner = worldMatrix;
+  if (isBillboard) {
+    var inverseViewMatrix = inverse4x4(viewMatrix);
+    inverseViewMatrix[3][0] = 0.0;
+    inverseViewMatrix[3][1] = 0.0;
+    inverseViewMatrix[3][2] = 0.0;
+    worldMatrixInner = inverseViewMatrix * worldMatrix;
+  }
 
 #ifdef RN_IS_SKINNING
   if (skeletalComponentSID >= 0) {
