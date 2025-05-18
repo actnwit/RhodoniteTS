@@ -33,7 +33,7 @@ vec4 encodeDepthToRGBA(float depth){
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float framebufferSize;
   vec2 offset = gl_FragCoord.st;

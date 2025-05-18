@@ -25,7 +25,7 @@ out vec4 v_position_inWorld;
 /* shaderity: @{processGeometry} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
 #pragma shaderity: require(../common/simpleMVPPosition.glsl)
 

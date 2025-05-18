@@ -29,7 +29,7 @@ out float v_instanceInfo;
 
 void main()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);

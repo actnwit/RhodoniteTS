@@ -27,7 +27,7 @@ out vec4 v_position_inWorld;
 /* shaderity: @{processGeometry} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);

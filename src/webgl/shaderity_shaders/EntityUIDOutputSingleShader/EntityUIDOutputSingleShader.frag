@@ -19,7 +19,7 @@ in float v_instanceInfo;
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   rt0 = encodeFloatRGBA(v_instanceInfo);
 

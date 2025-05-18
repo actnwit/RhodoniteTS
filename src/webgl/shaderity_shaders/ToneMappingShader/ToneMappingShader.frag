@@ -146,7 +146,7 @@ float GT_ToneMaping(float x) {
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
 vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 

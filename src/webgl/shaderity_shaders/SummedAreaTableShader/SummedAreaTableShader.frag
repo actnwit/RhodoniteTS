@@ -18,7 +18,7 @@ uniform float u_direction; // initialValue=0.0
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
 float i = get_count(materialSID, 0);
 float dir = get_direction(materialSID, 0);

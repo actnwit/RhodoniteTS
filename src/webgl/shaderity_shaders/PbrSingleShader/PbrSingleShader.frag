@@ -225,7 +225,7 @@ vec2 getTexcoord(int texcoordIndex) {
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // View direction
   vec3 viewPosition = get_viewPosition(cameraSID, 0);

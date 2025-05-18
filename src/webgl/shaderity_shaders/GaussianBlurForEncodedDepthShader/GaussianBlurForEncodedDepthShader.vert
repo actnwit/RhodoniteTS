@@ -15,6 +15,6 @@ out vec2 v_texcoord_0;
 /* shaderity: @{matricesGetters} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 #pragma shaderity: require(../common/fullscreen.glsl)
 }

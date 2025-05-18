@@ -28,7 +28,7 @@ uniform bool u_enableViewMatrix; // initialValue=true
 /* shaderity: @{matricesGetters} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);

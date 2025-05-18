@@ -26,7 +26,7 @@ vec4 encodeDepthToRGBA(float depth){
 
 void main (){
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
   float depth;
   bool isPointLight = get_isPointLight(materialSID, 0);
   if(isPointLight){

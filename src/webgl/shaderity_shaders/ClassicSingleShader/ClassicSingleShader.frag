@@ -41,7 +41,7 @@ uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);

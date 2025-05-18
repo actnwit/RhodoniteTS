@@ -117,7 +117,7 @@ vec2 uvAnimation(vec2 origUv, float time, float uvAnimMask, float uvAnimationScr
 #pragma shaderity: require(../common/perturbedNormal.glsl)
 
 void main() {
-  #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  /* shaderity: @{mainPrerequisites} */
 
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
 

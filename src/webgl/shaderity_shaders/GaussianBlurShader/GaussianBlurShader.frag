@@ -15,7 +15,7 @@ in vec2 v_texcoord_0;
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 offset = gl_FragCoord.st;
   ivec2 vrState = get_vrState(0.0, 0);

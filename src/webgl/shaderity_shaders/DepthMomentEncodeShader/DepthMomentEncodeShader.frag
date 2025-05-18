@@ -17,7 +17,7 @@ in vec4 v_position_inWorld;
 
 void main (){
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float depth = gl_FragCoord.z;
   float dx = dFdx(depth);

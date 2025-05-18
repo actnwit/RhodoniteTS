@@ -31,7 +31,7 @@ uniform float u_diffuseColorTextureRotation; // initialValue=0
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
 #pragma shaderity: require(../common/alphaMask.glsl)
 

@@ -270,7 +270,7 @@ float whiteFurnaceTest(float roughness, float NoV, float f0, int g_type, int dis
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 quadSizeInPixel = get_screenInfo(materialSID, 0);
   float roughness = 0.0;

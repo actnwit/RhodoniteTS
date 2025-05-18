@@ -34,7 +34,7 @@ uniform vec3 u_pointDistanceAttenuation; // initialValue=(0,0.1,0.01)
 void main()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);

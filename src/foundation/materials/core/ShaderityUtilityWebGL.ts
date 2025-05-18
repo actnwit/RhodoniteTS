@@ -17,6 +17,7 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 import { Logger } from '../../misc/Logger';
 import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
@@ -39,6 +40,7 @@ export class ShaderityUtilityWebGL {
     const step1 = Shaderity.fillTemplate(shaderityObject, args);
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const templateObject = {
+      WellKnownComponentTIDs,
       widthOfDataTexture: `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`,
       heightOfDataTexture: `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`,
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),

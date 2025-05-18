@@ -22,7 +22,7 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec3 normal_inView = normalize(v_normal_inView);
   normal_inView.y *= -1.0;

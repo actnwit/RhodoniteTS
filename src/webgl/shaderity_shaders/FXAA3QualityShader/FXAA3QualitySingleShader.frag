@@ -1130,7 +1130,7 @@ uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 screenInfo = vec2(textureSize(u_baseColorTexture, 0));
   rt0 = FxaaPixelShader(

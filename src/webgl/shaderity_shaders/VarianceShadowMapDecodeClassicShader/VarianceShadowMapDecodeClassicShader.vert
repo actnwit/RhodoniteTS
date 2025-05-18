@@ -31,7 +31,7 @@ out vec3 v_baryCentricCoord;
 /* shaderity: @{processGeometry} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);

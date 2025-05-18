@@ -21,7 +21,7 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float synthesizeCoefficient0 = u_synthesizeCoefficient[0];
   vec4 color = synthesizeCoefficient0 * texture(u_synthesizeTexture0, v_texcoord_0);

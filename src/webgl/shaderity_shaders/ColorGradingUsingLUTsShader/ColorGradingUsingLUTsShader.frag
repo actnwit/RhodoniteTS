@@ -12,7 +12,7 @@ in vec2 v_texcoord;
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec4 textureColor = texture(u_baseColorTexture, v_texcoord);
 

@@ -218,7 +218,7 @@ vec3 uvToDir(int faceId, vec2 uv)
 // learned a lot from https://github.com/KhronosGroup/glTF-Sample-Viewer
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 uv = v_texcoord_0 * 2.0 - 1.0;
   vec3 scan = uvToDir(get_cubeMapFaceId(materialSID, 0), uv);

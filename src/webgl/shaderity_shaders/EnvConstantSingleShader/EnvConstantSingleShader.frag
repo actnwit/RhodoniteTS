@@ -31,7 +31,7 @@ vec3 srgbToLinear(vec3 srgbColor) {
 }
 
 void main() {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // diffuseColor
   vec3 diffuseColor = vec3(0.0, 0.0, 0.0);

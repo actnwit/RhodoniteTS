@@ -68,7 +68,7 @@ void main (){
     #endif
   #endif
 
-  #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  /* shaderity: @{mainPrerequisites} */
 
   // uv animation
   float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).r;

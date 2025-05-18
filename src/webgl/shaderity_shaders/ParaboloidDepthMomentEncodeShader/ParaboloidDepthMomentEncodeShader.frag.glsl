@@ -18,7 +18,7 @@ uniform bool u_frontHemisphere; // initialValue=true
 
 void main (){
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float denom = v_position_inWorld.w;
   if (denom < 0.0) {

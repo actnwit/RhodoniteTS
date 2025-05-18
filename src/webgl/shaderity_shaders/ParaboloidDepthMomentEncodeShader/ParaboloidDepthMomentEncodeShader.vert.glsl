@@ -35,7 +35,7 @@ uniform float u_farPlane; // initialValue=1000.0
 void main()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   bool visibility = get_isVisible(a_instanceInfo.x);
   if (!visibility)
