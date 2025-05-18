@@ -28,7 +28,7 @@ in float v_instanceInfo;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/iblDefinition.glsl)
+/* shaderity: @{iblDefinition} */
 
 uniform bool u_inverseEnvironment; // initialValue=false
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true

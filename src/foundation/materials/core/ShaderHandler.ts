@@ -27,6 +27,7 @@ import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/o
 import { opticalDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/opticalDefinition';
 import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
 import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
+import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDefinition';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -202,6 +203,7 @@ export function _createProgramAsSingleOperationWebGL(
       renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
       opticalDefinition: opticalDefinitionGlsl.code,
       pbrDefinition: pbrDefinitionGlsl.code,
+      iblDefinition: iblDefinitionGlsl.code,
       Config,
     }
   );

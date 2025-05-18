@@ -28,7 +28,7 @@ in float v_instanceInfo;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/iblDefinition.glsl)
+/* shaderity: @{iblDefinition} */
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
