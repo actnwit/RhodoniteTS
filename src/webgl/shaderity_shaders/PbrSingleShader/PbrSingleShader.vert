@@ -45,7 +45,7 @@ uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloD
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometry.glsl)
+/* shaderity: @{processGeometry} */
 
 void main()
 {

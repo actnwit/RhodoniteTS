@@ -23,8 +23,7 @@ out float v_instanceInfo;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometry.glsl)
-
+/* shaderity: @{processGeometry} */
 
 void main()
 {

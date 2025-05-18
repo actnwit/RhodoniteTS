@@ -28,7 +28,7 @@ uniform float u_farPlane; // initialValue=1000.0
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometry.glsl)
+/* shaderity: @{processGeometry} */
 
 void main()
 {

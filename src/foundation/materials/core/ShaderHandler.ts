@@ -18,7 +18,8 @@ import { Is } from '../../misc/Is';
 import { RnXR } from '../../../xr/main';
 import { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
-import { processGeometry } from '../../../webgpu/shaderity_shaders/common/processGeometry';
+import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
+import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -177,6 +178,7 @@ export function _createProgramAsSingleOperationWebGL(
       dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
       dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
       matricesGetters: vertexShaderMethodDefinitions_uniform,
+      processGeometry: processGeometryGlsl.code,
     }
   );
 
@@ -309,7 +311,7 @@ export function _createProgramAsSingleOperationWebGpu(
         Math.ceil(
           (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
         ),
-      processGeometry: processGeometry.code,
+      processGeometry: processGeometryWgsl.code,
     }
   );
 

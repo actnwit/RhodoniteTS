@@ -26,7 +26,7 @@ out vec4 v_projPosition_from_light;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometry.glsl)
+/* shaderity: @{processGeometry} */
 
 void main(){
 

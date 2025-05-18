@@ -20,7 +20,7 @@ out vec4 v_position_inWorld;
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/processGeometry.glsl)
+/* shaderity: @{processGeometry} */
 
 void main(){
 
