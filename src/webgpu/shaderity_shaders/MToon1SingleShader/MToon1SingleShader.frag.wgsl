@@ -78,7 +78,7 @@ const EPS_COL: f32 = 0.00001;
 // #param alphaCutoff: f32; // initialValue=0.5
 // #param makeOutputSrgb: bool; // initialValue=false
 
-#pragma shaderity: require(../common/iblDefinition.wgsl)
+/* shaderity: @{iblDefinition} */
 
 fn linearstep(a: f32, b: f32, t: f32) -> f32 {
   return clamp((t - a) / (b - a), 0.0, 1.0);

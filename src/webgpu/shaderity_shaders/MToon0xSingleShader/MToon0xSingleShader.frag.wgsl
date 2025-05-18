@@ -29,7 +29,7 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
 
-#pragma shaderity: require(../common/iblDefinition.wgsl)
+/* shaderity: @{iblDefinition} */
 
 const PI_2: f32 = 6.28318530718;
 
