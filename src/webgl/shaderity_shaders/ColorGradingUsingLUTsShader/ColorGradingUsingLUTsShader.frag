@@ -1,5 +1,5 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
+
+
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 in vec2 v_texcoord;

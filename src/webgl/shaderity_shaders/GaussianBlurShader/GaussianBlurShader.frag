@@ -1,5 +1,5 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
+
+
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
 #pragma shaderity: require(../common/rt0.glsl)

@@ -1,4 +1,4 @@
-#pragma shaderity: require(../common/version.glsl)
+
 #pragma shaderity: require(../common/enableVertexExtensions.glsl)
 #pragma shaderity: require(../common/glslPrecision.glsl)
 
