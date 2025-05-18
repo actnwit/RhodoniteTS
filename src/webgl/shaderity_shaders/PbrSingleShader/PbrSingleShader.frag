@@ -196,7 +196,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/shadow.glsl)
 
-#pragma shaderity: require(../common/pbrDefinition.glsl)
+/* shaderity: @{pbrDefinition} */
 #pragma shaderity: require(../common/iblDefinition.glsl)
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {

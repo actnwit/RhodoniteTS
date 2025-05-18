@@ -24,7 +24,7 @@ in float v_instanceInfo;
 /* shaderity: @{getters} */
 
 /* shaderity: @{opticalDefinition} */
-#pragma shaderity: require(../common/pbrDefinition.glsl)
+/* shaderity: @{pbrDefinition} */
 
 /* shaderity: @{matricesGetters} */
 
