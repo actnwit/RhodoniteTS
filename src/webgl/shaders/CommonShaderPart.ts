@@ -6,8 +6,6 @@ import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutpu
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import mainPrerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
-import mainPrerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/mainPrerequisites.wgsl';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { Socket } from '../../foundation/materials/core/Socket';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
@@ -213,11 +211,7 @@ struct VertexOutput {
   }
 
   static getMainPrerequisites() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return mainPrerequisitesShaderityObjectWGSL.code;
-    } else {
-      return mainPrerequisitesShaderityObjectGLSL.code;
-    }
+    return `/* shaderity: @{mainPrerequisites} */`;
   }
 
   static getAssignmentStatement(
