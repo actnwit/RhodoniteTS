@@ -182,7 +182,7 @@ bool skinning(
 }
 #endif
 
-bool processGeometryWithMorphingAndSkinning(
+bool processGeometry(
   float skeletalComponentSID,
   in mat4 worldMatrix,
   in mat4 viewMatrix,

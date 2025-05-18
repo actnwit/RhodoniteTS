@@ -222,7 +222,7 @@ fn skinning(
 #endif
 
 
-fn processGeometryWithMorphingAndSkinning(
+fn processGeometry(
   skeletalComponentSID: i32,
   blendShapeComponentSID: u32,
   worldMatrix: mat4x4<f32>,

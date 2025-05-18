@@ -49,7 +49,7 @@ void main()
   bool isBillboard = get_isBillboard(a_instanceInfo.x);
 
   // Skeletal
-  processGeometryWithMorphingAndSkinning(
+  processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,

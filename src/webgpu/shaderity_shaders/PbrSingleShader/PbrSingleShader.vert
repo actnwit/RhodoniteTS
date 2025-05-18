@@ -44,7 +44,7 @@ fn main(
 #endif
 
   let blendShapeComponentSID = u32(instance_ids.z);
-  let geom = processGeometryWithMorphingAndSkinning(
+  let geom = processGeometry(
     skeletalComponentSID,
     blendShapeComponentSID,
     worldMatrix,

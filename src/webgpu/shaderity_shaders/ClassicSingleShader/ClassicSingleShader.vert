@@ -51,7 +51,7 @@ fn main(
 #endif
 
   // Skeletal
-  let geom = processGeometryWithMorphingAndSkinning(
+  let geom = processGeometry(
     skeletalComponentSID,
     blendShapeComponentSID,
     worldMatrix,

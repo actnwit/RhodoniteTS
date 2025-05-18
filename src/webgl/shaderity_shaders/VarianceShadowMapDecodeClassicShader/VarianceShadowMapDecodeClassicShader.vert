@@ -36,7 +36,7 @@ void main(){
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
 
   bool isSkinning = false;
-  isSkinning = processGeometryWithMorphingAndSkinning(
+  isSkinning = processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,

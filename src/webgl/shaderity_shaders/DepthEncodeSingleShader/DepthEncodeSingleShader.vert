@@ -32,7 +32,7 @@ void main(){
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
 
   // Skeletal
-  processGeometryWithMorphingAndSkinning(
+  processGeometry(
     skeletalComponentSID,
     worldMatrix,
     viewMatrix,
