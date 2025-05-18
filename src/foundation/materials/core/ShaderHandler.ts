@@ -23,6 +23,7 @@ import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/pro
 import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
+import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/opticalDefinition';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -196,6 +197,7 @@ export function _createProgramAsSingleOperationWebGL(
       prerequisites: prerequisitesGlsl.code,
       matricesGetters: vertexShaderMethodDefinitions_uniform,
       renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
+      opticalDefinition: opticalDefinitionGlsl.code,
       Config,
     }
   );

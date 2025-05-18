@@ -17,7 +17,7 @@ in vec4 v_projPosition_from_light;
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 float decodeRGBAToDepth(vec4 RGBA){
   const float rMask = 1.0;

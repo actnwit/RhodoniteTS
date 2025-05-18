@@ -18,7 +18,7 @@ in vec3 v_baryCentricCoord;
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);

@@ -185,7 +185,7 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 /* shaderity: @{matricesGetters} */
 

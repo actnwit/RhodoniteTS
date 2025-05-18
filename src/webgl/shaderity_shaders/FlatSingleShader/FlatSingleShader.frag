@@ -26,7 +26,7 @@ uniform float u_diffuseColorTextureRotation; // initialValue=0
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 void main ()
 {

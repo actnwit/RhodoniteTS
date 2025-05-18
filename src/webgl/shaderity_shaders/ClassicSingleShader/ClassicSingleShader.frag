@@ -36,7 +36,7 @@ uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 void main ()
 {
