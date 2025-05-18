@@ -26,6 +26,7 @@ import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prer
 import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/opticalDefinition';
 import { opticalDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/opticalDefinition';
 import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
+import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -340,6 +341,7 @@ export function _createProgramAsSingleOperationWebGpu(
       definitions: '// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n' + definitions + alphaMode,
       matricesGetters: vertexShaderMethodDefinitions,
       opticalDefinition: opticalDefinitionWgsl.code,
+      pbrDefinition: pbrDefinitionWgsl.code,
       Config,
     }
   );

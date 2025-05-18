@@ -9,7 +9,7 @@ const EPS_COL: f32 = 0.00001;
 
 /* shaderity: @{opticalDefinition} */
 #pragma shaderity: require(../common/perturbedNormal.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
+/* shaderity: @{pbrDefinition} */
 
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 @group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white

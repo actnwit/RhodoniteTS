@@ -183,7 +183,7 @@
 #endif
 
 #pragma shaderity: require(../common/shadow.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
+/* shaderity: @{pbrDefinition} */
 #pragma shaderity: require(../common/iblDefinition.wgsl)
 
 @fragment
