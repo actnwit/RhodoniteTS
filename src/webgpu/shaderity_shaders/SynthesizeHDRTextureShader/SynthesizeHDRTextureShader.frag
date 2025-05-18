@@ -8,7 +8,7 @@
 fn main (
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   let synthesizeCoefficient0 = get_synthesizeCoefficient(materialSID, 0);
   var color: vec4f = synthesizeCoefficient0 * textureSample(synthesizeTexture0, synthesizeSampler0, input.texcoord_0);

@@ -45,7 +45,7 @@ fn main(
   let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
 
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   let instanceId = u32(instance_ids.x);
   let worldMatrix = get_worldMatrix(instanceId);

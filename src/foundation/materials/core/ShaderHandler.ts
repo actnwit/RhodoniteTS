@@ -30,6 +30,7 @@ import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrD
 import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDefinition';
 import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
 import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -322,6 +323,7 @@ export function _createProgramAsSingleOperationWebGpu(
     {
       WellKnownComponentTIDs,
       prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
       getters: vertexPropertiesStr,
       definitions: '// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n' + definitions,
       matricesGetters: vertexShaderMethodDefinitions,
@@ -343,6 +345,7 @@ export function _createProgramAsSingleOperationWebGpu(
     {
       WellKnownComponentTIDs,
       prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
       getters: pixelPropertiesStr,
       definitions: '// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n' + definitions + alphaMode,
       matricesGetters: vertexShaderMethodDefinitions,

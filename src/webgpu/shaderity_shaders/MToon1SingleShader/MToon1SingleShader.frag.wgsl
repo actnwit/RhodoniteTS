@@ -100,7 +100,7 @@ fn main (
   input: VertexOutput,
   @builtin(front_facing) isFront: bool
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   // uv animation
   let uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);

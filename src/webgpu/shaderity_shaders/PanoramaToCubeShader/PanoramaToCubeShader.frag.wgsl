@@ -38,7 +38,7 @@ fn uvToDirection(faceId: i32, uv: vec2f) -> vec3f
 fn main (
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
 	let uv: vec2f = input.texcoord_0 * 2.0 - 1.0;
 	let direction: vec3f = normalize(uvToDirection(get_cubeMapFaceId(materialSID, 0), uv));

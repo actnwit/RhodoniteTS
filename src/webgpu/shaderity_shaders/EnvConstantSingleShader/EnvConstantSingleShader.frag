@@ -18,7 +18,7 @@
 fn main(
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   var diffuseColor = vec4<f32>(1, 1, 1, 1);
 #ifdef RN_USE_COLOR_0

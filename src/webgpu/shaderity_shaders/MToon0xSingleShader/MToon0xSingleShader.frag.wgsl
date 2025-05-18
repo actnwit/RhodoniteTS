@@ -56,7 +56,7 @@ fn main (
     #endif
   #endif
 
-  #pragma shaderity: require(../common/mainPrerequisites.wgsl)
+  /* shaderity: @{mainPrerequisites} */
 
   // uv animation
   let uvAnimationMaskTexture = textureSample(uvAnimationMaskTexture, uvAnimationMaskSampler, input.texcoord_0).r;

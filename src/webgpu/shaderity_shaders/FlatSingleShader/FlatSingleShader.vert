@@ -9,7 +9,7 @@
 fn main(
 #pragma shaderity: require(../common/vertexInput.wgsl)
 ) -> VertexOutput {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   var output : VertexOutput;
 

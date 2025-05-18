@@ -10,7 +10,7 @@ fn main(
   @builtin(vertex_index) vertexIdx : u32,
 ) -> VertexOutput {
   var output : VertexOutput;
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
 #pragma shaderity: require(../common/fullscreen.wgsl)
 

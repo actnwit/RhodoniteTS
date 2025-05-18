@@ -27,7 +27,7 @@ fn main (
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   // Normal
   let normal_inWorld = normalize(input.normal_inWorld);

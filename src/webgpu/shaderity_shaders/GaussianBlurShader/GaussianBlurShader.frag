@@ -8,7 +8,7 @@
 fn main(
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   let offset = input.position.xy;
 
