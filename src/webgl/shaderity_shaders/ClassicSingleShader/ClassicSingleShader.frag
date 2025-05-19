@@ -70,7 +70,7 @@ void main ()
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 
-#pragma shaderity: require(../common/alphaMask.glsl)
+/* shaderity: @{alphaProcess} */
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
@@ -140,11 +140,6 @@ void main ()
   // shadingColor.rgb = vec3(texture( u_depthTexture, diffuseColorTexUv).rrr);
   // shadingColor.rgb = texture( u_depthTexture, diffuseColorTexUv).rgb;
   // shadingColor.rgb = vec3(textureProj( u_depthTexture, v_shadowCoord ).z, 0.0, 0.0);
-  alpha = 1.0;
-#endif
-
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
   alpha = 1.0;
 #endif
 

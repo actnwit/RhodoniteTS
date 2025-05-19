@@ -257,7 +257,7 @@ void main ()
   baseColor *= srgbToLinear(textureColor.rgb);
   alpha *= textureColor.a;
 
-#pragma shaderity: require(../common/alphaMask.glsl)
+/* shaderity: @{alphaProcess} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -664,12 +664,6 @@ void main ()
       discard;
     }
   }
-
-
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  rt0.a = 1.0;
-#endif
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
 rt0.rgb = rt0.rgb * rt0.a; // alpha premultiplied

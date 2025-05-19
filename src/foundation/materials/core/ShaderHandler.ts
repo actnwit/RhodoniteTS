@@ -32,6 +32,7 @@ import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblD
 import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
 import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
 import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslPrecision';
+import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -211,6 +212,7 @@ export function _createProgramAsSingleOperationWebGL(
       opticalDefinition: opticalDefinitionGlsl.code,
       pbrDefinition: pbrDefinitionGlsl.code,
       iblDefinition: iblDefinitionGlsl.code,
+      alphaProcess: alphaProcessGlsl.code,
       Config,
     }
   );
