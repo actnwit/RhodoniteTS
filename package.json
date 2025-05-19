@@ -35,7 +35,7 @@
     "watch-esm-dev": "npm run create-VERSION-FILE && npx tsup --config ./config/tsup/tsup.config.esm.dev.ts --watch src",
     "watch-esm-prod": "npm run create-VERSION-FILE && npx tsup --config ./config/tsup/tsup.config.esm.prod.ts --watch src",
     "rename-iife-dev": "npx shx mv dist/iifedev/iife.global.js dist/iifedev/rhodonite.js && npx shx mv dist/iifedev/iife.d.ts dist/iifedev/rhodonite.d.ts",
-    "rename-iife-prod": "npx shx mv dist/iife/iife.global.js dist/iife/rhodonite.js && npx shx mv dist/iife/iife.d.ts dist/iife/rhodonite.d.ts",
+    "rename-iife-prod": "npx shx mv dist/iife/iife.global.js dist/iife/rhodonite.min.js && npx shx mv dist/iife/iife.d.ts dist/iife/rhodonite.min.d.ts",
     "build-samples": "tsc -p ./samples/",
     "watch-samples": "tsc-watch -p ./samples/ --onSuccess \"npm run start\"",
     "test": "npm run test-unit && npm run test-e2e",
