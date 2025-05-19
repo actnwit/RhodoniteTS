@@ -385,3 +385,19 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
     }
 #endif
 #endif
+
+vec3 srgbToLinear(vec3 srgbColor) {
+  return pow(srgbColor, vec3(2.2));
+}
+
+float srgbToLinear(float value) {
+  return pow(value, 2.2);
+}
+
+vec3 linearToSrgb(vec3 linearColor) {
+  return pow(linearColor, vec3(1.0/2.2));
+}
+
+float linearToSrgb(float value) {
+  return pow(value, 1.0/2.2);
+}

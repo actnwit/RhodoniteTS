@@ -12,7 +12,7 @@
 // #param makeOutputSrgb: bool; // initialValue=1
 // #param inverseEnvironment: bool; // initialValue=false
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
+
 
 @fragment
 fn main(

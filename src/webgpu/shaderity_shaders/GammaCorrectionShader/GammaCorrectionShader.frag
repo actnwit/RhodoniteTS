@@ -9,7 +9,7 @@
 
 // #param enableLinearToSrgb: bool; // initialValue=true
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
+
 
 @fragment
 fn main (

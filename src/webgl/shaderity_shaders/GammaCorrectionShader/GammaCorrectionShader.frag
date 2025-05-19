@@ -15,7 +15,7 @@ uniform bool u_enableLinearToSrgb; // initialValue=true
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.glsl)
+
 
 
 void main ()

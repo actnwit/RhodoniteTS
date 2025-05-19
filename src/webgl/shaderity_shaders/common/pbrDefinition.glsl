@@ -180,22 +180,6 @@ vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float Nd
 //   return fresnel_mix(ior, base, layer, VdotH);
 // }
 
-vec3 srgbToLinear(vec3 srgbColor) {
-  return pow(srgbColor, vec3(2.2));
-}
-
-float srgbToLinear(float value) {
-  return pow(value, 2.2);
-}
-
-vec3 linearToSrgb(vec3 linearColor) {
-  return pow(linearColor, vec3(1.0/2.2));
-}
-
-float linearToSrgb(float value) {
-  return pow(value, 1.0/2.2);
-}
-
 // Roughness Dependent Fresnel
 // https://www.jcgt.org/published/0008/01/03/paper.pdf
 vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)

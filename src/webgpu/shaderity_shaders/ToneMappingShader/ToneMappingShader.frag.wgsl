@@ -9,7 +9,7 @@
 
 // #param enableLinearToSrgb: bool; // initialValue=true
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
+
 
 #ifdef RN_USE_KHRONOS_PBR_NEUTRAL
 // Input color is non-negative and resides in the Linear Rec. 709 color space.
