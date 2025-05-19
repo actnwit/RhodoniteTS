@@ -10,7 +10,7 @@ in vec3 v_color;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
 in vec2 v_texcoord_0;
-in vec4 v_texcoord_1;
+in vec4 v_texcoord_light;
 in vec4 v_projPosition_from_light;
 in vec3 v_baryCentricCoord;
 
@@ -47,8 +47,8 @@ float reduceLightBleeding(float p_max, float parameter){
 }
 
 float chebyshevUpperBound(float materialSID){
-  float textureDepth = decodeRGBAToDepth(textureProj(u_depthTexture, v_texcoord_1));
-  float textureSquareDepth = decodeRGBAToDepth(textureProj(u_squareDepthTexture, v_texcoord_1));
+  float textureDepth = decodeRGBAToDepth(textureProj(u_depthTexture, v_texcoord_light));
+  float textureSquareDepth = decodeRGBAToDepth(textureProj(u_squareDepthTexture, v_texcoord_light));
   if(textureDepth == 1.0 || textureSquareDepth == 1.0){
     return 1.0;
   }

@@ -1,4 +1,4 @@
-import ShaderityModule from 'shaderity';
+import ShaderityModule, { ShaderityObject } from 'shaderity';
 import { CGAPIResourceHandle } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../../webgl/types/CommonTypes';
 import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
@@ -39,6 +39,7 @@ import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscre
 import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
 import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
 import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
+import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -98,7 +99,7 @@ export function _createProgramAsSingleOperationByUpdatedSources(
   updatedShaderSources: ShaderSources,
   onError?: (message: string) => void
 ): [CGAPIResourceHandle, boolean] {
-  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
+  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode.vertexShaderityObject!);
 
   const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
@@ -113,9 +114,9 @@ export function _createProgramAsSingleOperationByUpdatedSources(
   return [shaderProgramUid, newOne];
 }
 
-export function _getAttributeInfo(materialNode: AbstractMaterialContent) {
+export function _getAttributeInfo(shaderityObject: ShaderityObject) {
   const reflection = ShaderityUtilityWebGL.getAttributeReflection(
-    materialNode.vertexShaderityObject!
+    shaderityObject
   );
   const attributeNames = reflection.names;
   const attributeSemantics = reflection.semantics;
@@ -194,6 +195,7 @@ export function _createProgramAsSingleOperationWebGL(
     {
       enableVertexExtensions: enableVertexExtensionsGlsl.code,
       glslPrecision: glslPrecisionGlsl.code,
+      vertexInOut: vertexInOutGlsl.code,
       fullscreen: fullscreenGlsl.code,
       WellKnownComponentTIDs,
       getters: vertexPropertiesStr,
@@ -229,7 +231,7 @@ export function _createProgramAsSingleOperationWebGL(
   vertexShader += vertexShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
   pixelShader += pixelShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
 
-  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
+  const { attributeNames, attributeSemantics } = _getAttributeInfo(vertexShaderityObject);
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(
     attributeNames,
     attributeSemantics

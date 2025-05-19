@@ -10,7 +10,7 @@ in vec3 v_color;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
 in vec2 v_texcoord_0;
-in vec4 v_texcoord_1;
+in vec4 v_texcoord_light;
 in vec4 v_projPosition_from_light;
 
 /* shaderity: @{renderTargetBegin} */
@@ -64,7 +64,7 @@ void main (){
     float zFar = get_zFarInner(materialSID, 0);
     float normalizationCoefficient = 1.0 / (zFar - zNear);
 
-    vec2 shadowMapUV = v_texcoord_1.xy / v_texcoord_1.w;
+    vec2 shadowMapUV = v_texcoord_light.xy / v_texcoord_light.w;
 
     #ifdef RN_IS_DEBUGGING
       bool inShadowMap = (shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0);

@@ -9,7 +9,7 @@
 in vec2 v_texcoord_0;
 in vec3 v_color;
 in vec3 v_normal_inWorld;
-in vec3 v_position_inWorld;
+in vec4 v_position_inWorld;
 
 uniform int u_envHdriFormat; // initialValue=0
 uniform float u_envRotation; // initialValue=0
@@ -55,7 +55,7 @@ void main() {
   float envRotation = get_envRotation(materialSID, 0);
   float rot = envRotation;
   mat3 rotEnvMatrix = mat3(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld);
+  vec3 envNormal = normalize(rotEnvMatrix * v_position_inWorld.xyz);
 
   if (get_inverseEnvironment(materialSID, 0)) {
     envNormal.x *= -1.0;

@@ -6,7 +6,7 @@
 
 /* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord;
+in vec2 v_texcoord_0;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
 
@@ -289,7 +289,7 @@ void main ()
     float userRoughness = metallicRoughnessFactor.y;
     float metallic = metallicRoughnessFactor.x;
 
-    vec4 ormTexel = texture(u_metallicRoughnessTexture, v_texcoord);
+    vec4 ormTexel = texture(u_metallicRoughnessTexture, v_texcoord_0);
     userRoughness = ormTexel.g * userRoughness;
     userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
     roughness = userRoughness;

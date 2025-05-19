@@ -2,11 +2,7 @@
 /* shaderity: @{enableVertexExtensions} */
 /* shaderity: @{glslPrecision} */
 
-in vec4 a_instanceInfo;
-in vec2 a_texcoord;
-in vec3 a_position;
-
-out vec2 v_texcoord;
+/* shaderity: @{vertexInOut} */
 
 #pragma shaderity: require(../common/morphVariables.glsl)
 
@@ -24,5 +20,5 @@ void main(){
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(a_position, 1.0);
 
-  v_texcoord = a_texcoord;
+  v_texcoord_0 = a_texcoord_0;
 }

@@ -4,15 +4,8 @@
 
 /* shaderity: @{definitions} */
 
-in vec3 a_position;
-in vec3 a_normal;
-in vec4 a_instanceInfo;
-in vec4 a_joint;
-in vec4 a_weight;
-
-out vec3 v_normal_inWorld;
+/* shaderity: @{vertexInOut} */
 out vec4 v_position_inLocal;
-out vec4 v_position_inWorld;
 
 #pragma shaderity: require(../common/morphVariables.glsl)
 

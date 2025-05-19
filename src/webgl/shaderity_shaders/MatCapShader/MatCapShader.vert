@@ -4,17 +4,8 @@
 
 /* shaderity: @{definitions} */
 
-in vec4 a_instanceInfo;
-in vec3 a_baryCentricCoord;
-in vec3 a_position;
-in vec3 a_normal;
-in vec4 a_joint;
-in vec4 a_weight;
-
-out vec3 v_baryCentricCoord;
+/* shaderity: @{vertexInOut} */
 out vec3 v_normal_inView;
-out vec3 v_normal_inWorld;
-out vec4 v_position_inWorld;
 
 #pragma shaderity: require(../common/morphVariables.glsl)
 
@@ -54,6 +45,6 @@ void main(){
 
 
 
-  v_baryCentricCoord = a_baryCentricCoord;
+  v_baryCentricCoord = a_baryCentricCoord.xyz;
 
 }

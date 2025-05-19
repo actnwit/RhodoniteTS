@@ -1,8 +1,7 @@
 
-
 /* shaderity: @{glslPrecision} */
 
-in vec2 v_texcoord;
+in vec2 v_texcoord_0;
 
 /* shaderity: @{renderTargetBegin} */
 
@@ -14,7 +13,7 @@ void main ()
 {
 /* shaderity: @{mainPrerequisites} */
 
-  vec4 textureColor = texture(u_baseColorTexture, v_texcoord);
+  vec4 textureColor = texture(u_baseColorTexture, v_texcoord_0);
 
   float r = textureColor.r;
   float g = textureColor.g;
