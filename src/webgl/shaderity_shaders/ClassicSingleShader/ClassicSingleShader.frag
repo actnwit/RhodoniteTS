@@ -32,8 +32,6 @@ uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 // uniform vec3 u_colorSpaceVector3;
 // uniform vec4 u_scaleTranslate;
 
-#pragma shaderity: require(../common/utilFunctions.glsl)
-
 /* shaderity: @{getters} */
 
 /* shaderity: @{opticalDefinition} */
