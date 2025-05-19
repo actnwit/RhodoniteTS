@@ -1,16 +1,14 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
+/* shaderity: @{vertexIn} */
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 
 /* shaderity: @{getters} */
@@ -270,7 +268,7 @@ float whiteFurnaceTest(float roughness, float NoV, float f0, int g_type, int dis
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 quadSizeInPixel = get_screenInfo(materialSID, 0);
   float roughness = 0.0;
@@ -289,7 +287,7 @@ void main ()
     float userRoughness = metallicRoughnessFactor.y;
     float metallic = metallicRoughnessFactor.x;
 
-    vec4 ormTexel = texture(u_metallicRoughnessTexture, v_texcoord);
+    vec4 ormTexel = texture(u_metallicRoughnessTexture, v_texcoord_0);
     userRoughness = ormTexel.g * userRoughness;
     userRoughness = clamp(userRoughness, c_MinRoughness, 1.0);
     roughness = userRoughness;
@@ -332,5 +330,5 @@ void main ()
     rt0 = vec4(1.0, 1.0, 1.0, 1.0);
   }
 
-  #pragma shaderity: require(../common/glFragColor.glsl)
+
 }

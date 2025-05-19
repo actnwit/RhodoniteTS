@@ -4,13 +4,6 @@ const float Epsilon = 0.0000001;
 #define saturate(x) clamp(x, 0.0, 1.0)
 #define saturateEpsilonToOne(x) clamp(x, Epsilon, 1.0)
 
-#ifdef RN_IS_MORPHING
-uniform int u_morphTargetNumber; // initialValue=0, isInternalSetting=true, soloDatum=false, needUniformInDataTextureMode=true
-// uniform int u_dataTextureMorphOffsetPosition[];
-// uniform int u_morphWeights[]; //
-#endif
-
-uniform int u_isMainVr; // skipProcess=true
 uniform highp sampler2D u_dataTexture; // skipProcess=true
 /* shaderity: @{widthOfDataTexture} */
 /* shaderity: @{heightOfDataTexture} */
@@ -336,4 +329,75 @@ vec3 sq(vec3 t)
 vec4 sq(vec4 t)
 {
   return t * t;
+}
+
+#ifdef RN_IS_PIXEL_SHADER
+vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
+  mat3 translationMat = mat3(1,0,0, 0,1,0, offset.x, offset.y, 1);
+  mat3 rotationMat = mat3(
+      cos(rotation), -sin(rotation), 0,
+      sin(rotation), cos(rotation), 0,
+                  0,             0, 1
+  );
+  mat3 scaleMat = mat3(scale.x,0,0, 0,scale.y,0, 0,0,1);
+
+  mat3 matrix = translationMat * rotationMat * scaleMat;
+  vec2 uvTransformed = ( matrix * vec3(uv.xy, 1) ).xy;
+
+  return uvTransformed;
+}
+
+#ifdef RN_USE_TANGENT
+  mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
+    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
+    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+    mat3 tbnMat_tangent_to_world = mat3(tangent_inWorld, binormal_inWorld, normal_inWorld);
+
+    return tbnMat_tangent_to_world;
+  }
+#else
+    // This is based on http://www.thetenthplanet.de/archives/1180
+    mat3 cotangent_frame(vec3 normal_inWorld, vec3 position, vec2 uv) {
+      uv = gl_FrontFacing ? uv : -uv;
+
+      // get edge vectors of the pixel triangle
+      vec3 dp1 = dFdx(position);
+      vec3 dp2 = dFdy(position);
+      vec2 duv1 = dFdx(uv);
+      vec2 duv2 = dFdy(uv);
+
+      // solve the linear system
+      vec3 dp2perp = cross(dp2, normal_inWorld);
+      vec3 dp1perp = cross(normal_inWorld, dp1);
+      vec3 tangent = dp2perp * duv1.x + dp1perp * duv2.x;
+      vec3 bitangent = dp2perp * duv1.y + dp1perp * duv2.y;
+      bitangent *= -1.0;
+
+      // construct a scale-invariant frame
+      float invMat = inversesqrt(max(dot(tangent, tangent), dot(bitangent, bitangent)));
+      return mat3(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
+    }
+
+    mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
+      mat3 tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
+
+      return tbnMat_tangent_to_world;
+    }
+#endif
+#endif
+
+vec3 srgbToLinear(vec3 srgbColor) {
+  return pow(srgbColor, vec3(2.2));
+}
+
+float srgbToLinear(float value) {
+  return pow(value, 2.2);
+}
+
+vec3 linearToSrgb(vec3 linearColor) {
+  return pow(linearColor, vec3(1.0/2.2));
+}
+
+float linearToSrgb(float value) {
+  return pow(value, 1.0/2.2);
 }

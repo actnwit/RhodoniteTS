@@ -1,16 +1,12 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 
 uniform int u_shadingModel; // initialValue=0
 uniform float u_alphaCutoff; // initialValue=0.01
@@ -20,20 +16,16 @@ uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0
 
-#pragma shaderity: require(../common/rt0.glsl)
-
-#pragma shaderity: require(../common/utilFunctions.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
-
-#pragma shaderity: require(../common/alphaMask.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -64,15 +56,12 @@ void main ()
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 
+  /* shaderity: @{alphaProcess} */
 
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  alpha = 1.0;
-#endif
 
   rt0 = vec4(diffuseColor * alpha, alpha);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }
 

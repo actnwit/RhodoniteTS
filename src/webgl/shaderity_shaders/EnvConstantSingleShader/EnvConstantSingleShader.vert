@@ -1,6 +1,6 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+/* shaderity: @{enableVertexExtensions} */
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
@@ -8,27 +8,18 @@
   layout(num_views=2) in;
 #endif
 
-in vec4 a_instanceInfo;
-in vec2 a_texcoord_0;
-in vec3 a_position;
-in vec3 a_color;
-in vec3 a_normal;
-
-out vec2 v_texcoord_0;
-out vec3 v_color;
-out vec3 v_normal_inWorld;
-out vec3 v_position_inWorld;
+/* shaderity: @{vertexInOut} */
 
 uniform bool u_enableViewMatrix; // initialValue=true
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
 /* shaderity: @{matricesGetters} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
@@ -48,7 +39,7 @@ void main(){
   v_normal_inWorld = normalMatrix * a_normal;
 
   v_color = a_color;
-  v_position_inWorld = (worldMatrix * vec4(a_position, 1.0)).xyz;
+  v_position_inWorld = (worldMatrix * vec4(a_position, 1.0));
   v_texcoord_0 = a_texcoord_0;
 
 }

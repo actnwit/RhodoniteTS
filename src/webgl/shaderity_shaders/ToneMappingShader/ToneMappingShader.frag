@@ -1,21 +1,21 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform bool u_enableLinearToSrgb; // initialValue=true
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.glsl)
+
 
 
 #ifdef RN_USE_KHRONOS_PBR_NEUTRAL
@@ -146,7 +146,7 @@ float GT_ToneMaping(float x) {
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
 vec4 baseColor = texture(u_baseColorTexture, v_texcoord_0);
 
@@ -186,6 +186,6 @@ if (get_enableLinearToSrgb(materialSID, 0)) {
 
 rt0 = baseColor;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }

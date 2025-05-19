@@ -1,17 +1,14 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{vertexIn} */
 
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in float v_instanceInfo;
+/* shaderity: @{prerequisites} */
 
-
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
@@ -19,9 +16,9 @@ in float v_instanceInfo;
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   rt0 = encodeFloatRGBA(v_instanceInfo);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

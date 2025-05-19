@@ -1,6 +1,6 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
@@ -11,7 +11,7 @@
 
 @vertex
 fn main(
-#pragma shaderity: require(../common/vertexInput.wgsl)
+/* shaderity: @{vertexInput} */
 ) -> VertexOutput {
   var output : VertexOutput;
   #ifdef RN_MTOON_IS_OUTLINE
@@ -41,7 +41,7 @@ fn main(
   let baryCentricCoord = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 #endif
 
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   let instanceId = u32(instance_ids.x);
   let worldMatrix = get_worldMatrix(instanceId);

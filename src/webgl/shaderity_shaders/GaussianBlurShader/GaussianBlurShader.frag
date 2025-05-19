@@ -1,21 +1,21 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
 
-#pragma shaderity: require(../common/rt0.glsl)
+
+/* shaderity: @{glslPrecision} */
+
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 offset = gl_FragCoord.st;
   ivec2 vrState = get_vrState(0.0, 0);
@@ -50,5 +50,5 @@ void main ()
 
   rt0 = color;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

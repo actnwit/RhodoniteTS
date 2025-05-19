@@ -1,6 +1,6 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -9,7 +9,7 @@
 
 // #param enableLinearToSrgb: bool; // initialValue=true
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
+
 
 #ifdef RN_USE_KHRONOS_PBR_NEUTRAL
 // Input color is non-negative and resides in the Linear Rec. 709 color space.
@@ -136,7 +136,7 @@ fn ACES_Hill_ToneMapping(inColor: vec3<f32>) -> vec3<f32>
 fn main (
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   var baseColor = textureSample(baseColorTexture, baseColorSampler, input.texcoord_0);
 

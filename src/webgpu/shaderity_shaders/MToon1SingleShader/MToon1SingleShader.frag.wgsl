@@ -1,15 +1,15 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
 const EPS_COL: f32 = 0.00001;
 
-#pragma shaderity: require(../common/opticalDefinition.wgsl)
-#pragma shaderity: require(../common/perturbedNormal.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
+/* shaderity: @{opticalDefinition} */
+
+/* shaderity: @{pbrDefinition} */
 
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 @group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white
@@ -78,7 +78,7 @@ const EPS_COL: f32 = 0.00001;
 // #param alphaCutoff: f32; // initialValue=0.5
 // #param makeOutputSrgb: bool; // initialValue=false
 
-#pragma shaderity: require(../common/iblDefinition.wgsl)
+/* shaderity: @{iblDefinition} */
 
 fn linearstep(a: f32, b: f32, t: f32) -> f32 {
   return clamp((t - a) / (b - a), 0.0, 1.0);
@@ -100,7 +100,7 @@ fn main (
   input: VertexOutput,
   @builtin(front_facing) isFront: bool
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   // uv animation
   let uvAnimationScrollXSpeedFactor = get_uvAnimationScrollXSpeedFactor(materialSID, 0);

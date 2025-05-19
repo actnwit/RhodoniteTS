@@ -1,6 +1,6 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -10,7 +10,7 @@
 fn main(
   input: VertexOutput
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   let denom = input.color_0.w;
   if (denom < 0.0) {

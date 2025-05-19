@@ -1,34 +1,26 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
 
 const float EPS_COL = 0.00001;
 
-in vec2 v_texcoord_0;
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 in vec3 v_normal_inView;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in float v_instanceInfo;
-#ifdef RN_USE_TANGENT
-  in vec3 v_tangent_inWorld;
-  in vec3 v_binormal_inWorld; // bitangent_inWorld
-#endif
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{prerequisites} */
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
-#pragma shaderity: require(../common/pbrDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
+/* shaderity: @{pbrDefinition} */
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/iblDefinition.glsl)
+/* shaderity: @{iblDefinition} */
 
 uniform bool u_inverseEnvironment; // initialValue=false
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
@@ -59,8 +51,6 @@ vec2 uvAnimation(vec2 origUv, float time, float uvAnimationMask, float uvAnimati
   return uv;
 }
 
-#pragma shaderity: require(../common/perturbedNormal.glsl)
-
 void main (){
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_NONE
@@ -68,7 +58,7 @@ void main (){
     #endif
   #endif
 
-  #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  /* shaderity: @{mainPrerequisites} */
 
   // uv animation
   float uvAnimationMaskTexture = texture(u_uvAnimationMaskTexture, v_texcoord_0).r;
@@ -106,7 +96,7 @@ void main (){
       rt0.xyz = outlineColor;
 
       rt0.xyz = srgbToLinear(rt0.xyz);
-      #pragma shaderity: require(../common/glFragColor.glsl)
+
       return;
     #endif
   #endif
@@ -271,7 +261,7 @@ void main (){
     rt0 = vec4(normal_inWorld * 0.5 + 0.5, alpha);
 
     rt0.xyz = srgbToLinear(rt0.xyz);
-    #pragma shaderity: require(../common/glFragColor.glsl)
+
     return;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4(0.0);
@@ -281,7 +271,7 @@ void main (){
     }
 
     rt0.xyz = srgbToLinear(rt0.xyz);
-    #pragma shaderity: require(../common/glFragColor.glsl)
+
     return;
   #endif
 
@@ -309,7 +299,7 @@ void main (){
     }
   }
 
-  #pragma shaderity: require(../common/outputSrgb.glsl)
+    /* shaderity: @{outputSrgb} */
 
-  #pragma shaderity: require(../common/glFragColor.glsl)
+
 }

@@ -1,14 +1,14 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
 
-#pragma shaderity: require(../common/rt0.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{glslPrecision} */
+
+/* shaderity: @{renderTargetBegin} */
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
@@ -21,7 +21,7 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float synthesizeCoefficient0 = u_synthesizeCoefficient[0];
   vec4 color = synthesizeCoefficient0 * texture(u_synthesizeTexture0, v_texcoord_0);
@@ -40,6 +40,6 @@ void main ()
 
   rt0 = color;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }
 

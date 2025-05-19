@@ -1,23 +1,13 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+/* shaderity: @{enableVertexExtensions} */
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-in vec3 a_position;
-in vec3 a_color;
-in vec3 a_normal;
-in vec4 a_instanceInfo;
-in vec2 a_texcoord_0;
-in vec4 a_joint;
-in vec4 a_weight;
-out vec3 v_color;
-out vec3 v_normal_inWorld;
-out vec4 v_position_inWorld;
-out vec2 v_texcoord_0;
-out float v_instanceInfo;
+/* shaderity: @{vertexInOut} */
+#pragma shaderity: require(../common/morphVariables.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -27,7 +17,7 @@ out float v_instanceInfo;
 
 void main()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
@@ -50,7 +40,7 @@ void main()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-#pragma shaderity: require(../common/pointSprite.glsl)
+
 
   v_instanceInfo = a_instanceInfo.x;
 }

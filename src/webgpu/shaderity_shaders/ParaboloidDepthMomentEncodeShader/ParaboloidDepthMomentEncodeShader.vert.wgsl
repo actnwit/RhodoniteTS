@@ -1,6 +1,6 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
@@ -12,9 +12,9 @@
 
 @vertex
 fn main(
-#pragma shaderity: require(../common/vertexInput.wgsl)
+/* shaderity: @{vertexInput} */
 ) -> VertexOutput {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
   var output : VertexOutput;
 
   let instanceId = u32(instance_ids.x);

@@ -1,27 +1,17 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+/* shaderity: @{enableVertexExtensions} */
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-in vec3 a_position;
-in vec3 a_color;
-in vec3 a_normal;
-in vec4 a_instanceInfo;
-in vec2 a_texcoord_0;
-in vec2 a_texcoord_1;
-in vec2 a_texcoord_2;
-in vec4 a_joint;
-in vec4 a_weight;
-in vec4 a_baryCentricCoord;
-out vec3 v_color;
-out vec3 v_normal_inWorld;
-out vec4 v_position_inWorld;
+/* shaderity: @{vertexInOut} */
 
 uniform float u_pointSize; // initialValue=30, soloDatum=true
 uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloDatum=true
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+#pragma shaderity: require(../common/morphVariables.glsl)
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -32,7 +22,7 @@ uniform vec3 u_pointDistanceAttenuation; // initialValue=(0.0, 0.1, 0.01), soloD
 void main()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);
@@ -65,7 +55,7 @@ void main()
     gl_Position = vec4(0.0);
   }
 
-#pragma shaderity: require(../common/pointSprite.glsl)
+
 
 }
 

@@ -4,12 +4,9 @@
 
 /* shaderity: @{definitions} */
 
-in vec4 a_instanceInfo;
-in vec2 a_texcoord_0;
-in vec3 a_position;
-out vec2 v_texcoord_0;
+/* shaderity: @{vertexInOut} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -17,9 +14,9 @@ out vec2 v_texcoord_0;
 
 void main()
 {
-  
+
   #pragma shaderity:require(../common/mainPrerequisites.glsl)
   #pragma shaderity:require(../common/fullscreen.glsl)
-  
+
 }
 

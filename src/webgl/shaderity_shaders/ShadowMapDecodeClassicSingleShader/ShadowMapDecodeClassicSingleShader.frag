@@ -1,23 +1,20 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
-in vec4 v_texcoord_1;
+/* shaderity: @{vertexIn} */
+in vec4 v_texcoord_light;
 in vec4 v_projPosition_from_light;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 float decodeRGBAToDepth(vec4 RGBA){
   const float rMask = 1.0;
@@ -29,7 +26,7 @@ float decodeRGBAToDepth(vec4 RGBA){
 }
 
 void main (){
-  #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  /* shaderity: @{mainPrerequisites} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -64,13 +61,13 @@ void main (){
     float zFar = get_zFarInner(materialSID, 0);
     float normalizationCoefficient = 1.0 / (zFar - zNear);
 
-    vec2 shadowMapUV = v_texcoord_1.xy / v_texcoord_1.w;
+    vec2 shadowMapUV = v_texcoord_light.xy / v_texcoord_light.w;
 
     #ifdef RN_IS_DEBUGGING
       bool inShadowMap = (shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0);
       if(inShadowMap == false){
         rt0 = get_debugColorFactor(materialSID, 0);
-        #pragma shaderity: require(../common/glFragColor.glsl)
+
         return;
       }
     #endif
@@ -128,5 +125,5 @@ void main (){
   rt0 = vec4(shadingColor, alpha);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
-  #pragma shaderity: require(../common/glFragColor.glsl)
+
 }

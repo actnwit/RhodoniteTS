@@ -1,24 +1,20 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
-in vec4 v_texcoord_1;
+/* shaderity: @{vertexIn} */
+in vec4 v_texcoord_light;
 in vec4 v_projPosition_from_light;
-in vec3 v_baryCentricCoord;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
@@ -47,8 +43,8 @@ float reduceLightBleeding(float p_max, float parameter){
 }
 
 float chebyshevUpperBound(float materialSID){
-  float textureDepth = decodeRGBAToDepth(textureProj(u_depthTexture, v_texcoord_1));
-  float textureSquareDepth = decodeRGBAToDepth(textureProj(u_squareDepthTexture, v_texcoord_1));
+  float textureDepth = decodeRGBAToDepth(textureProj(u_depthTexture, v_texcoord_light));
+  float textureSquareDepth = decodeRGBAToDepth(textureProj(u_squareDepthTexture, v_texcoord_light));
   if(textureDepth == 1.0 || textureSquareDepth == 1.0){
     return 1.0;
   }
@@ -91,7 +87,7 @@ float chebyshevUpperBound(float materialSID){
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -190,5 +186,5 @@ void main ()
     }
   }
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

@@ -2,14 +2,10 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
-import prerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/prerequisites.glsl';
 import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
-import prerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/prerequisites.wgsl';
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
-import mainPrerequisitesShaderityObjectGLSL from '../../webgl/shaderity_shaders/common/mainPrerequisites.glsl';
-import mainPrerequisitesShaderityObjectWGSL from '../../webgpu/shaderity_shaders/common/mainPrerequisites.wgsl';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { Socket } from '../../foundation/materials/core/Socket';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
@@ -116,7 +112,7 @@ struct VertexOutput {
   ${varyingVariables}
 }
 
-${prerequisitesShaderityObjectWGSL.code}
+/* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 `;
@@ -128,7 +124,7 @@ ${prerequisitesShaderityObjectWGSL.code}
 #version 300 es
 precision highp float;
 precision highp int;
-${prerequisitesShaderityObjectGLSL.code}
+/* shaderity: @{prerequisites} */
 
 ${in_} vec4 a_instanceInfo;\n`;
       vertexShaderPrerequisites += `
@@ -195,7 +191,7 @@ struct VertexOutput {
   ${varyingVariables}
 }
 
-${prerequisitesShaderityObjectWGSL.code}
+/* shaderity: @{prerequisites} */
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 `;
@@ -206,7 +202,7 @@ ${prerequisitesShaderityObjectWGSL.code}
       #version 300 es
       precision highp float;
       precision highp int;
-      ${prerequisitesShaderityObjectGLSL.code}
+      /* shaderity: @{prerequisites} */
       `;
       pixelShaderPrerequisites += '/* shaderity: @{getters} */';
       pixelShaderPrerequisites += 'layout(location = 0) out vec4 rt0;';
@@ -215,11 +211,7 @@ ${prerequisitesShaderityObjectWGSL.code}
   }
 
   static getMainPrerequisites() {
-    if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-      return mainPrerequisitesShaderityObjectWGSL.code;
-    } else {
-      return mainPrerequisitesShaderityObjectGLSL.code;
-    }
+    return `/* shaderity: @{mainPrerequisites} */`;
   }
 
   static getAssignmentStatement(

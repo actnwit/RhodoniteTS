@@ -1,6 +1,6 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -12,13 +12,13 @@
 // #param makeOutputSrgb: bool; // initialValue=1
 // #param inverseEnvironment: bool; // initialValue=false
 
-#pragma shaderity: require(../common/correspondenceBetweenLinearAndSrgb.wgsl)
+
 
 @fragment
 fn main(
   input: VertexOutput,
 ) -> @location(0) vec4<f32> {
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   var diffuseColor = vec4<f32>(1, 1, 1, 1);
 #ifdef RN_USE_COLOR_0
@@ -51,7 +51,7 @@ fn main(
   var resultColor = diffuseColor.rgb;
   let resultAlpha = diffuseColor.a;
 
-#pragma shaderity: require(../common/outputSrgb.wgsl)
+  /* shaderity: @{outputSrgb} */
 
   return vec4f(resultColor, resultAlpha);
 }

@@ -1,16 +1,14 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
+/* shaderity: @{vertexIn} */
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
@@ -18,7 +16,7 @@ uniform bool u_frontHemisphere; // initialValue=true
 
 void main (){
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float denom = v_position_inWorld.w;
   if (denom < 0.0) {
@@ -42,6 +40,6 @@ void main (){
     rt0.a = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
   }
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }
 

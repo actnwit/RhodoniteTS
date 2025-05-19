@@ -14,6 +14,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // prepare entities
 const entitySphere = createEntitySphere();

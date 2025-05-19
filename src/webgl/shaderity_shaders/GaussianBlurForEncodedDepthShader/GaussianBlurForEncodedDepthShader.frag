@@ -1,12 +1,12 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
 
-#pragma shaderity: require(../common/rt0.glsl)
+
+/* shaderity: @{glslPrecision} */
+
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -33,7 +33,7 @@ vec4 encodeDepthToRGBA(float depth){
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float framebufferSize;
   vec2 offset = gl_FragCoord.st;
@@ -69,5 +69,5 @@ void main ()
 
   rt0 = encodeDepthToRGBA(depth);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

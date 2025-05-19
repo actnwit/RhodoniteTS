@@ -1,26 +1,15 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+/* shaderity: @{enableVertexExtensions} */
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-in vec3 a_position;
-in vec3 a_color;
-in vec3 a_normal;
-in vec4 a_instanceInfo;
-in vec2 a_texcoord_0;
-in vec4 a_joint;
-in vec4 a_weight;
-in vec4 a_baryCentricCoord;
-out vec3 v_color;
-out vec3 v_normal_inWorld;
-out vec4 v_position_inWorld;
-out vec2 v_texcoord_0;
-out vec4 v_texcoord_1;
+/* shaderity: @{vertexInOut} */
 out vec4 v_projPosition_from_light;
-out vec3 v_baryCentricCoord;
+out vec4 v_texcoord_light;
+#pragma shaderity: require(../common/morphVariables.glsl)
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -29,7 +18,7 @@ out vec3 v_baryCentricCoord;
 /* shaderity: @{processGeometry} */
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
@@ -52,7 +41,7 @@ void main(){
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-  #pragma shaderity: require(../common/pointSprite.glsl)
+
 
   v_baryCentricCoord = a_baryCentricCoord.xyz;
   v_color = a_color;
@@ -69,6 +58,6 @@ void main(){
     0.0, 0.0, 1.0, 0.0,
     0.5, 0.5, 0.0, 1.0
   );
-  v_texcoord_1 = tMatrix * v_projPosition_from_light;
+  v_texcoord_light = tMatrix * v_projPosition_from_light;
 
 }

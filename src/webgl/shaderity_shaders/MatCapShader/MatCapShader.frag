@@ -1,13 +1,12 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
 
-in vec3 v_baryCentricCoord;
+/* shaderity: @{glslPrecision} */
+
+/* shaderity: @{vertexIn} */
 in vec3 v_normal_inView;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -22,7 +21,7 @@ float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRela
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec3 normal_inView = normalize(v_normal_inView);
   normal_inView.y *= -1.0;
@@ -53,5 +52,5 @@ void main ()
     }
   }
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

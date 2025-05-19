@@ -1,12 +1,12 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 uniform samplerCube u_baseColorTexture; // initialValue=(0,white)
 uniform int u_cubeMapFaceId; // initialValue=0
@@ -14,7 +14,7 @@ uniform int u_distributionType; // initialValue=0
 uniform float u_roughness; // initialValue=0.0
 uniform int u_sampleCount; // initialValue=1024
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
@@ -218,7 +218,7 @@ vec3 uvToDir(int faceId, vec2 uv)
 // learned a lot from https://github.com/KhronosGroup/glTF-Sample-Viewer
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 uv = v_texcoord_0 * 2.0 - 1.0;
   vec3 scan = uvToDir(get_cubeMapFaceId(materialSID, 0), uv);
@@ -227,5 +227,5 @@ void main ()
 
   rt0 = vec4(prefilter(direction, materialSID), 1.0);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

@@ -1,17 +1,13 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
-
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 in vec4 v_shadowCoord;
+
+/* shaderity: @{prerequisites} */
 
 uniform int u_shadingModel; // initialValue=0
 uniform float u_alphaCutoff; // initialValue=0.01
@@ -23,7 +19,7 @@ uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0
 uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 // #pragma shaderity: require(../common/deliot2019SeamlessTexture.glsl)
 // uniform sampler2D u_tInvTexture; // initialValue=(1,white)
 // uniform vec3 u_colorSpaceOrigin;
@@ -32,16 +28,14 @@ uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 // uniform vec3 u_colorSpaceVector3;
 // uniform vec4 u_scaleTranslate;
 
-#pragma shaderity: require(../common/utilFunctions.glsl)
-
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -72,7 +66,7 @@ void main ()
   diffuseColor *= textureColor.rgb;
   alpha *= textureColor.a;
 
-#pragma shaderity: require(../common/alphaMask.glsl)
+/* shaderity: @{alphaProcess} */
 
   // Lighting
   vec3 shadingColor = vec3(0.0, 0.0, 0.0);
@@ -145,16 +139,11 @@ void main ()
   alpha = 1.0;
 #endif
 
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  alpha = 1.0;
-#endif
-
   rt0 = vec4(shadingColor * alpha, alpha);
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }

@@ -1,34 +1,24 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
-
-in vec2 v_texcoord_0;
-in vec2 v_texcoord_1;
-in vec2 v_texcoord_2;
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 in vec3 v_normal_inView;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in float v_instanceInfo;
-#ifdef RN_USE_TANGENT
-  in vec3 v_tangent_inWorld;
-  in vec3 v_binormal_inWorld; // bitangent_inWorld
-#endif
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{prerequisites} */
+
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
-#pragma shaderity: require(../common/pbrDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
+/* shaderity: @{pbrDefinition} */
 
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/iblDefinition.glsl)
+/* shaderity: @{iblDefinition} */
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
@@ -114,10 +104,8 @@ vec2 uvAnimation(vec2 origUv, float time, float uvAnimMask, float uvAnimationScr
   return uv;
 }
 
-#pragma shaderity: require(../common/perturbedNormal.glsl)
-
 void main() {
-  #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  /* shaderity: @{mainPrerequisites} */
 
   rt0 = vec4(0.0, 0.0, 0.0, 1.0);
 
@@ -267,12 +255,12 @@ void main() {
   rt0.xyz = outlineColorFactor * mix(vec3(1.0), rt0.xyz, outlineLightingMixFactor);
 #endif
 
-#pragma shaderity: require(../common/outputSrgb.glsl)
+  /* shaderity: @{outputSrgb} */
 
   // alpha
   rt0.w = alpha;
   rt0.xyz *= alpha; // premultiplied alpha
   // rt0.xyz = vec3(alpha, 0.0, 0.0);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

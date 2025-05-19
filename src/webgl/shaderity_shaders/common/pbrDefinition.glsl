@@ -180,22 +180,6 @@ vec3 metal_brdf(float perceptualRoughness, vec3 baseColor, float NdotL, float Nd
 //   return fresnel_mix(ior, base, layer, VdotH);
 // }
 
-vec3 srgbToLinear(vec3 srgbColor) {
-  return pow(srgbColor, vec3(2.2));
-}
-
-float srgbToLinear(float value) {
-  return pow(value, 2.2);
-}
-
-vec3 linearToSrgb(vec3 linearColor) {
-  return pow(linearColor, vec3(1.0/2.2));
-}
-
-float linearToSrgb(float value) {
-  return pow(value, 1.0/2.2);
-}
-
 // Roughness Dependent Fresnel
 // https://www.jcgt.org/published/0008/01/03/paper.pdf
 vec3 fresnelSchlickRoughness(vec3 F0, float cosTheta, float roughness)
@@ -235,21 +219,6 @@ vec3 normalBlendingUDN(sampler2D baseMap, sampler2D detailMap, vec2 baseUv, vec2
   vec3 u = texture(detailMap, detailUv).xyz * 2.0 - 1.0;
   vec3 r = normalize(vec3(t.xy + u.xy, t.z));
   return r;
-}
-
-vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
-  mat3 translationMat = mat3(1,0,0, 0,1,0, offset.x, offset.y, 1);
-  mat3 rotationMat = mat3(
-      cos(rotation), -sin(rotation), 0,
-      sin(rotation), cos(rotation), 0,
-                  0,             0, 1
-  );
-  mat3 scaleMat = mat3(scale.x,0,0, 0,scale.y,0, 0,0,1);
-
-  mat3 matrix = translationMat * rotationMat * scaleMat;
-  vec2 uvTransformed = ( matrix * vec3(uv.xy, 1) ).xy;
-
-  return uvTransformed;
 }
 
 float IsotropicNDFFiltering(vec3 normal, float roughness2) {

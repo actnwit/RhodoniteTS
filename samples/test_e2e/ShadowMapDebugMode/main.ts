@@ -7,6 +7,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // setting cameras except for post effect
 const depthCameraComponent = createCameraComponent();

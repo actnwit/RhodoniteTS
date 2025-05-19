@@ -1,34 +1,17 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableVertexExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+/* shaderity: @{enableVertexExtensions} */
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
 // This shader is based on https://github.com/Santarh/MToon
 
-in vec4 a_instanceInfo;
-in vec2 a_texcoord_0;
-in vec3 a_position;
-in vec3 a_normal;
-in vec4 a_baryCentricCoord;
-in vec4 a_joint;
-in vec4 a_weight;
-
-out vec2 v_texcoord_0;
-out vec3 v_baryCentricCoord;
+/* shaderity: @{vertexInOut} */
 out vec3 v_normal_inView;
-out vec3 v_normal_inWorld;
-out vec4 v_position_inWorld;
-out float v_instanceInfo;
 
-#ifdef RN_USE_TANGENT
-in vec4 a_tangent;
-out vec3 v_tangent_inWorld;
-out vec3 v_binormal_inWorld; // bitangent_inWorld
-#endif
+#pragma shaderity: require(../common/morphVariables.glsl)
 
-
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
@@ -43,7 +26,7 @@ void main(){
     #endif
   #endif
 
-  #pragma shaderity: require(../common/mainPrerequisites.glsl)
+  /* shaderity: @{mainPrerequisites} */
 
   mat4 worldMatrix = get_worldMatrix(a_instanceInfo.x);
   mat4 viewMatrix = get_viewMatrix(cameraSID, 0);

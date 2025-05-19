@@ -5,11 +5,6 @@ import { VertexAttribute, VertexAttributeEnum } from '../../definitions/VertexAt
 import { MemoryManager } from '../../core/MemoryManager';
 import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
 import { Config } from '../../core/Config';
-import {
-  ShaderSemantics,
-  ShaderSemanticsClass,
-  ShaderSemanticsName,
-} from '../../definitions/ShaderSemantics';
 import { MutableVector2 } from '../../math/MutableVector2';
 import { MutableVector3 } from '../../math/MutableVector3';
 import { MutableVector4 } from '../../math/MutableVector4';
@@ -21,11 +16,13 @@ import { ShaderType } from '../../definitions/ShaderType';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { DefaultTextures, dummyBlackTexture, dummyWhiteTexture } from './DummyTextures';
 import { Logger } from '../../misc/Logger';
+import { CGAPIResourceRepository } from '../../renderer/CGAPIResourceRepository';
+import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 
 export type FillArgsObject = {
-  [key: string]: string;
+  [key: string]: string | object;
 };
 
 export type VertexAttributesLayout = {
@@ -40,14 +37,17 @@ export class ShaderityUtilityWebGL {
     shaderityObject: ShaderityObject,
     args: FillArgsObject
   ): ShaderityObject {
-    const templateObject = Object.assign(args, {
+    const step1 = Shaderity.fillTemplate(shaderityObject, args);
+    const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
+    const templateObject = {
       WellKnownComponentTIDs,
       widthOfDataTexture: `const int widthOfDataTexture = ${MemoryManager.bufferWidthLength};`,
       heightOfDataTexture: `const int heightOfDataTexture = ${MemoryManager.bufferHeightLength};`,
-      Config,
-    }) as TemplateObject;
+      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
+      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+    } as unknown as TemplateObject;
 
-    return Shaderity.fillTemplate(shaderityObject, templateObject);
+    return Shaderity.fillTemplate(step1, templateObject);
   }
 
   public static transformWebGLVersion(

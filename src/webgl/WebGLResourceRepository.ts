@@ -574,7 +574,6 @@ export class WebGLResourceRepository
     const shaderProgram = this.getWebGLResource(shaderProgramUid) as RnWebGLProgram;
     const gl = this.currentWebGLContextWrapper!.getRawContext();
     (shaderProgram as any).dataTexture = gl.getUniformLocation(shaderProgram, 'u_dataTexture');
-    (shaderProgram as any).isMainVr = gl.getUniformLocation(shaderProgram, 'u_isMainVr');
     (shaderProgram as any).currentComponentSIDs = gl.getUniformLocation(
       shaderProgram,
       'u_currentComponentSIDs'
@@ -2755,17 +2754,6 @@ export class WebGLResourceRepository
     for (let i = 0; i < renderTargetNumber; i++) {
       text += `layout(location = ${i}) out vec4 rt${i};`;
     }
-
-    return text;
-  }
-
-  getGlslRenderTargetEndString(renderTargetNumber: number) {
-    const text = '';
-    // if (Is.false(this.__glw!.isWebGL2)) {
-    //   for (let i = 0; i < renderTargetNumber; i++) {
-    //     text += `gl_FragData[${i}] = rt${i};`;
-    //   }
-    // }
 
     return text;
   }

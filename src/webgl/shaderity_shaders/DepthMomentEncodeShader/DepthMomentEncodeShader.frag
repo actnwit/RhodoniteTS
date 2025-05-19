@@ -1,23 +1,21 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
+/* shaderity: @{vertexIn} */
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
 
 void main (){
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   float depth = gl_FragCoord.z;
   float dx = dFdx(depth);
@@ -28,6 +26,6 @@ void main (){
   rt0.z = 0.0;
   rt0.w = 1.0;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }
 

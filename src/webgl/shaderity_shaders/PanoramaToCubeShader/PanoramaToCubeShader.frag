@@ -1,17 +1,17 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform int u_cubeMapFaceId; // initialValue=0
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
@@ -41,12 +41,12 @@ vec3 uvToDirection(int faceId, vec2 uv)
 // learned a lot from https://github.com/KhronosGroup/glTF-Sample-Viewer
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
 	vec2 uv = v_texcoord_0 * 2.0 - 1.0;
 	vec3 direction = normalize(uvToDirection(get_cubeMapFaceId(materialSID, 0), uv));
 	vec2 panoramaUv = dirToPanoramaUV(direction);
 	rt0 = vec4(texture(u_baseColorTexture, panoramaUv).rgb, 1.0);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

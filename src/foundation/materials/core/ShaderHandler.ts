@@ -1,4 +1,4 @@
-import ShaderityModule from 'shaderity';
+import ShaderityModule, { ShaderityObject } from 'shaderity';
 import { CGAPIResourceHandle } from '../../../types/CommonTypes';
 import { AttributeNames } from '../../../webgl/types/CommonTypes';
 import { WebGLContextWrapper } from '../../../webgl/WebGLContextWrapper';
@@ -20,6 +20,29 @@ import { getShaderPropertyFunc } from '../../definitions/ShaderSemantics';
 import { ShaderityUtilityWebGPU } from './ShaderityUtilityWebGPU';
 import { processGeometryWgsl } from '../../../webgpu/shaderity_shaders/common/processGeometry';
 import { processGeometryGlsl } from '../../../webgl/shaderity_shaders/common/processGeometry';
+import { prerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/prerequisites';
+import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs';
+import { prerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/prerequisites';
+import { opticalDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/opticalDefinition';
+import { opticalDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/opticalDefinition';
+import { pbrDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/pbrDefinition';
+import { pbrDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/pbrDefinition';
+import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDefinition';
+import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
+import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
+import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
+import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslPrecision';
+import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
+import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
+import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/common/enableVertexExtensions';
+import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
+import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
+import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
+import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
+import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
+import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
+import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
+import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -79,7 +102,7 @@ export function _createProgramAsSingleOperationByUpdatedSources(
   updatedShaderSources: ShaderSources,
   onError?: (message: string) => void
 ): [CGAPIResourceHandle, boolean] {
-  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
+  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode.vertexShaderityObject!);
 
   const [shaderProgramUid, newOne] = ShaderHandler._createShaderProgramWithCache(
     material,
@@ -94,9 +117,9 @@ export function _createProgramAsSingleOperationByUpdatedSources(
   return [shaderProgramUid, newOne];
 }
 
-export function _getAttributeInfo(materialNode: AbstractMaterialContent) {
+export function _getAttributeInfo(shaderityObject: ShaderityObject) {
   const reflection = ShaderityUtilityWebGL.getAttributeReflection(
-    materialNode.vertexShaderityObject!
+    shaderityObject
   );
   const attributeNames = reflection.names;
   const attributeSemantics = reflection.semantics;
@@ -173,32 +196,46 @@ export function _createProgramAsSingleOperationWebGL(
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
+      enableVertexExtensions: enableVertexExtensionsGlsl.code,
+      glslPrecision: glslPrecisionGlsl.code,
+      vertexInOut: vertexInOutGlsl.code,
+      fullscreen: fullscreenGlsl.code,
+      WellKnownComponentTIDs,
       getters: vertexPropertiesStr,
       definitions: definitions,
-      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      prerequisites: prerequisitesGlsl.code,
+      mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: vertexShaderMethodDefinitions_uniform,
       processGeometry: processGeometryGlsl.code,
+      Config,
     }
   );
 
   const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
+      glslPrecision: glslPrecisionGlsl.code,
+      WellKnownComponentTIDs,
+      vertexIn: vertexInGlsl.code,
       renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
       getters: pixelPropertiesStr,
       definitions: definitions,
-      dataUBODefinition: webglResourceRepository.getGlslDataUBODefinitionString(),
-      dataUBOVec4Size: webglResourceRepository.getGlslDataUBOVec4SizeString(),
+      prerequisites: prerequisitesGlsl.code,
+      mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: vertexShaderMethodDefinitions_uniform,
-      renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
+      opticalDefinition: opticalDefinitionGlsl.code,
+      pbrDefinition: pbrDefinitionGlsl.code,
+      iblDefinition: iblDefinitionGlsl.code,
+      alphaProcess: alphaProcessGlsl.code,
+      outputSrgb: outputSrgbGlsl.code,
+      Config,
     }
   );
 
   vertexShader += vertexShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
   pixelShader += pixelShaderityObject.code.replace(/#version\s+(100|300\s+es)/, '');
 
-  const { attributeNames, attributeSemantics } = _getAttributeInfo(materialNode);
+  const { attributeNames, attributeSemantics } = _getAttributeInfo(vertexShaderityObject);
   const vertexAttributesBinding = _outputVertexAttributeBindingInfo(
     attributeNames,
     attributeSemantics
@@ -303,15 +340,17 @@ export function _createProgramAsSingleOperationWebGpu(
   const vertexShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
+      WellKnownComponentTIDs,
+      vertexInput: vertexInputWgsl.code,
+      vertexOutput: vertexOutputWgsl.code,
+      prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
+      fullscreen: fullscreenWgsl.code,
       getters: vertexPropertiesStr,
       definitions: '// RN_IS_VERTEX_SHADER\n#define RN_IS_VERTEX_SHADER\n' + definitions,
       matricesGetters: vertexShaderMethodDefinitions,
-      maxMorphDataNumber:
-        '' +
-        Math.ceil(
-          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
-        ),
       processGeometry: processGeometryWgsl.code,
+      Config,
     }
   );
 
@@ -326,14 +365,19 @@ export function _createProgramAsSingleOperationWebGpu(
   const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
+      WellKnownComponentTIDs,
+      vertexOutput: vertexOutputWgsl.code,
+      prerequisites: prerequisitesWgsl.code,
+      mainPrerequisites: mainPrerequisitesWgsl.code,
       getters: pixelPropertiesStr,
       definitions: '// RN_IS_PIXEL_SHADER\n#define RN_IS_PIXEL_SHADER\n' + definitions + alphaMode,
       matricesGetters: vertexShaderMethodDefinitions,
-      maxMorphDataNumber:
-        '' +
-        Math.ceil(
-          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
-        ),
+      opticalDefinition: opticalDefinitionWgsl.code,
+      pbrDefinition: pbrDefinitionWgsl.code,
+      iblDefinition: iblDefinitionWgsl.code,
+      alphaProcess: alphaProcessWgsl.code,
+      outputSrgb: outputSrgbWgsl.code,
+      Config,
     }
   );
 

@@ -1,6 +1,6 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
@@ -16,9 +16,9 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
   return clamp((1.0 - factor), 0.0, 1.0);
 }
 
-#pragma shaderity: require(../common/opticalDefinition.wgsl)
-#pragma shaderity: require(../common/perturbedNormal.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
+/* shaderity: @{opticalDefinition} */
+
+/* shaderity: @{pbrDefinition} */
 
 @group(1) @binding(16) var diffuseEnvTexture: texture_cube<f32>; // initialValue=black, isInternalSetting=true
 @group(2) @binding(16) var diffuseEnvSampler: sampler;
@@ -29,7 +29,7 @@ fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScal
 // #param iblParameter: vec4<f32>; // initialValue=(1,1,1,1), isInternalSetting=true
 // #param hdriFormat: vec2<i32>; // initialValue=(0,0), isInternalSetting=true
 
-#pragma shaderity: require(../common/iblDefinition.wgsl)
+/* shaderity: @{iblDefinition} */
 
 const PI_2: f32 = 6.28318530718;
 
@@ -56,7 +56,7 @@ fn main (
     #endif
   #endif
 
-  #pragma shaderity: require(../common/mainPrerequisites.wgsl)
+  /* shaderity: @{mainPrerequisites} */
 
   // uv animation
   let uvAnimationMaskTexture = textureSample(uvAnimationMaskTexture, uvAnimationMaskSampler, input.texcoord_0).r;

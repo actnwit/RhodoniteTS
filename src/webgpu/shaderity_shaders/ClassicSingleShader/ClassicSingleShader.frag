@@ -1,13 +1,12 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
-#pragma shaderity: require(../common/prerequisites.wgsl)
+/* shaderity: @{vertexOutput} */
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 /* shaderity: @{matricesGetters} */
 
-#pragma shaderity: require(../common/opticalDefinition.wgsl)
-#pragma shaderity: require(../common/perturbedNormal.wgsl)
-#pragma shaderity: require(../common/pbrDefinition.wgsl)
+/* shaderity: @{opticalDefinition} */
+
 
 // #param shadingModel: u32; // initialValue=0
 // #param alphaCutoff: f32; // initialValue=0.01
@@ -28,7 +27,7 @@ fn main (
   @builtin(front_facing) isFront: bool,
 ) -> @location(0) vec4<f32> {
 
-#pragma shaderity: require(../common/mainPrerequisites.wgsl)
+/* shaderity: @{mainPrerequisites} */
 
   // Normal
   let normal_inWorld = normalize(input.normal_inWorld);
@@ -55,7 +54,7 @@ fn main (
   alpha *= textureColor.a;
 #endif
 
-#pragma shaderity: require(../common/alphaMask.wgsl)
+/* shaderity: @{alphaProcess} */
 
   // Lighting
   var shadingColor = vec3f(0.0, 0.0, 0.0);
@@ -119,11 +118,6 @@ fn main (
 
 //   alpha = 1.0;
 // #endif
-
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  alpha = 1.0;
-#endif
 
   var finalColor = vec4f(shadingColor * alpha, alpha);
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);

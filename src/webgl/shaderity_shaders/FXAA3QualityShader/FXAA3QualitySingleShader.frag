@@ -1,6 +1,6 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /**
  * This file contains source code provided by NVIDIA Corporation.
@@ -50,13 +50,13 @@
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
@@ -1130,7 +1130,7 @@ uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 
 
 void main(){
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   vec2 screenInfo = vec2(textureSize(u_baseColorTexture, 0));
   rt0 = FxaaPixelShader(
@@ -1153,6 +1153,6 @@ void main(){
   );
   rt0.a = 1.0;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }

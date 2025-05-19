@@ -2,14 +2,6 @@
 // https://github.com/KhronosGroup/glTF-Sample-Renderer
 // Modified by Yuki Shimada
 
-fn srgbToLinear(srgbColor: vec3f) -> vec3f {
-  return pow(srgbColor, vec3f(2.2));
-}
-
-fn linearToSrgb(linearColor: vec3f) -> vec3f {
-  return pow(linearColor, vec3f(1.0/2.2));
-}
-
 // From: https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/e2c7b8c8bd12916c1a387cd41f9ef061edc718df/source/Renderer/shaders/brdf.glsl#L44-L66
 fn Schlick_to_F0_F90(f: vec3f, f90: vec3f, VdotH: f32) -> vec3f {
     let x = clamp(1.0 - VdotH, 0.0, 1.0);

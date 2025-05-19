@@ -4,3 +4,8 @@
     discard;
   }
 #endif
+
+#ifdef RN_IS_ALPHA_MODE_BLEND
+#else
+  alpha = 1.0;
+#endif

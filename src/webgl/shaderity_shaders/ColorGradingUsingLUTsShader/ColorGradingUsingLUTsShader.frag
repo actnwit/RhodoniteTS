@@ -1,20 +1,18 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+/* shaderity: @{glslPrecision} */
 
-in vec2 v_texcoord;
+/* shaderity: @{vertexIn} */
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
 
 void main ()
 {
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
-  vec4 textureColor = texture(u_baseColorTexture, v_texcoord);
+  vec4 textureColor = texture(u_baseColorTexture, v_texcoord_0);
 
   float r = textureColor.r;
   float g = textureColor.g;
@@ -57,5 +55,5 @@ void main ()
   }
 
   rt0 = vec4(newColor, 1.0);
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

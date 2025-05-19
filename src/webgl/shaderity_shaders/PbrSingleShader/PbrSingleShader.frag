@@ -1,29 +1,12 @@
-#pragma shaderity: require(../common/version.glsl)
-#pragma shaderity: require(../common/enableFragmentExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+
+
+/* shaderity: @{glslPrecision} */
 
 /* shaderity: @{definitions} */
 
-#pragma shaderity: require(../common/prerequisites.glsl)
+/* shaderity: @{vertexIn} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
-in vec2 v_texcoord_1;
-in vec2 v_texcoord_2;
-in vec3 v_baryCentricCoord;
-in float v_instanceInfo;
-in float v_displayIdx;
-
-#ifdef RN_USE_TANGENT
-  in vec3 v_tangent_inWorld;
-  in vec3 v_binormal_inWorld;
-#endif
-
-#ifdef RN_USE_SHADOW_MAPPING
-in vec4 v_shadowCoord;
-#endif
+/* shaderity: @{prerequisites} */
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
@@ -181,11 +164,11 @@ uniform float u_ior; // initialValue=1.5
 
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
-#pragma shaderity: require(../common/opticalDefinition.glsl)
+/* shaderity: @{opticalDefinition} */
 
 /* shaderity: @{matricesGetters} */
 
@@ -196,8 +179,8 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 #pragma shaderity: require(../common/shadow.glsl)
 
-#pragma shaderity: require(../common/pbrDefinition.glsl)
-#pragma shaderity: require(../common/iblDefinition.glsl)
+/* shaderity: @{pbrDefinition} */
+/* shaderity: @{iblDefinition} */
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);
@@ -220,12 +203,10 @@ vec2 getTexcoord(int texcoordIndex) {
   return texcoord;
 }
 
-#pragma shaderity: require(../common/perturbedNormal.glsl)
-
 void main ()
 {
 
-#pragma shaderity: require(../common/mainPrerequisites.glsl)
+/* shaderity: @{mainPrerequisites} */
 
   // View direction
   vec3 viewPosition = get_viewPosition(cameraSID, 0);
@@ -257,7 +238,7 @@ void main ()
   baseColor *= srgbToLinear(textureColor.rgb);
   alpha *= textureColor.a;
 
-#pragma shaderity: require(../common/alphaMask.glsl)
+/* shaderity: @{alphaProcess} */
 
   // Normal
   vec3 normal_inWorld = normalize(v_normal_inWorld);
@@ -565,15 +546,15 @@ void main ()
       float shadowContribution = varianceShadowContributionParaboloid(v_position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
       lighting *= shadowContribution;
     } else if ((light.type == 0 || light.type == 2) && depthTextureIndex >= 0) { // Spot Light
-      vec4 v_shadowCoord = get_depthBiasPV(materialSID, i) * v_position_inWorld;
+      vec4 shadowCoordVec4 = get_depthBiasPV(materialSID, i) * v_position_inWorld;
       float bias = 0.001;
-      vec2 shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
+      vec2 shadowCoord = shadowCoordVec4.xy / shadowCoordVec4.w;
       vec3 lightDirection = normalize(get_lightDirection(0.0, i));
       vec3 lightPosToWorldPos = normalize(v_position_inWorld.xyz - light.position);
       float dotProduct = dot(lightPosToWorldPos, lightDirection);
       float shadowContribution = 1.0;
       if (dotProduct > 0.0 && shadowCoord.x >= 0.0 && shadowCoord.x <= 1.0 && shadowCoord.y >= 0.0 && shadowCoord.y <= 1.0) {
-        shadowContribution = varianceShadowContribution(shadowCoord, (v_shadowCoord.z - bias)/v_shadowCoord.w, depthTextureIndex);
+        shadowContribution = varianceShadowContribution(shadowCoord, (shadowCoordVec4.z - bias)/shadowCoordVec4.w, depthTextureIndex);
       }
       lighting *= shadowContribution;
     }
@@ -638,7 +619,7 @@ void main ()
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
   if(isOutputHDR){
-#pragma shaderity: require(../common/glFragColor.glsl)
+
     return;
   }
 
@@ -665,17 +646,11 @@ void main ()
     }
   }
 
-
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  rt0.a = 1.0;
-#endif
-
-#pragma shaderity: require(../common/outputSrgb.glsl)
+  /* shaderity: @{outputSrgb} */
 rt0.rgb = rt0.rgb * rt0.a; // alpha premultiplied
 rt1 = rt0;
 rt2 = rt0;
 rt3 = rt0;
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }
