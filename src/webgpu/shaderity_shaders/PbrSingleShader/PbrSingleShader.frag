@@ -218,8 +218,9 @@ fn main(
 #else
   let baseColorTexUv = vec2f(0.0, 0.0);
 #endif
+  var alpha = baseColor.a;
 
-#pragma shaderity: require(../common/alphaMask.wgsl)
+/* shaderity: @{alphaProcess} */
 
 
 // Normal
@@ -502,7 +503,6 @@ let ior = get_ior(materialSID, 0);
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
   var resultColor = vec3<f32>(0, 0, 0);
-  var resultAlpha = baseColor.a;
 
   // Punctual Lights
   let lightNumber = u32(get_lightNumber(0u, 0u));
@@ -579,7 +579,6 @@ let ior = get_ior(materialSID, 0);
   resultColor += indirectLight;
 #else
   var resultColor = baseColor.rgb;
-  var resultAlpha = baseColor.a;
 #endif // RN_IS_LIGHTING
 
   // Emissive
@@ -608,11 +607,6 @@ let ior = get_ior(materialSID, 0);
   resultColor += emissive;
 #endif // RN_USE_CLEARCOAT
 
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  resultAlpha = 1.0;
-#endif
-
 #pragma shaderity: require(../common/outputSrgb.wgsl)
-  return vec4f(resultColor * resultAlpha, resultAlpha);
+  return vec4f(resultColor * alpha, alpha);
 }

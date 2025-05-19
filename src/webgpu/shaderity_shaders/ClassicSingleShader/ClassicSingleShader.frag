@@ -54,7 +54,7 @@ fn main (
   alpha *= textureColor.a;
 #endif
 
-#pragma shaderity: require(../common/alphaMask.wgsl)
+/* shaderity: @{alphaProcess} */
 
   // Lighting
   var shadingColor = vec3f(0.0, 0.0, 0.0);
@@ -118,11 +118,6 @@ fn main (
 
 //   alpha = 1.0;
 // #endif
-
-#ifdef RN_IS_ALPHA_MODE_BLEND
-#else
-  alpha = 1.0;
-#endif
 
   var finalColor = vec4f(shadingColor * alpha, alpha);
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
