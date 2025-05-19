@@ -15,7 +15,7 @@
 
 @vertex
 fn main(
-#pragma shaderity: require(../common/vertexInput.wgsl)
+/* shaderity: @{vertexInput} */
 ) -> VertexOutput {
   var output : VertexOutput;
   #ifdef RN_MTOON_IS_OUTLINE

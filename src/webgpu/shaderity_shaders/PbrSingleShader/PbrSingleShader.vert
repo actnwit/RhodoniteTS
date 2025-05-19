@@ -8,7 +8,7 @@
 
 @vertex
 fn main(
-#pragma shaderity: require(../common/vertexInput.wgsl)
+/* shaderity: @{vertexInput} */
 ) -> VertexOutput {
 /* shaderity: @{mainPrerequisites} */
 
