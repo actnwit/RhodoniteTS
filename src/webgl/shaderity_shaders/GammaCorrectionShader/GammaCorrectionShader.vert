@@ -19,6 +19,6 @@ void main()
 {
 
 /* shaderity: @{mainPrerequisites} */
-#pragma shaderity: require(../common/fullscreen.glsl)
+/* shaderity: @{fullscreen} */
 
 }

@@ -35,6 +35,7 @@ import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslP
 import { alphaProcessGlsl } from '../../../webgl/shaderity_shaders/common/alphaProcess';
 import { alphaProcessWgsl } from '../../../webgpu/shaderity_shaders/common/alphaProcess';
 import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/common/enableVertexExtensions';
+import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -190,6 +191,7 @@ export function _createProgramAsSingleOperationWebGL(
     {
       enableVertexExtensions: enableVertexExtensionsGlsl.code,
       glslPrecision: glslPrecisionGlsl.code,
+      fullscreen: fullscreenGlsl.code,
       WellKnownComponentTIDs,
       getters: vertexPropertiesStr,
       definitions: definitions,
