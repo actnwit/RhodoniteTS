@@ -1,12 +1,14 @@
 import Rn from '../../../dist/esmdev/index.js';
+import { getProcessApproach } from '../common/testHelpers.js';
 
 declare const window: any;
 
 window.Rn = Rn;
 
 Rn.Config.cgApiDebugConsoleOutput = true;
+const processApproach = getProcessApproach(Rn);
 await Rn.System.init({
-  approach: Rn.ProcessApproach.DataTexture,
+  approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;

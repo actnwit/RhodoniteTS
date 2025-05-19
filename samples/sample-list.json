@@ -2,6 +2,7 @@
   "test_e2e": [
     "AnimationBlending",
     "ColorGradingUsingLUTs",
+    "CustomShader",
     "DataTextureInstancedDrawing",
     "DataTextureInstancedDrawing2",
     "DepthEncode",
