@@ -1,6 +1,6 @@
 
 #pragma shaderity: require(../common/enableVertexExtensions.glsl)
-#pragma shaderity: require(../common/glslPrecision.glsl)
+/* shaderity: @{glslPrecision} */
 
 in vec4 a_instanceInfo;
 in vec2 a_texcoord;

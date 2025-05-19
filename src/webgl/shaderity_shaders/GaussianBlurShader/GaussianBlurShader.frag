@@ -1,6 +1,6 @@
 
 
-#pragma shaderity: require(../common/glslPrecision.glsl)
+/* shaderity: @{glslPrecision} */
 
 #pragma shaderity: require(../common/rt0.glsl)
 

@@ -1,6 +1,6 @@
 
 
-#pragma shaderity: require(../common/glslPrecision.glsl)
+/* shaderity: @{glslPrecision} */
 
 in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;

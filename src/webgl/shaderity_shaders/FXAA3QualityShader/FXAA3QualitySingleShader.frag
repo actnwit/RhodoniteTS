@@ -1,6 +1,6 @@
 
 
-#pragma shaderity: require(../common/glslPrecision.glsl)
+/* shaderity: @{glslPrecision} */
 
 /**
  * This file contains source code provided by NVIDIA Corporation.

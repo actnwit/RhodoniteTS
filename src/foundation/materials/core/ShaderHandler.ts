@@ -31,6 +31,7 @@ import { iblDefinitionGlsl } from '../../../webgl/shaderity_shaders/common/iblDe
 import { iblDefinitionWgsl } from '../../../webgpu/shaderity_shaders/common/iblDefinition';
 import { mainPrerequisitesGlsl } from '../../../webgl/shaderity_shaders/common/mainPrerequisites';
 import { mainPrerequisitesWgsl } from '../../../webgpu/shaderity_shaders/common/mainPrerequisites';
+import { glslPrecisionGlsl } from '../../../webgl/shaderity_shaders/common/glslPrecision';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -184,6 +185,7 @@ export function _createProgramAsSingleOperationWebGL(
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.vertexShaderityObject!,
     {
+      glslPrecision: glslPrecisionGlsl.code,
       WellKnownComponentTIDs,
       getters: vertexPropertiesStr,
       definitions: definitions,
@@ -198,6 +200,7 @@ export function _createProgramAsSingleOperationWebGL(
   const pixelShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.pixelShaderityObject!,
     {
+      glslPrecision: glslPrecisionGlsl.code,
       WellKnownComponentTIDs,
       renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
       getters: pixelPropertiesStr,
