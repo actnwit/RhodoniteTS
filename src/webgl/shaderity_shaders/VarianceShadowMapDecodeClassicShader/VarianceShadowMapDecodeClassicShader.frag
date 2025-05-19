@@ -6,13 +6,9 @@
 
 /* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 in vec4 v_texcoord_light;
 in vec4 v_projPosition_from_light;
-in vec3 v_baryCentricCoord;
 
 /* shaderity: @{renderTargetBegin} */
 

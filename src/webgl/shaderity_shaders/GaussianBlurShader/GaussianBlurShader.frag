@@ -10,7 +10,7 @@
 
 /* shaderity: @{getters} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 
 void main ()

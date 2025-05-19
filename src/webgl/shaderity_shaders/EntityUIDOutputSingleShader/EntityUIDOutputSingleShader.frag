@@ -4,9 +4,7 @@
 
 /* shaderity: @{definitions} */
 
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in float v_instanceInfo;
+/* shaderity: @{vertexIn} */
 
 /* shaderity: @{prerequisites} */
 

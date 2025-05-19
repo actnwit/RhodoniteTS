@@ -1,7 +1,6 @@
-
 /* shaderity: @{glslPrecision} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 /* shaderity: @{renderTargetBegin} */
 

@@ -6,11 +6,7 @@
 
 /* shaderity: @{prerequisites} */
 
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in vec2 v_texcoord_0;
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 
 uniform int u_shadingModel; // initialValue=0
 uniform float u_alphaCutoff; // initialValue=0.01

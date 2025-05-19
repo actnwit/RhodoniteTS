@@ -6,7 +6,7 @@
 
 /* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 uniform sampler2DRect u_baseColorTexture; // initialValue=(0,white)
 uniform float u_count; // initialValue=0.0

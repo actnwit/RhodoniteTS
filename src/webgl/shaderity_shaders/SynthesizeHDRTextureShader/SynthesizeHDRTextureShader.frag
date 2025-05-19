@@ -8,7 +8,7 @@
 
 /* shaderity: @{getters} */
 
-in vec2 v_texcoord_0;
+/* shaderity: @{vertexIn} */
 
 float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
   vec3 d = fwidth(bary3);

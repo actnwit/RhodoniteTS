@@ -40,6 +40,7 @@ import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscr
 import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
 import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
 import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
+import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -213,6 +214,7 @@ export function _createProgramAsSingleOperationWebGL(
     {
       glslPrecision: glslPrecisionGlsl.code,
       WellKnownComponentTIDs,
+      vertexIn: vertexInGlsl.code,
       renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
       getters: pixelPropertiesStr,
       definitions: definitions,

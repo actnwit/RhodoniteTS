@@ -7,16 +7,8 @@
 
 const float EPS_COL = 0.00001;
 
-in vec2 v_texcoord_0;
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 in vec3 v_normal_inView;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
-in float v_instanceInfo;
-#ifdef RN_USE_TANGENT
-  in vec3 v_tangent_inWorld;
-  in vec3 v_binormal_inWorld; // bitangent_inWorld
-#endif
 
 /* shaderity: @{prerequisites} */
 /* shaderity: @{renderTargetBegin} */

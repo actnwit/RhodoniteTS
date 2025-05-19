@@ -6,10 +6,7 @@
 
 /* shaderity: @{prerequisites} */
 
-in vec2 v_texcoord_0;
-in vec3 v_color;
-in vec3 v_normal_inWorld;
-in vec4 v_position_inWorld;
+/* shaderity: @{vertexIn} */
 
 uniform int u_envHdriFormat; // initialValue=0
 uniform float u_envRotation; // initialValue=0

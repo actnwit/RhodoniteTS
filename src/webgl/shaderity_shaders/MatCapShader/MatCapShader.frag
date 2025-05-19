@@ -1,8 +1,7 @@
 
-
 /* shaderity: @{glslPrecision} */
 
-in vec3 v_baryCentricCoord;
+/* shaderity: @{vertexIn} */
 in vec3 v_normal_inView;
 
 /* shaderity: @{renderTargetBegin} */
