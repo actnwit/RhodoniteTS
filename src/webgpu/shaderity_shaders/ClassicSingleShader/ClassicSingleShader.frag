@@ -6,7 +6,7 @@
 /* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
-#pragma shaderity: require(../common/perturbedNormal.wgsl)
+
 
 // #param shadingModel: u32; // initialValue=0
 // #param alphaCutoff: f32; // initialValue=0.01

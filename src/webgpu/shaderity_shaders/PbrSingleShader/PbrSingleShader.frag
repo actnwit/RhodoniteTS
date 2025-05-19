@@ -6,7 +6,7 @@
 /* shaderity: @{matricesGetters} */
 
 /* shaderity: @{opticalDefinition} */
-#pragma shaderity: require(../common/perturbedNormal.wgsl)
+
 
 // #param makeOutputSrgb: bool; // initialValue=1
 

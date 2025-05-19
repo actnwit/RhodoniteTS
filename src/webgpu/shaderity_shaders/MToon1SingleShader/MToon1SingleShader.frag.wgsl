@@ -8,7 +8,7 @@
 const EPS_COL: f32 = 0.00001;
 
 /* shaderity: @{opticalDefinition} */
-#pragma shaderity: require(../common/perturbedNormal.wgsl)
+
 /* shaderity: @{pbrDefinition} */
 
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
