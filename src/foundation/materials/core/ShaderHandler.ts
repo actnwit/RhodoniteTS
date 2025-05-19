@@ -38,6 +38,7 @@ import { enableVertexExtensionsGlsl } from '../../../webgl/shaderity_shaders/com
 import { fullscreenGlsl } from '../../../webgl/shaderity_shaders/common/fullscreen';
 import { fullscreenWgsl } from '../../../webgpu/shaderity_shaders/common/fullscreen';
 import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSrgb';
+import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -366,6 +367,7 @@ export function _createProgramAsSingleOperationWebGpu(
       pbrDefinition: pbrDefinitionWgsl.code,
       iblDefinition: iblDefinitionWgsl.code,
       alphaProcess: alphaProcessWgsl.code,
+      outputSrgb: outputSrgbWgsl.code,
       Config,
     }
   );

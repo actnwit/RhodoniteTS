@@ -51,7 +51,7 @@ fn main(
   var resultColor = diffuseColor.rgb;
   let resultAlpha = diffuseColor.a;
 
-#pragma shaderity: require(../common/outputSrgb.wgsl)
+  /* shaderity: @{outputSrgb} */
 
   return vec4f(resultColor, resultAlpha);
 }

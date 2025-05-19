@@ -607,6 +607,6 @@ let ior = get_ior(materialSID, 0);
   resultColor += emissive;
 #endif // RN_USE_CLEARCOAT
 
-#pragma shaderity: require(../common/outputSrgb.wgsl)
+  /* shaderity: @{outputSrgb} */
   return vec4f(resultColor * alpha, alpha);
 }
