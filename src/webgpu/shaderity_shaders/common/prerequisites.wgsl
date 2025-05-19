@@ -311,9 +311,9 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
 
 #ifdef RN_IS_PIXEL_SHADER
 #ifdef RN_USE_TANGENT
-  fn getTBN(normal_inWorld: vec3f, tangent_inWorld: vec3f, binormal_inWorld: vec3f, viewVector: vec3f, texcoord: vec2f, isFront: bool) -> mat3x3<f32> {
-    let tangent_inWorld = normalize(tangent_inWorld);
-    let binormal_inWorld = normalize(binormal_inWorld);
+  fn getTBN(normal_inWorld: vec3f, tangent_inWorld_: vec3f, binormal_inWorld_: vec3f, viewVector: vec3f, texcoord: vec2f, isFront: bool) -> mat3x3<f32> {
+    let tangent_inWorld = normalize(tangent_inWorld_);
+    let binormal_inWorld = normalize(binormal_inWorld_);
     let tbnMat_tangent_to_world = mat3x3<f32>(tangent_inWorld, binormal_inWorld, normal_inWorld);
 
     return tbnMat_tangent_to_world;
