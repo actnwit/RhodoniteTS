@@ -11,7 +11,7 @@ in vec4 v_position_inWorld;
 in float v_instanceInfo;
 
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

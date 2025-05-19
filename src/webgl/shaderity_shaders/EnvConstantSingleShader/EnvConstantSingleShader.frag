@@ -18,7 +18,7 @@ uniform samplerCube u_colorEnvTexture; // initialValue=(0,black)
 uniform bool u_makeOutputSrgb; // initialValue=true
 uniform bool u_inverseEnvironment; // initialValue=false
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

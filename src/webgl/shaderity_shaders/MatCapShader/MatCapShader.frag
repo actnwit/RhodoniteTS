@@ -5,7 +5,7 @@
 in vec3 v_baryCentricCoord;
 in vec3 v_normal_inView;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{prerequisites} */
 

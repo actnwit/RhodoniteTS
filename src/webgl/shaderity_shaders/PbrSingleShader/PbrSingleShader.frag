@@ -181,7 +181,7 @@ uniform float u_ior; // initialValue=1.5
 
 uniform float u_alphaCutoff; // initialValue=(0.01)
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

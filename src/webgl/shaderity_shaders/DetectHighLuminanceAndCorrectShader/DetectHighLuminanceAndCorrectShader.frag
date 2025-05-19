@@ -2,7 +2,7 @@
 
 /* shaderity: @{glslPrecision} */
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{prerequisites} */
 

@@ -13,7 +13,7 @@ in vec2 v_texcoord_0;
 in vec4 v_texcoord_1;
 in vec4 v_projPosition_from_light;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

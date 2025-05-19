@@ -20,7 +20,7 @@ uniform sampler2D u_normalTexture; // initialValue=(1,blue)
 uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

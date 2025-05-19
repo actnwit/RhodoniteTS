@@ -4,7 +4,7 @@
 
 in vec2 v_texcoord;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{prerequisites} */
 

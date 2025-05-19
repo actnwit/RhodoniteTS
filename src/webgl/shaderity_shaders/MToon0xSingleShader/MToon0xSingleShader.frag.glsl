@@ -19,7 +19,7 @@ in float v_instanceInfo;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
 #endif
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

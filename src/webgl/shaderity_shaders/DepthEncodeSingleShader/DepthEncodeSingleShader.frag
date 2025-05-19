@@ -8,7 +8,7 @@
 
 in vec4 v_position_inLocal;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

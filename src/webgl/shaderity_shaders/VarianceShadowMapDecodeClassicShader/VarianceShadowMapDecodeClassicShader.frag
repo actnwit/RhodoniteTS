@@ -14,7 +14,7 @@ in vec4 v_texcoord_1;
 in vec4 v_projPosition_from_light;
 in vec3 v_baryCentricCoord;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

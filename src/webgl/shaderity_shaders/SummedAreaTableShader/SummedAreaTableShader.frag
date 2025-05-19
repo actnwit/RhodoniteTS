@@ -11,7 +11,7 @@ in vec2 v_texcoord_0;
 uniform sampler2DRect u_baseColorTexture; // initialValue=(0,white)
 uniform float u_count; // initialValue=0.0
 uniform float u_direction; // initialValue=0.0
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

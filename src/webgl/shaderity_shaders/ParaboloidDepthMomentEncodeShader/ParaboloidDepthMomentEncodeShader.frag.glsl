@@ -10,7 +10,7 @@ in vec3 v_color;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

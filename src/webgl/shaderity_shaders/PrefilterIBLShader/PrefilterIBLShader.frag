@@ -14,7 +14,7 @@ uniform int u_distributionType; // initialValue=0
 uniform float u_roughness; // initialValue=0.0
 uniform int u_sampleCount; // initialValue=1024
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

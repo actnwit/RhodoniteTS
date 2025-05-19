@@ -56,7 +56,7 @@ in vec2 v_texcoord_0;
 
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 

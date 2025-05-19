@@ -23,7 +23,7 @@ uniform vec4 u_diffuseColorTextureTransform; // initialValue=(1,1,0,0)
 uniform float u_diffuseColorTextureRotation; // initialValue=0
 uniform sampler2DShadow u_depthTexture; // initialValue=(2,white)
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 // #pragma shaderity: require(../common/deliot2019SeamlessTexture.glsl)
 // uniform sampler2D u_tInvTexture; // initialValue=(1,white)
 // uniform vec3 u_colorSpaceOrigin;

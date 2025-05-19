@@ -11,7 +11,7 @@ in vec2 v_texcoord_0;
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform int u_cubeMapFaceId; // initialValue=0
 
-#pragma shaderity: require(../common/rt0.glsl)
+/* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */
 
