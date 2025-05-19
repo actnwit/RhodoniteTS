@@ -4914,7 +4914,6 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
     deleteUniformBuffer(uboUid: WebGLResourceHandle): void;
     setupUniformBufferDataArea(typedArray?: TypedArray): number;
     getGlslRenderTargetBeginString(renderTargetNumber: number): string;
-    getGlslRenderTargetEndString(renderTargetNumber: number): string;
     getGlslDataUBODefinitionString(): string;
     getGlslDataUBOVec4SizeString(): string;
     createMultiviewFramebuffer(width: number, height: number, samples: number): [WebGLResourceHandle, WebGLResourceHandle];
@@ -5004,6 +5003,10 @@ declare function isBlendWithoutZWrite(primitive: Primitive): boolean;
 declare function isTranslucent(primitive: Primitive): boolean;
 declare function isOpaque(primitive: Primitive): boolean;
 
+/**
+ * MeshComponent is a component that manages a mesh.
+ *
+ */
 declare class MeshComponent extends Component {
     private __viewDepth;
     private __mesh?;
@@ -5389,6 +5392,10 @@ declare class Accessor {
     isSame(rnAccessor: Accessor): boolean;
 }
 
+/**
+ * SkeletalComponent is a component that manages the skeletal animation of an entity.
+ *
+ */
 declare class SkeletalComponent extends Component {
     _jointIndices: Index[];
     private __joints;
@@ -9825,6 +9832,10 @@ declare class MutableQuaternion extends Quaternion implements IMutableQuaternion
     static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternion;
 }
 
+/**
+ * SceneGraphComponent is a component that represents a node in the scene graph.
+ *
+ */
 declare class SceneGraphComponent extends Component {
     private __parent?;
     private __children;
@@ -9956,19 +9967,23 @@ declare class SceneGraphComponent extends Component {
     private __updateGizmos;
     setPositionWithoutPhysics(vec: IVector3): void;
     set position(vec: IVector3);
+    setPositionToPhysics(vec: IVector3): void;
     get position(): MutableVector3;
     getPositionTo(outVec: MutableVector3): MutableVector3;
     get positionRest(): MutableVector3;
     getPositionRestTo(outVec: MutableVector3): MutableVector3;
     set eulerAngles(vec: IVector3);
+    setEulerAnglesToPhysics(vec: IVector3): void;
     get eulerAngles(): Vector3;
     setRotationWithoutPhysics(quat: IQuaternion): void;
     set rotation(quat: IQuaternion);
+    setRotationToPhysics(quat: IQuaternion): void;
     get rotation(): Quaternion;
     getRotationTo(outQuat: MutableQuaternion): MutableQuaternion;
     get rotationRest(): Quaternion;
     getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion;
     set scale(vec: IVector3);
+    setScaleToPhysics(vec: IVector3): void;
     get scale(): MutableVector3;
     private __copyChild;
     _shallowCopyFrom(component_: Component): void;
@@ -10345,6 +10360,10 @@ declare class Texture extends AbstractTexture implements Disposable {
     destroy(): void;
 }
 
+/**
+ * MeshRendererComponent is a component that manages the rendering of a mesh.
+ *
+ */
 declare class MeshRendererComponent extends Component {
     private __diffuseCubeMap?;
     private __specularCubeMap?;
@@ -12177,6 +12196,10 @@ declare class ShadowSystem {
     isLightChanged(): boolean;
 }
 
+/**
+ * TransformComponent is a component that manages the transform of an entity.
+ *
+ */
 declare class TransformComponent extends Component {
     private __rest;
     private __pose;
@@ -12195,6 +12218,7 @@ declare class TransformComponent extends Component {
     get localTransformRest(): Transform3D;
     set localTransformRest(transform: Transform3D);
     set localPosition(vec: IVector3);
+    set localPositionWithoutPhysics(vec: IVector3);
     setLocalPositionAsArray3(array: Array3<number>): void;
     /**
      * return a copy of a local translate vector
@@ -12217,6 +12241,7 @@ declare class TransformComponent extends Component {
      */
     get localPositionRestInner(): MutableVector3;
     set localEulerAngles(vec: IVector3);
+    set localEulerAnglesWithoutPhysics(vec: IVector3);
     /**
      * return a copy of a local rotation (XYZ euler) vector
      */
@@ -12238,6 +12263,7 @@ declare class TransformComponent extends Component {
      */
     get localEulerAnglesRestInner(): Vector3;
     set localScale(vec: IVector3);
+    set localScaleWithoutPhysics(vec: IVector3);
     setLocalScaleAsArray3(array: Array3<number>): void;
     /**
      * return a copy of a local scale vector
@@ -12260,6 +12286,7 @@ declare class TransformComponent extends Component {
      */
     get localScaleRestInner(): MutableVector3;
     set localRotation(quat: IQuaternion);
+    set localRotationWithoutPhysics(quat: IQuaternion);
     setLocalRotationAsArray4(array: Array4<number>): void;
     /**
      * return a copy of a local quaternion vector
@@ -12410,6 +12437,10 @@ interface PhysicsStrategy {
     update(): void;
 }
 
+/**
+ * PhysicsComponent is a component that manages the physics of an entity.
+ *
+ */
 declare class PhysicsComponent extends Component {
     private __strategy?;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
@@ -12437,10 +12468,17 @@ interface IBlendShapeEntityMethods {
     getBlendShape(): BlendShapeComponent;
 }
 
+/**
+ * IVrmConstraint is an interface for VRM constraints.
+ */
 interface IVrmConstraint {
     update(): void;
 }
 
+/**
+ * ConstraintComponent is a component that manages constraints.
+ *
+ */
 declare class ConstraintComponent extends Component {
     private __vrmConstraint?;
     constructor(entityUid: EntityUID, componentSid: ComponentSID, entityComponent: EntityRepository, isReUse: boolean);
@@ -12461,6 +12499,10 @@ interface IConstraintEntityMethods {
     getConstraint(): ConstraintComponent;
 }
 
+/**
+ * AnimationStateComponent is a component that manages the state of an animation.
+ *
+ */
 declare class AnimationStateComponent extends Component {
     private __activeAnimationTrack;
     private __interpolationStartTime;
@@ -12785,6 +12827,10 @@ type VrmExpression = {
     isBinary: boolean;
     binds: VrmExpressionMorphBind[];
 };
+/**
+ * VrmComponent is a component that manages the VRM model.
+ *
+ */
 declare class VrmComponent extends Component {
     private __expressions;
     private __weights;
@@ -12847,11 +12893,37 @@ declare class EntityRepository {
      * Creates an entity
      */
     static createEntity(): IEntity;
+    /**
+     * Deletes an entity.
+     * @param entityUid - the entityUID of the entity to delete.
+     */
     static deleteEntity(entityUid: EntityUID): void;
+    /**
+     * Deletes an entity and all its child entities.
+     * @param entityUid - the entityUID of the entity to delete.
+     */
     static deleteEntityRecursively(entityUid: EntityUID): void;
+    /**
+     * Shallow copies an entity.
+     * @param entity - the entity to shallow copy.
+     * @returns the shallow copied entity.
+     */
     static shallowCopyEntity(entity: IEntity): IEntity;
+    /**
+     * Sets the joints to SkeletalComponent of entities.
+     * @param entity - the entity to set the joints of.
+     */
     private static __setJoints;
+    /**
+     * This is an internal function that shallow copies an entity.
+     * @param entity - the entity to shallow copy.
+     * @returns the shallow copied entity.
+     */
     static _shallowCopyEntityInner(entity: IEntity): IEntity;
+    /**
+     * This is an internal function that handles the tag data of an entity.
+     * @param newEntity - the entity to handle the tag data of.
+     */
     private static __handleTagData;
     /**
      * Try to add a component to the entity by componentTID.
@@ -12902,8 +12974,8 @@ declare class EntityRepository {
      */
     static getEntityByUniqueName(uniqueName: string): IEntity | undefined;
     /**
-     * @internal
      * Gets all entities.
+     * @internal
      */
     static _getEntities(): IEntity[];
     /**
@@ -14244,11 +14316,7 @@ declare class Buffer {
 }
 
 /**
- * Usage
- * const mm = MemoryManager.getInstance();
- * this.translate = new Vector3(
- *   mm.assignMem(componentUID, propertyId, entityUID, isRendered)
- * );
+ * MemoryManager is a class that manages the memory of the library.
  */
 declare class MemoryManager {
     private static __instance;
@@ -14669,6 +14737,11 @@ declare class CameraComponent extends Component {
     addThisComponentToEntity<EntityBaseClass extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBaseClass, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBaseClass;
 }
 
+/**
+ * AbstractCameraController is an abstract class that defines the interface for camera controllers.
+ *
+ * @internal
+ */
 declare abstract class AbstractCameraController {
     zNearMax: number;
     zFarScalingFactor: number;
@@ -14682,6 +14755,10 @@ declare abstract class AbstractCameraController {
     abstract getTargets(): ISceneGraphEntity[];
 }
 
+/**
+ * OrbitCameraController is a camera controller that allows the user to orbit around a target.
+ *
+ */
 declare class OrbitCameraController extends AbstractCameraController implements ICameraController {
     dollyScale: number;
     scaleOfLengthCenterToCamera: number;
@@ -14818,6 +14895,10 @@ declare class OrbitCameraController extends AbstractCameraController implements 
     get lastMouseUpTimeStamp(): number;
 }
 
+/**
+ * WalkThroughCameraController is a camera controller that allows the user to walk through a scene.
+ *
+ */
 declare class WalkThroughCameraController extends AbstractCameraController implements ICameraController {
     private __updateCount;
     private _horizontalSpeed;
@@ -15015,6 +15096,12 @@ declare class ComponentRepository {
     static getRenderingComponentTIDs(): Array<ComponentTID>;
 }
 
+/**
+ * Config.ts is a configuration file that contains the configuration for the library.
+ */
+/**
+ * Config is a configuration object that contains the configuration for the library.
+ */
 declare const Config: {
     maxEntityNumber: number;
     maxLightNumberInShader: number;
@@ -15830,7 +15917,7 @@ declare abstract class CommonShaderPart {
     static getVertexPrerequisites(shaderNodes: AbstractShaderNode[]): string;
     private static __makeVaryingVariablesWGSL;
     static getPixelPrerequisites(shaderNodes: AbstractShaderNode[]): string;
-    static getMainPrerequisites(): any;
+    static getMainPrerequisites(): string;
     static getAssignmentStatement(varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>): string;
     static getAssignmentVaryingStatementInPixelShader(varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>, inputNode: AbstractShaderNode): string;
     static getAssignmentVaryingStatementInVertexShader(inputNode: AbstractShaderNode, varNames: string[], j: number): string;
@@ -15995,7 +16082,7 @@ declare class ShaderGraphResolver {
 }
 
 type FillArgsObject = {
-    [key: string]: string;
+    [key: string]: string | object;
 };
 type VertexAttributesLayout = {
     names: string[];
