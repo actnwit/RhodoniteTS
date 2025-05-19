@@ -4,7 +4,6 @@
 
 /* shaderity: @{definitions} */
 
-/* shaderity: @{prerequisites} */
 
 in vec2 v_texcoord_0;
 in vec2 v_texcoord_1;
@@ -18,6 +17,8 @@ in float v_instanceInfo;
   in vec3 v_tangent_inWorld;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
 #endif
+
+/* shaderity: @{prerequisites} */
 
 /* shaderity: @{renderTargetBegin} */
 

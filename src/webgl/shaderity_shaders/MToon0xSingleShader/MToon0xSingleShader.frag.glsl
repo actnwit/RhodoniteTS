@@ -4,7 +4,6 @@
 
 /* shaderity: @{definitions} */
 
-/* shaderity: @{prerequisites} */
 
 const float EPS_COL = 0.00001;
 
@@ -19,6 +18,7 @@ in float v_instanceInfo;
   in vec3 v_binormal_inWorld; // bitangent_inWorld
 #endif
 
+/* shaderity: @{prerequisites} */
 /* shaderity: @{renderTargetBegin} */
 
 /* shaderity: @{getters} */

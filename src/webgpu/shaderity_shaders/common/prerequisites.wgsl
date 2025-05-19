@@ -309,6 +309,7 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
     return inv;
 }
 
+#ifdef RN_IS_PIXEL_SHADER
 #ifdef RN_USE_TANGENT
   fn getTBN(normal_inWorld: vec3f, input: VertexOutput, viewVector: vec3f, texcoord: vec2f, isFront: bool) -> mat3x3<f32> {
     let tangent_inWorld = normalize(input.tangent_inWorld);
@@ -350,4 +351,5 @@ fn inverse4x4(m: mat4x4<f32>) -> mat4x4<f32> {
 
       return tbnMat_tangent_to_world;
     }
+#endif
 #endif

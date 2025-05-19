@@ -4,8 +4,6 @@
 
 /* shaderity: @{definitions} */
 
-/* shaderity: @{prerequisites} */
-
 in vec3 v_color;
 in vec3 v_normal_inWorld;
 in vec4 v_position_inWorld;
@@ -24,6 +22,8 @@ in float v_displayIdx;
 #ifdef RN_USE_SHADOW_MAPPING
 in vec4 v_shadowCoord;
 #endif
+
+/* shaderity: @{prerequisites} */
 
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
