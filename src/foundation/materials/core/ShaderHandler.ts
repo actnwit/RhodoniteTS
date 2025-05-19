@@ -41,6 +41,7 @@ import { outputSrgbGlsl } from '../../../webgl/shaderity_shaders/common/outputSr
 import { outputSrgbWgsl } from '../../../webgpu/shaderity_shaders/common/outputSrgb';
 import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexInOut';
 import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
+import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -339,6 +340,7 @@ export function _createProgramAsSingleOperationWebGpu(
     materialNode.vertexShaderityObject!,
     {
       WellKnownComponentTIDs,
+      vertexOutput: vertexOutputWgsl.code,
       prerequisites: prerequisitesWgsl.code,
       mainPrerequisites: mainPrerequisitesWgsl.code,
       fullscreen: fullscreenWgsl.code,
@@ -362,6 +364,7 @@ export function _createProgramAsSingleOperationWebGpu(
     materialNode.pixelShaderityObject!,
     {
       WellKnownComponentTIDs,
+      vertexOutput: vertexOutputWgsl.code,
       prerequisites: prerequisitesWgsl.code,
       mainPrerequisites: mainPrerequisitesWgsl.code,
       getters: pixelPropertiesStr,

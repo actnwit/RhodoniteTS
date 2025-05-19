@@ -1,5 +1,5 @@
 /* shaderity: @{definitions} */
-#pragma shaderity: require(../common/vertexOutput.wgsl)
+/* shaderity: @{vertexOutput} */
 /* shaderity: @{prerequisites} */
 
 /* shaderity: @{getters} */
