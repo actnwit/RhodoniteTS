@@ -75,7 +75,7 @@ void main() {
 
   rt0 = vec4(diffuseColor, alpha);
 
-#pragma shaderity: require(../common/outputSrgb.glsl)
+  /* shaderity: @{outputSrgb} */
 
 
 }

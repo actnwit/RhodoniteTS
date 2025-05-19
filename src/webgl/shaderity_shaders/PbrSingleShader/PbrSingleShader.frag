@@ -663,7 +663,7 @@ void main ()
     }
   }
 
-#pragma shaderity: require(../common/outputSrgb.glsl)
+  /* shaderity: @{outputSrgb} */
 rt0.rgb = rt0.rgb * rt0.a; // alpha premultiplied
 rt1 = rt0;
 rt2 = rt0;

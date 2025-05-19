@@ -307,7 +307,7 @@ void main (){
     }
   }
 
-  #pragma shaderity: require(../common/outputSrgb.glsl)
+    /* shaderity: @{outputSrgb} */
 
 
 }

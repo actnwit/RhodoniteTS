@@ -266,7 +266,7 @@ void main() {
   rt0.xyz = outlineColorFactor * mix(vec3(1.0), rt0.xyz, outlineLightingMixFactor);
 #endif
 
-#pragma shaderity: require(../common/outputSrgb.glsl)
+  /* shaderity: @{outputSrgb} */
 
   // alpha
   rt0.w = alpha;
