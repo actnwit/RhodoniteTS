@@ -220,8 +220,6 @@ vec2 getTexcoord(int texcoordIndex) {
   return texcoord;
 }
 
-#pragma shaderity: require(../common/perturbedNormal.glsl)
-
 void main ()
 {
 

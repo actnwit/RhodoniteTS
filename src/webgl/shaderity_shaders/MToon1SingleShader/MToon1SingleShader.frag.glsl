@@ -114,8 +114,6 @@ vec2 uvAnimation(vec2 origUv, float time, float uvAnimMask, float uvAnimationScr
   return uv;
 }
 
-#pragma shaderity: require(../common/perturbedNormal.glsl)
-
 void main() {
   /* shaderity: @{mainPrerequisites} */
 

@@ -59,8 +59,6 @@ vec2 uvAnimation(vec2 origUv, float time, float uvAnimationMask, float uvAnimati
   return uv;
 }
 
-#pragma shaderity: require(../common/perturbedNormal.glsl)
-
 void main (){
   #ifdef RN_MTOON_IS_OUTLINE
     #ifdef RN_MTOON_OUTLINE_NONE
