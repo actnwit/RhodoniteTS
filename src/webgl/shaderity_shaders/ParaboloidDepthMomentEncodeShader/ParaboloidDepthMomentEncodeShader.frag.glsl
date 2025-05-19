@@ -42,6 +42,6 @@ void main (){
     rt0.a = sq(depth) + 0.25 * (sq(dx) + sq(dy)); // M2
   }
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }
 

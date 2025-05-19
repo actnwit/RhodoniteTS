@@ -77,5 +77,5 @@ void main() {
 
 #pragma shaderity: require(../common/outputSrgb.glsl)
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

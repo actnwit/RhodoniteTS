@@ -2758,17 +2758,6 @@ export class WebGLResourceRepository
     return text;
   }
 
-  getGlslRenderTargetEndString(renderTargetNumber: number) {
-    const text = '';
-    // if (Is.false(this.__glw!.isWebGL2)) {
-    //   for (let i = 0; i < renderTargetNumber; i++) {
-    //     text += `gl_FragData[${i}] = rt${i};`;
-    //   }
-    // }
-
-    return text;
-  }
-
   getGlslDataUBODefinitionString(): string {
     let text = '';
     const maxConventionblocks = this.__glw!.getMaxConventionUniformBlocks();

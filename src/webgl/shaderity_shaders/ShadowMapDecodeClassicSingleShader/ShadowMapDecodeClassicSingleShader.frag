@@ -70,7 +70,7 @@ void main (){
       bool inShadowMap = (shadowMapUV.x >= 0.0 && shadowMapUV.x <= 1.0) && (shadowMapUV.y >= 0.0 && shadowMapUV.y <= 1.0);
       if(inShadowMap == false){
         rt0 = get_debugColorFactor(materialSID, 0);
-        #pragma shaderity: require(../common/glFragColor.glsl)
+
         return;
       }
     #endif
@@ -128,5 +128,5 @@ void main (){
   rt0 = vec4(shadingColor, alpha);
   //rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
 
-  #pragma shaderity: require(../common/glFragColor.glsl)
+
 }

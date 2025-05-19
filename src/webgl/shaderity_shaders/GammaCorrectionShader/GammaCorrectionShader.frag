@@ -31,6 +31,6 @@ if (get_enableLinearToSrgb(materialSID, 0)) {
 
 rt0 = baseColor;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }

@@ -57,5 +57,5 @@ void main ()
   }
 
   rt0 = vec4(newColor, 1.0);
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

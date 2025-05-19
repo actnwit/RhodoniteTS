@@ -106,7 +106,7 @@ void main (){
       rt0.xyz = outlineColor;
 
       rt0.xyz = srgbToLinear(rt0.xyz);
-      #pragma shaderity: require(../common/glFragColor.glsl)
+
       return;
     #endif
   #endif
@@ -271,7 +271,7 @@ void main (){
     rt0 = vec4(normal_inWorld * 0.5 + 0.5, alpha);
 
     rt0.xyz = srgbToLinear(rt0.xyz);
-    #pragma shaderity: require(../common/glFragColor.glsl)
+
     return;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4(0.0);
@@ -281,7 +281,7 @@ void main (){
     }
 
     rt0.xyz = srgbToLinear(rt0.xyz);
-    #pragma shaderity: require(../common/glFragColor.glsl)
+
     return;
   #endif
 
@@ -311,5 +311,5 @@ void main (){
 
   #pragma shaderity: require(../common/outputSrgb.glsl)
 
-  #pragma shaderity: require(../common/glFragColor.glsl)
+
 }

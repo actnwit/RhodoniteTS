@@ -33,6 +33,6 @@ if (dir > 0.0) {
   rt0 += texture(u_baseColorTexture, vec2(gl_FragCoord.x, gl_FragCoord.y + pow(2.0, i)));
 }
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }

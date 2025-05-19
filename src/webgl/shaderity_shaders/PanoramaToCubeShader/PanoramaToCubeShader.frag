@@ -48,5 +48,5 @@ void main ()
 	vec2 panoramaUv = dirToPanoramaUV(direction);
 	rt0 = vec4(texture(u_baseColorTexture, panoramaUv).rgb, 1.0);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

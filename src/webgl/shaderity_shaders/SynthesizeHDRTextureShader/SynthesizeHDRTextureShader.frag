@@ -40,6 +40,6 @@ void main ()
 
   rt0 = color;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }
 

@@ -1153,6 +1153,6 @@ void main(){
   );
   rt0.a = 1.0;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }

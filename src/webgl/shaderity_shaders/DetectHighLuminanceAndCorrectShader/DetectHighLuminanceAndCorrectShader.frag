@@ -25,5 +25,5 @@ void main ()
 
   rt0 = baseColor;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

@@ -190,5 +190,5 @@ void main ()
     }
   }
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

@@ -274,5 +274,5 @@ void main() {
   rt0.xyz *= alpha; // premultiplied alpha
   // rt0.xyz = vec3(alpha, 0.0, 0.0);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

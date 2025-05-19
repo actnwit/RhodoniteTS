@@ -70,7 +70,7 @@ void main ()
 
   rt0 = vec4(diffuseColor * alpha, alpha);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }
 

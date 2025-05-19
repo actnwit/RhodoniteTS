@@ -23,5 +23,5 @@ void main ()
 
   rt0 = encodeFloatRGBA(v_instanceInfo);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

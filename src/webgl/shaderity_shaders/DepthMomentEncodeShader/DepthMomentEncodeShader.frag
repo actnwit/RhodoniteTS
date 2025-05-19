@@ -28,6 +28,6 @@ void main (){
   rt0.z = 0.0;
   rt0.w = 1.0;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }
 

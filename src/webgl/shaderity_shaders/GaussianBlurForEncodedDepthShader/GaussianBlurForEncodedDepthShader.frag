@@ -69,5 +69,5 @@ void main ()
 
   rt0 = encodeDepthToRGBA(depth);
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

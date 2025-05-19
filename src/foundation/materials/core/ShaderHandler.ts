@@ -208,7 +208,6 @@ export function _createProgramAsSingleOperationWebGL(
       prerequisites: prerequisitesGlsl.code,
       mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: vertexShaderMethodDefinitions_uniform,
-      renderTargetEnd: webglResourceRepository.getGlslRenderTargetEndString(4),
       opticalDefinition: opticalDefinitionGlsl.code,
       pbrDefinition: pbrDefinitionGlsl.code,
       iblDefinition: iblDefinitionGlsl.code,

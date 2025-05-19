@@ -44,5 +44,5 @@ void main (){
 
   rt0 = encodedDepth;
 
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 }

@@ -638,7 +638,7 @@ void main ()
 
   bool isOutputHDR = get_isOutputHDR(materialSID, 0);
   if(isOutputHDR){
-#pragma shaderity: require(../common/glFragColor.glsl)
+
     return;
   }
 
@@ -676,6 +676,6 @@ rt0.rgb = rt0.rgb * rt0.a; // alpha premultiplied
 rt1 = rt0;
 rt2 = rt0;
 rt3 = rt0;
-#pragma shaderity: require(../common/glFragColor.glsl)
+
 
 }
