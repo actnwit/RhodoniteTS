@@ -2,7 +2,7 @@
   "test_e2e": [
     "AnimationBlending",
     "ColorGradingUsingLUTs",
-    "CustomShader",
+    "CustomShader/?mode=datatexture",
     "DataTextureInstancedDrawing",
     "DataTextureInstancedDrawing2",
     "DepthEncode",
@@ -46,7 +46,7 @@
     "MatCap",
     "MultiPass",
     "MultipleLightsShadowMap",
-    "NodeBaseShader",
+    "NodeBaseShader/?mode=datatexture",
     "NodeEditor",
     "PixelPickingTest",
     "PointLightShadowMap",

@@ -452,8 +452,8 @@ fn main (
   const materialContent = new Rn.CustomMaterialContent({
     name: 'CustomShader',
     isMorphing: false,
-    isSkinning: false,
-    isLighting: false,
+    isSkinning: true,
+    isLighting: true,
     vertexShader: shaderityObjectVertexWebGL as ShaderityObject,
     pixelShader: shaderityObjectFragmentWebGL as ShaderityObject,
     vertexShaderWebGpu: shaderityObjectVertexWebGPU as ShaderityObject,
