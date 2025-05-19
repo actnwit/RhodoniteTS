@@ -12,7 +12,7 @@ fn main(
   var output : VertexOutput;
 /* shaderity: @{mainPrerequisites} */
 
-#pragma shaderity: require(../common/fullscreen.wgsl)
+/* shaderity: @{fullscreen} */
 
   return output;
 
