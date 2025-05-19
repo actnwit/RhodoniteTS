@@ -52,7 +52,7 @@ void main()
 
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-#pragma shaderity: require(../common/pointSprite.glsl)
+
 
   v_instanceInfo = a_instanceInfo.x;
 }

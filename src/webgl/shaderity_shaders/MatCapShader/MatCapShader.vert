@@ -52,7 +52,7 @@ void main(){
 
   v_normal_inView = vec3(viewMatrix * vec4(normalMatrix * a_normal, 0.0));
 
-#pragma shaderity: require(../common/pointSprite.glsl)
+
 
   v_baryCentricCoord = a_baryCentricCoord;
 

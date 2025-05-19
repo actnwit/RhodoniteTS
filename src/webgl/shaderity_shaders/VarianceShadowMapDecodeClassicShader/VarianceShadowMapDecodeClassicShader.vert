@@ -54,7 +54,7 @@ void main(){
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
   gl_Position = projectionMatrix * viewMatrix * v_position_inWorld;
 
-  #pragma shaderity: require(../common/pointSprite.glsl)
+
 
   v_baryCentricCoord = a_baryCentricCoord.xyz;
   v_color = a_color;

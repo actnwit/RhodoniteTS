@@ -51,6 +51,6 @@ void main(){
 
   v_position_inLocal = gl_Position;
 
-#pragma shaderity: require(../common/pointSprite.glsl)
+
 
 }

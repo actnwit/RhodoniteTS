@@ -80,6 +80,6 @@ void main()
 
   v_shadowCoord = get_depthBiasPV(materialSID, 0) * v_position_inWorld;
 
-#pragma shaderity: require(../common/pointSprite.glsl)
+
 
 }
