@@ -223,18 +223,6 @@ export class Texture extends AbstractTexture implements Disposable {
         type,
         generateMipmap,
       });
-    } else if (img instanceof HTMLCanvasElement) {
-      const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(img, {
-        level,
-        internalFormat,
-        width: this.__width,
-        height: this.__height,
-        border: 0,
-        format,
-        type,
-        generateMipmap,
-      });
-      texture = textureHandle;
     } else {
       throw new Error('Unsupported image type.');
     }
@@ -316,18 +304,6 @@ export class Texture extends AbstractTexture implements Disposable {
               type,
               generateMipmap,
             });
-          } else if (img instanceof HTMLCanvasElement) {
-            const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(img, {
-              level,
-              internalFormat,
-              width: this.__width,
-              height: this.__height,
-              border: 0,
-              format,
-              type,
-              generateMipmap,
-            });
-            texture = textureHandle;
           } else {
             throw new Error('Unsupported image type');
           }
