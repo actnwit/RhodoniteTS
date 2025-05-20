@@ -40,7 +40,6 @@ const vrmExpression = (
         makeOutputSrgb: true,
       },
     ],
-    autoResizeTexture: true,
     tangentCalculationMode: 0,
     cameraComponent: cameraComponent,
   })
