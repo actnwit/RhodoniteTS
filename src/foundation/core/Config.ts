@@ -29,8 +29,6 @@ let cacheWebGpuRenderBundles = true; // For WebGPU debug, set false to disable c
 let cgApiDebugConsoleOutput = false;
 let multiViewForWebVR = false;
 let physicsTimeIntervalScale = 1;
-let vrmSpringBoneBonAxisCoeff = 0.5;
-let vrmSpringBoneToCoeff = 0.4;
 let isMobile = false;
 let shadowMapTextureArrayLength = 4;
 
@@ -68,8 +66,6 @@ export const Config = {
   cgApiDebugConsoleOutput,
   multiViewForWebVR,
   physicsTimeIntervalScale,
-  vrmSpringBoneBonAxisCoeff,
-  vrmSpringBoneToCoeff,
   isMobile,
   shadowMapTextureArrayLength,
 };
