@@ -38,7 +38,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray({
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: Config.shadowMapTextureArrayLength,
+        arrayLength: Config.maxLightNumber,
         level: 0,
         internalFormat: TextureFormat.RG16F,
         format: PixelFormat.RG,
@@ -50,7 +50,7 @@ export class ShadowSystem {
       RenderableHelper.createFrameBufferTextureArray({
         width: shadowMapSize,
         height: shadowMapSize,
-        arrayLength: Config.shadowMapTextureArrayLength,
+        arrayLength: Config.maxLightNumber,
         level: 0,
         internalFormat: TextureFormat.RGBA16F,
         format: PixelFormat.RGBA,

@@ -74,9 +74,6 @@ let physicsTimeIntervalScale = 1;
 /**　Whether the device is a mobile device */
 let isMobile = false;
 
-/**　The length of the shadow map texture array */
-let shadowMapTextureArrayLength = 4;
-
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
     maxMorphTargetNumber = 4;
@@ -135,6 +132,4 @@ export const Config = {
   physicsTimeIntervalScale,
   /**　Whether the device is a mobile device */
   isMobile,
-  /**　The length of the shadow map texture array */
-  shadowMapTextureArrayLength,
 };
