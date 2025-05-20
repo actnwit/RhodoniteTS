@@ -52,7 +52,7 @@ export class ShaderityUtilityWebGPU {
       maxMorphDataNumber:
       '' +
       Math.ceil(
-        (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
       ),
     } as unknown as TemplateObject;
 

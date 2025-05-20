@@ -10,13 +10,13 @@ import { MiscUtil } from '../misc';
 let maxEntityNumber = 5000;
 
 /**　The maximum number of lights that Rhodonite can handle */
-let maxLightNumberInShader = 4;
+let maxLightNumber = 4;
 
 /**　The maximum number of morph targets that Rhodonite can handle in the shader */
-let maxVertexMorphNumberInShader = 41;
+let maxMorphTargetNumber = 41;
 
 /**　The maximum number of vertices that Rhodonite can handle in the shader */
-let maxVertexPrimitiveNumberInShader = 10;
+let maxMorphPrimitiveNumberInWebGPU = 10;
 
 let maxMaterialInstanceForEachType = 10;
 let maxSkeletonNumber = 33;
@@ -41,7 +41,7 @@ let shadowMapTextureArrayLength = 4;
 
 if (typeof navigator !== 'undefined') {
   if (MiscUtil.isMobile() || MiscUtil.isMobileVr()) {
-    maxVertexMorphNumberInShader = 4;
+    maxMorphTargetNumber = 4;
     maxSkeletonNumber = 32;
     dataTextureWidth = 2 ** 9;
     dataTextureHeight = 2 ** 9;
@@ -53,9 +53,9 @@ if (typeof navigator !== 'undefined') {
  */
 export const Config = {
   maxEntityNumber,
-  maxLightNumberInShader,
-  maxVertexMorphNumberInShader,
-  maxVertexPrimitiveNumberInShader,
+  maxLightNumber,
+  maxMorphTargetNumber,
+  maxMorphPrimitiveNumberInWebGPU,
   maxMaterialInstanceForEachType,
   boneDataType,
   maxSkeletonNumber,

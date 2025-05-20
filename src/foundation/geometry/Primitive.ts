@@ -534,9 +534,9 @@ export class Primitive extends RnObject {
   }
 
   setBlendShapeTargets(targets: Array<Attributes>) {
-    if (Primitive.__primitiveUidIdxHasMorph.size >= Config.maxVertexPrimitiveNumberInShader) {
+    if (Primitive.__primitiveUidIdxHasMorph.size > Config.maxMorphPrimitiveNumberInWebGPU) {
       Logger.error(
-        'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumber'
+        'Primitive.__primitiveUidsHasMorph.size exceeds the Config.maxMorphPrimitiveNumberInWebGPU. Please increase the Config.maxMorphPrimitiveNumberInWebGPU.'
       );
     } else {
       Primitive.__idxPrimitiveUidHasMorph.set(

@@ -226,7 +226,7 @@ export class ShadowSystem {
   }
 
   public setDepthBiasPV(entities: ISceneGraphEntity[]) {
-    const float32Array = new Float32Array(Config.maxLightNumberInShader * 16);
+    const float32Array = new Float32Array(Config.maxLightNumber * 16);
 
     const lightComponents = ComponentRepository.getComponentsWithType(
       LightComponent

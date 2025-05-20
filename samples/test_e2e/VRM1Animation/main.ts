@@ -6,8 +6,6 @@ declare const window: any;
 declare const Stats: any;
 
 Rn.Config.maxEntityNumber = 40000;
-Rn.Config.maxLightNumberInShader = 1;
-Rn.Config.maxVertexMorphNumberInShader = 1;
 Rn.Config.maxMaterialInstanceForEachType = 30;
 // Rn.Config.maxCameraNumber = 3;
 Rn.Config.maxSkeletalBoneNumber = 400;
@@ -15,7 +13,6 @@ Rn.Config.maxSkeletonNumber = 1504;
 Rn.Config.maxSkeletalBoneNumberForUniformMode = 100;
 Rn.Config.dataTextureWidth = 2 ** 13;
 Rn.Config.dataTextureHeight = 2 ** 12;
-Rn.Config.maxMorphTargetNumber = 1;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 

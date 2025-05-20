@@ -35,7 +35,7 @@ struct Light {
   vec4 lightDirection;
   vec4 lightIntensity;
 };
-uniform Light u_lights[${Config.maxLightNumberInShader}];
+uniform Light u_lights[${Config.maxLightNumber}];
 uniform int u_lightNumber;
 uniform vec3 u_viewPosition;
 
@@ -53,7 +53,7 @@ bool classicShading(
 
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
-    for (int i = 0; i < ${Config.maxLightNumberInShader}; i++) {
+    for (int i = 0; i < ${Config.maxLightNumber}; i++) {
       if (i >= u_lightNumber) {
         break;
       }

@@ -125,14 +125,14 @@ fn get_isBillboard(instanceId: u32) -> bool {
     let scalar_idx = 3u * vertexId;
     for (var i=0u; i<uniformDrawParameters.morphTargetNumber; i++) {
       let currentPrimitiveIdx = uniformDrawParameters.currentPrimitiveIdx;
-      let idx = ${Config.maxVertexMorphNumberInShader}u * currentPrimitiveIdx + i;
+      let idx = ${Config.maxMorphTargetNumber}u * currentPrimitiveIdx + i;
       let offsets = uniformMorphOffsets.data[ idx / 4u];
       let offsetPosition = offsets[idx % 4u];
 
       let basePosIn4bytes = offsetPosition * 4u + scalar_idx;
       let addPos = fetchVec3No16BytesAlignedFromBlendShapeBuffer(basePosIn4bytes);
 
-      let idx2 = ${Config.maxVertexMorphNumberInShader}u * blendShapeComponentSID + i;
+      let idx2 = ${Config.maxMorphTargetNumber}u * blendShapeComponentSID + i;
       let morphWeights: vec4f = uniformMorphWeights.data[ idx2 / 4u];
       let morphWeight: f32 = morphWeights[idx2 % 4u];
       position += addPos * morphWeight;
@@ -314,7 +314,7 @@ ${indexStr}
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
         Math.ceil(
-          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+          (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
         ) * 4
       );
     }
@@ -322,7 +322,7 @@ ${indexStr}
     if (this.__uniformMorphWeightsTypedArray == null) {
       this.__uniformMorphWeightsTypedArray = new Float32Array(
         Math.ceil(
-          (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+          (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
         ) * 4
       );
     }
@@ -616,20 +616,20 @@ ${indexStr}
     }
 
     let i = 0;
-    for (; i < Config.maxVertexPrimitiveNumberInShader; i++) {
+    for (; i < Config.maxMorphPrimitiveNumberInWebGPU; i++) {
       const primitive = Primitive.getPrimitiveHasMorph(i);
       if (primitive != null) {
         for (let j = 0; j < primitive.targets.length; j++) {
           const target = primitive.targets[j];
           const accessor = target.get(VertexAttribute.Position.XYZ) as Accessor;
-          this.__uniformMorphOffsetsTypedArray![Config.maxVertexMorphNumberInShader * i + j] =
+          this.__uniformMorphOffsetsTypedArray![Config.maxMorphTargetNumber * i + j] =
             accessor.byteOffsetInBuffer / 4 / 4;
         }
       } else {
         break;
       }
     }
-    const elementNumToCopy = Config.maxVertexMorphNumberInShader * i;
+    const elementNumToCopy = Config.maxMorphTargetNumber * i;
     webGpuResourceRepository.updateUniformMorphOffsetsBuffer(
       this.__uniformMorphOffsetsTypedArray!,
       elementNumToCopy
@@ -653,12 +653,12 @@ ${indexStr}
       const weights = blendShapeComponent!.weights;
       for (let j = 0; j < weights.length; j++) {
         this.__uniformMorphWeightsTypedArray![
-          Config.maxVertexMorphNumberInShader * blendShapeComponent.componentSID + j
+          Config.maxMorphTargetNumber * blendShapeComponent.componentSID + j
         ] = weights[j];
       }
     }
     if (blendShapeComponents.length > 0) {
-      const elementNumToCopy = Config.maxVertexMorphNumberInShader * blendShapeComponents.length;
+      const elementNumToCopy = Config.maxMorphTargetNumber * blendShapeComponents.length;
       webGpuResourceRepository.updateUniformMorphWeightsBuffer(
         this.__uniformMorphWeightsTypedArray!,
         elementNumToCopy

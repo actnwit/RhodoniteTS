@@ -136,12 +136,12 @@ fn main (
   let shadeShift: f32 = get_shadeShift(materialSID, 0);
   let shadeToony: f32 = get_shadeToony(materialSID, 0);
 
-  var lightings: array<vec3<f32>, /* shaderity: @{Config.maxLightNumberInShader} */>;
+  var lightings: array<vec3<f32>, /* shaderity: @{Config.maxLightNumber} */>;
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
-    var lightIntensities[/* shaderity: @{Config.maxLightNumberInShader} */]: array<f32>;
+    var lightIntensities[/* shaderity: @{Config.maxLightNumber} */]: array<f32>;
   #endif
   let lightNumber = u32(get_lightNumber(0u, 0u));
-  for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+  for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
     if (i >= lightNumber) {
       break;
     }
@@ -228,7 +228,7 @@ fn main (
 
     var staticRimLighting = 1.0;
     let rimLightingMix: f32 = get_rimLightingMix(materialSID, 0);
-    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberInShader} */u; i++) {
+    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */u; i++) {
       if (i >= lightNumber) { break; }
 
       if (i > 0) { staticRimLighting = 0.0; }
@@ -261,7 +261,7 @@ fn main (
     return rt0;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4f(0.0);
-    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumberInShader} */u; i++) {
+    for (var i = 0u; i < /* shaderity: @{Config.maxLightNumber} */u; i++) {
       if (i >= lightNumber) { break; }
       rt0 += vec4f(lightIntensities[i] * lightings[i], alpha);
     }

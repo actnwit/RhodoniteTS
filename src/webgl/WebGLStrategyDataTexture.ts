@@ -131,7 +131,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
 
       int basePosIn4bytes = u_dataTextureMorphOffsetPosition[i] * 4 + scalar_idx;
       vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
