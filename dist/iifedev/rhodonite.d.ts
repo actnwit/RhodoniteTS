@@ -10269,7 +10269,6 @@ interface LoadImageToMipLevelDescriptor {
     type: ComponentTypeEnum;
 }
 declare class Texture extends AbstractTexture implements Disposable {
-    autoResize: boolean;
     autoDetectTransparency: boolean;
     private static __loadedBasisFunc;
     private static __basisLoadPromise?;
@@ -13458,7 +13457,6 @@ type GltfLoadOption = {
     alphaMode?: string;
     ignoreLists?: [];
     autoDetectTextureTransparency?: boolean;
-    autoResizeTexture?: boolean;
     tangentCalculationMode?: Index;
     extendedJson?: string | Object | ArrayBuffer;
     maxMorphTargetNumber?: number;
@@ -15103,31 +15101,48 @@ declare class ComponentRepository {
  * Config is a configuration object that contains the configuration for the library.
  */
 declare const Config: {
+    /**　The maximum number of entities that Rhodonite can handle　*/
     maxEntityNumber: number;
-    maxLightNumberInShader: number;
-    maxVertexMorphNumberInShader: number;
-    maxVertexPrimitiveNumberInShader: number;
-    maxMaterialInstanceForEachType: number;
-    boneDataType: EnumIO;
-    maxSkeletonNumber: number;
-    maxCameraNumber: number;
-    maxSizeLimitOfNonCompressedTexture: number;
-    maxSkeletalBoneNumber: number;
-    maxSkeletalBoneNumberForUniformMode: number;
-    dataTextureWidth: number;
-    dataTextureHeight: number;
+    /**　The maximum number of lights that Rhodonite can handle */
+    maxLightNumber: number;
+    /**　The maximum number of morph targets that Rhodonite can handle */
     maxMorphTargetNumber: number;
-    totalSizeOfGPUShaderDataStorageExceptMorphData: number;
+    /**　The maximum number of morph primitives that Rhodonite can handle in WebGPU */
+    maxMorphPrimitiveNumberInWebGPU: number;
+    /**
+     * Number of instances of each material type to be placed consecutively in memory.
+     * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
+     * If this limit is exceeded, the material type is internally treated as a separate material type.
+     */
+    maxMaterialInstanceForEachType: number;
+    /**　The data type of the bone */
+    boneDataType: EnumIO;
+    /**　The maximum number of skeletons that Rhodonite can handle */
+    maxSkeletonNumber: number;
+    /**　The maximum number of cameras that Rhodonite can handle */
+    maxCameraNumber: number;
+    /**　The maximum number of bones of each skeleton that Rhodonite can handle */
+    maxSkeletalBoneNumber: number;
+    /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
+    maxSkeletalBoneNumberForUniformMode: number;
+    /**　The width of the data texture */
+    dataTextureWidth: number;
+    /**　The height of the data texture */
+    dataTextureHeight: number;
+    /**　Whether the UBO is enabled */
     isUboEnabled: boolean;
+    /**　The event target DOM for mouse operation */
     eventTargetDom: HTMLElement | undefined;
+    /**　Whether to cache the WebGPU render bundles */
     cacheWebGpuRenderBundles: boolean;
+    /**　Whether to output the CG API debug console */
     cgApiDebugConsoleOutput: boolean;
+    /**　Whether to enable multi-view extension for WebVR */
     multiViewForWebVR: boolean;
+    /**　The scale of the physics time interval */
     physicsTimeIntervalScale: number;
-    vrmSpringBoneBonAxisCoeff: number;
-    vrmSpringBoneToCoeff: number;
+    /**　Whether the device is a mobile device */
     isMobile: boolean;
-    shadowMapTextureArrayLength: number;
 };
 
 type GlobalPropertyStruct = {
@@ -17553,6 +17568,7 @@ declare const SystemState: {
     currentProcessApproach: ProcessApproachClass;
     viewportAspectRatio: number;
     webgpuRenderBundleMode: boolean;
+    totalSizeOfGPUShaderDataStorageExceptMorphData: number;
 };
 
 declare class WebGpuStrategyBasic implements CGAPIStrategy {
