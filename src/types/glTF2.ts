@@ -395,7 +395,6 @@ export type GltfLoadOption = {
   alphaMode?: string;
   ignoreLists?: [];
   autoDetectTextureTransparency?: boolean;
-  autoResizeTexture?: boolean;
   tangentCalculationMode?: Index;
   extendedJson?: string | Object | ArrayBuffer; //   URI string / JSON Object / ArrayBuffer
   maxMorphTargetNumber?: number;

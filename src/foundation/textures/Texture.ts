@@ -44,7 +44,6 @@ type FinalizationRegistryObject = {
 };
 
 export class Texture extends AbstractTexture implements Disposable {
-  public autoResize = true;
   public autoDetectTransparency = false;
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
@@ -204,17 +203,6 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__htmlImageElement = image;
     let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
 
-    if (this.autoResize) {
-      const [resizedCanvas, resizedWidth, resizedHeight] = DataUtil.getResizedCanvas(
-        img,
-        Config.maxSizeLimitOfNonCompressedTexture
-      );
-      img = resizedCanvas;
-      this.__width = resizedWidth;
-      this.__height = resizedHeight;
-      this.__htmlCanvasElement = resizedCanvas;
-    }
-
     if (this.autoDetectTransparency) {
       this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(img);
     }
@@ -305,17 +293,6 @@ export class Texture extends AbstractTexture implements Disposable {
         this.__htmlImageElement = this.__img;
 
         let img: HTMLImageElement | HTMLCanvasElement = this.__img!;
-
-        if (this.autoResize) {
-          const [resizedCanvas, resizedWidth, resizedHeight] = DataUtil.getResizedCanvas(
-            img,
-            Config.maxSizeLimitOfNonCompressedTexture
-          );
-          img = resizedCanvas;
-          this.__width = resizedWidth;
-          this.__height = resizedHeight;
-          this.__htmlCanvasElement = resizedCanvas;
-        }
 
         if (this.autoDetectTransparency) {
           this.__hasTransparentPixels = DataUtil.detectTransparentPixelExistence(img);

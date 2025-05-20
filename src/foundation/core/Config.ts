@@ -31,9 +31,6 @@ let maxSkeletonNumber = 33;
 /**　The maximum number of cameras that Rhodonite can handle */
 let maxCameraNumber = 30;
 
-/**　The maximum size of non-compressed textures that Rhodonite can handle */
-let maxSizeLimitOfNonCompressedTexture = 512;
-
 /**　The maximum number of bones of each skeleton that Rhodonite can handle */
 let maxSkeletalBoneNumber = 300;
 
@@ -106,8 +103,6 @@ export const Config = {
   maxSkeletonNumber,
   /**　The maximum number of cameras that Rhodonite can handle */
   maxCameraNumber,
-  /**　The maximum size of non-compressed textures that Rhodonite can handle */
-  maxSizeLimitOfNonCompressedTexture,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle */
   maxSkeletalBoneNumber,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
