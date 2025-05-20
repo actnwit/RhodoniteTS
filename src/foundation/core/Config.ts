@@ -110,6 +110,8 @@ export const Config = {
   maxCameraNumber,
   /**　The maximum size of non-compressed textures that Rhodonite can handle */
   maxSizeLimitOfNonCompressedTexture,
+  /**　The maximum number of bones of each skeleton that Rhodonite can handle */
+  maxSkeletalBoneNumber,
   /**　The maximum number of bones of each skeleton that Rhodonite can handle for Uniform Mode */
   maxSkeletalBoneNumberForUniformMode,
   /**　The width of the data texture */
