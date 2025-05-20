@@ -20,8 +20,7 @@ let maxMorphPrimitiveNumberInWebGPU = 100;
 
 /**
  * Number of instances of each material type to be placed consecutively in memory.
- * The number of material instances that can be generated is not limited by this setting,
- * as it is on the memory layout.
+ * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
  * If this limit is exceeded, the material type is internally treated as a separate material type.
  */
 let maxMaterialInstanceForEachType = 10;
@@ -97,8 +96,7 @@ export const Config = {
   maxMorphPrimitiveNumberInWebGPU,
   /**
    * Number of instances of each material type to be placed consecutively in memory.
-   * The number of material instances that can be generated is not limited by this setting,
-   * as it is on the memory layout.
+   * This is on the memory layout, and the number of material instances that can be generated is not limited by this setting.
    * If this limit is exceeded, the material type is internally treated as a separate material type.
    */
   maxMaterialInstanceForEachType,
