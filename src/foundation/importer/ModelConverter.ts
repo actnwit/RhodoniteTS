@@ -1043,7 +1043,7 @@ export class ModelConverter {
         // morph targets
         if (primitive.targets != null) {
           // set default number
-          let maxMorphTargetNumber = Config.maxMorphTargetNumber;
+          let maxMorphTargetNumber = Config.maxVertexMorphNumberInShader;
           if (rnLoaderOptions?.maxMorphTargetNumber != null) {
             maxMorphTargetNumber = rnLoaderOptions.maxMorphTargetNumber;
           }

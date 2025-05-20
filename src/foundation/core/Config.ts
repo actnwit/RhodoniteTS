@@ -29,7 +29,6 @@ let maxSkeletalBoneNumberForUniformMode = 50; // For Uniform Mode
 let dataTextureWidth = Math.pow(2, 12);
 let dataTextureHeight = Math.pow(2, 12);
 let boneDataType = BoneDataType.Mat43x1;
-let maxMorphTargetNumber = 4;
 let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
 let isUboEnabled = false;
 let eventTargetDom: HTMLElement | undefined;
@@ -66,7 +65,6 @@ export const Config = {
   maxSkeletalBoneNumberForUniformMode,
   dataTextureWidth,
   dataTextureHeight,
-  maxMorphTargetNumber,
   totalSizeOfGPUShaderDataStorageExceptMorphData,
   isUboEnabled,
   eventTargetDom,
