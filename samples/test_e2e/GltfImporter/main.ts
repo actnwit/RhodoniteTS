@@ -5,13 +5,9 @@ let p: any;
 declare const window: any;
 
 Rn.Config.maxEntityNumber = 200;
-Rn.Config.maxLightNumberInShader = 1;
-Rn.Config.maxVertexMorphNumberInShader = 1;
 Rn.Config.maxMaterialInstanceForEachType = 30;
-Rn.Config.maxSkeletalBoneNumber = 1;
 Rn.Config.dataTextureWidth = 2 ** 8;
 Rn.Config.dataTextureHeight = 2 ** 9;
-Rn.Config.maxMorphTargetNumber = 1;
 Rn.Config.isUboEnabled = false;
 Rn.Config.cgApiDebugConsoleOutput = true;
 
@@ -44,7 +40,6 @@ const vrmExpression = (
         makeOutputSrgb: true,
       },
     ],
-    autoResizeTexture: true,
     tangentCalculationMode: 0,
     cameraComponent: cameraComponent,
   })

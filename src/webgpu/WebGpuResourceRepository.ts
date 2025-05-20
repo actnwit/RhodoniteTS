@@ -1407,7 +1407,6 @@ export class WebGpuResourceRepository
     if (topology === 'triangle-strip' || topology === 'line-strip') {
       stripIndexFormat = primitive.getIndexBitSize();
     }
-    const primitiveIdxHasMorph = Primitive.getPrimitiveIdxHasMorph(primitive.primitiveUid);
     const framebuffer = renderPass.getFramebuffer();
     let targets: GPUColorTargetState[] = [
       {
@@ -1964,7 +1963,7 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Uint32Array(
       Math.ceil(
-        (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
       ) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({
@@ -1992,7 +1991,7 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const inputArray = new Float32Array(
       Math.ceil(
-        (Config.maxVertexPrimitiveNumberInShader * Config.maxVertexMorphNumberInShader) / 4
+        (Config.maxMorphPrimitiveNumberInWebGPU * Config.maxMorphTargetNumber) / 4
       ) * 4
     );
     const uniformBuffer = gpuDevice.createBuffer({

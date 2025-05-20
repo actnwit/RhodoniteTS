@@ -46,7 +46,6 @@ const vrmExpression = (
         makeOutputSrgb: false,
       },
     ],
-    autoResizeTexture: true,
     cameraComponent: cameraComponent,
   })
 ).unwrapForce();

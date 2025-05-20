@@ -339,7 +339,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         lightComponentsEnabled!.length
       );
 
-      const length = Math.min(lightComponentsEnabled!.length, Config.maxLightNumberInShader);
+      const length = Math.min(lightComponentsEnabled!.length, Config.maxLightNumber);
       if (AbstractMaterialContent.__lightPositions.length !== 3 * length) {
         AbstractMaterialContent.__lightPositions = new Float32Array(3 * length);
         AbstractMaterialContent.__lightDirections = new Float32Array(3 * length);
@@ -347,7 +347,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         AbstractMaterialContent.__lightProperties = new Float32Array(4 * length);
       }
       for (let i = 0; i < lightComponentsEnabled!.length; i++) {
-        if (i >= Config.maxLightNumberInShader) {
+        if (i >= Config.maxLightNumber) {
           break;
         }
         if ((shaderProgram as any).lightPosition == null) {
@@ -431,7 +431,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         let offset = 0;
 
         if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
-          offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
+          offset = SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
         }
         return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
       }

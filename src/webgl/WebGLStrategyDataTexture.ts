@@ -52,6 +52,7 @@ import { AnimationComponent } from '../foundation/components/Animation/Animation
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
 import { RenderingArgWebGL } from './types/CommonTypes';
+import { SystemState } from '../foundation/system/SystemState';
 
 declare const spector: any;
 
@@ -131,7 +132,7 @@ export class WebGLStrategyDataTexture implements CGAPIStrategy, WebGLStrategy {
   vec3 get_position(float vertexId, vec3 basePosition) {
     vec3 position = basePosition;
     int scalar_idx = 3 * int(vertexId);
-    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
 
       int basePosIn4bytes = u_dataTextureMorphOffsetPosition[i] * 4 + scalar_idx;
       vec3 addPos = fetchVec3No16BytesAligned(basePosIn4bytes);
@@ -544,7 +545,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         }
 
         floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-        Config.totalSizeOfGPUShaderDataStorageExceptMorphData =
+        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData =
           gpuInstanceDataBuffer.takenSizeInByte + paddingSpaceBytes;
       }
 

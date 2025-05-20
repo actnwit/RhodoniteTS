@@ -1729,7 +1729,6 @@ export class ModelConverter {
 
     const rnTexture = new Texture();
     rnTexture.autoDetectTransparency = autoDetectTransparency;
-    rnTexture.autoResize = options?.autoResizeTexture === true;
 
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;

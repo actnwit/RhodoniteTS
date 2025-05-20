@@ -92,7 +92,7 @@ void main (){
     vec3 diffuse = vec3(0.0, 0.0, 0.0);
     vec3 specular = vec3(0.0, 0.0, 0.0);
     int lightNumber = get_lightNumber(materialSID, 0);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
       if (i >= lightNumber) {
         break;
       }

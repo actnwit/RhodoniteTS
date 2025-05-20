@@ -6,8 +6,6 @@ declare const window: any;
 declare const Stats: any;
 
 Rn.Config.maxEntityNumber = 40000;
-Rn.Config.maxLightNumberInShader = 1;
-Rn.Config.maxVertexMorphNumberInShader = 1;
 Rn.Config.maxMaterialInstanceForEachType = 30;
 Rn.Config.maxSkeletalBoneNumber = 100;
 Rn.Config.maxSkeletonNumber = 1504;

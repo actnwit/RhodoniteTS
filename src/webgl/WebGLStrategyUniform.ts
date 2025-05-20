@@ -128,7 +128,7 @@ bool get_isBillboard(float instanceId) {
     #else
       int posIn4bytes = int(mod(float(scalar_idx), 4.0));
     #endif
-    for (int i=0; i<${Config.maxVertexMorphNumberInShader}; i++) {
+    for (int i=0; i<${Config.maxMorphTargetNumber}; i++) {
 
       int basePosIn16bytes = u_dataTextureMorphOffsetPosition[i] + (scalar_idx - posIn4bytes)/4;
 

@@ -139,11 +139,11 @@ void main (){
   float shadeShift = get_shadeShift(materialSID, 0);
   float shadeToony = get_shadeToony(materialSID, 0);
 
-  vec3 lightings[/* shaderity: @{Config.maxLightNumberInShader} */];
+  vec3 lightings[/* shaderity: @{Config.maxLightNumber} */];
   #ifdef RN_MTOON_DEBUG_LITSHADERATE
-    float lightIntensities[/* shaderity: @{Config.maxLightNumberInShader} */];
+    float lightIntensities[/* shaderity: @{Config.maxLightNumber} */];
   #endif
-  for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+  for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
     if (i >= lightNumber) {
       break;
     }
@@ -231,7 +231,7 @@ void main (){
 
     float staticRimLighting = 1.0;
     float rimLightingMix = get_rimLightingMix(materialSID, 0);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
       if (i >= lightNumber) break;
 
       if(i > 0) staticRimLighting = 0.0;
@@ -265,7 +265,7 @@ void main (){
     return;
   #elif defined(RN_MTOON_DEBUG_LITSHADERATE)
     rt0 = vec4(0.0);
-    for (int i = 0; i < /* shaderity: @{Config.maxLightNumberInShader} */; i++) {
+    for (int i = 0; i < /* shaderity: @{Config.maxLightNumber} */; i++) {
       if (i >= lightNumber) break;
       rt0 += vec4(lightIntensities[i] * lightings[i], alpha);
     }

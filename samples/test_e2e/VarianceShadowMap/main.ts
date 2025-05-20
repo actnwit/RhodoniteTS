@@ -114,7 +114,7 @@ Rn.System.startRenderLoop(() => {
   }
   Rn.System.process([expression]);
 
-  const float32Array = new Float32Array(Rn.Config.maxLightNumberInShader * 16);
+  const float32Array = new Float32Array(Rn.Config.maxLightNumber * 16);
   const spotLightComponentSid = spotLight.getLight().componentSID;
   float32Array.set(spotLight.getCamera().biasViewProjectionMatrix._v, spotLightComponentSid * 16);
   setParameterForMeshComponent(
