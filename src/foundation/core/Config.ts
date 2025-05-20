@@ -6,10 +6,18 @@
 import { BoneDataType } from '../definitions/BoneDataType';
 import { MiscUtil } from '../misc';
 
+/**　The maximum number of entities that Rhodonite can handle　*/
 let maxEntityNumber = 5000;
+
+/**　The maximum number of lights that Rhodonite can handle */
 let maxLightNumberInShader = 4;
+
+/**　The maximum number of morph targets that Rhodonite can handle in the shader */
 let maxVertexMorphNumberInShader = 41;
+
+/**　The maximum number of vertices that Rhodonite can handle in the shader */
 let maxVertexPrimitiveNumberInShader = 10;
+
 let maxMaterialInstanceForEachType = 10;
 let maxSkeletonNumber = 33;
 let maxCameraNumber = 30;
