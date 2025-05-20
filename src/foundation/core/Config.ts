@@ -10,13 +10,13 @@ import { MiscUtil } from '../misc';
 let maxEntityNumber = 5000;
 
 /**　The maximum number of lights that Rhodonite can handle */
-let maxLightNumber = 4;
+let maxLightNumber = 6;
 
-/**　The maximum number of morph targets that Rhodonite can handle in the shader */
+/**　The maximum number of morph targets that Rhodonite can handle */
 let maxMorphTargetNumber = 41;
 
-/**　The maximum number of vertices that Rhodonite can handle in the shader */
-let maxMorphPrimitiveNumberInWebGPU = 10;
+/**　The maximum number of morph primitives that Rhodonite can handle in WebGPU */
+let maxMorphPrimitiveNumberInWebGPU = 100;
 
 let maxMaterialInstanceForEachType = 10;
 let maxSkeletonNumber = 33;
