@@ -431,7 +431,7 @@ export abstract class AbstractMaterialContent extends RnObject {
         let offset = 0;
 
         if (ProcessApproach.isDataTextureApproach(SystemState.currentProcessApproach)) {
-          offset = Config.totalSizeOfGPUShaderDataStorageExceptMorphData;
+          offset = SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData;
         }
         return (offset + accessor.byteOffsetInBuffer) / 4 / 4;
       }

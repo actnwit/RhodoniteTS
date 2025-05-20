@@ -46,13 +46,10 @@ let dataTextureHeight = Math.pow(2, 12);
 /**　The data type of the bone */
 let boneDataType = BoneDataType.Mat43x1;
 
-/**　The total size of the GPU shader data storage except for the morph data */
-let totalSizeOfGPUShaderDataStorageExceptMorphData = 0;
-
 /**　Whether the UBO is enabled */
 let isUboEnabled = false;
 
-/**　The event target DOM */
+/**　The event target DOM for mouse operation */
 let eventTargetDom: HTMLElement | undefined;
 
 /**　Whether to cache the WebGPU render bundles */
@@ -61,7 +58,7 @@ let cacheWebGpuRenderBundles = true;
 /**　Whether to output the CG API debug console */
 let cgApiDebugConsoleOutput = false;
 
-/**　Whether to enable multi-view for WebVR */
+/**　Whether to enable multi-view extension for WebVR */
 let multiViewForWebVR = false;
 
 /**　The scale of the physics time interval */
@@ -111,17 +108,15 @@ export const Config = {
   dataTextureWidth,
   /**　The height of the data texture */
   dataTextureHeight,
-  /**　The total size of the GPU shader data storage except for the morph data */
-  totalSizeOfGPUShaderDataStorageExceptMorphData,
   /**　Whether the UBO is enabled */
   isUboEnabled,
-  /**　The event target DOM */
+  /**　The event target DOM for mouse operation */
   eventTargetDom,
   /**　Whether to cache the WebGPU render bundles */
   cacheWebGpuRenderBundles,
   /**　Whether to output the CG API debug console */
   cgApiDebugConsoleOutput,
-  /**　Whether to enable multi-view for WebVR */
+  /**　Whether to enable multi-view extension for WebVR */
   multiViewForWebVR,
   /**　The scale of the physics time interval */
   physicsTimeIntervalScale,

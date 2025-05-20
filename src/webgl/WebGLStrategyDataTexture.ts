@@ -52,6 +52,7 @@ import { AnimationComponent } from '../foundation/components/Animation/Animation
 import { TextureFormat } from '../foundation/definitions/TextureFormat';
 import { Logger } from '../foundation/misc/Logger';
 import { RenderingArgWebGL } from './types/CommonTypes';
+import { SystemState } from '../foundation/system/SystemState';
 
 declare const spector: any;
 
@@ -544,7 +545,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
         }
 
         floatDataTextureBuffer = new Float32Array(finalArrayBuffer);
-        Config.totalSizeOfGPUShaderDataStorageExceptMorphData =
+        SystemState.totalSizeOfGPUShaderDataStorageExceptMorphData =
           gpuInstanceDataBuffer.takenSizeInByte + paddingSpaceBytes;
       }
 
