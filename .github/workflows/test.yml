@@ -7,16 +7,16 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: git submodule update -i
       # - uses: richard-chim/actions-yarn@v2.3.1
       #   with:
       #     cmd: install
       - run: yarn install
       - run: npm run build
-      # - uses: actions/upload-artifact@v2
-      #   with:
-      #     name: Rhodonite-distribution-files
-      #     path: dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rhodonite-distribution-files
+          path: dist
       - run: npm run build-samples
       - run: npm run test
