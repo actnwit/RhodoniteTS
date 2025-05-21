@@ -34,7 +34,7 @@ export class UniformDataShader extends CommonShaderPart {
 fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(
         this.__componentType
       )}>) {
-  *outValue = get_${this.__variableName}(_materialSID, 0);
+  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
 }
 `;
     } else {
@@ -66,7 +66,7 @@ void ${this.__functionName}(out ${this.__compositionType.getGlslStr(
 fn ${this.__functionName}(outValue: ptr<function, ${this.__compositionType.toWGSLType(
         this.__componentType
       )}>) {
-  *outValue = get_${this.__variableName}(_materialSID, 0);
+  *outValue = get_${this.__variableName}(uniformDrawParameters.materialSid, 0);
 }
 `;
     } else {

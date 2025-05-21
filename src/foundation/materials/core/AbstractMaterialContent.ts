@@ -64,6 +64,8 @@ export abstract class AbstractMaterialContent extends RnObject {
   private static __reflectedShaderSemanticsInfoArrayMap: Map<string, ShaderSemanticsInfo[]> = new Map();
   public shaderType: ShaderTypeEnum = ShaderType.VertexAndPixelShader;
 
+  private __materialSemanticsVariantName = '';
+
   constructor(
     materialName: string,
     { isMorphing = false, isSkinning = false, isLighting = false } = {},
@@ -95,15 +97,17 @@ export abstract class AbstractMaterialContent extends RnObject {
     }
   }
 
-  getMaterialSemanticsVariantName() {
+  makeMaterialSemanticsVariantName() {
     let semantics = '';
     for (const semantic of this.__semantics) {
       semantics += `${semantic.semantic}_`; //${semantic.stage.index} ${semantic.componentType.index} ${semantic.compositionType.index} ${semantic.soloDatum} ${semantic.isInternalSetting} ${semantic.arrayLength} ${semantic.needUniformInDataTextureMode}\n`;
     }
 
-    // const hash = DataUtil.toCRC32(semantics);
+    this.__materialSemanticsVariantName = this.__materialName + '_semanticsVariation_' + semantics;
+  }
 
-    return this.__materialName + '_semanticsVariation_' + semantics;
+  getMaterialSemanticsVariantName() {
+    return this.__materialSemanticsVariantName;
   }
 
   get vertexShaderityObject(): ShaderityObject | undefined {
@@ -142,6 +146,7 @@ export abstract class AbstractMaterialContent extends RnObject {
       infoArray.push(info);
     }
     this.__semantics = infoArray;
+    this.makeMaterialSemanticsVariantName();
   }
 
   protected setupBasicInfo(

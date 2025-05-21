@@ -93,6 +93,7 @@ import { Vector2 } from '../math/Vector2';
 import { SystemState } from '../system/SystemState';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
 import { Vrm1_Material } from '../../types/VRM1';
+import { DataUtil } from '../misc/DataUtil';
 
 const g_sampler = new Sampler({
   minFilter: TextureParameter.Linear,
@@ -1346,14 +1347,14 @@ function reuseOrRecreateCustomMaterial(
   vertexShaderStr: string,
   pixelShaderStr: string,
   {
-    additionalName = '',
+    maxInstancesNumber = Config.maxMaterialInstanceForEachType,
     isSkinning = true,
     isLighting = false,
     isMorphing = false,
-    maxInstancesNumber = Config.maxMaterialInstanceForEachType,
   } = {}
 ) {
-  const materialName = 'Custom' + `_${additionalName}_`;
+  const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
+  const materialName = 'Custom' + `_${hash}`;
 
   let materialContent: CustomMaterialContent;
   if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {

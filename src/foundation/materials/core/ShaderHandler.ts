@@ -160,7 +160,7 @@ export function _createProgramAsSingleOperationWebGL(
   isWebGL2: boolean
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
-  const cacheQuery = material.__materialTypeName + vertexAttributeDefines + material._getFingerPrint();
+  const cacheQuery = material.__materialTypeName + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint();
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
   if (shaderProgramUid) {
@@ -309,7 +309,7 @@ export function _createProgramAsSingleOperationWebGpu(
   propertySetter: getShaderPropertyFunc
 ) {
   const vertexAttributeDefines = defineAttributes(primitive);
-  const cacheQuery = material.__materialTypeName + vertexAttributeDefines + material._getFingerPrint();
+  const cacheQuery = material.__materialTypeName + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint();
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
   if (shaderProgramUid) {
