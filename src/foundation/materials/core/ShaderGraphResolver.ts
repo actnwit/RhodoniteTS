@@ -38,6 +38,7 @@ import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { Logger } from '../../misc/Logger';
+import { ProcessGeometryNode } from '../nodes/processGeometryShaderNode';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -869,6 +870,12 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'MergeVector': {
         const nodeInstance = new MergeVectorShaderNode();
+        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'ProcessGeometry': {
+        const nodeInstance = new ProcessGeometryNode();
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
