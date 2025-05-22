@@ -7,7 +7,7 @@ import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.w
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { Socket } from '../../foundation/materials/core/Socket';
+import { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 
 export abstract class CommonShaderPart {
@@ -216,7 +216,7 @@ struct VertexOutput {
 
   static getAssignmentStatement(
     varName: string,
-    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>
+    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
@@ -237,7 +237,7 @@ struct VertexOutput {
 
   static getAssignmentVaryingStatementInPixelShader(
     varName: string,
-    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>,
+    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>,
     inputNode: AbstractShaderNode
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {

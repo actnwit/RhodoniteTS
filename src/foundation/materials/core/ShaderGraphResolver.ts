@@ -259,7 +259,7 @@ export class ShaderGraphResolver {
   /**
    * Construct shader code with shader nodes.
    *
-   * @param shaderNodes - Shader nodes
+   * @param shaderNodes - Shader nodes (sorted topologically)
    * @param isVertexStage - Whether the shader is a vertex shader
    * @param isFullVersion - Whether to generate a full version of the shader code
    * @returns Shader code

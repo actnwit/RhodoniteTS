@@ -6,6 +6,10 @@ import AddShaderityObjectWGSL from '../../../webgpu/shaderity_shaders/nodes/Add.
 import { Socket } from '../core/Socket';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { SystemState } from '../../system/SystemState';
+import { Scalar } from '../../math/Scalar';
+import { Vector2 } from '../../math/Vector2';
+import { Vector3 } from '../../math/Vector3';
+import { Vector4 } from '../../math/Vector4';
 
 export class AddShaderNode extends AbstractShaderNode {
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
@@ -14,9 +18,23 @@ export class AddShaderNode extends AbstractShaderNode {
       codeWGSL: AddShaderityObjectWGSL.code,
     });
 
-    this.__inputs.push(new Socket('lhs', compositionType, componentType));
-    this.__inputs.push(new Socket('rhs', compositionType, componentType));
+    this.__inputs.push(new Socket('lhs', compositionType, componentType, this.getDefaultValue(compositionType)));
+    this.__inputs.push(new Socket('rhs', compositionType, componentType, this.getDefaultValue(compositionType)));
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
+  }
+
+  getDefaultValue(compositionType: CompositionTypeEnum) {
+    if (compositionType === CompositionType.Scalar) {
+      return Scalar.fromCopyNumber(0);
+    } else if (compositionType === CompositionType.Vec2) {
+      return Vector2.zero();
+    } else if (compositionType === CompositionType.Vec3) {
+      return Vector3.zero();
+    } else if (compositionType === CompositionType.Vec4) {
+      return Vector4.zero();
+    } else {
+      throw new Error('Not implemented');
+    }
   }
 
   getSocketInputLhs() {
