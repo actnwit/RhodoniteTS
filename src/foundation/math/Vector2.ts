@@ -32,6 +32,16 @@ export class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVect
     return `ivec2(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])})`;
   }
 
+  get wgslStrAsFloat() {
+    return `vec2f(${MathUtil.convertToStringAsGLSLFloat(
+      this._v[0]
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])})`;
+  }
+
+  get wgslStrAsInt() {
+    return `vec2i(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])})`;
+  }
+
   static get compositionType() {
     return CompositionType.Vec2;
   }

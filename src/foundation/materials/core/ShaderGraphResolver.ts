@@ -322,10 +322,20 @@ export class ShaderGraphResolver {
         const inputConnections = shaderNode.inputConnections;
 
         // Collects ExistingInputs
-        for (let j = 0; j < inputConnections.length; j++) {
+        for (let j = 0; j < shaderNode.getInputs().length; j++) {
           const inputConnection = inputConnections[j];
           if (inputConnection == null) {
-            continue;
+            const inputSocket = shaderNode.getInputs()[j];
+            if (inputSocket.defaultValue != null) {
+              if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+                varInputNames[i].push(inputSocket.defaultValue.wgslStrAsFloat);
+              } else {
+                varInputNames[i].push(inputSocket.defaultValue.glslStrAsFloat);
+              }
+              continue;
+            } else {
+              continue;
+            }
           }
           const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
 

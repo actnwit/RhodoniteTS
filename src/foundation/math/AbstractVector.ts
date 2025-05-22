@@ -17,6 +17,12 @@ export abstract class AbstractVector implements IVector {
   get glslStrAsInt(): string {
     throw new Error('Method not implemented.');
   }
+  get wgslStrAsFloat(): string {
+    throw new Error('Method not implemented.');
+  }
+  get wgslStrAsInt(): string {
+    throw new Error('Method not implemented.');
+  }
   isEqual(vec: IVector, delta?: number): boolean {
     throw new Error('Method not implemented.');
   }

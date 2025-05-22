@@ -19,6 +19,6 @@ export class Socket<
     public readonly name: Name,
     public readonly compositionType: N,
     public readonly componentType: T,
-    public readonly defaultVal?: V
+    public readonly defaultValue?: V
   ) {}
 }

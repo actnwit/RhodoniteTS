@@ -48,6 +48,20 @@ export class Vector4_<T extends FloatTypedArrayConstructor>
     )}, ${Math.floor(this._v[3])})`;
   }
 
+  get wgslStrAsFloat() {
+    return `vec4f(${MathUtil.convertToStringAsGLSLFloat(
+      this._v[0]
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(
+      this._v[2]
+    )}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])})`;
+  }
+
+  get wgslStrAsInt() {
+    return `vec4i(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(
+      this._v[2]
+    )}, ${Math.floor(this._v[3])})`;
+  }
+
   static _fromCopyArray4(array: Array4<number>, type: FloatTypedArrayConstructor) {
     return new this(new type(array), { type });
   }

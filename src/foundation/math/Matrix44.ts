@@ -105,6 +105,22 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return CompositionType.Mat4;
   }
 
+  get glslStrAsFloat() {
+    return `mat4(${MathUtil.convertToStringAsGLSLFloat(this._v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[4])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[5])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[6])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[7])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[8])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[9])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[10])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[11])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[12])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[13])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[14])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[15])})`;
+  }
+
+  get glslStrAsInt() {
+    return `mat4(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])}, ${Math.floor(this._v[4])}, ${Math.floor(this._v[5])}, ${Math.floor(this._v[6])}, ${Math.floor(this._v[7])}, ${Math.floor(this._v[8])}, ${Math.floor(this._v[9])}, ${Math.floor(this._v[10])}, ${Math.floor(this._v[11])}, ${Math.floor(this._v[12])}, ${Math.floor(this._v[13])}, ${Math.floor(this._v[14])}, ${Math.floor(this._v[15])})`;
+  }
+
+  get wgslStrAsFloat() {
+    return `mat4x4f(${MathUtil.convertToStringAsGLSLFloat(this._v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[4])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[5])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[6])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[7])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[8])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[9])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[10])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[11])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[12])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[13])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[14])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[15])})`;
+  }
+
+  get wgslStrAsInt() {
+    return `mat4x4i(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])}, ${Math.floor(this._v[4])}, ${Math.floor(this._v[5])}, ${Math.floor(this._v[6])}, ${Math.floor(this._v[7])}, ${Math.floor(this._v[8])}, ${Math.floor(this._v[9])}, ${Math.floor(this._v[10])}, ${Math.floor(this._v[11])}, ${Math.floor(this._v[12])}, ${Math.floor(this._v[13])}, ${Math.floor(this._v[14])}, ${Math.floor(this._v[15])})`;
+  }
+
   /**
    * zero matrix(static version)
    */
