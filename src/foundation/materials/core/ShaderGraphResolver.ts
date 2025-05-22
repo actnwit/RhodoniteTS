@@ -38,7 +38,7 @@ import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { Logger } from '../../misc/Logger';
-import { ProcessGeometryNode } from '../nodes/processGeometryShaderNode';
+import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -875,7 +875,7 @@ function constructNodes(json: ShaderNodeJson) {
         break;
       }
       case 'ProcessGeometry': {
-        const nodeInstance = new ProcessGeometryNode();
+        const nodeInstance = new ProcessGeometryShaderNode();
         nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;

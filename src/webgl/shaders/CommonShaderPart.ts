@@ -82,7 +82,7 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 `;
       return vertexShaderPrerequisites;
-    } else {
+    } else { // WebGL
       let vertexShaderPrerequisites = '';
       const in_ = 'in';
       vertexShaderPrerequisites += `

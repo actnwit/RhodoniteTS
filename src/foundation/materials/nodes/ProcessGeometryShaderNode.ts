@@ -3,7 +3,7 @@ import { CompositionType } from "../../definitions/CompositionType";
 import { AbstractShaderNode } from "../core/AbstractShaderNode";
 import { Socket } from "../core/Socket";
 
-export class ProcessGeometryNode extends AbstractShaderNode {
+export class ProcessGeometryShaderNode extends AbstractShaderNode {
   constructor() {
     super('processGeometry', {
       codeGLSL: '/* shaderity: @{processGeometry} */',
