@@ -35,7 +35,7 @@ fn main(
 #ifdef RN_USE_COLOR_0
   output.color_0 = color_0;
 #endif
-  output.position_inWorld = (worldMatrix * vec4f(position, 1.0)).xyz;
+  output.position_inWorld = (worldMatrix * vec4f(position, 1.0));
   output.texcoord_0 = texcoord_0;
 
   return output;

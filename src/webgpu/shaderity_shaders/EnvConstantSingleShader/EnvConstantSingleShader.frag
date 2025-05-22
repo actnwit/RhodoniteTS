@@ -30,7 +30,7 @@ fn main(
   let envRotation: f32 = get_envRotation(materialSID, 0u);
   let rot = envRotation;
   let rotEnvMatrix = mat3x3<f32>(cos(rot), 0.0, -sin(rot), 0.0, 1.0, 0.0, sin(rot), 0.0, cos(rot));
-  var envNormal: vec3f = normalize(rotEnvMatrix * input.position_inWorld);
+  var envNormal: vec3f = normalize(rotEnvMatrix * input.position_inWorld.xyz);
 
   if (get_inverseEnvironment(materialSID, 0)) {
     envNormal.x *= -1.0;

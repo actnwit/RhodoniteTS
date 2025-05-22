@@ -46,29 +46,31 @@ fn main(
 #endif
 
   let worldMatrix = get_worldMatrix(u32(instance_ids.x));
-  let normalMatrix = get_normalMatrix(instanceId);
+  var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID, 0u);
   let skeletalComponentSID = i32(instance_ids.y);
   let blendShapeComponentSID = u32(instance_ids.z);
 
-  let geom = processGeometry(
-    skeletalComponentSID,
-    blendShapeComponentSID,
+  var position_inWorld = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+  var normal_inWorld = vec3<f32>(0.0, 0.0, 0.0);
+  let isSkinning = processGeometry(
     worldMatrix,
-    viewMatrix,
-    isBillboard,
     normalMatrix,
+    viewMatrix,
     position,
     normal,
-    baryCentricCoord,
     joint,
-    weight
+    weight,
+    isBillboard,
+    &normalMatrix,
+    &position_inWorld,
+    &normal_inWorld
   );
 
   let lightIndex = get_lightIndex(materialSID, 0);
   let lightPosition: vec3<f32> = get_lightPosition(0, lightIndex);
-  var L: vec3<f32> = geom.position_inWorld.xyz - lightPosition;
+  var L: vec3<f32> = output.position_inWorld.xyz - lightPosition;
   let dist: f32 = length(L);
   L = normalize(L);
 
