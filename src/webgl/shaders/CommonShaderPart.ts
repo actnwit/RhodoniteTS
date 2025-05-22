@@ -24,29 +24,6 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
-#ifdef RN_USE_INSTANCE
-a_instanceIds = instance_ids;
-#endif
-
-#ifdef RN_USE_POSITION
-a_position = vec3<f32>(position);
-#else
-a_position = vec3<f32>(0.0, 0.0, 0.0);
-#endif
-
-#ifdef RN_USE_NORMAL
-a_normal = normal;
-#endif
-
-#ifdef RN_USE_TEXCOORD_0
-a_texcoord_0 = texcoord_0;
-#endif
-
-#ifdef RN_USE_COLOR_0
-a_color_0 = vec4<f32>(color_0);
-#else
-a_color_0 = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-#endif
 `;
         return str;
       } else {
@@ -94,18 +71,6 @@ void main() {
       vertexShaderPrerequisites += `
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
-
-#ifdef RN_USE_INSTANCE
-var<private> a_instanceIds: vec4<f32>;
-#endif
-
-var<private> a_position: vec3<f32>;
-
-var<private> a_normal: vec3<f32>;
-
-var<private> a_texcoord_0: vec2<f32>;
-
-var<private> a_color_0: vec4<f32>;
 
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,

@@ -10,6 +10,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.WebGPU,
   canvas,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // create ForwardRenderPipeline
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
