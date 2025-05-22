@@ -193,7 +193,7 @@ fn toNormalMatrix(m: mat4x4<f32>) -> mat3x3<f32> {
 }
 #endif
 
-struct GeometoryOutput {
+struct GeometryOutput {
   normalMatrix: mat3x3<f32>,
   position_inWorld: vec4<f32>,
   normal_inWorld: vec3<f32>,
@@ -208,9 +208,9 @@ fn skinning(
   inNormal_inLocal: vec3<f32>,
   joint: vec4<u32>,
   weight: vec4<f32>,
-  ) -> GeometoryOutput
+  ) -> GeometryOutput
 {
-  var output: GeometoryOutput;
+  var output: GeometryOutput;
   let skinMat = getSkinMatrix(skeletalComponentSID, joint, weight);
   output.position_inWorld = skinMat * vec4<f32>(inPosition_inLocal, 1.0);
   output.normalMatrix = toNormalMatrix(skinMat);
@@ -234,8 +234,8 @@ fn processGeometry(
   baryCentricCoord: vec4<f32>,
   joint: vec4<u32>,
   weight: vec4<f32>,
-) -> GeometoryOutput {
-  var output: GeometoryOutput;
+) -> GeometryOutput {
+  var output: GeometryOutput;
 
   var position_inLocal: vec3<f32>;
 #ifdef RN_IS_MORPHING
