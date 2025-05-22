@@ -12,8 +12,6 @@
 
 /* shaderity: @{matricesGetters} */
 
-/* shaderity: @{processGeometry} */
-
 void main(){
 /* shaderity: @{mainPrerequisites} */
 

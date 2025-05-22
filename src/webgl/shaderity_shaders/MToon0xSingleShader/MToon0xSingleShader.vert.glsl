@@ -33,15 +33,14 @@ void main(){
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   bool isSkinning = false;
   isSkinning = processGeometry(
-    skeletalComponentSID,
     worldMatrix,
+    normalMatrix,
     viewMatrix,
+    a_position,
+    a_normal,
     false,
     normalMatrix,
-    normalMatrix,
-    a_position,
     v_position_inWorld,
-    a_normal,
     v_normal_inWorld
   );
 

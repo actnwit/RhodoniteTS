@@ -74,15 +74,14 @@ function createCustomShader() {
 
     // Skeletal
     processGeometry(
-      skeletalComponentSID,
       worldMatrix,
+      normalMatrix,
       viewMatrix,
+      a_position,
+      a_normal,
       isBillboard,
       normalMatrix,
-      normalMatrix,
-      a_position,
       v_position_inWorld,
-      a_normal,
       v_normal_inWorld
     );
 

@@ -183,15 +183,14 @@ bool skinning(
 #endif
 
 bool processGeometry(
-  float skeletalComponentSID,
   in mat4 worldMatrix,
-  in mat4 viewMatrix,
-  in bool isBillboard,
   in mat3 inNormalMatrix,
-  out mat3 outNormalMatrix,
+  in mat4 viewMatrix,
   in vec3 inPosition_inLocal,
-  out vec4 outPosition_inWorld,
   in vec3 inNormal_inLocal,
+  in bool isBillboard,
+  out mat3 outNormalMatrix,
+  out vec4 outPosition_inWorld,
   out vec3 outNormal_inWorld
 ) {
   bool isSkinning = false;
@@ -218,6 +217,11 @@ bool processGeometry(
   }
 
 #ifdef RN_IS_SKINNING
+  #ifdef RN_IS_DATATEXTURE_MODE
+    float skeletalComponentSID = a_instanceInfo.y;
+  #else
+    float skeletalComponentSID = float(get_skinningMode(0.0, 0));
+  #endif
   if (skeletalComponentSID >= 0.0) {
     isSkinning = skinning(skeletalComponentSID, inNormalMatrix, outNormalMatrix, position_inLocal, outPosition_inWorld, inNormal_inLocal, outNormal_inWorld);
   } else {
