@@ -35,8 +35,6 @@ void main()
   bool isSkinning = false;
 
   isSkinning = processGeometry(
-    a_instanceInfo,
-    a_baryCentricCoord.w,
     worldMatrix,
     normalMatrix,
     viewMatrix,

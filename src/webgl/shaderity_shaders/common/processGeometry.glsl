@@ -185,8 +185,6 @@ bool skinning(
 #endif
 
 bool processGeometry(
-  in vec4 instanceInfo,
-  in float vertexIdx,
   in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   in mat4 viewMatrix,
@@ -208,6 +206,7 @@ bool processGeometry(
     position_inLocal = inPosition_inLocal;
 #ifdef RN_IS_MORPHING
   } else {
+    float vertexIdx = a_baryCentricCoord.w;
     position_inLocal = get_position(vertexIdx, inPosition_inLocal);
   }
 #endif
@@ -223,7 +222,7 @@ bool processGeometry(
 
 #ifdef RN_IS_SKINNING
   #ifdef RN_IS_DATATEXTURE_MODE
-    float skeletalComponentSID = instanceInfo.y;
+    float skeletalComponentSID = a_instanceInfo.y;
   #else
     float skeletalComponentSID = float(get_skinningMode(0.0, 0));
   #endif
