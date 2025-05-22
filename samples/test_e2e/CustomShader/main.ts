@@ -74,6 +74,8 @@ function createCustomShader() {
 
     // Skeletal
     processGeometry(
+      a_instanceInfo,
+      a_baryCentricCoord.w,
       worldMatrix,
       normalMatrix,
       viewMatrix,
@@ -81,7 +83,6 @@ function createCustomShader() {
       a_normal,
       a_joint,
       a_weight,
-      a_instanceInfo,
       isBillboard,
       normalMatrix,
       v_position_inWorld,

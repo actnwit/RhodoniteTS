@@ -185,6 +185,8 @@ bool skinning(
 #endif
 
 bool processGeometry(
+  in vec4 instanceInfo,
+  in float vertexIdx,
   in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   in mat4 viewMatrix,
@@ -192,7 +194,6 @@ bool processGeometry(
   in vec3 inNormal_inLocal,
   in vec4 joint,
   in vec4 weight,
-  in vec4 instanceInfo,
   in bool isBillboard,
   out mat3 outNormalMatrix,
   out vec4 outPosition_inWorld,
@@ -207,7 +208,6 @@ bool processGeometry(
     position_inLocal = inPosition_inLocal;
 #ifdef RN_IS_MORPHING
   } else {
-    float vertexIdx = a_baryCentricCoord.w;
     position_inLocal = get_position(vertexIdx, inPosition_inLocal);
   }
 #endif
