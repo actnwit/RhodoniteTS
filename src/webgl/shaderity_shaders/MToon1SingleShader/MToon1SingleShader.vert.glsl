@@ -35,10 +35,13 @@ void main(){
     viewMatrix,
     a_position,
     a_normal,
+    a_joint,
+    a_weight,
+    a_instanceInfo
     false,
     normalMatrix,
     v_position_inWorld,
-    v_normal_inWorld
+    v_normal_inWorld,
   );
 
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
