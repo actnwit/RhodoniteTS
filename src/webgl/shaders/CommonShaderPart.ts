@@ -2,13 +2,13 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
-import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
 import { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
+import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -93,12 +93,14 @@ precision highp int;
 #define RN_IS_NODE_SHADER
 /* shaderity: @{prerequisites} */
 
+${morphVariablesGLSL.code}
+
 ${in_} vec4 a_instanceInfo;\n`;
       vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;
-      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
       vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
 
       return vertexShaderPrerequisites;
     }

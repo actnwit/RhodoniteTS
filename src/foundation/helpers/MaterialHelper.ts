@@ -1356,6 +1356,49 @@ function reuseOrRecreateCustomMaterial(
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);
   const materialName = 'Custom' + `_${hash}`;
 
+  let additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
+  if (isMorphing) {
+    additionalShaderSemanticInfo = [
+      {
+        semantic: 'dataTextureMorphOffsetPosition',
+        componentType: ComponentType.Int,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: Config.maxMorphTargetNumber,
+        stage: ShaderType.VertexShader,
+        isInternalSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(new Int32Array(Config.maxMorphTargetNumber)),
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        needUniformInDataTextureMode: true,
+      },
+      {
+        semantic: 'morphWeights',
+        componentType: ComponentType.Float,
+        compositionType: CompositionType.ScalarArray,
+        arrayLength: Config.maxMorphTargetNumber,
+        stage: ShaderType.VertexShader,
+        isInternalSetting: true,
+        soloDatum: true,
+        initialValue: new VectorN(new Float32Array(Config.maxMorphTargetNumber)),
+        min: -Number.MAX_VALUE,
+        max: Number.MAX_VALUE,
+        needUniformInDataTextureMode: true,
+      },
+    ];
+  }
+
+  const definitions = [];
+  if (isLighting) {
+    definitions.push('RN_IS_LIGHTING');
+  }
+  if (isSkinning) {
+    definitions.push('RN_IS_SKINNING');
+  }
+  if (isMorphing) {
+    definitions.push('RN_IS_MORPHING');
+  }
+
   let materialContent: CustomMaterialContent;
   if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
     materialContent = new CustomMaterialContent({
@@ -1373,7 +1416,8 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      additionalShaderSemanticInfo: [],
+      additionalShaderSemanticInfo,
+      definitions,
     });
   } else {
     materialContent = new CustomMaterialContent({
@@ -1391,11 +1435,17 @@ function reuseOrRecreateCustomMaterial(
         shaderStage: 'fragment',
         isFragmentShader: true,
       },
-      additionalShaderSemanticInfo: [],
+      additionalShaderSemanticInfo,
+      definitions,
     });
   }
+
+
   const material = reuseOrRecreateMaterial(currentMaterial, materialContent, maxInstancesNumber);
-  material.addShaderDefine('RN_IS_SKINNING');
+
+  for (const definition of definitions) {
+    material.addShaderDefine(definition);
+  }
 
   return material;
 }
