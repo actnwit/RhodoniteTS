@@ -18,7 +18,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
     this.__inputs.push(new Socket('viewMatrix', CompositionType.Mat4, ComponentType.Float));
     this.__inputs.push(new Socket('position', CompositionType.Vec4, ComponentType.Float));
     this.__inputs.push(new Socket('normal', CompositionType.Vec3, ComponentType.Float));
-    this.__inputs.push(new Socket('joint', CompositionType.Vec4, ComponentType.Float));
+    this.__inputs.push(new Socket('joint', CompositionType.Vec4, ComponentType.UnsignedInt));
     this.__inputs.push(new Socket('weight', CompositionType.Vec4, ComponentType.Float));
     this.__inputs.push(new Socket('isBillboard', CompositionType.Scalar, ComponentType.Bool, Scalar.fromCopyNumber(0)));
 

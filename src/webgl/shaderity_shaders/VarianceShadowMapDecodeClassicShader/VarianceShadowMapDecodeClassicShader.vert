@@ -31,7 +31,7 @@ void main(){
     viewMatrix,
     a_position,
     a_normal,
-    a_joint,
+    uvec4(a_joint),
     a_weight,
     false,
     normalMatrix,

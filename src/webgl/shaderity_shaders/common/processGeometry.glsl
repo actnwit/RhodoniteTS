@@ -66,7 +66,7 @@ highp vec4 unpackedVec2ToNormalizedVec4(highp vec2 vec_xy, highp float criteria)
   return vec4(r, g, b, a);
 }
 
-mat4 getSkinMatrix(float skeletalComponentSID, vec4 joint, vec4 weight) {
+mat4 getSkinMatrix(float skeletalComponentSID, uvec4 joint, vec4 weight) {
 
 #ifdef RN_BONE_DATA_TYPE_Mat43x1
   mat4 skinMat = weight.x * mat4(get_boneMatrix(skeletalComponentSID, int(joint.x)));
@@ -165,7 +165,7 @@ mat3 toNormalMatrix(mat4 m) {
 
 bool skinning(
   in float skeletalComponentSID,
-  in vec4 joint,
+  in uvec4 joint,
   in vec4 weight,
   in mat3 inNormalMatrix,
   out mat3 outNormalMatrix,
@@ -190,7 +190,7 @@ bool processGeometry(
   in mat4 viewMatrix,
   in vec4 inPosition_inLocal,
   in vec3 inNormal_inLocal,
-  in vec4 joint,
+  in uvec4 joint,
   in vec4 weight,
   in bool isBillboard,
   out mat3 outNormalMatrix,
