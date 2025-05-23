@@ -68,6 +68,8 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
+
 const expression = new Rn.Expression();
 
 // Camera

@@ -365,13 +365,13 @@ fn linearToSrgb(linearColor: vec3f) -> vec3f {
 var<private> a_instanceIds: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 
 #ifdef RN_USE_POSITION_FLOAT
-  var<private> a_position: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);
+  var<private> a_position: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 1.0);
 #endif
 #ifdef RN_USE_POSITION_INT
-  var<private> a_position: vec3<i32> = vec3<i32>(0, 0, 0);
+  var<private> a_position: vec4<i32> = vec4<i32>(0, 0, 0, 1);
 #endif
 #ifdef RN_USE_POSITION_UINT
-  var<private> a_position: vec3<u32> = vec3<u32>(0u, 0u, 0u);
+  var<private> a_position: vec4<u32> = vec4<u32>(0u, 0u, 0u);
 #endif
 
 var<private> a_normal: vec3<f32> = vec3<f32>(0.0, 0.0, 0.0);

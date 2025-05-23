@@ -188,7 +188,7 @@ bool processGeometry(
   in mat4 worldMatrix,
   in mat3 inNormalMatrix,
   in mat4 viewMatrix,
-  in vec3 inPosition_inLocal,
+  in vec4 inPosition_inLocal,
   in vec3 inNormal_inLocal,
   in vec4 joint,
   in vec4 weight,
@@ -203,11 +203,11 @@ bool processGeometry(
 #ifdef RN_IS_MORPHING
   if (u_morphTargetNumber == 0) {
 #endif
-    position_inLocal = inPosition_inLocal;
+    position_inLocal = inPosition_inLocal.xyz;
 #ifdef RN_IS_MORPHING
   } else {
     float vertexIdx = a_baryCentricCoord.w;
-    position_inLocal = get_position(vertexIdx, inPosition_inLocal);
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal.xyz);
   }
 #endif
 

@@ -226,7 +226,7 @@ fn processGeometry(
   worldMatrix: mat4x4<f32>,
   inNormalMatrix: mat3x3<f32>,
   viewMatrix: mat4x4<f32>,
-  inPosition_inLocal: vec3<f32>,
+  inPosition_inLocal: vec4<f32>,
   inNormal_inLocal: vec3<f32>,
   joint: vec4<u32>,
   weight: vec4<f32>,
@@ -241,12 +241,12 @@ fn processGeometry(
 #ifdef RN_IS_MORPHING
   if (uniformDrawParameters.morphTargetNumber == 0u) {
 #endif
-    position_inLocal = inPosition_inLocal;
+    position_inLocal = inPosition_inLocal.xyz;
 #ifdef RN_IS_MORPHING
   } else {
     let vertexIdx = u32(a_baryCentricCoord.w);
     let blendShapeComponentSID = u32(a_instanceIds.z);
-    position_inLocal = get_position(vertexIdx, inPosition_inLocal, blendShapeComponentSID);
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal.xyz, blendShapeComponentSID);
   }
 #endif
 

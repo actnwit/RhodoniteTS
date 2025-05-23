@@ -4,13 +4,13 @@
 
 
 #ifdef RN_USE_POSITION_FLOAT
-  @location(0) position: vec3<f32>,
+  @location(0) position: vec4<f32>,
 #endif
 #ifdef RN_USE_POSITION_INT
-  @location(0) position: vec3<i32>,
+  @location(0) position: vec4<i32>,
 #endif
 #ifdef RN_USE_POSITION_UINT
-  @location(0) position: vec3<u32>,
+  @location(0) position: vec4<u32>,
 #endif
 
 #ifdef RN_USE_NORMAL
