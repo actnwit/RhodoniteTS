@@ -1,5 +1,6 @@
 import { ComponentType } from "../../definitions/ComponentType";
 import { CompositionType } from "../../definitions/CompositionType";
+import { Scalar } from "../../math/Scalar";
 import { AbstractShaderNode } from "../core/AbstractShaderNode";
 import { Socket } from "../core/Socket";
 
@@ -17,7 +18,7 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
     this.__inputs.push(new Socket('normal', CompositionType.Vec3, ComponentType.Float));
     this.__inputs.push(new Socket('joint', CompositionType.Vec4, ComponentType.Float));
     this.__inputs.push(new Socket('weight', CompositionType.Vec4, ComponentType.Float));
-    this.__inputs.push(new Socket('isBillboard', CompositionType.Scalar, ComponentType.Bool));
+    this.__inputs.push(new Socket('isBillboard', CompositionType.Scalar, ComponentType.Bool, Scalar.fromCopyNumber(0)));
 
     this.__outputs.push(new Socket('outNormalMatrix', CompositionType.Mat3, ComponentType.Float));
     this.__outputs.push(new Socket('outPositionInWorld', CompositionType.Vec4, ComponentType.Float));

@@ -28,10 +28,9 @@ import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
-import { SystemState } from '../../system';
+import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
-import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
@@ -39,6 +38,10 @@ import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { Logger } from '../../misc/Logger';
 import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
+import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
+import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
+import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
+import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -329,9 +332,17 @@ export class ShaderGraphResolver {
             const inputSocket = shaderNode.getInputs()[j];
             if (inputSocket.defaultValue != null) {
               if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-                varInputNames[i].push(inputSocket.defaultValue.wgslStrAsFloat);
+                if (inputSocket.componentType === ComponentType.Bool) {
+                  varInputNames[i].push(inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false');
+                } else {
+                  varInputNames[i].push(inputSocket.defaultValue.wgslStrAsFloat);
+                }
               } else {
-                varInputNames[i].push(inputSocket.defaultValue.glslStrAsFloat);
+                if (inputSocket.componentType === ComponentType.Bool) {
+                  varInputNames[i].push(inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false');
+                } else {
+                  varInputNames[i].push(inputSocket.defaultValue.glslStrAsFloat);
+                }
               }
               continue;
             } else {
@@ -897,6 +908,16 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'AttributeTexcoord': {
         const nodeInstance = new AttributeTexcoordShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AttributeJoint': {
+        const nodeInstance = new AttributeJointShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AttributeWeight': {
+        const nodeInstance = new AttributeWeightShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }
