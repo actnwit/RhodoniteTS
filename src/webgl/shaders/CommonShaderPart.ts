@@ -84,7 +84,6 @@ struct VertexOutput {
       return vertexShaderPrerequisites;
     } else { // WebGL
       let vertexShaderPrerequisites = '';
-      const in_ = 'in';
       vertexShaderPrerequisites += `
 #version 300 es
 precision highp float;
@@ -95,7 +94,17 @@ precision highp int;
 
 ${morphVariablesGLSL.code}
 
-${in_} vec4 a_instanceInfo;\n`;
+in vec4 a_position;
+in vec3 a_color;
+in vec3 a_normal;
+in vec4 a_instanceInfo;
+in vec2 a_texcoord_0;
+in vec2 a_texcoord_1;
+in vec2 a_texcoord_2;
+in vec4 a_joint;
+in vec4 a_weight;
+in vec4 a_baryCentricCoord;
+`;
       vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;
