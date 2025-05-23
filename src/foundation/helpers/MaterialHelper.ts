@@ -1349,8 +1349,8 @@ function reuseOrRecreateCustomMaterial(
   {
     maxInstancesNumber = Config.maxMaterialInstanceForEachType,
     isSkinning = true,
-    isLighting = false,
-    isMorphing = false,
+    isLighting = true,
+    isMorphing = true,
   } = {}
 ) {
   const hash = DataUtil.toCRC32(vertexShaderStr + pixelShaderStr);

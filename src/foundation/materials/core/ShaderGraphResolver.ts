@@ -887,7 +887,6 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'ProcessGeometry': {
         const nodeInstance = new ProcessGeometryShaderNode();
-        nodeInstance.setShaderStage(node.controls['shaderStage'].value);
         nodeInstances[node.id] = nodeInstance;
         break;
       }

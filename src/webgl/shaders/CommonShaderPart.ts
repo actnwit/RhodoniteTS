@@ -89,6 +89,8 @@ struct VertexOutput {
 #version 300 es
 precision highp float;
 precision highp int;
+/* shaderity: @{definitions} */
+#define RN_IS_NODE_SHADER
 /* shaderity: @{prerequisites} */
 
 ${in_} vec4 a_instanceInfo;\n`;
@@ -167,6 +169,8 @@ struct VertexOutput {
       #version 300 es
       precision highp float;
       precision highp int;
+      /* shaderity: @{definitions} */
+      #define RN_IS_NODE_SHADER
       /* shaderity: @{prerequisites} */
       `;
       pixelShaderPrerequisites += '/* shaderity: @{getters} */';
