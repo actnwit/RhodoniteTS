@@ -40,7 +40,7 @@ void main(){
     false,
     normalMatrix,
     v_position_inWorld,
-    v_normal_inWorld,
+    v_normal_inWorld
   );
 
   mat4 projectionMatrix = get_projectionMatrix(cameraSID, 0);
