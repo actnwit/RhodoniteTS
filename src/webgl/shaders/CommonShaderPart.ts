@@ -2,13 +2,13 @@ import { ProcessApproach } from '../../foundation/definitions/ProcessApproach';
 import { VertexAttribute, VertexAttributeEnum } from '../../foundation/definitions/VertexAttribute';
 import { WebGLResourceRepository } from '../WebGLResourceRepository';
 import { SystemState } from '../../foundation/system/SystemState';
-import vertexOutputWGSL from '../..//webgpu/shaderity_shaders/common/vertexOutput.wgsl';
 import vertexInputWGSL from '../../webgpu/shaderity_shaders/common/vertexInput.wgsl';
 import { AttributeNames } from '../types/CommonTypes';
 import { CompositionTypeEnum } from '../../foundation/definitions/CompositionType';
 import { ComponentTypeEnum } from '../../foundation/definitions/ComponentType';
-import { Socket } from '../../foundation/materials/core/Socket';
+import { Socket, SocketDefaultValue } from '../../foundation/materials/core/Socket';
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
+import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
@@ -24,29 +24,6 @@ var<private> output : VertexOutput;
 fn main(
 ${vertexInputWGSL.code}
 ) -> VertexOutput {
-#ifdef RN_USE_INSTANCE
-a_instanceIds = instance_ids;
-#endif
-
-#ifdef RN_USE_POSITION
-a_position = vec3<f32>(position);
-#else
-a_position = vec3<f32>(0.0, 0.0, 0.0);
-#endif
-
-#ifdef RN_USE_NORMAL
-a_normal = normal;
-#endif
-
-#ifdef RN_USE_TEXCOORD_0
-a_texcoord_0 = texcoord_0;
-#endif
-
-#ifdef RN_USE_COLOR_0
-a_color_0 = vec4<f32>(color_0);
-#else
-a_color_0 = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-#endif
 `;
         return str;
       } else {
@@ -95,18 +72,6 @@ void main() {
 /* shaderity: @{definitions} */
 #define RN_IS_NODE_SHADER
 
-#ifdef RN_USE_INSTANCE
-var<private> a_instanceIds: vec4<f32>;
-#endif
-
-var<private> a_position: vec3<f32>;
-
-var<private> a_normal: vec3<f32>;
-
-var<private> a_texcoord_0: vec2<f32>;
-
-var<private> a_color_0: vec4<f32>;
-
 struct VertexOutput {
   @builtin(position) position : vec4<f32>,
   ${varyingVariables}
@@ -117,21 +82,34 @@ struct VertexOutput {
 /* shaderity: @{matricesGetters} */
 `;
       return vertexShaderPrerequisites;
-    } else {
+    } else { // WebGL
       let vertexShaderPrerequisites = '';
-      const in_ = 'in';
       vertexShaderPrerequisites += `
 #version 300 es
 precision highp float;
 precision highp int;
+/* shaderity: @{definitions} */
+#define RN_IS_NODE_SHADER
 /* shaderity: @{prerequisites} */
 
-${in_} vec4 a_instanceInfo;\n`;
+${morphVariablesGLSL.code}
+
+in vec4 a_position;
+in vec3 a_color;
+in vec3 a_normal;
+in vec4 a_instanceInfo;
+in vec2 a_texcoord_0;
+in vec2 a_texcoord_1;
+in vec2 a_texcoord_2;
+in vec4 a_joint;
+in vec4 a_weight;
+in vec4 a_baryCentricCoord;
+`;
       vertexShaderPrerequisites += `
 uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNumber}];
 `;
-      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
       vertexShaderPrerequisites += '/* shaderity: @{getters} */';
+      vertexShaderPrerequisites += '/* shaderity: @{matricesGetters} */';
 
       return vertexShaderPrerequisites;
     }
@@ -202,6 +180,8 @@ struct VertexOutput {
       #version 300 es
       precision highp float;
       precision highp int;
+      /* shaderity: @{definitions} */
+      #define RN_IS_NODE_SHADER
       /* shaderity: @{prerequisites} */
       `;
       pixelShaderPrerequisites += '/* shaderity: @{getters} */';
@@ -216,7 +196,7 @@ struct VertexOutput {
 
   static getAssignmentStatement(
     varName: string,
-    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>
+    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const wgslTypeStr = inputSocket!.compositionType.toWGSLType(inputSocket!.componentType);
@@ -237,7 +217,7 @@ struct VertexOutput {
 
   static getAssignmentVaryingStatementInPixelShader(
     varName: string,
-    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>,
+    inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>,
     inputNode: AbstractShaderNode
   ) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {

@@ -5,9 +5,11 @@ export interface IVector {
   readonly x: number;
   readonly _v: TypedArray;
   readonly className: string;
+  readonly bytesPerComponent: number;
   readonly glslStrAsFloat: string;
   readonly glslStrAsInt: string;
-  readonly bytesPerComponent: number;
+  readonly wgslStrAsFloat: string;
+  readonly wgslStrAsInt: string;
   toString(): string;
   toStringApproximately(): string;
   flattenAsArray(): Array<number>;
@@ -26,8 +28,6 @@ export interface IVector {
 export interface IMutableVector extends IVector {
   _v: TypedArray;
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   raw(): TypedArray;
   setAt(i: number, value: number): IMutableVector;
@@ -54,8 +54,6 @@ export interface IMutableScalar extends IMutableVector {
 
 export interface IVector2 extends IVector {
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   readonly x: number;
   readonly y: number;
@@ -76,8 +74,6 @@ export interface IVector2 extends IVector {
 
 export interface IMutableVector2 extends IMutableVector {
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   x: number;
   y: number;
@@ -114,8 +110,6 @@ export interface IMutableVector2 extends IMutableVector {
 
 export interface IVector3 extends IVector {
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   readonly x: number;
   readonly y: number;
@@ -138,8 +132,6 @@ export interface IVector3 extends IVector {
 
 export interface IMutableVector3 extends IMutableVector {
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   x: number;
   y: number;
@@ -180,8 +172,6 @@ export interface IMutableVector3 extends IMutableVector {
 
 export interface IVector4 extends IVector {
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   readonly x: number;
   readonly y: number;
@@ -204,8 +194,6 @@ export interface IVector4 extends IVector {
 
 export interface IMutableVector4 extends IMutableVector {
   readonly className: string;
-  readonly glslStrAsFloat: string;
-  readonly glslStrAsInt: string;
 
   x: number;
   y: number;

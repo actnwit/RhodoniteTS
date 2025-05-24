@@ -35,29 +35,33 @@ fn main(
 
   let instanceId = u32(instance_ids.x);
   let worldMatrix = get_worldMatrix(u32(instance_ids.x));
-  let normalMatrix = get_normalMatrix(instanceId);
+  var normalMatrix = get_normalMatrix(instanceId);
   let isBillboard = get_isBillboard(instanceId);
   let viewMatrix = get_viewMatrix(cameraSID, 0u);
   let skeletalComponentSID = i32(instance_ids.y);
   let blendShapeComponentSID = u32(instance_ids.z);
 
-  let geom = processGeometry(
-    skeletalComponentSID,
-    blendShapeComponentSID,
+  var position_inWorld = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+  var normal_inWorld = vec3<f32>(0.0, 0.0, 0.0);
+  let isSkinning = processGeometry(
     worldMatrix,
-    viewMatrix,
-    isBillboard,
     normalMatrix,
+    viewMatrix,
     position,
     normal,
-    baryCentricCoord,
     joint,
-    weight
+    weight,
+    isBillboard,
+    &normalMatrix,
+    &position_inWorld,
+    &normal_inWorld
   );
 
   let projectionMatrix = get_projectionMatrix(cameraSID, 0u);
 
-  output.position = projectionMatrix * viewMatrix * geom.position_inWorld;
+  output.position = projectionMatrix * viewMatrix * position_inWorld;
+  output.normal_inWorld = normal_inWorld;
+  output.position_inWorld = position_inWorld;
 
   return output;
 }

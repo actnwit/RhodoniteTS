@@ -1,4 +1,4 @@
-in vec3 a_position;
+in vec4 a_position;
 in vec3 a_color;
 in vec3 a_normal;
 in vec4 a_instanceInfo;
@@ -17,8 +17,6 @@ out vec2 v_texcoord_2;
 out vec3 v_baryCentricCoord;
 out float v_instanceInfo;
 out float v_displayIdx;
-#ifdef RN_USE_TANGENT
-  in vec4 a_tangent;
-  out vec3 v_tangent_inWorld;
-  out vec3 v_binormal_inWorld;
-#endif
+in vec4 a_tangent;
+out vec3 v_tangent_inWorld;
+out vec3 v_binormal_inWorld;

@@ -14,6 +14,7 @@ await Rn.System.init({
   approach: processApproach,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // Load HDR image
 const response = await fetch('../../../assets/hdr/near_the_river_02_1k.hdr');

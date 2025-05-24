@@ -110,7 +110,7 @@ void main (){
   vec3 normal_inWorld = normalize(v_normal_inWorld);
   #ifdef RN_MTOON_HAS_BUMPMAP
     vec3 normal = texture(u_normalTexture, mainUv).xyz * 2.0 - 1.0;
-    mat3 TBN = getTBN(normal_inWorld, viewDirection, mainUv);
+    mat3 TBN = getTBN(normal_inWorld, v_tangent_inWorld, v_binormal_inWorld, viewDirection, mainUv);
     normal_inWorld = normalize(TBN * normal);
   #endif
 

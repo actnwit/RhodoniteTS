@@ -57,6 +57,14 @@ export class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
     return `${Math.floor(this.x)}`;
   }
 
+  get wgslStrAsFloat() {
+    return `${MathUtil.convertToStringAsGLSLFloat(this.x)}`;
+  }
+
+  get wgslStrAsInt() {
+    return `${Math.floor(this.x)}`;
+  }
+
   static _fromCopyNumber(value: number, type: FloatTypedArrayConstructor) {
     return new this(new type([value]), { type });
   }

@@ -4,10 +4,12 @@ declare const window: any;
 
 // prepare memory
 const rnCanvasElement = document.getElementById('world') as HTMLCanvasElement;
+Rn.Config.cgApiDebugConsoleOutput = true;
 await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: rnCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // prepare renderPasses
 const cameraComponentMain = createEntityMainCamera().getCamera();

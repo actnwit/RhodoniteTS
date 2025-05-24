@@ -348,9 +348,9 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
 }
 
 #ifdef RN_USE_TANGENT
-  mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
-    vec3 tangent_inWorld = normalize(v_tangent_inWorld);
-    vec3 binormal_inWorld = normalize(v_binormal_inWorld);
+  mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
+    vec3 tangent_inWorld = normalize(tangent_inWorld_);
+    vec3 binormal_inWorld = normalize(binormal_inWorld_);
     mat3 tbnMat_tangent_to_world = mat3(tangent_inWorld, binormal_inWorld, normal_inWorld);
 
     return tbnMat_tangent_to_world;
@@ -378,7 +378,7 @@ vec2 uvTransform(vec2 scale, vec2 offset, float rotation, vec2 uv) {
       return mat3(normalize(tangent * invMat), normalize(bitangent * invMat), normal_inWorld);
     }
 
-    mat3 getTBN(vec3 normal_inWorld, vec3 viewVector, vec2 texcoord) {
+    mat3 getTBN(vec3 normal_inWorld, vec3 tangent_inWorld_, vec3 binormal_inWorld_, vec3 viewVector, vec2 texcoord) {
       mat3 tbnMat_tangent_to_world = cotangent_frame(normal_inWorld, -viewVector, texcoord);
 
       return tbnMat_tangent_to_world;

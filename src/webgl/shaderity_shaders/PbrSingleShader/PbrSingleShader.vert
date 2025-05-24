@@ -43,15 +43,16 @@ void main()
   bool isSkinning = false;
 
   isSkinning = processGeometry(
-    skeletalComponentSID,
     worldMatrix,
+    normalMatrix,
     viewMatrix,
+    a_position,
+    a_normal,
+    uvec4(a_joint),
+    a_weight,
     isBillboard,
     normalMatrix,
-    normalMatrix,
-    a_position,
     v_position_inWorld,
-    a_normal,
     v_normal_inWorld
   );
 

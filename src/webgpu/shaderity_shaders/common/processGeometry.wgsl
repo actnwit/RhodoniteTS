@@ -193,7 +193,7 @@ fn toNormalMatrix(m: mat4x4<f32>) -> mat3x3<f32> {
 }
 #endif
 
-struct GeometoryOutput {
+struct GeometryOutput {
   normalMatrix: mat3x3<f32>,
   position_inWorld: vec4<f32>,
   normal_inWorld: vec3<f32>,
@@ -208,9 +208,9 @@ fn skinning(
   inNormal_inLocal: vec3<f32>,
   joint: vec4<u32>,
   weight: vec4<f32>,
-  ) -> GeometoryOutput
+  ) -> GeometryOutput
 {
-  var output: GeometoryOutput;
+  var output: GeometryOutput;
   let skinMat = getSkinMatrix(skeletalComponentSID, joint, weight);
   output.position_inWorld = skinMat * vec4<f32>(inPosition_inLocal, 1.0);
   output.normalMatrix = toNormalMatrix(skinMat);
@@ -223,29 +223,30 @@ fn skinning(
 
 
 fn processGeometry(
-  skeletalComponentSID: i32,
-  blendShapeComponentSID: u32,
   worldMatrix: mat4x4<f32>,
-  viewMatrix: mat4x4<f32>,
-  isBillboard: bool,
   inNormalMatrix: mat3x3<f32>,
-  inPosition_inLocal: vec3<f32>,
+  viewMatrix: mat4x4<f32>,
+  inPosition_inLocal: vec4<f32>,
   inNormal_inLocal: vec3<f32>,
-  baryCentricCoord: vec4<f32>,
   joint: vec4<u32>,
   weight: vec4<f32>,
-) -> GeometoryOutput {
-  var output: GeometoryOutput;
+  isBillboard: bool,
+  outNormalMatrix: ptr<function, mat3x3<f32>>,
+  outPosition_inWorld: ptr<function, vec4<f32>>,
+  outNormal_inWorld: ptr<function, vec3<f32>>,
+) -> bool {
+  var output: GeometryOutput;
 
   var position_inLocal: vec3<f32>;
 #ifdef RN_IS_MORPHING
   if (uniformDrawParameters.morphTargetNumber == 0u) {
 #endif
-    position_inLocal = inPosition_inLocal;
+    position_inLocal = inPosition_inLocal.xyz;
 #ifdef RN_IS_MORPHING
   } else {
-    let vertexIdx = u32(baryCentricCoord.w);
-    position_inLocal = get_position(vertexIdx, inPosition_inLocal, blendShapeComponentSID);
+    let vertexIdx = u32(a_baryCentricCoord.w);
+    let blendShapeComponentSID = u32(a_instanceIds.z);
+    position_inLocal = get_position(vertexIdx, inPosition_inLocal.xyz, blendShapeComponentSID);
   }
 #endif
 
@@ -259,17 +260,22 @@ fn processGeometry(
   }
 
 #ifdef RN_IS_SKINNING
+  let skeletalComponentSID = i32(a_instanceIds.y);
   if (skeletalComponentSID >= 0) {
     output = skinning(u32(skeletalComponentSID), inNormalMatrix, position_inLocal, inNormal_inLocal, joint, weight);
   } else {
 #endif
     output.normalMatrix = inNormalMatrix;
-    output.position_inWorld = worldMatrixInner * vec4(position_inLocal, 1.0);
+    output.position_inWorld = worldMatrixInner * vec4f(position_inLocal, 1.0);
     output.normal_inWorld = normalize(inNormalMatrix * inNormal_inLocal);
     output.isSkinning = false;
 #ifdef RN_IS_SKINNING
   }
 #endif
 
-  return output;
+  *outNormalMatrix = output.normalMatrix;
+  *outPosition_inWorld = output.position_inWorld;
+  *outNormal_inWorld = output.normal_inWorld;
+
+  return output.isSkinning;
 }

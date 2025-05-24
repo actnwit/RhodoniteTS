@@ -17,7 +17,7 @@ fn main(
   let viewMatrix = get_viewMatrix(cameraSID, 0u);
   let projectionMatrix = get_projectionMatrix(cameraSID, 0u);
 
-  output.position = projectionMatrix * viewMatrix * worldMatrix * vec4<f32>(position, 1.0);
+  output.position = projectionMatrix * viewMatrix * worldMatrix * position;
 
 #ifdef RN_USE_NORMAL
   output.normal_inWorld = normalize((worldMatrix * vec4<f32>(normal, 0.0)).xyz);

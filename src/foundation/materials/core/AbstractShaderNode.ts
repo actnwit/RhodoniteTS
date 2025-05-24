@@ -4,7 +4,7 @@ import { VertexAttributeEnum } from '../../definitions/VertexAttribute';
 import { ShaderSemanticsEnum } from '../../definitions/ShaderSemantics';
 import { CompositionTypeEnum } from '../../definitions/CompositionType';
 import { ComponentTypeEnum } from '../../definitions/ComponentType';
-import { Socket } from './Socket';
+import { Socket, SocketDefaultValue } from './Socket';
 import { ShaderType, ShaderTypeEnum } from '../../definitions/ShaderType';
 import { SystemState } from '../../system';
 import { ProcessApproach } from '../../definitions';
@@ -33,8 +33,8 @@ type ShaderStage = 'Neutral' | 'Vertex' | 'Fragment';
 export abstract class AbstractShaderNode extends RnObject {
   static _shaderNodes: AbstractShaderNode[] = [];
   protected __shaderFunctionName: string;
-  protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
-  protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] = [];
+  protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[] = [];
+  protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[] = [];
   protected __inputConnections: ShaderNodeInputConnectionType[] = [];
   private static __invalidShaderNodeCount = -1;
   protected __shaderNodeUid: ShaderNodeUID;
@@ -80,8 +80,8 @@ export abstract class AbstractShaderNode extends RnObject {
    */
   addInputConnection<N extends CompositionTypeEnum, T extends ComponentTypeEnum>(
     inputShaderNode: AbstractShaderNode,
-    outputSocketOfInput: Socket<string, N, T>,
-    inputSocketOfThis: Socket<string, N, T>
+    outputSocketOfInput: Socket<string, N, T, SocketDefaultValue>,
+    inputSocketOfThis: Socket<string, N, T, SocketDefaultValue>
   ): void {
     let idx = -1;
     for (let i = 0; i < this.__inputs.length; i++) {
@@ -126,7 +126,7 @@ export abstract class AbstractShaderNode extends RnObject {
     return this.__shaderNodeUid;
   }
 
-  getInput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined {
+  getInput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue> | undefined {
     for (const input of this.__inputs) {
       if (input.name === name) {
         return input;
@@ -135,11 +135,11 @@ export abstract class AbstractShaderNode extends RnObject {
     return void 0;
   }
 
-  getInputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] {
+  getInputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[] {
     return this.__inputs;
   }
 
-  getOutput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined {
+  getOutput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue> | undefined {
     for (const output of this.__outputs) {
       if (output.name === name) {
         return output;
@@ -148,7 +148,7 @@ export abstract class AbstractShaderNode extends RnObject {
     return void 0;
   }
 
-  getOutputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[] {
+  getOutputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[] {
     return this.__outputs;
   }
 

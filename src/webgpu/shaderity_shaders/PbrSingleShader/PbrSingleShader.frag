@@ -507,7 +507,7 @@ let ior = get_ior(materialSID, 0);
   // Punctual Lights
   let lightNumber = u32(get_lightNumber(0u, 0u));
   for (var i = 0u; i < lightNumber; i++) {
-    let light: Light = getLight(i, input.position_inWorld);
+    let light: Light = getLight(i, input.position_inWorld.xyz);
     var lighting = lightingWithPunctualLight(light, normal_inWorld, viewDirection,
                             NdotV, baseColor.rgb, perceptualRoughness, metallic, dielectricF0, dielectricF90,
                             transmission, thickness, ior,
@@ -527,7 +527,7 @@ let ior = get_ior(materialSID, 0);
       let shadowContributionParaboloid = varianceShadowContributionParaboloid(input.position_inWorld.xyz, light.position, pointLightFarPlane, pointLightShadowMapUvScale, depthTextureIndex);
 
       // Directional Light or Spot Light
-      let v_shadowCoord = get_depthBiasPV(materialSID, i) * vec4f(input.position_inWorld, 1.0);
+      let v_shadowCoord = get_depthBiasPV(materialSID, i) * input.position_inWorld;
       let bias = 0.001;
       let shadowCoord = v_shadowCoord.xy / v_shadowCoord.w;
       let lightDirection = normalize(get_lightDirection(0, i));

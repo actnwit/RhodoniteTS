@@ -98,6 +98,17 @@ class CompositionTypeClass<TypeName extends string>
       } else {
         return 'i' + this.__glslStr;
       }
+    } else if (
+      componentType.index === 5121 || // UNSIGNED_BYTE
+      componentType.index === 5123 || // UNSIGNED_SHORT
+      componentType.index === 5125 // UNSIGNED_INT
+    ) {
+      if (this === CompositionType.Scalar || this === CompositionType.ScalarArray) {
+        return 'uint';
+      } else {
+        return 'u' + this.__glslStr;
+      }
+      // eslint-disable-next-line prettier/prettier
       // eslint-disable-next-line prettier/prettier
     } else if (componentType.index === 35670) {
       // BOOL
@@ -114,17 +125,18 @@ class CompositionTypeClass<TypeName extends string>
       if (this === CompositionType.Scalar) {
         return '0.0';
       } else {
+        const glslType = this.getGlslStr(componentType);
         if (this.__numberOfComponents === 2) {
-          return this.__glslStr + '(0.0, 0.0)';
+          return glslType + '(0.0, 0.0)';
         } else if (this.__numberOfComponents === 3) {
-          return this.__glslStr + '(0.0, 0.0, 0.0)';
+          return glslType + '(0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 4) {
-          return this.__glslStr + '(0.0, 0.0, 0.0, 0.0)';
+          return glslType + '(0.0, 0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 9) {
-          return this.__glslStr + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
+          return glslType + '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)';
         } else if (this.__numberOfComponents === 16) {
           return (
-            this.__glslStr +
+            glslType +
             '(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)'
           );
         }
@@ -132,21 +144,25 @@ class CompositionTypeClass<TypeName extends string>
     } else if (
       componentType.index === 5120 || // BYTE
       componentType.index === 5122 || // SHORT
-      componentType.index === 5124 // INT
+      componentType.index === 5124 || // INT
+      componentType.index === 5121 || // UNSIGNED_BYTE
+      componentType.index === 5123 || // UNSIGNED_SHORT
+      componentType.index === 5125 // UNSIGNED_INT
     ) {
       if (this === CompositionType.Scalar) {
         return '0';
       } else {
+        const glslType = this.getGlslStr(componentType);
         if (this.__numberOfComponents === 2) {
-          return this.__glslStr + '(0, 0)';
+          return glslType + '(0, 0)';
         } else if (this.__numberOfComponents === 3) {
-          return this.__glslStr + '(0, 0, 0)';
+          return glslType + '(0, 0, 0)';
         } else if (this.__numberOfComponents === 4) {
-          return this.__glslStr + '(0, 0, 0, 0)';
+          return glslType + '(0, 0, 0, 0)';
         } else if (this.__numberOfComponents === 9) {
-          return this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
+          return glslType + '(0, 0, 0, 0, 0, 0, 0, 0, 0)';
         } else if (this.__numberOfComponents === 16) {
-          return this.__glslStr + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
+          return glslType + '(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)';
         }
       }
       // eslint-disable-next-line prettier/prettier
@@ -194,7 +210,10 @@ class CompositionTypeClass<TypeName extends string>
     } else if (
       componentType.index === 5120 || // BYTE
       componentType.index === 5122 || // SHORT
-      componentType.index === 5124 // INT
+      componentType.index === 5124 || // INT
+      componentType.index === 5121 || // UNSIGNED_BYTE
+      componentType.index === 5123 || // UNSIGNED_SHORT
+      componentType.index === 5125 // UNSIGNED_INT
     ) {
       if (this === CompositionType.Scalar) {
         return '0';

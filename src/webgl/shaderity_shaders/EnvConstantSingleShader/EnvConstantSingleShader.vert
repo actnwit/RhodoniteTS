@@ -30,16 +30,16 @@ void main(){
     rotateMatrix[3][0] = 0.0;
     rotateMatrix[3][1] = 0.0;
     rotateMatrix[3][2] = 0.0;
-    gl_Position = projectionMatrix * rotateMatrix * worldMatrix * vec4(a_position, 1.0);
+    gl_Position = projectionMatrix * rotateMatrix * worldMatrix * a_position;
   } else {
-    gl_Position = projectionMatrix * worldMatrix * vec4(a_position, 1.0);
+    gl_Position = projectionMatrix * worldMatrix * a_position;
   }
 
   mat3 normalMatrix = get_normalMatrix(a_instanceInfo.x);
   v_normal_inWorld = normalMatrix * a_normal;
 
   v_color = a_color;
-  v_position_inWorld = (worldMatrix * vec4(a_position, 1.0));
+  v_position_inWorld = (worldMatrix * a_position);
   v_texcoord_0 = a_texcoord_0;
 
 }

@@ -8,7 +8,5 @@ in vec3 v_baryCentricCoord;
 in float v_instanceInfo;
 in float v_displayIdx;
 
-#ifdef RN_USE_TANGENT
-  in vec3 v_tangent_inWorld;
-  in vec3 v_binormal_inWorld;
-#endif
+in vec3 v_tangent_inWorld;
+in vec3 v_binormal_inWorld;

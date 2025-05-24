@@ -29,15 +29,16 @@ void main(){
 
   // Skeletal
   processGeometry(
-    skeletalComponentSID,
     worldMatrix,
+    normalMatrix,
     viewMatrix,
+    a_position,
+    a_normal,
+    uvec4(a_joint),
+    a_weight,
     false,
     normalMatrix,
-    normalMatrix,
-    a_position,
     v_position_inWorld,
-    a_normal,
     v_normal_inWorld
   );
 

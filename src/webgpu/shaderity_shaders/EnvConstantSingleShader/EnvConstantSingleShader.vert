@@ -24,9 +24,9 @@ fn main(
     rotateMatrix[3][0] = 0.0;
     rotateMatrix[3][1] = 0.0;
     rotateMatrix[3][2] = 0.0;
-    output.position = projectionMatrix * rotateMatrix * worldMatrix * vec4f(position, 1.0);
+    output.position = projectionMatrix * rotateMatrix * worldMatrix * position;
   } else {
-    output.position = projectionMatrix * worldMatrix * vec4f(position, 1.0);
+    output.position = projectionMatrix * worldMatrix * position;
   }
 
   let normalMatrix = get_normalMatrix(u32(instance_ids.x));
@@ -35,7 +35,7 @@ fn main(
 #ifdef RN_USE_COLOR_0
   output.color_0 = color_0;
 #endif
-  output.position_inWorld = (worldMatrix * vec4f(position, 1.0)).xyz;
+  output.position_inWorld = (worldMatrix * position);
   output.texcoord_0 = texcoord_0;
 
   return output;

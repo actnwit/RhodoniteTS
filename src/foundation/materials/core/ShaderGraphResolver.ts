@@ -28,16 +28,20 @@ import { NormalMatrixShaderNode } from '../nodes/NormalMatrixShaderNode';
 import { GreaterShaderNode } from '../nodes/GreaterShaderNode';
 import { OutPositionShaderNode } from '../nodes/OutPositionShaderNode';
 import { OutColorShaderNode } from '../nodes/OutColorShaderNode';
-import { SystemState } from '../../system';
+import { SystemState } from '../../system/SystemState';
 import { ProcessApproach } from '../../definitions/ProcessApproach';
 import { TransformShaderNode } from '../nodes/TransformShaderNode';
-import { MergeVectorShaderNode, SplitVectorShaderNode } from '../nodes';
 import { SinShaderNode } from '../nodes/SinShaderNode';
 import { StepShaderNode } from '../nodes/StepShaderNode';
 import { TimeShaderNode } from '../nodes/TimeShaderNode';
 import { SmoothStepShaderNode } from '../nodes/SmoothStepShaderNode';
 import { ShaderNodeJson } from '../../../types/ShaderNodeJson';
 import { Logger } from '../../misc/Logger';
+import { ProcessGeometryShaderNode } from '../nodes/ProcessGeometryShaderNode';
+import { AttributeJointShaderNode } from '../nodes/AttributeJointShaderNode';
+import { AttributeWeightShaderNode } from '../nodes/AttributeWeightShaderNode';
+import { SplitVectorShaderNode } from '../nodes/SplitVectorShaderNode';
+import { MergeVectorShaderNode } from '../nodes/MergeVectorShaderNode';
 
 /**
  * ShaderGraphResolver is a class that resolves the shader node graph and generates shader code.
@@ -259,7 +263,7 @@ export class ShaderGraphResolver {
   /**
    * Construct shader code with shader nodes.
    *
-   * @param shaderNodes - Shader nodes
+   * @param shaderNodes - Shader nodes (sorted topologically)
    * @param isVertexStage - Whether the shader is a vertex shader
    * @param isFullVersion - Whether to generate a full version of the shader code
    * @returns Shader code
@@ -322,10 +326,28 @@ export class ShaderGraphResolver {
         const inputConnections = shaderNode.inputConnections;
 
         // Collects ExistingInputs
-        for (let j = 0; j < inputConnections.length; j++) {
+        for (let j = 0; j < shaderNode.getInputs().length; j++) {
           const inputConnection = inputConnections[j];
           if (inputConnection == null) {
-            continue;
+            const inputSocket = shaderNode.getInputs()[j];
+            if (inputSocket.defaultValue != null) {
+              if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
+                if (inputSocket.componentType === ComponentType.Bool) {
+                  varInputNames[i].push(inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false');
+                } else {
+                  varInputNames[i].push(inputSocket.defaultValue.wgslStrAsFloat);
+                }
+              } else {
+                if (inputSocket.componentType === ComponentType.Bool) {
+                  varInputNames[i].push(inputSocket.defaultValue._v[0] > 0.5 ? 'true' : 'false');
+                } else {
+                  varInputNames[i].push(inputSocket.defaultValue.glslStrAsFloat);
+                }
+              }
+              continue;
+            } else {
+              continue;
+            }
           }
           const inputNode = AbstractShaderNode._shaderNodes[inputConnection.shaderNodeUid];
 
@@ -687,13 +709,13 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Add': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: AddShaderNode;
-        if (socketName === 'Scalar') {
+        if (socketName.startsWith('Scalar')) {
           nodeInstance = new AddShaderNode(CompositionType.Scalar, ComponentType.Float);
-        } else if (socketName === 'Vector2') {
+        } else if (socketName.startsWith('Vector2')) {
           nodeInstance = new AddShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new AddShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new AddShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.error('Add node: Unknown socket name: ' + socketName);
@@ -706,13 +728,13 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Sin': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: SinShaderNode;
-        if (socketName === 'Scalar') {
+        if (socketName.startsWith('Scalar')) {
           nodeInstance = new SinShaderNode(CompositionType.Scalar, ComponentType.Float);
-        } else if (socketName === 'Vector2') {
+        } else if (socketName.startsWith('Vector2')) {
           nodeInstance = new SinShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new SinShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new SinShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.error('Sin node: Unknown socket name: ' + socketName);
@@ -725,13 +747,13 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Step': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: StepShaderNode;
-        if (socketName === 'Scalar') {
+        if (socketName.startsWith('Scalar')) {
           nodeInstance = new StepShaderNode(CompositionType.Scalar, ComponentType.Float);
-        } else if (socketName === 'Vector2') {
+        } else if (socketName.startsWith('Vector2')) {
           nodeInstance = new StepShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new StepShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new StepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.error('Add node: Unknown socket name: ' + socketName);
@@ -744,13 +766,13 @@ function constructNodes(json: ShaderNodeJson) {
       case 'SmoothStep': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: StepShaderNode;
-        if (socketName === 'Scalar') {
+        if (socketName.startsWith('Scalar')) {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Scalar, ComponentType.Float);
-        } else if (socketName === 'Vector2') {
+        } else if (socketName.startsWith('Vector2')) {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new SmoothStepShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.error('Add node: Unknown socket name: ' + socketName);
@@ -763,11 +785,11 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Normalize': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: NormalizeShaderNode;
-        if (socketName === 'Vector2') {
+        if (socketName.startsWith('Vector2')) {
           nodeInstance = new NormalizeShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new NormalizeShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new NormalizeShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.error('Normalize node: Unknown socket name: ' + socketName);
@@ -780,11 +802,11 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Dot': {
         const socketName = node.inputs.in1.socket.name;
         let nodeInstance: DotProductShaderNode;
-        if (socketName === 'Vector2') {
+        if (socketName.startsWith('Vector2')) {
           nodeInstance = new DotProductShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new DotProductShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new DotProductShaderNode(CompositionType.Vec4, ComponentType.Float);
         } else {
           Logger.error('Dot node: Unknown socket name: ' + socketName);
@@ -797,19 +819,19 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Multiply': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: MultiplyShaderNode;
-        if (socketName === 'Scalar') {
+        if (socketName.startsWith('Scalar')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Scalar, ComponentType.Float);
-        } else if (socketName === 'Vector2') {
+        } else if (socketName.startsWith('Vector2')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Vec2, ComponentType.Float);
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Vec3, ComponentType.Float);
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Vec4, ComponentType.Float);
-        } else if (socketName === 'Matrix2') {
+        } else if (socketName.startsWith('Matrix2')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Mat2, ComponentType.Float);
-        } else if (socketName === 'Matrix3') {
+        } else if (socketName.startsWith('Matrix3')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Mat3, ComponentType.Float);
-        } else if (socketName === 'Matrix4') {
+        } else if (socketName.startsWith('Matrix4')) {
           nodeInstance = new MultiplyShaderNode(CompositionType.Mat4, ComponentType.Float);
         } else {
           Logger.error('Multiply node: Unknown socket name: ' + socketName);
@@ -822,21 +844,21 @@ function constructNodes(json: ShaderNodeJson) {
       case 'Transform': {
         const socketName = node.outputs.out1.socket.name;
         let nodeInstance: TransformShaderNode;
-        if (socketName === 'Vector2') {
+        if (socketName.startsWith('Vector2')) {
           nodeInstance = new TransformShaderNode(
             CompositionType.Mat2,
             ComponentType.Float,
             CompositionType.Vec2,
             ComponentType.Float
           );
-        } else if (socketName === 'Vector3') {
+        } else if (socketName.startsWith('Vector3')) {
           nodeInstance = new TransformShaderNode(
             CompositionType.Mat3,
             ComponentType.Float,
             CompositionType.Vec3,
             ComponentType.Float
           );
-        } else if (socketName === 'Vector4') {
+        } else if (socketName.startsWith('Vector4')) {
           nodeInstance = new TransformShaderNode(
             CompositionType.Mat4,
             ComponentType.Float,
@@ -863,6 +885,11 @@ function constructNodes(json: ShaderNodeJson) {
         nodeInstances[node.id] = nodeInstance;
         break;
       }
+      case 'ProcessGeometry': {
+        const nodeInstance = new ProcessGeometryShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
       case 'AttributeColor': {
         const nodeInstance = new AttributeColorShaderNode();
         nodeInstances[node.id] = nodeInstance;
@@ -880,6 +907,16 @@ function constructNodes(json: ShaderNodeJson) {
       }
       case 'AttributeTexcoord': {
         const nodeInstance = new AttributeTexcoordShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AttributeJoint': {
+        const nodeInstance = new AttributeJointShaderNode();
+        nodeInstances[node.id] = nodeInstance;
+        break;
+      }
+      case 'AttributeWeight': {
+        const nodeInstance = new AttributeWeightShaderNode();
         nodeInstances[node.id] = nodeInstance;
         break;
       }

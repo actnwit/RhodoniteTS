@@ -47,6 +47,14 @@ export class Vector3_<T extends FloatTypedArrayConstructor>
     return `ivec3(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])})`;
   }
 
+  get wgslStrAsFloat() {
+    return `vec3f(${MathUtil.convertToStringAsGLSLFloat(this._v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])})`;
+  }
+
+  get wgslStrAsInt() {
+    return `vec3i(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])})`;
+  }
+
   static get compositionType() {
     return CompositionType.Vec3;
   }

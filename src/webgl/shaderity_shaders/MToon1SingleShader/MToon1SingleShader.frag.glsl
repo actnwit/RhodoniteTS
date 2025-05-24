@@ -179,7 +179,7 @@ void main() {
   normalTexcoord = uvAnimation(normalTexcoord, time, uvAnimMask, uvAnimationScrollXSpeedFactor, uvAnimationScrollYSpeedFactor, uvAnimationRotationSpeedFactor);
   vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
   vec3 normal = texture(u_normalTexture, normalTexUv).xyz * 2.0 - 1.0;
-  mat3 TBN = getTBN(normal_inWorld, viewDirection, normalTexUv);
+  mat3 TBN = getTBN(normal_inWorld, v_tangent_inWorld, v_binormal_inWorld, viewDirection, normalTexUv);
   normal_inWorld = normalize(TBN * normal);
 #endif
 

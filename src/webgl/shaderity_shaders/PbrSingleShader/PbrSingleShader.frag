@@ -249,7 +249,7 @@ void main ()
   int normalTexcoordIndex = get_normalTexcoordIndex(materialSID, 0);
   vec2 normalTexcoord = getTexcoord(normalTexcoordIndex);
   vec2 normalTexUv = uvTransform(normalTextureTransformScale, normalTextureTransformOffset, normalTextureTransformRotation, normalTexcoord);
-  mat3 TBN = getTBN(normal_inWorld, viewVector, normalTexUv);
+  mat3 TBN = getTBN(normal_inWorld, v_tangent_inWorld, v_binormal_inWorld, viewVector, normalTexUv);
   #ifdef RN_USE_NORMAL_TEXTURE
     vec3 normalTexValue = texture(u_normalTexture, normalTexUv).xyz;
     if(normalTexValue.b >= 128.0 / 255.0) {
