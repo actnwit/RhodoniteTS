@@ -2,16 +2,16 @@ import { MutableMatrix33 } from './MutableMatrix33';
 import { MutableVector3 } from './MutableVector3';
 import { Count, Size } from '../../types/CommonTypes';
 
-function radianToDegree(rad: number) {
+function radianToDegree(rad: number): number {
   return (rad * 180) / Math.PI;
 }
 
-function degreeToRadian(deg: number) {
+function degreeToRadian(deg: number): number {
   return (deg * Math.PI) / 180;
 }
 
 // https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
-const toHalfFloat = () => {
+const toHalfFloat = (): ((val: number) => number) => {
   /* This method is faster than the OpenEXR implementation (very often
    * used, eg. in Ogre), with the additional benefit of rounding, inspired
    * by James Tursa?s half-precision code. */
@@ -67,12 +67,12 @@ function isPowerOfTwo(x: number): boolean {
   return (x & (x - 1)) == 0;
 }
 
-function isPowerOfTwoTexture(width: Size, height: Size) {
+function isPowerOfTwoTexture(width: Size, height: Size): boolean {
   return isPowerOfTwo(width) && isPowerOfTwo(height);
 }
 
 // values range must be [-1, 1]
-function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number) {
+function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[] {
   // range to [0, s1]
   x = (x + 1) / 2.0;
   y = (y + 1) / 2.0;
@@ -91,7 +91,7 @@ function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, cr
   return [v0, v1];
 }
 
-function erf(x: number) {
+function erf(x: number): number {
   // Save the sign of x
   let sign = 1;
   if (x < 0) sign = -1;
@@ -108,7 +108,7 @@ function erf(x: number) {
   return sign * y;
 }
 
-function invErf(x: number) {
+function invErf(x: number): number {
   let w: number,
     p = 0;
   w = -Math.log((1.0 - x) * (1.0 + x));
@@ -138,12 +138,12 @@ function invErf(x: number) {
   return p * x;
 }
 
-function gaussianCdf(x: number, mu: number, sigma: number) {
+function gaussianCdf(x: number, mu: number, sigma: number): number {
   const U: number = 0.5 * (1 + erf((x - mu) / (sigma * Math.sqrt(2.0))));
   return U;
 }
 
-function invGaussianCdf(U: number, mu: number, sigma: number) {
+function invGaussianCdf(U: number, mu: number, sigma: number): number {
   const x: number = sigma * Math.sqrt(2.0) * invErf(2.0 * U - 1) + mu;
   return x;
 }
@@ -266,7 +266,7 @@ function nearZeroToZero(value: number): number {
   return value;
 }
 
-function financial(val: number | string) {
+function financial(val: number | string): string {
   const fixedStr = Number.parseFloat(val as string).toFixed(7);
   if ((val as number) >= 0) {
     return ' ' + fixedStr;
@@ -278,7 +278,7 @@ function roundAsFloat(value: number): number {
   return Math.round(value * 10000000) / 10000000;
 }
 
-function lerp(a: number, b: number, t: number) {
+function lerp(a: number, b: number, t: number): number {
   return a * (1 - t) + b * t;
 }
 
