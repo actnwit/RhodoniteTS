@@ -1,7 +1,7 @@
 import { Byte, Size, TypedArray } from '../../types/CommonTypes';
 import { Is } from './Is';
 
-const isMobileVr = function () {
+const isMobileVr = function (): boolean {
   if (typeof window !== "undefined") {
     return /(Pacific Build.+OculusBrowser.+SamsungBrowser.+)|(SamsungBrowser)|(Mobile VR)/i.test(
       window.navigator.userAgent
@@ -11,7 +11,7 @@ const isMobileVr = function () {
   }
 };
 
-const isMobile = function () {
+const isMobile = function (): boolean {
   const ua = [
     'iPod',
     'iPad', // for old version
@@ -28,7 +28,7 @@ const isMobile = function () {
   return isIPad();
 };
 
-const isSafari = function () {
+const isSafari = function (): boolean {
   const toBe = 'Safari';
   const noToBe = 'Chrome';
 
@@ -39,7 +39,7 @@ const isSafari = function () {
   return false;
 };
 
-const isIOS = function () {
+const isIOS = function (): boolean {
   const ua = [
     'iPod',
     'iPad', // for old version
@@ -55,26 +55,26 @@ const isIOS = function () {
   return isIPad();
 };
 
-const isIPad = function () {
+const isIPad = function (): boolean {
   return navigator.userAgent.indexOf('Macintosh') > -1 && 'ontouchend' in document;
 };
 
-const preventDefaultForDesktopOnly = function (e: Event) {
+const preventDefaultForDesktopOnly = function (e: Event): void {
   if (!isMobile()) {
     e.preventDefault();
   }
 };
 
-const isObject = function (o: any) {
+const isObject = function (o: any): boolean {
   return o instanceof Object && !(o instanceof Array) ? true : false;
 };
 
 // https://stackoverflow.com/questions/30003353/can-es6-template-literals-be-substituted-at-runtime-or-reused
-const fillTemplate = function (templateString: string, templateVars: string) {
+const fillTemplate = function (templateString: string, templateVars: string): string {
   return new Function('return `' + templateString + '`;').call(templateVars);
 };
 
-const isNode = function () {
+const isNode = function (): boolean {
   return typeof process !== 'undefined' && typeof require !== 'undefined';
 };
 
@@ -157,7 +157,7 @@ const concatArrayBuffers2 = ({
   srcs: ArrayBuffer[];
   srcsOffset: Byte[];
   srcsCopySize: Byte[];
-}) => {
+}): ArrayBuffer => {
   const dstBuf = new Uint8Array(new ArrayBuffer(finalSize));
   let copiedSize = 0;
   for (const i in srcs) {
@@ -249,7 +249,7 @@ export const valueWithCompensation = <T>({
 }: {
   value?: T;
   compensation: () => T;
-}) => {
+}): T => {
   // eslint-disable-next-line eqeqeq
   if (value == null) {
     return compensation();
@@ -295,7 +295,7 @@ export const lessThan = (it: number, than: number): CompareResult => {
   }
 };
 
-export const addLineNumberToCode = (shaderString: string) => {
+export const addLineNumberToCode = (shaderString: string): string => {
   const shaderTextLines = shaderString.split(/\r\n|\r|\n/);
   let shaderTextWithLineNumber = '';
   for (let i = 0; i < shaderTextLines.length; i++) {
@@ -318,11 +318,11 @@ export function assertExist<T>(val: T): asserts val is NonNullable<T> {
   }
 }
 
-export function deepCopyUsingJsonStringify(obj: { [k: string]: any }) {
+export function deepCopyUsingJsonStringify(obj: { [k: string]: any }): { [k: string]: any } {
   return JSON.parse(JSON.stringify(obj));
 }
 
-export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: ArrayBuffer) {
+export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: ArrayBuffer): void {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
   const blob = new Blob([arrayBuffer], { type: 'octet/stream' });
@@ -333,7 +333,7 @@ export function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: Arr
   URL.revokeObjectURL(url);
 }
 
-export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray) {
+export function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray): void {
   const a = document.createElement('a');
   a.download = fileNameToDownload;
   const blob = new Blob([typedArray], { type: 'octet/stream' });

@@ -736,7 +736,7 @@ function createEnvConstantMaterial({
   return material;
 }
 
-function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'FXAA3Quality' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -753,7 +753,7 @@ function createFXAA3QualityMaterial({ additionalName = '', maxInstancesNumber = 
   return material;
 }
 
-function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createFurnaceTestMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'FurnaceTest' + `_${additionalName}`;
   const materialContent = new FurnaceTestMaterialContent(materialName);
   const material = createMaterial(materialContent, maxInstancesNumber);
@@ -962,7 +962,7 @@ function createDetectHighLuminanceMaterial(
   return material;
 }
 
-function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
+function createGaussianBlurMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
   const materialName = 'GaussianBlur' + `_${additionalName}`;
 
   const additionalShaderSemanticInfo: ShaderSemanticsInfo[] = [];
@@ -1081,7 +1081,7 @@ function createColorGradingUsingLUTsMaterial(
   return material;
 }
 
-function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'GammaCorrection' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -1100,7 +1100,7 @@ function createGammaCorrectionMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
-function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'ToneMapping' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -1120,7 +1120,7 @@ function createToneMappingMaterial({ additionalName = '', maxInstancesNumber = 1
   return material;
 }
 
-function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'SummedAreaTable' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -1137,7 +1137,7 @@ function createSummedAreaTableMaterial({ additionalName = '', maxInstancesNumber
   return material;
 }
 
-function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'PanoramaToCube' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -1156,7 +1156,7 @@ function createPanoramaToCubeMaterial({ additionalName = '', maxInstancesNumber 
   return material;
 }
 
-function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}) {
+function createPrefilterIBLMaterial({ additionalName = '', maxInstancesNumber = 1 } = {}): Material {
   const materialName = 'PrefilterIBL' + `_${additionalName}`;
 
   const materialContent = new CustomMaterialContent({
@@ -1207,7 +1207,7 @@ function createMatCapMaterial({
   return material;
 }
 
-function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}) {
+function createEntityUIDOutputMaterial({ additionalName = '', maxInstancesNumber = 10 } = {}): Material {
   const materialName = 'EntityUIDOutput' + `_${additionalName}`;
 
   const materialContent = new EntityUIDOutputMaterialContent(materialName);
