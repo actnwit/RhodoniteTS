@@ -33,7 +33,7 @@ class EnhancedArrayMethods {
   constructor(public __raw: unknown[]) {}
 }
 
-const enhanceInner = () => {
+const enhanceInner = (): void => {
   Object.defineProperty(EnhancedArrayMethods.prototype, getComponentFromEntitiesStr, {
     enumerable: false,
     writable: false,
@@ -44,7 +44,7 @@ const enhanceInner = () => {
 
 enhanceInner();
 
-export const enhanceArray = () => {
+export const enhanceArray = (): void => {
   Object.defineProperty(Array.prototype, 'Rn', {
     enumerable: false,
     configurable: false,
