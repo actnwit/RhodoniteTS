@@ -16,8 +16,7 @@ import { Sampler } from '../../textures/Sampler';
 import { TextureParameter } from '../../definitions/TextureParameter';
 import { ComponentSID, MaterialSID } from '../../../types/CommonTypes';
 
-const __latestMaterialStateVersionMap = new Map<MaterialSID, number>();
-const __latestMaterialMeshRenderComponentVersionMap = new Map<ComponentSID, number>();
+const __latestMaterialMeshRenderComponentVersionMap = new Map<string, number>();
 export class CustomMaterialContent extends AbstractMaterialContent {
   private static __globalDataRepository = GlobalDataRepository.getInstance();
   private static __diffuseIblCubeMapSampler = new Sampler({
@@ -182,9 +181,9 @@ export class CustomMaterialContent extends AbstractMaterialContent {
         );
       }
     } else {
-      const meshRenderComponentVersion = __latestMaterialMeshRenderComponentVersionMap.get(args.entity.getMeshRenderer().componentSID);
+      const meshRenderComponentVersion = __latestMaterialMeshRenderComponentVersionMap.get(`${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`);
       if (meshRenderComponentVersion !== args.entity.getMeshRenderer().updateCount) {
-        __latestMaterialMeshRenderComponentVersionMap.set(args.entity.getMeshRenderer().componentSID, args.entity.getMeshRenderer().updateCount);
+        __latestMaterialMeshRenderComponentVersionMap.set(`${args.entity.getMeshRenderer().componentSID}_${args.primitive.primitiveUid}`, args.entity.getMeshRenderer().updateCount);
         const { mipmapLevelNumber, meshRenderComponent, diffuseHdriType, specularHdriType } =
           CustomMaterialContent.__setupHdriParameters(args);
         const tmp_vector4 = AbstractMaterialContent.__tmp_vector4;
