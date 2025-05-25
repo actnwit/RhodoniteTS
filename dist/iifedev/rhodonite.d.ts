@@ -517,9 +517,11 @@ interface IVector {
     readonly x: number;
     readonly _v: TypedArray;
     readonly className: string;
+    readonly bytesPerComponent: number;
     readonly glslStrAsFloat: string;
     readonly glslStrAsInt: string;
-    readonly bytesPerComponent: number;
+    readonly wgslStrAsFloat: string;
+    readonly wgslStrAsInt: string;
     toString(): string;
     toStringApproximately(): string;
     flattenAsArray(): Array<number>;
@@ -537,8 +539,6 @@ interface IVector {
 interface IMutableVector extends IVector {
     _v: TypedArray;
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     raw(): TypedArray;
     setAt(i: number, value: number): IMutableVector;
     setComponents(...num: number[]): IMutableVector;
@@ -562,8 +562,6 @@ interface IMutableScalar extends IMutableVector {
 }
 interface IVector2 extends IVector {
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     readonly x: number;
     readonly y: number;
     toString(): string;
@@ -581,8 +579,6 @@ interface IVector2 extends IVector {
 }
 interface IMutableVector2 extends IMutableVector {
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     x: number;
     y: number;
     toString(): string;
@@ -613,8 +609,6 @@ interface IMutableVector2 extends IMutableVector {
 }
 interface IVector3 extends IVector {
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     readonly x: number;
     readonly y: number;
     readonly z: number;
@@ -634,8 +628,6 @@ interface IVector3 extends IVector {
 }
 interface IMutableVector3 extends IMutableVector {
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     x: number;
     y: number;
     z: number;
@@ -670,8 +662,6 @@ interface IMutableVector3 extends IMutableVector {
 }
 interface IVector4 extends IVector {
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     readonly x: number;
     readonly y: number;
     readonly z: number;
@@ -691,8 +681,6 @@ interface IVector4 extends IVector {
 }
 interface IMutableVector4 extends IMutableVector {
     readonly className: string;
-    readonly glslStrAsFloat: string;
-    readonly glslStrAsInt: string;
     x: number;
     y: number;
     z: number;
@@ -761,6 +749,8 @@ declare abstract class AbstractVector implements IVector {
     get x(): number;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     isEqual(vec: IVector, delta?: number): boolean;
     isStrictEqual(vec: IVector): boolean;
     length(): number;
@@ -791,6 +781,8 @@ declare class Vector3_<T extends FloatTypedArrayConstructor> extends AbstractVec
     get w(): number;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     static get compositionType(): {
         readonly __numberOfComponents: number;
         readonly __glslStr: string;
@@ -1336,6 +1328,8 @@ declare class Vector4_<T extends FloatTypedArrayConstructor> extends AbstractVec
     get w(): number;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     static _fromCopyArray4(array: Array4<number>, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
     static _fromCopy4(x: number, y: number, z: number, w: number, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
     static _fromCopyArray(array: Array<number>, type: FloatTypedArrayConstructor): Vector4_<FloatTypedArrayConstructor>;
@@ -2794,6 +2788,8 @@ declare class Vector2_<T extends FloatTypedArrayConstructor> extends AbstractVec
     get y(): number;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     static get compositionType(): {
         readonly __numberOfComponents: number;
         readonly __glslStr: string;
@@ -3198,6 +3194,10 @@ declare class Matrix33 extends AbstractMatrix implements IMatrix, IMatrix33 {
     get m12(): number;
     get m22(): number;
     get className(): string;
+    get glslStrAsFloat(): string;
+    get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     static get compositionType(): {
         readonly __numberOfComponents: number;
         readonly __glslStr: string;
@@ -5480,6 +5480,7 @@ declare abstract class AbstractMaterialContent extends RnObject {
     private static __pixelShaderityObjectMap;
     private static __reflectedShaderSemanticsInfoArrayMap;
     shaderType: ShaderTypeEnum;
+    private __materialSemanticsVariantName;
     constructor(materialName: string, { isMorphing, isSkinning, isLighting }?: {
         isMorphing?: boolean | undefined;
         isSkinning?: boolean | undefined;
@@ -5487,6 +5488,7 @@ declare abstract class AbstractMaterialContent extends RnObject {
     }, vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject);
     protected setVertexShaderityObject(vertexShaderityObject?: ShaderityObject): void;
     protected setPixelShaderityObject(pixelShaderityObject?: ShaderityObject): void;
+    makeMaterialSemanticsVariantName(): void;
     getMaterialSemanticsVariantName(): string;
     get vertexShaderityObject(): ShaderityObject | undefined;
     get pixelShaderityObject(): ShaderityObject | undefined;
@@ -9515,6 +9517,10 @@ declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
         toString(): string;
         toJSON(): number;
     };
+    get glslStrAsFloat(): string;
+    get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     /**
      * zero matrix(static version)
      */
@@ -10790,12 +10796,11 @@ declare function createMToon1Material({ additionalName, isMorphing, isSkinning, 
     maxInstancesNumber?: Count;
     makeOutputSrgb?: boolean;
 }): Material;
-declare function reuseOrRecreateCustomMaterial(currentMaterial: Material, vertexShaderStr: string, pixelShaderStr: string, { additionalName, isSkinning, isLighting, isMorphing, maxInstancesNumber, }?: {
-    additionalName?: string | undefined;
+declare function reuseOrRecreateCustomMaterial(currentMaterial: Material, vertexShaderStr: string, pixelShaderStr: string, { maxInstancesNumber, isSkinning, isLighting, isMorphing, }?: {
+    maxInstancesNumber?: number | undefined;
     isSkinning?: boolean | undefined;
     isLighting?: boolean | undefined;
     isMorphing?: boolean | undefined;
-    maxInstancesNumber?: number | undefined;
 }): Material;
 declare function changeMaterial(entity: IMeshRendererEntityMethods, primitive: Primitive, material: Material): void;
 declare const MaterialHelper: Readonly<{
@@ -11147,7 +11152,7 @@ declare function computeGaussianDistributionRatioWhoseSumIsOne({ kernelSize, var
 declare const MathUtil: Readonly<{
     radianToDegree: typeof radianToDegree;
     degreeToRadian: typeof degreeToRadian;
-    toHalfFloat: () => (val: number) => number;
+    toHalfFloat: () => ((val: number) => number);
     isPowerOfTwo: typeof isPowerOfTwo;
     isPowerOfTwoTexture: typeof isPowerOfTwoTexture;
     packNormalizedVec4ToVec2: typeof packNormalizedVec4ToVec2;
@@ -11430,6 +11435,8 @@ declare class Scalar_<T extends TypedArrayConstructor> extends AbstractVector {
     isEqual(scalar: Scalar_<T>, delta?: number): boolean;
     get glslStrAsFloat(): string;
     get glslStrAsInt(): string;
+    get wgslStrAsFloat(): string;
+    get wgslStrAsInt(): string;
     static _fromCopyNumber(value: number, type: FloatTypedArrayConstructor): Scalar_<FloatTypedArrayConstructor>;
     static _dummy(type: FloatTypedArrayConstructor): Scalar_<FloatTypedArrayConstructor>;
     static get compositionType(): {
@@ -14010,7 +14017,9 @@ declare const addLineNumberToCode: (shaderString: string) => string;
 declare function assertExist<T>(val: T): asserts val is NonNullable<T>;
 declare function deepCopyUsingJsonStringify(obj: {
     [k: string]: any;
-}): any;
+}): {
+    [k: string]: any;
+};
 declare function downloadArrayBuffer(fileNameToDownload: string, arrayBuffer: ArrayBuffer): void;
 declare function downloadTypedArray(fileNameToDownload: string, typedArray: TypedArray): void;
 declare const MiscUtil: Readonly<{
@@ -14020,7 +14029,7 @@ declare const MiscUtil: Readonly<{
     isSafari: () => boolean;
     preventDefaultForDesktopOnly: (e: Event) => void;
     isObject: (o: any) => boolean;
-    fillTemplate: (templateString: string, templateVars: string) => any;
+    fillTemplate: (templateString: string, templateVars: string) => string;
     isNode: () => boolean;
     concatArrayBuffers: (segments: ArrayBuffer[], sizes: Byte$1[], offsets: Byte$1[], finalSize?: Byte$1) => ArrayBufferLike;
     concatArrayBuffers2: ({ finalSize, srcs, srcsOffset, srcsCopySize, }: {
@@ -14028,7 +14037,7 @@ declare const MiscUtil: Readonly<{
         srcs: ArrayBuffer[];
         srcsOffset: Byte$1[];
         srcsCopySize: Byte$1[];
-    }) => ArrayBufferLike;
+    }) => ArrayBuffer;
     addLineNumberToCode: (shaderString: string) => string;
     downloadArrayBuffer: typeof downloadArrayBuffer;
     downloadTypedArray: typeof downloadTypedArray;
@@ -15916,11 +15925,13 @@ declare class VrmaImporter {
     static readHumanoid(rnm: RnM2Vrma): void;
 }
 
-declare class Socket<Name extends string, N extends CompositionTypeEnum, T extends ComponentTypeEnum> {
+type SocketDefaultValue = Vector4 | Vector3 | Vector2 | Scalar$1 | Matrix44 | Matrix33;
+declare class Socket<Name extends string, N extends CompositionTypeEnum, T extends ComponentTypeEnum, V extends SocketDefaultValue> {
     readonly name: Name;
     readonly compositionType: N;
     readonly componentType: T;
-    constructor(name: Name, compositionType: N, componentType: T);
+    readonly defaultValue?: V | undefined;
+    constructor(name: Name, compositionType: N, componentType: T, defaultValue?: V | undefined);
 }
 
 declare abstract class CommonShaderPart {
@@ -15933,8 +15944,8 @@ declare abstract class CommonShaderPart {
     private static __makeVaryingVariablesWGSL;
     static getPixelPrerequisites(shaderNodes: AbstractShaderNode[]): string;
     static getMainPrerequisites(): string;
-    static getAssignmentStatement(varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>): string;
-    static getAssignmentVaryingStatementInPixelShader(varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum>, inputNode: AbstractShaderNode): string;
+    static getAssignmentStatement(varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>): string;
+    static getAssignmentVaryingStatementInPixelShader(varName: string, inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>, inputNode: AbstractShaderNode): string;
     static getAssignmentVaryingStatementInVertexShader(inputNode: AbstractShaderNode, varNames: string[], j: number): string;
     abstract get attributeNames(): AttributeNames;
     abstract get attributeSemantics(): Array<VertexAttributeEnum>;
@@ -15963,8 +15974,8 @@ type ShaderStage = 'Neutral' | 'Vertex' | 'Fragment';
 declare abstract class AbstractShaderNode extends RnObject {
     static _shaderNodes: AbstractShaderNode[];
     protected __shaderFunctionName: string;
-    protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
-    protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
+    protected __inputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[];
+    protected __outputs: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[];
     protected __inputConnections: ShaderNodeInputConnectionType[];
     private static __invalidShaderNodeCount;
     protected __shaderNodeUid: ShaderNodeUID;
@@ -15986,15 +15997,15 @@ declare abstract class AbstractShaderNode extends RnObject {
      * @param outputSocketOfInput- the output socket of the inputShaderNode.
      * @param inputSocketOfThis - the input socket of this node.
      */
-    addInputConnection<N extends CompositionTypeEnum, T extends ComponentTypeEnum>(inputShaderNode: AbstractShaderNode, outputSocketOfInput: Socket<string, N, T>, inputSocketOfThis: Socket<string, N, T>): void;
+    addInputConnection<N extends CompositionTypeEnum, T extends ComponentTypeEnum>(inputShaderNode: AbstractShaderNode, outputSocketOfInput: Socket<string, N, T, SocketDefaultValue>, inputSocketOfThis: Socket<string, N, T, SocketDefaultValue>): void;
     get shaderFunctionName(): string;
     getShaderFunctionNameDerivative(): string;
     getShaderCode(shaderStage: ShaderTypeEnum): string;
     get shaderNodeUid(): ShaderNodeUID;
-    getInput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined;
-    getInputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
-    getOutput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum> | undefined;
-    getOutputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>[];
+    getInput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue> | undefined;
+    getInputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[];
+    getOutput(name: string): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue> | undefined;
+    getOutputs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>[];
     get inputConnections(): ShaderNodeInputConnectionType[];
     makeCallStatement(i: number, shaderNode: AbstractShaderNode, functionName: string, varInputNames: string[][], varOutputNames: string[][]): string;
 }
@@ -16078,7 +16089,7 @@ declare class ShaderGraphResolver {
     /**
      * Construct shader code with shader nodes.
      *
-     * @param shaderNodes - Shader nodes
+     * @param shaderNodes - Shader nodes (sorted topologically)
      * @param isVertexStage - Whether the shader is a vertex shader
      * @param isFullVersion - Whether to generate a full version of the shader code
      * @returns Shader code
@@ -16157,9 +16168,10 @@ declare const DefaultTextures: {
 
 declare class AddShaderNode extends AbstractShaderNode {
     constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum);
-    getSocketInputLhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
-    getSocketInputRhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
-    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
+    getDefaultValue(compositionType: CompositionTypeEnum): Vector3 | Vector4 | Vector2 | Scalar$1;
+    getSocketInputLhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    getSocketInputRhs(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
     getShaderFunctionNameDerivative(): string;
 }
 
@@ -16173,7 +16185,7 @@ declare class AttributeNormalShaderNode extends AbstractShaderNode {
 
 declare class AttributePositionShaderNode extends AbstractShaderNode {
     constructor();
-    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
 }
 
 declare class AttributeTexcoordShaderNode extends AbstractShaderNode {
@@ -16195,7 +16207,7 @@ declare class BlockEndShaderNode extends AbstractShaderNode {
 declare abstract class ConstantVariableShaderNode<N extends CompositionTypeEnum, T extends ComponentTypeEnum> extends AbstractShaderNode {
     constructor(nodeName: string, compositionType: N, componentType: T);
     setDefaultInputValue(value: IVector): void;
-    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
+    getSocketOutput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
 }
 
 declare class ConstantScalarVariableShaderNode<T extends ComponentTypeEnum> extends ConstantVariableShaderNode<typeof CompositionType.Scalar, T> {
@@ -16247,12 +16259,12 @@ declare class NormalizeShaderNode extends AbstractShaderNode {
 
 declare class OutColorShaderNode extends AbstractShaderNode {
     constructor();
-    getSocketInput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
+    getSocketInput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
 }
 
 declare class OutPositionShaderNode extends AbstractShaderNode {
     constructor();
-    getSocketInput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum>;
+    getSocketInput(): Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>;
 }
 
 declare class ProjectionMatrixShaderNode extends AbstractShaderNode {
