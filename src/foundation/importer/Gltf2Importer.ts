@@ -6,7 +6,7 @@ import { ifDefinedThen } from '../misc/MiscUtil';
 import { GltfFileBuffers, GltfLoadOption } from '../../types';
 import { Err, Result, Ok } from '../misc/Result';
 import { Logger } from '../misc/Logger';
-import { Vrm1_Materials_MToon } from '../../types/VRM1';
+import { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
 
 declare let Rn: any;
 

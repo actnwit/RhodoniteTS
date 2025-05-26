@@ -95,7 +95,6 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { Logger } from '../misc/Logger';
-import { Vrm1_Material } from '../../types/VRM1';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
@@ -104,6 +103,7 @@ import { IAnimatedValue } from '../math/IAnimatedValue';
 import { AnimatedVector2 } from '../math/AnimatedVector2';
 import { MutableVector2 } from '../math/MutableVector2';
 import { AnimatedVectorN } from '../math/AnimatedVectorN';
+import { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
 
 declare let DracoDecoderModule: any;
 
