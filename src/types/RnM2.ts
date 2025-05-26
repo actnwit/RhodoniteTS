@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, GltfLoadOption } from './glTF2';
+import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Primitive, Gltf2Scene, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -23,7 +23,7 @@ export type RnM2 = {
   scene: number;
   scenes: RnM2Scene[];
   skins: RnM2Skin[];
-  textures?: RnM2Texture[];
+  textures: RnM2Texture[];
   extensions: Gltf2AnyObject;
   extras: {
     rnEntities: ISceneGraphEntity[];
@@ -32,15 +32,9 @@ export type RnM2 = {
   };
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
-export type RnM2Scene = {
+export interface RnM2Scene extends Gltf2Scene {
   nodesObjects?: RnM2Node[];
-  name?: string;
-  scene?: number;
   sceneObject?: RnM2Node;
-  nodes?: number[];
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2AttributesObject = {
@@ -58,22 +52,15 @@ export type RnM2MaterialVariant = {
   variants: string[];
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
-export type RnM2Primitive = {
+export interface RnM2Primitive extends Gltf2Primitive {
   attributesObjects?: RnM2AttributeAccessors;
   attributesNames?: { [s: string]: string };
-  attributes?: { [s: string]: number };
   indicesObject?: RnM2Accessor;
-  indices?: number;
   materialObject?: RnM2Material;
   materialVariants?: RnM2MaterialVariant[];
-  material?: number;
   materialName?: string;
-  mode?: number;
   targetsObjects?: RnM2AttributeBlendShapesAccessors;
   targets?: RnM2AttributeBlendShapes;
-  extensions: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh

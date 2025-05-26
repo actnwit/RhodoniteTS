@@ -52,6 +52,7 @@ export type Gltf2 = {
   extras?: Gltf2AnyObject;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
 export type Gltf2Scene = {
   name?: string;
   scene?: number;
@@ -98,6 +99,7 @@ export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
 export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
 export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
 export type Gltf2Primitive = {
   attributes: Gltf2Attributes;
   indices?: number;
