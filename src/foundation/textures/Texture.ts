@@ -79,7 +79,7 @@ export class Texture extends AbstractTexture implements Disposable {
     return this.__uriToLoadLazy != null || this.__imgToLoadLazy != null;
   }
 
-  generateTextureFromBasis(
+  async generateTextureFromBasis(
     uint8Array: Uint8Array,
     options: {
       level?: Count;
@@ -88,7 +88,7 @@ export class Texture extends AbstractTexture implements Disposable {
       type?: ComponentTypeEnum;
       generateMipmap?: boolean;
     }
-  ) {
+  ): Promise<void> {
     this.__startedToLoad = true;
     if (typeof BASIS === 'undefined') {
       Logger.error('Failed to call BASIS() function. Please check to import basis_transcoder.js.');
@@ -118,6 +118,7 @@ export class Texture extends AbstractTexture implements Disposable {
         });
       }
     }
+    await Texture.__basisLoadPromise;
   }
 
   private __setBasisTexture(
@@ -162,13 +163,13 @@ export class Texture extends AbstractTexture implements Disposable {
     const transcodedData = await KTX2TextureLoader.getInstance().transcode(uint8Array);
     this.__width = transcodedData.width;
     this.__height = transcodedData.height;
-    this.generateCompressedTextureWithMipmapFromTypedArray(
+    await this.generateCompressedTextureWithMipmapFromTypedArray(
       transcodedData.mipmapData,
       transcodedData.compressionTextureType
     );
   }
 
-  generateTextureFromImage(
+  async generateTextureFromImage(
     image: HTMLImageElement,
     {
       level = 0,
@@ -186,6 +187,8 @@ export class Texture extends AbstractTexture implements Disposable {
       type,
       generateMipmap,
     };
+
+    await this.loadFromImgLazy();
   }
 
   async loadFromImgLazy() {
@@ -239,7 +242,7 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__imgToLoadLazy = undefined;
   }
 
-  generateTextureFromUri(
+  async generateTextureFromUri(
     imageUri: string,
     {
       level = 0,
@@ -257,6 +260,8 @@ export class Texture extends AbstractTexture implements Disposable {
       type,
       generateMipmap,
     };
+
+    await this.loadFromUrlLazy();
   }
 
   async loadFromUrlLazy() {
@@ -310,7 +315,7 @@ export class Texture extends AbstractTexture implements Disposable {
           this.__setTextureResourceUid(texture, this.uniqueName);
           if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
             this._textureViewResourceUid = (
-              cgApiResourceRepository as WebGpuResourceRepository
+              cgApiResourceRepository as unknown as WebGpuResourceRepository
             ).createTextureView2d(this._textureResourceUid);
           }
           this.__isTextureReady = true;
@@ -323,7 +328,7 @@ export class Texture extends AbstractTexture implements Disposable {
     }) as Promise<void>;
   }
 
-  generate1x1TextureFrom(rgbaStr = 'rgba(255,255,255,1)') {
+  async generate1x1TextureFrom(rgbaStr = 'rgba(255,255,255,1)') {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
     canvas.height = 1;
@@ -334,7 +339,7 @@ export class Texture extends AbstractTexture implements Disposable {
     ctx.fillRect(0, 0, 1, 1);
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const textureHandle = cgApiResourceRepository.createTextureFromImageBitmapData(canvas, {
+    const textureHandle = await cgApiResourceRepository.createTextureFromImageBitmapData(canvas, {
       level: 0,
       internalFormat: TextureFormat.RGBA8,
       width: 1,
@@ -348,7 +353,7 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__setTextureResourceUid(textureHandle, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
+        cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureView2d(this._textureResourceUid);
     }
     this.__isTextureReady = true;
@@ -430,7 +435,7 @@ export class Texture extends AbstractTexture implements Disposable {
     }
   }
 
-  generateCompressedTextureFromTypedArray(
+  async generateCompressedTextureFromTypedArray(
     typedArray: TypedArray,
     width: number,
     height: number,
@@ -447,21 +452,21 @@ export class Texture extends AbstractTexture implements Disposable {
     } as TextureData;
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const texture = cgApiResourceRepository.createCompressedTexture(
+    const textureHandle = await cgApiResourceRepository.createCompressedTexture(
       [textureData],
       compressionTextureType
     );
 
-    this.__setTextureResourceUid(texture, this.uniqueName);
+    this.__setTextureResourceUid(textureHandle, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
-      ).createTextureView2d(this._textureResourceUid);
+          cgApiResourceRepository as WebGpuResourceRepository
+        ).createTextureView2d(this._textureResourceUid);
     }
     this.__isTextureReady = true;
   }
 
-  generateCompressedTextureWithMipmapFromTypedArray(
+  async generateCompressedTextureWithMipmapFromTypedArray(
     textureDataArray: TextureData[],
     compressionTextureType: CompressionTextureTypeEnum
   ) {
@@ -474,12 +479,12 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__height = originalTextureData.height;
 
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const texture = cgApiResourceRepository.createCompressedTexture(
+    const textureHandle = await cgApiResourceRepository.createCompressedTexture(
       textureDataArray,
       compressionTextureType
     );
 
-    this.__setTextureResourceUid(texture, this.uniqueName);
+    this.__setTextureResourceUid(textureHandle, this.uniqueName);
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
         cgApiResourceRepository as WebGpuResourceRepository

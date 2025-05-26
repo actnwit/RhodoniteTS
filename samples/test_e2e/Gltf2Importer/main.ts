@@ -32,7 +32,7 @@ if (response.isErr()) {
   console.error('Failed to import glTF-2 model', response.getRnError());
 }
 
-const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
 rootGroup.localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
 // CameraComponent

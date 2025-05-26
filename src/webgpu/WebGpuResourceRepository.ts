@@ -196,7 +196,7 @@ export class WebGpuResourceRepository
    * @param paramObject - a parameter object
    * @returns
    */
-  public createTextureFromImageBitmapData(
+  public async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
     {
       level,
@@ -217,8 +217,8 @@ export class WebGpuResourceRepository
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): WebGPUResourceHandle {
-    const textureHandle = this.__createTextureInner(
+  ): Promise<WebGPUResourceHandle> {
+    const textureHandle = await this.__createTextureInner(
       width,
       height,
       internalFormat,
@@ -2440,7 +2440,7 @@ export class WebGpuResourceRepository
   ): Promise<WebGPUResourceHandle> {
     imageData.crossOrigin = 'Anonymous';
 
-    const textureHandle = this.__createTextureInner(
+    const textureHandle = await this.__createTextureInner(
       width,
       height,
       internalFormat,
@@ -2478,41 +2478,102 @@ export class WebGpuResourceRepository
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const gpuAdapter = this.__webGpuDeviceWrapper!.gpuAdapter;
 
+    // デバッグ情報：サポートされている圧縮フォーマットを確認
     const s3tc = gpuAdapter.features.has('texture-compression-bc');
+    const etc2 = gpuAdapter.features.has('texture-compression-etc2');
+    const astc = gpuAdapter.features.has('texture-compression-astc');
+
     if (s3tc) {
       basisCompressionType = BasisCompressionType.BC3;
-      compressionType = 'bc3-rgba-unorm'; // s3tc.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-    }
-    const etc2 = gpuAdapter.features.has('texture-compression-etc2');
-    if (etc2) {
+      compressionType = 'bc3-rgba-unorm';
+    } else if (etc2) {
       basisCompressionType = BasisCompressionType.ETC2;
-      compressionType = 'etc2-rgba8unorm'; // etc2.COMPRESSED_RGBA8_ETC2_EAC;
-    }
-    const astc = gpuAdapter.features.has('texture-compression-astc');
-    if (astc) {
+      compressionType = 'etc2-rgba8unorm';
+    } else if (astc) {
       basisCompressionType = BasisCompressionType.ASTC;
-      compressionType = 'astc-4x4-unorm'; // astc.COMPRESSED_RGBA_ASTC_4x4_KHR;
+      compressionType = 'astc-4x4-unorm';
     }
+
+    if (!compressionType) {
+      console.warn('No supported compression format found, falling back to uncompressed');
+      throw new Error('No supported compression format found');
+    }
+
+
     const textureDescriptor: GPUTextureDescriptor = {
       size: [width, height, 1],
-      format: compressionType!,
+      format: compressionType,
       mipLevelCount: mipmapDepth,
       usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
     };
 
     const gpuTexture = gpuDevice.createTexture(textureDescriptor);
 
+    // Retrieve block information for the compressed format
+    let blockInfo = { byteSize: 16, width: 4, height: 4 }; // デフォルト値
+    if (compressionType === 'bc1-rgba-unorm') {
+      blockInfo = { byteSize: 8, width: 4, height: 4 };
+    } else if (compressionType === 'bc3-rgba-unorm' || compressionType === 'astc-4x4-unorm') {
+      blockInfo = { byteSize: 16, width: 4, height: 4 };
+    } else if (compressionType === 'etc2-rgba8unorm') {
+      blockInfo = { byteSize: 16, width: 4, height: 4 };
+    } else if (compressionType === 'etc2-rgb8unorm') {
+      blockInfo = { byteSize: 8, width: 4, height: 4 };
+    }
+
     for (let i = 0; i < mipmapDepth; i++) {
-      const width = basisFile.getImageWidth(0, i);
-      const height = basisFile.getImageHeight(0, i);
+      const mipWidth = basisFile.getImageWidth(0, i);
+      const mipHeight = basisFile.getImageHeight(0, i);
       const textureSource = this.decodeBasisImage(basisFile, basisCompressionType!, 0, i);
 
-      const imageData = new ImageData(new Uint8ClampedArray(textureSource), width, height);
+      // Calculate the number of blocks for the compressed texture (minimum 1 block)
+      const blocksWide = Math.max(1, Math.ceil(mipWidth / blockInfo.width));
+      const blocksHigh = Math.max(1, Math.ceil(mipHeight / blockInfo.height));
 
-      gpuDevice.queue.copyExternalImageToTexture(
-        { source: imageData },
-        { texture: gpuTexture, mipLevel: i },
-        [width, height, 1]
+      // For compressed textures in WebGPU, bytesPerRow must be a multiple of 256 bytes
+      const unalignedBytesPerRow = blocksWide * blockInfo.byteSize;
+      const bytesPerRow = Math.ceil(unalignedBytesPerRow / 256) * 256;
+
+      // Check if data needs to be padded
+      let compressedTextureData: Uint8Array;
+      const expectedDataSize = bytesPerRow * blocksHigh;
+
+      if (bytesPerRow !== unalignedBytesPerRow || textureSource.length < expectedDataSize) {
+        // If padding is needed or the actual data size is smaller than expected
+        const paddedData = new Uint8Array(expectedDataSize);
+
+        if (textureSource.length > 0) {
+          // If actual data exists, copy it row by row
+          const actualRowsAvailable = Math.floor(textureSource.length / unalignedBytesPerRow);
+          for (let row = 0; row < Math.min(blocksHigh, actualRowsAvailable); row++) {
+            const srcOffset = row * unalignedBytesPerRow;
+            const dstOffset = row * bytesPerRow;
+            const copyLength = Math.min(unalignedBytesPerRow, textureSource.length - srcOffset);
+            if (copyLength > 0) {
+              paddedData.set(textureSource.subarray(srcOffset, srcOffset + copyLength), dstOffset);
+            }
+          }
+        }
+        compressedTextureData = paddedData;
+      } else {
+        compressedTextureData = textureSource;
+      }
+
+      gpuDevice.queue.writeTexture(
+        {
+          texture: gpuTexture,
+          mipLevel: i,
+        },
+        compressedTextureData,
+        {
+          offset: 0,
+          bytesPerRow,
+          rowsPerImage: blocksHigh,
+        },
+        {
+          width: Math.ceil(mipWidth / blockInfo.width) * blockInfo.width,
+          height: Math.ceil(mipHeight / blockInfo.height) * blockInfo.height,
+        }
       );
     }
 
@@ -2560,14 +2621,15 @@ export class WebGpuResourceRepository
    * @param textureDataArray transcoded texture data for each mipmaps(levels)
    * @param compressionTextureType
    */
-  createCompressedTexture(
+  async createCompressedTexture(
     textureDataArray: TextureData[],
     compressionTextureType: CompressionTextureTypeEnum
-  ): WebGLResourceHandle {
+  ): Promise<WebGPUResourceHandle> {
     const gpuDevice = this.__webGpuDeviceWrapper!.gpuDevice;
     const blockInfo = compressionTextureType.blockInfo || { byteSize: 4, width: 1, height: 1 };
 
     const textureDataLevel0 = textureDataArray[0];
+
     const textureDescriptor: GPUTextureDescriptor = {
       size: [
         Math.ceil(textureDataLevel0.width / blockInfo.width) * blockInfo.width,
@@ -2585,8 +2647,45 @@ export class WebGpuResourceRepository
       const textureData = textureDataArray[level];
       const mipWidth = textureData.width;
       const mipHeight = textureData.height;
-      const bytesPerRow = Math.ceil(mipWidth / blockInfo.width) * blockInfo.byteSize;
-      const compressedTextureData = new Uint8Array(textureData.buffer.buffer);
+
+      // Calculate the number of blocks for the compressed texture (minimum 1 block)
+      const blocksWide = Math.max(1, Math.ceil(mipWidth / blockInfo.width));
+      const blocksHigh = Math.max(1, Math.ceil(mipHeight / blockInfo.height));
+
+      // For compressed textures in WebGPU, bytesPerRow must be a multiple of 256 bytes
+      const unalignedBytesPerRow = blocksWide * blockInfo.byteSize;
+      const bytesPerRow = Math.ceil(unalignedBytesPerRow / 256) * 256;
+
+      // Retrieve the appropriate Uint8Array from ArrayBufferView
+      const originalData = textureData.buffer instanceof Uint8Array
+        ? textureData.buffer
+        : new Uint8Array(textureData.buffer.buffer, textureData.buffer.byteOffset, textureData.buffer.byteLength);
+
+      // If bytesPerRow is not aligned, data needs to be padded
+      let compressedTextureData: Uint8Array;
+      const expectedDataSize = bytesPerRow * blocksHigh;
+
+      if (bytesPerRow !== unalignedBytesPerRow || originalData.length < expectedDataSize) {
+        // Padding is needed, or the actual data size is smaller than expected
+        const paddedData = new Uint8Array(expectedDataSize);
+
+        if (originalData.length > 0) {
+          // If there is actual data, copy it row by row
+          const actualRowsAvailable = Math.floor(originalData.length / unalignedBytesPerRow);
+          for (let row = 0; row < Math.min(blocksHigh, actualRowsAvailable); row++) {
+            const srcOffset = row * unalignedBytesPerRow;
+            const dstOffset = row * bytesPerRow;
+            const copyLength = Math.min(unalignedBytesPerRow, originalData.length - srcOffset);
+            if (copyLength > 0) {
+              paddedData.set(originalData.subarray(srcOffset, srcOffset + copyLength), dstOffset);
+            }
+          }
+        }
+        compressedTextureData = paddedData;
+      } else {
+        compressedTextureData = originalData;
+      }
+
       gpuDevice.queue.writeTexture(
         {
           texture,
@@ -2596,6 +2695,7 @@ export class WebGpuResourceRepository
         {
           offset: 0,
           bytesPerRow,
+          rowsPerImage: blocksHigh,
         },
         {
           width: Math.ceil(mipWidth / blockInfo.width) * blockInfo.width,
@@ -2603,6 +2703,8 @@ export class WebGpuResourceRepository
         }
       );
     }
+
+    await gpuDevice.queue.onSubmittedWorkDone();
 
     const textureHandle = this.__registerResource(texture);
     return textureHandle;
@@ -2739,7 +2841,7 @@ export class WebGpuResourceRepository
     }
   }
 
-  private __createTextureInner(
+  private async __createTextureInner(
     width: number,
     height: number,
     internalFormat: TextureParameterEnum,
@@ -2770,6 +2872,8 @@ export class WebGpuResourceRepository
     if (generateMipmap) {
       this.generateMipmaps(gpuTexture, textureDescriptor);
     }
+
+    await gpuDevice.queue.onSubmittedWorkDone();
 
     const textureHandle = this.__registerResource(gpuTexture);
     return textureHandle;

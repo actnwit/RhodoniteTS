@@ -46,7 +46,7 @@ export class Vrm0xImporter {
 
     assertIsOk(result);
     const gltfModel = result.get();
-    const textures = Vrm0xImporter._createTextures(gltfModel);
+    const textures = await Vrm0xImporter._createTextures(gltfModel);
     const samplers = Vrm0xImporter._createSamplers(gltfModel);
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
@@ -59,14 +59,14 @@ export class Vrm0xImporter {
 
     // setup rootGroup
     let rootGroups;
-    const rootGroupMain = ModelConverter.convertToRhodoniteObject(gltfModel!);
+    const rootGroupMain = await ModelConverter.convertToRhodoniteObject(gltfModel!);
 
     const existOutline = Vrm0xImporter._existOutlineMaterial(gltfModel.extensions.VRM);
     if (existOutline) {
       if (Is.exist(defaultMaterialHelperArgumentArray)) {
         defaultMaterialHelperArgumentArray[0].isOutline = true;
       }
-      const rootGroupOutline = ModelConverter.convertToRhodoniteObject(gltfModel);
+      const rootGroupOutline = await ModelConverter.convertToRhodoniteObject(gltfModel);
 
       rootGroups = [rootGroupMain, rootGroupOutline];
     } else {
@@ -107,7 +107,7 @@ export class Vrm0xImporter {
     // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
-    const textures = this._createTextures(gltfModel);
+    const textures = await this._createTextures(gltfModel);
     const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {
       defaultMaterialHelperArgumentArray[0].textures =
@@ -131,10 +131,10 @@ export class Vrm0xImporter {
         renderPassOutline: renderPassOutline,
       };
 
-      rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+      rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
       renderPassOutline.addEntities([rootGroup]);
     } else {
-      rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+      rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
     }
 
     const renderPassMain = renderPasses[0];
@@ -288,21 +288,21 @@ export class Vrm0xImporter {
     physicsComponent.setStrategy(strategy);
   }
 
-  static _createTextures(gltfModel: RnM2): Texture[] {
+  static async _createTextures(gltfModel: RnM2): Promise<Texture[]> {
     if (!gltfModel.textures) gltfModel.textures = [];
 
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture(gltfTextures[i].sourceObject!, gltfModel);
+      const rnTexture = await ModelConverter._createTexture(gltfTextures[i].sourceObject!, gltfModel);
       rnTextures[i] = rnTexture;
     }
 
     const dummyWhiteTexture = new Texture();
-    dummyWhiteTexture.generate1x1TextureFrom();
+    await dummyWhiteTexture.generate1x1TextureFrom();
     rnTextures.push(dummyWhiteTexture);
     const dummyBlackTexture = new Texture();
-    dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
+    await dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
     rnTextures.push(dummyBlackTexture);
 
     return rnTextures;

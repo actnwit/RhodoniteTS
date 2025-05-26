@@ -127,7 +127,7 @@ async function createEntityGltf2(uriGltf: string) {
       defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
     })
   ).unwrapForce();
-  const entityRootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+  const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
   return entityRootGroup;
 }
 

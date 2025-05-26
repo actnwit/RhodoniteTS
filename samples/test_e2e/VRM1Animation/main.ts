@@ -60,7 +60,7 @@ vrmMainRenderPass.toClearColorBuffer = true;
 
 const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
 
-const animGltfModel = Rn.ModelConverter.convertToRhodoniteObject(animGltf2Result.unwrapForce());
+const animGltfModel = await Rn.ModelConverter.convertToRhodoniteObject(animGltf2Result.unwrapForce());
 
 // animation
 const animationAssigner = Rn.AnimationAssigner.getInstance();
