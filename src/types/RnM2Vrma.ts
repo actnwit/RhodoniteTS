@@ -1,38 +1,7 @@
 import { RnM2 } from './RnM2';
-
-export type HumanBoneNames =
-  | 'hips'
-  | 'spine'
-  | 'chest'
-  | 'neck'
-  | 'head'
-  | 'leftUpperLeg'
-  | 'leftLowerLeg'
-  | 'leftFoot'
-  | 'leftToes'
-  | 'rightUpperLeg'
-  | 'rightLowerLeg'
-  | 'rightFoot'
-  | 'rightToes'
-  | 'leftShoulder'
-  | 'leftUpperArm'
-  | 'leftLowerArm'
-  | 'leftHand'
-  | 'rightShoulder'
-  | 'rightUpperArm'
-  | 'rightLowerArm'
-  | 'rightHand';
-
-export type NodeId = number;
-
+import { VRMC_vrm_animation } from './VRMA';
 export interface RnM2Vrma extends RnM2 {
   extensions: {
-    VRMC_vrm_animation: {
-      specVersion: string;
-      humanoid?: {
-        humanBones: Record<HumanBoneNames, { node: number }>;
-      };
-      humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
-    };
+    VRMC_vrm_animation: VRMC_vrm_animation;
   };
 }
