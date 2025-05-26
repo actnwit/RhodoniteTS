@@ -28,5 +28,8 @@ export interface VRMC_vrm_animation {
   humanoid?: {
     humanBones: Record<HumanBoneNames, { node: number }>;
   };
-  humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
 };
+
+export interface RnM2_VRMC_vrm_animation extends VRMC_vrm_animation {
+  humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
+}
