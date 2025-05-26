@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Sparse, Gltf2SparseIndices, Gltf2SparseValues, Gltf2Texture, Gltf2TextureInfo, Gltf2TextureSampler, GltfLoadOption } from './glTF2';
+import { Gltf2Accessor, Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Buffer, Gltf2BufferView, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Sparse, Gltf2SparseIndices, Gltf2SparseValues, Gltf2Texture, Gltf2TextureInfo, Gltf2TextureSampler, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -161,22 +161,11 @@ export interface RnM2Sparse extends Gltf2Sparse {
   values?: RnM2SparseValues;
 };
 
-export type RnM2Accessor = {
+export interface RnM2Accessor extends Gltf2Accessor {
   bufferViewObject?: RnM2BufferView;
-  bufferView?: number;
   bufferViewName?: string;
-  byteOffset?: number;
-  byteStride?: number; // for glTF1 only
-  componentType: number;
-  normalized?: boolean;
-  count: number;
-  type: string;
-  max?: number[];
-  min?: number[];
   sparse?: RnM2Sparse;
-  name?: string;
   accessor?: Accessor;
-  extensions?: Gltf2AnyObject;
   extras?: {
     typedDataArray?: Float32Array;
     componentN?: number;
@@ -187,29 +176,14 @@ export type RnM2Accessor = {
   };
 };
 
-export type RnM2Buffer = {
-  uri?: string;
-  byteLength: number;
-  buffer?: Uint8Array; // Uint8Array is needed instead of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
-  dataUri?: string;
+export interface RnM2Buffer extends Gltf2Buffer {
   bufferPromise?: RnPromise<ArrayBuffer>;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2BufferView = {
+export interface RnM2BufferView extends Gltf2BufferView {
   bufferObject?: RnM2Buffer;
-  buffer?: number;
   bufferName?: string;
-  byteOffset?: number;
-  byteLength: number;
-  byteStride?: number;
-  target: number;
-  name?: string;
   rnAccessor?: Accessor;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Asset = {

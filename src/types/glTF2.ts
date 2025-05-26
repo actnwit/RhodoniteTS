@@ -317,7 +317,6 @@ export type Gltf2Buffer = {
   byteLength: number;
   buffer?: Uint8Array; // Uint8Array is needed instead of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
   dataUri?: string;
-  bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
@@ -346,7 +345,6 @@ export interface Gltf2Accessor {
   min?: number[];
   sparse?: Gltf2Sparse;
   name?: string;
-  accessor?: Accessor;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
 }
