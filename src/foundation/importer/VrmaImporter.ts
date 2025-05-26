@@ -1,6 +1,6 @@
 import { GltfLoadOption, RnM2 } from '../../types';
 import { RnM2Vrma } from '../../types/RnM2Vrma';
-import { HumanBoneNames, NodeId } from '../../types/VRMA';
+import { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
 import { Is } from '../misc/Is';
 import { Err, Result, Ok, assertIsOk } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
