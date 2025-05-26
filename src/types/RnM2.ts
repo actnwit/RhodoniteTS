@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
+import { Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Texture, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -129,38 +129,20 @@ export interface RnM2AnimationChannel extends Gltf2AnimationChannel {
   samplerObject?: RnM2AnimationSampler;
 };
 
-export type RnM2AnimationSampler = {
-  input: number;
-  output: number;
-  interpolation?: Gltf2AnimationSamplerInterpolation;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-
-  // RnM2 Properties
+export interface RnM2AnimationSampler extends Gltf2AnimationSampler {
   inputObject?: RnM2Accessor;
   outputObject?: RnM2Accessor;
 };
 
-export type RnM2Animation = {
+export interface RnM2Animation extends Gltf2Animation {
   channels: RnM2AnimationChannel[];
   samplers: RnM2AnimationSampler[];
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-
-  // RnM2 Properties
   parameters: { [s: string]: any };
 };
 
-export type RnM2Texture = {
+export interface RnM2Texture extends Gltf2Texture {
   samplerObject?: RnM2TextureSampler;
-  sampler?: number;
   sourceObject?: RnM2Image;
-  source?: number;
-  image?: RnM2Image;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2TextureSampler = {

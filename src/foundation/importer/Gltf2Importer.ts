@@ -553,9 +553,9 @@ export class Gltf2Importer {
         if (texture.extensions?.KHR_texture_basisu?.source != null) {
           texture.extensions.KHR_texture_basisu.fallbackSourceIndex = texture.source;
           texture.source = texture.extensions.KHR_texture_basisu.source as number;
-          texture.image = gltfJson.images[texture.source];
+          texture.sourceObject = gltfJson.images[texture.source];
         } else if (texture.source !== void 0) {
-          texture.image = gltfJson.images[texture.source!];
+          texture.sourceObject = gltfJson.images[texture.source!];
         }
       }
     }

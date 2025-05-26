@@ -274,7 +274,6 @@ export type Gltf2Animation = {
 export type Gltf2Texture = {
   sampler?: number;
   source?: number;
-  image?: Gltf2Image;
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
