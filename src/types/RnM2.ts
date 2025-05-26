@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
+import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -96,28 +96,16 @@ export interface RnM2NormalTextureInfo extends Gltf2NormalTextureInfo {
   texture?: RnM2Texture;
 };
 
-export type RnM2PbrMetallicRoughness = {
-  baseColorFactor?: Array4<number>;
+export interface RnM2PbrMetallicRoughness extends Gltf2PbrMetallicRoughness {
   baseColorTexture?: RnM2TextureInfo;
-  metallicFactor?: number;
-  roughnessFactor?: number;
   metallicRoughnessTexture?: RnM2TextureInfo;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export interface RnM2Material {
+export interface RnM2Material extends Gltf2Material {
   pbrMetallicRoughness?: RnM2PbrMetallicRoughness;
   normalTexture?: RnM2NormalTextureInfo;
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
-  emissiveFactor?: Array3<number>;
-  alphaMode?: string;
-  alphaCutoff?: number;
-  doubleSided?: boolean;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 }
 
 export type RnM2CameraOrthographic = {
