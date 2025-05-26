@@ -135,6 +135,7 @@ export type Gltf2Node = {
   extras?: Gltf2AnyObject;
 };
 
+// https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#reference-skin
 export type Gltf2Skin = {
   inverseBindMatrices?: number;
   bindShapeMatrix?: number[];

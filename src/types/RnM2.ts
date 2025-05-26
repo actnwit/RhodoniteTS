@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Mesh, Gltf2Node, Gltf2Primitive, Gltf2Scene, GltfLoadOption } from './glTF2';
+import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -78,43 +78,22 @@ export interface RnM2Node extends Gltf2Node {
   meshNames?: string[];
 };
 
-export type RnM2Skin = {
-  inverseBindMatrices?: number;
+export interface RnM2Skin extends Gltf2Skin {
   inverseBindMatricesObject?: RnM2Accessor;
-  bindShapeMatrix?: number[];
-  skeleton?: number;
   skeletonObject?: RnM2Node;
-  joints: number[];
   jointsObjects: RnM2Node[];
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2TextureInfo = {
-  index: number;
-  texCoord?: number;
+export interface RnM2TextureInfo extends Gltf2TextureInfo {
   texture?: RnM2Texture;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2OcclusionTextureInfo = {
-  index: number;
-  texCoord?: number;
+export interface RnM2OcclusionTextureInfo extends Gltf2OcclusionTextureInfo {
   texture?: RnM2Texture;
-  strength?: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2NormalTextureInfo = {
-  index: number;
-  texCoord?: number;
+export interface RnM2NormalTextureInfo extends Gltf2NormalTextureInfo {
   texture?: RnM2Texture;
-  scale?: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2PbrMetallicRoughness = {
