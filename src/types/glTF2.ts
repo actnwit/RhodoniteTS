@@ -22,17 +22,7 @@ export interface Gltf2AnyObject {
 }
 
 export type Gltf2 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: GltfLoadOption;
-      rnEntities?: Entity[];
-      rnMaterials?: { [s: string]: Material };
-      version?: string;
-      fileType?: string;
-    };
-    generator: string;
-    version: string;
-  };
+  asset: Gltf2Asset;
   buffers?: Gltf2Buffer[];
   scenes?: Gltf2Scene[];
   scene?: number;
@@ -51,6 +41,15 @@ export type Gltf2 = {
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
 };
+
+export interface Gltf2Asset {
+  copyright?: string;
+  generator?: string;
+  version: string;
+  minVersion?: string;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
 export type Gltf2Scene = {

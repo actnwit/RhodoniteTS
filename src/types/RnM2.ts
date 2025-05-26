@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2Accessor, Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Buffer, Gltf2BufferView, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Sparse, Gltf2SparseIndices, Gltf2SparseValues, Gltf2Texture, Gltf2TextureInfo, Gltf2TextureSampler, GltfLoadOption } from './glTF2';
+import { Gltf2Accessor, Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Asset, Gltf2Buffer, Gltf2BufferView, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Sparse, Gltf2SparseIndices, Gltf2SparseValues, Gltf2Texture, Gltf2TextureInfo, Gltf2TextureSampler, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -186,12 +186,7 @@ export interface RnM2BufferView extends Gltf2BufferView {
   rnAccessor?: Accessor;
 };
 
-export type RnM2Asset = {
-  copyright?: string;
-  generator?: string;
-  version: string;
-  minVersion?: string;
-  extensions?: object;
+export interface RnM2Asset extends Gltf2Asset {
   extras?: {
     rnLoaderOptions?: GltfLoadOption;
     rnEntities?: ISceneGraphEntity[];
@@ -221,14 +216,4 @@ export type RnM2ExtensionsEffekseerTimeline = {
 export type RnM2ExtensionsEffekseerTimelineItem = {
   input: number;
   event: 'play' | 'stop' | 'pause';
-};
-
-export type RnM2Sampler = {
-  magFilter?: number;
-  minFilter?: number;
-  wrapS?: number;
-  wrapT?: number;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
