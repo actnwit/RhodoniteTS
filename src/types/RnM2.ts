@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
+import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -108,32 +108,14 @@ export interface RnM2Material extends Gltf2Material {
   emissiveTexture?: RnM2TextureInfo;
 }
 
-export type RnM2CameraOrthographic = {
-  xmag: number;
-  ymag: number;
-  zfar: number;
-  znear: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2CameraOrthographic extends Gltf2CameraOrthographic {
 };
 
-export type RnM2CameraPerspective = {
-  aspectRatio?: number;
-  yfov: number;
-  zfar?: number;
-  znear: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2CameraPerspective extends Gltf2CameraPerspective {
 };
 
-export type RnM2Camera = {
-  orthographic?: RnM2CameraOrthographic;
-  perspective?: RnM2CameraPerspective;
-  type: string;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-};
+export interface RnM2Camera extends Gltf2Camera {
+}
 
 export type RnM2Image = {
   uri?: string;
