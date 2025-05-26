@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Texture, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
+import { Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Sparse, Gltf2SparseIndices, Gltf2SparseValues, Gltf2Texture, Gltf2TextureInfo, Gltf2TextureSampler, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -145,39 +145,20 @@ export interface RnM2Texture extends Gltf2Texture {
   sourceObject?: RnM2Image;
 };
 
-export type RnM2TextureSampler = {
-  magFilter?: number;
-  minFilter?: number;
-  wrapS?: number;
-  wrapT?: number;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2TextureSampler extends Gltf2TextureSampler {
 };
 
-export type RnM2SparseValues = {
-  bufferView: number;
+export interface RnM2SparseValues extends Gltf2SparseValues {
   bufferViewObject: RnM2BufferView;
-  byteOffset?: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2SparseIndices = {
-  bufferView: number;
+export interface RnM2SparseIndices extends Gltf2SparseIndices {
   bufferViewObject: RnM2BufferView;
-  byteOffset?: number;
-  componentType: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2Sparse = {
-  count: number;
+export interface RnM2Sparse extends Gltf2Sparse {
   indices?: RnM2SparseIndices;
   values?: RnM2SparseValues;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Accessor = {
