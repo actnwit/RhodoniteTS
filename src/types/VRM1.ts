@@ -1,5 +1,6 @@
 import { RnM2, RnM2Material, RnM2Texture } from './RnM2';
 import { Vrm1_Material } from './VRMC_materials_mtoon';
+import { VRMC_node_constraint } from './VRMC_node_constraint';
 import { VRMC_springBone } from './VRMC_springBone';
 
 export type Vrm1HumanBone = {
@@ -141,6 +142,7 @@ export interface Vrm1_Extension {
       };
     };
     VRMC_springBone?: VRMC_springBone;
+    VRMC_node_constraint?: VRMC_node_constraint;
   };
 }
 
