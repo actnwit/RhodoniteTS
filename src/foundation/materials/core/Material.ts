@@ -833,6 +833,7 @@ export class Material extends RnObject {
 
   set alphaMode(mode: AlphaModeEnum) {
     this.__alphaMode = mode;
+    this.calcFingerPrint();
     this.makeShadersInvalidate();
   }
 
