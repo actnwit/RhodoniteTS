@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Primitive, Gltf2Scene, GltfLoadOption } from './glTF2';
+import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Mesh, Gltf2Node, Gltf2Primitive, Gltf2Scene, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -63,37 +63,19 @@ export interface RnM2Primitive extends Gltf2Primitive {
   targets?: RnM2AttributeBlendShapes;
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
-export type RnM2Mesh = {
+export interface RnM2Mesh extends Gltf2Mesh {
   primitives: RnM2Primitive[];
-  weights?: number[];
-  name?: string;
-  extensions: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
-export type RnM2Node = {
+export interface RnM2Node extends Gltf2Node {
   cameraObject?: RnM2Camera;
-  camera?: number;
   childrenObjects?: RnM2Node[];
-  children?: number[];
   parent?: number;
   parentObject?: RnM2Node;
   skinObject?: RnM2Skin;
-  skin?: number;
   skinName?: string;
-  matrix?: number[];
   meshObject?: RnM2Mesh;
-  mesh?: number;
   meshNames?: string[];
-  rotation?: number[];
-  scale?: number[];
-  translation?: number[];
-  weights?: number[];
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2Skin = {

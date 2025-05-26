@@ -110,6 +110,7 @@ export type Gltf2Primitive = {
   extras?: Gltf2AnyObject;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
 export type Gltf2Mesh = {
   primitives: Gltf2Primitive[];
   weights?: number[];
@@ -118,13 +119,13 @@ export type Gltf2Mesh = {
   extras?: Gltf2AnyObject;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
 export type Gltf2Node = {
   camera?: number;
   children?: number[];
   skin?: number;
   matrix?: number[];
   mesh?: number;
-  meshNames?: string[];
   rotation?: number[];
   scale?: number[];
   translation?: number[];
