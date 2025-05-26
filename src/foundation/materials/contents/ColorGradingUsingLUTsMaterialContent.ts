@@ -52,10 +52,9 @@ export class ColorGradingUsingLUTsMaterialContent extends AbstractMaterialConten
     if (typeof uri === 'string') {
       lookupTableTexture = new Texture();
       (async function (uri: string) {
-        lookupTableTexture.generateTextureFromUri(uri, {
+        await lookupTableTexture.generateTextureFromUri(uri, {
           type: ComponentType.UnsignedByte,
         });
-        await lookupTableTexture.loadFromUrlLazy();
       })(uri);
     } else if (texture instanceof AbstractTexture) {
       lookupTableTexture = texture;
