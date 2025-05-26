@@ -144,7 +144,8 @@ export type Vrm1_NodeConstraint_Constraint = {
   };
 };
 
-export type Vrm1_Extension = {
+export interface Vrm1_Extension {
+  materials: Vrm1_Material[];
   extensions: {
     VRMC_vrm: {
       specVersion: string;
@@ -213,6 +214,6 @@ export type Vrm1_Extension = {
     };
     VRMC_springBone?: VRMC_springBone;
   };
-};
+}
 
 export type Vrm1 = Vrm1_Extension & RnM2;
