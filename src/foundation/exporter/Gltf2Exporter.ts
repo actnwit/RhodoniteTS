@@ -484,7 +484,6 @@ export class Gltf2Exporter {
             },
           };
 
-          let colorParam;
           if (Is.exist(rnMaterial)) {
             if (Is.false(rnMaterial.isLighting)) {
               if (Is.not.exist(material.extensions)) {
@@ -495,21 +494,24 @@ export class Gltf2Exporter {
                 json.extensionsUsed.push('KHR_materials_unlit');
               }
             }
-            colorParam = rnMaterial.getParameter('baseColorFactor');
+            let colorParam: Vector4 = rnMaterial.getParameter('baseColorFactor');
             if (Is.not.exist(colorParam)) {
               colorParam = rnMaterial.getParameter('diffuseColorFactor');
               if (Is.not.exist(colorParam)) {
                 colorParam = Vector4.fromCopy4(1, 1, 1, 1);
               }
+              material.pbrMetallicRoughness.baseColorFactor = [
+                colorParam.x,
+                colorParam.y,
+                colorParam.z,
+                colorParam.w,
+              ];
             } else {
               material.pbrMetallicRoughness.metallicFactor =
                 rnMaterial.getParameter('metallicRoughnessFactor').x;
               material.pbrMetallicRoughness.roughnessFactor =
                 rnMaterial.getParameter('metallicRoughnessFactor').y;
             }
-            material.pbrMetallicRoughness.baseColorFactor = Array.prototype.slice.call(
-              colorParam._v
-            );
 
             material.alphaMode = rnMaterial.alphaMode.toGltfString();
 

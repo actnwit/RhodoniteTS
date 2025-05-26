@@ -1,6 +1,6 @@
 import { Entity } from '../foundation/core/Entity';
 import { RnPromise } from '../foundation/misc/RnPromise';
-import { Array3, Index } from './CommonTypes';
+import { Array3, Array4, Index } from './CommonTypes';
 import { ShaderSemanticsEnum } from '../foundation/definitions/ShaderSemantics';
 import { CameraComponent } from '../foundation/components/Camera/CameraComponent';
 import { Material } from '../foundation/materials/core/Material';
@@ -22,17 +22,7 @@ export interface Gltf2AnyObject {
 }
 
 export type Gltf2 = {
-  asset: {
-    extras?: {
-      rnLoaderOptions?: GltfLoadOption;
-      rnEntities?: Entity[];
-      rnMaterials?: { [s: string]: Material };
-      version?: string;
-      fileType?: string;
-    };
-    generator: string;
-    version: string;
-  };
+  asset: Gltf2Asset;
   buffers?: Gltf2Buffer[];
   scenes?: Gltf2Scene[];
   scene?: number;
@@ -52,6 +42,16 @@ export type Gltf2 = {
   extras?: Gltf2AnyObject;
 };
 
+export interface Gltf2Asset {
+  copyright?: string;
+  generator?: string;
+  version: string;
+  minVersion?: string;
+  extensions?: Gltf2AnyObject;
+  extras?: Gltf2AnyObject;
+}
+
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
 export type Gltf2Scene = {
   name?: string;
   scene?: number;
@@ -98,6 +98,7 @@ export type Gltf2AttributeAccessors = Map<string, Gltf2Accessor>;
 export type Gltf2AttributeBlendShapes = Gltf2Attributes[];
 export type Gltf2AttributeBlendShapesAccessors = Gltf2AttributeAccessors[];
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
 export type Gltf2Primitive = {
   attributes: Gltf2Attributes;
   indices?: number;
@@ -108,6 +109,7 @@ export type Gltf2Primitive = {
   extras?: Gltf2AnyObject;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
 export type Gltf2Mesh = {
   primitives: Gltf2Primitive[];
   weights?: number[];
@@ -116,13 +118,13 @@ export type Gltf2Mesh = {
   extras?: Gltf2AnyObject;
 };
 
+// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
 export type Gltf2Node = {
   camera?: number;
   children?: number[];
   skin?: number;
   matrix?: number[];
   mesh?: number;
-  meshNames?: string[];
   rotation?: number[];
   scale?: number[];
   translation?: number[];
@@ -132,6 +134,7 @@ export type Gltf2Node = {
   extras?: Gltf2AnyObject;
 };
 
+// https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#reference-skin
 export type Gltf2Skin = {
   inverseBindMatrices?: number;
   bindShapeMatrix?: number[];
@@ -169,7 +172,7 @@ export type Gltf2NormalTextureInfo = {
 };
 
 export type Gltf2PbrMetallicRoughness = {
-  baseColorFactor?: number[];
+  baseColorFactor?: Array4<number>;
   baseColorTexture?: Gltf2TextureInfo;
   metallicFactor?: number;
   roughnessFactor?: number;
@@ -183,7 +186,7 @@ export type Gltf2Material = {
   normalTexture?: Gltf2NormalTextureInfo;
   occlusionTexture?: Gltf2OcclusionTextureInfo;
   emissiveTexture?: Gltf2TextureInfo;
-  emissiveFactor?: number[];
+  emissiveFactor?: Array3<number>;
   alphaMode?: string;
   alphaCutoff?: number;
   doubleSided?: boolean;
@@ -231,7 +234,7 @@ export type Gltf2Image = {
   extras?: Gltf2AnyObject;
 };
 
-export type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'effekseer';
+export type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer' | 'effekseer';
 
 export type Gltf2AnimationChannelTarget = {
   node?: number;
@@ -270,7 +273,6 @@ export type Gltf2Animation = {
 export type Gltf2Texture = {
   sampler?: number;
   source?: number;
-  image?: Gltf2Image;
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
@@ -314,7 +316,6 @@ export type Gltf2Buffer = {
   byteLength: number;
   buffer?: Uint8Array; // Uint8Array is needed instead of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
   dataUri?: string;
-  bufferPromise?: RnPromise<ArrayBuffer>;
   name?: string;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
@@ -343,7 +344,6 @@ export interface Gltf2Accessor {
   min?: number[];
   sparse?: Gltf2Sparse;
   name?: string;
-  accessor?: Accessor;
   extensions?: Gltf2AnyObject;
   extras?: Gltf2AnyObject;
 }

@@ -95,7 +95,6 @@ import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 import { createLightEntity } from '../components/Light/createLightEntity';
 import { createCameraEntity } from '../components/Camera/createCameraEntity';
 import { Logger } from '../misc/Logger';
-import { Vrm1_Material } from '../../types/VRM1';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedScalar } from '../math/AnimatedScalar';
@@ -104,6 +103,7 @@ import { IAnimatedValue } from '../math/IAnimatedValue';
 import { AnimatedVector2 } from '../math/AnimatedVector2';
 import { MutableVector2 } from '../math/MutableVector2';
 import { AnimatedVectorN } from '../math/AnimatedVectorN';
+import { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
 
 declare let DracoDecoderModule: any;
 
@@ -2286,7 +2286,7 @@ export class ModelConverter {
     map: Map<VertexAttributeSemanticsJoinedString, Accessor>
   ) {
     const bufferView =
-      gltfModel.bufferViews[primitive.extensions.KHR_draco_mesh_compression.bufferView];
+      gltfModel.bufferViews[primitive.extensions?.KHR_draco_mesh_compression.bufferView];
     const rnBufferView = this.__getRnBufferView(bufferView, rnBuffers[bufferView.buffer!]);
     const arraybufferOfBufferView = new Uint8Array(rnBufferView.getUint8Array()).buffer;
 
@@ -2326,7 +2326,7 @@ export class ModelConverter {
     // decode attributes
     for (const attributeName in primitive.attributes) {
       const dracoAttributeId =
-        primitive.extensions.KHR_draco_mesh_compression.attributes[attributeName];
+        primitive.extensions?.KHR_draco_mesh_compression.attributes[attributeName];
 
       const attributeGltf2Accessor = primitive.attributesObjects![attributeName];
       let attributeRnAccessor: Accessor | undefined = undefined;
@@ -2456,7 +2456,7 @@ export class ModelConverter {
       byteLengthOfBufferForDraco += count * 4;
     }
 
-    const drcAttributes = primitive.extensions.KHR_draco_mesh_compression.attributes;
+    const drcAttributes = primitive.extensions?.KHR_draco_mesh_compression.attributes;
     for (const attributeName in primitive.attributes) {
       if (drcAttributes[attributeName] == null) {
         // non-encoded data

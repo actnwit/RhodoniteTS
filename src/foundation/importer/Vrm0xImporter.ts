@@ -294,7 +294,7 @@ export class Vrm0xImporter {
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture(gltfTextures[i].image!, gltfModel);
+      const rnTexture = ModelConverter._createTexture(gltfTextures[i].sourceObject!, gltfModel);
       rnTextures[i] = rnTexture;
     }
 

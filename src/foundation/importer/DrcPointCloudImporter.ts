@@ -416,7 +416,7 @@ export class DrcPointCloudImporter {
         }, texture.sampler);
 
         if (texture.source !== void 0) {
-          texture.image = gltfJson.images[texture.source];
+          texture.sourceObject = gltfJson.images[texture.source];
         }
       }
     }

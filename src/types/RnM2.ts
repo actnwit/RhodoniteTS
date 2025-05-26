@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, GltfLoadOption } from './glTF2';
+import { Gltf2Accessor, Gltf2Animation, Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSampler, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Asset, Gltf2Buffer, Gltf2BufferView, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2Sparse, Gltf2SparseIndices, Gltf2SparseValues, Gltf2Texture, Gltf2TextureInfo, Gltf2TextureSampler, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -23,7 +23,7 @@ export type RnM2 = {
   scene: number;
   scenes: RnM2Scene[];
   skins: RnM2Skin[];
-  textures?: RnM2Texture[];
+  textures: RnM2Texture[];
   extensions: Gltf2AnyObject;
   extras: {
     rnEntities: ISceneGraphEntity[];
@@ -32,15 +32,9 @@ export type RnM2 = {
   };
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-scene
-export type RnM2Scene = {
+export interface RnM2Scene extends Gltf2Scene {
   nodesObjects?: RnM2Node[];
-  name?: string;
-  scene?: number;
   sceneObject?: RnM2Node;
-  nodes?: number[];
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
 export type RnM2AttributesObject = {
@@ -58,264 +52,120 @@ export type RnM2MaterialVariant = {
   variants: string[];
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh-primitive
-export type RnM2Primitive = {
+export interface RnM2Primitive extends Gltf2Primitive {
   attributesObjects?: RnM2AttributeAccessors;
   attributesNames?: { [s: string]: string };
-  attributes?: { [s: string]: number };
   indicesObject?: RnM2Accessor;
-  indices?: number;
   materialObject?: RnM2Material;
   materialVariants?: RnM2MaterialVariant[];
-  material?: number;
   materialName?: string;
-  mode?: number;
   targetsObjects?: RnM2AttributeBlendShapesAccessors;
   targets?: RnM2AttributeBlendShapes;
-  extensions: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-mesh
-export type RnM2Mesh = {
+export interface RnM2Mesh extends Gltf2Mesh {
   primitives: RnM2Primitive[];
-  weights?: number[];
-  name?: string;
-  extensions: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-// https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-node
-export type RnM2Node = {
+export interface RnM2Node extends Gltf2Node {
   cameraObject?: RnM2Camera;
-  camera?: number;
   childrenObjects?: RnM2Node[];
-  children?: number[];
   parent?: number;
   parentObject?: RnM2Node;
   skinObject?: RnM2Skin;
-  skin?: number;
   skinName?: string;
-  matrix?: number[];
   meshObject?: RnM2Mesh;
-  mesh?: number;
   meshNames?: string[];
-  rotation?: number[];
-  scale?: number[];
-  translation?: number[];
-  weights?: number[];
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2Skin = {
-  inverseBindMatrices?: number;
+export interface RnM2Skin extends Gltf2Skin {
   inverseBindMatricesObject?: RnM2Accessor;
-  bindShapeMatrix?: number[];
-  skeleton?: number;
   skeletonObject?: RnM2Node;
-  joints: number[];
   jointsObjects: RnM2Node[];
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2TextureInfo = {
-  index: number;
-  texCoord?: number;
+export interface RnM2TextureInfo extends Gltf2TextureInfo {
   texture?: RnM2Texture;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2OcclusionTextureInfo = {
-  index: number;
-  texCoord?: number;
+export interface RnM2OcclusionTextureInfo extends Gltf2OcclusionTextureInfo {
   texture?: RnM2Texture;
-  strength?: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2NormalTextureInfo = {
-  index: number;
-  texCoord?: number;
+export interface RnM2NormalTextureInfo extends Gltf2NormalTextureInfo {
   texture?: RnM2Texture;
-  scale?: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2PbrMetallicRoughness = {
-  baseColorFactor?: Array4<number>;
+export interface RnM2PbrMetallicRoughness extends Gltf2PbrMetallicRoughness {
   baseColorTexture?: RnM2TextureInfo;
-  metallicFactor?: number;
-  roughnessFactor?: number;
   metallicRoughnessTexture?: RnM2TextureInfo;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export interface RnM2Material {
+export interface RnM2Material extends Gltf2Material {
   pbrMetallicRoughness?: RnM2PbrMetallicRoughness;
   normalTexture?: RnM2NormalTextureInfo;
   occlusionTexture?: RnM2OcclusionTextureInfo;
   emissiveTexture?: RnM2TextureInfo;
-  emissiveFactor?: Array3<number>;
-  alphaMode?: string;
-  alphaCutoff?: number;
-  doubleSided?: boolean;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 }
 
-export type RnM2CameraOrthographic = {
-  xmag: number;
-  ymag: number;
-  zfar: number;
-  znear: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2CameraOrthographic extends Gltf2CameraOrthographic {
 };
 
-export type RnM2CameraPerspective = {
-  aspectRatio?: number;
-  yfov: number;
-  zfar?: number;
-  znear: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2CameraPerspective extends Gltf2CameraPerspective {
 };
 
-export type RnM2Camera = {
-  orthographic?: RnM2CameraOrthographic;
-  perspective?: RnM2CameraPerspective;
-  type: string;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2Camera extends Gltf2Camera {
+}
+
+export interface RnM2Image extends Gltf2Image {
 };
 
-export type RnM2Image = {
-  uri?: string;
-  mimeType?: string;
-  bufferView?: number;
-  image?: HTMLImageElement;
-  basis?: Uint8Array;
-  ktx2?: Uint8Array;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-};
-
-export type PathType = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer';
-
-export type RnM2AnimationChannelTarget = {
+export interface RnM2AnimationChannelTarget extends Gltf2AnimationChannelTarget {
   nodeObject?: RnM2Node;
-  node?: number;
-  path: PathType;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2AnimationChannel = {
-  sampler: number;
+export interface RnM2AnimationChannel extends Gltf2AnimationChannel {
   target: RnM2AnimationChannelTarget;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-
-  // RnM2 Properties
   samplerObject?: RnM2AnimationSampler;
 };
 
-export type RnM2AnimationSampler = {
-  input: number;
-  output: number;
-  interpolation?: Gltf2AnimationSamplerInterpolation;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-
-  // RnM2 Properties
+export interface RnM2AnimationSampler extends Gltf2AnimationSampler {
   inputObject?: RnM2Accessor;
   outputObject?: RnM2Accessor;
 };
 
-export type RnM2Animation = {
+export interface RnM2Animation extends Gltf2Animation {
   channels: RnM2AnimationChannel[];
   samplers: RnM2AnimationSampler[];
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-
-  // RnM2 Properties
   parameters: { [s: string]: any };
 };
 
-export type RnM2Texture = {
+export interface RnM2Texture extends Gltf2Texture {
   samplerObject?: RnM2TextureSampler;
-  sampler?: number;
   sourceObject?: RnM2Image;
-  source?: number;
-  image?: RnM2Image;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2TextureSampler = {
-  magFilter?: number;
-  minFilter?: number;
-  wrapS?: number;
-  wrapT?: number;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2TextureSampler extends Gltf2TextureSampler {
 };
 
-export type RnM2SparseValues = {
-  bufferView: number;
+export interface RnM2SparseValues extends Gltf2SparseValues {
   bufferViewObject: RnM2BufferView;
-  byteOffset?: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2SparseIndices = {
-  bufferView: number;
+export interface RnM2SparseIndices extends Gltf2SparseIndices {
   bufferViewObject: RnM2BufferView;
-  byteOffset?: number;
-  componentType: number;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2Sparse = {
-  count: number;
+export interface RnM2Sparse extends Gltf2Sparse {
   indices?: RnM2SparseIndices;
   values?: RnM2SparseValues;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2Accessor = {
+export interface RnM2Accessor extends Gltf2Accessor {
   bufferViewObject?: RnM2BufferView;
-  bufferView?: number;
   bufferViewName?: string;
-  byteOffset?: number;
-  byteStride?: number; // for glTF1 only
-  componentType: number;
-  normalized?: boolean;
-  count: number;
-  type: string;
-  max?: number[];
-  min?: number[];
   sparse?: RnM2Sparse;
-  name?: string;
   accessor?: Accessor;
-  extensions?: Gltf2AnyObject;
   extras?: {
     typedDataArray?: Float32Array;
     componentN?: number;
@@ -326,37 +176,17 @@ export type RnM2Accessor = {
   };
 };
 
-export type RnM2Buffer = {
-  uri?: string;
-  byteLength: number;
-  buffer?: Uint8Array; // Uint8Array is needed instead of ArrayBuffer, because it may have non-zero byteoffset for .glb file header
-  dataUri?: string;
+export interface RnM2Buffer extends Gltf2Buffer {
   bufferPromise?: RnPromise<ArrayBuffer>;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2BufferView = {
+export interface RnM2BufferView extends Gltf2BufferView {
   bufferObject?: RnM2Buffer;
-  buffer?: number;
   bufferName?: string;
-  byteOffset?: number;
-  byteLength: number;
-  byteStride?: number;
-  target: number;
-  name?: string;
   rnAccessor?: Accessor;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2Asset = {
-  copyright?: string;
-  generator?: string;
-  version: string;
-  minVersion?: string;
-  extensions?: object;
+export interface RnM2Asset extends Gltf2Asset {
   extras?: {
     rnLoaderOptions?: GltfLoadOption;
     rnEntities?: ISceneGraphEntity[];
@@ -386,14 +216,4 @@ export type RnM2ExtensionsEffekseerTimeline = {
 export type RnM2ExtensionsEffekseerTimelineItem = {
   input: number;
   event: 'play' | 'stop' | 'pause';
-};
-
-export type RnM2Sampler = {
-  magFilter?: number;
-  minFilter?: number;
-  wrapS?: number;
-  wrapT?: number;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };

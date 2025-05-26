@@ -13,7 +13,7 @@ import { SphereCollider } from '../physics/VRMSpring/SphereCollider';
 import { Vector3 } from '../math/Vector3';
 import { VRMColliderGroup } from '../physics/VRMSpring/VRMColliderGroup';
 import { VRMSpring } from '../physics/VRMSpring/VRMSpring';
-import { Vrm1, Vrm1_Materials_MToon } from '../../types/VRM1';
+import { Vrm1 } from '../../types/VRM1';
 import { assertIsOk, Err, Result, Ok } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 import { Sampler } from '../textures/Sampler';
@@ -25,6 +25,7 @@ import { VrmRollConstraint } from '../constraints/VrmRollConstraint';
 import { VrmAimConstraint } from '../constraints/VrmAimConstraint';
 import { VrmRotationConstraint } from '../constraints/VrmRotationConstraint';
 import { TextureParameter } from '../definitions/TextureParameter';
+import { Vrm1_Materials_MToon } from '../../types/VRMC_materials_mtoon';
 
 export class VrmImporter {
   private constructor() {}
@@ -295,7 +296,7 @@ export class VrmImporter {
     const gltfTextures = gltfModel.textures;
     const rnTextures: Texture[] = [];
     for (let i = 0; i < gltfTextures.length; i++) {
-      const rnTexture = ModelConverter._createTexture(gltfTextures[i].image!, gltfModel);
+      const rnTexture = ModelConverter._createTexture(gltfTextures[i].sourceObject!, gltfModel);
       rnTextures[i] = rnTexture;
     }
 

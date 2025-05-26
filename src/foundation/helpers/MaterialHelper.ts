@@ -92,7 +92,7 @@ import { ProcessApproach, TextureParameter } from '../definitions';
 import { Vector2 } from '../math/Vector2';
 import { SystemState } from '../system/SystemState';
 import { MToon1MaterialContent } from '../materials/contents/MToon1MaterialContent';
-import { Vrm1_Material } from '../../types/VRM1';
+import { Vrm1_Material } from '../../types/VRMC_materials_mtoon';
 import { DataUtil } from '../misc/DataUtil';
 
 const g_sampler = new Sampler({
