@@ -16,6 +16,7 @@ import { AnimationStateComponent } from '../components/AnimationState/AnimationS
 import { Logger } from '../misc/Logger';
 import { AnimatedQuaternion } from '../math/AnimatedQuaternion';
 import { AnimatedVector3 } from '../math/AnimatedVector3';
+import { VRM } from '../../types/VRM';
 
 type RetargetMode = 'none' | 'global' | 'absolute';
 
@@ -36,7 +37,7 @@ export class AnimationAssigner {
   assignAnimation(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: Vrm0x | Vrm1,
+    vrmModel: VRM,
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
@@ -148,7 +149,7 @@ export class AnimationAssigner {
   private __getCorrespondingEntity(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: Vrm0x | Vrm1,
+    vrmModel: VRM,
     nodeIndex: Index,
     nodeName: string | undefined,
     isSameSkeleton: boolean
@@ -252,7 +253,7 @@ export class AnimationAssigner {
     }
   }
 
-  private __isHips(rootEntity: ISceneGraphEntity, vrmModel: Vrm0x | Vrm1, nodeIndex: Index) {
+  private __isHips(rootEntity: ISceneGraphEntity, vrmModel: VRM, nodeIndex: Index) {
     const srcMapNodeIdName: Map<number, string> = new Map();
     if (Is.exist(vrmModel.extensions.VRM)) {
       const humanBones = vrmModel.extensions.VRM.humanoid.humanBones;
@@ -281,7 +282,7 @@ export class AnimationAssigner {
   private __setupAnimationForSameSkeleton(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: Vrm0x | Vrm1,
+    vrmModel: VRM,
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {

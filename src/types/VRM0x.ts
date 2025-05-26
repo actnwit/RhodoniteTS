@@ -125,60 +125,61 @@ export type Vrm0xMaterialProperty = {
   // };
 };
 
-export type Vrm0x_Extension = {
-  extensions: {
-    VRM: {
-      exporterVersion: string;
-      meta: {
-        version: string;
-        author: string;
-        contactInformation: string;
-        reference: string;
-        title: string;
-        texture: 30;
-        allowedUserName: string;
-        violentUsageName: string;
-        sexualUsageName: string;
-        commercialUsageName: string;
-        otherPermissionUrl: string;
-        licenseName: string;
-        otherLicenseUrl: string;
-      };
-      humanoid: {
-        humanBones: Vrm0xHumanBone[];
-        armStretch: number;
-        legStretch: number;
-        upperArmTwist: number;
-        lowerArmTwist: number;
-        upperLegTwist: number;
-        lowerLegTwist: number;
-        feetSpacing: number;
-        hasTranslationDoF: false;
-      };
-      firstPerson: {
-        firstPersonBone: number;
-        firstPersonBoneOffset: {
-          x: number;
-          y: number;
-          z: number;
-        };
-        meshAnnotations: [];
-        lookAtTypeName: string;
-        lookAtHorizontalInner: Vrm0xLookAt;
-        lookAtHorizontalOuter: Vrm0xLookAt;
-        lookAtVerticalDown: Vrm0xLookAt;
-        lookAtVerticalUP: Vrm0xLookAt;
-      };
-      blendShapeMaster: {
-        blendShapeGroups: Vrm0xBlendShapeGroup[];
-      };
-      secondaryAnimation: {
-        boneGroups: Vrm0xBoneGroup[];
-        colliderGroups: Vrm0xColliderGroup[];
-      };
-      materialProperties: Vrm0xMaterialProperty[];
-    };
-  };
-};
 
-export type Vrm0x = Vrm0x_Extension & RnM2;
+export interface VRM0x_Extension {
+  exporterVersion: string;
+  meta: {
+    version: string;
+    author: string;
+    contactInformation: string;
+    reference: string;
+    title: string;
+    texture: 30;
+    allowedUserName: string;
+    violentUsageName: string;
+    sexualUsageName: string;
+    commercialUsageName: string;
+    otherPermissionUrl: string;
+    licenseName: string;
+    otherLicenseUrl: string;
+  };
+  humanoid: {
+    humanBones: Vrm0xHumanBone[];
+    armStretch: number;
+    legStretch: number;
+    upperArmTwist: number;
+    lowerArmTwist: number;
+    upperLegTwist: number;
+    lowerLegTwist: number;
+    feetSpacing: number;
+    hasTranslationDoF: false;
+  };
+  firstPerson: {
+    firstPersonBone: number;
+    firstPersonBoneOffset: {
+      x: number;
+      y: number;
+      z: number;
+    };
+    meshAnnotations: [];
+    lookAtTypeName: string;
+    lookAtHorizontalInner: Vrm0xLookAt;
+    lookAtHorizontalOuter: Vrm0xLookAt;
+    lookAtVerticalDown: Vrm0xLookAt;
+    lookAtVerticalUP: Vrm0xLookAt;
+  };
+  blendShapeMaster: {
+    blendShapeGroups: Vrm0xBlendShapeGroup[];
+  };
+  secondaryAnimation: {
+    boneGroups: Vrm0xBoneGroup[];
+    colliderGroups: Vrm0xColliderGroup[];
+  };
+  materialProperties: Vrm0xMaterialProperty[];
+}
+
+export interface Vrm0x extends RnM2 {
+  extensions: {
+    VRM: VRM0x_Extension;
+  };
+}
