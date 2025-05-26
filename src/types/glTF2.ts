@@ -235,7 +235,7 @@ export type Gltf2Image = {
   extras?: Gltf2AnyObject;
 };
 
-export type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'effekseer';
+export type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer' | 'effekseer';
 
 export type Gltf2AnimationChannelTarget = {
   node?: number;

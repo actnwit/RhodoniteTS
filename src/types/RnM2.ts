@@ -2,7 +2,7 @@ import { RnPromise } from '../foundation/misc/RnPromise';
 import { Array3, Array4 } from './CommonTypes';
 import { Material } from '../foundation/materials/core/Material';
 import { Accessor } from '../foundation/memory/Accessor';
-import { Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
+import { Gltf2AnimationChannel, Gltf2AnimationChannelTarget, Gltf2AnimationPathName, Gltf2AnimationSamplerInterpolation, Gltf2AnyObject, Gltf2Camera, Gltf2CameraOrthographic, Gltf2CameraPerspective, Gltf2Image, Gltf2Material, Gltf2Mesh, Gltf2Node, Gltf2NormalTextureInfo, Gltf2OcclusionTextureInfo, Gltf2PbrMetallicRoughness, Gltf2Primitive, Gltf2Scene, Gltf2Skin, Gltf2TextureInfo, GltfLoadOption } from './glTF2';
 import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 
 // https://www.khronos.org/registry/glTF/specs/2.0/glTF-2.0.html#reference-gltf
@@ -117,35 +117,15 @@ export interface RnM2CameraPerspective extends Gltf2CameraPerspective {
 export interface RnM2Camera extends Gltf2Camera {
 }
 
-export type RnM2Image = {
-  uri?: string;
-  mimeType?: string;
-  bufferView?: number;
-  image?: HTMLImageElement;
-  basis?: Uint8Array;
-  ktx2?: Uint8Array;
-  name?: string;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
+export interface RnM2Image extends Gltf2Image {
 };
 
-export type PathType = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer';
-
-export type RnM2AnimationChannelTarget = {
+export interface RnM2AnimationChannelTarget extends Gltf2AnimationChannelTarget {
   nodeObject?: RnM2Node;
-  node?: number;
-  path: PathType;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
 };
 
-export type RnM2AnimationChannel = {
-  sampler: number;
+export interface RnM2AnimationChannel extends Gltf2AnimationChannel {
   target: RnM2AnimationChannelTarget;
-  extensions?: Gltf2AnyObject;
-  extras?: Gltf2AnyObject;
-
-  // RnM2 Properties
   samplerObject?: RnM2AnimationSampler;
 };
 
