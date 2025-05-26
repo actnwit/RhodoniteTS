@@ -48,8 +48,6 @@ export class Texture extends AbstractTexture implements Disposable {
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
   private static __BasisFile?: new (x: Uint8Array) => BasisFile;
-  private __uriToLoadLazy?: string;
-  private __imgToLoadLazy?: HTMLImageElement;
   private __optionsToLoadLazy?: {
     level: number;
     internalFormat: TextureParameterEnum;
@@ -73,10 +71,6 @@ export class Texture extends AbstractTexture implements Disposable {
   private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle, uniqueName: string) {
     this._textureResourceUid = textureResourceUid;
     Texture.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
-  }
-
-  get hasDataToLoadLazy() {
-    return this.__uriToLoadLazy != null || this.__imgToLoadLazy != null;
   }
 
   async generateTextureFromBasis(
@@ -179,29 +173,6 @@ export class Texture extends AbstractTexture implements Disposable {
       generateMipmap = true,
     } = {}
   ) {
-    this.__imgToLoadLazy = image;
-    this.__optionsToLoadLazy = {
-      level,
-      internalFormat,
-      format,
-      type,
-      generateMipmap,
-    };
-
-    await this.loadFromImgLazy();
-  }
-
-  async loadFromImgLazy() {
-    if (this.__imgToLoadLazy == null) {
-      return;
-    }
-    const image = this.__imgToLoadLazy!;
-    const level = this.__optionsToLoadLazy?.level ?? 0;
-    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureFormat.RGBA8;
-    const format = this.__optionsToLoadLazy?.format ?? PixelFormat.RGBA;
-    const type = this.__optionsToLoadLazy?.type ?? ComponentType.UnsignedByte;
-    const generateMipmap = this.__optionsToLoadLazy?.generateMipmap ?? true;
-
     this.__startedToLoad = true;
     this.__htmlImageElement = image;
     let img: HTMLImageElement | HTMLCanvasElement | ImageData = image;
@@ -238,8 +209,6 @@ export class Texture extends AbstractTexture implements Disposable {
     }
     this.__isTextureReady = true;
     this.__uri = image.src;
-
-    this.__imgToLoadLazy = undefined;
   }
 
   async generateTextureFromUri(
@@ -252,29 +221,6 @@ export class Texture extends AbstractTexture implements Disposable {
       generateMipmap = true,
     } = {}
   ) {
-    this.__uriToLoadLazy = imageUri;
-    this.__optionsToLoadLazy = {
-      level,
-      internalFormat,
-      format,
-      type,
-      generateMipmap,
-    };
-
-    await this.loadFromUrlLazy();
-  }
-
-  async loadFromUrlLazy() {
-    if (this.__uriToLoadLazy == null) {
-      return;
-    }
-    const imageUri = this.__uriToLoadLazy;
-    const level = this.__optionsToLoadLazy?.level ?? 0;
-    const internalFormat = this.__optionsToLoadLazy?.internalFormat ?? TextureFormat.RGBA8;
-    const format = this.__optionsToLoadLazy?.format ?? PixelFormat.RGBA;
-    const type = this.__optionsToLoadLazy?.type ?? ComponentType.UnsignedByte;
-    const generateMipmap = this.__optionsToLoadLazy?.generateMipmap ?? true;
-
     this.__uri = imageUri;
     this.__startedToLoad = true;
     return new Promise((resolve, reject) => {
@@ -319,7 +265,6 @@ export class Texture extends AbstractTexture implements Disposable {
             ).createTextureView2d(this._textureResourceUid);
           }
           this.__isTextureReady = true;
-          this.__uriToLoadLazy = undefined;
           resolve();
         })();
       };
