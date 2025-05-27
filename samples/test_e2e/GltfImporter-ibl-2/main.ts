@@ -92,10 +92,10 @@ await setIBL();
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
-  if (count > 1) {
+  if (count > 100) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
-  } else if (count === 1) {
+  } else if (count === 100) {
     p.id = 'started';
     p.innerText = 'Started.';
   }
