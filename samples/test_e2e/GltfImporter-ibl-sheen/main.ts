@@ -87,16 +87,20 @@ Rn.System.startRenderLoop(() => {
 
 async function setIBL(baseUri) {
   const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
-  specularCubeTexture.isNamePosNeg = true;
-  specularCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
-  specularCubeTexture.mipmapLevelNumber = 10;
+  await specularCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  });
 
   const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
-  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
-  diffuseCubeTexture.mipmapLevelNumber = 1;
-  diffuseCubeTexture.isNamePosNeg = true;
+  await diffuseCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  });
 
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent

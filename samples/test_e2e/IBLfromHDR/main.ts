@@ -144,6 +144,7 @@ const renderIBL = () => {
     prefilterIblMaterial.setParameter('cubeMapFaceId', i);
     diffuseIblFramebuffer.setColorAttachmentCubeAt(0, i, 0, diffuseIblRenderTargetCube);
     Rn.System.process([prefilterIblExpression]);
+    diffuseIblRenderTargetCube.setIsTextureReady();
   }
 
   // Specular IBL
@@ -164,6 +165,7 @@ const renderIBL = () => {
         Rn.System.process([prefilterIblExpression]);
       }
     }
+    specularIblRenderTargetCube.setIsTextureReady();
   }
 
   // Sheen IBL
@@ -184,6 +186,7 @@ const renderIBL = () => {
         Rn.System.process([prefilterIblExpression]);
       }
     }
+    sheenIblRenderTargetCube.setIsTextureReady();
   }
 };
 
@@ -218,6 +221,8 @@ if (mainExpressionResult.isOk()) {
 } else {
   console.error(mainExpressionResult.toString());
 }
+
+renderIBL();
 
 const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
   Rn.MeshRendererComponent
@@ -277,7 +282,6 @@ const createEntityEnvironmentCube = () => {
   return expression;
 };
 
-renderIBL();
 
 // const debugExpression = createEntityEnvironmentCube();
 

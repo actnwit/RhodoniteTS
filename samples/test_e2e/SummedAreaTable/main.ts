@@ -13,7 +13,7 @@ await initRn();
 const expressions: Rn.Expression[] = [];
 
 // Background Env Cube Map Expression
-const envExpression = createBackgroundEnvCubeExpression('./../../../assets/ibl/papermill');
+const envExpression = await createBackgroundEnvCubeExpression('./../../../assets/ibl/papermill');
 expressions.push(envExpression);
 
 // setup the Main RenderPass
@@ -75,13 +75,14 @@ async function createMainExpression(expressions: Rn.Expression[]) {
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 }
 
-function createBackgroundEnvCubeExpression(baseUri: string) {
+async function createBackgroundEnvCubeExpression(baseUri: string) {
   const environmentCubeTexture = new Rn.CubeTexture();
-  environmentCubeTexture.baseUriToLoad = baseUri + '/environment/environment';
-  environmentCubeTexture.isNamePosNeg = true;
-  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
-  environmentCubeTexture.mipmapLevelNumber = 1;
-  environmentCubeTexture.loadTextureImagesAsync();
+  await environmentCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  });
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const sampler = new Rn.Sampler({
@@ -114,17 +115,21 @@ function createBackgroundEnvCubeExpression(baseUri: string) {
 async function setIBL(baseUri: string) {
   // Specular IBL Cube Texture
   const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
-  specularCubeTexture.isNamePosNeg = true;
-  specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-  specularCubeTexture.mipmapLevelNumber = 10;
+  await specularCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  });
 
   // Diffuse IBL Cube Texture
   const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
-  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-  diffuseCubeTexture.mipmapLevelNumber = 1;
-  diffuseCubeTexture.isNamePosNeg = true;
+  await diffuseCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  });
 
   // Get all meshRenderComponents and set IBL cube maps to them
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(

@@ -32,7 +32,7 @@ const entityCameraMain = createEntityMainCamera();
 const entityRootGroup = await createEntityGltf2(uriGltf);
 const renderPassesDepth = createRenderPassDepth(entityCameraDepth.getCamera(), entityRootGroup);
 
-const entityEnvironmentCube = createEntityEnvironmentCube(basePathIBL);
+const entityEnvironmentCube = await createEntityEnvironmentCube(basePathIBL);
 const entityBoardCastedShadow = createEntityBoard(renderPassesDepth);
 
 const renderPassMain = new Rn.RenderPass();
@@ -85,13 +85,14 @@ async function createEntityGltf2(uriGltf: string) {
   return entityRootGroup;
 }
 
-function createEntityEnvironmentCube(basePathIBL: string) {
+async function createEntityEnvironmentCube(basePathIBL: string) {
   const cubeTextureEnvironment = new Rn.CubeTexture();
-  cubeTextureEnvironment.baseUriToLoad = basePathIBL + '/environment/environment';
-  cubeTextureEnvironment.isNamePosNeg = true;
-  cubeTextureEnvironment.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
-  cubeTextureEnvironment.mipmapLevelNumber = 1;
-  cubeTextureEnvironment.loadTextureImagesAsync();
+  await cubeTextureEnvironment.loadTextureImages({
+    baseUri: basePathIBL + '/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  });
 
   const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial();
   materialSphere.setParameter('envHdriFormat', Rn.HdriFormat.HDR_LINEAR.index);
@@ -196,16 +197,20 @@ function createExpression(renderPasses: Rn.RenderPass[]) {
 
 async function setIBLTexture(basePathIBL: string) {
   const cubeTextureSpecular = new Rn.CubeTexture();
-  cubeTextureSpecular.baseUriToLoad = basePathIBL + '/specular/specular';
-  cubeTextureSpecular.isNamePosNeg = true;
-  cubeTextureSpecular.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-  cubeTextureSpecular.mipmapLevelNumber = 10;
+  await cubeTextureSpecular.loadTextureImages({
+    baseUri: basePathIBL + '/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  });
 
   const cubeTextureDiffuse = new Rn.CubeTexture();
-  cubeTextureDiffuse.baseUriToLoad = basePathIBL + '/diffuse/diffuse';
-  cubeTextureDiffuse.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-  cubeTextureDiffuse.mipmapLevelNumber = 1;
-  cubeTextureDiffuse.isNamePosNeg = true;
+  await cubeTextureDiffuse.loadTextureImages({
+    baseUri: basePathIBL + '/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  });
 
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent

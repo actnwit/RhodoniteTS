@@ -88,13 +88,14 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-function createEnvCubeExpression(baseuri) {
+async function createEnvCubeExpression(baseuri) {
   const environmentCubeTexture = new Rn.CubeTexture();
-  environmentCubeTexture.baseUriToLoad = baseuri + '/environment/environment';
-  environmentCubeTexture.isNamePosNeg = true;
-  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
-  environmentCubeTexture.mipmapLevelNumber = 1;
-  environmentCubeTexture.loadTextureImagesAsync();
+  await environmentCubeTexture.loadTextureImages({
+    baseUri: baseuri + '/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  });
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const sampler = new Rn.Sampler({
@@ -133,16 +134,20 @@ function createEnvCubeExpression(baseuri) {
 
 async function setIBL(baseUri) {
   const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.baseUriToLoad = baseUri + '/specular/specular';
-  specularCubeTexture.isNamePosNeg = true;
-  specularCubeTexture.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
-  specularCubeTexture.mipmapLevelNumber = 10;
+  specularCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  });
 
   const diffuseCubeTexture = new Rn.CubeTexture();
-  diffuseCubeTexture.baseUriToLoad = baseUri + '/diffuse/diffuse';
-  diffuseCubeTexture.hdriFormat = Rn.HdriFormat.HDR_LINEAR;
-  diffuseCubeTexture.mipmapLevelNumber = 1;
-  diffuseCubeTexture.isNamePosNeg = true;
+  await diffuseCubeTexture.loadTextureImages({
+    baseUri: baseUri + '/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  });
 
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
