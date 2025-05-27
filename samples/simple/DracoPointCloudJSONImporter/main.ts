@@ -46,7 +46,7 @@ import Rn from '../../../dist/esmdev/index.js';
       await importer.importPointCloud(pointCloudDrcUri)
     ).unwrapForce() as Rn.RnM2;
 
-    const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
+    const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(r_gltf2JSON);
     return rootGroup as Rn.IMeshEntity;
   }
 
@@ -74,7 +74,7 @@ import Rn from '../../../dist/esmdev/index.js';
   //   })) as glTF2;
 
   //   const modelConverter = Rn.ModelConverter.getInstance();
-  //   const rootGroup = modelConverter.convertToRhodoniteObject(gltf2JSON);
+  //   const rootGroup = await modelConverter.convertToRhodoniteObject(gltf2JSON);
   //   return rootGroup;
   // }
 

@@ -160,11 +160,11 @@ export class ModelConverter {
     return rnMaterials;
   }
 
-  private static __setupTextures(gltfModel: RnM2) {
+  private static async __setupTextures(gltfModel: RnM2) {
     const rnTextures: Texture[] = [];
     if (gltfModel.images != null) {
       for (const image of gltfModel.images) {
-        const rnTexture = this._createTexture(image, gltfModel);
+        const rnTexture = await this._createTexture(image, gltfModel);
         rnTextures.push(rnTexture);
       }
     }
@@ -182,13 +182,13 @@ export class ModelConverter {
     return rnSamplers;
   }
 
-  static convertToRhodoniteObject(gltfModel: RnM2) {
+  static async convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
     const rnBuffers = this.__createRnBuffer(gltfModel);
     gltfModel.asset.extras!.rnMaterials = {};
 
-    const rnTextures = this.__setupTextures(gltfModel);
+    const rnTextures = await this.__setupTextures(gltfModel);
     const rnSamplers = this.__createSamplers(gltfModel);
 
     // Materials
@@ -1720,7 +1720,7 @@ export class ModelConverter {
     return rnSampler;
   }
 
-  static _createTexture(
+  static async _createTexture(
     image: RnM2Image,
     gltfModel: RnM2,
     { autoDetectTransparency = false } = {}
@@ -1732,12 +1732,13 @@ export class ModelConverter {
 
     if (image.image) {
       const imageElem = image.image as HTMLImageElement;
-      rnTexture.generateTextureFromImage(imageElem);
-      rnTexture.loadFromImgLazy();
+      await rnTexture.generateTextureFromImage(imageElem);
     } else if (image.basis) {
-      rnTexture.generateTextureFromBasis(image.basis, {});
+      await rnTexture.generateTextureFromBasis(image.basis, {});
     } else if (image.ktx2) {
-      rnTexture.generateTextureFromKTX2(image.ktx2);
+      await rnTexture.generateTextureFromKTX2(image.ktx2);
+    } else {
+      throw new Error('No image found');
     }
 
     if (image.uri) {

@@ -13,7 +13,7 @@ declare const window: any;
     const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
     // setTimeout(async () => {
     const texture = new Rn.Texture();
-    texture.generateTextureFromUri('../../../assets/images/Rn.png');
+    await texture.generateTextureFromUri('../../../assets/images/Rn.png');
     const sampler = new Rn.Sampler({
       minFilter: Rn.TextureParameter.Linear,
       magFilter: Rn.TextureParameter.Linear,

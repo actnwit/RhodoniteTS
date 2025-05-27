@@ -862,13 +862,12 @@ export class Gltf2Importer {
         resolve(imageJson);
       });
     } else {
-      loadImagePromise = DataUtil.createImageFromUri(imageUri, imageJson.mimeType!).then(
-        (image) => {
-          image.crossOrigin = 'Anonymous';
-          imageJson.image = image;
-          return imageJson;
-        }
-      );
+      loadImagePromise = new RnPromise(async (resolve) => {
+      const image = await DataUtil.createImageFromUri(imageUri, imageJson.mimeType!);
+        image.crossOrigin = 'Anonymous';
+        imageJson.image = image;
+          resolve(imageJson);
+      });
     }
 
     return loadImagePromise;

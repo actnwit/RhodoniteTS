@@ -112,7 +112,7 @@ const response = (
   )
 ).unwrapForce();
 //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
-const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
 //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 //  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);

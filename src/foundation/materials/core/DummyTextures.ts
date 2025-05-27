@@ -28,14 +28,14 @@ export async function initDefaultTextures() {
   dummyAnisotropyTexture.tryToSetUniqueName('dummyAnisotropyTexture', true);
   dummyDepthMomentTextureArray.tryToSetUniqueName('dummyDepthMomentTextureArray', true);
 
-  dummyWhiteTexture.generate1x1TextureFrom();
-  dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
-  dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
+  await dummyWhiteTexture.generate1x1TextureFrom();
+  await dummyBlueTexture.generate1x1TextureFrom('rgba(127.5, 127.5, 255, 1)');
+  await dummyBlackTexture.generate1x1TextureFrom('rgba(0, 0, 0, 1)');
   dummyBlackCubeTexture.load1x1Texture('rgba(0, 0, 0, 1)');
   dummyZeroTexture.generate1x1TextureFrom('rgba(0, 0, 0, 0)');
   await sheenLutTexture.generateSheenLutTextureFromDataUri();
-  dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
-  dummyAnisotropyTexture.generate1x1TextureFrom('rgba(255, 127.5, 255, 1)');
+  await dummySRGBGrayTexture.generate1x1TextureFrom('rgba(186, 186, 186, 1)');
+  await dummyAnisotropyTexture.generate1x1TextureFrom('rgba(255, 127.5, 255, 1)');
   dummyDepthMomentTextureArray.load1x1Texture('rgba(255, 255, 255, 1)');
 }
 

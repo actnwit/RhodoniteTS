@@ -1149,7 +1149,7 @@ export class WebGLResourceRepository
    * @param param1
    * @returns
    */
-  createTextureFromImageBitmapData(
+  async createTextureFromImageBitmapData(
     imageData: ImageBitmapData,
     {
       level,
@@ -1170,7 +1170,7 @@ export class WebGLResourceRepository
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): WebGLResourceHandle {
+  ): Promise<WebGLResourceHandle> {
     const gl = this.__glw!.getRawContextAsWebGL2();
 
     const texture = gl.createTexture() as RnWebGLTexture;
@@ -1467,10 +1467,10 @@ export class WebGLResourceRepository
    * @param textureDataArray transcoded texture data for each mipmaps(levels)
    * @param compressionTextureType
    */
-  createCompressedTexture(
+  async createCompressedTexture(
     textureDataArray: TextureData[],
     compressionTextureType: CompressionTextureTypeEnum
-  ): WebGLResourceHandle {
+  ): Promise<WebGLResourceHandle> {
     const gl = this.__glw!.getRawContext();
 
     const texture = gl.createTexture() as RnWebGLTexture;

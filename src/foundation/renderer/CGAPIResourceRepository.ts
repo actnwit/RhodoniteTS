@@ -116,7 +116,7 @@ export interface ICGAPIResourceRepository {
       type: ComponentTypeEnum;
       generateMipmap: boolean;
     }
-  ): CGAPIResourceHandle;
+  ): Promise<CGAPIResourceHandle>;
 
   /**
    * create CompressedTextureFromBasis
@@ -145,7 +145,7 @@ export interface ICGAPIResourceRepository {
   createCompressedTexture(
     textureDataArray: TextureData[],
     compressionTextureType: CompressionTextureTypeEnum
-  ): CGAPIResourceHandle;
+  ): Promise<CGAPIResourceHandle>;
 
   /**
    * create a Vertex Buffer

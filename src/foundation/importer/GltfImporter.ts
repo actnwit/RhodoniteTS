@@ -225,7 +225,7 @@ export class GltfImporter {
           fileName,
           callback
         );
-        const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+        const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
         options.__importedType = 'gltf2';
         return new Ok();
@@ -234,7 +234,7 @@ export class GltfImporter {
         glTFVer = this.__getGlbVersion(fileArrayBuffer);
         const importer = Gltf2Importer;
         const gltfModel = await importer._importGlb(fileArrayBuffer, options.files!, options);
-        const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+        const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
         renderPasses[0].addEntities([rootGroup]);
         options.__importedType = 'glb2';
         return new Ok();
@@ -249,7 +249,7 @@ export class GltfImporter {
           });
         } else {
           options.__importedType = 'draco';
-          const rootGroup = ModelConverter.convertToRhodoniteObject(gltfModel);
+          const rootGroup = await ModelConverter.convertToRhodoniteObject(gltfModel);
           renderPasses[0].addEntities([rootGroup]);
           return new Ok();
         }

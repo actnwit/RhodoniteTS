@@ -269,7 +269,7 @@ const ETC2_RGB8: CompressionTextureTypeEnum = new CompressionTextureTypeClass({
   str: 'COMPRESSED_RGB8_ETC2',
   webgpu: 'etc2-rgb8unorm',
   blockInfo: {
-    byteSize: 16,
+    byteSize: 8,
     width: 4,
     height: 4,
   }

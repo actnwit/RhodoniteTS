@@ -37,7 +37,7 @@ export class AnimationAssigner {
   assignAnimation(
     rootEntity: ISceneGraphEntity,
     gltfModel: RnM2,
-    vrmModel: VRM,
+    vrmModel: VRM | Vrm1 | Vrm0x,
     isSameSkeleton: boolean,
     retargetMode: RetargetMode
   ) {
@@ -46,7 +46,7 @@ export class AnimationAssigner {
     this.__setupAnimationForSameSkeleton(
       rootEntity,
       gltfModel,
-      vrmModel,
+      vrmModel as VRM,
       isSameSkeleton,
       retargetMode
     );

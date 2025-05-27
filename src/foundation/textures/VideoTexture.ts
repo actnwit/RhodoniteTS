@@ -73,7 +73,7 @@ export class VideoTexture extends AbstractTexture {
     return canvas;
   }
 
-  generateTextureFromVideo(
+  async generateTextureFromVideo(
     video: HTMLVideoElement,
     {
       level = 0,
@@ -96,7 +96,7 @@ export class VideoTexture extends AbstractTexture {
     this.__height = img.videoHeight;
 
     const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(img, {
+    const textureHandle = await webGLResourceRepository.createTextureFromImageBitmapData(img, {
       level: level,
       internalFormat: internalFormat,
       width: this.__width,
@@ -112,7 +112,7 @@ export class VideoTexture extends AbstractTexture {
     this.__uri = video.src;
   }
 
-  generateTextureFromUri(
+  async generateTextureFromUri(
     videoUri: string,
     {
       level = 0,
@@ -126,15 +126,15 @@ export class VideoTexture extends AbstractTexture {
   ) {
     this.__uri = videoUri;
     this.__startedToLoad = true;
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const button = playButtonDomElement as HTMLButtonElement | undefined;
 
-      const setupTexture = () => {
+      const setupTexture = async () => {
         this.__width = video.videoWidth;
         this.__height = video.videoHeight;
 
         const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-        const textureHandle = webGLResourceRepository.createTextureFromImageBitmapData(video, {
+        const textureHandle = await webGLResourceRepository.createTextureFromImageBitmapData(video, {
           level: level,
           internalFormat: internalFormat,
           width: this.__width,

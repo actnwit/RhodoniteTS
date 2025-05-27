@@ -50,7 +50,7 @@ const response = (
     '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
   )
 ).unwrapForce();
-const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(response);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
 // const sphereEntity = createSphere();
 
 // CameraComponent

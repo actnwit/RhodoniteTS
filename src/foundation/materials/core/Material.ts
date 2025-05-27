@@ -216,34 +216,26 @@ export class Material extends RnObject {
     }
 
     if (this._allFieldsInfo.has(shaderSemantic)) {
-      const setter = async () => {
-        if (typeof (texture as Texture).loadFromUrlLazy !== 'undefined') {
-          await (texture as Texture).loadFromUrlLazy();
-          await (texture as Texture).loadFromImgLazy();
-        }
-        const array = this._allFieldVariables.get(shaderSemantic)!;
-        const shaderVariable = {
-          value: [array.value[0], texture, sampler],
-          info: array.info,
-        };
-        this._allFieldVariables.set(shaderSemantic, shaderVariable);
-        if (!array.info.isInternalSetting) {
-          this._autoFieldVariablesOnly.set(shaderSemantic, shaderVariable);
-          if (CompositionType.isTexture(array.info.compositionType)) {
-            this._autoTextureFieldVariablesOnly.set(shaderSemantic, shaderVariable);
-          }
-        }
-        if (shaderSemantic === 'diffuseColorTexture' || shaderSemantic === 'baseColorTexture') {
-          if (texture.isTransparent) {
-            this.alphaMode = AlphaMode.Blend;
-          }
-        }
-        this.__stateVersion++;
-        Material.__stateVersion++;
-        this.calcFingerPrint();
+      const array = this._allFieldVariables.get(shaderSemantic)!;
+      const shaderVariable = {
+        value: [array.value[0], texture, sampler],
+        info: array.info,
       };
-
-      setter();
+      this._allFieldVariables.set(shaderSemantic, shaderVariable);
+      if (!array.info.isInternalSetting) {
+        this._autoFieldVariablesOnly.set(shaderSemantic, shaderVariable);
+        if (CompositionType.isTexture(array.info.compositionType)) {
+          this._autoTextureFieldVariablesOnly.set(shaderSemantic, shaderVariable);
+        }
+      }
+      if (shaderSemantic === 'diffuseColorTexture' || shaderSemantic === 'baseColorTexture') {
+        if (texture.isTransparent) {
+          this.alphaMode = AlphaMode.Blend;
+        }
+      }
+      this.__stateVersion++;
+      Material.__stateVersion++;
+      this.calcFingerPrint();
     }
   }
 
@@ -841,6 +833,7 @@ export class Material extends RnObject {
 
   set alphaMode(mode: AlphaModeEnum) {
     this.__alphaMode = mode;
+    this.calcFingerPrint();
     this.makeShadersInvalidate();
   }
 

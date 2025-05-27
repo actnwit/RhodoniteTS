@@ -727,7 +727,7 @@ export class Gltf2Exporter {
 
       const distByteOffset = lastCopiedByteLengthOfBufferView;
       DataUtil.copyArrayBufferWithPadding({
-        src: uint8ArrayOfBufferView.buffer,
+        src: uint8ArrayOfBufferView.buffer as ArrayBuffer,
         dist: arrayBuffer,
         srcByteOffset: uint8ArrayOfBufferView.byteOffset,
         copyByteLength: uint8ArrayOfBufferView.byteLength,
@@ -872,7 +872,7 @@ function __createBufferViewsAndAccessorsOfSkin(
 
     const inverseBindMatRnAccessor = skeletalComponent.getInverseBindMatricesAccessor();
     if (Is.exist(inverseBindMatRnAccessor)) {
-      createOrReuseGltf2BufferView(
+      const gltf2BufferView = createOrReuseGltf2BufferView(
         json,
         existingUniqueRnBuffers,
         existingUniqueRnBufferViews,
@@ -881,7 +881,7 @@ function __createBufferViewsAndAccessorsOfSkin(
 
       createOrReuseGltf2Accessor(
         json,
-        json.bufferViews.length - 1,
+        json.bufferViews.indexOf(gltf2BufferView),
         existingUniqueRnAccessors,
         inverseBindMatRnAccessor
       );
@@ -1427,10 +1427,10 @@ function calcBufferViewByteLengthAndByteOffset({
     bufferViewByteStride === 0 ? sizeOfComponent * numberOfComponents : bufferViewByteStride;
 
   // When byteStride is defined,
-  //   it MUST be a multiple of the size of the accessor’s component type.
+  //   it MUST be a multiple of the size of the accessor's component type.
   if (bufferViewByteStride % sizeOfComponent !== 0) {
     throw Error(
-      'glTF2: When byteStride is defined, it MUST be a multiple of the size of the accessor’s component type.'
+      'glTF2: When byteStride is defined, it MUST be a multiple of the size of the accessor\'s component type.'
     );
   }
 
@@ -1453,7 +1453,7 @@ function calcBufferViewByteLengthAndByteOffset({
 
   // The offset of an accessor into a bufferView (i.e., accessor.byteOffset)
   //   and the offset of an accessor into a buffer (i.e., accessor.byteOffset + bufferView.byteOffset)
-  //     MUST be a multiple of the size of the accessor’s component type.
+  //     MUST be a multiple of the size of the accessor's component type.
   const valByteLength = sizeOfComponent * numberOfComponents;
   const sumByteOffset = alignedAccessorByteOffset + bufferViewByteOffset;
   const paddingByte = valByteLength - (sumByteOffset % valByteLength);

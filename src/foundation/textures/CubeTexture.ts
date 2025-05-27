@@ -175,7 +175,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       this._textureViewResourceUid = (
-        cgApiResourceRepository as WebGpuResourceRepository
+        cgApiResourceRepository as unknown as WebGpuResourceRepository
       ).createTextureViewCube(this._textureResourceUid);
     }
 

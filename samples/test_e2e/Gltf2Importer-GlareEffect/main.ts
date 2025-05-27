@@ -94,7 +94,7 @@ async function createEntityGltf2(uriGltf: string) {
     })
   ).unwrapForce();
 
-  const rootGroup = Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
+  const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
   return rootGroup;
 }
 
