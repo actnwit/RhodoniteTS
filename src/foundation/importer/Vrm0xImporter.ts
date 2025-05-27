@@ -30,13 +30,13 @@ export class Vrm0xImporter {
   /**
    * Import VRM file.
    */
-  public static async importFromUri(
-    uri: string,
+  public static async importFromUrl(
+    url: string,
     options?: GltfLoadOption
   ): Promise<Result<ISceneGraphEntity[], Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
-    const result = await Gltf2Importer.importFromUri(uri, options);
+    const result = await Gltf2Importer.importFromUrl(url, options);
 
     const gltfModel = result;
     const textures = await Vrm0xImporter._createTextures(gltfModel);
@@ -83,7 +83,7 @@ export class Vrm0xImporter {
       options = this._getOptions(options);
 
       try {
-        const result = await Gltf2Importer.importFromUri(uri, options);
+        const result = await Gltf2Importer.importFromUrl(uri, options);
         Vrm0xImporter._readVRMHumanoidInfo(result as Vrm0x);
         resolve(result as Vrm0x);
       } catch (error) {

@@ -22,14 +22,14 @@ export class GltfImporter {
 
   /**
    * Import GLTF or VRM file.
-   * @param uris uri or array of uri of glTF file
+   * @param url url of glTF file
    * @param options options for loading process where the files property is ignored
    * @returns gltf expression where:
    *            renderPasses[0]: model entities
    *            renderPasses[1]: model outlines
    */
-  static async importFromUri(
-    uri: string,
+  static async importFromUrl(
+    url: string,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
   ): Promise<Expression> {
@@ -42,15 +42,15 @@ export class GltfImporter {
         renderPasses.push(new RenderPass());
       }
 
-      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
       if (r_arrayBuffer.isErr()) {
         reject(r_arrayBuffer.getRnError());
         return;
       }
 
-      options.files![uri] = r_arrayBuffer.get();
+      options.files![url] = r_arrayBuffer.get();
 
-      await this.__detectTheModelFileTypeAndImport(uri, renderPasses, options, uri, callback);
+      await this.__detectTheModelFileTypeAndImport(url, renderPasses, options, url, callback);
 
       if (options && options.cameraComponent) {
         for (const renderPass of renderPasses) {

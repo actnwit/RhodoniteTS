@@ -34,7 +34,7 @@ lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.
 //lightEntity2.getLight().type = Rn.LightType.Directional;
 
 const rootGroups = (
-  await Rn.Vrm0xImporter.importFromUri('../../../assets/vrm/test.vrm', {
+  await Rn.Vrm0xImporter.importFromUrl('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [{ isLighting: true }],
     tangentCalculationMode: 0,
   })

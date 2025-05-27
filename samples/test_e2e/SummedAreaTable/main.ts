@@ -19,7 +19,7 @@ cameraComponent.aspect = 1.0;
 
 // Assets
 const assets = await Rn.defaultAssetLoader.load({
-  mainExpression: Rn.GltfImporter.importFromUri(
+  mainExpression: Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
     {
       cameraComponent: cameraComponent,

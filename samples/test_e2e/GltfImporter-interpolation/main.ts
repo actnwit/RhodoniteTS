@@ -23,7 +23,7 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 4.2, 25]);
 
 // gltf
 const expression = (
-  await Rn.GltfImporter.importFromUri(
+  await Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/InterpolationTest/glTF-Binary/InterpolationTest.glb',
     {
       cameraComponent: cameraComponent,

@@ -34,7 +34,7 @@ const assets = await Rn.defaultAssetLoader.load({
 
 let count = 0;
 
-const response = await Rn.Gltf2Importer.importFromUri(
+const response = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/FlightHelmet/glTF/FlightHelmet.gltf'
 );
 //---------------------------

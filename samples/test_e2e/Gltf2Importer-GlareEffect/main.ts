@@ -110,7 +110,7 @@ draw(expressions, 0);
 
 async function createEntityGltf2(uriGltf: string) {
   const gltf2JSON = (
-    await Rn.Gltf2Importer.importFromUri(uriGltf, {
+    await Rn.Gltf2Importer.importFromUrl(uriGltf, {
       defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
     })
   );

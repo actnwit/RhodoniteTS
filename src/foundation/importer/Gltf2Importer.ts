@@ -18,17 +18,17 @@ export class Gltf2Importer {
 
   /**
    * Import glTF2 file
-   * @param uri - uri of glTF file
+   * @param url - url of glTF file
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async importFromUri(
-    uri: string,
+  public static async importFromUrl(
+    url: string,
     options?: GltfLoadOption
   ): Promise<RnM2> {
     const promise = new Promise<RnM2>(async (resolve, reject) => {
 
-      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
 
       if (r_arrayBuffer.isErr()) {
         reject(r_arrayBuffer.getRnError());
@@ -39,7 +39,7 @@ export class Gltf2Importer {
         r_arrayBuffer.get(),
         options?.files ?? {},
         options,
-        uri
+        url
       );
       resolve(result.unwrapForce());
 

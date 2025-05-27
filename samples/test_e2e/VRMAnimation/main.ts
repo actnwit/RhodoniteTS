@@ -35,9 +35,9 @@ cameraComponent.aspect = 1.0;
 
 // vrm
 const assets = await Rn.defaultAssetLoader.load({
-  animGltf2: Rn.Gltf2Importer.importFromUri('../../../assets/vrm/test.glb'),
+  animGltf2: Rn.Gltf2Importer.importFromUrl('../../../assets/vrm/test.glb'),
   vrmModel: Rn.Vrm0xImporter.importJsonOfVRM('../../../assets/vrm/test.vrm'),
-  vrmExpression: Rn.GltfImporter.importFromUri('../../../assets/vrm/test.vrm', {
+  vrmExpression: Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [
       {
         isSkinning: true,

@@ -24,7 +24,7 @@ const lightEntity = Rn.createLightEntity();
 lightEntity.getLight().color = Rn.Vector3.fromCopyArray([1, 1, 1]);
 lightEntity.getLight().type = Rn.LightType.Directional;
 
-const response = await Rn.Gltf2Importer.importFromUri(
+const response = await Rn.Gltf2Importer.importFromUrl(
   '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
 );
 

@@ -46,7 +46,7 @@ cameraComponent.aspect = 1;
 
 // 3D Model for Test
 const response = (
-  await Rn.Gltf2Importer.importFromUri(
+  await Rn.Gltf2Importer.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
   )
 );

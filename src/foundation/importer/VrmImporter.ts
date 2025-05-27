@@ -416,7 +416,7 @@ export class VrmImporter {
       options = this._getOptions(options);
 
       try {
-        const result = await Gltf2Importer.importFromUri(uri, options);
+        const result = await Gltf2Importer.importFromUrl(uri, options);
         VrmImporter._readVRMHumanoidInfo(result as Vrm1);
         resolve(result as Vrm1);
       } catch (error) {

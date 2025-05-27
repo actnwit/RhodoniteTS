@@ -16,7 +16,7 @@ Rn.Logger.logLevel = Rn.LogLevel.Info;
 const { cameraComponent, cameraEntity } = createCamera();
 
 const assets = await Rn.defaultAssetLoader.load({
-  mainExpression: Rn.GltfImporter.importFromUri('./../../../assets/gltf/glTF-Sample-Assets/Models/AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb', {
+  mainExpression: Rn.GltfImporter.importFromUrl('./../../../assets/gltf/glTF-Sample-Assets/Models/AnimationPointerUVs/glTF-Binary/AnimationPointerUVs.glb', {
     cameraComponent: cameraComponent,
     defaultMaterialHelperArgumentArray: [
       {

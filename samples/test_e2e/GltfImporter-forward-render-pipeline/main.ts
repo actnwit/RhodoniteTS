@@ -18,7 +18,7 @@ const gltfFilePath = getGltfFilePath();
 const { cameraComponent, cameraEntity } = createCamera();
 
 const assets = await Rn.defaultAssetLoader.load({
-  mainExpression: Rn.GltfImporter.importFromUri(gltfFilePath, {
+  mainExpression: Rn.GltfImporter.importFromUrl(gltfFilePath, {
     cameraComponent: cameraComponent,
     defaultMaterialHelperArgumentArray: [
       {

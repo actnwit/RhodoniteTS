@@ -30,7 +30,7 @@ cameraComponent.aspect = 1;
 cameraEntity.localPosition = Rn.Vector3.fromCopyArray([-2.5, 5, 5]);
 cameraEntity.localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 4, -Math.PI / 4, 0]);
 
-const rnm = await Rn.Gltf2Importer.importFromUri(
+const rnm = await Rn.Gltf2Importer.importFromUrl(
   // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
   '../../../assets/gltf/glTF-Sample-Assets/Models/BrainStem/glTF-Binary/BrainStem.glb'
 );

@@ -19,7 +19,7 @@ cameraComponent.setFovyAndChangeFocalLength(60.0);
 cameraComponent.aspect = 1.0;
 
 const assets = await Rn.defaultAssetLoader.load({
-  mainExpression: Rn.GltfImporter.importFromUri(
+  mainExpression: Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/ClearCoatTest/glTF-Binary/ClearCoatTest.glb',
     {
       cameraComponent: cameraComponent,

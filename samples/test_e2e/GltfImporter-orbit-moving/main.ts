@@ -19,7 +19,7 @@ cameraComponent.setFovyAndChangeFocalLength(90.0);
 cameraComponent.aspect = 1.0;
 
 const assets = await Rn.defaultAssetLoader.load({
-  mainExpression: Rn.GltfImporter.importFromUri(
+  mainExpression: Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Binary/BarramundiFish.glb',
     {
       cameraComponent: cameraComponent,

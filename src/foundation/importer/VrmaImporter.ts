@@ -5,12 +5,12 @@ import { Is } from '../misc/Is';
 import { Gltf2Importer } from './Gltf2Importer';
 
 export class VrmaImporter {
-  static async importFromUri(uri: string): Promise<RnM2Vrma> {
+  static async importFromUrl(url: string): Promise<RnM2Vrma> {
     const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
       const options: GltfLoadOption = {};
 
       try {
-        const result = await Gltf2Importer.importFromUri(uri, options);
+        const result = await Gltf2Importer.importFromUrl(url, options);
         this.readHumanoid(result as RnM2Vrma);
         resolve(result as RnM2Vrma);
       } catch (error) {
