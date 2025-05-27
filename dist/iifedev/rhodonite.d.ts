@@ -82,6 +82,205 @@ type RnTags = {
 };
 type ColorComponentLetter = 'r' | 'g' | 'b' | 'a';
 
+type ShaderTypeEnum = EnumIO;
+declare function from$s(index: number): ShaderTypeEnum;
+declare function fromString$k(str: string): ShaderTypeEnum;
+declare const ShaderType: Readonly<{
+    VertexShader: EnumIO;
+    PixelShader: EnumIO;
+    VertexAndPixelShader: EnumIO;
+    ComputeShader: EnumIO;
+    from: typeof from$s;
+    fromString: typeof fromString$k;
+}>;
+
+type ShaderSemanticsInfo = {
+    semantic: ShaderSemanticsName;
+    compositionType: CompositionTypeEnum;
+    componentType: ComponentTypeEnum;
+    stage: ShaderTypeEnum;
+    min: number;
+    max: number;
+    initialValue?: any;
+    isInternalSetting?: boolean;
+    arrayLength?: Count;
+    soloDatum?: boolean;
+    needUniformInDataTextureMode?: boolean;
+    valueStep?: number;
+    xName?: string;
+    yName?: string;
+    zName?: string;
+    wName?: string;
+};
+declare function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo): number;
+
+type ShaderSemanticsIndex = number;
+type ShaderSemanticsName = string;
+interface ShaderSemanticsEnum extends EnumIO {
+    str: string;
+}
+declare class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
+    private static __indexCount;
+    static readonly _scale = 10000;
+    private static __classes;
+    constructor({ str }: {
+        index?: number;
+        str: string;
+    });
+    static getShaderSemanticByIndex(index: ShaderSemanticsIndex): ShaderSemanticsClass;
+    static isNonArrayShaderSemanticIndex(index: ShaderSemanticsIndex): boolean;
+    static isArrayAndZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex): boolean;
+    static isArrayAndNonZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex): boolean;
+    static getIndexCount(): number;
+}
+declare function from$r(index: ShaderSemanticsIndex): ShaderSemanticsEnum;
+declare function fromString$j(str: string): ShaderSemanticsEnum;
+declare function fromStringCaseSensitively(str: string): ShaderSemanticsEnum;
+type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, isGlobalData: boolean, isWebGL2: boolean) => string;
+/**
+ * @internal
+ */
+declare function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum): number;
+declare const ShaderSemantics: Readonly<{
+    from: typeof from$r;
+    fromString: typeof fromString$j;
+    fromStringCaseSensitively: typeof fromStringCaseSensitively;
+    WorldMatrix: ShaderSemanticsEnum;
+    ViewMatrix: ShaderSemanticsEnum;
+    IsBillboard: ShaderSemanticsEnum;
+    EnableViewMatrix: ShaderSemanticsEnum;
+    ProjectionMatrix: ShaderSemanticsEnum;
+    NormalMatrix: ShaderSemanticsEnum;
+    BoneMatrix: ShaderSemanticsEnum;
+    BaseColorFactor: ShaderSemanticsEnum;
+    BaseColorTexture: ShaderSemanticsEnum;
+    NormalTexture: ShaderSemanticsEnum;
+    MetallicRoughnessTexture: ShaderSemanticsEnum;
+    OcclusionTexture: ShaderSemanticsEnum;
+    EmissiveFactor: ShaderSemanticsEnum;
+    EmissiveTexture: ShaderSemanticsEnum;
+    LightNumber: ShaderSemanticsEnum;
+    LightPosition: ShaderSemanticsEnum;
+    LightDirection: ShaderSemanticsEnum;
+    LightIntensity: ShaderSemanticsEnum;
+    LightProperty: ShaderSemanticsEnum;
+    MetallicRoughnessFactor: ShaderSemanticsEnum;
+    BrdfLutTexture: ShaderSemanticsEnum;
+    DiffuseEnvTexture: ShaderSemanticsEnum;
+    SpecularEnvTexture: ShaderSemanticsEnum;
+    SheenEnvTexture: ShaderSemanticsEnum;
+    InverseEnvironment: ShaderSemanticsEnum;
+    IBLParameter: ShaderSemanticsEnum;
+    ViewPosition: ShaderSemanticsEnum;
+    Wireframe: ShaderSemanticsEnum;
+    DiffuseColorFactor: ShaderSemanticsEnum;
+    DiffuseColorTexture: ShaderSemanticsEnum;
+    Shininess: ShaderSemanticsEnum;
+    ShadingModel: ShaderSemanticsEnum;
+    SkinningMode: ShaderSemanticsEnum;
+    GeneralTexture: ShaderSemanticsEnum;
+    VertexAttributesExistenceArray: ShaderSemanticsEnum;
+    BoneQuaternion: ShaderSemanticsEnum;
+    BoneTranslateScale: ShaderSemanticsEnum;
+    BoneTranslatePackedQuat: ShaderSemanticsEnum;
+    BoneScalePackedQuat: ShaderSemanticsEnum;
+    BoneCompressedChunk: ShaderSemanticsEnum;
+    BoneCompressedInfo: ShaderSemanticsEnum;
+    PointSize: ShaderSemanticsEnum;
+    ColorEnvTexture: ShaderSemanticsEnum;
+    PointDistanceAttenuation: ShaderSemanticsEnum;
+    HDRIFormat: ShaderSemanticsEnum;
+    ScreenInfo: ShaderSemanticsEnum;
+    DepthTexture: ShaderSemanticsEnum;
+    LightViewProjectionMatrix: ShaderSemanticsEnum;
+    Anisotropy: ShaderSemanticsEnum;
+    ClearCoatParameter: ShaderSemanticsEnum;
+    SheenColorFactor: ShaderSemanticsEnum;
+    SheenColorTexture: ShaderSemanticsEnum;
+    SheenRoughnessFactor: ShaderSemanticsEnum;
+    SheenRoughnessTexture: ShaderSemanticsEnum;
+    SheenLutTexture: ShaderSemanticsEnum;
+    SpecularGlossinessFactor: ShaderSemanticsEnum;
+    SpecularGlossinessTexture: ShaderSemanticsEnum;
+    ClearCoatFactor: ShaderSemanticsEnum;
+    ClearCoatTexture: ShaderSemanticsEnum;
+    ClearCoatRoughnessFactor: ShaderSemanticsEnum;
+    ClearCoatRoughnessTexture: ShaderSemanticsEnum;
+    ClearCoatNormalTexture: ShaderSemanticsEnum;
+    TransmissionFactor: ShaderSemanticsEnum;
+    TransmissionTexture: ShaderSemanticsEnum;
+    BackBufferTexture: ShaderSemanticsEnum;
+    BackBufferTextureSize: ShaderSemanticsEnum;
+    ThicknessFactor: ShaderSemanticsEnum;
+    ThicknessTexture: ShaderSemanticsEnum;
+    AttenuationDistance: ShaderSemanticsEnum;
+    AttenuationColor: ShaderSemanticsEnum;
+    getShaderProperty: getShaderPropertyFunc;
+    EntityUID: ShaderSemanticsEnum;
+    MorphTargetNumber: ShaderSemanticsEnum;
+    DataTextureMorphOffsetPosition: ShaderSemanticsEnum;
+    MorphWeights: ShaderSemanticsEnum;
+    CurrentComponentSIDs: ShaderSemanticsEnum;
+    AlphaCutoff: ShaderSemanticsEnum;
+    AlphaTexture: ShaderSemanticsEnum;
+    MakeOutputSrgb: ShaderSemanticsEnum;
+    FramebufferSize: ShaderSemanticsEnum;
+    IsOutputHDR: ShaderSemanticsClass;
+    BaseColorTextureTransform: ShaderSemanticsClass;
+    BaseColorTextureRotation: ShaderSemanticsClass;
+    NormalTextureTransform: ShaderSemanticsClass;
+    NormalTextureRotation: ShaderSemanticsClass;
+    MetallicRoughnessTextureTransform: ShaderSemanticsClass;
+    MetallicRoughnessTextureRotation: ShaderSemanticsClass;
+    NormalTexcoordIndex: ShaderSemanticsClass;
+    BaseColorTexcoordIndex: ShaderSemanticsClass;
+    MetallicRoughnessTexcoordIndex: ShaderSemanticsClass;
+    OcclusionTexcoordIndex: ShaderSemanticsClass;
+    OcclusionTextureTransform: ShaderSemanticsClass;
+    OcclusionTextureRotation: ShaderSemanticsClass;
+    EmissiveTexcoordIndex: ShaderSemanticsClass;
+    EmissiveTextureTransform: ShaderSemanticsClass;
+    EmissiveTextureRotation: ShaderSemanticsClass;
+    NormalScale: ShaderSemanticsClass;
+    OcclusionStrength: ShaderSemanticsClass;
+    envRotation: ShaderSemanticsClass;
+    EnvHdriFormat: ShaderSemanticsClass;
+    VrState: ShaderSemanticsClass;
+    EnableLinearToSrgb: ShaderSemanticsClass;
+    SpecularFactor: ShaderSemanticsClass;
+    SpecularTexture: ShaderSemanticsClass;
+    SpecularColorFactor: ShaderSemanticsClass;
+    SpecularColorTexture: ShaderSemanticsClass;
+    Ior: ShaderSemanticsClass;
+    DepthBiasPV: ShaderSemanticsClass;
+    ClearCoatTextureTransform: ShaderSemanticsClass;
+    ClearCoatTextureRotation: ShaderSemanticsClass;
+    ClearCoatRoughnessTextureTransform: ShaderSemanticsClass;
+    ClearCoatRoughnessTextureRotation: ShaderSemanticsClass;
+    ClearCoatNormalTextureTransform: ShaderSemanticsClass;
+    ClearCoatNormalTextureRotation: ShaderSemanticsClass;
+    ClearCoatTexcoordIndex: ShaderSemanticsClass;
+    ClearCoatRoughnessTexcoordIndex: ShaderSemanticsClass;
+    ClearCoatNormalTexcoordIndex: ShaderSemanticsClass;
+    IridescenceFactor: ShaderSemanticsClass;
+    IridescenceTexture: ShaderSemanticsClass;
+    IridescenceIor: ShaderSemanticsClass;
+    IridescenceThicknessMinimum: ShaderSemanticsClass;
+    IridescenceThicknessMaximum: ShaderSemanticsClass;
+    IridescenceThicknessTexture: ShaderSemanticsClass;
+    GaussianKernelSize: ShaderSemanticsClass;
+    GaussianRatio: ShaderSemanticsClass;
+    IsHorizontal: ShaderSemanticsClass;
+    AnisotropyStrength: ShaderSemanticsClass;
+    AnisotropyRotation: ShaderSemanticsClass;
+    AnisotropyTexture: ShaderSemanticsClass;
+    EmissiveStrength: ShaderSemanticsClass;
+    Time: ShaderSemanticsClass;
+    CubeMapFaceId: ShaderSemanticsClass;
+    Roughness: ShaderSemanticsClass;
+    DistributionType: ShaderSemanticsClass;
+}>;
+
 /**
  * A Tag class
  */
@@ -198,28 +397,6 @@ declare class RnObject implements IRnObject {
     static _reset(): void;
     _copyFrom(rnObject: RnObject): void;
 }
-
-type RequireOne<T, K extends keyof T = keyof T> = K extends keyof T ? PartialRequire<T, K> : never;
-type PartialRequire<O, K extends keyof O> = {
-    [P in K]-?: O[P];
-} & O;
-type MixinBase = new (...args: any[]) => any;
-type GetProps<TBase> = TBase extends new (props: infer P) => any ? P : never;
-type GetInstance<TBase> = TBase extends new (...args: any[]) => infer I ? I : never;
-type MergeCtor<A, B> = new (props: GetProps<A> & GetProps<B>) => GetInstance<A> & GetInstance<B>;
-
-interface AnimationInterpolationEnum extends EnumIO {
-    GltfString: Gltf2AnimationSamplerInterpolation;
-}
-declare function from$s(index: number): AnimationInterpolationEnum;
-declare function fromString$k(str: string): AnimationInterpolationEnum;
-declare const AnimationInterpolation: Readonly<{
-    Linear: AnimationInterpolationEnum;
-    Step: AnimationInterpolationEnum;
-    CubicSpline: AnimationInterpolationEnum;
-    from: typeof from$s;
-    fromString: typeof fromString$k;
-}>;
 
 interface IMatrix {
     _v: Float32Array;
@@ -712,6 +889,28 @@ interface IMutableVector4 extends IMutableVector {
     divide(value: number): IMutableVector4;
     divideVector(vec: IVector4): IMutableVector4;
 }
+
+type RequireOne<T, K extends keyof T = keyof T> = K extends keyof T ? PartialRequire<T, K> : never;
+type PartialRequire<O, K extends keyof O> = {
+    [P in K]-?: O[P];
+} & O;
+type MixinBase = new (...args: any[]) => any;
+type GetProps<TBase> = TBase extends new (props: infer P) => any ? P : never;
+type GetInstance<TBase> = TBase extends new (...args: any[]) => infer I ? I : never;
+type MergeCtor<A, B> = new (props: GetProps<A> & GetProps<B>) => GetInstance<A> & GetInstance<B>;
+
+interface AnimationInterpolationEnum extends EnumIO {
+    GltfString: Gltf2AnimationSamplerInterpolation;
+}
+declare function from$q(index: number): AnimationInterpolationEnum;
+declare function fromString$i(str: string): AnimationInterpolationEnum;
+declare const AnimationInterpolation: Readonly<{
+    Linear: AnimationInterpolationEnum;
+    Step: AnimationInterpolationEnum;
+    CubicSpline: AnimationInterpolationEnum;
+    from: typeof from$q;
+    fromString: typeof fromString$i;
+}>;
 
 declare abstract class AbstractQuaternion implements IQuaternion {
     get className(): string;
@@ -1210,7 +1409,7 @@ type MutableVector3f = MutableVector3;
 
 type PixelFormatEnum = EnumIO;
 declare function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number;
-declare function from$r(index: number): PixelFormatEnum;
+declare function from$p(index: number): PixelFormatEnum;
 declare const PixelFormat: Readonly<{
     DepthComponent: EnumIO;
     DepthStencil: EnumIO;
@@ -1220,7 +1419,7 @@ declare const PixelFormat: Readonly<{
     RGBA: EnumIO;
     Luminance: EnumIO;
     LuminanceAlpha: EnumIO;
-    from: typeof from$r;
+    from: typeof from$p;
     getCompositionNumFromPixelFormat: typeof getCompositionNumFromPixelFormat;
 }>;
 
@@ -1653,21 +1852,21 @@ type MutableVector4f = MutableVector4;
 interface AlphaModeEnum extends EnumIO {
     toGltfString(): string;
 }
-declare function from$q(index: number): AlphaModeEnum | undefined;
-declare function fromString$j(str: string): AlphaModeEnum | undefined;
+declare function from$o(index: number): AlphaModeEnum | undefined;
+declare function fromString$h(str: string): AlphaModeEnum | undefined;
 declare function fromGlTFString(str: string): AlphaModeEnum | undefined;
 declare const AlphaMode: Readonly<{
     Opaque: AlphaModeEnum;
     Mask: AlphaModeEnum;
     Blend: AlphaModeEnum;
-    from: typeof from$q;
-    fromString: typeof fromString$j;
+    from: typeof from$o;
+    fromString: typeof fromString$h;
     fromGlTFString: typeof fromGlTFString;
 }>;
 
 type AnimationAttributeEnum = EnumIO;
-declare function from$p(index: number): AnimationAttributeEnum;
-declare function fromString$i(str: string): AnimationAttributeEnum;
+declare function from$n(index: number): AnimationAttributeEnum;
+declare function fromString$g(str: string): AnimationAttributeEnum;
 declare const AnimationAttribute: Readonly<{
     Quaternion: EnumIO;
     Translate: EnumIO;
@@ -1679,13 +1878,13 @@ declare const AnimationAttribute: Readonly<{
     Vector2: EnumIO;
     Scalar: EnumIO;
     VectorN: EnumIO;
-    from: typeof from$p;
-    fromString: typeof fromString$i;
+    from: typeof from$n;
+    fromString: typeof fromString$g;
 }>;
 
 type BasisCompressionTypeEnum = EnumIO;
-declare function from$o(index: number): BasisCompressionTypeEnum;
-declare function fromString$h(str: string): BasisCompressionTypeEnum;
+declare function from$m(index: number): BasisCompressionTypeEnum;
+declare function fromString$f(str: string): BasisCompressionTypeEnum;
 declare const BasisCompressionType: Readonly<{
     ETC1: EnumIO;
     ETC2: EnumIO;
@@ -1704,53 +1903,53 @@ declare const BasisCompressionType: Readonly<{
     RGB565: EnumIO;
     BGR565: EnumIO;
     RGBA4444: EnumIO;
-    from: typeof from$o;
-    fromString: typeof fromString$h;
+    from: typeof from$m;
+    fromString: typeof fromString$f;
 }>;
 
 type BoneDataTypeEnum = EnumIO;
-declare function from$n(index: number): BoneDataTypeEnum;
-declare function fromString$g(str: string): BoneDataTypeEnum;
+declare function from$l(index: number): BoneDataTypeEnum;
+declare function fromString$e(str: string): BoneDataTypeEnum;
 declare const BoneDataType: Readonly<{
     Mat43x1: EnumIO;
     Vec4x2: EnumIO;
     Vec4x2Old: EnumIO;
     Vec4x1: EnumIO;
-    from: typeof from$n;
-    fromString: typeof fromString$g;
+    from: typeof from$l;
+    fromString: typeof fromString$e;
 }>;
 
 type BufferUseEnum = EnumIO;
-declare function from$m(index: number): BufferUseEnum;
-declare function fromString$f(str: string): BufferUseEnum;
+declare function from$k(index: number): BufferUseEnum;
+declare function fromString$d(str: string): BufferUseEnum;
 declare const BufferUse: Readonly<{
     GPUInstanceData: EnumIO;
     GPUVertexData: EnumIO;
     UBOGeneric: EnumIO;
     CPUGeneric: EnumIO;
-    from: typeof from$m;
-    fromString: typeof fromString$f;
+    from: typeof from$k;
+    fromString: typeof fromString$d;
 }>;
 
 type CameraControllerTypeEnum = EnumIO;
-declare function from$l(index: number): CameraControllerTypeEnum;
-declare function fromString$e(str: string): CameraControllerTypeEnum;
+declare function from$j(index: number): CameraControllerTypeEnum;
+declare function fromString$c(str: string): CameraControllerTypeEnum;
 declare const CameraControllerType: Readonly<{
     Orbit: EnumIO;
     WalkThrough: EnumIO;
-    from: typeof from$l;
-    fromString: typeof fromString$e;
+    from: typeof from$j;
+    fromString: typeof fromString$c;
 }>;
 
 type CameraTypeEnum = EnumIO;
-declare function from$k(index: number): CameraTypeEnum;
-declare function fromString$d(str: string): CameraTypeEnum;
+declare function from$i(index: number): CameraTypeEnum;
+declare function fromString$b(str: string): CameraTypeEnum;
 declare const CameraType: Readonly<{
     Perspective: EnumIO;
     Orthographic: EnumIO;
     Frustum: EnumIO;
-    from: typeof from$k;
-    fromString: typeof fromString$d;
+    from: typeof from$i;
+    fromString: typeof fromString$b;
 }>;
 
 type BlockInfo = {
@@ -1762,8 +1961,8 @@ interface CompressionTextureTypeEnum extends EnumIO {
     webgpu?: string;
     blockInfo?: BlockInfo;
 }
-declare function from$j(index: number): CompressionTextureTypeEnum;
-declare function fromString$c(str: string): CompressionTextureTypeEnum;
+declare function from$h(index: number): CompressionTextureTypeEnum;
+declare function fromString$a(str: string): CompressionTextureTypeEnum;
 declare const CompressionTextureType: Readonly<{
     ASTC_RGBA_4x4: CompressionTextureTypeEnum;
     ASTC_RGBA_5x4: CompressionTextureTypeEnum;
@@ -1804,13 +2003,13 @@ declare const CompressionTextureType: Readonly<{
     ETC2_RGB8: CompressionTextureTypeEnum;
     ETC1_RGB: CompressionTextureTypeEnum;
     RGBA8_EXT: CompressionTextureTypeEnum;
-    from: typeof from$j;
-    fromString: typeof fromString$c;
+    from: typeof from$h;
+    fromString: typeof fromString$a;
 }>;
 
 type FileTypeEnum = EnumIO;
-declare function from$i(index: number): FileTypeEnum;
-declare function fromString$b(str: string): FileTypeEnum;
+declare function from$g(index: number): FileTypeEnum;
+declare function fromString$9(str: string): FileTypeEnum;
 declare function isGltfOrGlb(file: FileTypeEnum): boolean;
 declare const FileType: Readonly<{
     Unknown: EnumIO;
@@ -1819,14 +2018,14 @@ declare const FileType: Readonly<{
     VRM: EnumIO;
     Draco: EnumIO;
     EffekseerEffect: EnumIO;
-    from: typeof from$i;
-    fromString: typeof fromString$b;
+    from: typeof from$g;
+    fromString: typeof fromString$9;
     isGltfOrGlb: typeof isGltfOrGlb;
 }>;
 
 type HdriFormatEnum = EnumIO;
-declare function from$h(index: number): HdriFormatEnum;
-declare function fromString$a(str: string): HdriFormatEnum;
+declare function from$f(index: number): HdriFormatEnum;
+declare function fromString$8(str: string): HdriFormatEnum;
 declare const HdriFormat: Readonly<{
     LDR_SRGB: EnumIO;
     LDR_LINEAR: EnumIO;
@@ -1834,26 +2033,26 @@ declare const HdriFormat: Readonly<{
     RGBE_PNG: EnumIO;
     RGB9_E5_PNG: EnumIO;
     OpenEXR: EnumIO;
-    from: typeof from$h;
-    fromString: typeof fromString$a;
+    from: typeof from$f;
+    fromString: typeof fromString$8;
 }>;
 
 type LightTypeEnum = EnumIO;
-declare function from$g(index: number): LightTypeEnum;
-declare function fromString$9(str: string): LightTypeEnum;
+declare function from$e(index: number): LightTypeEnum;
+declare function fromString$7(str: string): LightTypeEnum;
 declare const LightType: Readonly<{
     Point: EnumIO;
     Directional: EnumIO;
     Spot: EnumIO;
     Ambient: EnumIO;
-    from: typeof from$g;
-    fromString: typeof fromString$9;
+    from: typeof from$e;
+    fromString: typeof fromString$7;
 }>;
 
 interface PrimitiveModeEnum extends EnumIO {
     getWebGPUTypeStr(): string;
 }
-declare function from$f(index: number): PrimitiveModeEnum | undefined;
+declare function from$d(index: number): PrimitiveModeEnum | undefined;
 declare const PrimitiveMode: Readonly<{
     Unknown: PrimitiveModeEnum;
     Points: PrimitiveModeEnum;
@@ -1863,7 +2062,7 @@ declare const PrimitiveMode: Readonly<{
     Triangles: PrimitiveModeEnum;
     TriangleStrip: PrimitiveModeEnum;
     TriangleFan: PrimitiveModeEnum;
-    from: typeof from$f;
+    from: typeof from$d;
 }>;
 
 declare class ProcessApproachClass extends EnumClass implements EnumIO {
@@ -1888,7 +2087,7 @@ declare const ProcessApproach: Readonly<{
 interface ProcessStageEnum extends EnumIO {
     methodName: string;
 }
-declare function from$e(index: number): ProcessStageEnum;
+declare function from$c(index: number): ProcessStageEnum;
 declare const ProcessStage: Readonly<{
     Unknown: ProcessStageEnum;
     Create: ProcessStageEnum;
@@ -1899,13 +2098,13 @@ declare const ProcessStage: Readonly<{
     Render: ProcessStageEnum;
     Unmount: ProcessStageEnum;
     Discard: ProcessStageEnum;
-    from: typeof from$e;
+    from: typeof from$c;
 }>;
 
 interface RenderBufferTargetEnum extends EnumIO {
     webGLConstantValue(): number;
 }
-declare function from$d(index: number): RenderBufferTargetEnum;
+declare function from$b(index: number): RenderBufferTargetEnum;
 declare const RenderBufferTarget: Readonly<{
     None: RenderBufferTargetEnum;
     Back: RenderBufferTargetEnum;
@@ -1925,216 +2124,17 @@ declare const RenderBufferTarget: Readonly<{
     ColorAttachment13: RenderBufferTargetEnum;
     ColorAttachment14: RenderBufferTargetEnum;
     ColorAttachment15: RenderBufferTargetEnum;
-    from: typeof from$d;
+    from: typeof from$b;
 }>;
 
 type ShaderNodeEnum = EnumIO;
-declare function from$c(index: number): ShaderNodeEnum;
-declare function fromString$8(str: string): ShaderNodeEnum;
+declare function from$a(index: number): ShaderNodeEnum;
+declare function fromString$6(str: string): ShaderNodeEnum;
 declare const ShaderNode: Readonly<{
     ClassicShading: EnumIO;
     PBRShading: EnumIO;
-    from: typeof from$c;
-    fromString: typeof fromString$8;
-}>;
-
-type ShaderTypeEnum = EnumIO;
-declare function from$b(index: number): ShaderTypeEnum;
-declare function fromString$7(str: string): ShaderTypeEnum;
-declare const ShaderType: Readonly<{
-    VertexShader: EnumIO;
-    PixelShader: EnumIO;
-    VertexAndPixelShader: EnumIO;
-    ComputeShader: EnumIO;
-    from: typeof from$b;
-    fromString: typeof fromString$7;
-}>;
-
-type ShaderSemanticsInfo = {
-    semantic: ShaderSemanticsName;
-    compositionType: CompositionTypeEnum;
-    componentType: ComponentTypeEnum;
-    stage: ShaderTypeEnum;
-    min: number;
-    max: number;
-    initialValue?: any;
-    isInternalSetting?: boolean;
-    arrayLength?: Count;
-    soloDatum?: boolean;
-    needUniformInDataTextureMode?: boolean;
-    valueStep?: number;
-    xName?: string;
-    yName?: string;
-    zName?: string;
-    wName?: string;
-};
-declare function calcAlignedByteLength(semanticInfo: ShaderSemanticsInfo): number;
-
-type ShaderSemanticsIndex = number;
-type ShaderSemanticsName = string;
-interface ShaderSemanticsEnum extends EnumIO {
-    str: string;
-}
-declare class ShaderSemanticsClass extends EnumClass implements ShaderSemanticsEnum {
-    private static __indexCount;
-    static readonly _scale = 10000;
-    private static __classes;
-    constructor({ str }: {
-        index?: number;
-        str: string;
-    });
-    static getShaderSemanticByIndex(index: ShaderSemanticsIndex): ShaderSemanticsClass;
-    static isNonArrayShaderSemanticIndex(index: ShaderSemanticsIndex): boolean;
-    static isArrayAndZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex): boolean;
-    static isArrayAndNonZeroIndexShaderSemanticIndex(index: ShaderSemanticsIndex): boolean;
-    static getIndexCount(): number;
-}
-declare function from$a(index: ShaderSemanticsIndex): ShaderSemanticsEnum;
-declare function fromString$6(str: string): ShaderSemanticsEnum;
-declare function fromStringCaseSensitively(str: string): ShaderSemanticsEnum;
-type getShaderPropertyFunc = (materialTypeName: string, info: ShaderSemanticsInfo, isGlobalData: boolean, isWebGL2: boolean) => string;
-/**
- * @internal
- */
-declare function _getPropertyIndex2(shaderSemantic: ShaderSemanticsEnum): number;
-declare const ShaderSemantics: Readonly<{
     from: typeof from$a;
     fromString: typeof fromString$6;
-    fromStringCaseSensitively: typeof fromStringCaseSensitively;
-    WorldMatrix: ShaderSemanticsEnum;
-    ViewMatrix: ShaderSemanticsEnum;
-    IsBillboard: ShaderSemanticsEnum;
-    EnableViewMatrix: ShaderSemanticsEnum;
-    ProjectionMatrix: ShaderSemanticsEnum;
-    NormalMatrix: ShaderSemanticsEnum;
-    BoneMatrix: ShaderSemanticsEnum;
-    BaseColorFactor: ShaderSemanticsEnum;
-    BaseColorTexture: ShaderSemanticsEnum;
-    NormalTexture: ShaderSemanticsEnum;
-    MetallicRoughnessTexture: ShaderSemanticsEnum;
-    OcclusionTexture: ShaderSemanticsEnum;
-    EmissiveFactor: ShaderSemanticsEnum;
-    EmissiveTexture: ShaderSemanticsEnum;
-    LightNumber: ShaderSemanticsEnum;
-    LightPosition: ShaderSemanticsEnum;
-    LightDirection: ShaderSemanticsEnum;
-    LightIntensity: ShaderSemanticsEnum;
-    LightProperty: ShaderSemanticsEnum;
-    MetallicRoughnessFactor: ShaderSemanticsEnum;
-    BrdfLutTexture: ShaderSemanticsEnum;
-    DiffuseEnvTexture: ShaderSemanticsEnum;
-    SpecularEnvTexture: ShaderSemanticsEnum;
-    SheenEnvTexture: ShaderSemanticsEnum;
-    InverseEnvironment: ShaderSemanticsEnum;
-    IBLParameter: ShaderSemanticsEnum;
-    ViewPosition: ShaderSemanticsEnum;
-    Wireframe: ShaderSemanticsEnum;
-    DiffuseColorFactor: ShaderSemanticsEnum;
-    DiffuseColorTexture: ShaderSemanticsEnum;
-    Shininess: ShaderSemanticsEnum;
-    ShadingModel: ShaderSemanticsEnum;
-    SkinningMode: ShaderSemanticsEnum;
-    GeneralTexture: ShaderSemanticsEnum;
-    VertexAttributesExistenceArray: ShaderSemanticsEnum;
-    BoneQuaternion: ShaderSemanticsEnum;
-    BoneTranslateScale: ShaderSemanticsEnum;
-    BoneTranslatePackedQuat: ShaderSemanticsEnum;
-    BoneScalePackedQuat: ShaderSemanticsEnum;
-    BoneCompressedChunk: ShaderSemanticsEnum;
-    BoneCompressedInfo: ShaderSemanticsEnum;
-    PointSize: ShaderSemanticsEnum;
-    ColorEnvTexture: ShaderSemanticsEnum;
-    PointDistanceAttenuation: ShaderSemanticsEnum;
-    HDRIFormat: ShaderSemanticsEnum;
-    ScreenInfo: ShaderSemanticsEnum;
-    DepthTexture: ShaderSemanticsEnum;
-    LightViewProjectionMatrix: ShaderSemanticsEnum;
-    Anisotropy: ShaderSemanticsEnum;
-    ClearCoatParameter: ShaderSemanticsEnum;
-    SheenColorFactor: ShaderSemanticsEnum;
-    SheenColorTexture: ShaderSemanticsEnum;
-    SheenRoughnessFactor: ShaderSemanticsEnum;
-    SheenRoughnessTexture: ShaderSemanticsEnum;
-    SheenLutTexture: ShaderSemanticsEnum;
-    SpecularGlossinessFactor: ShaderSemanticsEnum;
-    SpecularGlossinessTexture: ShaderSemanticsEnum;
-    ClearCoatFactor: ShaderSemanticsEnum;
-    ClearCoatTexture: ShaderSemanticsEnum;
-    ClearCoatRoughnessFactor: ShaderSemanticsEnum;
-    ClearCoatRoughnessTexture: ShaderSemanticsEnum;
-    ClearCoatNormalTexture: ShaderSemanticsEnum;
-    TransmissionFactor: ShaderSemanticsEnum;
-    TransmissionTexture: ShaderSemanticsEnum;
-    BackBufferTexture: ShaderSemanticsEnum;
-    BackBufferTextureSize: ShaderSemanticsEnum;
-    ThicknessFactor: ShaderSemanticsEnum;
-    ThicknessTexture: ShaderSemanticsEnum;
-    AttenuationDistance: ShaderSemanticsEnum;
-    AttenuationColor: ShaderSemanticsEnum;
-    getShaderProperty: getShaderPropertyFunc;
-    EntityUID: ShaderSemanticsEnum;
-    MorphTargetNumber: ShaderSemanticsEnum;
-    DataTextureMorphOffsetPosition: ShaderSemanticsEnum;
-    MorphWeights: ShaderSemanticsEnum;
-    CurrentComponentSIDs: ShaderSemanticsEnum;
-    AlphaCutoff: ShaderSemanticsEnum;
-    AlphaTexture: ShaderSemanticsEnum;
-    MakeOutputSrgb: ShaderSemanticsEnum;
-    FramebufferSize: ShaderSemanticsEnum;
-    IsOutputHDR: ShaderSemanticsClass;
-    BaseColorTextureTransform: ShaderSemanticsClass;
-    BaseColorTextureRotation: ShaderSemanticsClass;
-    NormalTextureTransform: ShaderSemanticsClass;
-    NormalTextureRotation: ShaderSemanticsClass;
-    MetallicRoughnessTextureTransform: ShaderSemanticsClass;
-    MetallicRoughnessTextureRotation: ShaderSemanticsClass;
-    NormalTexcoordIndex: ShaderSemanticsClass;
-    BaseColorTexcoordIndex: ShaderSemanticsClass;
-    MetallicRoughnessTexcoordIndex: ShaderSemanticsClass;
-    OcclusionTexcoordIndex: ShaderSemanticsClass;
-    OcclusionTextureTransform: ShaderSemanticsClass;
-    OcclusionTextureRotation: ShaderSemanticsClass;
-    EmissiveTexcoordIndex: ShaderSemanticsClass;
-    EmissiveTextureTransform: ShaderSemanticsClass;
-    EmissiveTextureRotation: ShaderSemanticsClass;
-    NormalScale: ShaderSemanticsClass;
-    OcclusionStrength: ShaderSemanticsClass;
-    envRotation: ShaderSemanticsClass;
-    EnvHdriFormat: ShaderSemanticsClass;
-    VrState: ShaderSemanticsClass;
-    EnableLinearToSrgb: ShaderSemanticsClass;
-    SpecularFactor: ShaderSemanticsClass;
-    SpecularTexture: ShaderSemanticsClass;
-    SpecularColorFactor: ShaderSemanticsClass;
-    SpecularColorTexture: ShaderSemanticsClass;
-    Ior: ShaderSemanticsClass;
-    DepthBiasPV: ShaderSemanticsClass;
-    ClearCoatTextureTransform: ShaderSemanticsClass;
-    ClearCoatTextureRotation: ShaderSemanticsClass;
-    ClearCoatRoughnessTextureTransform: ShaderSemanticsClass;
-    ClearCoatRoughnessTextureRotation: ShaderSemanticsClass;
-    ClearCoatNormalTextureTransform: ShaderSemanticsClass;
-    ClearCoatNormalTextureRotation: ShaderSemanticsClass;
-    ClearCoatTexcoordIndex: ShaderSemanticsClass;
-    ClearCoatRoughnessTexcoordIndex: ShaderSemanticsClass;
-    ClearCoatNormalTexcoordIndex: ShaderSemanticsClass;
-    IridescenceFactor: ShaderSemanticsClass;
-    IridescenceTexture: ShaderSemanticsClass;
-    IridescenceIor: ShaderSemanticsClass;
-    IridescenceThicknessMinimum: ShaderSemanticsClass;
-    IridescenceThicknessMaximum: ShaderSemanticsClass;
-    IridescenceThicknessTexture: ShaderSemanticsClass;
-    GaussianKernelSize: ShaderSemanticsClass;
-    GaussianRatio: ShaderSemanticsClass;
-    IsHorizontal: ShaderSemanticsClass;
-    AnisotropyStrength: ShaderSemanticsClass;
-    AnisotropyRotation: ShaderSemanticsClass;
-    AnisotropyTexture: ShaderSemanticsClass;
-    EmissiveStrength: ShaderSemanticsClass;
-    Time: ShaderSemanticsClass;
-    CubeMapFaceId: ShaderSemanticsClass;
-    Roughness: ShaderSemanticsClass;
-    DistributionType: ShaderSemanticsClass;
 }>;
 
 type ShaderVariableTypeEnum = EnumIO;
@@ -2480,6 +2480,225 @@ declare class RenderTargetTexture extends AbstractTexture implements IRenderable
     getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Promise<Vector4>;
     generateMipmaps(): void;
     createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
+}
+
+declare class Bloom {
+    private __mapReducedFramebuffer;
+    private __mapDetectHighLuminanceFramebuffer;
+    private __mapSynthesizeFramebuffer;
+    constructor();
+    /**
+     * create a bloom expression
+     *
+     * @param textureToBloom - the texture to bloom
+     * @param parameters - the parameters for the bloom
+     * @returns the bloom expression and the bloomed render target
+     */
+    createBloomExpression({ textureToBloom, parameters: { luminanceCriterion, gaussianBlurLevelHighLuminance, gaussianKernelSize, gaussianVariance, synthesizeCoefficient, }, }: {
+        textureToBloom: AbstractTexture;
+        parameters: {
+            luminanceCriterion?: number;
+            gaussianBlurLevelHighLuminance?: number;
+            gaussianKernelSize?: number;
+            gaussianVariance?: number;
+            synthesizeCoefficient?: [number, number, number, number, number, number];
+        };
+    }): {
+        bloomExpression: Expression;
+        bloomedRenderTarget: RenderTargetTexture;
+    };
+    private __createRenderPassDetectHighLuminance;
+    private __createRenderPassesBlurredHighLuminance;
+    private __createRenderPassGaussianBlur;
+    private __createRenderPassSynthesizeImage;
+    destroy3DAPIResources(): void;
+}
+
+declare class GaussianBlur {
+    private __mapReducedFramebuffer;
+    private __mapSynthesizeFramebuffer;
+    constructor();
+    createGaussianBlurExpression({ textureToBlur, parameters: { blurPassLevel, gaussianKernelSize, gaussianVariance, synthesizeCoefficient, isReduceBuffer, textureFormat, outputFrameBuffer, outputFrameBufferLayerIndex, }, }: {
+        textureToBlur: AbstractTexture;
+        parameters: {
+            blurPassLevel?: number;
+            gaussianKernelSize?: number;
+            gaussianVariance?: number;
+            synthesizeCoefficient?: [number, number, number, number, number, number];
+            isReduceBuffer?: boolean;
+            textureFormat?: TextureFormatEnum;
+            outputFrameBuffer?: FrameBuffer;
+            outputFrameBufferLayerIndex?: number;
+        };
+    }): {
+        blurExpression: Expression;
+        blurredRenderTarget: RenderTargetTexture;
+        renderPassesBlurred: RenderPass[];
+    };
+    private __createBlurPasses;
+    private __createRenderPassSynthesizeImage;
+    private __createRenderPassGaussianBlur;
+    destroy3DAPIResources(): void;
+}
+
+declare const FloatArray$1: Float32ArrayConstructor;
+type FloatArray$1 = Float32Array;
+declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
+    constructor(m: FloatArray$1);
+    set m00(val: number);
+    get m00(): number;
+    set m10(val: number);
+    get m10(): number;
+    set m20(val: number);
+    get m20(): number;
+    set m30(val: number);
+    get m30(): number;
+    set m01(val: number);
+    get m01(): number;
+    set m11(val: number);
+    get m11(): number;
+    set m21(val: number);
+    get m21(): number;
+    set m31(val: number);
+    get m31(): number;
+    set m02(val: number);
+    get m02(): number;
+    set m12(val: number);
+    get m12(): number;
+    set m22(val: number);
+    get m22(): number;
+    set m32(val: number);
+    get m32(): number;
+    set m03(val: number);
+    get m03(): number;
+    set m13(val: number);
+    get m13(): number;
+    set m23(val: number);
+    get m23(): number;
+    set m33(val: number);
+    get m33(): number;
+    get translateX(): number;
+    set translateX(val: number);
+    get translateY(): number;
+    set translateY(val: number);
+    get translateZ(): number;
+    set translateZ(val: number);
+    get className(): string;
+    /**
+     * zero matrix(static version)
+     */
+    static zero(): MutableMatrix44;
+    /**
+     * Create identity matrix
+     */
+    static identity(): MutableMatrix44;
+    static dummy(): MutableMatrix44;
+    /**
+     * Create transpose matrix
+     */
+    static transpose(mat: Matrix44): Matrix44;
+    /**
+     * Create invert matrix
+     */
+    static invert(mat: Matrix44): MutableMatrix44;
+    /**
+     * Create translation Matrix
+     */
+    static translate(vec: Vector3): MutableMatrix44;
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    static rotateX(radian: number): MutableMatrix44;
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    static rotateY(radian: number): MutableMatrix44;
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    static rotateZ(radian: number): MutableMatrix44;
+    static rotateXYZ(x: number, y: number, z: number): MutableMatrix44;
+    static rotate(vec: Vector3): MutableMatrix44;
+    /**
+     * Create Scale Matrix
+     */
+    static scale(vec: Vector3): MutableMatrix44;
+    /**
+     * multiply matrixes
+     */
+    static multiply(l_mat: Matrix44, r_mat: Matrix44): MutableMatrix44;
+    clone(): MutableMatrix44;
+    getRotate(): MutableMatrix44;
+    getTranslate(): MutableVector3;
+    getTranslateTo(outVec: MutableVector3): MutableVector3;
+    getScale(): MutableVector3;
+    raw(): Float32Array;
+    setAt(row_i: number, column_i: number, value: number): this;
+    setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): this;
+    copyComponents(mat: IMatrix44): this;
+    /**
+     * zero matrix
+     */
+    zero(): this;
+    /**
+     * to the identity matrix
+     */
+    identity(): this;
+    _swap(l: Index, r: Index): void;
+    /**
+     * transpose
+     */
+    transpose(): this;
+    invert(): this;
+    translate(vec: Vector3): this;
+    putTranslate(vec: Vector3): this;
+    addTranslate(vec: Vector3): this;
+    /**
+     * Create X oriented Rotation Matrix
+     */
+    rotateX(radian: number): this;
+    /**
+     * Create Y oriented Rotation Matrix
+     */
+    rotateY(radian: number): this;
+    /**
+     * Create Z oriented Rotation Matrix
+     */
+    rotateZ(radian: number): this;
+    rotateXYZ(x: number, y: number, z: number): this;
+    rotate(vec: Vector3): this;
+    scale(vec: Vector3): this;
+    multiplyScale(vec: Vector3): this;
+    /**
+     * multiply the input matrix from right side
+     */
+    multiply(mat: Matrix44): this;
+    multiplyByLeft(mat: Matrix44): this;
+    fromQuaternion(quat: IQuaternion): this;
+    /**
+     * Set values as Row Major
+     * Note that WebGL matrix keeps the values in column major.
+     * If you write 16 values in 4x4 style (4 values in each row),
+     *   It will becomes an intuitive handling.
+     * @returns
+     */
+    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): MutableMatrix44;
+    /**
+     * Set values as Column Major
+     * Note that WebGL matrix keeps the values in column major.
+     * @returns
+     */
+    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): MutableMatrix44;
+    static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44;
+    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
+    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
+    static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44;
+    static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44;
+    static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44;
+    static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44;
+    static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44;
+    static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44;
+    static fromCopyQuaternion(q: Quaternion): MutableMatrix44;
 }
 
 declare class _BasisFile {
@@ -3454,17 +3673,17 @@ declare class LightComponent extends Component {
 }
 
 declare class CubeTexture extends AbstractTexture implements Disposable {
-    baseUriToLoad?: string;
     mipmapLevelNumber: number;
     hdriFormat: EnumIO;
-    isNamePosNeg: boolean;
-    private __onTextureLoadedArray;
     private static managedRegistry;
     constructor();
     private __setTextureResourceUid;
-    registerOnTextureLoaded(func: () => void): void;
-    loadTextureImages(): Promise<void>;
-    loadTextureImagesAsync(): Promise<void>;
+    loadTextureImages({ baseUrl, mipmapLevelNumber, isNamePosNeg, hdriFormat, }: {
+        baseUrl: string;
+        mipmapLevelNumber: number;
+        isNamePosNeg: boolean;
+        hdriFormat: HdriFormatEnum;
+    }): Promise<void>;
     loadTextureImagesFromBasis(uint8Array: Uint8Array, { magFilter, minFilter, wrapS, wrapT, }?: {
         magFilter?: TextureParameterEnum | undefined;
         minFilter?: TextureParameterEnum | undefined;
@@ -3491,6 +3710,12 @@ declare class CubeTexture extends AbstractTexture implements Disposable {
     destroy3DAPIResources(): void;
     [Symbol.dispose](): void;
     destroy(): void;
+    static loadFromUrl({ baseUrl, mipmapLevelNumber, isNamePosNeg, hdriFormat, }: {
+        baseUrl: string;
+        mipmapLevelNumber: number;
+        isNamePosNeg: boolean;
+        hdriFormat: HdriFormatEnum;
+    }): Promise<CubeTexture>;
 }
 
 type WebGLExtensionEnum = EnumIO;
@@ -3759,7 +3984,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         generateMipmap: boolean;
-    }): WebGPUResourceHandle;
+    }): Promise<WebGPUResourceHandle>;
     createTextureFromDataUri(dataUri: string, { level, internalFormat, border, format, type, generateMipmap, }: {
         level: Index;
         internalFormat: TextureParameterEnum;
@@ -3946,7 +4171,7 @@ declare class WebGpuResourceRepository extends CGAPIResourceRepository implement
      * @param textureDataArray transcoded texture data for each mipmaps(levels)
      * @param compressionTextureType
      */
-    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): WebGLResourceHandle;
+    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): Promise<WebGPUResourceHandle>;
     /**
      * allocate a Texture
      * @param format - the format of the texture
@@ -4135,7 +4360,7 @@ interface ICGAPIResourceRepository {
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         generateMipmap: boolean;
-    }): CGAPIResourceHandle;
+    }): Promise<CGAPIResourceHandle>;
     /**
      * create CompressedTextureFromBasis
      * @param basisFile
@@ -4152,7 +4377,7 @@ interface ICGAPIResourceRepository {
      * @param textureDataArray transcoded texture data for each mipmaps(levels)
      * @param compressionTextureType
      */
-    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): CGAPIResourceHandle;
+    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): Promise<CGAPIResourceHandle>;
     /**
      * create a Vertex Buffer
      * @param accessor
@@ -4629,7 +4854,7 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
         format: PixelFormatEnum;
         type: ComponentTypeEnum;
         generateMipmap: boolean;
-    }): WebGLResourceHandle;
+    }): Promise<WebGLResourceHandle>;
     private __createTextureInner;
     /**
      * create a Texture
@@ -4718,7 +4943,7 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
      * @param textureDataArray transcoded texture data for each mipmaps(levels)
      * @param compressionTextureType
      */
-    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): WebGLResourceHandle;
+    createCompressedTexture(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): Promise<WebGLResourceHandle>;
     /**
      * create CompressedTextureFromBasis
      * @param basisFile
@@ -4899,7 +5124,7 @@ declare class WebGLResourceRepository extends CGAPIResourceRepository implements
     deleteFrameBufferObject(frameBufferObjectHandle: WebGLResourceHandle): void;
     deleteRenderBuffer(renderBufferUid: WebGLResourceHandle): void;
     deleteTexture(textureHandle: WebGLResourceHandle): void;
-    createDummyTexture(rgbaStr?: string): number;
+    createDummyTexture(rgbaStr?: string): Promise<number>;
     createDummyBlackTexture(): number;
     createDummyWhiteTexture(): number;
     createDummyNormalTexture(): number;
@@ -5392,388 +5617,6 @@ declare class Accessor {
     isSame(rnAccessor: Accessor): boolean;
 }
 
-/**
- * SkeletalComponent is a component that manages the skeletal animation of an entity.
- *
- */
-declare class SkeletalComponent extends Component {
-    _jointIndices: Index[];
-    private __joints;
-    private __inverseBindMatricesAccessor?;
-    _bindShapeMatrix?: Matrix44;
-    private __jointMatrices?;
-    topOfJointsHierarchy?: SceneGraphComponent;
-    isSkinning: boolean;
-    private __qArray;
-    private __tsArray;
-    private __tqArray;
-    private __sqArray;
-    private __qtsArray;
-    private __qtsInfo;
-    private __matArray;
-    private __worldMatrix;
-    private __isWorldMatrixVanilla;
-    _isCulled: boolean;
-    private static __globalDataRepository;
-    private static __tookGlobalDataNum;
-    private static __tmpVec3_0;
-    private static __tmp_mat4;
-    private static __tmp_q;
-    private static __identityMat;
-    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
-    static get componentTID(): ComponentTID;
-    get componentTID(): ComponentTID;
-    setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor): void;
-    setJoints(joints: SceneGraphComponent[]): void;
-    getJoints(): SceneGraphComponent[];
-    get rootJointWorldMatrixInner(): MutableMatrix44 | undefined;
-    get jointMatrices(): number[] | undefined;
-    get jointQuaternionArray(): Float32Array;
-    get jointTranslateScaleArray(): Float32Array;
-    get jointTranslatePackedQuat(): Float32Array;
-    get jointScalePackedQuat(): Float32Array;
-    get jointMatricesArray(): Float32Array;
-    get jointCompressedChunk(): Float32Array;
-    get jointCompressedInfo(): MutableVector4;
-    get worldMatrix(): MutableMatrix44;
-    get worldMatrixInner(): MutableMatrix44;
-    get isWorldMatrixUpdated(): boolean;
-    $logic(): void;
-    private __copyToMatArray;
-    getInverseBindMatricesAccessor(): Accessor | undefined;
-    _shallowCopyFrom(component_: Component): void;
-    /**
-     * get the entity which has this component.
-     * @returns the entity which has this component
-     */
-    get entity(): ISkeletalEntity;
-    _destroy(): void;
-    /**
-     * @override
-     * Add this component to the entity
-     * @param base the target entity
-     * @param _componentClass the component class to add
-     */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
-    _getInverseBindMatrices(sg: SceneGraphComponent): IMatrix44;
-}
-
-type MaterialNodeUID = number;
-declare abstract class AbstractMaterialContent extends RnObject {
-    protected __semantics: ShaderSemanticsInfo[];
-    static materialNodes: AbstractMaterialContent[];
-    protected __materialName: string;
-    protected static __gl?: WebGLRenderingContext;
-    protected __definitions: string;
-    protected static __tmp_vector4: MutableVector4;
-    protected static __tmp_vector2: MutableVector2;
-    private __isMorphing;
-    private __isSkinning;
-    private __isLighting;
-    private static __lightPositions;
-    private static __lightDirections;
-    private static __lightIntensities;
-    private static __lightProperties;
-    private static __materialContentCount;
-    private __materialContentUid;
-    private static __vertexShaderityObjectMap;
-    private static __pixelShaderityObjectMap;
-    private static __reflectedShaderSemanticsInfoArrayMap;
-    shaderType: ShaderTypeEnum;
-    private __materialSemanticsVariantName;
-    constructor(materialName: string, { isMorphing, isSkinning, isLighting }?: {
-        isMorphing?: boolean | undefined;
-        isSkinning?: boolean | undefined;
-        isLighting?: boolean | undefined;
-    }, vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject);
-    protected setVertexShaderityObject(vertexShaderityObject?: ShaderityObject): void;
-    protected setPixelShaderityObject(pixelShaderityObject?: ShaderityObject): void;
-    makeMaterialSemanticsVariantName(): void;
-    getMaterialSemanticsVariantName(): string;
-    get vertexShaderityObject(): ShaderityObject | undefined;
-    get pixelShaderityObject(): ShaderityObject | undefined;
-    getDefinitions(): string;
-    static getMaterialNode(materialNodeUid: MaterialNodeUID): AbstractMaterialContent;
-    get _semanticsInfoArray(): ShaderSemanticsInfo[];
-    get isSkinning(): boolean;
-    get isMorphing(): boolean;
-    get isLighting(): boolean;
-    setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]): void;
-    protected setupBasicInfo(args: RenderingArgWebGL, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
-    protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44): void;
-    protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33): void;
-    protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean): void;
-    protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
-    protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
-    protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent): void;
-    protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean): void;
-    setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive, blendShapeComponent?: BlendShapeComponent): void;
-    _setInternalSettingParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        args: RenderingArgWebGL;
-    }): void;
-    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        args: RenderingArgWebGL;
-    }): void;
-    _setInternalSettingParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        args: RenderingArgWebGL;
-    }): void;
-    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
-        material: Material;
-        args: RenderingArgWebGpu;
-    }): void;
-    getDefinition(): string;
-    protected doShaderReflection(vertexShader: ShaderityObject, pixelShader: ShaderityObject, vertexShaderWebGpu: ShaderityObject, pixelShaderWebGpu: ShaderityObject, definitions: string[]): ShaderSemanticsInfo[];
-}
-
-type ShaderSources = {
-    vertex: string;
-    pixel: string;
-};
-interface WebGLStrategy {
-    attachGPUData(primitive: Primitive): void;
-    attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
-    setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
-    _reSetupShaderForMaterialBySpector(material: Material, primitive: Primitive, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
-}
-
-type MaterialTypeName = string;
-type ShaderVariable = {
-    value: any;
-    info: ShaderSemanticsInfo;
-};
-
-interface BlendEnum extends EnumIO {
-    webgpu: string;
-}
-
-interface IAnimatedValue {
-    setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName): void;
-    setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName): void;
-    getFirstActiveAnimationTrackName(): AnimationTrackName;
-    getSecondActiveAnimationTrackName(): AnimationTrackName | undefined;
-    getMinStartInputTime(trackName: AnimationTrackName): number;
-    getMaxEndInputTime(trackName: AnimationTrackName): number;
-    setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler): void;
-    blendingRatio: number;
-    isLoop: boolean;
-    setTime(time: number): void;
-    useGlobalTime(): void;
-    update(): void;
-    getAllTrackNames(): AnimationTrackName[];
-    getAnimationSampler(trackName: AnimationTrackName): AnimationSampler;
-    deleteAnimationSampler(trackName: AnimationTrackName): void;
-    setFloat32Array(array: Float32Array): void;
-    getNumberArray(): number[];
-}
-
-/**
- * The material class.
- * This class has one or more material nodes.
- */
-declare class Material extends RnObject {
-    __materialTypeName: MaterialTypeName;
-    _materialContent: AbstractMaterialContent;
-    _allFieldVariables: Map<ShaderSemanticsName, ShaderVariable>;
-    _autoFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
-    _autoTextureFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
-    _autoUniformFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
-    _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
-    private __belongPrimitives;
-    private _shaderProgramUidMap;
-    __materialUid: MaterialUID;
-    private __materialTid;
-    __materialSid: MaterialSID;
-    private __alphaMode;
-    zWriteWhenBlend: boolean;
-    colorWriteMask: boolean[];
-    isTranslucent: boolean;
-    cullFace: boolean;
-    cullFrontFaceCCW: boolean;
-    cullFaceBack: boolean;
-    private __alphaToCoverage;
-    private __blendEquationMode;
-    private __blendEquationModeAlpha;
-    private __blendFuncSrcFactor;
-    private __blendFuncDstFactor;
-    private __blendFuncAlphaSrcFactor;
-    private __blendFuncAlphaDstFactor;
-    private __stateVersion;
-    private static __stateVersion;
-    private __fingerPrint;
-    private __shaderDefines;
-    private static __webglResourceRepository?;
-    private static __defaultSampler;
-    static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>>;
-    constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
-    addShaderDefine(define: string): void;
-    removeShaderDefine(define: string): void;
-    getShaderDefines(): Set<string>;
-    calcFingerPrint(): void;
-    _getFingerPrint(): string;
-    static get stateVersion(): number;
-    _isAnimatedValue(value: any): value is IAnimatedValue;
-    setParameter(shaderSemanticName: ShaderSemanticsName, value: any): void;
-    setTextureParameter(shaderSemantic: ShaderSemanticsName, texture: AbstractTexture, sampler?: Sampler): void;
-    getTextureParameter(shaderSemantic: ShaderSemanticsName): any;
-    setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsName, promise: Promise<AbstractTexture>): void;
-    getParameter(shaderSemantic: ShaderSemanticsName): any;
-    /**
-     * return whether the shader program ready or not
-     * @returns is shader program ready or not
-     */
-    isShaderProgramReady(primitive: Primitive): boolean;
-    /**
-     * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
-     * @param isUniformOnlyMode
-     */
-    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive: Primitive): void;
-    getShaderProgramUid(primitive: Primitive): CGAPIResourceHandle;
-    /**
-     * @internal
-     * called from Primitive class only
-     * @param primitive
-     */
-    _addBelongPrimitive(primitive: Primitive): void;
-    getBelongPrimitives(): Map<number, Primitive>;
-    /**
-     * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUniform
-     * @param vertexShaderMethodDefinitions_uniform
-     * @param propertySetter
-     * @param isWebGL2
-     * @returns
-     */
-    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, primitive: Primitive, isWebGL2: boolean): [CGAPIResourceHandle, boolean];
-    _createProgramWebGpu(primitive: Primitive, vertexShaderMethodDefinitions: string, propertySetter: getShaderPropertyFunc): void;
-    /**
-     * create program by updated shader source code
-     * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUniform
-     *
-     * @param updatedShaderSources - updated shader source code
-     * @param onError
-     * @returns
-     */
-    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, primitive: Primitive, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
-    /**
-     * @internal
-     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
-     */
-    _setupBasicUniformsLocations(primitive: Primitive): void;
-    /**
-     * @internal
-     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
-     */
-    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive: Primitive): void;
-    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
-        material: Material;
-        args: RenderingArgWebGpu;
-    }): void;
-    /**
-     * @internal
-     * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
-     */
-    _setParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        args: RenderingArgWebGL;
-    }): void;
-    _setParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        args: RenderingArgWebGL;
-    }): void;
-    _setParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
-        material: Material;
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        args: RenderingArgWebGL;
-    }): void;
-    _setParametersToGpuWebGLWithOutInternalSetting({ shaderProgram, firstTime, isUniformMode, }: {
-        shaderProgram: WebGLProgram;
-        firstTime: boolean;
-        isUniformMode: boolean;
-    }): void;
-    /**
-     * @internal
-     * @param propertySetter
-     */
-    _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean): {
-        vertexPropertiesStr: string;
-        pixelPropertiesStr: string;
-    };
-    private __setAutoParametersToGpuWebGL;
-    private __setSoloDatumParametersToGpuWebGL;
-    /**
-     * Change the blendEquations
-     * This method works only if this alphaMode is the blend
-     * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
-     * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
-     */
-    setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum): void;
-    private __treatForMinMax;
-    /**
-     * Change the blendFuncSeparateFactors
-     * This method works only if this alphaMode is the blend
-     */
-    setBlendFuncSeparateFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum, blendFuncAlphaSrcFactor: BlendEnum, blendFuncAlphaDstFactor: BlendEnum): void;
-    /**
-     * Change the blendFuncFactors
-     * This method works only if this alphaMode is the blend
-     */
-    setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum): void;
-    isBlend(): boolean;
-    /**
-     *
-     * @returns return true if (alphaMode is Opaque or Mask) and translucent
-     */
-    isTranslucentOpaque(): boolean;
-    isBlendOrTranslucent(): boolean;
-    isOpaque(): boolean;
-    isMask(): boolean;
-    /**
-     * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
-     * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
-     * So we need to improve the shader to use the alphaToCoverage.
-     * @param alphaToCoverage apply alphaToCoverage to this material or not
-     */
-    set alphaToCoverage(alphaToCoverage: boolean);
-    get alphaToCoverage(): boolean;
-    /**
-     * Gets materialTID.
-     */
-    get materialTID(): MaterialTID;
-    get fieldsInfoArray(): ShaderSemanticsInfo[];
-    get blendEquationMode(): BlendEnum;
-    get blendEquationModeAlpha(): BlendEnum;
-    get blendFuncSrcFactor(): BlendEnum;
-    get blendFuncDstFactor(): BlendEnum;
-    get blendFuncAlphaSrcFactor(): BlendEnum;
-    get blendFuncAlphaDstFactor(): BlendEnum;
-    get alphaMode(): AlphaModeEnum;
-    set alphaMode(mode: AlphaModeEnum);
-    get materialUID(): MaterialUID;
-    get materialSID(): MaterialSID;
-    get isSkinning(): boolean;
-    get isMorphing(): boolean;
-    get isLighting(): boolean;
-    get materialTypeName(): string;
-    get stateVersion(): number;
-    makeShadersInvalidate(): void;
-}
-
 type RnM2 = {
     extensionsUsed: string[];
     extensionsRequired: string[];
@@ -5791,7 +5634,7 @@ type RnM2 = {
     scene: number;
     scenes: RnM2Scene[];
     skins: RnM2Skin[];
-    textures?: RnM2Texture[];
+    textures: RnM2Texture[];
     extensions: Gltf2AnyObject;
     extras: {
         rnEntities: ISceneGraphEntity[];
@@ -5799,15 +5642,10 @@ type RnM2 = {
         [key: string]: any;
     };
 };
-type RnM2Scene = {
+interface RnM2Scene extends Gltf2Scene {
     nodesObjects?: RnM2Node[];
-    name?: string;
-    scene?: number;
     sceneObject?: RnM2Node;
-    nodes?: number[];
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
+}
 type RnM2AttributesObject = {
     [s: string]: RnM2Accessor;
 };
@@ -5824,238 +5662,102 @@ type RnM2MaterialVariant = {
     material: number;
     variants: string[];
 };
-type RnM2Primitive = {
+interface RnM2Primitive extends Gltf2Primitive {
     attributesObjects?: RnM2AttributeAccessors;
     attributesNames?: {
         [s: string]: string;
     };
-    attributes?: {
-        [s: string]: number;
-    };
     indicesObject?: RnM2Accessor;
-    indices?: number;
     materialObject?: RnM2Material;
     materialVariants?: RnM2MaterialVariant[];
-    material?: number;
     materialName?: string;
-    mode?: number;
     targetsObjects?: RnM2AttributeBlendShapesAccessors;
     targets?: RnM2AttributeBlendShapes;
-    extensions: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Mesh = {
+}
+interface RnM2Mesh extends Gltf2Mesh {
     primitives: RnM2Primitive[];
-    weights?: number[];
-    name?: string;
-    extensions: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Node = {
+}
+interface RnM2Node extends Gltf2Node {
     cameraObject?: RnM2Camera;
-    camera?: number;
     childrenObjects?: RnM2Node[];
-    children?: number[];
     parent?: number;
     parentObject?: RnM2Node;
     skinObject?: RnM2Skin;
-    skin?: number;
     skinName?: string;
-    matrix?: number[];
     meshObject?: RnM2Mesh;
-    mesh?: number;
     meshNames?: string[];
-    rotation?: number[];
-    scale?: number[];
-    translation?: number[];
-    weights?: number[];
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Skin = {
-    inverseBindMatrices?: number;
+}
+interface RnM2Skin extends Gltf2Skin {
     inverseBindMatricesObject?: RnM2Accessor;
-    bindShapeMatrix?: number[];
-    skeleton?: number;
     skeletonObject?: RnM2Node;
-    joints: number[];
     jointsObjects: RnM2Node[];
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2TextureInfo = {
-    index: number;
-    texCoord?: number;
+}
+interface RnM2TextureInfo extends Gltf2TextureInfo {
     texture?: RnM2Texture;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2OcclusionTextureInfo = {
-    index: number;
-    texCoord?: number;
+}
+interface RnM2OcclusionTextureInfo extends Gltf2OcclusionTextureInfo {
     texture?: RnM2Texture;
-    strength?: number;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2NormalTextureInfo = {
-    index: number;
-    texCoord?: number;
+}
+interface RnM2NormalTextureInfo extends Gltf2NormalTextureInfo {
     texture?: RnM2Texture;
-    scale?: number;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2PbrMetallicRoughness = {
-    baseColorFactor?: Array4<number>;
+}
+interface RnM2PbrMetallicRoughness extends Gltf2PbrMetallicRoughness {
     baseColorTexture?: RnM2TextureInfo;
-    metallicFactor?: number;
-    roughnessFactor?: number;
     metallicRoughnessTexture?: RnM2TextureInfo;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-interface RnM2Material {
+}
+interface RnM2Material extends Gltf2Material {
     pbrMetallicRoughness?: RnM2PbrMetallicRoughness;
     normalTexture?: RnM2NormalTextureInfo;
     occlusionTexture?: RnM2OcclusionTextureInfo;
     emissiveTexture?: RnM2TextureInfo;
-    emissiveFactor?: Array3<number>;
-    alphaMode?: string;
-    alphaCutoff?: number;
-    doubleSided?: boolean;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
 }
-type RnM2CameraOrthographic = {
-    xmag: number;
-    ymag: number;
-    zfar: number;
-    znear: number;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2CameraPerspective = {
-    aspectRatio?: number;
-    yfov: number;
-    zfar?: number;
-    znear: number;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Camera = {
-    orthographic?: RnM2CameraOrthographic;
-    perspective?: RnM2CameraPerspective;
-    type: string;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Image = {
-    uri?: string;
-    mimeType?: string;
-    bufferView?: number;
-    image?: HTMLImageElement;
-    basis?: Uint8Array;
-    ktx2?: Uint8Array;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type PathType = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer';
-type RnM2AnimationChannelTarget = {
+interface RnM2CameraOrthographic extends Gltf2CameraOrthographic {
+}
+interface RnM2CameraPerspective extends Gltf2CameraPerspective {
+}
+interface RnM2Camera extends Gltf2Camera {
+}
+interface RnM2Image extends Gltf2Image {
+}
+interface RnM2AnimationChannelTarget extends Gltf2AnimationChannelTarget {
     nodeObject?: RnM2Node;
-    node?: number;
-    path: PathType;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2AnimationChannel = {
-    sampler: number;
+}
+interface RnM2AnimationChannel extends Gltf2AnimationChannel {
     target: RnM2AnimationChannelTarget;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
     samplerObject?: RnM2AnimationSampler;
-};
-type RnM2AnimationSampler = {
-    input: number;
-    output: number;
-    interpolation?: Gltf2AnimationSamplerInterpolation;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
+}
+interface RnM2AnimationSampler extends Gltf2AnimationSampler {
     inputObject?: RnM2Accessor;
     outputObject?: RnM2Accessor;
-};
-type RnM2Animation = {
+}
+interface RnM2Animation extends Gltf2Animation {
     channels: RnM2AnimationChannel[];
     samplers: RnM2AnimationSampler[];
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
     parameters: {
         [s: string]: any;
     };
-};
-type RnM2Texture = {
+}
+interface RnM2Texture extends Gltf2Texture {
     samplerObject?: RnM2TextureSampler;
-    sampler?: number;
     sourceObject?: RnM2Image;
-    source?: number;
-    image?: RnM2Image;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2TextureSampler = {
-    magFilter?: number;
-    minFilter?: number;
-    wrapS?: number;
-    wrapT?: number;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2SparseValues = {
-    bufferView: number;
+}
+interface RnM2TextureSampler extends Gltf2TextureSampler {
+}
+interface RnM2SparseValues extends Gltf2SparseValues {
     bufferViewObject: RnM2BufferView;
-    byteOffset?: number;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2SparseIndices = {
-    bufferView: number;
+}
+interface RnM2SparseIndices extends Gltf2SparseIndices {
     bufferViewObject: RnM2BufferView;
-    byteOffset?: number;
-    componentType: number;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Sparse = {
-    count: number;
+}
+interface RnM2Sparse extends Gltf2Sparse {
     indices?: RnM2SparseIndices;
     values?: RnM2SparseValues;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Accessor = {
+}
+interface RnM2Accessor extends Gltf2Accessor {
     bufferViewObject?: RnM2BufferView;
-    bufferView?: number;
     bufferViewName?: string;
-    byteOffset?: number;
-    byteStride?: number;
-    componentType: number;
-    normalized?: boolean;
-    count: number;
-    type: string;
-    max?: number[];
-    min?: number[];
     sparse?: RnM2Sparse;
-    name?: string;
     accessor?: Accessor;
-    extensions?: Gltf2AnyObject;
     extras?: {
         typedDataArray?: Float32Array;
         componentN?: number;
@@ -6064,36 +5766,16 @@ type RnM2Accessor = {
         weightsArrayLength?: number;
         quaternionIfVec4?: boolean;
     };
-};
-type RnM2Buffer = {
-    uri?: string;
-    byteLength: number;
-    buffer?: Uint8Array;
-    dataUri?: string;
+}
+interface RnM2Buffer extends Gltf2Buffer {
     bufferPromise?: RnPromise<ArrayBuffer>;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2BufferView = {
+}
+interface RnM2BufferView extends Gltf2BufferView {
     bufferObject?: RnM2Buffer;
-    buffer?: number;
     bufferName?: string;
-    byteOffset?: number;
-    byteLength: number;
-    byteStride?: number;
-    target: number;
-    name?: string;
     rnAccessor?: Accessor;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
-};
-type RnM2Asset = {
-    copyright?: string;
-    generator?: string;
-    version: string;
-    minVersion?: string;
-    extensions?: object;
+}
+interface RnM2Asset extends Gltf2Asset {
     extras?: {
         rnLoaderOptions?: GltfLoadOption;
         rnEntities?: ISceneGraphEntity[];
@@ -6103,7 +5785,7 @@ type RnM2Asset = {
         version?: string;
         fileType?: string;
     };
-};
+}
 type RnM2ExtensionEffekseer = {
     effects: RnM2ExtensionsEffekseerEffect[];
 };
@@ -6121,15 +5803,6 @@ type RnM2ExtensionsEffekseerTimeline = {
 type RnM2ExtensionsEffekseerTimelineItem = {
     input: number;
     event: 'play' | 'stop' | 'pause';
-};
-type RnM2Sampler = {
-    magFilter?: number;
-    minFilter?: number;
-    wrapS?: number;
-    wrapT?: number;
-    name?: string;
-    extensions?: Gltf2AnyObject;
-    extras?: Gltf2AnyObject;
 };
 
 type Vrm0xHumanBone = {
@@ -6242,62 +5915,62 @@ type Vrm0xMaterialProperty = {
         _UvAnimMaskTexture: number;
     };
 };
-type Vrm0x_Extension = {
-    extensions: {
-        VRM: {
-            exporterVersion: string;
-            meta: {
-                version: string;
-                author: string;
-                contactInformation: string;
-                reference: string;
-                title: string;
-                texture: 30;
-                allowedUserName: string;
-                violentUsageName: string;
-                sexualUsageName: string;
-                commercialUsageName: string;
-                otherPermissionUrl: string;
-                licenseName: string;
-                otherLicenseUrl: string;
-            };
-            humanoid: {
-                humanBones: Vrm0xHumanBone[];
-                armStretch: number;
-                legStretch: number;
-                upperArmTwist: number;
-                lowerArmTwist: number;
-                upperLegTwist: number;
-                lowerLegTwist: number;
-                feetSpacing: number;
-                hasTranslationDoF: false;
-            };
-            firstPerson: {
-                firstPersonBone: number;
-                firstPersonBoneOffset: {
-                    x: number;
-                    y: number;
-                    z: number;
-                };
-                meshAnnotations: [];
-                lookAtTypeName: string;
-                lookAtHorizontalInner: Vrm0xLookAt;
-                lookAtHorizontalOuter: Vrm0xLookAt;
-                lookAtVerticalDown: Vrm0xLookAt;
-                lookAtVerticalUP: Vrm0xLookAt;
-            };
-            blendShapeMaster: {
-                blendShapeGroups: Vrm0xBlendShapeGroup[];
-            };
-            secondaryAnimation: {
-                boneGroups: Vrm0xBoneGroup[];
-                colliderGroups: Vrm0xColliderGroup[];
-            };
-            materialProperties: Vrm0xMaterialProperty[];
-        };
+interface VRM0x_Extension {
+    exporterVersion: string;
+    meta: {
+        version: string;
+        author: string;
+        contactInformation: string;
+        reference: string;
+        title: string;
+        texture: 30;
+        allowedUserName: string;
+        violentUsageName: string;
+        sexualUsageName: string;
+        commercialUsageName: string;
+        otherPermissionUrl: string;
+        licenseName: string;
+        otherLicenseUrl: string;
     };
-};
-type Vrm0x = Vrm0x_Extension & RnM2;
+    humanoid: {
+        humanBones: Vrm0xHumanBone[];
+        armStretch: number;
+        legStretch: number;
+        upperArmTwist: number;
+        lowerArmTwist: number;
+        upperLegTwist: number;
+        lowerLegTwist: number;
+        feetSpacing: number;
+        hasTranslationDoF: false;
+    };
+    firstPerson: {
+        firstPersonBone: number;
+        firstPersonBoneOffset: {
+            x: number;
+            y: number;
+            z: number;
+        };
+        meshAnnotations: [];
+        lookAtTypeName: string;
+        lookAtHorizontalInner: Vrm0xLookAt;
+        lookAtHorizontalOuter: Vrm0xLookAt;
+        lookAtVerticalDown: Vrm0xLookAt;
+        lookAtVerticalUP: Vrm0xLookAt;
+    };
+    blendShapeMaster: {
+        blendShapeGroups: Vrm0xBlendShapeGroup[];
+    };
+    secondaryAnimation: {
+        boneGroups: Vrm0xBoneGroup[];
+        colliderGroups: Vrm0xColliderGroup[];
+    };
+    materialProperties: Vrm0xMaterialProperty[];
+}
+interface Vrm0x extends RnM2 {
+    extensions: {
+        VRM: VRM0x_Extension;
+    };
+}
 
 /**
  * Passed to clear to clear the current depth buffer.
@@ -9350,17 +9023,34 @@ interface Gltf2Ex extends Gltf2 {
 
 type HumanBoneNames = 'hips' | 'spine' | 'chest' | 'neck' | 'head' | 'leftUpperLeg' | 'leftLowerLeg' | 'leftFoot' | 'leftToes' | 'rightUpperLeg' | 'rightLowerLeg' | 'rightFoot' | 'rightToes' | 'leftShoulder' | 'leftUpperArm' | 'leftLowerArm' | 'leftHand' | 'rightShoulder' | 'rightUpperArm' | 'rightLowerArm' | 'rightHand';
 type NodeId = number;
+type ExpressionPreset = 'happy' | 'angry' | 'sad' | 'relaxed' | 'surprised' | 'aa' | 'ih' | 'ou' | 'ee' | 'oh' | 'blink' | 'blinkLeft' | 'blinkRight' | 'neutral';
+interface VRMC_vrm_animation {
+    specVersion: string;
+    humanoid?: {
+        humanBones: Record<HumanBoneNames, {
+            node: number;
+        }>;
+    };
+    expressions?: {
+        preset?: Record<ExpressionPreset, {
+            node: number;
+        }>;
+        custom?: Record<string, {
+            node: number;
+        }>;
+    };
+    lookAt?: {
+        node: number;
+        offsetFromHeadBone?: [number, number, number];
+    };
+}
+interface RnM2_VRMC_vrm_animation extends VRMC_vrm_animation {
+    humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
+}
+
 interface RnM2Vrma extends RnM2 {
     extensions: {
-        VRMC_vrm_animation: {
-            specVersion: string;
-            humanoid?: {
-                humanBones: Record<HumanBoneNames, {
-                    node: number;
-                }>;
-            };
-            humanoidBoneNameMap?: Map<NodeId, HumanBoneNames>;
-        };
+        VRMC_vrm_animation: RnM2_VRMC_vrm_animation;
     };
 }
 
@@ -9471,10 +9161,10 @@ declare class IdentityMatrix44 extends AbstractMatrix implements IMatrix, IMatri
     get isIdentityMatrixClass(): boolean;
 }
 
-declare const FloatArray$1: Float32ArrayConstructor;
-type FloatArray$1 = Float32Array;
+declare const FloatArray: Float32ArrayConstructor;
+type FloatArray = Float32Array;
 declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
-    constructor(m: FloatArray$1);
+    constructor(m: FloatArray);
     get m00(): number;
     get m10(): number;
     get m20(): number;
@@ -9625,166 +9315,6 @@ declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     static fromCopyArray16RowMajor(array: Array16<number>): Matrix44;
     static fromCopyArrayRowMajor(array: Array<number>): Matrix44;
     static fromCopyQuaternion(q: IQuaternion): Matrix44;
-}
-
-declare const FloatArray: Float32ArrayConstructor;
-type FloatArray = Float32Array;
-declare class MutableMatrix44 extends Matrix44 implements IMutableMatrix, IMutableMatrix44 {
-    constructor(m: FloatArray);
-    set m00(val: number);
-    get m00(): number;
-    set m10(val: number);
-    get m10(): number;
-    set m20(val: number);
-    get m20(): number;
-    set m30(val: number);
-    get m30(): number;
-    set m01(val: number);
-    get m01(): number;
-    set m11(val: number);
-    get m11(): number;
-    set m21(val: number);
-    get m21(): number;
-    set m31(val: number);
-    get m31(): number;
-    set m02(val: number);
-    get m02(): number;
-    set m12(val: number);
-    get m12(): number;
-    set m22(val: number);
-    get m22(): number;
-    set m32(val: number);
-    get m32(): number;
-    set m03(val: number);
-    get m03(): number;
-    set m13(val: number);
-    get m13(): number;
-    set m23(val: number);
-    get m23(): number;
-    set m33(val: number);
-    get m33(): number;
-    get translateX(): number;
-    set translateX(val: number);
-    get translateY(): number;
-    set translateY(val: number);
-    get translateZ(): number;
-    set translateZ(val: number);
-    get className(): string;
-    /**
-     * zero matrix(static version)
-     */
-    static zero(): MutableMatrix44;
-    /**
-     * Create identity matrix
-     */
-    static identity(): MutableMatrix44;
-    static dummy(): MutableMatrix44;
-    /**
-     * Create transpose matrix
-     */
-    static transpose(mat: Matrix44): Matrix44;
-    /**
-     * Create invert matrix
-     */
-    static invert(mat: Matrix44): MutableMatrix44;
-    /**
-     * Create translation Matrix
-     */
-    static translate(vec: Vector3): MutableMatrix44;
-    /**
-     * Create X oriented Rotation Matrix
-     */
-    static rotateX(radian: number): MutableMatrix44;
-    /**
-     * Create Y oriented Rotation Matrix
-     */
-    static rotateY(radian: number): MutableMatrix44;
-    /**
-     * Create Z oriented Rotation Matrix
-     */
-    static rotateZ(radian: number): MutableMatrix44;
-    static rotateXYZ(x: number, y: number, z: number): MutableMatrix44;
-    static rotate(vec: Vector3): MutableMatrix44;
-    /**
-     * Create Scale Matrix
-     */
-    static scale(vec: Vector3): MutableMatrix44;
-    /**
-     * multiply matrixes
-     */
-    static multiply(l_mat: Matrix44, r_mat: Matrix44): MutableMatrix44;
-    clone(): MutableMatrix44;
-    getRotate(): MutableMatrix44;
-    getTranslate(): MutableVector3;
-    getTranslateTo(outVec: MutableVector3): MutableVector3;
-    getScale(): MutableVector3;
-    raw(): Float32Array;
-    setAt(row_i: number, column_i: number, value: number): this;
-    setComponents(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): this;
-    copyComponents(mat: IMatrix44): this;
-    /**
-     * zero matrix
-     */
-    zero(): this;
-    /**
-     * to the identity matrix
-     */
-    identity(): this;
-    _swap(l: Index, r: Index): void;
-    /**
-     * transpose
-     */
-    transpose(): this;
-    invert(): this;
-    translate(vec: Vector3): this;
-    putTranslate(vec: Vector3): this;
-    addTranslate(vec: Vector3): this;
-    /**
-     * Create X oriented Rotation Matrix
-     */
-    rotateX(radian: number): this;
-    /**
-     * Create Y oriented Rotation Matrix
-     */
-    rotateY(radian: number): this;
-    /**
-     * Create Z oriented Rotation Matrix
-     */
-    rotateZ(radian: number): this;
-    rotateXYZ(x: number, y: number, z: number): this;
-    rotate(vec: Vector3): this;
-    scale(vec: Vector3): this;
-    multiplyScale(vec: Vector3): this;
-    /**
-     * multiply the input matrix from right side
-     */
-    multiply(mat: Matrix44): this;
-    multiplyByLeft(mat: Matrix44): this;
-    fromQuaternion(quat: IQuaternion): this;
-    /**
-     * Set values as Row Major
-     * Note that WebGL matrix keeps the values in column major.
-     * If you write 16 values in 4x4 style (4 values in each row),
-     *   It will becomes an intuitive handling.
-     * @returns
-     */
-    static fromCopy16RowMajor(m00: number, m01: number, m02: number, m03: number, m10: number, m11: number, m12: number, m13: number, m20: number, m21: number, m22: number, m23: number, m30: number, m31: number, m32: number, m33: number): MutableMatrix44;
-    /**
-     * Set values as Column Major
-     * Note that WebGL matrix keeps the values in column major.
-     * @returns
-     */
-    static fromCopy16ColumnMajor(m00: number, m10: number, m20: number, m30: number, m01: number, m11: number, m21: number, m31: number, m02: number, m12: number, m22: number, m32: number, m03: number, m13: number, m23: number, m33: number): MutableMatrix44;
-    static fromCopyMatrix44(mat: IMatrix44): MutableMatrix44;
-    static fromFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
-    static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array): MutableMatrix44;
-    static fromCopyFloat32ArrayRowMajor(array: Float32Array): MutableMatrix44;
-    static fromCopyMatrix33(mat: IMatrix33): MutableMatrix44;
-    static fromCopyArray16ColumnMajor(array: Array16<number>): MutableMatrix44;
-    static fromCopyArrayColumnMajor(array: Array<number>): MutableMatrix44;
-    static fromCopyArray16RowMajor(array: Array16<number>): MutableMatrix44;
-    static fromCopyArrayRowMajor(array: Array<number>): MutableMatrix44;
-    static fromCopyQuaternion(q: Quaternion): MutableMatrix44;
 }
 
 declare class MutableQuaternion extends Quaternion implements IMutableQuaternion {
@@ -10010,258 +9540,385 @@ declare class SceneGraphComponent extends Component {
 }
 
 /**
- * A render pass is a collection of the resources which is used in rendering process.
+ * SkeletalComponent is a component that manages the skeletal animation of an entity.
+ *
  */
-declare class RenderPass extends RnObject {
-    private readonly __renderPassUID;
-    private __entities;
-    private __sceneGraphDirectlyAdded;
-    private __topLevelSceneGraphComponents;
-    private __meshComponents;
-    private __optimizedMeshComponents;
-    private __frameBuffer?;
-    private __resolveFrameBuffer?;
-    private __resolveFrameBuffer2?;
-    private __viewport?;
-    private __material?;
-    private __primitiveMaterial;
-    toClearColorBuffer: boolean;
-    toClearDepthBuffer: boolean;
-    toClearStencilBuffer: boolean;
-    isDepthTest: boolean;
+declare class SkeletalComponent extends Component {
+    _jointIndices: Index[];
+    private __joints;
+    private __inverseBindMatricesAccessor?;
+    _bindShapeMatrix?: Matrix44;
+    private __jointMatrices?;
+    topOfJointsHierarchy?: SceneGraphComponent;
+    isSkinning: boolean;
+    private __qArray;
+    private __tsArray;
+    private __tqArray;
+    private __sqArray;
+    private __qtsArray;
+    private __qtsInfo;
+    private __matArray;
+    private __worldMatrix;
+    private __isWorldMatrixVanilla;
+    _isCulled: boolean;
+    private static __globalDataRepository;
+    private static __tookGlobalDataNum;
+    private static __tmpVec3_0;
+    private static __tmp_mat4;
+    private static __tmp_q;
+    private static __identityMat;
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
+    static get componentTID(): ComponentTID;
+    get componentTID(): ComponentTID;
+    setInverseBindMatricesAccessor(inverseBindMatricesAccessor: Accessor): void;
+    setJoints(joints: SceneGraphComponent[]): void;
+    getJoints(): SceneGraphComponent[];
+    get rootJointWorldMatrixInner(): MutableMatrix44 | undefined;
+    get jointMatrices(): number[] | undefined;
+    get jointQuaternionArray(): Float32Array;
+    get jointTranslateScaleArray(): Float32Array;
+    get jointTranslatePackedQuat(): Float32Array;
+    get jointScalePackedQuat(): Float32Array;
+    get jointMatricesArray(): Float32Array;
+    get jointCompressedChunk(): Float32Array;
+    get jointCompressedInfo(): MutableVector4;
+    get worldMatrix(): MutableMatrix44;
+    get worldMatrixInner(): MutableMatrix44;
+    get isWorldMatrixUpdated(): boolean;
+    $logic(): void;
+    private __copyToMatArray;
+    getInverseBindMatricesAccessor(): Accessor | undefined;
+    _shallowCopyFrom(component_: Component): void;
     /**
-     * depth write mask for primitives drawing
-     * false does not prevent depth clear.
+     * get the entity which has this component.
+     * @returns the entity which has this component
      */
-    depthWriteMask: boolean;
-    clearColor: Vector4;
-    clearDepth: number;
-    clearStencil: number;
-    cameraComponent?: CameraComponent;
-    _drawVertexNumberForBufferLessRendering: number;
-    _primitiveModeForBufferLessRendering: PrimitiveModeEnum;
-    _dummyPrimitiveForBufferLessRendering: Primitive;
-    isVrRendering: boolean;
-    isOutputForVr: boolean;
-    _lastOpaqueIndex: number;
-    _lastTranslucentIndex: number;
-    _lastBlendWithZWriteIndex: number;
-    _lastBlendWithoutZWriteIndex: number;
-    _lastPrimitiveUids: number[];
-    _lastTransformComponentsUpdateCount: number;
-    _lastCameraControllerComponentsUpdateCount: number;
-    _lastSceneGraphComponentsUpdateCount: number;
-    _renderedSomethingBefore: boolean;
-    _isChangedSortRenderResult: boolean;
-    /** Whether or not to draw opaque primitives contained in this render pass. */
-    _toRenderOpaquePrimitives: boolean;
-    /** Whether or not to draw translucent primitives contained in this render pass. */
-    _toRenderTranslucentPrimitives: boolean;
-    /** Whether or not to draw blend with ZWrite primitives contained in this render pass. */
-    _toRenderBlendWithZWritePrimitives: boolean;
-    /** Whether or not to draw blend without ZWrite primitives contained in this render pass. */
-    _toRenderBlendWithoutZWritePrimitives: boolean;
-    toRenderEffekseerEffects: boolean;
-    __renderTargetColorAttachments?: RenderBufferTargetEnum[];
-    private __preEachRenderFunc?;
-    private __postEachRenderFunc?;
-    private static __tmp_Vector4_0;
-    static __mesh_uid_count: number;
-    constructor();
-    setToRenderOpaquePrimitives(toRender: boolean): void;
-    setToRenderBlendWithoutZWritePrimitives(toRender: boolean): void;
-    setToRenderBlendWithZWritePrimitives(toRender: boolean): void;
-    setToRenderTranslucentPrimitives(toRender: boolean): void;
-    isBufferLessRenderingMode(): boolean;
+    get entity(): ISkeletalEntity;
+    _destroy(): void;
     /**
-     * @brief Set this render pass to buffer-less rendering mode.
-     * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
-     * This is useful for e.g. full-screen drawing.
-     * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
-     * @param primitiveMode The primitive mode to be used in buffer-less rendering.
-     * @param drawVertexNumberWithoutEntities The number of vertices to be rendered in buffer-less rendering.
-     * @param material The material to be used in buffer-less rendering.
+     * @override
+     * Add this component to the entity
+     * @param base the target entity
+     * @param _componentClass the component class to add
      */
-    setBufferLessRendering(primitiveMode: PrimitiveModeEnum, drawVertexNumberWithoutEntities: number, material: Material): void;
-    /**
-     * @brief Set this render pass to buffer-less rendering mode.
-     * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
-     * This is useful for e.g. full-screen drawing.
-     * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
-     * @param material The material to be used in buffer-less rendering.
-     */
-    setBufferLessFullScreenRendering(material: Material): void;
-    clone(): RenderPass;
-    setPreRenderFunction(func: () => void): void;
-    setPostRenderFunction(func: () => void): void;
-    doPreRender(): void;
-    doPostRender(): void;
-    /**
-     * Add entities to draw.
-     * @param entities An array of entities.
-     */
-    addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]): void;
-    private __calcMeshComponents;
-    /**
-     * Gets the list of entities on this render pass.
-     * @return An array of entities
-     */
-    get entities(): IEntity[];
-    /**
-     * Clear entities on this render pass.
-     */
-    clearEntities(): void;
-    private __collectTopLevelSceneGraphComponents;
-    private __collectMeshComponents;
-    /**
-     * Get all the MeshComponents list of the entities on this render pass.
-     * @return An array of MeshComponents
-     */
-    get meshComponents(): MeshComponent[];
-    /**
-     * Get MeshComponents list to render
-     * @return An array of MeshComponents
-     */
-    get _optimizedMeshComponents(): MeshComponent[];
-    /**
-     * Get all the highest level SceneGraphComponents list of the entities on this render pass.
-     * @return An array of SceneGraphComponents
-     */
-    get sceneTopLevelGraphComponents(): SceneGraphComponent[];
-    /**
-     * Sets the target framebuffer of this render pass.
-     * If two or more render pass share a framebuffer, Rhodonite renders entities to the same framebuffer in those render passes.
-     * @param framebuffer A framebuffer
-     */
-    setFramebuffer(framebuffer?: FrameBuffer): void;
-    setRenderTargetColorAttachments(indeces?: RenderBufferTargetEnum[]): void;
-    getRenderTargetColorAttachments(): RenderBufferTargetEnum[] | undefined;
-    /**
-     * Gets the framebuffer if this render pass has the target framebuffer.
-     * @return A framebuffer
-     */
-    getFramebuffer(): FrameBuffer | undefined;
-    /**
-     * Remove the existing framebuffer
-     */
-    removeFramebuffer(): void;
-    /**
-     * Sets the viewport of this render pass.
-     * @param vec A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
-     */
-    setViewport(vec: IVector4): void;
-    /**
-     * Gets the viewport if this render pass has the viewport.
-     * @return A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
-     */
-    getViewport(): MutableVector4 | undefined;
-    setResolveFramebuffer(framebuffer?: FrameBuffer): void;
-    getResolveFramebuffer(): FrameBuffer | undefined;
-    setResolveFramebuffer2(framebuffer?: FrameBuffer): void;
-    getResolveFramebuffer2(): FrameBuffer | undefined;
-    _copyFramebufferToResolveFramebuffersWebGL(): void;
-    private __copyFramebufferToResolveFramebufferInner;
-    _copyResolve1ToResolve2WebGpu(): void;
-    /**
-     * Sets a material for the primitive on this render pass.
-     * If Rhodonite draw the primitive using this render pass, Rhodonite uses this material instead of the material on the primitive.
-     * @param material A material attaching to the primitive
-     * @param primitive A target primitive
-     */
-    setMaterialForPrimitive(material: Material, primitive: Primitive): void;
-    /**
-     * Sets a material for all the primitive on this render pass.
-     * For all the primitive, Rhodonite uses this material instead of the material on the primitive.
-     * Where if this render pass has a map between primitive and material by setMaterialForPrimitive, Rhodonite uses the material mapped by primitive.
-     * @param material A material attaching to the primitive
-     */
-    setMaterial(material: Material): void;
-    get material(): Material | undefined;
-    _getMaterialOf(primitive: Primitive): Material | undefined;
-    private __hasMaterialOf;
-    getAppropriateMaterial(primitive: Primitive): Material;
-    get renderPassUID(): number;
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+    _getInverseBindMatrices(sg: SceneGraphComponent): IMatrix44;
+}
+
+type MaterialNodeUID = number;
+declare abstract class AbstractMaterialContent extends RnObject {
+    protected __semantics: ShaderSemanticsInfo[];
+    static materialNodes: AbstractMaterialContent[];
+    protected __materialName: string;
+    protected static __gl?: WebGLRenderingContext;
+    protected __definitions: string;
+    protected static __tmp_vector4: MutableVector4;
+    protected static __tmp_vector2: MutableVector2;
+    private __isMorphing;
+    private __isSkinning;
+    private __isLighting;
+    private static __lightPositions;
+    private static __lightDirections;
+    private static __lightIntensities;
+    private static __lightProperties;
+    private static __materialContentCount;
+    private __materialContentUid;
+    private static __vertexShaderityObjectMap;
+    private static __pixelShaderityObjectMap;
+    private static __reflectedShaderSemanticsInfoArrayMap;
+    shaderType: ShaderTypeEnum;
+    private __materialSemanticsVariantName;
+    constructor(materialName: string, { isMorphing, isSkinning, isLighting }?: {
+        isMorphing?: boolean | undefined;
+        isSkinning?: boolean | undefined;
+        isLighting?: boolean | undefined;
+    }, vertexShaderityObject?: ShaderityObject, pixelShaderityObject?: ShaderityObject);
+    protected setVertexShaderityObject(vertexShaderityObject?: ShaderityObject): void;
+    protected setPixelShaderityObject(pixelShaderityObject?: ShaderityObject): void;
+    makeMaterialSemanticsVariantName(): void;
+    getMaterialSemanticsVariantName(): string;
+    get vertexShaderityObject(): ShaderityObject | undefined;
+    get pixelShaderityObject(): ShaderityObject | undefined;
+    getDefinitions(): string;
+    static getMaterialNode(materialNodeUid: MaterialNodeUID): AbstractMaterialContent;
+    get _semanticsInfoArray(): ShaderSemanticsInfo[];
+    get isSkinning(): boolean;
+    get isMorphing(): boolean;
+    get isLighting(): boolean;
+    setShaderSemanticsInfoArray(shaderSemanticsInfoArray: ShaderSemanticsInfo[]): void;
+    protected setupBasicInfo(args: RenderingArgWebGL, shaderProgram: WebGLProgram, firstTime: boolean, material: Material, CameraComponentClass: typeof CameraComponent): void;
+    protected setWorldMatrix(shaderProgram: WebGLProgram, worldMatrix: Matrix44): void;
+    protected setNormalMatrix(shaderProgram: WebGLProgram, normalMatrix: IMatrix33): void;
+    protected setIsBillboard(shaderProgram: WebGLProgram, isBillboard: boolean): void;
+    protected setViewInfo(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
+    protected setProjection(shaderProgram: WebGLProgram, cameraComponent: CameraComponent, isVr: boolean, displayIdx: number): void;
+    protected setSkinning(shaderProgram: WebGLProgram, setUniform: boolean, skeletalComponent?: SkeletalComponent): void;
+    protected setLightsInfo(shaderProgram: WebGLProgram, lightComponents: LightComponent[], material: Material, setUniform: boolean): void;
+    setMorphInfo(shaderProgram: WebGLProgram, meshComponent: MeshComponent, primitive: Primitive, blendShapeComponent?: BlendShapeComponent): void;
+    _setInternalSettingParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGLPerMaterial({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
+        material: Material;
+        args: RenderingArgWebGpu;
+    }): void;
+    getDefinition(): string;
+    protected doShaderReflection(vertexShader: ShaderityObject, pixelShader: ShaderityObject, vertexShaderWebGpu: ShaderityObject, pixelShaderWebGpu: ShaderityObject, definitions: string[]): ShaderSemanticsInfo[];
+}
+
+type ShaderSources = {
+    vertex: string;
+    pixel: string;
+};
+interface WebGLStrategy {
+    attachGPUData(primitive: Primitive): void;
+    attachVertexData(i: number, primitive: Primitive, glw: WebGLContextWrapper, instanceIDBufferUid: WebGLResourceHandle): void;
+    setupShaderForMaterial(material: Material, primitive: Primitive): CGAPIResourceHandle;
+    _reSetupShaderForMaterialBySpector(material: Material, primitive: Primitive, updatedShaderSources: ShaderSources, onError: (message: string) => void): CGAPIResourceHandle;
+}
+
+type MaterialTypeName = string;
+type ShaderVariable = {
+    value: any;
+    info: ShaderSemanticsInfo;
+};
+
+interface BlendEnum extends EnumIO {
+    webgpu: string;
+}
+
+interface IAnimatedValue {
+    setFirstActiveAnimationTrackName(animationTrackName: AnimationTrackName): void;
+    setSecondActiveAnimationTrackName(animationTrackName: AnimationTrackName): void;
+    getFirstActiveAnimationTrackName(): AnimationTrackName;
+    getSecondActiveAnimationTrackName(): AnimationTrackName | undefined;
+    getMinStartInputTime(trackName: AnimationTrackName): number;
+    getMaxEndInputTime(trackName: AnimationTrackName): number;
+    setAnimationSampler(animationTrackName: AnimationTrackName, animationSampler: AnimationSampler): void;
+    blendingRatio: number;
+    isLoop: boolean;
+    setTime(time: number): void;
+    useGlobalTime(): void;
+    update(): void;
+    getAllTrackNames(): AnimationTrackName[];
+    getAnimationSampler(trackName: AnimationTrackName): AnimationSampler;
+    deleteAnimationSampler(trackName: AnimationTrackName): void;
+    setFloat32Array(array: Float32Array): void;
+    getNumberArray(): number[];
 }
 
 /**
- * Expression specifies the order of render passes on rendering process.
+ * The material class.
+ * This class has one or more material nodes.
  */
-declare class Expression extends RnObject {
-    private __renderPasses;
-    constructor();
-    clone(): Expression;
+declare class Material extends RnObject {
+    __materialTypeName: MaterialTypeName;
+    _materialContent: AbstractMaterialContent;
+    _allFieldVariables: Map<ShaderSemanticsName, ShaderVariable>;
+    _autoFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
+    _autoTextureFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
+    _autoUniformFieldVariablesOnly: Map<ShaderSemanticsName, ShaderVariable>;
+    _allFieldsInfo: Map<ShaderSemanticsName, ShaderSemanticsInfo>;
+    private __belongPrimitives;
+    private _shaderProgramUidMap;
+    __materialUid: MaterialUID;
+    private __materialTid;
+    __materialSid: MaterialSID;
+    private __alphaMode;
+    zWriteWhenBlend: boolean;
+    colorWriteMask: boolean[];
+    isTranslucent: boolean;
+    cullFace: boolean;
+    cullFrontFaceCCW: boolean;
+    cullFaceBack: boolean;
+    private __alphaToCoverage;
+    private __blendEquationMode;
+    private __blendEquationModeAlpha;
+    private __blendFuncSrcFactor;
+    private __blendFuncDstFactor;
+    private __blendFuncAlphaSrcFactor;
+    private __blendFuncAlphaDstFactor;
+    private __stateVersion;
+    private static __stateVersion;
+    private __fingerPrint;
+    private __shaderDefines;
+    private static __webglResourceRepository?;
+    private static __defaultSampler;
+    static _soloDatumFields: Map<MaterialTypeName, Map<ShaderSemanticsName, ShaderVariable>>;
+    constructor(materialTid: Index, materialUid: MaterialUID, materialSid: MaterialSID, materialTypeName: string, materialNode: AbstractMaterialContent);
+    addShaderDefine(define: string): void;
+    removeShaderDefine(define: string): void;
+    getShaderDefines(): Set<string>;
+    calcFingerPrint(): void;
+    _getFingerPrint(): string;
+    static get stateVersion(): number;
+    _isAnimatedValue(value: any): value is IAnimatedValue;
+    setParameter(shaderSemanticName: ShaderSemanticsName, value: any): void;
+    setTextureParameter(shaderSemantic: ShaderSemanticsName, texture: AbstractTexture, sampler?: Sampler): void;
+    getTextureParameter(shaderSemantic: ShaderSemanticsName): any;
+    setTextureParameterAsPromise(shaderSemantic: ShaderSemanticsName, promise: Promise<AbstractTexture>): void;
+    getParameter(shaderSemantic: ShaderSemanticsName): any;
     /**
-     * Add render passes to the end of this expression.
+     * return whether the shader program ready or not
+     * @returns is shader program ready or not
      */
-    addRenderPasses(renderPasses: RenderPass[]): void;
+    isShaderProgramReady(primitive: Primitive): boolean;
     /**
-     * Clear render passes of this expression.
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
+     * @param isUniformOnlyMode
      */
-    clearRenderPasses(): void;
+    _setUniformLocationsOfMaterialNodes(isUniformOnlyMode: boolean, primitive: Primitive): void;
+    getShaderProgramUid(primitive: Primitive): CGAPIResourceHandle;
     /**
-     * Gets the list of render passes of this expression.
+     * @internal
+     * called from Primitive class only
+     * @param primitive
      */
-    get renderPasses(): RenderPass[];
-    setViewport(viewport: IVector4): void;
-}
-
-declare class Bloom {
-    private __mapReducedFramebuffer;
-    private __mapDetectHighLuminanceFramebuffer;
-    private __mapSynthesizeFramebuffer;
-    constructor();
+    _addBelongPrimitive(primitive: Primitive): void;
+    getBelongPrimitives(): Map<number, Primitive>;
     /**
-     * create a bloom expression
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform
+     * @param vertexShaderMethodDefinitions_uniform
+     * @param propertySetter
+     * @param isWebGL2
+     * @returns
+     */
+    _createProgramWebGL(vertexShaderMethodDefinitions_uniform: string, propertySetter: getShaderPropertyFunc, primitive: Primitive, isWebGL2: boolean): [CGAPIResourceHandle, boolean];
+    _createProgramWebGpu(primitive: Primitive, vertexShaderMethodDefinitions: string, propertySetter: getShaderPropertyFunc): void;
+    /**
+     * create program by updated shader source code
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform
      *
-     * @param textureToBloom - the texture to bloom
-     * @param parameters - the parameters for the bloom
-     * @returns the bloom expression and the bloomed render target
+     * @param updatedShaderSources - updated shader source code
+     * @param onError
+     * @returns
      */
-    createBloomExpression({ textureToBloom, parameters: { luminanceCriterion, gaussianBlurLevelHighLuminance, gaussianKernelSize, gaussianVariance, synthesizeCoefficient, }, }: {
-        textureToBloom: AbstractTexture;
-        parameters: {
-            luminanceCriterion?: number;
-            gaussianBlurLevelHighLuminance?: number;
-            gaussianKernelSize?: number;
-            gaussianVariance?: number;
-            synthesizeCoefficient?: [number, number, number, number, number, number];
-        };
-    }): {
-        bloomExpression: Expression;
-        bloomedRenderTarget: RenderTargetTexture;
+    _createProgramByUpdatedSources(updatedShaderSources: ShaderSources, primitive: Primitive, onError?: (message: string) => void): [CGAPIResourceHandle, boolean];
+    /**
+     * @internal
+     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
+     */
+    _setupBasicUniformsLocations(primitive: Primitive): void;
+    /**
+     * @internal
+     * called WebGLStrategyDataTexture and WebGLStrategyUniform only
+     */
+    _setupAdditionalUniformLocations(shaderSemantics: ShaderSemanticsInfo[], isUniformOnlyMode: boolean, primitive: Primitive): void;
+    _setInternalSettingParametersToGpuWebGpu({ material, args, }: {
+        material: Material;
+        args: RenderingArgWebGpu;
+    }): void;
+    /**
+     * @internal
+     * called from WebGLStrategyDataTexture and WebGLStrategyUniform only
+     */
+    _setParametersToGpuWebGL({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setParametersToGpuWebGLPerShaderProgram({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setParametersToGpuWebGLPerPrimitive({ material, shaderProgram, firstTime, args, }: {
+        material: Material;
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        args: RenderingArgWebGL;
+    }): void;
+    _setParametersToGpuWebGLWithOutInternalSetting({ shaderProgram, firstTime, isUniformMode, }: {
+        shaderProgram: WebGLProgram;
+        firstTime: boolean;
+        isUniformMode: boolean;
+    }): void;
+    /**
+     * @internal
+     * @param propertySetter
+     */
+    _getProperties(propertySetter: getShaderPropertyFunc, isWebGL2: boolean): {
+        vertexPropertiesStr: string;
+        pixelPropertiesStr: string;
     };
-    private __createRenderPassDetectHighLuminance;
-    private __createRenderPassesBlurredHighLuminance;
-    private __createRenderPassGaussianBlur;
-    private __createRenderPassSynthesizeImage;
-    destroy3DAPIResources(): void;
-}
-
-declare class GaussianBlur {
-    private __mapReducedFramebuffer;
-    private __mapSynthesizeFramebuffer;
-    constructor();
-    createGaussianBlurExpression({ textureToBlur, parameters: { blurPassLevel, gaussianKernelSize, gaussianVariance, synthesizeCoefficient, isReduceBuffer, textureFormat, outputFrameBuffer, outputFrameBufferLayerIndex, }, }: {
-        textureToBlur: AbstractTexture;
-        parameters: {
-            blurPassLevel?: number;
-            gaussianKernelSize?: number;
-            gaussianVariance?: number;
-            synthesizeCoefficient?: [number, number, number, number, number, number];
-            isReduceBuffer?: boolean;
-            textureFormat?: TextureFormatEnum;
-            outputFrameBuffer?: FrameBuffer;
-            outputFrameBufferLayerIndex?: number;
-        };
-    }): {
-        blurExpression: Expression;
-        blurredRenderTarget: RenderTargetTexture;
-        renderPassesBlurred: RenderPass[];
-    };
-    private __createBlurPasses;
-    private __createRenderPassSynthesizeImage;
-    private __createRenderPassGaussianBlur;
-    destroy3DAPIResources(): void;
+    private __setAutoParametersToGpuWebGL;
+    private __setSoloDatumParametersToGpuWebGL;
+    /**
+     * Change the blendEquations
+     * This method works only if this alphaMode is the blend
+     * @param blendEquationMode the argument of gl.blendEquation of the first argument of gl.blendEquationSeparate such as gl.FUNC_ADD
+     * @param blendEquationModeAlpha the second argument of gl.blendEquationSeparate
+     */
+    setBlendEquationMode(blendEquationMode: BlendEnum, blendEquationModeAlpha?: BlendEnum): void;
+    private __treatForMinMax;
+    /**
+     * Change the blendFuncSeparateFactors
+     * This method works only if this alphaMode is the blend
+     */
+    setBlendFuncSeparateFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum, blendFuncAlphaSrcFactor: BlendEnum, blendFuncAlphaDstFactor: BlendEnum): void;
+    /**
+     * Change the blendFuncFactors
+     * This method works only if this alphaMode is the blend
+     */
+    setBlendFuncFactor(blendFuncSrcFactor: BlendEnum, blendFuncDstFactor: BlendEnum): void;
+    isBlend(): boolean;
+    /**
+     *
+     * @returns return true if (alphaMode is Opaque or Mask) and translucent
+     */
+    isTranslucentOpaque(): boolean;
+    isBlendOrTranslucent(): boolean;
+    isOpaque(): boolean;
+    isMask(): boolean;
+    /**
+     * NOTE: To apply the alphaToCoverage, the output alpha value must not be fixed to constant value.
+     * However, some shaders in the Rhodonite fixes the output alpha value to 1 by setAlphaIfNotInAlphaBlendMode.
+     * So we need to improve the shader to use the alphaToCoverage.
+     * @param alphaToCoverage apply alphaToCoverage to this material or not
+     */
+    set alphaToCoverage(alphaToCoverage: boolean);
+    get alphaToCoverage(): boolean;
+    /**
+     * Gets materialTID.
+     */
+    get materialTID(): MaterialTID;
+    get fieldsInfoArray(): ShaderSemanticsInfo[];
+    get blendEquationMode(): BlendEnum;
+    get blendEquationModeAlpha(): BlendEnum;
+    get blendFuncSrcFactor(): BlendEnum;
+    get blendFuncDstFactor(): BlendEnum;
+    get blendFuncAlphaSrcFactor(): BlendEnum;
+    get blendFuncAlphaDstFactor(): BlendEnum;
+    get alphaMode(): AlphaModeEnum;
+    set alphaMode(mode: AlphaModeEnum);
+    get materialUID(): MaterialUID;
+    get materialSID(): MaterialSID;
+    get isSkinning(): boolean;
+    get isMorphing(): boolean;
+    get isLighting(): boolean;
+    get materialTypeName(): string;
+    get stateVersion(): number;
+    makeShadersInvalidate(): void;
 }
 
 interface LoadImageToMipLevelDescriptor {
@@ -10279,20 +9936,17 @@ declare class Texture extends AbstractTexture implements Disposable {
     private static __loadedBasisFunc;
     private static __basisLoadPromise?;
     private static __BasisFile?;
-    private __uriToLoadLazy?;
-    private __imgToLoadLazy?;
     private __optionsToLoadLazy?;
     private static managedRegistry;
     constructor();
     private __setTextureResourceUid;
-    get hasDataToLoadLazy(): boolean;
     generateTextureFromBasis(uint8Array: Uint8Array, options: {
         level?: Count;
         internalFormat?: TextureParameterEnum;
         format?: PixelFormatEnum;
         type?: ComponentTypeEnum;
         generateMipmap?: boolean;
-    }): void;
+    }): Promise<void>;
     private __setBasisTexture;
     generateTextureFromKTX2(uint8Array: Uint8Array): Promise<void>;
     generateTextureFromImage(image: HTMLImageElement, { level, internalFormat, format, type, generateMipmap, }?: {
@@ -10317,9 +9971,8 @@ declare class Texture extends AbstractTexture implements Disposable {
             toJSON(): number;
         } | undefined;
         generateMipmap?: boolean | undefined;
-    }): void;
-    loadFromImgLazy(): Promise<void>;
-    generateTextureFromUri(imageUri: string, { level, internalFormat, format, type, generateMipmap, }?: {
+    }): Promise<void>;
+    generateTextureFromUrl(imageUri: string, { level, internalFormat, format, type, generateMipmap, }?: {
         level?: number | undefined;
         internalFormat?: TextureFormatEnum | undefined;
         format?: EnumIO | undefined;
@@ -10341,9 +9994,8 @@ declare class Texture extends AbstractTexture implements Disposable {
             toJSON(): number;
         } | undefined;
         generateMipmap?: boolean | undefined;
-    }): void;
-    loadFromUrlLazy(): Promise<void>;
-    generate1x1TextureFrom(rgbaStr?: string): void;
+    }): Promise<void>;
+    generate1x1TextureFrom(rgbaStr?: string): Promise<void>;
     generateSheenLutTextureFromDataUri(): Promise<void>;
     allocate(desc: {
         mipLevelCount?: Count;
@@ -10352,8 +10004,8 @@ declare class Texture extends AbstractTexture implements Disposable {
         format: TextureFormatEnum;
     }): void;
     loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor): Promise<void>;
-    generateCompressedTextureFromTypedArray(typedArray: TypedArray, width: number, height: number, compressionTextureType: CompressionTextureTypeEnum): void;
-    generateCompressedTextureWithMipmapFromTypedArray(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): void;
+    generateCompressedTextureFromTypedArray(typedArray: TypedArray, width: number, height: number, compressionTextureType: CompressionTextureTypeEnum): Promise<void>;
+    generateCompressedTextureWithMipmapFromTypedArray(textureDataArray: TextureData[], compressionTextureType: CompressionTextureTypeEnum): Promise<void>;
     /**
      * Generate mipmaps for the texture.
      */
@@ -10363,6 +10015,29 @@ declare class Texture extends AbstractTexture implements Disposable {
     private static __deleteInternalTexture;
     [Symbol.dispose](): void;
     destroy(): void;
+    static loadFromUrl(uri: string, { level, internalFormat, format, type, generateMipmap, }?: {
+        level?: number | undefined;
+        internalFormat?: TextureFormatEnum | undefined;
+        format?: EnumIO | undefined;
+        type?: {
+            readonly __webgpu: string;
+            readonly __wgsl: string;
+            readonly __sizeInBytes: number;
+            readonly __dummyStr: "UNSIGNED_BYTE";
+            readonly wgsl: string;
+            readonly webgpu: string;
+            getSizeInBytes(): number;
+            isFloatingPoint(): boolean;
+            isInteger(): boolean;
+            isUnsignedInteger(): boolean;
+            readonly index: number;
+            readonly symbol: symbol;
+            readonly str: string;
+            toString(): string;
+            toJSON(): number;
+        } | undefined;
+        generateMipmap?: boolean | undefined;
+    }): Promise<Texture>;
 }
 
 /**
@@ -10399,7 +10074,7 @@ declare class MeshRendererComponent extends Component {
     set rotationOfCubeMap(rotation: number);
     calcFingerPrint(): void;
     getFingerPrint(): string;
-    setIBLCubeMap(diffuseCubeTexture: CubeTexture | RenderTargetTextureCube, specularCubeTexture: CubeTexture | RenderTargetTextureCube, sheenCubeTexture?: CubeTexture | RenderTargetTextureCube): Promise<void> | undefined;
+    setIBLCubeMap(diffuseCubeTexture: CubeTexture | RenderTargetTextureCube, specularCubeTexture: CubeTexture | RenderTargetTextureCube, sheenCubeTexture?: CubeTexture | RenderTargetTextureCube): void;
     static common_$load({ processApproach }: {
         processApproach: ProcessApproachEnum;
     }): void;
@@ -10433,61 +10108,6 @@ interface IMeshRendererEntityMethods {
     getMeshRenderer(): MeshRendererComponent;
 }
 
-type Vrm1HumanBone = {
-    node: number;
-};
-type Vrm1_MeshAnnotation = {
-    node: number;
-    type: 'thirdPersonOnly' | 'firstPersonOnly' | 'both' | 'auto';
-};
-type Vrm1SpringBone_Spring = {
-    colliderGroups: number[];
-    joints: Vrm1SpringBone_Joint[];
-    name: string;
-    center: number;
-};
-type Vrm1SpringBone_Joint = {
-    node: number;
-    hitRadius: number;
-    stiffness: number;
-    gravityPower: number;
-    gravityDir: [number, number, number];
-    dragForce: number;
-};
-type Vrm1MorphTargetBind = {
-    index: number;
-    node: number;
-    weight: number;
-};
-type Vrm1MaterialColorBind = {
-    material: number;
-    type: string;
-    targetValue: [number, number, number, number];
-};
-type Vrm1TextureTransformBind = {
-    material: number;
-    scale: [number, number];
-    offset: [number, number];
-};
-type Vrm1OverrideType = 'none' | 'block' | 'blend';
-type Vrm1SpringBone_Collider = {
-    node: number;
-    shape: {
-        sphere?: {
-            offset: [number, number, number];
-            radius: number;
-        };
-        capsule?: {
-            offset: [number, number, number];
-            radius: number;
-            tail: [number, number, number];
-        };
-    };
-};
-type Vrm1SpringBone_ColliderGroup = {
-    name: string;
-    colliders: number[];
-};
 type Vrm1_Materials_MToon = {
     specVersion: string;
     transparentWithZWrite: boolean;
@@ -10547,82 +10167,6 @@ interface Vrm1_Material extends RnM2Material {
         VRMC_materials_mtoon: Vrm1_Materials_MToon;
     };
 }
-type Vrm1_Extension = {
-    extensions: {
-        VRMC_vrm: {
-            specVersion: string;
-            humanoid: {
-                humanBones: Vrm1HumanBone[];
-                armStretch: number;
-                legStretch: number;
-                upperArmTwist: number;
-                lowerArmTwist: number;
-                upperLegTwist: number;
-                lowerLegTwist: number;
-                feetSpacing: number;
-                hasTranslationDoF: false;
-            };
-            meta: {
-                version: string;
-                author: string;
-                contactInformation: string;
-                reference: string;
-                title: string;
-                texture: 30;
-                allowedUserName: string;
-                violentUsageName: string;
-                sexualUsageName: string;
-                commercialUsageName: string;
-                otherPermissionUrl: string;
-                licenseName: string;
-                otherLicenseUrl: string;
-            };
-            firstPerson: {
-                meshAnnotations: Vrm1_MeshAnnotation[];
-            };
-            expressions: {
-                preset: {
-                    [key: string]: {
-                        isBinary: boolean;
-                        morphTargetBinds: Vrm1MorphTargetBind[];
-                        materialColorBinds: Vrm1MaterialColorBind[];
-                        textureTransformBinds: Vrm1TextureTransformBind[];
-                        overrideBlink: Vrm1OverrideType;
-                        overrideLookAt: Vrm1OverrideType;
-                        overrideMouth: Vrm1OverrideType;
-                    };
-                };
-            };
-            lookAt: {
-                type: 'bone' | 'expression';
-                offsetFromHeadBone: [number, number, number];
-                rangeMapHorizontalInner: {
-                    inputMaxValue: number;
-                    outputScale: number;
-                };
-                rangeMapHorizontalOuter: {
-                    inputMaxValue: number;
-                    outputScale: number;
-                };
-                rangeMapVerticalDown: {
-                    inputMaxValue: number;
-                    outputScale: number;
-                };
-                rangeMapVerticalUp: {
-                    inputMaxValue: number;
-                    outputScale: number;
-                };
-            };
-        };
-        VRMC_springBone: {
-            colliderGroups: Vrm1SpringBone_ColliderGroup[];
-            colliders: Vrm1SpringBone_Collider[];
-            specVersions: string;
-            springs: Vrm1SpringBone_Spring[];
-        };
-    };
-};
-type Vrm1 = Vrm1_Extension & RnM2;
 
 declare function createMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
 declare function recreateMaterial(materialContent: AbstractMaterialContent, maxInstancesNumber?: Count): Material;
@@ -12043,7 +11587,7 @@ declare class VideoTexture extends AbstractTexture {
         } | undefined;
         generateMipmap?: boolean | undefined;
         mutedAutoPlay?: boolean | undefined;
-    }): void;
+    }): Promise<void>;
     generateTextureFromUri(videoUri: string, { level, internalFormat, format, type, generateMipmap, mutedAutoPlay, playButtonDomElement, }?: {
         level?: number | undefined;
         internalFormat?: TextureFormatEnum | undefined;
@@ -12201,6 +11745,133 @@ declare class ShadowSystem {
     setDepthBiasPV(entities: ISceneGraphEntity[]): void;
     isLightChanged(): boolean;
 }
+
+/**
+ * Asset loader configuration interface
+ */
+interface AssetLoaderConfig {
+    /** Limit on the number of concurrent loads */
+    maxConcurrentLoads?: number;
+    /** Timeout duration (in milliseconds). Set to 0 or negative value to disable timeout */
+    timeout?: number;
+}
+/**
+ * Helper type to infer the result object type from the promise object type
+ */
+type AwaitedObject<T> = {
+    [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K];
+};
+/**
+ * Type-safe asset loader class
+ *
+ * @example
+ * ```typescript
+ * // Default configuration with 60 second timeout
+ * const assetLoader = new AssetLoader();
+ *
+ * // Configuration with custom settings
+ * const customLoader = new AssetLoader({
+ *   maxConcurrentLoads: 5,
+ *   timeout: 30000 // 30 seconds
+ * });
+ *
+ * // Disable timeout (wait indefinitely)
+ * const noTimeoutLoader = new AssetLoader({
+ *   timeout: 0 // or any negative value
+ * });
+ *
+ * // Load promises in object format
+ * const assets = await assetLoader.load({
+ *   environment: Rn.CubeTexture.fromUrl({
+ *     baseUrl: '/path/to/environment',
+ *     mipmapLevelNumber: 1,
+ *     isNamePosNeg: true,
+ *     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+ *   }),
+ *   specular: Rn.CubeTexture.fromUrl({
+ *     baseUrl: '/path/to/specular',
+ *     mipmapLevelNumber: 10,
+ *     isNamePosNeg: true,
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *   }),
+ *   diffuse: Rn.CubeTexture.fromUrl({
+ *     baseUrl: '/path/to/diffuse',
+ *     mipmapLevelNumber: 1,
+ *     isNamePosNeg: true,
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *   })
+ * });
+ *
+ * console.log(assets.environment); // CubeTexture
+ * console.log(assets.specular); // CubeTexture
+ * console.log(assets.diffuse); // CubeTexture
+ * ```
+ */
+declare class AssetLoader {
+    private config;
+    private loadingQueue;
+    private activeLoads;
+    constructor(config?: AssetLoaderConfig);
+    /**
+     * Load promises in object format
+     */
+    load<T extends Record<string, Promise<any>>>(promiseObject: T): Promise<AwaitedObject<T>>;
+    /**
+     * Load a single promise
+     */
+    loadSingle<T>(promise: Promise<T>): Promise<T>;
+    /**
+     * Load a single promise with multiple retry factories
+     */
+    loadWithRetrySingle<T>(promiseFactories: Array<() => Promise<T>>): Promise<T>;
+    /**
+     * Load multiple promises in bulk (array format)
+     */
+    loadArray<T>(promises: Promise<T>[]): Promise<T[]>;
+    /**
+     * Load multiple promises in bulk (tuple of different types)
+     */
+    loadArray<T extends readonly unknown[]>(promises: readonly [...{
+        [K in keyof T]: Promise<T[K]>;
+    }]): Promise<T>;
+    /**
+     * Load with retry factories in array format
+     */
+    loadWithRetryArray<T>(promiseFactories: Array<Array<() => Promise<T>>>): Promise<T[]>;
+    /**
+     * Load with retry factories in object format
+     */
+    loadWithRetry<T extends Record<string, Promise<any>>>(promiseFactories: {
+        [K in keyof T]: Array<() => T[K]>;
+    }): Promise<AwaitedObject<T>>;
+    /**
+     * Load a single promise with multiple retry factories
+     */
+    private loadSingleWithMultipleRetries;
+    /**
+     * Process the loading queue
+     */
+    private processQueue;
+    /**
+     * Execute the actual loading process
+     */
+    private executeLoad;
+    /**
+     * Get the current loading status
+     */
+    getLoadingStatus(): {
+        active: number;
+        queued: number;
+    };
+    /**
+     * Wait until all loads are complete
+     */
+    waitForAllLoads(): Promise<void>;
+}
+/**
+ * Default asset loader instance
+ */
+declare const defaultAssetLoader: AssetLoader;
 
 /**
  * TransformComponent is a component that manages the transform of an entity.
@@ -13141,6 +12812,202 @@ declare class Entity extends RnObject implements IEntity {
     _destroy(): void;
 }
 
+/**
+ * A render pass is a collection of the resources which is used in rendering process.
+ */
+declare class RenderPass extends RnObject {
+    private readonly __renderPassUID;
+    private __entities;
+    private __sceneGraphDirectlyAdded;
+    private __topLevelSceneGraphComponents;
+    private __meshComponents;
+    private __optimizedMeshComponents;
+    private __frameBuffer?;
+    private __resolveFrameBuffer?;
+    private __resolveFrameBuffer2?;
+    private __viewport?;
+    private __material?;
+    private __primitiveMaterial;
+    toClearColorBuffer: boolean;
+    toClearDepthBuffer: boolean;
+    toClearStencilBuffer: boolean;
+    isDepthTest: boolean;
+    /**
+     * depth write mask for primitives drawing
+     * false does not prevent depth clear.
+     */
+    depthWriteMask: boolean;
+    clearColor: Vector4;
+    clearDepth: number;
+    clearStencil: number;
+    cameraComponent?: CameraComponent;
+    _drawVertexNumberForBufferLessRendering: number;
+    _primitiveModeForBufferLessRendering: PrimitiveModeEnum;
+    _dummyPrimitiveForBufferLessRendering: Primitive;
+    isVrRendering: boolean;
+    isOutputForVr: boolean;
+    _lastOpaqueIndex: number;
+    _lastTranslucentIndex: number;
+    _lastBlendWithZWriteIndex: number;
+    _lastBlendWithoutZWriteIndex: number;
+    _lastPrimitiveUids: number[];
+    _lastTransformComponentsUpdateCount: number;
+    _lastCameraControllerComponentsUpdateCount: number;
+    _lastSceneGraphComponentsUpdateCount: number;
+    _renderedSomethingBefore: boolean;
+    _isChangedSortRenderResult: boolean;
+    /** Whether or not to draw opaque primitives contained in this render pass. */
+    _toRenderOpaquePrimitives: boolean;
+    /** Whether or not to draw translucent primitives contained in this render pass. */
+    _toRenderTranslucentPrimitives: boolean;
+    /** Whether or not to draw blend with ZWrite primitives contained in this render pass. */
+    _toRenderBlendWithZWritePrimitives: boolean;
+    /** Whether or not to draw blend without ZWrite primitives contained in this render pass. */
+    _toRenderBlendWithoutZWritePrimitives: boolean;
+    toRenderEffekseerEffects: boolean;
+    __renderTargetColorAttachments?: RenderBufferTargetEnum[];
+    private __preEachRenderFunc?;
+    private __postEachRenderFunc?;
+    private static __tmp_Vector4_0;
+    static __mesh_uid_count: number;
+    constructor();
+    setToRenderOpaquePrimitives(toRender: boolean): void;
+    setToRenderBlendWithoutZWritePrimitives(toRender: boolean): void;
+    setToRenderBlendWithZWritePrimitives(toRender: boolean): void;
+    setToRenderTranslucentPrimitives(toRender: boolean): void;
+    isBufferLessRenderingMode(): boolean;
+    /**
+     * @brief Set this render pass to buffer-less rendering mode.
+     * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+     * This is useful for e.g. full-screen drawing.
+     * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+     * @param primitiveMode The primitive mode to be used in buffer-less rendering.
+     * @param drawVertexNumberWithoutEntities The number of vertices to be rendered in buffer-less rendering.
+     * @param material The material to be used in buffer-less rendering.
+     */
+    setBufferLessRendering(primitiveMode: PrimitiveModeEnum, drawVertexNumberWithoutEntities: number, material: Material): void;
+    /**
+     * @brief Set this render pass to buffer-less rendering mode.
+     * When this function is called, buffer-less rendering is performed only once with the specified number of vertices.
+     * This is useful for e.g. full-screen drawing.
+     * In this case, even if Entities are registered using the addEntities method, they will be ignored and will not be rendered.
+     * @param material The material to be used in buffer-less rendering.
+     */
+    setBufferLessFullScreenRendering(material: Material): void;
+    clone(): RenderPass;
+    setPreRenderFunction(func: () => void): void;
+    setPostRenderFunction(func: () => void): void;
+    doPreRender(): void;
+    doPostRender(): void;
+    /**
+     * Add entities to draw.
+     * @param entities An array of entities.
+     */
+    addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]): void;
+    private __calcMeshComponents;
+    /**
+     * Gets the list of entities on this render pass.
+     * @return An array of entities
+     */
+    get entities(): IEntity[];
+    /**
+     * Clear entities on this render pass.
+     */
+    clearEntities(): void;
+    private __collectTopLevelSceneGraphComponents;
+    private __collectMeshComponents;
+    /**
+     * Get all the MeshComponents list of the entities on this render pass.
+     * @return An array of MeshComponents
+     */
+    get meshComponents(): MeshComponent[];
+    /**
+     * Get MeshComponents list to render
+     * @return An array of MeshComponents
+     */
+    get _optimizedMeshComponents(): MeshComponent[];
+    /**
+     * Get all the highest level SceneGraphComponents list of the entities on this render pass.
+     * @return An array of SceneGraphComponents
+     */
+    get sceneTopLevelGraphComponents(): SceneGraphComponent[];
+    /**
+     * Sets the target framebuffer of this render pass.
+     * If two or more render pass share a framebuffer, Rhodonite renders entities to the same framebuffer in those render passes.
+     * @param framebuffer A framebuffer
+     */
+    setFramebuffer(framebuffer?: FrameBuffer): void;
+    setRenderTargetColorAttachments(indeces?: RenderBufferTargetEnum[]): void;
+    getRenderTargetColorAttachments(): RenderBufferTargetEnum[] | undefined;
+    /**
+     * Gets the framebuffer if this render pass has the target framebuffer.
+     * @return A framebuffer
+     */
+    getFramebuffer(): FrameBuffer | undefined;
+    /**
+     * Remove the existing framebuffer
+     */
+    removeFramebuffer(): void;
+    /**
+     * Sets the viewport of this render pass.
+     * @param vec A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
+     */
+    setViewport(vec: IVector4): void;
+    /**
+     * Gets the viewport if this render pass has the viewport.
+     * @return A Vector4 (Origin of coordinatesX, origin of coordinatesY, width, height).
+     */
+    getViewport(): MutableVector4 | undefined;
+    setResolveFramebuffer(framebuffer?: FrameBuffer): void;
+    getResolveFramebuffer(): FrameBuffer | undefined;
+    setResolveFramebuffer2(framebuffer?: FrameBuffer): void;
+    getResolveFramebuffer2(): FrameBuffer | undefined;
+    _copyFramebufferToResolveFramebuffersWebGL(): void;
+    private __copyFramebufferToResolveFramebufferInner;
+    _copyResolve1ToResolve2WebGpu(): void;
+    /**
+     * Sets a material for the primitive on this render pass.
+     * If Rhodonite draw the primitive using this render pass, Rhodonite uses this material instead of the material on the primitive.
+     * @param material A material attaching to the primitive
+     * @param primitive A target primitive
+     */
+    setMaterialForPrimitive(material: Material, primitive: Primitive): void;
+    /**
+     * Sets a material for all the primitive on this render pass.
+     * For all the primitive, Rhodonite uses this material instead of the material on the primitive.
+     * Where if this render pass has a map between primitive and material by setMaterialForPrimitive, Rhodonite uses the material mapped by primitive.
+     * @param material A material attaching to the primitive
+     */
+    setMaterial(material: Material): void;
+    get material(): Material | undefined;
+    _getMaterialOf(primitive: Primitive): Material | undefined;
+    private __hasMaterialOf;
+    getAppropriateMaterial(primitive: Primitive): Material;
+    get renderPassUID(): number;
+}
+
+/**
+ * Expression specifies the order of render passes on rendering process.
+ */
+declare class Expression extends RnObject {
+    private __renderPasses;
+    constructor();
+    clone(): Expression;
+    /**
+     * Add render passes to the end of this expression.
+     */
+    addRenderPasses(renderPasses: RenderPass[]): void;
+    /**
+     * Clear render passes of this expression.
+     */
+    clearRenderPasses(): void;
+    /**
+     * Gets the list of render passes of this expression.
+     */
+    get renderPasses(): RenderPass[];
+    setViewport(viewport: IVector4): void;
+}
+
 interface ILoaderExtension {
     generateMaterial?(materialJson: RnM2Material): Material;
     isNeededToUseThisMaterial?(gltfJson: RnM2): boolean;
@@ -13154,19 +13021,7 @@ interface Gltf2AnyObject {
     [s: string]: any;
 }
 type Gltf2 = {
-    asset: {
-        extras?: {
-            rnLoaderOptions?: GltfLoadOption;
-            rnEntities?: Entity[];
-            rnMaterials?: {
-                [s: string]: Material;
-            };
-            version?: string;
-            fileType?: string;
-        };
-        generator: string;
-        version: string;
-    };
+    asset: Gltf2Asset;
     buffers?: Gltf2Buffer[];
     scenes?: Gltf2Scene[];
     scene?: number;
@@ -13185,6 +13040,14 @@ type Gltf2 = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
+interface Gltf2Asset {
+    copyright?: string;
+    generator?: string;
+    version: string;
+    minVersion?: string;
+    extensions?: Gltf2AnyObject;
+    extras?: Gltf2AnyObject;
+}
 type Gltf2Scene = {
     name?: string;
     scene?: number;
@@ -13225,7 +13088,6 @@ type Gltf2Node = {
     skin?: number;
     matrix?: number[];
     mesh?: number;
-    meshNames?: string[];
     rotation?: number[];
     scale?: number[];
     translation?: number[];
@@ -13267,7 +13129,7 @@ type Gltf2NormalTextureInfo = {
     extras?: Gltf2AnyObject;
 };
 type Gltf2PbrMetallicRoughness = {
-    baseColorFactor?: number[];
+    baseColorFactor?: Array4<number>;
     baseColorTexture?: Gltf2TextureInfo;
     metallicFactor?: number;
     roughnessFactor?: number;
@@ -13280,7 +13142,7 @@ type Gltf2Material = {
     normalTexture?: Gltf2NormalTextureInfo;
     occlusionTexture?: Gltf2OcclusionTextureInfo;
     emissiveTexture?: Gltf2TextureInfo;
-    emissiveFactor?: number[];
+    emissiveFactor?: Array3<number>;
     alphaMode?: string;
     alphaCutoff?: number;
     doubleSided?: boolean;
@@ -13323,7 +13185,7 @@ type Gltf2Image = {
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 };
-type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'effekseer';
+type Gltf2AnimationPathName = 'translation' | 'rotation' | 'scale' | 'weights' | 'pointer' | 'effekseer';
 type Gltf2AnimationChannelTarget = {
     node?: number;
     path: Gltf2AnimationPathName;
@@ -13355,7 +13217,6 @@ type Gltf2Animation = {
 type Gltf2Texture = {
     sampler?: number;
     source?: number;
-    image?: Gltf2Image;
     name?: string;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
@@ -13394,7 +13255,6 @@ type Gltf2Buffer = {
     byteLength: number;
     buffer?: Uint8Array;
     dataUri?: string;
-    bufferPromise?: RnPromise<ArrayBuffer>;
     name?: string;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
@@ -13421,7 +13281,6 @@ interface Gltf2Accessor {
     min?: number[];
     sparse?: Gltf2Sparse;
     name?: string;
-    accessor?: Accessor;
     extensions?: Gltf2AnyObject;
     extras?: Gltf2AnyObject;
 }
@@ -15591,6 +15450,173 @@ declare class TranslationGizmo extends Gizmo {
     _destroy(): void;
 }
 
+type Vrm1HumanBone = {
+    node: number;
+};
+type Vrm1_MeshAnnotation = {
+    node: number;
+    type: 'thirdPersonOnly' | 'firstPersonOnly' | 'both' | 'auto';
+};
+type Vrm1MorphTargetBind = {
+    index: number;
+    node: number;
+    weight: number;
+};
+type Vrm1MaterialColorBind = {
+    material: number;
+    type: string;
+    targetValue: [number, number, number, number];
+};
+type Vrm1TextureTransformBind = {
+    material: number;
+    scale: [number, number];
+    offset: [number, number];
+};
+type Vrm1OverrideType = 'none' | 'block' | 'blend';
+interface VRMC {
+    specVersion: string;
+    humanoid: {
+        humanBones: Vrm1HumanBone[];
+        armStretch: number;
+        legStretch: number;
+        upperArmTwist: number;
+        lowerArmTwist: number;
+        upperLegTwist: number;
+        lowerLegTwist: number;
+        feetSpacing: number;
+        hasTranslationDoF: false;
+    };
+    meta: {
+        version: string;
+        author: string;
+        contactInformation: string;
+        reference: string;
+        title: string;
+        texture: 30;
+        allowedUserName: string;
+        violentUsageName: string;
+        sexualUsageName: string;
+        commercialUsageName: string;
+        otherPermissionUrl: string;
+        licenseName: string;
+        otherLicenseUrl: string;
+    };
+    firstPerson: {
+        meshAnnotations: Vrm1_MeshAnnotation[];
+    };
+    expressions: {
+        preset: {
+            [key: string]: {
+                isBinary: boolean;
+                morphTargetBinds: Vrm1MorphTargetBind[];
+                materialColorBinds: Vrm1MaterialColorBind[];
+                textureTransformBinds: Vrm1TextureTransformBind[];
+                overrideBlink: Vrm1OverrideType;
+                overrideLookAt: Vrm1OverrideType;
+                overrideMouth: Vrm1OverrideType;
+            };
+        };
+    };
+    lookAt: {
+        type: 'bone' | 'expression';
+        offsetFromHeadBone: [number, number, number];
+        rangeMapHorizontalInner: {
+            inputMaxValue: number;
+            outputScale: number;
+        };
+        rangeMapHorizontalOuter: {
+            inputMaxValue: number;
+            outputScale: number;
+        };
+        rangeMapVerticalDown: {
+            inputMaxValue: number;
+            outputScale: number;
+        };
+        rangeMapVerticalUp: {
+            inputMaxValue: number;
+            outputScale: number;
+        };
+    };
+}
+
+interface VRMC_node_constraint {
+    node: RnM2Node;
+    constraint: {
+        roll?: {
+            source: number;
+            rollAxis: string;
+            weight?: number;
+        };
+        aim?: {
+            source: number;
+            aimAxis: string;
+            weight?: number;
+        };
+        rotation?: {
+            source: number;
+            weight?: number;
+        };
+    };
+}
+
+type Vrm1SpringBone_Collider = {
+    node: number;
+    shape: {
+        sphere?: {
+            offset: [number, number, number];
+            radius: number;
+        };
+        capsule?: {
+            offset: [number, number, number];
+            radius: number;
+            tail: [number, number, number];
+        };
+    };
+};
+type Vrm1SpringBone_ColliderGroup = {
+    name: string;
+    colliders: number[];
+};
+type Vrm1SpringBone_Spring = {
+    colliderGroups: number[];
+    joints: Vrm1SpringBone_Joint[];
+    name: string;
+    center: number;
+};
+type Vrm1SpringBone_Joint = {
+    node: number;
+    hitRadius: number;
+    stiffness: number;
+    gravityPower: number;
+    gravityDir: [number, number, number];
+    dragForce: number;
+};
+interface VRMC_springBone {
+    specVersions: string;
+    colliderGroups: Vrm1SpringBone_ColliderGroup[];
+    colliders: Vrm1SpringBone_Collider[];
+    springs: Vrm1SpringBone_Spring[];
+}
+
+interface Vrm1 extends RnM2 {
+    materials: Vrm1_Material[];
+    extensions: {
+        VRMC_vrm: VRMC;
+        VRMC_springBone?: VRMC_springBone;
+        VRMC_node_constraint?: VRMC_node_constraint;
+    };
+}
+
+interface VRM extends RnM2 {
+    materials: Vrm1_Material[];
+    extensions: {
+        VRM?: VRM0x_Extension;
+        VRMC_vrm?: VRMC;
+        VRMC_springBone?: VRMC_springBone;
+        VRMC_node_constraint?: VRMC_node_constraint;
+    };
+}
+
 type RetargetMode = 'none' | 'global' | 'absolute';
 declare class AnimationAssigner {
     private static __instance;
@@ -15605,7 +15631,7 @@ declare class AnimationAssigner {
      * @param srcRootEntityForRetarget
      * @returns
      */
-    assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: Vrm0x | Vrm1, isSameSkeleton: boolean, retargetMode: RetargetMode): ISceneGraphEntity;
+    assignAnimation(rootEntity: ISceneGraphEntity, gltfModel: RnM2, vrmModel: VRM | Vrm1 | Vrm0x, isSameSkeleton: boolean, retargetMode: RetargetMode): ISceneGraphEntity;
     assignAnimationWithVrma(rootEntity: ISceneGraphEntity, vrmaModel: RnM2Vrma, postfixToTrackName?: string): string[];
     private constructor();
     private __resetAnimationAndPose;
@@ -15700,12 +15726,12 @@ declare class Gltf2Importer {
     private constructor();
     /**
      * Import glTF2 file
-     * @param uri - uri of glTF file
+     * @param url - url of glTF file
      * @param options - options for loading process
      * @returns a glTF2 based JSON pre-processed
      */
-    static importFromUri(uri: string, options?: GltfLoadOption): Promise<Result<RnM2, undefined>>;
-    static importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption): Promise<Result<RnM2, undefined>>;
+    static importFromUrl(url: string, options?: GltfLoadOption): Promise<RnM2>;
+    static importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption): Promise<RnM2>;
     /**
      * Import glTF2 array buffer.
      * @param arrayBuffer .gltf/.glb file in ArrayBuffer
@@ -15744,13 +15770,13 @@ declare class GltfImporter {
     private constructor();
     /**
      * Import GLTF or VRM file.
-     * @param uris uri or array of uri of glTF file
+     * @param url url of glTF file
      * @param options options for loading process where the files property is ignored
      * @returns gltf expression where:
      *            renderPasses[0]: model entities
      *            renderPasses[1]: model outlines
      */
-    static importFromUri(uri: string, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Result<Expression, Err<ArrayBuffer, unknown>>>;
+    static importFromUrl(url: string, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Expression>;
     /**
      * Import GLTF or VRM from ArrayBuffers.
      * @param files ArrayBuffers of glTF/VRM files
@@ -15759,7 +15785,7 @@ declare class GltfImporter {
      *            renderPasses[0]: model entities
      *            renderPasses[1]: model outlines
      */
-    static importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Result<Expression, never>>;
+    static importFromArrayBuffers(files: GltfFileBuffers, options?: GltfLoadOption, callback?: RnPromiseCallback): Promise<Expression>;
     private static __initOptions;
     private static __setRenderPassesToExpression;
     private static __isValidExtension;
@@ -15783,7 +15809,7 @@ declare class ModelConverter {
     private static __setupMaterials;
     private static __setupTextures;
     private static __createSamplers;
-    static convertToRhodoniteObject(gltfModel: RnM2): ISceneGraphEntity;
+    static convertToRhodoniteObject(gltfModel: RnM2): Promise<ISceneGraphEntity>;
     private static __createRnBuffer;
     static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]): void;
     static _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]): void;
@@ -15817,7 +15843,7 @@ declare class ModelConverter {
     static _createSampler(sampler: RnM2TextureSampler): Sampler;
     static _createTexture(image: RnM2Image, gltfModel: RnM2, { autoDetectTransparency }?: {
         autoDetectTransparency?: boolean | undefined;
-    }): Texture;
+    }): Promise<Texture>;
     private static __needResizeToPowerOfTwoOnWebGl1;
     private static __sizeIsPowerOfTwo;
     private static __needParameterInitialization;
@@ -15878,19 +15904,19 @@ declare class Vrm0xImporter {
     /**
      * Import VRM file.
      */
-    static importFromUri(uri: string, options?: GltfLoadOption): Promise<Result<ISceneGraphEntity[], Err<RnM2, undefined>>>;
+    static importFromUrl(url: string, options?: GltfLoadOption): Promise<Result<ISceneGraphEntity[], Err<RnM2, undefined>>>;
     /**
      * For VRM file only
      * Generate JSON.
      */
-    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Result<Vrm0x, Err<RnM2, undefined>>>;
+    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm0x>;
     static __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void>;
     static _readBlendShapeGroup(gltfModel: Vrm0x, rootEntity: ISceneGraphEntity): void;
     static _readVRMHumanoidInfo(gltfModel: Vrm0x, rootEntity?: ISceneGraphEntity): void;
     static _readSpringBone(gltfModel: Vrm0x): void;
     private static __addSpringBoneRecursively;
     private static __addPhysicsComponent;
-    static _createTextures(gltfModel: RnM2): Texture[];
+    static _createTextures(gltfModel: RnM2): Promise<Texture[]>;
     static _createSamplers(gltfModel: RnM2): Sampler[];
     static _existOutlineMaterial(extensionsVRM: any): boolean;
     static _initializeMaterialProperties(gltfModel: RnM2, texturesLength: number): void;
@@ -15908,7 +15934,7 @@ declare class VrmImporter {
     static _readSpringBone(gltfModel: Vrm1): void;
     private static __addSpringBoneRecursively;
     private static __addPhysicsComponent;
-    static _createTextures(gltfModel: RnM2): Texture[];
+    static _createTextures(gltfModel: RnM2): Promise<Texture[]>;
     static _createSamplers(gltfModel: RnM2): Sampler[];
     private static __initializeMToonMaterialProperties;
     static _getOptions(options?: GltfLoadOption): GltfLoadOption;
@@ -15916,12 +15942,12 @@ declare class VrmImporter {
      * For VRM file only
      * Generate JSON.
      */
-    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Result<Vrm1, Err<RnM2, undefined>>>;
+    static importJsonOfVRM(uri: string, options?: GltfLoadOption): Promise<Vrm1>;
 }
 
 declare class VrmaImporter {
-    static importFromUri(uri: string): Promise<Result<RnM2Vrma, Err<RnM2, undefined>>>;
-    static importFromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<Result<RnM2Vrma, Err<RnM2, undefined>>>;
+    static importFromUrl(url: string): Promise<RnM2Vrma>;
+    static importFromArrayBuffer(arrayBuffer: ArrayBuffer): Promise<RnM2Vrma>;
     static readHumanoid(rnm: RnM2Vrma): void;
 }
 
@@ -16926,7 +16952,7 @@ declare class ForwardRenderPipeline extends RnObject {
      * @param diffuse - diffuse IBL Cube Texture
      * @param specular - specular IBL Cube Texture
      */
-    setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture): Promise<void>;
+    setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture): void;
     /**
      * getter of initial expression
      */
@@ -17628,7 +17654,7 @@ type WebXRSystemViewerData = {
     viewerOrientation: IMutableQuaternion;
     viewerAzimuthAngle: MutableScalar;
 };
-declare function createMotionController(xrInputSource: XRInputSource, basePath: string, profilePriorities: string[]): Promise<ISceneGraphEntity | undefined>;
+declare function createMotionController(xrInputSource: XRInputSource, basePath: string, profilePriorities: string[]): Promise<ISceneGraphEntity>;
 declare function updateGamePad(timestamp: number, xrFrame: XRFrame, viewerData: WebXRSystemViewerData): void;
 declare function updateMotionControllerModel(entity: IEntity, motionController: MotionController): void;
 declare function getMotionController(xrInputSource: XRInputSource): MotionController | undefined;
@@ -17712,4 +17738,4 @@ type RnXR = typeof XR;
 
 declare const VERSION: any;
 
-export { AABB, AABBGizmo, AbsoluteAnimation, AbstractArrayBufferBaseMathNumber, AbstractCameraController, AbstractMaterialContent, AbstractMatrix, AbstractQuaternion, AbstractShaderNode, AbstractTexture, AbstractVector, Accessor, AddShaderNode, AlphaMode, type AlphaModeEnum, AnimatedQuaternion, AnimatedScalar, AnimatedVector2, AnimatedVector3, AnimatedVector4, AnimatedVectorN, AnimationAssigner, AnimationAttribute, type AnimationAttributeEnum, type AnimationChannel, type AnimationChannelTarget, AnimationComponent, type AnimationComponentEventType, type AnimationInfo, AnimationInterpolation, type AnimationInterpolationEnum, type AnimationPathName, type AnimationSampler, type AnimationSamplers, type AnimationTrack, type AnimationTrackName, type Array1, type Array16, type Array1to4, type Array2, type Array3, type Array4, type Array9, type ArrayAsRn, type ArrayType, AttributeColorShaderNode, type AttributeName, type AttributeNames, AttributeNormalShaderNode, AttributePositionShaderNode, AttributeTexcoordShaderNode, type Attributes, Axis, type AxisDescriptor, type BASIS, BasisCompressionType, type BasisCompressionTypeEnum, type BasisFile, BasisLzEtc1sImageTranscoder, type BasisTranscoder, BlendShapeComponent, BlockBeginShader, BlockBeginShaderNode, BlockEndShader, BlockEndShaderNode, Bloom, BoneDataType, type BoneDataTypeEnum, Buffer, BufferUse, type BufferUseEnum, BufferView, type Byte$1 as Byte, type CGAPIResourceHandle, CGAPIResourceRepository, Cache, type CalledSubscriberNumber, CameraComponent, CameraControllerComponent, CameraControllerType, type CameraControllerTypeEnum, type CameraSID, CameraType, type CameraTypeEnum, CapsuleCollider, type ChangeAnimationInfoEvent, ClassicShadingShader, type ColorComponentLetter, ColorGradingUsingLUTsMaterialContent, ColorRgb, ColorRgba, CommonShaderPart, ComplexVertexAttribute, Component, type ComponentMixinFunction, ComponentRepository, type ComponentSID, type ComponentTID, type ComponentToComponentMethods, ComponentType, type ComponentTypeEnum, CompositionType, type CompositionTypeEnum, CompressionTextureType, type CompressionTextureTypeEnum, Config, ConstRgbaBlack, ConstRgbaWhite, ConstVector2_0_0, ConstVector2_1_1, ConstVector3_0_0_0, ConstVector3_1_1_1, ConstVector4_0_0_0_0, ConstVector4_0_0_0_1, ConstVector4_1_1_1_1, ConstantScalarVariableShaderNode, ConstantVariableShader, ConstantVector2VariableShaderNode, ConstantVector3VariableShaderNode, ConstantVector4VariableShaderNode, type Count, Cube, type CubeDescriptor, CubeTexture, CustomMaterialContent, DataUtil, DefaultTextures, DepthEncodeMaterialContent, DetectHighLuminanceMaterialContent, type DirectTextureData, DotProductShaderNode, DrcPointCloudImporter, EVENT_CLICK, EVENT_KEY_DOWN, EVENT_KEY_PRESS, EVENT_KEY_UP, EVENT_MOUSE_DOWN, EVENT_MOUSE_ENTER, EVENT_MOUSE_LEAVE, EVENT_MOUSE_MOVE, EVENT_MOUSE_OVER, EVENT_MOUSE_UP, EVENT_MOUSE_WHEEL, EVENT_MSPOINTER_DOWN, EVENT_MSPOINTER_MOVE, EVENT_MSPOINTER_UP, EVENT_ORIENTATION_CHANGE, EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_ENTER, EVENT_POINTER_LEAVE, EVENT_POINTER_MOVE, EVENT_POINTER_OUT, EVENT_POINTER_OVER, EVENT_POINTER_UP, EVENT_RESIZE, EVENT_TOUCH_CANCEL, EVENT_TOUCH_DOUBLE_TAP, EVENT_TOUCH_DRAG, EVENT_TOUCH_END, EVENT_TOUCH_ENTER, EVENT_TOUCH_HOLD, EVENT_TOUCH_LEAVE, EVENT_TOUCH_LONG_TAP, EVENT_TOUCH_MOVE, EVENT_TOUCH_OUT, EVENT_TOUCH_OVER, EVENT_TOUCH_PINCH, EVENT_TOUCH_START, EVENT_TOUCH_SWIPE, EVENT_TOUCH_TAP, Effekseer, EffekseerComponent, EndShader, Entity, EntityRepository, type EntityUID, EntityUIDOutputMaterialContent, EnumClass, type EnumIO, Err, type EventHandler, EventPubSub, type EventSubscriberIndex, type EventType, Expression, FileType, type FileTypeEnum, type FillArgsObject, type FloatTypedArray, type FloatTypedArrayConstructor, ForwardRenderPipeline, Frame, FrameBuffer, type FrameBufferCubeMapDescriptor, type FrameBufferDescriptor, type FrameBufferMSAADescriptor, type FrameBufferTextureArrayDescriptor, type FrameBufferTextureArrayForMultiViewDescriptor, Frustum, FurnaceTestMaterialContent, GLTF2_EXPORT_DRACO, GLTF2_EXPORT_EMBEDDED, GLTF2_EXPORT_GLB, GLTF2_EXPORT_GLTF, GLTF2_EXPORT_NO_DOWNLOAD, GL_ACTIVE_ATTRIBUTES, GL_ACTIVE_TEXTURE, GL_ACTIVE_UNIFORMS, GL_ACTIVE_UNIFORM_BLOCKS, GL_ALIASED_LINE_WIDTH_RANGE, GL_ALIASED_POINT_SIZE_RANGE, GL_ALPHA, GL_ALPHA_BITS, GL_ALREADY_SIGNALED, GL_ALWAYS, GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, GL_ATTACHED_SHADERS, GL_BACK, GL_BLEND, GL_BLEND_COLOR, GL_BLEND_DST_ALPHA, GL_BLEND_DST_RGB, GL_BLEND_EQUATION, GL_BLEND_EQUATION_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_SRC_ALPHA, GL_BLEND_SRC_RGB, GL_BLUE_BITS, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_BROWSER_DEFAULT_WEBGL, GL_BUFFER_SIZE, GL_BUFFER_USAGE, GL_CCW, GL_CLAMP_TO_EDGE, GL_COLOR, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0_WEBGL, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT10_WEBGL, GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT11_WEBGL, GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT12_WEBGL, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT13_WEBGL, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT14_WEBGL, GL_COLOR_ATTACHMENT15, GL_COLOR_ATTACHMENT15_WEBGL, GL_COLOR_ATTACHMENT1_WEBGL, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2_WEBGL, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT3_WEBGL, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT4_WEBGL, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT5_WEBGL, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT6_WEBGL, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT7_WEBGL, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT8_WEBGL, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT9_WEBGL, GL_COLOR_BUFFER_BIT, GL_COLOR_CLEAR_VALUE, GL_COLOR_WRITEMASK, GL_COMPARE_REF_TO_TEXTURE, GL_COMPILE_STATUS, GL_COMPRESSED_R11_EAC, GL_COMPRESSED_RG11_EAC, GL_COMPRESSED_RGB8_ETC2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_RGBA8_ETC2_EAC, GL_COMPRESSED_RGBA_ASTC_10X10_KHR, GL_COMPRESSED_RGBA_ASTC_10X5_KHR, GL_COMPRESSED_RGBA_ASTC_10X6_KHR, GL_COMPRESSED_RGBA_ASTC_10X8_KHR, GL_COMPRESSED_RGBA_ASTC_12X10_KHR, GL_COMPRESSED_RGBA_ASTC_12X12_KHR, GL_COMPRESSED_RGBA_ASTC_4X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X5_KHR, GL_COMPRESSED_RGBA_ASTC_8X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X8_KHR, GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGB_ATC_WEBGL, GL_COMPRESSED_RGB_ETC1_WEBGL, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_SIGNED_R11_EAC, GL_COMPRESSED_SIGNED_RG11_EAC, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_COMPRESSED_SRGB8_ETC2, GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_TEXTURE_FORMATS, GL_CONDITION_SATISFIED, GL_CONSTANT_ALPHA, GL_CONSTANT_COLOR, GL_CONTEXT_LOST_WEBGL, GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING, GL_COPY_WRITE_BUFFER, GL_COPY_WRITE_BUFFER_BINDING, GL_CULL_FACE, GL_CULL_FACE_MODE, GL_CURRENT_PROGRAM, GL_CURRENT_QUERY, GL_CURRENT_QUERY_EXT, GL_CURRENT_VERTEX_ATTRIB, GL_CW, GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT, GL_DECR, GL_DECR_WRAP, GL_DELETE_STATUS, GL_DEPTH, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8, GL_DEPTH_ATTACHMENT, GL_DEPTH_BITS, GL_DEPTH_BUFFER_BIT, GL_DEPTH_CLEAR_VALUE, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_DEPTH_FUNC, GL_DEPTH_RANGE, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_TEST, GL_DEPTH_WRITEMASK, GL_DITHER, GL_DONT_CARE, GL_DRAW_BUFFER0, GL_DRAW_BUFFER0_WEBGL, GL_DRAW_BUFFER1, GL_DRAW_BUFFER10, GL_DRAW_BUFFER10_WEBGL, GL_DRAW_BUFFER11, GL_DRAW_BUFFER11_WEBGL, GL_DRAW_BUFFER12, GL_DRAW_BUFFER12_WEBGL, GL_DRAW_BUFFER13, GL_DRAW_BUFFER13_WEBGL, GL_DRAW_BUFFER14, GL_DRAW_BUFFER14_WEBGL, GL_DRAW_BUFFER15, GL_DRAW_BUFFER15_WEBGL, GL_DRAW_BUFFER1_WEBGL, GL_DRAW_BUFFER2, GL_DRAW_BUFFER2_WEBGL, GL_DRAW_BUFFER3, GL_DRAW_BUFFER3_WEBGL, GL_DRAW_BUFFER4, GL_DRAW_BUFFER4_WEBGL, GL_DRAW_BUFFER5, GL_DRAW_BUFFER5_WEBGL, GL_DRAW_BUFFER6, GL_DRAW_BUFFER6_WEBGL, GL_DRAW_BUFFER7, GL_DRAW_BUFFER7_WEBGL, GL_DRAW_BUFFER8, GL_DRAW_BUFFER8_WEBGL, GL_DRAW_BUFFER9, GL_DRAW_BUFFER9_WEBGL, GL_DRAW_FRAMEBUFFER, GL_DRAW_FRAMEBUFFER_BINDING, GL_DST_ALPHA, GL_DST_COLOR, GL_DYNAMIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING, GL_EQUAL, GL_FASTEST, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_FLOAT_MAT2, GL_FLOAT_MAT2X3, GL_FLOAT_MAT2X4, GL_FLOAT_MAT3, GL_FLOAT_MAT3X2, GL_FLOAT_MAT3X4, GL_FLOAT_MAT4, GL_FLOAT_MAT4X2, GL_FLOAT_MAT4X3, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, GL_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, GL_FRAMEBUFFER_BINDING, GL_FRAMEBUFFER_COMPLETE, GL_FRAMEBUFFER_DEFAULT, GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, GL_FRAMEBUFFER_UNSUPPORTED, GL_FRONT, GL_FRONT_AND_BACK, GL_FRONT_FACE, GL_FUNC_ADD, GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_SUBSTRACT, GL_GENERATE_MIPMAP_HINT, GL_GEQUAL, GL_GPU_DISJOINT_EXT, GL_GREATER, GL_GREEN_BITS, GL_HALF_FLOAT, GL_HALF_FLOAT_OES, GL_HIGH_FLOAT, GL_HIGH_INT, GL_IMPLEMENTATION_COLOR_READ_FORMAT, GL_IMPLEMENTATION_COLOR_READ_TYPE, GL_INCR, GL_INCR_WRAP, GL_INTERLEAVED_ATTRIBS, GL_INT_2_10_10_10_REV, GL_INT_SAMPLER_2D, GL_INT_SAMPLER_2D_ARRAY, GL_INT_SAMPLER_3D, GL_INT_SAMPLER_CUBE, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_INVALID_ENUM, GL_INVALID_FRAMEBUFFER_OPERATION, GL_INVALID_INDEX, GL_INVALID_OPERATION, GL_INVALID_VALUE, GL_INVERT, GL_KEEP, GL_LEQUAL, GL_LESS, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_LINE_WIDTH, GL_LINK_STATUS, GL_LOW_FLOAT, GL_LOW_INT, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_MAX, GL_MAX_3D_TEXTURE_SIZE, GL_MAX_ARRAY_TEXTURE_LAYERS, GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, GL_MAX_COLOR_ATTACHMENTS, GL_MAX_COLOR_ATTACHMENTS_WEBGL, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL_MAX_COMBINED_UNIFORM_BLOCKS, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, GL_MAX_CUBE_MAP_TEXTURE_SIZE, GL_MAX_DRAW_BUFFERS, GL_MAX_DRAW_BUFFERS_WEBGL, GL_MAX_ELEMENTS_INDICES, GL_MAX_ELEMENTS_VERTICES, GL_MAX_ELEMENT_INDEX, GL_MAX_EXT, GL_MAX_FRAGMENT_INPUT_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_BLOCKS, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_VECTORS, GL_MAX_PROGRAM_TEXEL_OFFSET, GL_MAX_RENDERBUFFER_SIZE, GL_MAX_SAMPLES, GL_MAX_SERVER_WAIT_TIMEOUT, GL_MAX_TEXTURE_IMAGE_UNITS, GL_MAX_TEXTURE_LOD_BIAS, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, GL_MAX_TEXTURE_SIZE, GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, GL_MAX_UNIFORM_BLOCK_SIZE, GL_MAX_UNIFORM_BUFFER_BINDINGS, GL_MAX_VARYING_COMPONENTS, GL_MAX_VARYING_VECTORS, GL_MAX_VERTEX_ATTRIBS, GL_MAX_VERTEX_OUTPUT_COMPONENTS, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL_MAX_VERTEX_UNIFORM_BLOCKS, GL_MAX_VERTEX_UNIFORM_COMPONENTS, GL_MAX_VERTEX_UNIFORM_VECTORS, GL_MAX_VIEWPORT_DIMS, GL_MEDIUM_FLOAT, GL_MEDIUM_INT, GL_MIN, GL_MIN_EXT, GL_MIN_PROGRAM_TEXEL_OFFSET, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_NEVER, GL_NICEST, GL_NONE, GL_NOTEQUAL, GL_NO_ERROR, GL_OBJECT_TYPE, GL_ONE, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR, GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR, GL_OUT_OF_MEMORY, GL_PACK_ALIGNMENT, GL_PACK_ROW_LENGTH, GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_ROWS, GL_PIXEL_PACK_BUFFER, GL_PIXEL_PACK_BUFFER_BINDING, GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_UNPACK_BUFFER_BINDING, GL_PIXEL_UNSIGNED_BYTE, GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, GL_PIXEL_UNSIGNED_SHORT_5_6_5, GL_POINTS, GL_POLYGON_OFFSET_FACTOR, GL_POLYGON_OFFSET_FILL, GL_POLYGON_OFFSET_UNITS, GL_QUERY_COUNTER_BITS_EXT, GL_QUERY_RESULT, GL_QUERY_RESULT_AVAILABLE, GL_QUERY_RESULT_AVAILABLE_EXT, GL_QUERY_RESULT_EXT, GL_R11F_G11F_B10F, GL_R16F, GL_R16I, GL_R16UI, GL_R32F, GL_R32I, GL_R32UI, GL_R8, GL_R8I, GL_R8UI, GL_R8_SNORM, GL_RASTERIZER_DISCARD, GL_READ_BUFFER, GL_READ_FRAMEBUFFER, GL_READ_FRAMEBUFFER_BINDING, GL_RED, GL_RED_BITS, GL_RED_INTEGER, GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, GL_RENDERBUFFER_BINDING, GL_RENDERBUFFER_BLUE_SIZE, GL_RENDERBUFFER_DEPTH_SIZE, GL_RENDERBUFFER_GREEN_SIZE, GL_RENDERBUFFER_HEIGHT, GL_RENDERBUFFER_INTERNAL_FORMAT, GL_RENDERBUFFER_RED_SIZE, GL_RENDERBUFFER_SAMPLES, GL_RENDERBUFFER_STENCIL_SIZE, GL_RENDERBUFFER_WIDTH, GL_RENDERER, GL_REPEAT, GL_REPLACE, GL_RG, GL_RG16F, GL_RG16I, GL_RG16UI, GL_RG32F, GL_RG32I, GL_RG32UI, GL_RG8, GL_RG8I, GL_RG8UI, GL_RG8_SNORM, GL_RGB, GL_RGB10_A2, GL_RGB10_A2UI, GL_RGB16F, GL_RGB16I, GL_RGB16UI, GL_RGB32F, GL_RGB32F_EXT, GL_RGB32I, GL_RGB32UI, GL_RGB565, GL_RGB5_A1, GL_RGB8, GL_RGB8I, GL_RGB8UI, GL_RGB8_SNORM, GL_RGB9_E5, GL_RGBA, GL_RGBA16F, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32F, GL_RGBA32F_EXT, GL_RGBA32I, GL_RGBA32UI, GL_RGBA4, GL_RGBA8, GL_RGBA8I, GL_RGBA8UI, GL_RGBA8_SNORM, GL_RGBA_INTEGER, GL_RGB_INTEGER, GL_RG_INTEGER, GL_SAMPLER_2D, GL_SAMPLER_2D_ARRAY, GL_SAMPLER_2D_ARRAY_SHADOW, GL_SAMPLER_2D_SHADOW, GL_SAMPLER_3D, GL_SAMPLER_BINDING, GL_SAMPLER_CUBE, GL_SAMPLER_CUBE_SHADOW, GL_SAMPLES, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_BUFFERS, GL_SAMPLE_COVERAGE, GL_SAMPLE_COVERAGE_INVERT, GL_SAMPLE_COVERAGE_VALUE, GL_SCISSOR_BOX, GL_SCISSOR_TEST, GL_SEPARATE_ATTRIBS, GL_SHADER_TYPE, GL_SHADING_LANGUAGE_VERSION, GL_SIGNALED, GL_SIGNED_NORMALIZED, GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR, GL_SRGB, GL_SRGB8, GL_SRGB8_ALPHA8, GL_SRGB8_ALPHA8_EXT, GL_SRGB_ALPHA_EXT, GL_SRGB_EXT, GL_STATIC_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STENCIL, GL_STENCIL_ATTACHMENT, GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_PASS_DEPTH_FAIL, GL_STENCIL_BACK_PASS_DEPTH_PASS, GL_STENCIL_BACK_REF, GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK, GL_STENCIL_BITS, GL_STENCIL_BUFFER_BIT, GL_STENCIL_CLEAR_VALUE, GL_STENCIL_FAIL, GL_STENCIL_FUNC, GL_STENCIL_INDEX, GL_STENCIL_INDEX8, GL_STENCIL_PASS_DEPTH_FAIL, GL_STENCIL_PASS_DEPTH_PASS, GL_STENCIL_REF, GL_STENCIL_TEST, GL_STENCIL_VALUE_MASK, GL_STENCIL_WRITEMASK, GL_STREAM_COPY, GL_STREAM_DRAW, GL_STREAM_READ, GL_SUBPIXEL_BITS, GL_SYNC_CONDITION, GL_SYNC_FENCE, GL_SYNC_FLAGS, GL_SYNC_FLUSH_COMMANDS_BIT, GL_SYNC_GPU_COMMANDS_COMPLETE, GL_SYNC_STATUS, GL_TEXTURE, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14, GL_TEXTURE15, GL_TEXTURE16, GL_TEXTURE17, GL_TEXTURE18, GL_TEXTURE19, GL_TEXTURE2, GL_TEXTURE20, GL_TEXTURE21, GL_TEXTURE22, GL_TEXTURE23, GL_TEXTURE24, GL_TEXTURE25, GL_TEXTURE26, GL_TEXTURE27, GL_TEXTURE28, GL_TEXTURE29, GL_TEXTURE3, GL_TEXTURE30, GL_TEXTURE31, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9, GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_BINDING_2D, GL_TEXTURE_BINDING_2D_ARRAY, GL_TEXTURE_BINDING_3D, GL_TEXTURE_BINDING_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_IMMUTABLE_FORMAT, GL_TEXTURE_IMMUTABLE_LEVELS, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MAX_LOD, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MIN_LOD, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TIMEOUT_EXPIRED, GL_TIMEOUT_IGNORED, GL_TIMESTAMP_EXT, GL_TIME_ELAPSED_EXT, GL_TRANSFORM_FEEDBACK, GL_TRANSFORM_FEEDBACK_ACTIVE, GL_TRANSFORM_FEEDBACK_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER_MODE, GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, GL_TRANSFORM_FEEDBACK_BUFFER_START, GL_TRANSFORM_FEEDBACK_PAUSED, GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TRANSFORM_FEEDBACK_VARYINGS, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, GL_UNIFORM_BLOCK_BINDING, GL_UNIFORM_BLOCK_DATA_SIZE, GL_UNIFORM_BLOCK_INDEX, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, GL_UNIFORM_BUFFER_SIZE, GL_UNIFORM_BUFFER_START, GL_UNIFORM_IS_ROW_MAJOR, GL_UNIFORM_MATRIX_STRIDE, GL_UNIFORM_OFFSET, GL_UNIFORM_SIZE, GL_UNIFORM_TYPE, GL_UNMASKED_RENDERER_WEBGL, GL_UNMASKED_VENDOR_WEBGL, GL_UNPACK_ALIGNMENT, GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, GL_UNPACK_FLIP_Y_WEBGL, GL_UNPACK_IMAGE_HEIGHT, GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, GL_UNPACK_ROW_LENGTH, GL_UNPACK_SKIP_IMAGES, GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_ROWS, GL_UNSIGNALED, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_24_8_WEBGL, GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_5_9_9_9_REV, GL_UNSIGNED_INT_SAMPLER_2D, GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, GL_UNSIGNED_INT_SAMPLER_3D, GL_UNSIGNED_INT_SAMPLER_CUBE, GL_UNSIGNED_INT_VEC2, GL_UNSIGNED_INT_VEC3, GL_UNSIGNED_INT_VEC4, GL_UNSIGNED_NORMALIZED, GL_UNSIGNED_NORMALIZED_EXT, GL_VALIDATE_STATUS, GL_VENDOR, GL_VERSION, GL_VERTEX_ARRAY_BINDING, GL_VERTEX_ARRAY_BINDING_OES, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, GL_VERTEX_ATTRIB_ARRAY_ENABLED, GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, GL_VERTEX_ATTRIB_ARRAY_POINTER, GL_VERTEX_ATTRIB_ARRAY_SIZE, GL_VERTEX_ATTRIB_ARRAY_STRIDE, GL_VERTEX_ATTRIB_ARRAY_TYPE, GL_VERTEX_SHADER, GL_VIEWPORT, GL_WAIT_FAILED, GL_ZERO, GaussianBlur, GetComponentFromEntities, type GetInstance, type GetProps, Gizmo, GlobalDataRepository, GlobalRetarget, GlobalRetargetReverse, type Gltf1AnyObject, type Gltf2, type Gltf2Accessor, type Gltf2AccessorComponentType, type Gltf2AccessorComponentTypeNumber, type Gltf2AccessorCompositionType, type Gltf2AccessorCompositionTypeString, type Gltf2AccessorEx, type Gltf2AccessorIndex, type Gltf2Animation, type Gltf2AnimationAccessorCompositionType, type Gltf2AnimationAccessorCompositionTypeString, type Gltf2AnimationChannel, type Gltf2AnimationChannelTarget, type Gltf2AnimationPathName, type Gltf2AnimationSampler, type Gltf2AnimationSamplerInterpolation, type Gltf2AnyObject, type Gltf2AttributeAccessors, type Gltf2AttributeBlendShapes, type Gltf2AttributeBlendShapesAccessors, type Gltf2Attributes, type Gltf2Buffer, type Gltf2BufferView, type Gltf2BufferViewEx, type Gltf2Camera, type Gltf2CameraOrthographic, type Gltf2CameraPerspective, type Gltf2Ex, type Gltf2ExportType, Gltf2Exporter, type Gltf2ExporterArguments, type Gltf2Image, type Gltf2ImageEx, Gltf2Importer, type Gltf2Material, type Gltf2MaterialEx, type Gltf2Mesh, type Gltf2Node, type Gltf2NormalTextureInfo, type Gltf2OcclusionTextureInfo, type Gltf2PbrMetallicRoughness, type Gltf2PbrMetallicRoughnessEx, type Gltf2Primitive, type Gltf2Scene, type Gltf2Skin, type Gltf2Sparse, type Gltf2SparseIndices, type Gltf2SparseValues, type Gltf2Texture, type Gltf2TextureInfo, type Gltf2TextureSampler, type GltfFileBuffers, GltfImporter, type GltfLoadOption, GreaterShaderNode, Grid, type GridDescriptor, HdriFormat, type HdriFormatEnum, type HumanBoneNames, type IAnimationEntity, type IAnimationEntityMethods, type IAnimationRetarget, type IAnimationStateEntity, type IAnyPrimitiveDescriptor, type IArrayBufferBasedMathNumber, type IBlendShapeEntity, type IBlendShapeEntityMethods, type ICGAPIResourceRepository, type ICameraController, type ICameraControllerEntity, type ICameraControllerEntityMethods, type ICameraEntity, type ICameraEntityMethods, type IColorRgb, type IColorRgba, type IConstraintEntity, type IEffekseerEntityMethods, type IEnhancedArrayMethods, type IEntity, type IEventPubSub, type ILightEntity, type ILightEntityMethods, type ILoaderExtension, type ILogQuaternion, type IMatrix, type IMatrix22, type IMatrix33, type IMatrix44, type IMesh, type IMeshEntity, type IMeshEntityMethods, type IMeshRendererEntityMethods, type IMutableColorRgb, type IMutableColorRgba, type IMutableMatrix, type IMutableMatrix22, type IMutableMatrix33, type IMutableMatrix44, type IMutableQuaternion, type IMutableScalar, type IMutableVector, type IMutableVector2, type IMutableVector3, type IMutableVector4, INPUT_HANDLING_STATE_CAMERA_CONTROLLER, INPUT_HANDLING_STATE_GIZMO_SCALE, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, INPUT_HANDLING_STATE_NONE, type IPhysicsEntity, type IPhysicsEntityMethods, type IQuaternion, type IRenderable, type IRnObject, type IScalar, type ISceneGraphEntity, type ISceneGraphEntityMethods, type ISemanticVertexAttribute, IShape, type ISkeletalEntity, type ISkeletalEntityMethods, type ITransformEntity, type ITransformEntityMethods, type IVector, type IVector2, type IVector3, type IVector4, type IVrmEntityMethods, type IWeakOption, IdentityMatrix33, IdentityMatrix44, IfStatementShader, IfStatementShaderNode, type ImageBitmapData, ImageInfo, ImageUtil, type Index, type IndexOf16Bytes, type IndexOf4Bytes, type IndicesAccessOption, type InputHandlerInfo, type InputHandlingState, InputManager, type IntegerTypedArray, Is, IsObj, type IsType, Joint, type JointDescriptor, type KHR_lights_punctual, type KHR_lights_punctual_Light, KTX2TextureLoader, LightComponent, LightGizmo, LightType, type LightTypeEnum, Line, type LineDescriptor, type LoadImageToMipLevelDescriptor, LocatorGizmo, LogLevel, LogQuaternion, Logger, type MSC_TRANSCODER, MToon0xMaterialContent, MToon1MaterialContent, MatCapMaterialContent, Material, MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, MaterialRepository, type MaterialSID, type MaterialTID, type MaterialTypeName, type MaterialUID, MathClassUtil, MathUtil, Matrix22, Matrix33, Matrix44, MemoryManager, type MergeCtor, MergeVectorShaderNode, Mesh, MeshComponent, MeshHelper, MeshRendererComponent, type MeshUID, type MilliSecond, MiscUtil, type MixinBase, ModelConverter, ModuleManager, type MscTranscoderModule, MultiplyShaderNode, MutableColorRgb, MutableColorRgba, MutableMatrix22, MutableMatrix33, MutableMatrix44, MutableQuaternion, MutableScalar, MutableScalar_, MutableScalard, type MutableScalarf, MutableVector2, MutableVector2_, MutableVector2d, type MutableVector2f, MutableVector3, MutableVector3_, MutableVector3d, type MutableVector3f, MutableVector4, MutableVector4_, MutableVector4d, type MutableVector4f, type NodeId, None, NormalMatrixShaderNode, NormalizeShaderNode, type ObjectUID, type Offset, OimoPhysicsStrategy, Ok, type Option, OrbitCameraController, OutColorShaderNode, OutPositionShaderNode, type PartialRequire, type PathType, PhysicsComponent, type PhysicsProperty, type PhysicsPropertyInner, type PhysicsStrategy, type PhysicsWorldProperty, PixelFormat, type PixelFormatEnum, Plane, type PlaneDescriptor, PointShadowMap, type PointType, Primitive, type PrimitiveDescriptor, PrimitiveMode, type PrimitiveModeEnum, type PrimitiveSortKey, type PrimitiveSortKeyLength, type PrimitiveSortKeyOffset, PrimitiveSortKey_BitLength_Depth, PrimitiveSortKey_BitLength_Material, PrimitiveSortKey_BitLength_PrimitiveType, PrimitiveSortKey_BitLength_TranslucencyType, PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitOffset_TranslucencyType, PrimitiveSortKey_BitOffset_ViewportLayer, type PrimitiveUID, ProcessApproach, ProcessApproachClass, type ProcessApproachEnum, ProcessStage, type ProcessStageEnum, ProjectionMatrixShaderNode, Quaternion, type RaycastResult, type RaycastResultEx1, type RaycastResultEx2, RenderBuffer, RenderBufferTarget, type RenderBufferTargetEnum, RenderPass, RenderPassHelper, type RenderPassUID, RenderTargetTexture, RenderTargetTexture2DArray, RenderTargetTextureCube, RenderableHelper, type RenderingArgWebGL, type RenderingArgWebGpu, type RequireOne, type Result, RhodoniteImportExtension, type RnError, RnException, type RnM2, type RnM2Accessor, type RnM2Animation, type RnM2AnimationChannel, type RnM2AnimationChannelTarget, type RnM2AnimationSampler, type RnM2Asset, type RnM2AttributeAccessors, type RnM2AttributeBlendShapes, type RnM2AttributeBlendShapesAccessors, type RnM2Attributes, type RnM2AttributesObject, type RnM2Buffer, type RnM2BufferView, type RnM2Camera, type RnM2CameraOrthographic, type RnM2CameraPerspective, type RnM2ExtensionEffekseer, type RnM2ExtensionsEffekseerEffect, type RnM2ExtensionsEffekseerTimeline, type RnM2ExtensionsEffekseerTimelineItem, type RnM2Image, type RnM2Material, type RnM2MaterialVariant, type RnM2Mesh, type RnM2Node, type RnM2NormalTextureInfo, type RnM2OcclusionTextureInfo, type RnM2PbrMetallicRoughness, type RnM2Primitive, type RnM2Sampler, type RnM2Scene, type RnM2Skin, type RnM2Sparse, type RnM2SparseIndices, type RnM2SparseValues, type RnM2Texture, type RnM2TextureInfo, type RnM2TextureSampler, type RnM2Vrma, RnObject, RnPromise, type RnPromiseCallback, type RnPromiseCallbackObj, type RnTags, type RnWebGLProgram, type RnWebGLTexture, type RnXR, Sampler, type SamplerDescriptor, Scalar$1 as Scalar, Scalar_, Scalard, type Scalarf, ScaleGizmo, SceneGraphComponent, type Second, type ShaderAttributeOrSemanticsOrString, ShaderGraphResolver, ShaderNode, type ShaderNodeEnum, type ShaderNodeJson, type ShaderNodeJsonConnection, type ShaderNodeJsonNode, type ShaderNodeJsonNodeInput, type ShaderNodeJsonNodeOutput, type ShaderNodeUID, ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum, type ShaderSemanticsIndex, type ShaderSemanticsInfo, type ShaderSemanticsName, type ShaderSocket, type ShaderSources, ShaderType, type ShaderTypeEnum, type ShaderVariable, ShaderVariableType, type ShaderVariableTypeEnum, ShaderityUtilityWebGL, ShadingModel, type ShadingModelEnum, ShadowMap, ShadowMapDecodeClassicMaterialContent, type ShadowMapEnum, ShadowMapType, ShadowSystem, SimpleVertexAttribute, type Size, SkeletalComponent, Some, Sphere, SphereCollider, type SphereDescriptor, SplitVectorShaderNode, type SquareMatrixComponentN, SymbolWeakMap, SynthesizeHdrMaterialContent, System, SystemState, type Tag, TagGltf2NodeIndex, Texture, type TextureData, TextureDataFloat, TextureFetchShader, TextureFormat$1 as TextureFormat, type TextureFormatEnum, TextureParameter, type TextureParameterEnum, type TextureParameters, type TextureUID, Time, ToneMappingType, type ToneMappingTypeEnum, type TranscodeTarget, type TranscodedImage, Transform3D, TransformComponent, TranslationGizmo, type TypedArray, type TypedArrayConstructor, UastcImageTranscoder, UniformDataShader, UniformDataShaderNode, VERSION, VRMColliderGroup, VRMSpring, VRMSpringBone, VRMSpringBonePhysicsStrategy, VarianceShadowMapDecodeClassicMaterialContent, VaryingVariableShader, Vector2, Vector2_, Vector2d, type Vector2f, Vector3, Vector3_, Vector3d, type Vector3f, Vector4, Vector4_, Vector4d, type Vector4f, type VectorAndSquareMatrixComponentN, type VectorComponentN, type VectorCompositionTypes, VectorN, VertexAttribute, VertexAttributeClass, type VertexAttributeComponent, type VertexAttributeEnum, type VertexAttributeSemanticsJoinedString, type VertexAttributeTypeName, type VertexAttributesLayout, type VertexHandles, VideoTexture, type VideoTextureArguments, ViewMatrixShaderNode, Visibility, type VisibilityEnum, type Vrm0x, type Vrm0xBlendShapeBind, type Vrm0xBlendShapeGroup, type Vrm0xBoneGroup, type Vrm0xCollider, type Vrm0xColliderGroup, type Vrm0xHumanBone, Vrm0xImporter, type Vrm0xLookAt, type Vrm0xMaterialProperty, type Vrm0x_Extension, VrmComponent, type VrmExpression, type VrmExpressionMorphBind, type VrmExpressionName, VrmImporter, VrmaImporter, WalkThroughCameraController, WeakNone, WeakOption, WeakSome, WebGLContextWrapper, WebGLExtension, type WebGLExtensionEnum, type WebGLResource, type WebGLResourceHandle, WebGLResourceRepository, type WebGLStrategy, WebGLStrategyDataTexture, WebGLStrategyUniform, type WebGPUResourceHandle, WebGpuDeviceWrapper, type WebGpuResource, WebGpuResourceRepository, WebGpuStrategyBasic, WebXRSystem, WellKnownComponentTIDs, WireframeMaterialNode, WorldMatrixShaderNode, _from, _fromString, _fromStringCaseSensitively, _getPropertyIndex2, add2, add2_offset, add3, add3_offset, add4, add4_offset, addLineNumberToCode, applyMixins, array2_lerp_offsetAsComposition, array3_lerp_offsetAsComposition, array4_lerp_offsetAsComposition, arrayN_lerp_offsetAsComposition, assertDoesNotHave, assertExist, assertHas, assertIsErr, assertIsOk, calcAlignedByteLength, combineImages, convertHTMLImageElementToCanvas, createCameraControllerEntity, createCameraEntity, createEffekseer, createEntity, createGroupEntity, createLightEntity, createLightWithCameraEntity, createMeshEntity, createMotionController, createPhysicsEntity, createSkeletalEntity, createTransformEntity, deepCopyUsingJsonStringify, defaultAnimationTrackName, defaultValue, detectFormatByArrayBuffers, detectFormatByUri, downloadArrayBuffer, downloadTypedArray, dummyAnisotropyTexture, dummyBlackCubeTexture, dummyBlackTexture, dummyBlueTexture, dummyDepthMomentTextureArray, dummySRGBGrayTexture, dummyWhiteTexture, dummyZeroTexture, enhanceArray, flattenHierarchy, fromTensorToCompositionType, get1, get1_offset, get1_offsetAsComposition, get2, get2_offset, get2_offsetAsComposition, get3, get3_offset, get3_offsetAsComposition, get4, get4_offset, get4_offsetAsComposition, getEvent, getMotionController, getN_offset, getN_offsetAsComposition, type getShaderPropertyFunc, getWebXRSystem, type glTF1, greaterThan, ifDefinedThen, ifDefinedThenWithReturn, ifExistsThen, ifExistsThenWithReturn, ifNotExistsThen, ifNotExistsThenWithReturn, ifUndefinedThen, ifUndefinedThenWithReturn, initDefaultTextures, isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isOpaque, isSameGlTF2TextureSampler, isSkipDrawing, isTranslucent, lessThan, mulArray3WithScalar_offset, mulArray4WithScalar_offset, mulArrayNWithScalar_offset, mulThatAndThisToOutAsMat44_offsetAsComposition, normalizeArray4, nullishToEmptyArray, nullishToEmptyMap, objectCachify, primitiveCachify1, type primitives, qlerp_offsetAsComposition, scalar_lerp_offsetAsComposition, setupShaderProgram, sheenLutTexture, updateGamePad, updateMotionControllerModel, updateVBOAndVAO, valueWithCompensation, valueWithDefault };
+export { AABB, AABBGizmo, AbsoluteAnimation, AbstractArrayBufferBaseMathNumber, AbstractCameraController, AbstractMaterialContent, AbstractMatrix, AbstractQuaternion, AbstractShaderNode, AbstractTexture, AbstractVector, Accessor, AddShaderNode, AlphaMode, type AlphaModeEnum, AnimatedQuaternion, AnimatedScalar, AnimatedVector2, AnimatedVector3, AnimatedVector4, AnimatedVectorN, AnimationAssigner, AnimationAttribute, type AnimationAttributeEnum, type AnimationChannel, type AnimationChannelTarget, AnimationComponent, type AnimationComponentEventType, type AnimationInfo, AnimationInterpolation, type AnimationInterpolationEnum, type AnimationPathName, type AnimationSampler, type AnimationSamplers, type AnimationTrack, type AnimationTrackName, type Array1, type Array16, type Array1to4, type Array2, type Array3, type Array4, type Array9, type ArrayAsRn, type ArrayType, AssetLoader, type AssetLoaderConfig, AttributeColorShaderNode, type AttributeName, type AttributeNames, AttributeNormalShaderNode, AttributePositionShaderNode, AttributeTexcoordShaderNode, type Attributes, Axis, type AxisDescriptor, type BASIS, BasisCompressionType, type BasisCompressionTypeEnum, type BasisFile, BasisLzEtc1sImageTranscoder, type BasisTranscoder, BlendShapeComponent, BlockBeginShader, BlockBeginShaderNode, BlockEndShader, BlockEndShaderNode, Bloom, BoneDataType, type BoneDataTypeEnum, Buffer, BufferUse, type BufferUseEnum, BufferView, type Byte$1 as Byte, type CGAPIResourceHandle, CGAPIResourceRepository, Cache, type CalledSubscriberNumber, CameraComponent, CameraControllerComponent, CameraControllerType, type CameraControllerTypeEnum, type CameraSID, CameraType, type CameraTypeEnum, CapsuleCollider, type ChangeAnimationInfoEvent, ClassicShadingShader, type ColorComponentLetter, ColorGradingUsingLUTsMaterialContent, ColorRgb, ColorRgba, CommonShaderPart, ComplexVertexAttribute, Component, type ComponentMixinFunction, ComponentRepository, type ComponentSID, type ComponentTID, type ComponentToComponentMethods, ComponentType, type ComponentTypeEnum, CompositionType, type CompositionTypeEnum, CompressionTextureType, type CompressionTextureTypeEnum, Config, ConstRgbaBlack, ConstRgbaWhite, ConstVector2_0_0, ConstVector2_1_1, ConstVector3_0_0_0, ConstVector3_1_1_1, ConstVector4_0_0_0_0, ConstVector4_0_0_0_1, ConstVector4_1_1_1_1, ConstantScalarVariableShaderNode, ConstantVariableShader, ConstantVector2VariableShaderNode, ConstantVector3VariableShaderNode, ConstantVector4VariableShaderNode, type Count, Cube, type CubeDescriptor, CubeTexture, CustomMaterialContent, DataUtil, DefaultTextures, DepthEncodeMaterialContent, DetectHighLuminanceMaterialContent, type DirectTextureData, DotProductShaderNode, DrcPointCloudImporter, EVENT_CLICK, EVENT_KEY_DOWN, EVENT_KEY_PRESS, EVENT_KEY_UP, EVENT_MOUSE_DOWN, EVENT_MOUSE_ENTER, EVENT_MOUSE_LEAVE, EVENT_MOUSE_MOVE, EVENT_MOUSE_OVER, EVENT_MOUSE_UP, EVENT_MOUSE_WHEEL, EVENT_MSPOINTER_DOWN, EVENT_MSPOINTER_MOVE, EVENT_MSPOINTER_UP, EVENT_ORIENTATION_CHANGE, EVENT_POINTER_CANCEL, EVENT_POINTER_DOWN, EVENT_POINTER_ENTER, EVENT_POINTER_LEAVE, EVENT_POINTER_MOVE, EVENT_POINTER_OUT, EVENT_POINTER_OVER, EVENT_POINTER_UP, EVENT_RESIZE, EVENT_TOUCH_CANCEL, EVENT_TOUCH_DOUBLE_TAP, EVENT_TOUCH_DRAG, EVENT_TOUCH_END, EVENT_TOUCH_ENTER, EVENT_TOUCH_HOLD, EVENT_TOUCH_LEAVE, EVENT_TOUCH_LONG_TAP, EVENT_TOUCH_MOVE, EVENT_TOUCH_OUT, EVENT_TOUCH_OVER, EVENT_TOUCH_PINCH, EVENT_TOUCH_START, EVENT_TOUCH_SWIPE, EVENT_TOUCH_TAP, Effekseer, EffekseerComponent, EndShader, Entity, EntityRepository, type EntityUID, EntityUIDOutputMaterialContent, EnumClass, type EnumIO, Err, type EventHandler, EventPubSub, type EventSubscriberIndex, type EventType, Expression, FileType, type FileTypeEnum, type FillArgsObject, type FloatTypedArray, type FloatTypedArrayConstructor, ForwardRenderPipeline, Frame, FrameBuffer, type FrameBufferCubeMapDescriptor, type FrameBufferDescriptor, type FrameBufferMSAADescriptor, type FrameBufferTextureArrayDescriptor, type FrameBufferTextureArrayForMultiViewDescriptor, Frustum, FurnaceTestMaterialContent, GLTF2_EXPORT_DRACO, GLTF2_EXPORT_EMBEDDED, GLTF2_EXPORT_GLB, GLTF2_EXPORT_GLTF, GLTF2_EXPORT_NO_DOWNLOAD, GL_ACTIVE_ATTRIBUTES, GL_ACTIVE_TEXTURE, GL_ACTIVE_UNIFORMS, GL_ACTIVE_UNIFORM_BLOCKS, GL_ALIASED_LINE_WIDTH_RANGE, GL_ALIASED_POINT_SIZE_RANGE, GL_ALPHA, GL_ALPHA_BITS, GL_ALREADY_SIGNALED, GL_ALWAYS, GL_ANY_SAMPLES_PASSED, GL_ANY_SAMPLES_PASSED_CONSERVATIVE, GL_ARRAY_BUFFER, GL_ARRAY_BUFFER_BINDING, GL_ATTACHED_SHADERS, GL_BACK, GL_BLEND, GL_BLEND_COLOR, GL_BLEND_DST_ALPHA, GL_BLEND_DST_RGB, GL_BLEND_EQUATION, GL_BLEND_EQUATION_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_SRC_ALPHA, GL_BLEND_SRC_RGB, GL_BLUE_BITS, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_BROWSER_DEFAULT_WEBGL, GL_BUFFER_SIZE, GL_BUFFER_USAGE, GL_CCW, GL_CLAMP_TO_EDGE, GL_COLOR, GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT0_WEBGL, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT10_WEBGL, GL_COLOR_ATTACHMENT11, GL_COLOR_ATTACHMENT11_WEBGL, GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT12_WEBGL, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT13_WEBGL, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT14_WEBGL, GL_COLOR_ATTACHMENT15, GL_COLOR_ATTACHMENT15_WEBGL, GL_COLOR_ATTACHMENT1_WEBGL, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT2_WEBGL, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT3_WEBGL, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT4_WEBGL, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT5_WEBGL, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT6_WEBGL, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT7_WEBGL, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT8_WEBGL, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT9_WEBGL, GL_COLOR_BUFFER_BIT, GL_COLOR_CLEAR_VALUE, GL_COLOR_WRITEMASK, GL_COMPARE_REF_TO_TEXTURE, GL_COMPILE_STATUS, GL_COMPRESSED_R11_EAC, GL_COMPRESSED_RG11_EAC, GL_COMPRESSED_RGB8_ETC2, GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_RGBA8_ETC2_EAC, GL_COMPRESSED_RGBA_ASTC_10X10_KHR, GL_COMPRESSED_RGBA_ASTC_10X5_KHR, GL_COMPRESSED_RGBA_ASTC_10X6_KHR, GL_COMPRESSED_RGBA_ASTC_10X8_KHR, GL_COMPRESSED_RGBA_ASTC_12X10_KHR, GL_COMPRESSED_RGBA_ASTC_12X12_KHR, GL_COMPRESSED_RGBA_ASTC_4X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X4_KHR, GL_COMPRESSED_RGBA_ASTC_5X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X5_KHR, GL_COMPRESSED_RGBA_ASTC_6X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X5_KHR, GL_COMPRESSED_RGBA_ASTC_8X6_KHR, GL_COMPRESSED_RGBA_ASTC_8X8_KHR, GL_COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL, GL_COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL, GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_COMPRESSED_RGB_ATC_WEBGL, GL_COMPRESSED_RGB_ETC1_WEBGL, GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL_COMPRESSED_SIGNED_R11_EAC, GL_COMPRESSED_SIGNED_RG11_EAC, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X10_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12X12_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X4_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X5_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X6_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8X8_KHR, GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_COMPRESSED_SRGB8_ETC2, GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL_COMPRESSED_TEXTURE_FORMATS, GL_CONDITION_SATISFIED, GL_CONSTANT_ALPHA, GL_CONSTANT_COLOR, GL_CONTEXT_LOST_WEBGL, GL_COPY_READ_BUFFER, GL_COPY_READ_BUFFER_BINDING, GL_COPY_WRITE_BUFFER, GL_COPY_WRITE_BUFFER_BINDING, GL_CULL_FACE, GL_CULL_FACE_MODE, GL_CURRENT_PROGRAM, GL_CURRENT_QUERY, GL_CURRENT_QUERY_EXT, GL_CURRENT_VERTEX_ATTRIB, GL_CW, GL_DATA_BYTE, GL_DATA_FLOAT, GL_DATA_INT, GL_DATA_SHORT, GL_DATA_UNSIGNED_BYTE, GL_DATA_UNSIGNED_INT, GL_DATA_UNSIGNED_SHORT, GL_DECR, GL_DECR_WRAP, GL_DELETE_STATUS, GL_DEPTH, GL_DEPTH24_STENCIL8, GL_DEPTH32F_STENCIL8, GL_DEPTH_ATTACHMENT, GL_DEPTH_BITS, GL_DEPTH_BUFFER_BIT, GL_DEPTH_CLEAR_VALUE, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_DEPTH_FUNC, GL_DEPTH_RANGE, GL_DEPTH_STENCIL, GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_TEST, GL_DEPTH_WRITEMASK, GL_DITHER, GL_DONT_CARE, GL_DRAW_BUFFER0, GL_DRAW_BUFFER0_WEBGL, GL_DRAW_BUFFER1, GL_DRAW_BUFFER10, GL_DRAW_BUFFER10_WEBGL, GL_DRAW_BUFFER11, GL_DRAW_BUFFER11_WEBGL, GL_DRAW_BUFFER12, GL_DRAW_BUFFER12_WEBGL, GL_DRAW_BUFFER13, GL_DRAW_BUFFER13_WEBGL, GL_DRAW_BUFFER14, GL_DRAW_BUFFER14_WEBGL, GL_DRAW_BUFFER15, GL_DRAW_BUFFER15_WEBGL, GL_DRAW_BUFFER1_WEBGL, GL_DRAW_BUFFER2, GL_DRAW_BUFFER2_WEBGL, GL_DRAW_BUFFER3, GL_DRAW_BUFFER3_WEBGL, GL_DRAW_BUFFER4, GL_DRAW_BUFFER4_WEBGL, GL_DRAW_BUFFER5, GL_DRAW_BUFFER5_WEBGL, GL_DRAW_BUFFER6, GL_DRAW_BUFFER6_WEBGL, GL_DRAW_BUFFER7, GL_DRAW_BUFFER7_WEBGL, GL_DRAW_BUFFER8, GL_DRAW_BUFFER8_WEBGL, GL_DRAW_BUFFER9, GL_DRAW_BUFFER9_WEBGL, GL_DRAW_FRAMEBUFFER, GL_DRAW_FRAMEBUFFER_BINDING, GL_DST_ALPHA, GL_DST_COLOR, GL_DYNAMIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ, GL_ELEMENT_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER_BINDING, GL_EQUAL, GL_FASTEST, GL_FLOAT_32_UNSIGNED_INT_24_8_REV, GL_FLOAT_MAT2, GL_FLOAT_MAT2X3, GL_FLOAT_MAT2X4, GL_FLOAT_MAT3, GL_FLOAT_MAT3X2, GL_FLOAT_MAT3X4, GL_FLOAT_MAT4, GL_FLOAT_MAT4X2, GL_FLOAT_MAT4X3, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_FRAGMENT_SHADER_DERIVATIVE_HINT_OES, GL_FRAMEBUFFER, GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING_EXT, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE_EXT, GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE, GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, GL_FRAMEBUFFER_BINDING, GL_FRAMEBUFFER_COMPLETE, GL_FRAMEBUFFER_DEFAULT, GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS, GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT, GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE, GL_FRAMEBUFFER_UNSUPPORTED, GL_FRONT, GL_FRONT_AND_BACK, GL_FRONT_FACE, GL_FUNC_ADD, GL_FUNC_REVERSE_SUBTRACT, GL_FUNC_SUBSTRACT, GL_GENERATE_MIPMAP_HINT, GL_GEQUAL, GL_GPU_DISJOINT_EXT, GL_GREATER, GL_GREEN_BITS, GL_HALF_FLOAT, GL_HALF_FLOAT_OES, GL_HIGH_FLOAT, GL_HIGH_INT, GL_IMPLEMENTATION_COLOR_READ_FORMAT, GL_IMPLEMENTATION_COLOR_READ_TYPE, GL_INCR, GL_INCR_WRAP, GL_INTERLEAVED_ATTRIBS, GL_INT_2_10_10_10_REV, GL_INT_SAMPLER_2D, GL_INT_SAMPLER_2D_ARRAY, GL_INT_SAMPLER_3D, GL_INT_SAMPLER_CUBE, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_INVALID_ENUM, GL_INVALID_FRAMEBUFFER_OPERATION, GL_INVALID_INDEX, GL_INVALID_OPERATION, GL_INVALID_VALUE, GL_INVERT, GL_KEEP, GL_LEQUAL, GL_LESS, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_LINE_WIDTH, GL_LINK_STATUS, GL_LOW_FLOAT, GL_LOW_INT, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_MAX, GL_MAX_3D_TEXTURE_SIZE, GL_MAX_ARRAY_TEXTURE_LAYERS, GL_MAX_CLIENT_WAIT_TIMEOUT_WEBGL, GL_MAX_COLOR_ATTACHMENTS, GL_MAX_COLOR_ATTACHMENTS_WEBGL, GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, GL_MAX_COMBINED_UNIFORM_BLOCKS, GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS, GL_MAX_CUBE_MAP_TEXTURE_SIZE, GL_MAX_DRAW_BUFFERS, GL_MAX_DRAW_BUFFERS_WEBGL, GL_MAX_ELEMENTS_INDICES, GL_MAX_ELEMENTS_VERTICES, GL_MAX_ELEMENT_INDEX, GL_MAX_EXT, GL_MAX_FRAGMENT_INPUT_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_BLOCKS, GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, GL_MAX_FRAGMENT_UNIFORM_VECTORS, GL_MAX_PROGRAM_TEXEL_OFFSET, GL_MAX_RENDERBUFFER_SIZE, GL_MAX_SAMPLES, GL_MAX_SERVER_WAIT_TIMEOUT, GL_MAX_TEXTURE_IMAGE_UNITS, GL_MAX_TEXTURE_LOD_BIAS, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, GL_MAX_TEXTURE_SIZE, GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS, GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS, GL_MAX_UNIFORM_BLOCK_SIZE, GL_MAX_UNIFORM_BUFFER_BINDINGS, GL_MAX_VARYING_COMPONENTS, GL_MAX_VARYING_VECTORS, GL_MAX_VERTEX_ATTRIBS, GL_MAX_VERTEX_OUTPUT_COMPONENTS, GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, GL_MAX_VERTEX_UNIFORM_BLOCKS, GL_MAX_VERTEX_UNIFORM_COMPONENTS, GL_MAX_VERTEX_UNIFORM_VECTORS, GL_MAX_VIEWPORT_DIMS, GL_MEDIUM_FLOAT, GL_MEDIUM_INT, GL_MIN, GL_MIN_EXT, GL_MIN_PROGRAM_TEXEL_OFFSET, GL_MIRRORED_REPEAT, GL_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_NEVER, GL_NICEST, GL_NONE, GL_NOTEQUAL, GL_NO_ERROR, GL_OBJECT_TYPE, GL_ONE, GL_ONE_MINUS_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_COLOR, GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR, GL_OUT_OF_MEMORY, GL_PACK_ALIGNMENT, GL_PACK_ROW_LENGTH, GL_PACK_SKIP_PIXELS, GL_PACK_SKIP_ROWS, GL_PIXEL_PACK_BUFFER, GL_PIXEL_PACK_BUFFER_BINDING, GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_UNPACK_BUFFER_BINDING, GL_PIXEL_UNSIGNED_BYTE, GL_PIXEL_UNSIGNED_SHORT_4_4_4_4, GL_PIXEL_UNSIGNED_SHORT_5_5_5_1, GL_PIXEL_UNSIGNED_SHORT_5_6_5, GL_POINTS, GL_POLYGON_OFFSET_FACTOR, GL_POLYGON_OFFSET_FILL, GL_POLYGON_OFFSET_UNITS, GL_QUERY_COUNTER_BITS_EXT, GL_QUERY_RESULT, GL_QUERY_RESULT_AVAILABLE, GL_QUERY_RESULT_AVAILABLE_EXT, GL_QUERY_RESULT_EXT, GL_R11F_G11F_B10F, GL_R16F, GL_R16I, GL_R16UI, GL_R32F, GL_R32I, GL_R32UI, GL_R8, GL_R8I, GL_R8UI, GL_R8_SNORM, GL_RASTERIZER_DISCARD, GL_READ_BUFFER, GL_READ_FRAMEBUFFER, GL_READ_FRAMEBUFFER_BINDING, GL_RED, GL_RED_BITS, GL_RED_INTEGER, GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, GL_RENDERBUFFER_BINDING, GL_RENDERBUFFER_BLUE_SIZE, GL_RENDERBUFFER_DEPTH_SIZE, GL_RENDERBUFFER_GREEN_SIZE, GL_RENDERBUFFER_HEIGHT, GL_RENDERBUFFER_INTERNAL_FORMAT, GL_RENDERBUFFER_RED_SIZE, GL_RENDERBUFFER_SAMPLES, GL_RENDERBUFFER_STENCIL_SIZE, GL_RENDERBUFFER_WIDTH, GL_RENDERER, GL_REPEAT, GL_REPLACE, GL_RG, GL_RG16F, GL_RG16I, GL_RG16UI, GL_RG32F, GL_RG32I, GL_RG32UI, GL_RG8, GL_RG8I, GL_RG8UI, GL_RG8_SNORM, GL_RGB, GL_RGB10_A2, GL_RGB10_A2UI, GL_RGB16F, GL_RGB16I, GL_RGB16UI, GL_RGB32F, GL_RGB32F_EXT, GL_RGB32I, GL_RGB32UI, GL_RGB565, GL_RGB5_A1, GL_RGB8, GL_RGB8I, GL_RGB8UI, GL_RGB8_SNORM, GL_RGB9_E5, GL_RGBA, GL_RGBA16F, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32F, GL_RGBA32F_EXT, GL_RGBA32I, GL_RGBA32UI, GL_RGBA4, GL_RGBA8, GL_RGBA8I, GL_RGBA8UI, GL_RGBA8_SNORM, GL_RGBA_INTEGER, GL_RGB_INTEGER, GL_RG_INTEGER, GL_SAMPLER_2D, GL_SAMPLER_2D_ARRAY, GL_SAMPLER_2D_ARRAY_SHADOW, GL_SAMPLER_2D_SHADOW, GL_SAMPLER_3D, GL_SAMPLER_BINDING, GL_SAMPLER_CUBE, GL_SAMPLER_CUBE_SHADOW, GL_SAMPLES, GL_SAMPLE_ALPHA_TO_COVERAGE, GL_SAMPLE_BUFFERS, GL_SAMPLE_COVERAGE, GL_SAMPLE_COVERAGE_INVERT, GL_SAMPLE_COVERAGE_VALUE, GL_SCISSOR_BOX, GL_SCISSOR_TEST, GL_SEPARATE_ATTRIBS, GL_SHADER_TYPE, GL_SHADING_LANGUAGE_VERSION, GL_SIGNALED, GL_SIGNED_NORMALIZED, GL_SRC_ALPHA, GL_SRC_ALPHA_SATURATE, GL_SRC_COLOR, GL_SRGB, GL_SRGB8, GL_SRGB8_ALPHA8, GL_SRGB8_ALPHA8_EXT, GL_SRGB_ALPHA_EXT, GL_SRGB_EXT, GL_STATIC_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STENCIL, GL_STENCIL_ATTACHMENT, GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_PASS_DEPTH_FAIL, GL_STENCIL_BACK_PASS_DEPTH_PASS, GL_STENCIL_BACK_REF, GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK, GL_STENCIL_BITS, GL_STENCIL_BUFFER_BIT, GL_STENCIL_CLEAR_VALUE, GL_STENCIL_FAIL, GL_STENCIL_FUNC, GL_STENCIL_INDEX, GL_STENCIL_INDEX8, GL_STENCIL_PASS_DEPTH_FAIL, GL_STENCIL_PASS_DEPTH_PASS, GL_STENCIL_REF, GL_STENCIL_TEST, GL_STENCIL_VALUE_MASK, GL_STENCIL_WRITEMASK, GL_STREAM_COPY, GL_STREAM_DRAW, GL_STREAM_READ, GL_SUBPIXEL_BITS, GL_SYNC_CONDITION, GL_SYNC_FENCE, GL_SYNC_FLAGS, GL_SYNC_FLUSH_COMMANDS_BIT, GL_SYNC_GPU_COMMANDS_COMPLETE, GL_SYNC_STATUS, GL_TEXTURE, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE10, GL_TEXTURE11, GL_TEXTURE12, GL_TEXTURE13, GL_TEXTURE14, GL_TEXTURE15, GL_TEXTURE16, GL_TEXTURE17, GL_TEXTURE18, GL_TEXTURE19, GL_TEXTURE2, GL_TEXTURE20, GL_TEXTURE21, GL_TEXTURE22, GL_TEXTURE23, GL_TEXTURE24, GL_TEXTURE25, GL_TEXTURE26, GL_TEXTURE27, GL_TEXTURE28, GL_TEXTURE29, GL_TEXTURE3, GL_TEXTURE30, GL_TEXTURE31, GL_TEXTURE4, GL_TEXTURE5, GL_TEXTURE6, GL_TEXTURE7, GL_TEXTURE8, GL_TEXTURE9, GL_TEXTURE_2D, GL_TEXTURE_2D_ARRAY, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, GL_TEXTURE_BINDING_2D, GL_TEXTURE_BINDING_2D_ARRAY, GL_TEXTURE_BINDING_3D, GL_TEXTURE_BINDING_CUBE_MAP, GL_TEXTURE_COMPARE_FUNC, GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_IMMUTABLE_FORMAT, GL_TEXTURE_IMMUTABLE_LEVELS, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_TEXTURE_MAX_LEVEL, GL_TEXTURE_MAX_LOD, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MIN_LOD, GL_TEXTURE_WRAP_R, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TIMEOUT_EXPIRED, GL_TIMEOUT_IGNORED, GL_TIMESTAMP_EXT, GL_TIME_ELAPSED_EXT, GL_TRANSFORM_FEEDBACK, GL_TRANSFORM_FEEDBACK_ACTIVE, GL_TRANSFORM_FEEDBACK_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER, GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, GL_TRANSFORM_FEEDBACK_BUFFER_MODE, GL_TRANSFORM_FEEDBACK_BUFFER_SIZE, GL_TRANSFORM_FEEDBACK_BUFFER_START, GL_TRANSFORM_FEEDBACK_PAUSED, GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_TRANSFORM_FEEDBACK_VARYINGS, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, GL_UNIFORM_BLOCK_BINDING, GL_UNIFORM_BLOCK_DATA_SIZE, GL_UNIFORM_BLOCK_INDEX, GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER, GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER, GL_UNIFORM_BUFFER, GL_UNIFORM_BUFFER_BINDING, GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, GL_UNIFORM_BUFFER_SIZE, GL_UNIFORM_BUFFER_START, GL_UNIFORM_IS_ROW_MAJOR, GL_UNIFORM_MATRIX_STRIDE, GL_UNIFORM_OFFSET, GL_UNIFORM_SIZE, GL_UNIFORM_TYPE, GL_UNMASKED_RENDERER_WEBGL, GL_UNMASKED_VENDOR_WEBGL, GL_UNPACK_ALIGNMENT, GL_UNPACK_COLORSPACE_CONVERSION_WEBGL, GL_UNPACK_FLIP_Y_WEBGL, GL_UNPACK_IMAGE_HEIGHT, GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL, GL_UNPACK_ROW_LENGTH, GL_UNPACK_SKIP_IMAGES, GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_ROWS, GL_UNSIGNALED, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_24_8, GL_UNSIGNED_INT_24_8_WEBGL, GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_5_9_9_9_REV, GL_UNSIGNED_INT_SAMPLER_2D, GL_UNSIGNED_INT_SAMPLER_2D_ARRAY, GL_UNSIGNED_INT_SAMPLER_3D, GL_UNSIGNED_INT_SAMPLER_CUBE, GL_UNSIGNED_INT_VEC2, GL_UNSIGNED_INT_VEC3, GL_UNSIGNED_INT_VEC4, GL_UNSIGNED_NORMALIZED, GL_UNSIGNED_NORMALIZED_EXT, GL_VALIDATE_STATUS, GL_VENDOR, GL_VERSION, GL_VERTEX_ARRAY_BINDING, GL_VERTEX_ARRAY_BINDING_OES, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, GL_VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE, GL_VERTEX_ATTRIB_ARRAY_ENABLED, GL_VERTEX_ATTRIB_ARRAY_INTEGER, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, GL_VERTEX_ATTRIB_ARRAY_POINTER, GL_VERTEX_ATTRIB_ARRAY_SIZE, GL_VERTEX_ATTRIB_ARRAY_STRIDE, GL_VERTEX_ATTRIB_ARRAY_TYPE, GL_VERTEX_SHADER, GL_VIEWPORT, GL_WAIT_FAILED, GL_ZERO, GaussianBlur, GetComponentFromEntities, type GetInstance, type GetProps, Gizmo, GlobalDataRepository, GlobalRetarget, GlobalRetargetReverse, type Gltf1AnyObject, type Gltf2, type Gltf2Accessor, type Gltf2AccessorComponentType, type Gltf2AccessorComponentTypeNumber, type Gltf2AccessorCompositionType, type Gltf2AccessorCompositionTypeString, type Gltf2AccessorEx, type Gltf2AccessorIndex, type Gltf2Animation, type Gltf2AnimationAccessorCompositionType, type Gltf2AnimationAccessorCompositionTypeString, type Gltf2AnimationChannel, type Gltf2AnimationChannelTarget, type Gltf2AnimationPathName, type Gltf2AnimationSampler, type Gltf2AnimationSamplerInterpolation, type Gltf2AnyObject, type Gltf2Asset, type Gltf2AttributeAccessors, type Gltf2AttributeBlendShapes, type Gltf2AttributeBlendShapesAccessors, type Gltf2Attributes, type Gltf2Buffer, type Gltf2BufferView, type Gltf2BufferViewEx, type Gltf2Camera, type Gltf2CameraOrthographic, type Gltf2CameraPerspective, type Gltf2Ex, type Gltf2ExportType, Gltf2Exporter, type Gltf2ExporterArguments, type Gltf2Image, type Gltf2ImageEx, Gltf2Importer, type Gltf2Material, type Gltf2MaterialEx, type Gltf2Mesh, type Gltf2Node, type Gltf2NormalTextureInfo, type Gltf2OcclusionTextureInfo, type Gltf2PbrMetallicRoughness, type Gltf2PbrMetallicRoughnessEx, type Gltf2Primitive, type Gltf2Scene, type Gltf2Skin, type Gltf2Sparse, type Gltf2SparseIndices, type Gltf2SparseValues, type Gltf2Texture, type Gltf2TextureInfo, type Gltf2TextureSampler, type GltfFileBuffers, GltfImporter, type GltfLoadOption, GreaterShaderNode, Grid, type GridDescriptor, HdriFormat, type HdriFormatEnum, type IAnimationEntity, type IAnimationEntityMethods, type IAnimationRetarget, type IAnimationStateEntity, type IAnyPrimitiveDescriptor, type IArrayBufferBasedMathNumber, type IBlendShapeEntity, type IBlendShapeEntityMethods, type ICGAPIResourceRepository, type ICameraController, type ICameraControllerEntity, type ICameraControllerEntityMethods, type ICameraEntity, type ICameraEntityMethods, type IColorRgb, type IColorRgba, type IConstraintEntity, type IEffekseerEntityMethods, type IEnhancedArrayMethods, type IEntity, type IEventPubSub, type ILightEntity, type ILightEntityMethods, type ILoaderExtension, type ILogQuaternion, type IMatrix, type IMatrix22, type IMatrix33, type IMatrix44, type IMesh, type IMeshEntity, type IMeshEntityMethods, type IMeshRendererEntityMethods, type IMutableColorRgb, type IMutableColorRgba, type IMutableMatrix, type IMutableMatrix22, type IMutableMatrix33, type IMutableMatrix44, type IMutableQuaternion, type IMutableScalar, type IMutableVector, type IMutableVector2, type IMutableVector3, type IMutableVector4, INPUT_HANDLING_STATE_CAMERA_CONTROLLER, INPUT_HANDLING_STATE_GIZMO_SCALE, INPUT_HANDLING_STATE_GIZMO_TRANSLATION, INPUT_HANDLING_STATE_NONE, type IPhysicsEntity, type IPhysicsEntityMethods, type IQuaternion, type IRenderable, type IRnObject, type IScalar, type ISceneGraphEntity, type ISceneGraphEntityMethods, type ISemanticVertexAttribute, IShape, type ISkeletalEntity, type ISkeletalEntityMethods, type ITransformEntity, type ITransformEntityMethods, type IVector, type IVector2, type IVector3, type IVector4, type IVrmEntityMethods, type IWeakOption, IdentityMatrix33, IdentityMatrix44, IfStatementShader, IfStatementShaderNode, type ImageBitmapData, ImageInfo, ImageUtil, type Index, type IndexOf16Bytes, type IndexOf4Bytes, type IndicesAccessOption, type InputHandlerInfo, type InputHandlingState, InputManager, type IntegerTypedArray, Is, IsObj, type IsType, Joint, type JointDescriptor, type KHR_lights_punctual, type KHR_lights_punctual_Light, KTX2TextureLoader, LightComponent, LightGizmo, LightType, type LightTypeEnum, Line, type LineDescriptor, type LoadImageToMipLevelDescriptor, LocatorGizmo, LogLevel, LogQuaternion, Logger, type MSC_TRANSCODER, MToon0xMaterialContent, MToon1MaterialContent, MatCapMaterialContent, Material, MaterialHelper, type MaterialNodeUID$1 as MaterialNodeUID, MaterialRepository, type MaterialSID, type MaterialTID, type MaterialTypeName, type MaterialUID, MathClassUtil, MathUtil, Matrix22, Matrix33, Matrix44, MemoryManager, type MergeCtor, MergeVectorShaderNode, Mesh, MeshComponent, MeshHelper, MeshRendererComponent, type MeshUID, type MilliSecond, MiscUtil, type MixinBase, ModelConverter, ModuleManager, type MscTranscoderModule, MultiplyShaderNode, MutableColorRgb, MutableColorRgba, MutableMatrix22, MutableMatrix33, MutableMatrix44, MutableQuaternion, MutableScalar, MutableScalar_, MutableScalard, type MutableScalarf, MutableVector2, MutableVector2_, MutableVector2d, type MutableVector2f, MutableVector3, MutableVector3_, MutableVector3d, type MutableVector3f, MutableVector4, MutableVector4_, MutableVector4d, type MutableVector4f, None, NormalMatrixShaderNode, NormalizeShaderNode, type ObjectUID, type Offset, OimoPhysicsStrategy, Ok, type Option, OrbitCameraController, OutColorShaderNode, OutPositionShaderNode, type PartialRequire, PhysicsComponent, type PhysicsProperty, type PhysicsPropertyInner, type PhysicsStrategy, type PhysicsWorldProperty, PixelFormat, type PixelFormatEnum, Plane, type PlaneDescriptor, PointShadowMap, type PointType, Primitive, type PrimitiveDescriptor, PrimitiveMode, type PrimitiveModeEnum, type PrimitiveSortKey, type PrimitiveSortKeyLength, type PrimitiveSortKeyOffset, PrimitiveSortKey_BitLength_Depth, PrimitiveSortKey_BitLength_Material, PrimitiveSortKey_BitLength_PrimitiveType, PrimitiveSortKey_BitLength_TranslucencyType, PrimitiveSortKey_BitOffset_Material, PrimitiveSortKey_BitOffset_PrimitiveType, PrimitiveSortKey_BitOffset_TranslucencyType, PrimitiveSortKey_BitOffset_ViewportLayer, type PrimitiveUID, ProcessApproach, ProcessApproachClass, type ProcessApproachEnum, ProcessStage, type ProcessStageEnum, ProjectionMatrixShaderNode, Quaternion, type RaycastResult, type RaycastResultEx1, type RaycastResultEx2, RenderBuffer, RenderBufferTarget, type RenderBufferTargetEnum, RenderPass, RenderPassHelper, type RenderPassUID, RenderTargetTexture, RenderTargetTexture2DArray, RenderTargetTextureCube, RenderableHelper, type RenderingArgWebGL, type RenderingArgWebGpu, type RequireOne, type Result, RhodoniteImportExtension, type RnError, RnException, type RnM2, type RnM2Accessor, type RnM2Animation, type RnM2AnimationChannel, type RnM2AnimationChannelTarget, type RnM2AnimationSampler, type RnM2Asset, type RnM2AttributeAccessors, type RnM2AttributeBlendShapes, type RnM2AttributeBlendShapesAccessors, type RnM2Attributes, type RnM2AttributesObject, type RnM2Buffer, type RnM2BufferView, type RnM2Camera, type RnM2CameraOrthographic, type RnM2CameraPerspective, type RnM2ExtensionEffekseer, type RnM2ExtensionsEffekseerEffect, type RnM2ExtensionsEffekseerTimeline, type RnM2ExtensionsEffekseerTimelineItem, type RnM2Image, type RnM2Material, type RnM2MaterialVariant, type RnM2Mesh, type RnM2Node, type RnM2NormalTextureInfo, type RnM2OcclusionTextureInfo, type RnM2PbrMetallicRoughness, type RnM2Primitive, type RnM2Scene, type RnM2Skin, type RnM2Sparse, type RnM2SparseIndices, type RnM2SparseValues, type RnM2Texture, type RnM2TextureInfo, type RnM2TextureSampler, type RnM2Vrma, RnObject, RnPromise, type RnPromiseCallback, type RnPromiseCallbackObj, type RnTags, type RnWebGLProgram, type RnWebGLTexture, type RnXR, Sampler, type SamplerDescriptor, Scalar$1 as Scalar, Scalar_, Scalard, type Scalarf, ScaleGizmo, SceneGraphComponent, type Second, type ShaderAttributeOrSemanticsOrString, ShaderGraphResolver, ShaderNode, type ShaderNodeEnum, type ShaderNodeJson, type ShaderNodeJsonConnection, type ShaderNodeJsonNode, type ShaderNodeJsonNodeInput, type ShaderNodeJsonNodeOutput, type ShaderNodeUID, ShaderSemantics, ShaderSemanticsClass, type ShaderSemanticsEnum, type ShaderSemanticsIndex, type ShaderSemanticsInfo, type ShaderSemanticsName, type ShaderSocket, type ShaderSources, ShaderType, type ShaderTypeEnum, type ShaderVariable, ShaderVariableType, type ShaderVariableTypeEnum, ShaderityUtilityWebGL, ShadingModel, type ShadingModelEnum, ShadowMap, ShadowMapDecodeClassicMaterialContent, type ShadowMapEnum, ShadowMapType, ShadowSystem, SimpleVertexAttribute, type Size, SkeletalComponent, Some, Sphere, SphereCollider, type SphereDescriptor, SplitVectorShaderNode, type SquareMatrixComponentN, SymbolWeakMap, SynthesizeHdrMaterialContent, System, SystemState, type Tag, TagGltf2NodeIndex, Texture, type TextureData, TextureDataFloat, TextureFetchShader, TextureFormat$1 as TextureFormat, type TextureFormatEnum, TextureParameter, type TextureParameterEnum, type TextureParameters, type TextureUID, Time, ToneMappingType, type ToneMappingTypeEnum, type TranscodeTarget, type TranscodedImage, Transform3D, TransformComponent, TranslationGizmo, type TypedArray, type TypedArrayConstructor, UastcImageTranscoder, UniformDataShader, UniformDataShaderNode, VERSION, type VRM0x_Extension, VRMColliderGroup, VRMSpring, VRMSpringBone, VRMSpringBonePhysicsStrategy, VarianceShadowMapDecodeClassicMaterialContent, VaryingVariableShader, Vector2, Vector2_, Vector2d, type Vector2f, Vector3, Vector3_, Vector3d, type Vector3f, Vector4, Vector4_, Vector4d, type Vector4f, type VectorAndSquareMatrixComponentN, type VectorComponentN, type VectorCompositionTypes, VectorN, VertexAttribute, VertexAttributeClass, type VertexAttributeComponent, type VertexAttributeEnum, type VertexAttributeSemanticsJoinedString, type VertexAttributeTypeName, type VertexAttributesLayout, type VertexHandles, VideoTexture, type VideoTextureArguments, ViewMatrixShaderNode, Visibility, type VisibilityEnum, type Vrm0x, type Vrm0xBlendShapeBind, type Vrm0xBlendShapeGroup, type Vrm0xBoneGroup, type Vrm0xCollider, type Vrm0xColliderGroup, type Vrm0xHumanBone, Vrm0xImporter, type Vrm0xLookAt, type Vrm0xMaterialProperty, VrmComponent, type VrmExpression, type VrmExpressionMorphBind, type VrmExpressionName, VrmImporter, VrmaImporter, WalkThroughCameraController, WeakNone, WeakOption, WeakSome, WebGLContextWrapper, WebGLExtension, type WebGLExtensionEnum, type WebGLResource, type WebGLResourceHandle, WebGLResourceRepository, type WebGLStrategy, WebGLStrategyDataTexture, WebGLStrategyUniform, type WebGPUResourceHandle, WebGpuDeviceWrapper, type WebGpuResource, WebGpuResourceRepository, WebGpuStrategyBasic, WebXRSystem, WellKnownComponentTIDs, WireframeMaterialNode, WorldMatrixShaderNode, _from, _fromString, _fromStringCaseSensitively, _getPropertyIndex2, add2, add2_offset, add3, add3_offset, add4, add4_offset, addLineNumberToCode, applyMixins, array2_lerp_offsetAsComposition, array3_lerp_offsetAsComposition, array4_lerp_offsetAsComposition, arrayN_lerp_offsetAsComposition, assertDoesNotHave, assertExist, assertHas, assertIsErr, assertIsOk, calcAlignedByteLength, combineImages, convertHTMLImageElementToCanvas, createCameraControllerEntity, createCameraEntity, createEffekseer, createEntity, createGroupEntity, createLightEntity, createLightWithCameraEntity, createMeshEntity, createMotionController, createPhysicsEntity, createSkeletalEntity, createTransformEntity, deepCopyUsingJsonStringify, defaultAnimationTrackName, defaultAssetLoader, defaultValue, detectFormatByArrayBuffers, detectFormatByUri, downloadArrayBuffer, downloadTypedArray, dummyAnisotropyTexture, dummyBlackCubeTexture, dummyBlackTexture, dummyBlueTexture, dummyDepthMomentTextureArray, dummySRGBGrayTexture, dummyWhiteTexture, dummyZeroTexture, enhanceArray, flattenHierarchy, fromTensorToCompositionType, get1, get1_offset, get1_offsetAsComposition, get2, get2_offset, get2_offsetAsComposition, get3, get3_offset, get3_offsetAsComposition, get4, get4_offset, get4_offsetAsComposition, getEvent, getMotionController, getN_offset, getN_offsetAsComposition, type getShaderPropertyFunc, getWebXRSystem, type glTF1, greaterThan, ifDefinedThen, ifDefinedThenWithReturn, ifExistsThen, ifExistsThenWithReturn, ifNotExistsThen, ifNotExistsThenWithReturn, ifUndefinedThen, ifUndefinedThenWithReturn, initDefaultTextures, isBlend, isBlendWithZWrite, isBlendWithoutZWrite, isOpaque, isSameGlTF2TextureSampler, isSkipDrawing, isTranslucent, lessThan, mulArray3WithScalar_offset, mulArray4WithScalar_offset, mulArrayNWithScalar_offset, mulThatAndThisToOutAsMat44_offsetAsComposition, normalizeArray4, nullishToEmptyArray, nullishToEmptyMap, objectCachify, primitiveCachify1, type primitives, qlerp_offsetAsComposition, scalar_lerp_offsetAsComposition, setupShaderProgram, sheenLutTexture, updateGamePad, updateMotionControllerModel, updateVBOAndVAO, valueWithCompensation, valueWithDefault };
