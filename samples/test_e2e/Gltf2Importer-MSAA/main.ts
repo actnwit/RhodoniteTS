@@ -21,11 +21,32 @@ await Rn.System.init({
 //  "Too many temporary registers required to compile shader".
 Rn.Config.isUboEnabled = false;
 
+const assets = await Rn.defaultAssetLoader.load({
+  environment: Rn.CubeTexture.fromUrl({
+    baseUrl: basePathIBL + '/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  specular: Rn.CubeTexture.fromUrl({
+    baseUrl: basePathIBL + '/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+  diffuse: Rn.CubeTexture.fromUrl({
+    baseUrl: basePathIBL + '/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+});
+
 // prepare cameras
 const entityMainCamera = createEntityMainCamera();
 
 // prepare renderPasses
-const renderPassMain = await createRenderPassMain(uriGltf, basePathIBL, entityMainCamera);
+const renderPassMain = await createRenderPassMain(uriGltf, entityMainCamera);
 createAndSetFrameBufferAndMSAAFramebuffer(renderPassMain, rnCanvasElement.width);
 
 const materialGamma = Rn.MaterialHelper.createGammaCorrectionMaterial();
@@ -38,7 +59,7 @@ const expression = new Rn.Expression();
 expression.addRenderPasses([renderPassMain, renderPassGamma]);
 
 // set ibl textures
-await setIBLTexture(basePathIBL);
+await setIBLTexture();
 
 // draw
 draw([expression], 0);
@@ -64,10 +85,9 @@ function createEntityPostEffectCamera() {
 
 async function createRenderPassMain(
   uriGltf: string,
-  basePathIBL: string,
   entityCamera: Rn.ICameraEntity
 ) {
-  const entityEnvironmentCube = await createEntityEnvironmentCube(basePathIBL);
+  const entityEnvironmentCube = await createEntityEnvironmentCube();
   const entityRootGroup = await createEntityGltf2(uriGltf);
 
   const renderPass = new Rn.RenderPass();
@@ -81,15 +101,7 @@ async function createRenderPassMain(
   return renderPass;
 }
 
-async function createEntityEnvironmentCube(basePathIBL: string) {
-  const cubeTextureEnvironment = new Rn.CubeTexture();
-  await cubeTextureEnvironment.loadTextureImages({
-    baseUrl: basePathIBL + '/environment/environment',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.LDR_SRGB,
-  });
-
+async function createEntityEnvironmentCube() {
   const materialSphere = Rn.MaterialHelper.createEnvConstantMaterial({
     makeOutputSrgb: false,
   });
@@ -100,7 +112,7 @@ async function createEntityEnvironmentCube(basePathIBL: string) {
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
   });
-  materialSphere.setTextureParameter('colorEnvTexture', cubeTextureEnvironment, sampler);
+  materialSphere.setTextureParameter('colorEnvTexture', assets.environment, sampler);
 
   const primitiveSphere = new Rn.Sphere();
   primitiveSphere.generate({
@@ -156,29 +168,13 @@ function createAndSetFrameBufferAndMSAAFramebuffer(
   renderPass.setResolveFramebuffer(framebufferMSAA);
 }
 
-async function setIBLTexture(basePathIBL: string) {
-  const cubeTextureSpecular = new Rn.CubeTexture();
-  await cubeTextureSpecular.loadTextureImages({
-    baseUrl: basePathIBL + '/specular/specular',
-    mipmapLevelNumber: 10,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-  });
-
-  const cubeTextureDiffuse = new Rn.CubeTexture();
-  await cubeTextureDiffuse.loadTextureImages({
-    baseUrl: basePathIBL + '/diffuse/diffuse',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-  });
-
+async function setIBLTexture() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
 
   for (const meshRendererComponent of meshRendererComponents) {
-    await meshRendererComponent.setIBLCubeMap(cubeTextureDiffuse, cubeTextureSpecular);
+    await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }
 

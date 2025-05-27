@@ -11,6 +11,27 @@ await Rn.System.init({
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
+const assets = await Rn.defaultAssetLoader.load({
+  environment: Rn.CubeTexture.fromUrl({
+    baseUrl: './../../../assets/ibl/papermill/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  diffuse: Rn.CubeTexture.fromUrl({
+    baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+  specular: Rn.CubeTexture.fromUrl({
+    baseUrl: './../../../assets/ibl/papermill/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+});
+
 let count = 0;
 
 const response = await Rn.Gltf2Importer.importFromUri(
@@ -48,14 +69,14 @@ renderPass.cameraComponent = cameraComponent;
 
 // expression
 const expressions = [];
-const envExpression = await createEnvCubeExpression('./../../../assets/ibl/papermill');
+const envExpression = await createEnvCubeExpression();
 expressions.push(envExpression);
 const expression = new Rn.Expression();
 expression.addRenderPasses([renderPass]);
 expressions.push(expression);
 
 // lighting
-await setIBL('./../../../assets/ibl/papermill');
+await setIBL();
 
 let startTime = Date.now();
 let startTimeForPerformanceNow = 0;
@@ -104,15 +125,7 @@ window.exportGltf2 = function () {
   Rn.Gltf2Exporter.export('Rhodonite');
 };
 
-async function createEnvCubeExpression(baseuri) {
-  const environmentCubeTexture = new Rn.CubeTexture();
-  await environmentCubeTexture.loadTextureImages({
-    baseUrl: baseuri + '/environment/environment',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.LDR_SRGB,
-  });
-
+async function createEnvCubeExpression() {
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const sampler = new Rn.Sampler({
     minFilter: Rn.TextureParameter.Linear,
@@ -120,7 +133,7 @@ async function createEnvCubeExpression(baseuri) {
     wrapS: Rn.TextureParameter.ClampToEdge,
     wrapT: Rn.TextureParameter.ClampToEdge,
   });
-  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, sampler);
+  sphereMaterial.setTextureParameter('colorEnvTexture', assets.environment, sampler);
   sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
   const spherePrimitive = new Rn.Sphere();
@@ -150,27 +163,11 @@ async function createEnvCubeExpression(baseuri) {
   return sphereExpression;
 }
 
-async function setIBL(baseUri) {
-  const specularCubeTexture = new Rn.CubeTexture();
-  await specularCubeTexture.loadTextureImages({
-    baseUrl: baseUri + '/specular/specular',
-    mipmapLevelNumber: 10,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-  });
-
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  await diffuseCubeTexture.loadTextureImages({
-    baseUrl: baseUri + '/diffuse/diffuse',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-  });
-
+async function setIBL() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {
-    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
+    await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }

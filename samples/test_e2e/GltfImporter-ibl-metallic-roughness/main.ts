@@ -7,6 +7,28 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
+
+const assets = await Rn.defaultAssetLoader.load({
+  environment: Rn.CubeTexture.fromUrl({
+    baseUrl: './../../../assets/ibl/papermill/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  diffuse: Rn.CubeTexture.fromUrl({
+    baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  }),
+  specular: Rn.CubeTexture.fromUrl({
+    baseUrl: './../../../assets/ibl/papermill/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  }),
+});
 
 // expressions
 const expressions = [];
@@ -71,7 +93,7 @@ controller.dolly = 0.79;
 controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 // lighting
-await setIBL('./../../../assets/ibl/papermill');
+await setIBL();
 
 let count = 0;
 
@@ -132,27 +154,11 @@ async function createEnvCubeExpression(baseuri) {
   return sphereExpression;
 }
 
-async function setIBL(baseUri) {
-  const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.loadTextureImages({
-    baseUrl: baseUri + '/specular/specular',
-    mipmapLevelNumber: 10,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
-  });
-
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  await diffuseCubeTexture.loadTextureImages({
-    baseUrl: baseUri + '/diffuse/diffuse',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
-  });
-
+async function setIBL() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {
-    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
+    await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }
