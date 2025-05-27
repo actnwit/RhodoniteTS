@@ -1,57 +1,64 @@
-import { CubeTexture } from '../textures/CubeTexture';
-import { Texture } from '../textures/Texture';
-import { HdriFormatEnum } from '../definitions/HdriFormat';
-
 /**
- * アセットローダーの設定インターフェース
+ * Asset loader configuration interface
  */
 export interface AssetLoaderConfig {
-  /** 並列読み込み数の制限 */
+  /** Limit on the number of concurrent loads */
   maxConcurrentLoads?: number;
-  /** タイムアウト時間（ミリ秒） */
+  /** Timeout duration (in milliseconds) */
   timeout?: number;
-  /** エラー時のリトライ回数 */
-  retryCount?: number;
 }
 
 /**
- * 読み込み要求の内部表現
+ * Internal representation of a load request
  */
 interface LoadRequest<T> {
   promise: Promise<T>;
   resolve: (value: T) => void;
   reject: (reason: any) => void;
   retryCount: number;
+  maxRetryCount: number;
   retryFactory?: () => Promise<T>;
 }
 
 /**
- * 型安全なアセットローダークラス
+ * Helper type to infer the result object type from the promise object type
+ */
+type AwaitedObject<T> = {
+  [K in keyof T]: T[K] extends Promise<infer U> ? U : T[K]
+};
+
+/**
+ * Type-safe asset loader class
  *
  * @example
  * ```typescript
- * const loader = new AssetLoader();
+ * const assetLoader = new AssetLoader();
  *
- * // 単一のPromiseを読み込み
- * const cubeTexture = await loader.load(Rn.CubeTexture.fromUrl({
- *   baseUrl: '/path/to/environment',
- *   mipmapLevelNumber: 1,
- *   isNamePosNeg: true,
- *   hdriFormat: Rn.HdriFormat.HDR_LINEAR,
- * }));
+ * // Load promises in object format
+ * const assets = await assetLoader.load({
+ *   environment: Rn.CubeTexture.fromUrl({
+ *     baseUrl: '/path/to/environment',
+ *     mipmapLevelNumber: 1,
+ *     isNamePosNeg: true,
+ *     hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+ *   }),
+ *   specular: Rn.CubeTexture.fromUrl({
+ *     baseUrl: '/path/to/specular',
+ *     mipmapLevelNumber: 10,
+ *     isNamePosNeg: true,
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *   }),
+ *   diffuse: Rn.CubeTexture.fromUrl({
+ *     baseUrl: '/path/to/diffuse',
+ *     mipmapLevelNumber: 1,
+ *     isNamePosNeg: true,
+ *     hdriFormat: Rn.HdriFormat.RGBE_PNG,
+ *   })
+ * });
  *
- * // 複数のPromiseを一括読み込み
- * const [envTexture, specTexture, diffTexture] = await loader.loadAll([
- *   Rn.CubeTexture.fromUrl({ baseUrl: '/env', ... }),
- *   Rn.CubeTexture.fromUrl({ baseUrl: '/spec', ... }),
- *   Rn.CubeTexture.fromUrl({ baseUrl: '/diff', ... })
- * ]);
- *
- * // 異なる型のPromiseを一括読み込み
- * const [cubeTexture, texture] = await loader.loadAll([
- *   Rn.CubeTexture.fromUrl({ ... }),
- *   texturePromise
- * ]);
+ * console.log(assets.environment); // CubeTexture
+ * console.log(assets.specular); // CubeTexture
+ * console.log(assets.diffuse); // CubeTexture
  * ```
  */
 export class AssetLoader {
@@ -63,21 +70,40 @@ export class AssetLoader {
     this.config = {
       maxConcurrentLoads: config.maxConcurrentLoads ?? 3,
       timeout: config.timeout ?? 30000,
-      retryCount: config.retryCount ?? 2,
     };
   }
 
   /**
-   * 単一のPromiseを読み込む
+   * Load promises in object format
    */
-  async load<T>(promise: Promise<T>, retryFactory?: () => Promise<T>): Promise<T> {
+  async load<T extends Record<string, Promise<any>>>(
+    promiseObject: T
+  ): Promise<AwaitedObject<T>> {
+    const keys = Object.keys(promiseObject);
+    const promises = Object.values(promiseObject);
+
+    const results = await this.loadArray(promises);
+
+    const resultObject = {} as AwaitedObject<T>;
+    keys.forEach((key, index) => {
+      (resultObject as any)[key] = results[index];
+    });
+
+    return resultObject;
+  }
+
+  /**
+   * Load a single promise
+   */
+  async loadSingle<T>(promise: Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
       const request: LoadRequest<T> = {
         promise,
         resolve,
         reject,
         retryCount: 0,
-        retryFactory,
+        maxRetryCount: 0,
+        retryFactory: undefined,
       };
 
       this.loadingQueue.push(request);
@@ -86,34 +112,95 @@ export class AssetLoader {
   }
 
   /**
-   * 複数のPromiseを一括読み込み（同じ型）
+   * Load a single promise with multiple retry factories
    */
-  async loadAll<T>(promises: Promise<T>[]): Promise<T[]>;
+  async loadWithRetrySingle<T>(
+    promiseFactories: Array<() => Promise<T>>
+  ): Promise<T> {
+    if (promiseFactories.length === 0) {
+      throw new Error('At least one promise factory must be provided');
+    }
+
+    const [primaryFactory, ...retryFactories] = promiseFactories;
+    return this.loadSingleWithMultipleRetries(primaryFactory(), retryFactories);
+  }
+
   /**
-   * 複数のPromiseを一括読み込み（異なる型のタプル）
+   * Load multiple promises in bulk (array format)
    */
-  async loadAll<T extends readonly unknown[]>(
+  async loadArray<T>(promises: Promise<T>[]): Promise<T[]>;
+  /**
+   * Load multiple promises in bulk (tuple of different types)
+   */
+  async loadArray<T extends readonly unknown[]>(
     promises: readonly [...{ [K in keyof T]: Promise<T[K]> }]
   ): Promise<T>;
-  async loadAll<T>(promises: Promise<T>[] | readonly Promise<any>[]): Promise<T[] | any[]> {
-    const loadPromises = promises.map(promise => this.load(promise));
+  async loadArray<T>(promises: Promise<T>[] | readonly Promise<any>[]): Promise<T[] | any[]> {
+    const loadPromises = promises.map(promise => this.loadSingle(promise));
     return Promise.all(loadPromises);
   }
 
   /**
-   * 複数のPromiseを一括読み込み（リトライファクトリ付き）
+   * Load with retry factories in array format
    */
-  async loadAllWithRetry<T>(
-    promiseFactories: Array<() => Promise<T>>
+  async loadWithRetryArray<T>(
+    promiseFactories: Array<Array<() => Promise<T>>>
   ): Promise<T[]> {
-    const loadPromises = promiseFactories.map(factory =>
-      this.load(factory(), factory)
-    );
+    const loadPromises = promiseFactories.map(factories => {
+      const [primaryFactory, ...retryFactories] = factories;
+      return this.loadSingleWithMultipleRetries(primaryFactory(), retryFactories);
+    });
     return Promise.all(loadPromises);
   }
 
   /**
-   * 読み込みキューを処理する
+   * Load with retry factories in object format
+   */
+  async loadWithRetry<T extends Record<string, Promise<any>>>(
+    promiseFactories: {
+      [K in keyof T]: Array<() => T[K]>
+    }
+  ): Promise<AwaitedObject<T>> {
+    const keys = Object.keys(promiseFactories);
+    const factoryArrays = Object.values(promiseFactories);
+
+    const results = await this.loadWithRetryArray(factoryArrays);
+
+    const resultObject = {} as AwaitedObject<T>;
+    keys.forEach((key, index) => {
+      (resultObject as any)[key] = results[index];
+    });
+
+    return resultObject;
+  }
+
+  /**
+   * Load a single promise with multiple retry factories
+   */
+  private async loadSingleWithMultipleRetries<T>(
+    initialPromise: Promise<T>,
+    retryFactories: Array<() => Promise<T>>
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const request: LoadRequest<T> = {
+        promise: initialPromise,
+        resolve,
+        reject,
+        retryCount: 0,
+        maxRetryCount: retryFactories.length,
+        retryFactory: retryFactories.length > 0 ? () => {
+          const factoryIndex = Math.min(request.retryCount - 1, retryFactories.length - 1);
+          return retryFactories[factoryIndex]();
+        } : undefined,
+      };
+
+      this.loadingQueue.push(request);
+      this.processQueue();
+    });
+  }
+
+  /**
+   * Process the loading queue
    */
   private async processQueue(): Promise<void> {
     if (this.activeLoads >= this.config.maxConcurrentLoads || this.loadingQueue.length === 0) {
@@ -127,21 +214,21 @@ export class AssetLoader {
       const result = await this.executeLoad(request);
       request.resolve(result);
     } catch (error) {
-      if (request.retryCount < this.config.retryCount && request.retryFactory) {
+      if (request.retryCount < request.maxRetryCount && request.retryFactory) {
         request.retryCount++;
         request.promise = request.retryFactory();
-        this.loadingQueue.unshift(request); // 先頭に戻してリトライ
+        this.loadingQueue.unshift(request); // Move to the front for retry
       } else {
         request.reject(error);
       }
     } finally {
       this.activeLoads--;
-      this.processQueue(); // 次のアイテムを処理
+      this.processQueue(); // Process the next item
     }
   }
 
   /**
-   * 実際の読み込み処理を実行する
+   * Execute the actual loading process
    */
   private async executeLoad<T>(request: LoadRequest<T>): Promise<T> {
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -152,7 +239,7 @@ export class AssetLoader {
   }
 
   /**
-   * 現在の読み込み状況を取得する
+   * Get the current loading status
    */
   getLoadingStatus(): { active: number; queued: number } {
     return {
@@ -162,7 +249,7 @@ export class AssetLoader {
   }
 
   /**
-   * すべての読み込みが完了するまで待機する
+   * Wait until all loads are complete
    */
   async waitForAllLoads(): Promise<void> {
     while (this.activeLoads > 0 || this.loadingQueue.length > 0) {
@@ -172,6 +259,6 @@ export class AssetLoader {
 }
 
 /**
- * デフォルトのアセットローダーインスタンス
+ * Default asset loader instance
  */
 export const defaultAssetLoader = new AssetLoader();
