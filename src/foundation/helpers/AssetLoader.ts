@@ -4,7 +4,7 @@
 export interface AssetLoaderConfig {
   /** Limit on the number of concurrent loads */
   maxConcurrentLoads?: number;
-  /** Timeout duration (in milliseconds) */
+  /** Timeout duration (in milliseconds). Set to 0 or negative value to disable timeout */
   timeout?: number;
 }
 
@@ -32,7 +32,19 @@ type AwaitedObject<T> = {
  *
  * @example
  * ```typescript
+ * // Default configuration with 60 second timeout
  * const assetLoader = new AssetLoader();
+ *
+ * // Configuration with custom settings
+ * const customLoader = new AssetLoader({
+ *   maxConcurrentLoads: 5,
+ *   timeout: 30000 // 30 seconds
+ * });
+ *
+ * // Disable timeout (wait indefinitely)
+ * const noTimeoutLoader = new AssetLoader({
+ *   timeout: 0 // or any negative value
+ * });
  *
  * // Load promises in object format
  * const assets = await assetLoader.load({
@@ -231,6 +243,11 @@ export class AssetLoader {
    * Execute the actual loading process
    */
   private async executeLoad<T>(request: LoadRequest<T>): Promise<T> {
+    // If timeout is 0 or negative, don't use timeout
+    if (this.config.timeout <= 0) {
+      return request.promise;
+    }
+
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error('Load timeout')), this.config.timeout);
     });

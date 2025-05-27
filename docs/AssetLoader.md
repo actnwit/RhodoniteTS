@@ -23,7 +23,12 @@ const assetLoader = new Rn.AssetLoader();
 // カスタム設定でインスタンスを作成
 const customLoader = new Rn.AssetLoader({
   maxConcurrentLoads: 5,    // 最大同時読み込み数（デフォルト: 3）
-  timeout: 60000,           // タイムアウト時間（デフォルト: 30000ms）
+  timeout: 60000,           // タイムアウト時間（デフォルト: 60000ms）
+});
+
+// タイムアウトを無効にする（無限に待つ）
+const noTimeoutLoader = new Rn.AssetLoader({
+  timeout: 0                // 0または負の値でタイムアウト無効
 });
 ```
 
@@ -506,6 +511,38 @@ await assetLoader.waitForAllLoads();
 console.log('処理完了'); // 結果は取得しない
 ```
 
+## 設定オプション
+
+### タイムアウトの制御
+
+AssetLoaderでは、読み込みのタイムアウト時間を柔軟に設定できます：
+
+```typescript
+// デフォルト設定（60秒でタイムアウト）
+const defaultLoader = new Rn.AssetLoader();
+
+// カスタムタイムアウト（30秒）
+const customTimeoutLoader = new Rn.AssetLoader({
+  timeout: 30000
+});
+
+// タイムアウト無効（無限に待つ）
+const noTimeoutLoader = new Rn.AssetLoader({
+  timeout: 0  // または負の値（例: -1）
+});
+
+// 大容量ファイルなど、長時間の読み込みが予想される場合
+const largeFileLoader = new Rn.AssetLoader({
+  timeout: 0  // タイムアウトを無効にして確実に読み込み完了を待つ
+});
+```
+
+**タイムアウト無効化の使用ケース：**
+- 大容量のアセットファイルの読み込み
+- ネットワーク速度が不安定な環境
+- 確実に読み込みを完了させたい重要なアセット
+- 開発環境でのデバッグ時
+
 ## エラーハンドリング
 
 ```typescript
@@ -549,7 +586,8 @@ const assets = await Rn.defaultAssetLoader.load({
 ```typescript
 interface AssetLoaderConfig {
   maxConcurrentLoads?: number;  // 並列読み込み数の制限（デフォルト: 3）
-  timeout?: number;             // タイムアウト時間（ミリ秒、デフォルト: 30000）
+  timeout?: number;             // タイムアウト時間（ミリ秒、デフォルト: 60000）
+                               // 0または負の値でタイムアウト無効（無限に待つ）
 }
 ```
 
