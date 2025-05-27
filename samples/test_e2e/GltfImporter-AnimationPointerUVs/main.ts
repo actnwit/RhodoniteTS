@@ -64,7 +64,7 @@ await specularCubeTexture.loadTextureImages({
   hdriFormat: Rn.HdriFormat.RGBE_PNG,
 });
 
-await forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
+forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
 
 let count = 0;
 let startTime = Date.now();
