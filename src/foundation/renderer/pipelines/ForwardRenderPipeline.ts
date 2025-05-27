@@ -381,14 +381,14 @@ export class ForwardRenderPipeline extends RnObject {
    * @param diffuse - diffuse IBL Cube Texture
    * @param specular - specular IBL Cube Texture
    */
-  async setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture) {
+  setIBLTextures(diffuse: CubeTexture, specular: CubeTexture, sheen?: CubeTexture) {
     this.__oDiffuseCubeTexture = new Some(diffuse);
     this.__oSpecularCubeTexture = new Some(specular);
     if (Is.exist(sheen)) {
       this.__oSheenCubeTexture = new Some(sheen);
     }
-    await this.__setIblInner();
-    await this.__setIblInnerForTransparentOnly();
+    this.__setIblInner();
+    this.__setIblInnerForTransparentOnly();
   }
 
   /**
@@ -476,7 +476,7 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private async __setExpressionsInner(
+  private __setExpressionsInner(
     expressions: Expression[],
     options: {
       isTransmission: boolean;
@@ -514,7 +514,7 @@ export class ForwardRenderPipeline extends RnObject {
       }
     }
     this.__expressions = expressions;
-    await this.__setIblInner();
+    this.__setIblInner();
   }
 
   private __setTransparentExpressionsForTransmission(expressions: Expression[]) {
@@ -794,13 +794,13 @@ export class ForwardRenderPipeline extends RnObject {
     );
   }
 
-  private async __setIblInner() {
+  private __setIblInner() {
     for (const expression of this.__expressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
-            await meshRendererComponent.setIBLCubeMap(
+            meshRendererComponent.setIBLCubeMap(
               this.__oDiffuseCubeTexture.unwrapOrUndefined()!,
               this.__oSpecularCubeTexture.unwrapOrUndefined()!,
               this.__oSheenCubeTexture.unwrapOrUndefined()
@@ -811,13 +811,13 @@ export class ForwardRenderPipeline extends RnObject {
     }
   }
 
-  private async __setIblInnerForTransparentOnly() {
+  private __setIblInnerForTransparentOnly() {
     for (const expression of this.__transparentOnlyExpressions) {
       for (const renderPass of expression.renderPasses) {
         for (const entity of renderPass.entities) {
           const meshRendererComponent = entity.tryToGetMeshRenderer();
           if (Is.exist(meshRendererComponent)) {
-            await meshRendererComponent.setIBLCubeMap(
+            meshRendererComponent.setIBLCubeMap(
               this.__oDiffuseCubeTexture.unwrapOrUndefined()!,
               this.__oSpecularCubeTexture.unwrapOrUndefined()!,
               this.__oSheenCubeTexture.unwrapOrUndefined()

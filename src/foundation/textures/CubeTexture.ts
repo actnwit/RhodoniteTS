@@ -1,5 +1,5 @@
 import { AbstractTexture } from './AbstractTexture';
-import { HdriFormat } from '../definitions/HdriFormat';
+import { HdriFormat, HdriFormatEnum } from '../definitions/HdriFormat';
 import { CGAPIResourceRepository } from '../renderer/CGAPIResourceRepository';
 import { BasisTranscoder, BASIS } from '../../types/BasisTexture';
 import { TextureParameter } from '../definitions/TextureParameter';
@@ -17,11 +17,8 @@ type FinalizationRegistryObject = {
 };
 
 export class CubeTexture extends AbstractTexture implements Disposable {
-  public baseUriToLoad?: string;
   public mipmapLevelNumber = 1;
   public hdriFormat = HdriFormat.LDR_SRGB;
-  public isNamePosNeg = false;
-  private __onTextureLoadedArray: Array<() => void> = [];
 
   private static managedRegistry: FinalizationRegistry<FinalizationRegistryObject> =
     new FinalizationRegistry<FinalizationRegistryObject>((texObj) => {
@@ -40,22 +37,32 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     CubeTexture.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
   }
 
-  registerOnTextureLoaded(func: () => void) {
-    this.__onTextureLoadedArray.push(func);
-  }
-
-  async loadTextureImages() {
+  async loadTextureImages({
+    baseUri,
+    mipmapLevelNumber,
+    isNamePosNeg,
+    hdriFormat,
+  }: {
+    baseUri: string,
+    mipmapLevelNumber: number,
+    isNamePosNeg: boolean,
+    hdriFormat: HdriFormatEnum
+  }) {
     this.__startedToLoad = true;
-    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-    const [resourceUid, sampler] = await cgApiResourceRepository.createCubeTextureFromFiles(
-      this.baseUriToLoad!,
-      this.mipmapLevelNumber!,
-      this.isNamePosNeg,
-      this.hdriFormat
-    );
-    this._recommendedTextureSampler = sampler;
-    this.__setTextureResourceUid(resourceUid, this.uniqueName);
 
+    this.mipmapLevelNumber = mipmapLevelNumber;
+    this.hdriFormat = hdriFormat;
+
+    const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
+    const [cubeTextureUid, sampler] = await cgApiResourceRepository
+      .createCubeTextureFromFiles(
+        baseUri,
+        mipmapLevelNumber,
+        isNamePosNeg,
+        hdriFormat
+      );
+    this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
+    this._recommendedTextureSampler = sampler;
     this._samplerResourceUid = sampler._samplerResourceUid;
 
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
@@ -63,41 +70,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
         cgApiResourceRepository as WebGpuResourceRepository
       ).createTextureViewCube(this._textureResourceUid);
     }
-
     this.__isTextureReady = true;
-  }
-
-  loadTextureImagesAsync() {
-    return new Promise<void>((resolve) => {
-      this.__startedToLoad = true;
-      const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
-      cgApiResourceRepository
-        .createCubeTextureFromFiles(
-          this.baseUriToLoad!,
-          this.mipmapLevelNumber!,
-          this.isNamePosNeg,
-          this.hdriFormat
-        )
-        .then(([cubeTextureUid, sampler]) => {
-          this.__setTextureResourceUid(cubeTextureUid, this.uniqueName);
-          this._recommendedTextureSampler = sampler;
-          this._samplerResourceUid = sampler._samplerResourceUid;
-
-          if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
-            this._textureViewResourceUid = (
-              cgApiResourceRepository as WebGpuResourceRepository
-            ).createTextureViewCube(this._textureResourceUid);
-          }
-        })
-        .then(() => {
-          this.__isTextureReady = true;
-          this.__onTextureLoadedArray.forEach((func) => {
-            func();
-          });
-          this.__onTextureLoadedArray = [];
-          resolve();
-        });
-    });
   }
 
   loadTextureImagesFromBasis(

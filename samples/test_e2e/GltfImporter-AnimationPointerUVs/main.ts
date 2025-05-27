@@ -35,7 +35,7 @@ const mainExpression = (
 ).unwrapForce();
 
 // env
-const envExpression = createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
+const envExpression = await createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
 
 const mainRenderPass = mainExpression.renderPasses[0];
 mainRenderPass.tryToSetUniqueName('main', true);
@@ -49,18 +49,22 @@ await forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
 
 // lighting
 const diffuseCubeTexture = new Rn.CubeTexture();
-diffuseCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/diffuse/diffuse';
-diffuseCubeTexture.isNamePosNeg = true;
-diffuseCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-diffuseCubeTexture.mipmapLevelNumber = 1;
+await diffuseCubeTexture.loadTextureImages({
+  baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
+  mipmapLevelNumber: 1,
+  isNamePosNeg: true,
+  hdriFormat: Rn.HdriFormat.RGBE_PNG,
+});
 
 const specularCubeTexture = new Rn.CubeTexture();
-specularCubeTexture.baseUriToLoad = './../../../assets/ibl/papermill/specular/specular';
-specularCubeTexture.isNamePosNeg = true;
-specularCubeTexture.hdriFormat = Rn.HdriFormat.RGBE_PNG;
-specularCubeTexture.mipmapLevelNumber = 10;
+await specularCubeTexture.loadTextureImages({
+  baseUri: './../../../assets/ibl/papermill/specular/specular',
+  mipmapLevelNumber: 10,
+  isNamePosNeg: true,
+  hdriFormat: Rn.HdriFormat.RGBE_PNG,
+});
 
-await forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
+forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
 
 let count = 0;
 let startTime = Date.now();
@@ -98,13 +102,14 @@ function createCamera() {
   return { cameraComponent, cameraEntity };
 }
 
-function createEnvCubeExpression(baseuri, cameraEntity) {
+async function createEnvCubeExpression(baseuri, cameraEntity) {
   const environmentCubeTexture = new Rn.CubeTexture();
-  environmentCubeTexture.baseUriToLoad = baseuri + '/environment/environment';
-  environmentCubeTexture.isNamePosNeg = true;
-  environmentCubeTexture.hdriFormat = Rn.HdriFormat.LDR_SRGB;
-  environmentCubeTexture.mipmapLevelNumber = 1;
-  environmentCubeTexture.loadTextureImagesAsync();
+  await environmentCubeTexture.loadTextureImages({
+    baseUri: baseuri + '/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  });
 
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const sampler = new Rn.Sampler({
