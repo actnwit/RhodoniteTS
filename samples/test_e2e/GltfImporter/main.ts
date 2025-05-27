@@ -32,7 +32,7 @@ const expressions = [];
 
 // vrm
 const vrmExpression = (
-  await Rn.GltfImporter.importFromUri('../../../assets/vrm/test.vrm', {
+  await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
     defaultMaterialHelperArgumentArray: [
       {
         isSkinning: false,
@@ -43,7 +43,7 @@ const vrmExpression = (
     tangentCalculationMode: 0,
     cameraComponent: cameraComponent,
   })
-).unwrapForce();
+);
 expressions.push(vrmExpression);
 
 const vrmMainRenderPass = vrmExpression.renderPasses[0];

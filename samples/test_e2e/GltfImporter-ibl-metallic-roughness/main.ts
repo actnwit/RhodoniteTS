@@ -7,9 +7,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.Uniform,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
-
-// expressions
-const expressions = [];
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
@@ -19,9 +17,8 @@ cameraComponent.zFar = 1000.0;
 cameraComponent.setFovyAndChangeFocalLength(30.0);
 cameraComponent.aspect = 1.0;
 
-// gltf
-const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
+const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/MetalRoughSpheresNoTextures/glTF-Binary/MetalRoughSpheresNoTextures.glb',
     {
       cameraComponent: cameraComponent,
@@ -31,9 +28,31 @@ const mainExpression = (
         },
       ],
     }
-  )
-).unwrapForce();
-expressions.push(mainExpression);
+  ),
+  environment: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  diffuse: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  }),
+  specular: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+  }),
+});
+
+// expressions
+const expressions = [];
+
+expressions.push(assets.mainExpression);
 
 // post effects
 const expressionPostEffect = new Rn.Expression();
@@ -47,13 +66,13 @@ const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   textureFormats: [Rn.TextureFormat.RGBA8],
   createDepthBuffer: true,
 });
-for (const renderPass of mainExpression.renderPasses) {
+for (const renderPass of assets.mainExpression.renderPasses) {
   renderPass.setFramebuffer(gammaTargetFramebuffer);
   renderPass.toClearColorBuffer = false;
   renderPass.toClearDepthBuffer = false;
 }
-mainExpression.renderPasses[0].toClearColorBuffer = true;
-mainExpression.renderPasses[0].toClearDepthBuffer = true;
+assets.mainExpression.renderPasses[0].toClearColorBuffer = true;
+assets.mainExpression.renderPasses[0].toClearDepthBuffer = true;
 
 const gammaCorrectionMaterial = Rn.MaterialHelper.createGammaCorrectionMaterial();
 const gammaCorrectionRenderPass =
@@ -64,14 +83,14 @@ const gammaCorrectionRenderPass =
 expressionPostEffect.addRenderPasses([gammaCorrectionRenderPass]);
 
 // cameraController
-const mainRenderPass = mainExpression.renderPasses[0];
+const mainRenderPass = assets.mainExpression.renderPasses[0];
 const mainCameraControllerComponent = cameraEntity.getCameraController();
 const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
 controller.dolly = 0.79;
 controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 // lighting
-await setIBL('./../../../assets/ibl/papermill');
+await setIBL();
 
 let count = 0;
 
@@ -91,7 +110,7 @@ Rn.System.startRenderLoop(() => {
 async function createEnvCubeExpression(baseuri) {
   const environmentCubeTexture = new Rn.CubeTexture();
   await environmentCubeTexture.loadTextureImages({
-    baseUri: baseuri + '/environment/environment',
+    baseUrl: baseuri + '/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
@@ -132,27 +151,11 @@ async function createEnvCubeExpression(baseuri) {
   return sphereExpression;
 }
 
-async function setIBL(baseUri) {
-  const specularCubeTexture = new Rn.CubeTexture();
-  specularCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/specular/specular',
-    mipmapLevelNumber: 10,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
-  });
-
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  await diffuseCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/diffuse/diffuse',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.HDR_LINEAR,
-  });
-
+async function setIBL() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {
-    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
+    await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }

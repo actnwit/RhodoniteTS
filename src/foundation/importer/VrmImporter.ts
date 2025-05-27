@@ -411,21 +411,19 @@ export class VrmImporter {
   static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<Result<Vrm1, Err<RnM2, undefined>>> {
-    options = this._getOptions(options);
+  ): Promise<Vrm1> {
+    const promise = new Promise<Vrm1>(async (resolve, reject) => {
+      options = this._getOptions(options);
 
-    const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
-      return new Err({
-        message: 'Failed to import VRM file.',
-        error: result,
-      });
-    }
+      try {
+        const result = await Gltf2Importer.importFromUrl(uri, options);
+        VrmImporter._readVRMHumanoidInfo(result as Vrm1);
+        resolve(result as Vrm1);
+      } catch (error) {
+        reject(error);
+      }
+    });
 
-    assertIsOk(result);
-    const gltfJson = result.get();
-    VrmImporter._readVRMHumanoidInfo(gltfJson as Vrm1);
-
-    return new Ok(gltfJson as Vrm1);
+    return promise;
   }
 }

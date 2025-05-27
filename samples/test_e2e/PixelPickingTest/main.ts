@@ -93,26 +93,26 @@ lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 
 //lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
 //lightEntity2.getLight().type = Rn.LightType.Directional;
 
-//  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/Box/glTF/Box.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/BoxTextured/glTF/BoxTextured.gltf');
-//  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/Lantern/glTF/Lantern.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/VC/glTF/VC.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/GearboxAssy/glTF/GearboxAssy.gltf');
-// const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Buggy/glTF/Buggy.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
-//  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
-//  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-const response = (
-  await Rn.Gltf2Importer.importFromUri(
+//  const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/2.0/Box/glTF/Box.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/2.0/BoxTextured/glTF/BoxTextured.gltf');
+//  const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/2.0/Lantern/glTF/Lantern.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/VC/glTF/VC.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/GearboxAssy/glTF/GearboxAssy.gltf');
+// const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/Buggy/glTF/Buggy.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf');
+//  const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/ReciprocatingSaw/glTF/ReciprocatingSaw.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
+//  const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
+const rnm = (
+  await Rn.Gltf2Importer.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
   )
-).unwrapForce();
-//const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
+);
+//const response = await importer.importFromUrl('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
 //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 //  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);

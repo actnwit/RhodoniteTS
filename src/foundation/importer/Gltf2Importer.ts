@@ -18,48 +18,54 @@ export class Gltf2Importer {
 
   /**
    * Import glTF2 file
-   * @param uri - uri of glTF file
+   * @param url - url of glTF file
    * @param options - options for loading process
    * @returns a glTF2 based JSON pre-processed
    */
-  public static async importFromUri(
-    uri: string,
+  public static async importFromUrl(
+    url: string,
     options?: GltfLoadOption
-  ): Promise<Result<RnM2, undefined>> {
-    const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+  ): Promise<RnM2> {
+    const promise = new Promise<RnM2>(async (resolve, reject) => {
 
-    if (r_arrayBuffer.isErr()) {
-      return new Err({
-        message: 'fetchArrayBuffer error',
-        error: undefined,
-      });
-    }
+      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(url);
 
-    const result = await this._importGltfOrGlbFromArrayBuffers(
-      r_arrayBuffer.get(),
-      options?.files ?? {},
-      options,
-      uri
-    );
-    return result;
+      if (r_arrayBuffer.isErr()) {
+        reject(r_arrayBuffer.getRnError());
+        return;
+      }
+
+      const result = await this._importGltfOrGlbFromArrayBuffers(
+        r_arrayBuffer.get(),
+        options?.files ?? {},
+        options,
+        url
+      );
+      resolve(result.unwrapForce());
+
+    });
+
+    return promise;
   }
 
   public static async importFromArrayBuffers(
     files: GltfFileBuffers,
     options?: GltfLoadOption
-  ): Promise<Result<RnM2, undefined>> {
-    for (const fileName in files) {
-      const fileExtension = DataUtil.getExtension(fileName);
+  ): Promise<RnM2> {
+    const promise = new Promise<RnM2>(async (resolve, reject) => {
+      for (const fileName in files) {
+        const fileExtension = DataUtil.getExtension(fileName);
 
-      if (fileExtension === 'gltf' || fileExtension === 'glb') {
-        const result = await this._importGltfOrGlbFromArrayBuffers(files[fileName], files, options);
-        return result;
+        if (fileExtension === 'gltf' || fileExtension === 'glb') {
+          const result = await this._importGltfOrGlbFromArrayBuffers(files[fileName], files, options);
+          resolve(result.unwrapForce());
+          return;
+        }
       }
-    }
-    return new Err({
-      message: 'no gltf or glb file found',
-      error: undefined,
+      reject(new Error('no gltf or glb file found'));
     });
+
+    return promise;
   }
 
   /**

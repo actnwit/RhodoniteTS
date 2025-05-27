@@ -30,22 +30,15 @@ export class Vrm0xImporter {
   /**
    * Import VRM file.
    */
-  public static async importFromUri(
-    uri: string,
+  public static async importFromUrl(
+    url: string,
     options?: GltfLoadOption
   ): Promise<Result<ISceneGraphEntity[], Err<RnM2, undefined>>> {
     options = this._getOptions(options);
 
-    const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
-      return new Err({
-        message: 'Failed to import VRM file.',
-        error: result,
-      });
-    }
+    const result = await Gltf2Importer.importFromUrl(url, options);
 
-    assertIsOk(result);
-    const gltfModel = result.get();
+    const gltfModel = result;
     const textures = await Vrm0xImporter._createTextures(gltfModel);
     const samplers = Vrm0xImporter._createSamplers(gltfModel);
     const defaultMaterialHelperArgumentArray =
@@ -85,22 +78,20 @@ export class Vrm0xImporter {
   static async importJsonOfVRM(
     uri: string,
     options?: GltfLoadOption
-  ): Promise<Result<Vrm0x, Err<RnM2, undefined>>> {
-    options = this._getOptions(options);
+  ): Promise<Vrm0x> {
+    const promise = new Promise<Vrm0x>(async (resolve, reject) => {
+      options = this._getOptions(options);
 
-    const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
-      return new Err({
-        message: 'Failed to import VRM file.',
-        error: result,
-      });
-    }
+      try {
+        const result = await Gltf2Importer.importFromUrl(uri, options);
+        Vrm0xImporter._readVRMHumanoidInfo(result as Vrm0x);
+        resolve(result as Vrm0x);
+      } catch (error) {
+        reject(error);
+      }
+    });
 
-    assertIsOk(result);
-    const gltfJson = result.get();
-    Vrm0xImporter._readVRMHumanoidInfo(gltfJson as Vrm0x);
-
-    return new Ok(gltfJson as Vrm0x);
+    return promise;
   }
 
   static async __importVRM0x(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {

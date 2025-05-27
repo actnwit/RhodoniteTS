@@ -26,13 +26,13 @@ cameraTransform.localPosition = Rn.Vector3.fromCopyArray([0, 1, 5]);
 
 // gltf
 const expression = (
-  await Rn.GltfImporter.importFromUri(
+  await Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/SimpleSkin/glTF-Embedded/SimpleSkin.gltf',
     {
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 let count = 0;
 let startTime = Date.now();

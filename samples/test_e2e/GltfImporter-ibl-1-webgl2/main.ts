@@ -9,9 +9,7 @@ await Rn.System.init({
   approach: Rn.ProcessApproach.DataTexture,
   canvas: document.getElementById('world') as HTMLCanvasElement,
 });
-
-// expressions
-const expressions = [];
+Rn.Logger.logLevel = Rn.LogLevel.Info;
 
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
@@ -21,9 +19,8 @@ cameraComponent.zFar = 1000.0;
 cameraComponent.setFovyAndChangeFocalLength(30.0);
 cameraComponent.aspect = 1.0;
 
-// gltf
-const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
+const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/FlightHelmet/glTF/FlightHelmet.gltf',
     {
       cameraComponent: cameraComponent,
@@ -33,16 +30,38 @@ const mainExpression = (
         },
       ],
     }
-  )
-).unwrapForce();
-expressions.push(mainExpression);
+  ),
+  environment: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  diffuse: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+  specular: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+});
+
+// expressions
+const expressions = [];
+
+expressions.push(assets.mainExpression);
 
 // post effects
 const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction (and super sampling)
-const mainRenderPass = mainExpression.renderPasses[0];
+const mainRenderPass = assets.mainExpression.renderPasses[0];
 const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: 600,
   height: 600,
@@ -69,15 +88,15 @@ controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 controller.dolly = 0.83;
 
 // lighting
-await setIBL('./../../../assets/ibl/papermill');
+await setIBL();
 
 let count = 0;
 
 Rn.System.startRenderLoop(() => {
-  if (count > 1) {
+  if (count > 100) {
     p.id = 'rendered';
     p.innerText = 'Rendered.';
-  } else if (count === 1) {
+  } else if (count === 100) {
     p.id = 'started';
     p.innerText = 'Started.';
   }
@@ -87,27 +106,11 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-async function setIBL(baseUri) {
-  const specularCubeTexture = new Rn.CubeTexture();
-  await specularCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/specular/specular',
-    mipmapLevelNumber: 10,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-  });
-
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  await diffuseCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/diffuse/diffuse',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.RGBE_PNG,
-  });
-
+async function setIBL() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (const meshRendererComponent of meshRendererComponents) {
-    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
+    await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }

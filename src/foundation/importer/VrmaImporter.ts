@@ -2,46 +2,41 @@ import { GltfLoadOption, RnM2 } from '../../types';
 import { RnM2Vrma } from '../../types/RnM2Vrma';
 import { HumanBoneNames, NodeId } from '../../types/VRMC_vrm_animation';
 import { Is } from '../misc/Is';
-import { Err, Result, Ok, assertIsOk } from '../misc/Result';
 import { Gltf2Importer } from './Gltf2Importer';
 
 export class VrmaImporter {
-  static async importFromUri(uri: string): Promise<Result<RnM2Vrma, Err<RnM2, undefined>>> {
-    const options: GltfLoadOption = {};
+  static async importFromUrl(url: string): Promise<RnM2Vrma> {
+    const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
+      const options: GltfLoadOption = {};
 
-    const result = await Gltf2Importer.importFromUri(uri, options);
-    if (result.isErr()) {
-      return new Err({
-        message: 'Failed to import VRM file.',
-        error: result,
-      });
-    }
+      try {
+        const result = await Gltf2Importer.importFromUrl(url, options);
+        this.readHumanoid(result as RnM2Vrma);
+        resolve(result as RnM2Vrma);
+      } catch (error) {
+        reject(error);
+      }
+    });
 
-    assertIsOk(result);
-    const gltfJson: RnM2Vrma = result.get() as RnM2Vrma;
-    this.readHumanoid(gltfJson);
-
-    return new Ok(gltfJson as RnM2Vrma);
+    return promise;
   }
 
   static async importFromArrayBuffer(
     arrayBuffer: ArrayBuffer
-  ): Promise<Result<RnM2Vrma, Err<RnM2, undefined>>> {
-    const options: GltfLoadOption = {};
+  ): Promise<RnM2Vrma> {
+    const promise = new Promise<RnM2Vrma>(async (resolve, reject) => {
+      const options: GltfLoadOption = {};
 
-    const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
-    if (result.isErr()) {
-      return new Err({
-        message: 'Failed to import VRM file.',
-        error: result,
-      });
-    }
+      try {
+        const result = await Gltf2Importer.importFromArrayBuffers({ 'data.glb': arrayBuffer }, options);
+        this.readHumanoid(result as RnM2Vrma);
+        resolve(result as RnM2Vrma);
+      } catch (error) {
+        reject(error);
+      }
+    });
 
-    assertIsOk(result);
-    const gltfJson: RnM2Vrma = result.get() as RnM2Vrma;
-    this.readHumanoid(gltfJson);
-
-    return new Ok(gltfJson as RnM2Vrma);
+    return promise;
   }
 
   static readHumanoid(rnm: RnM2Vrma) {

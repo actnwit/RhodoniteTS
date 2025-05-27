@@ -11,6 +11,40 @@ await Rn.System.init({
   approach: processApproach,
   canvas,
 });
+Rn.Logger.logLevel = Rn.LogLevel.Info;
+
+// camera
+const gltfFilePath = getGltfFilePath();
+const { cameraComponent, cameraEntity } = createCamera();
+
+const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUrl(gltfFilePath, {
+    cameraComponent: cameraComponent,
+    defaultMaterialHelperArgumentArray: [
+      {
+        makeOutputSrgb: false,
+      },
+    ],
+  }),
+  environment: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  diffuse: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+  specular: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/papermill/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.RGBE_PNG,
+  }),
+});
 
 // create ForwardRenderPipeline
 const forwardRenderPipeline = new Rn.ForwardRenderPipeline();
@@ -19,26 +53,10 @@ forwardRenderPipeline.setup(canvas.width, canvas.height, {
   isShadow: false,
 });
 
-// camera
-const { cameraComponent, cameraEntity } = createCamera();
-
-// gltf
-const gltfFilePath = getGltfFilePath();
-const mainExpression = (
-  await Rn.GltfImporter.importFromUri(gltfFilePath, {
-    cameraComponent: cameraComponent,
-    defaultMaterialHelperArgumentArray: [
-      {
-        makeOutputSrgb: false,
-      },
-    ],
-  })
-).unwrapForce();
-
 // env
-const envExpression = await createEnvCubeExpression('./../../../assets/ibl/papermill', cameraEntity);
+const envExpression = await createEnvCubeExpression(cameraEntity);
 
-const mainRenderPass = mainExpression.renderPasses[0];
+const mainRenderPass = assets.mainExpression.renderPasses[0];
 mainRenderPass.tryToSetUniqueName('main', true);
 // cameraController
 const mainCameraControllerComponent = cameraEntity.getCameraController();
@@ -46,26 +64,9 @@ const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraCon
 controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 controller.dolly = 0.83;
 
-await forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
+await forwardRenderPipeline.setExpressions([envExpression, assets.mainExpression]);
 
-// lighting
-const diffuseCubeTexture = new Rn.CubeTexture();
-await diffuseCubeTexture.loadTextureImages({
-  baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
-  mipmapLevelNumber: 1,
-  isNamePosNeg: true,
-  hdriFormat: Rn.HdriFormat.RGBE_PNG,
-});
-
-const specularCubeTexture = new Rn.CubeTexture();
-await specularCubeTexture.loadTextureImages({
-  baseUri: './../../../assets/ibl/papermill/specular/specular',
-  mipmapLevelNumber: 10,
-  isNamePosNeg: true,
-  hdriFormat: Rn.HdriFormat.RGBE_PNG,
-});
-
-forwardRenderPipeline.setIBLTextures(diffuseCubeTexture, specularCubeTexture);
+forwardRenderPipeline.setIBLTextures(assets.diffuse, assets.specular);
 
 let count = 0;
 let startTime = Date.now();
@@ -103,15 +104,7 @@ function createCamera() {
   return { cameraComponent, cameraEntity };
 }
 
-async function createEnvCubeExpression(baseuri, cameraEntity) {
-  const environmentCubeTexture = new Rn.CubeTexture();
-  await environmentCubeTexture.loadTextureImages({
-    baseUri: baseuri + '/environment/environment',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.LDR_SRGB,
-  });
-
+async function createEnvCubeExpression(cameraEntity) {
   const sphereMaterial = Rn.MaterialHelper.createEnvConstantMaterial();
   const sampler = new Rn.Sampler({
     wrapS: Rn.TextureParameter.ClampToEdge,
@@ -119,7 +112,7 @@ async function createEnvCubeExpression(baseuri, cameraEntity) {
     minFilter: Rn.TextureParameter.Linear,
     magFilter: Rn.TextureParameter.Linear,
   });
-  sphereMaterial.setTextureParameter('colorEnvTexture', environmentCubeTexture, sampler);
+  sphereMaterial.setTextureParameter('colorEnvTexture', assets.environment, sampler);
   sphereMaterial.setParameter('envHdriFormat', Rn.HdriFormat.LDR_SRGB.index);
 
   const spherePrimitive = new Rn.Sphere();

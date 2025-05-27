@@ -23,7 +23,7 @@ cameraComponent.aspect = 1.0;
 
 // gltf
 const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
+  await Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/BarramundiFish/glTF-Draco/BarramundiFish.gltf',
     {
       cameraComponent: cameraComponent,
@@ -34,7 +34,7 @@ const mainExpression = (
       ],
     }
   )
-).unwrapForce();
+);
 expressions.push(mainExpression);
 
 // post effects

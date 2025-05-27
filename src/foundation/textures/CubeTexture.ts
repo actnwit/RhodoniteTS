@@ -38,12 +38,12 @@ export class CubeTexture extends AbstractTexture implements Disposable {
   }
 
   async loadTextureImages({
-    baseUri,
+    baseUrl,
     mipmapLevelNumber,
     isNamePosNeg,
     hdriFormat,
   }: {
-    baseUri: string,
+    baseUrl: string,
     mipmapLevelNumber: number,
     isNamePosNeg: boolean,
     hdriFormat: HdriFormatEnum
@@ -56,7 +56,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     const [cubeTextureUid, sampler] = await cgApiResourceRepository
       .createCubeTextureFromFiles(
-        baseUri,
+        baseUrl,
         mipmapLevelNumber,
         isNamePosNeg,
         hdriFormat
@@ -219,5 +219,26 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     this.destroy3DAPIResources();
     this.unregister();
     CubeTexture.managedRegistry.unregister(this);
+  }
+
+  static async loadFromUrl({
+    baseUrl,
+    mipmapLevelNumber,
+    isNamePosNeg,
+    hdriFormat,
+  }: {
+    baseUrl: string,
+    mipmapLevelNumber: number,
+    isNamePosNeg: boolean,
+    hdriFormat: HdriFormatEnum
+  }) {
+    const cubeTexture = new CubeTexture();
+    await cubeTexture.loadTextureImages({
+      baseUrl,
+      mipmapLevelNumber,
+      isNamePosNeg,
+      hdriFormat,
+    });
+    return cubeTexture;
   }
 }

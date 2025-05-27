@@ -11,10 +11,10 @@ await Rn.System.init({
 });
 
 const expression = (
-  await Rn.GltfImporter.importFromUri(
+  await Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'
   )
-).unwrapForce();
+);
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
 const cameraController = cameraEntity.getCameraController();

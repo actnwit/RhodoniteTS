@@ -10,9 +10,6 @@ await Rn.System.init({
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
-// expressions
-const expressions = [];
-
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
@@ -21,9 +18,8 @@ cameraComponent.zFar = 1000.0;
 cameraComponent.setFovyAndChangeFocalLength(60.0);
 cameraComponent.aspect = 1.0;
 
-// gltf
-const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
+const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/ClearCoatTest/glTF-Binary/ClearCoatTest.glb',
     {
       cameraComponent: cameraComponent,
@@ -33,16 +29,38 @@ const mainExpression = (
         },
       ],
     }
-  )
-).unwrapForce();
-expressions.push(mainExpression);
+  ),
+  environment: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/shanghai_bund/environment/environment',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  diffuse: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/shanghai_bund/diffuse/diffuse',
+    mipmapLevelNumber: 1,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+  specular: Rn.CubeTexture.loadFromUrl({
+    baseUrl: './../../../assets/ibl/shanghai_bund/specular/specular',
+    mipmapLevelNumber: 10,
+    isNamePosNeg: true,
+    hdriFormat: Rn.HdriFormat.LDR_SRGB,
+  }),
+});
+
+// expressions
+const expressions = [];
+
+expressions.push(assets.mainExpression);
 
 // post effects
 const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction (and super sampling)
-const mainRenderPass = mainExpression.renderPasses[0];
+const mainRenderPass = assets.mainExpression.renderPasses[0];
 const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: 600,
   height: 600,
@@ -69,7 +87,7 @@ controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 controller.dolly = 0.78;
 
 // lighting
-await setIBL('./../../../assets/ibl/shanghai_bund');
+await setIBL();
 
 let count = 0;
 
@@ -87,27 +105,11 @@ Rn.System.startRenderLoop(() => {
   count++;
 });
 
-async function setIBL(baseUri) {
-  const specularCubeTexture = new Rn.CubeTexture();
-  await specularCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/specular/specular',
-    mipmapLevelNumber: 10,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.LDR_SRGB,
-  });
-
-  const diffuseCubeTexture = new Rn.CubeTexture();
-  await diffuseCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/diffuse/diffuse',
-    mipmapLevelNumber: 1,
-    isNamePosNeg: true,
-    hdriFormat: Rn.HdriFormat.LDR_SRGB,
-  });
-
+async function setIBL() {
   const meshRendererComponents = Rn.ComponentRepository.getComponentsWithType(
     Rn.MeshRendererComponent
   ) as Rn.MeshRendererComponent[];
   for (let meshRendererComponent of meshRendererComponents) {
-    await meshRendererComponent.setIBLCubeMap(diffuseCubeTexture, specularCubeTexture);
+    await meshRendererComponent.setIBLCubeMap(assets.diffuse, assets.specular);
   }
 }

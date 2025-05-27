@@ -22,13 +22,13 @@ cameraComponent.aspect = 1.0;
 
 // gltf
 const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
+  await Rn.GltfImporter.importFromUrl(
     '../../../assets/gltf/glTF-Sample-Assets/Models/Triangle/glTF-Embedded/Triangle.gltf',
     {
       cameraComponent: cameraComponent,
     } as any
   )
-).unwrapForce();
+);
 expressions.push(mainExpression);
 
 // cameraController
