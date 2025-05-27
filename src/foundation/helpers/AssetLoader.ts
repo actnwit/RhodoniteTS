@@ -69,7 +69,7 @@ export class AssetLoader {
   constructor(config: AssetLoaderConfig = {}) {
     this.config = {
       maxConcurrentLoads: config.maxConcurrentLoads ?? 3,
-      timeout: config.timeout ?? 30000,
+      timeout: config.timeout ?? 60000,
     };
   }
 
