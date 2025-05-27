@@ -35,6 +35,27 @@ await Rn.System.init({
   canvas: rnCanvasElement,
 });
 
+const promises = [];
+promises.push(Rn.CubeTexture.fromUrl({
+  baseUrl: basePathIBL + '/environment/environment',
+  mipmapLevelNumber: 1,
+  isNamePosNeg: true,
+  hdriFormat: Rn.HdriFormat.HDR_LINEAR,
+}));
+promises.push(Rn.CubeTexture.fromUrl({
+  baseUrl: basePathIBL + '/specular/specular',
+  mipmapLevelNumber: 10,
+  isNamePosNeg: true,
+  hdriFormat: Rn.HdriFormat.RGBE_PNG,
+}));
+promises.push(Rn.CubeTexture.fromUrl({
+  baseUrl: basePathIBL + '/diffuse/diffuse',
+  mipmapLevelNumber: 1,
+  isNamePosNeg: true,
+  hdriFormat: Rn.HdriFormat.RGBE_PNG,
+}));
+const [cubeTextureEnvironment, cubeTextureSpecular, cubeTextureDiffuse] = await Promise.all(promises);
+
 // import gltf2
 const rootGroup = await createEntityGltf2(uriGltf);
 

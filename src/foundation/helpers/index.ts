@@ -6,3 +6,4 @@ export * from './MeshHelper';
 export * from './RenderableHelper';
 export * from './RenderPassHelper';
 export * from './Shadow/index';
+export * from './AssetLoader';
