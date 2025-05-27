@@ -50,7 +50,7 @@ await forwardRenderPipeline.setExpressions([envExpression, mainExpression]);
 // lighting
 const diffuseCubeTexture = new Rn.CubeTexture();
 await diffuseCubeTexture.loadTextureImages({
-  baseUri: './../../../assets/ibl/papermill/diffuse/diffuse',
+  baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
   mipmapLevelNumber: 1,
   isNamePosNeg: true,
   hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -58,7 +58,7 @@ await diffuseCubeTexture.loadTextureImages({
 
 const specularCubeTexture = new Rn.CubeTexture();
 await specularCubeTexture.loadTextureImages({
-  baseUri: './../../../assets/ibl/papermill/specular/specular',
+  baseUrl: './../../../assets/ibl/papermill/specular/specular',
   mipmapLevelNumber: 10,
   isNamePosNeg: true,
   hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -105,7 +105,7 @@ function createCamera() {
 async function createEnvCubeExpression(baseuri, cameraEntity) {
   const environmentCubeTexture = new Rn.CubeTexture();
   await environmentCubeTexture.loadTextureImages({
-    baseUri: baseuri + '/environment/environment',
+    baseUrl: baseuri + '/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,

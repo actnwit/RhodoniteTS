@@ -75,10 +75,10 @@ async function createMainExpression(expressions: Rn.Expression[]) {
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 }
 
-async function createBackgroundEnvCubeExpression(baseUri: string) {
+async function createBackgroundEnvCubeExpression(baseUrl: string) {
   const environmentCubeTexture = new Rn.CubeTexture();
   await environmentCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/environment/environment',
+    baseUrl: baseUrl + '/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
@@ -112,11 +112,11 @@ async function createBackgroundEnvCubeExpression(baseUri: string) {
   return sphereExpression;
 }
 
-async function setIBL(baseUri: string) {
+async function setIBL(baseUrl: string) {
   // Specular IBL Cube Texture
   const specularCubeTexture = new Rn.CubeTexture();
   await specularCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/specular/specular',
+    baseUrl: baseUrl + '/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -125,7 +125,7 @@ async function setIBL(baseUri: string) {
   // Diffuse IBL Cube Texture
   const diffuseCubeTexture = new Rn.CubeTexture();
   await diffuseCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/diffuse/diffuse',
+    baseUrl: baseUrl + '/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,

@@ -84,7 +84,7 @@ async function createRenderPassMain(
 async function createEntityEnvironmentCube(basePathIBL: string) {
   const cubeTextureEnvironment = new Rn.CubeTexture();
   await cubeTextureEnvironment.loadTextureImages({
-    baseUri: basePathIBL + '/environment/environment',
+    baseUrl: basePathIBL + '/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
@@ -159,7 +159,7 @@ function createAndSetFrameBufferAndMSAAFramebuffer(
 async function setIBLTexture(basePathIBL: string) {
   const cubeTextureSpecular = new Rn.CubeTexture();
   await cubeTextureSpecular.loadTextureImages({
-    baseUri: basePathIBL + '/specular/specular',
+    baseUrl: basePathIBL + '/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -167,7 +167,7 @@ async function setIBLTexture(basePathIBL: string) {
 
   const cubeTextureDiffuse = new Rn.CubeTexture();
   await cubeTextureDiffuse.loadTextureImages({
-    baseUri: basePathIBL + '/diffuse/diffuse',
+    baseUrl: basePathIBL + '/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,

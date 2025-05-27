@@ -90,7 +90,7 @@ Rn.System.startRenderLoop(() => {
 async function setIBL(baseUri) {
   const specularCubeTexture = new Rn.CubeTexture();
   await specularCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/specular/specular',
+    baseUrl: baseUri + '/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
@@ -98,7 +98,7 @@ async function setIBL(baseUri) {
 
   const diffuseCubeTexture = new Rn.CubeTexture();
   await diffuseCubeTexture.loadTextureImages({
-    baseUri: baseUri + '/diffuse/diffuse',
+    baseUrl: baseUri + '/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
