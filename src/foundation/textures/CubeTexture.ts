@@ -221,7 +221,7 @@ export class CubeTexture extends AbstractTexture implements Disposable {
     CubeTexture.managedRegistry.unregister(this);
   }
 
-  static async fromUrl({
+  static async loadFromUrl({
     baseUrl,
     mipmapLevelNumber,
     isNamePosNeg,

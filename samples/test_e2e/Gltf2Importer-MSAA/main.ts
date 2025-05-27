@@ -22,19 +22,19 @@ await Rn.System.init({
 Rn.Config.isUboEnabled = false;
 
 const assets = await Rn.defaultAssetLoader.load({
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl({
     baseUrl: basePathIBL + '/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  specular: Rn.CubeTexture.fromUrl({
+  specular: Rn.CubeTexture.loadFromUrl({
     baseUrl: basePathIBL + '/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  diffuse: Rn.CubeTexture.fromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl({
     baseUrl: basePathIBL + '/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,

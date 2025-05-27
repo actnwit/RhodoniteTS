@@ -29,19 +29,19 @@ const assets = await Rn.defaultAssetLoader.load({
       console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
     }
   ),
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  diffuse: Rn.CubeTexture.fromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/papermill/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.RGBE_PNG,
   }),
-  specular: Rn.CubeTexture.fromUrl({
+  specular: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/papermill/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,

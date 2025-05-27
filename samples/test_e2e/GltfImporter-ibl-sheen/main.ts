@@ -29,19 +29,19 @@ const assets = await Rn.defaultAssetLoader.load({
       ],
     }
   ),
-  environment: Rn.CubeTexture.fromUrl({
+  environment: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/shanghai_bund/environment/environment',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  diffuse: Rn.CubeTexture.fromUrl({
+  diffuse: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/shanghai_bund/diffuse/diffuse',
     mipmapLevelNumber: 1,
     isNamePosNeg: true,
     hdriFormat: Rn.HdriFormat.LDR_SRGB,
   }),
-  specular: Rn.CubeTexture.fromUrl({
+  specular: Rn.CubeTexture.loadFromUrl({
     baseUrl: './../../../assets/ibl/shanghai_bund/specular/specular',
     mipmapLevelNumber: 10,
     isNamePosNeg: true,
