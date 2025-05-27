@@ -10,7 +10,25 @@ await Rn.System.init({
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
+// camera
+const cameraEntity = Rn.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000.0;
+cameraComponent.setFovyAndChangeFocalLength(20.0);
+cameraComponent.aspect = 1.0;
+
 const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
+    {
+      cameraComponent: cameraComponent,
+    },
+    (obj: Rn.RnPromiseCallbackObj) => {
+      // this callback won't be called
+      console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
+    }
+  ),
   environment: Rn.CubeTexture.fromUrl({
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
@@ -38,36 +56,13 @@ const expressions = [];
 const envExpression = await createEnvCubeExpression();
 expressions.push(envExpression);
 
-// camera
-const cameraEntity = Rn.createCameraControllerEntity();
-const cameraComponent = cameraEntity.getCamera();
-cameraComponent.zNear = 0.1;
-cameraComponent.zFar = 1000.0;
-cameraComponent.setFovyAndChangeFocalLength(20.0);
-cameraComponent.aspect = 1.0;
+expressions.push(assets.mainExpression);
 
-// gltf
-const mainExpressionResult = await Rn.GltfImporter.importFromUri(
-  '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
-  {
-    cameraComponent: cameraComponent,
-  },
-  (obj: Rn.RnPromiseCallbackObj) => {
-    // this callback won't be called
-    console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
-  }
-);
-if (mainExpressionResult.isOk()) {
-  expressions.push(mainExpressionResult.get());
-
-  // cameraController
-  const mainRenderPass = mainExpressionResult.get().renderPasses[0];
-  const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
-} else {
-  console.error(mainExpressionResult.toString());
-}
+// cameraController
+const mainRenderPass = assets.mainExpression.renderPasses[0];
+const mainCameraControllerComponent = cameraEntity.getCameraController();
+const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 // lighting
 await setIBL();

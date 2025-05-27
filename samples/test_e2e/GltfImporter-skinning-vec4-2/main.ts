@@ -32,7 +32,7 @@ const expression = (
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 let count = 0;
 let startTime = Date.now();

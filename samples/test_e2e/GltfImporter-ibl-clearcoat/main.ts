@@ -10,7 +10,26 @@ await Rn.System.init({
 });
 Rn.Logger.logLevel = Rn.LogLevel.Info;
 
+// camera
+const cameraEntity = Rn.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000.0;
+cameraComponent.setFovyAndChangeFocalLength(60.0);
+cameraComponent.aspect = 1.0;
+
 const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Assets/Models/ClearCoatTest/glTF-Binary/ClearCoatTest.glb',
+    {
+      cameraComponent: cameraComponent,
+      defaultMaterialHelperArgumentArray: [
+        {
+          makeOutputSrgb: false,
+        },
+      ],
+    }
+  ),
   environment: Rn.CubeTexture.fromUrl({
     baseUrl: './../../../assets/ibl/shanghai_bund/environment/environment',
     mipmapLevelNumber: 1,
@@ -34,36 +53,14 @@ const assets = await Rn.defaultAssetLoader.load({
 // expressions
 const expressions = [];
 
-// camera
-const cameraEntity = Rn.createCameraControllerEntity();
-const cameraComponent = cameraEntity.getCamera();
-cameraComponent.zNear = 0.1;
-cameraComponent.zFar = 1000.0;
-cameraComponent.setFovyAndChangeFocalLength(60.0);
-cameraComponent.aspect = 1.0;
-
-// gltf
-const mainExpression = (
-  await Rn.GltfImporter.importFromUri(
-    '../../../assets/gltf/glTF-Sample-Assets/Models/ClearCoatTest/glTF-Binary/ClearCoatTest.glb',
-    {
-      cameraComponent: cameraComponent,
-      defaultMaterialHelperArgumentArray: [
-        {
-          makeOutputSrgb: false,
-        },
-      ],
-    }
-  )
-).unwrapForce();
-expressions.push(mainExpression);
+expressions.push(assets.mainExpression);
 
 // post effects
 const expressionPostEffect = new Rn.Expression();
 expressions.push(expressionPostEffect);
 
 // gamma correction (and super sampling)
-const mainRenderPass = mainExpression.renderPasses[0];
+const mainRenderPass = assets.mainExpression.renderPasses[0];
 const gammaTargetFramebuffer = Rn.RenderableHelper.createFrameBuffer({
   width: 600,
   height: 600,

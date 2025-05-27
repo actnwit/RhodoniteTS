@@ -30,7 +30,7 @@ const expression = (
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 const meshComponents = Rn.ComponentRepository.getComponentsWithType(
   Rn.MeshComponent

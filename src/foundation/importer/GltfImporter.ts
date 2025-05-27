@@ -32,34 +32,37 @@ export class GltfImporter {
     uri: string,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<Result<Expression, Err<ArrayBuffer, unknown>>> {
-    options = this.__initOptions(options);
+  ): Promise<Expression> {
+    const promise = new Promise<Expression>(async (resolve, reject) => {
 
-    const renderPasses = options.expression?.renderPasses || [];
-    if (renderPasses.length === 0) {
-      renderPasses.push(new RenderPass());
-    }
+      options = this.__initOptions(options);
 
-    const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
-    if (r_arrayBuffer.isErr()) {
-      return new Err({
-        message: 'Failed to fetch array buffer',
-        error: r_arrayBuffer,
-      });
-    }
-
-    options.files![uri] = r_arrayBuffer.get();
-
-    await this.__detectTheModelFileTypeAndImport(uri, renderPasses, options, uri, callback);
-
-    if (options && options.cameraComponent) {
-      for (const renderPass of renderPasses) {
-        renderPass.cameraComponent = options.cameraComponent;
+      const renderPasses = options.expression?.renderPasses || [];
+      if (renderPasses.length === 0) {
+        renderPasses.push(new RenderPass());
       }
-    }
 
-    const expression = this.__setRenderPassesToExpression(renderPasses, options);
-    return new Ok(expression);
+      const r_arrayBuffer = await DataUtil.fetchArrayBuffer(uri);
+      if (r_arrayBuffer.isErr()) {
+        reject(r_arrayBuffer.getRnError());
+        return;
+      }
+
+      options.files![uri] = r_arrayBuffer.get();
+
+      await this.__detectTheModelFileTypeAndImport(uri, renderPasses, options, uri, callback);
+
+      if (options && options.cameraComponent) {
+        for (const renderPass of renderPasses) {
+          renderPass.cameraComponent = options.cameraComponent;
+        }
+      }
+
+      const expression = this.__setRenderPassesToExpression(renderPasses, options);
+      resolve(expression);
+    });
+
+    return promise;
   }
 
   /**
@@ -74,38 +77,42 @@ export class GltfImporter {
     files: GltfFileBuffers,
     options?: GltfLoadOption,
     callback?: RnPromiseCallback
-  ): Promise<Result<Expression, never>> {
-    options = this.__initOptions(options);
+  ): Promise<Expression> {
+    const promise = new Promise<Expression>(async (resolve, reject) => {
+      options = this.__initOptions(options);
 
-    const renderPasses = options.expression?.renderPasses || [];
-    if (renderPasses.length === 0) {
-      renderPasses.push(new RenderPass());
-    }
-
-    for (const fileName in files) {
-      // filename is uri with file extension
-      const fileExtension = DataUtil.getExtension(fileName);
-      // if the file is main file type?
-      if (this.__isValidExtension(fileExtension)) {
-        await this.__detectTheModelFileTypeAndImport(
-          fileName,
-          renderPasses,
-          options,
-          fileName,
-          callback
-        );
+      const renderPasses = options.expression?.renderPasses || [];
+      if (renderPasses.length === 0) {
+        renderPasses.push(new RenderPass());
       }
-    }
 
-    if (options && options.cameraComponent) {
-      for (const renderPass of renderPasses) {
-        renderPass.cameraComponent = options.cameraComponent;
+      for (const fileName in files) {
+        // filename is uri with file extension
+        const fileExtension = DataUtil.getExtension(fileName);
+        // if the file is main file type?
+        if (this.__isValidExtension(fileExtension)) {
+          await this.__detectTheModelFileTypeAndImport(
+            fileName,
+            renderPasses,
+            options,
+            fileName,
+            callback
+          );
+        }
       }
-    }
 
-    const expression = this.__setRenderPassesToExpression(renderPasses, options);
+      if (options && options.cameraComponent) {
+        for (const renderPass of renderPasses) {
+          renderPass.cameraComponent = options.cameraComponent;
+        }
+      }
 
-    return new Ok(expression);
+      const expression = this.__setRenderPassesToExpression(renderPasses, options);
+
+      resolve(expression);
+    });
+
+    return promise;
   }
 
   private static __initOptions(options?: GltfLoadOption): GltfLoadOption {

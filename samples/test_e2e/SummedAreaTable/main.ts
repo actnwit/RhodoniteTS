@@ -9,7 +9,22 @@ let renderPassMain: Rn.RenderPass;
 // Init Rhodonite
 await initRn();
 
+// Main Camera
+const cameraEntity = Rn.createCameraControllerEntity();
+const cameraComponent = cameraEntity.getCamera();
+cameraComponent.zNear = 0.1;
+cameraComponent.zFar = 1000.0;
+cameraComponent.setFovyAndChangeFocalLength(20.0);
+cameraComponent.aspect = 1.0;
+
+// Assets
 const assets = await Rn.defaultAssetLoader.load({
+  mainExpression: Rn.GltfImporter.importFromUri(
+    '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
+    {
+      cameraComponent: cameraComponent,
+    }
+  ),
   environment: Rn.CubeTexture.fromUrl({
     baseUrl: './../../../assets/ibl/papermill/environment/environment',
     mipmapLevelNumber: 1,
@@ -71,27 +86,10 @@ function createSat(expressions: Rn.Expression[]) {
 }
 
 async function createMainExpression(expressions: Rn.Expression[]) {
-  // Main Camera
-  const cameraEntity = Rn.createCameraControllerEntity();
-  const cameraComponent = cameraEntity.getCamera();
-  cameraComponent.zNear = 0.1;
-  cameraComponent.zFar = 1000.0;
-  cameraComponent.setFovyAndChangeFocalLength(20.0);
-  cameraComponent.aspect = 1.0;
-
-  // Loading gltf
-  const mainExpression = (
-    await Rn.GltfImporter.importFromUri(
-      '../../../assets/gltf/glTF-Sample-Assets/Models/AntiqueCamera/glTF-Binary/AntiqueCamera.glb',
-      {
-        cameraComponent: cameraComponent,
-      }
-    )
-  ).unwrapForce();
-  expressions.push(mainExpression);
+  expressions.push(assets.mainExpression);
 
   // cameraController
-  const mainRenderPass = mainExpression.renderPasses[0];
+  const mainRenderPass = assets.mainExpression.renderPasses[0];
   const mainCameraControllerComponent = cameraEntity.getCameraController();
   const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
   controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);

@@ -34,7 +34,7 @@ const mainExpression = (
       ],
     }
   )
-).unwrapForce();
+);
 expressions.push(mainExpression);
 
 // post effects

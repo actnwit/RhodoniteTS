@@ -429,11 +429,11 @@ const shaderNodeJson = {
 
 const result = Rn.ShaderGraphResolver.generateShaderCodeFromJson(shaderNodeJson as any);
 
-const response = await Rn.Gltf2Importer.importFromUri(
+const rnm = await Rn.Gltf2Importer.importFromUri(
   '../../../assets/gltf/glTF-Sample-Assets/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb'
 );
 //---------------------------
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
 rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 
 applyShader(rootGroup);

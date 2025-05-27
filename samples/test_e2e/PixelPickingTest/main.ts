@@ -106,13 +106,13 @@ lightEntity2.getTransform().localPosition = Rn.Vector3.fromCopyArray([0.0, 0.0, 
 //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/2CylinderEngine/glTF/2CylinderEngine.gltf');
 //  const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Duck/glTF/Duck.gltf');
 //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/Avocado/glTF/Avocado.gltf');
-const response = (
+const rnm = (
   await Rn.Gltf2Importer.importFromUri(
     '../../../assets/gltf/glTF-Sample-Assets/Models/BoxAnimated/glTF-Binary/BoxAnimated.glb'
   )
-).unwrapForce();
+);
 //const response = await importer.importFromUri('../../../assets/gltf/glTF-Sample-Models/1.0/BrainStem/glTF/BrainStem.gltf');
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response);
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
 //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 //  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 //  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);

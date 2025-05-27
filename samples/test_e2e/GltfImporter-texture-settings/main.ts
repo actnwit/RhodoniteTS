@@ -29,7 +29,7 @@ const expression = (
       ],
     }
   )
-).unwrapForce();
+);
 
 const cameraControllerComponent = cameraEntity.getCameraController();
 const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;

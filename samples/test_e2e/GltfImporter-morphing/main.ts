@@ -28,7 +28,7 @@ const expression = (
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 // Lights
 const lightEntity = Rn.createLightEntity();

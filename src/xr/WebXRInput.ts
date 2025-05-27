@@ -89,12 +89,8 @@ export async function createMotionController(
   const motionController = new MotionController(xrInputSource, profile, assetPath!);
   motionControllers.set(xrInputSource, motionController);
   const result = await addMotionControllerToScene(motionController);
-  if (result.isOk()) {
-    const rootGroup = await ModelConverter.convertToRhodoniteObject(result.get());
-    return rootGroup;
-  } else {
-    return undefined;
-  }
+  const rootGroup = await ModelConverter.convertToRhodoniteObject(result);
+  return rootGroup;
 }
 
 async function addMotionControllerToScene(motionController: MotionController) {

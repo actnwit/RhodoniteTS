@@ -200,7 +200,7 @@ cameraComponent.aspect = 1.0;
 
 const expressions = [];
 
-const mainExpressionResult = await Rn.GltfImporter.importFromUri(
+const mainExpression = await Rn.GltfImporter.importFromUri(
   '../../../assets/gltf/glTF-Sample-Assets/Models/ToyCar/glTF-Binary/ToyCar.glb',
   {
     cameraComponent: cameraComponent,
@@ -210,17 +210,13 @@ const mainExpressionResult = await Rn.GltfImporter.importFromUri(
     console.log(`loading items: ${obj.resolvedNum} / ${obj.promiseAllNum}`);
   }
 );
-if (mainExpressionResult.isOk()) {
-  expressions.push(mainExpressionResult.get());
+expressions.push(mainExpression);
 
-  // cameraController
-  const mainRenderPass = mainExpressionResult.get().renderPasses[0];
-  const mainCameraControllerComponent = cameraEntity.getCameraController();
-  const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
-  controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
-} else {
-  console.error(mainExpressionResult.toString());
-}
+// cameraController
+const mainRenderPass = mainExpression.renderPasses[0];
+const mainCameraControllerComponent = cameraEntity.getCameraController();
+const controller = mainCameraControllerComponent.controller as Rn.OrbitCameraController;
+controller.setTarget(mainRenderPass.sceneTopLevelGraphComponents[0].entity);
 
 renderIBL();
 

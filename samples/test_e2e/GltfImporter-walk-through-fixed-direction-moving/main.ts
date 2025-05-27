@@ -28,7 +28,7 @@ const mainExpression = (
       cameraComponent: cameraComponent,
     } as any
   )
-).unwrapForce();
+);
 expressions.push(mainExpression);
 
 // cameraController

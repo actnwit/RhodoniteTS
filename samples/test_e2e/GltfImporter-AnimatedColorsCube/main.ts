@@ -22,7 +22,7 @@ const expression = (
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 cameraEntity.getCameraController().controller.setTargets(expression.renderPasses[0].entities as Rn.ISceneGraphEntity[]);
 

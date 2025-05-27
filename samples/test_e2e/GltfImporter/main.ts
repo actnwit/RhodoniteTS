@@ -43,7 +43,7 @@ const vrmExpression = (
     tangentCalculationMode: 0,
     cameraComponent: cameraComponent,
   })
-).unwrapForce();
+);
 expressions.push(vrmExpression);
 
 const vrmMainRenderPass = vrmExpression.renderPasses[0];

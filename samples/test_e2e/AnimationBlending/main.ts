@@ -14,7 +14,7 @@ const expression = (
   await Rn.GltfImporter.importFromUri(
     '../../../assets/gltf/glTF-Sample-Assets/Models/Fox/glTF-Binary/Fox.glb'
   )
-).unwrapForce();
+);
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
 const cameraController = cameraEntity.getCameraController();

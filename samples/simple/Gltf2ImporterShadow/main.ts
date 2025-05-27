@@ -77,7 +77,7 @@ function createEntityMainCamera() {
 }
 
 async function createEntityGltf2(uriGltf: string) {
-  const gltf2JSON = (await Rn.Gltf2Importer.importFromUri(uriGltf)).unwrapForce();
+  const gltf2JSON = (await Rn.Gltf2Importer.importFromUri(uriGltf));
   const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
 
   const transformComponent = entityRootGroup.getTransform();

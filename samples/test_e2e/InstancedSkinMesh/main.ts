@@ -30,12 +30,12 @@ cameraComponent.aspect = 1;
 cameraEntity.localPosition = Rn.Vector3.fromCopyArray([-2.5, 5, 5]);
 cameraEntity.localEulerAngles = Rn.Vector3.fromCopyArray([-Math.PI / 4, -Math.PI / 4, 0]);
 
-const response = await Rn.Gltf2Importer.importFromUri(
+const rnm = await Rn.Gltf2Importer.importFromUri(
   // '../../../assets/gltf/glTF-Sample-Models/2.0/SimpleSkin/glTF-Embedded/SimpleSkin.gltf'
   '../../../assets/gltf/glTF-Sample-Assets/Models/BrainStem/glTF-Binary/BrainStem.glb'
 );
 
-const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(response.unwrapForce());
+const rootGroup = await Rn.ModelConverter.convertToRhodoniteObject(rnm);
 //rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
 rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, 1.0, 0.0]);
 

@@ -32,42 +32,38 @@ cameraComponent.setFovyAndChangeFocalLength(50.0);
 cameraComponent.aspect = 1.0;
 
 // vrm
-const animGltf2ModelPromise = Rn.Gltf2Importer.importFromUri('../../../assets/vrm/vrm1.glb');
-const vrmModelPromise = Rn.Vrm0xImporter.importJsonOfVRM('../../../assets/vrm/test.vrm');
-const vrmExpressionPromise = Rn.GltfImporter.importFromUri('../../../assets/vrm/misaki.vrm', {
-  defaultMaterialHelperArgumentArray: [
-    {
-      isSkinning: true,
-      isMorphing: false,
-      makeOutputSrgb: true,
-    },
-  ],
-  tangentCalculationMode: 0,
-  cameraComponent: cameraComponent,
+const assets = await Rn.defaultAssetLoader.load({
+  animGltf2: Rn.Gltf2Importer.importFromUri('../../../assets/vrm/vrm1.glb'),
+  vrmModel: Rn.Vrm0xImporter.importJsonOfVRM('../../../assets/vrm/test.vrm'),
+  vrmExpression: Rn.GltfImporter.importFromUri('../../../assets/vrm/misaki.vrm', {
+    defaultMaterialHelperArgumentArray: [
+      {
+        isSkinning: true,
+        isMorphing: false,
+        makeOutputSrgb: true,
+      },
+    ],
+    tangentCalculationMode: 0,
+    cameraComponent: cameraComponent,
+  })
 });
 
-const [animGltf2Result, vrmModelResult, vrmExpressionResult] = await Promise.all([
-  animGltf2ModelPromise,
-  vrmModelPromise,
-  vrmExpressionPromise,
-]);
+// expressions
+const expressions = [assets.vrmExpression];
 
-// expresions
-const expressions = [vrmExpressionResult.unwrapForce()];
-
-const vrmMainRenderPass = vrmExpressionResult.unwrapForce().renderPasses[0];
+const vrmMainRenderPass = assets.vrmExpression.renderPasses[0];
 vrmMainRenderPass.toClearColorBuffer = true;
 
 const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
 
-const animGltfModel = await Rn.ModelConverter.convertToRhodoniteObject(animGltf2Result.unwrapForce());
+const animGltfModel = await Rn.ModelConverter.convertToRhodoniteObject(assets.animGltf2);
 
 // animation
 const animationAssigner = Rn.AnimationAssigner.getInstance();
 animationAssigner.assignAnimation(
   vrmRootEntity,
-  animGltf2Result.unwrapForce(),
-  vrmModelResult.unwrapForce(),
+  assets.animGltf2,
+  assets.vrmModel,
   false,
   'global'
 );

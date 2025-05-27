@@ -30,7 +30,7 @@ const expression = (
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 Rn.System.process([expression]);
 

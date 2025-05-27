@@ -36,7 +36,7 @@ const expression = (
       ],
     }
   )
-).unwrapForce();
+);
 
 let count = 0;
 

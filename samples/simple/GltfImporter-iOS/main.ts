@@ -48,7 +48,7 @@ const vrmExpression = (
     ],
     cameraComponent: cameraComponent,
   })
-).unwrapForce();
+);
 expressions.push(vrmExpression);
 
 const vrmMainRenderPass = vrmExpression.renderPasses[0];

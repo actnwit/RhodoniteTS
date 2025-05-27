@@ -139,7 +139,7 @@ async function createEntityGltf2(uriGltf: string) {
     await Rn.Gltf2Importer.importFromUri(uriGltf, {
       defaultMaterialHelperArgumentArray: [{ makeOutputSrgb: false }],
     })
-  ).unwrapForce();
+  );
   const entityRootGroup = await Rn.ModelConverter.convertToRhodoniteObject(gltf2JSON);
   return entityRootGroup;
 }

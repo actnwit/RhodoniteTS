@@ -26,7 +26,7 @@ const expression = (
       cameraComponent: cameraComponent,
     }
   )
-).unwrapForce();
+);
 
 // cameraController
 const mainRenderPass = expression.renderPasses[0];
