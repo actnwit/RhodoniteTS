@@ -11,9 +11,8 @@ declare const window: any;
     const indices = new Uint32Array([0, 1, 2]);
 
     const flatMaterial = Rn.MaterialHelper.createFlatMaterial();
-    // setTimeout(async () => {
-    const texture = new Rn.Texture();
-    await texture.generateTextureFromUri('../../../assets/images/Rn.png');
+
+    const texture = await Rn.Texture.loadFromUrl('../../../assets/images/Rn.png');
     const sampler = new Rn.Sampler({
       minFilter: Rn.TextureParameter.Linear,
       magFilter: Rn.TextureParameter.Linear,
@@ -22,7 +21,6 @@ declare const window: any;
     });
     sampler.create();
     flatMaterial.setTextureParameter('baseColorTexture', texture, sampler);
-    // }, 3000);
     const primitive = Rn.Primitive.createPrimitive({
       material: flatMaterial,
       attributeSemantics: [Rn.VertexAttribute.Position.XYZ, Rn.VertexAttribute.Texcoord0.XY],

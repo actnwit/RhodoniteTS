@@ -34,7 +34,7 @@ export class MatCapMaterialContent extends AbstractMaterialContent {
     if (typeof uri === 'string') {
       matCapTexture = new Texture();
       (async function (uri: string) {
-        await matCapTexture.generateTextureFromUri(uri, {
+        await matCapTexture.generateTextureFromUrl(uri, {
           type: ComponentType.UnsignedByte,
         });
       })(uri);

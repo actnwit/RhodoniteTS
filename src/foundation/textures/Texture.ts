@@ -211,7 +211,7 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__uri = image.src;
   }
 
-  async generateTextureFromUri(
+  async generateTextureFromUrl(
     imageUri: string,
     {
       level = 0,
@@ -483,5 +483,24 @@ export class Texture extends AbstractTexture implements Disposable {
     this.destroy3DAPIResources();
     this.unregister();
     Texture.managedRegistry.unregister(this);
+  }
+
+  static async loadFromUrl(uri: string, {
+      level = 0,
+      internalFormat = TextureFormat.RGBA8,
+      format = PixelFormat.RGBA,
+      type = ComponentType.UnsignedByte,
+      generateMipmap = true,
+    } = {}
+  ) {
+    const texture = new Texture();
+    await texture.generateTextureFromUrl(uri, {
+      level,
+      internalFormat,
+      format,
+      type,
+      generateMipmap,
+    });
+    return texture;
   }
 }
