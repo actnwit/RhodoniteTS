@@ -360,6 +360,152 @@ await assetLoader.waitForAllLoads();
 console.log('すべての読み込みが完了しました');
 ```
 
+## `waitForAllLoads()`の使用ケース
+
+`waitForAllLoads()`は、個別の`load`メソッドの結果ではなく、**すべてのロード処理の完了**を待ちたい場合に使用します。
+
+### 1. 複数の非同期ロード処理の完了待ち
+
+```typescript
+// 複数のロード処理を同時に開始（awaitしない）
+const loadPromise1 = assetLoader.load({
+  env1: Rn.CubeTexture.fromUrl({...})
+});
+
+const loadPromise2 = assetLoader.load({
+  env2: Rn.CubeTexture.fromUrl({...})
+});
+
+const loadPromise3 = assetLoader.load({
+  env3: Rn.CubeTexture.fromUrl({...})
+});
+
+// 個別の結果を待つ代わりに、すべての処理が完了するまで待つ
+await assetLoader.waitForAllLoads();
+console.log('すべてのロード処理が完了しました');
+// この時点で上記3つのPromiseはすべて完了している
+```
+
+### 2. ロード結果は不要で、完了だけを知りたい場合
+
+```typescript
+// ロード結果は使わないが、完了を確認したい
+assetLoader.load({ texture1: Rn.CubeTexture.fromUrl({...}) });
+assetLoader.load({ texture2: Rn.CubeTexture.fromUrl({...}) });
+assetLoader.load({ texture3: Rn.CubeTexture.fromUrl({...}) });
+
+// 結果は必要ないが、すべて完了してから次の処理に進みたい
+await assetLoader.waitForAllLoads();
+console.log('すべてのバックグラウンドロードが完了');
+```
+
+### 3. アプリケーションのライフサイクル管理
+
+```typescript
+class GameManager {
+  private assetLoader = new Rn.AssetLoader();
+
+  async preloadAssets() {
+    // 複数のアセットを並列でロード開始
+    this.loadCharacterAssets();
+    this.loadEnvironmentAssets();
+    this.loadUIAssets();
+
+    // すべてのプリロードが完了するまで待機
+    await this.assetLoader.waitForAllLoads();
+    console.log('ゲーム開始可能');
+  }
+
+  private loadCharacterAssets() {
+    // 結果は内部で保存するため、awaitしない
+    this.assetLoader.load({
+      character1: Rn.Gltf2Importer.importFromUri('/assets/character1.gltf')
+    }).then(assets => {
+      this.characters.character1 = assets.character1;
+    });
+  }
+
+  private loadEnvironmentAssets() {
+    this.assetLoader.load({
+      skybox: Rn.CubeTexture.fromUrl({...})
+    }).then(assets => {
+      this.environment.skybox = assets.skybox;
+    });
+  }
+
+  private loadUIAssets() {
+    this.assetLoader.load({
+      button: Rn.Texture.fromUri('/assets/ui/button.png')
+    }).then(assets => {
+      this.ui.button = assets.button;
+    });
+  }
+}
+```
+
+### 4. ロード進行状況の監視
+
+```typescript
+// ロード状況を監視しながら、すべての完了を待つ
+const monitor = setInterval(() => {
+  const status = assetLoader.getLoadingStatus();
+  console.log(`進行状況: アクティブ ${status.active}, 待機中 ${status.queued}`);
+
+  if (status.active === 0 && status.queued === 0) {
+    clearInterval(monitor);
+    console.log('すべて完了');
+  }
+}, 1000);
+
+// または、waitForAllLoads()で完了を待つ
+await assetLoader.waitForAllLoads();
+clearInterval(monitor);
+```
+
+### 5. クリーンアップやリソース解放前
+
+```typescript
+class AssetManager {
+  private assetLoader = new Rn.AssetLoader();
+
+  async dispose() {
+    // 進行中のロード処理がすべて完了するまで待ってから
+    // リソースを解放する
+    await this.assetLoader.waitForAllLoads();
+
+    // この時点ですべてのロード処理が完了しているため
+    // 安全にリソースを解放できる
+    this.cleanupResources();
+  }
+}
+```
+
+### `await load()` vs `waitForAllLoads()`の使い分け
+
+| 方法 | 用途 | 取得できるもの |
+|------|------|---------------|
+| `await load()` | 特定のロード結果が必要 | ロードされたアセット |
+| `waitForAllLoads()` | すべての処理の完了確認 | 完了通知のみ |
+
+```typescript
+// パターン1: 結果が必要な場合
+const assets = await assetLoader.load({
+  texture: Rn.CubeTexture.fromUrl({...})
+});
+console.log(assets.texture); // 実際のテクスチャオブジェクト
+
+// パターン2: 完了だけを知りたい場合
+assetLoader.load({
+  texture: Rn.CubeTexture.fromUrl({...})
+}).then(assets => {
+  // 結果は別の場所で処理
+  this.storeTexture(assets.texture);
+});
+
+await assetLoader.waitForAllLoads();
+console.log('処理完了'); // 結果は取得しない
+```
+
 ## エラーハンドリング
 
 ```typescript
