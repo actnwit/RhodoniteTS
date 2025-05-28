@@ -228,7 +228,7 @@ export class RenderPass extends RnObject {
    * Add entities to draw.
    * @param entities An array of entities.
    */
-  addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]) {
+  addEntities(entities: ISceneGraphEntity[]) {
     for (const entity of entities) {
       const sceneGraphComponent = entity.getSceneGraph();
       this.__sceneGraphDirectlyAdded.push(sceneGraphComponent);
@@ -269,7 +269,7 @@ export class RenderPass extends RnObject {
    * Gets the list of entities on this render pass.
    * @return An array of entities
    */
-  get entities(): IEntity[] {
+  get entities(): ISceneGraphEntity[] {
     return this.__entities;
   }
 
