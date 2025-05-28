@@ -30,38 +30,18 @@ const lightComponent2 = lightEntity2.getLight();
 lightComponent2.type = Rn.LightType.Directional;
 lightComponent2.color = Rn.Vector3.fromCopyArray([1.0, 1.0, 1.0]);
 lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0.0, 0.0, Math.PI / 8]);
-//lightEntity2.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([Math.PI/2, 0, 0]);
-//lightEntity2.getLight().type = Rn.LightType.Directional;
 
-const rootGroups = (
-  await Rn.Vrm0xImporter.importFromUrl('../../../assets/vrm/test.vrm', {
-    defaultMaterialHelperArgumentArray: [{ isLighting: true }],
-    tangentCalculationMode: 0,
-  })
-).unwrapForce();
-//rootGroup.getTransform().localPosition = Rn.Vector3.fromCopyArray([1.0, 0, 0]);
+const expression = (
+  await Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm')
+);
 
-for (const rootGroup of rootGroups) {
-  rootGroup.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
-}
-
-//  rootGroup.getTransform().scale = Rn.Vector3.fromCopyArray([0.01, 0.01, 0.01]);
-
+const entities = expression.renderPasses[0].entities;
+expression.renderPasses[0].toClearColorBuffer = true;
 // CameraComponent
 const cameraControllerComponent = cameraEntity.getCameraController();
 const controller = cameraControllerComponent.controller as Rn.OrbitCameraController;
-controller.setTarget(rootGroups[0]);
+controller.setTargets(entities);
 controller.dolly = 0.78;
-
-// renderPass
-const renderPass = new Rn.RenderPass();
-renderPass.toClearColorBuffer = true;
-renderPass.toClearDepthBuffer = true;
-renderPass.addEntities(rootGroups);
-
-// expression
-const expression = new Rn.Expression();
-expression.addRenderPasses([renderPass]);
 
 Rn.CameraComponent.current = 0;
 let count = 0;
