@@ -23,8 +23,6 @@ await Rn.System.init({
 
 // params
 
-const vrmModelRotation = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
-
 // camera
 const cameraEntity = Rn.createCameraControllerEntity();
 const cameraComponent = cameraEntity.getCamera();
@@ -35,38 +33,25 @@ cameraComponent.aspect = 1.0;
 
 // vrm
 const assets = await Rn.defaultAssetLoader.load({
-  animGltf2: Rn.Gltf2Importer.importFromUrl('../../../assets/vrm/test.glb'),
-  vrmModel: Rn.Vrm0xImporter.importJsonOfVRM('../../../assets/vrm/test.vrm'),
-  vrmExpression: Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
-    defaultMaterialHelperArgumentArray: [
-      {
-        isSkinning: true,
-        isMorphing: false,
-        makeOutputSrgb: true,
-      },
-    ],
-    tangentCalculationMode: 0,
+  vrmModel: Rn.GltfImporter.importFromUrl('../../../assets/vrm/test.vrm', {
     cameraComponent: cameraComponent,
-  })
+  }),
+  vrmAnimation: Rn.VrmaImporter.importFromUrl('../../../assets/vrma/CC0animationrotate01.vrma')
 });
 
 // expressions
-const expressions = [assets.vrmExpression];
+const expressions = [assets.vrmModel];
 
-const vrmMainRenderPass = assets.vrmExpression.renderPasses[0];
+const vrmMainRenderPass = assets.vrmModel.renderPasses[0];
 vrmMainRenderPass.toClearColorBuffer = true;
 
 const vrmRootEntity = vrmMainRenderPass.sceneTopLevelGraphComponents[0].entity;
-vrmRootEntity.getTransform().localEulerAngles = vrmModelRotation;
 
 // animation
 const animationAssigner = Rn.AnimationAssigner.getInstance();
-animationAssigner.assignAnimation(
+animationAssigner.assignAnimationWithVrma(
   vrmRootEntity,
-  assets.animGltf2,
-  assets.vrmModel,
-  false,
-  'none'
+  assets.vrmAnimation,
 );
 
 for (let i = 0; i < 1; i++) {
@@ -77,12 +62,9 @@ for (let i = 0; i < 1; i++) {
     vrmRootEntity2nd.getTransform().localEulerAngles = Rn.Vector3.fromCopyArray([0, Math.PI, 0.0]);
     vrmRootEntity2nd.getTransform().localPosition = Rn.Vector3.fromCopyArray([i, 0, j]);
     vrmMainRenderPass.addEntities([vrmRootEntity2nd]);
-    animationAssigner.assignAnimation(
+    animationAssigner.assignAnimationWithVrma(
       vrmRootEntity2nd,
-      assets.animGltf2,
-      assets.vrmModel,
-      false,
-      'none'
+      assets.vrmAnimation,
     );
   }
 }
