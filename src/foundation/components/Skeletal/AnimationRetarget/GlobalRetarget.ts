@@ -32,7 +32,6 @@ export class GlobalRetarget implements IAnimationRetarget {
     } else {
       srcPGRestQ = Quaternion.identity();
     }
-
     return srcPGRestQ;
   }
 
@@ -52,6 +51,7 @@ export class GlobalRetarget implements IAnimationRetarget {
     } else {
       dstPGRestQ = Quaternion.identity();
     }
+
 
     return dstPGRestQ;
   }
