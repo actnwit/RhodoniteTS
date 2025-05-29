@@ -104,14 +104,14 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
     const dstRestT = dstEntity.getTransform().localPositionRestInner;
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
-    const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(AnimT), dstRestT);
+    // scale animation translate to match dst scale
+    const scale = dstRestT.length() / srcRestT.length();
+    const scaledAnimT = Vector3.multiply(AnimT, scale);
 
-    if (srcEntity.uniqueName.indexOf('hips') >= 0) {
-      const dstPoseT2 = Vector3.multiply(dstPoseT, srcEntity.parent!.scale.x);
-      const dstPoseTRev = GlobalRetargetReverse.__rev.transformVector3(dstPoseT2);
-      return dstPoseTRev;
-    }
-    return dstPoseT;
+    const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(scaledAnimT), dstRestT);
+
+    const dstPoseTRev = GlobalRetargetReverse.__rev.transformVector3(dstPoseT);
+    return dstPoseTRev;
   }
 
   retargetScale(dstEntity: ISceneGraphEntity): IVector3 {
