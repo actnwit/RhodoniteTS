@@ -201,7 +201,7 @@ export class Vrm0xImporter {
         sphereCollider.position = Vector3.fromCopyArray([
           collider.offset.x,
           collider.offset.y,
-          collider.offset.z,
+          -collider.offset.z, // z is opposite in VRM0.x
         ]);
         sphereCollider.radius = collider.radius;
         colliders.push(sphereCollider);
