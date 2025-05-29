@@ -98,11 +98,12 @@ export class GlobalRetarget implements IAnimationRetarget {
     const dstRestT = dstEntity.getTransform().localPositionRestInner;
     const dstPgRestQ = this.getDstPGRestQ(dstEntity);
 
-    const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(AnimT), dstRestT);
+    // scale animation translate to match dst scale
+    const scale = dstRestT.length() / srcRestT.length();
+    const scaledAnimT = Vector3.multiply(AnimT, scale);
 
-    if (srcEntity.uniqueName.indexOf('hips') >= 0) {
-      return Vector3.multiply(dstPoseT, srcEntity.parent!.scale.x);
-    }
+    const dstPoseT = Vector3.add(dstPgRestQ.transformVector3Inverse(scaledAnimT), dstRestT);
+
     return dstPoseT;
   }
 

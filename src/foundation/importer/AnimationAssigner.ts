@@ -59,6 +59,8 @@ export class AnimationAssigner {
     vrmaModel: RnM2Vrma,
     postfixToTrackName?: string
   ) {
+    const entityVrma = ModelConverter.convertToRhodoniteObjectSimple(vrmaModel);
+
     this.__resetAnimationAndPose(rootEntity, postfixToTrackName);
 
     let trackNames: Set<string> = new Set();
@@ -111,6 +113,8 @@ export class AnimationAssigner {
 
     // Set retarget
     setRetarget(vrmaModel);
+
+    EntityRepository.deleteEntityRecursively(entityVrma.entityUID);
 
     return Array.from(trackNames);
   }

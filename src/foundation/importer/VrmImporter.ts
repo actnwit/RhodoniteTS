@@ -33,7 +33,7 @@ export class VrmImporter {
   static async __importVRM(gltfModel: RnM2, renderPasses: RenderPass[]): Promise<void> {
     // process defaultMaterialHelperArgumentArray
     const defaultMaterialHelperArgumentArray =
-      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray;
+      gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray ?? [{}];
     const textures = await this._createTextures(gltfModel);
     const samplers = this._createSamplers(gltfModel);
     if (Is.exist(defaultMaterialHelperArgumentArray)) {

@@ -182,6 +182,58 @@ export class ModelConverter {
     return rnSamplers;
   }
 
+  static convertToRhodoniteObjectSimple(gltfModel: RnM2) {
+    (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
+
+    const rnBuffers = this.__createRnBuffer(gltfModel);
+    gltfModel.asset.extras!.rnMaterials = {};
+
+    const rnTextures: Texture[] = [];
+    const rnSamplers: Sampler[] = [];
+
+    // Materials
+    const rnMaterials = this.__setupMaterials(gltfModel, rnTextures, rnSamplers);
+
+    // Mesh, Camera, Group, ...
+    const { rnEntities, rnEntitiesByNames } = this.__setupObjects(
+      gltfModel,
+      rnBuffers,
+      rnMaterials,
+      rnTextures,
+      rnSamplers
+    );
+    gltfModel.asset.extras!.rnEntities = rnEntities;
+
+    // Transform
+    this._setupTransform(gltfModel, rnEntities);
+
+    const rootGroup = this.__generateGroupEntity(gltfModel);
+
+    // Animation
+    this._setupAnimation(gltfModel, rnEntities, rnBuffers, rootGroup, rnMaterials);
+
+    // Skeleton
+    this._setupSkeleton(gltfModel, rnEntities, rnBuffers);
+
+    // Hierarchy
+    this._setupHierarchy(gltfModel, rnEntities);
+
+    if (gltfModel.scenes[0].nodes) {
+      for (const nodesIndex of gltfModel.scenes[0].nodes) {
+        const sg = rnEntities[nodesIndex].getSceneGraph();
+        rootGroup.getSceneGraph().addChild(sg);
+      }
+    }
+
+    if (Is.not.exist(gltfModel.extras)) {
+      (gltfModel as any).extras = {};
+    }
+    gltfModel.extras.rnEntities = rnEntities;
+    gltfModel.extras.rnEntitiesByNames = rnEntitiesByNames;
+
+    return rootGroup;
+  }
+
   static async convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 

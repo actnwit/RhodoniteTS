@@ -135,6 +135,8 @@ export class Vrm0xImporter {
     this._readSpringBone(gltfModel as Vrm0x);
     this._readVRMHumanoidInfo(gltfModel as Vrm0x, rootGroup);
     this._readBlendShapeGroup(gltfModel as Vrm0x, rootGroup);
+
+    rootGroup.localEulerAngles = Vector3.fromCopyArray([0, Math.PI, 0.0]);
   }
 
   static _readBlendShapeGroup(gltfModel: Vrm0x, rootEntity: ISceneGraphEntity): void {

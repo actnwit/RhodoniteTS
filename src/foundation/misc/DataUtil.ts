@@ -378,7 +378,7 @@ export class DataUtil {
       },
       loaderExtension: undefined,
       defaultMaterialHelperName: undefined,
-      defaultMaterialHelperArgumentArray: [],
+      defaultMaterialHelperArgumentArray: [{}],
       statesOfElements: [
         {
           targets: [], //["name_foo", "name_boo"],
