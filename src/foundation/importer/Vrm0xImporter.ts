@@ -201,7 +201,7 @@ export class Vrm0xImporter {
         sphereCollider.position = Vector3.fromCopyArray([
           collider.offset.x,
           collider.offset.y,
-          collider.offset.z,
+          -collider.offset.z, // z is opposite in VRM0.x
         ]);
         sphereCollider.radius = collider.radius;
         colliders.push(sphereCollider);
@@ -211,7 +211,7 @@ export class Vrm0xImporter {
 
     const boneGroups: VRMSpring[] = [];
     for (const boneGroup of gltfModel.extensions.VRM.secondaryAnimation.boneGroups) {
-      if (boneGroup.bones.length === 0) continue;
+      if (boneGroup.bones == null || boneGroup.bones.length === 0) continue;
       const jointRootIndex = boneGroup.bones[0];
       const jointRootEntity = gltfModel.asset.extras!.rnEntities![jointRootIndex];
       const vrmSpringBoneGroup = new VRMSpring(jointRootEntity.getSceneGraph());

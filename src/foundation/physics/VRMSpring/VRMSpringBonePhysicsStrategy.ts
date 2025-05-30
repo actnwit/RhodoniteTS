@@ -192,7 +192,7 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
         .getPositionTo(VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_3),
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_0
     );
-    const to = Quaternion.invertTo(
+    let to = Quaternion.invertTo(
       Quaternion.multiplyTo(
         bone.node.parent!.getRotationTo(VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_4),
         bone.node.localRotationRestInner,
@@ -200,6 +200,9 @@ export class VRMSpringBonePhysicsStrategy implements PhysicsStrategy {
       ),
       VRMSpringBonePhysicsStrategy.__tmp_applyRotation_quat_1
     ).transformVector3To(sub, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_1);
+    if (to.length() === 0) {
+      to = bone.boneAxis;
+    }
     const rot = Quaternion.fromToRotationTo(
       bone.boneAxis,
       Vector3.normalizeTo(to, VRMSpringBonePhysicsStrategy.__tmp_applyRotation_vec3_2),

@@ -18,19 +18,30 @@ export class GlobalRetargetReverse implements IAnimationRetarget {
   }
 
   getSrcPGRestQ(srcEntity: ISceneGraphEntity) {
-    const srcPGRestQ = srcEntity.getSceneGraph().getRotationRest((sg) => {
-      const vrm = sg.entity.tryToGetVrm();
-      return Is.exist(vrm);
-    });
+
+    let srcPGRestQ: IQuaternion;
+    const parent = srcEntity.getSceneGraph().parent;
+    if (Is.exist(parent)) {
+      srcPGRestQ = parent.getRotationRest((sg) => {
+        return Is.exist(sg.entity.tryToGetVrm());
+      });
+    } else {
+      srcPGRestQ = Quaternion.identity();
+    }
 
     return srcPGRestQ;
   }
 
   getDstPGRestQ(dstEntity: ISceneGraphEntity) {
-    const dstPGRestQ = dstEntity.getSceneGraph().getRotationRest((sg) => {
-      const vrm = sg.entity.tryToGetVrm();
-      return Is.exist(vrm);
-    });
+    let dstPGRestQ: IQuaternion;
+    const parent = dstEntity.getSceneGraph().parent;
+    if (Is.exist(parent)) {
+      dstPGRestQ = parent.getRotationRest((sg) => {
+        return Is.exist(sg.entity.tryToGetVrm());
+      });
+    } else {
+      dstPGRestQ = Quaternion.identity();
+    }
 
     return dstPGRestQ;
   }

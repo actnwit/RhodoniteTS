@@ -35,9 +35,16 @@ export class VRMSpringBone extends RnObject {
       const children = this.node.getSceneGraph().children;
       if (children.length > 0) {
         this.initialLocalChildPosition = children[0].entity.getTransform().localPosition;
+        if (this.initialLocalChildPosition.length() === 0) {
+          this.initialLocalChildPosition = Vector3.fromCopyArray([0, -0.07, 0]);
+        }
       } else {
+        const localPosition =
+          this.node.getTransform().localPosition.length() > 0
+            ? this.node.getTransform().localPosition
+            : Vector3.fromCopyArray([0, -1, 0]);
         this.initialLocalChildPosition = Vector3.multiply(
-          Vector3.normalize(this.node.getTransform().localPosition),
+          Vector3.normalize(localPosition),
           0.07
         );
       }
@@ -50,7 +57,11 @@ export class VRMSpringBone extends RnObject {
           ? center.getLocalPositionOf(initialWorldChildPosition)
           : initialWorldChildPosition;
       this.prevTail = this.currentTail.clone();
-      this.boneAxis = Vector3.normalize(this.initialLocalChildPosition);
+      const localPosition =
+        this.initialLocalChildPosition.length() > 0
+          ? this.initialLocalChildPosition
+          : Vector3.fromCopyArray([0, -0.07, 0]);
+      this.boneAxis = Vector3.normalize(localPosition);
 
       this.initialized = true;
     }
