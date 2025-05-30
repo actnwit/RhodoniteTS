@@ -21,17 +21,12 @@ export class GlobalRetarget implements IAnimationRetarget {
     const parent = srcEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
       srcPGRestQ = parent.getRotationRest((sg) => {
-        const parent = sg.parent;
-        if (Is.exist(parent)) {
-          const vrm = parent.entity.tryToGetVrm();
-          return Is.exist(vrm);
-        } else {
-          return true;
-        }
+        return Is.exist(sg.entity.tryToGetVrm());
       });
     } else {
       srcPGRestQ = Quaternion.identity();
     }
+
     return srcPGRestQ;
   }
 
@@ -40,18 +35,11 @@ export class GlobalRetarget implements IAnimationRetarget {
     const parent = dstEntity.getSceneGraph().parent;
     if (Is.exist(parent)) {
       dstPGRestQ = parent.getRotationRest((sg) => {
-        const parent = sg.parent;
-        if (Is.exist(parent)) {
-          const vrm = parent.entity.tryToGetVrm();
-          return Is.exist(vrm);
-        } else {
-          return true;
-        }
+        return Is.exist(sg.entity.tryToGetVrm());
       });
     } else {
       dstPGRestQ = Quaternion.identity();
     }
-
 
     return dstPGRestQ;
   }
