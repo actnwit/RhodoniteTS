@@ -890,55 +890,59 @@ interface IMutableVector4 extends IMutableVector {
     divideVector(vec: IVector4): IMutableVector4;
 }
 
-type RequireOne<T, K extends keyof T = keyof T> = K extends keyof T ? PartialRequire<T, K> : never;
-type PartialRequire<O, K extends keyof O> = {
-    [P in K]-?: O[P];
-} & O;
-type MixinBase = new (...args: any[]) => any;
-type GetProps<TBase> = TBase extends new (props: infer P) => any ? P : never;
-type GetInstance<TBase> = TBase extends new (...args: any[]) => infer I ? I : never;
-type MergeCtor<A, B> = new (props: GetProps<A> & GetProps<B>) => GetInstance<A> & GetInstance<B>;
-
-interface AnimationInterpolationEnum extends EnumIO {
-    GltfString: Gltf2AnimationSamplerInterpolation;
+interface IRenderable {
+    width: Size;
+    height: Size;
+    _textureResourceUid: CGAPIResourceHandle;
+    _textureViewResourceUid: CGAPIResourceHandle;
+    _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle;
+    resize(width: Size, height: Size): void;
+    destroy3DAPIResources(): boolean;
+    createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
+    fbo?: FrameBuffer;
 }
-declare function from$q(index: number): AnimationInterpolationEnum;
-declare function fromString$i(str: string): AnimationInterpolationEnum;
-declare const AnimationInterpolation: Readonly<{
-    Linear: AnimationInterpolationEnum;
-    Step: AnimationInterpolationEnum;
-    CubicSpline: AnimationInterpolationEnum;
+
+interface RenderBufferTargetEnum extends EnumIO {
+    webGLConstantValue(): number;
+}
+declare function from$q(index: number): RenderBufferTargetEnum;
+declare const RenderBufferTarget: Readonly<{
+    None: RenderBufferTargetEnum;
+    Back: RenderBufferTargetEnum;
+    ColorAttachment0: RenderBufferTargetEnum;
+    ColorAttachment1: RenderBufferTargetEnum;
+    ColorAttachment2: RenderBufferTargetEnum;
+    ColorAttachment3: RenderBufferTargetEnum;
+    ColorAttachment4: RenderBufferTargetEnum;
+    ColorAttachment5: RenderBufferTargetEnum;
+    ColorAttachment6: RenderBufferTargetEnum;
+    ColorAttachment7: RenderBufferTargetEnum;
+    ColorAttachment8: RenderBufferTargetEnum;
+    ColorAttachment9: RenderBufferTargetEnum;
+    ColorAttachment10: RenderBufferTargetEnum;
+    ColorAttachment11: RenderBufferTargetEnum;
+    ColorAttachment12: RenderBufferTargetEnum;
+    ColorAttachment13: RenderBufferTargetEnum;
+    ColorAttachment14: RenderBufferTargetEnum;
+    ColorAttachment15: RenderBufferTargetEnum;
     from: typeof from$q;
-    fromString: typeof fromString$i;
 }>;
 
-declare abstract class AbstractQuaternion implements IQuaternion {
-    get className(): string;
-    get x(): number;
-    get y(): number;
-    get z(): number;
-    get w(): number;
-    at(i: number): number;
-    length(): number;
-    lengthSquared(): number;
-    toString(): string;
-    toStringApproximately(): string;
-    flattenAsArray(): number[];
-    isDummy(): boolean;
-    isEqual(vec: IQuaternion, delta?: number): boolean;
-    isStrictEqual(vec: IQuaternion): boolean;
-    toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
-    toEulerAngles(): IVector3;
-    transformVector3(vec: IVector3): IVector3;
-    transformVector3To(vec: IVector3, out: IMutableVector3): IVector3;
-    transformVector3Inverse(vec: IVector3): IVector3;
-    /**
-     * dot product
-     */
-    dot(quat: IQuaternion): number;
-    clone(): IQuaternion;
-    _v: Float32Array;
-}
+type PixelFormatEnum = EnumIO;
+declare function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number;
+declare function from$p(index: number): PixelFormatEnum;
+declare const PixelFormat: Readonly<{
+    DepthComponent: EnumIO;
+    DepthStencil: EnumIO;
+    Alpha: EnumIO;
+    RG: EnumIO;
+    RGB: EnumIO;
+    RGBA: EnumIO;
+    Luminance: EnumIO;
+    LuminanceAlpha: EnumIO;
+    from: typeof from$p;
+    getCompositionNumFromPixelFormat: typeof getCompositionNumFromPixelFormat;
+}>;
 
 /**
  * the Abstract base class of Vector classes
@@ -1180,248 +1184,6 @@ declare class Vector3d extends Vector3_<Float64ArrayConstructor> {
 type Vector3f = Vector3;
 declare const ConstVector3_1_1_1: Vector3;
 declare const ConstVector3_0_0_0: Vector3;
-
-declare class Quaternion extends AbstractQuaternion implements IQuaternion {
-    private static __tmp_upVec;
-    private static __tmp_vec3_0;
-    private static __tmp_vec3_1;
-    private static __tmp_vec3_2;
-    private static __tmp_vec3_3;
-    private static __tmp_vec3_4;
-    private static __tmp_vec3_5;
-    constructor(x: Float32Array);
-    get className(): string;
-    static get compositionType(): {
-        readonly __numberOfComponents: number;
-        readonly __glslStr: string;
-        readonly __hlslStr: string;
-        readonly __webgpuStr: string;
-        readonly __wgslStr: string;
-        readonly __isArray: boolean;
-        readonly __vec4SizeOfProperty: IndexOf16Bytes;
-        readonly __dummyStr: "VEC4";
-        readonly webgpu: string;
-        readonly wgsl: string;
-        getNumberOfComponents(): Count;
-        getGlslStr(componentType: ComponentTypeEnum): string;
-        getGlslInitialValue(componentType: ComponentTypeEnum): string;
-        getWgslInitialValue(componentType: ComponentTypeEnum): string;
-        toWGSLType(componentType: ComponentTypeEnum): string;
-        getVec4SizeOfProperty(): IndexOf16Bytes;
-        readonly index: number;
-        readonly symbol: symbol;
-        readonly str: string;
-        toString(): string;
-        toJSON(): number;
-    };
-    static identity(): Quaternion;
-    static dummy(): Quaternion;
-    static invert(quat: IQuaternion): IQuaternion;
-    static invertTo(quat: IQuaternion, out: IMutableQuaternion): IQuaternion;
-    /**
-     * Compute spherical linear interpolation
-     */
-    static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): IQuaternion;
-    /**
-     *  Compute the spherical linear interpolation and output it as the fourth argument
-     */
-    static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion;
-    static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaternion;
-    static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion;
-    static axisAngle(vec: IVector3, radian: number): Quaternion;
-    static fromMatrix(mat: IMatrix44): Quaternion;
-    static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): IMutableQuaternion;
-    static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IQuaternion;
-    static lookForward(forward: IVector3): IQuaternion;
-    static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion;
-    static fromPosition(vec: IVector3): Quaternion;
-    static add(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion;
-    static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
-    static subtract(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion;
-    static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
-    static multiply(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion;
-    static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
-    static multiplyNumber(quat: IQuaternion, value: number): Quaternion;
-    static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion;
-    static divideNumber(quat: IQuaternion, value: number): Quaternion;
-    static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion;
-    toString(): string;
-    toStringApproximately(): string;
-    flattenAsArray(): number[];
-    isDummy(): boolean;
-    isEqual(quat: IQuaternion, delta?: number): boolean;
-    isStrictEqual(quat: IQuaternion): boolean;
-    toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
-    toEulerAngles(): Vector3;
-    /**
-     * divide(static version)
-     */
-    private static _divide;
-    /**
-     * divide(static version)
-     */
-    private static _divideTo;
-    /**
-     * normalize(static version)
-     */
-    static normalize(vec: IQuaternion): Quaternion;
-    /**
-     * normalize(static version)
-     */
-    static normalizeTo(vec: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
-    fromToRotation(from: IVector3, to: IVector3): Quaternion;
-    static fromToRotation(from: IVector3, to: IVector3): Quaternion;
-    static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion): IMutableQuaternion;
-    transformVector3(v: IVector3): Vector3;
-    transformVector3To(v: IVector3, out: IMutableVector3): IMutableVector3;
-    transformVector3Inverse(v: IVector3): IVector3;
-    clone(): IQuaternion;
-    static fromFloat32Array(array: Float32Array): Quaternion;
-    static fromCopyArray4(array: Array4<number>): Quaternion;
-    static fromCopyArray(array: Array<number>): Quaternion;
-    static fromCopy4(x: number, y: number, z: number, w: number): Quaternion;
-    static fromCopyQuaternion(quat: IQuaternion): Quaternion;
-    static fromCopyVector4(vec: IVector4): Quaternion;
-    static fromCopyLogQuaternion(x: ILogQuaternion): Quaternion;
-    static fromAxisAngle(axis: IVector3, rad: number): Quaternion;
-    static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion): IMutableQuaternion;
-    static getQuaternionAngle(q: IQuaternion): number;
-    static clampRotation(quat: IQuaternion, thetaMax: number): IQuaternion;
-}
-
-/**
- * @internal
- */
-declare class MutableVector3_<T extends FloatTypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
-    constructor(v: TypedArray, { type }: {
-        type: T;
-    });
-    set x(x: number);
-    get x(): number;
-    set y(y: number);
-    get y(): number;
-    set z(z: number);
-    get z(): number;
-    get w(): number;
-    raw(): TypedArray;
-    setAt(i: number, value: number): this;
-    setComponents(x: number, y: number, z: number): this;
-    copyComponents(vec: IVector3): this;
-    zero(): this;
-    one(): this;
-    /**
-     * normalize
-     */
-    normalize(): this;
-    /**
-     * add value
-     */
-    add(vec: IVector3): this;
-    /**
-     * subtract
-     */
-    subtract(vec: IVector3): this;
-    /**
-     * multiply
-     */
-    multiply(value: number): this;
-    /**
-     * multiply vector
-     */
-    multiplyVector(vec: IVector3): this;
-    /**
-     * divide
-     */
-    divide(value: number): this;
-    /**
-     * divide vector
-     */
-    divideVector(vec: IVector3): this;
-    /**
-     * cross product
-     */
-    cross(vec: IVector3): this;
-    /**
-     * quaternion * vector3
-     */
-    multiplyQuaternion(quat: IQuaternion): this;
-    get bytesPerComponent(): number;
-    static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): MutableVector3_<FloatTypedArrayConstructor>;
-}
-/**
- * Mutable 3D(x,y,z) Vector class with 32bit float components
- */
-declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
-    constructor(v: TypedArray);
-    static zero(): MutableVector3;
-    static one(): MutableVector3;
-    static dummy(): MutableVector3;
-    static normalize(vec: IVector3): MutableVector3;
-    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    static multiply(vec: IVector3, value: number): MutableVector3;
-    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    static divide(vec: IVector3, value: number): MutableVector3;
-    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3;
-    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3;
-    get className(): string;
-    static fromCopy3(x: number, y: number, z: number): MutableVector3;
-    static fromCopy1(val: number): MutableVector3;
-    static fromCopyArray3(array: Array3<number>): MutableVector3;
-    static fromCopyArray(array: Array<number>): MutableVector3;
-    static fromFloat32Array(float32Array: Float32Array): MutableVector3;
-    static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3;
-    static fromCopyVector3(vec: IVector3): MutableVector3;
-    static fromCopyVector4(vec: IVector4): MutableVector3;
-    clone(): MutableVector3;
-    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3): void;
-    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3): void;
-    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3): void;
-}
-/**
- * Mutable 3D(x,y,z) Vector class with 64bit float components
- */
-declare class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
-    constructor(x: TypedArray);
-    static zero(): MutableVector3d;
-    static one(): MutableVector3d;
-    static dummy(): MutableVector3d;
-    static normalize(vec: IVector3): MutableVector3d;
-    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    static multiply(vec: IVector3, value: number): MutableVector3d;
-    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    static divide(vec: IVector3, value: number): MutableVector3d;
-    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
-    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
-    static fromCopy3(x: number, y: number, z: number): MutableVector3d;
-    static fromCopy1(val: number): MutableVector3d;
-    static fromCopyArray3(array: Array3<number>): MutableVector3d;
-    static fromCopyArray(array: Array<number>): MutableVector3d;
-    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
-    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
-    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
-    clone(): MutableVector3d;
-}
-type MutableVector3f = MutableVector3;
-
-type PixelFormatEnum = EnumIO;
-declare function getCompositionNumFromPixelFormat(pixelFormat: PixelFormatEnum): number;
-declare function from$p(index: number): PixelFormatEnum;
-declare const PixelFormat: Readonly<{
-    DepthComponent: EnumIO;
-    DepthStencil: EnumIO;
-    Alpha: EnumIO;
-    RG: EnumIO;
-    RGB: EnumIO;
-    RGBA: EnumIO;
-    Luminance: EnumIO;
-    LuminanceAlpha: EnumIO;
-    from: typeof from$p;
-    getCompositionNumFromPixelFormat: typeof getCompositionNumFromPixelFormat;
-}>;
 
 interface IColorRgb {
     readonly r: number;
@@ -1755,6 +1517,124 @@ declare class TextureDataFloat {
 /**
  * @internal
  */
+declare class MutableVector3_<T extends FloatTypedArrayConstructor> extends Vector3_<T> implements IMutableVector, IMutableVector3 {
+    constructor(v: TypedArray, { type }: {
+        type: T;
+    });
+    set x(x: number);
+    get x(): number;
+    set y(y: number);
+    get y(): number;
+    set z(z: number);
+    get z(): number;
+    get w(): number;
+    raw(): TypedArray;
+    setAt(i: number, value: number): this;
+    setComponents(x: number, y: number, z: number): this;
+    copyComponents(vec: IVector3): this;
+    zero(): this;
+    one(): this;
+    /**
+     * normalize
+     */
+    normalize(): this;
+    /**
+     * add value
+     */
+    add(vec: IVector3): this;
+    /**
+     * subtract
+     */
+    subtract(vec: IVector3): this;
+    /**
+     * multiply
+     */
+    multiply(value: number): this;
+    /**
+     * multiply vector
+     */
+    multiplyVector(vec: IVector3): this;
+    /**
+     * divide
+     */
+    divide(value: number): this;
+    /**
+     * divide vector
+     */
+    divideVector(vec: IVector3): this;
+    /**
+     * cross product
+     */
+    cross(vec: IVector3): this;
+    /**
+     * quaternion * vector3
+     */
+    multiplyQuaternion(quat: IQuaternion): this;
+    get bytesPerComponent(): number;
+    static _fromCopy3(x: number, y: number, z: number, type: FloatTypedArrayConstructor): MutableVector3_<FloatTypedArrayConstructor>;
+}
+/**
+ * Mutable 3D(x,y,z) Vector class with 32bit float components
+ */
+declare class MutableVector3 extends MutableVector3_<Float32ArrayConstructor> {
+    constructor(v: TypedArray);
+    static zero(): MutableVector3;
+    static one(): MutableVector3;
+    static dummy(): MutableVector3;
+    static normalize(vec: IVector3): MutableVector3;
+    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    static multiply(vec: IVector3, value: number): MutableVector3;
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    static divide(vec: IVector3, value: number): MutableVector3;
+    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3;
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3;
+    get className(): string;
+    static fromCopy3(x: number, y: number, z: number): MutableVector3;
+    static fromCopy1(val: number): MutableVector3;
+    static fromCopyArray3(array: Array3<number>): MutableVector3;
+    static fromCopyArray(array: Array<number>): MutableVector3;
+    static fromFloat32Array(float32Array: Float32Array): MutableVector3;
+    static fromCopyFloat32Array(float32Array: Float32Array): MutableVector3;
+    static fromCopyVector3(vec: IVector3): MutableVector3;
+    static fromCopyVector4(vec: IVector4): MutableVector3;
+    clone(): MutableVector3;
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3): void;
+}
+/**
+ * Mutable 3D(x,y,z) Vector class with 64bit float components
+ */
+declare class MutableVector3d extends MutableVector3_<Float64ArrayConstructor> {
+    constructor(x: TypedArray);
+    static zero(): MutableVector3d;
+    static one(): MutableVector3d;
+    static dummy(): MutableVector3d;
+    static normalize(vec: IVector3): MutableVector3d;
+    static add(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static subtract(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static multiply(vec: IVector3, value: number): MutableVector3d;
+    static multiplyVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static divide(vec: IVector3, value: number): MutableVector3d;
+    static divideVector(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static cross(l_vec: IVector3, r_vec: IVector3): MutableVector3d;
+    static multiplyQuaternion(quat: IQuaternion, vec: IVector3): MutableVector3d;
+    static fromCopy3(x: number, y: number, z: number): MutableVector3d;
+    static fromCopy1(val: number): MutableVector3d;
+    static fromCopyArray3(array: Array3<number>): MutableVector3d;
+    static fromCopyArray(array: Array<number>): MutableVector3d;
+    static rotateX(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateY(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    static rotateZ(vec3: IVector3, radian: number, outVec: MutableVector3d): void;
+    clone(): MutableVector3d;
+}
+type MutableVector3f = MutableVector3;
+
+/**
+ * @internal
+ */
 declare class MutableVector4_<T extends FloatTypedArrayConstructor> extends Vector4_<T> implements IMutableVector, IMutableVector4 {
     constructor(x: FloatTypedArray, { type }: {
         type: T;
@@ -1853,20 +1733,20 @@ interface AlphaModeEnum extends EnumIO {
     toGltfString(): string;
 }
 declare function from$o(index: number): AlphaModeEnum | undefined;
-declare function fromString$h(str: string): AlphaModeEnum | undefined;
+declare function fromString$i(str: string): AlphaModeEnum | undefined;
 declare function fromGlTFString(str: string): AlphaModeEnum | undefined;
 declare const AlphaMode: Readonly<{
     Opaque: AlphaModeEnum;
     Mask: AlphaModeEnum;
     Blend: AlphaModeEnum;
     from: typeof from$o;
-    fromString: typeof fromString$h;
+    fromString: typeof fromString$i;
     fromGlTFString: typeof fromGlTFString;
 }>;
 
 type AnimationAttributeEnum = EnumIO;
 declare function from$n(index: number): AnimationAttributeEnum;
-declare function fromString$g(str: string): AnimationAttributeEnum;
+declare function fromString$h(str: string): AnimationAttributeEnum;
 declare const AnimationAttribute: Readonly<{
     Quaternion: EnumIO;
     Translate: EnumIO;
@@ -1879,11 +1759,24 @@ declare const AnimationAttribute: Readonly<{
     Scalar: EnumIO;
     VectorN: EnumIO;
     from: typeof from$n;
+    fromString: typeof fromString$h;
+}>;
+
+interface AnimationInterpolationEnum extends EnumIO {
+    GltfString: Gltf2AnimationSamplerInterpolation;
+}
+declare function from$m(index: number): AnimationInterpolationEnum;
+declare function fromString$g(str: string): AnimationInterpolationEnum;
+declare const AnimationInterpolation: Readonly<{
+    Linear: AnimationInterpolationEnum;
+    Step: AnimationInterpolationEnum;
+    CubicSpline: AnimationInterpolationEnum;
+    from: typeof from$m;
     fromString: typeof fromString$g;
 }>;
 
 type BasisCompressionTypeEnum = EnumIO;
-declare function from$m(index: number): BasisCompressionTypeEnum;
+declare function from$l(index: number): BasisCompressionTypeEnum;
 declare function fromString$f(str: string): BasisCompressionTypeEnum;
 declare const BasisCompressionType: Readonly<{
     ETC1: EnumIO;
@@ -1903,52 +1796,52 @@ declare const BasisCompressionType: Readonly<{
     RGB565: EnumIO;
     BGR565: EnumIO;
     RGBA4444: EnumIO;
-    from: typeof from$m;
+    from: typeof from$l;
     fromString: typeof fromString$f;
 }>;
 
 type BoneDataTypeEnum = EnumIO;
-declare function from$l(index: number): BoneDataTypeEnum;
+declare function from$k(index: number): BoneDataTypeEnum;
 declare function fromString$e(str: string): BoneDataTypeEnum;
 declare const BoneDataType: Readonly<{
     Mat43x1: EnumIO;
     Vec4x2: EnumIO;
     Vec4x2Old: EnumIO;
     Vec4x1: EnumIO;
-    from: typeof from$l;
+    from: typeof from$k;
     fromString: typeof fromString$e;
 }>;
 
 type BufferUseEnum = EnumIO;
-declare function from$k(index: number): BufferUseEnum;
+declare function from$j(index: number): BufferUseEnum;
 declare function fromString$d(str: string): BufferUseEnum;
 declare const BufferUse: Readonly<{
     GPUInstanceData: EnumIO;
     GPUVertexData: EnumIO;
     UBOGeneric: EnumIO;
     CPUGeneric: EnumIO;
-    from: typeof from$k;
+    from: typeof from$j;
     fromString: typeof fromString$d;
 }>;
 
 type CameraControllerTypeEnum = EnumIO;
-declare function from$j(index: number): CameraControllerTypeEnum;
+declare function from$i(index: number): CameraControllerTypeEnum;
 declare function fromString$c(str: string): CameraControllerTypeEnum;
 declare const CameraControllerType: Readonly<{
     Orbit: EnumIO;
     WalkThrough: EnumIO;
-    from: typeof from$j;
+    from: typeof from$i;
     fromString: typeof fromString$c;
 }>;
 
 type CameraTypeEnum = EnumIO;
-declare function from$i(index: number): CameraTypeEnum;
+declare function from$h(index: number): CameraTypeEnum;
 declare function fromString$b(str: string): CameraTypeEnum;
 declare const CameraType: Readonly<{
     Perspective: EnumIO;
     Orthographic: EnumIO;
     Frustum: EnumIO;
-    from: typeof from$i;
+    from: typeof from$h;
     fromString: typeof fromString$b;
 }>;
 
@@ -1961,7 +1854,7 @@ interface CompressionTextureTypeEnum extends EnumIO {
     webgpu?: string;
     blockInfo?: BlockInfo;
 }
-declare function from$h(index: number): CompressionTextureTypeEnum;
+declare function from$g(index: number): CompressionTextureTypeEnum;
 declare function fromString$a(str: string): CompressionTextureTypeEnum;
 declare const CompressionTextureType: Readonly<{
     ASTC_RGBA_4x4: CompressionTextureTypeEnum;
@@ -2003,12 +1896,12 @@ declare const CompressionTextureType: Readonly<{
     ETC2_RGB8: CompressionTextureTypeEnum;
     ETC1_RGB: CompressionTextureTypeEnum;
     RGBA8_EXT: CompressionTextureTypeEnum;
-    from: typeof from$h;
+    from: typeof from$g;
     fromString: typeof fromString$a;
 }>;
 
 type FileTypeEnum = EnumIO;
-declare function from$g(index: number): FileTypeEnum;
+declare function from$f(index: number): FileTypeEnum;
 declare function fromString$9(str: string): FileTypeEnum;
 declare function isGltfOrGlb(file: FileTypeEnum): boolean;
 declare const FileType: Readonly<{
@@ -2018,13 +1911,13 @@ declare const FileType: Readonly<{
     VRM: EnumIO;
     Draco: EnumIO;
     EffekseerEffect: EnumIO;
-    from: typeof from$g;
+    from: typeof from$f;
     fromString: typeof fromString$9;
     isGltfOrGlb: typeof isGltfOrGlb;
 }>;
 
 type HdriFormatEnum = EnumIO;
-declare function from$f(index: number): HdriFormatEnum;
+declare function from$e(index: number): HdriFormatEnum;
 declare function fromString$8(str: string): HdriFormatEnum;
 declare const HdriFormat: Readonly<{
     LDR_SRGB: EnumIO;
@@ -2033,26 +1926,26 @@ declare const HdriFormat: Readonly<{
     RGBE_PNG: EnumIO;
     RGB9_E5_PNG: EnumIO;
     OpenEXR: EnumIO;
-    from: typeof from$f;
+    from: typeof from$e;
     fromString: typeof fromString$8;
 }>;
 
 type LightTypeEnum = EnumIO;
-declare function from$e(index: number): LightTypeEnum;
+declare function from$d(index: number): LightTypeEnum;
 declare function fromString$7(str: string): LightTypeEnum;
 declare const LightType: Readonly<{
     Point: EnumIO;
     Directional: EnumIO;
     Spot: EnumIO;
     Ambient: EnumIO;
-    from: typeof from$e;
+    from: typeof from$d;
     fromString: typeof fromString$7;
 }>;
 
 interface PrimitiveModeEnum extends EnumIO {
     getWebGPUTypeStr(): string;
 }
-declare function from$d(index: number): PrimitiveModeEnum | undefined;
+declare function from$c(index: number): PrimitiveModeEnum | undefined;
 declare const PrimitiveMode: Readonly<{
     Unknown: PrimitiveModeEnum;
     Points: PrimitiveModeEnum;
@@ -2062,7 +1955,7 @@ declare const PrimitiveMode: Readonly<{
     Triangles: PrimitiveModeEnum;
     TriangleStrip: PrimitiveModeEnum;
     TriangleFan: PrimitiveModeEnum;
-    from: typeof from$d;
+    from: typeof from$c;
 }>;
 
 declare class ProcessApproachClass extends EnumClass implements EnumIO {
@@ -2087,7 +1980,7 @@ declare const ProcessApproach: Readonly<{
 interface ProcessStageEnum extends EnumIO {
     methodName: string;
 }
-declare function from$c(index: number): ProcessStageEnum;
+declare function from$b(index: number): ProcessStageEnum;
 declare const ProcessStage: Readonly<{
     Unknown: ProcessStageEnum;
     Create: ProcessStageEnum;
@@ -2098,32 +1991,6 @@ declare const ProcessStage: Readonly<{
     Render: ProcessStageEnum;
     Unmount: ProcessStageEnum;
     Discard: ProcessStageEnum;
-    from: typeof from$c;
-}>;
-
-interface RenderBufferTargetEnum extends EnumIO {
-    webGLConstantValue(): number;
-}
-declare function from$b(index: number): RenderBufferTargetEnum;
-declare const RenderBufferTarget: Readonly<{
-    None: RenderBufferTargetEnum;
-    Back: RenderBufferTargetEnum;
-    ColorAttachment0: RenderBufferTargetEnum;
-    ColorAttachment1: RenderBufferTargetEnum;
-    ColorAttachment2: RenderBufferTargetEnum;
-    ColorAttachment3: RenderBufferTargetEnum;
-    ColorAttachment4: RenderBufferTargetEnum;
-    ColorAttachment5: RenderBufferTargetEnum;
-    ColorAttachment6: RenderBufferTargetEnum;
-    ColorAttachment7: RenderBufferTargetEnum;
-    ColorAttachment8: RenderBufferTargetEnum;
-    ColorAttachment9: RenderBufferTargetEnum;
-    ColorAttachment10: RenderBufferTargetEnum;
-    ColorAttachment11: RenderBufferTargetEnum;
-    ColorAttachment12: RenderBufferTargetEnum;
-    ColorAttachment13: RenderBufferTargetEnum;
-    ColorAttachment14: RenderBufferTargetEnum;
-    ColorAttachment15: RenderBufferTargetEnum;
     from: typeof from$b;
 }>;
 
@@ -2411,6 +2278,35 @@ declare abstract class AbstractTexture extends RnObject {
     getTextureDataFloat(channels: Size): TextureDataFloat;
 }
 
+declare class RenderTargetTexture extends AbstractTexture implements IRenderable {
+    private __fbo?;
+    constructor();
+    create({ width, height, mipLevelCount, format: internalFormat, }: {
+        width: Size;
+        height: Size;
+        mipLevelCount?: number;
+        format: TextureFormatEnum;
+    }): void;
+    set _fbo(fbo: FrameBuffer);
+    get fbo(): FrameBuffer | undefined;
+    private __createRenderTargetTexture;
+    resize(width: Size, height: Size): void;
+    destroy3DAPIResources(): boolean;
+    getTexturePixelData(): Promise<Uint8Array>;
+    downloadTexturePixelData(): Promise<void>;
+    /**
+     * Origin is left bottom
+     *
+     * @param x horizontal pixel position (0 is left)
+     * @param y vertical pixel position (0 is bottom)
+     * @param argByteArray Pixel Data as Uint8Array
+     * @returns Pixel Value in Vector4
+     */
+    getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Promise<Vector4>;
+    generateMipmaps(): void;
+    createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
+}
+
 declare class FrameBuffer extends RnObject {
     private __colorAttachments;
     private __depthAttachment?;
@@ -2441,45 +2337,149 @@ declare class FrameBuffer extends RnObject {
     whichColorAttachment(renderable: IRenderable): number;
 }
 
-interface IRenderable {
-    width: Size;
-    height: Size;
-    _textureResourceUid: CGAPIResourceHandle;
-    _textureViewResourceUid: CGAPIResourceHandle;
-    _textureViewAsRenderTargetResourceUid: CGAPIResourceHandle;
-    resize(width: Size, height: Size): void;
-    destroy3DAPIResources(): boolean;
-    createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
-    fbo?: FrameBuffer;
+type RequireOne<T, K extends keyof T = keyof T> = K extends keyof T ? PartialRequire<T, K> : never;
+type PartialRequire<O, K extends keyof O> = {
+    [P in K]-?: O[P];
+} & O;
+type MixinBase = new (...args: any[]) => any;
+type GetProps<TBase> = TBase extends new (props: infer P) => any ? P : never;
+type GetInstance<TBase> = TBase extends new (...args: any[]) => infer I ? I : never;
+type MergeCtor<A, B> = new (props: GetProps<A> & GetProps<B>) => GetInstance<A> & GetInstance<B>;
+
+declare abstract class AbstractQuaternion implements IQuaternion {
+    get className(): string;
+    get x(): number;
+    get y(): number;
+    get z(): number;
+    get w(): number;
+    at(i: number): number;
+    length(): number;
+    lengthSquared(): number;
+    toString(): string;
+    toStringApproximately(): string;
+    flattenAsArray(): number[];
+    isDummy(): boolean;
+    isEqual(vec: IQuaternion, delta?: number): boolean;
+    isStrictEqual(vec: IQuaternion): boolean;
+    toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
+    toEulerAngles(): IVector3;
+    transformVector3(vec: IVector3): IVector3;
+    transformVector3To(vec: IVector3, out: IMutableVector3): IVector3;
+    transformVector3Inverse(vec: IVector3): IVector3;
+    /**
+     * dot product
+     */
+    dot(quat: IQuaternion): number;
+    clone(): IQuaternion;
+    _v: Float32Array;
 }
 
-declare class RenderTargetTexture extends AbstractTexture implements IRenderable {
-    private __fbo?;
-    constructor();
-    create({ width, height, mipLevelCount, format: internalFormat, }: {
-        width: Size;
-        height: Size;
-        mipLevelCount?: number;
-        format: TextureFormatEnum;
-    }): void;
-    set _fbo(fbo: FrameBuffer);
-    get fbo(): FrameBuffer | undefined;
-    private __createRenderTargetTexture;
-    resize(width: Size, height: Size): void;
-    destroy3DAPIResources(): boolean;
-    getTexturePixelData(): Promise<Uint8Array>;
-    downloadTexturePixelData(): Promise<void>;
+declare class Quaternion extends AbstractQuaternion implements IQuaternion {
+    private static __tmp_upVec;
+    private static __tmp_vec3_0;
+    private static __tmp_vec3_1;
+    private static __tmp_vec3_2;
+    private static __tmp_vec3_3;
+    private static __tmp_vec3_4;
+    private static __tmp_vec3_5;
+    constructor(x: Float32Array);
+    get className(): string;
+    static get compositionType(): {
+        readonly __numberOfComponents: number;
+        readonly __glslStr: string;
+        readonly __hlslStr: string;
+        readonly __webgpuStr: string;
+        readonly __wgslStr: string;
+        readonly __isArray: boolean;
+        readonly __vec4SizeOfProperty: IndexOf16Bytes;
+        readonly __dummyStr: "VEC4";
+        readonly webgpu: string;
+        readonly wgsl: string;
+        getNumberOfComponents(): Count;
+        getGlslStr(componentType: ComponentTypeEnum): string;
+        getGlslInitialValue(componentType: ComponentTypeEnum): string;
+        getWgslInitialValue(componentType: ComponentTypeEnum): string;
+        toWGSLType(componentType: ComponentTypeEnum): string;
+        getVec4SizeOfProperty(): IndexOf16Bytes;
+        readonly index: number;
+        readonly symbol: symbol;
+        readonly str: string;
+        toString(): string;
+        toJSON(): number;
+    };
+    static identity(): Quaternion;
+    static dummy(): Quaternion;
+    static invert(quat: IQuaternion): IQuaternion;
+    static invertTo(quat: IQuaternion, out: IMutableQuaternion): IQuaternion;
     /**
-     * Origin is left bottom
-     *
-     * @param x horizontal pixel position (0 is left)
-     * @param y vertical pixel position (0 is bottom)
-     * @param argByteArray Pixel Data as Uint8Array
-     * @returns Pixel Value in Vector4
+     * Compute spherical linear interpolation
      */
-    getPixelValueAt(x: Index, y: Index, argByteArray?: Uint8Array): Promise<Vector4>;
-    generateMipmaps(): void;
-    createCubeTextureViewAsRenderTarget(faceIdx: Index, mipLevel: Index): void;
+    static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): IQuaternion;
+    /**
+     *  Compute the spherical linear interpolation and output it as the fourth argument
+     */
+    static qlerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion;
+    static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): Quaternion;
+    static lerpTo(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number, out: IMutableQuaternion): IMutableQuaternion;
+    static axisAngle(vec: IVector3, radian: number): Quaternion;
+    static fromMatrix(mat: IMatrix44): Quaternion;
+    static fromMatrixTo(mat: IMatrix44, out: IMutableQuaternion): IMutableQuaternion;
+    static lookFromTo(fromDirection: IVector3, toDirection: IVector3): IQuaternion;
+    static lookForward(forward: IVector3): IQuaternion;
+    static lookForwardAccordingToThisUp(forward: IVector3, up: IVector3): IQuaternion;
+    static fromPosition(vec: IVector3): Quaternion;
+    static add(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion;
+    static addTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
+    static subtract(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion;
+    static subtractTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
+    static multiply(l_quat: IQuaternion, r_quat: IQuaternion): Quaternion;
+    static multiplyTo(l_quat: IQuaternion, r_quat: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
+    static multiplyNumber(quat: IQuaternion, value: number): Quaternion;
+    static multiplyNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion;
+    static divideNumber(quat: IQuaternion, value: number): Quaternion;
+    static divideNumberTo(quat: IQuaternion, value: number, out: IMutableQuaternion): IMutableQuaternion;
+    toString(): string;
+    toStringApproximately(): string;
+    flattenAsArray(): number[];
+    isDummy(): boolean;
+    isEqual(quat: IQuaternion, delta?: number): boolean;
+    isStrictEqual(quat: IQuaternion): boolean;
+    toEulerAnglesTo(out: IMutableVector3): IMutableVector3;
+    toEulerAngles(): Vector3;
+    /**
+     * divide(static version)
+     */
+    private static _divide;
+    /**
+     * divide(static version)
+     */
+    private static _divideTo;
+    /**
+     * normalize(static version)
+     */
+    static normalize(vec: IQuaternion): Quaternion;
+    /**
+     * normalize(static version)
+     */
+    static normalizeTo(vec: IQuaternion, out: IMutableQuaternion): IMutableQuaternion;
+    fromToRotation(from: IVector3, to: IVector3): Quaternion;
+    static fromToRotation(from: IVector3, to: IVector3): Quaternion;
+    static fromToRotationTo(from: IVector3, to: IVector3, out: IMutableQuaternion): IMutableQuaternion;
+    transformVector3(v: IVector3): Vector3;
+    transformVector3To(v: IVector3, out: IMutableVector3): IMutableVector3;
+    transformVector3Inverse(v: IVector3): IVector3;
+    clone(): IQuaternion;
+    static fromFloat32Array(array: Float32Array): Quaternion;
+    static fromCopyArray4(array: Array4<number>): Quaternion;
+    static fromCopyArray(array: Array<number>): Quaternion;
+    static fromCopy4(x: number, y: number, z: number, w: number): Quaternion;
+    static fromCopyQuaternion(quat: IQuaternion): Quaternion;
+    static fromCopyVector4(vec: IVector4): Quaternion;
+    static fromCopyLogQuaternion(x: ILogQuaternion): Quaternion;
+    static fromAxisAngle(axis: IVector3, rad: number): Quaternion;
+    static fromAxisAngleTo(axis: IVector3, rad: number, out: IMutableQuaternion): IMutableQuaternion;
+    static getQuaternionAngle(q: IQuaternion): number;
+    static clampRotation(quat: IQuaternion, thetaMax: number): IQuaternion;
 }
 
 declare class Bloom {
@@ -9317,228 +9317,6 @@ declare class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     static fromCopyQuaternion(q: IQuaternion): Matrix44;
 }
 
-declare class MutableQuaternion extends Quaternion implements IMutableQuaternion {
-    constructor(x: Float32Array);
-    set x(x: number);
-    get x(): number;
-    set y(y: number);
-    get y(): number;
-    set z(z: number);
-    get z(): number;
-    set w(w: number);
-    get w(): number;
-    get className(): string;
-    static identity(): MutableQuaternion;
-    static dummy(): MutableQuaternion;
-    static invert(quat: IQuaternion): MutableQuaternion;
-    static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion;
-    static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion;
-    static axisAngle(vec: IVector3, radian: number): MutableQuaternion;
-    static fromMatrix(mat: IMatrix44): MutableQuaternion;
-    static fromPosition(vec: IVector3): MutableQuaternion;
-    static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion;
-    static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion;
-    static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion;
-    static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternion;
-    static divideNumber(quat: IQuaternion, value: number): MutableQuaternion;
-    raw(): Float32Array;
-    setAt(i: number, value: number): this;
-    setComponents(x: number, y: number, z: number, w: number): this;
-    copyComponents(quat: IQuaternion): this;
-    identity(): this;
-    normalize(): this;
-    invert(): this;
-    qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this;
-    lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this;
-    axisAngle(vec: IVector3, radian: number): this;
-    fromMatrix(mat: IMatrix44): this;
-    fromPosition(vec: IVector3): this;
-    add(quat: IQuaternion): this;
-    subtract(quat: IQuaternion): this;
-    multiply(quat: IQuaternion): this;
-    multiplyNumber(value: number): this;
-    divideNumber(value: number): this;
-    clone(): IMutableQuaternion;
-    static fromFloat32Array(array: Float32Array): MutableQuaternion;
-    static fromCopyArray4(array: Array4<number>): MutableQuaternion;
-    static fromCopyArray(array: Array<number>): MutableQuaternion;
-    static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternion;
-    static fromCopyQuaternion(quat: IQuaternion): MutableQuaternion;
-    static fromCopyVector4(vec: IVector4): MutableQuaternion;
-    static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternion;
-}
-
-/**
- * SceneGraphComponent is a component that represents a node in the scene graph.
- *
- */
-declare class SceneGraphComponent extends Component {
-    private __parent?;
-    private __children;
-    private __gizmoChildren;
-    private _worldMatrix;
-    private _worldMatrixRest;
-    private _normalMatrix;
-    private __isWorldMatrixUpToDate;
-    private __isWorldMatrixRestUpToDate;
-    private __isNormalMatrixUpToDate;
-    private __worldMergedAABBWithSkeletal;
-    private __worldMergedAABB;
-    private __isWorldAABBDirty;
-    private _isVisible;
-    private _isBillboard;
-    private __aabbGizmo?;
-    private __locatorGizmo?;
-    private __translationGizmo?;
-    private __scaleGizmo?;
-    private __transformGizmoSpace;
-    private __latestPrimitivePositionAccessorVersion;
-    toMakeWorldMatrixTheSameAsLocalMatrix: boolean;
-    isRootJoint: boolean;
-    jointIndex: number;
-    _isCulled: boolean;
-    private static readonly __originVector3;
-    private static returnVector3;
-    private static __sceneGraphs;
-    private static isJointAABBShouldBeCalculated;
-    private static invertedMatrix44;
-    private static __tmp_mat4;
-    private static __tmp_mat4_2;
-    private static __tmp_mat4_3;
-    private static __tmp_quat_0;
-    private static __tmp_quat_1;
-    private static __updateCount;
-    private static __tmpAABB;
-    private __lastTransformComponentsUpdateCount;
-    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
-    set isVisible(flg: boolean);
-    get isVisible(): boolean;
-    static get updateCount(): number;
-    setVisibilityRecursively(flag: boolean): void;
-    set isBillboard(flg: boolean);
-    get isBillboard(): boolean;
-    setIsBillboardRecursively(flg: boolean): void;
-    set isAABBGizmoVisible(flg: boolean);
-    get isAABBGizmoVisible(): boolean;
-    set isLocatorGizmoVisible(flg: boolean);
-    get isLocatorGizmoVisible(): boolean;
-    set isTranslationGizmoVisible(flg: boolean);
-    get isTranslationGizmoVisible(): boolean;
-    set isScaleGizmoVisible(flg: boolean);
-    get isScaleGizmoVisible(): boolean;
-    static getTopLevelComponents(): SceneGraphComponent[];
-    isJoint(): boolean;
-    static get componentTID(): ComponentTID;
-    get componentTID(): ComponentTID;
-    setWorldMatrixRestDirty(): void;
-    setWorldMatrixRestDirtyRecursively(): void;
-    setWorldMatrixDirty(): void;
-    setWorldMatrixDirtyRecursively(): void;
-    setWorldAABBDirtyParentRecursively(): void;
-    /**
-     * add a SceneGraph component as a child of this
-     * @param sg a SceneGraph component
-     */
-    addChild(sg: SceneGraphComponent): void;
-    /**
-     * remove the child SceneGraph component from this
-     * @param sg a SceneGraph component
-     */
-    removeChild(sg: SceneGraphComponent): void;
-    /**
-     * add a SceneGraph component as a child of this (But Gizmo only)
-     * @param sg a SceneGraph component of Gizmo
-     */
-    _addGizmoChild(sg: SceneGraphComponent): void;
-    get isTopLevel(): boolean;
-    get children(): SceneGraphComponent[];
-    get parent(): SceneGraphComponent | undefined;
-    get matrixInner(): MutableMatrix44;
-    get matrix(): MutableMatrix44;
-    get matrixRestInner(): MutableMatrix44;
-    get matrixRest(): MutableMatrix44;
-    get normalMatrixInner(): MutableMatrix33;
-    get entityWorldWithSkeletalMatrix(): MutableMatrix44;
-    get entityWorldMatrixWithSkeletalInner(): MutableMatrix44;
-    get normalMatrix(): MutableMatrix33;
-    isWorldMatrixUpToDateRecursively(): boolean;
-    private __calcWorldMatrixRecursively;
-    private __calcWorldMatrixRestRecursively;
-    getQuaternionRecursively(): IQuaternion;
-    get worldPosition(): Vector3;
-    getWorldPositionOf(localPosition: Vector3): IVector3;
-    getWorldPositionOfTo(localPosition: Vector3, out: MutableVector3): MutableVector3;
-    getLocalPositionOf(worldPosition: Vector3): Vector3;
-    getLocalPositionOfTo(worldPosition: Vector3, out: MutableVector3): Vector3;
-    getWorldAABB(): AABB;
-    calcWorldMergedAABB(): AABB;
-    get worldMergedAABB(): AABB;
-    getWorldAABBWithSkeletal(): AABB;
-    calcWorldMergedAABBWithSkeletal(): AABB;
-    get worldMergedAABBWithSkeletal(): AABB;
-    /**
-     * castRay Methods
-     *
-     * @param srcPointInWorld a source position in world space
-     * @param directionInWorld a direction vector in world space
-     * @param dotThreshold threshold of the intersected triangle and the ray
-     * @param ignoreMeshComponents mesh components to ignore
-     * @returns information of intersection in world space
-     */
-    castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): RaycastResultEx2;
-    /**
-     * castRayFromScreen Methods
-     *
-     * @param x x position of screen
-     * @param y y position of screen
-     * @param camera a camera component
-     * @param viewport a viewport vector4
-     * @param dotThreshold threshold of the intersected triangle and the ray
-     * @param ignoreMeshComponents mesh components to ignore
-     * @returns information of intersection in world space
-     */
-    castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): RaycastResultEx2;
-    $load(): void;
-    $logic(): void;
-    private __updateGizmos;
-    setPositionWithoutPhysics(vec: IVector3): void;
-    set position(vec: IVector3);
-    setPositionToPhysics(vec: IVector3): void;
-    get position(): MutableVector3;
-    getPositionTo(outVec: MutableVector3): MutableVector3;
-    get positionRest(): MutableVector3;
-    getPositionRestTo(outVec: MutableVector3): MutableVector3;
-    set eulerAngles(vec: IVector3);
-    setEulerAnglesToPhysics(vec: IVector3): void;
-    get eulerAngles(): Vector3;
-    setRotationWithoutPhysics(quat: IQuaternion): void;
-    set rotation(quat: IQuaternion);
-    setRotationToPhysics(quat: IQuaternion): void;
-    get rotation(): Quaternion;
-    getRotationTo(outQuat: MutableQuaternion): MutableQuaternion;
-    get rotationRest(): Quaternion;
-    getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion;
-    set scale(vec: IVector3);
-    setScaleToPhysics(vec: IVector3): void;
-    get scale(): MutableVector3;
-    private __copyChild;
-    _shallowCopyFrom(component_: Component): void;
-    /**
-     * get the entity which has this component.
-     * @returns the entity which has this component
-     */
-    get entity(): ISceneGraphEntity;
-    setTransformGizmoSpace(space: 'local' | 'world'): void;
-    _destroy(): void;
-    /**
-     * @override
-     * Add this component to the entity
-     * @param base the target entity
-     * @param _componentClass the component class to add
-     */
-    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
-}
-
 /**
  * SkeletalComponent is a component that manages the skeletal animation of an entity.
  *
@@ -10962,6 +10740,57 @@ declare class MutableColorRgba extends MutableVector4 implements IMutableVector4
     static divide(vec: IVector4, value: number): MutableColorRgba;
     static divideVector(l_vec: IVector4, r_vec: IVector4): MutableColorRgba;
     clone(): MutableColorRgba;
+}
+
+declare class MutableQuaternion extends Quaternion implements IMutableQuaternion {
+    constructor(x: Float32Array);
+    set x(x: number);
+    get x(): number;
+    set y(y: number);
+    get y(): number;
+    set z(z: number);
+    get z(): number;
+    set w(w: number);
+    get w(): number;
+    get className(): string;
+    static identity(): MutableQuaternion;
+    static dummy(): MutableQuaternion;
+    static invert(quat: IQuaternion): MutableQuaternion;
+    static qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion;
+    static lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): MutableQuaternion;
+    static axisAngle(vec: IVector3, radian: number): MutableQuaternion;
+    static fromMatrix(mat: IMatrix44): MutableQuaternion;
+    static fromPosition(vec: IVector3): MutableQuaternion;
+    static add(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion;
+    static subtract(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion;
+    static multiply(l_quat: IQuaternion, r_quat: IQuaternion): MutableQuaternion;
+    static multiplyNumber(quat: IQuaternion, value: number): MutableQuaternion;
+    static divideNumber(quat: IQuaternion, value: number): MutableQuaternion;
+    raw(): Float32Array;
+    setAt(i: number, value: number): this;
+    setComponents(x: number, y: number, z: number, w: number): this;
+    copyComponents(quat: IQuaternion): this;
+    identity(): this;
+    normalize(): this;
+    invert(): this;
+    qlerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this;
+    lerp(l_quat: IQuaternion, r_quat: IQuaternion, ratio: number): this;
+    axisAngle(vec: IVector3, radian: number): this;
+    fromMatrix(mat: IMatrix44): this;
+    fromPosition(vec: IVector3): this;
+    add(quat: IQuaternion): this;
+    subtract(quat: IQuaternion): this;
+    multiply(quat: IQuaternion): this;
+    multiplyNumber(value: number): this;
+    divideNumber(value: number): this;
+    clone(): IMutableQuaternion;
+    static fromFloat32Array(array: Float32Array): MutableQuaternion;
+    static fromCopyArray4(array: Array4<number>): MutableQuaternion;
+    static fromCopyArray(array: Array<number>): MutableQuaternion;
+    static fromCopy4(x: number, y: number, z: number, w: number): MutableQuaternion;
+    static fromCopyQuaternion(quat: IQuaternion): MutableQuaternion;
+    static fromCopyVector4(vec: IVector4): MutableQuaternion;
+    static fromCopyLogQuaternion(x: ILogQuaternion): MutableQuaternion;
 }
 
 /**
@@ -12558,113 +12387,6 @@ type IsThisConstraint<T extends typeof Component, Possibles extends AllWellKnown
 type ComponentToComponentMethods<T extends typeof Component> = IsThisConstraint<T, IsThisVrm<T, IsThisEffekseer<T, IsThisPhysics<T, IsThisBlendShape<T, IsThisSkeletal<T, IsThisLight<T, IsThisCamera<T, IsThisCameraController<T, IsThisMeshRenderer<T, IsThisMesh<T, IsThisSceneGraph<T, IsThisTransform<T, IsThisAnimation<T, IsThisAnimationState<T, AllWellKnownComponentMethodsTypes>>>>>>>>>>>>>>>;
 
 /**
- * The class that generates and manages entities.
- */
-declare class EntityRepository {
-    private static __entity_uid_count;
-    private static __entities;
-    static _components: Array<Map<ComponentTID, Component>>;
-    private static __updateCount;
-    private constructor();
-    /**
-     * Creates an entity
-     */
-    static createEntity(): IEntity;
-    /**
-     * Deletes an entity.
-     * @param entityUid - the entityUID of the entity to delete.
-     */
-    static deleteEntity(entityUid: EntityUID): void;
-    /**
-     * Deletes an entity and all its child entities.
-     * @param entityUid - the entityUID of the entity to delete.
-     */
-    static deleteEntityRecursively(entityUid: EntityUID): void;
-    /**
-     * Shallow copies an entity.
-     * @param entity - the entity to shallow copy.
-     * @returns the shallow copied entity.
-     */
-    static shallowCopyEntity(entity: IEntity): IEntity;
-    /**
-     * Sets the joints to SkeletalComponent of entities.
-     * @param entity - the entity to set the joints of.
-     */
-    private static __setJoints;
-    /**
-     * This is an internal function that shallow copies an entity.
-     * @param entity - the entity to shallow copy.
-     * @returns the shallow copied entity.
-     */
-    static _shallowCopyEntityInner(entity: IEntity): IEntity;
-    /**
-     * This is an internal function that handles the tag data of an entity.
-     * @param newEntity - the entity to handle the tag data of.
-     */
-    private static __handleTagData;
-    /**
-     * Try to add a component to the entity by componentTID.
-     * @param componentTID - the componentTID
-     * @param entity - the entity
-     * @returns the entity added a component
-     */
-    static tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity;
-    /**
-     * Add a Component to the entity
-     * @param componentClass - a ComponentClass to add
-     * @param entity - the entity
-     * @returns the entity added a component
-     */
-    static addComponentToEntity<ComponentType extends typeof Component, EntityType extends IEntity>(componentClass: ComponentType, entity: EntityType): EntityType & ComponentToComponentMethods<ComponentType>;
-    /**
-     * Remove components from the entity.
-     * Note: the returned entity's type will be IEntity (most basic type).
-     *       You have to cast it to appropriate type later.
-     * @param componentClass The class object of the component to remove.
-     * @param entityUid The entityUID of the entity.
-     */
-    static removeComponentFromEntity(componentClass: typeof Component, entity: IEntity): IEntity;
-    /**
-     * Gets the entity corresponding to the entityUID.
-     * @param entityUid The entityUID of the entity.
-     */
-    static getEntity(entityUid: EntityUID): IEntity;
-    /**
-     * Gets the entity corresponding to the entityUID.
-     * @param entityUid The entityUID of the entity.
-     */
-    getEntity(entityUid: EntityUID): IEntity;
-    /**
-     * Gets the specified component from the entity.
-     * @param entityUid The entity to get the component from.
-     * @param componentType The class object of the component to get.
-     */
-    static getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null;
-    /**
-     * Search entities by the given tags.
-     * @param tags The tags to search
-     */
-    static searchByTags(tags: RnTags): IEntity[];
-    /**
-     * Gets entity by the unique name.
-     * @param uniqueName The unique name of the entity.
-     */
-    static getEntityByUniqueName(uniqueName: string): IEntity | undefined;
-    /**
-     * Gets all entities.
-     * @internal
-     */
-    static _getEntities(): IEntity[];
-    /**
-     * Gets the number of all entities.
-     */
-    static getEntitiesNumber(): number;
-    static get updateCount(): number;
-}
-declare function applyMixins(derivedCtor: IEntity, baseCtor: any): void;
-declare function createEntity(): IEntity;
-
-/**
  * The Component that manages the blend shape.
  */
 declare class BlendShapeComponent extends Component {
@@ -12813,6 +12535,284 @@ declare class Entity extends RnObject implements IEntity {
 }
 
 /**
+ * The class that generates and manages entities.
+ */
+declare class EntityRepository {
+    private static __entity_uid_count;
+    private static __entities;
+    static _components: Array<Map<ComponentTID, Component>>;
+    private static __updateCount;
+    private constructor();
+    /**
+     * Creates an entity
+     */
+    static createEntity(): IEntity;
+    /**
+     * Deletes an entity.
+     * @param entityUid - the entityUID of the entity to delete.
+     */
+    static deleteEntity(entityUid: EntityUID): void;
+    /**
+     * Deletes an entity and all its child entities.
+     * @param entityUid - the entityUID of the entity to delete.
+     */
+    static deleteEntityRecursively(entityUid: EntityUID): void;
+    /**
+     * Shallow copies an entity.
+     * @param entity - the entity to shallow copy.
+     * @returns the shallow copied entity.
+     */
+    static shallowCopyEntity(entity: IEntity): IEntity;
+    /**
+     * Sets the joints to SkeletalComponent of entities.
+     * @param entity - the entity to set the joints of.
+     */
+    private static __setJoints;
+    /**
+     * This is an internal function that shallow copies an entity.
+     * @param entity - the entity to shallow copy.
+     * @returns the shallow copied entity.
+     */
+    static _shallowCopyEntityInner(entity: IEntity): IEntity;
+    /**
+     * This is an internal function that handles the tag data of an entity.
+     * @param newEntity - the entity to handle the tag data of.
+     */
+    private static __handleTagData;
+    /**
+     * Try to add a component to the entity by componentTID.
+     * @param componentTID - the componentTID
+     * @param entity - the entity
+     * @returns the entity added a component
+     */
+    static tryToAddComponentToEntityByTID(componentTID: ComponentTID, entity: IEntity): IEntity;
+    /**
+     * Add a Component to the entity
+     * @param componentClass - a ComponentClass to add
+     * @param entity - the entity
+     * @returns the entity added a component
+     */
+    static addComponentToEntity<ComponentType extends typeof Component, EntityType extends IEntity>(componentClass: ComponentType, entity: EntityType): EntityType & ComponentToComponentMethods<ComponentType>;
+    /**
+     * Remove components from the entity.
+     * Note: the returned entity's type will be IEntity (most basic type).
+     *       You have to cast it to appropriate type later.
+     * @param componentClass The class object of the component to remove.
+     * @param entityUid The entityUID of the entity.
+     */
+    static removeComponentFromEntity(componentClass: typeof Component, entity: IEntity): IEntity;
+    /**
+     * Gets the entity corresponding to the entityUID.
+     * @param entityUid The entityUID of the entity.
+     */
+    static getEntity(entityUid: EntityUID): IEntity;
+    /**
+     * Gets the entity corresponding to the entityUID.
+     * @param entityUid The entityUID of the entity.
+     */
+    getEntity(entityUid: EntityUID): IEntity;
+    /**
+     * Gets the specified component from the entity.
+     * @param entityUid The entity to get the component from.
+     * @param componentType The class object of the component to get.
+     */
+    static getComponentOfEntity(entityUid: EntityUID, componentType: typeof Component): Component | null;
+    /**
+     * Search entities by the given tags.
+     * @param tags The tags to search
+     */
+    static searchByTags(tags: RnTags): IEntity[];
+    /**
+     * Gets entity by the unique name.
+     * @param uniqueName The unique name of the entity.
+     */
+    static getEntityByUniqueName(uniqueName: string): IEntity | undefined;
+    /**
+     * Gets all entities.
+     * @internal
+     */
+    static _getEntities(): IEntity[];
+    /**
+     * Gets the number of all entities.
+     */
+    static getEntitiesNumber(): number;
+    static get updateCount(): number;
+}
+declare function applyMixins(derivedCtor: IEntity, baseCtor: any): void;
+declare function createEntity(): IEntity;
+
+/**
+ * SceneGraphComponent is a component that represents a node in the scene graph.
+ *
+ */
+declare class SceneGraphComponent extends Component {
+    private __parent?;
+    private __children;
+    private __gizmoChildren;
+    private _worldMatrix;
+    private _worldMatrixRest;
+    private _normalMatrix;
+    private __isWorldMatrixUpToDate;
+    private __isWorldMatrixRestUpToDate;
+    private __isNormalMatrixUpToDate;
+    private __worldMergedAABBWithSkeletal;
+    private __worldMergedAABB;
+    private __isWorldAABBDirty;
+    private _isVisible;
+    private _isBillboard;
+    private __aabbGizmo?;
+    private __locatorGizmo?;
+    private __translationGizmo?;
+    private __scaleGizmo?;
+    private __transformGizmoSpace;
+    private __latestPrimitivePositionAccessorVersion;
+    toMakeWorldMatrixTheSameAsLocalMatrix: boolean;
+    isRootJoint: boolean;
+    jointIndex: number;
+    _isCulled: boolean;
+    private static readonly __originVector3;
+    private static returnVector3;
+    private static __sceneGraphs;
+    private static isJointAABBShouldBeCalculated;
+    private static invertedMatrix44;
+    private static __tmp_mat4;
+    private static __tmp_mat4_2;
+    private static __tmp_mat4_3;
+    private static __tmp_quat_0;
+    private static __tmp_quat_1;
+    private static __updateCount;
+    private static __tmpAABB;
+    private __lastTransformComponentsUpdateCount;
+    constructor(entityUid: EntityUID, componentSid: ComponentSID, entityRepository: EntityRepository, isReUse: boolean);
+    set isVisible(flg: boolean);
+    get isVisible(): boolean;
+    static get updateCount(): number;
+    setVisibilityRecursively(flag: boolean): void;
+    set isBillboard(flg: boolean);
+    get isBillboard(): boolean;
+    setIsBillboardRecursively(flg: boolean): void;
+    set isAABBGizmoVisible(flg: boolean);
+    get isAABBGizmoVisible(): boolean;
+    set isLocatorGizmoVisible(flg: boolean);
+    get isLocatorGizmoVisible(): boolean;
+    set isTranslationGizmoVisible(flg: boolean);
+    get isTranslationGizmoVisible(): boolean;
+    set isScaleGizmoVisible(flg: boolean);
+    get isScaleGizmoVisible(): boolean;
+    static getTopLevelComponents(): SceneGraphComponent[];
+    isJoint(): boolean;
+    static get componentTID(): ComponentTID;
+    get componentTID(): ComponentTID;
+    setWorldMatrixRestDirty(): void;
+    setWorldMatrixRestDirtyRecursively(): void;
+    setWorldMatrixDirty(): void;
+    setWorldMatrixDirtyRecursively(): void;
+    setWorldAABBDirtyParentRecursively(): void;
+    /**
+     * add a SceneGraph component as a child of this
+     * @param sg a SceneGraph component
+     */
+    addChild(sg: SceneGraphComponent): void;
+    /**
+     * remove the child SceneGraph component from this
+     * @param sg a SceneGraph component
+     */
+    removeChild(sg: SceneGraphComponent): void;
+    /**
+     * add a SceneGraph component as a child of this (But Gizmo only)
+     * @param sg a SceneGraph component of Gizmo
+     */
+    _addGizmoChild(sg: SceneGraphComponent): void;
+    get isTopLevel(): boolean;
+    get children(): SceneGraphComponent[];
+    get parent(): SceneGraphComponent | undefined;
+    get matrixInner(): MutableMatrix44;
+    get matrix(): MutableMatrix44;
+    get matrixRestInner(): MutableMatrix44;
+    get matrixRest(): MutableMatrix44;
+    get normalMatrixInner(): MutableMatrix33;
+    get entityWorldWithSkeletalMatrix(): MutableMatrix44;
+    get entityWorldMatrixWithSkeletalInner(): MutableMatrix44;
+    get normalMatrix(): MutableMatrix33;
+    isWorldMatrixUpToDateRecursively(): boolean;
+    private __calcWorldMatrixRecursively;
+    private __calcWorldMatrixRestRecursively;
+    getQuaternionRecursively(): IQuaternion;
+    get worldPosition(): Vector3;
+    getWorldPositionOf(localPosition: Vector3): IVector3;
+    getWorldPositionOfTo(localPosition: Vector3, out: MutableVector3): MutableVector3;
+    getLocalPositionOf(worldPosition: Vector3): Vector3;
+    getLocalPositionOfTo(worldPosition: Vector3, out: MutableVector3): Vector3;
+    getWorldAABB(): AABB;
+    calcWorldMergedAABB(): AABB;
+    get worldMergedAABB(): AABB;
+    getWorldAABBWithSkeletal(): AABB;
+    calcWorldMergedAABBWithSkeletal(): AABB;
+    get worldMergedAABBWithSkeletal(): AABB;
+    /**
+     * castRay Methods
+     *
+     * @param srcPointInWorld a source position in world space
+     * @param directionInWorld a direction vector in world space
+     * @param dotThreshold threshold of the intersected triangle and the ray
+     * @param ignoreMeshComponents mesh components to ignore
+     * @returns information of intersection in world space
+     */
+    castRay(srcPointInWorld: Vector3, directionInWorld: Vector3, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): RaycastResultEx2;
+    /**
+     * castRayFromScreen Methods
+     *
+     * @param x x position of screen
+     * @param y y position of screen
+     * @param camera a camera component
+     * @param viewport a viewport vector4
+     * @param dotThreshold threshold of the intersected triangle and the ray
+     * @param ignoreMeshComponents mesh components to ignore
+     * @returns information of intersection in world space
+     */
+    castRayFromScreen(x: number, y: number, camera: CameraComponent, viewport: Vector4, dotThreshold?: number, ignoreMeshComponents?: MeshComponent[]): RaycastResultEx2;
+    $load(): void;
+    $logic(): void;
+    private __updateGizmos;
+    setPositionWithoutPhysics(vec: IVector3): void;
+    set position(vec: IVector3);
+    setPositionToPhysics(vec: IVector3): void;
+    get position(): MutableVector3;
+    getPositionTo(outVec: MutableVector3): MutableVector3;
+    get positionRest(): MutableVector3;
+    getPositionRestTo(outVec: MutableVector3): MutableVector3;
+    set eulerAngles(vec: IVector3);
+    setEulerAnglesToPhysics(vec: IVector3): void;
+    get eulerAngles(): Vector3;
+    setRotationWithoutPhysics(quat: IQuaternion): void;
+    set rotation(quat: IQuaternion);
+    setRotationToPhysics(quat: IQuaternion): void;
+    get rotation(): Quaternion;
+    getRotationTo(outQuat: MutableQuaternion): MutableQuaternion;
+    get rotationRest(): Quaternion;
+    getRotationRest(endFn: (sg: SceneGraphComponent) => boolean): Quaternion;
+    set scale(vec: IVector3);
+    setScaleToPhysics(vec: IVector3): void;
+    get scale(): MutableVector3;
+    private __copyChild;
+    _shallowCopyFrom(component_: Component): void;
+    /**
+     * get the entity which has this component.
+     * @returns the entity which has this component
+     */
+    get entity(): ISceneGraphEntity;
+    setTransformGizmoSpace(space: 'local' | 'world'): void;
+    _destroy(): void;
+    /**
+     * @override
+     * Add this component to the entity
+     * @param base the target entity
+     * @param _componentClass the component class to add
+     */
+    addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(base: EntityBase, _componentClass: SomeComponentClass): ComponentToComponentMethods<SomeComponentClass> & EntityBase;
+}
+
+/**
  * A render pass is a collection of the resources which is used in rendering process.
  */
 declare class RenderPass extends RnObject {
@@ -12903,13 +12903,13 @@ declare class RenderPass extends RnObject {
      * Add entities to draw.
      * @param entities An array of entities.
      */
-    addEntities(entities: (IMeshEntity | ISceneGraphEntity)[]): void;
+    addEntities(entities: ISceneGraphEntity[]): void;
     private __calcMeshComponents;
     /**
      * Gets the list of entities on this render pass.
      * @return An array of entities
      */
-    get entities(): IEntity[];
+    get entities(): ISceneGraphEntity[];
     /**
      * Clear entities on this render pass.
      */
@@ -15809,6 +15809,7 @@ declare class ModelConverter {
     private static __setupMaterials;
     private static __setupTextures;
     private static __createSamplers;
+    static convertToRhodoniteObjectSimple(gltfModel: RnM2): ISceneGraphEntity;
     static convertToRhodoniteObject(gltfModel: RnM2): Promise<ISceneGraphEntity>;
     private static __createRnBuffer;
     static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]): void;
