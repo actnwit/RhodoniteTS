@@ -12,20 +12,3 @@ export function isSkipDrawing(material: Material, primitive: Primitive) {
     return false;
   }
 }
-
-export function updateVBOAndVAO(mesh: Mesh) {
-  const primitiveNum = mesh.getPrimitiveNumber();
-  for (let i = 0; i < primitiveNum; i++) {
-    const primitive = mesh.getPrimitiveAt(i);
-    if (Is.exist(primitive.vertexHandles)) {
-      primitive.update3DAPIVertexData();
-    } else {
-      primitive.create3DAPIVertexData();
-    }
-  }
-  mesh.updateVariationVBO();
-
-  if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
-    mesh.updateVAO();
-  }
-}

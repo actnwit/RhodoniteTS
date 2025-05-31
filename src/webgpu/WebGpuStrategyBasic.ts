@@ -8,7 +8,7 @@ import { Material } from '../foundation/materials/core/Material';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import {
   CGAPIResourceHandle,
   Count,
@@ -303,7 +303,7 @@ ${indexStr}
 
     // setup VBO and VAO
     if (!mesh.isSetUpDone()) {
-      updateVBOAndVAO(mesh);
+      mesh._updateVBOAndVAO();
     }
 
     return true;

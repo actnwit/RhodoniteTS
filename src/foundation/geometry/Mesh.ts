@@ -27,6 +27,8 @@ import { IMeshEntity } from '../helpers/EntityHelper';
 import { MeshComponent } from '../components/Mesh/MeshComponent';
 import { ProcessStage } from '../definitions/ProcessStage';
 import { Logger } from '../misc/Logger';
+import { ProcessApproach } from '../definitions/ProcessApproach';
+import { SystemState } from '../system/SystemState';
 
 /**
  * The Mesh class.
@@ -789,6 +791,32 @@ export class Mesh implements IMesh {
     }
 
     return true;
+  }
+
+  /**
+   * @internal
+   */
+  _updateVBOAndVAO() {
+    const primitiveNum = this.getPrimitiveNumber();
+    for (let i = 0; i < primitiveNum; i++) {
+      const primitive = this.getPrimitiveAt(i);
+      if (Is.exist(primitive.vertexHandles)) {
+        primitive.update3DAPIVertexData();
+      } else {
+        primitive.create3DAPIVertexData();
+      }
+    }
+    this.updateVariationVBO();
+
+    if (SystemState.currentProcessApproach !== ProcessApproach.WebGPU) {
+      this.updateVAO();
+    }
+  }
+
+  delete3DAPIVertexData() {
+    for (const primitive of this.__primitives) {
+      primitive.delete3DAPIVertexData();
+    }
   }
 
   // makeVerticesSeparated() {

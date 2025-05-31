@@ -32,7 +32,7 @@ import { MiscUtil } from '../foundation/misc/MiscUtil';
 import WebGLStrategyCommonMethod, { setupShaderProgram } from './WebGLStrategyCommonMethod';
 import { Is } from '../foundation/misc/Is';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
-import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { ModuleManager } from '../foundation/system/ModuleManager';
 import { RnXR } from '../xr/main';
@@ -255,7 +255,7 @@ bool get_isBillboard(float instanceId) {
 
     // setup VBO and VAO
     if (!mesh.isSetUpDone()) {
-      updateVBOAndVAO(mesh);
+      mesh._updateVBOAndVAO();
     }
 
     return true;
