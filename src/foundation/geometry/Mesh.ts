@@ -604,45 +604,57 @@ export class Mesh implements IMesh {
    */
   _calcBaryCentricCoord() {
     for (const primitive of this.__primitives) {
-      const BaryCentricCoordId = primitive.attributeSemantics.indexOf(
-        VertexAttribute.BaryCentricCoord.XYZ
-      );
-      if (BaryCentricCoordId !== -1) {
-        return;
+      const baryCentricCoordAccessor = primitive.getAttribute(VertexAttribute.BaryCentricCoord.XYZ);
+      if (baryCentricCoordAccessor != null) {
+        const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
+        const positionAccessor = primitive.attributeAccessors[positionIdx];
+        const vertexNum = positionAccessor.elementCount;
+        const num = vertexNum;
+        for (let ver_i = 0; ver_i < num; ver_i++) {
+          const vec4 = baryCentricCoordAccessor.getVec4(ver_i, {});
+          baryCentricCoordAccessor.setVec4(
+            ver_i,
+            ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
+            ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
+            ver_i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
+            vec4.w,
+            {}
+          );
+        }
+      } else {
+        const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
+        const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
+        const positionAccessor = primitive.attributeAccessors[positionIdx];
+        const vertexNum = positionAccessor.elementCount;
+        const num = vertexNum;
+
+        const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4; /* bytes */
+        const baryCentricCoordBufferView = buffer
+          .takeBufferView({
+            byteLengthToNeed: baryCentricCoordAttributeByteSize,
+            byteStride: 0,
+          })
+          .unwrapForce();
+        const baryCentricCoordAccessor = baryCentricCoordBufferView
+          .takeAccessor({
+            compositionType: CompositionType.Vec4,
+            componentType: ComponentType.Float,
+            count: num,
+          })
+          .unwrapForce();
+
+        for (let ver_i = 0; ver_i < num; ver_i++) {
+          baryCentricCoordAccessor.setVec4(
+            ver_i,
+            ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
+            ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
+            ver_i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
+            ver_i,
+            {}
+          );
+        }
+        primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord.XYZ);
       }
-
-      const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.CPUGeneric);
-      const positionIdx = primitive.attributeSemantics.indexOf(VertexAttribute.Position.XYZ);
-      const positionAccessor = primitive.attributeAccessors[positionIdx];
-      const vertexNum = positionAccessor.elementCount;
-      const num = vertexNum;
-
-      const baryCentricCoordAttributeByteSize = num * 4 /* vec4 */ * 4; /* bytes */
-      const baryCentricCoordBufferView = buffer
-        .takeBufferView({
-          byteLengthToNeed: baryCentricCoordAttributeByteSize,
-          byteStride: 0,
-        })
-        .unwrapForce();
-      const baryCentricCoordAccessor = baryCentricCoordBufferView
-        .takeAccessor({
-          compositionType: CompositionType.Vec4,
-          componentType: ComponentType.Float,
-          count: num,
-        })
-        .unwrapForce();
-
-      for (let ver_i = 0; ver_i < num; ver_i++) {
-        baryCentricCoordAccessor.setVec4(
-          ver_i,
-          ver_i % 3 === 0 ? 1 : 0, // 1 0 0  1 0 0  1 0 0,
-          ver_i % 3 === 1 ? 1 : 0, // 0 1 0  0 1 0  0 1 0,
-          ver_i % 3 === 2 ? 1 : 0, // 0 0 1  0 0 1  0 0 1,
-          ver_i,
-          {}
-        );
-      }
-      primitive.setVertexAttribute(baryCentricCoordAccessor, VertexAttribute.BaryCentricCoord.XYZ);
     }
   }
 

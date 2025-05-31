@@ -4,18 +4,17 @@
   let wireframeWidthInner: f32 = wireframe.z;
   let wireframeWidthRelativeScale: f32 = 1.0;
   if (wireframe.x > 0.5 && wireframe.y < 0.5) {
-    alpha = 0.0;
+    rt0.a = 0.0;
   }
   let wireframeColor: vec4<f32> = vec4<f32>(0.2, 0.75, 0.0, 1.0);
   let edgeRatio: f32 = edge_ratio(input.baryCentricCoord, wireframeWidthInner, wireframeWidthRelativeScale);
   let edgeRatioModified: f32 = mix(step(threshold, edgeRatio), clamp(edgeRatio * 4.0, 0.0, 1.0), wireframeWidthInner / wireframeWidthRelativeScale / 4.0);
   // if r0.a is 0.0, it is wireframe not on shaded
-  let wireframeResult = vec4<f32>(wireframeColor.rgb * edgeRatioModified + resultColor * (1.0 - edgeRatioModified), max(alpha, wireframeColor.a * mix(edgeRatioModified, pow(edgeRatioModified, 100.0), wireframeWidthInner / wireframeWidthRelativeScale / 1.0)));
+  let wireframeResult = vec4<f32>(wireframeColor.rgb * edgeRatioModified + rt0.rgb * (1.0 - edgeRatioModified), max(rt0.a, wireframeColor.a * mix(edgeRatioModified, pow(edgeRatioModified, 100.0), wireframeWidthInner / wireframeWidthRelativeScale / 1.0)));
 
   if (wireframe.x > 0.5) {
-    resultColor = wireframeResult.rgb;
-    alpha = wireframeResult.a;
-    if (wireframe.y < 0.5 && alpha == 0.0) {
+    rt0 = wireframeResult;
+    if (wireframe.y < 0.5 && rt0.a == 0.0) {
       discard;
     }
   }

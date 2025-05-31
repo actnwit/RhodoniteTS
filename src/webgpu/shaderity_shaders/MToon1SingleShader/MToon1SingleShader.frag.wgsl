@@ -11,6 +11,8 @@ const EPS_COL: f32 = 0.00001;
 
 /* shaderity: @{pbrDefinition} */
 
+// #param wireframe: vec3<f32>; // initialValue=(0,0,1)
+
 // #param baseColorFactor: vec4<f32>; // initialValue=(1,1,1,1)
 @group(1) @binding(1) var baseColorTexture: texture_2d<f32>; // initialValue=white
 @group(2) @binding(1) var baseColorSampler: sampler;
@@ -249,6 +251,8 @@ fn main (
   let outlineLightingMixFactor = get_outlineLightingMixFactor(materialSID, 0);
   rt0 = vec4f(outlineColorFactor * mix(vec3f(1.0), rt0.xyz, outlineLightingMixFactor), rt0.a);
 #endif
+
+  /* shaderity: @{wireframe} */
 
   let makeOutputSrgb = get_makeOutputSrgb(materialSID, 0);
   rt0 = vec4f(select(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.a);

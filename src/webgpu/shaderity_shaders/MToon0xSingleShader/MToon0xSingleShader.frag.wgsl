@@ -263,29 +263,8 @@ fn main (
 
 
   // Wireframe
-#ifdef RN_USE_WIREFRAME
-  let threshold = 0.001;
-  let wireframe: vec3f = get_wireframe(materialSID, 0);
-  let wireframeWidthInner = wireframe.z;
-  let wireframeWidthRelativeScale = 1.0;
-  if (wireframe.x > 0.5 && wireframe.y < 0.5) {
-    rt0.a = 0.0;
-  }
-  var wireframeResult = rt0;
-  let wireframeColor = vec4f(0.2, 0.75, 0.0, 1.0);
-  let edgeRatio: f32 = edge_ratio(input.baryCentricCoord, wireframeWidthInner, wireframeWidthRelativeScale);
-  let edgeRatioModified: f32 = mix(step(threshold, edgeRatio), clamp(edgeRatio*4.0, 0.0, 1.0), wireframeWidthInner / wireframeWidthRelativeScale/4.0);
-  // if r0.a is 0.0, it is wireframe not on shaded
-  wireframeResult = vec4f(wireframeColor.rgb * edgeRatioModified + rt0.rgb * (1.0 - edgeRatioModified), wireframeResult.a);
-  wireframeResult.a = max(rt0.a, wireframeColor.a * mix(edgeRatioModified, pow(edgeRatioModified, 100.0), wireframeWidthInner / wireframeWidthRelativeScale/1.0));
 
-  if (wireframe.x > 0.5) {
-    rt0 = wireframeResult;
-    if (wireframe.y < 0.5 && rt0.a == 0.0) {
-      discard;
-    }
-  }
-#endif // RN_USE_WIREFRAME
+/* shaderity: @{wireframe} */
 
   let makeOutputSrgb = get_makeOutputSrgb(materialSID, 0);
   rt0 = vec4f(select(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.w);

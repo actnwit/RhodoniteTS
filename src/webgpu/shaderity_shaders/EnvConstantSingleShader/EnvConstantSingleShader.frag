@@ -48,10 +48,9 @@ fn main(
   }
   diffuseColor *= vec4f(textureColor, 1.0);
 
-  var resultColor = diffuseColor.rgb;
-  let resultAlpha = diffuseColor.a;
+  var rt0 = diffuseColor;
 
   /* shaderity: @{outputSrgb} */
 
-  return vec4f(resultColor, resultAlpha);
+  return rt0;
 }

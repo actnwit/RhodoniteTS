@@ -503,7 +503,7 @@ let ior = get_ior(materialSID, 0);
   let diffuseTransmissionThickness = 0.0;
 #endif // RN_USE_DIFFUSE_TRANSMISSION
 
-  var resultColor = vec3<f32>(0, 0, 0);
+  var rt0 = vec4<f32>(0, 0, 0, alpha);
 
   // Punctual Lights
   let lightNumber = u32(get_lightNumber(0u, 0u));
@@ -548,7 +548,7 @@ let ior = get_ior(materialSID, 0);
 
     lighting = select(lighting, vec3f(0.0), light.lightType < 0);
 
-    resultColor += lighting;
+    rt0 += vec4f(lighting, 0.0);
   }
 
   // Image-based Lighting
@@ -577,9 +577,9 @@ let ior = get_ior(materialSID, 0);
     let indirectLight = ibl;
   #endif
 
-  resultColor += indirectLight;
+  rt0 += vec4f(indirectLight, 0.0);
 #else
-  var resultColor = baseColor.rgb;
+  var rt0 = vec4f(baseColor.rgb, alpha);
 #endif // RN_IS_LIGHTING
 
   // Emissive
@@ -603,13 +603,16 @@ let ior = get_ior(materialSID, 0);
 
 #ifdef RN_USE_CLEARCOAT
   let coated_emissive = emissive * mix(vec3f(1.0), vec3f(0.04 + (1.0 - 0.04) * pow(1.0 - NdotV, 5.0)), clearcoat);
-  resultColor += coated_emissive;
+  rt0 += vec4f(coated_emissive, 0.0);
 #else
-  resultColor += emissive;
+  rt0 += vec4f(emissive, 0.0);
 #endif // RN_USE_CLEARCOAT
 
   /* shaderity: @{wireframe} */
 
   /* shaderity: @{outputSrgb} */
-  return vec4f(resultColor * alpha, alpha);
+
+  rt0 = vec4f(rt0.rgb * rt0.a, rt0.a);
+
+  return rt0;
 }
