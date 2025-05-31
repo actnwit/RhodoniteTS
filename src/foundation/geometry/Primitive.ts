@@ -733,6 +733,10 @@ export class Primitive extends RnObject {
     this.setBlendShapeTargets(targets);
 
     this.removeIndices();
+
+    if (this.__mesh != null) {
+      this.__mesh._onPrimitivePositionUpdated();
+    }
   }
 
   castRay(
