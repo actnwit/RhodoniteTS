@@ -30,15 +30,6 @@ uniform samplerCube u_diffuseEnvTexture; // initialValue=(5,black), isInternalSe
 uniform samplerCube u_specularEnvTexture; // initialValue=(6,black), isInternalSetting=true
 
 
-float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
-  vec3 d = fwidth(bary3);
-  vec3 x = bary3+vec3(1.0 - wireframeWidthInner)*d;
-  vec3 a3 = smoothstep(vec3(0.0), d, x);
-  float factor = min(min(a3.x, a3.y), a3.z);
-
-  return clamp((1.0 - factor), 0.0, 1.0);
-}
-
 const float PI_2 = 6.28318530718;
 
 vec2 uvAnimation(vec2 origUv, float time, float uvAnimationMask, float uvAnimationScrollXSpeedFactor, float uvAnimationScrollYSpeedFactor, float uvAnimationRotationSpeedFactor) {
@@ -277,6 +268,7 @@ void main (){
 
 
   // Wireframe
+#ifdef RN_USE_WIREFRAME
   float threshold = 0.001;
   vec3 wireframe = get_wireframe(materialSID, 0);
   float wireframeWidthInner = wireframe.z;
@@ -298,6 +290,7 @@ void main (){
       discard;
     }
   }
+#endif // RN_USE_WIREFRAME
 
     /* shaderity: @{outputSrgb} */
 

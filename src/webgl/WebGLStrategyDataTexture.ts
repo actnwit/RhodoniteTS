@@ -42,7 +42,7 @@ import { Is } from '../foundation/misc/Is';
 import { LightComponent } from '../foundation/components/Light/LightComponent';
 import { ShaderSemanticsInfo } from '../foundation/definitions/ShaderSemanticsInfo';
 import { MaterialRepository } from '../foundation/materials/core/MaterialRepository';
-import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
@@ -415,7 +415,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
     // update VBO and VAO
     if (!mesh.isSetUpDone()) {
       this.deleteDataTexture(); // delete data texture to recreate one on next
-      updateVBOAndVAO(mesh);
+      mesh._updateVBOAndVAO();
     }
 
     return true;
@@ -761,7 +761,7 @@ ${returnType} get_${methodName}(highp float _instanceId, const int idxOfArray) {
       if (!renderPass.depthWriteMask) {
         gl.depthMask(false);
       }
-      for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) { // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
         const rendered = this.__renderInner(primitiveUid, glw, renderPass, isVRMainPass, displayCount);
         renderedSomething ||= rendered;

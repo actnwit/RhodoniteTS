@@ -8,12 +8,13 @@
 
 /* shaderity: @{prerequisites} */
 
+uniform vec3 u_wireframe; // initialValue=(0,0,1)
+
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform float u_metallicFactor; // initialValue=1
 uniform float u_roughnessFactor; // initialValue=1
 uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
-uniform vec3 u_wireframe; // initialValue=(0,0,1)
 uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
@@ -181,15 +182,6 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
-
-float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
-  vec3 d = fwidth(bary3);
-  vec3 x = bary3+vec3(1.0 - wireframeWidthInner)*d;
-  vec3 a3 = smoothstep(vec3(0.0), d, x);
-  float factor = min(min(a3.x, a3.y), a3.z);
-
-  return clamp((1.0 - factor), 0.0, 1.0);
-}
 
 vec2 getTexcoord(int texcoordIndex) {
   vec2 texcoord;
@@ -624,27 +616,7 @@ void main ()
   }
 
   // Wireframe
-  float threshold = 0.001;
-  vec3 wireframe = get_wireframe(materialSID, 0);
-  float wireframeWidthInner = wireframe.z;
-  float wireframeWidthRelativeScale = 1.0;
-  if (wireframe.x > 0.5 && wireframe.y < 0.5) {
-    rt0.a = 0.0;
-  }
-  vec4 wireframeResult = rt0;
-  vec4 wireframeColor = vec4(0.2, 0.75, 0.0, 1.0);
-  float edgeRatio = edge_ratio(v_baryCentricCoord, wireframeWidthInner, wireframeWidthRelativeScale);
-  float edgeRatioModified = mix(step(threshold, edgeRatio), clamp(edgeRatio*4.0, 0.0, 1.0), wireframeWidthInner / wireframeWidthRelativeScale/4.0);
-  // if r0.a is 0.0, it is wireframe not on shaded
-  wireframeResult.rgb = wireframeColor.rgb * edgeRatioModified + rt0.rgb * (1.0 - edgeRatioModified);
-  wireframeResult.a = max(rt0.a, wireframeColor.a * mix(edgeRatioModified, pow(edgeRatioModified, 100.0), wireframeWidthInner / wireframeWidthRelativeScale/1.0));
-
-  if (wireframe.x > 0.5) {
-    rt0 = wireframeResult;
-    if (wireframe.y < 0.5 && rt0.a == 0.0) {
-      discard;
-    }
-  }
+  /* shaderity: @{wireframe} */
 
   /* shaderity: @{outputSrgb} */
 rt0.rgb = rt0.rgb * rt0.a; // alpha premultiplied

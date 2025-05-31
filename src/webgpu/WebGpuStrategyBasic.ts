@@ -8,7 +8,7 @@ import { Material } from '../foundation/materials/core/Material';
 import { CGAPIResourceRepository } from '../foundation/renderer/CGAPIResourceRepository';
 import { CGAPIStrategy } from '../foundation/renderer/CGAPIStrategy';
 import { RenderPass } from '../foundation/renderer/RenderPass';
-import { isSkipDrawing, updateVBOAndVAO } from '../foundation/renderer/RenderingCommonMethods';
+import { isSkipDrawing } from '../foundation/renderer/RenderingCommonMethods';
 import {
   CGAPIResourceHandle,
   Count,
@@ -39,7 +39,6 @@ import { Accessor } from '../foundation/memory/Accessor';
 import { BlendShapeComponent } from '../foundation/components/BlendShape/BlendShapeComponent';
 import { CameraControllerComponent } from '../foundation/components/CameraController/CameraControllerComponent';
 import { TransformComponent } from '../foundation/components/Transform/TransformComponent';
-import { Mesh } from '../foundation/geometry/Mesh';
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { Logger } from '../foundation/misc/Logger';
 
@@ -304,7 +303,7 @@ ${indexStr}
 
     // setup VBO and VAO
     if (!mesh.isSetUpDone()) {
-      updateVBOAndVAO(mesh);
+      mesh._updateVBOAndVAO();
     }
 
     return true;
@@ -439,7 +438,7 @@ ${indexStr}
       MeshRendererComponent.isDepthMaskTrueForBlendPrimitives;
     // For opaque primitives
     if (renderPass._toRenderOpaquePrimitives) {
-      for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) { // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, renderPass, isZWrite);
         renderedSomething ||= rendered;

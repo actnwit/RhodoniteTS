@@ -7,15 +7,6 @@
 
 const EPS_COL: f32 = 0.00001;
 
-fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScale: f32) -> f32 {
-  let d: vec3f = fwidth(bary3);
-  let x: vec3f = bary3 + vec3f(1.0 - wireframeWidthInner) * d;
-  let a3: vec3f = smoothstep(vec3f(0.0), d, x);
-  let factor = min(min(a3.x, a3.y), a3.z);
-
-  return clamp((1.0 - factor), 0.0, 1.0);
-}
-
 /* shaderity: @{opticalDefinition} */
 
 /* shaderity: @{pbrDefinition} */
@@ -272,6 +263,7 @@ fn main (
 
 
   // Wireframe
+#ifdef RN_USE_WIREFRAME
   let threshold = 0.001;
   let wireframe: vec3f = get_wireframe(materialSID, 0);
   let wireframeWidthInner = wireframe.z;
@@ -293,6 +285,7 @@ fn main (
       discard;
     }
   }
+#endif // RN_USE_WIREFRAME
 
   let makeOutputSrgb = get_makeOutputSrgb(materialSID, 0);
   rt0 = vec4f(select(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.w);

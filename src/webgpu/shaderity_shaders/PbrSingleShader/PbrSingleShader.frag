@@ -7,6 +7,7 @@
 
 /* shaderity: @{opticalDefinition} */
 
+// #param wireframe: vec3<f32>; // initialValue=(0,0,1)
 
 // #param makeOutputSrgb: bool; // initialValue=1
 
@@ -606,6 +607,8 @@ let ior = get_ior(materialSID, 0);
 #else
   resultColor += emissive;
 #endif // RN_USE_CLEARCOAT
+
+  /* shaderity: @{wireframe} */
 
   /* shaderity: @{outputSrgb} */
   return vec4f(resultColor * alpha, alpha);

@@ -261,6 +261,20 @@ export class MeshComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  private __update3DAPIVertexData() {
+    if (this.__mesh != null) {
+      this.__mesh.delete3DAPIVertexData();
+      this.__mesh._updateVBOAndVAO();
+    }
+  }
+
+  calcBaryCentricCoord() {
+    if (this.__mesh != null) {
+      this.__mesh._calcBaryCentricCoord();
+    }
+    this.__update3DAPIVertexData();
+  }
+
   $logic() {}
 
   _shallowCopyFrom(component_: Component): void {
