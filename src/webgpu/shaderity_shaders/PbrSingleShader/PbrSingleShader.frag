@@ -579,7 +579,7 @@ let ior = get_ior(materialSID, 0);
 
   rt0 += vec4f(indirectLight, 0.0);
 #else
-  rt0 += vec4f(baseColor.rgb, 0.0);
+  var rt0 = vec4f(baseColor.rgb, alpha);
 #endif // RN_IS_LIGHTING
 
   // Emissive
