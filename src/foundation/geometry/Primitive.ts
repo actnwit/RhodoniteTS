@@ -673,70 +673,7 @@ export class Primitive extends RnObject {
       this.setVertexAttribute(accessorNew, semantic);
     }
 
-    const gpuVertexBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
-    let gpuVertexBufferSize = 0;
-    for (let i = 0; i < this.__targets.length; i++) {
-      const target = this.__targets[i];
-      for (const [semantic, accessor] of target) {
-        const compositionType = accessor.compositionType;
-        let compositionN = 0;
-        if (compositionType.index === CompositionType.Vec4.index) {
-          compositionN = 4;
-        } else if (compositionType.index === CompositionType.Vec3.index) {
-          compositionN = 3;
-        } else if (compositionType.index === CompositionType.Vec2.index) {
-          compositionN = 2;
-        } else if (compositionType.index === CompositionType.Scalar.index) {
-          compositionN = 1;
-        }
-        gpuVertexBufferSize += indices.length * compositionN * 4 /* bytes */;
-      }
-    }
-
-    const gpuVertexBufferView = gpuVertexBuffer.takeBufferView({
-      byteLengthToNeed: gpuVertexBufferSize,
-      byteStride: 3 /* vec4 */ * 4 /* bytes */,
-    }).unwrapForce();
-
-    const targets = [];
-    for (let i = 0; i < this.__targets.length; i++) {
-      const target = this.__targets[i];
-      for (const [semantic, accessor] of target) {
-        const compositionType = accessor.compositionType;
-        const accessorNew: Accessor = gpuVertexBufferView.takeAccessor({
-          compositionType,
-          componentType: accessor.componentType,
-          count: indices.length,
-        }).unwrapForce();
-
-        for (let j = 0; j < indices.length; j++) {
-          const idx = indices[j];
-          if (compositionType.index === CompositionType.Vec4.index) {
-            const vec4 = accessor.getVec4(idx, {});
-            accessorNew.setVec4(j, vec4.x, vec4.y, vec4.z, vec4.w, {});
-          } else if (compositionType.index === CompositionType.Vec3.index) {
-            const vec3 = accessor.getVec3(idx, {});
-            accessorNew.setVec3(j, vec3.x, vec3.y, vec3.z, {});
-          } else if (compositionType.index === CompositionType.Vec2.index) {
-            const vec2 = accessor.getVec2(idx, {});
-            accessorNew.setVec2(j, vec2.x, vec2.y, {});
-          } else if (compositionType.index === CompositionType.Scalar.index) {
-            const scalar = accessor.getScalar(idx, {});
-            accessorNew.setScalar(j, scalar, {});
-          }
-        }
-        target.set(semantic, accessorNew);
-      }
-      targets.push(target);
-    }
-
-    this.setBlendShapeTargets(targets);
-
     this.removeIndices();
-
-    if (this.__mesh != null) {
-      this.__mesh._onPrimitivePositionUpdated();
-    }
   }
 
   castRay(
