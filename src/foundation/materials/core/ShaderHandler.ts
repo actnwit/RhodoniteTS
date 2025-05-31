@@ -43,6 +43,7 @@ import { vertexInOutGlsl } from '../../../webgl/shaderity_shaders/common/vertexI
 import { vertexInGlsl } from '../../../webgl/shaderity_shaders/common/vertexIn';
 import { vertexOutputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexOutput';
 import { vertexInputWgsl } from '../../../webgpu/shaderity_shaders/common/vertexInput';
+import { wireframeGlsl } from '../../../webgl/shaderity_shaders/common/wireframe';
 
 const Shaderity = (ShaderityModule as any).default || ShaderityModule;
 const __shaderStringMap: Map<string, CGAPIResourceHandle> = new Map();
@@ -228,6 +229,7 @@ export function _createProgramAsSingleOperationWebGL(
       iblDefinition: iblDefinitionGlsl.code,
       alphaProcess: alphaProcessGlsl.code,
       outputSrgb: outputSrgbGlsl.code,
+      wireframe: wireframeGlsl.code,
       Config,
     }
   );
