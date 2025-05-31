@@ -38,6 +38,7 @@ import { Config } from '../core/Config';
 import { RnException } from '../misc/RnException';
 import { Mesh } from './Mesh';
 import { Logger } from '../misc/Logger';
+import { BufferUse } from '../definitions/BufferUse';
 
 export type Attributes = Map<VertexAttributeSemanticsJoinedString, Accessor>;
 
@@ -637,31 +638,12 @@ export class Primitive extends RnObject {
       bufferSize += indices.length * compositionN * 4 /* bytes */;
     }
 
-    for (let i = 0; i < this.__targets.length; i++) {
-      const target = this.__targets[i];
-      target.forEach((accessor, semantic) => {
-        const compositionType = accessor.compositionType;
-        let compositionN = 0;
-        if (compositionType.index === CompositionType.Vec4.index) {
-          compositionN = 4;
-        } else if (compositionType.index === CompositionType.Vec3.index) {
-          compositionN = 3;
-        } else if (compositionType.index === CompositionType.Vec2.index) {
-          compositionN = 2;
-        } else if (compositionType.index === CompositionType.Scalar.index) {
-          compositionN = 1;
-        }
-        bufferSize += indices.length * compositionN * 4 /* bytes */;
-      });
-    }
-
     const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, 4 /* bytes */);
     const bufferView = buffer.takeBufferView({
       byteLengthToNeed: bufferSize,
       byteStride: 0,
     }).unwrapForce();
 
-    // for (let i = 0; i < this.att.length; i++) {
     for (const [semantic, accessorOld] of this.__attributes) {
       const compositionType = accessorOld.compositionType;
 
@@ -691,11 +673,37 @@ export class Primitive extends RnObject {
       this.setVertexAttribute(accessorNew, semantic);
     }
 
+    const gpuVertexBuffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUVertexData);
+    let gpuVertexBufferSize = 0;
     for (let i = 0; i < this.__targets.length; i++) {
       const target = this.__targets[i];
-      target.forEach((accessor, semantic) => {
+      for (const [semantic, accessor] of target) {
         const compositionType = accessor.compositionType;
-        const accessorNew: Accessor = bufferView.takeAccessor({
+        let compositionN = 0;
+        if (compositionType.index === CompositionType.Vec4.index) {
+          compositionN = 4;
+        } else if (compositionType.index === CompositionType.Vec3.index) {
+          compositionN = 3;
+        } else if (compositionType.index === CompositionType.Vec2.index) {
+          compositionN = 2;
+        } else if (compositionType.index === CompositionType.Scalar.index) {
+          compositionN = 1;
+        }
+        gpuVertexBufferSize += indices.length * compositionN * 4 /* bytes */;
+      }
+    }
+
+    const gpuVertexBufferView = gpuVertexBuffer.takeBufferView({
+      byteLengthToNeed: gpuVertexBufferSize,
+      byteStride: 3 /* vec4 */ * 4 /* bytes */,
+    }).unwrapForce();
+
+    const targets = [];
+    for (let i = 0; i < this.__targets.length; i++) {
+      const target = this.__targets[i];
+      for (const [semantic, accessor] of target) {
+        const compositionType = accessor.compositionType;
+        const accessorNew: Accessor = gpuVertexBufferView.takeAccessor({
           compositionType,
           componentType: accessor.componentType,
           count: indices.length,
@@ -717,9 +725,12 @@ export class Primitive extends RnObject {
             accessorNew.setScalar(j, scalar, {});
           }
         }
-        this.__targets[i].set(semantic, accessorNew);
-      });
+        target.set(semantic, accessorNew);
+      }
+      targets.push(target);
     }
+
+    this.setBlendShapeTargets(targets);
 
     this.removeIndices();
   }
