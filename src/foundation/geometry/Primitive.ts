@@ -523,14 +523,17 @@ export class Primitive extends RnObject {
 
   setVertexAttribute(accessor: Accessor, vertexSemantic: VertexAttributeSemanticsJoinedString) {
     this.__attributes.set(vertexSemantic, accessor);
+    this.calcFingerPrint();
   }
 
   removeIndices() {
     this.__oIndices = new None();
+    this.calcFingerPrint();
   }
 
   setIndices(accessor: Accessor) {
     this.__oIndices = new Some(accessor);
+    this.calcFingerPrint();
   }
 
   setBlendShapeTargets(targets: Array<Attributes>) {
@@ -607,6 +610,118 @@ export class Primitive extends RnObject {
 
   get vertexHandles() {
     return this.__vertexHandles;
+  }
+
+  convertToUnindexedGeometry() {
+    const indexAccessor = this.indicesAccessor;
+    if (indexAccessor == null) {
+      return;
+    }
+
+    const indices = indexAccessor.getTypedArray();
+
+    let bufferSize = 0;
+    for (let i = 0; i < this.attributeAccessors.length; i++) {
+      const accessor = this.attributeAccessors[i];
+      const compositionType = accessor.compositionType;
+      let compositionN = 0;
+      if (compositionType.index === CompositionType.Vec4.index) {
+        compositionN = 4;
+      } else if (compositionType.index === CompositionType.Vec3.index) {
+        compositionN = 3;
+      } else if (compositionType.index === CompositionType.Vec2.index) {
+        compositionN = 2;
+      } else if (compositionType.index === CompositionType.Scalar.index) {
+        compositionN = 1;
+      }
+      bufferSize += indices.length * compositionN * 4 /* bytes */;
+    }
+
+    for (let i = 0; i < this.__targets.length; i++) {
+      const target = this.__targets[i];
+      target.forEach((accessor, semantic) => {
+        const compositionType = accessor.compositionType;
+        let compositionN = 0;
+        if (compositionType.index === CompositionType.Vec4.index) {
+          compositionN = 4;
+        } else if (compositionType.index === CompositionType.Vec3.index) {
+          compositionN = 3;
+        } else if (compositionType.index === CompositionType.Vec2.index) {
+          compositionN = 2;
+        } else if (compositionType.index === CompositionType.Scalar.index) {
+          compositionN = 1;
+        }
+        bufferSize += indices.length * compositionN * 4 /* bytes */;
+      });
+    }
+
+    const buffer = MemoryManager.getInstance().createBufferOnDemand(bufferSize, this, 4 /* bytes */);
+    const bufferView = buffer.takeBufferView({
+      byteLengthToNeed: bufferSize,
+      byteStride: 0,
+    }).unwrapForce();
+
+    // for (let i = 0; i < this.att.length; i++) {
+    for (const [semantic, accessorOld] of this.__attributes) {
+      const compositionType = accessorOld.compositionType;
+
+      const accessorNew: Accessor = bufferView.takeAccessor({
+        compositionType,
+        componentType: accessorOld.componentType,
+        count: indices.length,
+      }).unwrapForce();
+
+      for (let i = 0; i < indices.length; i++) {
+        const idx = indices[i];
+        if (compositionType.index === CompositionType.Vec4.index) {
+          const vec4 = accessorOld.getVec4(idx, {});
+          accessorNew.setVec4(i, vec4.x, vec4.y, vec4.z, vec4.w, {});
+        } else if (compositionType.index === CompositionType.Vec3.index) {
+          const vec3 = accessorOld.getVec3(idx, {});
+          accessorNew.setVec3(i, vec3.x, vec3.y, vec3.z, {});
+        } else if (compositionType.index === CompositionType.Vec2.index) {
+          const vec2 = accessorOld.getVec2(idx, {});
+          accessorNew.setVec2(i, vec2.x, vec2.y, {});
+        } else if (compositionType.index === CompositionType.Scalar.index) {
+          const scalar = accessorOld.getScalar(idx, {});
+          accessorNew.setScalar(i, scalar, {});
+        }
+      }
+
+      this.setVertexAttribute(accessorNew, semantic);
+    }
+
+    for (let i = 0; i < this.__targets.length; i++) {
+      const target = this.__targets[i];
+      target.forEach((accessor, semantic) => {
+        const compositionType = accessor.compositionType;
+        const accessorNew: Accessor = bufferView.takeAccessor({
+          compositionType,
+          componentType: accessor.componentType,
+          count: indices.length,
+        }).unwrapForce();
+
+        for (let j = 0; j < indices.length; j++) {
+          const idx = indices[j];
+          if (compositionType.index === CompositionType.Vec4.index) {
+            const vec4 = accessor.getVec4(idx, {});
+            accessorNew.setVec4(j, vec4.x, vec4.y, vec4.z, vec4.w, {});
+          } else if (compositionType.index === CompositionType.Vec3.index) {
+            const vec3 = accessor.getVec3(idx, {});
+            accessorNew.setVec3(j, vec3.x, vec3.y, vec3.z, {});
+          } else if (compositionType.index === CompositionType.Vec2.index) {
+            const vec2 = accessor.getVec2(idx, {});
+            accessorNew.setVec2(j, vec2.x, vec2.y, {});
+          } else if (compositionType.index === CompositionType.Scalar.index) {
+            const scalar = accessor.getScalar(idx, {});
+            accessorNew.setScalar(j, scalar, {});
+          }
+        }
+        this.__targets[i].set(semantic, accessorNew);
+      });
+    }
+
+    this.removeIndices();
   }
 
   castRay(

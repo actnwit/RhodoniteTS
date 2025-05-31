@@ -270,6 +270,9 @@ export class MeshComponent extends Component {
 
   calcBaryCentricCoord() {
     if (this.__mesh != null) {
+      for (const primitive of this.__mesh.primitives) {
+        primitive.convertToUnindexedGeometry();
+      }
       this.__mesh._calcBaryCentricCoord();
     }
     this.__update3DAPIVertexData();

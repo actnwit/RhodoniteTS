@@ -136,6 +136,10 @@ export class Material extends RnObject {
     return this.__shaderDefines;
   }
 
+  isShaderDefine(define: string): boolean {
+    return this.__shaderDefines.has(define);
+  }
+
   calcFingerPrint() {
     let str = '';
     str += this.alphaMode.index;
