@@ -12,3 +12,4 @@ export * from './glTF2ForOutput';
 export * from './RnM2';
 export * from './RnM2Vrma';
 export * from './ShaderNodeJson';
+export * from './KHR_interactivity';
