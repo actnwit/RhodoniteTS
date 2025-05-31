@@ -57,7 +57,7 @@ fn main (
 /* shaderity: @{alphaProcess} */
 
   // Lighting
-  var shadingColor = vec3f(0.0, 0.0, 0.0);
+  var rt0 = vec4f(0.0, 0.0, 0.0, alpha);
 #ifdef RN_IS_LIGHTING
   let shadingModel = get_shadingModel(materialSID, 0);
   if (shadingModel > 0) {
@@ -92,12 +92,12 @@ fn main (
 
     }
 
-    shadingColor = diffuse + specular;
+    rt0 = vec4f(diffuse + specular, rt0.a);
   } else {
-    shadingColor = diffuseColor;
+    rt0 = vec4f(diffuseColor, rt0.a);
   }
 #else
-  shadingColor = diffuseColor;
+  rt0 = vec4f(diffuseColor, rt0.a);
 #endif
 
   // Shadow
@@ -119,10 +119,10 @@ fn main (
 //   alpha = 1.0;
 // #endif
 
-  var finalColor = vec4f(shadingColor * alpha, alpha);
+  rt0 = vec4f(rt0.rgb * rt0.a, rt0.a);
   // rt0 = vec4(u_lightNumber, 0.0, 0.0, 1.0);
   // rt0 = vec4(1.0, 0.0, 0.0, 1.0);
   // rt0 = vec4(normal_inWorld*0.5+0.5, 1.0);
 
-  return finalColor;
+  return rt0;
 }

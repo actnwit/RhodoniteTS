@@ -1,2 +1,2 @@
 let makeOutputSrgb = get_makeOutputSrgb(materialSID, 0);
-resultColor = select(resultColor.rgb, linearToSrgb(resultColor.rgb), makeOutputSrgb);
+rt0 = vec4f(select(rt0.rgb, linearToSrgb(rt0.rgb), makeOutputSrgb), rt0.a);
