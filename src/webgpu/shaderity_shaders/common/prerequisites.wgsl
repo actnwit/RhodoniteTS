@@ -362,6 +362,19 @@ fn linearToSrgb(linearColor: vec3f) -> vec3f {
   return pow(linearColor, vec3f(1.0/2.2));
 }
 
+#if defined(RN_USE_WIREFRAME) && defined(RN_IS_PIXEL_SHADER)
+fn edge_ratio(bary3: vec3f, wireframeWidthInner: f32, wireframeWidthRelativeScale: f32) -> f32 {
+  let d: vec3f = fwidth(bary3);
+  let x: vec3f = bary3 + vec3f(1.0 - wireframeWidthInner) * d;
+  let a3: vec3f = smoothstep(vec3f(0.0), d, x);
+  let factor = min(min(a3.x, a3.y), a3.z);
+
+  return clamp((1.0 - factor), 0.0, 1.0);
+}
+#endif // defined(RN_USE_WIREFRAME) && defined(RN_IS_PIXEL_SHADER)
+
+
+
 var<private> a_instanceIds: vec4<f32> = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 
 #ifdef RN_USE_POSITION_FLOAT

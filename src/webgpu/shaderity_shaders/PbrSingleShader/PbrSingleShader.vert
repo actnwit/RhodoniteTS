@@ -92,5 +92,9 @@ fn main(
     output.position = vec4f(0.0, 0.0, 0.0, 1.0);
   }
 
+#ifdef RN_USE_BARY_CENTRIC_COORD
+  output.baryCentricCoord = baryCentricCoord.xyz;
+#endif
+
   return output;
 }

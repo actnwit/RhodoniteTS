@@ -401,3 +401,15 @@ vec3 linearToSrgb(vec3 linearColor) {
 float linearToSrgb(float value) {
   return pow(value, 1.0/2.2);
 }
+
+#if defined(RN_USE_WIREFRAME) && defined(RN_IS_PIXEL_SHADER)
+float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
+  vec3 d = fwidth(bary3);
+  vec3 x = bary3+vec3(1.0 - wireframeWidthInner)*d;
+  vec3 a3 = smoothstep(vec3(0.0), d, x);
+  float factor = min(min(a3.x, a3.y), a3.z);
+
+  return clamp((1.0 - factor), 0.0, 1.0);
+}
+#endif // defined(RN_USE_WIREFRAME) && defined(RN_IS_PIXEL_SHADER)
+

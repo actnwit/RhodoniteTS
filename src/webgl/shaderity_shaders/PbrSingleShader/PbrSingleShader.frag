@@ -8,12 +8,13 @@
 
 /* shaderity: @{prerequisites} */
 
+uniform vec3 u_wireframe; // initialValue=(0,0,1)
+
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(0,white)
 uniform float u_metallicFactor; // initialValue=1
 uniform float u_roughnessFactor; // initialValue=1
 uniform sampler2D u_metallicRoughnessTexture; // initialValue=(1,white)
-uniform vec3 u_wireframe; // initialValue=(0,0,1)
 uniform bool u_isOutputHDR; // initialValue=0
 uniform bool u_makeOutputSrgb; // initialValue=1
 uniform vec4 u_iblParameter; // initialValue=(1,1,1,1), isInternalSetting=true
@@ -181,15 +182,6 @@ uniform float u_alphaCutoff; // initialValue=(0.01)
 
 /* shaderity: @{pbrDefinition} */
 /* shaderity: @{iblDefinition} */
-
-float edge_ratio(vec3 bary3, float wireframeWidthInner, float wireframeWidthRelativeScale) {
-  vec3 d = fwidth(bary3);
-  vec3 x = bary3+vec3(1.0 - wireframeWidthInner)*d;
-  vec3 a3 = smoothstep(vec3(0.0), d, x);
-  float factor = min(min(a3.x, a3.y), a3.z);
-
-  return clamp((1.0 - factor), 0.0, 1.0);
-}
 
 vec2 getTexcoord(int texcoordIndex) {
   vec2 texcoord;
