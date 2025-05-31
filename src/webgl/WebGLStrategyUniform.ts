@@ -388,7 +388,7 @@ bool get_isBillboard(float instanceId) {
       if (!renderPass.depthWriteMask) {
         gl.depthMask(false);
       }
-      for (let i = 0; i <= renderPass._lastOpaqueIndex; i++) {
+      for (let i = renderPass._lastOpaqueIndex; i >= 0; i--) { // Drawing from the nearest object
         const primitiveUid = primitiveUids[i];
         const rendered = this.renderInner(primitiveUid, glw, renderPass, renderPassTickCount);
         renderedSomething ||= rendered;
