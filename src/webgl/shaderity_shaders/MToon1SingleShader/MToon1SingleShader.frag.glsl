@@ -20,6 +20,8 @@ in vec3 v_normal_inView;
 
 /* shaderity: @{iblDefinition} */
 
+uniform vec3 u_wireframe; // initialValue=(0,0,1)
+
 uniform vec4 u_baseColorFactor; // initialValue=(1,1,1,1)
 uniform sampler2D u_baseColorTexture; // initialValue=(1,white)
 uniform int u_baseColorTexcoordIndex; // initialValue=0
@@ -254,6 +256,8 @@ void main() {
   float outlineLightingMixFactor = get_outlineLightingMixFactor(materialSID, 0);
   rt0.xyz = outlineColorFactor * mix(vec3(1.0), rt0.xyz, outlineLightingMixFactor);
 #endif
+
+  /* shaderity: @{wireframe} */
 
   /* shaderity: @{outputSrgb} */
 
