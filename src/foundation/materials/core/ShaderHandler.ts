@@ -162,7 +162,22 @@ export function _createProgramAsSingleOperationWebGL(
   isWebGL2: boolean
 ): [CGAPIResourceHandle, boolean] {
   const vertexAttributeDefines = defineAttributes(primitive);
-  const cacheQuery = material.__materialTypeName + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint();
+  const materialNode = material._materialContent;
+  let definitions = materialNode.getDefinitions();
+  const shaderDefines = material.getShaderDefines();
+  for (const shaderDefine of shaderDefines) {
+    definitions += `#define ${shaderDefine}\n`;
+  }
+  definitions += vertexAttributeDefines;
+
+  let alphaMode = '';
+  if (material.isBlend()) {
+    alphaMode += '#define RN_IS_ALPHA_MODE_BLEND\n';
+  }
+  if (material.isMask()) {
+    alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
+  }
+  const cacheQuery = material.__materialTypeName + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint() + definitions + alphaMode;
 
   let shaderProgramUid = __shaderStringMap.get(cacheQuery);
   if (shaderProgramUid) {
@@ -174,26 +189,12 @@ export function _createProgramAsSingleOperationWebGL(
     isWebGL2
   );
   const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
-  const materialNode = material._materialContent;
-
-  let definitions = materialNode.getDefinitions();
-  const shaderDefines = material.getShaderDefines();
-  for (const shaderDefine of shaderDefines) {
-    definitions += `#define ${shaderDefine}\n`;
-  }
-  definitions += vertexAttributeDefines;
 
   // Shader Code Construction
   let vertexShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   vertexShader += '#define RN_IS_VERTEX_SHADER\n';
   let pixelShader = _setupGlobalShaderDefinitionWebGL(material.__materialTypeName, primitive);
   pixelShader += '#define RN_IS_PIXEL_SHADER\n';
-  if (material.isBlend()) {
-    pixelShader += '#define RN_IS_ALPHA_MODE_BLEND\n';
-  }
-  if (material.isMask()) {
-    pixelShader += '#define RN_IS_ALPHA_MODE_MASK\n';
-  }
 
   const vertexShaderityObject = ShaderityUtilityWebGL.fillTemplate(
     materialNode.vertexShaderityObject!,
@@ -221,7 +222,7 @@ export function _createProgramAsSingleOperationWebGL(
       vertexIn: vertexInGlsl.code,
       renderTargetBegin: webglResourceRepository.getGlslRenderTargetBeginString(4),
       getters: pixelPropertiesStr,
-      definitions: definitions,
+      definitions: definitions + alphaMode,
       prerequisites: prerequisitesGlsl.code,
       mainPrerequisites: mainPrerequisitesGlsl.code,
       matricesGetters: vertexShaderMethodDefinitions_uniform,
@@ -312,16 +313,7 @@ export function _createProgramAsSingleOperationWebGpu(
   propertySetter: getShaderPropertyFunc
 ) {
   const vertexAttributeDefines = defineAttributes(primitive);
-  const cacheQuery = material.__materialTypeName + material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint();
-
-  let shaderProgramUid = __shaderStringMap.get(cacheQuery);
-  if (shaderProgramUid) {
-    return shaderProgramUid;
-  }
-  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetter, true);
-
   const materialNode = material._materialContent;
-
   let definitions = `// Material Type: ${material.materialTypeName}\n`;
   definitions += materialNode.getDefinitions();
   const shaderDefines = material.getShaderDefines();
@@ -329,6 +321,20 @@ export function _createProgramAsSingleOperationWebGpu(
     definitions += `#define ${shaderDefine}\n`;
   }
   definitions += vertexAttributeDefines;
+  let alphaMode = '';
+  if (material.isBlend()) {
+    alphaMode += '#define RN_IS_ALPHA_MODE_BLEND\n';
+  }
+  if (material.isMask()) {
+    alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
+  }
+  const cacheQuery = material._materialContent.getMaterialSemanticsVariantName() + vertexAttributeDefines + material._getFingerPrint() + definitions + alphaMode;
+
+  let shaderProgramUid = __shaderStringMap.get(cacheQuery);
+  if (shaderProgramUid) {
+    return shaderProgramUid;
+  }
+  const { vertexPropertiesStr, pixelPropertiesStr } = material._getProperties(propertySetter, true);
 
   if (Config.boneDataType === BoneDataType.Mat43x1) {
     definitions += '#define RN_BONE_DATA_TYPE_Mat43x1\n';
@@ -357,13 +363,6 @@ export function _createProgramAsSingleOperationWebGpu(
     }
   );
 
-  let alphaMode = '';
-  if (material.isBlend()) {
-    alphaMode += '#define RN_IS_ALPHA_MODE_BLEND\n';
-  }
-  if (material.isMask()) {
-    alphaMode += '#define RN_IS_ALPHA_MODE_MASK\n';
-  }
 
   const pixelShaderityObject = ShaderityUtilityWebGPU.fillTemplate(
     materialNode.pixelShaderityObject!,
