@@ -1185,6 +1185,7 @@ export class ModelConverter {
         );
         typedArray[index * componentNValues + j] = value;
       }
+      rnAccessor.setTypedArray(typedArray);
     }
   }
 
