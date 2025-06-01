@@ -355,14 +355,6 @@ export class Primitive extends RnObject {
     this.calcFingerPrint();
   }
 
-  /**
-   * Gets the maximum number of primitives allowed
-   * @returns The maximum primitive count
-   */
-  static get maxPrimitiveCount() {
-    return 500;
-  }
-
   copyVertexData({
     attributes,
     attributeSemantics,
