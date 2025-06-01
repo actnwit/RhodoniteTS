@@ -99,6 +99,10 @@ export class Primitive extends RnObject {
     this._prevMaterial = new WeakRef(Primitive.__defaultMaterial);
   }
 
+  /**
+   * Calculates a fingerprint string for the primitive based on its properties
+   * including mode, indices, targets, and attributes.
+   */
   calcFingerPrint() {
     let str = '';
     str += this.__mode.index;
@@ -116,18 +120,37 @@ export class Primitive extends RnObject {
     this.__fingerPrint = str;
   }
 
+  /**
+   * Gets the fingerprint string of the primitive
+   * @returns The fingerprint string
+   */
   _getFingerPrint() {
     return this.__fingerPrint;
   }
 
+  /**
+   * Gets the index of a primitive with morph targets by its UID
+   * @param primitiveUid The UID of the primitive
+   * @returns The index if found, otherwise undefined
+   */
   static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
     return this.__primitiveUidIdxHasMorph.get(primitiveUid);
   }
 
+  /**
+   * Gets a primitive with morph targets by its index
+   * @param primitiveIdx The index of the primitive
+   * @returns The primitive if found, otherwise undefined
+   */
   static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined {
     return this.__idxPrimitiveUidHasMorph.get(primitiveIdx)?.deref();
   }
 
+  /**
+   * Gets the bit size of indices ('uint16' or 'uint32')
+   * @returns The index bit size
+   * @throws Error if index accessor is null or has unknown type
+   */
   getIndexBitSize(): 'uint16' | 'uint32' {
     const indexAccessor = this.__oIndices.unwrapOrUndefined();
     if (indexAccessor == null) {
@@ -145,19 +168,36 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the vertex handles associated with this primitive.
+   * @returns The vertex handles if they exist, otherwise undefined.
+   */
   get _vertexHandles() {
     return this.__vertexHandles;
   }
 
+  /**
+   * Gets the current count of material variant updates.
+   * @returns The number of material variant updates.
+   */
   static get variantUpdateCount() {
     return this.__variantUpdateCount;
   }
 
+  /**
+   * Sets a material variant for this primitive.
+   * @param variantName The name of the variant.
+   * @param material The material to associate with the variant.
+   */
   setMaterialVariant(variantName: string, material: Material) {
     this.__materialVariants.set(variantName, material);
     Primitive.__variantUpdateCount++;
   }
 
+  /**
+   * Applies a material variant by its name.
+   * @param variantName The name of the variant to apply.
+   */
   applyMaterialVariant(variantName: string) {
     const variant = this.__materialVariants.get(variantName);
     if (variant) {
@@ -167,6 +207,10 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the name of the currently applied material variant.
+   * @returns The name of the current variant, or an empty string if none is applied.
+   */
   getCurrentVariantName() {
     for (const [name, material] of this.__materialVariants) {
       if (material === this.__material) {
@@ -176,14 +220,27 @@ export class Primitive extends RnObject {
     return '';
   }
 
+  /**
+   * Gets all variant names associated with this primitive.
+   * @returns An array of variant names.
+   */
   getVariantNames() {
     return Array.from(this.__materialVariants.keys());
   }
 
+  /**
+   * Gets the material for a specific variant.
+   * @param variantName The name of the variant.
+   * @returns The material associated with the variant, or undefined if not found.
+   */
   getVariantMaterial(variantName: string) {
     return this.__materialVariants.get(variantName);
   }
 
+  /**
+   * Sets the material for this primitive and updates the sort key.
+   * @param mat The material to set.
+   */
   set material(mat: Material) {
     this.__material = mat;
     this.setSortKey(
@@ -210,10 +267,20 @@ export class Primitive extends RnObject {
     mat._addBelongPrimitive(this);
   }
 
+  /**
+   * Gets the current material of this primitive.
+   * @returns The material.
+   */
   get material() {
     return this.__material;
   }
 
+  /**
+   * Updates the sort key by setting a specific bit range.
+   * @param offset The bit offset to start writing.
+   * @param length The number of bits to write.
+   * @param value The value to write.
+   */
   setSortKey(offset: PrimitiveSortKeyOffset, length: PrimitiveSortKeyLength, value: number) {
     const offsetValue = value << offset;
     this._sortkey |= offsetValue;
@@ -227,22 +294,31 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * belong to mesh (weak reference)
-   * @param mesh
+   * Associates this primitive with a mesh.
+   * @param mesh The mesh to associate with.
    */
   _belongToMesh(mesh: Mesh) {
-    // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
     this.__mesh = mesh;
   }
 
+  /**
+   * Gets the mesh associated with this primitive.
+   * @returns The mesh if it exists, otherwise undefined.
+   */
   get mesh(): IMesh | undefined {
     return this.__mesh;
   }
 
+  /**
+   * Backs up the current material of this primitive.
+   */
   _backupMaterial() {
     this._prevMaterial = new WeakRef(this.__material);
   }
 
+  /**
+   * Restores the previously backed-up material.
+   */
   _restoreMaterial() {
     const material = this._prevMaterial.deref();
     if (material != null) {
@@ -250,14 +326,27 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the primitive by its UID.
+   * @param primitiveUid The UID of the primitive.
+   * @returns The primitive if found, otherwise undefined.
+   */
   static getPrimitive(primitiveUid: PrimitiveUID) {
     return this.__primitives[primitiveUid]?.deref();
   }
 
+  /**
+   * Gets the total count of primitives.
+   * @returns The number of primitives.
+   */
   static getPrimitiveCount() {
     return this.__primitiveCount;
   }
 
+  /**
+   * Notifies the primitive that an accessor has been updated.
+   * @param accessorVersion The version of the updated accessor.
+   */
   onAccessorUpdated(accessorVersion: number) {
     this.__positionAccessorVersion = accessorVersion;
     if (this.__mesh != null) {
@@ -265,6 +354,13 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Sets the data for this primitive, including attributes, mode, material, and indices.
+   * @param attributes The vertex attributes.
+   * @param mode The primitive mode.
+   * @param material The material to use (optional).
+   * @param indicesAccessor The indices accessor (optional).
+   */
   setData(
     attributes: Attributes,
     mode: PrimitiveModeEnum,
@@ -301,10 +397,10 @@ export class Primitive extends RnObject {
     this.calcFingerPrint();
   }
 
-  static get maxPrimitiveCount() {
-    return 500;
-  }
-
+  /**
+   * Copies vertex data from a descriptor to this primitive.
+   * @param desc The descriptor containing vertex data.
+   */
   copyVertexData({
     attributes,
     attributeSemantics,
@@ -389,6 +485,11 @@ export class Primitive extends RnObject {
     this.setData(attributeMap, primitiveMode, material, indicesAccessor);
   }
 
+  /**
+   * Creates a new primitive from a descriptor
+   * @param desc The primitive descriptor
+   * @returns The created primitive
+   */
   static createPrimitive(desc: PrimitiveDescriptor) {
     const primitive = new Primitive();
     primitive.copyVertexData(desc);
@@ -565,6 +666,10 @@ export class Primitive extends RnObject {
     return this.__targets;
   }
 
+  /**
+   * Checks if the primitive is using blend mode
+   * @returns True if using blend mode, false otherwise
+   */
   isBlend() {
     if (this.material == null || !this.material.isBlend()) {
       return false;
@@ -897,6 +1002,15 @@ export class Primitive extends RnObject {
     };
   }
 
+  /**
+   * Calculates the normal vector from UV coordinates
+   * @param pos0IndexBase Index of first position
+   * @param pos1IndexBase Index of second position
+   * @param pos2IndexBase Index of third position
+   * @param u U coordinate
+   * @param v V coordinate
+   * @returns The calculated normal vector
+   */
   private __calcNormalFromUV(
     pos0IndexBase: Index,
     pos1IndexBase: Index,
