@@ -99,6 +99,10 @@ export class Primitive extends RnObject {
     this._prevMaterial = new WeakRef(Primitive.__defaultMaterial);
   }
 
+  /**
+   * Calculates a fingerprint string for the primitive based on its properties
+   * including mode, indices, targets, and attributes.
+   */
   calcFingerPrint() {
     let str = '';
     str += this.__mode.index;
@@ -116,18 +120,37 @@ export class Primitive extends RnObject {
     this.__fingerPrint = str;
   }
 
+  /**
+   * Gets the fingerprint string of the primitive
+   * @returns The fingerprint string
+   */
   _getFingerPrint() {
     return this.__fingerPrint;
   }
 
+  /**
+   * Gets the index of a primitive with morph targets by its UID
+   * @param primitiveUid The UID of the primitive
+   * @returns The index if found, otherwise undefined
+   */
   static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
     return this.__primitiveUidIdxHasMorph.get(primitiveUid);
   }
 
+  /**
+   * Gets a primitive with morph targets by its index
+   * @param primitiveIdx The index of the primitive
+   * @returns The primitive if found, otherwise undefined
+   */
   static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined {
     return this.__idxPrimitiveUidHasMorph.get(primitiveIdx)?.deref();
   }
 
+  /**
+   * Gets the bit size of indices ('uint16' or 'uint32')
+   * @returns The index bit size
+   * @throws Error if index accessor is null or has unknown type
+   */
   getIndexBitSize(): 'uint16' | 'uint32' {
     const indexAccessor = this.__oIndices.unwrapOrUndefined();
     if (indexAccessor == null) {
@@ -153,11 +176,20 @@ export class Primitive extends RnObject {
     return this.__variantUpdateCount;
   }
 
+  /**
+   * Sets a material variant for this primitive
+   * @param variantName The name of the variant
+   * @param material The material to set
+   */
   setMaterialVariant(variantName: string, material: Material) {
     this.__materialVariants.set(variantName, material);
     Primitive.__variantUpdateCount++;
   }
 
+  /**
+   * Applies a material variant by name
+   * @param variantName The name of the variant to apply
+   */
   applyMaterialVariant(variantName: string) {
     const variant = this.__materialVariants.get(variantName);
     if (variant) {
@@ -167,6 +199,10 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the name of the current material variant
+   * @returns The variant name if found, otherwise empty string
+   */
   getCurrentVariantName() {
     for (const [name, material] of this.__materialVariants) {
       if (material === this.__material) {
@@ -176,10 +212,19 @@ export class Primitive extends RnObject {
     return '';
   }
 
+  /**
+   * Gets all variant names for this primitive
+   * @returns Array of variant names
+   */
   getVariantNames() {
     return Array.from(this.__materialVariants.keys());
   }
 
+  /**
+   * Gets the material for a specific variant
+   * @param variantName The name of the variant
+   * @returns The material if found, otherwise undefined
+   */
   getVariantMaterial(variantName: string) {
     return this.__materialVariants.get(variantName);
   }
@@ -250,10 +295,19 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the primitive by its UID
+   * @param primitiveUid The UID of the primitive
+   * @returns The primitive if found, otherwise undefined
+   */
   static getPrimitive(primitiveUid: PrimitiveUID) {
     return this.__primitives[primitiveUid]?.deref();
   }
 
+  /**
+   * Gets the total count of primitives
+   * @returns The primitive count
+   */
   static getPrimitiveCount() {
     return this.__primitiveCount;
   }
@@ -301,6 +355,10 @@ export class Primitive extends RnObject {
     this.calcFingerPrint();
   }
 
+  /**
+   * Gets the maximum number of primitives allowed
+   * @returns The maximum primitive count
+   */
   static get maxPrimitiveCount() {
     return 500;
   }
@@ -389,6 +447,11 @@ export class Primitive extends RnObject {
     this.setData(attributeMap, primitiveMode, material, indicesAccessor);
   }
 
+  /**
+   * Creates a new primitive from a descriptor
+   * @param desc The primitive descriptor
+   * @returns The created primitive
+   */
   static createPrimitive(desc: PrimitiveDescriptor) {
     const primitive = new Primitive();
     primitive.copyVertexData(desc);
@@ -565,6 +628,10 @@ export class Primitive extends RnObject {
     return this.__targets;
   }
 
+  /**
+   * Checks if the primitive is using blend mode
+   * @returns True if using blend mode, false otherwise
+   */
   isBlend() {
     if (this.material == null || !this.material.isBlend()) {
       return false;
@@ -897,6 +964,15 @@ export class Primitive extends RnObject {
     };
   }
 
+  /**
+   * Calculates the normal vector from UV coordinates
+   * @param pos0IndexBase Index of first position
+   * @param pos1IndexBase Index of second position
+   * @param pos2IndexBase Index of third position
+   * @param u U coordinate
+   * @param v V coordinate
+   * @returns The calculated normal vector
+   */
   private __calcNormalFromUV(
     pos0IndexBase: Index,
     pos1IndexBase: Index,
