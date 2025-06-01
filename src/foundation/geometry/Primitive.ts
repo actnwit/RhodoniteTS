@@ -168,18 +168,26 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the vertex handles associated with this primitive.
+   * @returns The vertex handles if they exist, otherwise undefined.
+   */
   get _vertexHandles() {
     return this.__vertexHandles;
   }
 
+  /**
+   * Gets the current count of material variant updates.
+   * @returns The number of material variant updates.
+   */
   static get variantUpdateCount() {
     return this.__variantUpdateCount;
   }
 
   /**
-   * Sets a material variant for this primitive
-   * @param variantName The name of the variant
-   * @param material The material to set
+   * Sets a material variant for this primitive.
+   * @param variantName The name of the variant.
+   * @param material The material to associate with the variant.
    */
   setMaterialVariant(variantName: string, material: Material) {
     this.__materialVariants.set(variantName, material);
@@ -187,8 +195,8 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Applies a material variant by name
-   * @param variantName The name of the variant to apply
+   * Applies a material variant by its name.
+   * @param variantName The name of the variant to apply.
    */
   applyMaterialVariant(variantName: string) {
     const variant = this.__materialVariants.get(variantName);
@@ -200,8 +208,8 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets the name of the current material variant
-   * @returns The variant name if found, otherwise empty string
+   * Gets the name of the currently applied material variant.
+   * @returns The name of the current variant, or an empty string if none is applied.
    */
   getCurrentVariantName() {
     for (const [name, material] of this.__materialVariants) {
@@ -213,22 +221,26 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets all variant names for this primitive
-   * @returns Array of variant names
+   * Gets all variant names associated with this primitive.
+   * @returns An array of variant names.
    */
   getVariantNames() {
     return Array.from(this.__materialVariants.keys());
   }
 
   /**
-   * Gets the material for a specific variant
-   * @param variantName The name of the variant
-   * @returns The material if found, otherwise undefined
+   * Gets the material for a specific variant.
+   * @param variantName The name of the variant.
+   * @returns The material associated with the variant, or undefined if not found.
    */
   getVariantMaterial(variantName: string) {
     return this.__materialVariants.get(variantName);
   }
 
+  /**
+   * Sets the material for this primitive and updates the sort key.
+   * @param mat The material to set.
+   */
   set material(mat: Material) {
     this.__material = mat;
     this.setSortKey(
@@ -255,10 +267,20 @@ export class Primitive extends RnObject {
     mat._addBelongPrimitive(this);
   }
 
+  /**
+   * Gets the current material of this primitive.
+   * @returns The material.
+   */
   get material() {
     return this.__material;
   }
 
+  /**
+   * Updates the sort key by setting a specific bit range.
+   * @param offset The bit offset to start writing.
+   * @param length The number of bits to write.
+   * @param value The value to write.
+   */
   setSortKey(offset: PrimitiveSortKeyOffset, length: PrimitiveSortKeyLength, value: number) {
     const offsetValue = value << offset;
     this._sortkey |= offsetValue;
@@ -272,22 +294,31 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * belong to mesh (weak reference)
-   * @param mesh
+   * Associates this primitive with a mesh.
+   * @param mesh The mesh to associate with.
    */
   _belongToMesh(mesh: Mesh) {
-    // this.setSortKey(PrimitiveSortKey_BitOffset_Mesh, mesh.meshUID);
     this.__mesh = mesh;
   }
 
+  /**
+   * Gets the mesh associated with this primitive.
+   * @returns The mesh if it exists, otherwise undefined.
+   */
   get mesh(): IMesh | undefined {
     return this.__mesh;
   }
 
+  /**
+   * Backs up the current material of this primitive.
+   */
   _backupMaterial() {
     this._prevMaterial = new WeakRef(this.__material);
   }
 
+  /**
+   * Restores the previously backed-up material.
+   */
   _restoreMaterial() {
     const material = this._prevMaterial.deref();
     if (material != null) {
@@ -296,22 +327,26 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets the primitive by its UID
-   * @param primitiveUid The UID of the primitive
-   * @returns The primitive if found, otherwise undefined
+   * Gets the primitive by its UID.
+   * @param primitiveUid The UID of the primitive.
+   * @returns The primitive if found, otherwise undefined.
    */
   static getPrimitive(primitiveUid: PrimitiveUID) {
     return this.__primitives[primitiveUid]?.deref();
   }
 
   /**
-   * Gets the total count of primitives
-   * @returns The primitive count
+   * Gets the total count of primitives.
+   * @returns The number of primitives.
    */
   static getPrimitiveCount() {
     return this.__primitiveCount;
   }
 
+  /**
+   * Notifies the primitive that an accessor has been updated.
+   * @param accessorVersion The version of the updated accessor.
+   */
   onAccessorUpdated(accessorVersion: number) {
     this.__positionAccessorVersion = accessorVersion;
     if (this.__mesh != null) {
@@ -319,6 +354,13 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Sets the data for this primitive, including attributes, mode, material, and indices.
+   * @param attributes The vertex attributes.
+   * @param mode The primitive mode.
+   * @param material The material to use (optional).
+   * @param indicesAccessor The indices accessor (optional).
+   */
   setData(
     attributes: Attributes,
     mode: PrimitiveModeEnum,
@@ -355,6 +397,10 @@ export class Primitive extends RnObject {
     this.calcFingerPrint();
   }
 
+  /**
+   * Copies vertex data from a descriptor to this primitive.
+   * @param desc The descriptor containing vertex data.
+   */
   copyVertexData({
     attributes,
     attributeSemantics,
