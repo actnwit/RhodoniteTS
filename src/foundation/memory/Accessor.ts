@@ -42,7 +42,7 @@ export class Accessor {
   private __count: Count = 0;
   private __raw: ArrayBuffer;
   private __dataView?: DataView;
-  private __typedArray: TypedArray;
+  private __typedArray: TypedArray = new Float32Array(); // init with a dummy Float32Array at first
   private __takenCount: Count = 0;
   private __byteStride: Byte = 0; // Accessor has the byteStride. BufferView doesn't. For supporting glTF1, not only glTF2
   private __typedArrayClass?: TypedArrayConstructor;
@@ -185,8 +185,7 @@ export class Accessor {
       Logger.warn(`This Accessor's byteOffsetInRawArrayBufferOfBuffer is not aligned with the typedArrayClass's BYTES_PER_ELEMENT. So we need to copy the buffer.
 So the typedArray data got by getTypedArray() is copied data, not reference to the original buffer.
 `);
-      const copyBuffer = this.__raw.slice(this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteOffsetInRawArrayBufferOfBuffer + this.__compositionType.getNumberOfComponents() * this.__count * typedArrayClass!.BYTES_PER_ELEMENT);
-      this.__typedArray = new typedArrayClass!(copyBuffer);
+      this.__copyBufferDataToTypedArray();
     }
     this.__dataViewGetter = (this.__dataView as any)[
       this.getDataViewGetter(this.__componentType)!
@@ -194,6 +193,12 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     this.__dataViewSetter = (this.__dataView as any)[
       this.getDataViewSetter(this.__componentType)!
     ].bind(this.__dataView);
+  }
+
+  private __copyBufferDataToTypedArray() {
+    const typedArrayClass = this.getTypedArrayClass(this.__componentType);
+    const copyBuffer = this.__raw.slice(this.__byteOffsetInRawArrayBufferOfBuffer, this.__byteOffsetInRawArrayBufferOfBuffer + this.__compositionType.getNumberOfComponents() * this.__count * typedArrayClass!.BYTES_PER_ELEMENT);
+    this.__typedArray = new typedArrayClass!(copyBuffer);
   }
 
   private __onUpdated() {
@@ -368,6 +373,40 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     //   );
     // }
     return this.__typedArray;
+  }
+
+  setTypedArray(typedArray: TypedArray) {
+    if (typedArray.buffer === this.__raw) {
+    } else {
+      if (this.__compositionType === CompositionType.Scalar) {
+        for (let i = 0; i < this.__count; i++) {
+          this.setScalar(i, typedArray[i], { endian: true });
+        }
+      } else if (this.__compositionType === CompositionType.Vec2) {
+        for (let i = 0; i < this.__count; i++) {
+          this.setVec2(i, typedArray[i * 2], typedArray[i * 2 + 1], { endian: true });
+        }
+      } else if (this.__compositionType === CompositionType.Vec3) {
+        for (let i = 0; i < this.__count; i++) {
+          this.setVec3(i, typedArray[i * 3], typedArray[i * 3 + 1], typedArray[i * 3 + 2], { endian: true });
+        }
+      } else if (this.__compositionType === CompositionType.Vec4) {
+        for (let i = 0; i < this.__count; i++) {
+          this.setVec4(i, typedArray[i * 4], typedArray[i * 4 + 1], typedArray[i * 4 + 2], typedArray[i * 4 + 3], { endian: true });
+        }
+      } else if (this.__compositionType === CompositionType.Mat3) {
+        for (let i = 0; i < this.__count; i++) {
+          this.setMat3(i, typedArray[i * 9], typedArray[i * 9 + 1], typedArray[i * 9 + 2], typedArray[i * 9 + 3], typedArray[i * 9 + 4], typedArray[i * 9 + 5], typedArray[i * 9 + 6], typedArray[i * 9 + 7], typedArray[i * 9 + 8], { endian: true });
+        }
+      } else if (this.__compositionType === CompositionType.Mat4) {
+        for (let i = 0; i < this.__count; i++) {
+          this.setMat4(i, typedArray[i * 16], typedArray[i * 16 + 1], typedArray[i * 16 + 2], typedArray[i * 16 + 3], typedArray[i * 16 + 4], typedArray[i * 16 + 5], typedArray[i * 16 + 6], typedArray[i * 16 + 7], typedArray[i * 16 + 8], typedArray[i * 16 + 9], typedArray[i * 16 + 10], typedArray[i * 16 + 11], typedArray[i * 16 + 12], typedArray[i * 16 + 13], typedArray[i * 16 + 14], typedArray[i * 16 + 15], { endian: true });
+        }
+      } else {
+        throw new Error('Unexpected CompositionType!');
+      }
+      this.__copyBufferDataToTypedArray();
+    }
   }
 
   getUint8Array(): Uint8Array {
@@ -757,6 +796,37 @@ So the typedArray data got by getTypedArray() is copied data, not reference to t
     this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, y, endian);
     this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, z, endian);
     this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, w, endian);
+    this.__isMinMixDirty = true;
+    this.__onUpdated();
+  }
+
+  setMat3(
+    i: Index,
+    v0: number,
+    v1: number,
+    v2: number,
+    v3: number,
+    v4: number,
+    v5: number,
+    v6: number,
+    v7: number,
+    v8: number,
+    { indicesAccessor, endian = true }: IndicesAccessOption
+  ) {
+    let index = i;
+    if (indicesAccessor) {
+      index = indicesAccessor.getScalar(i, {});
+    }
+    const sizeInBytes = this.componentSizeInBytes;
+    this.__dataViewSetter(this.__byteStride * index, v0, endian);
+    this.__dataViewSetter(this.__byteStride * index + 1 * sizeInBytes, v1, endian);
+    this.__dataViewSetter(this.__byteStride * index + 2 * sizeInBytes, v2, endian);
+    this.__dataViewSetter(this.__byteStride * index + 3 * sizeInBytes, v3, endian);
+    this.__dataViewSetter(this.__byteStride * index + 4 * sizeInBytes, v4, endian);
+    this.__dataViewSetter(this.__byteStride * index + 5 * sizeInBytes, v5, endian);
+    this.__dataViewSetter(this.__byteStride * index + 6 * sizeInBytes, v6, endian);
+    this.__dataViewSetter(this.__byteStride * index + 7 * sizeInBytes, v7, endian);
+    this.__dataViewSetter(this.__byteStride * index + 8 * sizeInBytes, v8, endian);
     this.__isMinMixDirty = true;
     this.__onUpdated();
   }
