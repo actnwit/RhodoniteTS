@@ -1352,6 +1352,10 @@ export class SceneGraphComponent extends Component {
         super(entityUID, isAlive, components);
       }
 
+      /**
+       * Gets the scene graph component for this entity.
+       * @returns The scene graph component instance
+       */
       getSceneGraph(): SceneGraphComponent {
         if (this.__sceneGraphComponent === undefined) {
           this.__sceneGraphComponent = this.getComponentByComponentTID(
@@ -1361,77 +1365,144 @@ export class SceneGraphComponent extends Component {
         return this.__sceneGraphComponent;
       }
 
+      /**
+       * Gets the parent scene graph component of this entity.
+       * @returns The parent scene graph component, or undefined if this is a root entity
+       */
       get parent(): SceneGraphComponent | undefined {
         return this.getSceneGraph().parent;
       }
 
+      /**
+       * Gets the world transformation matrix of this entity.
+       * @returns The world transformation matrix
+       */
       get matrix(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.matrix;
       }
+
+      /**
+       * Gets the internal mutable world transformation matrix of this entity.
+       * @returns The internal world transformation matrix
+       */
       get matrixInner(): IMatrix44 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.matrixInner;
       }
 
+      /**
+       * Gets the world position of this entity.
+       * @returns The world position vector
+       */
       get position(): MutableVector3 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.position;
       }
 
+      /**
+       * Sets the world position of this entity.
+       * @param vec - The new world position vector
+       */
       set position(vec: IVector3) {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.position = vec;
       }
 
+      /**
+       * Gets the rest pose world position of this entity.
+       * @returns The rest pose world position vector
+       */
       get positionRest(): MutableVector3 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.positionRest;
       }
 
+      /**
+       * Gets the world scale of this entity.
+       * @returns The world scale vector
+       */
       get scale(): MutableVector3 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.scale;
       }
 
+      /**
+       * Sets the world scale of this entity.
+       * @param vec - The new world scale vector
+       */
       set scale(vec: IVector3) {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.scale = vec;
       }
 
+      /**
+       * Gets the world euler angles of this entity.
+       * @returns The world euler angles vector
+       */
       get eulerAngles(): Vector3 {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.eulerAngles;
       }
 
+      /**
+       * Sets the world euler angles of this entity.
+       * @param vec - The new world euler angles vector
+       */
       set eulerAngles(vec: IVector3) {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.eulerAngles = vec;
       }
 
+      /**
+       * Gets the world rotation quaternion of this entity.
+       * @returns The world rotation quaternion
+       */
       get rotation(): Quaternion {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.rotation;
       }
 
+      /**
+       * Sets the world rotation quaternion of this entity.
+       * @param quat - The new world rotation quaternion
+       */
       set rotation(quat: IQuaternion) {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.rotation = quat;
       }
 
+      /**
+       * Gets the rest pose world rotation quaternion of this entity.
+       * @returns The rest pose world rotation quaternion
+       */
       get rotationRest(): Quaternion {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.rotationRest;
       }
 
+      /**
+       * Adds a child scene graph component to this entity.
+       * @param sg - The scene graph component to add as a child
+       */
       addChild(sg: SceneGraphComponent): void {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.addChild(sg);
       }
+
+      /**
+       * Gets all child scene graph components of this entity.
+       * @returns An array of child scene graph components
+       */
       get children(): SceneGraphComponent[] {
         const sceneGraph = this.getSceneGraph();
         return sceneGraph.children;
       }
+
+      /**
+       * Removes a child scene graph component from this entity.
+       * @param sg - The scene graph component to remove from children
+       */
       removeChild(sg: SceneGraphComponent): void {
         const sceneGraph = this.getSceneGraph();
         sceneGraph.removeChild(sg);
