@@ -2,6 +2,9 @@ import { MeshComponent, Primitive } from '../../../import';
 import { MeshUID } from '../../../types/CommonTypes';
 import { IVector3 } from '../../math/IVector';
 
+/**
+ * Result of a basic raycast operation against geometry.
+ */
 export interface RaycastResult {
   result: boolean;
   data?: {
@@ -11,6 +14,9 @@ export interface RaycastResult {
   };
 }
 
+/**
+ * Extended raycast result that includes the intersection position in world space.
+ */
 export interface RaycastResultEx1 {
   result: boolean;
   data?: {
@@ -21,6 +27,9 @@ export interface RaycastResultEx1 {
   };
 }
 
+/**
+ * Extended raycast result that includes the intersection position and the selected mesh component.
+ */
 export interface RaycastResultEx2 {
   result: boolean;
   data?: {
@@ -33,9 +42,11 @@ export interface RaycastResultEx2 {
 }
 
 /**
+ * Primitive sort key used for depth sorting and rendering order optimization.
+ *
  * See: http://realtimecollisiondetection.net/blog/?p=86
  *
- * Bit Field
+ * Bit Field Layout:
  * --- 0
  *  3 bits: Primitive Type (0: POINTS, 1: LINES, 2: LINE_LOOP, 3: LINE_STRIP, 4: TRIANGLES, 5: TRIANGLE_STRIP, 6: TRIANGLE_FAN)
  * 10 bits: Material TID
@@ -45,7 +56,7 @@ export interface RaycastResultEx2 {
  *  2 bits: Fullscreen layer
  * --- 31
  *
- * Depth Field
+ * Depth Field:
  * 32 bits: Depth
  */
 export type PrimitiveSortKey = number;
@@ -73,6 +84,9 @@ export type PrimitiveSortKeyOffset =
 
 export const PrimitiveSortKey_BitLength_Depth = 32;
 
+/**
+ * Interface representing a mesh with a unique identifier.
+ */
 export interface IMesh {
   meshUID: MeshUID;
 }
@@ -80,6 +94,14 @@ export interface IMesh {
 // export function isTranslucent(primitive: Primitive) {
 //   return primitive._sortkey & 0b00000000_00000000_00000000_00000001;
 // }
+
+/**
+ * Reads bits from a primitive's sort key at the specified offset with the given length.
+ * @param primitive - The primitive to read bits from
+ * @param offset - The bit offset to start reading from
+ * @param length - The number of bits to read
+ * @returns The extracted bits as a number
+ */
 function readBits(
   primitive: Primitive,
   offset: PrimitiveSortKeyOffset,
@@ -96,6 +118,11 @@ function readBits(
 //   return (primitive._sortkey >> translucencyBitOffset) & 1;
 // }
 
+/**
+ * Checks if the primitive uses blending (either with or without Z-write).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive uses blending, false otherwise
+ */
 export function isBlend(primitive: Primitive) {
   const bit = readBits(
     primitive,
@@ -107,6 +134,11 @@ export function isBlend(primitive: Primitive) {
   );
 }
 
+/**
+ * Checks if the primitive uses blending with Z-write enabled.
+ * @param primitive - The primitive to check
+ * @returns True if the primitive uses blending with Z-write, false otherwise
+ */
 export function isBlendWithZWrite(primitive: Primitive) {
   const bit = readBits(
     primitive,
@@ -116,6 +148,11 @@ export function isBlendWithZWrite(primitive: Primitive) {
   return bit === 2; // blend with ZWrite
 }
 
+/**
+ * Checks if the primitive uses blending without Z-write (depth writing disabled).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive uses blending without Z-write, false otherwise
+ */
 export function isBlendWithoutZWrite(primitive: Primitive) {
   const bit = readBits(
     primitive,
@@ -125,6 +162,11 @@ export function isBlendWithoutZWrite(primitive: Primitive) {
   return bit === 3; // blend without ZWrite
 }
 
+/**
+ * Checks if the primitive is translucent (partially transparent).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive is translucent, false otherwise
+ */
 export function isTranslucent(primitive: Primitive) {
   return (
     readBits(
@@ -135,6 +177,11 @@ export function isTranslucent(primitive: Primitive) {
   );
 }
 
+/**
+ * Checks if the primitive is opaque (fully solid, not transparent).
+ * @param primitive - The primitive to check
+ * @returns True if the primitive is opaque, false otherwise
+ */
 export function isOpaque(primitive: Primitive) {
   return (
     readBits(
