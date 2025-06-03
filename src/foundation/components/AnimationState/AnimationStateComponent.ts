@@ -10,7 +10,7 @@ import { WellKnownComponentTIDs } from '../WellKnownComponentTIDs';
 
 /**
  * AnimationStateComponent is a component that manages the state of an animation.
- *
+ * It handles animation blending, track transitions, and provides control over animation playback parameters.
  */
 export class AnimationStateComponent extends Component {
   private __activeAnimationTrack: AnimationTrackName = '';
@@ -19,6 +19,13 @@ export class AnimationStateComponent extends Component {
   private __isBlending = false;
   private __blendingRatio = 0.0;
 
+  /**
+   * Creates a new AnimationStateComponent instance.
+   * @param entityUid - The unique identifier of the entity this component belongs to
+   * @param componentSid - The system identifier for this component instance
+   * @param entityComponent - The entity repository for component management
+   * @param isReUse - Whether this component is being reused from a pool
+   */
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -30,22 +37,42 @@ export class AnimationStateComponent extends Component {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  /**
+   * Gets the component type identifier for AnimationStateComponent.
+   * @returns The component type ID for AnimationStateComponent
+   */
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.AnimationStateComponentTID;
   }
 
+  /**
+   * Gets the component type identifier for this component instance.
+   * @returns The component type ID for AnimationStateComponent
+   */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.AnimationStateComponentTID;
   }
 
+  /**
+   * Checks if animation blending is currently active.
+   * @returns True if animation blending is in progress, false otherwise
+   */
   get isBlending() {
     return this.__isBlending;
   }
 
+  /**
+   * Gets the current blending ratio between animations.
+   * @returns The blending ratio value between 0.0 and 1.0
+   */
   get blendingRatio() {
     return this.__blendingRatio;
   }
 
+  /**
+   * Logic update method called every frame during the Logic process stage.
+   * Handles animation blending calculations and updates the blending ratio over time.
+   */
   $logic() {
     if (!this.__isBlending) {
       return;
@@ -60,6 +87,11 @@ export class AnimationStateComponent extends Component {
     this.__blendingRatio = ratio;
   }
 
+  /**
+   * Sets the first active animation track without blending.
+   * This is typically used for initial animation setup.
+   * @param trackName - The name of the animation track to activate
+   */
   setFirstActiveAnimationTrack(trackName: AnimationTrackName) {
     this.__activeAnimationTrack = trackName;
     this.setActiveAnimationTrack(trackName);
@@ -67,6 +99,12 @@ export class AnimationStateComponent extends Component {
     this.__isBlending = false;
   }
 
+  /**
+   * Forces a transition to a new animation track with blending over a specified duration.
+   * The previous track will blend out while the new track blends in.
+   * @param trackName - The name of the animation track to transition to
+   * @param duration - The duration of the blending transition in seconds
+   */
   forceTransitionTo(trackName: AnimationTrackName, duration: number) {
     const prevTrack = this.__activeAnimationTrack;
 
@@ -79,6 +117,10 @@ export class AnimationStateComponent extends Component {
     this.__isBlending = true;
   }
 
+  /**
+   * Sets the active animation track for this entity and all its children recursively.
+   * @param animationTrackName - The name of the animation track to set as active
+   */
   setActiveAnimationTrack(animationTrackName: AnimationTrackName) {
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
@@ -92,6 +134,11 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  /**
+   * Sets the second active animation track for blending purposes.
+   * This track is used as the target during animation transitions.
+   * @param animationTrackName - The name of the animation track to set as the second active track
+   */
   setSecondActiveAnimationTrack(animationTrackName: AnimationTrackName) {
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
@@ -105,6 +152,11 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  /**
+   * Sets whether animations should use global time for synchronization.
+   * Applies the setting recursively to this entity and all its children.
+   * @param flg - True to use global time, false to use local time
+   */
   setUseGlobalTime(flg: boolean) {
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
@@ -118,6 +170,11 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  /**
+   * Sets whether animations should loop when they reach the end.
+   * Applies the setting recursively to this entity and all its children.
+   * @param flg - True to enable looping, false to disable looping
+   */
   setIsLoop(flg: boolean) {
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
@@ -131,6 +188,11 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  /**
+   * Sets the current playback time for animations.
+   * Applies the time setting recursively to this entity and all its children.
+   * @param time - The time value to set for animation playback
+   */
   setTime(time: number) {
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
@@ -144,6 +206,11 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  /**
+   * Sets the blending ratio between the first and second active animation tracks.
+   * Applies the ratio recursively to this entity and all its children.
+   * @param ratio - The blending ratio value between 0.0 (first track) and 1.0 (second track)
+   */
   setAnimationBlendingRatio(ratio: number) {
     function processRecursively(entity: ISceneGraphEntity) {
       const anim = entity.tryToGetAnimation();
@@ -157,23 +224,31 @@ export class AnimationStateComponent extends Component {
     processRecursively(this.entity);
   }
 
+  /**
+   * Destroys the component and cleans up resources.
+   * @override
+   */
   _destroy(): void {
     super._destroy();
   }
 
   /**
-   * get the entity which has this component.
-   * @returns the entity which has this component
+   * Gets the entity that owns this component.
+   * @returns The entity which has this component as an IAnimationStateEntity
    */
   get entity(): IAnimationStateEntity {
     return EntityRepository.getEntity(this.__entityUid) as unknown as IAnimationStateEntity;
   }
 
   /**
+   * Adds this component to an entity by extending the entity with AnimationState-specific methods.
+   * This method uses mixins to add the getAnimationState() method to the target entity.
    * @override
-   * Add this component to the entity
-   * @param base the target entity
-   * @param _componentClass the component class to add
+   * @template EntityBase - The base entity type
+   * @template SomeComponentClass - The component class type
+   * @param base - The target entity to extend
+   * @param _componentClass - The component class to add (unused in this implementation)
+   * @returns The extended entity with AnimationState component methods
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,
