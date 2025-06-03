@@ -9,14 +9,16 @@ import { Is } from '../misc/Is';
 import { Gizmo } from './Gizmo';
 
 /**
- * Locator Gizmo class
+ * Locator Gizmo class that provides visual coordinate axes for 3D objects.
+ * Displays X (red), Y (green), and Z (blue) axis lines to help visualize object orientation and position.
  */
 export class LocatorGizmo extends Gizmo {
   private static __mesh: Mesh;
   private static __length = 1;
+
   /**
-   * Constructor
-   * @param target the object which this gizmo belong to
+   * Creates a new LocatorGizmo instance.
+   * @param target - The mesh entity that this gizmo will be attached to
    */
   constructor(target: IMeshEntity) {
     super(target);
@@ -28,6 +30,10 @@ export class LocatorGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Gets whether the gizmo has been properly set up and initialized.
+   * @returns True if the gizmo is set up, false otherwise
+   */
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
@@ -36,10 +42,18 @@ export class LocatorGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Sets the length of the axis lines displayed by the gizmo.
+   * @param val - The length value for the axis lines
+   */
   set length(val: number) {
     LocatorGizmo.__length = val;
   }
 
+  /**
+   * Gets the current length of the axis lines displayed by the gizmo.
+   * @returns The current axis line length
+   */
   get length(): number {
     return LocatorGizmo.__length;
   }
@@ -51,8 +65,9 @@ export class LocatorGizmo extends Gizmo {
   ///
 
   /**
+   * Sets up the gizmo entities and mesh if not already done.
+   * Creates the coordinate axis visualization with colored lines representing X, Y, and Z axes.
    * @internal
-   * setup entities of Gizmo if not done yet
    */
   _setup(): void {
     if (this.__toSkipSetup()) {
@@ -73,8 +88,9 @@ export class LocatorGizmo extends Gizmo {
   }
 
   /**
+   * Updates the gizmo's transform properties to match the target object.
+   * Positions the gizmo at the target's center point and scales it based on the target's bounding box.
    * @internal
-   * update the transform and etc of the gizmo
    */
   _update(): void {
     if (this.__topEntity == null) {
@@ -100,6 +116,11 @@ export class LocatorGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Generates the primitive geometry for the coordinate axes visualization.
+   * Creates three colored lines: red for X-axis, green for Y-axis, and blue for Z-axis.
+   * @returns The primitive object containing the axis line geometry and colors
+   */
   private static __generatePrimitive(): Primitive {
     const positions = new Float32Array([
       // X axis
@@ -147,6 +168,10 @@ export class LocatorGizmo extends Gizmo {
     return primitive;
   }
 
+  /**
+   * Destroys the gizmo and cleans up its resources.
+   * Removes the gizmo entity and frees associated memory.
+   */
   _destroy(): void {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();

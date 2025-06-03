@@ -35,6 +35,9 @@ declare let window: any;
 
 /**
  * Translation Gizmo class
+ * Provides an interactive 3D translation gizmo for manipulating object positions in 3D space.
+ * The gizmo displays colored axes (red for X, green for Y, blue for Z) that can be dragged
+ * to translate objects along specific axes or planes.
  */
 export class TranslationGizmo extends Gizmo {
   private static __groupEntity: ISceneGraphEntity;
@@ -77,8 +80,8 @@ export class TranslationGizmo extends Gizmo {
 
   private static __length = 1;
   /**
-   * Constructor
-   * @param target the object which this gizmo belong to
+   * Creates a new TranslationGizmo instance.
+   * @param target - The mesh entity that this gizmo will control
    */
   constructor(target: IMeshEntity) {
     super(target);
@@ -90,6 +93,10 @@ export class TranslationGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Indicates whether the gizmo has been properly set up and initialized.
+   * @returns True if the gizmo is set up and ready to use, false otherwise
+   */
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
@@ -98,14 +105,28 @@ export class TranslationGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Sets the length/scale of the gizmo axes.
+   * @param val - The length value for the gizmo axes
+   */
   set length(val: number) {
     TranslationGizmo.__length = val;
   }
 
+  /**
+   * Gets the current length/scale of the gizmo axes.
+   * @returns The current length value of the gizmo axes
+   */
   get length(): number {
     return TranslationGizmo.__length;
   }
 
+  /**
+   * Sets the visibility of the gizmo and manages input event registration.
+   * When set to visible, registers pointer event handlers and adds the gizmo to the scene.
+   * When set to invisible, unregisters events and resets gizmo state.
+   * @param flg - True to show the gizmo, false to hide it
+   */
   set isVisible(flg: boolean) {
     if (this.__isVisible === false && flg === true) {
       let eventTargetDom = window;
@@ -178,6 +199,10 @@ export class TranslationGizmo extends Gizmo {
     TranslationGizmo.__zxPlaneEntity.getSceneGraph().isVisible = false;
   }
 
+  /**
+   * Sets the coordinate space for gizmo operations.
+   * @param space - Either 'local' for object-relative coordinates or 'world' for global coordinates
+   */
   setSpace(space: 'local' | 'world') {
     TranslationGizmo.__space = space;
     if (this.__isVisible) {
@@ -186,6 +211,10 @@ export class TranslationGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Gets the current visibility state of the gizmo.
+   * @returns True if the gizmo is currently visible, false otherwise
+   */
   get isVisible(): boolean {
     return this.__isVisible;
   }
@@ -197,8 +226,10 @@ export class TranslationGizmo extends Gizmo {
   ///
 
   /**
+   * Sets up the gizmo entities and geometry if not already initialized.
+   * Creates the visual components (cubes for axes, planes for multi-axis movement)
+   * and configures their materials, positioning, and hierarchy.
    * @internal
-   * setup entities of Gizmo if not done yet
    */
   _setup(): void {
     if (this.__toSkipSetup()) {
@@ -395,8 +426,10 @@ export class TranslationGizmo extends Gizmo {
   }
 
   /**
+   * Updates the gizmo's transform and visual state each frame.
+   * Positions the gizmo at the target's location, scales it appropriately,
+   * and applies any ongoing translation operations.
    * @internal
-   * update the transform and etc of the gizmo
    */
   _update(): void {
     if (this.__topEntity == null) {
@@ -429,6 +462,11 @@ export class TranslationGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Generates a primitive for line-based gizmo visualization.
+   * Creates geometry for X, Y, and Z axis lines with appropriate colors.
+   * @returns A primitive containing the line geometry for the gizmo axes
+   */
   private static __generatePrimitive(): Primitive {
     const positions = new Float32Array([
       // X axis
@@ -476,6 +514,12 @@ export class TranslationGizmo extends Gizmo {
     return primitive;
   }
 
+  /**
+   * Handles pointer down events for starting gizmo interaction.
+   * Determines which axis was clicked, sets up the initial state for dragging,
+   * and configures the coordinate space transformation matrices.
+   * @param evt - The pointer event containing click information
+   */
   private __onPointerDown(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = true;
@@ -531,6 +575,12 @@ export class TranslationGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Handles pointer move events during gizmo interaction.
+   * Calculates the translation delta based on mouse movement and the active axis,
+   * performs coordinate space transformations, and updates the target object's position.
+   * @param evt - The pointer event containing movement information
+   */
   private __onPointerMove(evt: PointerEvent) {
     evt.preventDefault();
     if (Is.false(this.__isPointerDown)) {
@@ -646,6 +696,12 @@ export class TranslationGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Handles pointer up events to end gizmo interaction.
+   * Resets the gizmo state, re-enables camera controls, and finalizes
+   * the translation operation.
+   * @param evt - The pointer event containing release information
+   */
   private __onPointerUp(evt: PointerEvent) {
     evt.preventDefault();
     this.__isPointerDown = false;
@@ -657,6 +713,12 @@ export class TranslationGizmo extends Gizmo {
     }
   }
 
+  /**
+   * Performs ray casting against the entire gizmo group entity.
+   * Used for general intersection testing with the gizmo.
+   * @param evt - The pointer event to cast a ray from
+   * @returns Ray casting result containing intersection information
+   */
   private static castRay2(evt: PointerEvent) {
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
@@ -674,6 +736,13 @@ export class TranslationGizmo extends Gizmo {
     return result;
   }
 
+  /**
+   * Performs ray casting against individual gizmo axis entities.
+   * Tests intersection with X, Y, and Z axis cubes separately to determine
+   * which axis was clicked for translation.
+   * @param evt - The pointer event to cast a ray from
+   * @returns Object containing ray casting results for each axis (xResult, yResult, zResult)
+   */
   private static castRay(evt: PointerEvent) {
     const rect = (evt.target as HTMLElement).getBoundingClientRect();
     const width = (evt.target as HTMLElement).clientWidth;
@@ -697,6 +766,11 @@ export class TranslationGizmo extends Gizmo {
     return { xResult, yResult, zResult };
   }
 
+  /**
+   * Destroys the gizmo and cleans up its resources.
+   * Removes the gizmo from the scene and frees associated memory.
+   * @internal
+   */
   _destroy(): void {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();

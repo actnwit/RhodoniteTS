@@ -9,14 +9,15 @@ import { Is } from '../misc/Is';
 import { createMeshEntity } from '../components/MeshRenderer/createMeshEntity';
 
 /**
- * AABB Gizmo class
+ * AABB Gizmo class that visualizes the Axis-Aligned Bounding Box of a target entity.
+ * This gizmo renders a wireframe box around the target entity showing its spatial boundaries.
  */
 export class AABBGizmo extends Gizmo {
   private static __mesh?: Mesh;
 
   /**
-   * Constructor
-   * @param target the object which this gizmo belong to
+   * Creates a new AABB Gizmo instance.
+   * @param target - The scene graph entity that this gizmo will visualize the AABB for
    */
   constructor(target: ISceneGraphEntity) {
     super(target);
@@ -28,6 +29,10 @@ export class AABBGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Checks if the gizmo has been properly set up and initialized.
+   * @returns True if the gizmo is set up and ready to render, false otherwise
+   */
   get isSetup() {
     if (this.__topEntity != null) {
       return true;
@@ -43,8 +48,10 @@ export class AABBGizmo extends Gizmo {
   ///
 
   /**
+   * Initializes the gizmo entities and mesh components if not already done.
+   * Creates the wireframe mesh entity, sets up the primitive geometry,
+   * and attaches it to the target entity's scene graph.
    * @internal
-   * setup entities of Gizmo if not done yet
    */
   _setup(): void {
     if (this.__toSkipSetup()) {
@@ -67,8 +74,11 @@ export class AABBGizmo extends Gizmo {
   }
 
   /**
-   * generate the primitive of the gizmo
-   * @returns a primitive of the gizmo
+   * Generates the wireframe primitive geometry for the AABB visualization.
+   * Creates a unit cube with line primitives that form the edges of the bounding box.
+   * The cube vertices are arranged from -1 to +1 in each axis and will be scaled
+   * appropriately during rendering.
+   * @returns A primitive object containing the wireframe geometry for the AABB
    */
   private static generatePrimitive() {
     const indices = new Uint32Array([
@@ -147,8 +157,10 @@ export class AABBGizmo extends Gizmo {
   }
 
   /**
+   * Updates the gizmo's transform to match the target entity's current AABB.
+   * Repositions and rescales the wireframe to accurately represent the target's
+   * world-space bounding box including skeletal deformations.
    * @internal
-   * update the transform and etc of the gizmo
    */
   _update(): void {
     if (this.__topEntity == null) {
@@ -164,6 +176,11 @@ export class AABBGizmo extends Gizmo {
     ]);
   }
 
+  /**
+   * Destroys the gizmo and cleans up all associated resources.
+   * Removes the gizmo entity from the scene graph and frees memory.
+   * @internal
+   */
   _destroy(): void {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();

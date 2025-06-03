@@ -13,8 +13,8 @@ export class LightGizmo extends Gizmo {
   private static __length = 1;
 
   /**
-   * Constructor
-   * @param target the object which this gizmo belong to
+   * Creates a new LightGizmo instance for visualizing light entities in the scene.
+   * @param target - The scene graph entity that this gizmo will be attached to and represent visually
    */
   constructor(target: ISceneGraphEntity) {
     super(target);
@@ -26,6 +26,10 @@ export class LightGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Checks whether the gizmo has been properly initialized and set up.
+   * @returns True if the gizmo's top entity exists and setup is complete, false otherwise
+   */
   get isSetup(): boolean {
     if (this.__topEntity != null) {
       return true;
@@ -41,8 +45,9 @@ export class LightGizmo extends Gizmo {
   ///
 
   /**
+   * Initializes the gizmo entities and visual representation if not already done.
+   * Creates a mesh entity with a light gizmo primitive and attaches it to the target entity.
    * @internal
-   * setup entities of Gizmo if not done yet
    */
   _setup(): void {
     if (this.__toSkipSetup()) {
@@ -63,8 +68,10 @@ export class LightGizmo extends Gizmo {
   }
 
   /**
+   * Updates the transform properties (position, rotation, scale) of the gizmo to match the target entity.
+   * The gizmo's position is set to either the target's position or the center of its bounding box,
+   * and its scale is adjusted based on the target's bounding box size.
    * @internal
-   * update the transform and etc of the gizmo
    */
   _update(): void {
     if (this.__topEntity == null) {
@@ -87,6 +94,11 @@ export class LightGizmo extends Gizmo {
     ]);
   }
 
+  /**
+   * Destroys the gizmo and cleans up its resources.
+   * Removes the top entity and all associated components from the scene.
+   * @internal
+   */
   _destroy(): void {
     if (Is.exist(this.__topEntity)) {
       this.__topEntity._destroy();
@@ -99,6 +111,13 @@ export class LightGizmo extends Gizmo {
   ///
   ///
 
+  /**
+   * Generates the primitive geometry for the light gizmo visualization.
+   * Creates a line-based representation showing a directional arrow pointing in the negative Z direction,
+   * which is commonly used to represent light direction in 3D graphics.
+   * @returns A primitive object containing the line geometry for the light gizmo
+   * @private
+   */
   private static __generatePrimitive(): Primitive {
     const positions = new Float32Array([
       // Z axis
