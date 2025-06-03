@@ -27,6 +27,8 @@ type MemberInfo = {
 
 /**
  * Component is a functional unit that can be added to an Entity instance.
+ * This is the base class for all components in the ECS (Entity-Component-System) architecture.
+ * Components provide specific functionality and data to entities.
  */
 export class Component extends RnObject {
   private _component_sid: number;
@@ -64,11 +66,13 @@ export class Component extends RnObject {
 
   /**
    * The constructor of the Component class.
-   * When creating an Component, use the createComponent method of the ComponentRepository class
+   * When creating a Component, use the createComponent method of the ComponentRepository class
    * instead of directly calling this constructor.
-   * @param entityUid Unique ID of the corresponding entity
-   * @param componentSid Scoped ID of the Component
-   * @param entityRepository The instance of the EntityRepository class (Dependency Injection)
+   *
+   * @param entityUid - Unique ID of the corresponding entity
+   * @param componentSid - Scoped ID of the Component
+   * @param entityRepository - The instance of the EntityRepository class (Dependency Injection)
+   * @param isReUse - Whether this component is being reused from a pool
    */
   constructor(
     entityUid: EntityUID,
@@ -88,8 +92,10 @@ export class Component extends RnObject {
   }
 
   /**
-   * Move to the other stages of process
-   * @param processStage stage of component's process
+   * Transitions the component to a different process stage.
+   * This affects which update methods will be called during the frame processing.
+   *
+   * @param processStage - The target stage to move to
    */
   moveStageTo(processStage: ProcessStageEnum) {
     // Component.__dirtyOfArrayOfProcessStages.set(this.__currentProcessStage, false);
@@ -98,59 +104,81 @@ export class Component extends RnObject {
   }
 
   /**
+   * Sets the maximum number of components of this type that can exist.
+   * This method is intended to be called by component classes only.
+   *
    * @internal
-   * set the Max number of components
-   * this method is called by the ***Component classes only
+   * @param value - The maximum number of components
    */
   _setMaxNumberOfComponent(value: number) {
     this.__maxComponentNumber = value;
   }
 
   /**
-   * Get the max number of components
+   * Gets the maximum number of components of this type that can exist.
+   *
+   * @returns The maximum number of components
    */
   get maxNumberOfComponent() {
     return this.__maxComponentNumber;
   }
 
   /**
-   * Get the Type ID of the Component
+   * Gets the Type ID of the Component class.
+   * This is overridden by concrete component classes to provide unique type identification.
+   *
+   * @returns The component type ID (default: 0)
    */
   static get componentTID() {
     return 0;
   }
 
   /**
-   * Get the Type ID of the Component
+   * Gets the Type ID of this Component instance.
+   * This is overridden by concrete component classes to provide unique type identification.
+   *
+   * @returns The component type ID (default: 0)
    */
   get componentTID() {
     return 0;
   }
 
   /**
-   * Get the Scoped ID of the Component
+   * Gets the Scoped ID of this Component instance.
+   * The SID is unique within the component type and represents the instance index.
+   *
+   * @returns The component scoped ID
    */
   get componentSID() {
     return this._component_sid;
   }
 
   /**
-   * Get the unique ID of the entity corresponding to the component.
+   * Gets the unique ID of the entity that owns this component.
+   *
+   * @returns The entity unique ID
    */
   get entityUID() {
     return this.__entityUid;
   }
 
   /**
-   * Get the current process stage of the component.
+   * Gets the current process stage of the component.
+   * This determines which update methods are currently being called.
+   *
+   * @returns The current process stage
    */
   get currentProcessStage() {
     return this.__currentProcessStage;
   }
 
   /**
-   * Get true or false whether the specified ProcessStage exists in Component.
-   * @returns true or false
+   * Checks whether the specified ProcessStage method exists in the given Component class.
+   * This is used to determine if a component can handle a particular process stage.
+   *
+   * @param componentType - The component class to check
+   * @param processStage - The process stage to check for
+   * @returns True if the method exists, false otherwise
    */
   static doesTheProcessStageMethodExist(
     componentType: typeof Component,
@@ -164,7 +192,11 @@ export class Component extends RnObject {
   }
 
   /**
-   * Get true or false whether the specified ProcessStage exists in Component.
+   * Checks whether the specified ProcessStage method exists in this Component instance.
+   * This is used to determine if this component can handle a particular process stage.
+   *
+   * @param processStage - The process stage to check for
+   * @returns True if the method exists, false otherwise
    */
   isExistProcessStageMethod(processStage: ProcessStageEnum) {
     if ((this as any)[processStage.methodName] == null) {
@@ -175,8 +207,12 @@ export class Component extends RnObject {
   }
 
   /**
-   * Process the components
-   * @param param0 params
+   * Processes all components of a given type for a specific process stage.
+   * This method iterates through all components of the specified type and calls
+   * their corresponding process stage method if they are in that stage.
+   *
+   * @param componentType - The component class to process
+   * @param processStage - The process stage to execute
    */
   static process(componentType: typeof Component, processStage: ProcessStageEnum) {
     if (!Component.doesTheProcessStageMethodExist(componentType, processStage)) {
@@ -192,6 +228,17 @@ export class Component extends RnObject {
       }
     }
   }
+
+  /**
+   * Updates components specifically for the render stage with render pass context.
+   * This method calls the sort_$render method of the component class to handle
+   * render-specific processing and sorting.
+   *
+   * @param componentClass - The component class to update
+   * @param processStage - The render process stage
+   * @param renderPass - The current render pass context
+   * @returns The result of the sort_$render method
+   */
   static updateComponentsForRenderStage(
     componentClass: typeof Component,
     processStage: ProcessStageEnum,
@@ -202,7 +249,12 @@ export class Component extends RnObject {
   }
 
   /**
-   * get byte length of sum of member fields in the component class
+   * Gets the total byte length of all member fields for a specific buffer use type
+   * in the given component class.
+   *
+   * @param bufferUse - The buffer use type
+   * @param componentClass - The component class
+   * @returns The total byte length of members
    */
   static getByteLengthSumOfMembers(bufferUse: BufferUseEnum, componentClass: Function) {
     const byteLengthSumOfMembers = this.__byteLengthSumOfMembers.get(componentClass)!;
@@ -210,41 +262,25 @@ export class Component extends RnObject {
   }
 
   /**
-   * register a dependency for the other components.
-   * Note: This method is not used yet
+   * Registers a dependency relationship with another component.
+   * This method is intended for future use in managing component dependencies.
+   *
+   * @param component - The component to depend on
+   * @param isMust - Whether this dependency is required
+   * @todo This method is not used yet and needs implementation
    */
   registerDependency(component: Component, isMust: boolean) {}
 
-  // /**
-  //  * take a buffer view from the buffer.
-  //  */
-  // static takeBufferView(
-  //   bufferUse: BufferUseEnum,
-  //   componentClass: Function,
-  //   byteLengthSumOfMembers: Byte,
-  //   count: Count
-  // ) {
-  //   const buffer = MemoryManager.getInstance().createOrGetBuffer(bufferUse);
-
-  //   if (!this.__bufferViews.has(componentClass)) {
-  //     this.__bufferViews.set(componentClass, new Map());
-  //   }
-
-  //   const bufferViews = this.__bufferViews.get(componentClass)!;
-  //   if (!bufferViews.has(bufferUse)) {
-  //     const bufferView = buffer.takeBufferView({
-  //       byteLengthToNeed: byteLengthSumOfMembers * count,
-  //       byteStride: 0,
-  //     }).unwrapForce();
-  //     bufferViews.set(bufferUse, bufferView);
-  //     return bufferView;
-  //   }
-
-  //   return void 0;
-  // }
-
   /**
-   * take one memory area for the specified member for all same type of the component instances.
+   * Allocates memory for a specific member field of this component instance.
+   * This method takes one memory slot from the shared memory pool for the specified member.
+   *
+   * @param memberName - The name of the member field
+   * @param dataClassType - The data class type for the member
+   * @param initValues - Initial values to set for the member
+   * @param isReUse - Whether to reuse an existing memory slot
+   * @param componentSid - The component scoped ID
+   * @returns null on success
    */
   takeOne(
     memberName: string,
@@ -276,14 +312,28 @@ export class Component extends RnObject {
   }
 
   /**
-   * get the taken accessor for the member field.
+   * Gets the memory accessor for a specific member field of a component class.
+   * The accessor provides access to the underlying typed array data.
+   *
+   * @param memberName - The name of the member field
+   * @param componentClass - The component class
+   * @returns The accessor for the member field
    */
   static getAccessor(memberName: string, componentClass: Function): Accessor {
     return this.__accessors.get(componentClass)!.get(memberName)!;
   }
 
   /**
-   * take one accessor for the member field.
+   * Creates and configures a memory accessor for a specific member field.
+   * This method allocates buffer memory and creates an accessor for efficient data access.
+   *
+   * @param bufferUse - The intended use of the buffer
+   * @param memberName - The name of the member field
+   * @param componentClass - The component class
+   * @param compositionType - The composition type (e.g., Vec3, Mat4)
+   * @param componentType - The component data type (e.g., Float32, Int32)
+   * @param count - The number of components to allocate for
+   * @returns Result containing the accessor or an error
    */
   static takeAccessor(
     bufferUse: BufferUseEnum,
@@ -334,6 +384,13 @@ export class Component extends RnObject {
     }
   }
 
+  /**
+   * Gets the byte offset of the component type's data within the buffer.
+   *
+   * @param bufferUse - The buffer use type
+   * @param componentClass - The component class
+   * @returns The byte offset in the buffer
+   */
   static getByteOffsetOfThisComponentTypeInBuffer(
     bufferUse: BufferUseEnum,
     componentClass: Function
@@ -341,6 +398,13 @@ export class Component extends RnObject {
     return this.__bufferViews.get(componentClass)!.get(bufferUse)!.byteOffsetInBuffer;
   }
 
+  /**
+   * Gets the byte offset of the first element of a specific member field within the buffer.
+   *
+   * @param memberName - The name of the member field
+   * @param componentClass - The component class
+   * @returns The byte offset in the buffer
+   */
   static getByteOffsetOfFirstOfThisMemberInBuffer(
     memberName: string,
     componentClass: Function
@@ -348,6 +412,13 @@ export class Component extends RnObject {
     return this.__accessors.get(componentClass)!.get(memberName)!.byteOffsetInBuffer;
   }
 
+  /**
+   * Gets the byte offset of the first element of a specific member field within the buffer view.
+   *
+   * @param memberName - The name of the member field
+   * @param componentClass - The component class
+   * @returns The byte offset in the buffer view
+   */
   static getByteOffsetOfFirstOfThisMemberInBufferView(
     memberName: string,
     componentClass: Function
@@ -356,12 +427,14 @@ export class Component extends RnObject {
   }
 
   /**
-   * Register a member field of component class for memory allocation.
-   * @param bufferUse purpose type of buffer use
-   * @param memberName the name of member field
-   * @param dataClassType a class of data
-   * @param componentType a type of number
-   * @param initValues a initial value
+   * Registers a member field of the component class for memory allocation.
+   * This method defines the memory layout and characteristics of component data members.
+   *
+   * @param bufferUse - The intended purpose/type of buffer use
+   * @param memberName - The name of the member field
+   * @param dataClassType - The class type of the data
+   * @param componentType - The primitive data type (e.g., Float32, Int32)
+   * @param initValues - Initial values for the member field
    */
   registerMember(
     bufferUse: BufferUseEnum,
@@ -386,8 +459,12 @@ export class Component extends RnObject {
   }
 
   /**
-   * Allocate memory of self member fields
-   * @param count a number of entities to need allocate
+   * Allocates memory for all member fields of this component instance.
+   * This method is called during component initialization to set up memory layout
+   * and allocate space for the specified number of entities.
+   *
+   * @param count - The number of entities to allocate memory for
+   * @param isReUse - Whether to reuse existing memory allocations
    */
   submitToAllocation(count: Count, isReUse: boolean): void {
     if (this._component_sid >= count) {
@@ -490,18 +567,22 @@ export class Component extends RnObject {
   }
 
   /**
-   * get the entity which has this component.
-   * @returns the entity which has this component
+   * Gets the entity that owns this component.
+   * This provides access to the entity and its other components.
+   *
+   * @returns The entity instance that owns this component
    */
   get entity(): IEntity {
     return this.__entityRepository.getEntity(this.__entityUid);
   }
 
   /**
-   * get the bytes Information of the member
-   * @param component a instance of the component
-   * @param memberName the member of component in string
-   * @returns bytes information
+   * Gets detailed byte information about a specific member field of a component.
+   * This includes offsets, lengths, and location information for GPU access.
+   *
+   * @param component - The component instance to analyze
+   * @param memberName - The name of the member field
+   * @returns Detailed byte information object
    */
   static getDataByteInfoInner(component: Component, memberName: string) {
     const data = (component as any)['_' + memberName];
@@ -532,20 +613,24 @@ export class Component extends RnObject {
   }
 
   /**
-   * get the bytes Information of the member
-   * @param memberName the member of component in string
-   * @returns bytes information
+   * Gets detailed byte information about a specific member field of this component.
+   * This includes offsets, lengths, and location information for GPU access.
+   *
+   * @param memberName - The name of the member field
+   * @returns Detailed byte information object
    */
   getDataByteInfo(memberName: string) {
     return Component.getDataByteInfoInner(this, memberName);
   }
 
   /**
-   * get the bytes Information of the member (static version) by ComponentSID
-   * @param componentType the Component type
-   * @param componentSID the ComponentSID of the component
-   * @param memberName the member of component in string
-   * @returns bytes information
+   * Gets detailed byte information about a member field by Component SID.
+   * This is a static version that looks up the component by its scoped ID.
+   *
+   * @param componentType - The component class type
+   * @param componentSID - The scoped ID of the component
+   * @param memberName - The name of the member field
+   * @returns Detailed byte information object or undefined if component not found
    */
   static getDataByteInfoByComponentSID(
     componentType: typeof Component,
@@ -561,30 +646,12 @@ export class Component extends RnObject {
   }
 
   /**
-   * get the bytes Information of the member (static version) by EntityUID
-   * @param componentType the component type
-   * @param entityUID the EntityUID
-   * @param memberName the member of component in string
-   * @returns bytes information
-   */
-  // static getDataByteInfoByEntityUID(
-  //   componentType: typeof Component,
-  //   entityUID: EntityUID,
-  //   memberName: string
-  // ) {
-  //   const component = EntityRepository.getComponentOfEntity(entityUID, componentType);
-  //   if (component) {
-  //     return Component.getDataByteInfoInner(component, memberName);
-  //   }
-
-  //   return void 0;
-  // }
-
-  /**
-   * get the Pixel Location Offset in the Buffer of the Member
-   * @param componentType the component type (e.g. TransformComponent )
-   * @param memberName the member name in string
-   * @returns the pixel offsets
+   * Gets the pixel location offset in the buffer for a specific member of a component type.
+   * This is useful for GPU texture-based data access where locations are measured in pixels.
+   *
+   * @param componentType - The component class type
+   * @param memberName - The name of the member field
+   * @returns The pixel location offset in the buffer
    */
   static getLocationOffsetOfMemberOfComponent(componentType: typeof Component, memberName: string) {
     const component = ComponentRepository.getComponent(componentType, 0);
@@ -592,10 +659,14 @@ export class Component extends RnObject {
   }
 
   /**
+   * Adds this component to an entity, extending the entity with component-specific methods.
+   * This is a virtual method that should be overridden by concrete component classes.
+   *
    * @virtual
-   * Add this component to the entity
-   * @param base the target entity
-   * @param _componentClass the component class to add
+   * @param base - The target entity to add this component to
+   * @param _componentClass - The component class being added
+   * @returns The entity extended with component methods
+   * @throws Error indicating invalid calling of virtual method
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,
@@ -605,6 +676,11 @@ export class Component extends RnObject {
     throw 'Invalid Calling';
   }
 
+  // /**
+  //  * Component creation stage method.
+  //  * Override this method to define process dependencies with other components.
+  //  * If circular dependencies are detected, an error will be reported.
+  //  */
   // $create() {
   //   // Define process dependencies with other components.
   //   // If circular dependencies are detected, the error will be reported.
@@ -612,18 +688,48 @@ export class Component extends RnObject {
   //   // this.registerDependency(TransformComponent);
   // }
 
+  // /**
+  //  * Component loading stage method.
+  //  * Override this method to handle component loading logic.
+  //  */
   // $load() {}
 
+  // /**
+  //  * Component mounting stage method.
+  //  * Override this method to handle component mounting logic.
+  //  */
   // $mount() {}
 
+  // /**
+  //  * Component logic stage method.
+  //  * Override this method to handle component update logic.
+  //  */
   // $logic() {}
 
+  // /**
+  //  * Component pre-render stage method.
+  //  * Override this method to handle component pre-render logic.
+  //  *
+  //  * @param instanceIDBufferUid - The instance ID buffer UID
+  //  */
   // $prerender(instanceIDBufferUid: CGAPIResourceHandle) {}
 
+  // /**
+  //  * Component render stage method.
+  //  * Override this method to handle component rendering logic.
+  //  */
   // $render() {}
 
+  // /**
+  //  * Component unmounting stage method.
+  //  * Override this method to handle component unmounting logic.
+  //  */
   // $unmount() {}
 
+  // /**
+  //  * Component discard stage method.
+  //  * Override this method to handle component cleanup logic.
+  //  */
   // $discard() {}
 
   ///
@@ -631,10 +737,12 @@ export class Component extends RnObject {
   ///
 
   /**
-   * Get the CompositionType of the member
-   * @param memberName - the member name
-   * @param componentClass - the component class
-   * @returns CompositionType or undefined
+   * Gets the CompositionType of a specific member field in a component class.
+   * This is useful for understanding the data structure of component members.
+   *
+   * @param memberName - The name of the member field
+   * @param componentClass - The component class to query
+   * @returns The CompositionType of the member or undefined if not found
    */
   static getCompositionTypeOfMember(
     memberName: string,
@@ -652,10 +760,12 @@ export class Component extends RnObject {
   }
 
   /**
-   * Get the ComponentType of the member
-   * @param memberName - the member name
-   * @param componentClass - the component class
-   * @returns ComponentType or undefined
+   * Gets the ComponentType of a specific member field in a component class.
+   * This is useful for understanding the primitive data type of component members.
+   *
+   * @param memberName - The name of the member field
+   * @param componentClass - The component class to query
+   * @returns The ComponentType of the member or undefined if not found
    */
   static getComponentTypeOfMember(
     memberName: string,
@@ -673,13 +783,21 @@ export class Component extends RnObject {
   }
 
   /**
+   * Marks this component as destroyed and no longer alive.
+   * This is used internally to manage component lifecycle.
+   *
    * @internal
-   * Mark the component as destroyed
    */
   _destroy(): void {
     this._isAlive = false;
   }
 
+  /**
+   * Performs a shallow copy of data from another component of the same type.
+   * This method should be implemented by concrete component classes as needed.
+   *
+   * @param component - The source component to copy from
+   */
   _shallowCopyFrom(component: Component): void {
     // new Error('Not Implemented');
   }
