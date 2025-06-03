@@ -13,6 +13,14 @@ import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 import { createAndAddGltf2BufferView } from './Gltf2ExporterOps';
 
+/**
+ * Creates and adds Effekseer extension data to the glTF 2.0 export JSON.
+ * This function processes all entities with Effekseer components and exports their
+ * effect data, including buffer views for effect files and animation timelines.
+ *
+ * @param json - The glTF 2.0 export JSON object to modify
+ * @param entities - Array of scene graph entities to process for Effekseer components
+ */
 export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
   let effekseerExists = false;
   const bufferIdx = json.extras.bufferViewByteLengthAccumulatedArray.length - 1;
@@ -58,6 +66,15 @@ export function createEffekseer(json: Gltf2Ex, entities: ISceneGraphEntity[]) {
   }
 }
 
+/**
+ * Creates animation timeline data for Effekseer effects from entity animation components.
+ * This function extracts animation tracks that control Effekseer playback state and
+ * converts them into timeline format for the glTF extension.
+ *
+ * @param entity - The entity containing animation data
+ * @param effekseer - The Effekseer effect object to add timeline data to
+ * @private
+ */
 function __createEffekseerTimeline(entity: IEntity, effekseer: RnM2ExtensionsEffekseerEffect) {
   const animationComponent = entity.tryToGetAnimation();
   if (Is.exist(animationComponent)) {
