@@ -54,6 +54,10 @@ export interface PrimitiveDescriptor extends IAnyPrimitiveDescriptor {
   indices?: TypedArray;
 }
 
+/**
+ * Represents a geometric primitive with vertex attributes, materials, and rendering data.
+ * A primitive is the basic building block for rendering 3D geometry.
+ */
 export class Primitive extends RnObject {
   private __mode: PrimitiveModeEnum = PrimitiveMode.Unknown;
   private static __defaultMaterial?: Material;
@@ -85,6 +89,10 @@ export class Primitive extends RnObject {
 
   private __fingerPrint: string = '';
 
+  /**
+   * Creates a new Primitive instance.
+   * Initializes the primitive with a default material if none exists.
+   */
   constructor() {
     super();
 
@@ -100,8 +108,9 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Calculates a fingerprint string for the primitive based on its properties
-   * including mode, indices, targets, and attributes.
+   * Calculates a unique fingerprint string for the primitive based on its properties.
+   * The fingerprint includes mode, indices, targets, and attributes configuration.
+   * This is used for efficient primitive comparison and caching.
    */
   calcFingerPrint() {
     let str = '';
@@ -121,35 +130,35 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets the fingerprint string of the primitive
-   * @returns The fingerprint string
+   * Gets the cached fingerprint string of the primitive.
+   * @returns The fingerprint string used for primitive identification
    */
   _getFingerPrint() {
     return this.__fingerPrint;
   }
 
   /**
-   * Gets the index of a primitive with morph targets by its UID
-   * @param primitiveUid The UID of the primitive
-   * @returns The index if found, otherwise undefined
+   * Gets the index of a primitive with morph targets by its UID.
+   * @param primitiveUid - The unique identifier of the primitive
+   * @returns The index if the primitive has morph targets, otherwise undefined
    */
   static getPrimitiveIdxHasMorph(primitiveUid: PrimitiveUID): Index | undefined {
     return this.__primitiveUidIdxHasMorph.get(primitiveUid);
   }
 
   /**
-   * Gets a primitive with morph targets by its index
-   * @param primitiveIdx The index of the primitive
-   * @returns The primitive if found, otherwise undefined
+   * Gets a primitive with morph targets by its index.
+   * @param primitiveIdx - The index of the primitive in the morph targets collection
+   * @returns The primitive if found and still exists, otherwise undefined
    */
   static getPrimitiveHasMorph(primitiveIdx: Index): Primitive | undefined {
     return this.__idxPrimitiveUidHasMorph.get(primitiveIdx)?.deref();
   }
 
   /**
-   * Gets the bit size of indices ('uint16' or 'uint32')
-   * @returns The index bit size
-   * @throws Error if index accessor is null or has unknown type
+   * Determines the bit size required for indices based on the index accessor type.
+   * @returns 'uint16' for unsigned short/byte indices, 'uint32' for unsigned int indices
+   * @throws Error if no index accessor exists or the component type is unsupported
    */
   getIndexBitSize(): 'uint16' | 'uint32' {
     const indexAccessor = this.__oIndices.unwrapOrUndefined();
@@ -169,25 +178,27 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets the vertex handles associated with this primitive.
-   * @returns The vertex handles if they exist, otherwise undefined.
+   * Gets the vertex handles associated with this primitive for GPU resources.
+   * @returns The vertex handles if they exist, otherwise undefined
    */
   get _vertexHandles() {
     return this.__vertexHandles;
   }
 
   /**
-   * Gets the current count of material variant updates.
-   * @returns The number of material variant updates.
+   * Gets the current count of material variant updates across all primitives.
+   * This counter is incremented whenever material variants are modified.
+   * @returns The number of material variant updates since application start
    */
   static get variantUpdateCount() {
     return this.__variantUpdateCount;
   }
 
   /**
-   * Sets a material variant for this primitive.
-   * @param variantName The name of the variant.
-   * @param material The material to associate with the variant.
+   * Registers a material variant for this primitive with a specific name.
+   * Material variants allow switching between different materials at runtime.
+   * @param variantName - The unique name for this material variant
+   * @param material - The material to associate with the variant name
    */
   setMaterialVariant(variantName: string, material: Material) {
     this.__materialVariants.set(variantName, material);
@@ -195,8 +206,9 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Applies a material variant by its name.
-   * @param variantName The name of the variant to apply.
+   * Applies a previously registered material variant by its name.
+   * Changes the current material to the variant if it exists.
+   * @param variantName - The name of the variant to apply
    */
   applyMaterialVariant(variantName: string) {
     const variant = this.__materialVariants.get(variantName);
@@ -209,7 +221,7 @@ export class Primitive extends RnObject {
 
   /**
    * Gets the name of the currently applied material variant.
-   * @returns The name of the current variant, or an empty string if none is applied.
+   * @returns The name of the active variant, or an empty string if no variant is active
    */
   getCurrentVariantName() {
     for (const [name, material] of this.__materialVariants) {
@@ -221,25 +233,26 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets all variant names associated with this primitive.
-   * @returns An array of variant names.
+   * Gets all registered variant names for this primitive.
+   * @returns An array containing all variant names
    */
   getVariantNames() {
     return Array.from(this.__materialVariants.keys());
   }
 
   /**
-   * Gets the material for a specific variant.
-   * @param variantName The name of the variant.
-   * @returns The material associated with the variant, or undefined if not found.
+   * Gets the material associated with a specific variant name.
+   * @param variantName - The name of the variant to look up
+   * @returns The material for the variant, or undefined if the variant doesn't exist
    */
   getVariantMaterial(variantName: string) {
     return this.__materialVariants.get(variantName);
   }
 
   /**
-   * Sets the material for this primitive and updates the sort key.
-   * @param mat The material to set.
+   * Sets the material for this primitive and updates rendering sort keys.
+   * The sort key is updated based on material properties for efficient rendering order.
+   * @param mat - The material to assign to this primitive
    */
   set material(mat: Material) {
     this.__material = mat;
@@ -268,18 +281,19 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets the current material of this primitive.
-   * @returns The material.
+   * Gets the current material assigned to this primitive.
+   * @returns The material currently in use
    */
   get material() {
     return this.__material;
   }
 
   /**
-   * Updates the sort key by setting a specific bit range.
-   * @param offset The bit offset to start writing.
-   * @param length The number of bits to write.
-   * @param value The value to write.
+   * Updates the sort key by setting a specific bit range with a value.
+   * Sort keys are used to optimize rendering order for transparency and material batching.
+   * @param offset - The bit offset position where to start writing
+   * @param length - The number of bits to write
+   * @param value - The value to encode in the specified bit range
    */
   setSortKey(offset: PrimitiveSortKeyOffset, length: PrimitiveSortKeyLength, value: number) {
     const offsetValue = value << offset;
@@ -294,30 +308,36 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Associates this primitive with a mesh.
-   * @param mesh The mesh to associate with.
+   * Associates this primitive with a parent mesh.
+   * This establishes the hierarchical relationship between mesh and primitive.
+   * @param mesh - The mesh that this primitive belongs to
+   * @internal
    */
   _belongToMesh(mesh: Mesh) {
     this.__mesh = mesh;
   }
 
   /**
-   * Gets the mesh associated with this primitive.
-   * @returns The mesh if it exists, otherwise undefined.
+   * Gets the mesh that this primitive belongs to.
+   * @returns The parent mesh if it exists, otherwise undefined
    */
   get mesh(): IMesh | undefined {
     return this.__mesh;
   }
 
   /**
-   * Backs up the current material of this primitive.
+   * Creates a backup of the current material for later restoration.
+   * Used internally for material switching operations.
+   * @internal
    */
   _backupMaterial() {
     this._prevMaterial = new WeakRef(this.__material);
   }
 
   /**
-   * Restores the previously backed-up material.
+   * Restores the previously backed-up material if it still exists.
+   * Used internally for reverting material changes.
+   * @internal
    */
   _restoreMaterial() {
     const material = this._prevMaterial.deref();
@@ -327,25 +347,26 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Gets the primitive by its UID.
-   * @param primitiveUid The UID of the primitive.
-   * @returns The primitive if found, otherwise undefined.
+   * Retrieves a primitive instance by its unique identifier.
+   * @param primitiveUid - The unique identifier of the primitive to find
+   * @returns The primitive if found and still exists, otherwise undefined
    */
   static getPrimitive(primitiveUid: PrimitiveUID) {
     return this.__primitives[primitiveUid]?.deref();
   }
 
   /**
-   * Gets the total count of primitives.
-   * @returns The number of primitives.
+   * Gets the total number of primitives created in the application.
+   * @returns The total count of primitives
    */
   static getPrimitiveCount() {
     return this.__primitiveCount;
   }
 
   /**
-   * Notifies the primitive that an accessor has been updated.
-   * @param accessorVersion The version of the updated accessor.
+   * Notifies the primitive that its position accessor has been updated.
+   * This triggers recalculation of bounding boxes and mesh updates.
+   * @param accessorVersion - The new version number of the updated accessor
    */
   onAccessorUpdated(accessorVersion: number) {
     this.__positionAccessorVersion = accessorVersion;
@@ -355,11 +376,12 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Sets the data for this primitive, including attributes, mode, material, and indices.
-   * @param attributes The vertex attributes.
-   * @param mode The primitive mode.
-   * @param material The material to use (optional).
-   * @param indicesAccessor The indices accessor (optional).
+   * Sets the vertex and index data for this primitive.
+   * This is the main method for configuring primitive geometry and rendering properties.
+   * @param attributes - Map of vertex attributes with their semantic meanings
+   * @param mode - The primitive rendering mode (triangles, triangle strip, etc.)
+   * @param material - Optional material to assign (uses default if not provided)
+   * @param indicesAccessor - Optional index accessor for indexed rendering
    */
   setData(
     attributes: Attributes,
@@ -398,8 +420,9 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Copies vertex data from a descriptor to this primitive.
-   * @param desc The descriptor containing vertex data.
+   * Copies vertex data from a descriptor into this primitive.
+   * Creates appropriate buffers and accessors for the provided data.
+   * @param desc - Descriptor containing arrays of vertex data and configuration
    */
   copyVertexData({
     attributes,
@@ -486,9 +509,10 @@ export class Primitive extends RnObject {
   }
 
   /**
-   * Creates a new primitive from a descriptor
-   * @param desc The primitive descriptor
-   * @returns The created primitive
+   * Creates a new primitive from a descriptor containing vertex data.
+   * This is a factory method that creates and initializes a primitive in one step.
+   * @param desc - The primitive descriptor with vertex data and configuration
+   * @returns A new primitive instance with the specified data
    */
   static createPrimitive(desc: PrimitiveDescriptor) {
     const primitive = new Primitive();
@@ -496,10 +520,19 @@ export class Primitive extends RnObject {
     return primitive;
   }
 
+  /**
+   * Gets the index accessor for this primitive.
+   * @returns The index accessor if indices are used, otherwise undefined
+   */
   get indicesAccessor(): Accessor | undefined {
     return this.__oIndices.unwrapOrUndefined();
   }
 
+  /**
+   * Gets the vertex count for indexed primitives.
+   * For indexed rendering, this returns the number of indices.
+   * @returns The number of indices if indexed, otherwise the vertex count
+   */
   getVertexCountAsIndicesBased() {
     if (this.indicesAccessor) {
       return this.indicesAccessor.elementCount;
@@ -508,6 +541,10 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Gets the vertex count based on vertex buffer data.
+   * @returns The number of vertices in the vertex buffers
+   */
   getVertexCountAsVerticesBased(): Count {
     for (const accessor of this.__attributes.values()) {
       return accessor.elementCount;
@@ -515,6 +552,11 @@ export class Primitive extends RnObject {
     return 0;
   }
 
+  /**
+   * Calculates the triangle count for indexed primitives.
+   * The count depends on the primitive mode (triangles, triangle strip, etc.).
+   * @returns The number of triangles that will be rendered with indices
+   */
   getTriangleCountAsIndicesBased(): Count {
     if (this.indicesAccessor) {
       switch (this.__mode) {
@@ -532,6 +574,11 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Calculates the triangle count for non-indexed primitives.
+   * The count depends on the primitive mode and vertex count.
+   * @returns The number of triangles that will be rendered from vertices
+   */
   getTriangleCountAsVerticesBased(): Count {
     for (const accessor of this.__attributes.values()) {
       switch (this.__mode) {
@@ -548,10 +595,18 @@ export class Primitive extends RnObject {
     return 0;
   }
 
+  /**
+   * Checks if this primitive uses index-based rendering.
+   * @returns True if the primitive has an index buffer, false otherwise
+   */
   hasIndices() {
     return this.__oIndices.has();
   }
 
+  /**
+   * Gets all vertex attribute accessors for this primitive.
+   * @returns An array of all attribute accessors
+   */
   get attributeAccessors(): Array<Accessor> {
     const accessors: Array<Accessor> = [];
     this.__attributes.forEach((accessor, semantic) => {
@@ -560,10 +615,19 @@ export class Primitive extends RnObject {
     return accessors;
   }
 
+  /**
+   * Gets a specific vertex attribute by its semantic meaning.
+   * @param semantic - The semantic identifier for the attribute
+   * @returns The accessor for the attribute, or undefined if not found
+   */
   getAttribute(semantic: VertexAttributeSemanticsJoinedString) {
     return this.__attributes.get(semantic);
   }
 
+  /**
+   * Gets all vertex attribute semantic identifiers.
+   * @returns An array of all attribute semantic strings
+   */
   get attributeSemantics(): Array<VertexAttributeSemanticsJoinedString> {
     const semantics: Array<VertexAttributeSemanticsJoinedString> = [];
     this.__attributes.forEach((accessor, semantic) => {
@@ -572,10 +636,18 @@ export class Primitive extends RnObject {
     return semantics;
   }
 
+  /**
+   * Gets an iterator for all attribute entries (semantic, accessor pairs).
+   * @returns An iterator over attribute map entries
+   */
   get attributeEntries() {
     return this.__attributes.entries();
   }
 
+  /**
+   * Gets the composition types of all vertex attributes.
+   * @returns An array of composition types (Vec2, Vec3, Vec4, Scalar, etc.)
+   */
   get attributeCompositionTypes(): Array<CompositionTypeEnum> {
     const types: Array<CompositionTypeEnum> = [];
     this.__attributes.forEach((accessor, semantic) => {
@@ -585,6 +657,10 @@ export class Primitive extends RnObject {
     return types;
   }
 
+  /**
+   * Gets the component types of all vertex attributes.
+   * @returns An array of component types (Float, UnsignedByte, etc.)
+   */
   get attributeComponentTypes(): Array<ComponentTypeEnum> {
     const types: Array<ComponentTypeEnum> = [];
     this.__attributes.forEach((accessor, semantic) => {
@@ -594,18 +670,36 @@ export class Primitive extends RnObject {
     return types;
   }
 
+  /**
+   * Gets the primitive rendering mode.
+   * @returns The primitive mode enum (Triangles, TriangleStrip, etc.)
+   */
   get primitiveMode(): PrimitiveModeEnum {
     return this.__mode;
   }
 
+  /**
+   * Gets the unique identifier for this primitive.
+   * @returns The primitive's UID
+   */
   get primitiveUid(): PrimitiveUID {
     return this.__primitiveUid;
   }
 
+  /**
+   * Gets the version number of the position accessor.
+   * Used to track when position data has been updated.
+   * @returns The current position accessor version
+   */
   get positionAccessorVersion(): number {
     return this.__positionAccessorVersion;
   }
 
+  /**
+   * Gets the axis-aligned bounding box for this primitive.
+   * The AABB is calculated from position data and cached until positions change.
+   * @returns The bounding box containing all vertices
+   */
   get AABB() {
     if (
       this.__aabb.isVanilla() ||
@@ -623,21 +717,38 @@ export class Primitive extends RnObject {
     return this.__aabb;
   }
 
+  /**
+   * Sets or updates a vertex attribute for this primitive.
+   * @param accessor - The accessor containing the attribute data
+   * @param vertexSemantic - The semantic meaning of the attribute
+   */
   setVertexAttribute(accessor: Accessor, vertexSemantic: VertexAttributeSemanticsJoinedString) {
     this.__attributes.set(vertexSemantic, accessor);
     this.calcFingerPrint();
   }
 
+  /**
+   * Removes the index buffer from this primitive, converting it to non-indexed rendering.
+   */
   removeIndices() {
     this.__oIndices = new None();
     this.calcFingerPrint();
   }
 
+  /**
+   * Sets the index buffer for this primitive, enabling indexed rendering.
+   * @param accessor - The accessor containing index data
+   */
   setIndices(accessor: Accessor) {
     this.__oIndices = new Some(accessor);
     this.calcFingerPrint();
   }
 
+  /**
+   * Sets blend shape (morph) targets for this primitive.
+   * Blend shapes allow vertex animation by interpolating between target positions.
+   * @param targets - Array of attribute maps representing morph targets
+   */
   setBlendShapeTargets(targets: Array<Attributes>) {
     if (Primitive.__primitiveUidIdxHasMorph.size > Config.maxMorphPrimitiveNumberInWebGPU) {
       Logger.error(
@@ -658,17 +769,25 @@ export class Primitive extends RnObject {
     this.calcFingerPrint();
   }
 
+  /**
+   * Gets a copy of the blend shape targets for this primitive.
+   * @returns A copy of the morph target array
+   */
   getBlendShapeTargets() {
     return this.__targets.concat();
   }
 
+  /**
+   * Gets the blend shape targets array.
+   * @returns The array of morph target attributes
+   */
   get targets(): Array<Attributes> {
     return this.__targets;
   }
 
   /**
-   * Checks if the primitive is using blend mode
-   * @returns True if using blend mode, false otherwise
+   * Checks if this primitive uses blending (transparency) for rendering.
+   * @returns True if the material has blending enabled, false otherwise
    */
   isBlend() {
     if (this.material == null || !this.material.isBlend()) {
@@ -677,10 +796,20 @@ export class Primitive extends RnObject {
       return true;
     }
   }
+
+  /**
+   * Checks if this primitive is opaque (not transparent).
+   * @returns True if the primitive is opaque, false if it uses blending
+   */
   isOpaque() {
     return !this.isBlend();
   }
 
+  /**
+   * Creates GPU vertex and index buffers for this primitive.
+   * This prepares the primitive for rendering by uploading data to the GPU.
+   * @returns True if buffers were created, false if they already exist
+   */
   create3DAPIVertexData() {
     if (this.__vertexHandles != null) {
       return false;
@@ -691,6 +820,11 @@ export class Primitive extends RnObject {
     return true;
   }
 
+  /**
+   * Updates the GPU vertex and index buffers with current data.
+   * Used when vertex data has been modified and needs to be re-uploaded.
+   * @returns True if buffers were updated, false if no buffers exist
+   */
   update3DAPIVertexData() {
     const vertexHandles = this.__vertexHandles as VertexHandles;
     if (Is.not.exist(this.__vertexHandles)) {
@@ -703,6 +837,11 @@ export class Primitive extends RnObject {
     return true;
   }
 
+  /**
+   * Deletes the GPU vertex and index buffers for this primitive.
+   * Frees GPU memory when the primitive is no longer needed.
+   * @returns True if buffers were deleted, false if no buffers exist
+   */
   delete3DAPIVertexData() {
     if (this.__vertexHandles == null) {
       return false;
@@ -714,10 +853,19 @@ export class Primitive extends RnObject {
     return true;
   }
 
+  /**
+   * Gets the GPU resource handles for this primitive.
+   * @returns The vertex handles for GPU resources, or undefined if not created
+   */
   get vertexHandles() {
     return this.__vertexHandles;
   }
 
+  /**
+   * Converts this indexed primitive to non-indexed geometry.
+   * Expands vertex data by duplicating vertices according to indices.
+   * This can increase memory usage but simplifies some rendering operations.
+   */
   convertToUnindexedGeometry() {
     const indexAccessor = this.indicesAccessor;
     if (indexAccessor == null) {
@@ -781,6 +929,17 @@ export class Primitive extends RnObject {
     this.removeIndices();
   }
 
+  /**
+   * Performs ray casting against this primitive's geometry.
+   * Tests intersection between a ray and the triangles of this primitive.
+   * @param origVec3 - The origin point of the ray
+   * @param dirVec3 - The direction vector of the ray (should be normalized)
+   * @param isFrontFacePickable - Whether front-facing triangles can be hit
+   * @param isBackFacePickable - Whether back-facing triangles can be hit
+   * @param dotThreshold - Threshold for determining front/back face orientation
+   * @param hasFaceNormal - Whether to use face normals for culling
+   * @returns Ray casting result with intersection data or failure indication
+   */
   castRay(
     origVec3: IVector3,
     dirVec3: IVector3,
@@ -900,6 +1059,21 @@ export class Primitive extends RnObject {
     }
   }
 
+  /**
+   * Internal ray-triangle intersection test using Tomas Möller algorithm.
+   * @param origVec3 - Ray origin
+   * @param dirVec3 - Ray direction
+   * @param i - Triangle index
+   * @param pos0IndexBase - First vertex index
+   * @param pos1IndexBase - Second vertex index
+   * @param pos2IndexBase - Third vertex index
+   * @param isFrontFacePickable - Whether front faces are pickable
+   * @param isBackFacePickable - Whether back faces are pickable
+   * @param dotThreshold - Normal dot product threshold
+   * @param hasFaceNormal - Whether to use face normals
+   * @returns Intersection result with barycentric coordinates
+   * @private
+   */
   private __castRayInnerTomasMoller(
     origVec3: IVector3,
     dirVec3: IVector3,
