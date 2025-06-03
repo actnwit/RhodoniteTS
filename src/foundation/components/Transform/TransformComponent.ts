@@ -20,7 +20,8 @@ import { Matrix44 } from '../../math';
 
 /**
  * TransformComponent is a component that manages the transform of an entity.
- *
+ * It handles position, rotation, scale, and transformation matrices for 3D objects.
+ * This component provides both current transform state and rest pose functionality.
  */
 export class TransformComponent extends Component {
   private __rest: Transform3D | undefined;
@@ -29,6 +30,13 @@ export class TransformComponent extends Component {
 
   private static __updateCount = 0;
 
+  /**
+   * Creates a new TransformComponent instance.
+   * @param entityUid - The unique identifier of the entity this component belongs to
+   * @param componentSid - The component's system identifier
+   * @param entityComponent - The entity repository managing this component
+   * @param isReUse - Whether this component is being reused from a pool
+   */
   constructor(
     entityUid: EntityUID,
     componentSid: ComponentSID,
@@ -38,18 +46,34 @@ export class TransformComponent extends Component {
     super(entityUid, componentSid, entityComponent, isReUse);
   }
 
+  /**
+   * Gets the number of rendered properties for this component type.
+   * @returns null as this component doesn't have rendered properties
+   */
   static get renderedPropertyCount() {
     return null;
   }
 
+  /**
+   * Gets the component type identifier for TransformComponent.
+   * @returns The transform component type ID
+   */
   static get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
+  /**
+   * Gets the component type identifier for this instance.
+   * @returns The transform component type ID
+   */
   get componentTID(): ComponentTID {
     return WellKnownComponentTIDs.TransformComponentTID;
   }
 
+  /**
+   * Gets the rest transform if available, otherwise returns the current pose.
+   * @returns The rest transform or current pose
+   */
   get restOrPose() {
     if (this.__rest !== undefined) {
       return this.__rest;
@@ -58,10 +82,19 @@ export class TransformComponent extends Component {
     }
   }
 
+  /**
+   * Gets the global update counter for all transform components.
+   * @returns The current update count
+   */
   static get updateCount() {
     return this.__updateCount;
   }
 
+  /**
+   * Backs up the current transform as the rest pose.
+   * Creates a rest pose snapshot and marks the scene graph world matrix as dirty.
+   * @internal
+   */
   _backupTransformAsRest() {
     if (this.__rest === undefined) {
       this.__rest = this.__pose.clone();
@@ -70,6 +103,10 @@ export class TransformComponent extends Component {
     }
   }
 
+  /**
+   * Restores the transform from the previously backed up rest pose.
+   * @internal
+   */
   _restoreTransformFromRest() {
     if (this.__rest === undefined) {
       return;
@@ -81,10 +118,18 @@ export class TransformComponent extends Component {
     );
   }
 
+  /**
+   * Gets the local transform of this entity.
+   * @returns The current local transform
+   */
   get localTransform() {
     return this.__pose;
   }
 
+  /**
+   * Sets the local transform of this entity.
+   * @param transform - The new transform to apply
+   */
   set localTransform(transform: Transform3D) {
     this.__pose.setTransform(
       transform.positionInner,
@@ -94,10 +139,18 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Gets the local transform rest pose.
+   * @returns The rest pose or current pose if no rest pose is set
+   */
   get localTransformRest() {
     return this.restOrPose;
   }
 
+  /**
+   * Sets the local transform rest pose.
+   * @param transform - The transform to set as rest pose
+   */
   set localTransformRest(transform: Transform3D) {
     if (Is.undefined(this.__rest)) {
       this.__rest = new Transform3D();
@@ -110,6 +163,10 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local position of this entity and updates physics if applicable.
+   * @param vec - The new position vector
+   */
   set localPosition(vec: IVector3) {
     this.__pose.position = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
@@ -124,32 +181,43 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local position without updating physics simulation.
+   * @param vec - The new position vector
+   */
   set localPositionWithoutPhysics(vec: IVector3) {
     this.__pose.position = vec;
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local position using a 3-element array.
+   * @param array - Array containing [x, y, z] position values
+   */
   setLocalPositionAsArray3(array: Array3<number>) {
     this.__pose.setPositionAsArray3(array);
     TransformComponent.__updateCount++;
   }
 
   /**
-   * return a copy of a local translate vector
+   * Gets a copy of the local position vector.
+   * @returns A copy of the local position
    */
   get localPosition() {
     return this.__pose.position;
   }
 
   /**
-   * return a local translate vector
+   * Gets the internal mutable local position vector.
+   * @returns The internal mutable position vector
    */
   get localPositionInner(): MutableVector3 {
     return this.__pose.positionInner;
   }
 
   /**
-   * set a local translate vector as Rest
+   * Sets the local position as rest pose.
+   * @param vec - The position vector to set as rest
    */
   set localPositionRest(vec: IVector3) {
     if (Is.undefined(this.__rest)) {
@@ -160,19 +228,25 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * return a copy of a local translate vector
+   * Gets a copy of the local position rest vector.
+   * @returns A copy of the rest position
    */
   get localPositionRest() {
     return this.restOrPose.position;
   }
 
   /**
-   * return a local translate vector
+   * Gets the internal mutable local position rest vector.
+   * @returns The internal mutable rest position vector
    */
   get localPositionRestInner(): MutableVector3 {
     return this.restOrPose.positionInner;
   }
 
+  /**
+   * Sets the local rotation using Euler angles and updates physics if applicable.
+   * @param vec - The Euler angles vector (XYZ order)
+   */
   set localEulerAngles(vec: IVector3) {
     this.__pose.eulerAngles = vec;
     const sceneGraph = this.entity.tryToGetSceneGraph();
@@ -200,27 +274,34 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local Euler angles without updating physics simulation.
+   * @param vec - The Euler angles vector (XYZ order)
+   */
   set localEulerAnglesWithoutPhysics(vec: IVector3) {
     this.__pose.eulerAngles = vec;
     TransformComponent.__updateCount++;
   }
 
   /**
-   * return a copy of a local rotation (XYZ euler) vector
+   * Gets a copy of the local Euler angles vector.
+   * @returns A copy of the local rotation as Euler angles (XYZ order)
    */
   get localEulerAngles() {
     return this.__pose.eulerAngles;
   }
 
   /**
-   * return a local rotation (XYZ euler) vector
+   * Gets the internal mutable local Euler angles vector.
+   * @returns The internal mutable Euler angles vector
    */
   get localEulerAnglesInner() {
     return this.__pose.eulerAnglesInner;
   }
 
   /**
-   * set a local rotation (XYZ euler) vector as Rest
+   * Sets the local Euler angles as rest pose.
+   * @param vec - The Euler angles vector to set as rest (XYZ order)
    */
   set localEulerAnglesRest(vec: IVector3) {
     if (Is.undefined(this.__rest)) {
@@ -231,19 +312,25 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * return a copy of a local rotation (XYZ euler) vector
+   * Gets a copy of the local Euler angles rest vector.
+   * @returns A copy of the rest rotation as Euler angles (XYZ order)
    */
   get localEulerAnglesRest() {
     return this.restOrPose.eulerAngles;
   }
 
   /**
-   * return a local rotation (XYZ euler) vector
+   * Gets the internal mutable local Euler angles rest vector.
+   * @returns The internal mutable rest Euler angles vector
    */
   get localEulerAnglesRestInner() {
     return this.restOrPose.eulerAnglesInner;
   }
 
+  /**
+   * Sets the local scale and updates physics if applicable.
+   * @param vec - The new scale vector
+   */
   set localScale(vec: IVector3) {
     this.__pose.scale = vec;
 
@@ -259,32 +346,43 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local scale without updating physics simulation.
+   * @param vec - The new scale vector
+   */
   set localScaleWithoutPhysics(vec: IVector3) {
     this.__pose.scale = vec;
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local scale using a 3-element array.
+   * @param array - Array containing [x, y, z] scale values
+   */
   setLocalScaleAsArray3(array: Array3<number>) {
     this.__pose.setScaleAsArray3(array);
     TransformComponent.__updateCount++;
   }
 
   /**
-   * return a copy of a local scale vector
+   * Gets a copy of the local scale vector.
+   * @returns A copy of the local scale
    */
   get localScale() {
     return this.__pose.scale;
   }
 
   /**
-   * return a local scale vector
+   * Gets the internal mutable local scale vector.
+   * @returns The internal mutable scale vector
    */
   get localScaleInner() {
     return this.__pose.scaleInner;
   }
 
   /**
-   * set a local scale vector as Rest
+   * Sets the local scale as rest pose.
+   * @param vec - The scale vector to set as rest
    */
   set localScaleRest(vec: IVector3) {
     if (Is.undefined(this.__rest)) {
@@ -295,19 +393,25 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * return a copy of a local scale vector
+   * Gets a copy of the local scale rest vector.
+   * @returns A copy of the rest scale
    */
   get localScaleRest() {
     return this.restOrPose.scale;
   }
 
   /**
-   * return a local scale vector
+   * Gets the internal mutable local scale rest vector.
+   * @returns The internal mutable rest scale vector
    */
   get localScaleRestInner() {
     return this.restOrPose.scaleInner;
   }
 
+  /**
+   * Sets the local rotation using a quaternion and updates physics if applicable.
+   * @param quat - The new rotation quaternion
+   */
   set localRotation(quat: IQuaternion) {
     this.__pose.rotation = quat;
     const sceneGraph = this.entity.tryToGetSceneGraph();
@@ -322,32 +426,43 @@ export class TransformComponent extends Component {
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local rotation without updating physics simulation.
+   * @param quat - The new rotation quaternion
+   */
   set localRotationWithoutPhysics(quat: IQuaternion) {
     this.__pose.rotation = quat;
     TransformComponent.__updateCount++;
   }
 
+  /**
+   * Sets the local rotation using a 4-element array.
+   * @param array - Array containing [x, y, z, w] quaternion values
+   */
   setLocalRotationAsArray4(array: Array4<number>) {
     this.__pose.setRotationAsArray4(array);
     TransformComponent.__updateCount++;
   }
 
   /**
-   * return a copy of a local quaternion vector
+   * Gets a copy of the local rotation quaternion.
+   * @returns A copy of the local rotation quaternion
    */
   get localRotation() {
     return this.__pose.rotation;
   }
 
   /**
-   * return a local quaternion vector
+   * Gets the internal local rotation quaternion.
+   * @returns The internal rotation quaternion
    */
   get localRotationInner(): Quaternion {
     return this.__pose.rotationInner;
   }
 
   /**
-   * set a local quaternion vector as Rest
+   * Sets the local rotation as rest pose.
+   * @param quat - The rotation quaternion to set as rest
    */
   set localRotationRest(quat: IQuaternion) {
     if (Is.undefined(this.__rest)) {
@@ -358,44 +473,57 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * return a copy of a local quaternion vector
+   * Gets a copy of the local rotation rest quaternion.
+   * @returns A copy of the rest rotation quaternion
    */
   get localRotationRest() {
     return this.restOrPose.rotation;
   }
 
   /**
-   * return a local quaternion vector
+   * Gets the internal local rotation rest quaternion.
+   * @returns The internal rest rotation quaternion
    */
   get localRotationRestInner(): Quaternion {
     return this.restOrPose.rotationInner;
   }
 
+  /**
+   * Sets the local transformation matrix.
+   * @param mat - The new transformation matrix
+   */
   set localMatrix(mat: IMatrix44) {
     this.__pose.matrix = mat;
     TransformComponent.__updateCount++;
   }
 
   /**
-   * return a copy of local transform matrix
+   * Gets a copy of the local transformation matrix.
+   * @returns A copy of the local transform matrix
    */
   get localMatrix() {
     return this.__pose.matrix;
   }
 
   /**
-   * return a local transform matrix
+   * Gets the internal local transformation matrix.
+   * @returns The internal local transform matrix
    */
   get localMatrixInner() {
     return this.__pose.matrixInner;
   }
 
+  /**
+   * Copies the local transformation matrix to the provided matrix object.
+   * @param mat - The target matrix to copy the local matrix into
+   */
   getLocalMatrixInnerTo(mat: MutableMatrix44) {
     this.__pose.getMatrixInnerTo(mat);
   }
 
   /**
-   * set a local transform matrix as Rest
+   * Sets the local transformation matrix as rest pose.
+   * @param mat - The transformation matrix to set as rest
    */
   set localMatrixRest(mat: IMatrix44) {
     if (Is.undefined(this.__rest)) {
@@ -406,23 +534,34 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * return a copy of local transform matrix
+   * Gets a copy of the local transformation matrix rest pose.
+   * @returns A copy of the rest transform matrix
    */
   get localMatrixRest() {
     return this.restOrPose.matrix;
   }
 
   /**
-   * return a local transform matrix
+   * Gets the internal local transformation matrix rest pose.
+   * @returns The internal rest transform matrix
    */
   get localMatrixRestInner() {
     return this.restOrPose.matrixInner;
   }
 
+  /**
+   * Loads the component and moves it to the Logic processing stage.
+   * @internal
+   */
   $load() {
     this.moveStageTo(ProcessStage.Logic);
   }
 
+  /**
+   * Executes logic processing for the component.
+   * Checks if the transform has been updated and marks the world matrix as dirty if needed.
+   * @internal
+   */
   $logic() {
     if (this.__updateCountAtLastLogic !== this.__pose.updateCount) {
       this.entity.tryToGetSceneGraph()!.setWorldMatrixDirty();
@@ -430,6 +569,11 @@ export class TransformComponent extends Component {
     }
   }
 
+  /**
+   * Performs a shallow copy from another TransformComponent.
+   * @param component_ - The source component to copy from
+   * @internal
+   */
   _shallowCopyFrom(component_: Component): void {
     const component = component_ as TransformComponent;
     this.__pose = component.__pose.clone();
@@ -441,22 +585,29 @@ export class TransformComponent extends Component {
   }
 
   /**
-   * get the entity which has this component.
-   * @returns the entity which has this component
+   * Gets the entity that owns this component.
+   * @returns The entity which has this component
    */
   get entity(): ITransformEntity {
     return EntityRepository.getEntity(this.__entityUid) as unknown as ITransformEntity;
   }
 
+  /**
+   * Destroys the component and cleans up resources.
+   * @internal
+   */
   _destroy(): void {
     super._destroy();
   }
 
   /**
-   * @override
-   * Add this component to the entity
-   * @param base the target entity
-   * @param _componentClass the component class to add
+   * Adds this component to the specified entity by creating a mixin class.
+   * This method extends the entity class with transform-related methods and properties.
+   * @param base - The target entity to extend
+   * @param _componentClass - The component class to add (not used but required for interface)
+   * @returns The extended entity with transform capabilities
+   * @template EntityBase - The base entity type
+   * @template SomeComponentClass - The component class type
    */
   addThisComponentToEntity<EntityBase extends IEntity, SomeComponentClass extends typeof Component>(
     base: EntityBase,
@@ -472,6 +623,10 @@ export class TransformComponent extends Component {
         super(entityUID, isAlive, components);
       }
 
+      /**
+       * Gets the transform component for this entity.
+       * @returns The transform component instance
+       */
       getTransform(): TransformComponent {
         if (this.__transformComponent === undefined) {
           this.__transformComponent = this.getComponentByComponentTID(
@@ -480,114 +635,264 @@ export class TransformComponent extends Component {
         }
         return this.__transformComponent;
       }
+
+      /**
+       * Sets the local position of this entity.
+       * @param vec - The new position vector
+       */
       set localPosition(vec: IVector3) {
         const transform = this.getTransform();
         transform.localPosition = vec;
       }
+
+      /**
+       * Gets a copy of the local position.
+       * @returns A copy of the local position
+       */
       get localPosition() {
         return this.localPositionInner.clone();
       }
+
+      /**
+       * Gets the internal mutable local position vector.
+       * @returns The internal mutable position vector
+       */
       get localPositionInner() {
         const transform = this.getTransform();
         return transform.localPositionInner;
       }
+
+      /**
+       * Sets the local position as rest pose.
+       * @param vec - The position vector to set as rest
+       */
       set localPositionRest(vec: IVector3) {
         const transform = this.getTransform();
         transform.localPositionRest = vec;
       }
+
+      /**
+       * Gets the local position rest pose.
+       * @returns The rest position
+       */
       get localPositionRest() {
         const transform = this.getTransform();
         return transform.localPositionRest;
       }
+
+      /**
+       * Gets the internal mutable local position rest vector.
+       * @returns The internal mutable rest position vector
+       */
       get localPositionRestInner() {
         const transform = this.getTransform();
         return transform.localPositionRestInner;
       }
+
+      /**
+       * Sets the local scale of this entity.
+       * @param vec - The new scale vector
+       */
       set localScale(vec: IVector3) {
         const transform = this.getTransform();
         transform.localScale = vec;
       }
+
+      /**
+       * Gets a copy of the local scale.
+       * @returns A copy of the local scale
+       */
       get localScale() {
         return this.localScaleInner.clone();
       }
+
+      /**
+       * Gets the internal mutable local scale vector.
+       * @returns The internal mutable scale vector
+       */
       get localScaleInner() {
         const transform = this.getTransform();
         return transform.localScaleInner;
       }
+
+      /**
+       * Sets the local scale as rest pose.
+       * @param vec - The scale vector to set as rest
+       */
       set localScaleRest(vec: IVector3) {
         const transform = this.getTransform();
         transform.localScaleRest = vec;
       }
+
+      /**
+       * Gets the local scale rest pose.
+       * @returns The rest scale
+       */
       get localScaleRest() {
         const transform = this.getTransform();
         return transform.localScaleRest;
       }
+
+      /**
+       * Gets the internal mutable local scale rest vector.
+       * @returns The internal mutable rest scale vector
+       */
       get localScaleRestInner() {
         const transform = this.getTransform();
         return transform.localScaleRestInner;
       }
+
+      /**
+       * Sets the local Euler angles of this entity.
+       * @param vec - The Euler angles vector (XYZ order)
+       */
       set localEulerAngles(vec: IVector3) {
         const transform = this.getTransform();
         transform.localEulerAngles = vec;
       }
+
+      /**
+       * Gets a copy of the local Euler angles.
+       * @returns A copy of the local Euler angles
+       */
       get localEulerAngles() {
         return this.localEulerAnglesInner.clone();
       }
+
+      /**
+       * Gets the internal mutable local Euler angles vector.
+       * @returns The internal mutable Euler angles vector
+       */
       get localEulerAnglesInner() {
         const transform = this.getTransform();
         return transform.localEulerAnglesInner;
       }
+
+      /**
+       * Sets the local Euler angles as rest pose.
+       * @param vec - The Euler angles vector to set as rest (XYZ order)
+       */
       set localEulerAnglesRest(vec: IVector3) {
         const transform = this.getTransform();
         transform.localEulerAnglesRest = vec;
       }
+
+      /**
+       * Gets the local Euler angles rest pose.
+       * @returns A copy of the rest Euler angles
+       */
       get localEulerAnglesRest() {
         return this.localEulerAnglesRestInner.clone();
       }
+
+      /**
+       * Gets the internal mutable local Euler angles rest vector.
+       * @returns The internal mutable rest Euler angles vector
+       */
       get localEulerAnglesRestInner() {
         const transform = this.getTransform();
         return transform.localEulerAnglesRestInner;
       }
+
+      /**
+       * Sets the local rotation using a quaternion.
+       * @param quat - The new rotation quaternion
+       */
       set localRotation(quat: IQuaternion) {
         const transform = this.getTransform();
         transform.localRotation = quat;
       }
+
+      /**
+       * Gets a copy of the local rotation quaternion.
+       * @returns A copy of the local rotation
+       */
       get localRotation() {
         return this.localRotationInner.clone();
       }
+
+      /**
+       * Gets the internal local rotation quaternion.
+       * @returns The internal rotation quaternion
+       */
       get localRotationInner() {
         const transform = this.getTransform();
         return transform.localRotationInner;
       }
+
+      /**
+       * Sets the local rotation as rest pose.
+       * @param quat - The rotation quaternion to set as rest
+       */
       set localRotationRest(quat: IQuaternion) {
         const transform = this.getTransform();
         transform.localRotationRest = quat;
       }
+
+      /**
+       * Gets the local rotation rest pose.
+       * @returns A copy of the rest rotation
+       */
       get localRotationRest() {
         return this.localQuaternionRestInner.clone();
       }
+
+      /**
+       * Gets the internal local rotation rest quaternion.
+       * @returns The internal rest rotation quaternion
+       */
       get localRotationRestInner() {
         const transform = this.getTransform();
         return transform.localRotationRestInner;
       }
+
+      /**
+       * Sets the local transformation matrix.
+       * @param mat - The new transformation matrix
+       */
       set localMatrix(mat: IMatrix44) {
         const transform = this.getTransform();
         transform.localMatrix = mat;
       }
+
+      /**
+       * Gets a copy of the local transformation matrix.
+       * @returns A copy of the local matrix
+       */
       get localMatrix() {
         return this.localMatrixInner.clone();
       }
+
+      /**
+       * Gets the internal local transformation matrix.
+       * @returns The internal local matrix
+       */
       get localMatrixInner() {
         const transform = this.getTransform();
         return transform.localMatrixInner;
       }
+
+      /**
+       * Sets the local transformation matrix as rest pose.
+       * @param mat - The transformation matrix to set as rest
+       */
       set localMatrixRest(mat: IMatrix44) {
         const transform = this.getTransform();
         transform.localMatrixRest = mat;
       }
+
+      /**
+       * Gets the local transformation matrix rest pose.
+       * @returns A copy of the rest matrix
+       */
       get localMatrixRest() {
         return this.localMatrixRestInner.clone();
       }
+
+      /**
+       * Gets the internal local transformation matrix rest pose.
+       * @returns The internal rest matrix
+       */
       get localMatrixRestInner() {
         const transform = this.getTransform();
         return transform.localMatrixRestInner;
