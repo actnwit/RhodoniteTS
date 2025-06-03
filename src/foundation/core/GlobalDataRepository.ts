@@ -25,7 +25,7 @@ import { WellKnownComponentTIDs } from '../components/WellKnownComponentTIDs';
 import { BoneDataType } from '../definitions/BoneDataType';
 import { ProcessApproach, ProcessApproachEnum } from '../../foundation/definitions/ProcessApproach';
 import { calcAlignedByteLength, ShaderSemanticsInfo } from '../definitions/ShaderSemanticsInfo';
-import { Vector2 } from '../math';
+import { Vector2 } from '../math/Vector2';
 
 type GlobalPropertyStruct = {
   shaderSemanticsInfo: ShaderSemanticsInfo;
@@ -35,7 +35,9 @@ type GlobalPropertyStruct = {
 };
 
 /**
- * The class which manages global data.
+ * The repository class that manages global data used throughout the rendering pipeline.
+ * This singleton class handles global properties such as camera matrices, lighting data,
+ * bone transformations for skeletal animation, and other shared rendering state.
  */
 export class GlobalDataRepository {
   private static __instance: GlobalDataRepository;
@@ -44,8 +46,12 @@ export class GlobalDataRepository {
   private constructor() {}
 
   /**
-   * Initialize the GlobalDataRepository
-   * @param approach - ProcessApproachEnum for initialization
+   * Initializes the GlobalDataRepository with all required global properties.
+   * Sets up data structures for camera matrices, lighting, skeletal animation,
+   * and other rendering parameters based on the specified process approach.
+   *
+   * @param approach - The processing approach that determines
+   *                   how data is organized and accessed in shaders
    */
   initialize(approach: ProcessApproachEnum) {
     // CurrentComponentSIDs
@@ -328,6 +334,12 @@ export class GlobalDataRepository {
     this.takeOne('time');
   }
 
+  /**
+   * Returns the singleton instance of GlobalDataRepository.
+   * Creates a new instance if it doesn't exist yet.
+   *
+   * @returns The singleton instance of GlobalDataRepository
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new GlobalDataRepository();
@@ -335,6 +347,14 @@ export class GlobalDataRepository {
     return this.__instance;
   }
 
+  /**
+   * Registers a new global property with its semantic information and maximum count.
+   * Creates the necessary buffer memory allocation and accessor for the property.
+   *
+   * @param semanticInfo - The shader semantic information defining the property structure
+   * @param maxCount - The maximum number of instances this property can have
+   * @private
+   */
   private __registerProperty(semanticInfo: ShaderSemanticsInfo, maxCount: Count): void {
     const buffer = MemoryManager.getInstance().createOrGetBuffer(BufferUse.GPUInstanceData);
 
@@ -372,6 +392,13 @@ export class GlobalDataRepository {
     this.__fields.set(semanticInfo.semantic, globalPropertyStruct);
   }
 
+  /**
+   * Allocates and returns a new instance of the specified global property.
+   * Initializes the property with its default value and adds it to the internal tracking.
+   *
+   * @param shaderSemantic - The name of the shader semantic property to allocate
+   * @returns The newly allocated property value object, or undefined if the property doesn't exist
+   */
   public takeOne(shaderSemantic: ShaderSemanticsName): any {
     const globalPropertyStruct = this.__fields.get(shaderSemantic);
     if (globalPropertyStruct) {
@@ -388,6 +415,14 @@ export class GlobalDataRepository {
     return void 0;
   }
 
+  /**
+   * Sets the value of a specific instance of a global property.
+   * Updates the underlying memory buffer with the new value.
+   *
+   * @param shaderSemantic - The name of the shader semantic property to update
+   * @param countIndex - The index of the specific instance to update
+   * @param value - The new value to set for this property instance
+   */
   public setValue(shaderSemantic: ShaderSemanticsName, countIndex: Index, value: any): void {
     const globalPropertyStruct = this.__fields.get(shaderSemantic);
     if (globalPropertyStruct) {
@@ -396,6 +431,13 @@ export class GlobalDataRepository {
     }
   }
 
+  /**
+   * Retrieves the value of a specific instance of a global property.
+   *
+   * @param shaderSemantic - The name of the shader semantic property to retrieve
+   * @param countIndex - The index of the specific instance to retrieve
+   * @returns The value object for the specified property instance, or undefined if not found
+   */
   public getValue(shaderSemantic: ShaderSemanticsName, countIndex: Index): any {
     const globalPropertyStruct = this.__fields.get(shaderSemantic);
     if (globalPropertyStruct) {
@@ -405,14 +447,34 @@ export class GlobalDataRepository {
     return void 0;
   }
 
+  /**
+   * Retrieves the complete global property structure for a given property name.
+   * This includes semantic information, values array, max count, and accessor.
+   *
+   * @param propertyName - The name of the property to retrieve
+   * @returns The GlobalPropertyStruct for the specified property, or undefined if not found
+   */
   getGlobalPropertyStruct(propertyName: ShaderSemanticsName) {
     return this.__fields.get(propertyName);
   }
 
+  /**
+   * Returns an array of all registered global property structures.
+   * Useful for iterating over all available global properties.
+   *
+   * @returns An array containing all GlobalPropertyStruct instances
+   */
   public getGlobalProperties(): GlobalPropertyStruct[] {
     return Array.from(this.__fields.values());
   }
 
+  /**
+   * Sets up uniform locations for all global properties when using uniform mode.
+   * This is used internally by the WebGL resource repository for shader program setup.
+   *
+   * @param shaderProgramUid - The unique identifier of the shader program
+   * @internal
+   */
   _setUniformLocationsForUniformModeOnly(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
@@ -424,6 +486,13 @@ export class GlobalDataRepository {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray, true);
   }
 
+  /**
+   * Sets up uniform locations for properties that need uniform access in data texture mode.
+   * Only sets up uniforms for properties marked with needUniformInDataTextureMode flag.
+   *
+   * @param shaderProgramUid - The unique identifier of the shader program
+   * @internal
+   */
   _setUniformLocationsForDataTextureModeOnly(shaderProgramUid: CGAPIResourceHandle) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     const semanticsInfoArray: ShaderSemanticsInfo[] = [];
@@ -437,6 +506,12 @@ export class GlobalDataRepository {
     webglResourceRepository.setupUniformLocations(shaderProgramUid, semanticsInfoArray, true);
   }
 
+  /**
+   * Sets uniform values for all global properties in the specified shader program.
+   * Iterates through all registered properties and uploads their current values to the GPU.
+   *
+   * @param shaderProgram - The WebGL shader program to set uniform values for
+   */
   setUniformValues(shaderProgram: WebGLProgram) {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     this.__fields.forEach((globalPropertyStruct: GlobalPropertyStruct, key) => {
@@ -457,6 +532,13 @@ export class GlobalDataRepository {
   //   return void 0;
   // }
 
+  /**
+   * Gets the memory location offset of a global property in 16-byte aligned units.
+   * This is used for data texture mode to determine where properties are stored in memory.
+   *
+   * @param propertyName - The name of the property to get the offset for
+   * @returns The offset in 16-byte units, or -1 if the property is not found
+   */
   getLocationOffsetOfProperty(propertyName: ShaderSemanticsName): IndexOf16Bytes {
     const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
@@ -465,6 +547,13 @@ export class GlobalDataRepository {
     return -1;
   }
 
+  /**
+   * Returns the current number of allocated instances for a specific property.
+   * This represents how many instances of the property have been created with takeOne().
+   *
+   * @param propertyName - The name of the property to get the count for
+   * @returns The number of currently allocated instances, or 0 if the property doesn't exist
+   */
   getCurrentDataNumberOfTheProperty(propertyName: ShaderSemanticsName) {
     const globalPropertyStruct = this.__fields.get(propertyName);
     if (globalPropertyStruct) {
@@ -473,6 +562,18 @@ export class GlobalDataRepository {
     return 0;
   }
 
+  /**
+   * Adds global property declarations to vertex and pixel shader code strings.
+   * This method is used during shader compilation to inject the necessary uniform
+   * declarations for all registered global properties.
+   *
+   * @param vertexPropertiesStr - The string to append vertex shader property declarations to
+   * @param pixelPropertiesStr - The string to append pixel shader property declarations to
+   * @param propertySetter - The function used to generate property declaration code
+   * @param isWebGL2 - Whether the target is WebGL 2.0 (affects syntax generation)
+   * @returns A tuple containing the updated vertex and pixel shader property strings
+   * @internal
+   */
   _addPropertiesStr(
     vertexPropertiesStr: string,
     pixelPropertiesStr: string,
