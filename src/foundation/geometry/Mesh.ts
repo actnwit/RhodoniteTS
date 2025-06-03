@@ -97,10 +97,20 @@ export class Mesh implements IMesh {
   ///
   ///
 
+  /**
+   * Gets the VAO (Vertex Array Object) UID for the specified index.
+   * @param index - The index of the primitive
+   * @returns The VAO resource handle
+   */
   public getVaoUids(index: Index): CGAPIResourceHandle {
     return this.__vaoUids[index];
   }
 
+  /**
+   * Gets the VAO (Vertex Array Object) UID for the specified primitive UID.
+   * @param primitiveUid - The UID of the primitive
+   * @returns The VAO resource handle
+   */
   public getVaoUidsByPrimitiveUid(primitiveUid: Index): CGAPIResourceHandle {
     const index = this.__primitives.findIndex(
       (primitive) => primitive.primitiveUid === primitiveUid
@@ -109,13 +119,23 @@ export class Mesh implements IMesh {
     return this.__vaoUids[index];
   }
 
+  /**
+   * Gets the inner mesh entities that belong to this mesh.
+   * @returns Array of mesh entities
+   */
   get meshEntitiesInner() {
     return this.__belongToEntities;
   }
 
+  /**
+   * Registers this mesh as belonging to a mesh component.
+   * @param meshComponent - The mesh component that owns this mesh
+   * @internal
+   */
   _belongToMeshComponent(meshComponent: MeshComponent) {
     this.__belongToEntities.push(meshComponent.entity);
   }
+
   /**
    * Adds primitive.
    * @param primitive The primitive object.
@@ -140,26 +160,52 @@ export class Mesh implements IMesh {
     );
   }
 
+  /**
+   * Sets the array of primitives for this mesh.
+   * @param primitives - Array of primitives to set
+   * @private
+   */
   private __setPrimitives(primitives: Primitive[]) {
     this.__primitives = primitives;
   }
 
+  /**
+   * Checks if this mesh has opaque primitives.
+   * @returns True if opaque primitives exist, false otherwise
+   */
   public isExistOpaque(): boolean {
     return this.__opaquePrimitives.length > 0;
   }
 
+  /**
+   * Checks if this mesh has translucent primitives.
+   * @returns True if translucent primitives exist, false otherwise
+   */
   public isExistTranslucent(): boolean {
     return this.__translucentPrimitives.length > 0;
   }
 
+  /**
+   * Checks if this mesh has blend-with-z-write primitives.
+   * @returns True if blend-with-z-write primitives exist, false otherwise
+   */
   public isExistBlendWithZWrite(): boolean {
     return this.__blendWithZWritePrimitives.length > 0;
   }
 
+  /**
+   * Checks if this mesh has blend-without-z-write primitives.
+   * @returns True if blend-without-z-write primitives exist, false otherwise
+   */
   public isExistBlendWithoutZWrite(): boolean {
     return this.__blendWithoutZWritePrimitives.length > 0;
   }
 
+  /**
+   * Gets the primitive at the specified index.
+   * @param i - The index of the primitive to retrieve
+   * @returns The primitive at the specified index
+   */
   public getPrimitiveAt(i: number): Primitive {
     // if (this.weights.length > 0) {
     // return this.__morphPrimitives[i];
@@ -168,13 +214,18 @@ export class Mesh implements IMesh {
     // }
   }
 
+  /**
+   * Gets the total number of primitives in this mesh.
+   * @returns The number of primitives
+   */
   public getPrimitiveNumber(): number {
     return this.__primitives.length;
   }
 
   /**
+   * Updates the variation VBO (Vertex Buffer Object) for instancing.
+   * @returns True if updated, false if not changed (not dirty)
    * @internal
-   * @returns true: updated, false: not changed (not dirty)
    */
   updateVariationVBO(): boolean {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
@@ -211,8 +262,9 @@ export class Mesh implements IMesh {
   ///
 
   /**
+   * Deletes the variation VBO (Vertex Buffer Object).
+   * @returns True if updated, false if not changed (not dirty)
    * @internal
-   * @returns true: updated, false: not changed (not dirty)
    */
   deleteVariationVBO(): boolean {
     const webglResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
@@ -225,6 +277,9 @@ export class Mesh implements IMesh {
     return false;
   }
 
+  /**
+   * Updates the VAO (Vertex Array Object) for all primitives in this mesh.
+   */
   public updateVAO(): void {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
 
@@ -262,6 +317,9 @@ export class Mesh implements IMesh {
     }
   }
 
+  /**
+   * Deletes all VAO (Vertex Array Object) resources for this mesh.
+   */
   public deleteVAO() {
     const webglResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     for (let i = 0; i < this.__vaoUids.length; i++) {
@@ -270,6 +328,13 @@ export class Mesh implements IMesh {
     }
   }
 
+  /**
+   * Performs ray casting against this mesh to find intersection points.
+   * @param srcPointInLocal - The ray origin point in local space
+   * @param directionInLocal - The ray direction in local space
+   * @param dotThreshold - The dot product threshold for back-face culling (default: 0)
+   * @returns Ray casting result with intersection information
+   */
   public castRay(
     srcPointInLocal: IVector3,
     directionInLocal: IVector3,
@@ -319,21 +384,36 @@ export class Mesh implements IMesh {
   ///
   ///
 
+  /**
+   * Gets the array of primitives in this mesh.
+   * @returns Array of primitives
+   */
   get primitives() {
     return this.__primitives;
   }
 
+  /**
+   * Gets the unique identifier for this mesh.
+   * @returns The mesh UID
+   */
   get meshUID() {
     return this.__meshUID;
   }
 
   /**
+   * Gets the variation VBO UID for internal use.
+   * @returns The variation VBO resource handle
    * @internal
    */
   get _variationVBOUid(): CGAPIResourceHandle {
     return this.__variationVBOUid;
   }
 
+  /**
+   * Called when primitive position data is updated.
+   * Updates the position update counter and moves related entities to Load stage.
+   * @internal
+   */
   _onPrimitivePositionUpdated() {
     this.__primitivePositionUpdateCount++;
     for (const entity of this.__belongToEntities) {
@@ -341,6 +421,10 @@ export class Mesh implements IMesh {
     }
   }
 
+  /**
+   * Gets the primitive position update count.
+   * @returns The number of times primitive positions have been updated
+   */
   get primitivePositionUpdateCount() {
     return this.__primitivePositionUpdateCount;
   }
@@ -377,6 +461,10 @@ export class Mesh implements IMesh {
   ///
   ///
 
+  /**
+   * Calculates morph target primitives by blending vertex attributes.
+   * @private
+   */
   private __calcMorphPrimitives() {
     for (let i = 0; i < this.__primitives.length; i++) {
       const morphPrimitive = this.__morphPrimitives[i];
@@ -477,6 +565,18 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * Calculates tangent vectors for a triangle consisting of 3 vertices.
+   * @param i - The starting vertex index
+   * @param pos0 - Position of the first vertex
+   * @param pos1 - Position of the second vertex
+   * @param pos2 - Position of the third vertex
+   * @param uv0 - UV coordinates of the first vertex
+   * @param uv1 - UV coordinates of the second vertex
+   * @param uv2 - UV coordinates of the third vertex
+   * @param norm0 - Normal vector of the first vertex
+   * @param tangentAccessor - Accessor for writing tangent data
+   * @param indicesAccessor - Optional indices accessor
+   * @private
    * @internal
    */
   private __calcTangentFor3Vertices(
@@ -533,6 +633,19 @@ export class Mesh implements IMesh {
     });
   }
 
+  /**
+   * Calculates the tangent vector for a single vertex.
+   * @param pos0Vec3 - Position of the target vertex
+   * @param pos1Vec3 - Position of the second vertex
+   * @param pos2Vec3 - Position of the third vertex
+   * @param uv0Vec2 - UV coordinates of the target vertex
+   * @param uv1Vec2 - UV coordinates of the second vertex
+   * @param uv2Vec2 - UV coordinates of the third vertex
+   * @param norm0Vec3 - Normal vector of the target vertex
+   * @param returnVec3 - Mutable vector to store the result
+   * @returns The calculated tangent vector
+   * @private
+   */
   private __calcTangentPerVertex(
     pos0Vec3: Vector3,
     pos1Vec3: Vector3,
@@ -587,6 +700,11 @@ export class Mesh implements IMesh {
     return returnVec3.setComponents(u[0], u[1], u[2]).normalize() as Vector3;
   }
 
+  /**
+   * Determines whether to use pre-calculated tangent vectors based on the tangent calculation mode.
+   * @returns True if tangent vectors should be pre-calculated, false otherwise
+   * @private
+   */
   private __usePreCalculatedTangent() {
     if (
       this.tangentCalculationMode === 0 ||
@@ -600,6 +718,7 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * Calculates barycentric coordinates for all primitives in this mesh.
    * @internal
    */
   _calcBaryCentricCoord() {
@@ -659,6 +778,7 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * Calculates face normals for primitives that don't have normal attributes.
    * @internal
    */
   _calcFaceNormalsIfNonNormal() {
@@ -710,6 +830,16 @@ export class Mesh implements IMesh {
     }
   }
 
+  /**
+   * Calculates face normals for a triangle consisting of 3 vertices.
+   * @param i - The starting vertex index
+   * @param pos0 - Position of the first vertex
+   * @param pos1 - Position of the second vertex
+   * @param pos2 - Position of the third vertex
+   * @param normalAccessor - Accessor for writing normal data
+   * @param indicesAccessor - Optional indices accessor
+   * @private
+   */
   private __calcFaceNormalFor3Vertices(
     i: Index,
     pos0: Vector3,
@@ -744,6 +874,11 @@ export class Mesh implements IMesh {
     normalAccessor.setVec3(i + 2, nx, ny, nz, { indicesAccessor });
   }
 
+  /**
+   * Gets the index of a primitive within this mesh.
+   * @param primitive - The primitive to find the index of
+   * @returns The index of the primitive in the mesh
+   */
   getPrimitiveIndexInMesh(primitive: Primitive) {
     return this.primitives.indexOf(primitive);
   }
@@ -758,6 +893,11 @@ export class Mesh implements IMesh {
     }
   }
 
+  /**
+   * Gets the current material variant name applied to this mesh.
+   * Returns empty string if no variant is applied or if primitives have different variants.
+   * @returns The current variant name or empty string
+   */
   getCurrentVariantName() {
     function allEqual(arr: string[]) {
       return arr.every((val) => val === arr[0]);
@@ -773,6 +913,10 @@ export class Mesh implements IMesh {
     return '';
   }
 
+  /**
+   * Gets all available material variant names for this mesh.
+   * @returns Array of variant names from all primitives
+   */
   getVariantNames() {
     const variants: string[] = [];
     for (const primitive of this.primitives) {
@@ -781,6 +925,10 @@ export class Mesh implements IMesh {
     return variants;
   }
 
+  /**
+   * Checks if this mesh setup is completed and ready for rendering.
+   * @returns True if setup is done, false otherwise
+   */
   isSetUpDone() {
     let vertexHandlesReady = true;
     for (const primitive of this.primitives) {
@@ -806,6 +954,7 @@ export class Mesh implements IMesh {
   }
 
   /**
+   * Updates VBO (Vertex Buffer Object) and VAO (Vertex Array Object) for all primitives.
    * @internal
    */
   _updateVBOAndVAO() {
@@ -825,6 +974,9 @@ export class Mesh implements IMesh {
     }
   }
 
+  /**
+   * Deletes all 3D API vertex data for this mesh.
+   */
   delete3DAPIVertexData() {
     for (const primitive of this.__primitives) {
       primitive.delete3DAPIVertexData();
