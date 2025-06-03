@@ -119,15 +119,26 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__cameraControllerComponent = cameraControllerComponent;
   }
 
+  /**
+   * Gets the current update count.
+   * @returns The current update count
+   */
   get updateCount() {
     return this.__updateCount;
   }
 
+  /**
+   * Updates the update count and notifies the camera controller component.
+   * @internal
+   */
   private _updateCount() {
     this.__updateCount++;
     this.__cameraControllerComponent._updateCount(this.__updateCount);
   }
 
+  /**
+   * Resets the dolly and translation values to their default state.
+   */
   resetDollyAndTranslation() {
     this.__dolly = 0.5;
     this.__mouse_translate_x = 0;
@@ -135,10 +146,18 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__mouseTranslateVec = MutableVector3.zero();
   }
 
+  /**
+   * Sets a single target entity for the camera to focus on.
+   * @param targetEntity - The entity to set as target
+   */
   setTarget(targetEntity: ISceneGraphEntity) {
     this.setTargets([targetEntity]);
   }
 
+  /**
+   * Sets multiple target entities for the camera to focus on.
+   * @param targetEntities - Array of entities to set as targets
+   */
   setTargets(targetEntities: ISceneGraphEntity[]) {
     this.__targetEntities = targetEntities;
     this.__initialTargetAABB = undefined;
@@ -146,18 +165,35 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Gets the current target entities.
+   * @returns Array of target entities
+   */
   getTargets(): ISceneGraphEntity[] {
     return this.__targetEntities;
   }
 
+  /**
+   * Sets whether to prevent default behavior on events.
+   * @param flag - True to prevent default, false otherwise
+   */
   set doPreventDefault(flag: boolean) {
     this.__doPreventDefault = flag;
   }
 
+  /**
+   * Gets whether default behavior is prevented on events.
+   * @returns True if default is prevented, false otherwise
+   */
   get doPreventDefault() {
     return this.__doPreventDefault;
   }
 
+  /**
+   * Handles mouse down events.
+   * @param e - The mouse event
+   * @internal
+   */
   __mouseDown(e: MouseEvent) {
     this.__tryToPreventDefault(e);
     // if (this.isMouseDown) return;
@@ -177,6 +213,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles mouse move events for camera control.
+   * @param e - The mouse event
+   * @internal
+   */
   __mouseMove(e: MouseEvent) {
     this.__tryToPreventDefault(e);
     if (Is.false(this.isMouseDown)) return;
@@ -224,6 +265,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles mouse up events.
+   * @param e - The mouse event
+   * @internal
+   */
   __mouseUp(e: MouseEvent) {
     this.__buttonNumber = 0;
     this.__originalX = -1;
@@ -235,6 +281,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles touch down events.
+   * @param e - The touch event
+   * @internal
+   */
   __touchDown(e: TouchEvent) {
     this.__tryToPreventDefault(e);
 
@@ -254,6 +305,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles touch move events for camera control.
+   * @param e - The touch event
+   * @internal
+   */
   __touchMove(e: TouchEvent) {
     this.__tryToPreventDefault(e);
     if (Is.false(this.isMouseDown)) return;
@@ -283,6 +339,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles touch up events.
+   * @param e - The touch event
+   * @internal
+   */
   __touchUp(e: TouchEvent) {
     const touchNumber = e.touches.length;
     if (touchNumber === 0) {
@@ -303,33 +364,66 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Sets the X-axis rotation value.
+   * @param value - The rotation value in degrees
+   */
   set rotX(value: number) {
     this.__rot_x = value;
     this.__updated = false;
     this._updateCount();
   }
 
+  /**
+   * Gets the X-axis rotation value.
+   * @returns The rotation value in degrees
+   */
   get rotX() {
     return this.__rot_x;
   }
 
+  /**
+   * Sets the Y-axis rotation value.
+   * @param value - The rotation value in degrees
+   */
   set rotY(value: number) {
     this.__rot_y = value;
     this.__updated = false;
     this._updateCount();
   }
 
+  /**
+   * Gets the Y-axis rotation value.
+   * @returns The rotation value in degrees
+   */
   get rotY() {
     return this.__rot_y;
   }
 
+  /**
+   * Sets the maximum Y rotation angle limit.
+   * @param maximum_y - The maximum Y rotation angle
+   */
   set maximumY(maximum_y: number) {
     this.__maximum_y = maximum_y;
   }
+
+  /**
+   * Sets the minimum Y rotation angle limit.
+   * @param minimum_y - The minimum Y rotation angle
+   */
   set minimumY(minimum_y: number) {
     this.__minimum_y = minimum_y;
   }
 
+  /**
+   * Controls rotation based on mouse/touch movement.
+   * @param originalX - Original X position
+   * @param originalY - Original Y position
+   * @param currentX - Current X position
+   * @param currentY - Current Y position
+   * @internal
+   */
   __rotateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     // calc rotation angle
     const delta_x = (currentX - originalX) * this.__efficiency * 0.3;
@@ -358,10 +452,24 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Controls zoom/dolly based on mouse movement.
+   * @param originalValue - Original position value
+   * @param currentValue - Current position value
+   * @internal
+   */
   __zoomControl(originalValue: Size, currentValue: Size) {
     this.dolly -= ((currentValue - originalValue) / 1000) * this.__efficiency;
   }
 
+  /**
+   * Controls parallel translation based on mouse/touch movement.
+   * @param originalX - Original X position
+   * @param originalY - Original Y position
+   * @param currentX - Current X position
+   * @param currentY - Current Y position
+   * @internal
+   */
   __parallelTranslateControl(originalX: Size, originalY: Size, currentX: Size, currentY: Size) {
     this.__mouse_translate_y = ((currentY - originalY) / 1000) * this.__efficiency;
     this.__mouse_translate_x = ((currentX - originalX) / 1000) * this.__efficiency;
@@ -385,6 +493,12 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__mouseTranslateVec.add(upDirTranslateVec).add(tangentDirTranslateVec);
   }
 
+  /**
+   * Calculates the distance between two touch points.
+   * @param e - The touch event
+   * @returns The distance between touch points
+   * @internal
+   */
   __getTouchesDistance(e: TouchEvent) {
     const touches = e.touches;
 
@@ -394,6 +508,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     return Math.hypot(diffX, diffY);
   }
 
+  /**
+   * Handles pinch in/out gestures for zoom control.
+   * @param e - The touch event
+   * @internal
+   */
   __pinchInOut(e: TouchEvent) {
     if (e.touches.length < 2) return;
 
@@ -420,6 +539,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles the end of pinch in/out gestures.
+   * @param e - The touch event
+   * @internal
+   */
   __pinchInOutEnd(e: TouchEvent) {
     if (e.touches.length < 2) {
       this.__pinchInOutControl = false;
@@ -429,12 +553,22 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Tries to prevent default behavior if configured to do so.
+   * @param evt - The event to prevent default on
+   * @internal
+   */
   private __tryToPreventDefault(evt: Event) {
     if (this.__doPreventDefault) {
       evt.preventDefault();
     }
   }
 
+  /**
+   * Handles mouse wheel events for zoom control.
+   * @param evt - The wheel event
+   * @internal
+   */
   __mouseWheel(evt: WheelEvent) {
     this.__tryToPreventDefault(evt);
     this.dolly += Math.sign(evt.deltaY) / 200;
@@ -442,10 +576,19 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this._updateCount();
   }
 
+  /**
+   * Handles context menu events.
+   * @param evt - The context menu event
+   * @internal
+   */
   __contextMenu(evt: Event) {
     this.__tryToPreventDefault(evt);
   }
 
+  /**
+   * Sets the dolly (zoom) value with gamma correction.
+   * @param value - The dolly value (0-1)
+   */
   set dolly(value) {
     value = Math.min(value, 1);
     value = Math.max(value, 0.0001);
@@ -454,10 +597,19 @@ export class OrbitCameraController extends AbstractCameraController implements I
     this.__dolly = gamma;
   }
 
+  /**
+   * Gets the dolly (zoom) value with gamma correction.
+   * @returns The dolly value (0-1)
+   */
   get dolly() {
     return Math.pow(this.__dolly, 1 / 5);
   }
 
+  /**
+   * Handles mouse double-click events for resetting camera state.
+   * @param evt - The mouse event
+   * @internal
+   */
   __mouseDblClick(evt: MouseEvent) {
     if (evt.shiftKey) {
       this.__mouseTranslateVec.zero();
@@ -469,6 +621,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Resets dolly and position on double tap for touch devices.
+   * @param e - The touch event
+   * @internal
+   */
   __resetDollyAndPosition(e: TouchEvent) {
     if (e.touches.length > 1) return;
 
@@ -483,30 +640,53 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Handles shift key press events.
+   * @param e - The keyboard event
+   * @internal
+   */
   __pressShift(e: KeyboardEvent) {
     if (e.shiftKey === true) {
       this.__isPressingShift = true;
     }
   }
 
+  /**
+   * Handles shift key release events.
+   * @param e - The keyboard event
+   * @internal
+   */
   __releaseShift(e: KeyboardEvent) {
     if (e.shiftKey === false) {
       this.__isPressingShift = false;
     }
   }
 
+  /**
+   * Handles ctrl key press events.
+   * @param e - The keyboard event
+   * @internal
+   */
   __pressCtrl(e: KeyboardEvent) {
     if (e.ctrlKey === true) {
       this.__isPressingCtrl = true;
     }
   }
 
+  /**
+   * Handles ctrl key release events.
+   * @param e - The keyboard event
+   * @internal
+   */
   __releaseCtrl(e: KeyboardEvent) {
     if (e.ctrlKey === false) {
       this.__isPressingCtrl = false;
     }
   }
 
+  /**
+   * Registers event listeners for mouse, touch, and keyboard events.
+   */
   registerEventListeners() {
     let eventTargetDom = window;
     if (Is.exist(Config.eventTargetDom)) {
@@ -695,10 +875,19 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Unregisters all event listeners.
+   */
   unregisterEventListeners() {
     InputManager.unregister(INPUT_HANDLING_STATE_CAMERA_CONTROLLER);
   }
 
+  /**
+   * Gets the field of view Y value from the camera component.
+   * @param camera - The camera component
+   * @returns The fovy value in degrees
+   * @internal
+   */
   __getFovyFromCamera(camera: CameraComponent) {
     if (camera.fovy) {
       return camera.fovy;
@@ -709,6 +898,10 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Main logic method that updates the camera based on controller state.
+   * @param cameraComponent - The camera component to update
+   */
   logic(cameraComponent: CameraComponent) {
     if (!this.__updated || this.autoUpdate) {
       this.__updateTargeting(cameraComponent);
@@ -718,6 +911,12 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Gets the target AABB (Axis-Aligned Bounding Box) for a target entity.
+   * @param targetEntity - The target entity
+   * @returns The AABB of the target entity
+   * @internal
+   */
   private __getTargetAABB(targetEntity: ISceneGraphEntity) {
     if (this.aabbWithSkeletal) {
       return targetEntity.tryToGetSceneGraph()!.worldMergedAABBWithSkeletal;
@@ -882,6 +1081,11 @@ export class OrbitCameraController extends AbstractCameraController implements I
     }
   }
 
+  /**
+   * Updates the camera component with new calculated values.
+   * @param camera - The camera component to update
+   * @internal
+   */
   __updateCameraComponent(camera: CameraComponent) {
     const eyeDirection = OrbitCameraController.__tmpVec3_0.copyComponents(this.__newCenterVec);
     eyeDirection.subtract(this.__newEyeVec).normalize();
@@ -910,24 +1114,44 @@ export class OrbitCameraController extends AbstractCameraController implements I
     camera.fovyInner = fovy;
   }
 
+  /**
+   * Sets the scale factor for zNear and zFar calculations.
+   * @param value - The scale factor
+   */
   set scaleOfZNearAndZFar(value: number) {
     this.__scaleOfZNearAndZFar = value;
     this.__updated = false;
     this._updateCount();
   }
 
+  /**
+   * Gets the scale factor for zNear and zFar calculations.
+   * @returns The scale factor
+   */
   get scaleOfZNearAndZFar() {
     return this.__scaleOfZNearAndZFar;
   }
 
+  /**
+   * Gets whether the mouse is currently pressed down.
+   * @returns True if mouse is down, false otherwise
+   */
   get isMouseDown(): boolean {
     return this.__isMouseDown;
   }
 
+  /**
+   * Gets the timestamp of the last mouse down event.
+   * @returns The timestamp in milliseconds
+   */
   get lastMouseDownTimeStamp(): number {
     return this.__lastMouseDownTimeStamp;
   }
 
+  /**
+   * Gets the timestamp of the last mouse up event.
+   * @returns The timestamp in milliseconds
+   */
   get lastMouseUpTimeStamp(): number {
     return this.__lastMouseUpTimeStamp;
   }
