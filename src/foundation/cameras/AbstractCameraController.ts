@@ -17,6 +17,13 @@ export abstract class AbstractCameraController {
 
   constructor() {}
 
+  /**
+   * Calculates the near clipping plane (zNear) for the camera based on the target entities' bounding boxes.
+   * This method is used when autoCalculateZNearAndZFar is enabled and there are target entities.
+   * @param camera - The camera component to update.
+   * @param eyePosition - The position of the camera's eye in world space.
+   * @param eyeDirection - The direction the camera is facing.
+   */
   protected _calcZNearInner(camera: CameraComponent, eyePosition: Vector3, eyeDirection: Vector3) {
     if (this.autoCalculateZNearAndZFar && this.__targetEntities.length > 0) {
       const aabb = new AABB();
@@ -46,6 +53,11 @@ export abstract class AbstractCameraController {
     }
   }
 
+  /**
+   * Calculates the far clipping plane (zFar) for the camera based on the near clipping plane and a scaling factor.
+   * This method is used when autoCalculateZNearAndZFar is enabled.
+   * @param camera - The camera component to update.
+   */
   protected _calcZFarInner(camera: CameraComponent) {
     if (this.autoCalculateZNearAndZFar) {
       camera.zFarInner = camera.zNearInner * this.zFarScalingFactor;
