@@ -22,6 +22,10 @@ import type { AbstractMaterialContent } from './AbstractMaterialContent';
 import { Material } from './Material';
 import type { MaterialTypeName } from './MaterialTypes';
 
+/**
+ * Repository class for managing material types and instances.
+ * Handles registration, creation, and lifecycle management of materials.
+ */
 export class MaterialRepository {
   ///
   /// static members
@@ -40,10 +44,14 @@ export class MaterialRepository {
   private static __materialUidCount = -1;
 
   /**
-   * Registers the material type.
-   * @param materialTypeName The type name of the material.
-   * @param materialNodes The material nodes to register.
-   * @param maxInstancesNumber The maximum number to create the material instances.
+   * Registers a new material type with the repository.
+   * This method creates the necessary data structures and allocates memory for the material type.
+   * If the material type is already registered, the registration will be skipped.
+   *
+   * @param materialTypeName - The unique name identifier for the material type
+   * @param materialNode - The material content definition containing shader semantics and properties
+   * @param maxInstanceNumber - The maximum number of instances that can be created for this material type
+   * @returns True if the material type was successfully registered, false if it was already registered
    */
   public static registerMaterial(
     materialTypeName: string,
@@ -60,6 +68,16 @@ export class MaterialRepository {
     }
   }
 
+  /**
+   * Forcibly registers a material type, overwriting any existing registration.
+   * This method bypasses the duplicate check and always performs the registration.
+   * Use with caution as it can replace existing material type definitions.
+   *
+   * @param materialTypeName - The unique name identifier for the material type
+   * @param materialNode - The material content definition containing shader semantics and properties
+   * @param maxInstanceNumber - The maximum number of instances that can be created for this material type
+   * @returns Always returns true as the registration is forced
+   */
   public static forceRegisterMaterial(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
@@ -69,22 +87,47 @@ export class MaterialRepository {
     return true;
   }
 
+  /**
+   * Checks if a material type is already registered in the repository.
+   *
+   * @param materialTypeName - The name of the material type to check
+   * @returns True if the material type is registered, false otherwise
+   */
   public static isRegisteredMaterialType(materialTypeName: string) {
     return MaterialRepository.__materialNodes.has(materialTypeName);
   }
 
+  /**
+   * Retrieves a material instance by its unique identifier.
+   * Returns undefined if the material doesn't exist or has been garbage collected.
+   *
+   * @param materialUid - The unique identifier of the material to retrieve
+   * @returns The material instance if found and still alive, undefined otherwise
+   */
   public static getMaterialByMaterialUid(materialUid: MaterialSID): Material | undefined {
     return this.__materialMap.get(materialUid)?.deref();
   }
 
+  /**
+   * Gets all currently active material instances from the repository.
+   * Returns an array of WeakRef objects that may contain undefined values
+   * if materials have been garbage collected.
+   *
+   * @returns Array of WeakRef objects pointing to all registered materials
+   */
   public static getAllMaterials() {
     return Array.from(MaterialRepository.__materialMap.values());
   }
 
   /**
-   * Creates an instance of this Material class.
-   * @param materialTypeName The material type to create.
-   * @param materialNodes_ The material nodes to add to the created material.
+   * Creates a new material instance of the specified type.
+   * The material type must be registered before calling this method.
+   * This method handles instance counting and initialization.
+   *
+   * @param materialTypeName - The name of the registered material type
+   * @param materialNode - The material content definition for this specific instance
+   * @returns A new Material instance with proper initialization
+   * @throws Error if the material type is not registered or maximum instances exceeded
    */
   public static createMaterial(
     materialTypeName: string,
@@ -107,6 +150,13 @@ export class MaterialRepository {
     return material;
   }
 
+  /**
+   * Checks if the maximum number of instances for a material type has been reached or exceeded.
+   * This is useful for preventing memory overflow by limiting material instance creation.
+   *
+   * @param materialTypeName - The name of the material type to check
+   * @returns True if the material type has reached or exceeded its maximum instance count
+   */
   public static isFullOrOverOfThisMaterialType(materialTypeName: string): boolean {
     const countOfThisType = MaterialRepository.__materialInstanceCountOfType.get(materialTypeName)!;
     const maxCountOfThisType = MaterialRepository.__maxInstances.get(materialTypeName)!;
@@ -114,6 +164,15 @@ export class MaterialRepository {
     return countOfThisType >= maxCountOfThisType;
   }
 
+  /**
+   * Determines if a new material node is compatible with an existing material.
+   * Compatibility is checked by comparing shader semantics information arrays.
+   * Materials are compatible if they have identical shader semantic structures.
+   *
+   * @param currentMaterial - The existing material to compare against
+   * @param newMaterialNode - The new material node to check for compatibility
+   * @returns True if the materials are compatible, false otherwise
+   */
   static isMaterialCompatible(
     currentMaterial: Material,
     newMaterialNode: AbstractMaterialContent
@@ -137,7 +196,13 @@ export class MaterialRepository {
   }
 
   /**
-   * Initialize Material Method
+   * Initializes a newly created material instance with proper data structures and memory allocation.
+   * This method sets up the material's shader variables, semantic information, and registers
+   * the material in the repository's tracking maps.
+   *
+   * @param material - The material instance to initialize
+   * @param countOfThisType - The current count of instances for this material type
+   * @private
    */
   private static __initializeMaterial(material: Material, countOfThisType: Count) {
     // Set name
@@ -193,6 +258,15 @@ export class MaterialRepository {
     }
   }
 
+  /**
+   * Gets the memory location offset for a specific property of a material type.
+   * The offset is calculated in 16-byte aligned units for GPU buffer access.
+   * This is used for efficient GPU memory access in shaders.
+   *
+   * @param materialTypeName - The name of the material type
+   * @param propertyName - The shader semantic name of the property
+   * @returns The byte offset divided by 16 (IndexOf16Bytes) for the property location
+   */
   static getLocationOffsetOfMemberOfMaterial(
     materialTypeName: string,
     propertyName: ShaderSemanticsName
@@ -217,6 +291,16 @@ export class MaterialRepository {
     }
   }
 
+  /**
+   * Internal method that performs the actual material type registration.
+   * This method sets up the material type ID, allocates buffer views,
+   * and initializes all necessary data structures.
+   *
+   * @param materialTypeName - The unique name identifier for the material type
+   * @param materialNode - The material content definition
+   * @param maxInstanceNumber - The maximum number of instances allowed
+   * @private
+   */
   private static __registerInner(
     materialTypeName: string,
     materialNode: AbstractMaterialContent,
@@ -231,6 +315,16 @@ export class MaterialRepository {
     MaterialRepository.__materialInstanceCountOfType.set(materialTypeName, 0);
   }
 
+  /**
+   * Allocates GPU buffer memory for a material type based on its shader semantics.
+   * This method calculates the total memory requirements, creates buffer views,
+   * and sets up accessors for efficient GPU data access.
+   *
+   * @param materialTypeName - The name of the material type to allocate memory for
+   * @param materialNode - The material node containing semantic information
+   * @returns The allocated BufferView for the material type
+   * @private
+   */
   private static __allocateBufferView(
     materialTypeName: string,
     materialNode: AbstractMaterialContent
@@ -322,6 +416,13 @@ export class MaterialRepository {
     return bufferView;
   }
 
+  /**
+   * Invalidates all shader programs for all registered materials.
+   * This method is typically called when global shader settings change
+   * and all materials need to recompile their shaders.
+   *
+   * @internal
+   */
   static _makeShaderInvalidateToAllMaterials() {
     for (const material of MaterialRepository.__materialMap.values()) {
       material.deref()?.makeShadersInvalidate();
