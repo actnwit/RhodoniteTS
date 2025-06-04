@@ -22,9 +22,20 @@ import { DataUtil } from '../misc/DataUtil';
 import { Is } from '../misc/Is';
 import { Logger } from '../misc/Logger';
 
+/**
+ * Extension class for importing Rhodonite-specific features from RnM2 format files.
+ * Handles billboard and Effekseer effect imports.
+ */
 export class RhodoniteImportExtension {
   private static __instance: RhodoniteImportExtension;
 
+  /**
+   * Imports billboard configuration from RnM2 format and applies it to scene graph entities.
+   * Processes the RHODONITE_billboard extension to enable billboard rendering for specified nodes.
+   *
+   * @param gltfJson - The RnM2 format JSON data containing billboard extension information
+   * @param groups - Array of scene graph entities corresponding to nodes in the RnM2 data
+   */
   static importBillboard(gltfJson: RnM2, groups: ISceneGraphEntity[]) {
     const RHODONITE_billboard = 'RHODONITE_billboard';
     if (
@@ -50,6 +61,13 @@ export class RhodoniteImportExtension {
     }
   }
 
+  /**
+   * Imports Effekseer effects from RnM2 format and creates corresponding Effekseer components.
+   * Processes the RHODONITE_effekseer extension to load particle effects with their configurations.
+   *
+   * @param gltfJson - The RnM2 format JSON data containing Effekseer extension information
+   * @param rootGroup - The root scene graph entity that contains all imported entities
+   */
   static importEffect(gltfJson: RnM2, rootGroup: ISceneGraphEntity) {
     const RHODONITE_effekseer = 'RHODONITE_effekseer';
     if (
@@ -80,7 +98,7 @@ export class RhodoniteImportExtension {
             effect.bufferView!,
             arrayBufferOfBuffer
           );
-          effekseerComponent.arrayBuffer = imageUint8Array.buffer.slice(
+          effekseerComponent.arrayBuffer = (imageUint8Array.buffer as ArrayBuffer).slice(
             imageUint8Array.byteOffset,
             imageUint8Array.byteOffset + imageUint8Array.byteLength
           );
@@ -98,6 +116,13 @@ export class RhodoniteImportExtension {
   }
 }
 
+/**
+ * Creates animation data for Effekseer effects based on timeline information.
+ * Processes timeline events to control effect playback timing and creates animation components.
+ *
+ * @param entity - The entity with Effekseer component to add animation to
+ * @param effect - The effect data containing timeline information
+ */
 function createEffekseerAnimation(
   entity: IEntity & ITransformEntityMethods & ISceneGraphEntityMethods & IEffekseerEntityMethods,
   effect: RnM2ExtensionsEffekseerEffect
