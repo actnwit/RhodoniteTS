@@ -19,128 +19,249 @@ import { Logger } from '../misc/Logger';
 const FloatArray = Float32Array;
 type FloatArray = Float32Array;
 
+/**
+ * Represents a 4x4 matrix stored in column-major order (OpenGL/WebGL style).
+ * This class provides immutable matrix operations and is used for 3D transformations
+ * including translation, rotation, and scaling.
+ *
+ * @example
+ * ```typescript
+ * const identity = Matrix44.identity();
+ * const translation = Matrix44.translate(Vector3.fromCopyArray([1, 2, 3]));
+ * const result = Matrix44.multiply(identity, translation);
+ * ```
+ */
 export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
+  /**
+   * Creates a new Matrix44 instance.
+   * @param m - A Float32Array containing 16 matrix elements in column-major order
+   */
   constructor(m: FloatArray) {
     super();
     this._v = m;
   }
 
+  /**
+   * Gets the matrix element at row 0, column 0.
+   * @returns The m00 component of the matrix
+   */
   public get m00() {
     return this._v[0];
   }
 
+  /**
+   * Gets the matrix element at row 1, column 0.
+   * @returns The m10 component of the matrix
+   */
   public get m10() {
     return this._v[1];
   }
 
+  /**
+   * Gets the matrix element at row 2, column 0.
+   * @returns The m20 component of the matrix
+   */
   public get m20() {
     return this._v[2];
   }
 
+  /**
+   * Gets the matrix element at row 3, column 0.
+   * @returns The m30 component of the matrix
+   */
   public get m30() {
     return this._v[3];
   }
 
+  /**
+   * Gets the matrix element at row 0, column 1.
+   * @returns The m01 component of the matrix
+   */
   public get m01() {
     return this._v[4];
   }
 
+  /**
+   * Gets the matrix element at row 1, column 1.
+   * @returns The m11 component of the matrix
+   */
   public get m11() {
     return this._v[5];
   }
 
+  /**
+   * Gets the matrix element at row 2, column 1.
+   * @returns The m21 component of the matrix
+   */
   public get m21() {
     return this._v[6];
   }
 
+  /**
+   * Gets the matrix element at row 3, column 1.
+   * @returns The m31 component of the matrix
+   */
   public get m31() {
     return this._v[7];
   }
 
+  /**
+   * Gets the matrix element at row 0, column 2.
+   * @returns The m02 component of the matrix
+   */
   public get m02() {
     return this._v[8];
   }
 
+  /**
+   * Gets the matrix element at row 1, column 2.
+   * @returns The m12 component of the matrix
+   */
   public get m12() {
     return this._v[9];
   }
 
+  /**
+   * Gets the matrix element at row 2, column 2.
+   * @returns The m22 component of the matrix
+   */
   public get m22() {
     return this._v[10];
   }
 
+  /**
+   * Gets the matrix element at row 3, column 2.
+   * @returns The m32 component of the matrix
+   */
   public get m32() {
     return this._v[11];
   }
 
+  /**
+   * Gets the matrix element at row 0, column 3.
+   * @returns The m03 component of the matrix
+   */
   public get m03() {
     return this._v[12];
   }
 
+  /**
+   * Gets the matrix element at row 1, column 3.
+   * @returns The m13 component of the matrix
+   */
   public get m13() {
     return this._v[13];
   }
 
+  /**
+   * Gets the matrix element at row 2, column 3.
+   * @returns The m23 component of the matrix
+   */
   public get m23() {
     return this._v[14];
   }
 
+  /**
+   * Gets the matrix element at row 3, column 3.
+   * @returns The m33 component of the matrix
+   */
   public get m33() {
     return this._v[15];
   }
 
+  /**
+   * Gets the X component of the translation vector from this matrix.
+   * @returns The X translation value
+   */
   public get translateX() {
     return this._v[12];
   }
 
+  /**
+   * Gets the Y component of the translation vector from this matrix.
+   * @returns The Y translation value
+   */
   public get translateY() {
     return this._v[13];
   }
 
+  /**
+   * Gets the Z component of the translation vector from this matrix.
+   * @returns The Z translation value
+   */
   public get translateZ() {
     return this._v[14];
   }
 
+  /**
+   * Gets the composition type for this matrix class.
+   * @returns The composition type enum value
+   */
   static get compositionType() {
     return CompositionType.Mat4;
   }
 
+  /**
+   * Converts the matrix to a GLSL mat4 string representation with float precision.
+   * @returns A GLSL-compatible string representation of the matrix
+   */
   get glslStrAsFloat() {
     return `mat4(${MathUtil.convertToStringAsGLSLFloat(this._v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[4])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[5])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[6])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[7])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[8])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[9])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[10])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[11])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[12])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[13])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[14])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[15])})`;
   }
 
+  /**
+   * Converts the matrix to a GLSL mat4 string representation with integer values.
+   * @returns A GLSL-compatible string representation of the matrix with integer values
+   */
   get glslStrAsInt() {
     return `mat4(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])}, ${Math.floor(this._v[4])}, ${Math.floor(this._v[5])}, ${Math.floor(this._v[6])}, ${Math.floor(this._v[7])}, ${Math.floor(this._v[8])}, ${Math.floor(this._v[9])}, ${Math.floor(this._v[10])}, ${Math.floor(this._v[11])}, ${Math.floor(this._v[12])}, ${Math.floor(this._v[13])}, ${Math.floor(this._v[14])}, ${Math.floor(this._v[15])})`;
   }
 
+  /**
+   * Converts the matrix to a WGSL mat4x4f string representation with float precision.
+   * @returns A WGSL-compatible string representation of the matrix
+   */
   get wgslStrAsFloat() {
     return `mat4x4f(${MathUtil.convertToStringAsGLSLFloat(this._v[0])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[1])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[2])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[3])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[4])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[5])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[6])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[7])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[8])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[9])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[10])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[11])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[12])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[13])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[14])}, ${MathUtil.convertToStringAsGLSLFloat(this._v[15])})`;
   }
 
+  /**
+   * Converts the matrix to a WGSL mat4x4i string representation with integer values.
+   * @returns A WGSL-compatible string representation of the matrix with integer values
+   */
   get wgslStrAsInt() {
     return `mat4x4i(${Math.floor(this._v[0])}, ${Math.floor(this._v[1])}, ${Math.floor(this._v[2])}, ${Math.floor(this._v[3])}, ${Math.floor(this._v[4])}, ${Math.floor(this._v[5])}, ${Math.floor(this._v[6])}, ${Math.floor(this._v[7])}, ${Math.floor(this._v[8])}, ${Math.floor(this._v[9])}, ${Math.floor(this._v[10])}, ${Math.floor(this._v[11])}, ${Math.floor(this._v[12])}, ${Math.floor(this._v[13])}, ${Math.floor(this._v[14])}, ${Math.floor(this._v[15])})`;
   }
 
   /**
-   * zero matrix(static version)
+   * Creates a zero matrix (all elements are 0).
+   * @returns A new Matrix44 instance with all elements set to 0
    */
   static zero() {
     return Matrix44.fromCopy16RowMajor(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   }
 
   /**
-   * Create identity matrix
+   * Creates a 4x4 identity matrix.
+   * @returns A new IdentityMatrix44 instance representing the identity matrix
    */
   static identity() {
     return new IdentityMatrix44();
   }
 
+  /**
+   * Creates a dummy matrix with zero-length array (for placeholder purposes).
+   * @returns A new Matrix44 instance with an empty array
+   */
   static dummy() {
     return new this(new Float32Array(0));
   }
 
   /**
-   * Create transpose matrix
+   * Creates a transpose matrix from the given matrix.
+   * For identity matrices, returns the same matrix since transpose of identity is identity.
+   * @param mat - The matrix to transpose
+   * @returns A new Matrix44 instance representing the transposed matrix
    */
   static transpose(mat: IMatrix44) {
     if (mat.isIdentityMatrixClass) {
@@ -151,7 +272,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Create invert matrix
+   * Creates an inverse matrix from the given matrix.
+   * Uses optimized computation for 4x4 matrix inversion.
+   * @param mat - The matrix to invert
+   * @returns A new Matrix44 instance representing the inverted matrix
+   * @throws Logs an error if the matrix is not invertible (determinant is 0)
    */
   static invert(mat: IMatrix44): IMatrix44 {
     if (mat.isIdentityMatrixClass) {
@@ -213,6 +338,14 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Computes the inverse of a matrix and stores the result in an output matrix.
+   * This is the mutable version of the invert method for performance optimization.
+   * @param mat - The matrix to invert
+   * @param outMat - The output matrix to store the result
+   * @returns The output matrix containing the inverted matrix
+   * @throws Logs an error if the matrix is not invertible (determinant is 0)
+   */
   static invertTo(mat: IMatrix44, outMat: MutableMatrix44) {
     if (mat.isIdentityMatrixClass) {
       return outMat.copyComponents(mat);
@@ -274,7 +407,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Create translation Matrix
+   * Creates a translation matrix from a 3D vector.
+   * @param vec - The translation vector
+   * @returns A new Matrix44 instance representing the translation transformation
    */
   static translate(vec: Vector3) {
     return Matrix44.fromCopy16RowMajor(
@@ -298,7 +433,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Create X oriented Rotation Matrix
+   * Creates a rotation matrix around the X-axis.
+   * @param radian - The rotation angle in radians
+   * @returns A new Matrix44 instance representing the X-axis rotation
    */
   static rotateX(radian: number) {
     const cos = Math.cos(radian);
@@ -307,7 +444,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Create Y oriented Rotation Matrix
+   * Creates a rotation matrix around the Y-axis.
+   * @param radian - The rotation angle in radians
+   * @returns A new Matrix44 instance representing the Y-axis rotation
    */
   static rotateY(radian: number) {
     const cos = Math.cos(radian);
@@ -316,7 +455,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Create Z oriented Rotation Matrix
+   * Creates a rotation matrix around the Z-axis.
+   * @param radian - The rotation angle in radians
+   * @returns A new Matrix44 instance representing the Z-axis rotation
    */
   static rotateZ(radian: number) {
     const cos = Math.cos(radian);
@@ -324,6 +465,14 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return Matrix44.fromCopy16RowMajor(cos, -sin, 0, 0, sin, cos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
+  /**
+   * Creates a rotation matrix from Euler angles (XYZ order).
+   * Applies rotations in the order: X, then Y, then Z.
+   * @param x - Rotation around X-axis in radians
+   * @param y - Rotation around Y-axis in radians
+   * @param z - Rotation around Z-axis in radians
+   * @returns A new Matrix44 instance representing the combined rotation
+   */
   static rotateXYZ(x: number, y: number, z: number) {
     const cosX = Math.cos(x);
     const sinX = Math.sin(x);
@@ -412,12 +561,19 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Creates a rotation matrix from a 3D vector containing Euler angles.
+   * @param vec - A vector containing rotation angles [x, y, z] in radians
+   * @returns A new Matrix44 instance representing the rotation
+   */
   static rotate(vec: IVector3) {
     return this.rotateXYZ(vec._v[0], vec._v[1], vec._v[2]);
   }
 
   /**
-   * Create Scale Matrix
+   * Creates a scaling matrix from a 3D vector.
+   * @param vec - The scaling factors for each axis [x, y, z]
+   * @returns A new Matrix44 instance representing the scaling transformation
    */
   static scale(vec: IVector3) {
     return Matrix44.fromCopy16RowMajor(
@@ -441,7 +597,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * multiply matrixes
+   * Multiplies two 4x4 matrices and returns the result.
+   * Optimized to handle identity matrices efficiently.
+   * @param l_mat - The left matrix in the multiplication
+   * @param r_mat - The right matrix in the multiplication
+   * @returns A new Matrix44 instance representing the matrix product (l_mat * r_mat)
    */
   static multiply(l_mat: IMatrix44, r_mat: IMatrix44): IMatrix44 {
     if (l_mat.isIdentityMatrixClass) {
@@ -493,7 +653,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * multiply matrixes
+   * Multiplies two 4x4 matrices and stores the result in an output matrix.
+   * This is the mutable version of the multiply method for performance optimization.
+   * @param l_mat - The left matrix in the multiplication
+   * @param r_mat - The right matrix in the multiplication
+   * @param outMat - The output matrix to store the result
+   * @returns The output matrix containing the multiplication result
    */
   static multiplyTo(l_mat: IMatrix44, r_mat: IMatrix44, outMat: MutableMatrix44) {
     if (l_mat.isIdentityMatrixClass) {
@@ -544,6 +709,15 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Multiplies a matrix with data from a typed array and stores the result.
+   * This method is optimized for working with raw array data.
+   * @param l_mat - The left matrix in the multiplication
+   * @param r_array - The right operand as a typed array
+   * @param outMat - The output matrix to store the result
+   * @param offsetAsComposition - The offset in the array for composition data
+   * @returns The output matrix containing the multiplication result
+   */
   static multiplyTypedArrayTo(
     l_mat: IMatrix44,
     r_array: ArrayType,
@@ -560,6 +734,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outMat;
   }
 
+  /**
+   * Creates a rotation matrix from a quaternion and stores it in an output matrix.
+   * @param quat - The quaternion representing the rotation
+   * @param outMat - The output matrix to store the result
+   * @returns The output matrix containing the rotation matrix
+   */
   static fromQuaternionTo(quat: IQuaternion, outMat: MutableMatrix44) {
     const sx = quat._v[0] * quat._v[0];
     const sy = quat._v[1] * quat._v[1];
@@ -608,6 +788,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Converts the matrix to a human-readable string representation.
+   * Elements are displayed in row-major order for intuitive reading.
+   * @returns A formatted string representation of the matrix
+   */
   toString() {
     return (
       this._v[0] +
@@ -645,6 +830,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Converts the matrix to a human-readable string with rounded values.
+   * Uses financial rounding for better readability of floating-point numbers.
+   * @returns A formatted string representation with approximated values
+   */
   toStringApproximately() {
     return (
       MathUtil.financial(this._v[0]) +
@@ -682,6 +872,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Flattens the matrix into a regular JavaScript array.
+   * Elements are returned in column-major order (WebGL compatible).
+   * @returns An array containing all 16 matrix elements
+   */
   flattenAsArray() {
     return [
       this._v[0],
@@ -703,6 +898,10 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     ];
   }
 
+  /**
+   * Checks if this is a dummy matrix (empty array).
+   * @returns true if the matrix has no elements, false otherwise
+   */
   isDummy() {
     if (this._v.length === 0) {
       return true;
@@ -711,6 +910,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     }
   }
 
+  /**
+   * Checks if this matrix is approximately equal to another matrix.
+   * @param mat - The matrix to compare with
+   * @param delta - The tolerance for floating-point comparison (default: Number.EPSILON)
+   * @returns true if matrices are approximately equal within the given tolerance
+   */
   isEqual(mat: IMatrix44, delta: number = Number.EPSILON) {
     const v = (mat as Matrix44)._v;
     if (
@@ -737,6 +942,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     }
   }
 
+  /**
+   * Checks if this matrix is exactly equal to another matrix.
+   * Uses strict equality comparison for all elements.
+   * @param mat - The matrix to compare with
+   * @returns true if matrices are exactly equal, false otherwise
+   */
   isStrictEqual(mat: IMatrix44) {
     if (
       mat._v[0] === this._v[0] &&
@@ -762,10 +973,20 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     }
   }
 
+  /**
+   * Gets a matrix element at the specified row and column.
+   * @param row_i - The row index (0-3)
+   * @param column_i - The column index (0-3)
+   * @returns The matrix element at the given position
+   */
   at(row_i: number, column_i: number) {
     return this._v[row_i + column_i * 4];
   }
 
+  /**
+   * Calculates the determinant of this 4x4 matrix.
+   * @returns The determinant value
+   */
   determinant() {
     return (
       this._v[0] * this._v[5] * this._v[10] * this._v[15] +
@@ -795,6 +1016,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     );
   }
 
+  /**
+   * Multiplies this matrix with a 4D vector and returns the result.
+   * @param vec - The 4D vector to multiply
+   * @returns A new Vector4 containing the multiplication result
+   */
   multiplyVector(vec: IVector4): IVector4 {
     const x =
       this._v[0] * vec._v[0] +
@@ -820,6 +1046,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return Vector4.fromCopyArray([x, y, z, w]);
   }
 
+  /**
+   * Multiplies this matrix with a 4D vector and stores the result in an output vector.
+   * @param vec - The 4D vector to multiply
+   * @param outVec - The output vector to store the result
+   * @returns The output vector containing the multiplication result
+   */
   multiplyVectorTo(vec: IVector4, outVec: MutableVector4) {
     const x =
       this._v[0] * vec._v[0] +
@@ -849,6 +1081,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec;
   }
 
+  /**
+   * Multiplies this matrix with a 4D vector and stores the XYZ components in a 3D vector.
+   * @param vec - The 4D vector to multiply
+   * @param outVec - The output 3D vector to store the XYZ components
+   * @returns The output vector containing the XYZ components of the result
+   */
   multiplyVectorToVec3(vec: IVector4, outVec: MutableVector3) {
     const x =
       this._v[0] * vec._v[0] +
@@ -872,6 +1110,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec;
   }
 
+  /**
+   * Multiplies this matrix with a 3D vector (treating it as a point with w=1).
+   * @param vec - The 3D vector to multiply
+   * @returns A new Vector3 containing the transformed point
+   */
   multiplyVector3(vec: IVector3): IVector3 {
     const x =
       this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
@@ -883,6 +1126,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return Vector3.fromCopyArray([x, y, z]);
   }
 
+  /**
+   * Multiplies this matrix with a 3D vector and stores the result (treating it as a point with w=1).
+   * @param vec - The 3D vector to multiply
+   * @param outVec - The output vector to store the result
+   * @returns The output vector containing the transformed point
+   */
   multiplyVector3To(vec: IVector3, outVec: MutableVector3) {
     const x =
       this._v[0] * vec._v[0] + this._v[4] * vec._v[1] + this._v[8] * vec._v[2] + this._v[12]; // regards vec.w(vec._v[3]) as 1
@@ -897,12 +1146,18 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec;
   }
 
+  /**
+   * Extracts the translation vector from this transformation matrix.
+   * @returns A new Vector3 containing the translation components
+   */
   getTranslate() {
     return Vector3.fromCopyArray([this._v[12], this._v[13], this._v[14]]);
   }
 
   /**
-   * get translate vector from this matrix
+   * Extracts the translation vector from this matrix and stores it in an output vector.
+   * @param outVec - The output vector to store the translation
+   * @returns The output vector containing the translation components
    */
   getTranslateTo(outVec: MutableVector3) {
     outVec._v[0] = this._v[12];
@@ -911,6 +1166,10 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec;
   }
 
+  /**
+   * Extracts the scale factors from this transformation matrix.
+   * @returns A new Vector3 containing the scale components for each axis
+   */
   getScale() {
     return Vector3.fromCopyArray([
       Math.hypot(this._v[0], this._v[1], this._v[2]),
@@ -920,7 +1179,9 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * get scale vector from this matrix
+   * Extracts the scale factors from this matrix and stores them in an output vector.
+   * @param outVec - The output vector to store the scale factors
+   * @returns The output vector containing the scale components
    */
   getScaleTo(outVec: MutableVector3) {
     outVec._v[0] = Math.hypot(this._v[0], this._v[1], this._v[2]);
@@ -930,7 +1191,8 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * @return Euler Angles Rotation (x, y, z)
+   * Converts this transformation matrix to Euler angles (XYZ rotation order).
+   * @returns A Vector3 containing the Euler angles [x, y, z] in radians
    */
   toEulerAngles(): Vector3 {
     let rotate: Vector3;
@@ -948,6 +1210,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return rotate;
   }
 
+  /**
+   * Converts this transformation matrix to Euler angles and stores them in an output vector.
+   * @param outVec3 - The output vector to store the Euler angles
+   * @returns The output vector containing the Euler angles [x, y, z] in radians
+   */
   toEulerAnglesTo(outVec3: MutableVector3) {
     if (Math.abs(this._v[2]) !== 1.0) {
       const y = -Math.asin(this._v[2]);
@@ -969,6 +1236,10 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return outVec3;
   }
 
+  /**
+   * Creates a deep copy of this matrix.
+   * @returns A new Matrix44 instance with the same values
+   */
   clone() {
     return (this.constructor as any).fromCopy16RowMajor(
       this._v[0],
@@ -990,6 +1261,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     ) as Matrix44;
   }
 
+  /**
+   * Extracts the rotation part of this transformation matrix.
+   * Removes scaling effects to get pure rotation.
+   * @returns A new Matrix44 containing only the rotation transformation
+   */
   getRotate() {
     // const quat = Quaternion.fromMatrix(this);
     // const rotateMat = (this.constructor as any).fromCopyQuaternion(quat) as Matrix44;
@@ -1019,11 +1295,28 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Set values as Row Major
-   * Note that WebGL matrix keeps the values in column major.
-   * If you write 16 values in 4x4 style (4 values in each row),
-   *   It will becomes an intuitive handling.
-   * @returns
+   * Creates a matrix from 16 individual values in row-major order.
+   * This is the most intuitive way to specify matrix values, as you can
+   * write them in the same 4x4 layout as they appear visually.
+   * Note that internally, WebGL uses column-major storage.
+   *
+   * @param m00 - Element at row 0, column 0
+   * @param m01 - Element at row 0, column 1
+   * @param m02 - Element at row 0, column 2
+   * @param m03 - Element at row 0, column 3
+   * @param m10 - Element at row 1, column 0
+   * @param m11 - Element at row 1, column 1
+   * @param m12 - Element at row 1, column 2
+   * @param m13 - Element at row 1, column 3
+   * @param m20 - Element at row 2, column 0
+   * @param m21 - Element at row 2, column 1
+   * @param m22 - Element at row 2, column 2
+   * @param m23 - Element at row 2, column 3
+   * @param m30 - Element at row 3, column 0
+   * @param m31 - Element at row 3, column 1
+   * @param m32 - Element at row 3, column 2
+   * @param m33 - Element at row 3, column 3
+   * @returns A new Matrix44 instance
    */
   static fromCopy16RowMajor(
     m00: number,
@@ -1064,9 +1357,26 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
   }
 
   /**
-   * Set values as Column Major
-   * Note that WebGL matrix keeps the values in column major.
-   * @returns
+   * Creates a matrix from 16 individual values in column-major order.
+   * This matches the internal storage format used by WebGL.
+   *
+   * @param m00 - Element at row 0, column 0
+   * @param m10 - Element at row 1, column 0
+   * @param m20 - Element at row 2, column 0
+   * @param m30 - Element at row 3, column 0
+   * @param m01 - Element at row 0, column 1
+   * @param m11 - Element at row 1, column 1
+   * @param m21 - Element at row 2, column 1
+   * @param m31 - Element at row 3, column 1
+   * @param m02 - Element at row 0, column 2
+   * @param m12 - Element at row 1, column 2
+   * @param m22 - Element at row 2, column 2
+   * @param m32 - Element at row 3, column 2
+   * @param m03 - Element at row 0, column 3
+   * @param m13 - Element at row 1, column 3
+   * @param m23 - Element at row 2, column 3
+   * @param m33 - Element at row 3, column 3
+   * @returns A new Matrix44 instance
    */
   static fromCopy16ColumnMajor(
     m00: number,
@@ -1106,22 +1416,45 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a new matrix by copying another Matrix44 instance.
+   * @param mat - The source matrix to copy
+   * @returns A new Matrix44 instance with copied values
+   */
   static fromCopyMatrix44(mat: Matrix44) {
     const v = new Float32Array(16);
     v.set(mat._v);
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a matrix directly from a Float32Array in column-major order.
+   * The array is used directly without copying (shares the same memory).
+   * @param float32Array - A Float32Array containing 16 matrix elements
+   * @returns A new Matrix44 instance using the provided array
+   */
   static fromFloat32ArrayColumnMajor(float32Array: Float32Array) {
     return new Matrix44(float32Array);
   }
 
+  /**
+   * Creates a matrix from a Float32Array in column-major order with copying.
+   * @param float32Array - A Float32Array containing 16 matrix elements
+   * @returns A new Matrix44 instance with copied values
+   */
   static fromCopyFloat32ArrayColumnMajor(float32Array: Float32Array) {
     const v = new Float32Array(16);
     v.set(float32Array);
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a matrix from a Float32Array in row-major order with copying.
+   * The input array is assumed to be in row-major order and will be converted
+   * to column-major order for internal storage.
+   * @param array - A Float32Array containing 16 matrix elements in row-major order
+   * @returns A new Matrix44 instance with converted values
+   */
   static fromCopyFloat32ArrayRowMajor(array: Float32Array) {
     const v = new Float32Array(16);
     v[0] = array[0];
@@ -1143,6 +1476,13 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a 4x4 matrix from a 3x3 matrix by embedding it in the upper-left corner.
+   * The resulting matrix has the 3x3 matrix in the upper-left, with the bottom-right
+   * element set to 1 and other elements set to 0.
+   * @param mat - The 3x3 matrix to embed
+   * @returns A new Matrix44 instance
+   */
   static fromCopyMatrix33(mat: IMatrix33) {
     const v = new Float32Array(16);
     v[0] = mat._v[0];
@@ -1164,18 +1504,34 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a matrix from a fixed-size array (Array16) in column-major order.
+   * @param array - An Array16 containing exactly 16 matrix elements
+   * @returns A new Matrix44 instance with copied values
+   */
   static fromCopyArray16ColumnMajor(array: Array16<number>) {
     const v = new Float32Array(16);
     v.set(array);
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a matrix from a variable-length array in column-major order.
+   * @param array - An array containing at least 16 matrix elements
+   * @returns A new Matrix44 instance with copied values
+   */
   static fromCopyArrayColumnMajor(array: Array<number>) {
     const v = new Float32Array(16);
     v.set(array);
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a matrix from a fixed-size array (Array16) in row-major order.
+   * The input array is converted from row-major to column-major order.
+   * @param array - An Array16 containing exactly 16 matrix elements in row-major order
+   * @returns A new Matrix44 instance with converted values
+   */
   static fromCopyArray16RowMajor(array: Array16<number>) {
     const v = new Float32Array(16);
     v[0] = array[0];
@@ -1197,6 +1553,12 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a matrix from a variable-length array in row-major order.
+   * The input array is converted from row-major to column-major order.
+   * @param array - An array containing at least 16 matrix elements in row-major order
+   * @returns A new Matrix44 instance with converted values
+   */
   static fromCopyArrayRowMajor(array: Array<number>) {
     const v = new Float32Array(16);
     v[0] = array[0];
@@ -1218,6 +1580,11 @@ export class Matrix44 extends AbstractMatrix implements IMatrix, IMatrix44 {
     return new Matrix44(v);
   }
 
+  /**
+   * Creates a rotation matrix from a quaternion.
+   * @param q - The quaternion representing the rotation
+   * @returns A new Matrix44 instance representing the rotation transformation
+   */
   static fromCopyQuaternion(q: IQuaternion) {
     const sx = q._v[0] * q._v[0];
     const sy = q._v[1] * q._v[1];

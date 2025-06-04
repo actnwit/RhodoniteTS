@@ -2,15 +2,30 @@ import { MutableMatrix33 } from './MutableMatrix33';
 import { MutableVector3 } from './MutableVector3';
 import { Count, Size } from '../../types/CommonTypes';
 
+/**
+ * Converts radians to degrees.
+ * @param rad - The angle in radians
+ * @returns The angle in degrees
+ */
 function radianToDegree(rad: number): number {
   return (rad * 180) / Math.PI;
 }
 
+/**
+ * Converts degrees to radians.
+ * @param deg - The angle in degrees
+ * @returns The angle in radians
+ */
 function degreeToRadian(deg: number): number {
   return (deg * Math.PI) / 180;
 }
 
-// https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
+/**
+ * Converts a 32-bit floating point number to a 16-bit half-precision float.
+ * This implementation is based on the OpenEXR half-precision format with additional rounding.
+ * Implementation reference: https://gamedev.stackexchange.com/questions/17326/conversion-of-a-number-from-single-precision-floating-point-representation-to-a/17410#17410
+ * @returns A function that converts a number to half-precision float representation
+ */
 const toHalfFloat = (): ((val: number) => number) => {
   /* This method is faster than the OpenEXR implementation (very often
    * used, eg. in Ogre), with the additional benefit of rounding, inspired
@@ -58,20 +73,34 @@ const toHalfFloat = (): ((val: number) => number) => {
 };
 
 /**
- * check whether or not this texture size is power of two.
- *
- * @param x texture size.
- * @returns check whether or not the size x is power of two.
+ * Checks whether a number is a power of two.
+ * @param x - The number to check
+ * @returns True if the number is a power of two, false otherwise
  */
 function isPowerOfTwo(x: number): boolean {
   return (x & (x - 1)) == 0;
 }
 
+/**
+ * Checks whether the given texture dimensions are both powers of two.
+ * @param width - The width of the texture
+ * @param height - The height of the texture
+ * @returns True if both dimensions are powers of two, false otherwise
+ */
 function isPowerOfTwoTexture(width: Size, height: Size): boolean {
   return isPowerOfTwo(width) && isPowerOfTwo(height);
 }
 
-// values range must be [-1, 1]
+/**
+ * Packs a normalized 4D vector into a 2D vector using a specific encoding scheme.
+ * All input values must be in the range [-1, 1].
+ * @param x - The x component of the vector (range: [-1, 1])
+ * @param y - The y component of the vector (range: [-1, 1])
+ * @param z - The z component of the vector (range: [-1, 1])
+ * @param w - The w component of the vector (range: [-1, 1])
+ * @param criteria - The encoding criteria/resolution
+ * @returns A 2-element array containing the packed values
+ */
 function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, criteria: number): number[] {
   // range to [0, s1]
   x = (x + 1) / 2.0;
@@ -91,6 +120,12 @@ function packNormalizedVec4ToVec2(x: number, y: number, z: number, w: number, cr
   return [v0, v1];
 }
 
+/**
+ * Calculates the error function (erf) for a given value.
+ * The error function is defined as erf(x) = (2/√π) ∫[0 to x] e^(-t²) dt
+ * @param x - The input value
+ * @returns The error function value for x
+ */
 function erf(x: number): number {
   // Save the sign of x
   let sign = 1;
@@ -108,6 +143,12 @@ function erf(x: number): number {
   return sign * y;
 }
 
+/**
+ * Calculates the inverse error function (erf⁻¹) for a given value.
+ * This is the inverse of the error function: if y = erf(x), then x = invErf(y).
+ * @param x - The input value (should be in range [-1, 1])
+ * @returns The inverse error function value for x
+ */
 function invErf(x: number): number {
   let w: number,
     p = 0;
@@ -138,16 +179,37 @@ function invErf(x: number): number {
   return p * x;
 }
 
+/**
+ * Calculates the cumulative distribution function (CDF) for a Gaussian distribution.
+ * @param x - The value at which to evaluate the CDF
+ * @param mu - The mean of the Gaussian distribution
+ * @param sigma - The standard deviation of the Gaussian distribution
+ * @returns The cumulative probability up to x
+ */
 function gaussianCdf(x: number, mu: number, sigma: number): number {
   const U: number = 0.5 * (1 + erf((x - mu) / (sigma * Math.sqrt(2.0))));
   return U;
 }
 
+/**
+ * Calculates the inverse cumulative distribution function (inverse CDF) for a Gaussian distribution.
+ * @param U - The cumulative probability (should be in range [0, 1])
+ * @param mu - The mean of the Gaussian distribution
+ * @param sigma - The standard deviation of the Gaussian distribution
+ * @returns The value x such that CDF(x) = U
+ */
 function invGaussianCdf(U: number, mu: number, sigma: number): number {
   const x: number = sigma * Math.sqrt(2.0) * invErf(2.0 * U - 1) + mu;
   return x;
 }
 
+/**
+ * Computes eigenvalues and eigenvectors of a 3x3 symmetric matrix using the Jacobi method.
+ * @param A - The input 3x3 symmetric matrix (will be modified during computation)
+ * @param Q - The output matrix that will contain the eigenvectors
+ * @param w - The output vector that will contain the eigenvalues
+ * @returns 0 on success, -1 if maximum iterations exceeded
+ */
 function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w: MutableVector3) {
   const n = 3;
   let sd = 0;
@@ -247,6 +309,12 @@ function computeEigenValuesAndVectors(A: MutableMatrix33, Q: MutableMatrix33, w:
   return -1;
 }
 
+/**
+ * Converts a numeric value to a string formatted for GLSL float literals.
+ * Ensures that integer values are suffixed with ".0" for proper GLSL syntax.
+ * @param value - The numeric value to convert
+ * @returns A string representation suitable for GLSL float literals
+ */
 function convertToStringAsGLSLFloat(value: number): string {
   if (Number.isInteger(value)) {
     return `${value}.0`;
@@ -255,6 +323,12 @@ function convertToStringAsGLSLFloat(value: number): string {
   }
 }
 
+/**
+ * Rounds very small values to zero and values very close to ±1 to exactly ±1.
+ * This helps reduce floating-point precision errors in calculations.
+ * @param value - The value to normalize
+ * @returns The normalized value with small errors corrected
+ */
 function nearZeroToZero(value: number): number {
   if (Math.abs(value) < 0.00001) {
     value = 0;
@@ -266,6 +340,12 @@ function nearZeroToZero(value: number): number {
   return value;
 }
 
+/**
+ * Formats a numeric value as a fixed-width financial string with 7 decimal places.
+ * Positive values are prefixed with a space for alignment.
+ * @param val - The numeric value to format
+ * @returns A formatted string with consistent width for financial display
+ */
 function financial(val: number | string): string {
   const fixedStr = Number.parseFloat(val as string).toFixed(7);
   if ((val as number) >= 0) {
@@ -274,24 +354,40 @@ function financial(val: number | string): string {
   return fixedStr;
 }
 
+/**
+ * Rounds a floating-point number to 7 decimal places to reduce precision errors.
+ * @param value - The value to round
+ * @returns The rounded value
+ */
 function roundAsFloat(value: number): number {
   return Math.round(value * 10000000) / 10000000;
 }
 
+/**
+ * Performs linear interpolation between two values.
+ * @param a - The starting value
+ * @param b - The ending value
+ * @param t - The interpolation parameter (0 returns a, 1 returns b)
+ * @returns The interpolated value
+ */
 function lerp(a: number, b: number, t: number): number {
   return a * (1 - t) + b * t;
 }
 
 /**
- * This function calculates the ratio of a discrete Gaussian distribution.
- * The sampling points are one away from each other. The sum of the ratios is 1.
- * @kernelSize number of sampling points
- * @variance variance of the Gaussian distribution
- * @mean mean of the Gaussian distribution
- * e.g. kernelSize = 2 (mean=0) => the sampling points are -0.5 and 0.5
- * e.g. kernelSize = 3 (mean=1) => the sampling points are 0.0, 1.0 and 2.0
- * @effectiveDigit effectiveDigit of values in return array
- * @returns array of the Gaussian distribution where the sum of the elements is 1
+ * Computes a normalized discrete Gaussian distribution where the sum of all ratios equals 1.
+ * The sampling points are positioned at integer intervals around the mean.
+ *
+ * @param params - Configuration object for the Gaussian distribution
+ * @param params.kernelSize - Number of sampling points in the distribution
+ * @param params.variance - Variance of the Gaussian distribution
+ * @param params.mean - Mean of the Gaussian distribution (default: 0)
+ * @param params.effectiveDigit - Number of decimal places for precision (default: 4)
+ * @returns An array of normalized ratios that sum to 1
+ *
+ * @example
+ * // For kernelSize = 2 (mean=0): sampling points are at -0.5 and 0.5
+ * // For kernelSize = 3 (mean=1): sampling points are at 0.0, 1.0, and 2.0
  */
 function computeGaussianDistributionRatioWhoseSumIsOne({
   kernelSize,
@@ -352,6 +448,17 @@ function computeGaussianDistributionRatioWhoseSumIsOne({
   return gaussianDistributionRatioWhoseSumIsOne;
 }
 
+/**
+ * A utility class containing various mathematical functions and operations.
+ * This class provides static methods for common mathematical computations including:
+ * - Angle conversions (radians/degrees)
+ * - Floating point operations and conversions
+ * - Power-of-two checks
+ * - Vector packing utilities
+ * - Statistical functions (Gaussian distributions, error functions)
+ * - Matrix eigenvalue computations
+ * - Interpolation and formatting utilities
+ */
 export const MathUtil = Object.freeze({
   radianToDegree,
   degreeToRadian,
