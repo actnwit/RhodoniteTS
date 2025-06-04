@@ -49,6 +49,11 @@ import { WellKnownComponentTIDs } from '../../components/WellKnownComponentTIDs'
 import { MutableVector4 } from '../../math/MutableVector4';
 import { MutableVector2 } from '../../math/MutableVector2';
 
+/**
+ * Material content implementation for MToon 0.x shader.
+ * This class handles the creation and configuration of MToon materials,
+ * which are commonly used for toon-style rendering in VRM models.
+ */
 export class MToon0xMaterialContent extends AbstractMaterialContent {
   private static __diffuseIblCubeMapSampler = new Sampler({
     minFilter: TextureParameter.Linear,
@@ -142,6 +147,22 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
   } = {};
   private __textureProperties: any = {};
 
+  /**
+   * Creates a new MToon 0.x material content instance.
+   *
+   * @param isOutline - Whether this material is for outline rendering
+   * @param materialProperties - VRM material properties from the glTF file
+   * @param textures - Array of textures used by the material
+   * @param samplers - Array of samplers for texture sampling configuration
+   * @param isMorphing - Whether morphing (blend shapes) is enabled
+   * @param isSkinning - Whether skeletal animation is enabled
+   * @param isLighting - Whether lighting calculations are enabled
+   * @param useTangentAttribute - Whether to use tangent attributes for normal mapping
+   * @param debugMode - Debug visualization mode (optional)
+   * @param makeOutputSrgb - Whether to convert output to sRGB color space
+   * @param materialName - Name identifier for the material
+   * @param definitions - Additional shader preprocessor definitions
+   */
   constructor(
     isOutline: boolean,
     materialProperties: Vrm0xMaterialProperty | undefined,
@@ -588,6 +609,17 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets up dummy textures and their associated shader semantics information.
+   * This method configures default texture bindings for various MToon texture slots
+   * and adds corresponding shader semantics entries.
+   *
+   * @param textures - Array of available textures
+   * @param samplers - Array of texture samplers
+   * @param shaderSemanticsInfoArray - Array to populate with shader semantics information
+   * @param isOutline - Whether outline textures should be included
+   * @private
+   */
   private __setDummyTextures(
     textures: Texture[],
     samplers: Sampler[],
@@ -735,6 +767,14 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     }
   }
 
+  /**
+   * Configures material parameters based on MToon properties.
+   * This method sets up blending modes, culling, and other rendering states
+   * based on the material's MToon properties.
+   *
+   * @param material - The material instance to configure
+   * @param isOutline - Whether this is an outline material
+   */
   setMaterialParameters(material: Material, isOutline: boolean) {
     if (MToon0xMaterialContent.usableBlendEquationModeAlpha == null) {
       MToon0xMaterialContent.__initializeUsableBlendEquationModeAlpha();
@@ -805,6 +845,13 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     material.zWriteWhenBlend = this.__floatProperties._ZWrite === 1;
   }
 
+  /**
+   * Initializes the usable blend equation mode for alpha blending.
+   * This method determines the appropriate blend equation mode based on
+   * the current rendering API and available extensions.
+   *
+   * @private
+   */
   private static __initializeUsableBlendEquationModeAlpha() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       MToon0xMaterialContent.usableBlendEquationModeAlpha = 32776; // gl.MAX
@@ -822,6 +869,15 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     }
   }
 
+  /**
+   * Sets internal shader parameters for WebGPU rendering.
+   * This method configures camera-related and IBL (Image-Based Lighting) parameters
+   * that are managed internally by the material system.
+   *
+   * @param params - Object containing material and rendering arguments
+   * @param params.material - The material instance to configure
+   * @param params.args - WebGPU rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGpu({
     material,
     args,
@@ -873,6 +929,17 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     }
   }
 
+  /**
+   * Sets shader-specific internal parameters for WebGL rendering.
+   * This method is called once per shader program and sets up
+   * IBL environment textures and other program-level uniforms.
+   *
+   * @param params - Object containing rendering parameters
+   * @param params.material - The material instance
+   * @param params.shaderProgram - The WebGL shader program
+   * @param params.firstTime - Whether this is the first time setup
+   * @param params.args - WebGL rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGLPerShaderProgram({
     material,
     shaderProgram,
@@ -914,6 +981,17 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     // }
   }
 
+  /**
+   * Sets material-specific internal parameters for WebGL rendering.
+   * This method is called per material and configures matrices, lighting,
+   * morphing, skinning, and other per-material uniforms.
+   *
+   * @param params - Object containing rendering parameters
+   * @param params.material - The material instance
+   * @param params.shaderProgram - The WebGL shader program
+   * @param params.firstTime - Whether this is the first time setup
+   * @param params.args - WebGL rendering arguments
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
@@ -1007,6 +1085,14 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     this.setMorphInfo(shaderProgram, args.entity.getMesh(), args.primitive, blendShapeComponent);
   }
 
+  /**
+   * Converts Unity blend mode enum values to corresponding WebGL blend constants.
+   * This method maps Unity's blend mode enumeration to the appropriate
+   * WebGL blend function constants for proper alpha blending.
+   *
+   * @param enumNumber - Unity blend mode enum value
+   * @returns Corresponding WebGL blend constant
+   */
   static unityBlendEnumCorrespondence(enumNumber: number) {
     let result = GL_ZERO as number; // gl.ZERO
     switch (enumNumber) {
@@ -1047,6 +1133,15 @@ export class MToon0xMaterialContent extends AbstractMaterialContent {
     return result;
   }
 
+  /**
+   * Sets up HDRI (High Dynamic Range Imaging) parameters for IBL.
+   * This method extracts and prepares HDRI-related parameters from the
+   * rendering arguments for use in image-based lighting calculations.
+   *
+   * @param args - WebGL or WebGPU rendering arguments
+   * @returns Object containing HDRI parameters
+   * @private
+   */
   private static __setupHdriParameters(args: RenderingArgWebGL | RenderingArgWebGpu) {
     let mipmapLevelNumber = 1;
     if (args.specularCube) {
