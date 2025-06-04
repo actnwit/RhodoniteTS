@@ -58,17 +58,22 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
   private __depthCameraComponent?: CameraComponent;
 
   /**
-   * The constructor of the VarianceShadowMapDecodeClassicMaterialContent
-   * @param isMorphing True if the morphing is to be applied
-   * @param isSkinning True if the skeleton is to be applied
-   * @param isLighting True if the lighting is to be applied. When isLighting is false, the Shader draws the original color of the material, except for the shadow area.
-   * @param isDebugging True if the shader displays the DebugColorFactor color in areas outside of the depth map.
+   * Creates a new instance of VarianceShadowMapDecodeClassicMaterialContent for variance shadow mapping.
+   * This material content handles the decoding and rendering of variance shadow maps, which provide
+   * soft shadows with reduced aliasing compared to traditional shadow mapping techniques.
    *
-   *
-   *
-   *
-   * @param colorAttachmentsNumber The index of colorAttachment in a framebuffer. The colorAttachment must have depth information drawn by the DepthEncodeMaterialContent.
-   * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeMaterialContent is drawn to the frame buffer
+   * @param materialName - The name identifier for this material
+   * @param options - Configuration options for the material
+   * @param options.isMorphing - Whether to enable morphing/blend shape support
+   * @param options.isSkinning - Whether to enable skeletal animation support
+   * @param options.isLighting - Whether to apply lighting calculations. When false, renders original material color except in shadow areas
+   * @param options.isDebugging - Whether to enable debug visualization showing areas outside depth map in debug color
+   * @param options.colorAttachmentsNumberDepth - Index of the color attachment containing depth information from DepthEncodeMaterialContent
+   * @param options.colorAttachmentsNumberSquareDepth - Index of the color attachment containing squared depth information
+   * @param options.depthCameraComponent - Optional camera component used for depth rendering. If not provided, uses the current render pass camera
+   * @param encodedDepthRenderPasses - Array of exactly 2 render passes containing the encoded depth information (depth and squared depth)
+   * @throws Will log an error if encodedDepthRenderPasses length is not exactly 2
+   * @throws Will log a warning if depthCameraComponent is not provided
    */
   constructor(
     materialName: string,
@@ -383,6 +388,27 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal rendering parameters for the material on a per-material basis.
+   * This method configures shader uniforms and parameters specific to variance shadow mapping,
+   * including camera matrices, depth information, and various rendering features like skinning and morphing.
+   *
+   * @param params - The rendering parameters object
+   * @param params.material - The material instance being rendered
+   * @param params.shaderProgram - The WebGL shader program to configure
+   * @param params.firstTime - Whether this is the first time setting parameters for this material
+   * @param params.args - WebGL-specific rendering arguments containing entity, camera, and rendering context
+   *
+   * @remarks
+   * This method handles:
+   * - Setting world, view, and projection matrices
+   * - Configuring depth camera parameters (zNear, zFar, view-projection matrix)
+   * - Setting up skeletal animation if present
+   * - Configuring lighting information
+   * - Setting up morph target data if morphing is enabled
+   *
+   * The method optimizes performance by caching zNear and zFar values to avoid unnecessary uniform updates.
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
@@ -470,6 +496,17 @@ export class VarianceShadowMapDecodeClassicMaterialContent extends AbstractMater
     );
   }
 
+  /**
+   * Sets the depth camera component used for shadow map generation.
+   * This camera defines the light's perspective for shadow mapping calculations.
+   *
+   * @param depthCameraComponent - The camera component representing the light's view for shadow mapping
+   *
+   * @remarks
+   * The depth camera component should be positioned and oriented to match the light source
+   * that will cast shadows. Its view-projection matrix will be used to transform vertices
+   * into light space for shadow map lookup operations.
+   */
   set depthCameraComponent(depthCameraComponent: CameraComponent) {
     this.__depthCameraComponent = depthCameraComponent;
   }
