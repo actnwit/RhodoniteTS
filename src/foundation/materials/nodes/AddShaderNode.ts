@@ -11,7 +11,34 @@ import { Vector2 } from '../../math/Vector2';
 import { Vector3 } from '../../math/Vector3';
 import { Vector4 } from '../../math/Vector4';
 
+/**
+ * A shader node that performs addition operations between two input values.
+ * Supports scalar, Vec2, Vec3, and Vec4 compositions with appropriate component types.
+ *
+ * This node creates two input sockets (lhs and rhs) and one output socket,
+ * all of the same composition and component type. The node generates shader code
+ * for both WebGL (GLSL) and WebGPU (WGSL) backends.
+ *
+ * @example
+ * ```typescript
+ * // Create an add node for Vec3 float operations
+ * const addNode = new AddShaderNode(CompositionType.Vec3, ComponentType.Float);
+ *
+ * // Connect inputs and get output
+ * const lhsSocket = addNode.getSocketInputLhs();
+ * const rhsSocket = addNode.getSocketInputRhs();
+ * const outputSocket = addNode.getSocketOutput();
+ * ```
+ */
 export class AddShaderNode extends AbstractShaderNode {
+  /**
+   * Creates a new AddShaderNode with the specified composition and component types.
+   *
+   * @param compositionType - The composition type (Scalar, Vec2, Vec3, or Vec4)
+   * @param componentType - The component type (Float, Int, etc.)
+   *
+   * @throws {Error} Throws an error if the composition type is not supported
+   */
   constructor(compositionType: CompositionTypeEnum, componentType: ComponentTypeEnum) {
     super('add', {
       codeGLSL: AddShaderityObjectGLSL.code,
@@ -23,6 +50,15 @@ export class AddShaderNode extends AbstractShaderNode {
     this.__outputs.push(new Socket('outValue', compositionType, componentType));
   }
 
+  /**
+   * Returns the default value for a given composition type.
+   * This is used to initialize input sockets with appropriate zero values.
+   *
+   * @param compositionType - The composition type to get the default value for
+   * @returns The default value (zero) for the specified composition type
+   *
+   * @throws {Error} Throws an error if the composition type is not implemented
+   */
   getDefaultValue(compositionType: CompositionTypeEnum) {
     if (compositionType === CompositionType.Scalar) {
       return Scalar.fromCopyNumber(0);
@@ -37,18 +73,47 @@ export class AddShaderNode extends AbstractShaderNode {
     }
   }
 
+  /**
+   * Gets the left-hand side input socket.
+   * This socket represents the first operand in the addition operation.
+   *
+   * @returns The left-hand side input socket
+   */
   getSocketInputLhs() {
     return this.__inputs[0];
   }
 
+  /**
+   * Gets the right-hand side input socket.
+   * This socket represents the second operand in the addition operation.
+   *
+   * @returns The right-hand side input socket
+   */
   getSocketInputRhs() {
     return this.__inputs[1];
   }
 
+  /**
+   * Gets the output socket that contains the result of the addition operation.
+   *
+   * @returns The output socket containing the addition result
+   */
   getSocketOutput() {
     return this.__outputs[0];
   }
 
+  /**
+   * Generates the appropriate shader function name derivative based on the current
+   * rendering backend and input socket types.
+   *
+   * For WebGPU, this method generates type-specific function names to handle
+   * different combinations of composition and component types. For WebGL,
+   * it returns the base shader function name.
+   *
+   * @returns The shader function name derivative for the current configuration
+   *
+   * @throws {Error} Throws an error if the input socket type combination is not implemented
+   */
   getShaderFunctionNameDerivative() {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (

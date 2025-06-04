@@ -6,7 +6,16 @@ import { SystemState } from "../../system/SystemState";
 import { AbstractShaderNode } from "../core/AbstractShaderNode";
 import { Socket } from "../core/Socket";
 
+/**
+ * A shader node that processes geometry transformations in the vertex shader pipeline.
+ * This node handles world space transformations, normal matrix calculations, and skeletal animation.
+ * It provides essential geometry processing functionality for 3D rendering pipelines.
+ */
 export class ProcessGeometryShaderNode extends AbstractShaderNode {
+  /**
+   * Creates a new ProcessGeometryShaderNode instance.
+   * Initializes input and output sockets for geometry processing operations.
+   */
   constructor() {
     super('processGeometry', {
       codeGLSL: '/* shaderity: @{processGeometry} */',
@@ -27,50 +36,105 @@ export class ProcessGeometryShaderNode extends AbstractShaderNode {
     this.__outputs.push(new Socket('outNormalInWorld', CompositionType.Vec3, ComponentType.Float));
   }
 
+  /**
+   * Gets the input socket for the world transformation matrix.
+   * @returns The world matrix input socket
+   */
   getSocketInputWorldMatrix() {
     return this.__inputs[0];
   }
 
+  /**
+   * Gets the input socket for the normal transformation matrix.
+   * @returns The normal matrix input socket
+   */
   getSocketInputNormalMatrix() {
     return this.__inputs[1];
   }
 
+  /**
+   * Gets the input socket for the view transformation matrix.
+   * @returns The view matrix input socket
+   */
   getSocketInputViewMatrix() {
     return this.__inputs[2];
   }
 
+  /**
+   * Gets the input socket for vertex position data.
+   * @returns The position input socket
+   */
   getSocketInputPosition() {
     return this.__inputs[3];
   }
 
+  /**
+   * Gets the input socket for vertex normal data.
+   * @returns The normal input socket
+   */
   getSocketInputNormal() {
     return this.__inputs[4];
   }
 
+  /**
+   * Gets the input socket for skeletal animation joint indices.
+   * @returns The joint input socket
+   */
   getSocketInputJoint() {
     return this.__inputs[5];
   }
 
+  /**
+   * Gets the input socket for skeletal animation joint weights.
+   * @returns The weight input socket
+   */
   getSocketInputWeight() {
     return this.__inputs[6];
   }
 
+  /**
+   * Gets the input socket for billboard rendering flag.
+   * @returns The billboard flag input socket
+   */
   getSocketInputIsBillboard() {
     return this.__inputs[7];
   }
 
+  /**
+   * Gets the output socket for the processed normal matrix.
+   * @returns The normal matrix output socket
+   */
   getSocketOutputNormalMatrix() {
     return this.__outputs[0];
   }
 
+  /**
+   * Gets the output socket for the transformed position in world space.
+   * @returns The world position output socket
+   */
   getSocketOutputPositionInWorld() {
     return this.__outputs[1];
   }
 
+  /**
+   * Gets the output socket for the transformed normal in world space.
+   * @returns The world normal output socket
+   */
   getSocketOutputNormalInWorld() {
     return this.__outputs[2];
   }
 
+  /**
+   * Generates shader code to call the geometry processing function.
+   * Creates appropriate variable declarations and function calls for both GLSL and WGSL.
+   *
+   * @param i - The index of the current shader node in the processing chain
+   * @param shaderNode - The shader node instance being processed
+   * @param functionName - The name of the function to call in the generated shader
+   * @param varInputNames - Array of input variable names for each processing step
+   * @param varOutputNames - Array of output variable names for each processing step
+   * @returns The generated shader code string
+   */
   makeCallStatement(
     i: number,
     shaderNode: AbstractShaderNode,
