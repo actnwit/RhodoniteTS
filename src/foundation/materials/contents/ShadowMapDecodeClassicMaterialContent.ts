@@ -28,42 +28,73 @@ import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 import { dummyBlueTexture, dummyWhiteTexture } from '../core/DummyTextures';
 import { Logger } from '../../misc/Logger';
 
+/**
+ * Material content class for decoding shadow maps using the classic shadow mapping technique.
+ * This class handles the rendering of shadow maps with proper depth comparison and shadow factor calculations.
+ * It supports morphing, skinning, lighting, and debugging modes for comprehensive shadow rendering functionality.
+ */
 export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialContent {
+  /** Shader semantic for controlling the color factor applied to shadowed areas */
   static ShadowColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'shadowColorFactor',
   });
+
+  /** Shader semantic for controlling the alpha value in shadowed regions */
   static ShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'shadowAlpha',
   });
+
+  /** Shader semantic for controlling the alpha value in non-shadowed regions */
   static NonShadowAlpha: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'nonShadowAlpha',
   });
+
+  /** Shader semantic for defining the allowable depth error tolerance in shadow calculations */
   static AllowableDepthError: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'allowableDepthError',
   });
+
+  /** Shader semantic for the near clipping plane distance of the inner camera */
   static zNearInner = new ShaderSemanticsClass({ str: 'zNearInner' });
+
+  /** Shader semantic for the far clipping plane distance of the inner camera */
   static zFarInner = new ShaderSemanticsClass({ str: 'zFarInner' });
+
+  /** Shader semantic for the debug color factor used in debugging mode */
   static DebugColorFactor: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'debugColorFactor',
   });
+
+  /** Shader semantic for the depth texture containing encoded depth information */
   static DepthTexture: ShaderSemanticsEnum = new ShaderSemanticsClass({
     str: 'depthTexture',
   });
+
+  /** Shader semantic indicating whether the light source is a point light */
   static IsPointLight = new ShaderSemanticsClass({ str: 'isPointLight' });
 
+  /** Cached value of the last used near clipping plane distance for optimization */
   private static __lastZNear = 0.0;
+
+  /** Cached value of the last used far clipping plane distance for optimization */
   private static __lastZFar = 0.0;
 
+  /** The render pass that contains the encoded depth information for shadow mapping */
   private __encodedDepthRenderPass: RenderPass;
 
   /**
-   * The constructor of the ShadowMapDecodeClassicMaterialContent
-   * @param isMorphing True if the morphing is to be applied
-   * @param isSkinning True if the skeleton is to be applied
-   * @param isLighting True if the lighting is to be applied. When isLighting is false, the Shader draws the original color of the material, except for the shadow area.
-   * @param isDebugging True if the shader displays the DebugColorFactor color in areas outside of the depth map.
-   * @param colorAttachmentsNumber The index of colorAttachment in a framebuffer. The colorAttachment must have depth information drawn by the DepthEncodeMaterialContent.
-   * @param encodedDepthRenderPass The render pass where the depth information from the DepthEncodeMaterialContent is drawn to the frame buffer
+   * Creates a new instance of ShadowMapDecodeClassicMaterialContent.
+   * This constructor initializes the shadow mapping material with comprehensive configuration options
+   * for various rendering features and sets up the necessary shader semantics for shadow decoding.
+   *
+   * @param materialName - The unique name identifier for this material
+   * @param options - Configuration object containing rendering feature flags and settings
+   * @param options.isMorphing - Enables morphing/blend shape animation support
+   * @param options.isSkinning - Enables skeletal animation support
+   * @param options.isLighting - Enables lighting calculations (when false, shows original colors except in shadows)
+   * @param options.isDebugging - Enables debug visualization showing areas outside depth map coverage
+   * @param options.colorAttachmentsNumber - Index of the color attachment containing encoded depth data
+   * @param encodedDepthRenderPass - The render pass containing depth information from DepthEncodeMaterialContent
    */
   constructor(
     materialName: string,
@@ -305,6 +336,20 @@ export class ShadowMapDecodeClassicMaterialContent extends AbstractMaterialConte
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal shader parameters specific to this material on a per-material basis.
+   * This method handles the configuration of shadow mapping parameters, camera settings,
+   * and various rendering components such as skinning, lighting, and morphing.
+   * It optimizes performance by caching frequently used values and only updating them when necessary.
+   *
+   * @param params - Configuration object containing all necessary rendering parameters
+   * @param params.material - The material instance being configured
+   * @param params.shaderProgram - The WebGL shader program to configure
+   * @param params.firstTime - Whether this is the first time setting parameters for this material
+   * @param params.args - WebGL-specific rendering arguments containing render state and components
+   *
+   * @internal This method is called internally during the rendering pipeline
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
