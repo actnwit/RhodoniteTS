@@ -54,7 +54,7 @@ export class AnimatedQuaternion extends Quaternion implements IQuaternion, IAnim
    * @param array - Float32Array containing the quaternion components [x, y, z, w]
    */
   setFloat32Array(array: Float32Array) {
-    this._v = array as Float32Array<ArrayBuffer>;
+    this._v = array;
     this.update();
   }
 
