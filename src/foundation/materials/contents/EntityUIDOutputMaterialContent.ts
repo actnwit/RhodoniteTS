@@ -13,7 +13,17 @@ import entityUIDOutputSingleShaderFragment from '../../../webgl/shaderity_shader
 import { RenderingArgWebGL } from '../../../webgl/types/CommonTypes';
 import { ShaderSemanticsInfo } from '../../definitions/ShaderSemanticsInfo';
 
+/**
+ * Material content class for rendering entity UID output.
+ * This material is used to output unique identifiers for entities,
+ * typically for picking or selection purposes.
+ */
 export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
+  /**
+   * Creates a new EntityUIDOutputMaterialContent instance.
+   *
+   * @param materialName - The name of the material
+   */
   constructor(materialName: string) {
     super(
       materialName,
@@ -64,6 +74,16 @@ export class EntityUIDOutputMaterialContent extends AbstractMaterialContent {
     this.setShaderSemanticsInfoArray(shaderSemanticsInfoArray);
   }
 
+  /**
+   * Sets internal parameters to GPU for WebGL rendering per material.
+   * This method configures uniform variables and matrices required for entity UID output rendering.
+   *
+   * @param params - The rendering parameters
+   * @param params.material - The material instance
+   * @param params.shaderProgram - The WebGL shader program
+   * @param params.firstTime - Whether this is the first time setting parameters
+   * @param params.args - WebGL rendering arguments containing matrices, camera, and entity information
+   */
   _setInternalSettingParametersToGpuWebGLPerMaterial({
     material,
     shaderProgram,
