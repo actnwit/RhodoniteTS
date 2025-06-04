@@ -187,7 +187,7 @@ export class RnObject implements IRnObject {
    */
   removeTag(tagName: string) {
     const strToDelete = `${tagName}:${this._tags[tagName]}` + ' ';
-    this.__combinedTagString.replace(this.__combinedTagString, '');
+    this.__combinedTagString = this.__combinedTagString.replace(strToDelete, '');
     delete this._tags[tagName];
   }
 
