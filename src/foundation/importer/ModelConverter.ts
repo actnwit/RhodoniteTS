@@ -114,12 +114,22 @@ export class ModelConverter {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
+  /**
+   * Generates a group entity for the glTF model
+   * @param gltfModel - The glTF model data
+   * @returns A scene graph entity configured as a group
+   */
   private static __generateGroupEntity(gltfModel: RnM2): ISceneGraphEntity {
     const entity = createGroupEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
+  /**
+   * Adds source type and version tags to an entity based on the glTF model
+   * @param entity - The entity to add tags to
+   * @param gltfModel - The glTF model containing asset information
+   */
   private static addTags(entity: ISceneGraphEntity, gltfModel: RnM2) {
     entity.tryToSetTag({
       tag: 'SourceType',
@@ -131,24 +141,46 @@ export class ModelConverter {
     });
   }
 
+  /**
+   * Generates a mesh entity for the glTF model
+   * @param gltfModel - The glTF model data
+   * @returns A mesh entity with appropriate tags
+   */
   private static __generateMeshEntity(gltfModel: RnM2): IMeshEntity {
     const entity = createMeshEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
+  /**
+   * Generates a camera entity for the glTF model
+   * @param gltfModel - The glTF model data
+   * @returns A camera entity with appropriate tags
+   */
   private static __generateCameraEntity(gltfModel: RnM2): ICameraEntity {
     const entity = createCameraEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
+  /**
+   * Generates a light entity for the glTF model
+   * @param gltfModel - The glTF model data
+   * @returns A light entity with appropriate tags
+   */
   private static __generateLightEntity(gltfModel: RnM2): ILightEntity {
     const entity = createLightEntity();
     this.addTags(entity, gltfModel);
     return entity;
   }
 
+  /**
+   * Sets up materials from the glTF model
+   * @param gltfModel - The glTF model data
+   * @param rnTextures - Array of Rhodonite textures
+   * @param rnSamplers - Array of Rhodonite samplers
+   * @returns Array of configured Rhodonite materials
+   */
   private static __setupMaterials(gltfModel: RnM2, rnTextures: Texture[], rnSamplers: Sampler[]) {
     const rnMaterials: Material[] = [];
     if (gltfModel.materials != null) {
@@ -160,6 +192,11 @@ export class ModelConverter {
     return rnMaterials;
   }
 
+  /**
+   * Sets up textures from the glTF model asynchronously
+   * @param gltfModel - The glTF model data
+   * @returns Promise resolving to array of Rhodonite textures
+   */
   private static async __setupTextures(gltfModel: RnM2) {
     const rnTextures: Texture[] = [];
     if (gltfModel.images != null) {
@@ -171,6 +208,11 @@ export class ModelConverter {
     return rnTextures;
   }
 
+  /**
+   * Creates samplers from the glTF model
+   * @param gltfModel - The glTF model data
+   * @returns Array of Rhodonite samplers
+   */
   private static __createSamplers(gltfModel: RnM2) {
     const rnSamplers: Sampler[] = [];
     if (gltfModel.samplers != null) {
@@ -182,6 +224,11 @@ export class ModelConverter {
     return rnSamplers;
   }
 
+  /**
+   * Converts a glTF model to Rhodonite objects synchronously (without texture loading)
+   * @param gltfModel - The glTF model data to convert
+   * @returns The root group entity containing the converted scene
+   */
   static convertToRhodoniteObjectSimple(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
@@ -234,6 +281,11 @@ export class ModelConverter {
     return rootGroup;
   }
 
+  /**
+   * Converts a glTF model to Rhodonite objects asynchronously (with full texture loading)
+   * @param gltfModel - The glTF model data to convert
+   * @returns Promise resolving to the root group entity containing the converted scene
+   */
   static async convertToRhodoniteObject(gltfModel: RnM2) {
     (gltfModel.asset.extras as any).rnMeshesAtGltMeshIdx = [];
 
@@ -321,6 +373,11 @@ export class ModelConverter {
     return rootGroup;
   }
 
+  /**
+   * Creates Rhodonite buffers from glTF buffer data
+   * @param gltfModel - The glTF model containing buffer data
+   * @returns Array of Rhodonite Buffer objects
+   */
   private static __createRnBuffer(gltfModel: RnM2): Buffer[] {
     const rnBuffers = [];
     for (const buffer of gltfModel.buffers) {
@@ -335,6 +392,11 @@ export class ModelConverter {
     return rnBuffers;
   }
 
+  /**
+   * Sets up transform properties for entities from glTF node data
+   * @param gltfModel - The glTF model data
+   * @param groups - Array of scene graph entities to apply transforms to
+   */
   static _setupTransform(gltfModel: RnM2, groups: ISceneGraphEntity[]) {
     for (const node_i in gltfModel.nodes) {
       const group = groups[node_i];
@@ -368,6 +430,11 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up the hierarchy relationships between entities based on glTF node structure
+   * @param gltfModel - The glTF model data
+   * @param rnEntities - Array of Rhodonite entities to organize in hierarchy
+   */
   static _setupHierarchy(gltfModel: RnM2, rnEntities: ISceneGraphEntity[]) {
     const groupSceneComponents = rnEntities.map((group) => {
       return group.getSceneGraph()!;
@@ -387,6 +454,12 @@ export class ModelConverter {
   }
 
   /**
+   * Sets up animation data from glTF animations
+   * @param gltfModel - The glTF model data
+   * @param rnEntities - Array of Rhodonite entities
+   * @param rnBuffers - Array of Rhodonite buffers
+   * @param rootGroup - The root group entity
+   * @param rnMaterials - Array of Rhodonite materials
    * @internal
    */
   static _setupAnimation(
@@ -438,6 +511,19 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up pointer-based animation for materials, nodes, lights, and cameras
+   * @param rnEntities - Array of Rhodonite entities
+   * @param channel - Animation channel data
+   * @param samplerObject - Animation sampler object
+   * @param animation - Animation data
+   * @param animInputArray - Input time values
+   * @param animOutputArray - Output animation values
+   * @param interpolation - Interpolation method
+   * @param animationAttributeType - Type of animation attribute
+   * @param rnMaterials - Array of Rhodonite materials
+   * @param gltfModel - The glTF model data
+   */
   private static __setPointerAnimation(
     rnEntities: ISceneGraphEntity[],
     channel: RnM2AnimationChannel,
@@ -467,6 +553,20 @@ export class ModelConverter {
       Logger.info('Not Supported Animation Pointer Type');
     }
   }
+
+  /**
+   * Sets up pointer animation for camera properties
+   * @param match - Regex match result containing camera index
+   * @param rnEntities - Array of Rhodonite entities
+   * @param pointer - Animation pointer string
+   * @param samplerObject - Animation sampler object
+   * @param animation - Animation data
+   * @param animInputArray - Input time values
+   * @param animOutputArray - Output animation values
+   * @param interpolation - Interpolation method
+   * @param animationAttributeType - Type of animation attribute
+   * @param gltfModel - The glTF model data
+   */
   private static __setPointerAnimationCameras(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName, gltfModel: RnM2) {
     const cameraIndex = parseInt(match[1]);
     const nodes = gltfModel.nodes;
@@ -525,6 +625,20 @@ export class ModelConverter {
       }
     }
   }
+
+  /**
+   * Sets up pointer animation for light properties
+   * @param match - Regex match result containing light index
+   * @param rnEntities - Array of Rhodonite entities
+   * @param pointer - Animation pointer string
+   * @param samplerObject - Animation sampler object
+   * @param animation - Animation data
+   * @param animInputArray - Input time values
+   * @param animOutputArray - Output animation values
+   * @param interpolation - Interpolation method
+   * @param animationAttributeType - Type of animation attribute
+   * @param gltfModel - The glTF model data
+   */
   private static __setPointerAnimationLights(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName, gltfModel: RnM2) {
     const lightIndex = parseInt(match[1]);
     const nodes = gltfModel.nodes;
@@ -587,6 +701,18 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up pointer animation for node properties (transform, weights)
+   * @param match - Regex match result containing node index
+   * @param rnEntities - Array of Rhodonite entities
+   * @param pointer - Animation pointer string
+   * @param samplerObject - Animation sampler object
+   * @param animation - Animation data
+   * @param animInputArray - Input time values
+   * @param animOutputArray - Output animation values
+   * @param interpolation - Interpolation method
+   * @param animationAttributeType - Type of animation attribute
+   */
   private static __setPointerAnimationNodes(match: RegExpMatchArray, rnEntities: ISceneGraphEntity[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
     const nodeIndex = parseInt(match[1]);
     const rnEntity = rnEntities[nodeIndex];
@@ -646,6 +772,18 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up pointer animation for material properties
+   * @param match - Regex match result containing material index
+   * @param rnMaterials - Array of Rhodonite materials
+   * @param pointer - Animation pointer string
+   * @param samplerObject - Animation sampler object
+   * @param animation - Animation data
+   * @param animInputArray - Input time values
+   * @param animOutputArray - Output animation values
+   * @param interpolation - Interpolation method
+   * @param animationAttributeType - Type of animation attribute
+   */
   private static __setPointerAnimationMaterials(match: RegExpMatchArray, rnMaterials: Material[], pointer: string, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
     const materialIndex = parseInt(match[1]);
     const material = rnMaterials[materialIndex];
@@ -711,6 +849,17 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up standard animation (non-pointer based) for transform properties
+   * @param rnEntities - Array of Rhodonite entities
+   * @param channel - Animation channel data
+   * @param samplerObject - Animation sampler object
+   * @param animation - Animation data
+   * @param animInputArray - Input time values
+   * @param animOutputArray - Output animation values
+   * @param interpolation - Interpolation method
+   * @param animationAttributeType - Type of animation attribute
+   */
   private static __setNormalAnimation(rnEntities: ISceneGraphEntity[], channel: RnM2AnimationChannel, samplerObject: RnM2AnimationSampler, animation: RnM2Animation, animInputArray: Float32Array, animOutputArray: Float32Array, interpolation: string, animationAttributeType: AnimationPathName) {
     const rnEntity = rnEntities[channel.target.node!] as IAnimationEntity;
     if (Is.exist(rnEntity)) {
@@ -762,6 +911,12 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up skeletal animation and joint hierarchies from glTF skin data
+   * @param gltfModel - The glTF model data
+   * @param rnEntities - Array of Rhodonite entities
+   * @param rnBuffers - Array of Rhodonite buffers
+   */
   static _setupSkeleton(gltfModel: RnM2, rnEntities: ISceneGraphEntity[], rnBuffers: Buffer[]) {
     if (gltfModel.skins == null) {
       return;
@@ -813,6 +968,15 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up all objects (meshes, cameras, lights, groups) from glTF nodes
+   * @param gltfModel - The glTF model data
+   * @param rnBuffers - Array of Rhodonite buffers
+   * @param rnMaterials - Array of Rhodonite materials
+   * @param rnTextures - Array of Rhodonite textures
+   * @param rnSamplers - Array of Rhodonite samplers
+   * @returns Object containing arrays of entities and entities by name
+   */
   private static __setupObjects(gltfModel: RnM2, rnBuffers: Buffer[], rnMaterials: Material[], rnTextures: Texture[], rnSamplers: Sampler[]) {
     const rnEntities: ISceneGraphEntity[] = [];
     const rnEntitiesByNames: Map<string, ISceneGraphEntity> = new Map();
@@ -890,6 +1054,12 @@ export class ModelConverter {
     return { rnEntities, rnEntitiesByNames };
   }
 
+  /**
+   * Checks if a node has morphing (blend shape) capabilities
+   * @param node - The glTF node to check
+   * @param gltfModel - The glTF model data
+   * @returns True if the node supports morphing
+   */
   private static __isMorphing(node: RnM2Node, gltfModel: RnM2) {
     const argument =
       gltfModel.asset.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
@@ -900,6 +1070,12 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up a light entity from glTF light data
+   * @param light - The glTF light data
+   * @param gltfModel - The glTF model data
+   * @returns Configured light entity
+   */
   private static __setupLight(light: KHR_lights_punctual_Light, gltfModel: RnM2): ILightEntity {
     const lightEntity = this.__generateLightEntity(gltfModel);
     const lightComponent = lightEntity.getComponent(LightComponent)! as LightComponent;
@@ -931,6 +1107,12 @@ export class ModelConverter {
     return lightEntity as ILightEntity;
   }
 
+  /**
+   * Sets up a camera entity from glTF camera data
+   * @param camera - The glTF camera data
+   * @param gltfModel - The glTF model data
+   * @returns Configured camera entity
+   */
   private static __setupCamera(camera: RnM2Camera, gltfModel: RnM2): ICameraEntity {
     const cameraEntity = this.__generateCameraEntity(gltfModel);
     const cameraComponent = cameraEntity.getCamera();
@@ -976,6 +1158,17 @@ export class ModelConverter {
     return cameraEntity as ICameraEntity;
   }
 
+  /**
+   * Sets up a mesh entity from glTF mesh data
+   * @param mesh - The glTF mesh data
+   * @param meshIndex - Index of the mesh in the glTF model
+   * @param rnBuffers - Array of Rhodonite buffers
+   * @param gltfModel - The glTF model data
+   * @param rnMaterials - Array of Rhodonite materials
+   * @param rnTextures - Array of Rhodonite textures
+   * @param rnSamplers - Array of Rhodonite samplers
+   * @returns Configured mesh entity
+   */
   private static __setupMesh(
     mesh: RnM2Mesh,
     meshIndex: Index,
@@ -1136,6 +1329,11 @@ export class ModelConverter {
     return meshEntity;
   }
 
+  /**
+   * Sets sparse accessor data by applying sparse indices and values to the base accessor
+   * @param accessor - The glTF accessor with sparse data
+   * @param rnAccessor - The Rhodonite accessor to modify
+   */
   static setSparseAccessor(accessor: RnM2Accessor, rnAccessor: Accessor): void {
     const count = accessor.sparse!.count;
 
@@ -1189,6 +1387,13 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up VRM 1.0 material properties
+   * @param gltfModel - The glTF model data
+   * @param materialJson - The material JSON data
+   * @param rnLoaderOptions - Loader options
+   * @returns Configured material or undefined if not VRM 1.0
+   */
   private static __setVRM1Material(
     gltfModel: RnM2,
     materialJson: Vrm1_Material,
@@ -1273,6 +1478,13 @@ export class ModelConverter {
     return undefined;
   }
 
+  /**
+   * Sets MToon texture parameters for VRM materials
+   * @param textures - Array of textures
+   * @param materialProperties - VRM material properties
+   * @param material - The material to configure
+   * @param samplers - Array of samplers
+   */
   private static setMToonTextures(
     textures: any,
     materialProperties: Vrm0xMaterialProperty,
@@ -1363,9 +1575,15 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Sets up VRM 0.x material properties
+   * @param gltfModel - The glTF model data
+   * @param materialJson - The material JSON data
+   * @param rnLoaderOptions - Loader options
+   * @returns Configured material or undefined if not VRM 0.x
+   */
   private static __setVRM0xMaterial(
     gltfModel: RnM2,
-    // primitive: RnM2Primitive,
     materialJson: RnM2Material,
     rnLoaderOptions: GltfLoadOption
   ): Material | undefined {
@@ -1447,6 +1665,12 @@ export class ModelConverter {
     return undefined;
   }
 
+  /**
+   * Generates an appropriate material based on glTF material data and loader options
+   * @param gltfModel - The glTF model data
+   * @param materialJson - The material JSON data (optional)
+   * @returns Generated material
+   */
   private static __generateAppropriateMaterial(
     gltfModel: RnM2,
     materialJson?: RnM2Material
@@ -1553,6 +1777,12 @@ export class ModelConverter {
     }
   }
 
+  /**
+   * Determines if lighting should be enabled for a material
+   * @param gltfModel - The glTF model data
+   * @param materialJson - The material JSON data (optional)
+   * @returns True if lighting should be enabled
+   */
   private static __isLighting(gltfModel: RnM2, materialJson?: RnM2Material) {
     const argument =
       gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
@@ -1563,16 +1793,12 @@ export class ModelConverter {
     }
   }
 
-  // private static __isSkinning(node: RnM2Node, gltfModel: RnM2) {
-  //   const argument =
-  //     gltfModel?.asset?.extras?.rnLoaderOptions?.defaultMaterialHelperArgumentArray![0];
-  //   if (argument?.isSkinning === false) {
-  //     return false;
-  //   } else {
-  //     return node.skin != null;
-  //   }
-  // }
-
+  /**
+   * Determines if tangent attributes should be used for a primitive
+   * @param gltfModel - The glTF model data
+   * @param primitive - The glTF primitive data
+   * @returns True if tangent attributes should be used
+   */
   private static __useTangentAttribute(gltfModel: RnM2, primitive: RnM2Primitive) {
     const tangentCalculationMode =
       gltfModel?.asset?.extras?.rnLoaderOptions?.tangentCalculationMode;
@@ -2533,6 +2759,14 @@ export class ModelConverter {
   }
 }
 
+/**
+ * Sets up MToon 1.0 material parameters from VRM material data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param materialJson - The VRM 1.0 material JSON data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Material, rnTextures: Texture[], rnSamplers: Sampler[]) {
   const mToon = materialJson.extensions.VRMC_materials_mtoon;
 
@@ -2710,6 +2944,16 @@ function setupMToon1(material: Material, gltfModel: RnM2, materialJson: Vrm1_Mat
   }
 }
 
+/**
+ * Sets up PBR metallic-roughness material parameters
+ * @param pbrMetallicRoughness - The PBR metallic-roughness data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param options - Loader options
+ * @param materialJson - The material JSON data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setupPbrMetallicRoughness(
   pbrMetallicRoughness: RnM2PbrMetallicRoughness,
   material: Material,
@@ -2827,6 +3071,15 @@ function setupPbrMetallicRoughness(
   setup_KHR_materials_diffuse_transmission(materialJson, material, gltfModel, rnTextures, rnSamplers);
 }
 
+/**
+ * Sets up KHR_materials_transmission extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ * @returns True if transmission was configured
+ */
 function setup_KHR_materials_transmission(
   materialJson: RnM2Material,
   material: Material,
@@ -2862,6 +3115,14 @@ function setup_KHR_materials_transmission(
   return false;
 }
 
+/**
+ * Sets up KHR_materials_clearcoat extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_clearcoat(
   materialJson: RnM2Material,
   material: Material,
@@ -2945,6 +3206,14 @@ function setup_KHR_materials_clearcoat(
   }
 }
 
+/**
+ * Sets up KHR_materials_volume extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_volume(
   materialJson: RnM2Material,
   material: Material,
@@ -2992,6 +3261,14 @@ function setup_KHR_materials_volume(
   }
 }
 
+/**
+ * Sets up KHR_materials_sheen extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_sheen(
   materialJson: RnM2Material,
   material: Material,
@@ -3046,6 +3323,14 @@ function setup_KHR_materials_sheen(
   }
 }
 
+/**
+ * Sets up KHR_materials_specular extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_specular(
   materialJson: RnM2Material,
   material: Material,
@@ -3100,6 +3385,12 @@ function setup_KHR_materials_specular(
   }
 }
 
+/**
+ * Sets up KHR_materials_ior extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ */
 function setup_KHR_materials_ior(materialJson: RnM2Material, material: Material, gltfModel: RnM2) {
   const KHR_materials_ior = materialJson?.extensions?.KHR_materials_ior;
   if (Is.exist(KHR_materials_ior)) {
@@ -3108,6 +3399,14 @@ function setup_KHR_materials_ior(materialJson: RnM2Material, material: Material,
   }
 }
 
+/**
+ * Sets up KHR_materials_iridescence extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_iridescence(
   materialJson: RnM2Material,
   material: Material,
@@ -3184,6 +3483,14 @@ function setup_KHR_materials_iridescence(
   }
 }
 
+/**
+ * Sets up KHR_materials_anisotropy extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_anisotropy(
   materialJson: RnM2Material,
   material: Material,
@@ -3225,6 +3532,12 @@ function setup_KHR_materials_anisotropy(
   }
 }
 
+/**
+ * Sets up KHR_materials_emissive_strength extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ */
 function setup_KHR_materials_emissive_strength(
   materialJson: RnM2Material,
   material: Material,
@@ -3239,6 +3552,12 @@ function setup_KHR_materials_emissive_strength(
   }
 }
 
+/**
+ * Sets up KHR_materials_dispersion extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ */
 function setup_KHR_materials_dispersion(
   materialJson: RnM2Material,
   material: Material,
@@ -3253,6 +3572,14 @@ function setup_KHR_materials_dispersion(
   }
 }
 
+/**
+ * Sets up KHR_materials_diffuse_transmission extension parameters
+ * @param materialJson - The material JSON data
+ * @param material - The material to configure
+ * @param gltfModel - The glTF model data
+ * @param rnTextures - Array of Rhodonite textures
+ * @param rnSamplers - Array of Rhodonite samplers
+ */
 function setup_KHR_materials_diffuse_transmission(
   materialJson: RnM2Material,
   material: Material,
