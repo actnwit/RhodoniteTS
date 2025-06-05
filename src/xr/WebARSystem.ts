@@ -17,6 +17,21 @@ import { WebGLContextWrapper } from '../webgl/WebGLContextWrapper';
 const defaultUserPositionInVR = Vector3.fromCopyArray([0.0, 1.1, 0]);
 declare const window: any;
 
+/**
+ * WebAR (Augmented Reality) system for managing WebXR AR sessions and camera operations.
+ * This singleton class provides functionality to initialize, enter, and manage WebAR sessions,
+ * handling camera positioning, view matrices, and rendering operations for AR experiences.
+ *
+ * @example
+ * ```typescript
+ * const arSystem = WebARSystem.getInstance();
+ * await arSystem.readyForWebAR(buttonElement);
+ * await arSystem.enterWebAR({
+ *   callbackOnXrSessionStart: () => console.log('AR started'),
+ *   callbackOnXrSessionEnd: () => console.log('AR ended')
+ * });
+ * ```
+ */
 export class WebARSystem {
   private static __instance: WebARSystem;
   private __oGlw: Option<WebGLContextWrapper> = new None();
@@ -37,6 +52,12 @@ export class WebARSystem {
   private __viewerOrientation = MutableQuaternion.identity();
   private __viewerScale = MutableVector3.one();
 
+  /**
+   * Creates a new WebARSystem instance.
+   * Initializes the camera entity with default settings for WebAR operations.
+   *
+   * @private Use getInstance() to get the singleton instance instead.
+   */
   constructor() {
     this._cameraEntity.tryToSetUniqueName('WebAR Viewer', true);
     this._cameraEntity.tryToSetTag({
@@ -45,6 +66,12 @@ export class WebARSystem {
     });
   }
 
+  /**
+   * Gets the singleton instance of WebARSystem.
+   * Creates a new instance if one doesn't exist.
+   *
+   * @returns The singleton WebARSystem instance
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebARSystem();
@@ -54,10 +81,19 @@ export class WebARSystem {
   }
 
   /**
-   * Ready for WebAR
+   * Prepares the system for WebAR by checking device support and setting up the UI.
+   * This method must be called before entering WebAR mode.
    *
-   * @param requestButtonDom
-   * @returns true: prepared properly, false: failed to prepare
+   * @param requestButtonDom - The HTML element to use as the AR entry button.
+   *                          If null, a default button will be created.
+   * @returns Promise that resolves to an empty array on success
+   * @throws Error if not in browser environment, WebGL context is not ready, or WebAR is not supported
+   *
+   * @example
+   * ```typescript
+   * const button = document.getElementById('ar-button');
+   * await arSystem.readyForWebAR(button);
+   * ```
    */
   async readyForWebAR(requestButtonDom: HTMLElement) {
     if (typeof window === "undefined") {
@@ -98,10 +134,24 @@ export class WebARSystem {
   }
 
   /**
-   * Enter to WebXR (AR mode)
-   * @param initialUserPosition the initial user position in world space
-   * @param callbackOnXrSessionEnd the callback function for XrSession ending
-   * @returns boolean value about succeeded or not
+   * Enters WebAR mode by creating an XR session and setting up the AR environment.
+   * This method handles session initialization, reference space setup, and render loop management.
+   *
+   * @param params - Configuration object for AR session
+   * @param params.initialUserPosition - Initial position of the user in world space coordinates
+   * @param params.callbackOnXrSessionStart - Callback function executed when AR session starts
+   * @param params.callbackOnXrSessionEnd - Callback function executed when AR session ends
+   * @returns Promise that resolves when AR session is successfully started
+   * @throws Error if WebGL context or WebAR readiness is not satisfied
+   *
+   * @example
+   * ```typescript
+   * await arSystem.enterWebAR({
+   *   initialUserPosition: Vector3.fromCopyArray([0, 0, 0]),
+   *   callbackOnXrSessionStart: () => console.log('AR session started'),
+   *   callbackOnXrSessionEnd: () => console.log('AR session ended')
+   * });
+   * ```
    */
   async enterWebAR({
     initialUserPosition,
@@ -152,6 +202,15 @@ export class WebARSystem {
     }
   }
 
+  /**
+   * Sets up the WebGL layer for the XR session.
+   * Configures the rendering context, creates the XR WebGL layer, and updates render state.
+   *
+   * @private
+   * @param xrSession - The active XR session
+   * @param callbackOnXrSessionStart - Callback to execute when setup is complete
+   * @throws Error if not in browser environment or WebGL context is not ready
+   */
   private async __setupWebGLLayer(xrSession: XRSession, callbackOnXrSessionStart: () => void) {
     const gl = this.__oGlw.unwrapForce().getRawContext();
 
@@ -186,7 +245,15 @@ export class WebARSystem {
   }
 
   /**
-   * Disable WebXR (Close the XrSession)
+   * Exits WebAR mode by ending the current XR session.
+   * This will trigger the session end event handlers and cleanup.
+   *
+   * @returns Promise that resolves when the session is successfully ended
+   *
+   * @example
+   * ```typescript
+   * await arSystem.exitWebAR();
+   * ```
    */
   async exitWebAR() {
     if (this.__oArSession.has()) {
@@ -197,23 +264,51 @@ export class WebARSystem {
 
   /// Getter Methods
 
+  /**
+   * Gets the canvas width configured for AR rendering.
+   *
+   * @returns The width of the AR canvas in pixels
+   */
   getCanvasWidthForVr() {
     return this.__canvasWidthForAR;
   }
 
+  /**
+   * Gets the canvas height configured for AR rendering.
+   *
+   * @returns The height of the AR canvas in pixels
+   */
   getCanvasHeightForVr() {
     return this.__canvasHeightForAR;
   }
 
+  /**
+   * Gets the current view matrix from the camera entity.
+   *
+   * @returns The current view matrix for rendering
+   */
   get viewMatrix() {
     return this._cameraEntity.getCamera().viewMatrix;
   }
 
+  /**
+   * Updates the viewer pose and camera information from the XR frame.
+   *
+   * @private
+   * @param xrFrame - The current XR frame containing pose information
+   */
   private __updateView(xrFrame: XRFrame) {
     this.__oArViewerPose = new Some(xrFrame.getViewerPose(this.__oArReferenceSpace.unwrapForce())!);
     this.__setCameraInfoFromXRViews(this.__oArViewerPose.unwrapForce());
   }
 
+  /**
+   * Updates camera transform information based on XR viewer pose data.
+   * Applies position, orientation, and scale transformations to the camera entity.
+   *
+   * @private
+   * @param xrViewerPose - The XR viewer pose containing transform data
+   */
   private __setCameraInfoFromXRViews(xrViewerPose: XRViewerPose) {
     if (Is.not.exist(xrViewerPose)) {
       Logger.warn('xrViewerPose not exist');
@@ -270,6 +365,11 @@ export class WebARSystem {
     this._cameraEntity.getTransform()!.localMatrix = rotateMat;
   }
 
+  /**
+   * Gets the current projection matrix from the XR view.
+   *
+   * @returns The projection matrix for the current AR view, or identity matrix if no view exists
+   */
   get projectionMatrix() {
     const xrView = this.__oArViewerPose.unwrapForce().views[0];
     return MutableMatrix44.fromCopyFloat32ArrayColumnMajor(
@@ -278,9 +378,12 @@ export class WebARSystem {
   }
 
   /**
-   * Pre process for rendering
+   * Pre-render processing for AR frames.
+   * Updates view information if in AR mode and frame data is available.
+   *
    * @internal
-   * @param xrFrame XRFrame object
+   * @param time - The current time timestamp
+   * @param xrFrame - The XR frame object containing pose and view data
    */
   _preRender(time: number, xrFrame: XRFrame) {
     if (this.isWebARMode && this.__requestedToEnterWebAR && xrFrame != null) {
@@ -289,7 +392,9 @@ export class WebARSystem {
   }
 
   /**
-   * Post process for rendering
+   * Post-render processing for AR frames.
+   * Handles framebuffer operations and state management after rendering.
+   *
    * @internal
    */
   _postRender() {
@@ -302,22 +407,47 @@ export class WebARSystem {
     }
   }
 
+  /**
+   * Indicates whether the system is currently in WebAR mode.
+   *
+   * @returns True if currently in AR mode, false otherwise
+   */
   get isWebARMode() {
     return this.__isWebARMode;
   }
 
+  /**
+   * Indicates whether the system is ready for WebAR operations.
+   *
+   * @returns True if ready for AR, false otherwise
+   */
   get isReadyForWebAR() {
     return this.__isReadyForWebAR;
   }
 
+  /**
+   * Indicates whether a request to enter WebAR has been made.
+   *
+   * @returns True if AR entry was requested, false otherwise
+   */
   get requestedToEnterWebAR() {
     return this.__requestedToEnterWebAR;
   }
 
+  /**
+   * Gets the current AR session instance.
+   *
+   * @returns The active XR session or undefined if no session exists
+   */
   get arSession() {
     return this.__oArSession.unwrapOrUndefined();
   }
 
+  /**
+   * Gets the current framebuffer for AR rendering.
+   *
+   * @returns The framebuffer from the base layer, or undefined if not available
+   */
   get framebuffer() {
     return this.__oArSession.unwrapOrUndefined()?.renderState.baseLayer?.framebuffer;
   }

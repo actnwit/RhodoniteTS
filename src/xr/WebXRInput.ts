@@ -18,23 +18,41 @@ import { ISceneGraphEntity } from '../foundation/helpers/EntityHelper';
 import { Logger } from '../foundation/misc/Logger';
 // const oculusProfile = require('webxr-input-profiles/packages/registry/profiles/oculus/oculus-touch.json');
 
+/**
+ * Map storing motion controllers associated with their XR input sources
+ */
 const motionControllers: Map<XRInputSource, MotionController> = new Map();
 
+/**
+ * Represents the current state and values of a WebXR input component
+ */
 type ComponentValues = {
+  /** The current state of the component (pressed, touched, default) */
   state: Constants.ComponentState;
+  /** Button pressure value (0-1) for button components */
   button?: number;
+  /** X-axis value (-1 to 1) for thumbstick/touchpad components */
   xAxis?: number;
+  /** Y-axis value (-1 to 1) for thumbstick/touchpad components */
   yAxis?: number;
 };
 
+/**
+ * Callback function type for handling component state changes
+ */
 type ComponentChangeCallback = ({
   componentValues,
   handedness,
 }: {
+  /** Current values of the component */
   componentValues: ComponentValues;
+  /** Left or right hand controller */
   handedness: Constants.Handedness;
 }) => unknown;
 
+/**
+ * General component types for WebXR input devices
+ */
 const GeneralType = Object.freeze({
   TRIGGER: 'trigger',
   SQUEEZE: 'squeeze',
@@ -46,24 +64,45 @@ const GeneralType = Object.freeze({
   BUTTON_SPECIAL: 'button_special',
 });
 
+/**
+ * Map of component types to their callback functions
+ */
 type ComponentFunctionMap = {
+  /** Trigger component callback */
   trigger: ComponentChangeCallback;
+  /** Squeeze/grip component callback */
   squeeze: ComponentChangeCallback;
+  /** Touchpad component callback */
   touchpad: ComponentChangeCallback;
+  /** Thumbstick component callback */
   thumbstick: ComponentChangeCallback;
+  /** Primary button callback */
   button_1: ComponentChangeCallback;
+  /** Secondary button callback */
   button_2: ComponentChangeCallback;
+  /** Tertiary button callback */
   button_3: ComponentChangeCallback;
+  /** Special/menu button callback */
   buttonSpecial: ComponentChangeCallback;
 };
 
+/**
+ * Data structure for tracking WebXR viewer (user) position and orientation
+ */
 type WebXRSystemViewerData = {
+  /** Current position offset of the viewer */
   viewerTranslate: IMutableVector3;
+  /** Current scale factor of the viewer */
   viewerScale: MutableVector3;
+  /** Current orientation of the viewer */
   viewerOrientation: IMutableQuaternion;
+  /** Current azimuth rotation angle of the viewer */
   viewerAzimuthAngle: MutableScalar;
 };
 
+/**
+ * Mapping of well-known input component names to general types
+ */
 const wellKnownMapping = new Map();
 wellKnownMapping.set('a_button', GeneralType.BUTTON_1);
 wellKnownMapping.set('b_button', GeneralType.BUTTON_2);
@@ -80,6 +119,13 @@ wellKnownMapping.set('squeeze', GeneralType.SQUEEZE);
 wellKnownMapping.set('thumbstick', GeneralType.THUMBSTICK);
 wellKnownMapping.set('touchpad', GeneralType.TOUCHPAD);
 
+/**
+ * Creates and initializes a motion controller for a WebXR input source
+ * @param xrInputSource - The WebXR input source to create a controller for
+ * @param basePath - Base path for loading controller assets
+ * @param profilePriorities - Array of profile names in order of preference
+ * @returns Promise that resolves to the root entity of the controller model
+ */
 export async function createMotionController(
   xrInputSource: XRInputSource,
   basePath: string,
@@ -93,6 +139,11 @@ export async function createMotionController(
   return rootGroup;
 }
 
+/**
+ * Loads and adds a motion controller's 3D model to the scene
+ * @param motionController - The motion controller to add to the scene
+ * @returns Promise that resolves to the loaded asset
+ */
 async function addMotionControllerToScene(motionController: MotionController) {
   const asset = await Gltf2Importer.importFromUrl(motionController.assetUrl);
   addTouchPointDots(motionController, asset);
@@ -101,6 +152,12 @@ async function addMotionControllerToScene(motionController: MotionController) {
   return asset;
 }
 
+/**
+ * Updates all motion controllers' states based on current gamepad input
+ * @param timestamp - Current frame timestamp in microseconds
+ * @param xrFrame - Current WebXR frame
+ * @param viewerData - Current viewer position and orientation data
+ */
 export function updateGamePad(
   timestamp: number,
   xrFrame: XRFrame,
@@ -124,7 +181,16 @@ export function updateGamePad(
   // Other frame-loop stuff ...
 }
 
+/** Last processed timestamp for calculating delta time */
 let lastTimestamp = 0;
+
+/**
+ * Processes input from a specific component and updates viewer data accordingly
+ * @param component - The input component to process
+ * @param handed - The handedness of the controller (left/right)
+ * @param viewerData - Viewer data to update based on input
+ * @param timestamp - Current timestamp in microseconds
+ */
 function processInput(
   component: Component,
   handed: string,
@@ -165,7 +231,16 @@ function processInput(
   }
 }
 
+/** Shared scale vector for trigger input processing */
 const scaleVec3 = MutableVector3.one();
+
+/**
+ * Processes trigger input and updates viewer scale based on trigger pressure
+ * @param triggerComponent - The trigger component to process
+ * @param handed - The handedness of the controller (left/right)
+ * @param viewerData - Viewer data to update
+ * @param deltaSec - Time delta in seconds since last frame
+ */
 function processTriggerInput(
   triggerComponent: Component,
   handed: string,
@@ -208,6 +283,13 @@ function processTriggerInput(
   viewerData.viewerScale.copyComponents(scaleVec3);
 }
 
+/**
+ * Processes squeeze/grip input and logs the input state
+ * @param squeezeComponent - The squeeze component to process
+ * @param handed - The handedness of the controller (left/right)
+ * @param viewerData - Viewer data (currently unused)
+ * @param deltaSec - Time delta in seconds since last frame (currently unused)
+ */
 function processSqueezeInput(
   squeezeComponent: Component,
   handed: string,
@@ -224,6 +306,15 @@ function processSqueezeInput(
   }
 }
 
+/**
+ * Processes thumbstick input for navigation and rotation
+ * Right thumbstick controls Y movement and azimuth rotation
+ * Left thumbstick controls X/Z movement
+ * @param thumbstickComponent - The thumbstick component to process
+ * @param handed - The handedness of the controller (left/right)
+ * @param viewerData - Viewer data to update based on thumbstick input
+ * @param deltaSec - Time delta in seconds since last frame
+ */
 function processThumbstickInput(
   thumbstickComponent: Component,
   handed: string,
@@ -288,6 +379,13 @@ function processThumbstickInput(
   viewerData.viewerTranslate.add(deltaVector);
 }
 
+/**
+ * Processes button input and logs the button state
+ * @param buttonComponent - The button component to process
+ * @param handed - The handedness of the controller (left/right)
+ * @param viewerData - Viewer data (currently unused)
+ * @param deltaSec - Time delta in seconds since last frame (currently unused)
+ */
 function processButtonInput(
   buttonComponent: Component,
   handed: string,
@@ -318,6 +416,13 @@ function processButtonInput(
   }
 }
 
+/**
+ * Processes touchpad input for navigation (currently minimal implementation)
+ * @param thumbstick - The touchpad component to process
+ * @param handed - The handedness of the controller (left/right)
+ * @param viewerData - Viewer data (currently unused)
+ * @param deltaSec - Time delta in seconds since last frame (currently unused)
+ */
 function processTouchpadInput(
   thumbstick: Component,
   handed: string,
@@ -335,6 +440,11 @@ function processTouchpadInput(
   }
 }
 
+/**
+ * Adds visual touch point indicators to motion controller components
+ * @param motionController - The motion controller to add touch points to
+ * @param asset - The 3D asset of the controller
+ */
 function addTouchPointDots(motionController: MotionController, asset: any) {
   Object.values(motionController.components).forEach((component) => {
     if (component.touchPointNodeName) {
@@ -348,6 +458,12 @@ function addTouchPointDots(motionController: MotionController, asset: any) {
   });
 }
 
+/**
+ * Updates the visual state of a motion controller model based on component values
+ * Animates button presses, trigger pulls, thumbstick movements, etc.
+ * @param entity - The root entity containing the controller model
+ * @param motionController - The motion controller with current component states
+ */
 export function updateMotionControllerModel(entity: IEntity, motionController: MotionController) {
   // this codes are from https://immersive-web.github.io/webxr-input-profiles/packages/motion-controllers/#animating-components
 
@@ -393,6 +509,11 @@ export function updateMotionControllerModel(entity: IEntity, motionController: M
   });
 }
 
+/**
+ * Retrieves the motion controller associated with a specific XR input source
+ * @param xrInputSource - The XR input source to get the motion controller for
+ * @returns The motion controller if found, undefined otherwise
+ */
 export function getMotionController(xrInputSource: XRInputSource) {
   return motionControllers.get(xrInputSource);
 }
