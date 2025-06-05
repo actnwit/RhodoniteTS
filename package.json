@@ -81,7 +81,7 @@
     "tsc-watch": "^6.2.0",
     "tsup": "^8.4.0",
     "typedoc": "^0.26.3",
-    "typescript": "^5.5.2",
+    "typescript": "^5.8.3",
     "version-loader": "^0.1.0",
     "vitest": "^3.1.2",
     "vitest-puppeteer": "^11.0.3",

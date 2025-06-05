@@ -61,7 +61,7 @@ export class Buffer {
     this.__byteAlign = byteAlign;
 
     if (buffer instanceof Uint8Array) {
-      this.__raw = buffer.buffer;
+      this.__raw = buffer.buffer as ArrayBuffer;
       this.__byteOffset = buffer.byteOffset;
     } else {
       this.__raw = buffer;

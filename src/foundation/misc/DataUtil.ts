@@ -323,7 +323,7 @@ export class DataUtil {
     const byteLength = bufferViewJson.byteLength;
     let arrayBuffer: ArrayBuffer = buffer as ArrayBuffer;
     if (buffer instanceof Uint8Array) {
-      arrayBuffer = buffer.buffer;
+      arrayBuffer = buffer.buffer as ArrayBuffer;
       byteOffset += buffer.byteOffset;
     }
     const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
@@ -445,7 +445,7 @@ export class DataUtil {
     const byteLength = bufferViewJson.byteLength;
     let arrayBuffer: ArrayBuffer = buffer as ArrayBuffer;
     if (buffer instanceof Uint8Array) {
-      arrayBuffer = buffer.buffer;
+      arrayBuffer = buffer.buffer as ArrayBuffer;
       byteOffset += buffer.byteOffset;
     }
     const uint8BufferView = new Uint8Array(arrayBuffer, byteOffset, byteLength);
@@ -909,6 +909,6 @@ export class DataUtil {
    */
   static stringToBuffer(src: string): ArrayBuffer {
     const enc = new TextEncoder();
-    return enc.encode(src).buffer;
+    return enc.encode(src).buffer as ArrayBuffer;
   }
 }

@@ -216,5 +216,5 @@ export abstract class AbstractQuaternion implements IQuaternion {
    * Internal typed array storage for quaternion components [x, y, z, w].
    * @protected
    */
-  _v = new Float32Array();
+  _v = new Float32Array() as Float32Array;
 }

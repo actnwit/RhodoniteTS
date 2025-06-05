@@ -383,7 +383,7 @@ export class ModelConverter {
     for (const buffer of gltfModel.buffers) {
       const rnBuffer = new Buffer({
         byteLength: buffer.byteLength,
-        buffer: buffer.buffer!,
+        buffer: buffer.buffer!.buffer as ArrayBuffer,
         name: `gltf2Buffer_0_(${buffer.uri})`,
         byteAlign: 4,
       });
@@ -2073,12 +2073,12 @@ export class ModelConverter {
   }
 
   private static __rewrapWithTypedArray(
-    typedArrayClass: TypedArrayConstructor,
+    typedArrayClass: any,
     uint8Array: Uint8Array,
     byteOffset: Byte,
     length: Size
   ) {
-    return new typedArrayClass(uint8Array.buffer, byteOffset + uint8Array.byteOffset, length);
+    return new typedArrayClass(uint8Array.buffer as ArrayBuffer, byteOffset + uint8Array.byteOffset, length);
   }
 
   static _checkBytesPerComponent(accessor: RnM2Accessor | RnM2SparseIndices) {
@@ -2206,7 +2206,7 @@ export class ModelConverter {
       byteOffsetFromBuffer = 0;
     }
 
-    let float32Array = new Float32Array();
+    let float32Array = new Float32Array() as Float32Array;
     const numberArray: number[] = [];
 
     if (ModelConverter._isSystemLittleEndian()) {
@@ -2222,13 +2222,13 @@ export class ModelConverter {
         );
       } else if (dataViewMethod === 'getInt8') {
         typedDataArray = new Int8Array(
-          uint8Array,
+          uint8Array.buffer,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );
       } else if (dataViewMethod === 'getUint8') {
         typedDataArray = new Uint8Array(
-          uint8Array,
+          uint8Array.buffer,
           byteOffsetFromBuffer,
           byteLength / componentBytes
         );

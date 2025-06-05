@@ -418,12 +418,12 @@ export class KTX2TextureLoader {
           ] as KTX2GlobalDataBasisLZImageDesc;
 
           faceBuffer = new Uint8Array(
-            levelBuffer,
+            levelBuffer.buffer as ArrayBuffer,
             imageDesc.rgbSliceByteOffset,
             imageDesc.rgbSliceByteLength + imageDesc.alphaSliceByteLength
           );
         } else {
-          faceBuffer = new Uint8Array(levelBuffer, faceBufferByteOffset, levelBufferByteLength);
+          faceBuffer = new Uint8Array(levelBuffer.buffer, faceBufferByteOffset, levelBufferByteLength);
           faceBufferByteOffset += levelBufferByteLength;
         }
 
