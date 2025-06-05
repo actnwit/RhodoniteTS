@@ -42,6 +42,24 @@ import { TransformComponent } from '../foundation/components/Transform/Transform
 import { AnimationComponent } from '../foundation/components/Animation/AnimationComponent';
 import { Logger } from '../foundation/misc/Logger';
 
+/**
+ * Basic WebGPU rendering strategy implementation that handles mesh rendering,
+ * storage buffer management, and shader program setup for WebGPU-based rendering pipeline.
+ *
+ * This class provides a complete rendering solution using WebGPU API, including:
+ * - Storage buffer management for efficient GPU data transfer
+ * - Shader program compilation and setup
+ * - Morph target and blend shape handling
+ * - Camera and transform matrix updates
+ * - Render pass execution with proper primitive sorting
+ *
+ * @example
+ * ```typescript
+ * const strategy = WebGpuStrategyBasic.getInstance();
+ * strategy.prerender();
+ * strategy.common_$render(primitiveUids, renderPass, tickCount);
+ * ```
+ */
 export class WebGpuStrategyBasic implements CGAPIStrategy {
   private static __instance: WebGpuStrategyBasic;
   private __storageBufferUid: CGAPIResourceHandle = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -61,6 +79,12 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
 
   private constructor() {}
 
+  /**
+   * Gets the singleton instance of WebGpuStrategyBasic.
+   * Creates a new instance if none exists.
+   *
+   * @returns The singleton instance of WebGpuStrategyBasic
+   */
   static getInstance() {
     if (!this.__instance) {
       this.__instance = new WebGpuStrategyBasic();
@@ -68,6 +92,13 @@ export class WebGpuStrategyBasic implements CGAPIStrategy {
     return this.__instance;
   }
 
+  /**
+   * Generates vertex shader method definitions for storage buffer access.
+   * These methods provide standardized access to transform matrices, visibility flags,
+   * and morphing functionality in vertex shaders.
+   *
+   * @returns WGSL shader code containing helper functions for storage buffer access
+   */
   static getVertexShaderMethodDefinitions_storageBuffer() {
     return `
 fn get_worldMatrix(instanceId: u32) -> mat4x4<f32>
@@ -145,6 +176,16 @@ fn get_isBillboard(instanceId: u32) -> bool {
 `;
   }
 
+  /**
+   * Generates shader property accessor functions for materials and global data.
+   * Creates WGSL functions that can fetch property values from storage buffers
+   * based on shader semantics information.
+   *
+   * @param materialTypeName - The name of the material type
+   * @param info - Shader semantics information containing type and binding details
+   * @param isGlobalData - Whether this property belongs to global data or material-specific data
+   * @returns WGSL shader code for the property accessor function
+   */
   private static __getShaderProperty(
     materialTypeName: string,
     info: ShaderSemanticsInfo,
@@ -277,6 +318,15 @@ ${indexStr}
 `;
     return str;
   }
+
+  /**
+   * Calculates the memory offset of a shader property within storage buffers.
+   *
+   * @param isGlobalData - Whether to look in global data repository or material repository
+   * @param propertyName - The semantic name of the property
+   * @param materialTypeName - The material type name for material-specific properties
+   * @returns The byte offset of the property in the storage buffer, or -1 if not found
+   */
   private static getOffsetOfPropertyInShader(
     isGlobalData: boolean,
     propertyName: ShaderSemanticsName,
@@ -295,6 +345,13 @@ ${indexStr}
     }
   }
 
+  /**
+   * Loads and prepares a mesh component for rendering.
+   * Sets up vertex buffer objects (VBO) and vertex array objects (VAO) if not already done.
+   *
+   * @param meshComponent - The mesh component to load
+   * @returns True if the mesh was successfully loaded, false if the mesh is null
+   */
   $load(meshComponent: MeshComponent): boolean {
     const mesh = meshComponent.mesh;
     if (mesh == null) {
@@ -309,6 +366,10 @@ ${indexStr}
     return true;
   }
 
+  /**
+   * Performs common loading operations required for the WebGPU strategy.
+   * Initializes morph target arrays and updates blend shape storage buffers when needed.
+   */
   common_$load(): void {
     if (this.__uniformMorphOffsetsTypedArray == null) {
       this.__uniformMorphOffsetsTypedArray = new Uint32Array(
@@ -334,6 +395,12 @@ ${indexStr}
     }
   }
 
+  /**
+   * Sets up shader programs for all primitives in the given mesh component.
+   * Iterates through all primitives and ensures their materials have proper shader programs.
+   *
+   * @param meshComponent - The mesh component containing primitives to setup
+   */
   private __setupShaderProgramForMeshComponent(meshComponent: MeshComponent) {
     if (meshComponent.mesh == null) {
       MeshComponent.alertNoMeshSet(meshComponent);
@@ -348,6 +415,13 @@ ${indexStr}
     }
   }
 
+  /**
+   * Sets up a shader program for a specific material and primitive combination.
+   * Handles shader compilation errors by falling back to backup materials when necessary.
+   *
+   * @param material - The material to setup the shader for
+   * @param primitive - The primitive that will use this material
+   */
   private _setupShaderProgram(material: Material, primitive: Primitive) {
     if (material == null) {
       return;
@@ -378,8 +452,14 @@ ${indexStr}
   }
 
   /**
-   * setup shader program for the material in this WebGL strategy
-   * @param material - a material to setup shader program
+   * Sets up shader programs for materials using the WebGPU rendering strategy.
+   * This method orchestrates the shader compilation process by providing the necessary
+   * method definitions and property setters.
+   *
+   * @param material - The material to create shader programs for
+   * @param primitive - The primitive geometry that will use this material
+   * @param vertexShaderMethodDefinitions - WGSL code containing vertex shader helper methods
+   * @param propertySetter - Function to generate property accessor methods
    */
   public setupShaderForMaterial(
     material: Material,
@@ -390,11 +470,23 @@ ${indexStr}
     material._createProgramWebGpu(primitive, vertexShaderMethodDefinitions, propertySetter);
   }
 
+  /**
+   * Renders a render pass using pre-built render bundles for improved performance.
+   * Render bundles allow WebGPU to optimize command encoding by pre-recording draw commands.
+   *
+   * @param renderPass - The render pass to execute
+   * @returns True if the render bundle was successfully executed
+   */
   renderWithRenderBundle(renderPass: RenderPass): boolean {
     const webGpuResourceRepository = WebGpuResourceRepository.getInstance();
     return webGpuResourceRepository.executeRenderBundle(renderPass);
   }
 
+  /**
+   * Performs pre-rendering operations required before drawing.
+   * Updates storage buffers when components have been modified and handles morph target updates.
+   * This method should be called once per frame before any rendering operations.
+   */
   prerender(): void {
     if (
       AnimationComponent.isAnimating ||
@@ -420,6 +512,16 @@ ${indexStr}
       this.__lastBlendShapeComponentsUpdateCountForWeights = BlendShapeComponent.updateCount;
     }
   }
+
+  /**
+   * Main rendering method that draws all primitives in the specified render pass.
+   * Handles different primitive types (opaque, translucent, blend) with appropriate depth writing settings.
+   *
+   * @param primitiveUids - Array of primitive UIDs to render, sorted by rendering order
+   * @param renderPass - The render pass configuration containing rendering settings
+   * @param renderPassTickCount - Current tick count for animation and timing purposes
+   * @returns True if any primitives were successfully rendered
+   */
   common_$render(
     primitiveUids: PrimitiveUID[],
     renderPass: RenderPass,
@@ -484,6 +586,12 @@ ${indexStr}
     return renderedSomething;
   }
 
+  /**
+   * Renders primitives without using vertex/index buffers.
+   * This is used for special rendering modes like full-screen effects or procedural geometry.
+   *
+   * @param renderPass - The render pass containing the material and rendering configuration
+   */
   private __renderWithoutBuffers(renderPass: RenderPass) {
     const material = renderPass.material!;
     const primitive = renderPass._dummyPrimitiveForBufferLessRendering;
@@ -500,6 +608,15 @@ ${indexStr}
     webGpuResourceRepository.draw(primitive, material, renderPass, 0, true);
   }
 
+  /**
+   * Renders a single primitive with the specified material and render settings.
+   * Handles shader setup, uniform buffer updates, and the actual draw call.
+   *
+   * @param primitiveUid - Unique identifier of the primitive to render
+   * @param renderPass - Render pass containing rendering configuration
+   * @param zWrite - Whether to enable depth buffer writing
+   * @returns True if the primitive was successfully rendered
+   */
   renderInner(primitiveUid: PrimitiveUID, renderPass: RenderPass, zWrite: boolean) {
     if (primitiveUid === -1) {
       return false;
@@ -529,6 +646,11 @@ ${indexStr}
     return true;
   }
 
+  /**
+   * Creates or updates the main storage buffer containing all GPU instance data.
+   * This buffer holds transform matrices, material properties, and other per-instance data
+   * required for rendering all objects in the scene.
+   */
   private __createAndUpdateStorageBuffer() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
@@ -555,6 +677,10 @@ ${indexStr}
     }
   }
 
+  /**
+   * Updates only the camera-related portion of the storage buffer for performance optimization.
+   * Used when only camera properties have changed, avoiding unnecessary updates to transform data.
+   */
   private __createAndUpdateStorageBufferForCameraOnly() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
@@ -586,6 +712,10 @@ ${indexStr}
     }
   }
 
+  /**
+   * Creates or updates the storage buffer containing blend shape vertex data.
+   * This buffer holds morph target positions and other vertex attributes needed for blend shape animation.
+   */
   private __createOrUpdateStorageBlendShapeBuffer() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
 
@@ -635,6 +765,10 @@ ${indexStr}
     );
   }
 
+  /**
+   * Updates uniform buffers containing morph target weights for blend shape animation.
+   * Copies weight values from blend shape components to GPU-accessible uniform buffers.
+   */
   private __updateUniformMorph() {
     const memoryManager: MemoryManager = MemoryManager.getInstance();
     const blendShapeDataBuffer: Buffer | undefined = memoryManager.getBuffer(
@@ -665,6 +799,15 @@ ${indexStr}
     }
   }
 
+  /**
+   * Determines the appropriate camera component SID for the current rendering context.
+   * Handles both VR and non-VR rendering scenarios, including multi-view stereo rendering.
+   *
+   * @param renderPass - The current render pass
+   * @param displayIdx - Display index for stereo rendering (0 for left eye, 1 for right eye)
+   * @param isVRMainPass - Whether this is a VR main rendering pass
+   * @returns The component SID of the appropriate camera, or -1 if no camera is available
+   */
   private __getAppropriateCameraComponentSID(
     renderPass: RenderPass,
     displayIdx: 0 | 1,
