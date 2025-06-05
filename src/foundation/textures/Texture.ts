@@ -27,15 +27,26 @@ import { Logger } from '../misc/Logger';
 
 declare const BASIS: BASIS;
 
+/**
+ * Descriptor for loading image data to a specific mip level of a texture.
+ */
 export interface LoadImageToMipLevelDescriptor {
-  mipLevel: Index; // mip level to load
-  xOffset: Offset; // x offset in the texture to copy data
-  yOffset: Offset; // y offset in the texture to copy data
-  width: Size; // width in the texture to copy
-  height: Size; // height in the texture to copy
-  data: TypedArray; // image data in TypedArray
-  rowSizeByPixel: Size; // row size by pixel of the image data
-  type: ComponentTypeEnum; // component type of the image data
+  /** Mip level to load the image data to */
+  mipLevel: Index;
+  /** X offset in the texture to copy data */
+  xOffset: Offset;
+  /** Y offset in the texture to copy data */
+  yOffset: Offset;
+  /** Width in the texture to copy */
+  width: Size;
+  /** Height in the texture to copy */
+  height: Size;
+  /** Image data in TypedArray format */
+  data: TypedArray;
+  /** Row size by pixel of the image data */
+  rowSizeByPixel: Size;
+  /** Component type of the image data */
+  type: ComponentTypeEnum;
 }
 
 type FinalizationRegistryObject = {
@@ -43,8 +54,36 @@ type FinalizationRegistryObject = {
   uniqueName: string;
 };
 
+/**
+ * A 2D texture class that extends AbstractTexture and provides functionality for
+ * creating, loading, and managing textures from various sources including images,
+ * compressed formats (Basis, KTX2), and raw data.
+ *
+ * This class supports:
+ * - Loading textures from URLs, HTML image elements, and data URIs
+ * - Compressed texture formats (Basis Universal, KTX2)
+ * - Mipmap generation and management
+ * - Automatic memory management with finalization registry
+ * - Both WebGL and WebGPU backends
+ *
+ * @example
+ * ```typescript
+ * // Load texture from URL
+ * const texture = await Texture.loadFromUrl('path/to/image.jpg');
+ *
+ * // Create texture from image element
+ * const texture2 = new Texture();
+ * await texture2.generateTextureFromImage(imageElement);
+ *
+ * // Generate 1x1 solid color texture
+ * const whiteTexture = new Texture();
+ * await whiteTexture.generate1x1TextureFrom('rgba(255,255,255,1)');
+ * ```
+ */
 export class Texture extends AbstractTexture implements Disposable {
+  /** Whether to automatically detect transparency in loaded images */
   public autoDetectTransparency = false;
+
   private static __loadedBasisFunc = false;
   private static __basisLoadPromise?: Promise<void>;
   private static __BasisFile?: new (x: Uint8Array) => BasisFile;
@@ -64,15 +103,43 @@ export class Texture extends AbstractTexture implements Disposable {
       Texture.__deleteInternalTexture(texObj.textureResourceUid);
     });
 
+  /**
+   * Creates a new Texture instance.
+   */
   constructor() {
     super();
   }
 
+  /**
+   * Sets the texture resource UID and registers it for automatic cleanup.
+   * @param textureResourceUid - The texture resource handle from the graphics API
+   * @param uniqueName - Unique name for debugging and logging purposes
+   */
   private __setTextureResourceUid(textureResourceUid: CGAPIResourceHandle, uniqueName: string) {
     this._textureResourceUid = textureResourceUid;
     Texture.managedRegistry.register(this, { textureResourceUid, uniqueName }, this);
   }
 
+  /**
+   * Generates a texture from Basis Universal compressed data.
+   * Basis Universal is a supercompressed GPU texture codec that supports multiple formats.
+   *
+   * @param uint8Array - The Basis Universal compressed data
+   * @param options - Configuration options for texture generation
+   * @param options.level - Mip level (default: 0)
+   * @param options.internalFormat - Internal texture format (default: RGBA8)
+   * @param options.format - Pixel format (default: RGBA)
+   * @param options.type - Component type (default: UnsignedByte)
+   * @param options.generateMipmap - Whether to generate mipmaps (default: true)
+   * @returns Promise that resolves when texture is ready
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * const basisData = new Uint8Array(basisFileBuffer);
+   * await texture.generateTextureFromBasis(basisData);
+   * ```
+   */
   async generateTextureFromBasis(
     uint8Array: Uint8Array,
     options: {
@@ -115,6 +182,11 @@ export class Texture extends AbstractTexture implements Disposable {
     await Texture.__basisLoadPromise;
   }
 
+  /**
+   * Internal method to set up a Basis texture with the transcoder.
+   * @param uint8Array - The Basis Universal compressed data
+   * @param options - Texture generation options with defaults
+   */
   private __setBasisTexture(
     uint8Array: Uint8Array,
     {
@@ -151,6 +223,20 @@ export class Texture extends AbstractTexture implements Disposable {
     basisFile.delete();
   }
 
+  /**
+   * Generates a texture from KTX2 compressed data.
+   * KTX2 is a container format for GPU textures that supports various compression formats.
+   *
+   * @param uint8Array - The KTX2 compressed data
+   * @returns Promise that resolves when texture is ready
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * const ktx2Data = new Uint8Array(ktx2FileBuffer);
+   * await texture.generateTextureFromKTX2(ktx2Data);
+   * ```
+   */
   async generateTextureFromKTX2(uint8Array: Uint8Array) {
     this.__startedToLoad = true;
 
@@ -163,6 +249,25 @@ export class Texture extends AbstractTexture implements Disposable {
     );
   }
 
+  /**
+   * Generates a texture from an HTML image element.
+   *
+   * @param image - The HTML image element to create texture from
+   * @param options - Configuration options for texture generation
+   * @param options.level - Mip level (default: 0)
+   * @param options.internalFormat - Internal texture format (default: RGBA8)
+   * @param options.format - Pixel format (default: RGBA)
+   * @param options.type - Component type (default: UnsignedByte)
+   * @param options.generateMipmap - Whether to generate mipmaps (default: true)
+   * @returns Promise that resolves when texture is ready
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * const img = document.getElementById('myImage') as HTMLImageElement;
+   * await texture.generateTextureFromImage(img, { generateMipmap: false });
+   * ```
+   */
   async generateTextureFromImage(
     image: HTMLImageElement,
     {
@@ -211,6 +316,25 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__uri = image.src;
   }
 
+  /**
+   * Generates a texture by loading an image from a URL.
+   * Supports both regular URLs and data URIs. For external URLs, CORS is handled automatically.
+   *
+   * @param imageUri - The URL or data URI of the image to load
+   * @param options - Configuration options for texture generation
+   * @param options.level - Mip level (default: 0)
+   * @param options.internalFormat - Internal texture format (default: RGBA8)
+   * @param options.format - Pixel format (default: RGBA)
+   * @param options.type - Component type (default: UnsignedByte)
+   * @param options.generateMipmap - Whether to generate mipmaps (default: true)
+   * @returns Promise that resolves when texture is loaded and ready
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * await texture.generateTextureFromUrl('https://example.com/image.jpg');
+   * ```
+   */
   async generateTextureFromUrl(
     imageUri: string,
     {
@@ -273,6 +397,19 @@ export class Texture extends AbstractTexture implements Disposable {
     }) as Promise<void>;
   }
 
+  /**
+   * Generates a 1x1 pixel texture with a solid color.
+   * Useful for creating placeholder textures or solid color materials.
+   *
+   * @param rgbaStr - CSS color string in rgba format (default: 'rgba(255,255,255,1)')
+   * @returns Promise that resolves when texture is ready
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * await texture.generate1x1TextureFrom('rgba(255,0,0,1)'); // Red texture
+   * ```
+   */
   async generate1x1TextureFrom(rgbaStr = 'rgba(255,255,255,1)') {
     const canvas = document.createElement('canvas');
     canvas.width = 1;
@@ -304,6 +441,14 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__isTextureReady = true;
   }
 
+  /**
+   * Generates a sheen lookup table texture from embedded data URI.
+   * This is used for physically-based rendering (PBR) sheen calculations.
+   * Requires the PBR module to be loaded.
+   *
+   * @returns Promise that resolves when texture is ready
+   * @throws Error if PBR module is not available
+   */
   async generateSheenLutTextureFromDataUri() {
     const moduleName = 'pbr';
     const moduleManager = ModuleManager.getInstance();
@@ -329,6 +474,26 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__isTextureReady = true;
   }
 
+  /**
+   * Allocates an empty texture with specified dimensions and format.
+   * The texture can be filled with data later using loadImageToMipLevel.
+   *
+   * @param desc - Texture allocation descriptor
+   * @param desc.mipLevelCount - Number of mip levels (auto-calculated if not provided)
+   * @param desc.width - Texture width in pixels
+   * @param desc.height - Texture height in pixels
+   * @param desc.format - Texture format
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * texture.allocate({
+   *   width: 512,
+   *   height: 512,
+   *   format: TextureFormat.RGBA8
+   * });
+   * ```
+   */
   allocate(desc: {
     mipLevelCount?: Count;
     width: number;
@@ -359,6 +524,27 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__internalFormat = desc.format;
   }
 
+  /**
+   * Loads image data to a specific mip level of an allocated texture.
+   * The texture must be allocated first using the allocate method.
+   *
+   * @param desc - Descriptor containing image data and target location
+   * @returns Promise that resolves when data is loaded
+   *
+   * @example
+   * ```typescript
+   * await texture.loadImageToMipLevel({
+   *   mipLevel: 0,
+   *   xOffset: 0,
+   *   yOffset: 0,
+   *   width: 256,
+   *   height: 256,
+   *   data: imageData,
+   *   rowSizeByPixel: 256,
+   *   type: ComponentType.UnsignedByte
+   * });
+   * ```
+   */
   async loadImageToMipLevel(desc: LoadImageToMipLevelDescriptor) {
     const webGLResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
 
@@ -380,6 +566,26 @@ export class Texture extends AbstractTexture implements Disposable {
     }
   }
 
+  /**
+   * Generates a compressed texture from raw typed array data.
+   *
+   * @param typedArray - The compressed texture data
+   * @param width - Texture width in pixels
+   * @param height - Texture height in pixels
+   * @param compressionTextureType - Type of compression used
+   * @returns Promise that resolves when texture is ready
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * await texture.generateCompressedTextureFromTypedArray(
+   *   compressedData,
+   *   512,
+   *   512,
+   *   CompressionTextureType.S3TC_DXT1
+   * );
+   * ```
+   */
   async generateCompressedTextureFromTypedArray(
     typedArray: TypedArray,
     width: number,
@@ -411,6 +617,29 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__isTextureReady = true;
   }
 
+  /**
+   * Generates a compressed texture with mipmaps from an array of texture data.
+   * Each TextureData object represents a different mip level.
+   *
+   * @param textureDataArray - Array of texture data for different mip levels
+   * @param compressionTextureType - Type of compression used
+   * @returns Promise that resolves when texture is ready
+   * @throws Error if level 0 texture data is not found
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * const mipmapData = [
+   *   { level: 0, width: 512, height: 512, buffer: level0Data },
+   *   { level: 1, width: 256, height: 256, buffer: level1Data },
+   *   // ... more levels
+   * ];
+   * await texture.generateCompressedTextureWithMipmapFromTypedArray(
+   *   mipmapData,
+   *   CompressionTextureType.S3TC_DXT1
+   * );
+   * ```
+   */
   async generateCompressedTextureWithMipmapFromTypedArray(
     textureDataArray: TextureData[],
     compressionTextureType: CompressionTextureTypeEnum
@@ -439,7 +668,15 @@ export class Texture extends AbstractTexture implements Disposable {
   }
 
   /**
-   * Generate mipmaps for the texture.
+   * Generates mipmaps for the texture automatically.
+   * The texture must already be loaded and ready before calling this method.
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * await texture.generateTextureFromUrl('image.jpg', { generateMipmap: false });
+   * texture.generateMipmaps(); // Generate mipmaps manually
+   * ```
    */
   generateMipmaps() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
@@ -450,6 +687,22 @@ export class Texture extends AbstractTexture implements Disposable {
     );
   }
 
+  /**
+   * Imports an existing WebGL texture directly without copying data.
+   * This is useful for integrating with external WebGL code or libraries.
+   *
+   * @param webGLTexture - The WebGL texture object to import
+   * @param width - Texture width in pixels (default: 0)
+   * @param height - Texture height in pixels (default: 0)
+   *
+   * @example
+   * ```typescript
+   * const texture = new Texture();
+   * const webglTexture = gl.createTexture();
+   * // ... set up webglTexture
+   * texture.importWebGLTextureDirectly(webglTexture, 512, 512);
+   * ```
+   */
   importWebGLTextureDirectly(webGLTexture: WebGLTexture, width = 0, height = 0) {
     this.__width = width;
     this.__height = height;
@@ -460,6 +713,12 @@ export class Texture extends AbstractTexture implements Disposable {
     this.__isTextureReady = true;
   }
 
+  /**
+   * Destroys the 3D API resources associated with this texture.
+   * This releases GPU memory and invalidates the texture.
+   *
+   * @returns Always returns true
+   */
   destroy3DAPIResources() {
     Texture.__deleteInternalTexture(this._textureResourceUid);
     this._textureResourceUid = CGAPIResourceRepository.InvalidCGAPIResourceUid;
@@ -469,22 +728,56 @@ export class Texture extends AbstractTexture implements Disposable {
     return true;
   }
 
+  /**
+   * Internal method to delete a texture resource from the graphics API.
+   * @param textureResourceUid - The texture resource handle to delete
+   */
   private static __deleteInternalTexture(textureResourceUid: CGAPIResourceHandle) {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.deleteTexture(textureResourceUid);
   }
 
+  /**
+   * Symbol.dispose implementation for automatic resource cleanup.
+   * Called automatically when using 'using' declarations in TypeScript 5.2+.
+   */
   [Symbol.dispose]() {
     Logger.debug('[Symbol.dispose] is called');
     this.destroy();
   }
 
+  /**
+   * Destroys the texture and releases all associated resources.
+   * This includes GPU memory, finalization registry entries, and other cleanup.
+   * After calling this method, the texture should not be used.
+   */
   destroy() {
     this.destroy3DAPIResources();
     this.unregister();
     Texture.managedRegistry.unregister(this);
   }
 
+  /**
+   * Static factory method to create and load a texture from a URL.
+   * This is a convenience method that combines texture creation and loading.
+   *
+   * @param uri - The URL or data URI of the image to load
+   * @param options - Configuration options for texture generation
+   * @param options.level - Mip level (default: 0)
+   * @param options.internalFormat - Internal texture format (default: RGBA8)
+   * @param options.format - Pixel format (default: RGBA)
+   * @param options.type - Component type (default: UnsignedByte)
+   * @param options.generateMipmap - Whether to generate mipmaps (default: true)
+   * @returns Promise that resolves to the loaded texture
+   *
+   * @example
+   * ```typescript
+   * const texture = await Texture.loadFromUrl('https://example.com/image.jpg', {
+   *   generateMipmap: false,
+   *   format: PixelFormat.RGB
+   * });
+   * ```
+   */
   static async loadFromUrl(uri: string, {
       level = 0,
       internalFormat = TextureFormat.RGBA8,

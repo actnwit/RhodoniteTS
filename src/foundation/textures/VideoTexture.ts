@@ -7,6 +7,9 @@ import { Size } from '../../types/CommonTypes';
 import { DataUtil } from '../misc/DataUtil';
 import { TextureFormat } from '../definitions/TextureFormat';
 
+/**
+ * Configuration options for VideoTexture creation and processing.
+ */
 export type VideoTextureArguments = {
   level: number;
   internalFormat: PixelFormatEnum;
@@ -23,6 +26,18 @@ export type VideoTextureArguments = {
   playButtonDomElement?: HTMLElement;
 };
 
+/**
+ * A texture class that handles video content as texture data.
+ * Extends AbstractTexture to provide video-specific functionality including
+ * video loading, playback control, and real-time texture updates.
+ *
+ * @example
+ * ```typescript
+ * const videoTexture = new VideoTexture();
+ * await videoTexture.generateTextureFromUri('path/to/video.mp4');
+ * videoTexture.play();
+ * ```
+ */
 export class VideoTexture extends AbstractTexture {
   private __imageData?: ImageData;
   public autoResize = true;
@@ -31,10 +46,22 @@ export class VideoTexture extends AbstractTexture {
   private static __basisLoadPromise?: Promise<void>;
   #htmlVideoElement?: HTMLVideoElement;
 
+  /**
+   * Creates a new VideoTexture instance.
+   */
   constructor() {
     super();
   }
 
+  /**
+   * Creates a resized canvas from an image, maintaining aspect ratio and ensuring power-of-two dimensions.
+   * Optionally detects transparency in the image data.
+   *
+   * @param image - The source image to resize
+   * @param maxSize - Maximum size constraint for the output canvas
+   * @returns A canvas element containing the resized image
+   * @private
+   */
   private __getResizedCanvas(image: HTMLImageElement, maxSize: Size) {
     const canvas = document.createElement('canvas');
     const potWidth = DataUtil.getNearestPowerOfTwo(image.width);
@@ -73,6 +100,28 @@ export class VideoTexture extends AbstractTexture {
     return canvas;
   }
 
+  /**
+   * Generates a texture from an existing HTMLVideoElement.
+   * Sets up the video element for playback and creates the corresponding WebGL texture.
+   *
+   * @param video - The HTMLVideoElement to use as texture source
+   * @param options - Configuration options for texture generation
+   * @param options.level - Mipmap level (default: 0)
+   * @param options.internalFormat - Internal pixel format (default: RGBA8)
+   * @param options.format - Pixel format (default: RGBA)
+   * @param options.type - Component type (default: UnsignedByte)
+   * @param options.generateMipmap - Whether to generate mipmaps (default: false)
+   * @param options.mutedAutoPlay - Whether to enable muted autoplay (default: true)
+   *
+   * @example
+   * ```typescript
+   * const video = document.getElementById('myVideo') as HTMLVideoElement;
+   * await videoTexture.generateTextureFromVideo(video, {
+   *   generateMipmap: true,
+   *   mutedAutoPlay: false
+   * });
+   * ```
+   */
   async generateTextureFromVideo(
     video: HTMLVideoElement,
     {
@@ -112,6 +161,31 @@ export class VideoTexture extends AbstractTexture {
     this.__uri = video.src;
   }
 
+  /**
+   * Generates a texture from a video file URI.
+   * Creates a video element, loads the specified video, and sets up texture generation.
+   * Supports both automatic playback and manual playback via a play button.
+   *
+   * @param videoUri - URI of the video file to load
+   * @param options - Configuration options for texture generation
+   * @param options.level - Mipmap level (default: 0)
+   * @param options.internalFormat - Internal pixel format (default: RGBA8)
+   * @param options.format - Pixel format (default: RGBA)
+   * @param options.type - Component type (default: UnsignedByte)
+   * @param options.generateMipmap - Whether to generate mipmaps (default: false)
+   * @param options.mutedAutoPlay - Whether to enable muted autoplay (default: true)
+   * @param options.playButtonDomElement - Optional button element to trigger manual playback
+   * @returns Promise that resolves when the texture is ready
+   *
+   * @example
+   * ```typescript
+   * const playButton = document.getElementById('playBtn');
+   * await videoTexture.generateTextureFromUri('video.mp4', {
+   *   mutedAutoPlay: false,
+   *   playButtonDomElement: playButton
+   * });
+   * ```
+   */
   async generateTextureFromUri(
     videoUri: string,
     {
@@ -191,6 +265,21 @@ export class VideoTexture extends AbstractTexture {
     }) as Promise<void>;
   }
 
+  /**
+   * Updates the texture with the current video frame.
+   * Should be called regularly (e.g., in a render loop) to keep the texture
+   * synchronized with the video playback.
+   *
+   * @example
+   * ```typescript
+   * // In render loop
+   * function render() {
+   *   videoTexture.updateTexture();
+   *   // ... other rendering code
+   *   requestAnimationFrame(render);
+   * }
+   * ```
+   */
   updateTexture() {
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
     if (this.__isTextureReady && this.#htmlVideoElement) {
@@ -206,6 +295,22 @@ export class VideoTexture extends AbstractTexture {
     }
   }
 
+  /**
+   * Retrieves the pixel data of the current video frame.
+   * Useful for image processing or analysis of video content.
+   *
+   * @returns A tuple containing [pixelData, width, height] where pixelData is a Uint8Array
+   *          of RGBA values, or [undefined, width, height] if texture is not ready
+   *
+   * @example
+   * ```typescript
+   * const [pixels, width, height] = videoTexture.getCurrentFramePixelData();
+   * if (pixels) {
+   *   // Process pixel data
+   *   console.log(`Frame size: ${width}x${height}, pixels: ${pixels.length}`);
+   * }
+   * ```
+   */
   getCurrentFramePixelData() {
     let pixel: Uint8Array | undefined = undefined;
     const webGLResourceRepository = CGAPIResourceRepository.getWebGLResourceRepository();
@@ -221,21 +326,58 @@ export class VideoTexture extends AbstractTexture {
     return [pixel, this.width, this.height];
   }
 
+  /**
+   * Sets the playback rate of the video.
+   *
+   * @param value - Playback rate multiplier (1.0 = normal speed, 2.0 = double speed, 0.5 = half speed)
+   *
+   * @example
+   * ```typescript
+   * videoTexture.playbackRate = 2.0; // Play at double speed
+   * ```
+   */
   set playbackRate(value) {
     if (this.#htmlVideoElement) {
       this.#htmlVideoElement.playbackRate = value;
     }
   }
 
+  /**
+   * Gets the current playback rate of the video.
+   *
+   * @returns The current playback rate, or 1 if no video element is available
+   *
+   * @example
+   * ```typescript
+   * const currentRate = videoTexture.playbackRate;
+   * console.log(`Current playback rate: ${currentRate}`);
+   * ```
+   */
   get playbackRate() {
     const playbackRate = this.#htmlVideoElement?.playbackRate;
     return playbackRate ?? 1;
   }
 
+  /**
+   * Starts or resumes video playback.
+   *
+   * @example
+   * ```typescript
+   * videoTexture.play();
+   * ```
+   */
   play() {
     this.#htmlVideoElement?.play();
   }
 
+  /**
+   * Pauses video playback.
+   *
+   * @example
+   * ```typescript
+   * videoTexture.pause();
+   * ```
+   */
   pause() {
     this.#htmlVideoElement!.pause();
   }
