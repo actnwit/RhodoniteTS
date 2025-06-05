@@ -9,6 +9,11 @@ import { RenderTargetTextureCube } from '../textures/RenderTargetTextureCube';
 import { SystemState } from '../system/SystemState';
 import { ProcessApproach } from '../definitions/ProcessApproach';
 
+/**
+ * FrameBuffer class represents a framebuffer object that manages render targets
+ * for off-screen rendering operations. It handles color, depth, and stencil attachments
+ * and provides methods to configure and manage the framebuffer state.
+ */
 export class FrameBuffer extends RnObject {
   private __colorAttachments: Array<IRenderable> = [];
   private __depthAttachment?: IRenderable;
@@ -19,30 +24,58 @@ export class FrameBuffer extends RnObject {
   public height: Size = 0;
   private __colorAttachmentMap: Map<RenderBufferTargetEnum, IRenderable> = new Map();
 
+  /**
+   * Creates a new FrameBuffer instance.
+   */
   constructor() {
     super();
   }
 
+  /**
+   * Gets the render buffer targets for all color attachments.
+   * @returns Array of render buffer target enums for color attachments
+   */
   get colorAttachmentsRenderBufferTargets() {
     return Array.from(this.__colorAttachmentMap.keys());
   }
 
+  /**
+   * Gets all color attachments as an array of renderable objects.
+   * @returns Array of color attachment renderables
+   */
   get colorAttachments() {
     return this.__colorAttachments;
   }
 
+  /**
+   * Gets the depth attachment if one is set.
+   * @returns The depth attachment renderable or undefined
+   */
   get depthAttachment() {
     return this.__depthAttachment;
   }
 
+  /**
+   * Gets the stencil attachment if one is set.
+   * @returns The stencil attachment renderable or undefined
+   */
   get stencilAttachment() {
     return this.__stencilAttachment;
   }
 
+  /**
+   * Gets the depth-stencil attachment if one is set.
+   * @returns The depth-stencil attachment renderable or undefined
+   */
   get depthStencilAttachment() {
     return this.__depthStencilAttachment;
   }
 
+  /**
+   * Gets the render target texture attached to the specified color attachment index.
+   * @param index - The color attachment index
+   * @returns The render target texture or undefined if not found or not a render target texture
+   */
   getColorAttachedRenderTargetTexture(index: Index): RenderTargetTexture | undefined {
     if (
       this.__colorAttachments[index] == null ||
@@ -58,6 +91,10 @@ export class FrameBuffer extends RnObject {
     }
   }
 
+  /**
+   * Gets the render target texture attached as the depth attachment.
+   * @returns The depth render target texture or undefined if not found or not a render target texture
+   */
   getDepthAttachedRenderTargetTexture(): RenderTargetTexture | undefined {
     if (
       this.__depthAttachment instanceof RenderTargetTexture ||
@@ -70,6 +107,12 @@ export class FrameBuffer extends RnObject {
     }
   }
 
+  /**
+   * Creates and initializes the framebuffer with the specified dimensions.
+   * @param width - The width of the framebuffer
+   * @param height - The height of the framebuffer
+   * @returns The CG API resource handle for the created framebuffer
+   */
   create(width: Size, height: Size) {
     this.width = width;
     this.height = height;
@@ -79,10 +122,20 @@ export class FrameBuffer extends RnObject {
     return this.cgApiResourceUid;
   }
 
+  /**
+   * Gets the unique identifier for this framebuffer.
+   * @returns The framebuffer's CG API resource handle
+   */
   get framebufferUID() {
     return this.cgApiResourceUid;
   }
 
+  /**
+   * Sets a color attachment at the specified index.
+   * @param index - The color attachment index
+   * @param renderable - The renderable object to attach
+   * @returns True if the attachment was successful, false if dimensions don't match
+   */
   setColorAttachmentAt(index: Index, renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
@@ -97,6 +150,14 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  /**
+   * Sets a color attachment layer at the specified index for array textures.
+   * @param index - The color attachment index
+   * @param renderable - The renderable object to attach
+   * @param layerIndex - The layer index within the array texture
+   * @param mipLevel - The mip level to attach
+   * @returns True if the attachment was successful, false if dimensions don't match
+   */
   setColorAttachmentLayerAt(
     index: Index,
     renderable: IRenderable,
@@ -128,6 +189,14 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  /**
+   * Sets a color attachment for a specific face of a cube texture.
+   * @param attachmentIndex - The color attachment index
+   * @param faceIndex - The cube face index (0-5)
+   * @param mipLevel - The mip level to attach
+   * @param renderable - The cube texture renderable to attach
+   * @returns True if the attachment was successful, false if dimensions don't match
+   */
   setColorAttachmentCubeAt(
     attachmentIndex: Index,
     faceIndex: Index,
@@ -155,6 +224,11 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  /**
+   * Sets the depth attachment for this framebuffer.
+   * @param renderable - The renderable object to use as depth attachment
+   * @returns True if the attachment was successful, false if dimensions don't match
+   */
   setDepthAttachment(renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
@@ -167,6 +241,11 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  /**
+   * Sets the stencil attachment for this framebuffer.
+   * @param renderable - The renderable object to use as stencil attachment
+   * @returns True if the attachment was successful, false if dimensions don't match
+   */
   setStencilAttachment(renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
@@ -179,6 +258,11 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  /**
+   * Sets the combined depth-stencil attachment for this framebuffer.
+   * @param renderable - The renderable object to use as depth-stencil attachment
+   * @returns True if the attachment was successful, false if dimensions don't match
+   */
   setDepthStencilAttachment(renderable: IRenderable) {
     if (renderable.width !== this.width || renderable.height !== this.height) {
       return false;
@@ -191,6 +275,12 @@ export class FrameBuffer extends RnObject {
     return true;
   }
 
+  /**
+   * Resizes the framebuffer and all its attachments to the specified dimensions.
+   * This method destroys the current framebuffer and recreates it with new dimensions.
+   * @param width - The new width
+   * @param height - The new height
+   */
   resize(width: Size, height: Size) {
     // this.destroy3DAPIResources();
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
@@ -220,6 +310,11 @@ export class FrameBuffer extends RnObject {
     }
   }
 
+  /**
+   * Destroys all 3D API resources associated with this framebuffer and its attachments.
+   * This includes the framebuffer object itself and all attached render targets.
+   * After calling this method, the framebuffer is no longer usable until recreated.
+   */
   destroy3DAPIResources() {
     const cgApiResourceRepository = CGAPIResourceRepository.getCgApiResourceRepository();
     cgApiResourceRepository.deleteFrameBufferObject(this.cgApiResourceUid);
@@ -248,6 +343,11 @@ export class FrameBuffer extends RnObject {
     this.__colorAttachmentMap = new Map();
   }
 
+  /**
+   * Finds the index of the specified renderable in the color attachments array.
+   * @param renderable - The renderable object to search for
+   * @returns The index of the renderable in color attachments, or -1 if not found
+   */
   whichColorAttachment(renderable: IRenderable) {
     return this.__colorAttachments.indexOf(renderable);
   }
