@@ -29,6 +29,13 @@ let lastCullFaceBack: boolean = true;
 let lastAlphaToCoverage: boolean = false;
 let lastColorWriteMask: boolean[] = [true, true, true, true];
 
+/**
+ * Sets WebGL rendering parameters for the given material.
+ * This includes culling, blending, alpha-to-coverage, and color write mask settings.
+ *
+ * @param material - The material containing rendering parameters to apply
+ * @param gl - The WebGL rendering context
+ */
 function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
   setCull(material, gl);
   setBlendSettings(material, gl);
@@ -36,6 +43,13 @@ function setWebGLParameters(material: Material, gl: WebGLRenderingContext) {
   setColorWriteMask(material, gl);
 }
 
+/**
+ * Configures face culling settings for the WebGL context based on material properties.
+ * Only updates WebGL state when values differ from the last set values to optimize performance.
+ *
+ * @param material - The material containing culling configuration
+ * @param gl - The WebGL rendering context
+ */
 function setCull(material: Material, gl: WebGLRenderingContext) {
   const cullFace = material.cullFace;
   const cullFrontFaceCCW = material.cullFrontFaceCCW;
@@ -68,6 +82,13 @@ function setCull(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
+/**
+ * Configures blending settings for the WebGL context based on material properties.
+ * Handles enabling/disabling blending and setting blend equation and function parameters.
+ *
+ * @param material - The material containing blending configuration
+ * @param gl - The WebGL rendering context
+ */
 function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   const isBlendMode = material.isBlend();
   if (lastIsTransparentMode !== isBlendMode) {
@@ -95,6 +116,14 @@ function setBlendSettings(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
+/**
+ * Sets the blend equation mode for RGB and alpha channels separately.
+ * Only updates WebGL state when values differ from previously set values.
+ *
+ * @param blendEquationMode - The blend equation mode for RGB channels
+ * @param blendEquationModeAlpha - The blend equation mode for alpha channel
+ * @param gl - The WebGL rendering context
+ */
 function setBlendEquationMode(
   blendEquationMode: number,
   blendEquationModeAlpha: number,
@@ -111,12 +140,29 @@ function setBlendEquationMode(
   }
 }
 
+/**
+ * Checks if the current blend equation parameters differ from the last set values.
+ *
+ * @param equationMode - The blend equation mode for RGB channels
+ * @param equationModeAlpha - The blend equation mode for alpha channel
+ * @returns True if parameters differ from last set values, false otherwise
+ */
 function differentWithLastBlendEquation(equationMode: number, equationModeAlpha: number) {
   const result =
     lastBlendEquationMode !== equationMode || lastBlendEquationModeAlpha !== equationModeAlpha;
   return result;
 }
 
+/**
+ * Sets the blend function source and destination factors for RGB and alpha channels.
+ * Only updates WebGL state when values differ from previously set values.
+ *
+ * @param blendFuncSrcFactor - Source factor for RGB channels
+ * @param blendFuncDstFactor - Destination factor for RGB channels
+ * @param blendFuncAlphaSrcFactor - Source factor for alpha channel
+ * @param blendFuncAlphaDstFactor - Destination factor for alpha channel
+ * @param gl - The WebGL rendering context
+ */
 function setBlendFuncSrcFactor(
   blendFuncSrcFactor: number,
   blendFuncDstFactor: number,
@@ -144,6 +190,15 @@ function setBlendFuncSrcFactor(
   }
 }
 
+/**
+ * Checks if the current blend function parameters differ from the last set values.
+ *
+ * @param srcFactor - Source factor for RGB channels
+ * @param dstFactor - Destination factor for RGB channels
+ * @param alphaSrcFactor - Source factor for alpha channel
+ * @param alphaDstFactor - Destination factor for alpha channel
+ * @returns True if parameters differ from last set values, false otherwise
+ */
 function differentWithLastBlendFuncFactor(
   srcFactor: number,
   dstFactor: number,
@@ -158,6 +213,13 @@ function differentWithLastBlendFuncFactor(
   return result;
 }
 
+/**
+ * Configures alpha-to-coverage multisampling setting based on material properties.
+ * Only updates WebGL state when the value differs from the last set value.
+ *
+ * @param material - The material containing alpha-to-coverage configuration
+ * @param gl - The WebGL rendering context
+ */
 function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
   const alphaToCoverage = material.alphaToCoverage;
   if (alphaToCoverage !== lastAlphaToCoverage) {
@@ -170,6 +232,13 @@ function setAlphaToCoverage(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
+/**
+ * Sets the color write mask to control which color channels are written to the framebuffer.
+ * Only updates WebGL state when values differ from previously set values.
+ *
+ * @param material - The material containing color write mask configuration
+ * @param gl - The WebGL rendering context
+ */
 function setColorWriteMask(material: Material, gl: WebGLRenderingContext) {
   const colorWriteMask = material.colorWriteMask;
   if (
@@ -183,6 +252,13 @@ function setColorWriteMask(material: Material, gl: WebGLRenderingContext) {
   }
 }
 
+/**
+ * Gets the viewport configuration for the given render pass.
+ * If the render pass doesn't specify a viewport, returns the default viewport from the WebGL context.
+ *
+ * @param renderPass - The render pass to get viewport for
+ * @returns The viewport as a Vector4 containing [x, y, width, height]
+ */
 function getViewport(renderPass: RenderPass) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   let viewport = renderPass.getViewport() as Vector4;
@@ -192,6 +268,13 @@ function getViewport(renderPass: RenderPass) {
   return viewport!;
 }
 
+/**
+ * Sets the viewport for VR rendering based on the specified display index.
+ * Only applies viewport changes when in WebXR mode.
+ *
+ * @param renderPass - The render pass being processed
+ * @param displayIdx - The index of the display/eye (0 for left eye, 1 for right eye)
+ */
 function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   const webglResourceRepository: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
@@ -201,6 +284,15 @@ function setVRViewport(renderPass: RenderPass, displayIdx: Index) {
   }
 }
 
+/**
+ * Determines the number of displays/eyes to render for based on VR mode and configuration.
+ * Returns 1 for non-VR mode, multiview VR, or non-main VR passes.
+ * Returns 2 for standard stereo VR rendering on main passes.
+ *
+ * @param isVRMainPass - Whether this is a main VR rendering pass
+ * @param webxrSystem - The WebXR system instance
+ * @returns 1 or 2 depending on the rendering configuration
+ */
 function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2 {
   if (webxrSystem.isWebXRMode) {
     if (webxrSystem.isMultiView()) {
@@ -215,6 +307,13 @@ function getDisplayCount(isVRMainPass: boolean, webxrSystem: WebXRSystem): 1 | 2
   }
 }
 
+/**
+ * Determines if the given render pass is a VR main rendering pass.
+ * A VR main pass is one that renders to VR displays when WebXR mode is active.
+ *
+ * @param renderPass - The render pass to check
+ * @returns True if this is a VR main pass, false otherwise
+ */
 function isVrMainPass(renderPass: RenderPass) {
   const rnXRModule = ModuleManager.getInstance().getModule('xr') as RnXR;
   const isVRMainPass =
@@ -222,6 +321,12 @@ function isVrMainPass(renderPass: RenderPass) {
   return isVRMainPass;
 }
 
+/**
+ * Returns shader semantics information for point sprite rendering.
+ * Provides configuration for point size and distance attenuation parameters.
+ *
+ * @returns Array of shader semantic information objects for point sprites
+ */
 function getPointSpriteShaderSemanticsInfoArray() {
   return [
     {
@@ -247,6 +352,15 @@ function getPointSpriteShaderSemanticsInfoArray() {
   ];
 }
 
+/**
+ * Sets up and compiles shader programs for the given material and primitive.
+ * Handles shader compilation errors by backing up and restoring valid materials.
+ * If shader compilation fails, attempts to restore from a backup and retry.
+ *
+ * @param material - The material requiring shader setup
+ * @param primitive - The primitive that will use the material
+ * @param webglStrategy - The WebGL strategy for shader compilation
+ */
 export function setupShaderProgram(
   material: Material,
   primitive: Primitive,
@@ -272,6 +386,11 @@ export function setupShaderProgram(
   }
 }
 
+/**
+ * Common WebGL strategy methods for rendering operations.
+ * Provides utilities for WebGL parameter management, VR rendering support,
+ * and shader semantics configuration.
+ */
 export default Object.freeze({
   setWebGLParameters,
   setVRViewport,
