@@ -10,11 +10,23 @@ import { Socket, SocketDefaultValue } from '../../foundation/materials/core/Sock
 import { AbstractShaderNode } from '../../foundation/materials/core/AbstractShaderNode';
 import morphVariablesGLSL from '../shaderity_shaders/common/morphVariables.glsl';
 
+/**
+ * Abstract base class that provides common shader functionality for both WebGL and WebGPU rendering approaches.
+ * This class handles shader code generation, vertex/fragment shader prerequisites, and cross-platform compatibility
+ * between WebGL and WebGPU shader languages (GLSL and WGSL).
+ */
 export abstract class CommonShaderPart {
   static __instance: CommonShaderPart;
   __webglResourceRepository?: WebGLResourceRepository = WebGLResourceRepository.getInstance();
   constructor() {}
 
+  /**
+   * Generates the main function beginning code for vertex or fragment shaders.
+   * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
+   *
+   * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
+   * @returns The shader code string for the main function beginning
+   */
   static getMainBegin(isVertexStage: boolean) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
@@ -44,6 +56,13 @@ void main() {
     }
   }
 
+  /**
+   * Generates the main function ending code for vertex or fragment shaders.
+   * Handles differences between WebGL (GLSL) and WebGPU (WGSL) shader languages.
+   *
+   * @param isVertexStage - True if generating code for vertex shader, false for fragment shader
+   * @returns The shader code string for the main function ending
+   */
   static getMainEnd(isVertexStage: boolean) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       if (isVertexStage) {
@@ -64,6 +83,13 @@ void main() {
     }
   }
 
+  /**
+   * Generates vertex shader prerequisites including definitions, vertex inputs, and uniform declarations.
+   * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
+   *
+   * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
+   * @returns The complete vertex shader prerequisites code string
+   */
   static getVertexPrerequisites(shaderNodes: AbstractShaderNode[]) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const varyingVariables = CommonShaderPart.__makeVaryingVariablesWGSL(shaderNodes);
@@ -115,6 +141,14 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     }
   }
 
+  /**
+   * Creates varying variables declaration string for WebGPU shaders.
+   * Analyzes shader node connections to determine which variables need to be passed from vertex to fragment stage.
+   *
+   * @param shaderNodes - Array of shader nodes to analyze for varying variables
+   * @returns WGSL varying variables declaration string
+   * @private
+   */
   private static __makeVaryingVariablesWGSL(shaderNodes: AbstractShaderNode[]) {
     const varyings: {
       type: string;
@@ -155,6 +189,13 @@ uniform bool u_vertexAttributesExistenceArray[${VertexAttribute.AttributeTypeNum
     return varyingVariables;
   }
 
+  /**
+   * Generates fragment/pixel shader prerequisites including definitions and varying variable declarations.
+   * Creates appropriate code for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
+   *
+   * @param shaderNodes - Array of shader nodes used to generate varying variables for WebGPU
+   * @returns The complete fragment shader prerequisites code string
+   */
   static getPixelPrerequisites(shaderNodes: AbstractShaderNode[]) {
     if (SystemState.currentProcessApproach === ProcessApproach.WebGPU) {
       const varyingVariables = CommonShaderPart.__makeVaryingVariablesWGSL(shaderNodes);
@@ -190,10 +231,24 @@ struct VertexOutput {
     }
   }
 
+  /**
+   * Generates the main prerequisites section placeholder for shader code.
+   * This is used by the shaderity system to inject additional prerequisites.
+   *
+   * @returns The main prerequisites placeholder string
+   */
   static getMainPrerequisites() {
     return `/* shaderity: @{mainPrerequisites} */`;
   }
 
+  /**
+   * Generates variable assignment statement with proper type declaration.
+   * Creates appropriate syntax for both WebGL (GLSL) and WebGPU (WGSL) based on the current process approach.
+   *
+   * @param varName - The name of the variable to declare
+   * @param inputSocket - The socket containing type and default value information
+   * @returns The variable assignment statement string
+   */
   static getAssignmentStatement(
     varName: string,
     inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>
@@ -215,6 +270,15 @@ struct VertexOutput {
     }
   }
 
+  /**
+   * Generates varying variable assignment statement for fragment/pixel shaders.
+   * Creates code to read varying variables passed from vertex shader with proper type declaration.
+   *
+   * @param varName - The name of the variable to declare
+   * @param inputSocket - The socket containing type information
+   * @param inputNode - The shader node that provides the varying variable
+   * @returns The varying variable assignment statement string for fragment shader
+   */
   static getAssignmentVaryingStatementInPixelShader(
     varName: string,
     inputSocket: Socket<string, CompositionTypeEnum, ComponentTypeEnum, SocketDefaultValue>,
@@ -231,6 +295,15 @@ struct VertexOutput {
     }
   }
 
+  /**
+   * Generates varying variable assignment statement for vertex shaders.
+   * Creates code to write varying variables that will be passed to fragment shader.
+   *
+   * @param inputNode - The shader node that provides the varying variable
+   * @param varNames - Array of variable names to assign
+   * @param j - Index of the current variable in the varNames array
+   * @returns The varying variable assignment statement string for vertex shader
+   */
   static getAssignmentVaryingStatementInVertexShader(
     inputNode: AbstractShaderNode,
     varNames: string[],
@@ -243,9 +316,43 @@ struct VertexOutput {
     }
   }
 
+  /**
+   * Gets the attribute names used by this shader part.
+   * Must be implemented by concrete subclasses to define which vertex attributes are used.
+   *
+   * @returns Object containing attribute name mappings
+   */
   abstract get attributeNames(): AttributeNames;
+
+  /**
+   * Gets the vertex attribute semantics used by this shader part.
+   * Must be implemented by concrete subclasses to define the semantic meaning of each attribute.
+   *
+   * @returns Array of vertex attribute enums defining the semantics
+   */
   abstract get attributeSemantics(): Array<VertexAttributeEnum>;
+
+  /**
+   * Gets the composition types for each vertex attribute used by this shader part.
+   * Must be implemented by concrete subclasses to define the data composition (scalar, vec2, vec3, etc.).
+   *
+   * @returns Array of composition type enums defining the data structure
+   */
   abstract get attributeCompositions(): Array<CompositionTypeEnum>;
+
+  /**
+   * Gets the vertex shader definitions code.
+   * Must be implemented by concrete subclasses to provide shader-specific definitions.
+   *
+   * @returns Vertex shader definitions code string
+   */
   abstract get vertexShaderDefinitions(): string;
+
+  /**
+   * Gets the pixel/fragment shader definitions code.
+   * Must be implemented by concrete subclasses to provide shader-specific definitions.
+   *
+   * @returns Fragment shader definitions code string
+   */
   abstract get pixelShaderDefinitions(): string;
 }
